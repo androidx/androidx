@@ -17,12 +17,15 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 /**
  * A callback object for tracking the progress of a capture request submitted to the camera device.
  *
  * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public abstract class CameraCaptureCallback {
 
     /**

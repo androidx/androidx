@@ -73,23 +73,37 @@ public final class Exif {
     private static final String MILES_PER_HOUR = "M";
     private static final String KNOTS = "N";
 
-    private final ExifInterface exifInterface;
+    private final ExifInterface mExifInterface;
 
     // When true, avoid saving any time. This is a privacy issue.
-    private boolean removeTimestamp = false;
+    private boolean mRemoveTimestamp = false;
 
     private Exif(ExifInterface exifInterface) {
-        this.exifInterface = exifInterface;
+        mExifInterface = exifInterface;
     }
 
+    /**
+     * Returns an Exif from the exif data contained in the file.
+     *
+     * @param file the file to read exif data from
+     */
     public static Exif createFromFile(File file) throws IOException {
         return createFromFileString(file.toString());
     }
 
+    /**
+     * Returns an Exif from the exif data contained in the file at the filePath
+     *
+     * @param filePath the path to the file to read exif data from
+     */
     public static Exif createFromFileString(String filePath) throws IOException {
         return new Exif(new ExifInterface(filePath));
     }
 
+    /**
+     * Returns an Exif from the exif data contain in the input stream.
+     * @param is the input stream to read exif data from
+     */
     public static Exif createFromInputStream(InputStream is) throws IOException {
         return new Exif(new ExifInterface(is));
     }
@@ -112,10 +126,10 @@ public final class Exif {
 
     /** Persists changes to disc. */
     public void save() throws IOException {
-        if (!removeTimestamp) {
+        if (!mRemoveTimestamp) {
             attachLastModifiedTimestamp();
         }
-        exifInterface.saveAttributes();
+        mExifInterface.saveAttributes();
     }
 
     @Override
@@ -136,27 +150,28 @@ public final class Exif {
     }
 
     private int getOrientation() {
-        return exifInterface.getAttributeInt(
+        return mExifInterface.getAttributeInt(
                 ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
     }
 
     /** Returns the width of the photo in pixels. */
     public int getWidth() {
-        return exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0);
+        return mExifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0);
     }
 
     /** Returns the height of the photo in pixels. */
     public int getHeight() {
-        return exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0);
+        return mExifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0);
     }
 
     @Nullable
     public String getDescription() {
-        return exifInterface.getAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION);
+        return mExifInterface.getAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION);
     }
 
+    /** Sets the description for the exif. */
     public void setDescription(@Nullable String description) {
-        exifInterface.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, description);
+        mExifInterface.setAttribute(ExifInterface.TAG_IMAGE_DESCRIPTION, description);
     }
 
     /** @return The degree of rotation (eg. 0, 90, 180, 270). */
@@ -241,11 +256,11 @@ public final class Exif {
         long now = System.currentTimeMillis();
         String datetime = convertToExifDateTime(now);
 
-        exifInterface.setAttribute(ExifInterface.TAG_DATETIME, datetime);
+        mExifInterface.setAttribute(ExifInterface.TAG_DATETIME, datetime);
 
         try {
             String subsec = Long.toString(now - convertFromExifDateTime(datetime).getTime());
-            exifInterface.setAttribute(ExifInterface.TAG_SUBSEC_TIME, subsec);
+            mExifInterface.setAttribute(ExifInterface.TAG_SUBSEC_TIME, subsec);
         } catch (ParseException e) {
         }
     }
@@ -255,12 +270,12 @@ public final class Exif {
      * #INVALID_TIMESTAMP} if no time is available.
      */
     public long getLastModifiedTimestamp() {
-        long timestamp = parseTimestamp(exifInterface.getAttribute(ExifInterface.TAG_DATETIME));
+        long timestamp = parseTimestamp(mExifInterface.getAttribute(ExifInterface.TAG_DATETIME));
         if (timestamp == INVALID_TIMESTAMP) {
             return INVALID_TIMESTAMP;
         }
 
-        String subSecs = exifInterface.getAttribute(ExifInterface.TAG_SUBSEC_TIME);
+        String subSecs = mExifInterface.getAttribute(ExifInterface.TAG_SUBSEC_TIME);
         if (subSecs != null) {
             try {
                 long sub = Long.parseLong(subSecs);
@@ -282,12 +297,12 @@ public final class Exif {
      */
     public long getTimestamp() {
         long timestamp =
-                parseTimestamp(exifInterface.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL));
+                parseTimestamp(mExifInterface.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL));
         if (timestamp == INVALID_TIMESTAMP) {
             return INVALID_TIMESTAMP;
         }
 
-        String subSecs = exifInterface.getAttribute(ExifInterface.TAG_SUBSEC_TIME_ORIGINAL);
+        String subSecs = mExifInterface.getAttribute(ExifInterface.TAG_SUBSEC_TIME_ORIGINAL);
         if (subSecs != null) {
             try {
                 long sub = Long.parseLong(subSecs);
@@ -306,16 +321,16 @@ public final class Exif {
     /** @return The location this picture was taken, or null if no location is available. */
     @Nullable
     public Location getLocation() {
-        String provider = exifInterface.getAttribute(ExifInterface.TAG_GPS_PROCESSING_METHOD);
-        double[] latlng = exifInterface.getLatLong();
-        double altitude = exifInterface.getAltitude(0);
-        double speed = exifInterface.getAttributeDouble(ExifInterface.TAG_GPS_SPEED, 0);
-        String speedRef = exifInterface.getAttribute(ExifInterface.TAG_GPS_SPEED_REF);
+        String provider = mExifInterface.getAttribute(ExifInterface.TAG_GPS_PROCESSING_METHOD);
+        double[] latlng = mExifInterface.getLatLong();
+        double altitude = mExifInterface.getAltitude(0);
+        double speed = mExifInterface.getAttributeDouble(ExifInterface.TAG_GPS_SPEED, 0);
+        String speedRef = mExifInterface.getAttribute(ExifInterface.TAG_GPS_SPEED_REF);
         speedRef = speedRef == null ? KILOMETERS_PER_HOUR : speedRef; // Ensure speedRef is not null
         long timestamp =
                 parseTimestamp(
-                        exifInterface.getAttribute(ExifInterface.TAG_GPS_DATESTAMP),
-                        exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP));
+                        mExifInterface.getAttribute(ExifInterface.TAG_GPS_DATESTAMP),
+                        mExifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP));
         if (latlng == null) {
             return null;
         }
@@ -364,7 +379,7 @@ public final class Exif {
                             "Can only rotate in right angles (eg. 0, 90, 180, 270). %d is "
                                     + "unsupported.",
                             degrees));
-            exifInterface.setAttribute(
+            mExifInterface.setAttribute(
                     ExifInterface.TAG_ORIENTATION,
                     String.valueOf(ExifInterface.ORIENTATION_UNDEFINED));
             return;
@@ -441,7 +456,7 @@ public final class Exif {
                     break;
             }
         }
-        exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(orientation));
+        mExifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(orientation));
     }
 
     /**
@@ -480,7 +495,7 @@ public final class Exif {
                 orientation = ExifInterface.ORIENTATION_FLIP_VERTICAL;
                 break;
         }
-        exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(orientation));
+        mExifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(orientation));
     }
 
     /**
@@ -519,7 +534,7 @@ public final class Exif {
                 orientation = ExifInterface.ORIENTATION_FLIP_HORIZONTAL;
                 break;
         }
-        exifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(orientation));
+        mExifInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(orientation));
     }
 
     /** Attaches the current timestamp to the file. */
@@ -527,48 +542,48 @@ public final class Exif {
         long now = System.currentTimeMillis();
         String datetime = convertToExifDateTime(now);
 
-        exifInterface.setAttribute(ExifInterface.TAG_DATETIME_ORIGINAL, datetime);
-        exifInterface.setAttribute(ExifInterface.TAG_DATETIME_DIGITIZED, datetime);
+        mExifInterface.setAttribute(ExifInterface.TAG_DATETIME_ORIGINAL, datetime);
+        mExifInterface.setAttribute(ExifInterface.TAG_DATETIME_DIGITIZED, datetime);
 
         try {
             String subsec = Long.toString(now - convertFromExifDateTime(datetime).getTime());
-            exifInterface.setAttribute(ExifInterface.TAG_SUBSEC_TIME_ORIGINAL, subsec);
-            exifInterface.setAttribute(ExifInterface.TAG_SUBSEC_TIME_DIGITIZED, subsec);
+            mExifInterface.setAttribute(ExifInterface.TAG_SUBSEC_TIME_ORIGINAL, subsec);
+            mExifInterface.setAttribute(ExifInterface.TAG_SUBSEC_TIME_DIGITIZED, subsec);
         } catch (ParseException e) {
         }
 
-        removeTimestamp = false;
+        mRemoveTimestamp = false;
     }
 
     /** Removes the timestamp from the file. */
     public void removeTimestamp() {
-        exifInterface.setAttribute(ExifInterface.TAG_DATETIME, null);
-        exifInterface.setAttribute(ExifInterface.TAG_DATETIME_ORIGINAL, null);
-        exifInterface.setAttribute(ExifInterface.TAG_DATETIME_DIGITIZED, null);
-        exifInterface.setAttribute(ExifInterface.TAG_SUBSEC_TIME, null);
-        exifInterface.setAttribute(ExifInterface.TAG_SUBSEC_TIME_ORIGINAL, null);
-        exifInterface.setAttribute(ExifInterface.TAG_SUBSEC_TIME_DIGITIZED, null);
-        removeTimestamp = true;
+        mExifInterface.setAttribute(ExifInterface.TAG_DATETIME, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_DATETIME_ORIGINAL, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_DATETIME_DIGITIZED, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_SUBSEC_TIME, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_SUBSEC_TIME_ORIGINAL, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_SUBSEC_TIME_DIGITIZED, null);
+        mRemoveTimestamp = true;
     }
 
     /** Attaches the given location to the file. */
     public void attachLocation(Location location) {
-        exifInterface.setGpsInfo(location);
+        mExifInterface.setGpsInfo(location);
     }
 
     /** Removes the location from the file. */
     public void removeLocation() {
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_PROCESSING_METHOD, null);
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_LATITUDE, null);
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, null);
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, null);
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, null);
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, null);
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, null);
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_SPEED, null);
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_SPEED_REF, null);
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, null);
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_GPS_PROCESSING_METHOD, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_GPS_LATITUDE, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_GPS_ALTITUDE, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_GPS_ALTITUDE_REF, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_GPS_SPEED, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_GPS_SPEED_REF, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_GPS_DATESTAMP, null);
+        mExifInterface.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, null);
     }
 
     /** @return The timestamp (in millis), or {@link #INVALID_TIMESTAMP} if no time is available. */
@@ -623,26 +638,26 @@ public final class Exif {
         }
 
         static final class Converter {
-            final double mph;
+            final double mMph;
 
             Converter(double mph) {
-                this.mph = mph;
+                mMph = mph;
             }
 
             double toKilometersPerHour() {
-                return mph / 0.621371;
+                return mMph / 0.621371;
             }
 
             double toMilesPerHour() {
-                return mph;
+                return mMph;
             }
 
             double toKnots() {
-                return mph / 1.15078;
+                return mMph / 1.15078;
             }
 
             double toMetersPerSecond() {
-                return mph / 2.23694;
+                return mMph / 2.23694;
             }
         }
     }

@@ -22,6 +22,8 @@ import androidx.annotation.RestrictTo.Scope;
 /**
  * A class which provides a {@link androidx.camera.core.Configuration} object.
  *
+ * @param <C> the {@link Configuration} type provided
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)

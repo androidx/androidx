@@ -21,7 +21,7 @@ import androidx.annotation.GuardedBy;
 /** A {@link ImageProxy} which filters out redundant calls to {@link #close()}. */
 final class SingleCloseImageProxy extends ForwardingImageProxy {
     @GuardedBy("this")
-    private boolean closed = false;
+    private boolean mClosed = false;
 
     /**
      * Creates a new instances which wraps the given image.
@@ -35,8 +35,8 @@ final class SingleCloseImageProxy extends ForwardingImageProxy {
 
     @Override
     public synchronized void close() {
-        if (!closed) {
-            closed = true;
+        if (!mClosed) {
+            mClosed = true;
             super.close();
         }
     }

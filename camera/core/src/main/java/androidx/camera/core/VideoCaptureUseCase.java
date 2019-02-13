@@ -84,51 +84,51 @@ public class VideoCaptureUseCase extends BaseUseCase {
      *
      * <p>the result of PCM_8BIT and PCM_FLOAT are not good. Set PCM_16BIT as the first option.
      */
-    private static final short[] audioEncoding = {
+    private static final short[] sAudioEncoding = {
             AudioFormat.ENCODING_PCM_16BIT,
             AudioFormat.ENCODING_PCM_8BIT,
             AudioFormat.ENCODING_PCM_FLOAT
     };
-    private final BufferInfo videoBufferInfo = new BufferInfo();
-    private final Object muxerLock = new Object();
+    private final BufferInfo mVideoBufferInfo = new BufferInfo();
+    private final Object mMuxerLock = new Object();
     /** Thread on which all encoding occurs. */
-    private final HandlerThread videoHandlerThread =
+    private final HandlerThread mVideoHandlerThread =
             new HandlerThread(CameraXThreads.TAG + "video encoding thread");
-    private final Handler videoHandler;
+    private final Handler mVideoHandler;
     /** Thread on which audio encoding occurs. */
-    private final HandlerThread audioHandlerThread =
+    private final HandlerThread mAudioHandlerThread =
             new HandlerThread(CameraXThreads.TAG + "audio encoding thread");
-    private final Handler audioHandler;
-    private final AtomicBoolean endOfVideoStreamSignal = new AtomicBoolean(true);
-    private final AtomicBoolean endOfAudioStreamSignal = new AtomicBoolean(true);
-    private final AtomicBoolean endOfAudioVideoSignal = new AtomicBoolean(true);
-    private final BufferInfo audioBufferInfo = new BufferInfo();
+    private final Handler mAudioHandler;
+    private final AtomicBoolean mEndOfVideoStreamSignal = new AtomicBoolean(true);
+    private final AtomicBoolean mEndOfAudioStreamSignal = new AtomicBoolean(true);
+    private final AtomicBoolean mEndOfAudioVideoSignal = new AtomicBoolean(true);
+    private final BufferInfo mAudioBufferInfo = new BufferInfo();
     /** For record the first sample written time. */
-    private final AtomicBoolean isFirstVideoSampleWrite = new AtomicBoolean(false);
-    private final AtomicBoolean isFirstAudioSampleWrite = new AtomicBoolean(false);
-    private final VideoCaptureUseCaseConfiguration.Builder useCaseConfigBuilder;
+    private final AtomicBoolean mIsFirstVideoSampleWrite = new AtomicBoolean(false);
+    private final AtomicBoolean mIsFirstAudioSampleWrite = new AtomicBoolean(false);
+    private final VideoCaptureUseCaseConfiguration.Builder mUseCaseConfigBuilder;
     @NonNull
-    private MediaCodec videoEncoder;
+    private MediaCodec mVideoEncoder;
     @NonNull
-    private MediaCodec audioEncoder;
+    private MediaCodec mAudioEncoder;
     /** The muxer that writes the encoding data to file. */
-    @GuardedBy("muxerLock")
-    private MediaMuxer muxer;
-    private boolean muxerStarted = false;
+    @GuardedBy("mMuxerLock")
+    private MediaMuxer mMuxer;
+    private boolean mMuxerStarted = false;
     /** The index of the video track used by the muxer. */
-    private int videoTrackIndex;
+    private int mVideoTrackIndex;
     /** The index of the audio track used by the muxer. */
-    private int audioTrackIndex;
+    private int mAudioTrackIndex;
     /** Surface the camera writes to, which the videoEncoder uses as input. */
-    private Surface cameraSurface;
+    private Surface mCameraSurface;
     /** audio raw data */
     @NonNull
-    private AudioRecord audioRecorder;
-    private int audioBufferSize;
-    private boolean isRecording = false;
-    private int audioChannelCount;
-    private int audioSampleRate;
-    private int audioBitRate;
+    private AudioRecord mAudioRecorder;
+    private int mAudioBufferSize;
+    private boolean mIsRecording = false;
+    private int mAudioChannelCount;
+    private int mAudioSampleRate;
+    private int mAudioBitRate;
 
     /**
      * Creates a new video capture use case from the given configuration.
@@ -137,15 +137,15 @@ public class VideoCaptureUseCase extends BaseUseCase {
      */
     public VideoCaptureUseCase(VideoCaptureUseCaseConfiguration configuration) {
         super(configuration);
-        useCaseConfigBuilder = VideoCaptureUseCaseConfiguration.Builder.fromConfig(configuration);
+        mUseCaseConfigBuilder = VideoCaptureUseCaseConfiguration.Builder.fromConfig(configuration);
 
         // video thread start
-        videoHandlerThread.start();
-        videoHandler = new Handler(videoHandlerThread.getLooper());
+        mVideoHandlerThread.start();
+        mVideoHandler = new Handler(mVideoHandlerThread.getLooper());
 
         // audio thread start
-        audioHandlerThread.start();
-        audioHandler = new Handler(audioHandlerThread.getLooper());
+        mAudioHandlerThread.start();
+        mAudioHandler = new Handler(mAudioHandlerThread.getLooper());
     }
 
     /** Creates a {@link MediaFormat} using parameters from the configuration */
@@ -162,7 +162,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
         return format;
     }
 
-    private static final String getCameraIdUnchecked(LensFacing lensFacing) {
+    private static String getCameraIdUnchecked(LensFacing lensFacing) {
         try {
             return CameraX.getCameraWithLensFacing(lensFacing);
         } catch (Exception e) {
@@ -178,6 +178,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
      */
     @Override
     @Nullable
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
         VideoCaptureUseCaseConfiguration defaults =
                 CameraX.getDefaultUseCaseConfiguration(VideoCaptureUseCaseConfiguration.class);
@@ -194,21 +195,22 @@ public class VideoCaptureUseCase extends BaseUseCase {
      * @hide
      */
     @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
         VideoCaptureUseCaseConfiguration configuration =
                 (VideoCaptureUseCaseConfiguration) getUseCaseConfiguration();
-        if (cameraSurface != null) {
-            videoEncoder.stop();
-            videoEncoder.release();
-            audioEncoder.stop();
-            audioEncoder.release();
-            cameraSurface.release();
+        if (mCameraSurface != null) {
+            mVideoEncoder.stop();
+            mVideoEncoder.release();
+            mAudioEncoder.stop();
+            mAudioEncoder.release();
+            mCameraSurface.release();
         }
 
         try {
-            videoEncoder = MediaCodec.createEncoderByType(VIDEO_MIME_TYPE);
-            audioEncoder = MediaCodec.createEncoderByType(AUDIO_MIME_TYPE);
+            mVideoEncoder = MediaCodec.createEncoderByType(VIDEO_MIME_TYPE);
+            mAudioEncoder = MediaCodec.createEncoderByType(AUDIO_MIME_TYPE);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to create MediaCodec due to: " + e.getCause());
         }
@@ -235,8 +237,8 @@ public class VideoCaptureUseCase extends BaseUseCase {
      * @param listener     Listener to call for the recorded video
      */
     public void startRecording(File saveLocation, OnVideoSavedListener listener) {
-        isFirstVideoSampleWrite.set(false);
-        isFirstAudioSampleWrite.set(false);
+        mIsFirstVideoSampleWrite.set(false);
+        mIsFirstAudioSampleWrite.set(false);
         startRecording(saveLocation, listener, EMPTY_METADATA);
     }
 
@@ -255,7 +257,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
             File saveLocation, OnVideoSavedListener listener, Metadata metadata) {
         Log.i(TAG, "startRecording");
 
-        if (!endOfAudioVideoSignal.get()) {
+        if (!mEndOfAudioVideoSignal.get()) {
             listener.onError(
                     UseCaseError.RECORDING_IN_PROGRESS, "It is still in video recording!", null);
             return;
@@ -263,7 +265,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
 
         try {
             // audioRecord start
-            audioRecorder.startRecording();
+            mAudioRecorder.startRecording();
         } catch (IllegalStateException e) {
             listener.onError(UseCaseError.ENCODER_ERROR, "AudioRecorder start fail", e);
             return;
@@ -275,10 +277,10 @@ public class VideoCaptureUseCase extends BaseUseCase {
         try {
             // video encoder start
             Log.i(TAG, "videoEncoder start");
-            videoEncoder.start();
+            mVideoEncoder.start();
             // audio encoder start
             Log.i(TAG, "audioEncoder start");
-            audioEncoder.start();
+            mAudioEncoder.start();
 
         } catch (IllegalStateException e) {
             setupEncoder(getAttachedSurfaceResolution(cameraId));
@@ -299,15 +301,15 @@ public class VideoCaptureUseCase extends BaseUseCase {
         }
 
         try {
-            synchronized (muxerLock) {
-                muxer =
+            synchronized (mMuxerLock) {
+                mMuxer =
                         new MediaMuxer(
                                 saveLocation.getAbsolutePath(),
                                 MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
 
-                muxer.setOrientationHint(relativeRotation);
+                mMuxer.setOrientationHint(relativeRotation);
                 if (metadata.location != null) {
-                    muxer.setLocation(
+                    mMuxer.setLocation(
                             (float) metadata.location.getLatitude(),
                             (float) metadata.location.getLongitude());
                 }
@@ -318,18 +320,18 @@ public class VideoCaptureUseCase extends BaseUseCase {
             return;
         }
 
-        endOfVideoStreamSignal.set(false);
-        endOfAudioStreamSignal.set(false);
-        endOfAudioVideoSignal.set(false);
-        isRecording = true;
+        mEndOfVideoStreamSignal.set(false);
+        mEndOfAudioStreamSignal.set(false);
+        mEndOfAudioVideoSignal.set(false);
+        mIsRecording = true;
 
         notifyActive();
-        audioHandler.post(
+        mAudioHandler.post(
                 () -> {
                     audioEncode(listener);
                 });
 
-        videoHandler.post(
+        mVideoHandler.post(
                 () -> {
                     boolean errorOccurred = videoEncode(listener);
                     if (!errorOccurred) {
@@ -349,9 +351,9 @@ public class VideoCaptureUseCase extends BaseUseCase {
     public void stopRecording() {
         Log.i(TAG, "stopRecording");
         notifyInactive();
-        if (!endOfAudioVideoSignal.get() && isRecording) {
+        if (!mEndOfAudioVideoSignal.get() && mIsRecording) {
             // stop audio encoder thread, and wait video encoder and muxer stop.
-            endOfAudioStreamSignal.set(true);
+            mEndOfAudioStreamSignal.set(true);
         }
     }
 
@@ -363,28 +365,28 @@ public class VideoCaptureUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
-        videoHandlerThread.quitSafely();
+        mVideoHandlerThread.quitSafely();
 
-        if (videoEncoder != null) {
-            videoEncoder.release();
-            videoEncoder = null;
+        if (mVideoEncoder != null) {
+            mVideoEncoder.release();
+            mVideoEncoder = null;
         }
 
         // audio encoder release
-        audioHandlerThread.quitSafely();
-        if (audioEncoder != null) {
-            audioEncoder.release();
-            audioEncoder = null;
+        mAudioHandlerThread.quitSafely();
+        if (mAudioEncoder != null) {
+            mAudioEncoder.release();
+            mAudioEncoder = null;
         }
 
-        if (audioRecorder != null) {
-            audioRecorder.release();
-            audioRecorder = null;
+        if (mAudioRecorder != null) {
+            mAudioRecorder.release();
+            mAudioRecorder = null;
         }
 
-        if (cameraSurface != null) {
-            cameraSurface.release();
-            cameraSurface = null;
+        if (mCameraSurface != null) {
+            mCameraSurface.release();
+            mCameraSurface = null;
         }
         super.clear();
     }
@@ -401,8 +403,8 @@ public class VideoCaptureUseCase extends BaseUseCase {
         ImageOutputConfiguration oldconfig = (ImageOutputConfiguration) getUseCaseConfiguration();
         int oldRotation = oldconfig.getTargetRotation(ImageOutputConfiguration.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfiguration.INVALID_ROTATION || oldRotation != rotation) {
-            useCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfiguration(useCaseConfigBuilder.build());
+            mUseCaseConfigBuilder.setTargetRotation(rotation);
+            updateUseCaseConfiguration(mUseCaseConfigBuilder.build());
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
         }
@@ -417,42 +419,42 @@ public class VideoCaptureUseCase extends BaseUseCase {
                 (VideoCaptureUseCaseConfiguration) getUseCaseConfiguration();
 
         // video encoder setup
-        videoEncoder.reset();
-        videoEncoder.configure(
+        mVideoEncoder.reset();
+        mVideoEncoder.configure(
                 createMediaFormat(configuration, resolution), /*surface*/
                 null, /*crypto*/
                 null,
                 MediaCodec.CONFIGURE_FLAG_ENCODE);
-        if (cameraSurface != null) {
-            cameraSurface.release();
+        if (mCameraSurface != null) {
+            mCameraSurface.release();
         }
-        cameraSurface = videoEncoder.createInputSurface();
+        mCameraSurface = mVideoEncoder.createInputSurface();
 
         SessionConfiguration.Builder builder =
                 SessionConfiguration.Builder.createFrom(configuration);
-        builder.addSurface(new ImmediateSurface(cameraSurface));
+        builder.addSurface(new ImmediateSurface(mCameraSurface));
 
         String cameraId = getCameraIdUnchecked(configuration.getLensFacing());
         attachToCamera(cameraId, builder.build());
 
         // audio encoder setup
         setAudioParametersByCamcorderProfile(resolution, cameraId);
-        audioEncoder.reset();
-        audioEncoder.configure(
+        mAudioEncoder.reset();
+        mAudioEncoder.configure(
                 createAudioMediaFormat(), null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
 
-        if (audioRecorder != null) {
-            audioRecorder.release();
+        if (mAudioRecorder != null) {
+            mAudioRecorder.release();
         }
-        audioRecorder = autoConfigAudioRecordSource(configuration);
-        // check audioRecorder
-        if (audioRecorder == null) {
+        mAudioRecorder = autoConfigAudioRecordSource(configuration);
+        // check mAudioRecorder
+        if (mAudioRecorder == null) {
             Log.e(TAG, "AudioRecord object cannot initialized correctly!");
         }
 
-        videoTrackIndex = -1;
-        audioTrackIndex = -1;
-        isRecording = false;
+        mVideoTrackIndex = -1;
+        mAudioTrackIndex = -1;
+        mIsRecording = false;
     }
 
     /**
@@ -467,7 +469,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
             return false;
         }
         // Get data from buffer
-        ByteBuffer outputBuffer = videoEncoder.getOutputBuffer(bufferIndex);
+        ByteBuffer outputBuffer = mVideoEncoder.getOutputBuffer(bufferIndex);
 
         // Check if buffer is valid, if not then return
         if (outputBuffer == null) {
@@ -475,57 +477,57 @@ public class VideoCaptureUseCase extends BaseUseCase {
             return false;
         }
 
-        // Write data to muxer if available
-        if (audioTrackIndex >= 0 && videoTrackIndex >= 0 && videoBufferInfo.size > 0) {
-            outputBuffer.position(videoBufferInfo.offset);
-            outputBuffer.limit(videoBufferInfo.offset + videoBufferInfo.size);
-            videoBufferInfo.presentationTimeUs = (System.nanoTime() / 1000);
+        // Write data to mMuxer if available
+        if (mAudioTrackIndex >= 0 && mVideoTrackIndex >= 0 && mVideoBufferInfo.size > 0) {
+            outputBuffer.position(mVideoBufferInfo.offset);
+            outputBuffer.limit(mVideoBufferInfo.offset + mVideoBufferInfo.size);
+            mVideoBufferInfo.presentationTimeUs = (System.nanoTime() / 1000);
 
-            synchronized (muxerLock) {
-                if (!isFirstVideoSampleWrite.get()) {
+            synchronized (mMuxerLock) {
+                if (!mIsFirstVideoSampleWrite.get()) {
                     Log.i(TAG, "First video sample written.");
-                    isFirstVideoSampleWrite.set(true);
+                    mIsFirstVideoSampleWrite.set(true);
                 }
-                muxer.writeSampleData(videoTrackIndex, outputBuffer, videoBufferInfo);
+                mMuxer.writeSampleData(mVideoTrackIndex, outputBuffer, mVideoBufferInfo);
             }
         }
 
         // Release data
-        videoEncoder.releaseOutputBuffer(bufferIndex, false);
+        mVideoEncoder.releaseOutputBuffer(bufferIndex, false);
 
         // Return true if EOS is set
-        return (videoBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
+        return (mVideoBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
     }
 
     private boolean writeAudioEncodedBuffer(int bufferIndex) {
-        ByteBuffer buffer = getOutputBuffer(audioEncoder, bufferIndex);
-        buffer.position(audioBufferInfo.offset);
-        if (audioTrackIndex >= 0
-                && videoTrackIndex >= 0
-                && audioBufferInfo.size > 0
-                && audioBufferInfo.presentationTimeUs > 0) {
+        ByteBuffer buffer = getOutputBuffer(mAudioEncoder, bufferIndex);
+        buffer.position(mAudioBufferInfo.offset);
+        if (mAudioTrackIndex >= 0
+                && mVideoTrackIndex >= 0
+                && mAudioBufferInfo.size > 0
+                && mAudioBufferInfo.presentationTimeUs > 0) {
             try {
-                synchronized (muxerLock) {
-                    if (!isFirstAudioSampleWrite.get()) {
+                synchronized (mMuxerLock) {
+                    if (!mIsFirstAudioSampleWrite.get()) {
                         Log.i(TAG, "First audio sample written.");
-                        isFirstAudioSampleWrite.set(true);
+                        mIsFirstAudioSampleWrite.set(true);
                     }
-                    muxer.writeSampleData(audioTrackIndex, buffer, audioBufferInfo);
+                    mMuxer.writeSampleData(mAudioTrackIndex, buffer, mAudioBufferInfo);
                 }
             } catch (Exception e) {
                 Log.e(
                         TAG,
                         "audio error:size="
-                                + audioBufferInfo.size
+                                + mAudioBufferInfo.size
                                 + "/offset="
-                                + audioBufferInfo.offset
+                                + mAudioBufferInfo.offset
                                 + "/timeUs="
-                                + audioBufferInfo.presentationTimeUs);
+                                + mAudioBufferInfo.presentationTimeUs);
                 e.printStackTrace();
             }
         }
-        audioEncoder.releaseOutputBuffer(bufferIndex, false);
-        return (audioBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
+        mAudioEncoder.releaseOutputBuffer(bufferIndex, false);
+        return (mAudioBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
     }
 
     /**
@@ -542,17 +544,17 @@ public class VideoCaptureUseCase extends BaseUseCase {
         boolean videoEos = false;
         while (!videoEos && !errorOccurred) {
             // Check for end of stream from main thread
-            if (endOfVideoStreamSignal.get()) {
-                videoEncoder.signalEndOfInputStream();
-                endOfVideoStreamSignal.set(false);
+            if (mEndOfVideoStreamSignal.get()) {
+                mVideoEncoder.signalEndOfInputStream();
+                mEndOfVideoStreamSignal.set(false);
             }
 
             // Deque buffer to check for processing step
             int outputBufferId =
-                    videoEncoder.dequeueOutputBuffer(videoBufferInfo, DEQUE_TIMEOUT_USEC);
+                    mVideoEncoder.dequeueOutputBuffer(mVideoBufferInfo, DEQUE_TIMEOUT_USEC);
             switch (outputBufferId) {
                 case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
-                    if (muxerStarted) {
+                    if (mMuxerStarted) {
                         videoSavedListener.onError(
                                 UseCaseError.ENCODER_ERROR,
                                 "Unexpected change in video encoding format.",
@@ -560,12 +562,12 @@ public class VideoCaptureUseCase extends BaseUseCase {
                         errorOccurred = true;
                     }
 
-                    synchronized (muxerLock) {
-                        videoTrackIndex = muxer.addTrack(videoEncoder.getOutputFormat());
-                        if (audioTrackIndex >= 0 && videoTrackIndex >= 0) {
-                            muxerStarted = true;
-                            Log.i(TAG, "media muxer start");
-                            muxer.start();
+                    synchronized (mMuxerLock) {
+                        mVideoTrackIndex = mMuxer.addTrack(mVideoEncoder.getOutputFormat());
+                        if (mAudioTrackIndex >= 0 && mVideoTrackIndex >= 0) {
+                            mMuxerStarted = true;
+                            Log.i(TAG, "media mMuxer start");
+                            mMuxer.start();
                         }
                     }
                     break;
@@ -582,7 +584,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
 
         try {
             Log.i(TAG, "videoEncoder stop");
-            videoEncoder.stop();
+            mVideoEncoder.stop();
         } catch (IllegalStateException e) {
             videoSavedListener.onError(UseCaseError.ENCODER_ERROR, "Video encoder stop failed!", e);
             errorOccurred = true;
@@ -590,13 +592,13 @@ public class VideoCaptureUseCase extends BaseUseCase {
 
         try {
             // new MediaMuxer instance required for each new file written, and release current one.
-            synchronized (muxerLock) {
-                if (muxer != null) {
-                    if (muxerStarted) {
-                        muxer.stop();
+            synchronized (mMuxerLock) {
+                if (mMuxer != null) {
+                    if (mMuxerStarted) {
+                        mMuxer.stop();
                     }
-                    muxer.release();
-                    muxer = null;
+                    mMuxer.release();
+                    mMuxer = null;
                 }
             }
         } catch (IllegalStateException e) {
@@ -604,7 +606,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
             errorOccurred = true;
         }
 
-        muxerStarted = false;
+        mMuxerStarted = false;
         // Do the setup of the videoEncoder at the end of video recording instead of at the start of
         // recording because it requires attaching a new Surface. This causes a glitch so we don't
         // want
@@ -614,7 +616,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
         notifyReset();
 
         // notify the UI thread that the video recording has finished
-        endOfAudioVideoSignal.set(true);
+        mEndOfAudioVideoSignal.set(true);
 
         Log.i(TAG, "Video encode thread end.");
         return errorOccurred;
@@ -624,40 +626,40 @@ public class VideoCaptureUseCase extends BaseUseCase {
         // Audio encoding loop. Exits on end of stream.
         boolean audioEos = false;
         int outIndex;
-        while (!audioEos && isRecording) {
+        while (!audioEos && mIsRecording) {
             // Check for end of stream from main thread
-            if (endOfAudioStreamSignal.get()) {
-                endOfAudioStreamSignal.set(false);
-                isRecording = false;
+            if (mEndOfAudioStreamSignal.get()) {
+                mEndOfAudioStreamSignal.set(false);
+                mIsRecording = false;
             }
 
             // get audio deque input buffer
-            if (audioEncoder != null && audioRecorder != null) {
-                int index = audioEncoder.dequeueInputBuffer(-1);
+            if (mAudioEncoder != null && mAudioRecorder != null) {
+                int index = mAudioEncoder.dequeueInputBuffer(-1);
                 if (index >= 0) {
-                    final ByteBuffer buffer = getInputBuffer(audioEncoder, index);
+                    final ByteBuffer buffer = getInputBuffer(mAudioEncoder, index);
                     buffer.clear();
-                    int length = audioRecorder.read(buffer, audioBufferSize);
+                    int length = mAudioRecorder.read(buffer, mAudioBufferSize);
                     if (length > 0) {
-                        audioEncoder.queueInputBuffer(
+                        mAudioEncoder.queueInputBuffer(
                                 index,
                                 0,
                                 length,
                                 (System.nanoTime() / 1000),
-                                isRecording ? 0 : MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+                                mIsRecording ? 0 : MediaCodec.BUFFER_FLAG_END_OF_STREAM);
                     }
                 }
 
                 // start to dequeue audio output buffer
                 do {
-                    outIndex = audioEncoder.dequeueOutputBuffer(audioBufferInfo, 0);
+                    outIndex = mAudioEncoder.dequeueOutputBuffer(mAudioBufferInfo, 0);
                     switch (outIndex) {
                         case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
-                            synchronized (muxerLock) {
-                                audioTrackIndex = muxer.addTrack(audioEncoder.getOutputFormat());
-                                if (audioTrackIndex >= 0 && videoTrackIndex >= 0) {
-                                    muxerStarted = true;
-                                    muxer.start();
+                            synchronized (mMuxerLock) {
+                                mAudioTrackIndex = mMuxer.addTrack(mAudioEncoder.getOutputFormat());
+                                if (mAudioTrackIndex >= 0 && mVideoTrackIndex >= 0) {
+                                    mMuxerStarted = true;
+                                    mMuxer.start();
                                 }
                             }
                             break;
@@ -673,14 +675,14 @@ public class VideoCaptureUseCase extends BaseUseCase {
         // Audio Stop
         try {
             Log.i(TAG, "audioRecorder stop");
-            audioRecorder.stop();
+            mAudioRecorder.stop();
         } catch (IllegalStateException e) {
             videoSavedListener.onError(
                     UseCaseError.ENCODER_ERROR, "Audio recorder stop failed!", e);
         }
 
         try {
-            audioEncoder.stop();
+            mAudioEncoder.stop();
         } catch (IllegalStateException e) {
             videoSavedListener.onError(UseCaseError.ENCODER_ERROR, "Audio encoder stop failed!", e);
         }
@@ -688,7 +690,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
         Log.i(TAG, "Audio encode thread end");
         // Use AtomicBoolean to signal because MediaCodec.signalEndOfInputStream() is not thread
         // safe
-        endOfVideoStreamSignal.set(true);
+        mEndOfVideoStreamSignal.set(true);
 
         return false;
     }
@@ -704,10 +706,11 @@ public class VideoCaptureUseCase extends BaseUseCase {
     /** Creates a {@link MediaFormat} using parameters for audio from the configuration */
     private MediaFormat createAudioMediaFormat() {
         MediaFormat format =
-                MediaFormat.createAudioFormat(AUDIO_MIME_TYPE, audioSampleRate, audioChannelCount);
+                MediaFormat.createAudioFormat(AUDIO_MIME_TYPE, mAudioSampleRate,
+                        mAudioChannelCount);
         format.setInteger(
                 MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
-        format.setInteger(MediaFormat.KEY_BIT_RATE, audioBitRate);
+        format.setInteger(MediaFormat.KEY_BIT_RATE, mAudioBitRate);
 
         return format;
     }
@@ -715,18 +718,18 @@ public class VideoCaptureUseCase extends BaseUseCase {
     /** Create a AudioRecord object to get raw data */
     private AudioRecord autoConfigAudioRecordSource(
             VideoCaptureUseCaseConfiguration configuration) {
-        for (short audioFormat : audioEncoding) {
+        for (short audioFormat : sAudioEncoding) {
 
             // Use channel count to determine stereo vs mono
             int channelConfig =
-                    audioChannelCount == 1
+                    mAudioChannelCount == 1
                             ? AudioFormat.CHANNEL_IN_MONO
                             : AudioFormat.CHANNEL_IN_STEREO;
             int source = configuration.getAudioRecordSource();
 
             try {
                 int bufferSize =
-                        AudioRecord.getMinBufferSize(audioSampleRate, channelConfig, audioFormat);
+                        AudioRecord.getMinBufferSize(mAudioSampleRate, channelConfig, audioFormat);
 
                 if (bufferSize <= 0) {
                     bufferSize = configuration.getAudioMinBufferSize();
@@ -735,19 +738,19 @@ public class VideoCaptureUseCase extends BaseUseCase {
                 AudioRecord recorder =
                         new AudioRecord(
                                 source,
-                                audioSampleRate,
+                                mAudioSampleRate,
                                 channelConfig,
                                 audioFormat,
                                 bufferSize * 2);
 
                 if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
-                    audioBufferSize = bufferSize;
+                    mAudioBufferSize = bufferSize;
                     Log.i(
                             TAG,
                             "source: "
                                     + source
                                     + " audioSampleRate: "
-                                    + audioSampleRate
+                                    + mAudioSampleRate
                                     + " channelConfig: "
                                     + channelConfig
                                     + " audioFormat: "
@@ -774,9 +777,9 @@ public class VideoCaptureUseCase extends BaseUseCase {
                 profile = CamcorderProfile.get(Integer.parseInt(cameraId), quality);
                 if (currentResolution.getWidth() == profile.videoFrameWidth
                         && currentResolution.getHeight() == profile.videoFrameHeight) {
-                    audioChannelCount = profile.audioChannels;
-                    audioSampleRate = profile.audioSampleRate;
-                    audioBitRate = profile.audioBitRate;
+                    mAudioChannelCount = profile.audioChannels;
+                    mAudioSampleRate = profile.audioSampleRate;
+                    mAudioBitRate = profile.audioBitRate;
                     isCamcorderProfileFound = true;
                     break;
                 }
@@ -788,9 +791,9 @@ public class VideoCaptureUseCase extends BaseUseCase {
         if (!isCamcorderProfileFound) {
             VideoCaptureUseCaseConfiguration config =
                     (VideoCaptureUseCaseConfiguration) getUseCaseConfiguration();
-            audioChannelCount = config.getAudioChannelCount();
-            audioSampleRate = config.getAudioSampleRate();
-            audioBitRate = config.getAudioBitRate();
+            mAudioChannelCount = config.getAudioChannelCount();
+            mAudioSampleRate = config.getAudioSampleRate();
+            mAudioBitRate = config.getAudioBitRate();
         }
     }
 
@@ -894,7 +897,6 @@ public class VideoCaptureUseCase extends BaseUseCase {
     /** Holder class for metadata that should be saved alongside captured video. */
     public static final class Metadata {
         /** Data representing a geographic location. */
-        public @Nullable
-        Location location;
+        public @Nullable Location location;
     }
 }

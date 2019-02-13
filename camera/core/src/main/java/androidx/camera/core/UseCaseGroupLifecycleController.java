@@ -24,13 +24,13 @@ import androidx.lifecycle.LifecycleOwner;
 
 /** A {@link UseCaseGroup} whose starting and stopping is controlled by a {@link Lifecycle}. */
 final class UseCaseGroupLifecycleController implements DefaultLifecycleObserver {
-    private final Object useCaseGroupLock = new Object();
+    private final Object mUseCaseGroupLock = new Object();
 
-    @GuardedBy("useCaseGroupLock")
-    private final UseCaseGroup useCaseGroup;
+    @GuardedBy("mUseCaseGroupLock")
+    private final UseCaseGroup mUseCaseGroup;
 
-    /** The lifecycle that controls the useCaseGroup. */
-    private final Lifecycle lifecycle;
+    /** The lifecycle that controls the {@link UseCaseGroup}. */
+    private final Lifecycle mLifecycle;
 
     /** Creates a new {@link UseCaseGroup} which gets controlled by lifecycle transitions. */
     UseCaseGroupLifecycleController(Lifecycle lifecycle) {
@@ -39,29 +39,29 @@ final class UseCaseGroupLifecycleController implements DefaultLifecycleObserver 
 
     /** Wraps an existing {@link UseCaseGroup} so it is controlled by lifecycle transitions. */
     UseCaseGroupLifecycleController(Lifecycle lifecycle, UseCaseGroup useCaseGroup) {
-        this.useCaseGroup = useCaseGroup;
-        this.lifecycle = lifecycle;
+        this.mUseCaseGroup = useCaseGroup;
+        this.mLifecycle = lifecycle;
         lifecycle.addObserver(this);
     }
 
     @Override
     public void onStart(LifecycleOwner lifecycleOwner) {
-        synchronized (useCaseGroupLock) {
-            useCaseGroup.start();
+        synchronized (mUseCaseGroupLock) {
+            mUseCaseGroup.start();
         }
     }
 
     @Override
     public void onStop(LifecycleOwner lifecycleOwner) {
-        synchronized (useCaseGroupLock) {
-            useCaseGroup.stop();
+        synchronized (mUseCaseGroupLock) {
+            mUseCaseGroup.stop();
         }
     }
 
     @Override
     public void onDestroy(LifecycleOwner lifecycleOwner) {
-        synchronized (useCaseGroupLock) {
-            useCaseGroup.clear();
+        synchronized (mUseCaseGroupLock) {
+            mUseCaseGroup.clear();
         }
     }
 
@@ -74,19 +74,19 @@ final class UseCaseGroupLifecycleController implements DefaultLifecycleObserver 
      * actual state of the group.
      */
     void notifyState() {
-        synchronized (useCaseGroupLock) {
-            if (lifecycle.getCurrentState().isAtLeast(State.STARTED)) {
-                useCaseGroup.start();
+        synchronized (mUseCaseGroupLock) {
+            if (mLifecycle.getCurrentState().isAtLeast(State.STARTED)) {
+                mUseCaseGroup.start();
             }
-            for (BaseUseCase useCase : useCaseGroup.getUseCases()) {
+            for (BaseUseCase useCase : mUseCaseGroup.getUseCases()) {
                 useCase.notifyState();
             }
         }
     }
 
     UseCaseGroup getUseCaseGroup() {
-        synchronized (useCaseGroupLock) {
-            return useCaseGroup;
+        synchronized (mUseCaseGroupLock) {
+            return mUseCaseGroup;
         }
     }
 
@@ -100,6 +100,6 @@ final class UseCaseGroupLifecycleController implements DefaultLifecycleObserver 
      * <p>Calls subsequent to the first time will do nothing.
      */
     void release() {
-        lifecycle.removeObserver(this);
+        mLifecycle.removeObserver(this);
     }
 }

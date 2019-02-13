@@ -57,7 +57,7 @@ public interface ThreadConfiguration extends Configuration.Reader {
     }
 
     // Option Declarations:
-    // ***********************************************************************************************
+    // *********************************************************************************************
 
     /**
      * Builder for a {@link ThreadConfiguration}.

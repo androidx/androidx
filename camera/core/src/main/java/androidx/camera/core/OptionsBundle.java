@@ -39,10 +39,10 @@ public class OptionsBundle implements Configuration {
     private static final OptionsBundle EMPTY_BUNDLE =
             new OptionsBundle(new TreeMap<>((o1, o2) -> o1.getId().compareTo(o2.getId())));
     // TODO: Make these options parcelable
-    protected final TreeMap<Option<?>, Object> options;
+    protected final TreeMap<Option<?>, Object> mOptions;
 
     OptionsBundle(TreeMap<Option<?>, Object> options) {
-        this.options = options;
+        mOptions = options;
     }
 
     /**
@@ -81,12 +81,12 @@ public class OptionsBundle implements Configuration {
 
     @Override
     public Set<Option<?>> listOptions() {
-        return Collections.unmodifiableSet(options.keySet());
+        return Collections.unmodifiableSet(mOptions.keySet());
     }
 
     @Override
     public boolean containsOption(Option<?> id) {
-        return options.containsKey(id);
+        return mOptions.containsKey(id);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class OptionsBundle implements Configuration {
     @Override
     public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
         @SuppressWarnings("unchecked") // Options should have only been inserted via insertOption()
-                ValueT value = (ValueT) options.get(id);
+                ValueT value = (ValueT) mOptions.get(id);
         if (value == null) {
             value = valueIfMissing;
         }
@@ -114,7 +114,7 @@ public class OptionsBundle implements Configuration {
     @Override
     public void findOptions(String idStem, OptionMatcher matcher) {
         Option<Void> query = Option.create(idStem, Void.class);
-        for (Entry<Option<?>, Object> entry : options.tailMap(query).entrySet()) {
+        for (Entry<Option<?>, Object> entry : mOptions.tailMap(query).entrySet()) {
             if (!entry.getKey().getId().startsWith(idStem)) {
                 // We've reached the end of the range that contains our search stem.
                 break;

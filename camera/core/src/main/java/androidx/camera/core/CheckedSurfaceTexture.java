@@ -36,18 +36,18 @@ import java.nio.IntBuffer;
  * Surface} is unreleased before returning the Surface.
  */
 final class CheckedSurfaceTexture implements DeferrableSurface {
-    private final OnTextureChangedListener outputChangedListener;
-    private final Handler mainThreadHandler;
+    private final OnTextureChangedListener mOutputChangedListener;
+    private final Handler mMainThreadHandler;
     @Nullable
-    private SurfaceTexture surfaceTexture;
+    private SurfaceTexture mSurfaceTexture;
     @Nullable
-    private Surface surface;
+    private Surface mSurface;
     @Nullable
-    private Size resolution;
+    private Size mResolution;
     CheckedSurfaceTexture(
             OnTextureChangedListener outputChangedListener, Handler mainThreadHandler) {
-        this.outputChangedListener = outputChangedListener;
-        this.mainThreadHandler = mainThreadHandler;
+        mOutputChangedListener = outputChangedListener;
+        mMainThreadHandler = mainThreadHandler;
     }
 
     private static SurfaceTexture createDetachedSurfaceTexture(Size resolution) {
@@ -60,20 +60,20 @@ final class CheckedSurfaceTexture implements DeferrableSurface {
 
     @UiThread
     void setResolution(Size resolution) {
-        this.resolution = resolution;
+        mResolution = resolution;
     }
 
     @UiThread
     void resetSurfaceTexture() {
-        if (resolution == null) {
+        if (mResolution == null) {
             throw new IllegalStateException(
                     "setResolution() must be called before resetSurfaceTexture()");
         }
 
         release();
-        surfaceTexture = createDetachedSurfaceTexture(resolution);
-        surface = new Surface(surfaceTexture);
-        outputChangedListener.onTextureChanged(surfaceTexture, resolution);
+        mSurfaceTexture = createDetachedSurfaceTexture(mResolution);
+        mSurface = new Surface(mSurfaceTexture);
+        mOutputChangedListener.onTextureChanged(mSurfaceTexture, mResolution);
     }
 
     private boolean surfaceTextureReleased(SurfaceTexture surfaceTexture) {
@@ -120,27 +120,27 @@ final class CheckedSurfaceTexture implements DeferrableSurface {
         SettableFuture<Surface> deferredSurface = SettableFuture.create();
         Runnable checkAndSetRunnable =
                 () -> {
-                    if (surfaceTextureReleased(surfaceTexture)) {
+                    if (surfaceTextureReleased(mSurfaceTexture)) {
                         // Reset the surface texture and notify the listener
                         resetSurfaceTexture();
                     }
 
-                    deferredSurface.set(surface);
+                    deferredSurface.set(mSurface);
                 };
 
-        if (Looper.myLooper() == mainThreadHandler.getLooper()) {
+        if (Looper.myLooper() == mMainThreadHandler.getLooper()) {
             checkAndSetRunnable.run();
         } else {
-            mainThreadHandler.post(checkAndSetRunnable);
+            mMainThreadHandler.post(checkAndSetRunnable);
         }
 
         return deferredSurface;
     }
 
     void release() {
-        if (surface != null) {
-            surface.release();
-            surface = null;
+        if (mSurface != null) {
+            mSurface.release();
+            mSurface = null;
         }
     }
 

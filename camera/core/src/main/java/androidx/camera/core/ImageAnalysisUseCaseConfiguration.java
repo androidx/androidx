@@ -32,15 +32,15 @@ public final class ImageAnalysisUseCaseConfiguration
         ThreadConfiguration {
 
     // Option Declarations:
-    // ***********************************************************************************************
+    // *********************************************************************************************
     static final Option<ImageReaderMode> OPTION_IMAGE_READER_MODE =
             Option.create("camerax.core.imageAnalysis.imageReaderMode", ImageReaderMode.class);
     static final Option<Integer> OPTION_IMAGE_QUEUE_DEPTH =
             Option.create("camerax.core.imageAnalysis.imageQueueDepth", int.class);
-    private final OptionsBundle config;
+    private final OptionsBundle mConfig;
 
     ImageAnalysisUseCaseConfiguration(OptionsBundle config) {
-        this.config = config;
+        mConfig = config;
     }
 
     /**
@@ -132,7 +132,7 @@ public final class ImageAnalysisUseCaseConfiguration
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Configuration getConfiguration() {
-        return config;
+        return mConfig;
     }
 
     /** Builder for a {@link ImageAnalysisUseCaseConfiguration}. */
@@ -143,7 +143,7 @@ public final class ImageAnalysisUseCaseConfiguration
             ThreadConfiguration.Builder<ImageAnalysisUseCaseConfiguration, Builder>,
             UseCaseConfiguration.Builder<
                     ImageAnalysisUseCase, ImageAnalysisUseCaseConfiguration, Builder> {
-        private final MutableOptionsBundle mutableConfig;
+        private final MutableOptionsBundle mMutableConfig;
 
         /** Creates a new Builder object. */
         public Builder() {
@@ -151,7 +151,7 @@ public final class ImageAnalysisUseCaseConfiguration
         }
 
         private Builder(MutableOptionsBundle mutableConfig) {
-            this.mutableConfig = mutableConfig;
+            mMutableConfig = mutableConfig;
 
             Class<?> oldConfigClass =
                     mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
@@ -244,7 +244,7 @@ public final class ImageAnalysisUseCaseConfiguration
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public MutableConfiguration getMutableConfiguration() {
-            return mutableConfig;
+            return mMutableConfig;
         }
 
         /**
@@ -260,7 +260,7 @@ public final class ImageAnalysisUseCaseConfiguration
 
         @Override
         public ImageAnalysisUseCaseConfiguration build() {
-            return new ImageAnalysisUseCaseConfiguration(OptionsBundle.from(mutableConfig));
+            return new ImageAnalysisUseCaseConfiguration(OptionsBundle.from(mMutableConfig));
         }
     }
 }

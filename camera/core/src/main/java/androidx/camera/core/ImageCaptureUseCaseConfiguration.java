@@ -29,17 +29,17 @@ public final class ImageCaptureUseCaseConfiguration
         ThreadConfiguration {
 
     // Option Declarations:
-    // ***********************************************************************************************
+    // *********************************************************************************************
     static final Option<ImageCaptureUseCase.CaptureMode> OPTION_IMAGE_CAPTURE_MODE =
             Option.create(
                     "camerax.core.imageCapture.captureMode", ImageCaptureUseCase.CaptureMode.class);
     static final Option<FlashMode> OPTION_FLASH_MODE =
             Option.create("camerax.core.imageCapture.flashMode", FlashMode.class);
-    private final OptionsBundle config;
+    private final OptionsBundle mConfig;
 
     /** Creates a new configuration instance. */
     ImageCaptureUseCaseConfiguration(OptionsBundle config) {
-        this.config = config;
+        mConfig = config;
     }
 
     /**
@@ -50,7 +50,7 @@ public final class ImageCaptureUseCaseConfiguration
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Configuration getConfiguration() {
-        return config;
+        return mConfig;
     }
 
     /**
@@ -106,7 +106,7 @@ public final class ImageCaptureUseCaseConfiguration
             CameraDeviceConfiguration.Builder<ImageCaptureUseCaseConfiguration, Builder>,
             ThreadConfiguration.Builder<ImageCaptureUseCaseConfiguration, Builder> {
 
-        private final MutableOptionsBundle mutableConfig;
+        private final MutableOptionsBundle mMutableConfig;
 
         /** Creates a new Builder object. */
         public Builder() {
@@ -114,7 +114,7 @@ public final class ImageCaptureUseCaseConfiguration
         }
 
         private Builder(MutableOptionsBundle mutableConfig) {
-            this.mutableConfig = mutableConfig;
+            mMutableConfig = mutableConfig;
 
             Class<?> oldConfigClass =
                     mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
@@ -147,7 +147,7 @@ public final class ImageCaptureUseCaseConfiguration
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public MutableConfiguration getMutableConfiguration() {
-            return mutableConfig;
+            return mMutableConfig;
         }
 
         /**
@@ -163,7 +163,7 @@ public final class ImageCaptureUseCaseConfiguration
 
         @Override
         public ImageCaptureUseCaseConfiguration build() {
-            return new ImageCaptureUseCaseConfiguration(OptionsBundle.from(mutableConfig));
+            return new ImageCaptureUseCaseConfiguration(OptionsBundle.from(mMutableConfig));
         }
 
         /**

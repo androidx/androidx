@@ -30,7 +30,7 @@ import java.util.List;
  */
 final class ForwardingImageReaderListener implements ImageReader.OnImageAvailableListener {
     @GuardedBy("this")
-    private final List<QueuedImageReaderProxy> imageReaders;
+    private final List<QueuedImageReaderProxy> mImageReaders;
 
     /**
      * Creates a new forwarding listener.
@@ -39,7 +39,7 @@ final class ForwardingImageReaderListener implements ImageReader.OnImageAvailabl
      * @return new {@link ForwardingImageReaderListener} instance
      */
     ForwardingImageReaderListener(List<QueuedImageReaderProxy> imageReaders) {
-        this.imageReaders = Collections.unmodifiableList(imageReaders);
+        this.mImageReaders = Collections.unmodifiableList(imageReaders);
     }
 
     @Override
@@ -48,7 +48,7 @@ final class ForwardingImageReaderListener implements ImageReader.OnImageAvailabl
         ImageProxy imageProxy = new AndroidImageProxy(image);
         ReferenceCountedImageProxy referenceCountedImageProxy =
                 new ReferenceCountedImageProxy(imageProxy);
-        for (QueuedImageReaderProxy imageReaderProxy : imageReaders) {
+        for (QueuedImageReaderProxy imageReaderProxy : mImageReaders) {
             synchronized (imageReaderProxy) {
                 if (!imageReaderProxy.isClosed()) {
                     ImageProxy forkedImage = referenceCountedImageProxy.fork();

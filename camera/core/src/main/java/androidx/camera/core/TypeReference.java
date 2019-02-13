@@ -47,12 +47,13 @@ import java.lang.reflect.WildcardType;
  * <p>See <a href="http://gafter.blogspot.com/2007/05/limitation-of-super-type-tokens.html">
  * http://gafter.blogspot.com/2007/05/limitation-of-super-type-tokens.html</a> for more details.
  *
+ * @param <T> the type to capture
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public abstract class TypeReference<T> {
-    private final Type type;
-    private final int hash;
+    private final Type mType;
+    private final int mHash;
 
     /**
      * Create a new type reference for {@code T}.
@@ -64,7 +65,7 @@ public abstract class TypeReference<T> {
         ParameterizedType thisType = (ParameterizedType) getClass().getGenericSuperclass();
 
         // extract the "T" from TypeReference<T>
-        type = thisType.getActualTypeArguments()[0];
+        mType = thisType.getActualTypeArguments()[0];
 
         /*
          * Prohibit type references with type variables such as
@@ -75,20 +76,20 @@ public abstract class TypeReference<T> {
          * consider *all* Lists equal regardless of T. Allowing this would defeat
          * some of the type safety of a type reference.
          */
-        if (containsTypeVariable(type)) {
+        if (containsTypeVariable(mType)) {
             throw new IllegalArgumentException(
                     "Including a type variable in a type reference is not allowed");
         }
-        hash = type.hashCode();
+        mHash = mType.hashCode();
     }
 
     TypeReference(Type type) {
-        this.type = type;
-        if (containsTypeVariable(this.type)) {
+        mType = type;
+        if (containsTypeVariable(mType)) {
             throw new IllegalArgumentException(
                     "Including a type variable in a type reference is not allowed");
         }
-        hash = this.type.hashCode();
+        mHash = mType.hashCode();
     }
 
     /**
@@ -105,7 +106,7 @@ public abstract class TypeReference<T> {
         return new SpecializedTypeReference<T>(klass);
     }
 
-    private static final Class<?> getRawType(Type type) {
+    private static Class<?> getRawType(Type type) {
         if (type == null) {
             throw new NullPointerException("type must not be null");
         }
@@ -127,7 +128,7 @@ public abstract class TypeReference<T> {
         }
     }
 
-    private static final Class<?> getRawType(Type[] types) {
+    private static Class<?> getRawType(Type[] types) {
         if (types == null) {
             return null;
         }
@@ -142,7 +143,7 @@ public abstract class TypeReference<T> {
         return null;
     }
 
-    private static final Class<?> getArrayClass(Class<?> componentType) {
+    private static Class<?> getArrayClass(Class<?> componentType) {
         return Array.newInstance(componentType, 0).getClass();
     }
 
@@ -316,7 +317,7 @@ public abstract class TypeReference<T> {
 
     /** Return the dynamic {@link Type} corresponding to the captured type {@code T}. */
     public Type getType() {
-        return type;
+        return mType;
     }
 
     /**
@@ -337,7 +338,7 @@ public abstract class TypeReference<T> {
      */
     @SuppressWarnings("unchecked")
     public final Class<? super T> getRawType() {
-        return (Class<? super T>) getRawType(type);
+        return (Class<? super T>) getRawType(mType);
     }
 
     /**
@@ -350,12 +351,12 @@ public abstract class TypeReference<T> {
     public boolean equals(Object o) {
         // Note that this comparison could inaccurately return true when comparing types
         // with nested type variables; therefore we ban type variables in the constructor.
-        return o instanceof TypeReference<?> && type.equals(((TypeReference<?>) o).type);
+        return o instanceof TypeReference<?> && mType.equals(((TypeReference<?>) o).mType);
     }
 
     @Override
     public int hashCode() {
-        return hash;
+        return mHash;
     }
 
     @Override
@@ -369,7 +370,7 @@ public abstract class TypeReference<T> {
     }
 
     private static class SpecializedTypeReference<T> extends TypeReference<T> {
-        public SpecializedTypeReference(Class<T> klass) {
+        SpecializedTypeReference(Class<T> klass) {
             super(klass);
         }
     }

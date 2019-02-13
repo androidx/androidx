@@ -31,7 +31,7 @@ import androidx.annotation.Nullable;
  */
 final class ReferenceCountedImageProxy extends ForwardingImageProxy {
     @GuardedBy("this")
-    private int referenceCount = 1;
+    private int mReferenceCount = 1;
 
     /**
      * Creates a new instance which wraps the given image and sets the reference count to 1.
@@ -51,10 +51,10 @@ final class ReferenceCountedImageProxy extends ForwardingImageProxy {
      */
     @Nullable
     synchronized ImageProxy fork() {
-        if (referenceCount <= 0) {
+        if (mReferenceCount <= 0) {
             return null;
         } else {
-            referenceCount++;
+            mReferenceCount++;
             return new SingleCloseImageProxy(this);
         }
     }
@@ -67,9 +67,9 @@ final class ReferenceCountedImageProxy extends ForwardingImageProxy {
      */
     @Override
     public synchronized void close() {
-        if (referenceCount > 0) {
-            referenceCount--;
-            if (referenceCount <= 0) {
+        if (mReferenceCount > 0) {
+            mReferenceCount--;
+            if (mReferenceCount <= 0) {
                 super.close();
             }
         }
@@ -77,6 +77,6 @@ final class ReferenceCountedImageProxy extends ForwardingImageProxy {
 
     /** Returns the current reference count. */
     synchronized int getReferenceCount() {
-        return referenceCount;
+        return mReferenceCount;
     }
 }

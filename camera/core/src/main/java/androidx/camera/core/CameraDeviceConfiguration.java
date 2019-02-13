@@ -60,7 +60,7 @@ public interface CameraDeviceConfiguration extends Configuration.Reader {
     }
 
     // Option Declarations:
-    // ***********************************************************************************************
+    // *********************************************************************************************
 
     /**
      * Builder for a {@link CameraDeviceConfiguration}.

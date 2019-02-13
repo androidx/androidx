@@ -64,34 +64,34 @@ public final class CameraCaptureCallbacks {
      * received callback to the list.
      */
     public static final class ComboCameraCaptureCallback extends CameraCaptureCallback {
-        private final List<CameraCaptureCallback> callbacks = new ArrayList<>();
+        private final List<CameraCaptureCallback> mCallbacks = new ArrayList<>();
 
         ComboCameraCaptureCallback(List<CameraCaptureCallback> callbacks) {
             for (CameraCaptureCallback callback : callbacks) {
                 // A no-op callback doesn't do anything, so avoid adding it to the final list.
                 if (!(callback instanceof NoOpCameraCaptureCallback)) {
-                    this.callbacks.add(callback);
+                    this.mCallbacks.add(callback);
                 }
             }
         }
 
         @Override
         public void onCaptureCompleted(CameraCaptureResult result) {
-            for (CameraCaptureCallback callback : callbacks) {
+            for (CameraCaptureCallback callback : mCallbacks) {
                 callback.onCaptureCompleted(result);
             }
         }
 
         @Override
         public void onCaptureFailed(CameraCaptureFailure failure) {
-            for (CameraCaptureCallback callback : callbacks) {
+            for (CameraCaptureCallback callback : mCallbacks) {
                 callback.onCaptureFailed(failure);
             }
         }
 
         @NonNull
         public List<CameraCaptureCallback> getCallbacks() {
-            return callbacks;
+            return mCallbacks;
         }
     }
 }

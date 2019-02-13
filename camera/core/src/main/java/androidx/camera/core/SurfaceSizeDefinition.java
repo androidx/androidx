@@ -43,9 +43,9 @@ public abstract class SurfaceSizeDefinition {
     }
 
     /**
-     * Create a SurfaceSizeDenifition object with input analysis, preview, record and maximum sizes
+     * Create a SurfaceSizeDefinition object with input analysis, preview, record and maximum sizes
      *
-     * @param analysisSize   Default AYALYSIS size is * 640x480.
+     * @param analysisSize   Default ANALYSIS size is * 640x480.
      * @param previewSize    PREVIEW refers to the best size match to the device's screen
      *                       resolution,
      *                       or to 1080p * (1920x1080), whichever is smaller.
@@ -64,11 +64,18 @@ public abstract class SurfaceSizeDefinition {
                 analysisSize, previewSize, recordSize, maximumSizeMap);
     }
 
+    /** Returns the size of an ANALYSIS stream. */
     public abstract Size getAnalysisSize();
 
+    /** Returns the size of a PREVIEW stream. */
     public abstract Size getPreviewSize();
 
+    /** Returns the size of a RECORD stream*/
     public abstract Size getRecordSize();
 
+    /**
+     * Returns a map of image format to resolution.
+     * @return a map with the image format as the key and resolution as the value.
+     */
     public abstract Map<Integer, Size> getMaximumSizeMap();
 }

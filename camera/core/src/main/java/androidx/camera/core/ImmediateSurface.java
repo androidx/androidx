@@ -31,14 +31,14 @@ import com.google.common.util.concurrent.ListenableFuture;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class ImmediateSurface implements DeferrableSurface {
-    private final Surface surface;
+    private final Surface mSurface;
 
     public ImmediateSurface(Surface surface) {
-        this.surface = surface;
+        mSurface = surface;
     }
 
     @Override
     public ListenableFuture<Surface> getSurface() {
-        return Futures.immediateFuture(surface);
+        return Futures.immediateFuture(mSurface);
     }
 }

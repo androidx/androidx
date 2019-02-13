@@ -46,31 +46,31 @@ public abstract class BaseUseCase {
      * The set of {@link StateChangeListener} that are currently listening state transitions of this
      * use case.
      */
-    private final Set<StateChangeListener> listeners = new HashSet<>();
+    private final Set<StateChangeListener> mListeners = new HashSet<>();
 
     /**
      * A map of camera id and CameraControl. A CameraControl will be attached into the usecase after
      * usecase is bound to lifecycle. It is used for controlling zoom/focus/flash/triggering Af or
      * AE.
      */
-    private final Map<String, CameraControl> attachedCameraControlMap = new HashMap<>();
+    private final Map<String, CameraControl> mAttachedCameraControlMap = new HashMap<>();
 
     /**
      * A map of the names of the {@link android.hardware.camera2.CameraDevice} to the {@link
      * SessionConfiguration} that have been attached to this BaseUseCase
      */
-    private final Map<String, SessionConfiguration> attachedCameraIdToSessionConfigurationMap =
+    private final Map<String, SessionConfiguration> mAttachedCameraIdToSessionConfigurationMap =
             new HashMap<>();
 
     /**
      * A map of the names of the {@link android.hardware.camera2.CameraDevice} to the surface
      * resolution that have been attached to this BaseUseCase
      */
-    private final Map<String, Size> attachedSurfaceResolutionMap = new HashMap<>();
+    private final Map<String, Size> mAttachedSurfaceResolutionMap = new HashMap<>();
 
-    private State state = State.INACTIVE;
+    private State mState = State.INACTIVE;
 
-    private UseCaseConfiguration<?> useCaseConfiguration;
+    private UseCaseConfiguration<?> mUseCaseConfiguration;
 
     /**
      * Except for ImageFormat.JPEG or ImageFormat.YUV, other image formats like SurfaceTexture or
@@ -80,7 +80,7 @@ public abstract class BaseUseCase {
      * code 0x22 for internal corresponding format HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED.
      * Therefore, setting 0x22 as default image format.
      */
-    private int imageFormat = ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+    private int mImageFormat = ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 
     /**
      * Creates a named instance of the use case.
@@ -128,9 +128,9 @@ public abstract class BaseUseCase {
             Log.w(
                     TAG,
                     "No default configuration available. Relying solely on user-supplied options.");
-            this.useCaseConfiguration = useCaseConfiguration;
+            this.mUseCaseConfiguration = useCaseConfiguration;
         } else {
-            this.useCaseConfiguration = applyDefaults(useCaseConfiguration, defaultBuilder);
+            this.mUseCaseConfiguration = applyDefaults(useCaseConfiguration, defaultBuilder);
         }
     }
 
@@ -172,7 +172,7 @@ public abstract class BaseUseCase {
      * android.hardware.camera2.CameraManager}.
      */
     Set<String> getAttachedCameraIds() {
-        return attachedCameraIdToSessionConfigurationMap.keySet();
+        return mAttachedCameraIdToSessionConfigurationMap.keySet();
     }
 
     /**
@@ -183,16 +183,18 @@ public abstract class BaseUseCase {
      *                 android.hardware.camera2.CameraManager#getCameraIdList()}.
      */
     protected void attachToCamera(String cameraId, SessionConfiguration sessionConfiguration) {
-        attachedCameraIdToSessionConfigurationMap.put(cameraId, sessionConfiguration);
+        mAttachedCameraIdToSessionConfigurationMap.put(cameraId, sessionConfiguration);
     }
 
     /**
      * Add a {@link StateChangeListener}, which listens to this BaseUseCase's active and inactive
      * transition events.
+     *
+     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void addStateChangeListener(StateChangeListener listener) {
-        listeners.add(listener);
+        mListeners.add(listener);
     }
 
     /**
@@ -202,13 +204,13 @@ public abstract class BaseUseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public final void attachCameraControl(String cameraId, CameraControl cameraControl) {
-        attachedCameraControlMap.put(cameraId, cameraControl);
+        mAttachedCameraControlMap.put(cameraId, cameraControl);
         onCameraControlReady(cameraId);
     }
 
     /** Detach a CameraControl from this use case. */
     final void detachCameraControl(String cameraId) {
-        attachedCameraControlMap.remove(cameraId);
+        mAttachedCameraControlMap.remove(cameraId);
     }
 
     /**
@@ -218,7 +220,7 @@ public abstract class BaseUseCase {
      * <p>If the listener isn't currently listening to the BaseUseCase then this call does nothing.
      */
     void removeStateChangeListener(StateChangeListener listener) {
-        listeners.remove(listener);
+        mListeners.remove(listener);
     }
 
     /**
@@ -230,7 +232,7 @@ public abstract class BaseUseCase {
      */
     public SessionConfiguration getSessionConfiguration(String cameraId) {
         SessionConfiguration sessionConfiguration =
-                attachedCameraIdToSessionConfigurationMap.get(cameraId);
+                mAttachedCameraIdToSessionConfigurationMap.get(cameraId);
         if (sessionConfiguration == null) {
             throw new IllegalArgumentException("Invalid camera: " + cameraId);
         } else {
@@ -243,7 +245,7 @@ public abstract class BaseUseCase {
      * transitioned to an active state.
      */
     protected final void notifyActive() {
-        state = State.ACTIVE;
+        mState = State.ACTIVE;
         notifyState();
     }
 
@@ -252,7 +254,7 @@ public abstract class BaseUseCase {
      * transitioned to an inactive state.
      */
     protected final void notifyInactive() {
-        state = State.INACTIVE;
+        mState = State.INACTIVE;
         notifyState();
     }
 
@@ -261,7 +263,7 @@ public abstract class BaseUseCase {
      * single capture request.
      */
     protected final void notifySingleCapture(CaptureRequestConfiguration requestConfiguration) {
-        for (StateChangeListener listener : listeners) {
+        for (StateChangeListener listener : mListeners) {
             listener.onUseCaseSingleRequest(this, requestConfiguration);
         }
     }
@@ -271,7 +273,7 @@ public abstract class BaseUseCase {
      * settings have been updated.
      */
     protected final void notifyUpdated() {
-        for (StateChangeListener listener : listeners) {
+        for (StateChangeListener listener : mListeners) {
             listener.onUseCaseUpdated(this);
         }
     }
@@ -281,7 +283,7 @@ public abstract class BaseUseCase {
      * case needs to be completely reset.
      */
     protected final void notifyReset() {
-        for (StateChangeListener listener : listeners) {
+        for (StateChangeListener listener : mListeners) {
             listener.onUseCaseReset(this);
         }
     }
@@ -291,14 +293,14 @@ public abstract class BaseUseCase {
      * state.
      */
     protected final void notifyState() {
-        switch (state) {
+        switch (mState) {
             case INACTIVE:
-                for (StateChangeListener listener : listeners) {
+                for (StateChangeListener listener : mListeners) {
                     listener.onUseCaseInactive(this);
                 }
                 break;
             case ACTIVE:
-                for (StateChangeListener listener : listeners) {
+                for (StateChangeListener listener : mListeners) {
                     listener.onUseCaseActive(this);
                 }
                 break;
@@ -308,21 +310,23 @@ public abstract class BaseUseCase {
     /** Clear out all {@link StateChangeListener} from listening to this BaseUseCase. */
     @CallSuper
     protected void clear() {
-        listeners.clear();
+        mListeners.clear();
     }
 
     public String getName() {
-        return useCaseConfiguration.getTargetName("<UnknownUseCase-" + this.hashCode() + ">");
+        return mUseCaseConfiguration.getTargetName("<UnknownUseCase-" + this.hashCode() + ">");
     }
 
     /**
      * Retrieves the configuration used by this use case.
      *
      * @return the configuration used by this use case.
+     *
+     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public UseCaseConfiguration<?> getUseCaseConfiguration() {
-        return useCaseConfiguration;
+        return mUseCaseConfiguration;
     }
 
     /**
@@ -330,10 +334,12 @@ public abstract class BaseUseCase {
      *
      * @param cameraId the camera id for the desired surface.
      * @return the currently attached surface resolution for the given camera id.
+     *
+     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public Size getAttachedSurfaceResolution(String cameraId) {
-        return attachedSurfaceResolutionMap.get(cameraId);
+        return mAttachedSurfaceResolutionMap.get(cameraId);
     }
 
     /**
@@ -349,7 +355,7 @@ public abstract class BaseUseCase {
         Map<String, Size> resolutionMap = onSuggestedResolutionUpdated(suggestedResolutionMap);
 
         for (Entry<String, Size> entry : resolutionMap.entrySet()) {
-            attachedSurfaceResolutionMap.put(entry.getKey(), entry.getValue());
+            mAttachedSurfaceResolutionMap.put(entry.getKey(), entry.getValue());
         }
     }
 
@@ -376,6 +382,7 @@ public abstract class BaseUseCase {
      *
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected void onCameraControlReady(String cameraId) {
     }
 
@@ -384,8 +391,9 @@ public abstract class BaseUseCase {
      *
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected CameraControl getCameraControl(String cameraId) {
-        CameraControl cameraControl = attachedCameraControlMap.get(cameraId);
+        CameraControl cameraControl = mAttachedCameraControlMap.get(cameraId);
         if (cameraControl == null) {
             return CameraControl.defaultEmptyInstance();
         }
@@ -400,11 +408,11 @@ public abstract class BaseUseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public int getImageFormat() {
-        return imageFormat;
+        return mImageFormat;
     }
 
     protected void setImageFormat(int imageFormat) {
-        this.imageFormat = imageFormat;
+        this.mImageFormat = imageFormat;
     }
 
     enum State {

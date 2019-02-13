@@ -88,13 +88,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class CameraX {
 
     private static final CameraX INSTANCE = new CameraX();
-    private final CameraRepository cameraRepository = new CameraRepository();
-    private final AtomicBoolean initialized = new AtomicBoolean(false);
-    private final UseCaseGroupRepository useCaseGroupRepository = new UseCaseGroupRepository();
-    private final ErrorHandler errorHandler = new ErrorHandler();
-    private CameraFactory cameraFactory;
-    private CameraDeviceSurfaceManager surfaceManager;
-    private UseCaseConfigurationFactory defaultConfigFactory;
+    private final CameraRepository mCameraRepository = new CameraRepository();
+    private final AtomicBoolean mInitialized = new AtomicBoolean(false);
+    private final UseCaseGroupRepository mUseCaseGroupRepository = new UseCaseGroupRepository();
+    private final ErrorHandler mErrorHandler = new ErrorHandler();
+    private CameraFactory mCameraFactory;
+    private CameraDeviceSurfaceManager mSurfaceManager;
+    private UseCaseConfigurationFactory mDefaultConfigFactory;
     /** Prevents construction. */
     private CameraX() {
     }
@@ -126,7 +126,7 @@ public final class CameraX {
         UseCaseGroup useCaseGroupToBind = useCaseGroupLifecycleController.getUseCaseGroup();
 
         Collection<UseCaseGroupLifecycleController> controllers =
-                INSTANCE.useCaseGroupRepository.getUseCaseGroups();
+                INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
         for (BaseUseCase useCase : useCases) {
             for (UseCaseGroupLifecycleController controller : controllers) {
                 UseCaseGroup useCaseGroup = controller.getUseCaseGroup();
@@ -163,7 +163,7 @@ public final class CameraX {
      */
     public static boolean isBound(BaseUseCase useCase) {
         Collection<UseCaseGroupLifecycleController> controllers =
-                INSTANCE.useCaseGroupRepository.getUseCaseGroups();
+                INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
 
         for (UseCaseGroupLifecycleController controller : controllers) {
             UseCaseGroup useCaseGroup = controller.getUseCaseGroup();
@@ -187,7 +187,7 @@ public final class CameraX {
      */
     public static void unbind(BaseUseCase... useCases) {
         Collection<UseCaseGroupLifecycleController> useCaseGroups =
-                INSTANCE.useCaseGroupRepository.getUseCaseGroups();
+                INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
 
         for (BaseUseCase useCase : useCases) {
             for (UseCaseGroupLifecycleController useCaseGroupLifecycleController : useCaseGroups) {
@@ -210,7 +210,7 @@ public final class CameraX {
      */
     public static void unbindAll() {
         Collection<UseCaseGroupLifecycleController> useCaseGroups =
-                INSTANCE.useCaseGroupRepository.getUseCaseGroups();
+                INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
 
         List<BaseUseCase> useCases = new ArrayList<>();
         for (UseCaseGroupLifecycleController useCaseGroupLifecycleController : useCaseGroups) {
@@ -295,7 +295,7 @@ public final class CameraX {
      *                      {@code null} then it will default to run on the main thread.
      */
     public static void setErrorListener(ErrorListener errorListener, Handler handler) {
-        INSTANCE.errorHandler.setErrorListener(errorListener, handler);
+        INSTANCE.mErrorHandler.setErrorListener(errorListener, handler);
     }
 
     /**
@@ -307,7 +307,7 @@ public final class CameraX {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static void postError(ErrorCode errorCode, String message) {
-        INSTANCE.errorHandler.postError(errorCode, message);
+        INSTANCE.mErrorHandler.postError(errorCode, message);
     }
 
     /**
@@ -332,7 +332,7 @@ public final class CameraX {
      * CameraX.
      */
     static boolean isInitialized() {
-        return INSTANCE.initialized.get();
+        return INSTANCE.mInitialized.get();
     }
 
     /**
@@ -371,7 +371,7 @@ public final class CameraX {
 
     private static void calculateSuggestedResolutions(BaseUseCase... useCases) {
         Collection<UseCaseGroupLifecycleController> controllers =
-                INSTANCE.useCaseGroupRepository.getUseCaseGroups();
+                INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
         Map<String, List<BaseUseCase>> originalCameraIdUseCaseMap = new HashMap<>();
         Map<String, List<BaseUseCase>> newCameraIdUseCaseMap = new HashMap<>();
 
@@ -435,11 +435,11 @@ public final class CameraX {
      *                               uninitialized.
      */
     private CameraFactory getCameraFactory() {
-        if (cameraFactory == null) {
+        if (mCameraFactory == null) {
             throw new IllegalStateException("CameraX not initialized yet.");
         }
 
-        return cameraFactory;
+        return mCameraFactory;
     }
 
     /**
@@ -449,55 +449,55 @@ public final class CameraX {
      *                               to being uninitialized.
      */
     private CameraDeviceSurfaceManager getCameraDeviceSurfaceManager() {
-        if (surfaceManager == null) {
+        if (mSurfaceManager == null) {
             throw new IllegalStateException("CameraX not initialized yet.");
         }
 
-        return surfaceManager;
+        return mSurfaceManager;
     }
 
     private UseCaseConfigurationFactory getDefaultConfigFactory() {
-        if (defaultConfigFactory == null) {
+        if (mDefaultConfigFactory == null) {
             throw new IllegalStateException("CameraX not initialized yet.");
         }
 
-        return defaultConfigFactory;
+        return mDefaultConfigFactory;
     }
 
     @SuppressWarnings("unused") // Context will be used in a future change
     private void initInternal(Context context, AppConfiguration appConfiguration) {
-        if (initialized.getAndSet(true)) {
+        if (mInitialized.getAndSet(true)) {
             return;
         }
 
-        cameraFactory = appConfiguration.getCameraFactory(null);
-        if (cameraFactory == null) {
+        mCameraFactory = appConfiguration.getCameraFactory(null);
+        if (mCameraFactory == null) {
             throw new IllegalStateException(
                     "Invalid app configuration provided. Missing CameraFactory.");
         }
 
-        surfaceManager = appConfiguration.getDeviceSurfaceManager(null);
-        if (surfaceManager == null) {
+        mSurfaceManager = appConfiguration.getDeviceSurfaceManager(null);
+        if (mSurfaceManager == null) {
             throw new IllegalStateException(
                     "Invalid app configuration provided. Missing CameraDeviceSurfaceManager.");
         }
 
-        defaultConfigFactory = appConfiguration.getUseCaseConfigRepository(null);
-        if (defaultConfigFactory == null) {
+        mDefaultConfigFactory = appConfiguration.getUseCaseConfigRepository(null);
+        if (mDefaultConfigFactory == null) {
             throw new IllegalStateException(
                     "Invalid app configuration provided. Missing UseCaseConfigurationFactory.");
         }
 
-        cameraRepository.init(cameraFactory);
+        mCameraRepository.init(mCameraFactory);
     }
 
     private UseCaseGroupLifecycleController getOrCreateUseCaseGroup(LifecycleOwner lifecycleOwner) {
-        return useCaseGroupRepository.getOrCreateUseCaseGroup(
-                lifecycleOwner, useCaseGroup -> useCaseGroup.setListener(cameraRepository));
+        return mUseCaseGroupRepository.getOrCreateUseCaseGroup(
+                lifecycleOwner, useCaseGroup -> useCaseGroup.setListener(mCameraRepository));
     }
 
     private CameraRepository getCameraRepository() {
-        return cameraRepository;
+        return mCameraRepository;
     }
 
     /** The types of error states that can occur. */

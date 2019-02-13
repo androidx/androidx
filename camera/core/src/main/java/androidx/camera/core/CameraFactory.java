@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraX.LensFacing;
 
 import java.util.Set;
@@ -26,12 +27,16 @@ import java.util.Set;
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraFactory {
 
+    /** Get the camera with the associated id. */
     BaseCamera getCamera(String cameraId);
 
+    /** Get ids for all the available cameras. */
     Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException;
 
+    /** Get the id of the camera with the specified lens facing. */
     @Nullable
     String cameraIdForLensFacing(LensFacing lensFacing) throws CameraInfoUnavailableException;
 }

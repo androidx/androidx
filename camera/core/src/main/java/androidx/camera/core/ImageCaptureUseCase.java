@@ -84,28 +84,28 @@ public class ImageCaptureUseCase extends BaseUseCase {
     // Empty metadata object used as a placeholder for no user-supplied metadata.
     // Should be initialized to all default values.
     private static final Metadata EMPTY_METADATA = new Metadata();
-    final Handler handler;
-    final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private final SessionConfiguration.Builder sessionConfigBuilder;
-    private final ArrayDeque<ImageCaptureRequest> imageCaptureRequests = new ArrayDeque<>();
-    private final ExecutorService executor =
+    final Handler mHandler;
+    final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    private final SessionConfiguration.Builder mSessionConfigBuilder;
+    private final ArrayDeque<ImageCaptureRequest> mImageCaptureRequests = new ArrayDeque<>();
+    private final ExecutorService mExecutor =
             Executors.newFixedThreadPool(
                     1,
                     new ThreadFactory() {
-                        private final AtomicInteger id = new AtomicInteger(0);
+                        private final AtomicInteger mId = new AtomicInteger(0);
 
                         @Override
                         public Thread newThread(Runnable r) {
                             return new Thread(
                                     r,
-                                    CameraXThreads.TAG + "image_capture_" + id.getAndIncrement());
+                                    CameraXThreads.TAG + "image_capture_" + mId.getAndIncrement());
                         }
                     });
-    private final CaptureCallbackChecker sessionCallbackChecker = new CaptureCallbackChecker();
-    private final CaptureMode captureMode;
-    private final ImageCaptureUseCaseConfiguration.Builder useCaseConfigBuilder;
-    private ImageCaptureUseCaseConfiguration configuration;
-    private ImageReaderProxy imageReader;
+    private final CaptureCallbackChecker mSessionCallbackChecker = new CaptureCallbackChecker();
+    private final CaptureMode mCaptureMode;
+    private final ImageCaptureUseCaseConfiguration.Builder mUseCaseConfigBuilder;
+    private ImageCaptureUseCaseConfiguration mConfiguration;
+    private ImageReaderProxy mImageReader;
     /**
      * A flag to check 3A converged or not.
      *
@@ -113,9 +113,10 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * the flag is disabled. Set it to be enabled in the maximum quality mode and disabled in the
      * minimum latency mode.
      */
-    private boolean enableCheck3AConverged;
+    private boolean mEnableCheck3AConverged;
     /** Current flash mode. */
-    private FlashMode flashMode;
+    private FlashMode mFlashMode;
+
     /**
      * Creates a new image capture use case from the given configuration.
      *
@@ -123,30 +124,30 @@ public class ImageCaptureUseCase extends BaseUseCase {
      */
     public ImageCaptureUseCase(ImageCaptureUseCaseConfiguration userConfiguration) {
         super(userConfiguration);
-        useCaseConfigBuilder =
+        mUseCaseConfigBuilder =
                 ImageCaptureUseCaseConfiguration.Builder.fromConfig(userConfiguration);
         setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageCaptureFormat());
         // Ensure we're using the combined configuration (user config + defaults)
-        configuration = (ImageCaptureUseCaseConfiguration) getUseCaseConfiguration();
-        captureMode = configuration.getCaptureMode();
-        flashMode = configuration.getFlashMode();
+        mConfiguration = (ImageCaptureUseCaseConfiguration) getUseCaseConfiguration();
+        mCaptureMode = mConfiguration.getCaptureMode();
+        mFlashMode = mConfiguration.getFlashMode();
 
-        if (captureMode == CaptureMode.MAX_QUALITY) {
-            enableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
-        } else if (captureMode == CaptureMode.MIN_LATENCY) {
-            enableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
+        if (mCaptureMode == CaptureMode.MAX_QUALITY) {
+            mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
+        } else if (mCaptureMode == CaptureMode.MIN_LATENCY) {
+            mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
         }
 
-        handler = configuration.getCallbackHandler(null);
-        if (handler == null) {
+        mHandler = mConfiguration.getCallbackHandler(null);
+        if (mHandler == null) {
             throw new IllegalStateException("No default handler specified.");
         }
 
-        sessionConfigBuilder = SessionConfiguration.Builder.createFrom(configuration);
-        sessionConfigBuilder.setCameraCaptureCallback(sessionCallbackChecker);
+        mSessionConfigBuilder = SessionConfiguration.Builder.createFrom(mConfiguration);
+        mSessionConfigBuilder.setCameraCaptureCallback(mSessionCallbackChecker);
     }
 
-    private static final String getCameraIdUnchecked(LensFacing lensFacing) {
+    private static String getCameraIdUnchecked(LensFacing lensFacing) {
         try {
             return CameraX.getCameraWithLensFacing(lensFacing);
         } catch (Exception e) {
@@ -162,6 +163,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      */
     @Override
     @Nullable
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
         ImageCaptureUseCaseConfiguration defaults =
                 CameraX.getDefaultUseCaseConfiguration(ImageCaptureUseCaseConfiguration.class);
@@ -173,14 +175,14 @@ public class ImageCaptureUseCase extends BaseUseCase {
     }
 
     private CameraControl getCurrentCameraControl() {
-        String cameraId = getCameraIdUnchecked(configuration.getLensFacing());
+        String cameraId = getCameraIdUnchecked(mConfiguration.getLensFacing());
         return getCameraControl(cameraId);
     }
 
     /** Configures flash mode to CameraControl once it is ready. */
     @Override
     protected void onCameraControlReady(String cameraId) {
-        getCameraControl(cameraId).setFlashMode(flashMode);
+        getCameraControl(cameraId).setFlashMode(mFlashMode);
     }
 
     /**
@@ -189,7 +191,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * @return the {@link FlashMode}.
      */
     public FlashMode getFlashMode() {
-        return flashMode;
+        return mFlashMode;
     }
 
     /**
@@ -198,7 +200,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * @param flashMode the {@link FlashMode}.
      */
     public void setFlashMode(FlashMode flashMode) {
-        this.flashMode = flashMode;
+        this.mFlashMode = flashMode;
         getCurrentCameraControl().setFlashMode(flashMode);
     }
 
@@ -211,9 +213,9 @@ public class ImageCaptureUseCase extends BaseUseCase {
         ImageOutputConfiguration oldconfig = (ImageOutputConfiguration) getUseCaseConfiguration();
         Rational oldRatio = oldconfig.getTargetAspectRatio(null);
         if (!aspectRatio.equals(oldRatio)) {
-            useCaseConfigBuilder.setTargetAspectRatio(aspectRatio);
-            updateUseCaseConfiguration(useCaseConfigBuilder.build());
-            configuration = (ImageCaptureUseCaseConfiguration) getUseCaseConfiguration();
+            mUseCaseConfigBuilder.setTargetAspectRatio(aspectRatio);
+            updateUseCaseConfiguration(mUseCaseConfigBuilder.build());
+            mConfiguration = (ImageCaptureUseCaseConfiguration) getUseCaseConfiguration();
 
             // TODO(b/122846516): Reconfigure capture session if the ratio is changed drastically.
         }
@@ -234,9 +236,9 @@ public class ImageCaptureUseCase extends BaseUseCase {
         ImageOutputConfiguration oldconfig = (ImageOutputConfiguration) getUseCaseConfiguration();
         int oldRotation = oldconfig.getTargetRotation(ImageOutputConfiguration.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfiguration.INVALID_ROTATION || oldRotation != rotation) {
-            useCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfiguration(useCaseConfigBuilder.build());
-            configuration = (ImageCaptureUseCaseConfiguration) getUseCaseConfiguration();
+            mUseCaseConfigBuilder.setTargetRotation(rotation);
+            updateUseCaseConfiguration(mUseCaseConfigBuilder.build());
+            mConfiguration = (ImageCaptureUseCaseConfiguration) getUseCaseConfiguration();
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
         }
@@ -251,16 +253,17 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * @param listener for the newly captured image
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public void takePicture(OnImageCapturedListener listener) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mainHandler.post(
+            mMainHandler.post(
                     () -> {
                         takePicture(listener);
                     });
             return;
         }
 
-        sendImageCaptureRequest(listener, handler);
+        sendImageCaptureRequest(listener, mHandler);
     }
 
     /**
@@ -289,7 +292,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
     public void takePicture(
             File saveLocation, OnImageSavedListener imageSavedListener, Metadata metadata) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mainHandler.post(
+            mMainHandler.post(
                     () -> {
                         takePicture(saveLocation, imageSavedListener, metadata);
                     });
@@ -340,7 +343,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                     }
                 };
 
-        Rational targetRatio = configuration.getTargetAspectRatio();
+        Rational targetRatio = mConfiguration.getTargetAspectRatio();
 
         // Wrap the ImageCaptureUseCase.OnImageSavedListener with an OnImageCapturedListener so it
         // can
@@ -349,7 +352,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                 new OnImageCapturedListener() {
                     @Override
                     public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
-                        Handler completionHandler = (handler != null) ? handler : mainHandler;
+                        Handler completionHandler = (mHandler != null) ? mHandler : mMainHandler;
                         IoExecutor.getInstance()
                                 .execute(
                                         new ImageSaver(
@@ -371,16 +374,16 @@ public class ImageCaptureUseCase extends BaseUseCase {
                     }
                 };
 
-        // Always use the mainHandler for the initial callback so we don't need to double post to
+        // Always use the mMainHandler for the initial callback so we don't need to double post to
         // another thread
-        sendImageCaptureRequest(imageCaptureCallbackWrapper, mainHandler);
+        sendImageCaptureRequest(imageCaptureCallbackWrapper, mMainHandler);
     }
 
     @UiThread
     private void sendImageCaptureRequest(
             OnImageCapturedListener listener, @Nullable Handler listenerHandler) {
 
-        String cameraId = getCameraIdUnchecked(configuration.getLensFacing());
+        String cameraId = getCameraIdUnchecked(mConfiguration.getLensFacing());
 
         // Get the relative rotation or default to 0 if the camera info is unavailable
         int relativeRotation = 0;
@@ -388,14 +391,14 @@ public class ImageCaptureUseCase extends BaseUseCase {
             CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
             relativeRotation =
                     cameraInfo.getSensorRotationDegrees(
-                            configuration.getTargetRotation(Surface.ROTATION_0));
+                            mConfiguration.getTargetRotation(Surface.ROTATION_0));
         } catch (CameraInfoUnavailableException e) {
             Log.e(TAG, "Unable to retrieve camera sensor orientation.", e);
         }
 
-        imageCaptureRequests.offer(
+        mImageCaptureRequests.offer(
                 new ImageCaptureRequest(listener, listenerHandler, relativeRotation));
-        if (imageCaptureRequests.size() == 1) {
+        if (mImageCaptureRequests.size() == 1) {
             issueImageCaptureRequests();
         }
     }
@@ -403,7 +406,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
     /** Issues saved ImageCaptureRequest. */
     @UiThread
     private void issueImageCaptureRequests() {
-        if (imageCaptureRequests.isEmpty()) {
+        if (mImageCaptureRequests.isEmpty()) {
             return;
         }
         takePictureInternal();
@@ -425,8 +428,8 @@ public class ImageCaptureUseCase extends BaseUseCase {
         TakePictureState state = new TakePictureState();
 
         FluentFuture.from(preTakePicture(state))
-                .transformAsync(v -> issueTakePicture(), executor)
-                .transformAsync(v -> postTakePicture(state), executor)
+                .transformAsync(v -> issueTakePicture(), mExecutor)
+                .transformAsync(v -> postTakePicture(state), mExecutor)
                 .addCallback(
                         new FutureCallback<Void>() {
                             @Override
@@ -438,7 +441,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                                 Log.e(TAG, "takePictureInternal onFailure", t);
                             }
                         },
-                        executor);
+                        mExecutor);
     }
 
     @Override
@@ -454,11 +457,11 @@ public class ImageCaptureUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
-        if (imageReader != null) {
-            imageReader.close();
-            imageReader = null;
+        if (mImageReader != null) {
+            mImageReader.close();
+            mImageReader = null;
         }
-        executor.shutdown();
+        mExecutor.shutdown();
         super.clear();
     }
 
@@ -468,37 +471,38 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * @hide
      */
     @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
-        String cameraId = getCameraIdUnchecked(configuration.getLensFacing());
+        String cameraId = getCameraIdUnchecked(mConfiguration.getLensFacing());
         Size resolution = suggestedResolutionMap.get(cameraId);
         if (resolution == null) {
             throw new IllegalArgumentException(
                     "Suggested resolution map missing resolution for camera " + cameraId);
         }
 
-        if (imageReader != null) {
-            if (imageReader.getHeight() == resolution.getHeight()
-                    && imageReader.getWidth() == resolution.getWidth()) {
+        if (mImageReader != null) {
+            if (mImageReader.getHeight() == resolution.getHeight()
+                    && mImageReader.getWidth() == resolution.getWidth()) {
                 // Resolution does not need to be updated. Return early.
                 return suggestedResolutionMap;
             }
-            imageReader.close();
+            mImageReader.close();
         }
 
-        imageReader =
+        mImageReader =
                 ImageReaderProxys.createCompatibleReader(
                         cameraId,
                         resolution.getWidth(),
                         resolution.getHeight(),
                         getImageFormat(),
                         MAX_IMAGES,
-                        handler);
+                        mHandler);
 
-        imageReader.setOnImageAvailableListener(
+        mImageReader.setOnImageAvailableListener(
                 imageReader -> {
                     // Call the listener so that the captured image can be processed.
-                    ImageCaptureRequest imageCaptureRequest = imageCaptureRequests.peek();
+                    ImageCaptureRequest imageCaptureRequest = mImageCaptureRequests.peek();
                     if (imageCaptureRequest != null) {
                         ImageProxy image = null;
                         try {
@@ -508,7 +512,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                         } finally {
                             if (image != null) {
                                 // Remove the first listener from the queue
-                                imageCaptureRequests.poll();
+                                mImageCaptureRequests.poll();
 
                                 // Inform the listener
                                 imageCaptureRequest.dispatchImage(image);
@@ -530,12 +534,13 @@ public class ImageCaptureUseCase extends BaseUseCase {
                         }
                     }
                 },
-                mainHandler);
+                mMainHandler);
 
-        sessionConfigBuilder.clearSurfaces();
-        sessionConfigBuilder.addNonRepeatingSurface(new ImmediateSurface(imageReader.getSurface()));
+        mSessionConfigBuilder.clearSurfaces();
+        mSessionConfigBuilder.addNonRepeatingSurface(
+                new ImmediateSurface(mImageReader.getSurface()));
 
-        attachToCamera(cameraId, sessionConfigBuilder.build());
+        attachToCamera(cameraId, mSessionConfigBuilder.build());
 
         // In order to speed up the take picture process, notifyActive at an early stage to attach
         // the
@@ -554,18 +559,18 @@ public class ImageCaptureUseCase extends BaseUseCase {
         return FluentFuture.from(getPreCaptureStateIfNeeded())
                 .transformAsync(
                         captureResult -> {
-                            state.preCaptureState = captureResult;
+                            state.mPreCaptureState = captureResult;
                             triggerAfIfNeeded(state);
 
                             if (isFlashRequired(state)) {
-                                state.isFlashTriggered = true;
+                                state.mIsFlashTriggered = true;
                                 triggerAePrecapture(state);
                             }
                             return check3AConverged(state);
                         },
-                        executor)
+                        mExecutor)
                 // Ignore the 3A convergence result.
-                .transform(is3AConverged -> null, executor);
+                .transform(is3AConverged -> null, mExecutor);
     }
 
     /**
@@ -579,7 +584,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                     cancelAfAeTrigger(state);
                     return Futures.immediateFuture(null);
                 },
-                executor);
+                mExecutor);
     }
 
     /**
@@ -596,8 +601,8 @@ public class ImageCaptureUseCase extends BaseUseCase {
     // If app is in min-latency mode and flash ALWAYS/OFF mode, it can still take picture without
     // checking the capture result. Remove this check once no repeating surface issue is fixed.
     private ListenableFuture<CameraCaptureResult> getPreCaptureStateIfNeeded() {
-        if (enableCheck3AConverged || getFlashMode() == FlashMode.AUTO) {
-            return sessionCallbackChecker.checkCaptureResult((captureResult) -> captureResult);
+        if (mEnableCheck3AConverged || getFlashMode() == FlashMode.AUTO) {
+            return mSessionCallbackChecker.checkCaptureResult((captureResult) -> captureResult);
         }
         return Futures.immediateFuture(null);
     }
@@ -607,7 +612,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
             case ON:
                 return true;
             case AUTO:
-                return state.preCaptureState.getAeState() == AeState.FLASH_REQUIRED;
+                return state.mPreCaptureState.getAeState() == AeState.FLASH_REQUIRED;
             case OFF:
                 return false;
         }
@@ -618,11 +623,11 @@ public class ImageCaptureUseCase extends BaseUseCase {
         // Besides enableCheck3AConverged == true (MAX_QUALITY), if flash is triggered we also need
         // to
         // wait for 3A convergence.
-        if (!enableCheck3AConverged && !state.isFlashTriggered) {
+        if (!mEnableCheck3AConverged && !state.mIsFlashTriggered) {
             return Futures.immediateFuture(false);
         }
 
-        return sessionCallbackChecker.checkCaptureResult(
+        return mSessionCallbackChecker.checkCaptureResult(
                 (captureResult) -> {
                     // If afMode is CAF, don't check af locked to speed up.
                     if ((captureResult.getAfMode() == AfMode.ON_CONTINUOUS_AUTO
@@ -650,9 +655,9 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * inactive, it means that a manual or auto focus request may be in progress or completed.
      */
     private void triggerAfIfNeeded(TakePictureState state) {
-        if (enableCheck3AConverged
-                && state.preCaptureState.getAfMode() == AfMode.ON_MANUAL_AUTO
-                && state.preCaptureState.getAfState() == AfState.INACTIVE) {
+        if (mEnableCheck3AConverged
+                && state.mPreCaptureState.getAfMode() == AfMode.ON_MANUAL_AUTO
+                && state.mPreCaptureState.getAfState() == AfState.INACTIVE) {
             triggerAf(state);
         }
     }
@@ -661,7 +666,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * Issues a {@link CaptureRequest#CONTROL_AF_TRIGGER_START} request to start auto focus scan.
      */
     private void triggerAf(TakePictureState state) {
-        state.isAfTriggered = true;
+        state.mIsAfTriggered = true;
         getCurrentCameraControl().triggerAf();
     }
 
@@ -670,7 +675,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * exposure scan.
      */
     private void triggerAePrecapture(TakePictureState state) {
-        state.isAePrecaptureTriggered = true;
+        state.mIsAePrecaptureTriggered = true;
         getCurrentCameraControl().triggerAePrecapture();
     }
 
@@ -680,13 +685,13 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * exposure scan.
      */
     private void cancelAfAeTrigger(TakePictureState state) {
-        if (!state.isAfTriggered && !state.isAePrecaptureTriggered) {
+        if (!state.mIsAfTriggered && !state.mIsAePrecaptureTriggered) {
             return;
         }
         getCurrentCameraControl()
-                .cancelAfAeTrigger(state.isAfTriggered, state.isAePrecaptureTriggered);
-        state.isAfTriggered = false;
-        state.isAePrecaptureTriggered = false;
+                .cancelAfAeTrigger(state.mIsAfTriggered, state.mIsAePrecaptureTriggered);
+        state.mIsAfTriggered = false;
+        state.mIsAePrecaptureTriggered = false;
     }
 
     // TODO(b/123897971):  move the device specific code once we complete the device workaround
@@ -715,10 +720,10 @@ public class ImageCaptureUseCase extends BaseUseCase {
     /** Issues a take picture request. */
     private ListenableFuture<Void> issueTakePicture() {
         CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
-        builder.addSurface(new ImmediateSurface(imageReader.getSurface()));
+        builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
         builder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
 
-        applyPixelHdrPlusChangeForCaptureMode(captureMode, builder);
+        applyPixelHdrPlusChangeForCaptureMode(mCaptureMode, builder);
 
         SettableFuture<Void> future = SettableFuture.create();
         builder.setCameraCaptureCallback(
@@ -797,6 +802,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      *
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public interface OnImageCapturedListener {
         /**
          * Callback for when the image has been captured.
@@ -860,8 +866,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
         /** Indicates a left-right mirroring (reflection). */
         public boolean isReversedVertical;
         /** Data representing a geographic location. */
-        public @Nullable
-        Location location;
+        public @Nullable Location location;
     }
 
     /**
@@ -869,10 +874,10 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * For example, cancel AF/AE scan, and close flash light.
      */
     static final class TakePictureState {
-        CameraCaptureResult preCaptureState = EmptyCameraCaptureResult.create();
-        boolean isAfTriggered = false;
-        boolean isAePrecaptureTriggered = false;
-        boolean isFlashTriggered = false;
+        CameraCaptureResult mPreCaptureState = EmptyCameraCaptureResult.create();
+        boolean mIsAfTriggered = false;
+        boolean mIsAePrecaptureTriggered = false;
+        boolean mIsFlashTriggered = false;
     }
 
     /**
@@ -888,7 +893,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
         private static final long NO_TIMEOUT = 0L;
 
         /** Capture listeners. */
-        private final Set<CaptureResultListener> captureResultListeners = new HashSet<>();
+        private final Set<CaptureResultListener> mCaptureResultListeners = new HashSet<>();
 
         @Override
         public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
@@ -946,12 +951,12 @@ public class ImageCaptureUseCase extends BaseUseCase {
         }
 
         /**
-         * Delivers camera capture result to {@link CaptureCallbackChecker#captureResultListeners}.
+         * Delivers camera capture result to {@link CaptureCallbackChecker#mCaptureResultListeners}.
          */
         private void deliverCaptureResultToListeners(@NonNull CameraCaptureResult captureResult) {
-            synchronized (captureResultListeners) {
+            synchronized (mCaptureResultListeners) {
                 Set<CaptureResultListener> removeSet = null;
-                for (CaptureResultListener listener : new HashSet<>(captureResultListeners)) {
+                for (CaptureResultListener listener : new HashSet<>(mCaptureResultListeners)) {
                     // Remove listener if the callback return true
                     if (listener.onCaptureResult(captureResult)) {
                         if (removeSet == null) {
@@ -961,15 +966,15 @@ public class ImageCaptureUseCase extends BaseUseCase {
                     }
                 }
                 if (removeSet != null) {
-                    captureResultListeners.removeAll(removeSet);
+                    mCaptureResultListeners.removeAll(removeSet);
                 }
             }
         }
 
         /** Add capture result listener. */
         private void addListener(CaptureResultListener listener) {
-            synchronized (captureResultListeners) {
-                captureResultListeners.add(listener);
+            synchronized (mCaptureResultListeners) {
+                mCaptureResultListeners.add(listener);
             }
         }
 
@@ -999,25 +1004,25 @@ public class ImageCaptureUseCase extends BaseUseCase {
     }
 
     private final class ImageCaptureRequest {
-        OnImageCapturedListener listener;
+        OnImageCapturedListener mListener;
         @Nullable
-        Handler handler;
+        Handler mHandler;
         @RotationValue
-        int rotationDegrees;
+        int mRotationDegrees;
 
         ImageCaptureRequest(
                 OnImageCapturedListener listener,
                 @Nullable Handler handler,
                 @RotationValue int rotationDegrees) {
-            this.listener = listener;
-            this.handler = handler;
-            this.rotationDegrees = rotationDegrees;
+            mListener = listener;
+            mHandler = handler;
+            mRotationDegrees = rotationDegrees;
         }
 
         void dispatchImage(ImageProxy image) {
-            if (handler != null && Looper.myLooper() != handler.getLooper()) {
+            if (mHandler != null && Looper.myLooper() != mHandler.getLooper()) {
                 boolean posted =
-                        handler.post(
+                        mHandler.post(
                                 () -> {
                                     dispatchImage(image);
                                 });
@@ -1029,7 +1034,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                 return;
             }
 
-            listener.onCaptureSuccess(image, rotationDegrees);
+            mListener.onCaptureSuccess(image, mRotationDegrees);
         }
     }
 }
