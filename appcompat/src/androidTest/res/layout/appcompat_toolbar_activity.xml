@@ -50,4 +50,12 @@
             app:titleTextColor="#FF00FF"
             app:subtitleTextColor="#FF00FF"/>
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        app:title="Title"
+        app:menu="@menu/sample_actions" />
+
 </LinearLayout>
