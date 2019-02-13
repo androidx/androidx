@@ -75,14 +75,14 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:paddingStart="@dimen/preference_seekbar_padding_start"
-                    android:paddingEnd="@dimen/preference_seekbar_padding_end"
+                    android:paddingStart="@dimen/preference_seekbar_padding_horizontal"
+                    android:paddingEnd="22dp"
                     android:focusable="false"
                     android:clickable="false"
                     android:background="@null" />
 
             <TextView android:id="@+id/seekbar_value"
-                      android:layout_width="@dimen/preference_seekbar_value_width"
+                      android:layout_width="@dimen/preference_seekbar_value_minWidth"
                       android:layout_height="match_parent"
                       android:gravity="right|center_vertical"
                       android:fontFamily="sans-serif-condensed"
