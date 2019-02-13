@@ -1082,14 +1082,15 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         fragment.setStateAfterAnimating(newState);
         if (anim.animation != null) {
             Animation animation =
-                    new EndViewTransitionAnimator(anim.animation, container, viewToAnimate);
+                    new EndViewTransitionAnimation(anim.animation, container, viewToAnimate);
             fragment.setAnimatingAway(fragment.mView);
-            Animation.AnimationListener listener = getAnimationListener(animation);
-            animation.setAnimationListener(new AnimationListenerWrapper(listener) {
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
+
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    super.onAnimationEnd(animation);
-
                     // onAnimationEnd() comes during draw(), so there can still be some
                     // draw events happening after this call. We don't want to detach
                     // the view until after the onAnimationEnd()
@@ -1103,6 +1104,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             }
                         }
                     });
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
                 }
             });
             setHWLayerAnimListenerIfAlpha(viewToAnimate, anim);
@@ -3433,14 +3438,14 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
      * with Views remaining in the hierarchy as disappearing children after the view has been
      * removed in some edge cases.
      */
-    private static class EndViewTransitionAnimator extends AnimationSet implements Runnable {
+    private static class EndViewTransitionAnimation extends AnimationSet implements Runnable {
         private final ViewGroup mParent;
         private final View mChild;
         private boolean mEnded;
         private boolean mTransitionEnded;
         private boolean mAnimating = true;
 
-        EndViewTransitionAnimator(@NonNull Animation animation,
+        EndViewTransitionAnimation(@NonNull Animation animation,
                                   @NonNull ViewGroup parent, @NonNull View child) {
             super(false);
             mParent = parent;
