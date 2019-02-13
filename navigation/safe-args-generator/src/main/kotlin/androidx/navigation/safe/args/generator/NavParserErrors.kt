@@ -26,6 +26,9 @@ object NavParserErrors {
     fun invalidDefaultValueReference(value: String) = "Failed to parse defaultValue " +
         "'$value' as reference. Reference must be in format @[+][package:]res_type/resource_name"
 
+    fun nullDefaultValueReference(name: String?) = "android:defaultValue is @null, but '$name' " +
+            "is of type \"reference\". Use \"0\" to signify a empty reference id"
+
     fun invalidDefaultValue(value: String, type: NavType) = "Failed to parse defaultValue " +
         "'$value' as $type"
 
