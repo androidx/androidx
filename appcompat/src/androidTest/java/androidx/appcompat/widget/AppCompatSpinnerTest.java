@@ -31,6 +31,7 @@ import static org.junit.Assert.assertThat;
 
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
+import android.os.SystemClock;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
@@ -68,12 +69,18 @@ public class AppCompatSpinnerTest
     @Override
     public void setUp() {
         super.setUp();
-        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        if (mActivity.getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+            mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            SystemClock.sleep(250);
+        }
     }
 
     @After
     public void cleanUp() {
-        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        if (mActivity.getRequestedOrientation() != ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+            mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            SystemClock.sleep(250);
+        }
     }
 
     /**
