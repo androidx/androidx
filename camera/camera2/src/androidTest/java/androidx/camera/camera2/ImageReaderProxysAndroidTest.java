@@ -53,9 +53,9 @@ import java.util.concurrent.Semaphore;
 public final class ImageReaderProxysAndroidTest {
     private static final String CAMERA_ID = "0";
 
-    private BaseCamera camera;
-    private HandlerThread handlerThread;
-    private Handler handler;
+    private BaseCamera mCamera;
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
 
     private static ImageReaderProxy.OnImageAvailableListener createSemaphoreReleasingListener(
             Semaphore semaphore) {
@@ -74,16 +74,16 @@ public final class ImageReaderProxysAndroidTest {
         AppConfiguration appConfig = Camera2AppConfiguration.create(context);
         CameraFactory cameraFactory = appConfig.getCameraFactory(null);
         CameraX.init(context, appConfig);
-        camera = cameraFactory.getCamera(CAMERA_ID);
-        handlerThread = new HandlerThread("Background");
-        handlerThread.start();
-        handler = new Handler(handlerThread.getLooper());
+        mCamera = cameraFactory.getCamera(CAMERA_ID);
+        mHandlerThread = new HandlerThread("Background");
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
     }
 
     @After
     public void tearDown() {
-        camera.release();
-        handlerThread.quitSafely();
+        mCamera.release();
+        mHandlerThread.quitSafely();
     }
 
     @Test(timeout = 5000)
@@ -93,10 +93,10 @@ public final class ImageReaderProxysAndroidTest {
         for (int i = 0; i < 2; ++i) {
             ImageReaderProxy reader =
                     ImageReaderProxys.createSharedReader(
-                            CAMERA_ID, 640, 480, ImageFormat.YUV_420_888, 2, handler);
+                            CAMERA_ID, 640, 480, ImageFormat.YUV_420_888, 2, mHandler);
             Semaphore semaphore = new Semaphore(/*permits=*/ 0);
             reader.setOnImageAvailableListener(
-                    createSemaphoreReleasingListener(semaphore), handler);
+                    createSemaphoreReleasingListener(semaphore), mHandler);
             readers.add(reader);
             semaphores.add(semaphore);
         }
@@ -104,7 +104,7 @@ public final class ImageReaderProxysAndroidTest {
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
         UseCase useCase = new UseCase(configuration, readers);
-        CameraUtil.openCameraWithUseCase(camera, useCase);
+        CameraUtil.openCameraWithUseCase(mCamera, useCase);
 
         // Wait for a few frames to be observed.
         for (Semaphore semaphore : semaphores) {
@@ -119,10 +119,10 @@ public final class ImageReaderProxysAndroidTest {
         for (int i = 0; i < 2; ++i) {
             ImageReaderProxy reader =
                     ImageReaderProxys.createIsolatedReader(
-                            640, 480, ImageFormat.YUV_420_888, 2, handler);
+                            640, 480, ImageFormat.YUV_420_888, 2, mHandler);
             Semaphore semaphore = new Semaphore(/*permits=*/ 0);
             reader.setOnImageAvailableListener(
-                    createSemaphoreReleasingListener(semaphore), handler);
+                    createSemaphoreReleasingListener(semaphore), mHandler);
             readers.add(reader);
             semaphores.add(semaphore);
         }
@@ -130,7 +130,7 @@ public final class ImageReaderProxysAndroidTest {
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
         UseCase useCase = new UseCase(configuration, readers);
-        CameraUtil.openCameraWithUseCase(camera, useCase);
+        CameraUtil.openCameraWithUseCase(mCamera, useCase);
 
         // Wait for a few frames to be observed.
         for (Semaphore semaphore : semaphores) {
@@ -139,11 +139,11 @@ public final class ImageReaderProxysAndroidTest {
     }
 
     private static final class UseCase extends FakeUseCase {
-        private final List<ImageReaderProxy> imageReaders;
+        private final List<ImageReaderProxy> mImageReaders;
 
         private UseCase(FakeUseCaseConfiguration configuration, List<ImageReaderProxy> readers) {
             super(configuration);
-            imageReaders = readers;
+            mImageReaders = readers;
             Map<String, Size> suggestedResolutionMap = new HashMap<>();
             suggestedResolutionMap.put(CAMERA_ID, new Size(640, 480));
             updateSuggestedResolution(suggestedResolutionMap);
@@ -154,7 +154,7 @@ public final class ImageReaderProxysAndroidTest {
                 Map<String, Size> suggestedResolutionMap) {
             SessionConfiguration.Builder sessionConfigBuilder = new SessionConfiguration.Builder();
             sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            for (ImageReaderProxy reader : imageReaders) {
+            for (ImageReaderProxy reader : mImageReaders) {
                 sessionConfigBuilder.addSurface(new ImmediateSurface(reader.getSurface()));
             }
             attachToCamera(CAMERA_ID, sessionConfigBuilder.build());

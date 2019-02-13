@@ -67,20 +67,20 @@ public final class ViewFinderUseCaseAndroidTest {
     private static final Size DEFAULT_RESOLUTION = new Size(1920, 1080);
     private static final Size SECONDARY_RESOLUTION = new Size(1280, 720);
 
-    private ViewFinderUseCaseConfiguration defaultConfiguration;
+    private ViewFinderUseCaseConfiguration mDefaultConfiguration;
     @Mock
-    private OnViewFinderOutputUpdateListener mockListener;
-    private String cameraId;
+    private OnViewFinderOutputUpdateListener mMockListener;
+    private String mCameraId;
 
     @Before
     public void setUp() {
         // Instantiates OnViewFinderOutputUpdateListener before each test run.
-        mockListener = Mockito.mock(OnViewFinderOutputUpdateListener.class);
+        mMockListener = Mockito.mock(OnViewFinderOutputUpdateListener.class);
         Context context = ApplicationProvider.getApplicationContext();
         AppConfiguration appConfig = Camera2AppConfiguration.create(context);
         CameraFactory cameraFactory = appConfig.getCameraFactory(/*valueIfMissing=*/ null);
         try {
-            cameraId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
+            mCameraId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
         } catch (Exception e) {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
@@ -88,18 +88,18 @@ public final class ViewFinderUseCaseAndroidTest {
         CameraX.init(context, appConfig);
 
         // init CameraX before creating ViewFinderUseCase to get preview size with CameraX's context
-        defaultConfiguration = ViewFinderUseCase.DEFAULT_CONFIG.getConfiguration();
+        mDefaultConfiguration = ViewFinderUseCase.DEFAULT_CONFIG.getConfiguration();
     }
 
     @Test
     @UiThreadTest
     public void useCaseIsConstructedWithDefaultConfiguration() {
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         List<Surface> surfaces =
                 DeferrableSurfaces.surfaceList(
-                        useCase.getSessionConfiguration(cameraId).getSurfaces());
+                        useCase.getSessionConfiguration(mCameraId).getSurfaces());
 
         assertThat(surfaces.size()).isEqualTo(1);
         assertThat(surfaces.get(0).isValid()).isTrue();
@@ -111,11 +111,11 @@ public final class ViewFinderUseCaseAndroidTest {
         ViewFinderUseCaseConfiguration configuration =
                 new ViewFinderUseCaseConfiguration.Builder().setLensFacing(LensFacing.BACK).build();
         ViewFinderUseCase useCase = new ViewFinderUseCase(configuration);
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         List<Surface> surfaces =
                 DeferrableSurfaces.surfaceList(
-                        useCase.getSessionConfiguration(cameraId).getSurfaces());
+                        useCase.getSessionConfiguration(mCameraId).getSurfaces());
 
         assertThat(surfaces.size()).isEqualTo(1);
         assertThat(surfaces.get(0).isValid()).isTrue();
@@ -124,11 +124,11 @@ public final class ViewFinderUseCaseAndroidTest {
     @Test
     @UiThreadTest
     public void focusRegionCanBeSet() {
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         CameraControl cameraControl = getFakeCameraControl();
-        useCase.attachCameraControl(cameraId, cameraControl);
+        useCase.attachCameraControl(mCameraId, cameraControl);
 
         Rect rect = new Rect(/*left=*/ 200, /*top=*/ 200, /*right=*/ 800, /*bottom=*/ 800);
         useCase.focus(rect, rect);
@@ -153,11 +153,11 @@ public final class ViewFinderUseCaseAndroidTest {
     @Test
     @UiThreadTest
     public void zoomRegionCanBeSet() {
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         CameraControl cameraControl = getFakeCameraControl();
-        useCase.attachCameraControl(cameraId, cameraControl);
+        useCase.attachCameraControl(mCameraId, cameraControl);
 
         Rect rect = new Rect(/*left=*/ 200, /*top=*/ 200, /*right=*/ 800, /*bottom=*/ 800);
         useCase.zoom(rect);
@@ -172,9 +172,9 @@ public final class ViewFinderUseCaseAndroidTest {
     @Test
     @UiThreadTest
     public void torchModeCanBeSet() {
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
         CameraControl cameraControl = getFakeCameraControl();
-        useCase.attachCameraControl(cameraId, cameraControl);
+        useCase.attachCameraControl(mCameraId, cameraControl);
 
         useCase.enableTorch(true);
 
@@ -189,7 +189,7 @@ public final class ViewFinderUseCaseAndroidTest {
         if (Build.VERSION.SDK_INT < 26) {
             return;
         }
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
 
         SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
@@ -198,7 +198,7 @@ public final class ViewFinderUseCaseAndroidTest {
                     surfaceTextureCallable0.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
                     future0.run();
                 });
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         SurfaceTexture surfaceTexture0 = future0.get(1, TimeUnit.SECONDS);
         surfaceTexture0.release();
@@ -210,7 +210,7 @@ public final class ViewFinderUseCaseAndroidTest {
                     surfaceTextureCallable1.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
                     future1.run();
                 });
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
         SurfaceTexture surfaceTexture1 = future1.get(1, TimeUnit.SECONDS);
 
         assertThat(surfaceTexture1.isReleased()).isFalse();
@@ -224,7 +224,7 @@ public final class ViewFinderUseCaseAndroidTest {
         if (Build.VERSION.SDK_INT <= 26) {
             return;
         }
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
 
         SurfaceTextureCallable surfaceTextureCallable = new SurfaceTextureCallable();
         FutureTask<SurfaceTexture> future = new FutureTask<>(surfaceTextureCallable);
@@ -235,7 +235,7 @@ public final class ViewFinderUseCaseAndroidTest {
                     future.run();
                 });
 
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
         SurfaceTexture surfaceTexture = future.get(1, TimeUnit.SECONDS);
 
         useCase.clear();
@@ -248,7 +248,7 @@ public final class ViewFinderUseCaseAndroidTest {
     public void surfaceTexture_isListenedOnlyOnce()
             throws InterruptedException, ExecutionException, TimeoutException {
 
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
 
         SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
@@ -258,7 +258,7 @@ public final class ViewFinderUseCaseAndroidTest {
                     future0.run();
                 });
 
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
         SurfaceTexture surfaceTexture0 = future0.get();
 
         SurfaceTextureCallable surfaceTextureCallable1 = new SurfaceTextureCallable();
@@ -284,11 +284,11 @@ public final class ViewFinderUseCaseAndroidTest {
         final Size[] sizes = {new Size(1920, 1080), new Size(640, 480)};
 
         for (Size size : sizes) {
-            useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, size));
+            useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, size));
 
             List<Surface> surfaces =
                     DeferrableSurfaces.surfaceList(
-                            useCase.getSessionConfiguration(cameraId).getSurfaces());
+                            useCase.getSessionConfiguration(mCameraId).getSurfaces());
 
             assertWithMessage("Failed at Size: " + size).that(surfaces).hasSize(1);
             assertWithMessage("Failed at Size: " + size).that(surfaces.get(0).isValid()).isTrue();
@@ -298,26 +298,26 @@ public final class ViewFinderUseCaseAndroidTest {
     @Test
     @UiThreadTest
     public void viewFinderOutputListenerCanBeSetAndRetrieved() {
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
         OnViewFinderOutputUpdateListener viewFinderOutputListener =
                 useCase.getOnViewFinderOutputUpdateListener();
-        useCase.setOnViewFinderOutputUpdateListener(mockListener);
+        useCase.setOnViewFinderOutputUpdateListener(mMockListener);
 
         OnViewFinderOutputUpdateListener retrievedViewFinderOutputListener =
                 useCase.getOnViewFinderOutputUpdateListener();
 
         assertThat(viewFinderOutputListener).isNull();
-        assertThat(retrievedViewFinderOutputListener).isSameAs(mockListener);
+        assertThat(retrievedViewFinderOutputListener).isSameAs(mMockListener);
     }
 
     @Test
     @UiThreadTest
     public void clear_removeViewFinderOutputListener() {
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
-        useCase.setOnViewFinderOutputUpdateListener(mockListener);
+        useCase.setOnViewFinderOutputUpdateListener(mMockListener);
         useCase.clear();
 
         assertThat(useCase.getOnViewFinderOutputUpdateListener()).isNull();
@@ -326,8 +326,8 @@ public final class ViewFinderUseCaseAndroidTest {
     @Test
     @UiThreadTest
     public void viewFinderOutput_isResetOnUpdatedResolution() {
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         AtomicInteger calledCount = new AtomicInteger(0);
         useCase.setOnViewFinderOutputUpdateListener(
@@ -337,7 +337,8 @@ public final class ViewFinderUseCaseAndroidTest {
 
         int initialCount = calledCount.get();
 
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, SECONDARY_RESOLUTION));
+        useCase.updateSuggestedResolution(
+                Collections.singletonMap(mCameraId, SECONDARY_RESOLUTION));
 
         int countAfterUpdate = calledCount.get();
 
@@ -348,9 +349,9 @@ public final class ViewFinderUseCaseAndroidTest {
     @Test
     @UiThreadTest
     public void viewFinderOutput_updatesWithTargetRotation() {
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
         useCase.setTargetRotation(Surface.ROTATION_0);
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         AtomicReference<ViewFinderOutput> latestViewFinderOutput = new AtomicReference<>();
         useCase.setOnViewFinderOutputUpdateListener(
@@ -373,14 +374,14 @@ public final class ViewFinderUseCaseAndroidTest {
     @Test(timeout = 5000)
     public void viewFinderOutput_isResetByReleasedSurface()
             throws InterruptedException, ExecutionException {
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
         Handler mainHandler = new Handler(Looper.getMainLooper());
         Semaphore semaphore = new Semaphore(0);
 
         mainHandler.post(
                 () -> {
                     useCase.updateSuggestedResolution(
-                            Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+                            Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
                     useCase.setOnViewFinderOutputUpdateListener(
                             viewFinderOutput -> {
@@ -395,7 +396,7 @@ public final class ViewFinderUseCaseAndroidTest {
         semaphore.acquire();
 
         // Cause the surface to reset
-        useCase.getSessionConfiguration(cameraId).getSurfaces().get(0).getSurface().get();
+        useCase.getSessionConfiguration(mCameraId).getSurfaces().get(0).getSurface().get();
 
         // Wait for the surface to reset
         semaphore.acquire();
@@ -406,7 +407,7 @@ public final class ViewFinderUseCaseAndroidTest {
     public void outputIsPublished_whenListenerIsSetBefore()
             throws InterruptedException, ExecutionException {
 
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
 
         SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
@@ -416,7 +417,7 @@ public final class ViewFinderUseCaseAndroidTest {
                     future0.run();
                 });
 
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
         SurfaceTexture surfaceTexture0 = future0.get();
 
         assertThat(surfaceTexture0).isNotNull();
@@ -427,11 +428,11 @@ public final class ViewFinderUseCaseAndroidTest {
     public void outputIsPublished_whenListenerIsSetAfter()
             throws InterruptedException, ExecutionException {
 
-        ViewFinderUseCase useCase = new ViewFinderUseCase(defaultConfiguration);
+        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
 
         SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
-        useCase.updateSuggestedResolution(Collections.singletonMap(cameraId, DEFAULT_RESOLUTION));
+        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         useCase.setOnViewFinderOutputUpdateListener(
                 viewFinderOutput -> {
@@ -459,15 +460,15 @@ public final class ViewFinderUseCaseAndroidTest {
     }
 
     private static final class SurfaceTextureCallable implements Callable<SurfaceTexture> {
-        SurfaceTexture surfaceTexture;
+        SurfaceTexture mSurfaceTexture;
 
         void setSurfaceTexture(SurfaceTexture surfaceTexture) {
-            this.surfaceTexture = surfaceTexture;
+            this.mSurfaceTexture = surfaceTexture;
         }
 
         @Override
         public SurfaceTexture call() {
-            return surfaceTexture;
+            return mSurfaceTexture;
         }
     }
 }

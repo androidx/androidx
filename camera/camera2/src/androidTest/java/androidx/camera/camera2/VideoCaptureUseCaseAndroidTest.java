@@ -58,23 +58,23 @@ import java.util.Map;
 public final class VideoCaptureUseCaseAndroidTest {
     private static final Size DEFAULT_RESOLUTION = new Size(1920, 1080);
 
-    private final Context context = InstrumentationRegistry.getTargetContext();
-    private final StateChangeListener listener = Mockito.mock(StateChangeListener.class);
-    private final ArgumentCaptor<BaseUseCase> baseUseCaseCaptor =
+    private final Context mContext = InstrumentationRegistry.getTargetContext();
+    private final StateChangeListener mListener = Mockito.mock(StateChangeListener.class);
+    private final ArgumentCaptor<BaseUseCase> mBaseUseCaseCaptor =
             ArgumentCaptor.forClass(BaseUseCase.class);
-    private final OnVideoSavedListener mockVideoSavedListener =
+    private final OnVideoSavedListener mMockVideoSavedListener =
             Mockito.mock(OnVideoSavedListener.class);
-    private VideoCaptureUseCaseConfiguration defaultConfiguration;
-    private String cameraId;
+    private VideoCaptureUseCaseConfiguration mDefaultConfiguration;
+    private String mCameraId;
 
     @Before
     public void setUp() {
-        defaultConfiguration = VideoCaptureUseCase.DEFAULT_CONFIG.getConfiguration();
+        mDefaultConfiguration = VideoCaptureUseCase.DEFAULT_CONFIG.getConfiguration();
         Context context = ApplicationProvider.getApplicationContext();
         AppConfiguration appConfiguration = Camera2AppConfiguration.create(context);
         CameraFactory cameraFactory = appConfiguration.getCameraFactory(/*valueIfMissing=*/ null);
         try {
-            cameraId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
+            mCameraId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
         } catch (Exception e) {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
@@ -84,35 +84,35 @@ public final class VideoCaptureUseCaseAndroidTest {
 
     @Test
     public void useCaseBecomesActive_whenStartingVideoRecording() {
-        VideoCaptureUseCase useCase = new VideoCaptureUseCase(defaultConfiguration);
+        VideoCaptureUseCase useCase = new VideoCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        useCase.addStateChangeListener(listener);
+        useCase.addStateChangeListener(mListener);
 
         useCase.startRecording(
                 new File(
-                        context.getFilesDir()
+                        mContext.getFilesDir()
                                 + "/useCaseBecomesActive_whenStartingVideoRecording.mp4"),
-                mockVideoSavedListener);
+                mMockVideoSavedListener);
 
-        verify(listener, times(1)).onUseCaseActive(baseUseCaseCaptor.capture());
-        assertThat(baseUseCaseCaptor.getValue()).isSameAs(useCase);
+        verify(mListener, times(1)).onUseCaseActive(mBaseUseCaseCaptor.capture());
+        assertThat(mBaseUseCaseCaptor.getValue()).isSameAs(useCase);
     }
 
     @Test
     public void useCaseBecomesInactive_whenStoppingVideoRecording() {
-        VideoCaptureUseCase useCase = new VideoCaptureUseCase(defaultConfiguration);
+        VideoCaptureUseCase useCase = new VideoCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        useCase.addStateChangeListener(listener);
+        useCase.addStateChangeListener(mListener);
 
         useCase.startRecording(
                 new File(
-                        context.getFilesDir()
+                        mContext.getFilesDir()
                                 + "/useCaseBecomesInactive_whenStoppingVideoRecording.mp4"),
-                mockVideoSavedListener);
+                mMockVideoSavedListener);
 
         try {
             useCase.stopRecording();
@@ -125,31 +125,31 @@ public final class VideoCaptureUseCaseAndroidTest {
             // TODO(b/112324530): The try-catch should be removed after the bug fix
         }
 
-        verify(listener, times(1)).onUseCaseInactive(baseUseCaseCaptor.capture());
-        assertThat(baseUseCaseCaptor.getValue()).isSameAs(useCase);
+        verify(mListener, times(1)).onUseCaseInactive(mBaseUseCaseCaptor.capture());
+        assertThat(mBaseUseCaseCaptor.getValue()).isSameAs(useCase);
     }
 
     @Test
     public void updateSessionConfigurationWithSuggestedResolution() {
-        VideoCaptureUseCase useCase = new VideoCaptureUseCase(defaultConfiguration);
+        VideoCaptureUseCase useCase = new VideoCaptureUseCase(mDefaultConfiguration);
         // Create video encoder with default 1920x1080 resolution
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        useCase.addStateChangeListener(listener);
+        useCase.addStateChangeListener(mListener);
 
         // Recreate video encoder with new 640x480 resolution
-        suggestedResolutionMap.put(cameraId, new Size(640, 480));
+        suggestedResolutionMap.put(mCameraId, new Size(640, 480));
         useCase.updateSuggestedResolution(suggestedResolutionMap);
 
         // Check it could be started to record and become active
         useCase.startRecording(
                 new File(
-                        context.getFilesDir()
+                        mContext.getFilesDir()
                                 + "/useCaseBecomesInactive_whenStoppingVideoRecording.mp4"),
-                mockVideoSavedListener);
+                mMockVideoSavedListener);
 
-        verify(listener, times(1)).onUseCaseActive(baseUseCaseCaptor.capture());
-        assertThat(baseUseCaseCaptor.getValue()).isSameAs(useCase);
+        verify(mListener, times(1)).onUseCaseActive(mBaseUseCaseCaptor.capture());
+        assertThat(mBaseUseCaseCaptor.getValue()).isSameAs(useCase);
     }
 }

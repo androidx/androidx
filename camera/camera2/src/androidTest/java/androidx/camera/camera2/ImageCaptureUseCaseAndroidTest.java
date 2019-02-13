@@ -70,19 +70,19 @@ public final class ImageCaptureUseCaseAndroidTest {
     private static final Size DEFAULT_RESOLUTION = new Size(1920, 1080);
     private static final LensFacing BACK_LENS_FACING = LensFacing.BACK;
 
-    private HandlerThread handlerThread;
-    private Handler handler;
-    private BaseCamera camera;
-    private ImageCaptureUseCaseConfiguration defaultConfiguration;
-    private ImageCaptureUseCase.OnImageCapturedListener onImageCapturedListener;
-    private ImageCaptureUseCase.OnImageCapturedListener mockImageCapturedListener;
-    private ImageCaptureUseCase.OnImageSavedListener onImageSavedListener;
-    private ImageCaptureUseCase.OnImageSavedListener mockImageSavedListener;
-    private ImageProxy capturedImage;
-    private Semaphore semaphore;
-    private FakeRepeatingUseCase repeatingUseCase;
-    private FakeUseCaseConfiguration fakeRepeatingConfiguration;
-    private String cameraId;
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
+    private BaseCamera mCamera;
+    private ImageCaptureUseCaseConfiguration mDefaultConfiguration;
+    private ImageCaptureUseCase.OnImageCapturedListener mOnImageCapturedListener;
+    private ImageCaptureUseCase.OnImageCapturedListener mMockImageCapturedListener;
+    private ImageCaptureUseCase.OnImageSavedListener mOnImageSavedListener;
+    private ImageCaptureUseCase.OnImageSavedListener mMockImageSavedListener;
+    private ImageProxy mCapturedImage;
+    private Semaphore mSemaphore;
+    private FakeRepeatingUseCase mRepeatingUseCase;
+    private FakeUseCaseConfiguration mFakeUseCaseConfiguration;
+    private String mCameraId;
 
     private ImageCaptureUseCaseConfiguration createNonRotatedConfiguration()
             throws CameraInfoUnavailableException {
@@ -117,94 +117,94 @@ public final class ImageCaptureUseCaseAndroidTest {
 
     @Before
     public void setUp() {
-        handlerThread = new HandlerThread("CaptureThread");
-        handlerThread.start();
-        handler = new Handler(handlerThread.getLooper());
+        mHandlerThread = new HandlerThread("CaptureThread");
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
         Context context = ApplicationProvider.getApplicationContext();
         AppConfiguration appConfig = Camera2AppConfiguration.create(context);
         CameraFactory cameraFactory = appConfig.getCameraFactory(null);
         CameraX.init(context, appConfig);
         try {
-            cameraId = cameraFactory.cameraIdForLensFacing(BACK_LENS_FACING);
+            mCameraId = cameraFactory.cameraIdForLensFacing(BACK_LENS_FACING);
         } catch (Exception e) {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + BACK_LENS_FACING, e);
         }
-        defaultConfiguration = new ImageCaptureUseCaseConfiguration.Builder().build();
+        mDefaultConfiguration = new ImageCaptureUseCaseConfiguration.Builder().build();
 
-        camera = cameraFactory.getCamera(cameraId);
-        capturedImage = null;
-        semaphore = new Semaphore(/*permits=*/ 0);
-        onImageCapturedListener =
+        mCamera = cameraFactory.getCamera(mCameraId);
+        mCapturedImage = null;
+        mSemaphore = new Semaphore(/*permits=*/ 0);
+        mOnImageCapturedListener =
                 new OnImageCapturedListener() {
                     @Override
                     public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
-                        capturedImage = image;
+                        mCapturedImage = image;
                         // Signal that the image has been captured.
-                        semaphore.release();
+                        mSemaphore.release();
                     }
                 };
-        mockImageCapturedListener = Mockito.mock(OnImageCapturedListener.class);
-        mockImageSavedListener = Mockito.mock(OnImageSavedListener.class);
-        onImageSavedListener =
+        mMockImageCapturedListener = Mockito.mock(OnImageCapturedListener.class);
+        mMockImageSavedListener = Mockito.mock(OnImageSavedListener.class);
+        mOnImageSavedListener =
                 new OnImageSavedListener() {
                     @Override
                     public void onImageSaved(File file) {
-                        mockImageSavedListener.onImageSaved(file);
+                        mMockImageSavedListener.onImageSaved(file);
                         // Signal that an image was saved
-                        semaphore.release();
+                        mSemaphore.release();
                     }
 
                     @Override
                     public void onError(
                             UseCaseError error, String message, @Nullable Throwable cause) {
-                        mockImageSavedListener.onError(error, message, cause);
+                        mMockImageSavedListener.onError(error, message, cause);
                         // Signal that there was an error
-                        semaphore.release();
+                        mSemaphore.release();
                     }
                 };
 
-        fakeRepeatingConfiguration = new FakeUseCaseConfiguration.Builder().build();
-        repeatingUseCase = new FakeRepeatingUseCase(fakeRepeatingConfiguration);
+        mFakeUseCaseConfiguration = new FakeUseCaseConfiguration.Builder().build();
+        mRepeatingUseCase = new FakeRepeatingUseCase(mFakeUseCaseConfiguration);
     }
 
     @After
     public void tearDown() {
-        handlerThread.quitSafely();
-        camera.release();
-        if (capturedImage != null) {
-            capturedImage.close();
+        mHandlerThread.quitSafely();
+        mCamera.release();
+        if (mCapturedImage != null) {
+            mCapturedImage.close();
         }
     }
 
     @Test
     public void capturedImageHasCorrectProperties() throws InterruptedException {
         ImageCaptureUseCaseConfiguration configuration =
-                new ImageCaptureUseCaseConfiguration.Builder().setCallbackHandler(handler).build();
+                new ImageCaptureUseCaseConfiguration.Builder().setCallbackHandler(mHandler).build();
         ImageCaptureUseCase useCase = new ImageCaptureUseCase(configuration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(camera, useCase, repeatingUseCase);
-        useCase.addStateChangeListener(camera);
+        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        useCase.addStateChangeListener(mCamera);
 
-        useCase.takePicture(onImageCapturedListener);
+        useCase.takePicture(mOnImageCapturedListener);
         // Wait for the signal that the image has been captured.
-        semaphore.acquire();
+        mSemaphore.acquire();
 
-        assertThat(new Size(capturedImage.getWidth(), capturedImage.getHeight()))
+        assertThat(new Size(mCapturedImage.getWidth(), mCapturedImage.getHeight()))
                 .isEqualTo(DEFAULT_RESOLUTION);
-        assertThat(capturedImage.getFormat()).isEqualTo(useCase.getImageFormat());
+        assertThat(mCapturedImage.getFormat()).isEqualTo(useCase.getImageFormat());
     }
 
     @Test(timeout = 5000)
     public void canCaptureMultipleImages() throws InterruptedException {
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(defaultConfiguration);
+        ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(camera, useCase, repeatingUseCase);
-        useCase.addStateChangeListener(camera);
+        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        useCase.addStateChangeListener(mCamera);
 
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
@@ -212,19 +212,19 @@ public final class ImageCaptureUseCaseAndroidTest {
                     new ImageCaptureUseCase.OnImageCapturedListener() {
                         @Override
                         public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
-                            mockImageCapturedListener.onCaptureSuccess(image, rotationDegrees);
+                            mMockImageCapturedListener.onCaptureSuccess(image, rotationDegrees);
                             image.close();
 
                             // Signal that an image has been captured.
-                            semaphore.release();
+                            mSemaphore.release();
                         }
                     });
         }
 
         // Wait for the signal that all images have been captured.
-        semaphore.acquire(numImages);
+        mSemaphore.acquire(numImages);
 
-        verify(mockImageCapturedListener, times(numImages)).onCaptureSuccess(any(), anyInt());
+        verify(mMockImageCapturedListener, times(numImages)).onCaptureSuccess(any(), anyInt());
     }
 
     @Test(timeout = 10000)
@@ -235,10 +235,10 @@ public final class ImageCaptureUseCaseAndroidTest {
                         .build();
         ImageCaptureUseCase useCase = new ImageCaptureUseCase(configuration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(camera, useCase, repeatingUseCase);
-        useCase.addStateChangeListener(camera);
+        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        useCase.addStateChangeListener(mCamera);
 
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
@@ -246,60 +246,60 @@ public final class ImageCaptureUseCaseAndroidTest {
                     new ImageCaptureUseCase.OnImageCapturedListener() {
                         @Override
                         public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
-                            mockImageCapturedListener.onCaptureSuccess(image, rotationDegrees);
+                            mMockImageCapturedListener.onCaptureSuccess(image, rotationDegrees);
                             image.close();
 
                             // Signal that an image has been captured.
-                            semaphore.release();
+                            mSemaphore.release();
                         }
                     });
         }
 
         // Wait for the signal that all images have been captured.
-        semaphore.acquire(numImages);
+        mSemaphore.acquire(numImages);
 
-        verify(mockImageCapturedListener, times(numImages)).onCaptureSuccess(any(), anyInt());
+        verify(mMockImageCapturedListener, times(numImages)).onCaptureSuccess(any(), anyInt());
     }
 
     @Test(timeout = 5000)
     public void saveCanSucceed() throws InterruptedException, IOException {
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(defaultConfiguration);
+        ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(camera, useCase, repeatingUseCase);
-        useCase.addStateChangeListener(camera);
+        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        useCase.addStateChangeListener(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
-        useCase.takePicture(saveLocation, onImageSavedListener);
+        useCase.takePicture(saveLocation, mOnImageSavedListener);
 
         // Wait for the signal that the image has been saved.
-        semaphore.acquire();
+        mSemaphore.acquire();
 
-        verify(mockImageSavedListener).onImageSaved(eq(saveLocation));
+        verify(mMockImageSavedListener).onImageSaved(eq(saveLocation));
     }
 
     @Test(timeout = 5000)
     public void canSaveFile_withRotation()
             throws InterruptedException, IOException, CameraInfoUnavailableException {
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(defaultConfiguration);
+        ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(camera, useCase, repeatingUseCase);
-        useCase.addStateChangeListener(camera);
+        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        useCase.addStateChangeListener(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         Metadata metadata = new Metadata();
-        useCase.takePicture(saveLocation, onImageSavedListener, metadata);
+        useCase.takePicture(saveLocation, mOnImageSavedListener, metadata);
 
         // Wait for the signal that the image has been saved.
-        semaphore.acquire();
+        mSemaphore.acquire();
 
         // Retrieve the sensor orientation
-        int rotationDegrees = CameraX.getCameraInfo(cameraId).getSensorRotationDegrees();
+        int rotationDegrees = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees();
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -314,19 +314,19 @@ public final class ImageCaptureUseCaseAndroidTest {
         // be equivalent to flipping horizontally
         ImageCaptureUseCase useCase = new ImageCaptureUseCase(createNonRotatedConfiguration());
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(camera, useCase, repeatingUseCase);
-        useCase.addStateChangeListener(camera);
+        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        useCase.addStateChangeListener(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         Metadata metadata = new Metadata();
         metadata.isReversedHorizontal = true;
-        useCase.takePicture(saveLocation, onImageSavedListener, metadata);
+        useCase.takePicture(saveLocation, mOnImageSavedListener, metadata);
 
         // Wait for the signal that the image has been saved.
-        semaphore.acquire();
+        mSemaphore.acquire();
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -341,19 +341,19 @@ public final class ImageCaptureUseCaseAndroidTest {
         // can be equivalent to flipping vertically
         ImageCaptureUseCase useCase = new ImageCaptureUseCase(createNonRotatedConfiguration());
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(camera, useCase, repeatingUseCase);
-        useCase.addStateChangeListener(camera);
+        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        useCase.addStateChangeListener(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         Metadata metadata = new Metadata();
         metadata.isReversedVertical = true;
-        useCase.takePicture(saveLocation, onImageSavedListener, metadata);
+        useCase.takePicture(saveLocation, mOnImageSavedListener, metadata);
 
         // Wait for the signal that the image has been saved.
-        semaphore.acquire();
+        mSemaphore.acquire();
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -362,22 +362,22 @@ public final class ImageCaptureUseCaseAndroidTest {
 
     @Test(timeout = 5000)
     public void canSaveFile_withAttachedLocation() throws InterruptedException, IOException {
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(defaultConfiguration);
+        ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(camera, useCase, repeatingUseCase);
-        useCase.addStateChangeListener(camera);
+        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        useCase.addStateChangeListener(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
         Location location = new Location("ImageCaptureUseCaseAndroidTest");
         Metadata metadata = new Metadata();
         metadata.location = location;
-        useCase.takePicture(saveLocation, onImageSavedListener, metadata);
+        useCase.takePicture(saveLocation, mOnImageSavedListener, metadata);
 
         // Wait for the signal that the image has been saved.
-        semaphore.acquire();
+        mSemaphore.acquire();
 
         // Retrieve the exif from the image
         Exif exif = Exif.createFromFile(saveLocation);
@@ -386,71 +386,71 @@ public final class ImageCaptureUseCaseAndroidTest {
 
     @Test(timeout = 5000)
     public void canSaveMultipleFiles() throws InterruptedException, IOException {
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(defaultConfiguration);
+        ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(camera, useCase, repeatingUseCase);
-        useCase.addStateChangeListener(camera);
+        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        useCase.addStateChangeListener(mCamera);
 
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
             File saveLocation = File.createTempFile("test" + i, ".jpg");
             saveLocation.deleteOnExit();
 
-            useCase.takePicture(saveLocation, onImageSavedListener);
+            useCase.takePicture(saveLocation, mOnImageSavedListener);
         }
 
         // Wait for the signal that all images have been saved.
-        semaphore.acquire(numImages);
+        mSemaphore.acquire(numImages);
 
-        verify(mockImageSavedListener, times(numImages)).onImageSaved(anyObject());
+        verify(mMockImageSavedListener, times(numImages)).onImageSaved(anyObject());
     }
 
     @Test(timeout = 5000)
     public void saveWillFail_whenInvalidFilePathIsUsed() throws InterruptedException {
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(defaultConfiguration);
+        ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, DEFAULT_RESOLUTION);
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(camera, useCase, repeatingUseCase);
-        useCase.addStateChangeListener(camera);
+        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        useCase.addStateChangeListener(mCamera);
 
         // Note the invalid path
         File saveLocation = new File("/not/a/real/path.jpg");
-        useCase.takePicture(saveLocation, onImageSavedListener);
+        useCase.takePicture(saveLocation, mOnImageSavedListener);
 
         // Wait for the signal that an error occurred.
-        semaphore.acquire();
+        mSemaphore.acquire();
 
-        verify(mockImageSavedListener)
+        verify(mMockImageSavedListener)
                 .onError(eq(UseCaseError.FILE_IO_ERROR), anyString(), anyObject());
     }
 
     @Test(timeout = 5000)
     public void updateSessionConfigurationWithSuggestedResolution() throws InterruptedException {
         ImageCaptureUseCaseConfiguration configuration =
-                new ImageCaptureUseCaseConfiguration.Builder().setCallbackHandler(handler).build();
+                new ImageCaptureUseCaseConfiguration.Builder().setCallbackHandler(mHandler).build();
         ImageCaptureUseCase useCase = new ImageCaptureUseCase(configuration);
-        useCase.addStateChangeListener(camera);
+        useCase.addStateChangeListener(mCamera);
         final Size[] sizes = {new Size(1920, 1080), new Size(640, 480)};
 
         for (Size size : sizes) {
             Map<String, Size> suggestedResolutionMap = new HashMap<>();
-            suggestedResolutionMap.put(cameraId, size);
+            suggestedResolutionMap.put(mCameraId, size);
             // Update SessionConfiguration with resolution setting
             useCase.updateSuggestedResolution(suggestedResolutionMap);
-            CameraUtil.openCameraWithUseCase(camera, useCase, repeatingUseCase);
+            CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
 
-            useCase.takePicture(onImageCapturedListener);
+            useCase.takePicture(mOnImageCapturedListener);
             // Wait for the signal that the image has been captured.
-            semaphore.acquire();
+            mSemaphore.acquire();
 
-            assertThat(new Size(capturedImage.getWidth(), capturedImage.getHeight()))
+            assertThat(new Size(mCapturedImage.getWidth(), mCapturedImage.getHeight()))
                     .isEqualTo(size);
 
             // Detach use case from camera device to run next resolution setting
-            CameraUtil.detachUseCaseFromCamera(camera, useCase);
+            CameraUtil.detachUseCaseFromCamera(mCamera, useCase);
         }
     }
 }
