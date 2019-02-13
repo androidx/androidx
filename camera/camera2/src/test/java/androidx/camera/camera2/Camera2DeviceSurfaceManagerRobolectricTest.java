@@ -45,7 +45,6 @@ import androidx.camera.core.ImageAnalysisUseCaseConfiguration;
 import androidx.camera.core.ImageCaptureUseCase;
 import androidx.camera.core.ImageCaptureUseCaseConfiguration;
 import androidx.camera.core.ImageFormatConstants;
-import androidx.camera.core.StreamConfigurationMapUtil;
 import androidx.camera.core.SurfaceCombination;
 import androidx.camera.core.SurfaceConfiguration;
 import androidx.camera.core.SurfaceConfiguration.ConfigurationSize;
@@ -54,6 +53,7 @@ import androidx.camera.core.VideoCaptureUseCase;
 import androidx.camera.core.VideoCaptureUseCaseConfiguration;
 import androidx.camera.core.ViewFinderUseCase;
 import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.testing.StreamConfigurationMapUtil;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -81,13 +81,13 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     private static final String LIMITED_CAMERA_ID = "1";
     private static final String FULL_CAMERA_ID = "2";
     private static final String LEVEL3_CAMERA_ID = "3";
-    private final Size displaySize = new Size(1280, 720);
-    private final Size analysisSize = new Size(640, 480);
-    private final Size previewSize = displaySize;
-    private final Size recordSize = new Size(3840, 2160);
-    private final Size maximumSize = new Size(4032, 3024);
-    private final Size maximumVideoSize = new Size(1920, 1080);
-    private final CamcorderProfileHelper mockCamcorderProfileHelper =
+    private final Size mDisplaySize = new Size(1280, 720);
+    private final Size mAnalysisSize = new Size(640, 480);
+    private final Size mPreviewSize = mDisplaySize;
+    private final Size mRecordSize = new Size(3840, 2160);
+    private final Size mMaximumSize = new Size(4032, 3024);
+    private final Size mMaximumVideoSize = new Size(1920, 1080);
+    private final CamcorderProfileHelper mMockCamcorderProfileHelper =
             Mockito.mock(CamcorderProfileHelper.class);
 
     /**
@@ -97,14 +97,14 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
      * corresponding format HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED. Therefore, set 0x22 as default
      * image formate.
      */
-    private final int[] supportedFormats =
+    private final int[] mSupportedFormats =
             new int[]{
                     ImageFormat.YUV_420_888,
                     ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_JPEG,
                     ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
             };
 
-    private final Size[] supportedSizes =
+    private final Size[] mSupportedSizes =
             new Size[]{
                     new Size(4032, 3024),
                     new Size(3840, 2160),
@@ -115,17 +115,17 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
                     new Size(320, 180)
             };
 
-    private final Context context = RuntimeEnvironment.application.getApplicationContext();
-    private CameraDeviceSurfaceManager surfaceManager;
+    private final Context mContext = RuntimeEnvironment.application.getApplicationContext();
+    private CameraDeviceSurfaceManager mSurfaceManager;
 
     @Before
     public void setUp() {
         WindowManager windowManager =
-                (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealWidth(displaySize.getWidth());
-        Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealHeight(displaySize.getHeight());
+                (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealWidth(mDisplaySize.getWidth());
+        Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealHeight(mDisplaySize.getHeight());
 
-        when(mockCamcorderProfileHelper.hasProfile(anyInt(), anyInt())).thenReturn(true);
+        when(mMockCamcorderProfileHelper.hasProfile(anyInt(), anyInt())).thenReturn(true);
 
         setupCamera();
     }
@@ -134,14 +134,14 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     public void checkLegacySurfaceCombinationSupportedInLegacyDevice() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        context, LEGACY_CAMERA_ID, mockCamcorderProfileHelper);
+                        mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLegacySupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    surfaceManager.checkSupported(
+                    mSurfaceManager.checkSupported(
                             LEGACY_CAMERA_ID, combination.getSurfaceConfigurationList());
             assertTrue(isSupported);
         }
@@ -151,14 +151,14 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     public void checkLimitedSurfaceCombinationNotSupportedInLegacyDevice() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        context, LEGACY_CAMERA_ID, mockCamcorderProfileHelper);
+                        mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLimitedSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    surfaceManager.checkSupported(
+                    mSurfaceManager.checkSupported(
                             LEGACY_CAMERA_ID, combination.getSurfaceConfigurationList());
             assertFalse(isSupported);
         }
@@ -168,14 +168,14 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     public void checkFullSurfaceCombinationNotSupportedInLegacyDevice() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        context, LEGACY_CAMERA_ID, mockCamcorderProfileHelper);
+                        mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getFullSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    surfaceManager.checkSupported(
+                    mSurfaceManager.checkSupported(
                             LEGACY_CAMERA_ID, combination.getSurfaceConfigurationList());
             assertFalse(isSupported);
         }
@@ -185,14 +185,14 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     public void checkLevel3SurfaceCombinationNotSupportedInLegacyDevice() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        context, LEGACY_CAMERA_ID, mockCamcorderProfileHelper);
+                        mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    surfaceManager.checkSupported(
+                    mSurfaceManager.checkSupported(
                             LEGACY_CAMERA_ID, combination.getSurfaceConfigurationList());
             assertFalse(isSupported);
         }
@@ -202,14 +202,14 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     public void checkLimitedSurfaceCombinationSupportedInLimitedDevice() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        context, LIMITED_CAMERA_ID, mockCamcorderProfileHelper);
+                        mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLimitedSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    surfaceManager.checkSupported(
+                    mSurfaceManager.checkSupported(
                             LIMITED_CAMERA_ID, combination.getSurfaceConfigurationList());
             assertTrue(isSupported);
         }
@@ -219,14 +219,14 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     public void checkFullSurfaceCombinationNotSupportedInLimitedDevice() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        context, LIMITED_CAMERA_ID, mockCamcorderProfileHelper);
+                        mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getFullSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    surfaceManager.checkSupported(
+                    mSurfaceManager.checkSupported(
                             LIMITED_CAMERA_ID, combination.getSurfaceConfigurationList());
             assertFalse(isSupported);
         }
@@ -236,14 +236,14 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     public void checkLevel3SurfaceCombinationNotSupportedInLimitedDevice() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        context, LIMITED_CAMERA_ID, mockCamcorderProfileHelper);
+                        mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    surfaceManager.checkSupported(
+                    mSurfaceManager.checkSupported(
                             LIMITED_CAMERA_ID, combination.getSurfaceConfigurationList());
             assertFalse(isSupported);
         }
@@ -253,14 +253,14 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     public void checkFullSurfaceCombinationSupportedInFullDevice() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        context, FULL_CAMERA_ID, mockCamcorderProfileHelper);
+                        mContext, FULL_CAMERA_ID, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getFullSupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    surfaceManager.checkSupported(
+                    mSurfaceManager.checkSupported(
                             FULL_CAMERA_ID, combination.getSurfaceConfigurationList());
             assertTrue(isSupported);
         }
@@ -270,14 +270,14 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     public void checkLevel3SurfaceCombinationNotSupportedInFullDevice() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        context, FULL_CAMERA_ID, mockCamcorderProfileHelper);
+                        mContext, FULL_CAMERA_ID, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    surfaceManager.checkSupported(
+                    mSurfaceManager.checkSupported(
                             FULL_CAMERA_ID, combination.getSurfaceConfigurationList());
             assertFalse(isSupported);
         }
@@ -287,14 +287,14 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     public void checkLevel3SurfaceCombinationSupportedInLevel3Device() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        context, LEVEL3_CAMERA_ID, mockCamcorderProfileHelper);
+                        mContext, LEVEL3_CAMERA_ID, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    surfaceManager.checkSupported(
+                    mSurfaceManager.checkSupported(
                             LEVEL3_CAMERA_ID, combination.getSurfaceConfigurationList());
             assertTrue(isSupported);
         }
@@ -333,7 +333,7 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
 
         try {
             // Will throw IllegalArgumentException
-            surfaceManager.getSuggestedResolutions(LEGACY_CAMERA_ID, null, useCases);
+            mSurfaceManager.getSuggestedResolutions(LEGACY_CAMERA_ID, null, useCases);
         } catch (IllegalArgumentException e) {
             exceptionHappened = true;
         }
@@ -370,19 +370,19 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
         useCases.add(videoCaptureUseCase);
         useCases.add(viewFinderUseCase);
         Map<BaseUseCase, Size> suggestedResolutionMap =
-                surfaceManager.getSuggestedResolutions(LIMITED_CAMERA_ID, null, useCases);
+                mSurfaceManager.getSuggestedResolutions(LIMITED_CAMERA_ID, null, useCases);
 
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        assertThat(suggestedResolutionMap).containsEntry(imageCaptureUseCase, recordSize);
-        assertThat(suggestedResolutionMap).containsEntry(videoCaptureUseCase, maximumVideoSize);
-        assertThat(suggestedResolutionMap).containsEntry(viewFinderUseCase, previewSize);
+        assertThat(suggestedResolutionMap).containsEntry(imageCaptureUseCase, mRecordSize);
+        assertThat(suggestedResolutionMap).containsEntry(videoCaptureUseCase, mMaximumVideoSize);
+        assertThat(suggestedResolutionMap).containsEntry(viewFinderUseCase, mPreviewSize);
     }
 
     @Test
     public void transformSurfaceConfigurationWithYUVAnalysisSize() {
         SurfaceConfiguration surfaceConfiguration =
-                surfaceManager.transformSurfaceConfiguration(
-                        LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, analysisSize);
+                mSurfaceManager.transformSurfaceConfiguration(
+                        LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mAnalysisSize);
         SurfaceConfiguration expectedSurfaceConfiguration =
                 SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.ANALYSIS);
         assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
@@ -391,8 +391,8 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     @Test
     public void transformSurfaceConfigurationWithYUVPreviewSize() {
         SurfaceConfiguration surfaceConfiguration =
-                surfaceManager.transformSurfaceConfiguration(
-                        LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, previewSize);
+                mSurfaceManager.transformSurfaceConfiguration(
+                        LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mPreviewSize);
         SurfaceConfiguration expectedSurfaceConfiguration =
                 SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.PREVIEW);
         assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
@@ -401,8 +401,8 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     @Test
     public void transformSurfaceConfigurationWithYUVRecordSize() {
         SurfaceConfiguration surfaceConfiguration =
-                surfaceManager.transformSurfaceConfiguration(
-                        LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, recordSize);
+                mSurfaceManager.transformSurfaceConfiguration(
+                        LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mRecordSize);
         SurfaceConfiguration expectedSurfaceConfiguration =
                 SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.RECORD);
         assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
@@ -411,8 +411,8 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     @Test
     public void transformSurfaceConfigurationWithYUVMaximumSize() {
         SurfaceConfiguration surfaceConfiguration =
-                surfaceManager.transformSurfaceConfiguration(
-                        LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, maximumSize);
+                mSurfaceManager.transformSurfaceConfiguration(
+                        LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mMaximumSize);
         SurfaceConfiguration expectedSurfaceConfiguration =
                 SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.MAXIMUM);
         assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
@@ -421,10 +421,10 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     @Test
     public void transformSurfaceConfigurationWithYUVNotSupportSize() {
         SurfaceConfiguration surfaceConfiguration =
-                surfaceManager.transformSurfaceConfiguration(
+                mSurfaceManager.transformSurfaceConfiguration(
                         LEGACY_CAMERA_ID,
                         ImageFormat.YUV_420_888,
-                        new Size(maximumSize.getWidth() + 1, maximumSize.getHeight() + 1));
+                        new Size(mMaximumSize.getWidth() + 1, mMaximumSize.getHeight() + 1));
         SurfaceConfiguration expectedSurfaceConfiguration =
                 SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.NOT_SUPPORT);
         assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
@@ -433,8 +433,8 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     @Test
     public void transformSurfaceConfigurationWithJPEGAnalysisSize() {
         SurfaceConfiguration surfaceConfiguration =
-                surfaceManager.transformSurfaceConfiguration(
-                        LEGACY_CAMERA_ID, ImageFormat.JPEG, analysisSize);
+                mSurfaceManager.transformSurfaceConfiguration(
+                        LEGACY_CAMERA_ID, ImageFormat.JPEG, mAnalysisSize);
         SurfaceConfiguration expectedSurfaceConfiguration =
                 SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.ANALYSIS);
         assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
@@ -443,8 +443,8 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     @Test
     public void transformSurfaceConfigurationWithJPEGPreviewSize() {
         SurfaceConfiguration surfaceConfiguration =
-                surfaceManager.transformSurfaceConfiguration(
-                        LEGACY_CAMERA_ID, ImageFormat.JPEG, previewSize);
+                mSurfaceManager.transformSurfaceConfiguration(
+                        LEGACY_CAMERA_ID, ImageFormat.JPEG, mPreviewSize);
         SurfaceConfiguration expectedSurfaceConfiguration =
                 SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.PREVIEW);
         assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
@@ -453,8 +453,8 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     @Test
     public void transformSurfaceConfigurationWithJPEGRecordSize() {
         SurfaceConfiguration surfaceConfiguration =
-                surfaceManager.transformSurfaceConfiguration(
-                        LEGACY_CAMERA_ID, ImageFormat.JPEG, recordSize);
+                mSurfaceManager.transformSurfaceConfiguration(
+                        LEGACY_CAMERA_ID, ImageFormat.JPEG, mRecordSize);
         SurfaceConfiguration expectedSurfaceConfiguration =
                 SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.RECORD);
         assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
@@ -463,8 +463,8 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     @Test
     public void transformSurfaceConfigurationWithJPEGMaximumSize() {
         SurfaceConfiguration surfaceConfiguration =
-                surfaceManager.transformSurfaceConfiguration(
-                        LEGACY_CAMERA_ID, ImageFormat.JPEG, maximumSize);
+                mSurfaceManager.transformSurfaceConfiguration(
+                        LEGACY_CAMERA_ID, ImageFormat.JPEG, mMaximumSize);
         SurfaceConfiguration expectedSurfaceConfiguration =
                 SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.MAXIMUM);
         assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
@@ -473,10 +473,10 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     @Test
     public void transformSurfaceConfigurationWithJPEGNotSupportSize() {
         SurfaceConfiguration surfaceConfiguration =
-                surfaceManager.transformSurfaceConfiguration(
+                mSurfaceManager.transformSurfaceConfiguration(
                         LEGACY_CAMERA_ID,
                         ImageFormat.JPEG,
-                        new Size(maximumSize.getWidth() + 1, maximumSize.getHeight() + 1));
+                        new Size(mMaximumSize.getWidth() + 1, mMaximumSize.getHeight() + 1));
         SurfaceConfiguration expectedSurfaceConfiguration =
                 SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.NOT_SUPPORT);
         assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
@@ -485,10 +485,10 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
     @Test
     public void getMaximumSizeForImageFormat() {
         Size maximumYUVSize =
-                surfaceManager.getMaxOutputSize(LEGACY_CAMERA_ID, ImageFormat.YUV_420_888);
-        assertEquals(maximumSize, maximumYUVSize);
-        Size maximumJPEGSize = surfaceManager.getMaxOutputSize(LEGACY_CAMERA_ID, ImageFormat.JPEG);
-        assertEquals(maximumSize, maximumJPEGSize);
+                mSurfaceManager.getMaxOutputSize(LEGACY_CAMERA_ID, ImageFormat.YUV_420_888);
+        assertEquals(mMaximumSize, maximumYUVSize);
+        Size maximumJPEGSize = mSurfaceManager.getMaxOutputSize(LEGACY_CAMERA_ID, ImageFormat.JPEG);
+        assertEquals(mMaximumSize, maximumJPEGSize);
     }
 
     private void setupCamera() {
@@ -528,23 +528,23 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
         shadowCharacteristics.set(
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
                 StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(
-                        supportedFormats, supportedSizes));
+                        mSupportedFormats, mSupportedSizes));
     }
 
     private void initCameraX() {
         AppConfiguration appConfig = createFakeAppConfiguration();
-        CameraX.init(context, appConfig);
-        surfaceManager = CameraX.getSurfaceManager();
+        CameraX.init(mContext, appConfig);
+        mSurfaceManager = CameraX.getSurfaceManager();
     }
 
     private AppConfiguration createFakeAppConfiguration() {
 
         // Create the camera factory for creating Camera2 camera objects
-        CameraFactory cameraFactory = new Camera2CameraFactory(context);
+        CameraFactory cameraFactory = new Camera2CameraFactory(mContext);
 
         // Create the DeviceSurfaceManager for Camera2
         CameraDeviceSurfaceManager surfaceManager =
-                new Camera2DeviceSurfaceManager(context, mockCamcorderProfileHelper);
+                new Camera2DeviceSurfaceManager(mContext, mMockCamcorderProfileHelper);
 
         // Create default configuration factory
         ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();

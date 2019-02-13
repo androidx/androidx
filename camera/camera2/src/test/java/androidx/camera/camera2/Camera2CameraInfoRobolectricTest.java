@@ -49,31 +49,31 @@ public class Camera2CameraInfoRobolectricTest {
     private static final int CAMERA1_SENSOR_ORIENTATION = 0;
     private static final int CAMERA1_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_FRONT;
 
-    private CameraManager cameraManager;
+    private CameraManager mCameraManager;
 
     @Before
     public void setUp() {
         initCameras();
-        cameraManager =
+        mCameraManager =
                 ApplicationProvider.getApplicationContext().getSystemService(CameraManager.class);
     }
 
     @Test
     public void canCreateCameraInfo() throws CameraInfoUnavailableException {
-        CameraInfo cameraInfo = new Camera2CameraInfo(cameraManager, CAMERA0_ID);
+        CameraInfo cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
         assertThat(cameraInfo).isNotNull();
     }
 
     @Test
     public void cameraInfo_canReturnSensorOrientation() throws CameraInfoUnavailableException {
-        CameraInfo cameraInfo = new Camera2CameraInfo(cameraManager, CAMERA0_ID);
+        CameraInfo cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
         assertThat(cameraInfo.getSensorRotationDegrees()).isEqualTo(CAMERA0_SENSOR_ORIENTATION);
     }
 
     @Test
     public void cameraInfo_canCalculateCorrectRelativeRotation_forBackCamera()
             throws CameraInfoUnavailableException {
-        CameraInfo cameraInfo = new Camera2CameraInfo(cameraManager, CAMERA0_ID);
+        CameraInfo cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
 
         // Note: these numbers depend on the camera being a back-facing camera.
         assertThat(cameraInfo.getSensorRotationDegrees(Surface.ROTATION_0))
@@ -89,7 +89,7 @@ public class Camera2CameraInfoRobolectricTest {
     @Test
     public void cameraInfo_canCalculateCorrectRelativeRotation_forFrontCamera()
             throws CameraInfoUnavailableException {
-        CameraInfo cameraInfo = new Camera2CameraInfo(cameraManager, CAMERA1_ID);
+        CameraInfo cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA1_ID);
 
         // Note: these numbers depend on the camera being a front-facing camera.
         assertThat(cameraInfo.getSensorRotationDegrees(Surface.ROTATION_0))
@@ -104,7 +104,7 @@ public class Camera2CameraInfoRobolectricTest {
 
     @Test
     public void cameraInfo_canReturnLensFacing() throws CameraInfoUnavailableException {
-        CameraInfo cameraInfo = new Camera2CameraInfo(cameraManager, CAMERA0_ID);
+        CameraInfo cameraInfo = new Camera2CameraInfo(mCameraManager, CAMERA0_ID);
         assertThat(cameraInfo.getLensFacing()).isEqualTo(CAMERA0_LENS_FACING_ENUM);
     }
 
