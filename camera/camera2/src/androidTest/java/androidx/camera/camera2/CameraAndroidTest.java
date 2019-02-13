@@ -54,17 +54,17 @@ import java.util.Map;
 @RunWith(AndroidJUnit4.class)
 public class CameraAndroidTest {
     private static final LensFacing DEFAULT_LENS_FACING = LensFacing.BACK;
-    static CameraFactory cameraFactory;
+    static CameraFactory sCameraFactory;
 
-    BaseCamera camera;
+    BaseCamera mCamera;
 
-    UseCase fakeUseCase;
-    OnImageAvailableListener mockOnImageAvailableListener;
-    String cameraId;
+    UseCase mFakeUseCase;
+    OnImageAvailableListener mMockOnImageAvailableListener;
+    String mCameraId;
 
     private static String getCameraIdForLensFacingUnchecked(LensFacing lensFacing) {
         try {
-            return cameraFactory.cameraIdForLensFacing(lensFacing);
+            return sCameraFactory.cameraIdForLensFacing(lensFacing);
         } catch (Exception e) {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + lensFacing, e);
@@ -73,24 +73,24 @@ public class CameraAndroidTest {
 
     @BeforeClass
     public static void classSetup() {
-        cameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext());
+        sCameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext());
     }
 
     @Before
     public void setup() {
-        mockOnImageAvailableListener = Mockito.mock(ImageReader.OnImageAvailableListener.class);
+        mMockOnImageAvailableListener = Mockito.mock(ImageReader.OnImageAvailableListener.class);
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder()
                         .setTargetName("UseCase")
                         .setLensFacing(DEFAULT_LENS_FACING)
                         .build();
-        cameraId = getCameraIdForLensFacingUnchecked(DEFAULT_LENS_FACING);
-        fakeUseCase = new UseCase(configuration, mockOnImageAvailableListener);
+        mCameraId = getCameraIdForLensFacingUnchecked(DEFAULT_LENS_FACING);
+        mFakeUseCase = new UseCase(configuration, mMockOnImageAvailableListener);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
-        suggestedResolutionMap.put(cameraId, new Size(640, 480));
-        fakeUseCase.updateSuggestedResolution(suggestedResolutionMap);
+        suggestedResolutionMap.put(mCameraId, new Size(640, 480));
+        mFakeUseCase.updateSuggestedResolution(suggestedResolutionMap);
 
-        camera = cameraFactory.getCamera(cameraId);
+        mCamera = sCameraFactory.getCamera(mCameraId);
     }
 
     @After
@@ -100,119 +100,119 @@ public class CameraAndroidTest {
         // When the CameraDevice is not closed, then it can cause problems with interferes with
         // other
         // test cases.
-        if (camera != null) {
-            camera.release();
-            camera = null;
+        if (mCamera != null) {
+            mCamera.release();
+            mCamera = null;
         }
 
         // Wait a little bit for the camera device to close.
         // TODO(b/111991758): Listen for the close signal when it becomes available.
         Thread.sleep(2000);
 
-        if (fakeUseCase != null) {
-            fakeUseCase.close();
-            fakeUseCase = null;
+        if (mFakeUseCase != null) {
+            mFakeUseCase.close();
+            mFakeUseCase = null;
         }
     }
 
     @Test
     public void onlineUseCase() {
-        camera.open();
+        mCamera.open();
 
-        camera.addOnlineUseCase(Collections.singletonList(fakeUseCase));
+        mCamera.addOnlineUseCase(Collections.singletonList(mFakeUseCase));
 
-        verify(mockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
 
-        camera.release();
+        mCamera.release();
     }
 
     @Test
     public void activeUseCase() {
-        camera.open();
+        mCamera.open();
 
-        camera.onUseCaseActive(fakeUseCase);
+        mCamera.onUseCaseActive(mFakeUseCase);
 
-        verify(mockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
 
-        camera.release();
+        mCamera.release();
     }
 
     @Test
     public void onlineAndActiveUseCase() throws InterruptedException {
-        camera.open();
+        mCamera.open();
 
-        camera.addOnlineUseCase(Collections.singletonList(fakeUseCase));
-        camera.onUseCaseActive(fakeUseCase);
+        mCamera.addOnlineUseCase(Collections.singletonList(mFakeUseCase));
+        mCamera.onUseCaseActive(mFakeUseCase);
 
-        verify(mockOnImageAvailableListener, timeout(4000).atLeastOnce())
+        verify(mMockOnImageAvailableListener, timeout(4000).atLeastOnce())
                 .onImageAvailable(any(ImageReader.class));
     }
 
     @Test
     public void removeOnlineUseCase() {
-        camera.open();
+        mCamera.open();
 
-        camera.addOnlineUseCase(Collections.singletonList(fakeUseCase));
-        camera.removeOnlineUseCase(Collections.singletonList(fakeUseCase));
-        camera.onUseCaseActive(fakeUseCase);
+        mCamera.addOnlineUseCase(Collections.singletonList(mFakeUseCase));
+        mCamera.removeOnlineUseCase(Collections.singletonList(mFakeUseCase));
+        mCamera.onUseCaseActive(mFakeUseCase);
 
-        verify(mockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
     }
 
     @Test
     public void unopenedCamera() {
-        camera.addOnlineUseCase(Collections.singletonList(fakeUseCase));
-        camera.removeOnlineUseCase(Collections.singletonList(fakeUseCase));
+        mCamera.addOnlineUseCase(Collections.singletonList(mFakeUseCase));
+        mCamera.removeOnlineUseCase(Collections.singletonList(mFakeUseCase));
 
-        verify(mockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
     }
 
     @Test
     public void closedCamera() {
-        camera.open();
+        mCamera.open();
 
-        camera.close();
-        camera.addOnlineUseCase(Collections.singletonList(fakeUseCase));
-        camera.removeOnlineUseCase(Collections.singletonList(fakeUseCase));
+        mCamera.close();
+        mCamera.addOnlineUseCase(Collections.singletonList(mFakeUseCase));
+        mCamera.removeOnlineUseCase(Collections.singletonList(mFakeUseCase));
 
-        verify(mockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
     }
 
     @Test
     public void releaseUnopenedCamera() {
-        camera.release();
-        camera.open();
+        mCamera.release();
+        mCamera.open();
 
-        camera.addOnlineUseCase(Collections.singletonList(fakeUseCase));
-        camera.onUseCaseActive(fakeUseCase);
+        mCamera.addOnlineUseCase(Collections.singletonList(mFakeUseCase));
+        mCamera.onUseCaseActive(mFakeUseCase);
 
-        verify(mockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
     }
 
     @Test
     public void releasedOpenedCamera() {
-        camera.release();
-        camera.open();
+        mCamera.release();
+        mCamera.open();
 
-        camera.addOnlineUseCase(Collections.singletonList(fakeUseCase));
-        camera.onUseCaseActive(fakeUseCase);
+        mCamera.addOnlineUseCase(Collections.singletonList(mFakeUseCase));
+        mCamera.onUseCaseActive(mFakeUseCase);
 
-        verify(mockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
+        verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
     }
 
     private static class UseCase extends FakeUseCase {
-        private final ImageReader.OnImageAvailableListener imageAvailableListener;
-        HandlerThread handlerThread = new HandlerThread("HandlerThread");
-        Handler handler;
-        ImageReader imageReader;
+        private final ImageReader.OnImageAvailableListener mImageAvailableListener;
+        HandlerThread mHandlerThread = new HandlerThread("HandlerThread");
+        Handler mHandler;
+        ImageReader mImageReader;
 
         UseCase(
                 FakeUseCaseConfiguration configuration,
                 ImageReader.OnImageAvailableListener listener) {
             super(configuration);
-            imageAvailableListener = listener;
-            handlerThread.start();
-            handler = new Handler(handlerThread.getLooper());
+            mImageAvailableListener = listener;
+            mHandlerThread.start();
+            mHandler = new Handler(mHandlerThread.getLooper());
             Map<String, Size> suggestedResolutionMap = new HashMap<>();
             String cameraId = getCameraIdForLensFacingUnchecked(configuration.getLensFacing());
             suggestedResolutionMap.put(cameraId, new Size(640, 480));
@@ -220,10 +220,10 @@ public class CameraAndroidTest {
         }
 
         void close() {
-            handler.removeCallbacksAndMessages(null);
-            handlerThread.quitSafely();
-            if (imageReader != null) {
-                imageReader.close();
+            mHandler.removeCallbacksAndMessages(null);
+            mHandlerThread.quitSafely();
+            if (mImageReader != null) {
+                mImageReader.close();
             }
         }
 
@@ -236,14 +236,14 @@ public class CameraAndroidTest {
             Size resolution = suggestedResolutionMap.get(cameraId);
             SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            imageReader =
+            mImageReader =
                     ImageReader.newInstance(
                             resolution.getWidth(),
                             resolution.getHeight(),
                             ImageFormat.YUV_420_888, /*maxImages*/
                             2);
-            imageReader.setOnImageAvailableListener(imageAvailableListener, handler);
-            builder.addSurface(new ImmediateSurface(imageReader.getSurface()));
+            mImageReader.setOnImageAvailableListener(mImageAvailableListener, mHandler);
+            builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
 
             attachToCamera(cameraId, builder.build());
             return suggestedResolutionMap;
