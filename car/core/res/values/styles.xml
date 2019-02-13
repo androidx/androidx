@@ -133,11 +133,23 @@ limitations under the License.
         <item name="android:textColor">@color/car_body4</item>
     </style>
 
+    <style name="TextAppearance.Car.Body4.Medium">
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
     <style name="TextAppearance.Car.Body4.Light">
         <item name="android:textColor">@color/car_body4_light</item>
     </style>
 
+    <style name="TextAppearance.Car.Body4.Medium.Light">
+        <item name="android:textColor">@color/car_body4_light</item>
+    </style>
+
     <style name="TextAppearance.Car.Body4.Dark">
+        <item name="android:textColor">@color/car_body4_dark</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body4.Medium.Dark">
         <item name="android:textColor">@color/car_body4_dark</item>
     </style>
 
@@ -367,6 +379,25 @@ limitations under the License.
         <item name="android:layout_height">@dimen/car_vertical_line_divider_height</item>
         <item name="android:layout_marginStart">@dimen/car_padding_4</item>
         <item name="android:background">@color/car_list_divider</item>
+    </style>
+
+    <!-- =============== -->
+    <!-- TabLayout Style -->
+    <!-- =============== -->
+    <eat-comment />
+
+    <!-- Styling for a TabLayout. This style colors the TabLayout with a dark theme. Make sure to
+         also use the layout car_tab_view as the custom view for each tab. -->
+    <style name="Widget.Car.TabLayout" parent="Widget.MaterialComponents.TabLayout">
+        <item name="android:background">@android:color/black</item>
+        <item name="tabRippleColor">@color/car_card_ripple_background_light</item>
+        <item name="tabGravity">fill</item>
+        <item name="tabTextColor">@color/car_tab_tint</item>
+        <item name="tabIndicatorColor">@android:color/transparent</item>
+        <item name="tabIndicatorHeight">0dp</item>
+        <item name="tabMinWidth">@dimen/car_tab_min_width</item>
+        <item name="tabIconTint">@color/car_tab_tint</item>
+        <item name="tabTextAppearance">@style/TextAppearance.Car.Body4.Medium.Light</item>
     </style>
 
     <!-- =========== -->
