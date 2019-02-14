@@ -31,77 +31,77 @@ import java.util.concurrent.locks.ReentrantLock;
 @RunWith(AndroidJUnit4.class)
 public final class IoExecutorAndroidTest {
 
-    private Executor ioExecutor;
-    private Lock lock = new ReentrantLock();
-    private Condition condition = lock.newCondition();
+    private Executor mIoExecutor;
+    private Lock mLock = new ReentrantLock();
+    private Condition mCondition = mLock.newCondition();
     @GuardedBy("lock")
-    private RunnableState state = RunnableState.CLEAR;
-    private final Runnable runnable1 =
+    private RunnableState mState = RunnableState.CLEAR;
+    private final Runnable mRunnable1 =
             () -> {
-                lock.lock();
+                mLock.lock();
                 try {
-                    state = RunnableState.RUNNABLE1_WAITING;
-                    condition.signalAll();
-                    while (state != RunnableState.CLEAR) {
-                        condition.await();
+                    mState = RunnableState.RUNNABLE1_WAITING;
+                    mCondition.signalAll();
+                    while (mState != RunnableState.CLEAR) {
+                        mCondition.await();
                     }
 
-                    state = RunnableState.RUNNABLE1_FINISHED;
-                    condition.signalAll();
+                    mState = RunnableState.RUNNABLE1_FINISHED;
+                    mCondition.signalAll();
                 } catch (InterruptedException e) {
                     throw new RuntimeException("Thread interrupted unexpectedly", e);
                 } finally {
-                    lock.unlock();
+                    mLock.unlock();
                 }
             };
-    private final Runnable runnable2 =
+    private final Runnable mRunnable2 =
             () -> {
-                lock.lock();
+                mLock.lock();
                 try {
-                    while (state != RunnableState.RUNNABLE1_WAITING) {
-                        condition.await();
+                    while (mState != RunnableState.RUNNABLE1_WAITING) {
+                        mCondition.await();
                     }
 
-                    state = RunnableState.RUNNABLE2_FINISHED;
-                    condition.signalAll();
+                    mState = RunnableState.RUNNABLE2_FINISHED;
+                    mCondition.signalAll();
                 } catch (InterruptedException e) {
                     throw new RuntimeException("Thread interrupted unexpectedly", e);
                 } finally {
-                    lock.unlock();
+                    mLock.unlock();
                 }
             };
-    private final Runnable simpleRunnable1 =
+    private final Runnable mSimpleRunnable1 =
             () -> {
-                lock.lock();
+                mLock.lock();
                 try {
-                    state = RunnableState.RUNNABLE1_FINISHED;
-                    condition.signalAll();
+                    mState = RunnableState.RUNNABLE1_FINISHED;
+                    mCondition.signalAll();
                 } finally {
-                    lock.unlock();
+                    mLock.unlock();
                 }
             };
 
     @Before
     public void setup() {
-        lock.lock();
+        mLock.lock();
         try {
-            state = RunnableState.CLEAR;
+            mState = RunnableState.CLEAR;
         } finally {
-            lock.unlock();
+            mLock.unlock();
         }
-        ioExecutor = IoExecutor.getInstance();
+        mIoExecutor = IoExecutor.getInstance();
     }
 
     @Test(timeout = 2000)
     public void canRunRunnable() throws InterruptedException {
-        ioExecutor.execute(simpleRunnable1);
-        lock.lock();
+        mIoExecutor.execute(mSimpleRunnable1);
+        mLock.lock();
         try {
-            while (state != RunnableState.RUNNABLE1_FINISHED) {
-                condition.await();
+            while (mState != RunnableState.RUNNABLE1_FINISHED) {
+                mCondition.await();
             }
         } finally {
-            lock.unlock();
+            mLock.unlock();
         }
 
         // No need to check anything here. Completing this method should signal success.
@@ -109,25 +109,25 @@ public final class IoExecutorAndroidTest {
 
     @Test(timeout = 2000)
     public void canRunMultipleRunnableInParallel() throws InterruptedException {
-        ioExecutor.execute(runnable1);
-        ioExecutor.execute(runnable2);
+        mIoExecutor.execute(mRunnable1);
+        mIoExecutor.execute(mRunnable2);
 
-        lock.lock();
+        mLock.lock();
         try {
-            // runnable2 cannot finish until runnable1 has started
-            while (state != RunnableState.RUNNABLE2_FINISHED) {
-                condition.await();
+            // mRunnable2 cannot finish until mRunnable1 has started
+            while (mState != RunnableState.RUNNABLE2_FINISHED) {
+                mCondition.await();
             }
 
-            // Allow runnable1 to finish
-            state = RunnableState.CLEAR;
-            condition.signalAll();
+            // Allow mRunnable1 to finish
+            mState = RunnableState.CLEAR;
+            mCondition.signalAll();
 
-            while (state != RunnableState.RUNNABLE1_FINISHED) {
-                condition.await();
+            while (mState != RunnableState.RUNNABLE1_FINISHED) {
+                mCondition.await();
             }
         } finally {
-            lock.unlock();
+            mLock.unlock();
         }
 
         // No need to check anything here. Completing this method should signal success.

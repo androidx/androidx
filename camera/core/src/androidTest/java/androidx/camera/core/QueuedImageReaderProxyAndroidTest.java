@@ -48,10 +48,10 @@ public final class QueuedImageReaderProxyAndroidTest {
     private static final int IMAGE_FORMAT = ImageFormat.YUV_420_888;
     private static final int MAX_IMAGES = 10;
 
-    private final Surface surface = mock(Surface.class);
-    private HandlerThread handlerThread;
-    private Handler handler;
-    private QueuedImageReaderProxy imageReaderProxy;
+    private final Surface mSurface = mock(Surface.class);
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
+    private QueuedImageReaderProxy mImageReaderProxy;
 
     private static ImageProxy createMockImageProxy() {
         ImageProxy image = mock(ImageProxy.class);
@@ -77,35 +77,35 @@ public final class QueuedImageReaderProxyAndroidTest {
 
     @Before
     public void setUp() {
-        handlerThread = new HandlerThread("background");
-        handlerThread.start();
-        handler = new Handler(handlerThread.getLooper());
-        imageReaderProxy =
+        mHandlerThread = new HandlerThread("background");
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
+        mImageReaderProxy =
                 new QueuedImageReaderProxy(
-                        IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, MAX_IMAGES, surface);
+                        IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, MAX_IMAGES, mSurface);
     }
 
     @After
     public void tearDown() {
-        handlerThread.quitSafely();
+        mHandlerThread.quitSafely();
     }
 
     @Test
     public void enqueueImage_incrementsQueueSize() {
-        imageReaderProxy.enqueueImage(createForwardingImageProxy());
-        imageReaderProxy.enqueueImage(createForwardingImageProxy());
+        mImageReaderProxy.enqueueImage(createForwardingImageProxy());
+        mImageReaderProxy.enqueueImage(createForwardingImageProxy());
 
-        assertThat(imageReaderProxy.getCurrentImages()).isEqualTo(2);
+        assertThat(mImageReaderProxy.getCurrentImages()).isEqualTo(2);
     }
 
     @Test
     public void enqueueImage_doesNotIncreaseSizeBeyondMaxImages() {
         // Exceed the queue's capacity by 2.
         for (int i = 0; i < MAX_IMAGES + 2; ++i) {
-            imageReaderProxy.enqueueImage(createForwardingImageProxy());
+            mImageReaderProxy.enqueueImage(createForwardingImageProxy());
         }
 
-        assertThat(imageReaderProxy.getCurrentImages()).isEqualTo(MAX_IMAGES);
+        assertThat(mImageReaderProxy.getCurrentImages()).isEqualTo(MAX_IMAGES);
     }
 
     @Test
@@ -114,7 +114,7 @@ public final class QueuedImageReaderProxyAndroidTest {
         List<ConcreteImageProxy> images = new ArrayList<>(MAX_IMAGES + 2);
         for (int i = 0; i < MAX_IMAGES + 2; ++i) {
             images.add(createForwardingImageProxy());
-            imageReaderProxy.enqueueImage(images.get(i));
+            mImageReaderProxy.enqueueImage(images.get(i));
         }
 
         // Last two images should not be enqueued and should be closed.
@@ -133,14 +133,14 @@ public final class QueuedImageReaderProxyAndroidTest {
         for (int i = 0; i < MAX_IMAGES; ++i) {
             ForwardingImageProxy image =
                     createSemaphoreReleasingOnCloseImageProxy(onCloseSemaphore);
-            imageReaderProxy.enqueueImage(image);
+            mImageReaderProxy.enqueueImage(image);
         }
 
-        imageReaderProxy.acquireNextImage().close();
-        imageReaderProxy.acquireNextImage().close();
+        mImageReaderProxy.acquireNextImage().close();
+        mImageReaderProxy.acquireNextImage().close();
         onCloseSemaphore.acquire(/*permits=*/ 2);
 
-        assertThat(imageReaderProxy.getCurrentImages()).isEqualTo(MAX_IMAGES - 2);
+        assertThat(mImageReaderProxy.getCurrentImages()).isEqualTo(MAX_IMAGES - 2);
     }
 
     @Test(timeout = 2000)
@@ -150,14 +150,14 @@ public final class QueuedImageReaderProxyAndroidTest {
         for (int i = 0; i < MAX_IMAGES; ++i) {
             ForwardingImageProxy image =
                     createSemaphoreReleasingOnCloseImageProxy(onCloseSemaphore);
-            imageReaderProxy.enqueueImage(image);
+            mImageReaderProxy.enqueueImage(image);
         }
 
-        imageReaderProxy.acquireNextImage().close();
+        mImageReaderProxy.acquireNextImage().close();
         onCloseSemaphore.acquire();
 
         ConcreteImageProxy lastImageProxy = createForwardingImageProxy();
-        imageReaderProxy.enqueueImage(lastImageProxy);
+        mImageReaderProxy.enqueueImage(lastImageProxy);
 
         // Last image should be enqueued and open.
         assertThat(lastImageProxy.isClosed()).isFalse();
@@ -167,17 +167,17 @@ public final class QueuedImageReaderProxyAndroidTest {
     public void enqueueImage_invokesListenerCallback() {
         ImageReaderProxy.OnImageAvailableListener listener =
                 mock(ImageReaderProxy.OnImageAvailableListener.class);
-        imageReaderProxy.setOnImageAvailableListener(listener, handler);
+        mImageReaderProxy.setOnImageAvailableListener(listener, mHandler);
 
-        imageReaderProxy.enqueueImage(createForwardingImageProxy());
-        imageReaderProxy.enqueueImage(createForwardingImageProxy());
+        mImageReaderProxy.enqueueImage(createForwardingImageProxy());
+        mImageReaderProxy.enqueueImage(createForwardingImageProxy());
 
-        verify(listener, timeout(2000).times(2)).onImageAvailable(imageReaderProxy);
+        verify(listener, timeout(2000).times(2)).onImageAvailable(mImageReaderProxy);
     }
 
     @Test
     public void acquireLatestImage_returnsNull_whenQueueIsEmpty() {
-        assertThat(imageReaderProxy.acquireLatestImage()).isNull();
+        assertThat(mImageReaderProxy.acquireLatestImage()).isNull();
     }
 
     @Test
@@ -186,25 +186,25 @@ public final class QueuedImageReaderProxyAndroidTest {
         List<ForwardingImageProxy> images = new ArrayList<>(availableImages);
         for (int i = 0; i < availableImages; ++i) {
             images.add(createForwardingImageProxy());
-            imageReaderProxy.enqueueImage(images.get(i));
+            mImageReaderProxy.enqueueImage(images.get(i));
         }
 
         ImageProxy lastImage = images.get(availableImages - 1);
-        assertThat(imageReaderProxy.acquireLatestImage()).isEqualTo(lastImage);
-        assertThat(imageReaderProxy.getCurrentImages()).isEqualTo(1);
+        assertThat(mImageReaderProxy.acquireLatestImage()).isEqualTo(lastImage);
+        assertThat(mImageReaderProxy.getCurrentImages()).isEqualTo(1);
     }
 
     @Test
     public void acquireLatestImage_throwsException_whenAllImagesWerePreviouslyAcquired() {
-        imageReaderProxy.enqueueImage(createForwardingImageProxy());
-        imageReaderProxy.acquireNextImage();
+        mImageReaderProxy.enqueueImage(createForwardingImageProxy());
+        mImageReaderProxy.acquireNextImage();
 
-        assertThrows(IllegalStateException.class, () -> imageReaderProxy.acquireLatestImage());
+        assertThrows(IllegalStateException.class, () -> mImageReaderProxy.acquireLatestImage());
     }
 
     @Test
     public void acquireNextImage_returnsNull_whenQueueIsEmpty() {
-        assertThat(imageReaderProxy.acquireNextImage()).isNull();
+        assertThat(mImageReaderProxy.acquireNextImage()).isNull();
     }
 
     @Test
@@ -213,31 +213,31 @@ public final class QueuedImageReaderProxyAndroidTest {
         List<ForwardingImageProxy> images = new ArrayList<>(availableImages);
         for (int i = 0; i < availableImages; ++i) {
             images.add(createForwardingImageProxy());
-            imageReaderProxy.enqueueImage(images.get(i));
+            mImageReaderProxy.enqueueImage(images.get(i));
         }
 
         for (int i = 0; i < availableImages; ++i) {
-            assertThat(imageReaderProxy.acquireNextImage()).isEqualTo(images.get(i));
+            assertThat(mImageReaderProxy.acquireNextImage()).isEqualTo(images.get(i));
         }
-        assertThat(imageReaderProxy.getCurrentImages()).isEqualTo(availableImages);
+        assertThat(mImageReaderProxy.getCurrentImages()).isEqualTo(availableImages);
     }
 
     @Test
     public void acquireNextImage_throwsException_whenAllImagesWerePreviouslyAcquired() {
-        imageReaderProxy.enqueueImage(createForwardingImageProxy());
-        imageReaderProxy.acquireNextImage();
+        mImageReaderProxy.enqueueImage(createForwardingImageProxy());
+        mImageReaderProxy.acquireNextImage();
 
-        assertThrows(IllegalStateException.class, () -> imageReaderProxy.acquireNextImage());
+        assertThrows(IllegalStateException.class, () -> mImageReaderProxy.acquireNextImage());
     }
 
     @Test
     public void close_closesAnyImagesStillInQueue() {
         ConcreteImageProxy image0 = createForwardingImageProxy();
         ConcreteImageProxy image1 = createForwardingImageProxy();
-        imageReaderProxy.enqueueImage(image0);
-        imageReaderProxy.enqueueImage(image1);
+        mImageReaderProxy.enqueueImage(image0);
+        mImageReaderProxy.enqueueImage(image1);
 
-        imageReaderProxy.close();
+        mImageReaderProxy.close();
 
         assertThat(image0.isClosed()).isTrue();
         assertThat(image1.isClosed()).isTrue();
@@ -249,53 +249,53 @@ public final class QueuedImageReaderProxyAndroidTest {
                 mock(QueuedImageReaderProxy.OnReaderCloseListener.class);
         QueuedImageReaderProxy.OnReaderCloseListener listenerB =
                 mock(QueuedImageReaderProxy.OnReaderCloseListener.class);
-        imageReaderProxy.addOnReaderCloseListener(listenerA);
-        imageReaderProxy.addOnReaderCloseListener(listenerB);
+        mImageReaderProxy.addOnReaderCloseListener(listenerA);
+        mImageReaderProxy.addOnReaderCloseListener(listenerB);
 
-        imageReaderProxy.close();
+        mImageReaderProxy.close();
 
-        verify(listenerA, times(1)).onReaderClose(imageReaderProxy);
-        verify(listenerB, times(1)).onReaderClose(imageReaderProxy);
+        verify(listenerA, times(1)).onReaderClose(mImageReaderProxy);
+        verify(listenerB, times(1)).onReaderClose(mImageReaderProxy);
     }
 
     @Test
     public void acquireLatestImage_throwsException_afterReaderIsClosed() {
-        imageReaderProxy.enqueueImage(createForwardingImageProxy());
-        imageReaderProxy.close();
+        mImageReaderProxy.enqueueImage(createForwardingImageProxy());
+        mImageReaderProxy.close();
 
-        assertThrows(IllegalStateException.class, () -> imageReaderProxy.acquireLatestImage());
+        assertThrows(IllegalStateException.class, () -> mImageReaderProxy.acquireLatestImage());
     }
 
     @Test
     public void acquireNextImage_throwsException_afterReaderIsClosed() {
-        imageReaderProxy.enqueueImage(createForwardingImageProxy());
-        imageReaderProxy.close();
+        mImageReaderProxy.enqueueImage(createForwardingImageProxy());
+        mImageReaderProxy.close();
 
-        assertThrows(IllegalStateException.class, () -> imageReaderProxy.acquireNextImage());
+        assertThrows(IllegalStateException.class, () -> mImageReaderProxy.acquireNextImage());
     }
 
     @Test
     public void getHeight_returnsFixedHeight() {
-        assertThat(imageReaderProxy.getHeight()).isEqualTo(IMAGE_HEIGHT);
+        assertThat(mImageReaderProxy.getHeight()).isEqualTo(IMAGE_HEIGHT);
     }
 
     @Test
     public void getWidth_returnsFixedWidth() {
-        assertThat(imageReaderProxy.getWidth()).isEqualTo(IMAGE_WIDTH);
+        assertThat(mImageReaderProxy.getWidth()).isEqualTo(IMAGE_WIDTH);
     }
 
     @Test
     public void getImageFormat_returnsFixedFormat() {
-        assertThat(imageReaderProxy.getImageFormat()).isEqualTo(IMAGE_FORMAT);
+        assertThat(mImageReaderProxy.getImageFormat()).isEqualTo(IMAGE_FORMAT);
     }
 
     @Test
     public void getMaxImages_returnsFixedCapacity() {
-        assertThat(imageReaderProxy.getMaxImages()).isEqualTo(MAX_IMAGES);
+        assertThat(mImageReaderProxy.getMaxImages()).isEqualTo(MAX_IMAGES);
     }
 
     private static final class ConcreteImageProxy extends ForwardingImageProxy {
-        private boolean isClosed = false;
+        private boolean mIsClosed = false;
 
         ConcreteImageProxy(ImageProxy image) {
             super(image);
@@ -304,11 +304,11 @@ public final class QueuedImageReaderProxyAndroidTest {
         @Override
         public synchronized void close() {
             super.close();
-            isClosed = true;
+            mIsClosed = true;
         }
 
         public synchronized boolean isClosed() {
-            return isClosed;
+            return mIsClosed;
         }
     }
 }

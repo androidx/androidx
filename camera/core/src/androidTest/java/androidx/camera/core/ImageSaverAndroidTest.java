@@ -61,22 +61,22 @@ public class ImageSaverAndroidTest {
 
     // The image used here has a YUV_420_888 format.
     @Mock
-    private final ImageProxy mockYuvImage = mock(ImageProxy.class);
+    private final ImageProxy mMockYuvImage = mock(ImageProxy.class);
     @Mock
-    private final ImageProxy.PlaneProxy yPlane = mock(ImageProxy.PlaneProxy.class);
+    private final ImageProxy.PlaneProxy mYPlane = mock(ImageProxy.PlaneProxy.class);
     @Mock
-    private final ImageProxy.PlaneProxy uPlane = mock(ImageProxy.PlaneProxy.class);
+    private final ImageProxy.PlaneProxy mUPlane = mock(ImageProxy.PlaneProxy.class);
     @Mock
-    private final ImageProxy.PlaneProxy vPlane = mock(ImageProxy.PlaneProxy.class);
-    private final ByteBuffer yBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT);
-    private final ByteBuffer uBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 4);
-    private final ByteBuffer vBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 4);
+    private final ImageProxy.PlaneProxy mVPlane = mock(ImageProxy.PlaneProxy.class);
+    private final ByteBuffer mYBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT);
+    private final ByteBuffer mUBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 4);
+    private final ByteBuffer mVBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 4);
 
     @Mock
-    private final ImageProxy mockJpegImage = mock(ImageProxy.class);
+    private final ImageProxy mMockJpegImage = mock(ImageProxy.class);
     @Mock
-    private final ImageProxy.PlaneProxy jpegDataPlane = mock(ImageProxy.PlaneProxy.class);
-    private final String jpegImageDataBase64 =
+    private final ImageProxy.PlaneProxy mJpegDataPlane = mock(ImageProxy.PlaneProxy.class);
+    private static final String JPEG_IMAGE_DATA_BASE_64 =
             "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB"
                     + "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEB"
                     + "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAB4AKADASIA"
@@ -94,69 +94,69 @@ public class ImageSaverAndroidTest {
                     + "KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoo"
                     + "ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiii"
                     + "gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9k=";
-    private final ByteBuffer jpegDataBuffer =
-            ByteBuffer.wrap(Base64.decode(jpegImageDataBase64, Base64.DEFAULT));
+    private final ByteBuffer mJpegDataBuffer =
+            ByteBuffer.wrap(Base64.decode(JPEG_IMAGE_DATA_BASE_64, Base64.DEFAULT));
 
-    private final Semaphore semaphore = new Semaphore(0);
-    private final ImageSaver.OnImageSavedListener mockListener =
+    private final Semaphore mSemaphore = new Semaphore(0);
+    private final ImageSaver.OnImageSavedListener mMockListener =
             mock(ImageSaver.OnImageSavedListener.class);
-    private final ImageSaver.OnImageSavedListener syncListener =
+    private final ImageSaver.OnImageSavedListener mSyncListener =
             new OnImageSavedListener() {
                 @Override
                 public void onImageSaved(File file) {
-                    mockListener.onImageSaved(file);
-                    semaphore.release();
+                    mMockListener.onImageSaved(file);
+                    mSemaphore.release();
                 }
 
                 @Override
                 public void onError(
                         SaveError saveError, String message, @Nullable Throwable cause) {
-                    mockListener.onError(saveError, message, cause);
-                    semaphore.release();
+                    mMockListener.onError(saveError, message, cause);
+                    mSemaphore.release();
                 }
             };
 
-    private HandlerThread backgroundThread;
-    private Handler backgroundHandler;
+    private HandlerThread mBackgroundThread;
+    private Handler mBackgroundHandler;
 
     @Before
     public void setup() {
         // The YUV image's behavior.
-        when(mockYuvImage.getFormat()).thenReturn(ImageFormat.YUV_420_888);
-        when(mockYuvImage.getWidth()).thenReturn(WIDTH);
-        when(mockYuvImage.getHeight()).thenReturn(HEIGHT);
+        when(mMockYuvImage.getFormat()).thenReturn(ImageFormat.YUV_420_888);
+        when(mMockYuvImage.getWidth()).thenReturn(WIDTH);
+        when(mMockYuvImage.getHeight()).thenReturn(HEIGHT);
 
-        when(yPlane.getBuffer()).thenReturn(yBuffer);
-        when(yPlane.getPixelStride()).thenReturn(Y_PIXEL_STRIDE);
-        when(yPlane.getRowStride()).thenReturn(Y_ROW_STRIDE);
+        when(mYPlane.getBuffer()).thenReturn(mYBuffer);
+        when(mYPlane.getPixelStride()).thenReturn(Y_PIXEL_STRIDE);
+        when(mYPlane.getRowStride()).thenReturn(Y_ROW_STRIDE);
 
-        when(uPlane.getBuffer()).thenReturn(uBuffer);
-        when(uPlane.getPixelStride()).thenReturn(UV_PIXEL_STRIDE);
-        when(uPlane.getRowStride()).thenReturn(UV_ROW_STRIDE);
+        when(mUPlane.getBuffer()).thenReturn(mUBuffer);
+        when(mUPlane.getPixelStride()).thenReturn(UV_PIXEL_STRIDE);
+        when(mUPlane.getRowStride()).thenReturn(UV_ROW_STRIDE);
 
-        when(vPlane.getBuffer()).thenReturn(vBuffer);
-        when(vPlane.getPixelStride()).thenReturn(UV_PIXEL_STRIDE);
-        when(vPlane.getRowStride()).thenReturn(UV_ROW_STRIDE);
-        when(mockYuvImage.getPlanes())
-                .thenReturn(new ImageProxy.PlaneProxy[]{yPlane, uPlane, vPlane});
+        when(mVPlane.getBuffer()).thenReturn(mVBuffer);
+        when(mVPlane.getPixelStride()).thenReturn(UV_PIXEL_STRIDE);
+        when(mVPlane.getRowStride()).thenReturn(UV_ROW_STRIDE);
+        when(mMockYuvImage.getPlanes())
+                .thenReturn(new ImageProxy.PlaneProxy[]{mYPlane, mUPlane, mVPlane});
 
         // The JPEG image's behavior
-        when(mockJpegImage.getFormat()).thenReturn(ImageFormat.JPEG);
-        when(mockJpegImage.getWidth()).thenReturn(WIDTH);
-        when(mockJpegImage.getHeight()).thenReturn(HEIGHT);
+        when(mMockJpegImage.getFormat()).thenReturn(ImageFormat.JPEG);
+        when(mMockJpegImage.getWidth()).thenReturn(WIDTH);
+        when(mMockJpegImage.getHeight()).thenReturn(HEIGHT);
 
-        when(jpegDataPlane.getBuffer()).thenReturn(jpegDataBuffer);
-        when(mockJpegImage.getPlanes()).thenReturn(new ImageProxy.PlaneProxy[]{jpegDataPlane});
+        when(mJpegDataPlane.getBuffer()).thenReturn(mJpegDataBuffer);
+        when(mMockJpegImage.getPlanes()).thenReturn(new ImageProxy.PlaneProxy[]{mJpegDataPlane});
 
         // Set up a background thread/handler for callbacks
-        backgroundThread = new HandlerThread("CallbackThread");
-        backgroundThread.start();
-        backgroundHandler = new Handler(backgroundThread.getLooper());
+        mBackgroundThread = new HandlerThread("CallbackThread");
+        mBackgroundThread.start();
+        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
     }
 
     @After
     public void tearDown() {
-        backgroundThread.quitSafely();
+        mBackgroundThread.quitSafely();
     }
 
     private ImageSaver getDefaultImageSaver(ImageProxy image, File file) {
@@ -168,8 +168,8 @@ public class ImageSaverAndroidTest {
                 /*reversedVertical=*/ false,
                 /*location=*/ null,
                 /*cropAspectRatio=*/ null,
-                syncListener,
-                backgroundHandler);
+                mSyncListener,
+                mBackgroundHandler);
     }
 
     @Test
@@ -177,13 +177,13 @@ public class ImageSaverAndroidTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
 
-        ImageSaver imageSaver = getDefaultImageSaver(mockYuvImage, saveLocation);
+        ImageSaver imageSaver = getDefaultImageSaver(mMockYuvImage, saveLocation);
 
         imageSaver.run();
 
-        semaphore.acquire();
+        mSemaphore.acquire();
 
-        verify(mockListener).onImageSaved(anyObject());
+        verify(mMockListener).onImageSaved(anyObject());
     }
 
     @Test
@@ -191,27 +191,27 @@ public class ImageSaverAndroidTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
 
-        ImageSaver imageSaver = getDefaultImageSaver(mockJpegImage, saveLocation);
+        ImageSaver imageSaver = getDefaultImageSaver(mMockJpegImage, saveLocation);
 
         imageSaver.run();
 
-        semaphore.acquire();
+        mSemaphore.acquire();
 
-        verify(mockListener).onImageSaved(anyObject());
+        verify(mMockListener).onImageSaved(anyObject());
     }
 
     @Test
-    public void errorCallbackWillBeCalledOnInvalidPath() throws InterruptedException, IOException {
+    public void errorCallbackWillBeCalledOnInvalidPath() throws InterruptedException {
         // Invalid filename should cause error
         File saveLocation = new File("/not/a/real/path.jpg");
 
-        ImageSaver imageSaver = getDefaultImageSaver(mockJpegImage, saveLocation);
+        ImageSaver imageSaver = getDefaultImageSaver(mMockJpegImage, saveLocation);
 
         imageSaver.run();
 
-        semaphore.acquire();
+        mSemaphore.acquire();
 
-        verify(mockListener).onError(eq(SaveError.FILE_IO_FAILED), anyString(), anyObject());
+        verify(mMockListener).onError(eq(SaveError.FILE_IO_FAILED), anyString(), anyObject());
     }
 
     @Test
@@ -219,13 +219,13 @@ public class ImageSaverAndroidTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
 
-        ImageSaver imageSaver = getDefaultImageSaver(mockJpegImage, saveLocation);
+        ImageSaver imageSaver = getDefaultImageSaver(mMockJpegImage, saveLocation);
 
         imageSaver.run();
 
-        semaphore.acquire();
+        mSemaphore.acquire();
 
-        verify(mockJpegImage).close();
+        verify(mMockJpegImage).close();
     }
 
     @Test
@@ -233,13 +233,13 @@ public class ImageSaverAndroidTest {
         // Invalid filename should cause error
         File saveLocation = new File("/not/a/real/path.jpg");
 
-        ImageSaver imageSaver = getDefaultImageSaver(mockJpegImage, saveLocation);
+        ImageSaver imageSaver = getDefaultImageSaver(mMockJpegImage, saveLocation);
 
         imageSaver.run();
 
-        semaphore.acquire();
+        mSemaphore.acquire();
 
-        verify(mockJpegImage).close();
+        verify(mMockJpegImage).close();
     }
 
     private void imageCanBeCropped(ImageProxy image) throws InterruptedException, IOException {
@@ -257,11 +257,11 @@ public class ImageSaverAndroidTest {
                         /*reversedVertical=*/ false,
                         /*location=*/ null,
                         /*cropAspectRatio=*/ viewRatio,
-                        syncListener,
-                        backgroundHandler);
+                        mSyncListener,
+                        mBackgroundHandler);
         imageSaver.run();
 
-        semaphore.acquire();
+        mSemaphore.acquire();
 
         Bitmap bitmap = BitmapFactory.decodeFile(saveLocation.getPath());
         assertThat(bitmap.getWidth()).isEqualTo(bitmap.getHeight());
@@ -269,11 +269,11 @@ public class ImageSaverAndroidTest {
 
     @Test
     public void jpegImageCanBeCropped() throws InterruptedException, IOException {
-        imageCanBeCropped(mockJpegImage);
+        imageCanBeCropped(mMockJpegImage);
     }
 
     @Test
     public void yuvImageCanBeCropped() throws InterruptedException, IOException {
-        imageCanBeCropped(mockYuvImage);
+        imageCanBeCropped(mMockYuvImage);
     }
 }

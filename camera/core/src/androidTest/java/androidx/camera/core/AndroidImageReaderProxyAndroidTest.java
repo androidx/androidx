@@ -38,71 +38,71 @@ import org.mockito.ArgumentCaptor;
 
 @RunWith(AndroidJUnit4.class)
 public final class AndroidImageReaderProxyAndroidTest {
-    private final ImageReader imageReader = mock(ImageReader.class);
-    private ImageReaderProxy imageReaderProxy;
+    private final ImageReader mImageReader = mock(ImageReader.class);
+    private ImageReaderProxy mImageReaderProxy;
 
     @Before
     public void setUp() {
-        imageReaderProxy = new AndroidImageReaderProxy(imageReader);
-        when(imageReader.acquireLatestImage()).thenReturn(mock(Image.class));
-        when(imageReader.acquireNextImage()).thenReturn(mock(Image.class));
+        mImageReaderProxy = new AndroidImageReaderProxy(mImageReader);
+        when(mImageReader.acquireLatestImage()).thenReturn(mock(Image.class));
+        when(mImageReader.acquireNextImage()).thenReturn(mock(Image.class));
     }
 
     @Test
     public void acquireLatestImage_invokesMethodOnWrappedReader() {
-        imageReaderProxy.acquireLatestImage();
+        mImageReaderProxy.acquireLatestImage();
 
-        verify(imageReader, times(1)).acquireLatestImage();
+        verify(mImageReader, times(1)).acquireLatestImage();
     }
 
     @Test
     public void acquireNextImage_invokesMethodOnWrappedReader() {
-        imageReaderProxy.acquireNextImage();
+        mImageReaderProxy.acquireNextImage();
 
-        verify(imageReader, times(1)).acquireNextImage();
+        verify(mImageReader, times(1)).acquireNextImage();
     }
 
     @Test
     public void close_invokesMethodOnWrappedReader() {
-        imageReaderProxy.close();
+        mImageReaderProxy.close();
 
-        verify(imageReader, times(1)).close();
+        verify(mImageReader, times(1)).close();
     }
 
     @Test
     public void getWidth_returnsWidthOfWrappedReader() {
-        when(imageReader.getWidth()).thenReturn(640);
+        when(mImageReader.getWidth()).thenReturn(640);
 
-        assertThat(imageReaderProxy.getWidth()).isEqualTo(640);
+        assertThat(mImageReaderProxy.getWidth()).isEqualTo(640);
     }
 
     @Test
     public void getHeight_returnsHeightOfWrappedReader() {
-        when(imageReader.getHeight()).thenReturn(480);
+        when(mImageReader.getHeight()).thenReturn(480);
 
-        assertThat(imageReaderProxy.getHeight()).isEqualTo(480);
+        assertThat(mImageReaderProxy.getHeight()).isEqualTo(480);
     }
 
     @Test
     public void getImageFormat_returnsImageFormatOfWrappedReader() {
-        when(imageReader.getImageFormat()).thenReturn(ImageFormat.YUV_420_888);
+        when(mImageReader.getImageFormat()).thenReturn(ImageFormat.YUV_420_888);
 
-        assertThat(imageReaderProxy.getImageFormat()).isEqualTo(ImageFormat.YUV_420_888);
+        assertThat(mImageReaderProxy.getImageFormat()).isEqualTo(ImageFormat.YUV_420_888);
     }
 
     @Test
     public void getMaxImages_returnsMaxImagesOfWrappedReader() {
-        when(imageReader.getMaxImages()).thenReturn(8);
+        when(mImageReader.getMaxImages()).thenReturn(8);
 
-        assertThat(imageReaderProxy.getMaxImages()).isEqualTo(8);
+        assertThat(mImageReaderProxy.getMaxImages()).isEqualTo(8);
     }
 
     @Test
     public void getSurface_returnsSurfaceOfWrappedReader() {
         Surface surface = mock(Surface.class);
-        when(imageReader.getSurface()).thenReturn(surface);
+        when(mImageReader.getSurface()).thenReturn(surface);
 
-        assertThat(imageReaderProxy.getSurface()).isSameAs(surface);
+        assertThat(mImageReaderProxy.getSurface()).isSameAs(surface);
     }
 
     @Test
@@ -110,16 +110,16 @@ public final class AndroidImageReaderProxyAndroidTest {
         ImageReaderProxy.OnImageAvailableListener listener =
                 mock(ImageReaderProxy.OnImageAvailableListener.class);
 
-        imageReaderProxy.setOnImageAvailableListener(listener, /*handler=*/ null);
+        mImageReaderProxy.setOnImageAvailableListener(listener, /*handler=*/ null);
 
         ArgumentCaptor<ImageReader.OnImageAvailableListener> transformedListenerCaptor =
                 ArgumentCaptor.forClass(ImageReader.OnImageAvailableListener.class);
         ArgumentCaptor<Handler> handlerCaptor = ArgumentCaptor.forClass(Handler.class);
-        verify(imageReader, times(1))
+        verify(mImageReader, times(1))
                 .setOnImageAvailableListener(
                         transformedListenerCaptor.capture(), handlerCaptor.capture());
 
-        transformedListenerCaptor.getValue().onImageAvailable(imageReader);
-        verify(listener, times(1)).onImageAvailable(imageReaderProxy);
+        transformedListenerCaptor.getValue().onImageAvailable(mImageReader);
+        verify(listener, times(1)).onImageAvailable(mImageReaderProxy);
     }
 }

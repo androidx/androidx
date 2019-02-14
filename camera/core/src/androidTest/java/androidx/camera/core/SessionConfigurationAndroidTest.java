@@ -35,13 +35,13 @@ import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class SessionConfigurationAndroidTest {
-    private DeferrableSurface mockSurface0;
-    private DeferrableSurface mockSurface1;
+    private DeferrableSurface mMockSurface0;
+    private DeferrableSurface mMockSurface1;
 
     @Before
     public void setup() {
-        mockSurface0 = new ImmediateSurface(Mockito.mock(Surface.class));
-        mockSurface1 = new ImmediateSurface(Mockito.mock(Surface.class));
+        mMockSurface0 = new ImmediateSurface(Mockito.mock(Surface.class));
+        mMockSurface1 = new ImmediateSurface(Mockito.mock(Surface.class));
     }
 
     @Test
@@ -58,20 +58,20 @@ public class SessionConfigurationAndroidTest {
     public void builderAddSurface() {
         SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
 
-        builder.addSurface(mockSurface0);
+        builder.addSurface(mMockSurface0);
         SessionConfiguration sessionConfiguration = builder.build();
 
         List<DeferrableSurface> surfaces = sessionConfiguration.getSurfaces();
 
         assertThat(surfaces).hasSize(1);
-        assertThat(surfaces).contains(mockSurface0);
+        assertThat(surfaces).contains(mMockSurface0);
     }
 
     @Test
     public void builderAddNonRepeatingSurface() {
         SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
 
-        builder.addNonRepeatingSurface(mockSurface0);
+        builder.addNonRepeatingSurface(mMockSurface0);
         SessionConfiguration sessionConfiguration = builder.build();
 
         List<DeferrableSurface> surfaces = sessionConfiguration.getSurfaces();
@@ -79,17 +79,17 @@ public class SessionConfigurationAndroidTest {
                 sessionConfiguration.getCaptureRequestConfiguration().getSurfaces();
 
         assertThat(surfaces).hasSize(1);
-        assertThat(surfaces).contains(mockSurface0);
+        assertThat(surfaces).contains(mMockSurface0);
         assertThat(repeatingSurfaces).isEmpty();
-        assertThat(repeatingSurfaces).doesNotContain(mockSurface0);
+        assertThat(repeatingSurfaces).doesNotContain(mMockSurface0);
     }
 
     @Test
     public void builderAddSurfaceContainsRepeatingSurface() {
         SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
 
-        builder.addSurface(mockSurface0);
-        builder.addNonRepeatingSurface(mockSurface1);
+        builder.addSurface(mMockSurface0);
+        builder.addNonRepeatingSurface(mMockSurface1);
         SessionConfiguration sessionConfiguration = builder.build();
 
         List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfiguration.getSurfaces());
@@ -105,8 +105,8 @@ public class SessionConfigurationAndroidTest {
     public void builderRemoveSurface() {
         SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
 
-        builder.addSurface(mockSurface0);
-        builder.removeSurface(mockSurface0);
+        builder.addSurface(mMockSurface0);
+        builder.removeSurface(mMockSurface0);
         SessionConfiguration sessionConfiguration = builder.build();
 
         List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfiguration.getSurfaces());
@@ -117,7 +117,7 @@ public class SessionConfigurationAndroidTest {
     public void builderClearSurface() {
         SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
 
-        builder.addSurface(mockSurface0);
+        builder.addSurface(mMockSurface0);
         builder.clearSurfaces();
         SessionConfiguration sessionConfiguration = builder.build();
 
@@ -186,13 +186,13 @@ public class SessionConfigurationAndroidTest {
     @Test
     public void combineTwoSessionsValid() {
         SessionConfiguration.Builder builder0 = new SessionConfiguration.Builder();
-        builder0.addSurface(mockSurface0);
+        builder0.addSurface(mMockSurface0);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder0.addCharacteristic(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
         SessionConfiguration.Builder builder1 = new SessionConfiguration.Builder();
-        builder1.addSurface(mockSurface1);
+        builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder1.addCharacteristic(
                 CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
@@ -209,13 +209,13 @@ public class SessionConfigurationAndroidTest {
     @Test
     public void combineTwoSessionsTemplate() {
         SessionConfiguration.Builder builder0 = new SessionConfiguration.Builder();
-        builder0.addSurface(mockSurface0);
+        builder0.addSurface(mMockSurface0);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder0.addCharacteristic(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
         SessionConfiguration.Builder builder1 = new SessionConfiguration.Builder();
-        builder1.addSurface(mockSurface1);
+        builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder1.addCharacteristic(
                 CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
@@ -234,13 +234,13 @@ public class SessionConfigurationAndroidTest {
     @Test
     public void combineTwoSessionsSurfaces() {
         SessionConfiguration.Builder builder0 = new SessionConfiguration.Builder();
-        builder0.addSurface(mockSurface0);
+        builder0.addSurface(mMockSurface0);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder0.addCharacteristic(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
         SessionConfiguration.Builder builder1 = new SessionConfiguration.Builder();
-        builder1.addSurface(mockSurface1);
+        builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder1.addCharacteristic(
                 CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
@@ -254,19 +254,19 @@ public class SessionConfigurationAndroidTest {
         SessionConfiguration sessionConfiguration = validatingBuilder.build();
 
         List<DeferrableSurface> surfaces = sessionConfiguration.getSurfaces();
-        assertThat(surfaces).containsExactly(mockSurface0, mockSurface1);
+        assertThat(surfaces).containsExactly(mMockSurface0, mMockSurface1);
     }
 
     @Test
     public void combineTwoSessionsCharacteristics() {
         SessionConfiguration.Builder builder0 = new SessionConfiguration.Builder();
-        builder0.addSurface(mockSurface0);
+        builder0.addSurface(mMockSurface0);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder0.addCharacteristic(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
         SessionConfiguration.Builder builder1 = new SessionConfiguration.Builder();
-        builder1.addSurface(mockSurface1);
+        builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder1.addCharacteristic(
                 CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,

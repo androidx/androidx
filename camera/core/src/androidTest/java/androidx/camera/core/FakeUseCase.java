@@ -18,16 +18,13 @@ package androidx.camera.core;
 
 import android.util.Size;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraX.LensFacing;
 
 import java.util.Map;
 
 /** A fake {@link BaseUseCase}. */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public class FakeUseCase extends BaseUseCase {
-    private volatile boolean isCleared = false;
+    private volatile boolean mIsCleared = false;
 
     /** Creates a new instance of a {@link FakeUseCase} with a given configuration. */
     protected FakeUseCase(FakeUseCaseConfiguration configuration) {
@@ -50,7 +47,7 @@ public class FakeUseCase extends BaseUseCase {
     @Override
     public void clear() {
         super.clear();
-        isCleared = true;
+        mIsCleared = true;
     }
 
     @Override
@@ -61,6 +58,6 @@ public class FakeUseCase extends BaseUseCase {
 
     /** Returns true if {@link #clear()} has been called previously. */
     public boolean isCleared() {
-        return isCleared;
+        return mIsCleared;
     }
 }

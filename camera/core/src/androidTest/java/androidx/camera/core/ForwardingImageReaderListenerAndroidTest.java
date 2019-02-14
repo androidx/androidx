@@ -50,12 +50,12 @@ public final class ForwardingImageReaderListenerAndroidTest {
     private static final int IMAGE_FORMAT = ImageFormat.YUV_420_888;
     private static final int MAX_IMAGES = 10;
 
-    private final ImageReader imageReader = mock(ImageReader.class);
-    private final Surface surface = mock(Surface.class);
-    private HandlerThread handlerThread;
-    private Handler handler;
-    private List<QueuedImageReaderProxy> imageReaderProxys;
-    private ForwardingImageReaderListener forwardingListener;
+    private final ImageReader mImageReader = mock(ImageReader.class);
+    private final Surface mSurface = mock(Surface.class);
+    private HandlerThread mHandlerThread;
+    private Handler mHandler;
+    private List<QueuedImageReaderProxy> mImageReaderProxies;
+    private ForwardingImageReaderListener mForwardingListener;
 
     private static Image createMockImage() {
         Image image = mock(Image.class);
@@ -74,7 +74,7 @@ public final class ForwardingImageReaderListenerAndroidTest {
      * a semaphore.
      */
     private static ImageReaderProxy.OnImageAvailableListener
-    createSemaphoreReleasingClosingListener(Semaphore semaphore) {
+            createSemaphoreReleasingClosingListener(Semaphore semaphore) {
         return imageReaderProxy -> {
             imageReaderProxy.acquireNextImage().close();
             semaphore.release();
@@ -83,43 +83,43 @@ public final class ForwardingImageReaderListenerAndroidTest {
 
     @Before
     public void setUp() {
-        handlerThread = new HandlerThread("listener");
-        handlerThread.start();
-        handler = new Handler(handlerThread.getLooper());
-        imageReaderProxys = new ArrayList<>(3);
+        mHandlerThread = new HandlerThread("listener");
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
+        mImageReaderProxies = new ArrayList<>(3);
         for (int i = 0; i < 3; ++i) {
-            imageReaderProxys.add(
+            mImageReaderProxies.add(
                     new QueuedImageReaderProxy(
-                            IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, MAX_IMAGES, surface));
+                            IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, MAX_IMAGES, mSurface));
         }
-        forwardingListener = new ForwardingImageReaderListener(imageReaderProxys);
+        mForwardingListener = new ForwardingImageReaderListener(mImageReaderProxies);
     }
 
     @After
     public void tearDown() {
-        handlerThread.quitSafely();
+        mHandlerThread.quitSafely();
     }
 
     @Test
     public void newImageIsForwardedToAllListeners() {
         Image baseImage = createMockImage();
-        when(imageReader.acquireNextImage()).thenReturn(baseImage);
+        when(mImageReader.acquireNextImage()).thenReturn(baseImage);
         List<ImageReaderProxy.OnImageAvailableListener> listeners = new ArrayList<>();
-        for (ImageReaderProxy imageReaderProxy : imageReaderProxys) {
+        for (ImageReaderProxy imageReaderProxy : mImageReaderProxies) {
             ImageReaderProxy.OnImageAvailableListener listener = createMockListener();
-            imageReaderProxy.setOnImageAvailableListener(listener, handler);
+            imageReaderProxy.setOnImageAvailableListener(listener, mHandler);
             listeners.add(listener);
         }
 
         final int availableImages = 5;
         for (int i = 0; i < availableImages; ++i) {
-            forwardingListener.onImageAvailable(imageReader);
+            mForwardingListener.onImageAvailable(mImageReader);
         }
 
-        for (int i = 0; i < imageReaderProxys.size(); ++i) {
+        for (int i = 0; i < mImageReaderProxies.size(); ++i) {
             // Listener should be notified about every available image.
             verify(listeners.get(i), timeout(2000).times(availableImages))
-                    .onImageAvailable(imageReaderProxys.get(i));
+                    .onImageAvailable(mImageReaderProxies.get(i));
         }
     }
 
@@ -128,23 +128,23 @@ public final class ForwardingImageReaderListenerAndroidTest {
             throws InterruptedException {
         Semaphore onCloseSemaphore = new Semaphore(/*permits=*/ 0);
         Image baseImage = createMockImage();
-        when(imageReader.acquireNextImage()).thenReturn(baseImage);
-        for (ImageReaderProxy imageReaderProxy : imageReaderProxys) {
+        when(mImageReader.acquireNextImage()).thenReturn(baseImage);
+        for (ImageReaderProxy imageReaderProxy : mImageReaderProxies) {
             // Close the image for every listener.
             imageReaderProxy.setOnImageAvailableListener(
-                    createSemaphoreReleasingClosingListener(onCloseSemaphore), handler);
+                    createSemaphoreReleasingClosingListener(onCloseSemaphore), mHandler);
         }
 
         final int availableImages = 5;
         for (int i = 0; i < availableImages; ++i) {
-            forwardingListener.onImageAvailable(imageReader);
+            mForwardingListener.onImageAvailable(mImageReader);
         }
-        onCloseSemaphore.acquire(availableImages * imageReaderProxys.size());
+        onCloseSemaphore.acquire(availableImages * mImageReaderProxies.size());
 
         // Base image should be closed every time.
         verify(baseImage, times(availableImages)).close();
         // All queues should be cleared.
-        for (QueuedImageReaderProxy imageReaderProxy : imageReaderProxys) {
+        for (QueuedImageReaderProxy imageReaderProxy : mImageReaderProxies) {
             assertThat(imageReaderProxy.getCurrentImages()).isEqualTo(0);
         }
     }
@@ -154,31 +154,31 @@ public final class ForwardingImageReaderListenerAndroidTest {
             throws InterruptedException {
         Semaphore onCloseSemaphore = new Semaphore(/*permits=*/ 0);
         Image baseImage = createMockImage();
-        when(imageReader.acquireNextImage()).thenReturn(baseImage);
+        when(mImageReader.acquireNextImage()).thenReturn(baseImage);
         // Don't close the image for the first listener.
-        imageReaderProxys.get(0).setOnImageAvailableListener(createMockListener(), handler);
+        mImageReaderProxies.get(0).setOnImageAvailableListener(createMockListener(), mHandler);
         // Close the image for the other listeners.
-        imageReaderProxys
+        mImageReaderProxies
                 .get(1)
                 .setOnImageAvailableListener(
-                        createSemaphoreReleasingClosingListener(onCloseSemaphore), handler);
-        imageReaderProxys
+                        createSemaphoreReleasingClosingListener(onCloseSemaphore), mHandler);
+        mImageReaderProxies
                 .get(2)
                 .setOnImageAvailableListener(
-                        createSemaphoreReleasingClosingListener(onCloseSemaphore), handler);
+                        createSemaphoreReleasingClosingListener(onCloseSemaphore), mHandler);
 
         final int availableImages = 5;
         for (int i = 0; i < availableImages; ++i) {
-            forwardingListener.onImageAvailable(imageReader);
+            mForwardingListener.onImageAvailable(mImageReader);
         }
-        onCloseSemaphore.acquire(availableImages * (imageReaderProxys.size() - 1));
+        onCloseSemaphore.acquire(availableImages * (mImageReaderProxies.size() - 1));
 
         // Base image should not be closed every time.
         verify(baseImage, never()).close();
         // First reader's queue should not be cleared.
-        assertThat(imageReaderProxys.get(0).getCurrentImages()).isEqualTo(availableImages);
+        assertThat(mImageReaderProxies.get(0).getCurrentImages()).isEqualTo(availableImages);
         // Other readers' queues should be cleared.
-        assertThat(imageReaderProxys.get(1).getCurrentImages()).isEqualTo(0);
-        assertThat(imageReaderProxys.get(2).getCurrentImages()).isEqualTo(0);
+        assertThat(mImageReaderProxies.get(1).getCurrentImages()).isEqualTo(0);
+        assertThat(mImageReaderProxies.get(2).getCurrentImages()).isEqualTo(0);
     }
 }

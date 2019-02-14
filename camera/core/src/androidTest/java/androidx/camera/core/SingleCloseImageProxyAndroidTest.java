@@ -29,26 +29,26 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class SingleCloseImageProxyAndroidTest {
 
-    private final ImageProxy imageProxy = mock(ImageProxy.class);
-    private SingleCloseImageProxy singleCloseImageProxy;
+    private final ImageProxy mImageProxy = mock(ImageProxy.class);
+    private SingleCloseImageProxy mSingleCloseImageProxy;
 
     @Before
     public void setUp() {
-        singleCloseImageProxy = new SingleCloseImageProxy(imageProxy);
+        mSingleCloseImageProxy = new SingleCloseImageProxy(mImageProxy);
     }
 
     @Test
     public void wrappedImageIsClosedOnce_whenWrappingImageIsClosedOnce() {
-        singleCloseImageProxy.close();
+        mSingleCloseImageProxy.close();
 
-        verify(imageProxy, times(1)).close();
+        verify(mImageProxy, times(1)).close();
     }
 
     @Test
     public void wrappedImageIsClosedOnce_whenWrappingImageIsClosedTwice() {
-        singleCloseImageProxy.close();
-        singleCloseImageProxy.close();
+        mSingleCloseImageProxy.close();
+        mSingleCloseImageProxy.close();
 
-        verify(imageProxy, times(1)).close();
+        verify(mImageProxy, times(1)).close();
     }
 }
