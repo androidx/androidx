@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /** A capture session capture callback which updates a reference to the capture request. */
 final class RequestUpdatingSessionCaptureCallback extends CameraCaptureSession.CaptureCallback {
-    private final AtomicReference<CaptureRequest> request = new AtomicReference<>();
+    private final AtomicReference<CaptureRequest> mRequest = new AtomicReference<>();
 
     @Override
     public void onCaptureBufferLost(
@@ -61,10 +61,10 @@ final class RequestUpdatingSessionCaptureCallback extends CameraCaptureSession.C
     @Override
     public void onCaptureStarted(
             CameraCaptureSession session, CaptureRequest request, long timestamp, long frame) {
-        this.request.set(request);
+        mRequest.set(request);
     }
 
     CaptureRequest getRequest() {
-        return request.get();
+        return mRequest.get();
     }
 }
