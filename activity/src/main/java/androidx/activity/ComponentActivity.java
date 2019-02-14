@@ -35,8 +35,8 @@ import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ReportFragment;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
-import androidx.savedstate.BundleSavedStateRegistry;
 import androidx.savedstate.SavedStateRegistry;
+import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
 
 import java.util.HashMap;
@@ -62,7 +62,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     }
 
     private final LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
-    private final BundleSavedStateRegistry mSavedStateRegistry = new BundleSavedStateRegistry();
+    private final SavedStateRegistryController mSavedStateRegistryController =
+            new SavedStateRegistryController();
 
     // Lazily recreated from NonConfigurationInstances by getViewModelStore()
     private ViewModelStore mViewModelStore;
@@ -124,7 +125,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @SuppressWarnings("RestrictedApi")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSavedStateRegistry.performRestore(savedInstanceState);
+        mSavedStateRegistryController.performRestore(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
         Class<? extends ComponentActivity> clazz = getClass();
         if (!sAnnotationIds.containsKey(clazz)) {
@@ -150,7 +151,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             ((LifecycleRegistry) lifecycle).markState(Lifecycle.State.CREATED);
         }
         super.onSaveInstanceState(outState);
-        mSavedStateRegistry.performSave(outState);
+        mSavedStateRegistryController.performSave(outState);
     }
 
     /**
@@ -370,7 +371,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @NonNull
     @Override
     public final SavedStateRegistry getSavedStateRegistry() {
-        return mSavedStateRegistry;
+        return mSavedStateRegistryController.getSavedStateRegistry();
     }
 
     @SuppressLint("RestrictedApi")
