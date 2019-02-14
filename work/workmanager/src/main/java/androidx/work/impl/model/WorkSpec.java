@@ -259,9 +259,17 @@ public class WorkSpec {
                     // the periodStartTime will be 0. To correctly emulate flex, we need to set it
                     // to now, so the PeriodicWorkRequest has an initial delay of
                     // (interval - flex).
+
+                    // The subsequent runs will only add the interval duration and no flex.
+                    // This gives us the following behavior:
+                    // 1 => now + (interval - flex) = firstRunTime
+                    // 2 => firstRunTime + 2 * interval - flex
+                    // 3 => firstRunTime + 3 * interval - flex
+
+                    long offset = periodStartTime == 0 ? (-1 * flexDuration) : 0;
                     long start =
                             periodStartTime == 0 ? System.currentTimeMillis() : periodStartTime;
-                    return start + intervalDuration - flexDuration;
+                    return start + intervalDuration + offset;
                 } else {
                     // Don't use flexDuration for determining next run time for PeriodicWork
                     // Schedulers <= API 22. This is because intervalDuration could equal
