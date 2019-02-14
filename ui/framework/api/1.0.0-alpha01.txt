@@ -28,6 +28,22 @@ package androidx.ui.core {
     method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
   }
 
+  public final class CurrentTextStyle extends com.google.r4a.Component {
+    ctor public CurrentTextStyle(kotlin.jvm.functions.Function1<? super androidx.ui.painting.TextStyle,kotlin.Unit> children);
+    method public void compose();
+    method public kotlin.jvm.functions.Function1<androidx.ui.painting.TextStyle,kotlin.Unit> getChildren();
+    method public void setChildren(kotlin.jvm.functions.Function1<? super androidx.ui.painting.TextStyle,kotlin.Unit> p);
+  }
+
+  public final class CurrentTextStyleProvider extends com.google.r4a.Component {
+    ctor public CurrentTextStyleProvider(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void compose();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
+    method public androidx.ui.painting.TextStyle? getValue();
+    method public void setValue(androidx.ui.painting.TextStyle? p);
+    property public final androidx.ui.painting.TextStyle? value;
+  }
+
   public final class Draw extends com.google.r4a.Component {
     ctor public Draw(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Canvas,? super androidx.ui.core.PixelSize,kotlin.Unit> onPaint);
     method public void compose();
@@ -106,6 +122,41 @@ package androidx.ui.core {
     method public void setTestTag(String? p);
     property public final boolean checked;
     property public final String? testTag;
+  }
+
+  public final class Text extends com.google.r4a.Component {
+    ctor public Text();
+    method public void compose();
+    method public Integer? getMaxLines();
+    method public androidx.ui.rendering.paragraph.TextOverflow getOverflow();
+    method public androidx.ui.services.text_editing.TextSelection? getSelection();
+    method public boolean getSoftWrap();
+    method public androidx.ui.painting.TextSpan getText();
+    method public androidx.ui.engine.text.TextAlign getTextAlign();
+    method public androidx.ui.engine.text.TextDirection getTextDirection();
+    method public float getTextScaleFactor();
+    method public void setMaxLines(Integer? p);
+    method public void setOverflow(androidx.ui.rendering.paragraph.TextOverflow p);
+    method public void setSelection(androidx.ui.services.text_editing.TextSelection? p);
+    method public void setSoftWrap(boolean p);
+    method public void setText(androidx.ui.painting.TextSpan p);
+    method public void setTextAlign(androidx.ui.engine.text.TextAlign p);
+    method public void setTextDirection(androidx.ui.engine.text.TextDirection p);
+    method public void setTextScaleFactor(float p);
+    property public final Integer? maxLines;
+    property public final androidx.ui.rendering.paragraph.TextOverflow overflow;
+    property public final androidx.ui.services.text_editing.TextSelection? selection;
+    property public final boolean softWrap;
+    property public final androidx.ui.painting.TextSpan text;
+    property public final androidx.ui.engine.text.TextAlign textAlign;
+    property public final androidx.ui.engine.text.TextDirection textDirection;
+    property public final float textScaleFactor;
+    field public androidx.ui.painting.TextSpan text;
+  }
+
+  public final class TextKt {
+    ctor public TextKt();
+    method public static void TextComposable(androidx.ui.painting.TextSpan text, androidx.ui.engine.text.TextAlign textAlign = TextAlign.START, androidx.ui.engine.text.TextDirection textDirection = TextDirection.LTR, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = TextOverflow.CLIP, float textScaleFactor = 1.0f, Integer? maxLines = null, androidx.ui.services.text_editing.TextSelection? selection = null);
   }
 
   public final class WrapperKt {

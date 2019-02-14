@@ -16,10 +16,6 @@
 package androidx.ui.core
 
 import android.content.Context
-import androidx.ui.core.adapter.DensityConsumer
-import androidx.ui.core.adapter.Draw
-import androidx.ui.core.adapter.MeasureBox
-import androidx.ui.core.adapter.Semantics
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
@@ -32,6 +28,7 @@ import androidx.ui.services.text_editing.TextSelection
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.composer
 
 /**
@@ -137,6 +134,23 @@ class Text() : Component() {
 
 internal val CurrentTextStyleAmbient = Ambient<TextStyle>("current text style") {
     TextStyle()
+}
+
+/**
+ * Temporary needed to be able to use the component from the adapter module. b/120971484
+ */
+@Composable
+fun TextComposable(
+    text: TextSpan,
+    textAlign: TextAlign = TextAlign.START,
+    textDirection: TextDirection = TextDirection.LTR,
+    softWrap: Boolean = true,
+    overflow: TextOverflow = TextOverflow.CLIP,
+    textScaleFactor: Float = 1.0f,
+    maxLines: Int? = null,
+    selection: TextSelection? = null
+) {
+    <Text text textAlign textDirection softWrap overflow textScaleFactor maxLines selection/>
 }
 
 /**
