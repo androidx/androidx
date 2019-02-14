@@ -50,13 +50,13 @@ public class CameraXInteropErrorActivity extends AppCompatActivity
     private static final int PERMISSIONS_REQUEST_CODE = 42;
     private static final Rational ASPECT_RATIO = new Rational(4, 3);
 
-    private final CompletableFuture<Boolean> completableFuture = new CompletableFuture<>();
+    private final CompletableFuture<Boolean> mCompletableFuture = new CompletableFuture<>();
 
     /** The LensFacing to use. */
-    private LensFacing currentCameraLensFacing = LensFacing.BACK;
+    private LensFacing mCurrentCameraLensFacing = LensFacing.BACK;
 
-    private String currentCameraFacingString = "BACK";
-    private ErrorType currentError = ErrorType.REOPEN_CAMERA;
+    private String mCurrentCameraFacingString = "BACK";
+    private ErrorType mCurrentError = ErrorType.REOPEN_CAMERA;
 
     /**
      * Creates a view finder use case.
@@ -67,7 +67,7 @@ public class CameraXInteropErrorActivity extends AppCompatActivity
     private void createViewFinderUseCase() {
         ViewFinderUseCaseConfiguration configuration =
                 new ViewFinderUseCaseConfiguration.Builder()
-                        .setLensFacing(currentCameraLensFacing)
+                        .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("ViewFinder")
                         .setTargetAspectRatio(ASPECT_RATIO)
                         .build();
@@ -91,7 +91,7 @@ public class CameraXInteropErrorActivity extends AppCompatActivity
     void createBadUseCase() {
         Camera2InteropErrorUseCaseConfiguration configuration =
                 new Camera2InteropErrorUseCaseConfiguration.Builder()
-                        .setLensFacing(currentCameraLensFacing)
+                        .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("Camera2InteropErrorUseCase")
                         .setTargetAspectRatio(ASPECT_RATIO)
                         .build();
@@ -99,11 +99,11 @@ public class CameraXInteropErrorActivity extends AppCompatActivity
                 new Camera2InteropErrorUseCase(configuration);
         CameraX.bindToLifecycle(this, camera2InteropErrorUseCase);
 
-        Button button = this.findViewById(R.id.CauseError);
+        Button button = findViewById(R.id.CauseError);
 
         button.setOnClickListener(
                 view -> {
-                    switch (currentError) {
+                    switch (mCurrentError) {
                         case CLOSE_DEVICE:
                             camera2InteropErrorUseCase.closeCamera();
                             break;
@@ -115,7 +115,7 @@ public class CameraXInteropErrorActivity extends AppCompatActivity
                             Log.d(TAG, "Attempting to reopen camera");
                             try {
                                 String cameraId =
-                                        CameraX.getCameraWithLensFacing(currentCameraLensFacing);
+                                        CameraX.getCameraWithLensFacing(mCurrentCameraLensFacing);
                                 manager.openCamera(
                                         cameraId,
                                         new StateCallback() {
@@ -146,24 +146,24 @@ public class CameraXInteropErrorActivity extends AppCompatActivity
                     }
                 });
 
-        TextView textView = this.findViewById(R.id.textView);
-        textView.setText(currentError.toString());
+        TextView textView = findViewById(R.id.textView);
+        textView.setText(mCurrentError.toString());
 
-        Button button1 = this.findViewById(R.id.SelectError);
+        Button button1 = findViewById(R.id.SelectError);
         button1.setOnClickListener(
                 view -> {
-                    switch (currentError) {
+                    switch (mCurrentError) {
                         case CLOSE_DEVICE:
-                            currentError = ErrorType.REOPEN_CAMERA;
+                            mCurrentError = ErrorType.REOPEN_CAMERA;
                             break;
                         case REOPEN_CAMERA:
-                            currentError = ErrorType.OPEN_CAPTURE_SESSION;
+                            mCurrentError = ErrorType.OPEN_CAPTURE_SESSION;
                             break;
                         case OPEN_CAPTURE_SESSION:
-                            currentError = ErrorType.CLOSE_DEVICE;
+                            mCurrentError = ErrorType.CLOSE_DEVICE;
                             break;
                     }
-                    textView.setText(currentError.toString());
+                    textView.setText(mCurrentError.toString());
                 });
     }
 
@@ -179,9 +179,9 @@ public class CameraXInteropErrorActivity extends AppCompatActivity
         setContentView(R.layout.activity_camera_2main);
 
         // Get params from adb extra string
-        Bundle bundle = this.getIntent().getExtras();
+        Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            currentCameraFacingString = bundle.getString("cameraFacing");
+            mCurrentCameraFacingString = bundle.getString("cameraFacing");
         }
 
         new Thread(
@@ -195,7 +195,7 @@ public class CameraXInteropErrorActivity extends AppCompatActivity
     private void setupCamera() {
         try {
             // Wait for permissions before proceeding.
-            if (!completableFuture.get()) {
+            if (!mCompletableFuture.get()) {
                 Log.d(TAG, "Permissions denied.");
                 return;
             }
@@ -203,16 +203,16 @@ public class CameraXInteropErrorActivity extends AppCompatActivity
             Log.e(TAG, "Exception occurred getting permission future: " + e);
         }
 
-        Log.d(TAG, "Camera Facing: " + currentCameraFacingString);
-        if (currentCameraFacingString.equalsIgnoreCase("BACK")) {
-            currentCameraLensFacing = LensFacing.BACK;
-        } else if (currentCameraFacingString.equalsIgnoreCase("FRONT")) {
-            currentCameraLensFacing = LensFacing.FRONT;
+        Log.d(TAG, "Camera Facing: " + mCurrentCameraFacingString);
+        if (mCurrentCameraFacingString.equalsIgnoreCase("BACK")) {
+            mCurrentCameraLensFacing = LensFacing.BACK;
+        } else if (mCurrentCameraFacingString.equalsIgnoreCase("FRONT")) {
+            mCurrentCameraLensFacing = LensFacing.FRONT;
         } else {
-            throw new RuntimeException("Invalid lens facing: " + currentCameraFacingString);
+            throw new RuntimeException("Invalid lens facing: " + mCurrentCameraFacingString);
         }
 
-        Log.d(TAG, "Using camera lens facing: " + currentCameraLensFacing);
+        Log.d(TAG, "Using camera lens facing: " + mCurrentCameraLensFacing);
 
         // Run this on the UI thread to manipulate the Textures & Views.
         CameraXInteropErrorActivity.this.runOnUiThread(
@@ -225,7 +225,7 @@ public class CameraXInteropErrorActivity extends AppCompatActivity
         if (!allPermissionsGranted()) {
             makePermissionRequest();
         } else {
-            completableFuture.complete(true);
+            mCompletableFuture.complete(true);
         }
     }
 
@@ -272,10 +272,10 @@ public class CameraXInteropErrorActivity extends AppCompatActivity
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Permissions Granted.");
-                    completableFuture.complete(true);
+                    mCompletableFuture.complete(true);
                 } else {
                     Log.d(TAG, "Permissions Denied.");
-                    completableFuture.complete(false);
+                    mCompletableFuture.complete(false);
                 }
                 return;
             }

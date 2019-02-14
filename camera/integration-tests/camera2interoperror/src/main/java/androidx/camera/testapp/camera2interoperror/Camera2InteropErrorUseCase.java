@@ -36,8 +36,8 @@ import java.util.Map;
 /** A use case which attempts to use camera2 calls directly in an erroneous manner. */
 public class Camera2InteropErrorUseCase extends BaseUseCase {
     private static final String TAG = "Camera2InteropErrorUseCase";
-    private final Camera2InteropErrorUseCaseConfiguration configuration;
-    private final CameraCaptureSession.StateCallback captureSessionStateCallback =
+    private final Camera2InteropErrorUseCaseConfiguration mConfiguration;
+    private final CameraCaptureSession.StateCallback mCaptureSessionStateCallback =
             new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession session) {
@@ -49,13 +49,13 @@ public class Camera2InteropErrorUseCase extends BaseUseCase {
                     Log.d(TAG, "CameraCaptureSession.StateCallback.onConfigured()");
                 }
             };
-    private CameraDevice cameraDevice;
-    private final CameraDevice.StateCallback stateCallback =
+    private CameraDevice mCameraDevice;
+    private final CameraDevice.StateCallback mStateCallback =
             new StateCallback() {
                 @Override
                 public void onOpened(@NonNull CameraDevice camera) {
                     Log.d(TAG, "CameraDevice.StateCallback.onOpened()");
-                    Camera2InteropErrorUseCase.this.cameraDevice = camera;
+                    Camera2InteropErrorUseCase.this.mCameraDevice = camera;
                 }
 
                 @Override
@@ -68,18 +68,18 @@ public class Camera2InteropErrorUseCase extends BaseUseCase {
                     Log.d(TAG, "CameraDevice.StateCallback.onError()");
                 }
             };
-    private ImageReader imageReader;
+    private ImageReader mImageReader;
 
     public Camera2InteropErrorUseCase(Camera2InteropErrorUseCaseConfiguration configuration) {
         super(configuration);
-        this.configuration = configuration;
+        mConfiguration = configuration;
     }
 
     /** Closes the {@link CameraDevice} obtained via callback. */
     void closeCamera() {
-        if (cameraDevice != null) {
+        if (mCameraDevice != null) {
             Log.d(TAG, "Closing CameraDevice.");
-            cameraDevice.close();
+            mCameraDevice.close();
         } else {
             Log.d(TAG, "No CameraDevice to close.");
         }
@@ -91,9 +91,9 @@ public class Camera2InteropErrorUseCase extends BaseUseCase {
     void reopenCaptureSession() {
         try {
             Log.d(TAG, "Opening a CameraCaptureSession.");
-            cameraDevice.createCaptureSession(
-                    Collections.singletonList(imageReader.getSurface()),
-                    captureSessionStateCallback,
+            mCameraDevice.createCaptureSession(
+                    Collections.singletonList(mImageReader.getSurface()),
+                    mCaptureSessionStateCallback,
                     null);
         } catch (CameraAccessException e) {
             Log.e(TAG, "no permission to create capture session");
@@ -103,9 +103,9 @@ public class Camera2InteropErrorUseCase extends BaseUseCase {
     @Override
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
-        imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+        mImageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
 
-        imageReader.setOnImageAvailableListener(
+        mImageReader.setOnImageAvailableListener(
                 imageReader -> {
                     imageReader.acquireNextImage().close();
                 },
@@ -114,14 +114,14 @@ public class Camera2InteropErrorUseCase extends BaseUseCase {
         SessionConfiguration.Builder sessionConfigBuilder = new SessionConfiguration.Builder();
         sessionConfigBuilder.clearSurfaces();
         sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        sessionConfigBuilder.setDeviceStateCallback(stateCallback);
+        sessionConfigBuilder.setDeviceStateCallback(mStateCallback);
 
         try {
-            String cameraId = CameraX.getCameraWithLensFacing(configuration.getLensFacing());
+            String cameraId = CameraX.getCameraWithLensFacing(mConfiguration.getLensFacing());
             attachToCamera(cameraId, sessionConfigBuilder.build());
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                    "Unable to attach to camera with LensFacing " + configuration.getLensFacing(),
+                    "Unable to attach to camera with LensFacing " + mConfiguration.getLensFacing(),
                     e);
         }
 

@@ -30,15 +30,15 @@ public class Camera2InteropErrorUseCaseConfiguration
         CameraDeviceConfiguration,
         ImageOutputConfiguration {
 
-    private final Configuration config;
+    private final Configuration mConfig;
 
     private Camera2InteropErrorUseCaseConfiguration(Configuration config) {
-        this.config = config;
+        mConfig = config;
     }
 
     @Override
     public Configuration getConfiguration() {
-        return config;
+        return mConfig;
     }
 
     /** Builder for an empty Configuration */
@@ -52,16 +52,16 @@ public class Camera2InteropErrorUseCaseConfiguration
             ImageOutputConfiguration.Builder<
                     Camera2InteropErrorUseCaseConfiguration, Builder> {
 
-        private final MutableOptionsBundle optionsBundle;
+        private final MutableOptionsBundle mOptionsBundle;
 
         public Builder() {
-            optionsBundle = MutableOptionsBundle.create();
+            mOptionsBundle = MutableOptionsBundle.create();
             setTargetClass(Camera2InteropErrorUseCase.class);
         }
 
         @Override
         public MutableConfiguration getMutableConfiguration() {
-            return optionsBundle;
+            return mOptionsBundle;
         }
 
         @Override
@@ -71,7 +71,7 @@ public class Camera2InteropErrorUseCaseConfiguration
 
         @Override
         public Camera2InteropErrorUseCaseConfiguration build() {
-            return new Camera2InteropErrorUseCaseConfiguration(OptionsBundle.from(optionsBundle));
+            return new Camera2InteropErrorUseCaseConfiguration(OptionsBundle.from(mOptionsBundle));
         }
     }
 }
