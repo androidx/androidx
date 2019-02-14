@@ -193,15 +193,21 @@ public class MediaControlViewTest {
         createController(new MediaController.ControllerCallback() {
             long mExpectedPosition = FFWD_MS;
             final long mDelta = 1000L;
-            boolean mInitialSeekComplete = false;
+
+            @Override
+            public void onPlayerStateChanged(@NonNull MediaController controller,
+                    int state) {
+                if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
+                    mExpectedPosition = FFWD_MS;
+                    controller.seekTo(mExpectedPosition);
+                }
+            }
 
             @Override
             public void onSeekCompleted(@NonNull MediaController controller,
                     long position) {
-                // Wait for the initial seek when setting a media item
-                if (!mInitialSeekComplete) {
-                    mInitialSeekComplete = true;
-                    controller.seekTo(mExpectedPosition);
+                // Ignore the initial seek. Internal MediaPlayer behavior can be changed.
+                if (position == 0 && mExpectedPosition == FFWD_MS) {
                     return;
                 }
                 assertTrue(equalsSeekPosition(mExpectedPosition, position, mDelta));
