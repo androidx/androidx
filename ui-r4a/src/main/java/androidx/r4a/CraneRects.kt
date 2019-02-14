@@ -47,12 +47,12 @@ import kotlin.math.min
 fun FourQuadrants() {
     val resources = composer.composer.context.resources
     val image = BitmapFactory.decodeResource(resources, androidx.ui.port.R.drawable.four_quadrants)
-    <MeasureBox> constraints, measureOperations ->
-        measureOperations.collect {
+    <MeasureBox> constraints ->
+        collect {
             <DrawImage bitmap=image />
         }
 
-        measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
+        layout(constraints.maxWidth, constraints.maxHeight) {
         }
     </MeasureBox>
 }
@@ -84,17 +84,17 @@ fun DrawRectangle(color: Color) {
 
 @Composable
 fun Rectangle(color: Color) {
-    <MeasureBox> constraints, measureOperations ->
-        measureOperations.collect {
+    <MeasureBox> constraints ->
+        collect {
             <DrawRectangle color />
         }
-        measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {}
+        layout(constraints.maxWidth, constraints.maxHeight) {}
     </MeasureBox>
 }
 
 @Composable
 fun Rectangles() {
-    <MeasureBox> constraints, measureOperations ->
+    <MeasureBox> constraints ->
         val width = if (constraints.hasBoundedWidth) {
             constraints.maxWidth
         } else {
@@ -107,7 +107,7 @@ fun Rectangles() {
             constraints.minHeight
         }
 
-        val measurables = measureOperations.collect {
+        val measurables = collect {
             val green = Color(0xFF00FF00.toInt())
             <Rectangle color=green />
             val red = Color(0xFFFF0000.toInt())
@@ -119,9 +119,9 @@ fun Rectangles() {
 
         val size = min(width, height)
         val rectSize = size / 2
-        measureOperations.layout(size, size) {
+        layout(size, size) {
             val placeables = measurables.map {
-                measureOperations.measure(it, Constraints.tightConstraints(rectSize, rectSize))
+                it.measure(Constraints.tightConstraints(rectSize, rectSize))
             }
             placeables[0].place(0.dp, 0.dp)
             placeables[1].place(rectSize, 0.dp)

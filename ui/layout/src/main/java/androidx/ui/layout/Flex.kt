@@ -230,7 +230,7 @@ private fun Flex(
     orientation: Int /*FlexOrientation*/,
     @Children(composable=false) block: (children: FlexChildren) -> Unit)
 {
-    <MeasureBox> constraints, measureOperations ->
+    <MeasureBox> constraints ->
         val constraints = OrientationIndependentConstraints(constraints, orientation)
 
         val children = with(FlexChildren()) {
@@ -242,9 +242,8 @@ private fun Flex(
         val mainAxisSize = Array(children.size) { 0.dp }
         // First measure children with zero flex.
         (0 until children.size).filter { i -> children[i].flex == 0f }.forEach { i ->
-            measureOperations.collect(children[i].child).map { measurable ->
-                measureOperations.measure(
-                    measurable,
+            collect(children[i].child).map { measurable ->
+                measurable.measure(
                     // Ask for preferred main axis size.
                     constraints.looseMainAxis().toBoxConstraints(orientation)
                 )
@@ -261,15 +260,14 @@ private fun Flex(
         val totalFlex = children.map { it.flex }.sum()
         (0 until children.size).filter { i -> children[i].flex > 0f }.forEach { i ->
             val child = children[i]
-            val measurables = measureOperations.collect(child.child)
+            val measurables = collect(child.child)
             if (measurables.isEmpty()) {
                 return@forEach
             }
             mainAxisSize[i] = remainingSpace * (child.flex / totalFlex)
             val childMaxMainAxisSize = mainAxisSize[i] / measurables.size
             measurables.map { measurable ->
-                measureOperations.measure(
-                    measurable,
+                measurable.measure(
                     OrientationIndependentConstraints(
                         if (child.fit == FlexFit.Tight) 0.dp else childMaxMainAxisSize,
                         childMaxMainAxisSize,
@@ -285,7 +283,7 @@ private fun Flex(
         // Position the children.
         val layoutWidth = constraints.maxWidth(orientation)
         val layoutHeight = constraints.maxHeight(orientation)
-        measureOperations.layout(layoutWidth, layoutHeight) {
+        layout(layoutWidth, layoutHeight) {
             var consumedMainAxisSpace = 0.dp
             placeables.forEachIndexed { i, childPlaceables ->
                 childPlaceables?.map {

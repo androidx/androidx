@@ -56,15 +56,15 @@ import com.google.r4a.Recompose
 
 @Composable
 fun GrayRect() {
-    <MeasureBox> constraints, operations ->
-        operations.collect {
+    <MeasureBox> constraints ->
+        collect {
             val paint = Paint()
             paint.color = Color(android.graphics.Color.GRAY)
             <Draw> canvas, parentSize ->
                 canvas.drawRect(Rect(0f, 0f, parentSize.width, parentSize.height), paint)
             </Draw>
         }
-        operations.layout(constraints.maxWidth, constraints.maxHeight) {
+        layout(constraints.maxWidth, constraints.maxHeight) {
         }
     </MeasureBox>
 }
@@ -75,17 +75,17 @@ fun ListWithOffset(
     offset: Dimension,
     @Children item: () -> Unit
 ) {
-    <MeasureBox> constraints, measureOperations ->
-        val measurables = measureOperations.collect {
+    <MeasureBox> constraints ->
+        val measurables = collect {
             repeat(itemsCount) {
                 <item />
             }
         }
         val itemHeight = (constraints.maxHeight - offset * (itemsCount - 1)) / itemsCount
         val itemConstraint = Constraints.tightConstraints(constraints.maxWidth, itemHeight)
-        measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
+        layout(constraints.maxWidth, constraints.maxHeight) {
             var top = 0.dp
-            measurables.map { measureOperations.measure(it, itemConstraint) }.forEach {
+            measurables.map { it.measure(itemConstraint) }.forEach {
                 it.place(0.dp, top)
                 top += itemHeight + offset
             }

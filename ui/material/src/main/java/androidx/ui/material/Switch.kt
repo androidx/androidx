@@ -48,14 +48,14 @@ fun Switch(checked: Boolean, color: Color? = null) {
     val value = if (checked) ToggleableState.CHECKED else ToggleableState.UNCHECKED
     <Toggleable value>
         <DensityConsumer> density ->
-            <MeasureBox> constraints, measureOperations ->
-                measureOperations.collect {
+            <MeasureBox> constraints ->
+                collect {
                     val colors = +ambient(Colors)
                     <DrawSwitch value density color=(color ?: colors.primary) />
                 }
                 val height = max(constraints.minHeight, min(constraints.maxHeight, minHeight))
                 val width = max(constraints.minWidth, min(constraints.maxWidth, minWidth))
-                measureOperations.layout(width, height) {
+                layout(width, height) {
                     // no children to place
                 }
             </MeasureBox>

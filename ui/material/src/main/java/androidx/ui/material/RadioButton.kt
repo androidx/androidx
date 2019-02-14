@@ -47,15 +47,15 @@ class RadioButtonWrapper : Component() {
 fun RadioButton(checked: Boolean, color: Color? = null) {
     val value = if (checked) ToggleableState.CHECKED else ToggleableState.UNCHECKED
     <Toggleable value>
-        <MeasureBox> constraints, measureOperations ->
-            measureOperations.collect {
+        <MeasureBox> constraints ->
+            collect {
                 val colors = +ambient(Colors)
                 <DrawRadioButton value color=(color ?: colors.primary)/>
             }
             val size = radioRadius * 2
             val w = max(constraints.minWidth, min(constraints.maxWidth, size))
             val h = max(constraints.minHeight, min(constraints.maxHeight, size))
-            measureOperations.layout(w, h) {
+            layout(w, h) {
                 // no children to place
             }
         </MeasureBox>

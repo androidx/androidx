@@ -32,6 +32,7 @@ import androidx.ui.core.Density
 import androidx.ui.core.Dimension
 import androidx.ui.core.Draw
 import androidx.ui.core.MeasureBox
+import androidx.ui.core.Placeable
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.dp
 import androidx.ui.core.max
@@ -209,6 +210,15 @@ class ContainingViewTest {
         assertEquals(PixelCopy.SUCCESS, copyResult)
         return dest
     }
+}
+
+private fun Placeable.place(x: Dimension, y: Dimension) {
+    // Place using reflection. TODO(popam) This should only be needed until the adapter packages are
+    // removed as this module cannot depend on framework-adapter, so this is a temporary workaround.
+    val placeBlockField = Placeable::class.java.getDeclaredField("placeBlock")
+    placeBlockField.isAccessible = true
+    val placeBlock = placeBlockField.get(this) as (Dimension, Dimension) -> Unit
+    placeBlock(x, y)
 }
 
 @Composable

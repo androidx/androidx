@@ -47,8 +47,8 @@ class Checkbox : Component() {
 
     override fun compose() {
         <Toggleable testTag value>
-            <MeasureBox> constraints, measureOperations ->
-                measureOperations.collect {
+            <MeasureBox> constraints ->
+                collect {
                     <Colors.Consumer> colors ->
                         <DrawCheckbox color=(color ?: colors.secondary)
                                       value
@@ -57,7 +57,7 @@ class Checkbox : Component() {
                 }
                 val calculatedWidth = min(
                     min(constraints.maxHeight, constraints.maxWidth), checkboxSize)
-                measureOperations.layout(calculatedWidth, calculatedWidth) {
+                layout(calculatedWidth, calculatedWidth) {
                     // No mChildren to place
                 }
             </MeasureBox>

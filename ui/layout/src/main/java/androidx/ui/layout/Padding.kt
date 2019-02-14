@@ -18,7 +18,7 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dimension
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.dp
 import androidx.ui.core.min
@@ -61,10 +61,10 @@ fun Padding(
     padding: EdgeInsets,
     @Children children: () -> Unit
 ) {
-    <MeasureBox> constraints, measureOperations ->
-        val measurable = measureOperations.collect(children).firstOrNull()
+    <MeasureBox> constraints ->
+        val measurable = collect(children).firstOrNull()
         if (measurable == null) {
-            measureOperations.layout(constraints.minWidth, constraints.maxWidth) {}
+            layout(constraints.minWidth, constraints.maxWidth) {}
         } else {
             val horizontalPadding = (padding.left + padding.right)
             val verticalPadding = (padding.top + padding.bottom)
@@ -75,11 +75,11 @@ fun Padding(
                 minHeight = (constraints.minHeight - verticalPadding).coerceAtLeast(0.dp),
                 maxHeight = (constraints.maxHeight - verticalPadding).coerceAtLeast(0.dp)
             )
-            val placeable = measureOperations.measure(measurable, newConstraints)
+            val placeable = measurable.measure(newConstraints)
             val width = min(placeable.width + horizontalPadding, constraints.maxWidth)
             val height = min(placeable.height + verticalPadding, constraints.maxHeight)
 
-            measureOperations.layout(width, height) {
+            layout(width, height) {
                 placeable.place(padding.left, padding.top)
             }
         }

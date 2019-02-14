@@ -32,15 +32,15 @@ import com.google.r4a.composer
 
 @Composable
 fun FillGrid(horizontalGridCount: Int, @Children children: () -> Unit) {
-    <MeasureBox> constraints, measureOperations ->
-        val measurables = measureOperations.collect(children)
+    <MeasureBox> constraints ->
+        val measurables = collect(children)
         val verticalGrid = (measurables.size + horizontalGridCount - 1) / horizontalGridCount
         val cellW = constraints.maxWidth / horizontalGridCount
         val cellH = constraints.maxHeight / verticalGrid
         val c = Constraints.tightConstraints(cellW, cellH)
-        measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
+        layout(constraints.maxWidth, constraints.maxHeight) {
             measurables
-                    .map { measureOperations.measure(it, c) }
+                    .map { it.measure(c) }
                     .forEachIndexed { index, placeable ->
                         val x = index % horizontalGridCount * cellW
                         val y = cellH * (index / horizontalGridCount)

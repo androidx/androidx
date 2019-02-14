@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.ui.core
 
 /**
- * A [Placeable] corresponds to a child which can be positioned by its parent container.
- * Most [Placeable]s are the result of a [Measureable.measure] call.
+ * Receiver scope for [layoutResult's] lambda.
  */
-// TODO(popam): investigate if this interface is really needed, as it blocks making
-//              MeasuredPlaceable an inline class
-open class Placeable(internal val placeBlock: (Dimension, Dimension) -> Unit) {
-    open val width: Dimension = 0.dp
-    open val height: Dimension = 0.dp
+class PositioningBlockReceiver {
+    fun Placeable.place(x: Dimension, y: Dimension) {
+        this.placeBlock(x, y)
+    }
 }

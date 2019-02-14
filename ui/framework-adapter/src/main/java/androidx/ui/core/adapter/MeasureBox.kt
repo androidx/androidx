@@ -16,10 +16,16 @@
 
 package androidx.ui.core.adapter
 
+import androidx.ui.core.ComplexMeasureBox
 import androidx.ui.core.ComplexMeasureOperations
 import androidx.ui.core.Constraints
+import androidx.ui.core.Dimension
+import androidx.ui.core.IntrinsicMeasureOperations
 import androidx.ui.core.LayoutKt
+import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureOperations
+import androidx.ui.core.Placeable
+import androidx.ui.core.PositioningBlockReceiver
 import com.google.r4a.Children
 import com.google.r4a.Composable
 
@@ -33,9 +39,14 @@ import com.google.r4a.Composable
 @Suppress("PLUGIN_ERROR")
 fun MeasureBox(
     @Children(composable = false) block:
-        (constraints: Constraints, operations: MeasureOperations) -> Unit
+        MeasureBoxReceiver.(constraints: Constraints) -> Unit
 ) {
-    LayoutKt.MeasureBoxComposable(block)
+    LayoutKt.MeasureBoxComposable { constraints, measureOperations ->
+        val measureBoxReceiver = MeasureBoxReceiver(measureOperations)
+        with(measureBoxReceiver) {
+            block(constraints)
+        }
+    }
 }
 
 /**
@@ -47,7 +58,145 @@ fun MeasureBox(
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun ComplexMeasureBox(
-    @Children(composable = false) block: (operations: ComplexMeasureOperations) -> Unit
+    @Children(composable = false) block: ComplexMeasureBoxReceiver.() -> Unit
 ) {
-    LayoutKt.ComplexMeasureBoxComposable(block)
+    LayoutKt.ComplexMeasureBoxComposable { complexMeasureOperations ->
+        val complexMeasureBoxReceiver = ComplexMeasureBoxReceiver(complexMeasureOperations)
+        with(complexMeasureBoxReceiver) {
+            block()
+        }
+    }
+}
+
+@DslMarker private annotation class LayoutDsl
+
+/**
+ * Receiver scope for [ComplexMeasureBox]'s child lambda.
+ */
+@LayoutDsl
+class ComplexMeasureBoxReceiver internal constructor(
+    private val complexMeasureOperations: ComplexMeasureOperations
+) {
+    fun collect(@Children children: () -> Unit) = complexMeasureOperations.collect(children)
+    fun layout(block: LayoutBlockReceiver.(Constraints) -> Unit) {
+        complexMeasureOperations.layout { constraints, measure, intrinsics, layoutResult ->
+            val layoutBlockReceiver =
+                LayoutBlockReceiver(measure, intrinsics, layoutResult, this::collect)
+            with(layoutBlockReceiver) {
+                block(constraints)
+            }
+        }
+    }
+
+    /**
+     * Set the min intrinsic width of the current layout. The block is not aware of constraints,
+     * and is unable to measure their children.
+     */
+    fun minIntrinsicWidth(block: IntrinsicMeasurementsReceiver.(Dimension) -> Dimension) {
+        complexMeasureOperations.minIntrinsicWidth { h, intrinsics ->
+            val intrinsicMeasurementsReceiver =
+                    IntrinsicMeasurementsReceiver(this::collect, intrinsics)
+            with(intrinsicMeasurementsReceiver) {
+                block(h)
+            }
+        }
+    }
+
+    /**
+     * Set the max intrinsic width of the current layout. The block is not aware of constraints,
+     * and is unable to measure their children.
+     */
+    fun maxIntrinsicWidth(block: IntrinsicMeasurementsReceiver.(Dimension) -> Dimension) {
+        complexMeasureOperations.maxIntrinsicWidth { h, intrinsics ->
+            val intrinsicMeasurementsReceiver =
+                    IntrinsicMeasurementsReceiver(this::collect, intrinsics)
+            with(intrinsicMeasurementsReceiver) {
+                block(h)
+            }
+        }
+    }
+
+    /**
+     * Set the min intrinsic height of the current layout. The block is not aware of constraints,
+     * and is unable to measure their children.
+     */
+    fun minIntrinsicHeight(block: IntrinsicMeasurementsReceiver.(Dimension) -> Dimension) {
+        complexMeasureOperations.minIntrinsicHeight { w, intrinsics ->
+            val intrinsicMeasurementsReceiver =
+                    IntrinsicMeasurementsReceiver(this::collect, intrinsics)
+            with(intrinsicMeasurementsReceiver) {
+                block(w)
+            }
+        }
+    }
+
+    /**
+     * Set the max intrinsic height of the current layout. The block is not aware of constraints,
+     * and is unable to measure their children.
+     */
+    fun maxIntrinsicHeight(block: IntrinsicMeasurementsReceiver.(Dimension) -> Dimension) {
+        complexMeasureOperations.maxIntrinsicHeight { w, intrinsics ->
+            val intrinsicMeasurementsReceiver =
+                    IntrinsicMeasurementsReceiver(this::collect, intrinsics)
+            with(intrinsicMeasurementsReceiver) {
+                block(w)
+            }
+        }
+    }
+}
+
+/**
+ * Receiver scope for [ComplexMeasureBoxReceiver] intrinsic measurements lambdas.
+ */
+@LayoutDsl
+class IntrinsicMeasurementsReceiver internal constructor(
+    private val doCollect: (@Composable() () -> Unit) -> List<Measurable>,
+    private val intrinsics: IntrinsicMeasureOperations
+) {
+    fun collect(@Children children: () -> Unit) = doCollect(children)
+    fun Measurable.minIntrinsicWidth(h: Dimension) = intrinsics.minIntrinsicWidth(this, h)
+    fun Measurable.maxIntrinsicWidth(h: Dimension) = intrinsics.maxIntrinsicWidth(this, h)
+    fun Measurable.minIntrinsicHeight(w: Dimension) = intrinsics.minIntrinsicHeight(this, w)
+    fun Measurable.maxIntrinsicHeight(w: Dimension) = intrinsics.maxIntrinsicHeight(this, w)
+}
+
+/**
+ * Receiver scope for [ComplexMeasureBoxReceiver#layout]'s lambda.
+ */
+@LayoutDsl
+class LayoutBlockReceiver internal constructor(
+    private val measure: (Measurable, Constraints) -> Placeable,
+    private val intrinsics: IntrinsicMeasureOperations,
+    private val doLayoutResult: (Dimension, Dimension, () -> Unit) -> Unit,
+    private val doCollect: (@Composable() () -> Unit) -> List<Measurable>
+) {
+    fun Measurable.measure(constraints: Constraints) = measure(this, constraints)
+    fun layoutResult(
+        width: Dimension,
+        height: Dimension,
+        block: PositioningBlockReceiver.() -> Unit
+    ) {
+        val positioningBlockReceiver = PositioningBlockReceiver()
+        doLayoutResult(width, height, { with(positioningBlockReceiver) { block } })
+    }
+    fun collect(@Children children: () -> Unit) = doCollect(children)
+    fun Measurable.minIntrinsicWidth(h: Dimension) = intrinsics.minIntrinsicWidth(this, h)
+    fun Measurable.maxIntrinsicWidth(h: Dimension) = intrinsics.maxIntrinsicWidth(this, h)
+    fun Measurable.minIntrinsicHeight(w: Dimension) = intrinsics.minIntrinsicHeight(this, w)
+    fun Measurable.maxIntrinsicHeight(w: Dimension) = intrinsics.maxIntrinsicHeight(this, w)
+}
+
+/**
+ * Receiver  scope for [ComplexMeasureBox]'s child lambda.
+ */
+class MeasureBoxReceiver internal constructor(
+    private val measureOperations: MeasureOperations
+) {
+    fun collect(@Children children: () -> Unit) = measureOperations.collect(children)
+    fun Measurable.measure(constraints: Constraints) =
+            measureOperations.measure(this, constraints)
+    fun layout(width: Dimension, height: Dimension, block: PositioningBlockReceiver.() -> Unit) {
+        measureOperations.layout(width, height,
+            { with(PositioningBlockReceiver()) { block() } })
+    }
 }

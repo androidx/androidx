@@ -45,11 +45,11 @@ import com.google.r4a.composer
  */
 @Composable
 fun SizedRectangle(color: Color, width: Dimension? = null, height: Dimension? = null) {
-    <MeasureBox> constraints, measureOperations ->
-        measureOperations.collect {
+    <MeasureBox> constraints ->
+        collect {
             <DrawRectangle color />
         }
-        measureOperations.layout(width ?: constraints.maxWidth, height ?: constraints.maxHeight) {}
+        layout(width ?: constraints.maxWidth, height ?: constraints.maxHeight) {}
     </MeasureBox>
 }
 
@@ -58,51 +58,51 @@ fun SizedRectangle(color: Color, width: Dimension? = null, height: Dimension? = 
  */
 @Composable
 fun IntrinsicWidth(@Children() children: () -> Unit) {
-    <ComplexMeasureBox> measureOperations ->
-        val child = measureOperations.collect(children).first()
+    <ComplexMeasureBox>
+        val child = collect(children).first()
 
-        measureOperations.layout { constraints, measure, intrinsics, layoutResult ->
+        layout { constraints ->
             // Force child be as wide as its min intrinsic width.
-            val width = intrinsics.minIntrinsicWidth(child, constraints.minHeight)
+            val width = child.minIntrinsicWidth(constraints.minHeight)
             val childConstraints = Constraints(
                 width,
                 width,
                 constraints.minHeight,
                 constraints.maxHeight
             )
-            val childPlaceable = measure(child, childConstraints)
+            val childPlaceable = child.measure(childConstraints)
             layoutResult(childPlaceable.width, childPlaceable.height) {
                 childPlaceable.place(0.dp, 0.dp)
             }
         }
 
-        measureOperations.minIntrinsicWidth { h, intrinsics ->
-            intrinsics.minIntrinsicWidth(child, h)
+        minIntrinsicWidth { h ->
+            child.minIntrinsicWidth(h)
         }
-        measureOperations.maxIntrinsicWidth { h, intrinsics ->
-            intrinsics.minIntrinsicWidth(child, h)
+        maxIntrinsicWidth { h ->
+            child.minIntrinsicWidth(h)
         }
-        measureOperations.minIntrinsicHeight { w, intrinsics ->
-            intrinsics.minIntrinsicHeight(child, w)
+        minIntrinsicHeight { w ->
+            child.minIntrinsicHeight(w)
         }
-        measureOperations.maxIntrinsicHeight { w, intrinsics ->
-            intrinsics.maxIntrinsicHeight(child, w)
+        maxIntrinsicHeight { w ->
+            child.maxIntrinsicHeight(w)
         }
     </ComplexMeasureBox>
 }
 
 @Composable
 fun Wrapper(@Children() children: () -> Unit) {
-    <ComplexMeasureBox> measureOperations ->
-        val child = measureOperations.collect(children).first()
-        measureOperations.layout { constraints, measure, intrinsics, layoutResult ->
+    <ComplexMeasureBox>
+        val child = collect(children).first()
+        layout { constraints ->
             // Check the default intrinsic methods used by MeasureBoxes.
             // TODO(popam): make this a proper test instead
-            require(intrinsics.minIntrinsicWidth(child, Dimension.Infinity) == 90.dp)
-            require(intrinsics.maxIntrinsicWidth(child, Dimension.Infinity) == 450.dp)
-            require(intrinsics.minIntrinsicHeight(child, Dimension.Infinity) == 30.dp)
-            require(intrinsics.maxIntrinsicHeight(child, Dimension.Infinity) == 150.dp)
-            val placeable = measure(child, constraints)
+            require(child.minIntrinsicWidth(Dimension.Infinity) == 90.dp)
+            require(child.maxIntrinsicWidth(Dimension.Infinity) == 450.dp)
+            require(child.minIntrinsicHeight(Dimension.Infinity) == 30.dp)
+            require(child.maxIntrinsicHeight(Dimension.Infinity) == 150.dp)
+            val placeable = child.measure(constraints)
             layoutResult(placeable.width, placeable.height) {
                 placeable.place(0.dp, 0.dp)
             }
@@ -115,17 +115,17 @@ fun Wrapper(@Children() children: () -> Unit) {
  */
 @Composable
 fun RectangleWithIntrinsics(color: Color) {
-    <ComplexMeasureBox> measureOperations ->
-        measureOperations.collect {
+    <ComplexMeasureBox>
+        collect {
             <DrawRectangle color />
         }
-        measureOperations.layout { _, _, _, layoutResult ->
+        layout {
             layoutResult(80.dp, 80.dp) {}
         }
-        measureOperations.minIntrinsicWidth { _, _ -> 30.dp }
-        measureOperations.maxIntrinsicWidth { _, _ -> 150.dp }
-        measureOperations.minIntrinsicHeight { _, _ -> 30.dp }
-        measureOperations.maxIntrinsicHeight { _, _ -> 150.dp }
+        minIntrinsicWidth { 30.dp }
+        maxIntrinsicWidth { 150.dp }
+        minIntrinsicHeight { 30.dp }
+        maxIntrinsicHeight { 150.dp }
     </ComplexMeasureBox>
 }
 
