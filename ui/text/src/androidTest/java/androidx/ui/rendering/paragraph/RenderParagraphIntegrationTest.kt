@@ -16,6 +16,7 @@
 
 package androidx.ui.port.rendering
 
+import android.graphics.Bitmap
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.geometry.Rect
@@ -24,7 +25,9 @@ import androidx.ui.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
+import androidx.ui.matchers.equalToBitmap
 import androidx.ui.painting.Color
+import androidx.ui.painting.Paint
 import androidx.ui.painting.Path
 import androidx.ui.painting.PathOperation
 import androidx.ui.painting.TextSpan
@@ -34,6 +37,7 @@ import androidx.ui.rendering.paragraph.TextConstraints
 import androidx.ui.rendering.paragraph.TextOverflow
 import androidx.ui.services.text_editing.TextSelection
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -239,5 +243,112 @@ class RenderParagraphIntegrationTest {
         val defaultSelectionColor = Color(0x6633B5E5)
 
         assertThat(paragraph.selectionPaint.color).isEqualTo(defaultSelectionColor)
+    }
+
+    @Test
+    fun testSelectionPaint_paint_with_default_color() {
+        // Setup test.
+        val selectionStart = 0
+        val selectionEnd = 3
+        val fontSize = 20.0f
+        val text = "Hello"
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+        val textSpan = TextSpan(text = text, style = textStyle)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        paragraph.layoutText()
+
+        val expectedBitmap = Bitmap.createBitmap(
+            ceil(paragraph.width).toInt(),
+            ceil(paragraph.height).toInt(),
+            Bitmap.Config.ARGB_8888
+        )
+        val expectedCanvas = androidx.ui.painting.Canvas(android.graphics.Canvas(expectedBitmap))
+        val expectedPaint = Paint()
+        val defaultSelectionColor = Color(0x6633B5E5)
+        expectedPaint.color = defaultSelectionColor
+        expectedCanvas.drawRect(
+            Rect(
+                left = 0f,
+                top = 0f,
+                right = fontSize * (selectionEnd - selectionStart),
+                bottom = fontSize
+            ),
+            expectedPaint)
+
+        val actualBitmap = Bitmap.createBitmap(
+            ceil(paragraph.width).toInt(),
+            ceil(paragraph.height).toInt(),
+            Bitmap.Config.ARGB_8888
+        )
+        val actualCanvas = androidx.ui.painting.Canvas(android.graphics.Canvas(actualBitmap))
+
+        // Run.
+        paragraph.paintSelection(
+            actualCanvas,
+            TextSelection(selectionStart, selectionEnd)
+        )
+
+        // Assert
+        Assert.assertThat(actualBitmap, equalToBitmap(expectedBitmap))
+    }
+
+    @Test
+    fun testSelectionPaint_paint_with_default_color_bidi() {
+        // Setup test.
+        val textLTR = "Hello"
+        // From right to left: שלום
+        val textRTL = "\u05e9\u05dc\u05d5\u05dd"
+        val text = textLTR + textRTL
+        val selectionLTRStart = 2
+        val selectionRTLEnd = 2
+        val fontSize = 20.0f
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+        val textSpan = TextSpan(text = text, style = textStyle)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        paragraph.layoutText()
+
+        val expectedBitmap = Bitmap.createBitmap(
+            ceil(paragraph.width).toInt(),
+            ceil(paragraph.height).toInt(),
+            Bitmap.Config.ARGB_8888
+        )
+        val expectedCanvas = androidx.ui.painting.Canvas(android.graphics.Canvas(expectedBitmap))
+        val expectedPaint = Paint()
+        val defaultSelectionColor = Color(0x6633B5E5)
+        expectedPaint.color = defaultSelectionColor
+        // Select "llo".
+        expectedCanvas.drawRect(
+            Rect(
+                left = fontSize * selectionLTRStart,
+                top = 0f,
+                right = textLTR.length * fontSize,
+                bottom = fontSize
+            ),
+            expectedPaint)
+        // Select "של"
+        expectedCanvas.drawRect(
+            Rect(
+                left = (textLTR.length + textRTL.length - selectionRTLEnd) * fontSize,
+                top = 0f,
+                right = (textLTR.length + textRTL.length) * fontSize,
+                bottom = fontSize
+            ),
+            expectedPaint)
+
+        val actualBitmap = Bitmap.createBitmap(
+            ceil(paragraph.width).toInt(),
+            ceil(paragraph.height).toInt(),
+            Bitmap.Config.ARGB_8888
+        )
+        val actualCanvas = androidx.ui.painting.Canvas(android.graphics.Canvas(actualBitmap))
+
+        // Run.
+        paragraph.paintSelection(
+            actualCanvas,
+            TextSelection(selectionLTRStart, textLTR.length + selectionRTLEnd)
+        )
+
+        // Assert
+        Assert.assertThat(actualBitmap, equalToBitmap(expectedBitmap))
     }
 }
