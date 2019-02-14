@@ -43,10 +43,23 @@ function downloadFile() {
   mv "${tempPath}" "${destPath}"
 }
 
+function findStudioMacAppPath() {
+  echo "$(find "${studioUnzippedPath}" -type d -depth 1 -name "Android Studio*.app")"
+}
+
+function getLicensePath() {
+  if [ "${osName}" == "mac" ]; then
+    appPath="$(findStudioMacAppPath)"
+    echo "${appPath}/Contents/Resources/LICENSE.txt"
+  else
+    echo "${studioUnzippedPath}/android-studio/LICENSE.txt"
+  fi
+}
+
 function checkLicenseAgreement() {
   # TODO: Is there a more official way to check that the user accepts the license?
   if [ "${acceptsLicenseAgreement}" != "-y" ]; then
-    echo "Do you accept the license agreement at ${studioUnzippedPath}/android-studio/LICENSE.txt ?"
+    echo "Do you accept the license agreement at $(getLicensePath) ?"
     echo "If you do, then rerun this script with a '-y' argument"
     exit 1
   fi
@@ -79,11 +92,11 @@ function runStudioLinux() {
 }
 
 function runStudioMac() {
-  studioPath="$(find "${studioUnzippedPath}" -type d -depth 1 -name "Android Studio*.app")"
-  echo "open ${studioPath}"
+  appPath="$(findStudioMacAppPath)"
+  echo "open ${appPath}"
   env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" \
       STUDIO_VM_OPTIONS="${projectDir}/development/studio/studio.vmoptions" \
-      open -a "${studioPath}" "${projectDir}"
+      open -a "${appPath}" "${projectDir}"
 }
 
 function runStudio() {
