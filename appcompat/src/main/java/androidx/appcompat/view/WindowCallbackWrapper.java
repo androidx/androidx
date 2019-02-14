@@ -183,4 +183,8 @@ public class WindowCallbackWrapper implements Window.Callback {
     public void onPointerCaptureChanged(boolean hasCapture) {
         mWrapped.onPointerCaptureChanged(hasCapture);
     }
+
+    public final Window.Callback getWrapped() {
+        return mWrapped;
+    }
 }
