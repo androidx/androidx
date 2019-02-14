@@ -47,7 +47,7 @@ public class OptionsBundleRobolectricTest {
     private static final Object VALUE_2 = new Object();
     private static final Object VALUE_MISSING = new Object();
 
-    private OptionsBundle allOpts;
+    private OptionsBundle mAllOpts;
 
     @Before
     public void setUp() {
@@ -56,31 +56,31 @@ public class OptionsBundleRobolectricTest {
         mutOpts.insertOption(OPTION_1_A, VALUE_1_A);
         mutOpts.insertOption(OPTION_2, VALUE_2);
 
-        allOpts = OptionsBundle.from(mutOpts);
+        mAllOpts = OptionsBundle.from(mutOpts);
     }
 
     @Test
     public void canRetrieveValue() {
-        assertThat(allOpts.retrieveOption(OPTION_1)).isSameAs(VALUE_1);
-        assertThat(allOpts.retrieveOption(OPTION_1_A)).isSameAs(VALUE_1_A);
-        assertThat(allOpts.retrieveOption(OPTION_2)).isSameAs(VALUE_2);
+        assertThat(mAllOpts.retrieveOption(OPTION_1)).isSameAs(VALUE_1);
+        assertThat(mAllOpts.retrieveOption(OPTION_1_A)).isSameAs(VALUE_1_A);
+        assertThat(mAllOpts.retrieveOption(OPTION_2)).isSameAs(VALUE_2);
     }
 
     @Test
     public void willReturnDefault_ifOptionIsMissing() {
-        Object value = allOpts.retrieveOption(OPTION_MISSING, VALUE_MISSING);
+        Object value = mAllOpts.retrieveOption(OPTION_MISSING, VALUE_MISSING);
         assertThat(value).isSameAs(VALUE_MISSING);
     }
 
     @Test
     public void willReturnStoredValue_whenGivenDefault() {
-        Object value = allOpts.retrieveOption(OPTION_1, VALUE_MISSING);
+        Object value = mAllOpts.retrieveOption(OPTION_1, VALUE_MISSING);
         assertThat(value).isSameAs(VALUE_1);
     }
 
     @Test
     public void canListOptions() {
-        Set<Option<?>> list = allOpts.listOptions();
+        Set<Option<?>> list = mAllOpts.listOptions();
         for (Option<?> opt : list) {
             assertThat(opt).isAnyOf(OPTION_1, OPTION_1_A, OPTION_2);
         }
@@ -90,7 +90,7 @@ public class OptionsBundleRobolectricTest {
 
     @Test
     public void canCreateCopyOptionsBundle() {
-        OptionsBundle copyBundle = OptionsBundle.from(allOpts);
+        OptionsBundle copyBundle = OptionsBundle.from(mAllOpts);
 
         assertThat(copyBundle.containsOption(OPTION_1)).isTrue();
         assertThat(copyBundle.containsOption(OPTION_1_A)).isTrue();
@@ -99,7 +99,7 @@ public class OptionsBundleRobolectricTest {
 
     @Test
     public void canFindPartialIds() {
-        allOpts.findOptions(
+        mAllOpts.findOptions(
                 "option.1",
                 option -> {
                     assertThat(option).isAnyOf(OPTION_1, OPTION_1_A);
@@ -110,7 +110,7 @@ public class OptionsBundleRobolectricTest {
     @Test
     public void canStopSearchingAfterFirstMatch() {
         AtomicInteger count = new AtomicInteger();
-        allOpts.findOptions(
+        mAllOpts.findOptions(
                 "option",
                 option -> {
                     count.getAndIncrement();
@@ -123,7 +123,7 @@ public class OptionsBundleRobolectricTest {
     @Test
     public void canGetZeroResults_fromFind() {
         AtomicInteger count = new AtomicInteger();
-        allOpts.findOptions(
+        mAllOpts.findOptions(
                 "invalid_find_string",
                 option -> {
                     count.getAndIncrement();
@@ -136,10 +136,10 @@ public class OptionsBundleRobolectricTest {
     @Test
     public void canRetrieveValue_fromFindLambda() {
         AtomicReference<Object> value = new AtomicReference<>(VALUE_MISSING);
-        allOpts.findOptions(
+        mAllOpts.findOptions(
                 "option.2",
                 option -> {
-                    value.set(allOpts.retrieveOption(option));
+                    value.set(mAllOpts.retrieveOption(option));
                     return true;
                 });
 
@@ -151,7 +151,7 @@ public class OptionsBundleRobolectricTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> {
-                    allOpts.retrieveOption(OPTION_MISSING);
+                    mAllOpts.retrieveOption(OPTION_MISSING);
                 });
     }
 }

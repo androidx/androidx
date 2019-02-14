@@ -32,29 +32,29 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @DoNotInstrument
 public class AppConfigurationRobolectricTest {
 
-    private AppConfiguration appConfiguration;
+    private AppConfiguration mAppConfiguration;
 
     @Before
     public void setUp() {
-        appConfiguration = FakeAppConfiguration.create();
+        mAppConfiguration = FakeAppConfiguration.create();
     }
 
     @Test
     public void canGetConfigTarget() {
-        Class<CameraX> configTarget = appConfiguration.getTargetClass(/*valueIfMissing=*/ null);
+        Class<CameraX> configTarget = mAppConfiguration.getTargetClass(/*valueIfMissing=*/ null);
         assertThat(configTarget).isEqualTo(CameraX.class);
     }
 
     @Test
     public void canGetCameraFactory() {
-        CameraFactory cameraFactory = appConfiguration.getCameraFactory(/*valueIfMissing=*/ null);
+        CameraFactory cameraFactory = mAppConfiguration.getCameraFactory(/*valueIfMissing=*/ null);
         assertThat(cameraFactory).isInstanceOf(FakeCameraFactory.class);
     }
 
     @Test
     public void canGetDeviceSurfaceManager() {
         CameraDeviceSurfaceManager surfaceManager =
-                appConfiguration.getDeviceSurfaceManager(/*valueIfMissing=*/ null);
+                mAppConfiguration.getDeviceSurfaceManager(/*valueIfMissing=*/ null);
         assertThat(surfaceManager).isInstanceOf(FakeCameraDeviceSurfaceManager.class);
     }
 }

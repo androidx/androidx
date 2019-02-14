@@ -41,102 +41,102 @@ public class ExifRobolectricTest {
                     return 0;
                 }
             };
-    private Exif exif;
+    private Exif mExif;
 
     @Before
     public void setup() throws Exception {
         ShadowLog.stream = System.out;
-        exif = Exif.createFromInputStream(FAKE_INPUT_STREAM);
+        mExif = Exif.createFromInputStream(FAKE_INPUT_STREAM);
     }
 
     @Test
     public void defaultsAreExpectedValues() {
-        assertThat(exif.getRotation()).isEqualTo(0);
-        assertThat(exif.isFlippedHorizontally()).isFalse();
-        assertThat(exif.isFlippedVertically()).isFalse();
-        assertThat(exif.getTimestamp()).isEqualTo(Exif.INVALID_TIMESTAMP);
-        assertThat(exif.getLocation()).isNull();
-        assertThat(exif.getDescription()).isNull();
+        assertThat(mExif.getRotation()).isEqualTo(0);
+        assertThat(mExif.isFlippedHorizontally()).isFalse();
+        assertThat(mExif.isFlippedVertically()).isFalse();
+        assertThat(mExif.getTimestamp()).isEqualTo(Exif.INVALID_TIMESTAMP);
+        assertThat(mExif.getLocation()).isNull();
+        assertThat(mExif.getDescription()).isNull();
     }
 
     @Test
     public void rotateProducesCorrectRotation() {
-        assertThat(exif.getRotation()).isEqualTo(0);
-        exif.rotate(90);
-        assertThat(exif.getRotation()).isEqualTo(90);
-        exif.rotate(90);
-        assertThat(exif.getRotation()).isEqualTo(180);
-        exif.rotate(90);
-        assertThat(exif.getRotation()).isEqualTo(270);
-        exif.rotate(90);
-        assertThat(exif.getRotation()).isEqualTo(0);
-        exif.rotate(-90);
-        assertThat(exif.getRotation()).isEqualTo(270);
-        exif.rotate(360);
-        assertThat(exif.getRotation()).isEqualTo(270);
-        exif.rotate(500 * 360 - 90);
-        assertThat(exif.getRotation()).isEqualTo(180);
+        assertThat(mExif.getRotation()).isEqualTo(0);
+        mExif.rotate(90);
+        assertThat(mExif.getRotation()).isEqualTo(90);
+        mExif.rotate(90);
+        assertThat(mExif.getRotation()).isEqualTo(180);
+        mExif.rotate(90);
+        assertThat(mExif.getRotation()).isEqualTo(270);
+        mExif.rotate(90);
+        assertThat(mExif.getRotation()).isEqualTo(0);
+        mExif.rotate(-90);
+        assertThat(mExif.getRotation()).isEqualTo(270);
+        mExif.rotate(360);
+        assertThat(mExif.getRotation()).isEqualTo(270);
+        mExif.rotate(500 * 360 - 90);
+        assertThat(mExif.getRotation()).isEqualTo(180);
     }
 
     @Test
     public void flipHorizontallyWillToggle() {
-        assertThat(exif.isFlippedHorizontally()).isFalse();
-        exif.flipHorizontally();
-        assertThat(exif.isFlippedHorizontally()).isTrue();
-        exif.flipHorizontally();
-        assertThat(exif.isFlippedHorizontally()).isFalse();
+        assertThat(mExif.isFlippedHorizontally()).isFalse();
+        mExif.flipHorizontally();
+        assertThat(mExif.isFlippedHorizontally()).isTrue();
+        mExif.flipHorizontally();
+        assertThat(mExif.isFlippedHorizontally()).isFalse();
     }
 
     @Test
     public void flipVerticallyWillToggle() {
-        assertThat(exif.isFlippedVertically()).isFalse();
-        exif.flipVertically();
-        assertThat(exif.isFlippedVertically()).isTrue();
-        exif.flipVertically();
-        assertThat(exif.isFlippedVertically()).isFalse();
+        assertThat(mExif.isFlippedVertically()).isFalse();
+        mExif.flipVertically();
+        assertThat(mExif.isFlippedVertically()).isTrue();
+        mExif.flipVertically();
+        assertThat(mExif.isFlippedVertically()).isFalse();
     }
 
     @Test
     public void flipAndRotateUpdatesHorizontalAndVerticalFlippedState() {
-        assertThat(exif.getRotation()).isEqualTo(0);
-        assertThat(exif.isFlippedHorizontally()).isFalse();
-        assertThat(exif.isFlippedVertically()).isFalse();
+        assertThat(mExif.getRotation()).isEqualTo(0);
+        assertThat(mExif.isFlippedHorizontally()).isFalse();
+        assertThat(mExif.isFlippedVertically()).isFalse();
 
-        exif.rotate(-90);
-        assertThat(exif.getRotation()).isEqualTo(270);
+        mExif.rotate(-90);
+        assertThat(mExif.getRotation()).isEqualTo(270);
 
-        exif.flipHorizontally();
-        assertThat(exif.getRotation()).isEqualTo(90);
-        assertThat(exif.isFlippedVertically()).isTrue();
+        mExif.flipHorizontally();
+        assertThat(mExif.getRotation()).isEqualTo(90);
+        assertThat(mExif.isFlippedVertically()).isTrue();
 
-        exif.flipVertically();
-        assertThat(exif.getRotation()).isEqualTo(90);
-        assertThat(exif.isFlippedHorizontally()).isFalse();
-        assertThat(exif.isFlippedVertically()).isFalse();
+        mExif.flipVertically();
+        assertThat(mExif.getRotation()).isEqualTo(90);
+        assertThat(mExif.isFlippedHorizontally()).isFalse();
+        assertThat(mExif.isFlippedVertically()).isFalse();
 
-        exif.rotate(90);
-        assertThat(exif.getRotation()).isEqualTo(180);
+        mExif.rotate(90);
+        assertThat(mExif.getRotation()).isEqualTo(180);
 
-        exif.flipVertically();
-        assertThat(exif.getRotation()).isEqualTo(0);
-        assertThat(exif.isFlippedHorizontally()).isTrue();
-        assertThat(exif.isFlippedVertically()).isFalse();
+        mExif.flipVertically();
+        assertThat(mExif.getRotation()).isEqualTo(0);
+        assertThat(mExif.isFlippedHorizontally()).isTrue();
+        assertThat(mExif.isFlippedVertically()).isFalse();
 
-        exif.flipHorizontally();
-        assertThat(exif.getRotation()).isEqualTo(0);
-        assertThat(exif.isFlippedHorizontally()).isFalse();
-        assertThat(exif.isFlippedVertically()).isFalse();
+        mExif.flipHorizontally();
+        assertThat(mExif.getRotation()).isEqualTo(0);
+        assertThat(mExif.isFlippedHorizontally()).isFalse();
+        assertThat(mExif.isFlippedVertically()).isFalse();
     }
 
     @Test
     public void timestampCanBeAttachedAndRemoved() {
-        assertThat(exif.getTimestamp()).isEqualTo(Exif.INVALID_TIMESTAMP);
+        assertThat(mExif.getTimestamp()).isEqualTo(Exif.INVALID_TIMESTAMP);
 
-        exif.attachTimestamp();
-        assertThat(exif.getTimestamp()).isNotEqualTo(Exif.INVALID_TIMESTAMP);
+        mExif.attachTimestamp();
+        assertThat(mExif.getTimestamp()).isNotEqualTo(Exif.INVALID_TIMESTAMP);
 
-        exif.removeTimestamp();
-        assertThat(exif.getTimestamp()).isEqualTo(Exif.INVALID_TIMESTAMP);
+        mExif.removeTimestamp();
+        assertThat(mExif.getTimestamp()).isEqualTo(Exif.INVALID_TIMESTAMP);
     }
 
     @Test
@@ -146,29 +146,29 @@ public class ExifRobolectricTest {
         // The Exif class is instrumented since it's in the androidx.* namespace.
         // Set the ShadowSystemClock to match the real system clock.
         ShadowSystemClock.setNanoTime(System.currentTimeMillis() * 1000 * 1000);
-        exif.attachTimestamp();
+        mExif.attachTimestamp();
         long afterTimestamp = System.currentTimeMillis();
 
         // Check that the attached timestamp is in the closed range [beforeTimestamp,
         // afterTimestamp].
-        long attachedTimestamp = exif.getTimestamp();
+        long attachedTimestamp = mExif.getTimestamp();
         assertThat(attachedTimestamp).isAtLeast(beforeTimestamp);
         assertThat(attachedTimestamp).isAtMost(afterTimestamp);
     }
 
     @Test
     public void locationCanBeAttachedAndRemoved() {
-        assertThat(exif.getLocation()).isNull();
+        assertThat(mExif.getLocation()).isNull();
 
         Location location = new Location("TEST");
         location.setLatitude(22.3);
         location.setLongitude(114);
         location.setTime(System.currentTimeMillis() / 1000 * 1000);
-        exif.attachLocation(location);
-        assertThat(location.toString()).isEqualTo(exif.getLocation().toString());
+        mExif.attachLocation(location);
+        assertThat(location.toString()).isEqualTo(mExif.getLocation().toString());
 
-        exif.removeLocation();
-        assertThat(exif.getLocation()).isNull();
+        mExif.removeLocation();
+        assertThat(mExif.getLocation()).isNull();
     }
 
     @Test
@@ -178,8 +178,8 @@ public class ExifRobolectricTest {
         location.setLongitude(114);
         location.setTime(System.currentTimeMillis() / 1000 * 1000);
         location.setAltitude(5.0);
-        exif.attachLocation(location);
-        assertThat(location.toString()).isEqualTo(exif.getLocation().toString());
+        mExif.attachLocation(location);
+        assertThat(location.toString()).isEqualTo(mExif.getLocation().toString());
     }
 
     @Test
@@ -189,10 +189,10 @@ public class ExifRobolectricTest {
         location.setLongitude(114);
         location.setTime(System.currentTimeMillis() / 1000 * 1000);
         location.setSpeed(5.0f);
-        exif.attachLocation(location);
+        mExif.attachLocation(location);
         // Location loses precision when set through attachLocation(), so check the locations are
         // roughly equal first
-        Location exifLocation = exif.getLocation();
+        Location exifLocation = mExif.getLocation();
         assertThat(location.getSpeed()).isWithin(0.01f).of(exifLocation.getSpeed());
 
         // Remove speed and compare the rest by string
@@ -203,52 +203,52 @@ public class ExifRobolectricTest {
 
     @Test
     public void descriptionCanBeAttachedAndRemoved() {
-        assertThat(exif.getDescription()).isNull();
+        assertThat(mExif.getDescription()).isNull();
 
-        exif.setDescription("Hello World");
-        assertThat(exif.getDescription()).isEqualTo("Hello World");
+        mExif.setDescription("Hello World");
+        assertThat(mExif.getDescription()).isEqualTo("Hello World");
 
-        exif.setDescription(null);
-        assertThat(exif.getDescription()).isNull();
+        mExif.setDescription(null);
+        assertThat(mExif.getDescription()).isNull();
     }
 
     @Test
     public void saveUpdatesLastModifiedTimestampUnlessRemoved() {
-        assertThat(exif.getLastModifiedTimestamp()).isEqualTo(Exif.INVALID_TIMESTAMP);
+        assertThat(mExif.getLastModifiedTimestamp()).isEqualTo(Exif.INVALID_TIMESTAMP);
 
         try {
-            exif.save();
+            mExif.save();
         } catch (IOException e) {
             // expected
         }
 
-        assertThat(exif.getLastModifiedTimestamp()).isNotEqualTo(Exif.INVALID_TIMESTAMP);
+        assertThat(mExif.getLastModifiedTimestamp()).isNotEqualTo(Exif.INVALID_TIMESTAMP);
 
         // removeTimestamp should also be clearing the last modified timestamp
-        exif.removeTimestamp();
-        assertThat(exif.getLastModifiedTimestamp()).isEqualTo(Exif.INVALID_TIMESTAMP);
+        mExif.removeTimestamp();
+        assertThat(mExif.getLastModifiedTimestamp()).isEqualTo(Exif.INVALID_TIMESTAMP);
 
         // Even when saving again
         try {
-            exif.save();
+            mExif.save();
         } catch (IOException e) {
             // expected
         }
 
-        assertThat(exif.getLastModifiedTimestamp()).isEqualTo(Exif.INVALID_TIMESTAMP);
+        assertThat(mExif.getLastModifiedTimestamp()).isEqualTo(Exif.INVALID_TIMESTAMP);
     }
 
     @Test
     public void toStringProducesNonNullString() {
-        assertThat(exif.toString()).isNotNull();
-        exif.setDescription("Hello World");
-        exif.attachTimestamp();
+        assertThat(mExif.toString()).isNotNull();
+        mExif.setDescription("Hello World");
+        mExif.attachTimestamp();
         Location location = new Location("TEST");
         location.setLatitude(22.3);
         location.setLongitude(114);
         location.setTime(System.currentTimeMillis() / 1000 * 1000);
         location.setAltitude(5.0);
-        exif.attachLocation(location);
-        assertThat(exif.toString()).isNotNull();
+        mExif.attachLocation(location);
+        assertThat(mExif.toString()).isNotNull();
     }
 }

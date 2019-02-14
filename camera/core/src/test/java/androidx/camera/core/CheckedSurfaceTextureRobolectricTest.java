@@ -36,40 +36,40 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @DoNotInstrument
 public class CheckedSurfaceTextureRobolectricTest {
 
-    private final Handler mainThreadHandler = new Handler(Looper.getMainLooper());
-    private Size defaultResolution;
-    private CheckedSurfaceTexture checkedSurfaceTexture;
-    private SurfaceTexture latestSurfaceTexture;
-    private final CheckedSurfaceTexture.OnTextureChangedListener textureChangedListener =
+    private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
+    private Size mDefaultResolution;
+    private CheckedSurfaceTexture mCheckedSurfaceTexture;
+    private SurfaceTexture mLatestSurfaceTexture;
+    private final CheckedSurfaceTexture.OnTextureChangedListener mTextureChangedListener =
             new OnTextureChangedListener() {
                 @Override
                 public void onTextureChanged(
                         @Nullable SurfaceTexture newOutput, @Nullable Size newResolution) {
-                    latestSurfaceTexture = newOutput;
+                    mLatestSurfaceTexture = newOutput;
                 }
             };
 
     @Before
     public void setup() {
-        defaultResolution = new Size(640, 480);
-        checkedSurfaceTexture =
-                new CheckedSurfaceTexture(textureChangedListener, mainThreadHandler);
-        checkedSurfaceTexture.setResolution(defaultResolution);
+        mDefaultResolution = new Size(640, 480);
+        mCheckedSurfaceTexture =
+                new CheckedSurfaceTexture(mTextureChangedListener, mMainThreadHandler);
+        mCheckedSurfaceTexture.setResolution(mDefaultResolution);
     }
 
     @Test
     public void viewFinderOutputUpdatesWhenReset() {
         // Create the initial surface texture
-        checkedSurfaceTexture.resetSurfaceTexture();
+        mCheckedSurfaceTexture.resetSurfaceTexture();
 
         // Surface texture should have been set
-        SurfaceTexture initialOutput = latestSurfaceTexture;
+        SurfaceTexture initialOutput = mLatestSurfaceTexture;
 
         // Create a new surface texture
-        checkedSurfaceTexture.resetSurfaceTexture();
+        mCheckedSurfaceTexture.resetSurfaceTexture();
 
         assertThat(initialOutput).isNotNull();
-        assertThat(latestSurfaceTexture).isNotNull();
-        assertThat(latestSurfaceTexture).isNotEqualTo(initialOutput);
+        assertThat(mLatestSurfaceTexture).isNotNull();
+        assertThat(mLatestSurfaceTexture).isNotEqualTo(initialOutput);
     }
 }
