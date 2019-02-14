@@ -34,11 +34,15 @@ import androidx.camera.core.ViewFinderUseCaseConfiguration;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * The activity verifies the perssions used in CameraX
+ *
+ */
 @SuppressWarnings("AndroidJdkLibsChecker")
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
     private static final int CAMERA_REQUEST_CODE = 101;
-    private final CompletableFuture<Integer> cf = new CompletableFuture<>();
+    private final CompletableFuture<Integer> mCF = new CompletableFuture<>();
 
     private static void makePermissionRequest(Activity context) {
         ActivityCompat.requestPermissions(
@@ -60,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupCamera() {
         try {
             // Wait for permissions before proceeding.
-            if (cf.get() == PackageManager.PERMISSION_DENIED) {
+            if (mCF.get() == PackageManager.PERMISSION_DENIED) {
                 Log.i(TAG, "Permission to open camera denied.");
                 return;
             }
@@ -96,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         if (permission != PackageManager.PERMISSION_GRANTED) {
             makePermissionRequest(context);
         } else {
-            cf.complete(permission);
+            mCF.complete(permission);
         }
     }
 
@@ -112,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Log.i(TAG, "Camera Permission Denied.");
                 }
-                cf.complete(grantResults[0]);
+                mCF.complete(grantResults[0]);
                 return;
             }
             default: {

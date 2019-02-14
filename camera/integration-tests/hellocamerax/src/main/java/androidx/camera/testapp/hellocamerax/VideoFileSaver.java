@@ -36,18 +36,18 @@ import java.util.Locale;
  */
 public class VideoFileSaver implements OnVideoSavedListener {
     private static final String TAG = "VideoFileSaver";
-    private final Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.ENGLISH);
-    private final Object lock = new Object();
-    private File rootDirectory;
-    @GuardedBy("lock")
-    private boolean isSaving = false;
+    private final Format mFormatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.ENGLISH);
+    private final Object mLock = new Object();
+    private File mRootDirectory;
+    @GuardedBy("mLock")
+    private boolean mIsSaving = false;
 
     @Override
     public void onVideoSaved(File file) {
 
         Log.d(TAG, "Saved file: " + file.getPath());
-        synchronized (lock) {
-            isSaving = false;
+        synchronized (mLock) {
+            mIsSaving = false;
         }
     }
 
@@ -59,33 +59,34 @@ public class VideoFileSaver implements OnVideoSavedListener {
             Log.e(TAG, "Error cause: " + cause.getCause());
         }
 
-        synchronized (lock) {
-            isSaving = false;
+        synchronized (mLock) {
+            mIsSaving = false;
         }
     }
 
     /** Returns a new {@link File} where to save a video. */
     public File getNewVideoFile() {
         Date date = Calendar.getInstance().getTime();
-        File file = new File(rootDirectory + "/" + formatter.format(date) + ".mp4");
+        File file = new File(mRootDirectory + "/" + mFormatter.format(date) + ".mp4");
         return file;
     }
 
     /** Sets the directory for saving files. */
     public void setRootDirectory(File rootDirectory) {
-        this.rootDirectory = rootDirectory;
+
+        mRootDirectory = rootDirectory;
     }
 
     boolean isSaving() {
-        synchronized (lock) {
-            return isSaving;
+        synchronized (mLock) {
+            return mIsSaving;
         }
     }
 
     /** Sets saving state after video startRecording */
     void setSaving() {
-        synchronized (lock) {
-            isSaving = true;
+        synchronized (mLock) {
+            mIsSaving = true;
         }
     }
 }
