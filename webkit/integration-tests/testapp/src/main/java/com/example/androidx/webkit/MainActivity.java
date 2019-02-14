@@ -45,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.safebrowsing_activity_title),
                         new Intent(activityContext, SafeBrowsingActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.proxy_override_activity_title),
+                        new Intent(activityContext, ProxyOverrideActivity.class)),
         };
         listView.setItems(menuItems);
     }
