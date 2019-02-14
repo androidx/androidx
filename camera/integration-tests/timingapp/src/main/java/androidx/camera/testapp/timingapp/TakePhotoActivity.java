@@ -48,8 +48,8 @@ public class TakePhotoActivity extends BaseActivity {
     private static final String EXTRA_CAMERA_FACING = "camera_facing";
     private static final String CAMERA_FACING_FRONT = "FRONT";
     private static final String CAMERA_FACING_BACK = "BACK";
-    private final String defaultCameraFacing = CAMERA_FACING_BACK;
-    private final CameraDevice.StateCallback deviceStateCallback =
+    private final String mDefaultCameraFacing = CAMERA_FACING_BACK;
+    private final CameraDevice.StateCallback mDeviceStateCallback =
             new CameraDevice.StateCallback() {
 
                 @Override
@@ -76,7 +76,7 @@ public class TakePhotoActivity extends BaseActivity {
                     Log.e(TAG, "[onError] open camera failed, error code: " + i);
                 }
             };
-    private final CameraCaptureSession.StateCallback captureSessionStateCallback =
+    private final CameraCaptureSession.StateCallback mCaptureSessionStateCallback =
             new CameraCaptureSession.StateCallback() {
 
                 @Override
@@ -97,13 +97,13 @@ public class TakePhotoActivity extends BaseActivity {
                 }
             };
     /** The default cameraId to use. */
-    private LensFacing currentCameraLensFacing = LensFacing.BACK;
-    private ImageCaptureUseCase imageCaptureUseCase;
-    private ViewFinderUseCase viewFinderUseCase;
-    private int frameCount;
-    private long previewSampleStartTime;
-    private CaptureMode captureMode = CaptureMode.MIN_LATENCY;
-    private CustomLifecycle customLifecycle;
+    private LensFacing mCurrentCameraLensFacing = LensFacing.BACK;
+    private ImageCaptureUseCase mImageCaptureUseCase;
+    private ViewFinderUseCase mViewFinderUseCase;
+    private int mFrameCount;
+    private long mPreviewSampleStartTime;
+    private CaptureMode mCaptureMode = CaptureMode.MIN_LATENCY;
+    private CustomLifecycle mCustomLifecycle;
 
     @Override
     public void runUseCase() throws InterruptedException {
@@ -114,7 +114,7 @@ public class TakePhotoActivity extends BaseActivity {
         Thread.sleep(PREVIEW_FILL_BUFFER_TIME);
 
         startTime = System.currentTimeMillis();
-        imageCaptureUseCase.takePicture(
+        mImageCaptureUseCase.takePicture(
                 new ImageCaptureUseCase.OnImageCapturedListener() {
                     @Override
                     public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
@@ -137,17 +137,17 @@ public class TakePhotoActivity extends BaseActivity {
     void createViewFinderUseCase() {
         ViewFinderUseCaseConfiguration.Builder configurationBuilder =
                 new ViewFinderUseCaseConfiguration.Builder()
-                        .setLensFacing(currentCameraLensFacing)
+                        .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("ViewFinder");
 
         new Camera2Configuration.Extender(configurationBuilder)
-                .setDeviceStateCallback(deviceStateCallback)
-                .setSessionStateCallback(captureSessionStateCallback);
+                .setDeviceStateCallback(mDeviceStateCallback)
+                .setSessionStateCallback(mCaptureSessionStateCallback);
 
-        viewFinderUseCase = new ViewFinderUseCase(configurationBuilder.build());
+        mViewFinderUseCase = new ViewFinderUseCase(configurationBuilder.build());
         openCameraStartTime = System.currentTimeMillis();
 
-        viewFinderUseCase.setOnViewFinderOutputUpdateListener(
+        mViewFinderUseCase.setOnViewFinderOutputUpdateListener(
                 viewFinderOutput -> {
                     TextureView textureView = this.findViewById(R.id.textureView);
                     ViewGroup viewGroup = (ViewGroup) textureView.getParent();
@@ -179,42 +179,43 @@ public class TakePhotoActivity extends BaseActivity {
                                         return;
                                     }
 
-                                    if (0 == frameCount) {
-                                        previewSampleStartTime = System.currentTimeMillis();
-                                    } else if (FRAMERATE_SAMPLE_WINDOW == frameCount) {
+                                    if (0 == mFrameCount) {
+                                        mPreviewSampleStartTime = System.currentTimeMillis();
+                                    } else if (FRAMERATE_SAMPLE_WINDOW == mFrameCount) {
                                         final long duration =
-                                                System.currentTimeMillis() - previewSampleStartTime;
+                                                System.currentTimeMillis()
+                                                        - mPreviewSampleStartTime;
                                         previewFrameRate =
                                                 (MICROS_IN_SECOND
                                                         * FRAMERATE_SAMPLE_WINDOW
                                                         / duration);
                                         closeCameraStartTime = System.currentTimeMillis();
-                                        customLifecycle.doDestroyed();
+                                        mCustomLifecycle.doDestroyed();
                                     }
-                                    frameCount++;
+                                    mFrameCount++;
                                 }
                             });
                 });
 
-        CameraX.bindToLifecycle(customLifecycle, viewFinderUseCase);
+        CameraX.bindToLifecycle(mCustomLifecycle, mViewFinderUseCase);
     }
 
     void createImageCaptureUseCase() {
         ImageCaptureUseCaseConfiguration configuration =
                 new ImageCaptureUseCaseConfiguration.Builder()
                         .setTargetName("ImageCapture")
-                        .setLensFacing(currentCameraLensFacing)
-                        .setCaptureMode(captureMode)
+                        .setLensFacing(mCurrentCameraLensFacing)
+                        .setCaptureMode(mCaptureMode)
                         .build();
 
-        imageCaptureUseCase = new ImageCaptureUseCase(configuration);
-        CameraX.bindToLifecycle(customLifecycle, imageCaptureUseCase);
+        mImageCaptureUseCase = new ImageCaptureUseCase(configuration);
+        CameraX.bindToLifecycle(mCustomLifecycle, mImageCaptureUseCase);
 
         final Button button = this.findViewById(R.id.Picture);
         button.setOnClickListener(
                 view -> {
                     startTime = System.currentTimeMillis();
-                    imageCaptureUseCase.takePicture(
+                    mImageCaptureUseCase.takePicture(
                             new ImageCaptureUseCase.OnImageCapturedListener() {
                                 @Override
                                 public void onCaptureSuccess(
@@ -240,31 +241,31 @@ public class TakePhotoActivity extends BaseActivity {
         if (bundle != null) {
             final String captureModeString = bundle.getString(EXTRA_CAPTURE_MODE);
             if (captureModeString != null) {
-                captureMode = CaptureMode.valueOf(Ascii.toUpperCase(captureModeString));
+                mCaptureMode = CaptureMode.valueOf(Ascii.toUpperCase(captureModeString));
             }
             final String cameraLensFacing = bundle.getString(EXTRA_CAMERA_FACING);
             if (cameraLensFacing != null) {
                 setupCamera(cameraLensFacing);
             } else {
-                setupCamera(defaultCameraFacing);
+                setupCamera(mDefaultCameraFacing);
             }
         }
-        customLifecycle = new CustomLifecycle();
+        mCustomLifecycle = new CustomLifecycle();
         prepareUseCase();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        customLifecycle.doOnResume();
+        mCustomLifecycle.doOnResume();
     }
 
     void setupCamera(String cameraFacing) {
         Log.d(TAG, "Camera Facing: " + cameraFacing);
         if (Ascii.equalsIgnoreCase(cameraFacing, CAMERA_FACING_BACK)) {
-            currentCameraLensFacing = LensFacing.BACK;
+            mCurrentCameraLensFacing = LensFacing.BACK;
         } else if (Ascii.equalsIgnoreCase(cameraFacing, CAMERA_FACING_FRONT)) {
-            currentCameraLensFacing = LensFacing.FRONT;
+            mCurrentCameraLensFacing = LensFacing.FRONT;
         } else {
             throw new RuntimeException("Invalid lens facing: " + cameraFacing);
         }

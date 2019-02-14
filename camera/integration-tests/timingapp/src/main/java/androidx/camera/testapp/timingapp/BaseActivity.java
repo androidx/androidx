@@ -46,10 +46,22 @@ public abstract class BaseActivity extends AppCompatActivity {
     public String imageResolution;
     public CountDownLatch latch;
 
+    /**
+     * Prepares the use case.
+     */
     public abstract void prepareUseCase();
 
+    /**
+     * Activates use case so it will receive data from camera.
+     *
+     * @throws InterruptedException on fatal errors.
+     */
     public abstract void runUseCase() throws InterruptedException;
 
+    /**
+     * Called when the test case finishes.
+     * <p>Could be called in CameraDevice's state callbacks.
+     */
     public void onUseCaseFinish() {
         latch.countDown();
     }
