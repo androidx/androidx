@@ -23,13 +23,15 @@ import static org.mockito.Mockito.when;
 
 import android.graphics.ImageFormat;
 
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.nio.ByteBuffer;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageProxyDownsamplerAndroidTest {
     private static final int WIDTH = 8;

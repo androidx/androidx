@@ -41,7 +41,8 @@ import androidx.camera.core.ImageAnalysisUseCase.ImageReaderMode;
 import androidx.camera.core.ImageAnalysisUseCaseConfiguration;
 import androidx.camera.core.ImageProxy;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -56,6 +57,7 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageAnalysisUseCaseAndroidTest {
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);

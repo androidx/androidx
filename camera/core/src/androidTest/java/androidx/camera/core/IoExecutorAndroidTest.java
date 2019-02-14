@@ -17,7 +17,8 @@
 package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +29,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class IoExecutorAndroidTest {
 

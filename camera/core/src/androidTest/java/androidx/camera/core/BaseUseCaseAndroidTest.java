@@ -25,7 +25,8 @@ import static org.mockito.Mockito.verify;
 
 import android.util.Size;
 
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +36,7 @@ import org.mockito.Mockito;
 import java.util.Map;
 import java.util.Set;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class BaseUseCaseAndroidTest {
     private BaseUseCase.StateChangeListener mMockUseCaseListener;

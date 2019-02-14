@@ -27,14 +27,16 @@ import androidx.camera.core.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.CameraCaptureMetaData.AfState;
 import androidx.camera.core.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.CameraCaptureMetaData.FlashState;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
-@RunWith(JUnit4.class)
+@SmallTest
+@RunWith(AndroidJUnit4.class)
 public final class Camera2CameraCaptureResultAndroidTest {
 
     private CaptureResult mCaptureResult;

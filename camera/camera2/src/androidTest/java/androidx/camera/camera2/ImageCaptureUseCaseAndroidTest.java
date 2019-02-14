@@ -51,7 +51,8 @@ import androidx.camera.core.ImageCaptureUseCase.UseCaseError;
 import androidx.camera.core.ImageCaptureUseCaseConfiguration;
 import androidx.camera.core.ImageProxy;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -65,6 +66,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageCaptureUseCaseAndroidTest {
     private static final Size DEFAULT_RESOLUTION = new Size(1920, 1080);

@@ -47,7 +47,7 @@ public final class CameraUtil {
      *
      * @throws CameraAccessException if the device is unable to access the camera
      * @throws InterruptedException  if a {@link CameraDevice} can not be retrieved within a set
-     * time
+     *                               time
      */
     public static CameraDevice getCameraDevice()
             throws CameraAccessException, InterruptedException {

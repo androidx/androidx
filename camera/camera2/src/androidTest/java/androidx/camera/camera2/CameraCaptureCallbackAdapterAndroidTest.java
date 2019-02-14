@@ -25,14 +25,16 @@ import android.hardware.camera2.CaptureRequest;
 import android.view.Surface;
 
 import androidx.camera.core.CameraCaptureCallback;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
-@RunWith(JUnit4.class)
+@SmallTest
+@RunWith(AndroidJUnit4.class)
 public final class CameraCaptureCallbackAdapterAndroidTest {
 
     private CameraCaptureCallback mCameraCaptureCallback;

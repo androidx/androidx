@@ -35,7 +35,8 @@ import androidx.camera.core.VideoCaptureUseCase.OnVideoSavedListener;
 import androidx.camera.core.VideoCaptureUseCaseConfiguration;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +55,7 @@ import java.util.Map;
  * <p>TODO(b/112325215): The VideoCaptureUseCase will be more thoroughly tested via integration
  * tests
  */
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class VideoCaptureUseCaseAndroidTest {
     private static final Size DEFAULT_RESOLUTION = new Size(1920, 1080);

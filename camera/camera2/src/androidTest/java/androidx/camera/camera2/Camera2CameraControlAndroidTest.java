@@ -38,14 +38,16 @@ import android.os.Handler;
 import androidx.camera.core.CaptureRequestConfiguration;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.SessionConfiguration;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 
-@RunWith(JUnit4.class)
+@SmallTest
+@RunWith(AndroidJUnit4.class)
 public class Camera2CameraControlAndroidTest {
 
     Camera2CameraControl mCamera2CameraControl;
@@ -89,7 +91,7 @@ public class Camera2CameraControlAndroidTest {
 
         assertThat(
                 repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_REGIONS, (MeteringRectangle[]) null))
+                        CaptureRequest.CONTROL_AF_REGIONS, null))
                 .isEqualTo(
                         new MeteringRectangle[]{
                                 new MeteringRectangle(focusRect,
@@ -98,7 +100,7 @@ public class Camera2CameraControlAndroidTest {
 
         assertThat(
                 repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_REGIONS, (MeteringRectangle[]) null))
+                        CaptureRequest.CONTROL_AE_REGIONS, null))
                 .isEqualTo(
                         new MeteringRectangle[]{
                                 new MeteringRectangle(
@@ -107,7 +109,7 @@ public class Camera2CameraControlAndroidTest {
 
         assertThat(
                 repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AWB_REGIONS, (MeteringRectangle[]) null))
+                        CaptureRequest.CONTROL_AWB_REGIONS, null))
                 .isEqualTo(
                         new MeteringRectangle[]{
                                 new MeteringRectangle(
@@ -118,7 +120,7 @@ public class Camera2CameraControlAndroidTest {
                 new Camera2Configuration(mCamera2CameraControl.getSingleRequestImplOptions());
         assertThat(
                 singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_REGIONS, (MeteringRectangle[]) null))
+                        CaptureRequest.CONTROL_AF_REGIONS, null))
                 .isEqualTo(
                         new MeteringRectangle[]{
                                 new MeteringRectangle(focusRect,
@@ -127,7 +129,7 @@ public class Camera2CameraControlAndroidTest {
 
         assertThat(
                 singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_REGIONS, (MeteringRectangle[]) null))
+                        CaptureRequest.CONTROL_AE_REGIONS, null))
                 .isEqualTo(
                         new MeteringRectangle[]{
                                 new MeteringRectangle(
@@ -136,7 +138,7 @@ public class Camera2CameraControlAndroidTest {
 
         assertThat(
                 singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AWB_REGIONS, (MeteringRectangle[]) null))
+                        CaptureRequest.CONTROL_AWB_REGIONS, null))
                 .isEqualTo(
                         new MeteringRectangle[]{
                                 new MeteringRectangle(
@@ -175,30 +177,30 @@ public class Camera2CameraControlAndroidTest {
 
         assertThat(
                 repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_REGIONS, (MeteringRectangle[]) null))
+                        CaptureRequest.CONTROL_AF_REGIONS, null))
                 .isEqualTo(new MeteringRectangle[]{zeroRegion});
         assertThat(
                 repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_REGIONS, (MeteringRectangle[]) null))
+                        CaptureRequest.CONTROL_AE_REGIONS, null))
                 .isEqualTo(new MeteringRectangle[]{zeroRegion});
         assertThat(
                 repeatingConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AWB_REGIONS, (MeteringRectangle[]) null))
+                        CaptureRequest.CONTROL_AWB_REGIONS, null))
                 .isEqualTo(new MeteringRectangle[]{zeroRegion});
 
         Camera2Configuration singleConfig =
                 new Camera2Configuration(mCamera2CameraControl.getSingleRequestImplOptions());
         assertThat(
                 singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AF_REGIONS, (MeteringRectangle[]) null))
+                        CaptureRequest.CONTROL_AF_REGIONS, null))
                 .isEqualTo(new MeteringRectangle[]{zeroRegion});
         assertThat(
                 singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_REGIONS, (MeteringRectangle[]) null))
+                        CaptureRequest.CONTROL_AE_REGIONS, null))
                 .isEqualTo(new MeteringRectangle[]{zeroRegion});
         assertThat(
                 singleConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AWB_REGIONS, (MeteringRectangle[]) null))
+                        CaptureRequest.CONTROL_AWB_REGIONS, null))
                 .isEqualTo(new MeteringRectangle[]{zeroRegion});
 
         assertThat(mCamera2CameraControl.isFocusLocked()).isFalse();

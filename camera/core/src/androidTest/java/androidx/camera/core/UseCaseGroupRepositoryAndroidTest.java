@@ -22,7 +22,8 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Map;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class UseCaseGroupRepositoryAndroidTest {
 
