@@ -7,21 +7,10 @@
 #   import androidx.annotation.RequiresApi;
 
 # See also b/74074903
+import argparse
 import json
 import os.path
 import subprocess
-
-HARDCODED_RULES_REVERSE = [
-  "s|androidx.core.os.ResultReceiver|android.support.v4.os.ResultsReceiver|g\n",
-  "s|androidx.core.media.MediaBrowserCompat|android.support.v4.media.MediaBrowserCompat|g\n",
-  "s|androidx.core.media.MediaDescriptionCompat|android.support.v4.media.MediaDescriptionCompat|g\n",
-  "s|androidx.core.media.MediaMetadataCompat|android.support.v4.media.MediaMetadataCompat|g\n",
-  "s|androidx.core.media.RatingCompat|android.support.v4.media.RatingCompat|g\n",
-  "s|androidx.core.media.session.MediaControllerCompat|android.support.v4.media.session.MediaControllerCompat|g\n",
-  "s|androidx.core.media.session.MediaSessionCompat|android.support.v4.media.session.MediaSessionCompat|g\n",
-  "s|androidx.core.media.session.ParcelableVolumeInfo|android.support.v4.media.session.ParcelableVolumeInfo|g\n",
-  "s|androidx.core.media.session.PlaybackStateCompat|android.support.v4.media.session.PlaybackStateCompat|g\n",
-]
 
 class StringBuilder(object):
   def __init__(self, item=None):
@@ -36,17 +25,6 @@ class StringBuilder(object):
   def __str__(self):
     return "".join(self.items)
 
-class ExecutionConfig(object):
-  """Stores configuration about this execution of the package renaming.
-     For example, file paths of the source code.
-     This config could potentially be affected by command-line arguments.
-  """
-  def __init__(self, jetifierConfig, sourceRoots, excludeDirs):
-    self.jetifierConfig = jetifierConfig
-    self.sourceRoots = sourceRoots
-    self.excludeDirs = excludeDirs
-
-
 class SourceRewriteRule(object):
   def __init__(self, fromName, toName):
     self.fromName = fromName
@@ -56,8 +34,8 @@ class SourceRewriteRule(object):
     return self.fromName + ":" + self.toName
 
 class JetifierConfig(object):
-  """Stores configuration about the renaming itself, such as package rename rules.
-     This config isn't supposed to be affected by command-line arguments.
+  """
+  Stores configuration about the renaming itself, such as package rename rules.
   """
   @staticmethod
   def parse(filePath):
@@ -66,78 +44,63 @@ class JetifierConfig(object):
       nonCommentLines = [line for line in lines if not line.strip().startswith("#")]
       parsed = json.loads("".join(nonCommentLines))
       return JetifierConfig(parsed)
-    
+
   def __init__(self, parsedJson):
     self.json = parsedJson
 
-  def getTypesMap(self):
+  def getTypesMap(self, reverse):
     rules = []
     for rule in self.json["rules"]:
       fromName = rule["from"].replace("/", ".").replace("(.*)", "")
       toName = rule["to"].replace("/", ".").replace("{0}", "")
       if not toName.startswith("ignore"):
-        rules.append(SourceRewriteRule(fromName, toName))
+        if reverse:
+          # Dejetify instead, so toName becomes fromName and vice versa.
+          rules.append(SourceRewriteRule(toName, fromName))
+        else:
+          rules.append(SourceRewriteRule(fromName, toName))
 
     return rules
 
 
-def createRewriteCommand(executionConfig):
-  # create command to find source files
-  finderTextBuilder = StringBuilder("find")
-  for sourceRoot in executionConfig.sourceRoots:
-    finderTextBuilder.add(" ").add(sourceRoot)
-  for exclusion in executionConfig.excludeDirs:
-    finderTextBuilder.add(" -name ").add(exclusion).add(" -prune -o")
-  finderTextBuilder.add(" -iregex '.*\.java\|.*\.xml\|.*\.cfg\|.*\.flags' -print")
-
-  # create command to rewrite one source
-  print("Building sed instructions")
+def createSourceJetificationSedCommand(args, jetifierConfig):
   rewriterTextBuilder = StringBuilder()
-  rewriteRules = executionConfig.jetifierConfig.getTypesMap()
+  rewriteRules = jetifierConfig.getTypesMap(args.reverse)
+  # Append substitution rules, this will most probably never exceed the shell
+  # characters per line limit which should be 131072.
+  # In the weird case where the user somehow modified their ARG_MAX,
+  # they'll know what to do when they see a /bin/sed: Argument list too long
+  # error.
   for rule in rewriteRules:
-    rewriterTextBuilder.add("s|").add(rule.fromName.replace(".", "\.")).add("|").add(rule.toName).add("|g\n")
-  for rule in HARDCODED_RULES_REVERSE:
-    rewriterTextBuilder.add(rule)
-  scriptPath = "/tmp/jetifier-sed-script.txt"
-  print("Writing " + scriptPath)
-  with open(scriptPath, 'w') as scriptFile:
-    scriptFile.write(str(rewriterTextBuilder))
-  
-  # create the command to do the rewrites
-  fullCommand = "time " + str(finderTextBuilder) + " | xargs -n 1 --no-run-if-empty -P 64 sed -i -f " + scriptPath
+    rewriterTextBuilder.add("-e \'s|").add(rule.fromName.replace(".", "\.")).add("|").add(rule.toName).add("|g\' ")
 
-  return fullCommand  
+  # sed command containing substitutions and applied to the output file.
+  sedCommand = "sed %s %s > %s" % (rewriterTextBuilder, args.infile, args.outfile)
+  return sedCommand
 
-def processConfig(executionConfig):
-  print("Building rewrite command")
-  rewriteCommand = createRewriteCommand(executionConfig)
-  commandLength = len(rewriteCommand)
-  print("""
-Will run command:
-
-""" + rewriteCommand + """
-
-""")
-  response = raw_input("Ok? [y/n]")
-  if response == "y":
-    subprocess.check_output(rewriteCommand, shell=True)  
+def jetifySource(args):
+  # If config file is not specified, look for the config file in the
+  # same folder.
+  jetifierConfigPath = args.config
+  if not jetifierConfigPath:
+    jetifierConfigPath = os.path.join(os.path.realpath(__file__), "default.config")
+  jetifierConfig = JetifierConfig.parse(jetifierConfigPath)
+  command = createSourceJetificationSedCommand(args, jetifierConfig)
+  subprocess.check_output(command, shell=True)
 
 
 def main():
-  pathOfThisFile = os.path.realpath(__file__)
-  jetifierPath = os.path.abspath(os.path.join(pathOfThisFile, "..", ".."))
+  # Set up input arguments
+  parser = argparse.ArgumentParser()
+  parser.add_argument("-c", "--config", help="path to optional custom config file.")
+  parser.add_argument("-r", "--reverse", help="operate in reverse mode (\"de-jetification\")",
+        action="store_true")
+  parser.add_argument("-i", "--infile",
+        required=True, help="path to input source (java or xml)")
+  parser.add_argument("-o", "--outfile",
+        required=True, help="path to the output file, overriden if exists.")
+  args = parser.parse_args()
+  jetifySource(args)
 
-  jetifierConfigPath = os.path.join(jetifierPath, "core/src/main/resources", "default.generated.config")
-  print("Parsing " + jetifierConfigPath)
-  jetifierConfig = JetifierConfig.parse(jetifierConfigPath)
-
-  sourceRoot = os.getcwd()
-  excludeDirs = ["out", ".git", ".repo"]
-
-  executionConfig = ExecutionConfig(jetifierConfig, [sourceRoot], excludeDirs)
-
-  processConfig(executionConfig)
-
-main()
-
-
+if __name__ == "__main__":
+    main()
