@@ -585,12 +585,22 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
         void dispatchLoadInitial(@Nullable Integer position, int initialLoadSize, int pageSize,
                 boolean enablePlaceholders, @NonNull Executor mainThreadExecutor,
                 @NonNull PageResult.Receiver<Value> receiver) {
-            final int convertPosition = position == null ? 0 : position;
+
+            if (position == null) {
+                position = 0;
+            } else {
+                // snap load size to page multiple (minimum two)
+                initialLoadSize = (Math.max(initialLoadSize / pageSize, 2)) * pageSize;
+
+                // move start pos so that the load is centered around the key, not starting at it
+                final int idealStart = position - initialLoadSize / 2;
+                position = Math.max(0, idealStart / pageSize * pageSize);
+            }
 
             // Note enablePlaceholders will be false here, but we don't have a way to communicate
             // this to PositionalDataSource. This is fine, because only the list and its position
             // offset will be consumed by the LoadInitialCallback.
-            mSource.dispatchLoadInitial(false, convertPosition, initialLoadSize,
+            mSource.dispatchLoadInitial(false, position, initialLoadSize,
                     pageSize, mainThreadExecutor, receiver);
         }
 
