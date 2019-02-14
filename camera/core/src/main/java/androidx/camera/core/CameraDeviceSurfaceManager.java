@@ -19,6 +19,8 @@ package androidx.camera.core;
 import android.util.Size;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,7 @@ import java.util.Map;
  *
  * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public interface CameraDeviceSurfaceManager {
     /**
      * Check whether the input surface configuration list is under the capability of any combination
