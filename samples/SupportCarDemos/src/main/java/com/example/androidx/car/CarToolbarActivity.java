@@ -83,6 +83,8 @@ public class CarToolbarActivity extends AppCompatActivity {
             items.add(new CarMenuItem.Builder()
                         .setTitle("If-Room item")
                         .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
+                        .setIcon(Icon.createWithResource(this,
+                                android.R.drawable.sym_def_app_icon))
                         .setOnClickListener(onClickListener)
                         .build());
             carToolbar.setMenuItems(items);
