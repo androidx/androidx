@@ -90,28 +90,70 @@ class PositionalDataSourceTest {
         // verify that prepend / append work correctly with a PositionalDataSource, made contiguous
         val config = PagedList.Config.Builder()
                 .setPageSize(10)
-                .setInitialLoadSizeHint(10)
+                .setInitialLoadSizeHint(20)
                 .setEnablePlaceholders(true)
                 .build()
         val dataSource: PositionalDataSource<Int> = ListDataSource((0..99).toList())
         val testExecutor = TestExecutor()
         val pagedList = ContiguousPagedList(dataSource.wrapAsContiguousWithoutPlaceholders(),
-                testExecutor, testExecutor, null, config, 15,
+                testExecutor, testExecutor, null, config, 25,
                 ContiguousPagedList.LAST_LOAD_UNSPECIFIED)
 
-        assertEquals((10..19).toList(), pagedList)
+        assertEquals((10..29).toList(), pagedList)
 
-        // prepend + append work correctly
+        // prepend works correctly
         pagedList.loadAround(5)
         testExecutor.executeAll()
         assertEquals((0..29).toList(), pagedList)
 
         // and load the rest of the data to be sure further appends work
-        for (i in (2..9)) {
+        for (i in (3..9)) {
             pagedList.loadAround(i * 10 - 5)
             testExecutor.executeAll()
             assertEquals((0..i * 10 + 9).toList(), pagedList)
         }
+    }
+
+    private fun validatePositionOffset(enablePlaceholders: Boolean) {
+        val config = PagedList.Config.Builder()
+                .setPageSize(10)
+                .setEnablePlaceholders(enablePlaceholders)
+                .build()
+        val success = mutableListOf(false)
+        val dataSource = object : PositionalDataSource<String>() {
+            override fun loadInitial(
+                params: LoadInitialParams,
+                callback: LoadInitialCallback<String>
+            ) {
+                if (enablePlaceholders) {
+                    // 36 - ((10 * 3) / 2) = 21, round down to 20
+                    assertEquals(20, params.requestedStartPosition)
+                } else {
+                }
+                success[0] = true
+            }
+
+            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
+                fail("loadRange not expected")
+            }
+        }
+
+        PagedList.Builder(dataSource, config)
+                .setFetchExecutor { it.run() }
+                .setNotifyExecutor { it.run() }
+                .setInitialKey(36)
+                .build()
+        assertTrue(success[0])
+    }
+
+    @Test
+    fun initialPositionOffset() {
+        validatePositionOffset(true)
+    }
+
+    @Test
+    fun initialPositionOffsetAsContiguous() {
+        validatePositionOffset(false)
     }
 
     private fun performLoadInitial(
