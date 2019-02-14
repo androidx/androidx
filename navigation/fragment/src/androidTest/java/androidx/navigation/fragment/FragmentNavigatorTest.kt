@@ -221,34 +221,61 @@ class FragmentNavigatorTest {
     @Test
     fun testSingleTop() {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
+        val backPressListener = mock(Navigator.OnNavigatorBackPressListener::class.java)
+        fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
         destination.className = EmptyFragment::class.java.name
 
         // First push an initial Fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
             .isEqualTo(destination)
+        fragmentManager.executePendingTransactions()
+        val initialFragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Initial Fragment should be added")
+            .that(initialFragment)
+            .isNotNull()
 
         // Now push the Fragment that we want to replace with a singleTop operation
+        destination.id = 1
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
             .isEqualTo(destination)
         fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Fragment should be added", fragment)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
 
         assertThat(fragmentNavigator.navigate(destination, null,
                 NavOptions.Builder().setLaunchSingleTop(true).build(), null))
             .isNull()
         fragmentManager.executePendingTransactions()
         val replacementFragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Replacement Fragment should be added", replacementFragment)
-        assertTrue("Replacement Fragment should be the correct type",
-                replacementFragment is EmptyFragment)
-        assertEquals("Replacement Fragment should be the primary navigation Fragment",
-                replacementFragment, fragmentManager.primaryNavigationFragment)
-        assertNotEquals("Replacement should be a new instance", fragment,
-                replacementFragment)
-        assertEquals("Old instance should be destroyed", Lifecycle.State.DESTROYED,
-                fragment!!.lifecycle.currentState)
+        assertWithMessage("Replacement Fragment should be added")
+            .that(replacementFragment)
+            .isNotNull()
+        assertWithMessage("Replacement Fragment should be the correct type")
+            .that(replacementFragment)
+            .isInstanceOf(EmptyFragment::class.java)
+        assertWithMessage("Replacement Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameAs(replacementFragment)
+        assertWithMessage("Replacement should be a new instance")
+            .that(replacementFragment)
+            .isNotSameAs(fragment)
+        assertWithMessage("Old instance should be destroyed")
+            .that(fragment!!.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+
+        assertThat(fragmentNavigator.popBackStack())
+            .isTrue()
+        fragmentManager.executePendingTransactions()
+        assertWithMessage("Initial Fragment should be on top of back stack after pop")
+            .that(fragmentManager.findFragmentById(R.id.container))
+            .isSameAs(initialFragment)
+        // TODO enable after fixing b/124332597 and moving to depend on AndroidX
+        /*assertWithMessage("Initial Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameAs(initialFragment)*/
     }
 
     @UiThreadTest
