@@ -26,19 +26,19 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @DoNotInstrument
 public class ExtendableUseCaseConfigFactoryRobolectricTest {
 
-    private ExtendableUseCaseConfigFactory factory;
+    private ExtendableUseCaseConfigFactory mFactory;
 
     @Before
     public void setUp() {
-        factory = new ExtendableUseCaseConfigFactory();
+        mFactory = new ExtendableUseCaseConfigFactory();
     }
 
     @Test
     public void canInstallProvider_andRetrieveConfig() {
-        factory.installDefaultProvider(
+        mFactory.installDefaultProvider(
                 FakeUseCaseConfiguration.class, new FakeUseCaseConfigurationProvider());
 
-        FakeUseCaseConfiguration config = factory.getConfiguration(FakeUseCaseConfiguration.class);
+        FakeUseCaseConfiguration config = mFactory.getConfiguration(FakeUseCaseConfiguration.class);
         assertThat(config).isNotNull();
         assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
     }
