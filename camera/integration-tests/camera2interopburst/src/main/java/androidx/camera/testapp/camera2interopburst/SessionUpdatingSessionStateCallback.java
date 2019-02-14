@@ -25,16 +25,16 @@ import android.view.Surface;
 final class SessionUpdatingSessionStateCallback extends CameraCaptureSession.StateCallback {
     private static final String TAG = "SessionUpdatingSessionStateCallback";
 
-    private final Object sessionLock = new Object();
+    private final Object mSessionLock = new Object();
 
-    @GuardedBy("sessionLock")
-    private CameraCaptureSession session;
+    @GuardedBy("mSessionLock")
+    private CameraCaptureSession mSession;
 
     @Override
     public void onConfigured(CameraCaptureSession session) {
         Log.d(TAG, "onConfigured: session=" + session);
-        synchronized (sessionLock) {
-            this.session = session;
+        synchronized (mSessionLock) {
+            mSession = session;
         }
     }
 
@@ -46,9 +46,9 @@ final class SessionUpdatingSessionStateCallback extends CameraCaptureSession.Sta
     @Override
     public void onClosed(CameraCaptureSession session) {
         Log.d(TAG, "onClosed: session=" + session);
-        synchronized (sessionLock) {
-            if (this.session == session) {
-                this.session = null;
+        synchronized (mSessionLock) {
+            if (mSession == session) {
+                mSession = null;
             }
         }
     }
@@ -71,16 +71,16 @@ final class SessionUpdatingSessionStateCallback extends CameraCaptureSession.Sta
     @Override
     public void onConfigureFailed(CameraCaptureSession session) {
         Log.d(TAG, "onConfigureFailed: session=" + session);
-        synchronized (sessionLock) {
-            if (this.session == session) {
-                this.session = null;
+        synchronized (mSessionLock) {
+            if (mSession == session) {
+                mSession = null;
             }
         }
     }
 
     CameraCaptureSession getSession() {
-        synchronized (sessionLock) {
-            return session;
+        synchronized (mSessionLock) {
+            return mSession;
         }
     }
 }
