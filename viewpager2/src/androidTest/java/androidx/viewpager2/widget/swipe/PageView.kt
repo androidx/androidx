@@ -17,14 +17,15 @@
 package androidx.viewpager2.widget.swipe
 
 import android.app.Activity
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.viewpager2.test.R
 
-private const val PAGE_COLOR_EVEN = 0xFFFF0000.toInt()
-private const val PAGE_COLOR_ODD = 0xFF0000FF.toInt()
+private val PAGE_COLOR_EVEN = Color.parseColor("#FFAAAA")
+private val PAGE_COLOR_ODD = Color.parseColor("#AAAAFF")
 
 object PageView {
     fun inflatePage(parent: ViewGroup): View =
