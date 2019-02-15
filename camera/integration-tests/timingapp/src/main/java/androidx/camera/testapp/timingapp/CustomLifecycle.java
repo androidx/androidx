@@ -26,34 +26,40 @@ import android.support.annotation.NonNull;
 
 /** A customized lifecycle owner which obeys the lifecycle transition rules. */
 public final class CustomLifecycle implements LifecycleOwner {
-    private final LifecycleRegistry lifecycleRegistry;
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final LifecycleRegistry mLifecycleRegistry;
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
     public CustomLifecycle() {
-        lifecycleRegistry = new LifecycleRegistry(this);
-        lifecycleRegistry.markState(Lifecycle.State.INITIALIZED);
-        lifecycleRegistry.markState(Lifecycle.State.CREATED);
+        mLifecycleRegistry = new LifecycleRegistry(this);
+        mLifecycleRegistry.markState(Lifecycle.State.INITIALIZED);
+        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
     }
 
     @NonNull
     @Override
     public Lifecycle getLifecycle() {
-        return lifecycleRegistry;
+        return mLifecycleRegistry;
     }
 
+    /**
+     * Called when activity resumes.
+     */
     public void doOnResume() {
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mainHandler.post(() -> doOnResume());
+            mMainHandler.post(() -> doOnResume());
             return;
         }
-        lifecycleRegistry.markState(State.RESUMED);
+        mLifecycleRegistry.markState(State.RESUMED);
     }
 
+    /**
+     * Called when activity is destroyed.
+     */
     public void doDestroyed() {
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mainHandler.post(() -> doDestroyed());
+            mMainHandler.post(() -> doDestroyed());
             return;
         }
-        lifecycleRegistry.markState(State.DESTROYED);
+        mLifecycleRegistry.markState(State.DESTROYED);
     }
 }

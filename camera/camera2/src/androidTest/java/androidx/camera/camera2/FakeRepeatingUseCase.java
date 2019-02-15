@@ -24,8 +24,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Size;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.FakeUseCase;
@@ -37,11 +35,10 @@ import androidx.camera.core.UseCaseConfiguration;
 import java.util.Map;
 
 /** A fake {@link FakeUseCase} which contain a repeating surface. */
-@RestrictTo(Scope.LIBRARY_GROUP)
 public class FakeRepeatingUseCase extends FakeUseCase {
 
     /** The repeating surface. */
-    private final ImageReader imageReader =
+    private final ImageReader mImageReader =
             ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
 
     public FakeRepeatingUseCase(FakeUseCaseConfiguration configuration) {
@@ -49,7 +46,7 @@ public class FakeRepeatingUseCase extends FakeUseCase {
 
         FakeUseCaseConfiguration configWithDefaults =
                 (FakeUseCaseConfiguration) getUseCaseConfiguration();
-        imageReader.setOnImageAvailableListener(
+        mImageReader.setOnImageAvailableListener(
                 imageReader -> {
                     Image image = imageReader.acquireLatestImage();
                     if (image != null) {
@@ -60,7 +57,7 @@ public class FakeRepeatingUseCase extends FakeUseCase {
 
         SessionConfiguration.Builder builder =
                 SessionConfiguration.Builder.createFrom(configWithDefaults);
-        builder.addSurface(new ImmediateSurface(imageReader.getSurface()));
+        builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
         try {
             String cameraId = CameraX.getCameraWithLensFacing(configWithDefaults.getLensFacing());
             attachToCamera(cameraId, builder.build());
@@ -86,7 +83,7 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     @Override
     public void clear() {
         super.clear();
-        imageReader.close();
+        mImageReader.close();
     }
 
     @Override
