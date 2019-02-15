@@ -18,6 +18,8 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.Build;
+
 import androidx.camera.core.Configuration.Option;
 import androidx.test.filters.SmallTest;
 
@@ -25,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.Set;
@@ -34,6 +37,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+// TODO(b/124267925): Bump down to LOLLIPOP once our minSdk is 21
+@Config(minSdk = Build.VERSION_CODES.N)
 public class OptionsBundleRobolectricTest {
 
     private static final Option<Object> OPTION_1 = Option.create("option.1", Object.class);

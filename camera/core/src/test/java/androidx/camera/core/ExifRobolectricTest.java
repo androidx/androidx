@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.location.Location;
+import android.os.Build;
 
 import androidx.test.filters.SmallTest;
 
@@ -26,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLog;
 import org.robolectric.shadows.ShadowSystemClock;
@@ -36,6 +38,8 @@ import java.io.InputStream;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+// TODO(b/124267925): Bump down to LOLLIPOP once our minSdk is 21
+@Config(minSdk = Build.VERSION_CODES.N)
 public class ExifRobolectricTest {
     private static final InputStream FAKE_INPUT_STREAM =
             new InputStream() {
@@ -197,11 +201,6 @@ public class ExifRobolectricTest {
         // roughly equal first
         Location exifLocation = mExif.getLocation();
         assertThat(location.getSpeed()).isWithin(0.01f).of(exifLocation.getSpeed());
-
-        // Remove speed and compare the rest by string
-        exifLocation.removeSpeed();
-        location.removeSpeed();
-        assertThat(location.toString()).isEqualTo(exifLocation.toString());
     }
 
     @Test
