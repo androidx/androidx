@@ -1,7 +1,10 @@
 package androidx.ui.vectorgraphics
 
+import android.graphics.Bitmap
 import android.graphics.Matrix
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Canvas
+import androidx.ui.painting.Image
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.Path
@@ -19,6 +22,12 @@ const val DEFAULT_TRANSLATE_X = 0.0f
 const val DEFAULT_TRANSLATE_Y = 0.0f
 
 val EMPTY_PATH = emptyArray<PathNode>()
+
+/**
+ * paint used to draw the cached vector graphic to the provided canvas
+ * TODO (njawad) Can we update the Crane Canvas API to make this paint optional?
+ */
+private val EMPTY_PAINT = Paint()
 
 // TODO (njawad) merge VNode into R4A equivalent once IR metadata issues are resolved
 sealed class VNode {
@@ -41,6 +50,13 @@ class VectorGraphic(
         scaleY = height / viewportHeight
     }
 
+    /**
+     * Cached Image of the Vector Graphic to be re-used across draw calls
+     * if the Vector graphic is not dirty
+     */
+    // TODO (njawad) add invalidation logic to re-draw into the offscreen bitmap
+    private var cachedImage: Image? = null
+
     val size: Int
         get() = root.size
 
@@ -57,7 +73,15 @@ class VectorGraphic(
     }
 
     override fun draw(canvas: Canvas) {
-        root.draw(canvas)
+        var targetImage = cachedImage
+        if (targetImage == null) {
+            val bitmap = Bitmap.createBitmap(kotlin.math.ceil(width).toInt(),
+                kotlin.math.ceil(height).toInt(), Bitmap.Config.ARGB_8888)
+            targetImage = Image(bitmap)
+            cachedImage = targetImage
+            root.draw(Canvas(android.graphics.Canvas(bitmap)))
+        }
+        canvas.drawImage(targetImage, Offset.zero, EMPTY_PAINT)
     }
 
     override fun toString(): String {
