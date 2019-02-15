@@ -61,12 +61,12 @@ class CaptureViewOnTouchListener
     private static final int HOLD = 2;
     private static final int RELEASE = 3;
 
-    private final long longPress = ViewConfiguration.getLongPressTimeout();
-    private final CameraView cameraView;
+    private final long mLongPress = ViewConfiguration.getLongPressTimeout();
+    private final CameraView mCameraView;
 
     // TODO: Use a Handler for a background thread, rather than running on the current (main)
     // thread.
-    private final Handler handler =
+    private final Handler mHandler =
             new Handler() {
                 @Override
                 public void handleMessage(Message msg) {
@@ -76,8 +76,8 @@ class CaptureViewOnTouchListener
                             break;
                         case HOLD:
                             onHold();
-                            if (cameraView.getMaxVideoDuration() > 0) {
-                                sendEmptyMessageDelayed(RELEASE, cameraView.getMaxVideoDuration());
+                            if (mCameraView.getMaxVideoDuration() > 0) {
+                                sendEmptyMessageDelayed(RELEASE, mCameraView.getMaxVideoDuration());
                             }
                             break;
                         case RELEASE:
@@ -89,35 +89,35 @@ class CaptureViewOnTouchListener
                 }
             };
 
-    private long downEventTimestamp;
-    private Rect viewBoundsRect;
+    private long mDownEventTimestamp;
+    private Rect mViewBoundsRect;
 
     /** Creates a new listener which links to the given {@link CameraView}. */
     CaptureViewOnTouchListener(CameraView cameraView) {
-        this.cameraView = cameraView;
+        mCameraView = cameraView;
     }
 
     /** Called when the user taps. */
     void onTap() {
-        if (cameraView.getCaptureMode() == CaptureMode.IMAGE
-                || cameraView.getCaptureMode() == CaptureMode.MIXED) {
-            cameraView.takePicture(createNewFile(PHOTO_EXTENSION), this);
+        if (mCameraView.getCaptureMode() == CaptureMode.IMAGE
+                || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
+            mCameraView.takePicture(createNewFile(PHOTO_EXTENSION), this);
         }
     }
 
     /** Called when the user holds (long presses). */
     void onHold() {
-        if (cameraView.getCaptureMode() == CaptureMode.VIDEO
-                || cameraView.getCaptureMode() == CaptureMode.MIXED) {
-            cameraView.startRecording(createNewFile(VIDEO_EXTENSION), this);
+        if (mCameraView.getCaptureMode() == CaptureMode.VIDEO
+                || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
+            mCameraView.startRecording(createNewFile(VIDEO_EXTENSION), this);
         }
     }
 
     /** Called when the user releases. */
     void onRelease() {
-        if (cameraView.getCaptureMode() == CaptureMode.VIDEO
-                || cameraView.getCaptureMode() == CaptureMode.MIXED) {
-            cameraView.stopRecording();
+        if (mCameraView.getCaptureMode() == CaptureMode.VIDEO
+                || mCameraView.getCaptureMode() == CaptureMode.MIXED) {
+            mCameraView.stopRecording();
         }
     }
 
@@ -125,35 +125,35 @@ class CaptureViewOnTouchListener
     public boolean onTouch(View view, MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                downEventTimestamp = System.currentTimeMillis();
-                viewBoundsRect =
+                mDownEventTimestamp = System.currentTimeMillis();
+                mViewBoundsRect =
                         new Rect(view.getLeft(), view.getTop(), view.getRight(), view.getBottom());
-                handler.sendEmptyMessageDelayed(HOLD, longPress);
+                mHandler.sendEmptyMessageDelayed(HOLD, mLongPress);
                 view.setPressed(true);
                 break;
             case MotionEvent.ACTION_MOVE:
                 // If the user moves their finger off the button, trigger RELEASE
-                if (viewBoundsRect.contains(
+                if (mViewBoundsRect.contains(
                         view.getLeft() + (int) event.getX(), view.getTop() + (int) event.getY())) {
                     break;
                 }
                 // Fall-through
             case MotionEvent.ACTION_CANCEL:
                 clearHandler();
-                if (deltaSinceDownEvent() > longPress
-                        && (cameraView.getMaxVideoDuration() <= 0
-                        || deltaSinceDownEvent() < cameraView.getMaxVideoDuration())) {
-                    handler.sendEmptyMessage(RELEASE);
+                if (deltaSinceDownEvent() > mLongPress
+                        && (mCameraView.getMaxVideoDuration() <= 0
+                        || deltaSinceDownEvent() < mCameraView.getMaxVideoDuration())) {
+                    mHandler.sendEmptyMessage(RELEASE);
                 }
                 view.setPressed(false);
                 break;
             case MotionEvent.ACTION_UP:
                 clearHandler();
-                if (deltaSinceDownEvent() < longPress) {
-                    handler.sendEmptyMessage(TAP);
-                } else if ((cameraView.getMaxVideoDuration() <= 0
-                        || deltaSinceDownEvent() < cameraView.getMaxVideoDuration())) {
-                    handler.sendEmptyMessage(RELEASE);
+                if (deltaSinceDownEvent() < mLongPress) {
+                    mHandler.sendEmptyMessage(TAP);
+                } else if ((mCameraView.getMaxVideoDuration() <= 0
+                        || deltaSinceDownEvent() < mCameraView.getMaxVideoDuration())) {
+                    mHandler.sendEmptyMessage(RELEASE);
                 }
                 view.setPressed(false);
                 break;
@@ -164,13 +164,13 @@ class CaptureViewOnTouchListener
     }
 
     private long deltaSinceDownEvent() {
-        return System.currentTimeMillis() - downEventTimestamp;
+        return System.currentTimeMillis() - mDownEventTimestamp;
     }
 
     private void clearHandler() {
-        handler.removeMessages(TAP);
-        handler.removeMessages(HOLD);
-        handler.removeMessages(RELEASE);
+        mHandler.removeMessages(TAP);
+        mHandler.removeMessages(HOLD);
+        mHandler.removeMessages(RELEASE);
     }
 
     private File createNewFile(String extension) {
@@ -212,18 +212,18 @@ class CaptureViewOnTouchListener
 
     private void report(String msg) {
         Log.d(TAG, msg);
-        Toast.makeText(cameraView.getContext(), msg, Toast.LENGTH_SHORT).show();
+        Toast.makeText(mCameraView.getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     private void broadcastPicture(File file) {
         if (Build.VERSION.SDK_INT < 24) {
             Intent intent = new Intent(Camera.ACTION_NEW_PICTURE);
             intent.setData(Uri.fromFile(file));
-            cameraView.getContext().sendBroadcast(intent);
+            mCameraView.getContext().sendBroadcast(intent);
         } else {
             Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
             intent.setData(Uri.fromFile(file));
-            cameraView.getContext().sendBroadcast(intent);
+            mCameraView.getContext().sendBroadcast(intent);
         }
     }
 
@@ -231,11 +231,11 @@ class CaptureViewOnTouchListener
         if (Build.VERSION.SDK_INT < 24) {
             Intent intent = new Intent(Camera.ACTION_NEW_VIDEO);
             intent.setData(Uri.fromFile(file));
-            cameraView.getContext().sendBroadcast(intent);
+            mCameraView.getContext().sendBroadcast(intent);
         } else {
             Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
             intent.setData(Uri.fromFile(file));
-            cameraView.getContext().sendBroadcast(intent);
+            mCameraView.getContext().sendBroadcast(intent);
         }
     }
 }

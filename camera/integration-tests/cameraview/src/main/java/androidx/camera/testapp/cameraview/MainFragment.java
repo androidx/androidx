@@ -50,44 +50,44 @@ public class MainFragment extends Fragment {
     // strings (case-insensitive): "image", "video", "mixed"
     private static final String INTENT_EXTRA_CAPTURE_MODE = "captureMode";
 
-    private View cameraHolder;
-    private CameraView cameraView;
-    private View captureView;
-    private CompoundButton modeButton;
+    private View mCameraHolder;
+    private CameraView mCameraView;
+    private View mCaptureView;
+    private CompoundButton mModeButton;
     @Nullable
-    private CompoundButton toggleCameraButton;
-    private CompoundButton toggleCropButton;
+    private CompoundButton mToggleCameraButton;
+    private CompoundButton mToggleCropButton;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        cameraHolder = view.findViewById(R.id.layout_camera);
-        cameraView = view.findViewById(R.id.camera);
-        toggleCameraButton = view.findViewById(R.id.toggle);
-        toggleCropButton = view.findViewById(R.id.toggle_crop);
-        captureView = cameraHolder.findViewById(R.id.capture);
-        if (cameraHolder == null) {
+        mCameraHolder = view.findViewById(R.id.layout_camera);
+        mCameraView = view.findViewById(R.id.camera);
+        mToggleCameraButton = view.findViewById(R.id.toggle);
+        mToggleCropButton = view.findViewById(R.id.toggle_crop);
+        mCaptureView = mCameraHolder.findViewById(R.id.capture);
+        if (mCameraHolder == null) {
             throw new IllegalStateException("No View found with id R.id.layout_camera");
         }
-        if (cameraView == null) {
+        if (mCameraView == null) {
             throw new IllegalStateException("No CameraView found with id R.id.camera");
         }
-        if (captureView == null) {
+        if (mCaptureView == null) {
             throw new IllegalStateException("No CameraView found with id R.id.capture");
         }
 
-        modeButton = cameraHolder.findViewById(R.id.mode);
+        mModeButton = mCameraHolder.findViewById(R.id.mode);
 
-        if (modeButton == null) {
+        if (mModeButton == null) {
             throw new IllegalStateException("No View found with id R.id.mode");
         }
 
         // Log the location of some views, so their locations can be used to perform some automated
         // clicks in tests.
-        logCenterCoordinates(cameraView, "camera_view");
-        logCenterCoordinates(captureView, "capture");
-        logCenterCoordinates(toggleCameraButton, "toggle_camera");
-        logCenterCoordinates(toggleCropButton, "toggle_crop");
-        logCenterCoordinates(modeButton, "mode");
+        logCenterCoordinates(mCameraView, "camera_view");
+        logCenterCoordinates(mCaptureView, "capture");
+        logCenterCoordinates(mToggleCameraButton, "toggle_camera");
+        logCenterCoordinates(mToggleCropButton, "toggle_crop");
+        logCenterCoordinates(mModeButton, "mode");
 
         // Get extra option for setting initial camera direction
         Bundle bundle = getActivity().getIntent().getExtras();
@@ -95,13 +95,13 @@ public class MainFragment extends Fragment {
             String cameraDirectionString = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
             if (cameraDirectionString != null) {
                 LensFacing lensFacing = LensFacing.valueOf(cameraDirectionString.toUpperCase());
-                cameraView.setCameraByLensFacing(lensFacing);
+                mCameraView.setCameraByLensFacing(lensFacing);
             }
 
             String captureModeString = bundle.getString(INTENT_EXTRA_CAPTURE_MODE);
             if (captureModeString != null) {
                 CaptureMode captureMode = CaptureMode.valueOf(captureModeString.toUpperCase());
-                cameraView.setCaptureMode(captureMode);
+                mCameraView.setCaptureMode(captureMode);
             }
         }
     }
@@ -111,47 +111,47 @@ public class MainFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
 
         // Set the lifecycle that will be used to control the camera
-        cameraView.bindToLifecycle(getActivity());
+        mCameraView.bindToLifecycle(getActivity());
 
-        cameraView.setPinchToZoomEnabled(true);
-        captureView.setOnTouchListener(new CaptureViewOnTouchListener(cameraView));
+        mCameraView.setPinchToZoomEnabled(true);
+        mCaptureView.setOnTouchListener(new CaptureViewOnTouchListener(mCameraView));
 
         // Set clickable, Let the cameraView can be interacted by Voice Access
-        cameraView.setClickable(true);
+        mCameraView.setClickable(true);
 
-        if (toggleCameraButton != null) {
-            toggleCameraButton.setVisibility(
-                    (cameraView.hasCameraWithLensFacing(LensFacing.BACK)
-                            && cameraView.hasCameraWithLensFacing(LensFacing.FRONT))
+        if (mToggleCameraButton != null) {
+            mToggleCameraButton.setVisibility(
+                    (mCameraView.hasCameraWithLensFacing(LensFacing.BACK)
+                            && mCameraView.hasCameraWithLensFacing(LensFacing.FRONT))
                             ? View.VISIBLE
                             : View.INVISIBLE);
-            toggleCameraButton.setChecked(cameraView.getCameraLensFacing() == LensFacing.FRONT);
+            mToggleCameraButton.setChecked(mCameraView.getCameraLensFacing() == LensFacing.FRONT);
         }
 
         // Set listeners here, or else restoring state will trigger them.
-        if (toggleCameraButton != null) {
-            toggleCameraButton.setOnCheckedChangeListener(
+        if (mToggleCameraButton != null) {
+            mToggleCameraButton.setOnCheckedChangeListener(
                     (b, checked) ->
-                            cameraView.setCameraByLensFacing(
+                            mCameraView.setCameraByLensFacing(
                                     checked ? LensFacing.FRONT : LensFacing.BACK));
         }
 
-        toggleCropButton.setChecked(cameraView.getScaleType() == ScaleType.CENTER_CROP);
-        toggleCropButton.setOnCheckedChangeListener(
+        mToggleCropButton.setChecked(mCameraView.getScaleType() == ScaleType.CENTER_CROP);
+        mToggleCropButton.setOnCheckedChangeListener(
                 (b, checked) -> {
                     if (checked) {
-                        cameraView.setScaleType(ScaleType.CENTER_CROP);
+                        mCameraView.setScaleType(ScaleType.CENTER_CROP);
                     } else {
-                        cameraView.setScaleType(ScaleType.CENTER_INSIDE);
+                        mCameraView.setScaleType(ScaleType.CENTER_INSIDE);
                     }
                 });
 
-        if (modeButton != null) {
+        if (mModeButton != null) {
             updateModeButtonIcon();
 
-            modeButton.setOnClickListener(
+            mModeButton.setOnClickListener(
                     view -> {
-                        if (cameraView.isRecording()) {
+                        if (mCameraView.isRecording()) {
                             Toast.makeText(
                                     getContext(),
                                     "Can not switch mode during video recording.",
@@ -160,12 +160,12 @@ public class MainFragment extends Fragment {
                             return;
                         }
 
-                        if (cameraView.getCaptureMode() == CaptureMode.MIXED) {
-                            cameraView.setCaptureMode(CaptureMode.IMAGE);
-                        } else if (cameraView.getCaptureMode() == CaptureMode.IMAGE) {
-                            cameraView.setCaptureMode(CaptureMode.VIDEO);
+                        if (mCameraView.getCaptureMode() == CaptureMode.MIXED) {
+                            mCameraView.setCaptureMode(CaptureMode.IMAGE);
+                        } else if (mCameraView.getCaptureMode() == CaptureMode.IMAGE) {
+                            mCameraView.setCaptureMode(CaptureMode.VIDEO);
                         } else {
-                            cameraView.setCaptureMode(CaptureMode.MIXED);
+                            mCameraView.setCaptureMode(CaptureMode.MIXED);
                         }
 
                         updateModeButtonIcon();
@@ -174,12 +174,12 @@ public class MainFragment extends Fragment {
     }
 
     private void updateModeButtonIcon() {
-        if (cameraView.getCaptureMode() == CaptureMode.MIXED) {
-            modeButton.setButtonDrawable(R.drawable.ic_photo_camera);
-        } else if (cameraView.getCaptureMode() == CaptureMode.IMAGE) {
-            modeButton.setButtonDrawable(R.drawable.ic_camera);
+        if (mCameraView.getCaptureMode() == CaptureMode.MIXED) {
+            mModeButton.setButtonDrawable(R.drawable.ic_photo_camera);
+        } else if (mCameraView.getCaptureMode() == CaptureMode.IMAGE) {
+            mModeButton.setButtonDrawable(R.drawable.ic_camera);
         } else {
-            modeButton.setButtonDrawable(R.drawable.ic_videocam);
+            mModeButton.setButtonDrawable(R.drawable.ic_videocam);
         }
     }
 

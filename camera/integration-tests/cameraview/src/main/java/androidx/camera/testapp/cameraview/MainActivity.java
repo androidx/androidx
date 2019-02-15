@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
             };
     private static final int REQUEST_CODE_PERMISSIONS = 10;
 
-    private boolean checkedPermissions = false;
+    private boolean mCheckedPermissions = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +46,9 @@ public class MainActivity extends AppCompatActivity {
         if (null == savedInstanceState) {
             if (allPermissionsGranted()) {
                 startCamera();
-            } else if (!checkedPermissions) {
+            } else if (!mCheckedPermissions) {
                 requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
-                checkedPermissions = true;
+                mCheckedPermissions = true;
             }
         }
     }
