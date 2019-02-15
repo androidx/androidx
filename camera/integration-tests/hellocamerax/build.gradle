@@ -15,22 +15,18 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
+import static androidx.build.dependencies.DependenciesKt.*
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+}
 
 android {
-    compileOptions {
-        sourceCompatibility project.ext.javaVersion
-        targetCompatibility project.ext.javaVersion
-    }
-
-    compileSdkVersion project.ext.compileSdk
-
     defaultConfig {
         applicationId "androidx.camera.testapp.hellocamerax"
-        minSdkVersion project.ext.minSdk
-        targetSdkVersion project.ext.targetSdk
+        minSdkVersion 24
         versionCode 1
-        versionName project.ext.version
         multiDexEnabled true
     }
 
@@ -48,8 +44,6 @@ android {
         }
 
         release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt')
         }
     }
 
@@ -60,20 +54,20 @@ android {
 
 dependencies {
     // Internal library
-    implementation project(':camera2')
-    implementation project(':core')
+    implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-core"))
 
     // Lifecycle and LiveData
-    implementation "android.arch.lifecycle:extensions:${project.ext.lifecycleVersion}"
-    implementation "android.arch.lifecycle:livedata:${project.ext.lifecycleVersion}"
-    implementation "android.arch.lifecycle:runtime:${project.ext.lifecycleVersion}"
-    implementation "android.arch.lifecycle:common-java8:${project.ext.lifecycleVersion}"
+    implementation(project(":lifecycle:lifecycle-extensions"))
+    implementation(project(":lifecycle:lifecycle-livedata"))
+    implementation(project(":lifecycle:lifecycle-runtime"))
+    implementation(project(":lifecycle:lifecycle-common-java8"))
 
     // Android Support Library
-    implementation "com.android.support:appcompat-v7:${project.ext.supportLibraryVersion}"
-    implementation "com.android.support.constraint:constraint-layout:1.0.2"
-    implementation "com.android.support:support-compat:${project.ext.supportLibraryVersion}"
-    implementation "com.android.support:support-annotations:${project.ext.supportLibraryVersion}"
-    implementation "com.android.support:support-v13:${project.ext.supportLibraryVersion}"
+    api(CONSTRAINT_LAYOUT, { transitive = true })
+    implementation(project(":annotation"))
+    implementation(project(":appcompat"))
+    implementation(project(":core"))
+    implementation(project(":legacy-support-v13"))
 }
 
