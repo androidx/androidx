@@ -84,33 +84,33 @@ public class MainActivity extends AppCompatActivity {
     ;
 
     // Waiting for the permissions approval.
-    private final CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
+    private final CompletableFuture<Integer> mCompletableFuture = new CompletableFuture<>();
 
     // For handling touch events on the TextureView.
-    private final View.OnTouchListener onTouchListener = new OnTouchListener();
+    private final View.OnTouchListener mOnTouchListener = new OnTouchListener();
 
     // Tracks the burst state.
-    private final Object burstLock = new Object();
+    private final Object mBurstLock = new Object();
     // Camera2 interop objects.
-    private final SessionUpdatingSessionStateCallback sessionStateCallback =
+    private final SessionUpdatingSessionStateCallback mSessionStateCallback =
             new SessionUpdatingSessionStateCallback();
-    private final RequestUpdatingSessionCaptureCallback sessionCaptureCallback =
+    private final RequestUpdatingSessionCaptureCallback mSessionCaptureCallback =
             new RequestUpdatingSessionCaptureCallback();
-    private final Object mosaicLock = new Object();
-    @GuardedBy("mosaicLock")
-    private final Bitmap mosaic =
+    private final Object mMosaicLock = new Object();
+    @GuardedBy("mMosaicLock")
+    private final Bitmap mMosaic =
             Bitmap.createBitmap(
                     MOSAIC_COLS * TILE_WIDTH, MOSAIC_ROWS * TILE_HEIGHT, Bitmap.Config.ARGB_8888);
-    private final MutableLiveData<Bitmap> analysisResult = new MutableLiveData<>();
-    @GuardedBy("burstLock")
-    private boolean burstInProgress = false;
-    @GuardedBy("burstLock")
-    private int burstFrameCount = 0;
+    private final MutableLiveData<Bitmap> mAnalysisResult = new MutableLiveData<>();
+    @GuardedBy("mBurstLock")
+    private boolean mBurstInProgress = false;
+    @GuardedBy("mBurstLock")
+    private int mBurstFrameCount = 0;
     // For visualizing the images captured in the burst.
-    private ImageView imageView;
+    private ImageView mImageView;
     // For running ops on a background thread.
-    private Handler backgroundHandler;
-    private HandlerThread backgroundHandlerThread;
+    private Handler mBackgroundHandler;
+    private HandlerThread mBackgroundHandlerThread;
 
     private static void makePermissionRequest(Activity context) {
         ActivityCompat.requestPermissions(
@@ -122,9 +122,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(bundle);
         setContentView(R.layout.activity_main);
 
-        backgroundHandlerThread = new HandlerThread("Background");
-        backgroundHandlerThread.start();
-        backgroundHandler = new Handler(backgroundHandlerThread.getLooper());
+        mBackgroundHandlerThread = new HandlerThread("Background");
+        mBackgroundHandlerThread.start();
+        mBackgroundHandler = new Handler(mBackgroundHandlerThread.getLooper());
 
         new Thread(
                 () -> {
@@ -137,14 +137,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        backgroundHandler.removeCallbacksAndMessages(null);
-        backgroundHandlerThread.quitSafely();
+        mBackgroundHandler.removeCallbacksAndMessages(null);
+        mBackgroundHandlerThread.quitSafely();
     }
 
     @Override
     protected void onPause() {
-        synchronized (burstLock) {
-            burstInProgress = false;
+        synchronized (mBurstLock) {
+            mBurstInProgress = false;
         }
         super.onPause();
     }
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupCamera() {
         try {
             // Wait for permissions before proceeding.
-            if (completableFuture.get() == PackageManager.PERMISSION_DENIED) {
+            if (mCompletableFuture.get() == PackageManager.PERMISSION_DENIED) {
                 Log.e(TAG, "Permission to open camera denied.");
                 return;
             }
@@ -164,20 +164,20 @@ public class MainActivity extends AppCompatActivity {
         // Run this on the UI thread to manipulate the Textures & Views.
         MainActivity.this.runOnUiThread(
                 () -> {
-                    imageView = findViewById(R.id.imageView);
+                    mImageView = findViewById(R.id.imageView);
 
                     ViewFinderUseCaseConfiguration.Builder viewFinderConfigBuilder =
                             new ViewFinderUseCaseConfiguration.Builder()
                                     .setTargetName("ViewFinder");
 
                     new Camera2Configuration.Extender(viewFinderConfigBuilder)
-                            .setSessionStateCallback(sessionStateCallback)
-                            .setSessionCaptureCallback(sessionCaptureCallback);
+                            .setSessionStateCallback(mSessionStateCallback)
+                            .setSessionCaptureCallback(mSessionCaptureCallback);
 
                     ViewFinderUseCaseConfiguration viewFinderConfig =
                             viewFinderConfigBuilder.build();
                     TextureView textureView = findViewById(R.id.textureView);
-                    textureView.setOnTouchListener(onTouchListener);
+                    textureView.setOnTouchListener(mOnTouchListener);
                     ViewFinderUseCase viewFinderUseCase = new ViewFinderUseCase(viewFinderConfig);
 
                     viewFinderUseCase.setOnViewFinderOutputUpdateListener(
@@ -195,31 +195,31 @@ public class MainActivity extends AppCompatActivity {
                     ImageAnalysisUseCaseConfiguration analysisConfig =
                             new ImageAnalysisUseCaseConfiguration.Builder()
                                     .setTargetName("ImageAnalysis")
-                                    .setCallbackHandler(backgroundHandler)
+                                    .setCallbackHandler(mBackgroundHandler)
                                     .build();
                     ImageAnalysisUseCase analysisUseCase = new ImageAnalysisUseCase(analysisConfig);
                     CameraX.bindToLifecycle(lifecycleOwner, analysisUseCase);
                     analysisUseCase.setAnalyzer(
                             (image, rotationDegrees) -> {
-                                analysisResult.postValue(convertYuv420ImageToBitmap(image));
+                                mAnalysisResult.postValue(convertYuv420ImageToBitmap(image));
                             });
-                    analysisResult.observe(
+                    mAnalysisResult.observe(
                             lifecycleOwner,
                             bitmap -> {
-                                synchronized (burstLock) {
-                                    if (burstInProgress) {
+                                synchronized (mBurstLock) {
+                                    if (mBurstInProgress) {
                                         // Update the mosaic.
-                                        insertIntoMosaic(bitmap, burstFrameCount++);
+                                        insertIntoMosaic(bitmap, mBurstFrameCount++);
                                         MainActivity.this.runOnUiThread(
                                                 () -> {
-                                                    synchronized (mosaicLock) {
-                                                        imageView.setImageBitmap(mosaic);
+                                                    synchronized (mMosaicLock) {
+                                                        mImageView.setImageBitmap(mMosaic);
                                                     }
                                                 });
 
                                         // Detect the end of the burst.
-                                        if (burstFrameCount == BURST_FRAME_COUNT) {
-                                            burstInProgress = false;
+                                        if (mBurstFrameCount == BURST_FRAME_COUNT) {
+                                            mBurstInProgress = false;
                                             submitRepeatingRequest();
                                         }
                                     }
@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
         if (permission != PackageManager.PERMISSION_GRANTED) {
             makePermissionRequest(context);
         } else {
-            completableFuture.complete(permission);
+            mCompletableFuture.complete(permission);
         }
     }
 
@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Log.i(TAG, "Camera Permission Denied.");
                 }
-                completableFuture.complete(grantResults[0]);
+                mCompletableFuture.complete(grantResults[0]);
                 return;
             }
             default: {
@@ -260,14 +260,14 @@ public class MainActivity extends AppCompatActivity {
     private void submitCaptureBurstRequest() {
         try {
             // Use the existing session created by CameraX.
-            CameraCaptureSession session = sessionStateCallback.getSession();
+            CameraCaptureSession session = mSessionStateCallback.getSession();
             // Use the previous request created by CameraX.
-            CaptureRequest request = sessionCaptureCallback.getRequest();
+            CaptureRequest request = mSessionCaptureCallback.getRequest();
             List<CaptureRequest> requests = new ArrayList<>(BURST_FRAME_COUNT);
             for (int i = 0; i < BURST_FRAME_COUNT; ++i) {
                 requests.add(request);
             }
-            session.captureBurst(requests, /*callback=*/ null, backgroundHandler);
+            session.captureBurst(requests, /*callback=*/ null, mBackgroundHandler);
         } catch (CameraAccessException e) {
             throw new RuntimeException("Could not submit the burst capture request.", e);
         }
@@ -276,12 +276,12 @@ public class MainActivity extends AppCompatActivity {
     private void submitRepeatingRequest() {
         try {
             // Use the existing session created by CameraX.
-            CameraCaptureSession session = sessionStateCallback.getSession();
+            CameraCaptureSession session = mSessionStateCallback.getSession();
             // Use the previous request created by CameraX.
-            CaptureRequest request = sessionCaptureCallback.getRequest();
+            CaptureRequest request = mSessionCaptureCallback.getRequest();
             // TODO: This capture callback is not the same as that used by CameraX internally.
             // Find a way to use exactly that same callback.
-            session.setRepeatingRequest(request, sessionCaptureCallback, backgroundHandler);
+            session.setRepeatingRequest(request, mSessionCaptureCallback, mBackgroundHandler);
         } catch (CameraAccessException e) {
             throw new RuntimeException("Could not submit the repeating request.", e);
         }
@@ -325,8 +325,8 @@ public class MainActivity extends AppCompatActivity {
         for (int row = 0; row < rescaledBitmap.getHeight(); ++row) {
             for (int col = 0; col < rescaledBitmap.getWidth(); ++col) {
                 int color = rescaledBitmap.getPixel(col, row);
-                synchronized (mosaicLock) {
-                    mosaic.setPixel(col + tileColOffset, row + tileRowOffset, color);
+                synchronized (mMosaicLock) {
+                    mMosaic.setPixel(col + tileColOffset, row + tileRowOffset, color);
                 }
             }
         }
@@ -337,19 +337,19 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public boolean onTouch(View view, MotionEvent event) {
             if (event.getActionMasked() == MotionEvent.ACTION_UP) {
-                synchronized (burstLock) {
-                    if (!burstInProgress) {
-                        burstFrameCount = 0;
-                        synchronized (mosaicLock) {
-                            mosaic.eraseColor(0);
+                synchronized (mBurstLock) {
+                    if (!mBurstInProgress) {
+                        mBurstFrameCount = 0;
+                        synchronized (mMosaicLock) {
+                            mMosaic.eraseColor(0);
                         }
                         try {
-                            sessionStateCallback.getSession().stopRepeating();
+                            mSessionStateCallback.getSession().stopRepeating();
                         } catch (CameraAccessException e) {
                             throw new RuntimeException("Could not stop the repeating request.", e);
                         }
                         submitCaptureBurstRequest();
-                        burstInProgress = true;
+                        mBurstInProgress = true;
                     }
                 }
             }
