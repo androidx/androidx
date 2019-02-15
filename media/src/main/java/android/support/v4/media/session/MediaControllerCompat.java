@@ -1301,6 +1301,13 @@ public final class MediaControllerCompat {
         public abstract void setRating(RatingCompat rating, Bundle extras);
 
         /**
+         * Set the playback speed.
+         *
+         * @param speed The playback speed
+         */
+        public void setPlaybackSpeed(float speed) {}
+
+        /**
          * Enables/disables captioning for this session.
          *
          * @param enabled {@code true} to enable captioning, {@code false} to disable.
@@ -1938,6 +1945,15 @@ public final class MediaControllerCompat {
         }
 
         @Override
+        public void setPlaybackSpeed(float speed) {
+            try {
+                mBinder.setPlaybackSpeed(speed);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Dead object in setPlaybackSpeed.", e);
+            }
+        }
+
+        @Override
         public void setCaptioningEnabled(boolean enabled) {
             try {
                 mBinder.setCaptioningEnabled(enabled);
@@ -2426,6 +2442,13 @@ public final class MediaControllerCompat {
             bundle.putParcelable(MediaSessionCompat.ACTION_ARGUMENT_RATING, rating);
             bundle.putBundle(MediaSessionCompat.ACTION_ARGUMENT_EXTRAS, extras);
             sendCustomAction(MediaSessionCompat.ACTION_SET_RATING, bundle);
+        }
+
+        @Override
+        public void setPlaybackSpeed(float speed) {
+            Bundle bundle = new Bundle();
+            bundle.putFloat(MediaSessionCompat.ACTION_ARGUMENT_PLAYBACK_SPEED, speed);
+            sendCustomAction(MediaSessionCompat.ACTION_SET_PLAYBACK_SPEED, bundle);
         }
 
         @Override

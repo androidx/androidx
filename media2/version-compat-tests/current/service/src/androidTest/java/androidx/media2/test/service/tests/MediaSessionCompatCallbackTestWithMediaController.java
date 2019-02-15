@@ -173,6 +173,19 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     }
 
     @Test
+    public void testSetPlaybackSpeed() throws Exception {
+        prepareLooper();
+        RemoteMediaController controller = createControllerAndWaitConnection();
+        mSessionCallback.reset(1);
+
+        final float testSpeed = 2.0f;
+        controller.setPlaybackSpeed(testSpeed);
+        assertTrue(mSessionCallback.await(TIME_OUT_MS));
+        assertTrue(mSessionCallback.mOnSetPlaybackSpeedCalled);
+        assertEquals(testSpeed, mSessionCallback.mSpeed, 0.0f);
+    }
+
+    @Test
     public void testAddPlaylistItem() throws Exception {
         prepareLooper();
         final List<MediaItem> testList = MediaTestUtils.createPlaylist(2);
@@ -612,6 +625,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
     private class MediaSessionCallback extends MediaSessionCompat.Callback {
         private CountDownLatch mLatch = new CountDownLatch(1);
         private long mSeekPosition;
+        private float mSpeed;
         private long mQueueItemId;
         private RatingCompat mRating;
         private String mMediaId;
@@ -636,6 +650,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
         private boolean mOnSkipToPreviousCalled;
         private boolean mOnSkipToNextCalled;
         private boolean mOnSeekToCalled;
+        private boolean mOnSetPlaybackSpeedCalled;
         private boolean mOnSkipToQueueItemCalled;
         private boolean mOnSetRatingCalled;
         private boolean mOnPlayFromMediaIdCalled;
@@ -657,6 +672,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
         public void reset(int count) {
             mLatch = new CountDownLatch(count);
             mSeekPosition = -1;
+            mSpeed = -1.0f;
             mQueueItemId = -1;
             mRating = null;
             mMediaId = null;
@@ -682,6 +698,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
             mOnSkipToNextCalled = false;
             mOnSkipToQueueItemCalled = false;
             mOnSeekToCalled = false;
+            mOnSetPlaybackSpeedCalled = false;
             mOnSetRatingCalled = false;
             mOnPlayFromMediaIdCalled = false;
             mOnPlayFromSearchCalled = false;
@@ -757,6 +774,13 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
         public void onSeekTo(long pos) {
             mOnSeekToCalled = true;
             mSeekPosition = pos;
+            mLatch.countDown();
+        }
+
+        @Override
+        public void onSetPlaybackSpeed(float speed) {
+            mOnSetPlaybackSpeedCalled = true;
+            mSpeed = speed;
             mLatch.countDown();
         }
 

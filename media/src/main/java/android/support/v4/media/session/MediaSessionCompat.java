@@ -328,6 +328,15 @@ public class MediaSessionCompat {
             "android.support.v4.media.session.action.SET_RATING";
 
     /**
+     * Custom action to invoke setPlaybackSpeed() with extra fields.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static final String ACTION_SET_PLAYBACK_SPEED =
+            "android.support.v4.media.session.action.SET_PLAYBACK_SPEED";
+
+    /**
      * Argument for use with {@link #ACTION_PREPARE_FROM_MEDIA_ID} indicating media id to play.
      *
      * @hide
@@ -363,6 +372,15 @@ public class MediaSessionCompat {
     @RestrictTo(LIBRARY)
     public static final String ACTION_ARGUMENT_RATING =
             "android.support.v4.media.session.action.ARGUMENT_RATING";
+
+    /**
+     * Argument for use with {@link #ACTION_SET_PLAYBACK_SPEED} indicating the speed to be set.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static final String ACTION_ARGUMENT_PLAYBACK_SPEED =
+            "android.support.v4.media.session.action.ARGUMENT_PLAYBACK_SPEED";
 
     /**
      * Argument for use with various actions indicating extra bundle.
@@ -1259,6 +1277,19 @@ public class MediaSessionCompat {
         }
 
         /**
+         * Override to handle the playback speed change.
+         * To update the new playback speed, create a new {@link PlaybackStateCompat} by using
+         * {@link PlaybackStateCompat.Builder#setState(int, long, float)}, and set it with
+         * {@link #setPlaybackState(PlaybackStateCompat)}.
+         *
+         * @param speed the playback speed
+         * @see #setPlaybackState(PlaybackStateCompat)
+         * @see PlaybackStateCompat.Builder#setState(int, long, float)
+         */
+        public void onSetPlaybackSpeed(float speed) {
+        }
+
+        /**
          * Override to handle requests to enable/disable captioning.
          *
          * @param enabled {@code true} to enable captioning, {@code false} to disable.
@@ -1579,6 +1610,9 @@ public class MediaSessionCompat {
                 } else if (action.equals(ACTION_SET_RATING)) {
                     RatingCompat rating = extras.getParcelable(ACTION_ARGUMENT_RATING);
                     Callback.this.onSetRating(rating, bundle);
+                } else if (action.equals(ACTION_SET_PLAYBACK_SPEED)) {
+                    float speed = extras.getFloat(ACTION_ARGUMENT_PLAYBACK_SPEED, 1.0f);
+                    Callback.this.onSetPlaybackSpeed(speed);
                 } else {
                     Callback.this.onCustomAction(action, extras);
                 }
@@ -2947,6 +2981,11 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public void setPlaybackSpeed(float speed) throws RemoteException {
+                postToHandler(MessageHandler.MSG_SET_PLAYBACK_SPEED, speed);
+            }
+
+            @Override
             public void setCaptioningEnabled(boolean enabled) throws RemoteException {
                 postToHandler(MessageHandler.MSG_SET_CAPTIONING_ENABLED, enabled);
             }
@@ -3095,6 +3134,7 @@ public class MediaSessionCompat {
         }
 
         class MessageHandler extends Handler {
+            // Next ID: 33
             private static final int MSG_COMMAND = 1;
             private static final int MSG_ADJUST_VOLUME = 2;
             private static final int MSG_PREPARE = 3;
@@ -3115,6 +3155,7 @@ public class MediaSessionCompat {
             private static final int MSG_SEEK_TO = 18;
             private static final int MSG_RATE = 19;
             private static final int MSG_RATE_EXTRA = 31;
+            private static final int MSG_SET_PLAYBACK_SPEED = 32;
             private static final int MSG_CUSTOM_ACTION = 20;
             private static final int MSG_MEDIA_BUTTON = 21;
             private static final int MSG_SET_VOLUME = 22;
@@ -3218,6 +3259,9 @@ public class MediaSessionCompat {
                             break;
                         case MSG_RATE_EXTRA:
                             cb.onSetRating((RatingCompat) msg.obj, extras);
+                            break;
+                        case MSG_SET_PLAYBACK_SPEED:
+                            cb.onSetPlaybackSpeed((Float) msg.obj);
                             break;
                         case MSG_CUSTOM_ACTION:
                             cb.onCustomAction((String) msg.obj, extras);
@@ -3906,6 +3950,12 @@ public class MediaSessionCompat {
 
             @Override
             public void rateWithExtras(RatingCompat rating, Bundle extras) throws RemoteException {
+                // Will not be called.
+                throw new AssertionError();
+            }
+
+            @Override
+            public void setPlaybackSpeed(float speed) throws RemoteException {
                 // Will not be called.
                 throw new AssertionError();
             }
