@@ -24,9 +24,11 @@ import android.content.res.Configuration;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.app.AppCompatDelegate.NightMode;
+import androidx.lifecycle.Lifecycle;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
+import androidx.testutils.LifecycleOwnerUtils;
 
 public class NightModeUtils {
 
@@ -41,17 +43,37 @@ public class NightModeUtils {
         assertEquals(expectedNightMode, configuration.uiMode & Configuration.UI_MODE_NIGHT_MASK);
     }
 
-    public static void setLocalNightModeAndWait(
-            final ActivityTestRule<? extends AppCompatActivity> activityRule,
-            @AppCompatDelegate.NightMode final int nightMode
+    public static <T extends AppCompatActivity> void setLocalNightModeAndWait(
+            final ActivityTestRule<T> activityRule, @NightMode final int nightMode
+    ) throws Throwable {
+        setLocalNightModeAndWait(activityRule.getActivity(), activityRule, nightMode);
+    }
+
+    public static <T extends AppCompatActivity> void setLocalNightModeAndWait(
+            final AppCompatActivity activity,
+            final ActivityTestRule<T> activityRule,
+            @NightMode final int nightMode
     ) throws Throwable {
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         activityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                activityRule.getActivity().getDelegate().setLocalNightMode(nightMode);
+                activity.getDelegate().setLocalNightMode(nightMode);
             }
         });
         instrumentation.waitForIdleSync();
+    }
+
+    public static <T extends AppCompatActivity> void setLocalNightModeAndWaitForDestroy(
+            final ActivityTestRule<T> activityRule, @NightMode final int nightMode
+    ) throws Throwable {
+        final T activity = activityRule.getActivity();
+        activityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.getDelegate().setLocalNightMode(nightMode);
+            }
+        });
+        LifecycleOwnerUtils.waitUntilState(activity, activityRule, Lifecycle.State.DESTROYED);
     }
 }
