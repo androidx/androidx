@@ -10,3 +10,21 @@ package androidx.paging {
 
 }
 
+package androidx.paging.futures {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class DirectExecutor implements java.util.concurrent.Executor {
+    method public void execute(Runnable);
+    field public static androidx.paging.futures.DirectExecutor INSTANCE;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface FutureCallback<V> {
+    method public void onError(Throwable);
+    method public void onSuccess(V!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class Futures {
+    method public static <I, O> com.google.common.util.concurrent.ListenableFuture<O> transform(com.google.common.util.concurrent.ListenableFuture<I>, androidx.arch.core.util.Function<? super I,? extends O>, java.util.concurrent.Executor);
+  }
+
+}
+
