@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
+import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;

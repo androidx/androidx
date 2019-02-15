@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.testing.fakes;
 
 import android.app.Activity;
 import android.os.Bundle;
+
+import androidx.camera.core.CameraX;
 
 /** A fake {@link Activity} that checks properties of the CameraX library. */
 public class FakeActivity extends Activity {

@@ -16,6 +16,10 @@
 
 package androidx.camera.core;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import androidx.camera.testing.fakes.FakeUseCase;
+import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;

@@ -40,7 +40,7 @@ public class ExifRobolectricTest {
     private static final InputStream FAKE_INPUT_STREAM =
             new InputStream() {
                 @Override
-                public int read() throws IOException {
+                public int read() {
                     return 0;
                 }
             };

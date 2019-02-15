@@ -26,11 +26,11 @@ import androidx.camera.camera2.SemaphoreReleasingCamera2Callbacks.SessionStateCa
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraRepository;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.FakeUseCase;
-import androidx.camera.core.FakeUseCaseConfiguration;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfiguration;
 import androidx.camera.core.UseCaseGroup;
+import androidx.camera.testing.fakes.FakeUseCase;
+import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;

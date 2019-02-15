@@ -26,11 +26,11 @@ import android.util.Size;
 
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.FakeUseCase;
-import androidx.camera.core.FakeUseCaseConfiguration;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfiguration;
 import androidx.camera.core.UseCaseConfiguration;
+import androidx.camera.testing.fakes.FakeUseCase;
+import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
 
 import java.util.Map;
 

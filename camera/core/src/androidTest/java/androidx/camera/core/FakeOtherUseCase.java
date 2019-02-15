@@ -19,6 +19,7 @@ package androidx.camera.core;
 import android.util.Size;
 
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.testing.fakes.FakeUseCase;
 
 import java.util.Map;
 

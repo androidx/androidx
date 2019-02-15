@@ -25,6 +25,8 @@ import static org.mockito.Mockito.verify;
 
 import android.util.Size;
 
+import androidx.camera.testing.fakes.FakeUseCase;
+import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
