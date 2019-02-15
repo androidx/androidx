@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -196,12 +195,13 @@ public final class QueuedImageReaderProxyAndroidTest {
         assertThat(mImageReaderProxy.getCurrentImages()).isEqualTo(1);
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void acquireLatestImage_throwsException_whenAllImagesWerePreviouslyAcquired() {
         mImageReaderProxy.enqueueImage(createForwardingImageProxy());
         mImageReaderProxy.acquireNextImage();
 
-        assertThrows(IllegalStateException.class, () -> mImageReaderProxy.acquireLatestImage());
+        // Should throw IllegalStateException
+        mImageReaderProxy.acquireLatestImage();
     }
 
     @Test
@@ -224,12 +224,13 @@ public final class QueuedImageReaderProxyAndroidTest {
         assertThat(mImageReaderProxy.getCurrentImages()).isEqualTo(availableImages);
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void acquireNextImage_throwsException_whenAllImagesWerePreviouslyAcquired() {
         mImageReaderProxy.enqueueImage(createForwardingImageProxy());
         mImageReaderProxy.acquireNextImage();
 
-        assertThrows(IllegalStateException.class, () -> mImageReaderProxy.acquireNextImage());
+        // Should throw IllegalStateException
+        mImageReaderProxy.acquireNextImage();
     }
 
     @Test
@@ -260,20 +261,22 @@ public final class QueuedImageReaderProxyAndroidTest {
         verify(listenerB, times(1)).onReaderClose(mImageReaderProxy);
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void acquireLatestImage_throwsException_afterReaderIsClosed() {
         mImageReaderProxy.enqueueImage(createForwardingImageProxy());
         mImageReaderProxy.close();
 
-        assertThrows(IllegalStateException.class, () -> mImageReaderProxy.acquireLatestImage());
+        // Should throw IllegalStateException
+        mImageReaderProxy.acquireLatestImage();
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void acquireNextImage_throwsException_afterReaderIsClosed() {
         mImageReaderProxy.enqueueImage(createForwardingImageProxy());
         mImageReaderProxy.close();
 
-        assertThrows(IllegalStateException.class, () -> mImageReaderProxy.acquireNextImage());
+        // Should throw IllegalStateException
+        mImageReaderProxy.acquireNextImage();
     }
 
     @Test

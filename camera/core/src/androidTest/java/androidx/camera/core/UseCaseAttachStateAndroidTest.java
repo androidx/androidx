@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -277,7 +276,7 @@ public class UseCaseAttachStateAndroidTest {
                 .isEqualTo(CameraDevice.TEMPLATE_STILL_CAPTURE);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void setUseCaseOnlineWithWrongCamera() {
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfiguration configuration =
@@ -287,12 +286,12 @@ public class UseCaseAttachStateAndroidTest {
                         .build();
         TestUseCase fakeUseCase = new TestUseCase(configuration, mCameraId);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> useCaseAttachState.setUseCaseOnline(fakeUseCase));
+
+        // Should throw IllegalArgumentException
+        useCaseAttachState.setUseCaseOnline(fakeUseCase);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void setUseCaseActiveWithWrongCamera() {
         UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfiguration configuration =
@@ -302,9 +301,8 @@ public class UseCaseAttachStateAndroidTest {
                         .build();
         TestUseCase fakeUseCase = new TestUseCase(configuration, mCameraId);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> useCaseAttachState.setUseCaseActive(fakeUseCase));
+        // Should throw IllegalArgumentException
+        useCaseAttachState.setUseCaseActive(fakeUseCase);
     }
 
     private static class TestUseCase extends FakeUseCase {

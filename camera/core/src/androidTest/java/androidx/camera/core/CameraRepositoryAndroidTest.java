@@ -18,8 +18,6 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -58,9 +56,9 @@ public final class CameraRepositoryAndroidTest {
         }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void cameraCannotBeObtainedWithInvalidId() {
-        assertThrows(
-                IllegalArgumentException.class, () -> mCameraRepository.getCamera("no_such_id"));
+        // Should throw IllegalArgumentException
+        mCameraRepository.getCamera("no_such_id");
     }
 }

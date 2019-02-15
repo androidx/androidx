@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.spy;
 
 import android.content.Context;
@@ -154,17 +153,13 @@ public final class CameraXAndroidTest {
         assertThat(anotherLifecycle.getObserverCount()).isEqualTo(2);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void exception_withDestroyedLifecycle() {
         FakeUseCase useCase = new FakeUseCase();
 
         mLifecycle.destroy();
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> {
-                    CameraX.bindToLifecycle(mLifecycle, useCase);
-                });
+        CameraX.bindToLifecycle(mLifecycle, useCase);
     }
 
     @Test
