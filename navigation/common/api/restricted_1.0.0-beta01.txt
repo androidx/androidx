@@ -1,0 +1,17 @@
+// Signature format: 3.0
+package androidx.navigation {
+
+  public abstract class Navigator<D extends androidx.navigation.NavDestination> {
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final void addOnNavigatorBackPressListener(androidx.navigation.Navigator.OnNavigatorBackPressListener);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final void dispatchOnNavigatorBackPress();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected void onBackPressAdded();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected void onBackPressRemoved();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final void removeOnNavigatorBackPressListener(androidx.navigation.Navigator.OnNavigatorBackPressListener);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static interface Navigator.OnNavigatorBackPressListener {
+    method public void onPopBackStack(androidx.navigation.Navigator);
+  }
+
+}
+

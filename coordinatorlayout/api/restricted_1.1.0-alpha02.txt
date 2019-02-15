@@ -1,0 +1,26 @@
+// Signature format: 3.0
+package androidx.coordinatorlayout.widget {
+
+  public class CoordinatorLayout extends android.view.ViewGroup implements androidx.core.view.NestedScrollingParent2 androidx.core.view.NestedScrollingParent3 {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final androidx.core.view.WindowInsetsCompat! getLastWindowInsets();
+  }
+
+  @IntDef({androidx.coordinatorlayout.widget.CoordinatorLayout.EVENT_PRE_DRAW, androidx.coordinatorlayout.widget.CoordinatorLayout.EVENT_NESTED_SCROLL, androidx.coordinatorlayout.widget.CoordinatorLayout.EVENT_VIEW_REMOVED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CoordinatorLayout.DispatchChangeEvent {
+  }
+
+    ctor public DirectedAcyclicGraph();
+    method public void addEdge(T, T);
+    method public void addNode(T);
+    method public void clear();
+    method public boolean contains(T);
+    method public java.util.List? getIncomingEdges(T);
+    method public java.util.List<T>? getOutgoingEdges(T);
+    method public java.util.ArrayList<T> getSortedList();
+    method public boolean hasOutgoingEdges(T);
+  }
+
+    method public static void getDescendantRect(android.view.ViewGroup!, android.view.View!, android.graphics.Rect!);
+  }
+
+}
+

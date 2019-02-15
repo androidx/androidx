@@ -1,0 +1,690 @@
+// Signature format: 3.0
+package androidx.work {
+
+  public final class Configuration {
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @IntRange(from=20L, to=50L) public int getMaxSchedulerLimit();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY}) public int getMinimumLoggingLevel();
+  }
+
+  public final class Constraints {
+    ctor @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public Constraints();
+    method @RequiresApi(24) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.ContentUriTriggers getContentUriTriggers();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public long getTriggerContentUpdateDelay();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public long getTriggerMaxContentDelay();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(24) public boolean hasContentUriTriggers();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(24) public void setContentUriTriggers(androidx.work.ContentUriTriggers?);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setRequiredNetworkType(androidx.work.NetworkType);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setRequiresBatteryNotLow(boolean);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setRequiresCharging(boolean);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(23) public void setRequiresDeviceIdle(boolean);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setRequiresStorageNotLow(boolean);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setTriggerContentUpdateDelay(long);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setTriggerMaxContentDelay(long);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class ContentUriTriggers {
+    ctor public ContentUriTriggers();
+    method public void add(android.net.Uri, boolean);
+    method public boolean equals(Object?);
+    method public java.util.Set<androidx.work.ContentUriTriggers.Trigger> getTriggers();
+    method public int hashCode();
+    method public int size();
+  }
+
+  public static final class ContentUriTriggers.Trigger {
+    method public boolean equals(Object?);
+    method public android.net.Uri getUri();
+    method public int hashCode();
+    method public boolean shouldTriggerForDescendants();
+  }
+
+  public final class Data {
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static androidx.work.Data fromByteArray(byte[]);
+    method @VisibleForTesting @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int size();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static byte[] toByteArray(androidx.work.Data);
+  }
+
+  public static final class Data.Builder {
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.Data.Builder put(String, Object?);
+  }
+
+  public abstract class InputMerger {
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static androidx.work.InputMerger! fromClassName(String!);
+  }
+
+  public abstract class ListenableWorker {
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public java.util.concurrent.Executor getBackgroundExecutor();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.impl.utils.taskexecutor.TaskExecutor getTaskExecutor();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.WorkerFactory getWorkerFactory();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final boolean isUsed();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final void setUsed();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final void stop();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final class ListenableWorker.Result.Failure extends androidx.work.ListenableWorker.Result {
+    ctor public ListenableWorker.Result.Failure();
+    ctor public ListenableWorker.Result.Failure(androidx.work.Data);
+    method public boolean equals(Object?);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.Data! getOutputData();
+    method public int hashCode();
+    method public String toString();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final class ListenableWorker.Result.Retry extends androidx.work.ListenableWorker.Result {
+    ctor public ListenableWorker.Result.Retry();
+    method public boolean equals(Object?);
+    method public int hashCode();
+    method public String toString();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final class ListenableWorker.Result.Success extends androidx.work.ListenableWorker.Result {
+    ctor public ListenableWorker.Result.Success();
+    ctor public ListenableWorker.Result.Success(androidx.work.Data);
+    method public boolean equals(Object?);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.Data! getOutputData();
+    method public int hashCode();
+    method public String toString();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class Logger {
+    ctor public Logger(int);
+    method public abstract void debug(String!, String!, java.lang.Throwable...!);
+    method public abstract void error(String!, String!, java.lang.Throwable...!);
+    method public static androidx.work.Logger! get();
+    method public abstract void info(String!, String!, java.lang.Throwable...!);
+    method public static void setLogger(androidx.work.Logger!);
+    method public static String! tagWithPrefix(String);
+    method public abstract void verbose(String!, String!, java.lang.Throwable...!);
+    method public abstract void warning(String!, String!, java.lang.Throwable...!);
+  }
+
+  public static class Logger.LogcatLogger extends androidx.work.Logger {
+    ctor public Logger.LogcatLogger(int);
+    method public void debug(String!, String!, java.lang.Throwable...!);
+    method public void error(String!, String!, java.lang.Throwable...!);
+    method public void info(String!, String!, java.lang.Throwable...!);
+    method public void verbose(String!, String!, java.lang.Throwable...!);
+    method public void warning(String!, String!, java.lang.Throwable...!);
+  }
+
+  public interface Operation {
+    field @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final androidx.work.Operation.State.IN_PROGRESS! IN_PROGRESS;
+    field @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final androidx.work.Operation.State.SUCCESS! SUCCESS;
+  }
+
+  public abstract class WorkContinuation {
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected abstract androidx.work.WorkContinuation combineInternal(java.util.List<androidx.work.WorkContinuation>);
+  }
+
+  public final class WorkInfo {
+    ctor @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public WorkInfo(java.util.UUID, androidx.work.WorkInfo.State, androidx.work.Data, java.util.List<java.lang.String>);
+  }
+
+  public abstract class WorkManager {
+    ctor @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected WorkManager();
+  }
+
+  public abstract class WorkRequest {
+    ctor @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected WorkRequest(java.util.UUID, androidx.work.impl.model.WorkSpec, java.util.Set<java.lang.String>);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public String getStringId();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public java.util.Set<java.lang.String> getTags();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.impl.model.WorkSpec getWorkSpec();
+  }
+
+  public abstract static class WorkRequest.Builder<B extends androidx.work.WorkRequest.Builder, W extends androidx.work.WorkRequest> {
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @VisibleForTesting public final B setInitialRunAttemptCount(int);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @VisibleForTesting public final B setInitialState(androidx.work.WorkInfo.State);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @VisibleForTesting public final B setPeriodStartTime(long, java.util.concurrent.TimeUnit);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @VisibleForTesting public final B setScheduleRequestedAt(long, java.util.concurrent.TimeUnit);
+  }
+
+  public abstract class WorkerFactory {
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final androidx.work.ListenableWorker? createWorkerWithDefaultFallback(android.content.Context, String, androidx.work.WorkerParameters);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static androidx.work.WorkerFactory! getDefaultWorkerFactory();
+  }
+
+  public final class WorkerParameters {
+    ctor @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public WorkerParameters(java.util.UUID, androidx.work.Data, java.util.Collection<java.lang.String>, androidx.work.WorkerParameters.RuntimeExtras, int, java.util.concurrent.Executor, androidx.work.impl.utils.taskexecutor.TaskExecutor, androidx.work.WorkerFactory);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public java.util.concurrent.Executor getBackgroundExecutor();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.impl.utils.taskexecutor.TaskExecutor getTaskExecutor();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.WorkerFactory getWorkerFactory();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static class WorkerParameters.RuntimeExtras {
+    ctor public WorkerParameters.RuntimeExtras();
+    field @RequiresApi(28) public android.net.Network! network;
+    field public java.util.List<java.lang.String> triggeredContentAuthorities;
+    field public java.util.List<android.net.Uri> triggeredContentUris;
+  }
+
+}
+
+package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.work.impl {
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface ExecutionListener {
+    method public void onExecuted(String, boolean);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class OperationImpl implements androidx.work.Operation {
+    ctor public OperationImpl();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.work.Operation.State.SUCCESS> getResult();
+    method public android.arch.lifecycle.LiveData<androidx.work.Operation.State> getState();
+    method public void setState(androidx.work.Operation.State);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class Processor implements androidx.work.impl.ExecutionListener {
+    ctor public Processor(android.content.Context!, androidx.work.Configuration!, androidx.work.impl.utils.taskexecutor.TaskExecutor!, androidx.work.impl.WorkDatabase!, java.util.List<androidx.work.impl.Scheduler>!);
+    method public void addExecutionListener(androidx.work.impl.ExecutionListener!);
+    method public boolean hasWork();
+    method public boolean isCancelled(String!);
+    method public boolean isEnqueued(String);
+    method public void onExecuted(String, boolean);
+    method public void removeExecutionListener(androidx.work.impl.ExecutionListener!);
+    method public boolean startWork(String!);
+    method public boolean startWork(String!, androidx.work.WorkerParameters.RuntimeExtras!);
+    method public boolean stopAndCancelWork(String!);
+    method public boolean stopWork(String!);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface Scheduler {
+    method public void cancel(String);
+    method public void schedule(androidx.work.impl.model.WorkSpec...!);
+    field public static final int MAX_SCHEDULER_LIMIT = 50; // 0x32
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class Schedulers {
+    method public static void schedule(androidx.work.Configuration, androidx.work.impl.WorkDatabase, java.util.List<androidx.work.impl.Scheduler>!);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WorkContinuationImpl extends androidx.work.WorkContinuation {
+    method protected androidx.work.WorkContinuation combineInternal(java.util.List<androidx.work.WorkContinuation>);
+    method public androidx.work.Operation enqueue();
+    method public java.util.List<java.lang.String>! getAllIds();
+    method public androidx.work.ExistingWorkPolicy! getExistingWorkPolicy();
+    method public java.util.List<java.lang.String> getIds();
+    method public String? getName();
+    method public java.util.List<androidx.work.impl.WorkContinuationImpl>! getParents();
+    method public java.util.List<? extends androidx.work.WorkRequest> getWork();
+    method public com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo>> getWorkInfos();
+    method public android.arch.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo>> getWorkInfosLiveData();
+    method public androidx.work.impl.WorkManagerImpl getWorkManagerImpl();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean hasCycles();
+    method public boolean isEnqueued();
+    method public void markEnqueued();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static java.util.Set<java.lang.String>! prerequisitesFor(androidx.work.impl.WorkContinuationImpl!);
+    method public androidx.work.WorkContinuation then(java.util.List<androidx.work.OneTimeWorkRequest>!);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class WorkDatabase {
+    ctor public WorkDatabase();
+    method public static androidx.work.impl.WorkDatabase! create(android.content.Context!, boolean);
+    method public abstract androidx.work.impl.model.DependencyDao! dependencyDao();
+    method public abstract androidx.work.impl.model.SystemIdInfoDao! systemIdInfoDao();
+    method public abstract androidx.work.impl.model.WorkNameDao! workNameDao();
+    method public abstract androidx.work.impl.model.WorkSpecDao! workSpecDao();
+    method public abstract androidx.work.impl.model.WorkTagDao! workTagDao();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WorkDatabaseMigrations {
+    field public static android.arch.persistence.room.migration.Migration! MIGRATION_1_2;
+    field public static android.arch.persistence.room.migration.Migration! MIGRATION_3_4;
+    field public static android.arch.persistence.room.migration.Migration! MIGRATION_4_5;
+    field public static final int VERSION_1 = 1; // 0x1
+    field public static final int VERSION_2 = 2; // 0x2
+    field public static final int VERSION_3 = 3; // 0x3
+    field public static final int VERSION_4 = 4; // 0x4
+    field public static final int VERSION_5 = 5; // 0x5
+  }
+
+  public static class WorkDatabaseMigrations.WorkMigration {
+    ctor public WorkDatabaseMigrations.WorkMigration(android.content.Context, int, int);
+    method public void migrate(android.arch.persistence.db.SupportSQLiteDatabase);
+  }
+
+  public class WorkDatabase_Impl extends androidx.work.impl.WorkDatabase {
+    method public androidx.work.impl.model.DependencyDao! dependencyDao();
+    method public androidx.work.impl.model.SystemIdInfoDao! systemIdInfoDao();
+    method public androidx.work.impl.model.WorkNameDao! workNameDao();
+    method public androidx.work.impl.model.WorkSpecDao! workSpecDao();
+    method public androidx.work.impl.model.WorkTagDao! workTagDao();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WorkManagerImpl extends androidx.work.WorkManager {
+    ctor @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public WorkManagerImpl(android.content.Context, androidx.work.Configuration, androidx.work.impl.utils.taskexecutor.TaskExecutor);
+    ctor @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public WorkManagerImpl(android.content.Context, androidx.work.Configuration, androidx.work.impl.utils.taskexecutor.TaskExecutor, boolean);
+    ctor @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public WorkManagerImpl(android.content.Context, androidx.work.Configuration, androidx.work.impl.utils.taskexecutor.TaskExecutor, androidx.work.impl.WorkDatabase, java.util.List<androidx.work.impl.Scheduler>, androidx.work.impl.Processor);
+    method public androidx.work.WorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>);
+    method public androidx.work.WorkContinuation beginWith(java.util.List<androidx.work.OneTimeWorkRequest>);
+    method public androidx.work.Operation cancelAllWork();
+    method public androidx.work.Operation cancelAllWorkByTag(String);
+    method public androidx.work.Operation cancelUniqueWork(String);
+    method public androidx.work.Operation cancelWorkById(java.util.UUID);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public java.util.List<androidx.work.impl.Scheduler> createSchedulers(android.content.Context!);
+    method public androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest>);
+    method public androidx.work.Operation enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
+    method public androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.Context! getApplicationContext();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.Configuration getConfiguration();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static androidx.work.impl.WorkManagerImpl? getInstance();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Long> getLastCancelAllTimeMillis();
+    method public android.arch.lifecycle.LiveData<java.lang.Long> getLastCancelAllTimeMillisLiveData();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.impl.utils.Preferences getPreferences();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.impl.Processor getProcessor();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public java.util.List<androidx.work.impl.Scheduler> getSchedulers();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.impl.WorkDatabase! getWorkDatabase();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkInfo> getWorkInfoById(java.util.UUID);
+    method public android.arch.lifecycle.LiveData<androidx.work.WorkInfo> getWorkInfoByIdLiveData(java.util.UUID);
+    method public com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo>> getWorkInfosByTag(String);
+    method public android.arch.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo>> getWorkInfosByTagLiveData(String);
+    method public com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo>> getWorkInfosForUniqueWork(String);
+    method public android.arch.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo>> getWorkInfosForUniqueWorkLiveData(String);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.work.impl.utils.taskexecutor.TaskExecutor getWorkTaskExecutor();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static void initialize(android.content.Context, androidx.work.Configuration);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void onForceStopRunnableCompleted();
+    method public androidx.work.Operation pruneWork();
+    method public void rescheduleEligibleWork();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static void setDelegate(androidx.work.impl.WorkManagerImpl!);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setReschedulePendingResult(android.content.BroadcastReceiver.PendingResult);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void startWork(String!);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void startWork(String!, androidx.work.WorkerParameters.RuntimeExtras!);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void stopWork(String!);
+    field public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 22; // 0x16
+    field public static final int MIN_JOB_SCHEDULER_API_LEVEL = 23; // 0x17
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WorkManagerInitializer {
+    ctor public WorkManagerInitializer();
+    method public int delete(android.net.Uri, String?, String[]?);
+    method public String? getType(android.net.Uri);
+    method public android.net.Uri? insert(android.net.Uri, android.content.ContentValues?);
+    method public boolean onCreate();
+    method public android.database.Cursor? query(android.net.Uri, String[]?, String?, String[]?, String?);
+    method public int update(android.net.Uri, android.content.ContentValues?, String?, String[]?);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WorkerWrapper {
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Boolean> getFuture();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void interrupt(boolean);
+    method @WorkerThread public void run();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static class WorkerWrapper.Builder {
+    ctor public WorkerWrapper.Builder(android.content.Context, androidx.work.Configuration, androidx.work.impl.utils.taskexecutor.TaskExecutor, androidx.work.impl.WorkDatabase, String);
+    method public androidx.work.impl.WorkerWrapper! build();
+    method public androidx.work.impl.WorkerWrapper.Builder! withRuntimeExtras(androidx.work.WorkerParameters.RuntimeExtras!);
+    method public androidx.work.impl.WorkerWrapper.Builder! withSchedulers(java.util.List<androidx.work.impl.Scheduler>!);
+    method @VisibleForTesting public androidx.work.impl.WorkerWrapper.Builder! withWorker(androidx.work.ListenableWorker!);
+  }
+
+}
+
+package androidx.work.impl.background.greedy {
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class GreedyScheduler implements androidx.work.impl.ExecutionListener androidx.work.impl.Scheduler androidx.work.impl.constraints.WorkConstraintsCallback {
+    ctor public GreedyScheduler(android.content.Context!, androidx.work.impl.WorkManagerImpl!);
+    ctor @VisibleForTesting public GreedyScheduler(androidx.work.impl.WorkManagerImpl!, androidx.work.impl.constraints.WorkConstraintsTracker!);
+    method public void cancel(String);
+    method public void onAllConstraintsMet(java.util.List<java.lang.String>);
+    method public void onAllConstraintsNotMet(java.util.List<java.lang.String>);
+    method public void onExecuted(String, boolean);
+    method public void schedule(androidx.work.impl.model.WorkSpec...!);
+  }
+
+}
+
+package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.work.impl.background.systemalarm {
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class CommandHandler implements androidx.work.impl.ExecutionListener {
+    method public void onExecuted(String, boolean);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class DelayMetCommandHandler implements androidx.work.impl.ExecutionListener androidx.work.impl.constraints.WorkConstraintsCallback {
+    method public void onAllConstraintsMet(java.util.List<java.lang.String>);
+    method public void onAllConstraintsNotMet(java.util.List<java.lang.String>);
+    method public void onExecuted(String, boolean);
+    method public void onTimeLimitExceeded(String);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SystemAlarmDispatcher implements androidx.work.impl.ExecutionListener {
+    method @MainThread public boolean add(android.content.Intent, int);
+    method public void onExecuted(String, boolean);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SystemAlarmScheduler implements androidx.work.impl.Scheduler {
+    ctor public SystemAlarmScheduler(android.content.Context);
+    method public void cancel(String);
+    method public void schedule(androidx.work.impl.model.WorkSpec...!);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SystemAlarmService {
+    ctor public SystemAlarmService();
+    method @MainThread public void onAllCommandsCompleted();
+    method public void onCreate();
+    method public void onDestroy();
+    method public int onStartCommand(android.content.Intent!, int, int);
+  }
+
+}
+
+package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.work.impl.background.systemjob {
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(23) public class SystemJobScheduler implements androidx.work.impl.Scheduler {
+    ctor public SystemJobScheduler(android.content.Context, androidx.work.impl.WorkManagerImpl);
+    ctor @VisibleForTesting public SystemJobScheduler(android.content.Context!, androidx.work.impl.WorkManagerImpl!, android.app.job.JobScheduler!, androidx.work.impl.background.systemjob.SystemJobInfoConverter!);
+    method public void cancel(String);
+    method public static void jobSchedulerCancelAll(android.content.Context);
+    method public void schedule(androidx.work.impl.model.WorkSpec...!);
+    method @VisibleForTesting public void scheduleInternal(androidx.work.impl.model.WorkSpec!, int);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(23) public class SystemJobService implements androidx.work.impl.ExecutionListener {
+    ctor public SystemJobService();
+    method public void onCreate();
+    method public void onDestroy();
+    method public void onExecuted(String, boolean);
+    method public boolean onStartJob(android.app.job.JobParameters!);
+    method public boolean onStopJob(android.app.job.JobParameters!);
+  }
+
+}
+
+package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.work.impl.constraints.trackers {
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class BatteryChargingTracker extends androidx.work.impl.constraints.trackers.BroadcastReceiverConstraintTracker<java.lang.Boolean> {
+    ctor public BatteryChargingTracker(android.content.Context!);
+    method public Boolean! getInitialState();
+    method public android.content.IntentFilter! getIntentFilter();
+    method public void onBroadcastReceive(android.content.Context!, android.content.Intent);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class BatteryNotLowTracker extends androidx.work.impl.constraints.trackers.BroadcastReceiverConstraintTracker<java.lang.Boolean> {
+    ctor public BatteryNotLowTracker(android.content.Context!);
+    method public Boolean! getInitialState();
+    method public android.content.IntentFilter! getIntentFilter();
+    method public void onBroadcastReceive(android.content.Context!, android.content.Intent);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class BroadcastReceiverConstraintTracker<T> extends androidx.work.impl.constraints.trackers.ConstraintTracker<T> {
+    ctor public BroadcastReceiverConstraintTracker(android.content.Context!);
+    method public abstract android.content.IntentFilter! getIntentFilter();
+    method public abstract void onBroadcastReceive(android.content.Context!, android.content.Intent);
+    method public void startTracking();
+    method public void stopTracking();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class ConstraintTracker<T> {
+    method public void addListener(androidx.work.impl.constraints.ConstraintListener<T>!);
+    method public abstract T! getInitialState();
+    method public void removeListener(androidx.work.impl.constraints.ConstraintListener<T>!);
+    method public void setState(T!);
+    method public abstract void startTracking();
+    method public abstract void stopTracking();
+    field protected final android.content.Context! mAppContext;
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class NetworkStateTracker extends androidx.work.impl.constraints.trackers.ConstraintTracker<androidx.work.impl.constraints.NetworkState> {
+    ctor public NetworkStateTracker(android.content.Context!);
+    method public androidx.work.impl.constraints.NetworkState! getInitialState();
+    method public void startTracking();
+    method public void stopTracking();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class StorageNotLowTracker extends androidx.work.impl.constraints.trackers.BroadcastReceiverConstraintTracker<java.lang.Boolean> {
+    ctor public StorageNotLowTracker(android.content.Context!);
+    method public Boolean! getInitialState();
+    method public android.content.IntentFilter! getIntentFilter();
+    method public void onBroadcastReceive(android.content.Context!, android.content.Intent);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class Trackers {
+    method public androidx.work.impl.constraints.trackers.BatteryChargingTracker! getBatteryChargingTracker();
+    method public androidx.work.impl.constraints.trackers.BatteryNotLowTracker! getBatteryNotLowTracker();
+    method public static androidx.work.impl.constraints.trackers.Trackers! getInstance(android.content.Context!);
+    method public androidx.work.impl.constraints.trackers.NetworkStateTracker! getNetworkStateTracker();
+    method public androidx.work.impl.constraints.trackers.StorageNotLowTracker! getStorageNotLowTracker();
+    method @VisibleForTesting public static void setInstance(androidx.work.impl.constraints.trackers.Trackers);
+  }
+
+}
+
+package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.work.impl.model {
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class Dependency {
+    ctor public Dependency(String, String);
+    field public final String prerequisiteId;
+    field public final String workSpecId;
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SystemIdInfo {
+    ctor public SystemIdInfo(String, int);
+    method public boolean equals(Object?);
+    method public int hashCode();
+    field public final int systemId;
+    field public final String workSpecId;
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WorkName {
+    ctor public WorkName(String, String);
+    field public final String name;
+    field public final String workSpecId;
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WorkSpec {
+    ctor public WorkSpec(String, String);
+    ctor public WorkSpec(androidx.work.impl.model.WorkSpec);
+    method public long calculateNextRunTime();
+    method public boolean equals(Object?);
+    method public boolean hasConstraints();
+    method public int hashCode();
+    method public boolean isBackedOff();
+    method public boolean isPeriodic();
+    method public void setBackoffDelayDuration(long);
+    method public void setPeriodic(long);
+    method public void setPeriodic(long, long);
+    method public String toString();
+    field public static final long SCHEDULE_NOT_REQUESTED_YET = -1L; // 0xffffffffffffffffL
+    field public static final android.arch.core.util.Function<java.util.List<androidx.work.impl.model.WorkSpec.WorkInfoPojo>,java.util.List<androidx.work.WorkInfo>>! WORK_INFO_MAPPER;
+    field public long backoffDelayDuration;
+    field public androidx.work.BackoffPolicy backoffPolicy;
+    field public androidx.work.Constraints constraints;
+    field public long flexDuration;
+    field public String id;
+    field public long initialDelay;
+    field public androidx.work.Data input;
+    field public String! inputMergerClassName;
+    field public long intervalDuration;
+    field public long minimumRetentionDuration;
+    field public androidx.work.Data output;
+    field public long periodStartTime;
+    field public int runAttemptCount;
+    field public long scheduleRequestedAt;
+    field public androidx.work.WorkInfo.State state;
+    field public String workerClassName;
+  }
+
+  public static class WorkSpec.IdAndState {
+    ctor public WorkSpec.IdAndState();
+    method public boolean equals(Object?);
+    method public int hashCode();
+    field public String! id;
+    field public androidx.work.WorkInfo.State! state;
+  }
+
+  public static class WorkSpec.WorkInfoPojo {
+    ctor public WorkSpec.WorkInfoPojo();
+    method public boolean equals(Object?);
+    method public int hashCode();
+    method public androidx.work.WorkInfo! toWorkInfo();
+    field public String! id;
+    field public androidx.work.Data! output;
+    field public androidx.work.WorkInfo.State! state;
+    field public java.util.List<java.lang.String>! tags;
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WorkTag {
+    ctor public WorkTag(String, String);
+    field public final String tag;
+    field public final String workSpecId;
+  }
+
+}
+
+package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.work.impl.utils {
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class CancelWorkRunnable {
+    ctor public CancelWorkRunnable();
+    method public static androidx.work.impl.utils.CancelWorkRunnable! forAll(androidx.work.impl.WorkManagerImpl);
+    method public static androidx.work.impl.utils.CancelWorkRunnable! forId(java.util.UUID, androidx.work.impl.WorkManagerImpl);
+    method public static androidx.work.impl.utils.CancelWorkRunnable! forName(String, androidx.work.impl.WorkManagerImpl, boolean);
+    method public static androidx.work.impl.utils.CancelWorkRunnable! forTag(String, androidx.work.impl.WorkManagerImpl);
+    method public androidx.work.Operation! getOperation();
+    method public void run();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class EnqueueRunnable {
+    ctor public EnqueueRunnable(androidx.work.impl.WorkContinuationImpl);
+    method @VisibleForTesting public boolean addToDatabase();
+    method public androidx.work.Operation! getOperation();
+    method public void run();
+    method @VisibleForTesting public void scheduleWorkInBackground();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ForceStopRunnable {
+    ctor public ForceStopRunnable(android.content.Context, androidx.work.impl.WorkManagerImpl);
+    method @VisibleForTesting public boolean isForceStopped();
+    method public void run();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static class ForceStopRunnable.BroadcastReceiver {
+    ctor public ForceStopRunnable.BroadcastReceiver();
+    method public void onReceive(android.content.Context!, android.content.Intent!);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class IdGenerator {
+    ctor public IdGenerator(android.content.Context!);
+    method public int nextAlarmManagerId();
+    method public int nextJobSchedulerIdWithRange(int, int);
+    field public static final int INITIAL_ID = 0; // 0x0
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class LiveDataUtils {
+    method public static <In, Out> android.arch.lifecycle.LiveData<Out>! dedupedMappedLiveDataFor(android.arch.lifecycle.LiveData<In>, android.arch.core.util.Function<In,Out>, androidx.work.impl.utils.taskexecutor.TaskExecutor);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class Preferences {
+    ctor public Preferences(android.content.Context);
+    ctor @VisibleForTesting public Preferences(android.content.SharedPreferences);
+    method public long getLastCancelAllTimeMillis();
+    method public android.arch.lifecycle.LiveData<java.lang.Long>! getLastCancelAllTimeMillisLiveData();
+    method public boolean needsReschedule();
+    method public void setLastCancelAllTimeMillis(long);
+    method public void setNeedsReschedule(boolean);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class PruneWorkRunnable {
+    ctor public PruneWorkRunnable(androidx.work.impl.WorkManagerImpl!);
+    method public androidx.work.Operation! getOperation();
+    method public void run();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class StartWorkRunnable {
+    ctor public StartWorkRunnable(androidx.work.impl.WorkManagerImpl!, String!, androidx.work.WorkerParameters.RuntimeExtras!);
+    method public void run();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class StatusRunnable<T> {
+    ctor public StatusRunnable();
+    method public static androidx.work.impl.utils.StatusRunnable<java.util.List<androidx.work.WorkInfo>>! forStringIds(androidx.work.impl.WorkManagerImpl, java.util.List<java.lang.String>);
+    method public static androidx.work.impl.utils.StatusRunnable<java.util.List<androidx.work.WorkInfo>>! forTag(androidx.work.impl.WorkManagerImpl, String);
+    method public static androidx.work.impl.utils.StatusRunnable<androidx.work.WorkInfo>! forUUID(androidx.work.impl.WorkManagerImpl, java.util.UUID);
+    method public static androidx.work.impl.utils.StatusRunnable<java.util.List<androidx.work.WorkInfo>>! forUniqueWork(androidx.work.impl.WorkManagerImpl, String);
+    method public com.google.common.util.concurrent.ListenableFuture<T>! getFuture();
+    method public void run();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class StopWorkRunnable {
+    ctor public StopWorkRunnable(androidx.work.impl.WorkManagerImpl!, String!);
+    method public void run();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SynchronousExecutor {
+    ctor public SynchronousExecutor();
+    method public void execute(Runnable);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WakeLocks {
+    method public static void checkWakeLocks();
+    method public static android.os.PowerManager.WakeLock! newWakeLock(android.content.Context, String);
+  }
+
+}
+
+package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.work.impl.utils.futures {
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class AbstractFuture<V> {
+    ctor protected AbstractFuture();
+    method public final void addListener(Runnable!, java.util.concurrent.Executor!);
+    method protected void afterDone();
+    method public final boolean cancel(boolean);
+    method public final V! get(long, java.util.concurrent.TimeUnit!);
+    method public final V! get();
+    method protected void interruptTask();
+    method public final boolean isCancelled();
+    method public final boolean isDone();
+    method protected String? pendingToString();
+    method protected boolean set(V?);
+    method protected boolean setException(Throwable!);
+    method protected boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V>!);
+    method public String toString();
+    method protected final boolean wasInterrupted();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class SettableFuture<V> extends androidx.work.impl.utils.futures.AbstractFuture<V> {
+    method public static <V> androidx.work.impl.utils.futures.SettableFuture<V>! create();
+    method public boolean set(V?);
+    method public boolean setException(Throwable!);
+    method public boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V>!);
+  }
+
+}
+
+package @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.work.impl.utils.taskexecutor {
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface TaskExecutor {
+    method public void executeOnBackgroundThread(Runnable!);
+    method public java.util.concurrent.Executor! getBackgroundExecutor();
+    method public Thread getBackgroundExecutorThread();
+    method public java.util.concurrent.Executor! getMainThreadExecutor();
+    method public void postToMainThread(Runnable!);
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WorkManagerTaskExecutor implements androidx.work.impl.utils.taskexecutor.TaskExecutor {
+    ctor public WorkManagerTaskExecutor();
+    method public void executeOnBackgroundThread(Runnable!);
+    method public java.util.concurrent.Executor! getBackgroundExecutor();
+    method public Thread getBackgroundExecutorThread();
+    method public java.util.concurrent.Executor! getMainThreadExecutor();
+    method public void postToMainThread(Runnable!);
+  }
+
+}
+
+package androidx.work.impl.workers {
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class CombineContinuationsWorker extends androidx.work.Worker {
+    ctor public CombineContinuationsWorker(android.content.Context, androidx.work.WorkerParameters);
+    method public androidx.work.ListenableWorker.Result doWork();
+  }
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ConstraintTrackingWorker extends androidx.work.ListenableWorker implements androidx.work.impl.constraints.WorkConstraintsCallback {
+    ctor public ConstraintTrackingWorker(android.content.Context, androidx.work.WorkerParameters);
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @VisibleForTesting public androidx.work.ListenableWorker! getDelegate();
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @VisibleForTesting public androidx.work.impl.WorkDatabase! getWorkDatabase();
+    method public void onAllConstraintsMet(java.util.List<java.lang.String>);
+    method public void onAllConstraintsNotMet(java.util.List<java.lang.String>);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result> startWork();
+    field public static final String ARGUMENT_CLASS_NAME = "androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME";
+  }
+
+}
+

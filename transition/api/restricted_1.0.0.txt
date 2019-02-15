@@ -1,0 +1,45 @@
+// Signature format: 3.0
+package androidx.transition {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class FragmentTransitionSupport {
+    ctor public FragmentTransitionSupport();
+    method public void addTarget(Object!, android.view.View!);
+    method public void addTargets(Object!, java.util.ArrayList<android.view.View>!);
+    method public void beginDelayedTransition(android.view.ViewGroup!, Object!);
+    method public boolean canHandle(Object!);
+    method public Object! cloneTransition(Object!);
+    method public Object! mergeTransitionsInSequence(Object!, Object!, Object!);
+    method public Object! mergeTransitionsTogether(Object!, Object!, Object!);
+    method public void removeTarget(Object!, android.view.View!);
+    method public void replaceTargets(Object!, java.util.ArrayList<android.view.View>!, java.util.ArrayList<android.view.View>!);
+    method public void scheduleHideFragmentView(Object!, android.view.View!, java.util.ArrayList<android.view.View>!);
+    method public void scheduleRemoveTargets(Object!, Object!, java.util.ArrayList<android.view.View>!, Object!, java.util.ArrayList<android.view.View>!, Object!, java.util.ArrayList<android.view.View>!);
+    method public void setEpicenter(Object!, android.view.View!);
+    method public void setEpicenter(Object!, android.graphics.Rect!);
+    method public void setSharedElementTargets(Object!, android.view.View!, java.util.ArrayList<android.view.View>!);
+    method public void swapSharedElementTargets(Object!, java.util.ArrayList<android.view.View>!, java.util.ArrayList<android.view.View>!);
+    method public Object! wrapTransitionInSet(Object!);
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface Slide.GravityFlag {
+  }
+
+  public abstract class Transition {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected void animate(android.animation.Animator!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected void cancel();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected void createAnimators(android.view.ViewGroup!, androidx.transition.TransitionValuesMaps!, androidx.transition.TransitionValuesMaps!, java.util.ArrayList<androidx.transition.TransitionValues>!, java.util.ArrayList<androidx.transition.TransitionValues>!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected void end();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void pause(android.view.View!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void resume(android.view.View!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected void runAnimators();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected void start();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface Transition.MatchOrder {
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface Visibility.Mode {
+  }
+
+}
+

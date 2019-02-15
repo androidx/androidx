@@ -1,0 +1,16 @@
+// Signature format: 3.0
+package androidx.lifecycle {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ReportFragment {
+    ctor public ReportFragment();
+    method public static void injectIfNeededIn(android.app.Activity!);
+    method public void onActivityCreated(android.os.Bundle!);
+    method public void onDestroy();
+    method public void onPause();
+    method public void onResume();
+    method public void onStart();
+    method public void onStop();
+  }
+
+}
+

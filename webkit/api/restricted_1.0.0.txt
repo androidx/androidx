@@ -1,0 +1,59 @@
+// Signature format: 3.0
+package androidx.webkit {
+
+  public abstract class SafeBrowsingResponseCompat {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public SafeBrowsingResponseCompat();
+  }
+
+  public abstract class ServiceWorkerControllerCompat {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public ServiceWorkerControllerCompat();
+  }
+
+  public abstract class ServiceWorkerWebSettingsCompat {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public ServiceWorkerWebSettingsCompat();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface ServiceWorkerWebSettingsCompat.CacheMode {
+  }
+
+  public abstract class WebMessagePortCompat {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public WebMessagePortCompat();
+    method @RequiresApi(23) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract android.webkit.WebMessagePort! getFrameworkPort();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract java.lang.reflect.InvocationHandler! getInvocationHandler();
+  }
+
+  public abstract class WebResourceErrorCompat {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public WebResourceErrorCompat();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface WebResourceErrorCompat.NetErrorCode {
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.METHOD}) public static @interface WebSettingsCompat.MenuItemFlags {
+  }
+
+  public class WebViewClientCompat implements org.chromium.support_lib_boundary.WebViewClientBoundaryInterface {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final String[]! getSupportedFeatures();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(21) public final void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, java.lang.reflect.InvocationHandler);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(23) public final void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, java.lang.reflect.InvocationHandler);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(27) public final void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, android.webkit.SafeBrowsingResponse);
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface WebViewClientCompat.SafeBrowsingThreat {
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.METHOD}) public static @interface WebViewFeature.WebViewSupportFeature {
+  }
+
+}
+
+package @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) androidx.webkit.internal {
+
+  public class WebMessagePortImpl extends androidx.webkit.WebMessagePortCompat {
+    method @RequiresApi(23) public android.webkit.WebMessagePort! getFrameworkPort();
+    method public java.lang.reflect.InvocationHandler! getInvocationHandler();
+  }
+
+}
+
