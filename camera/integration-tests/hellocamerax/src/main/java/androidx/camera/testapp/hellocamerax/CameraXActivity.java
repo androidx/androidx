@@ -16,7 +16,6 @@
 
 package androidx.camera.testapp.hellocamerax;
 
-import android.arch.lifecycle.MutableLiveData;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -28,8 +27,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -40,6 +37,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceConfiguration;
 import androidx.camera.core.CameraX;
@@ -52,7 +50,9 @@ import androidx.camera.core.VideoCaptureUseCase;
 import androidx.camera.core.VideoCaptureUseCaseConfiguration;
 import androidx.camera.core.ViewFinderUseCase;
 import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.core.content.ContextCompat;
 import androidx.legacy.app.ActivityCompat;
+import androidx.lifecycle.MutableLiveData;
 
 import java.io.File;
 import java.math.BigDecimal;

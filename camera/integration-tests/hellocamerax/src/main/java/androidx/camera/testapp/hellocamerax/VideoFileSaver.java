@@ -16,10 +16,10 @@
 
 package androidx.camera.testapp.hellocamerax;
 
-import android.support.annotation.GuardedBy;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
+import androidx.annotation.GuardedBy;
+import androidx.annotation.Nullable;
 import androidx.camera.core.VideoCaptureUseCase.OnVideoSavedListener;
 import androidx.camera.core.VideoCaptureUseCase.UseCaseError;
 
