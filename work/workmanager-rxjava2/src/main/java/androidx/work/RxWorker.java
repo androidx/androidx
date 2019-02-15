@@ -38,7 +38,7 @@ import io.reactivex.schedulers.Schedulers;
  * RxJava2 interoperability Worker implementation.
  * <p>
  * When invoked by the {@link WorkManager}, it will call @{@link #createWork()} to get a
- * {@code Single<Payload>} subscribe to it.
+ * {@code Single<Result>} subscribe to it.
  * <p>
  * By default, RxWorker will subscribe on the thread pool that runs {@link WorkManager}
  * {@link Worker}s. You can change this behavior by overriding {@link #getBackgroundScheduler()}
