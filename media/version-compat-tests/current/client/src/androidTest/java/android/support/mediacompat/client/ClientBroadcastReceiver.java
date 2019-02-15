@@ -41,6 +41,7 @@ import static android.support.mediacompat.testlib.MediaControllerConstants.SEND_
 import static android.support.mediacompat.testlib.MediaControllerConstants
         .SEND_CUSTOM_ACTION_PARCELABLE;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_CAPTIONING_ENABLED;
+import static android.support.mediacompat.testlib.MediaControllerConstants.SET_PLAYBACK_SPEED;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_RATING;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_REPEAT_MODE;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_SHUFFLE_MODE;
@@ -230,6 +231,9 @@ public class ClientBroadcastReceiver extends BroadcastReceiver {
                     break;
                 case SET_SHUFFLE_MODE:
                     controls.setShuffleMode(extras.getInt(KEY_ARGUMENT));
+                    break;
+                case SET_PLAYBACK_SPEED:
+                    controls.setPlaybackSpeed(extras.getFloat(KEY_ARGUMENT));
                     break;
             }
         }
