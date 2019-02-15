@@ -2257,8 +2257,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
-        // Notify the activity of the night mode
-        if (handled && mHost instanceof AppCompatActivity) {
+        // Notify the activity of the night mode. We only notify if we handled the change,
+        // or the Activity is set to handle uiMode changes
+        if ((handled || activityHandlingUiMode) && mHost instanceof AppCompatActivity) {
             ((AppCompatActivity) mHost).onNightModeChanged(mode);
         }
 
