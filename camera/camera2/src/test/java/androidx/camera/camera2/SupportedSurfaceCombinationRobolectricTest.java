@@ -50,6 +50,7 @@ import androidx.camera.core.VideoCaptureUseCaseConfiguration;
 import androidx.camera.core.ViewFinderUseCase;
 import androidx.camera.core.ViewFinderUseCaseConfiguration;
 import androidx.camera.testing.StreamConfigurationMapUtil;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -69,6 +70,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Robolectric test for {@link SupportedSurfaceCombination} class */
+@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = VERSION_CODES.LOLLIPOP)
