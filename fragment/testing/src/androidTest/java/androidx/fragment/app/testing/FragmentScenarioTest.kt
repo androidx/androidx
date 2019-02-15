@@ -18,7 +18,10 @@ package androidx.fragment.app.testing
 
 import android.os.Bundle
 import androidx.fragment.app.FragmentFactory
+import androidx.fragment.testing.test.R.id.view_tag_id
 import androidx.fragment.testing.test.R.style.ThemedFragmentTheme
+import androidx.lifecycle.GenericLifecycleObserver
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -181,6 +184,33 @@ class FragmentScenarioTest {
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.RESUMED)
                 assertThat(fragment.constructorArg).isEqualTo("my constructor arg")
+                assertThat(fragment.numberOfRecreations).isEqualTo(0)
+                assertThat(fragment.isViewAttachedToWindow).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun launchInContainerWithEarlyLifecycleCallbacks() {
+        var tagSetBeforeOnStart = false
+        with(launchFragmentInContainer {
+            StateRecordingFragment().also { fragment ->
+                fragment.viewLifecycleOwnerLiveData.observeForever { viewLifecycleOwner ->
+                    if (viewLifecycleOwner != null) {
+                        fragment.requireView().setTag(view_tag_id, "fakeNavController")
+                    }
+                }
+                fragment.lifecycle.addObserver(GenericLifecycleObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_START) {
+                        tagSetBeforeOnStart =
+                            fragment.requireView().getTag(view_tag_id) == "fakeNavController"
+                    }
+                })
+            }
+        }) {
+            assertThat(tagSetBeforeOnStart).isTrue()
+            onFragment { fragment ->
+                assertThat(fragment.state).isEqualTo(State.RESUMED)
                 assertThat(fragment.numberOfRecreations).isEqualTo(0)
                 assertThat(fragment.isViewAttachedToWindow).isTrue()
             }
