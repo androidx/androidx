@@ -1,0 +1,333 @@
+// Signature format: 3.0
+package androidx.slice.builders {
+
+  @RequiresApi(19) public class GridRowBuilder {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public GridRowBuilder(androidx.slice.builders.ListBuilder);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.GridRowBuilder addCell(androidx.core.util.Consumer<androidx.slice.builders.GridRowBuilder.CellBuilder>);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<androidx.slice.builders.GridRowBuilder.CellBuilder>! getCells();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getDescription();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getLayoutDirection();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.SliceAction! getPrimaryAction();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.GridRowBuilder.CellBuilder! getSeeMoreCell();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public android.app.PendingIntent! getSeeMoreIntent();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.GridRowBuilder setSeeMoreCell(androidx.core.util.Consumer<androidx.slice.builders.GridRowBuilder.CellBuilder>);
+  }
+
+  public static class GridRowBuilder.CellBuilder {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public GridRowBuilder.CellBuilder(androidx.slice.builders.GridRowBuilder);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public GridRowBuilder.CellBuilder(androidx.slice.builders.GridRowBuilder, android.net.Uri);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getCellDescription();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public android.app.PendingIntent! getContentIntent();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Boolean>! getLoadings();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Object>! getObjects();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence? getSubtitle();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence? getTitle();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Integer>! getTypes();
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static final int TYPE_IMAGE = 2; // 0x2
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static final int TYPE_TEXT = 0; // 0x0
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static final int TYPE_TITLE = 1; // 0x1
+  }
+
+  @RequiresApi(19) public class ListBuilder extends androidx.slice.builders.TemplateSliceBuilder {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public ListBuilder(android.content.Context, android.net.Uri);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.ListBuilder addGridRow(androidx.core.util.Consumer<androidx.slice.builders.GridRowBuilder>);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.ListBuilder addInputRange(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.InputRangeBuilder>);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.ListBuilder addRange(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.RangeBuilder>);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.ListBuilder addRow(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.impl.ListBuilder! getImpl();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.ListBuilder setColor(@ColorInt int);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.ListBuilder setHeader(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.HeaderBuilder>);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.ListBuilder setKeywords(java.util.List<java.lang.String>!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.ListBuilder setSeeMoreRow(androidx.core.util.Consumer<androidx.slice.builders.ListBuilder.RowBuilder>);
+  }
+
+  public static class ListBuilder.HeaderBuilder {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public ListBuilder.HeaderBuilder(android.net.Uri!);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public ListBuilder.HeaderBuilder(androidx.slice.builders.ListBuilder);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public ListBuilder.HeaderBuilder(androidx.slice.builders.ListBuilder, android.net.Uri);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getContentDescription();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getLayoutDirection();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.SliceAction! getPrimaryAction();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getSubtitle();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getSummary();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getTitle();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public android.net.Uri! getUri();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean isSubtitleLoading();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean isSummaryLoading();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean isTitleLoading();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static @interface ListBuilder.ImageMode {
+  }
+
+  public static class ListBuilder.InputRangeBuilder {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public ListBuilder.InputRangeBuilder(androidx.slice.builders.ListBuilder);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public android.app.PendingIntent! getAction();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getContentDescription();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public android.app.PendingIntent! getInputAction();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getLayoutDirection();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getMax();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getMin();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.SliceAction! getPrimaryAction();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getSubtitle();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.core.graphics.drawable.IconCompat! getThumb();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getTitle();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getValue();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean isValueSet();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static @interface ListBuilder.LayoutDirection {
+  }
+
+  public static class ListBuilder.RangeBuilder {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public ListBuilder.RangeBuilder(androidx.slice.builders.ListBuilder);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getContentDescription();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getLayoutDirection();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getMax();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.SliceAction! getPrimaryAction();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getSubtitle();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getTitle();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getValue();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean isValueSet();
+  }
+
+  public static class ListBuilder.RowBuilder {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public ListBuilder.RowBuilder(androidx.slice.builders.ListBuilder);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public ListBuilder.RowBuilder(androidx.slice.builders.ListBuilder, android.net.Uri);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public ListBuilder.RowBuilder(android.content.Context, android.net.Uri);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getContentDescription();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Object>! getEndItems();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Boolean>! getEndLoads();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Integer>! getEndTypes();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getLayoutDirection();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.SliceAction! getPrimaryAction();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getSubtitle();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public long getTimeStamp();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getTitle();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.SliceAction! getTitleAction();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.core.graphics.drawable.IconCompat! getTitleIcon();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getTitleImageMode();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public android.net.Uri! getUri();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean hasDefaultToggle();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean hasEndActionOrToggle();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean hasEndImage();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean hasTimestamp();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean isSubtitleLoading();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean isTitleActionLoading();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean isTitleItemLoading();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean isTitleLoading();
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static final int TYPE_ACTION = 2; // 0x2
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static final int TYPE_ICON = 1; // 0x1
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static final int TYPE_TIMESTAMP = 0; // 0x0
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public class MessagingSliceBuilder extends androidx.slice.builders.TemplateSliceBuilder {
+    ctor public MessagingSliceBuilder(android.content.Context, android.net.Uri);
+    method public androidx.slice.builders.MessagingSliceBuilder! add(androidx.slice.builders.MessagingSliceBuilder.MessageBuilder!);
+    method public androidx.slice.builders.MessagingSliceBuilder! add(androidx.core.util.Consumer<androidx.slice.builders.MessagingSliceBuilder.MessageBuilder>!);
+    field public static final int MAXIMUM_RETAINED_MESSAGES = 50; // 0x32
+  }
+
+  public static final class MessagingSliceBuilder.MessageBuilder extends androidx.slice.builders.TemplateSliceBuilder {
+    ctor public MessagingSliceBuilder.MessageBuilder(androidx.slice.builders.MessagingSliceBuilder!);
+    method @RequiresApi(23) public androidx.slice.builders.MessagingSliceBuilder.MessageBuilder! addSource(android.graphics.drawable.Icon!);
+    method public androidx.slice.builders.MessagingSliceBuilder.MessageBuilder! addSource(androidx.core.graphics.drawable.IconCompat!);
+    method public androidx.slice.builders.MessagingSliceBuilder.MessageBuilder! addText(CharSequence!);
+    method public androidx.slice.builders.MessagingSliceBuilder.MessageBuilder! addTimestamp(long);
+  }
+
+  @RequiresApi(19) public class SliceAction {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(23) public SliceAction(android.app.PendingIntent, android.graphics.drawable.Icon, CharSequence);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(23) public SliceAction(android.app.PendingIntent, android.graphics.drawable.Icon, int, CharSequence);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(23) public SliceAction(android.app.PendingIntent, android.graphics.drawable.Icon, CharSequence, boolean);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, int, CharSequence);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public SliceAction(android.app.PendingIntent, CharSequence, boolean);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.Slice buildSlice(androidx.slice.Slice.Builder);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.core.SliceActionImpl getImpl();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public void setPrimaryAction(androidx.slice.Slice.Builder);
+  }
+
+  @RequiresApi(19) public abstract class TemplateSliceBuilder {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) protected TemplateSliceBuilder(androidx.slice.builders.impl.TemplateBuilderImpl!);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public TemplateSliceBuilder(android.content.Context!, android.net.Uri!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) protected boolean checkCompatible(androidx.slice.SliceSpec!, android.net.Uri!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) protected androidx.slice.Slice.Builder! getBuilder();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) protected androidx.slice.Clock! getClock();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) protected androidx.slice.builders.impl.TemplateBuilderImpl! selectImpl(android.net.Uri!);
+  }
+
+}
+
+package androidx.slice.builders.impl {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public class GridRowBuilderListV1Impl extends androidx.slice.builders.impl.TemplateBuilderImpl {
+    ctor public GridRowBuilderListV1Impl(androidx.slice.builders.impl.ListBuilderV1Impl, androidx.slice.builders.GridRowBuilder!);
+    method public void addCell(androidx.slice.builders.GridRowBuilder.CellBuilder!);
+    method public void apply(androidx.slice.Slice.Builder!);
+    method public void setContentDescription(CharSequence!);
+    method public void setLayoutDirection(int);
+    method public void setPrimaryAction(androidx.slice.builders.SliceAction!);
+    method public void setSeeMoreAction(android.app.PendingIntent!);
+    method public void setSeeMoreCell(androidx.slice.builders.GridRowBuilder.CellBuilder);
+  }
+
+  public static final class GridRowBuilderListV1Impl.CellBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public void apply(androidx.slice.Slice.Builder!);
+    method public void fillFrom(androidx.slice.builders.GridRowBuilder.CellBuilder!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public interface ListBuilder {
+    method public void addAction(androidx.slice.builders.SliceAction!);
+    method public void addGridRow(androidx.slice.builders.GridRowBuilder!);
+    method public void addInputRange(androidx.slice.builders.ListBuilder.InputRangeBuilder!);
+    method public void addRange(androidx.slice.builders.ListBuilder.RangeBuilder!);
+    method public void addRow(androidx.slice.builders.ListBuilder.RowBuilder!);
+    method public void setColor(@ColorInt int);
+    method public void setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder!);
+    method public void setIsError(boolean);
+    method public void setKeywords(java.util.Set<java.lang.String>!);
+    method public void setLayoutDirection(int);
+    method public void setSeeMoreAction(android.app.PendingIntent!);
+    method public void setSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder!);
+    method public void setTtl(long);
+    method @RequiresApi(26) public void setTtl(java.time.Duration?);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public class ListBuilderBasicImpl extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.ListBuilder {
+    ctor public ListBuilderBasicImpl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!);
+    method public void addAction(androidx.slice.builders.SliceAction!);
+    method public void addGridRow(androidx.slice.builders.GridRowBuilder!);
+    method public void addInputRange(androidx.slice.builders.ListBuilder.InputRangeBuilder!);
+    method public void addRange(androidx.slice.builders.ListBuilder.RangeBuilder!);
+    method public void addRow(androidx.slice.builders.ListBuilder.RowBuilder!);
+    method public void apply(androidx.slice.Slice.Builder!);
+    method public void setColor(@ColorInt int);
+    method public void setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder!);
+    method public void setIsError(boolean);
+    method public void setKeywords(java.util.Set<java.lang.String>!);
+    method public void setLayoutDirection(int);
+    method public void setSeeMoreAction(android.app.PendingIntent!);
+    method public void setSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder!);
+    method public void setTtl(long);
+    method @RequiresApi(26) public void setTtl(java.time.Duration?);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public class ListBuilderV1Impl extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.ListBuilder {
+    ctor public ListBuilderV1Impl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!);
+    ctor public ListBuilderV1Impl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!, androidx.slice.Clock!);
+    method public void addAction(androidx.slice.builders.SliceAction);
+    method public void addGridRow(androidx.slice.builders.GridRowBuilder);
+    method public void addInputRange(androidx.slice.builders.ListBuilder.InputRangeBuilder!);
+    method public void addRange(androidx.slice.builders.ListBuilder.RangeBuilder!);
+    method public void addRow(androidx.slice.builders.ListBuilder.RowBuilder);
+    method public void addRow(androidx.slice.builders.impl.ListBuilderV1Impl.RowBuilderImpl);
+    method public void apply(androidx.slice.Slice.Builder!);
+    method public void setColor(@ColorInt int);
+    method public void setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder);
+    method public void setIsError(boolean);
+    method public void setKeywords(java.util.Set<java.lang.String>);
+    method public void setLayoutDirection(int);
+    method public void setSeeMoreAction(android.app.PendingIntent!);
+    method public void setSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder!);
+    method public void setTtl(long);
+    method @RequiresApi(26) public void setTtl(java.time.Duration?);
+  }
+
+  public static class ListBuilderV1Impl.HeaderBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
+    method public void apply(androidx.slice.Slice.Builder!);
+  }
+
+  public static class ListBuilderV1Impl.InputRangeBuilderImpl extends androidx.slice.builders.impl.ListBuilderV1Impl.RangeBuilderImpl {
+  }
+
+  public static class ListBuilderV1Impl.RangeBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
+    method public void apply(androidx.slice.Slice.Builder!);
+    field protected CharSequence! mContentDescr;
+    field protected int mLayoutDir;
+    field protected int mMax;
+    field protected int mMin;
+    field protected androidx.slice.builders.SliceAction! mPrimaryAction;
+    field protected CharSequence! mSubtitle;
+    field protected CharSequence! mTitle;
+    field protected int mValue;
+    field protected boolean mValueSet;
+  }
+
+  public static class ListBuilderV1Impl.RowBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
+    method protected void addEndItem(long);
+    method public void apply(androidx.slice.Slice.Builder!);
+    method protected void setSubtitle(CharSequence!);
+    method protected void setTitleItem(androidx.core.graphics.drawable.IconCompat!, int);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public class MessagingBasicImpl extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder {
+    ctor public MessagingBasicImpl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!);
+    method public void add(androidx.slice.builders.impl.TemplateBuilderImpl!);
+    method public void apply(androidx.slice.Slice.Builder!);
+    method public androidx.slice.builders.impl.TemplateBuilderImpl! createMessageBuilder();
+  }
+
+  public static final class MessagingBasicImpl.MessageBuilder extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder.MessageBuilder {
+    ctor public MessagingBasicImpl.MessageBuilder(androidx.slice.builders.impl.MessagingBasicImpl!);
+    method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
+    method public void addText(CharSequence!);
+    method public void addTimestamp(long);
+    method public void apply(androidx.slice.Slice.Builder!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public interface MessagingBuilder {
+    method public void add(androidx.slice.builders.impl.TemplateBuilderImpl!);
+    method public androidx.slice.builders.impl.TemplateBuilderImpl! createMessageBuilder();
+  }
+
+  public static interface MessagingBuilder.MessageBuilder {
+    method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
+    method public void addText(CharSequence!);
+    method public void addTimestamp(long);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public class MessagingListV1Impl extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder {
+    ctor public MessagingListV1Impl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!);
+    method public void add(androidx.slice.builders.impl.TemplateBuilderImpl!);
+    method public void apply(androidx.slice.Slice.Builder!);
+    method public androidx.slice.builders.impl.TemplateBuilderImpl! createMessageBuilder();
+  }
+
+  public static final class MessagingListV1Impl.MessageBuilder extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder.MessageBuilder {
+    ctor public MessagingListV1Impl.MessageBuilder(androidx.slice.builders.impl.MessagingListV1Impl!);
+    method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
+    method public void addText(CharSequence!);
+    method public void addTimestamp(long);
+    method public void apply(androidx.slice.Slice.Builder!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public class MessagingV1Impl extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder {
+    ctor public MessagingV1Impl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!);
+    method public void add(androidx.slice.builders.impl.TemplateBuilderImpl!);
+    method public void apply(androidx.slice.Slice.Builder!);
+    method public androidx.slice.builders.impl.TemplateBuilderImpl! createMessageBuilder();
+  }
+
+  public static final class MessagingV1Impl.MessageBuilder extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder.MessageBuilder {
+    ctor public MessagingV1Impl.MessageBuilder(androidx.slice.builders.impl.MessagingV1Impl!);
+    method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
+    method public void addText(CharSequence!);
+    method public void addTimestamp(long);
+    method public void apply(androidx.slice.Slice.Builder!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public abstract class TemplateBuilderImpl {
+    ctor protected TemplateBuilderImpl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!);
+    ctor protected TemplateBuilderImpl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!, androidx.slice.Clock!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public abstract void apply(androidx.slice.Slice.Builder!);
+    method public androidx.slice.Slice! build();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.Slice.Builder! createChildBuilder();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.Slice.Builder! getBuilder();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.Clock! getClock();
+    method protected void setBuilder(androidx.slice.Slice.Builder!);
+  }
+
+}
+

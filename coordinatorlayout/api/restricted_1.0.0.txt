@@ -1,0 +1,28 @@
+// Signature format: 3.0
+package androidx.coordinatorlayout.widget {
+
+  public class CoordinatorLayout {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final androidx.core.view.WindowInsetsCompat! getLastWindowInsets();
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface CoordinatorLayout.DispatchChangeEvent {
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final class DirectedAcyclicGraph<T> {
+    ctor public DirectedAcyclicGraph();
+    method public void addEdge(T, T);
+    method public void addNode(T);
+    method public void clear();
+    method public boolean contains(T);
+    method public java.util.List? getIncomingEdges(T);
+    method public java.util.List<T>? getOutgoingEdges(T);
+    method public java.util.ArrayList<T> getSortedList();
+    method public boolean hasOutgoingEdges(T);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class ViewGroupUtils {
+    method public static void getDescendantRect(android.view.ViewGroup!, android.view.View!, android.graphics.Rect!);
+  }
+
+}
+

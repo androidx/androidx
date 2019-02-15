@@ -1,0 +1,27 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.versionedparcelable.ParcelField#defaultValue():
+    Added method androidx.versionedparcelable.ParcelField.defaultValue()
+AddedAbstractMethod: androidx.versionedparcelable.VersionedParcel#readCharSequence():
+    Added method androidx.versionedparcelable.VersionedParcel.readCharSequence()
+AddedAbstractMethod: androidx.versionedparcelable.VersionedParcel#writeCharSequence(CharSequence):
+    Added method androidx.versionedparcelable.VersionedParcel.writeCharSequence(CharSequence)
+AddedAbstractMethod: androidx.versionedparcelable.VersionedParcelize#factory():
+    Added method androidx.versionedparcelable.VersionedParcelize.factory()
+
+
+ChangedStatic: androidx.versionedparcelable.VersionedParcel#readFromParcel(String, androidx.versionedparcelable.VersionedParcel):
+    Method androidx.versionedparcelable.VersionedParcel.readFromParcel has changed 'static' qualifier
+ChangedStatic: androidx.versionedparcelable.VersionedParcel#writeToParcel(T, androidx.versionedparcelable.VersionedParcel):
+    Method androidx.versionedparcelable.VersionedParcel.writeToParcel has changed 'static' qualifier
+
+
+ChangedType: androidx.versionedparcelable.VersionedParcel#readParcelable():
+    Method androidx.versionedparcelable.VersionedParcel.readParcelable has changed return type from T (extends java.lang.Object) to T (extends android.os.Parcelable)
+ChangedType: androidx.versionedparcelable.VersionedParcel#readParcelable(T, int):
+    Method androidx.versionedparcelable.VersionedParcel.readParcelable has changed return type from T (extends java.lang.Object) to T (extends android.os.Parcelable)
+
+
+RemovedMethod: androidx.versionedparcelable.VersionedParcel#VersionedParcel():
+    Removed constructor androidx.versionedparcelable.VersionedParcel()
+
+
