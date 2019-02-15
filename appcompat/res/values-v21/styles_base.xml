@@ -77,8 +77,11 @@
         <item name="android:minWidth">56dp</item>
     </style>
 
+    <!-- We use srcCompat on API 21-22 to allow tinting with themed CSLs -->
     <style name="Base.Widget.AppCompat.ActionButton.Overflow"
            parent="android:Widget.Material.ActionButton.Overflow">
+        <item name="android:src">@null</item>
+        <item name="srcCompat">@drawable/abc_ic_menu_overflow_material</item>
     </style>
 
     <!--

@@ -117,4 +117,10 @@
     <style name="Theme.CustomFont" parent="@style/Theme.AppCompat.Light">
         <item name="fontFamily">@font/a3em</item>
     </style>
+
+    <style name="ThemeOverlay.ThemedCslMagenta" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <item name="colorAccent">#FF00FF</item>
+        <item name="colorControlNormal">@color/color_state_theme_coloraccent</item>
+    </style>
+
 </resources>
