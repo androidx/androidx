@@ -59,7 +59,7 @@ public final class ImageProxyDownsamplerAndroidTest {
     private static ImageProxy.PlaneProxy createPlaneWithRampPattern(
             int width, int height, int pixelStride, int initialValue) {
         return new ImageProxy.PlaneProxy() {
-            final ByteBuffer buffer =
+            final ByteBuffer mBuffer =
                     createBufferWithRampPattern(width, height, pixelStride, initialValue);
 
             @Override
@@ -74,7 +74,7 @@ public final class ImageProxyDownsamplerAndroidTest {
 
             @Override
             public ByteBuffer getBuffer() {
-                return buffer;
+                return mBuffer;
             }
         };
     }

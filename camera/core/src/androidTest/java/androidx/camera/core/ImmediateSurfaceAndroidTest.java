@@ -32,14 +32,14 @@ import java.util.concurrent.ExecutionException;
 
 @RunWith(AndroidJUnit4.class)
 public final class ImmediateSurfaceAndroidTest {
-    Surface mockSurface = Mockito.mock(Surface.class);
+    private Surface mMockSurface = Mockito.mock(Surface.class);
 
     @Test
     public void getSurface_returnsInstance() throws ExecutionException, InterruptedException {
-        ImmediateSurface immediateSurface = new ImmediateSurface(mockSurface);
+        ImmediateSurface immediateSurface = new ImmediateSurface(mMockSurface);
 
         ListenableFuture<Surface> surfaceListenableFuture = immediateSurface.getSurface();
 
-        assertThat(surfaceListenableFuture.get()).isSameAs(mockSurface);
+        assertThat(surfaceListenableFuture.get()).isSameAs(mMockSurface);
     }
 }

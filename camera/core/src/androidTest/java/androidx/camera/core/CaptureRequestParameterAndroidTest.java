@@ -31,16 +31,16 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class CaptureRequestParameterAndroidTest {
-    private CameraDevice cameraDevice;
+    private CameraDevice mCameraDevice;
 
     @Before
     public void setup() throws CameraAccessException, InterruptedException {
-        cameraDevice = CameraUtil.getCameraDevice();
+        mCameraDevice = CameraUtil.getCameraDevice();
     }
 
     @After
     public void teardown() {
-        CameraUtil.releaseCameraDevice(cameraDevice);
+        CameraUtil.releaseCameraDevice(mCameraDevice);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class CaptureRequestParameterAndroidTest {
     @Test
     public void applyParameter() throws CameraAccessException {
         CaptureRequest.Builder builder =
-                cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
 
         assertThat(builder).isNotNull();
 

@@ -38,87 +38,87 @@ public class ReferenceCountedImageProxyAndroidTest {
     private static final int HEIGHT = 480;
 
     // Assume the image has YUV_420_888 format.
-    private final ImageProxy image = mock(ImageProxy.class);
-    private final ImageProxy.PlaneProxy yPlane = mock(ImageProxy.PlaneProxy.class);
-    private final ImageProxy.PlaneProxy uPlane = mock(ImageProxy.PlaneProxy.class);
-    private final ImageProxy.PlaneProxy vPlane = mock(ImageProxy.PlaneProxy.class);
-    private final ByteBuffer yBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT);
-    private final ByteBuffer uBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 4);
-    private final ByteBuffer vBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 4);
-    private ReferenceCountedImageProxy imageProxy;
+    private final ImageProxy mImage = mock(ImageProxy.class);
+    private final ImageProxy.PlaneProxy mYPlane = mock(ImageProxy.PlaneProxy.class);
+    private final ImageProxy.PlaneProxy mUPlane = mock(ImageProxy.PlaneProxy.class);
+    private final ImageProxy.PlaneProxy mVPlane = mock(ImageProxy.PlaneProxy.class);
+    private final ByteBuffer mYBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT);
+    private final ByteBuffer mUBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 4);
+    private final ByteBuffer mVBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 4);
+    private ReferenceCountedImageProxy mImageProxy;
 
     @Before
     public void setUp() {
-        when(image.getWidth()).thenReturn(WIDTH);
-        when(image.getHeight()).thenReturn(HEIGHT);
-        when(yPlane.getBuffer()).thenReturn(yBuffer);
-        when(uPlane.getBuffer()).thenReturn(uBuffer);
-        when(vPlane.getBuffer()).thenReturn(vBuffer);
-        when(image.getPlanes()).thenReturn(new ImageProxy.PlaneProxy[]{yPlane, uPlane, vPlane});
-        imageProxy = new ReferenceCountedImageProxy(image);
+        when(mImage.getWidth()).thenReturn(WIDTH);
+        when(mImage.getHeight()).thenReturn(HEIGHT);
+        when(mYPlane.getBuffer()).thenReturn(mYBuffer);
+        when(mUPlane.getBuffer()).thenReturn(mUBuffer);
+        when(mVPlane.getBuffer()).thenReturn(mVBuffer);
+        when(mImage.getPlanes()).thenReturn(new ImageProxy.PlaneProxy[]{mYPlane, mUPlane, mVPlane});
+        mImageProxy = new ReferenceCountedImageProxy(mImage);
     }
 
     @Test
     public void getReferenceCount_returnsOne_afterConstruction() {
-        assertThat(imageProxy.getReferenceCount()).isEqualTo(1);
+        assertThat(mImageProxy.getReferenceCount()).isEqualTo(1);
     }
 
     @Test
     public void fork_incrementsReferenceCount() {
-        imageProxy.fork();
-        imageProxy.fork();
+        mImageProxy.fork();
+        mImageProxy.fork();
 
-        assertThat(imageProxy.getReferenceCount()).isEqualTo(3);
+        assertThat(mImageProxy.getReferenceCount()).isEqualTo(3);
     }
 
     @Test
     public void close_decrementsReferenceCount() {
-        ImageProxy forkedImage0 = imageProxy.fork();
-        ImageProxy forkedImage1 = imageProxy.fork();
+        ImageProxy forkedImage0 = mImageProxy.fork();
+        ImageProxy forkedImage1 = mImageProxy.fork();
 
         forkedImage0.close();
         forkedImage1.close();
 
-        assertThat(imageProxy.getReferenceCount()).isEqualTo(1);
-        verify(image, never()).close();
+        assertThat(mImageProxy.getReferenceCount()).isEqualTo(1);
+        verify(mImage, never()).close();
     }
 
     @Test
     public void close_closesBaseImage_whenReferenceCountHitsZero() {
-        ImageProxy forkedImage0 = imageProxy.fork();
-        ImageProxy forkedImage1 = imageProxy.fork();
+        ImageProxy forkedImage0 = mImageProxy.fork();
+        ImageProxy forkedImage1 = mImageProxy.fork();
 
         forkedImage0.close();
         forkedImage1.close();
-        imageProxy.close();
+        mImageProxy.close();
 
-        assertThat(imageProxy.getReferenceCount()).isEqualTo(0);
-        verify(image, times(1)).close();
+        assertThat(mImageProxy.getReferenceCount()).isEqualTo(0);
+        verify(mImage, times(1)).close();
     }
 
     @Test
     public void close_decrementsReferenceCountOnlyOnce() {
-        ImageProxy forkedImage = imageProxy.fork();
+        ImageProxy forkedImage = mImageProxy.fork();
 
         forkedImage.close();
         forkedImage.close();
 
-        assertThat(imageProxy.getReferenceCount()).isEqualTo(1);
+        assertThat(mImageProxy.getReferenceCount()).isEqualTo(1);
     }
 
     @Test
     public void fork_returnsNull_whenBaseImageIsClosed() {
-        imageProxy.close();
+        mImageProxy.close();
 
-        ImageProxy forkedImage = imageProxy.fork();
+        ImageProxy forkedImage = mImageProxy.fork();
 
         assertThat(forkedImage).isNull();
     }
 
     @Test
     public void concurrentAccessForTwoForkedImagesOnTwoThreads() throws InterruptedException {
-        final ImageProxy forkedImage0 = imageProxy.fork();
-        final ImageProxy forkedImage1 = imageProxy.fork();
+        final ImageProxy forkedImage0 = mImageProxy.fork();
+        final ImageProxy forkedImage1 = mImageProxy.fork();
 
         Thread thread0 =
                 new Thread() {

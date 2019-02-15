@@ -37,22 +37,22 @@ import java.util.concurrent.atomic.AtomicReference;
 @RunWith(AndroidJUnit4.class)
 public final class ForwardingImageProxyAndroidTest {
 
-    private final ImageProxy baseImageProxy = mock(ImageProxy.class);
-    private final ImageProxy.PlaneProxy yPlane = mock(ImageProxy.PlaneProxy.class);
-    private final ImageProxy.PlaneProxy uPlane = mock(ImageProxy.PlaneProxy.class);
-    private final ImageProxy.PlaneProxy vPlane = mock(ImageProxy.PlaneProxy.class);
-    private ForwardingImageProxy imageProxy;
+    private final ImageProxy mBaseImageProxy = mock(ImageProxy.class);
+    private final ImageProxy.PlaneProxy mYPlane = mock(ImageProxy.PlaneProxy.class);
+    private final ImageProxy.PlaneProxy mUPlane = mock(ImageProxy.PlaneProxy.class);
+    private final ImageProxy.PlaneProxy mVPlane = mock(ImageProxy.PlaneProxy.class);
+    private ForwardingImageProxy mImageProxy;
 
     @Before
     public void setUp() {
-        imageProxy = new ConcreteImageProxy(baseImageProxy);
+        mImageProxy = new ConcreteImageProxy(mBaseImageProxy);
     }
 
     @Test
     public void close_closesWrappedImage() {
-        imageProxy.close();
+        mImageProxy.close();
 
-        verify(baseImageProxy).close();
+        verify(mBaseImageProxy).close();
     }
 
     @Test(timeout = 2000)
@@ -60,77 +60,77 @@ public final class ForwardingImageProxyAndroidTest {
             throws InterruptedException {
         Semaphore closedImageSemaphore = new Semaphore(/*permits=*/ 0);
         AtomicReference<ImageProxy> closedImage = new AtomicReference<>();
-        imageProxy.addOnImageCloseListener(
+        mImageProxy.addOnImageCloseListener(
                 image -> {
                     closedImage.set(image);
                     closedImageSemaphore.release();
                 });
 
-        imageProxy.close();
+        mImageProxy.close();
 
         closedImageSemaphore.acquire();
-        assertThat(closedImage.get()).isSameAs(imageProxy);
+        assertThat(closedImage.get()).isSameAs(mImageProxy);
     }
 
     @Test
     public void getCropRect_returnsCropRectForWrappedImage() {
-        when(baseImageProxy.getCropRect()).thenReturn(new Rect(0, 0, 20, 20));
+        when(mBaseImageProxy.getCropRect()).thenReturn(new Rect(0, 0, 20, 20));
 
-        assertThat(imageProxy.getCropRect()).isEqualTo(new Rect(0, 0, 20, 20));
+        assertThat(mImageProxy.getCropRect()).isEqualTo(new Rect(0, 0, 20, 20));
     }
 
     @Test
     public void setCropRect_setsCropRectForWrappedImage() {
-        imageProxy.setCropRect(new Rect(0, 0, 40, 40));
+        mImageProxy.setCropRect(new Rect(0, 0, 40, 40));
 
-        verify(baseImageProxy).setCropRect(new Rect(0, 0, 40, 40));
+        verify(mBaseImageProxy).setCropRect(new Rect(0, 0, 40, 40));
     }
 
     @Test
     public void getFormat_returnsFormatForWrappedImage() {
-        when(baseImageProxy.getFormat()).thenReturn(ImageFormat.YUV_420_888);
+        when(mBaseImageProxy.getFormat()).thenReturn(ImageFormat.YUV_420_888);
 
-        assertThat(imageProxy.getFormat()).isEqualTo(ImageFormat.YUV_420_888);
+        assertThat(mImageProxy.getFormat()).isEqualTo(ImageFormat.YUV_420_888);
     }
 
     @Test
     public void getHeight_returnsHeightForWrappedImage() {
-        when(baseImageProxy.getHeight()).thenReturn(480);
+        when(mBaseImageProxy.getHeight()).thenReturn(480);
 
-        assertThat(imageProxy.getHeight()).isEqualTo(480);
+        assertThat(mImageProxy.getHeight()).isEqualTo(480);
     }
 
     @Test
     public void getWidth_returnsWidthForWrappedImage() {
-        when(baseImageProxy.getWidth()).thenReturn(640);
+        when(mBaseImageProxy.getWidth()).thenReturn(640);
 
-        assertThat(imageProxy.getWidth()).isEqualTo(640);
+        assertThat(mImageProxy.getWidth()).isEqualTo(640);
     }
 
     @Test
     public void getTimestamp_returnsTimestampForWrappedImage() {
-        when(baseImageProxy.getTimestamp()).thenReturn(138990020L);
+        when(mBaseImageProxy.getTimestamp()).thenReturn(138990020L);
 
-        assertThat(imageProxy.getTimestamp()).isEqualTo(138990020L);
+        assertThat(mImageProxy.getTimestamp()).isEqualTo(138990020L);
     }
 
     @Test
     public void setTimestamp_setsTimestampForWrappedImage() {
-        imageProxy.setTimestamp(138990020L);
+        mImageProxy.setTimestamp(138990020L);
 
-        verify(baseImageProxy).setTimestamp(138990020L);
+        verify(mBaseImageProxy).setTimestamp(138990020L);
     }
 
     @Test
     public void getPlanes_returnsPlanesForWrappedImage() {
-        when(baseImageProxy.getPlanes())
-                .thenReturn(new ImageProxy.PlaneProxy[]{yPlane, uPlane, vPlane});
+        when(mBaseImageProxy.getPlanes())
+                .thenReturn(new ImageProxy.PlaneProxy[]{mYPlane, mUPlane, mVPlane});
 
-        ImageProxy.PlaneProxy[] planes = imageProxy.getPlanes();
+        ImageProxy.PlaneProxy[] planes = mImageProxy.getPlanes();
         assertThat(planes.length).isEqualTo(3);
-        assertThat(planes[0]).isEqualTo(yPlane);
-        assertThat(planes[1]).isEqualTo(uPlane);
-        assertThat(planes[2]).isEqualTo(vPlane);
+        assertThat(planes[0]).isEqualTo(mYPlane);
+        assertThat(planes[1]).isEqualTo(mUPlane);
+        assertThat(planes[2]).isEqualTo(mVPlane);
     }
 
     private static final class ConcreteImageProxy extends ForwardingImageProxy {

@@ -38,87 +38,87 @@ import java.nio.ByteBuffer;
 public final class AndroidImageProxyAndroidTest {
     private static final long INITIAL_TIMESTAMP = 138990020L;
 
-    private final Image image = mock(Image.class);
-    private final Image.Plane yPlane = mock(Image.Plane.class);
-    private final Image.Plane uPlane = mock(Image.Plane.class);
-    private final Image.Plane vPlane = mock(Image.Plane.class);
-    private ImageProxy imageProxy;
+    private final Image mImage = mock(Image.class);
+    private final Image.Plane mYPlane = mock(Image.Plane.class);
+    private final Image.Plane mUPlane = mock(Image.Plane.class);
+    private final Image.Plane mVPlane = mock(Image.Plane.class);
+    private ImageProxy mImageProxy;
 
     @Before
     public void setUp() {
-        when(image.getPlanes()).thenReturn(new Image.Plane[]{yPlane, uPlane, vPlane});
-        when(yPlane.getRowStride()).thenReturn(640);
-        when(yPlane.getPixelStride()).thenReturn(1);
-        when(yPlane.getBuffer()).thenReturn(ByteBuffer.allocateDirect(640 * 480));
-        when(uPlane.getRowStride()).thenReturn(320);
-        when(uPlane.getPixelStride()).thenReturn(1);
-        when(uPlane.getBuffer()).thenReturn(ByteBuffer.allocateDirect(320 * 240));
-        when(vPlane.getRowStride()).thenReturn(320);
-        when(vPlane.getPixelStride()).thenReturn(1);
-        when(vPlane.getBuffer()).thenReturn(ByteBuffer.allocateDirect(320 * 240));
+        when(mImage.getPlanes()).thenReturn(new Image.Plane[]{mYPlane, mUPlane, mVPlane});
+        when(mYPlane.getRowStride()).thenReturn(640);
+        when(mYPlane.getPixelStride()).thenReturn(1);
+        when(mYPlane.getBuffer()).thenReturn(ByteBuffer.allocateDirect(640 * 480));
+        when(mUPlane.getRowStride()).thenReturn(320);
+        when(mUPlane.getPixelStride()).thenReturn(1);
+        when(mUPlane.getBuffer()).thenReturn(ByteBuffer.allocateDirect(320 * 240));
+        when(mVPlane.getRowStride()).thenReturn(320);
+        when(mVPlane.getPixelStride()).thenReturn(1);
+        when(mVPlane.getBuffer()).thenReturn(ByteBuffer.allocateDirect(320 * 240));
 
-        when(image.getTimestamp()).thenReturn(INITIAL_TIMESTAMP);
-        imageProxy = new AndroidImageProxy(image);
+        when(mImage.getTimestamp()).thenReturn(INITIAL_TIMESTAMP);
+        mImageProxy = new AndroidImageProxy(mImage);
     }
 
     @Test
     public void close_closesWrappedImage() {
-        imageProxy.close();
+        mImageProxy.close();
 
-        verify(image).close();
+        verify(mImage).close();
     }
 
     @Test
     public void getCropRect_returnsCropRectForWrappedImage() {
-        when(image.getCropRect()).thenReturn(new Rect(0, 0, 20, 20));
+        when(mImage.getCropRect()).thenReturn(new Rect(0, 0, 20, 20));
 
-        assertThat(imageProxy.getCropRect()).isEqualTo(new Rect(0, 0, 20, 20));
+        assertThat(mImageProxy.getCropRect()).isEqualTo(new Rect(0, 0, 20, 20));
     }
 
     @Test
     public void setCropRect_setsCropRectForWrappedImage() {
-        imageProxy.setCropRect(new Rect(0, 0, 40, 40));
+        mImageProxy.setCropRect(new Rect(0, 0, 40, 40));
 
-        verify(image).setCropRect(new Rect(0, 0, 40, 40));
+        verify(mImage).setCropRect(new Rect(0, 0, 40, 40));
     }
 
     @Test
     public void getFormat_returnsFormatForWrappedImage() {
-        when(image.getFormat()).thenReturn(ImageFormat.YUV_420_888);
+        when(mImage.getFormat()).thenReturn(ImageFormat.YUV_420_888);
 
-        assertThat(imageProxy.getFormat()).isEqualTo(ImageFormat.YUV_420_888);
+        assertThat(mImageProxy.getFormat()).isEqualTo(ImageFormat.YUV_420_888);
     }
 
     @Test
     public void getHeight_returnsHeightForWrappedImage() {
-        when(image.getHeight()).thenReturn(480);
+        when(mImage.getHeight()).thenReturn(480);
 
-        assertThat(imageProxy.getHeight()).isEqualTo(480);
+        assertThat(mImageProxy.getHeight()).isEqualTo(480);
     }
 
     @Test
     public void getWidth_returnsWidthForWrappedImage() {
-        when(image.getWidth()).thenReturn(640);
+        when(mImage.getWidth()).thenReturn(640);
 
-        assertThat(imageProxy.getWidth()).isEqualTo(640);
+        assertThat(mImageProxy.getWidth()).isEqualTo(640);
     }
 
     @Test
     public void getTimestamp_returnsTimestampForWrappedImage() {
-        assertThat(imageProxy.getTimestamp()).isEqualTo(INITIAL_TIMESTAMP);
+        assertThat(mImageProxy.getTimestamp()).isEqualTo(INITIAL_TIMESTAMP);
     }
 
     public void setTimestamp_setsTimestampForWrappedImage() {
-        imageProxy.setTimestamp(INITIAL_TIMESTAMP + 10);
+        mImageProxy.setTimestamp(INITIAL_TIMESTAMP + 10);
 
-        assertThat(imageProxy.getTimestamp()).isEqualTo(INITIAL_TIMESTAMP + 10);
+        assertThat(mImageProxy.getTimestamp()).isEqualTo(INITIAL_TIMESTAMP + 10);
     }
 
     @Test
     public void getPlanes_returnsPlanesForWrappedImage() {
-        ImageProxy.PlaneProxy[] wrappedPlanes = imageProxy.getPlanes();
+        ImageProxy.PlaneProxy[] wrappedPlanes = mImageProxy.getPlanes();
 
-        Image.Plane[] originalPlanes = new Image.Plane[]{yPlane, uPlane, vPlane};
+        Image.Plane[] originalPlanes = new Image.Plane[]{mYPlane, mUPlane, mVPlane};
         assertThat(wrappedPlanes.length).isEqualTo(3);
         for (int i = 0; i < 3; ++i) {
             assertThat(wrappedPlanes[i].getRowStride()).isEqualTo(originalPlanes[i].getRowStride());

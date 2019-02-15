@@ -20,15 +20,15 @@ package androidx.camera.core;
 public class FakeUseCaseConfiguration
         implements UseCaseConfiguration<FakeUseCase>, CameraDeviceConfiguration {
 
-    private final Configuration config;
+    private final Configuration mConfig;
 
     private FakeUseCaseConfiguration(Configuration config) {
-        this.config = config;
+        mConfig = config;
     }
 
     @Override
     public Configuration getConfiguration() {
-        return config;
+        return mConfig;
     }
 
     /** Builder for an empty Configuration */
@@ -36,16 +36,16 @@ public class FakeUseCaseConfiguration
             implements UseCaseConfiguration.Builder<FakeUseCase, FakeUseCaseConfiguration, Builder>,
             CameraDeviceConfiguration.Builder<FakeUseCaseConfiguration, Builder> {
 
-        private final MutableOptionsBundle optionsBundle;
+        private final MutableOptionsBundle mOptionsBundle;
 
         public Builder() {
-            optionsBundle = MutableOptionsBundle.create();
+            mOptionsBundle = MutableOptionsBundle.create();
             setTargetClass(FakeUseCase.class);
         }
 
         @Override
         public MutableConfiguration getMutableConfiguration() {
-            return optionsBundle;
+            return mOptionsBundle;
         }
 
         @Override
@@ -55,7 +55,7 @@ public class FakeUseCaseConfiguration
 
         @Override
         public FakeUseCaseConfiguration build() {
-            return new FakeUseCaseConfiguration(OptionsBundle.from(optionsBundle));
+            return new FakeUseCaseConfiguration(OptionsBundle.from(mOptionsBundle));
         }
     }
 }

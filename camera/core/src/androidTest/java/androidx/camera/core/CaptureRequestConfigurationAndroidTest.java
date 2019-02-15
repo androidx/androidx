@@ -36,11 +36,11 @@ import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class CaptureRequestConfigurationAndroidTest {
-    private DeferrableSurface mockSurface0;
+    private DeferrableSurface mMockSurface0;
 
     @Before
     public void setup() {
-        mockSurface0 = Mockito.mock(DeferrableSurface.class);
+        mMockSurface0 = Mockito.mock(DeferrableSurface.class);
     }
 
     @Test
@@ -70,21 +70,21 @@ public class CaptureRequestConfigurationAndroidTest {
     public void builderAddSurface() {
         CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
 
-        builder.addSurface(mockSurface0);
+        builder.addSurface(mMockSurface0);
         CaptureRequestConfiguration captureRequestConfiguration = builder.build();
 
         List<DeferrableSurface> surfaces = captureRequestConfiguration.getSurfaces();
 
         assertThat(surfaces).hasSize(1);
-        assertThat(surfaces).contains(mockSurface0);
+        assertThat(surfaces).contains(mMockSurface0);
     }
 
     @Test
     public void builderRemoveSurface() {
         CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
 
-        builder.addSurface(mockSurface0);
-        builder.removeSurface(mockSurface0);
+        builder.addSurface(mMockSurface0);
+        builder.removeSurface(mMockSurface0);
         CaptureRequestConfiguration captureRequestConfiguration = builder.build();
 
         List<Surface> surfaces =
@@ -96,7 +96,7 @@ public class CaptureRequestConfigurationAndroidTest {
     public void builderClearSurface() {
         CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
 
-        builder.addSurface(mockSurface0);
+        builder.addSurface(mMockSurface0);
         builder.clearSurfaces();
         CaptureRequestConfiguration captureRequestConfiguration = builder.build();
 

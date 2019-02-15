@@ -43,20 +43,20 @@ import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class UseCaseAttachStateAndroidTest {
-    private final LensFacing cameraLensFacing0 = LensFacing.BACK;
-    private final LensFacing cameraLensFacing1 = LensFacing.FRONT;
-    private final CameraDevice mockCameraDevice = Mockito.mock(CameraDevice.class);
-    private final CameraCaptureSession mockCameraCaptureSession =
+    private final LensFacing mCameraLensFacing0 = LensFacing.BACK;
+    private final LensFacing mCameraLensFacing1 = LensFacing.FRONT;
+    private final CameraDevice mMockCameraDevice = Mockito.mock(CameraDevice.class);
+    private final CameraCaptureSession mMockCameraCaptureSession =
             Mockito.mock(CameraCaptureSession.class);
 
-    private String cameraId;
+    private String mCameraId;
 
     @Before
     public void setUp() {
         AppConfiguration appConfiguration = FakeAppConfiguration.create();
         CameraFactory cameraFactory = appConfiguration.getCameraFactory(/*valueIfMissing=*/ null);
         try {
-            cameraId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
+            mCameraId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
         } catch (Exception e) {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
@@ -66,46 +66,46 @@ public class UseCaseAttachStateAndroidTest {
 
     @Test
     public void setSingleUseCaseOnline() {
-        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(cameraId);
+        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder()
                         .setTargetName("UseCase")
-                        .setLensFacing(cameraLensFacing0)
+                        .setLensFacing(mCameraLensFacing0)
                         .build();
-        TestUseCase fakeUseCase = new TestUseCase(configuration, cameraId);
+        TestUseCase fakeUseCase = new TestUseCase(configuration, mCameraId);
 
         useCaseAttachState.setUseCaseOnline(fakeUseCase);
 
         SessionConfiguration.ValidatingBuilder builder = useCaseAttachState.getOnlineBuilder();
         SessionConfiguration sessionConfiguration = builder.build();
         assertThat(DeferrableSurfaces.surfaceList(sessionConfiguration.getSurfaces()))
-                .containsExactly(fakeUseCase.surface);
+                .containsExactly(fakeUseCase.mSurface);
 
-        sessionConfiguration.getDeviceStateCallback().onOpened(mockCameraDevice);
-        verify(fakeUseCase.deviceStateCallback, times(1)).onOpened(mockCameraDevice);
+        sessionConfiguration.getDeviceStateCallback().onOpened(mMockCameraDevice);
+        verify(fakeUseCase.mDeviceStateCallback, times(1)).onOpened(mMockCameraDevice);
 
-        sessionConfiguration.getSessionStateCallback().onConfigured(mockCameraCaptureSession);
-        verify(fakeUseCase.sessionStateCallback, times(1)).onConfigured(mockCameraCaptureSession);
+        sessionConfiguration.getSessionStateCallback().onConfigured(mMockCameraCaptureSession);
+        verify(fakeUseCase.mSessionStateCallback, times(1)).onConfigured(mMockCameraCaptureSession);
 
         sessionConfiguration.getCameraCaptureCallback().onCaptureCompleted(null);
-        verify(fakeUseCase.cameraCaptureCallback, times(1)).onCaptureCompleted(null);
+        verify(fakeUseCase.mCameraCaptureCallback, times(1)).onCaptureCompleted(null);
     }
 
     @Test
     public void setTwoUseCasesOnline() {
-        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(cameraId);
+        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfiguration configuration0 =
                 new FakeUseCaseConfiguration.Builder()
                         .setTargetName("UseCase")
-                        .setLensFacing(cameraLensFacing0)
+                        .setLensFacing(mCameraLensFacing0)
                         .build();
-        TestUseCase fakeUseCase0 = new TestUseCase(configuration0, cameraId);
+        TestUseCase fakeUseCase0 = new TestUseCase(configuration0, mCameraId);
         FakeUseCaseConfiguration configuration1 =
                 new FakeUseCaseConfiguration.Builder()
                         .setTargetName("UseCase")
-                        .setLensFacing(cameraLensFacing0)
+                        .setLensFacing(mCameraLensFacing0)
                         .build();
-        TestUseCase fakeUseCase1 = new TestUseCase(configuration1, cameraId);
+        TestUseCase fakeUseCase1 = new TestUseCase(configuration1, mCameraId);
 
         useCaseAttachState.setUseCaseOnline(fakeUseCase0);
         useCaseAttachState.setUseCaseOnline(fakeUseCase1);
@@ -113,30 +113,32 @@ public class UseCaseAttachStateAndroidTest {
         SessionConfiguration.ValidatingBuilder builder = useCaseAttachState.getOnlineBuilder();
         SessionConfiguration sessionConfiguration = builder.build();
         assertThat(DeferrableSurfaces.surfaceList(sessionConfiguration.getSurfaces()))
-                .containsExactly(fakeUseCase0.surface, fakeUseCase1.surface);
+                .containsExactly(fakeUseCase0.mSurface, fakeUseCase1.mSurface);
 
-        sessionConfiguration.getDeviceStateCallback().onOpened(mockCameraDevice);
-        verify(fakeUseCase0.deviceStateCallback, times(1)).onOpened(mockCameraDevice);
-        verify(fakeUseCase1.deviceStateCallback, times(1)).onOpened(mockCameraDevice);
+        sessionConfiguration.getDeviceStateCallback().onOpened(mMockCameraDevice);
+        verify(fakeUseCase0.mDeviceStateCallback, times(1)).onOpened(mMockCameraDevice);
+        verify(fakeUseCase1.mDeviceStateCallback, times(1)).onOpened(mMockCameraDevice);
 
-        sessionConfiguration.getSessionStateCallback().onConfigured(mockCameraCaptureSession);
-        verify(fakeUseCase0.sessionStateCallback, times(1)).onConfigured(mockCameraCaptureSession);
-        verify(fakeUseCase1.sessionStateCallback, times(1)).onConfigured(mockCameraCaptureSession);
+        sessionConfiguration.getSessionStateCallback().onConfigured(mMockCameraCaptureSession);
+        verify(fakeUseCase0.mSessionStateCallback, times(1)).onConfigured(
+                mMockCameraCaptureSession);
+        verify(fakeUseCase1.mSessionStateCallback, times(1)).onConfigured(
+                mMockCameraCaptureSession);
 
         sessionConfiguration.getCameraCaptureCallback().onCaptureCompleted(null);
-        verify(fakeUseCase0.cameraCaptureCallback, times(1)).onCaptureCompleted(null);
-        verify(fakeUseCase1.cameraCaptureCallback, times(1)).onCaptureCompleted(null);
+        verify(fakeUseCase0.mCameraCaptureCallback, times(1)).onCaptureCompleted(null);
+        verify(fakeUseCase1.mCameraCaptureCallback, times(1)).onCaptureCompleted(null);
     }
 
     @Test
     public void setUseCaseActiveOnly() {
-        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(cameraId);
+        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder()
                         .setTargetName("UseCase")
-                        .setLensFacing(cameraLensFacing0)
+                        .setLensFacing(mCameraLensFacing0)
                         .build();
-        TestUseCase fakeUseCase = new TestUseCase(configuration, cameraId);
+        TestUseCase fakeUseCase = new TestUseCase(configuration, mCameraId);
 
         useCaseAttachState.setUseCaseActive(fakeUseCase);
 
@@ -145,25 +147,25 @@ public class UseCaseAttachStateAndroidTest {
         SessionConfiguration sessionConfiguration = builder.build();
         assertThat(sessionConfiguration.getSurfaces()).isEmpty();
 
-        sessionConfiguration.getDeviceStateCallback().onOpened(mockCameraDevice);
-        verify(fakeUseCase.deviceStateCallback, never()).onOpened(mockCameraDevice);
+        sessionConfiguration.getDeviceStateCallback().onOpened(mMockCameraDevice);
+        verify(fakeUseCase.mDeviceStateCallback, never()).onOpened(mMockCameraDevice);
 
-        sessionConfiguration.getSessionStateCallback().onConfigured(mockCameraCaptureSession);
-        verify(fakeUseCase.sessionStateCallback, never()).onConfigured(mockCameraCaptureSession);
+        sessionConfiguration.getSessionStateCallback().onConfigured(mMockCameraCaptureSession);
+        verify(fakeUseCase.mSessionStateCallback, never()).onConfigured(mMockCameraCaptureSession);
 
         sessionConfiguration.getCameraCaptureCallback().onCaptureCompleted(null);
-        verify(fakeUseCase.cameraCaptureCallback, never()).onCaptureCompleted(null);
+        verify(fakeUseCase.mCameraCaptureCallback, never()).onCaptureCompleted(null);
     }
 
     @Test
     public void setUseCaseActiveAndOnline() {
-        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(cameraId);
+        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder()
                         .setTargetName("UseCase")
-                        .setLensFacing(cameraLensFacing0)
+                        .setLensFacing(mCameraLensFacing0)
                         .build();
-        TestUseCase fakeUseCase = new TestUseCase(configuration, cameraId);
+        TestUseCase fakeUseCase = new TestUseCase(configuration, mCameraId);
 
         useCaseAttachState.setUseCaseOnline(fakeUseCase);
         useCaseAttachState.setUseCaseActive(fakeUseCase);
@@ -172,27 +174,27 @@ public class UseCaseAttachStateAndroidTest {
                 useCaseAttachState.getActiveAndOnlineBuilder();
         SessionConfiguration sessionConfiguration = builder.build();
         assertThat(DeferrableSurfaces.surfaceList(sessionConfiguration.getSurfaces()))
-                .containsExactly(fakeUseCase.surface);
+                .containsExactly(fakeUseCase.mSurface);
 
-        sessionConfiguration.getDeviceStateCallback().onOpened(mockCameraDevice);
-        verify(fakeUseCase.deviceStateCallback, times(1)).onOpened(mockCameraDevice);
+        sessionConfiguration.getDeviceStateCallback().onOpened(mMockCameraDevice);
+        verify(fakeUseCase.mDeviceStateCallback, times(1)).onOpened(mMockCameraDevice);
 
-        sessionConfiguration.getSessionStateCallback().onConfigured(mockCameraCaptureSession);
-        verify(fakeUseCase.sessionStateCallback, times(1)).onConfigured(mockCameraCaptureSession);
+        sessionConfiguration.getSessionStateCallback().onConfigured(mMockCameraCaptureSession);
+        verify(fakeUseCase.mSessionStateCallback, times(1)).onConfigured(mMockCameraCaptureSession);
 
         sessionConfiguration.getCameraCaptureCallback().onCaptureCompleted(null);
-        verify(fakeUseCase.cameraCaptureCallback, times(1)).onCaptureCompleted(null);
+        verify(fakeUseCase.mCameraCaptureCallback, times(1)).onCaptureCompleted(null);
     }
 
     @Test
     public void setUseCaseOffline() {
-        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(cameraId);
+        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder()
                         .setTargetName("UseCase")
-                        .setLensFacing(cameraLensFacing0)
+                        .setLensFacing(mCameraLensFacing0)
                         .build();
-        TestUseCase fakeUseCase = new TestUseCase(configuration, cameraId);
+        TestUseCase fakeUseCase = new TestUseCase(configuration, mCameraId);
 
         useCaseAttachState.setUseCaseOnline(fakeUseCase);
         useCaseAttachState.setUseCaseOffline(fakeUseCase);
@@ -201,25 +203,25 @@ public class UseCaseAttachStateAndroidTest {
         SessionConfiguration sessionConfiguration = builder.build();
         assertThat(sessionConfiguration.getSurfaces()).isEmpty();
 
-        sessionConfiguration.getDeviceStateCallback().onOpened(mockCameraDevice);
-        verify(fakeUseCase.deviceStateCallback, never()).onOpened(mockCameraDevice);
+        sessionConfiguration.getDeviceStateCallback().onOpened(mMockCameraDevice);
+        verify(fakeUseCase.mDeviceStateCallback, never()).onOpened(mMockCameraDevice);
 
-        sessionConfiguration.getSessionStateCallback().onConfigured(mockCameraCaptureSession);
-        verify(fakeUseCase.sessionStateCallback, never()).onConfigured(mockCameraCaptureSession);
+        sessionConfiguration.getSessionStateCallback().onConfigured(mMockCameraCaptureSession);
+        verify(fakeUseCase.mSessionStateCallback, never()).onConfigured(mMockCameraCaptureSession);
 
         sessionConfiguration.getCameraCaptureCallback().onCaptureCompleted(null);
-        verify(fakeUseCase.cameraCaptureCallback, never()).onCaptureCompleted(null);
+        verify(fakeUseCase.mCameraCaptureCallback, never()).onCaptureCompleted(null);
     }
 
     @Test
     public void setUseCaseInactive() {
-        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(cameraId);
+        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder()
                         .setTargetName("UseCase")
-                        .setLensFacing(cameraLensFacing0)
+                        .setLensFacing(mCameraLensFacing0)
                         .build();
-        TestUseCase fakeUseCase = new TestUseCase(configuration, cameraId);
+        TestUseCase fakeUseCase = new TestUseCase(configuration, mCameraId);
 
         useCaseAttachState.setUseCaseOnline(fakeUseCase);
         useCaseAttachState.setUseCaseActive(fakeUseCase);
@@ -230,25 +232,25 @@ public class UseCaseAttachStateAndroidTest {
         SessionConfiguration sessionConfiguration = builder.build();
         assertThat(sessionConfiguration.getSurfaces()).isEmpty();
 
-        sessionConfiguration.getDeviceStateCallback().onOpened(mockCameraDevice);
-        verify(fakeUseCase.deviceStateCallback, never()).onOpened(mockCameraDevice);
+        sessionConfiguration.getDeviceStateCallback().onOpened(mMockCameraDevice);
+        verify(fakeUseCase.mDeviceStateCallback, never()).onOpened(mMockCameraDevice);
 
-        sessionConfiguration.getSessionStateCallback().onConfigured(mockCameraCaptureSession);
-        verify(fakeUseCase.sessionStateCallback, never()).onConfigured(mockCameraCaptureSession);
+        sessionConfiguration.getSessionStateCallback().onConfigured(mMockCameraCaptureSession);
+        verify(fakeUseCase.mSessionStateCallback, never()).onConfigured(mMockCameraCaptureSession);
 
         sessionConfiguration.getCameraCaptureCallback().onCaptureCompleted(null);
-        verify(fakeUseCase.cameraCaptureCallback, never()).onCaptureCompleted(null);
+        verify(fakeUseCase.mCameraCaptureCallback, never()).onCaptureCompleted(null);
     }
 
     @Test
     public void updateUseCase() {
-        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(cameraId);
+        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder()
                         .setTargetName("UseCase")
-                        .setLensFacing(cameraLensFacing0)
+                        .setLensFacing(mCameraLensFacing0)
                         .build();
-        TestUseCase fakeUseCase = new TestUseCase(configuration, cameraId);
+        TestUseCase fakeUseCase = new TestUseCase(configuration, mCameraId);
 
         useCaseAttachState.setUseCaseOnline(fakeUseCase);
         useCaseAttachState.setUseCaseActive(fakeUseCase);
@@ -262,7 +264,7 @@ public class UseCaseAttachStateAndroidTest {
         // Change the template to STILL_CAPTURE.
         SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
         builder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
-        fakeUseCase.attachToCamera(cameraId, builder.build());
+        fakeUseCase.attachToCamera(mCameraId, builder.build());
 
         useCaseAttachState.updateUseCase(fakeUseCase);
 
@@ -275,13 +277,13 @@ public class UseCaseAttachStateAndroidTest {
 
     @Test
     public void setUseCaseOnlineWithWrongCamera() {
-        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(cameraId);
+        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder()
                         .setTargetName("UseCase")
-                        .setLensFacing(cameraLensFacing1)
+                        .setLensFacing(mCameraLensFacing1)
                         .build();
-        TestUseCase fakeUseCase = new TestUseCase(configuration, cameraId);
+        TestUseCase fakeUseCase = new TestUseCase(configuration, mCameraId);
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -290,13 +292,13 @@ public class UseCaseAttachStateAndroidTest {
 
     @Test
     public void setUseCaseActiveWithWrongCamera() {
-        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(cameraId);
+        UseCaseAttachState useCaseAttachState = new UseCaseAttachState(mCameraId);
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder()
                         .setTargetName("UseCase")
-                        .setLensFacing(cameraLensFacing1)
+                        .setLensFacing(mCameraLensFacing1)
                         .build();
-        TestUseCase fakeUseCase = new TestUseCase(configuration, cameraId);
+        TestUseCase fakeUseCase = new TestUseCase(configuration, mCameraId);
 
         assertThrows(
                 IllegalArgumentException.class,
@@ -304,12 +306,12 @@ public class UseCaseAttachStateAndroidTest {
     }
 
     private static class TestUseCase extends FakeUseCase {
-        private final Surface surface = Mockito.mock(Surface.class);
-        private final CameraDevice.StateCallback deviceStateCallback =
+        private final Surface mSurface = Mockito.mock(Surface.class);
+        private final CameraDevice.StateCallback mDeviceStateCallback =
                 Mockito.mock(CameraDevice.StateCallback.class);
-        private final CameraCaptureSession.StateCallback sessionStateCallback =
+        private final CameraCaptureSession.StateCallback mSessionStateCallback =
                 Mockito.mock(CameraCaptureSession.StateCallback.class);
-        private final CameraCaptureCallback cameraCaptureCallback =
+        private final CameraCaptureCallback mCameraCaptureCallback =
                 Mockito.mock(CameraCaptureCallback.class);
 
         TestUseCase(FakeUseCaseConfiguration configuration, String cameraId) {
@@ -324,10 +326,10 @@ public class UseCaseAttachStateAndroidTest {
                 Map<String, Size> suggestedResolutionMap) {
             SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            builder.addSurface(new ImmediateSurface(surface));
-            builder.setDeviceStateCallback(deviceStateCallback);
-            builder.setSessionStateCallback(sessionStateCallback);
-            builder.setCameraCaptureCallback(cameraCaptureCallback);
+            builder.addSurface(new ImmediateSurface(mSurface));
+            builder.setDeviceStateCallback(mDeviceStateCallback);
+            builder.setSessionStateCallback(mSessionStateCallback);
+            builder.setCameraCaptureCallback(mCameraCaptureCallback);
 
             LensFacing lensFacing =
                     ((CameraDeviceConfiguration) getUseCaseConfiguration()).getLensFacing();

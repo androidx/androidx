@@ -29,7 +29,7 @@ import java.util.Map;
  * different type is created.
  */
 class FakeOtherUseCase extends BaseUseCase {
-    private volatile boolean isCleared = false;
+    private volatile boolean mIsCleared = false;
 
     /** Creates a new instance of a {@link FakeOtherUseCase} with a given configuration. */
     FakeOtherUseCase(FakeOtherUseCaseConfiguration configuration) {
@@ -44,7 +44,7 @@ class FakeOtherUseCase extends BaseUseCase {
     @Override
     public void clear() {
         super.clear();
-        isCleared = true;
+        mIsCleared = true;
     }
 
     @Override
@@ -60,6 +60,6 @@ class FakeOtherUseCase extends BaseUseCase {
 
     /** Returns true if {@link #clear()} has been called previously. */
     public boolean isCleared() {
-        return isCleared;
+        return mIsCleared;
     }
 }

@@ -32,25 +32,25 @@ import java.util.Set;
 @RunWith(AndroidJUnit4.class)
 public final class CameraRepositoryAndroidTest {
 
-    private CameraRepository cameraRepository;
+    private CameraRepository mCameraRepository;
 
     @Before
     public void setUp() {
-        cameraRepository = new CameraRepository();
-        cameraRepository.init(new FakeCameraFactory());
+        mCameraRepository = new CameraRepository();
+        mCameraRepository.init(new FakeCameraFactory());
     }
 
     @Test
     public void cameraIdsCanBeAcquired() {
-        Set<String> cameraIds = cameraRepository.getCameraIds();
+        Set<String> cameraIds = mCameraRepository.getCameraIds();
 
         assertThat(cameraIds).isNotEmpty();
     }
 
     @Test
     public void cameraCanBeObtainedWithValidId() {
-        for (String cameraId : cameraRepository.getCameraIds()) {
-            BaseCamera camera = cameraRepository.getCamera(cameraId);
+        for (String cameraId : mCameraRepository.getCameraIds()) {
+            BaseCamera camera = mCameraRepository.getCamera(cameraId);
 
             assertThat(camera).isNotNull();
         }
@@ -59,6 +59,6 @@ public final class CameraRepositoryAndroidTest {
     @Test
     public void cameraCannotBeObtainedWithInvalidId() {
         assertThrows(
-                IllegalArgumentException.class, () -> cameraRepository.getCamera("no_such_id"));
+                IllegalArgumentException.class, () -> mCameraRepository.getCamera("no_such_id"));
     }
 }
