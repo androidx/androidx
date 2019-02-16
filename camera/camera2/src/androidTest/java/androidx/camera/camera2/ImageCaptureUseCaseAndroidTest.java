@@ -199,7 +199,7 @@ public final class ImageCaptureUseCaseAndroidTest {
         assertThat(mCapturedImage.getFormat()).isEqualTo(useCase.getImageFormat());
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void canCaptureMultipleImages() throws InterruptedException {
         ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
@@ -229,7 +229,7 @@ public final class ImageCaptureUseCaseAndroidTest {
         verify(mMockImageCapturedListener, times(numImages)).onCaptureSuccess(any(), anyInt());
     }
 
-    @Test(timeout = 10000)
+    @Test
     public void canCaptureMultipleImagesWithMaxQuality() throws InterruptedException {
         ImageCaptureUseCaseConfiguration configuration =
                 new ImageCaptureUseCaseConfiguration.Builder()
@@ -263,7 +263,7 @@ public final class ImageCaptureUseCaseAndroidTest {
         verify(mMockImageCapturedListener, times(numImages)).onCaptureSuccess(any(), anyInt());
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void saveCanSucceed() throws InterruptedException, IOException {
         ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
@@ -282,7 +282,7 @@ public final class ImageCaptureUseCaseAndroidTest {
         verify(mMockImageSavedListener).onImageSaved(eq(saveLocation));
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void canSaveFile_withRotation()
             throws InterruptedException, IOException, CameraInfoUnavailableException {
         ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
@@ -308,7 +308,7 @@ public final class ImageCaptureUseCaseAndroidTest {
         assertThat(exif.getRotation()).isEqualTo(rotationDegrees);
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void canSaveFile_flippedHorizontal()
             throws InterruptedException, IOException, CameraInfoUnavailableException {
         // Use a non-rotated configuration since some combinations of rotation + flipping vertically
@@ -335,7 +335,7 @@ public final class ImageCaptureUseCaseAndroidTest {
         assertThat(exif.isFlippedHorizontally()).isTrue();
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void canSaveFile_flippedVertical()
             throws InterruptedException, IOException, CameraInfoUnavailableException {
         // Use a non-rotated configuration since some combinations of rotation + flipping
@@ -362,7 +362,7 @@ public final class ImageCaptureUseCaseAndroidTest {
         assertThat(exif.isFlippedVertically()).isTrue();
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void canSaveFile_withAttachedLocation() throws InterruptedException, IOException {
         ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
@@ -386,7 +386,7 @@ public final class ImageCaptureUseCaseAndroidTest {
         assertThat(exif.getLocation().getProvider()).isEqualTo(location.getProvider());
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void canSaveMultipleFiles() throws InterruptedException, IOException {
         ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
@@ -409,7 +409,7 @@ public final class ImageCaptureUseCaseAndroidTest {
         verify(mMockImageSavedListener, times(numImages)).onImageSaved(anyObject());
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void saveWillFail_whenInvalidFilePathIsUsed() throws InterruptedException {
         ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
@@ -429,7 +429,7 @@ public final class ImageCaptureUseCaseAndroidTest {
                 .onError(eq(UseCaseError.FILE_IO_ERROR), anyString(), anyObject());
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void updateSessionConfigurationWithSuggestedResolution() throws InterruptedException {
         ImageCaptureUseCaseConfiguration configuration =
                 new ImageCaptureUseCaseConfiguration.Builder().setCallbackHandler(mHandler).build();

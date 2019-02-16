@@ -125,7 +125,7 @@ public final class ForwardingImageReaderListenerAndroidTest {
         }
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void baseImageIsClosed_allQueuesAreCleared_whenAllForwardedCopiesAreClosed()
             throws InterruptedException {
         Semaphore onCloseSemaphore = new Semaphore(/*permits=*/ 0);
@@ -151,7 +151,7 @@ public final class ForwardingImageReaderListenerAndroidTest {
         }
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void baseImageIsNotClosed_someQueuesAreCleared_whenNotAllForwardedCopiesAreClosed()
             throws InterruptedException {
         Semaphore onCloseSemaphore = new Semaphore(/*permits=*/ 0);

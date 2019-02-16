@@ -83,7 +83,7 @@ public final class Camera2ImplCameraRepositoryAndroidTest {
         mUseCaseGroup.addUseCase(mUseCase);
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void cameraDeviceCallsAreForwardedToCallback() throws InterruptedException {
         mCameraRepository.onGroupActive(mUseCaseGroup);
 
@@ -96,7 +96,7 @@ public final class Camera2ImplCameraRepositoryAndroidTest {
         mUseCase.mDeviceStateCallback.waitForOnClosed(1);
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void cameraSessionCallsAreForwardedToCallback() throws InterruptedException {
         mUseCase.addStateChangeListener(
                 mCameraRepository.getCamera(

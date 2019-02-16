@@ -127,7 +127,7 @@ public final class QueuedImageReaderProxyAndroidTest {
         }
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void closedImages_reduceQueueSize() throws InterruptedException {
         // Fill up to the queue's capacity.
         Semaphore onCloseSemaphore = new Semaphore(/*permits=*/ 0);
@@ -144,7 +144,7 @@ public final class QueuedImageReaderProxyAndroidTest {
         assertThat(mImageReaderProxy.getCurrentImages()).isEqualTo(MAX_IMAGES - 2);
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void closedImage_allowsNewImageToBeEnqueued() throws InterruptedException {
         // Fill up to the queue's capacity.
         Semaphore onCloseSemaphore = new Semaphore(/*permits=*/ 0);

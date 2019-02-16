@@ -94,7 +94,7 @@ public final class IoExecutorAndroidTest {
         mIoExecutor = IoExecutor.getInstance();
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void canRunRunnable() throws InterruptedException {
         mIoExecutor.execute(mSimpleRunnable1);
         mLock.lock();
@@ -109,7 +109,7 @@ public final class IoExecutorAndroidTest {
         // No need to check anything here. Completing this method should signal success.
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void canRunMultipleRunnableInParallel() throws InterruptedException {
         mIoExecutor.execute(mRunnable1);
         mIoExecutor.execute(mRunnable2);

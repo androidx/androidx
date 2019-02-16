@@ -183,7 +183,7 @@ public final class ViewFinderUseCaseAndroidTest {
         assertThat(useCase.isTorchOn()).isTrue();
     }
 
-    @Test(timeout = 5000)
+    @Test
     @UiThreadTest
     public void surfaceTextureIsNotReleased()
             throws InterruptedException, ExecutionException, TimeoutException {
@@ -218,7 +218,7 @@ public final class ViewFinderUseCaseAndroidTest {
         assertThat(surfaceTexture1.isReleased()).isFalse();
     }
 
-    @Test(timeout = 5000)
+    @Test
     @UiThreadTest
     public void listenedSurfaceTextureIsNotReleased_whenCleared()
             throws InterruptedException, ExecutionException, TimeoutException {
@@ -245,7 +245,7 @@ public final class ViewFinderUseCaseAndroidTest {
         assertThat(surfaceTexture.isReleased()).isFalse();
     }
 
-    @Test(timeout = 5000)
+    @Test
     @UiThreadTest
     public void surfaceTexture_isListenedOnlyOnce()
             throws InterruptedException, ExecutionException, TimeoutException {
@@ -373,7 +373,7 @@ public final class ViewFinderUseCaseAndroidTest {
     }
 
     // Must not run on main thread
-    @Test(timeout = 5000)
+    @Test
     public void viewFinderOutput_isResetByReleasedSurface()
             throws InterruptedException, ExecutionException {
         ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
@@ -404,7 +404,7 @@ public final class ViewFinderUseCaseAndroidTest {
         semaphore.acquire();
     }
 
-    @Test(timeout = 5000)
+    @Test
     @UiThreadTest
     public void outputIsPublished_whenListenerIsSetBefore()
             throws InterruptedException, ExecutionException {
@@ -425,7 +425,7 @@ public final class ViewFinderUseCaseAndroidTest {
         assertThat(surfaceTexture0).isNotNull();
     }
 
-    @Test(timeout = 5000)
+    @Test
     @UiThreadTest
     public void outputIsPublished_whenListenerIsSetAfter()
             throws InterruptedException, ExecutionException {

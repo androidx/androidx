@@ -150,7 +150,7 @@ public final class ImageAnalysisUseCaseAndroidTest {
         verify(mMockListener, times(1)).onUseCaseInactive(useCase);
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void analyzerAnalyzesImages_whenCameraIsOpen()
             throws InterruptedException, CameraInfoUnavailableException {
         final int imageFormat = ImageFormat.YUV_420_888;
@@ -191,7 +191,7 @@ public final class ImageAnalysisUseCaseAndroidTest {
         assertThat(mAnalysisResults).isEmpty();
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void updateSessionConfigurationWithSuggestedResolution() throws InterruptedException {
         final int imageFormat = ImageFormat.YUV_420_888;
         final Size[] sizes = {new Size(1280, 720), new Size(640, 480)};

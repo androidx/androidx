@@ -88,7 +88,7 @@ public final class ImageReaderProxysAndroidTest {
         mHandlerThread.quitSafely();
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void sharedReadersGetFramesFromCamera() throws InterruptedException {
         List<ImageReaderProxy> readers = new ArrayList<>();
         List<Semaphore> semaphores = new ArrayList<>();
@@ -114,7 +114,7 @@ public final class ImageReaderProxysAndroidTest {
         }
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void isolatedReadersGetFramesFromCamera() throws InterruptedException {
         List<ImageReaderProxy> readers = new ArrayList<>();
         List<Semaphore> semaphores = new ArrayList<>();

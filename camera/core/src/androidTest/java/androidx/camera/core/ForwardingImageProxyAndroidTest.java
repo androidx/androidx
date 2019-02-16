@@ -57,7 +57,7 @@ public final class ForwardingImageProxyAndroidTest {
         verify(mBaseImageProxy).close();
     }
 
-    @Test(timeout = 2000)
+    @Test
     public void close_notifiesOnImageCloseListener_afterSetOnImageCloseListener()
             throws InterruptedException {
         Semaphore closedImageSemaphore = new Semaphore(/*permits=*/ 0);
