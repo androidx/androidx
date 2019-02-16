@@ -40,7 +40,7 @@ import java.io.InputStream;
 @DoNotInstrument
 // TODO(b/124267925): Bump down to LOLLIPOP once our minSdk is 21
 @Config(minSdk = Build.VERSION_CODES.N)
-public class ExifRobolectricTest {
+public class ExifTest {
     private static final InputStream FAKE_INPUT_STREAM =
             new InputStream() {
                 @Override

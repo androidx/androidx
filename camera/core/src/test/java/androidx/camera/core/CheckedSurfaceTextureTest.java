@@ -40,7 +40,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @DoNotInstrument
 // TODO(b/124267925): Bump down to LOLLIPOP once our minSdk is 21
 @Config(minSdk = Build.VERSION_CODES.N)
-public class CheckedSurfaceTextureRobolectricTest {
+public class CheckedSurfaceTextureTest {
 
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
     private Size mDefaultResolution;

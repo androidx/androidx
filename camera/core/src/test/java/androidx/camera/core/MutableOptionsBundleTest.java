@@ -34,7 +34,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @DoNotInstrument
 // TODO(b/124267925): Bump down to LOLLIPOP once our minSdk is 21
 @Config(minSdk = Build.VERSION_CODES.N)
-public class MutableOptionsBundleRobolectricTest {
+public class MutableOptionsBundleTest {
 
     private static final Option<Object> OPTION_1 = Option.create("option.1", Object.class);
     private static final Option<Object> OPTION_1_A = Option.create("option.1.a", Object.class);
