@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2;
 
+import android.Manifest;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraDevice;
 import android.util.Size;
@@ -34,8 +35,10 @@ import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -62,6 +65,10 @@ public final class Camera2ImplCameraRepositoryAndroidTest {
                     "Unable to attach to camera with LensFacing " + lensFacing, e);
         }
     }
+
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.CAMERA);
 
     @Before
     public void setUp() {

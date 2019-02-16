@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.Manifest;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 
+import androidx.camera.core.CaptureRequestParameter;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,6 +40,10 @@ import org.junit.runner.RunWith;
 public class CaptureRequestParameterAndroidTest {
     private CameraDevice mCameraDevice;
 
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.CAMERA);
+
     @Before
     public void setup() throws CameraAccessException, InterruptedException {
         mCameraDevice = CameraUtil.getCameraDevice();
@@ -43,7 +51,9 @@ public class CaptureRequestParameterAndroidTest {
 
     @After
     public void teardown() {
-        CameraUtil.releaseCameraDevice(mCameraDevice);
+        if (mCameraDevice != null) {
+            CameraUtil.releaseCameraDevice(mCameraDevice);
+        }
     }
 
     @Test
