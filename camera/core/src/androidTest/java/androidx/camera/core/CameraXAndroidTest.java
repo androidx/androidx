@@ -73,7 +73,14 @@ public final class CameraXAndroidTest {
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
-        UseCaseConfigurationFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
+        ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
+        defaultConfigFactory.installDefaultProvider(FakeUseCaseConfiguration.class,
+                new ConfigurationProvider<FakeUseCaseConfiguration>() {
+                    @Override
+                    public FakeUseCaseConfiguration getConfiguration() {
+                        return new FakeUseCaseConfiguration.Builder().build();
+                    }
+                });
         AppConfiguration.Builder appConfigBuilder =
                 new AppConfiguration.Builder()
                         .setCameraFactory(sCameraFactory)
