@@ -16,7 +16,7 @@
 
 package androidx.preference;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.os.Bundle;
 import android.view.View;
@@ -83,7 +83,7 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @Override
     protected boolean needInputMethod() {
         // We want the input method to show, if possible, when dialog is displayed

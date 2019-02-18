@@ -96,6 +96,8 @@ public class PreferenceManager {
     private OnNavigateToScreenListener mOnNavigateToScreenListener;
 
     /**
+     * Used by Settings.
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -194,6 +196,8 @@ public class PreferenceManager {
     /**
      * Inflates a preference hierarchy from XML. If a preference hierarchy is given, the new
      * preference hierarchies will be merged in.
+     *
+     * Used by Settings.
      *
      * @param context         The context of the resource
      * @param resId           The resource ID of the XML to inflate
