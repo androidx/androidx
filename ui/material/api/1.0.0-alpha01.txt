@@ -39,203 +39,10 @@ package androidx.ui.material {
     ctor public CheckboxKt();
   }
 
-  public final class ConstantsKt {
-    ctor public ConstantsKt();
-    method public static androidx.ui.core.Duration getThemeChangeDuration();
-  }
-
   public final class H1 extends com.google.r4a.Component {
     ctor public H1(kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public void compose();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getContent();
-  }
-
-  public abstract class InkFeature {
-    ctor public InkFeature(androidx.ui.material.MaterialInkController controller, androidx.ui.core.LayoutCoordinates coordinates, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
-    method @CallSuper public void dispose();
-    method public final androidx.ui.material.MaterialInkController getController();
-    method public final androidx.ui.core.LayoutCoordinates getCoordinates();
-    method public final kotlin.jvm.functions.Function0<kotlin.Unit>? getOnRemoved();
-    method protected abstract void paintFeature(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, androidx.ui.core.Density density);
-  }
-
-  public final class InkHighlight extends androidx.ui.material.InteractiveInkFeature {
-    ctor public InkHighlight(androidx.ui.material.MaterialInkController controller, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape, androidx.ui.engine.geometry.BorderRadius? borderRadius, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
-    method public void activate();
-    method public void deactivate();
-    method public boolean getActive();
-    method protected void paintFeature(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, androidx.ui.core.Density density);
-    property public final boolean active;
-  }
-
-  public final class InkHiglightKt {
-    ctor public InkHiglightKt();
-  }
-
-  public final class InkResponse extends com.google.r4a.Component {
-    ctor public InkResponse(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public androidx.ui.engine.geometry.BorderRadius? getBorderRadius();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? getBoundsCallback();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public boolean getContainedInkWell();
-    method public boolean getEnableFeedback();
-    method public androidx.ui.painting.Color? getHighlightColor();
-    method public androidx.ui.material.borders.BoxShape getHighlightShape();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnDoubleTap();
-    method public kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? getOnHighlightChanged();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnLongPress();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnTap();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnTapCancel();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.Position,kotlin.Unit>? getOnTapDown();
-    method public androidx.ui.core.Dimension? getRadius();
-    method public androidx.ui.painting.Color? getSplashColor();
-    method public androidx.ui.material.InteractiveInkFeatureFactory? getSplashFactory();
-    method public void setBorderRadius(androidx.ui.engine.geometry.BorderRadius? p);
-    method public void setBoundsCallback(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? p);
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setContainedInkWell(boolean p);
-    method public void setEnableFeedback(boolean p);
-    method public void setHighlightColor(androidx.ui.painting.Color? p);
-    method public void setHighlightShape(androidx.ui.material.borders.BoxShape p);
-    method public void setOnDoubleTap(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setOnHighlightChanged(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? p);
-    method public void setOnLongPress(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setOnTap(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setOnTapCancel(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setOnTapDown(kotlin.jvm.functions.Function1<? super androidx.ui.core.Position,kotlin.Unit>? p);
-    method public void setRadius(androidx.ui.core.Dimension? p);
-    method public void setSplashColor(androidx.ui.painting.Color? p);
-    method public void setSplashFactory(androidx.ui.material.InteractiveInkFeatureFactory? p);
-    method public void updateHighlight(boolean value);
-    property public final androidx.ui.engine.geometry.BorderRadius? borderRadius;
-    property public final kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback;
-    property public final boolean containedInkWell;
-    property public final boolean enableFeedback;
-    property public final androidx.ui.painting.Color? highlightColor;
-    property public final androidx.ui.material.borders.BoxShape highlightShape;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onDoubleTap;
-    property public final kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? onHighlightChanged;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onLongPress;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onTap;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onTapCancel;
-    property public final kotlin.jvm.functions.Function1<androidx.ui.core.Position,kotlin.Unit>? onTapDown;
-    property public final androidx.ui.core.Dimension? radius;
-    property public final androidx.ui.painting.Color? splashColor;
-    property public final androidx.ui.material.InteractiveInkFeatureFactory? splashFactory;
-  }
-
-  public final class InkRipple extends androidx.ui.material.InteractiveInkFeature {
-    ctor public InkRipple(androidx.ui.material.MaterialInkController controller, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position position, androidx.ui.painting.Color color, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, androidx.ui.engine.geometry.BorderRadius? borderRadius, androidx.ui.core.Dimension? radiusParam, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
-    method protected void paintFeature(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, androidx.ui.core.Density density);
-  }
-
-  public final class InkRippleFactory extends androidx.ui.material.InteractiveInkFeatureFactory {
-    method public androidx.ui.material.InteractiveInkFeature create(androidx.ui.material.MaterialInkController controller, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position position, androidx.ui.painting.Color color, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, androidx.ui.engine.geometry.BorderRadius? borderRadius, androidx.ui.core.Dimension? radius, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
-    field public static final androidx.ui.material.InkRippleFactory! INSTANCE;
-  }
-
-  public final class InkRippleKt {
-    ctor public InkRippleKt();
-  }
-
-  public final class InkSplash extends androidx.ui.material.InteractiveInkFeature {
-    ctor public InkSplash(androidx.ui.material.MaterialInkController controller, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position position, androidx.ui.painting.Color color, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, androidx.ui.engine.geometry.BorderRadius? borderRadius, androidx.ui.core.Dimension? radiusParam, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
-    method protected void paintFeature(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, androidx.ui.core.Density density);
-  }
-
-  public final class InkSplashFactory extends androidx.ui.material.InteractiveInkFeatureFactory {
-    method public androidx.ui.material.InteractiveInkFeature create(androidx.ui.material.MaterialInkController controller, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position position, androidx.ui.painting.Color color, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, androidx.ui.engine.geometry.BorderRadius? borderRadius, androidx.ui.core.Dimension? radius, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
-    field public static final androidx.ui.material.InkSplashFactory! INSTANCE;
-  }
-
-  public final class InkSplashKt {
-    ctor public InkSplashKt();
-  }
-
-  public final class InkWell extends com.google.r4a.Component {
-    ctor public InkWell(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public androidx.ui.engine.geometry.BorderRadius? getBorderRadius();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public boolean getEnableFeedback();
-    method public androidx.ui.painting.Color? getHighlightColor();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnDoubleTap();
-    method public kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? getOnHighlightChanged();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnLongPress();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnTap();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnTapCancel();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.Position,kotlin.Unit>? getOnTapDown();
-    method public androidx.ui.core.Dimension? getRadius();
-    method public androidx.ui.painting.Color? getSplashColor();
-    method public androidx.ui.material.InteractiveInkFeatureFactory? getSplashFactory();
-    method public void setBorderRadius(androidx.ui.engine.geometry.BorderRadius? p);
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setEnableFeedback(boolean p);
-    method public void setHighlightColor(androidx.ui.painting.Color? p);
-    method public void setOnDoubleTap(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setOnHighlightChanged(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? p);
-    method public void setOnLongPress(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setOnTap(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setOnTapCancel(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setOnTapDown(kotlin.jvm.functions.Function1<? super androidx.ui.core.Position,kotlin.Unit>? p);
-    method public void setRadius(androidx.ui.core.Dimension? p);
-    method public void setSplashColor(androidx.ui.painting.Color? p);
-    method public void setSplashFactory(androidx.ui.material.InteractiveInkFeatureFactory? p);
-    property public final androidx.ui.engine.geometry.BorderRadius? borderRadius;
-    property public final boolean enableFeedback;
-    property public final androidx.ui.painting.Color? highlightColor;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onDoubleTap;
-    property public final kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? onHighlightChanged;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onLongPress;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onTap;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onTapCancel;
-    property public final kotlin.jvm.functions.Function1<androidx.ui.core.Position,kotlin.Unit>? onTapDown;
-    property public final androidx.ui.core.Dimension? radius;
-    property public final androidx.ui.painting.Color? splashColor;
-    property public final androidx.ui.material.InteractiveInkFeatureFactory? splashFactory;
-  }
-
-  public abstract class InteractiveInkFeature extends androidx.ui.material.InkFeature {
-    ctor public InteractiveInkFeature(androidx.ui.material.MaterialInkController controller, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.painting.Color color, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
-    method public void cancel();
-    method public void confirm();
-    method public final androidx.ui.painting.Color getColor();
-    method public final void setColor(androidx.ui.painting.Color value);
-    property public final androidx.ui.painting.Color color;
-  }
-
-  public abstract class InteractiveInkFeatureFactory {
-    ctor public InteractiveInkFeatureFactory();
-    method public abstract androidx.ui.material.InteractiveInkFeature create(androidx.ui.material.MaterialInkController controller, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position position, androidx.ui.painting.Color color, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, androidx.ui.engine.geometry.BorderRadius? borderRadius = null, androidx.ui.core.Dimension? radius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
-  }
-
-  public final class Material extends com.google.r4a.Component {
-    ctor public Material(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public androidx.ui.core.Duration getAnimationDuration();
-    method public androidx.ui.engine.geometry.BorderRadius? getBorderRadius();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public androidx.ui.painting.Color? getColor();
-    method public androidx.ui.core.Dimension getElevation();
-    method public androidx.ui.painting.Color getShadowColor();
-    method public androidx.ui.material.borders.ShapeBorder? getShape();
-    method public androidx.ui.material.MaterialType getType();
-    method public void setAnimationDuration(androidx.ui.core.Duration p);
-    method public void setBorderRadius(androidx.ui.engine.geometry.BorderRadius? p);
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setColor(androidx.ui.painting.Color? p);
-    method public void setElevation(androidx.ui.core.Dimension p);
-    method public void setShadowColor(androidx.ui.painting.Color p);
-    method public void setShape(androidx.ui.material.borders.ShapeBorder? p);
-    method public void setType(androidx.ui.material.MaterialType p);
-    property public final androidx.ui.core.Duration animationDuration;
-    property public final androidx.ui.engine.geometry.BorderRadius? borderRadius;
-    property public final androidx.ui.painting.Color? color;
-    property public final androidx.ui.core.Dimension elevation;
-    property public final androidx.ui.painting.Color shadowColor;
-    property public final androidx.ui.material.borders.ShapeBorder? shape;
-    property public final androidx.ui.material.MaterialType type;
   }
 
   public final class MaterialAnimationUtilKt {
@@ -274,22 +81,6 @@ package androidx.ui.material {
     method public androidx.ui.painting.Color getSurface();
   }
 
-  public interface MaterialInkController {
-    method public void addInkFeature(androidx.ui.material.InkFeature feature);
-    method public androidx.ui.painting.Color? getColor();
-    method public androidx.ui.scheduler.ticker.TickerProvider getVsync();
-    method public void markNeedsPaint();
-    property public abstract androidx.ui.painting.Color? color;
-    property public abstract androidx.ui.scheduler.ticker.TickerProvider vsync;
-  }
-
-  public final class MaterialKt {
-    ctor public MaterialKt();
-    method public static void MaterialInkControllerProvider(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialInkController,kotlin.Unit> children);
-    method public static androidx.ui.core.Dimension getDefaultSplashRadius();
-    method public static java.util.Map<androidx.ui.material.MaterialType,androidx.ui.engine.geometry.BorderRadius> getMaterialEdges();
-  }
-
   public final class MaterialTheme extends com.google.r4a.Component {
     ctor public MaterialTheme(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void compose();
@@ -304,16 +95,9 @@ package androidx.ui.material {
 
   public final class MaterialThemeKt {
     ctor public MaterialThemeKt();
+    method public static void MaterialRippleTheme(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static com.google.r4a.Ambient<androidx.ui.material.MaterialColors> getColors();
     method public static com.google.r4a.Ambient<androidx.ui.material.MaterialTypography> getTypography();
-  }
-
-  public enum MaterialType {
-    enum_constant public static final androidx.ui.material.MaterialType BUTTON;
-    enum_constant public static final androidx.ui.material.MaterialType CANVAS;
-    enum_constant public static final androidx.ui.material.MaterialType CARD;
-    enum_constant public static final androidx.ui.material.MaterialType CIRCLE;
-    enum_constant public static final androidx.ui.material.MaterialType TRANSPARENCY;
   }
 
   public final class MaterialTypography {
@@ -437,65 +221,183 @@ package androidx.ui.material.borders {
 
 package androidx.ui.material.clip {
 
-  public final class ClipHolder<T> {
-    ctor public ClipHolder(kotlin.jvm.functions.Function0<kotlin.Unit> markNeedsClip, kotlin.jvm.functions.Function1<? super androidx.ui.engine.geometry.Size,? extends T> defaultClip);
-    method public void dispose();
-    method public T! getClip(androidx.ui.material.clip.CustomClipper<T>? clipper, androidx.ui.core.PixelSize pixelSize, androidx.ui.core.Density density);
+  public final class ClipPathKt {
+    ctor public ClipPathKt();
+    method public static void ClipPath(androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path> clipper, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class ClipPath extends com.google.r4a.Component {
-    ctor public ClipPath(androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path>? clipper, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path>? getClipper();
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setClipper(androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path>? p);
+  public interface CustomClipper<T> {
+    method public T! getClip(androidx.ui.core.PixelSize size, androidx.ui.core.Density density);
   }
 
-  public abstract class CustomClipper<T> {
-    ctor public CustomClipper(androidx.ui.foundation.change_notifier.Listenable? reclip);
-    ctor public CustomClipper();
-    method public final androidx.ui.engine.geometry.Rect getApproximateClipRect(androidx.ui.engine.geometry.Size size);
-    method public abstract T! getClip(androidx.ui.engine.geometry.Size size, androidx.ui.core.Density density);
-    method public final androidx.ui.foundation.change_notifier.Listenable? getReclip();
-  }
-
-  public final class PhysicalShape extends com.google.r4a.Component {
-    ctor public PhysicalShape(androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path> clipper, androidx.ui.core.Dimension elevation, androidx.ui.painting.Color color, androidx.ui.painting.Color shadowColor, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path> getClipper();
-    method public androidx.ui.painting.Color getColor();
-    method public androidx.ui.core.Dimension getElevation();
-    method public androidx.ui.painting.Color getShadowColor();
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setClipper(androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path> p);
-    method public void setColor(androidx.ui.painting.Color p);
-    method public void setElevation(androidx.ui.core.Dimension p);
-    method public void setShadowColor(androidx.ui.painting.Color p);
-  }
-
-  public final class ShapeBorderClipper extends androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path> {
+  public final class ShapeBorderClipper implements androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path> {
     ctor public ShapeBorderClipper(androidx.ui.material.borders.ShapeBorder shape, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.material.borders.ShapeBorder component1();
     method public androidx.ui.engine.text.TextDirection? component2();
     method public androidx.ui.material.clip.ShapeBorderClipper copy(androidx.ui.material.borders.ShapeBorder shape, androidx.ui.engine.text.TextDirection? textDirection);
-    method public androidx.ui.painting.Path getClip(androidx.ui.engine.geometry.Size size, androidx.ui.core.Density density);
+    method public androidx.ui.painting.Path getClip(androidx.ui.core.PixelSize size, androidx.ui.core.Density density);
     method public androidx.ui.material.borders.ShapeBorder getShape();
     method public androidx.ui.engine.text.TextDirection? getTextDirection();
   }
 
 }
 
+package androidx.ui.material.clip.cache {
+
+  public final class CachingClipper<T> extends com.google.r4a.Component {
+    ctor public CachingClipper(androidx.ui.material.clip.CustomClipper<T> clipper, kotlin.jvm.functions.Function1<? super androidx.ui.material.clip.CustomClipper<T>,kotlin.Unit> children);
+    method public void compose();
+    method public kotlin.jvm.functions.Function1<androidx.ui.material.clip.CustomClipper<T>,kotlin.Unit> getChildren();
+    method public androidx.ui.material.clip.CustomClipper<T> getClipper();
+    method public void setChildren(kotlin.jvm.functions.Function1<? super androidx.ui.material.clip.CustomClipper<T>,kotlin.Unit> p);
+    method public void setClipper(androidx.ui.material.clip.CustomClipper<T> p);
+  }
+
+}
+
 package androidx.ui.material.demos {
 
-  public final class InksDemo extends com.google.r4a.Component {
-    ctor public InksDemo();
+  public final class RippleDemo extends com.google.r4a.Component {
+    ctor public RippleDemo();
     method public void compose();
   }
 
-  public final class InksDemoKt {
-    ctor public InksDemoKt();
+  public final class RippleDemoKt {
+    ctor public RippleDemoKt();
+  }
+
+}
+
+package androidx.ui.material.ripple {
+
+  public final class BoundedRippleKt {
+    ctor public BoundedRippleKt();
+    method public static void BoundedRipple(androidx.ui.core.Dimension? finalRadius = null, androidx.ui.engine.geometry.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHighlightChanged = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class DefaultRippleEffectFactory extends androidx.ui.material.ripple.RippleEffectFactory {
+    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position touchPosition, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape, androidx.ui.core.Dimension? finalRadius, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, androidx.ui.engine.geometry.BorderRadius? clippingBorderRadius, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
+    field public static final androidx.ui.material.ripple.DefaultRippleEffectFactory! INSTANCE;
+  }
+
+  public final class DefaultRippleEffectKt {
+    ctor public DefaultRippleEffectKt();
+  }
+
+  public final class Ripple extends com.google.r4a.Component {
+    ctor public Ripple(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void compose();
+    method public boolean getBounded();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? getBoundsCallback();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
+    method public androidx.ui.engine.geometry.BorderRadius? getClippingBorderRadius();
+    method public androidx.ui.core.Dimension? getFinalRadius();
+    method public kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? getOnHighlightChanged();
+    method public androidx.ui.material.borders.BoxShape getShape();
+    method public void setBounded(boolean p);
+    method public void setBoundsCallback(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? p);
+    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+    method public void setClippingBorderRadius(androidx.ui.engine.geometry.BorderRadius? p);
+    method public void setFinalRadius(androidx.ui.core.Dimension? p);
+    method public void setOnHighlightChanged(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? p);
+    method public void setShape(androidx.ui.material.borders.BoxShape p);
+    property public final boolean bounded;
+    property public final kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback;
+    property public final androidx.ui.engine.geometry.BorderRadius? clippingBorderRadius;
+    property public final androidx.ui.core.Dimension? finalRadius;
+    property public final kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? onHighlightChanged;
+    property public final androidx.ui.material.borders.BoxShape shape;
+  }
+
+  public abstract class RippleEffect {
+    ctor public RippleEffect(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.painting.Color color, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
+    method public void cancel();
+    method public void confirm();
+    method @CallSuper public void dispose();
+    method protected abstract void drawEffect(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, androidx.ui.core.Density density);
+    method public final androidx.ui.painting.Color getColor();
+    method public final androidx.ui.core.LayoutCoordinates getCoordinates();
+    method public final kotlin.jvm.functions.Function0<kotlin.Unit>? getOnRemoved();
+    method public final androidx.ui.material.ripple.RippleSurfaceOwner getRippleSurface();
+    method public final void setColor(androidx.ui.painting.Color value);
+    property public final androidx.ui.painting.Color color;
+  }
+
+  public abstract class RippleEffectFactory {
+    ctor public RippleEffectFactory();
+    method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position touchPosition, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.RECTANGLE, androidx.ui.core.Dimension? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, androidx.ui.engine.geometry.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
+  }
+
+  public final class RippleSurface extends com.google.r4a.Component {
+    ctor public RippleSurface(androidx.ui.painting.Color? color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void compose();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
+    method public androidx.ui.painting.Color? getColor();
+    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+  }
+
+  public final class RippleSurfaceKt {
+    ctor public RippleSurfaceKt();
+    method public static void RippleSurfaceConsumer(kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleSurfaceOwner,kotlin.Unit> children);
+  }
+
+  public interface RippleSurfaceOwner {
+    method public void addEffect(androidx.ui.material.ripple.RippleEffect feature);
+    method public androidx.ui.painting.Color? getBackgroundColor();
+    method public androidx.ui.scheduler.ticker.TickerProvider getVsync();
+    method public void markNeedsRedraw();
+    method public void removeEffect(androidx.ui.material.ripple.RippleEffect feature);
+    property public abstract androidx.ui.painting.Color? backgroundColor;
+    property public abstract androidx.ui.scheduler.ticker.TickerProvider vsync;
+  }
+
+  public final class RippleTheme {
+    ctor public RippleTheme(androidx.ui.material.ripple.RippleEffectFactory factory, kotlin.jvm.functions.Function1<? super androidx.ui.painting.Color,androidx.ui.painting.Color> colorCallback);
+    method public androidx.ui.material.ripple.RippleEffectFactory component1();
+    method public kotlin.jvm.functions.Function1<androidx.ui.painting.Color,androidx.ui.painting.Color> component2();
+    method public androidx.ui.material.ripple.RippleTheme copy(androidx.ui.material.ripple.RippleEffectFactory factory, kotlin.jvm.functions.Function1<? super androidx.ui.painting.Color,androidx.ui.painting.Color> colorCallback);
+    method public kotlin.jvm.functions.Function1<androidx.ui.painting.Color,androidx.ui.painting.Color> getColorCallback();
+    method public androidx.ui.material.ripple.RippleEffectFactory getFactory();
+  }
+
+  public final class RippleThemeKt {
+    ctor public RippleThemeKt();
+    method public static com.google.r4a.Ambient<androidx.ui.material.ripple.RippleTheme> getCurrentRippleTheme();
+  }
+
+}
+
+package androidx.ui.material.surface {
+
+  public final class CardKt {
+    ctor public CardKt();
+    method public static void Card(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), androidx.ui.painting.Color? color = ColorNotProvided, androidx.ui.core.Dimension elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class DrawBorderKt {
+    ctor public DrawBorderKt();
+    method public static void DrawBorder(androidx.ui.material.borders.ShapeBorder shape);
+  }
+
+  public final class DrawColorKt {
+    ctor public DrawColorKt();
+    method public static void DrawColor(androidx.ui.painting.Color? color);
+  }
+
+  public final class DrawShadowKt {
+    ctor public DrawShadowKt();
+    method public static void DrawShadow(androidx.ui.core.Dimension elevation, androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path> clipper, androidx.ui.painting.Color shadowColor);
+  }
+
+  public final class SurfaceKt {
+    ctor public SurfaceKt();
+    method public static void Surface(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), androidx.ui.painting.Color? color = null, androidx.ui.core.Dimension elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static com.google.r4a.Ambient<androidx.ui.painting.Color> getCurrentSurfaceShadowColor();
+  }
+
+  public final class TransparentSurfaceKt {
+    ctor public TransparentSurfaceKt();
+    method public static void TransparentSurface(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }

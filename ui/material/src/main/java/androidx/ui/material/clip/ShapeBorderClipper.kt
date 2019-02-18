@@ -17,11 +17,11 @@
 package androidx.ui.material.clip
 
 import androidx.ui.core.Density
-import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.Size
+import androidx.ui.core.PixelSize
+import androidx.ui.core.toRect
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.painting.Path
 import androidx.ui.material.borders.ShapeBorder
+import androidx.ui.painting.Path
 
 /** A [CustomClipper] that clips to the outer path of a [ShapeBorder]. */
 data class ShapeBorderClipper(
@@ -36,10 +36,10 @@ data class ShapeBorderClipper(
      * towards the start of the shape).
      */
     val textDirection: TextDirection? = null
-) : CustomClipper<Path>() {
+) : CustomClipper<Path> {
 
     /** Returns the outer path of [shape] as the clip. */
-    override fun getClip(size: Size, density: Density): Path {
-        return shape.getOuterPath(Offset.zero and size, density, textDirection = textDirection)
+    override fun getClip(size: PixelSize, density: Density): Path {
+        return shape.getOuterPath(size.toRect(), density, textDirection = textDirection)
     }
 }

@@ -360,3 +360,12 @@ class Color(colorValue: Int) {
 fun _scaleAlpha(a: Color, factor: Float): Color {
     return a.withAlpha((a.alpha * factor).roundToInt().coerceIn(0, 255))
 }
+
+/**
+ * Returns a new color that matches this color with the alpha channel
+ * replaced with [a] defined in percents (ranges from 0 to 100 which
+ * translates to the range of alpha value from 0 to 255).
+ *
+ * Out of range values will have unexpected effects.
+ */
+inline fun Color.withAlphaPercent(a: Float): Color = withAlpha((a * 2.55f).toInt())

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.material
+package androidx.ui.material.ripple
 
 import androidx.ui.animation.Animation
 import androidx.ui.animation.AnimationController
@@ -41,23 +41,30 @@ import androidx.ui.core.toBounds
 import androidx.ui.core.toPx
 import androidx.ui.core.toRect
 import androidx.ui.core.toSize
+import androidx.ui.engine.geometry.BorderRadius
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.material.Tween
+import androidx.ui.material.borders.BoxShape
+import androidx.ui.material.surface.Surface
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import androidx.ui.engine.geometry.BorderRadius
-import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.getAsTranslation
+import androidx.ui.vectormath64.Matrix4
+
+// TODO(Andrey) Implement the animation from the current specification: b/124504971
 
 internal val UnconfirmedRippleDuration = Duration.create(seconds = 1)
 internal val FadeInDuration = Duration.create(milliseconds = 75)
 internal val RadiusDuration = Duration.create(milliseconds = 225)
 internal val FadeOutDuration = Duration.create(milliseconds = 375)
 internal val CancelDuration = Duration.create(milliseconds = 75)
+internal val HighlightFadeDuration = Duration.create(milliseconds = 200)
+internal val DefaultSplashRadius = 35.dp
 
-// The fade out begins 225ms after the _fadeOutController starts. See confirm().
+// The fade out begins 225ms after the fadeOutController starts. See confirm().
 private val FadeOutIntervalStart = 225f / 375f
 
 internal fun getRippleClipCallback(
@@ -83,91 +90,81 @@ internal fun getRippleTargetRadius(
 }
 
 /**
- * Used to specify this type of ink splash for an [InkWell], [InkResponse]
- * or material [Theme].
+ * Used to specify this type of [RippleEffect] for an [BoundedRipple] and [Ripple].
  */
-object InkRippleFactory : InteractiveInkFeatureFactory() {
+object DefaultRippleEffectFactory : RippleEffectFactory() {
 
     override fun create(
-        controller: MaterialInkController,
+        rippleSurface: RippleSurfaceOwner,
         coordinates: LayoutCoordinates,
-        position: Position,
+        touchPosition: Position,
         color: Color,
+        shape: BoxShape,
+        finalRadius: Dimension?,
         containedInkWell: Boolean,
         boundsCallback: ((LayoutCoordinates) -> Bounds)?,
-        borderRadius: BorderRadius?,
-        radius: Dimension?,
+        clippingBorderRadius: BorderRadius?,
         onRemoved: (() -> Unit)?
-    ): InteractiveInkFeature {
-        return InkRipple(
-            controller = controller,
-            coordinates = coordinates,
-            position = position,
-            color = color,
-            containedInkWell = containedInkWell,
-            boundsCallback = boundsCallback,
-            borderRadius = borderRadius,
-            radiusParam = radius,
-            onRemoved = onRemoved
+    ): RippleEffect {
+        return DefaultRippleEffect(
+            rippleSurface,
+            coordinates,
+            touchPosition,
+            color,
+            shape,
+            finalRadius,
+            containedInkWell,
+            boundsCallback,
+            clippingBorderRadius,
+            onRemoved
         )
     }
 }
 
 /**
- * A visual reaction on a piece of [Material] to user input.
+ * A visual reaction on a piece of [RippleSurface] to user input.
  *
- * A circular ink feature whose origin starts at the input touch point and
- * whose radius expands from 60% of the final radius. The splash origin
+ * A circular ripple effect whose origin starts at the input touch point and
+ * whose finalRadius expands from 60% of the final finalRadius. The ripple origin
  * animates to the center of its target layout.
  *
- * This object is rarely created directly. Instead of creating an ink ripple,
- * consider using an [InkResponse] or [InkWell] widget, which uses
- * gestures (such as tap and long-press) to trigger ink splashes. This class
- * is used when the [Theme]'s [ThemeData.splashType] is [InkSplashType.ripple].
+ * This object is rarely created directly. Instead of creating a ripple effect,
+ * consider using an [Ripple] or [BoundedRipple].
  *
  * See also:
  *
- *  * [InkSplash], which is an ink splash feature that expands less
- *    aggressively than the ripple.
- *  * [InkResponse], which uses gestures to trigger ink highlights and ink
- *    splashes in the parent [Material].
- *  * [InkWell], which is a rectangular [InkResponse] (the most common type of
- *    ink response).
- *  * [Material], which is the widget on which the ink splash is painted.
- *  * [InkHighlight], which is an ink feature that emphasizes a part of a
- *    [Material].
+ *  * [Ripple], which draws [RippleEffect]s in the parent [RippleSurface].
+ *  * [BoundedRipple], which is a rectangular [Ripple] (the most common type of
+ *    ripple).
+ *  * [RippleSurface], which is the widget on which the ripple effect is drawn.
  *
- * Begin a ripple, centered at [position] relative to the target layout.
+ * Begin a ripple, centered at [touchPosition] relative to the target layout.
  *
- * The [controller] argument is typically obtained via
- * `Material.of(context)`.
- *
- * If [containedInkWell] is true, then the ripple will be sized to fit
- * the well RECTANGLE, then clipped to it when drawn. The well
- * RECTANGLE is the box returned by [rectCallback], if provided, or
+ * If "bounded" is true, then the ripple will be sized to fit the bounds, then
+ * clipped to it when drawn. The bounds are returned by `boundsCallback`, if provided, or
  * otherwise is the bounds of the target layout.
  *
- * If [containedInkWell] is false, then [rectCallback] should be null.
- * The ink ripple is clipped only to the edges of the [Material].
- * This is the default.
+ * If "bounded" is false, then "boundsCallback" should be null.
+ * The ripple is clipped only to the edges of the [Surface]. This is the default.
  *
  * When the ripple is removed, [onRemoved] will be called.
  */
-class InkRipple(
-    controller: MaterialInkController,
+internal class DefaultRippleEffect(
+    rippleSurface: RippleSurfaceOwner,
     coordinates: LayoutCoordinates,
-    private val position: Position,
+    private val touchPosition: Position,
     color: Color,
+    private val shape: BoxShape = BoxShape.RECTANGLE,
+    finalRadius: Dimension? = null,
     containedInkWell: Boolean = false,
     boundsCallback: ((LayoutCoordinates) -> Bounds)? = null,
-    borderRadius: BorderRadius? = null,
-    radiusParam: Dimension? = null,
+    clippingBorderRadius: BorderRadius? = null,
     onRemoved: (() -> Unit)? = null
-) : InteractiveInkFeature(controller, coordinates, color, onRemoved) {
+) : RippleEffect(rippleSurface, coordinates, color, onRemoved) {
 
-    private val borderRadius: BorderRadius = borderRadius ?: BorderRadius.Zero
+    private val borderRadius: BorderRadius = clippingBorderRadius ?: BorderRadius.Zero
     private val targetRadius: Dimension =
-        radiusParam ?: getRippleTargetRadius(coordinates, boundsCallback)
+        finalRadius ?: getRippleTargetRadius(coordinates, boundsCallback)
     private val clipCallback: ((LayoutCoordinates) -> Bounds)? =
         getRippleClipCallback(containedInkWell, boundsCallback)
 
@@ -180,29 +177,32 @@ class InkRipple(
     private val fadeOut: Animation<Int>
     private val fadeOutController: AnimationController
 
+    private val highlightAlpha: Animation<Int>
+    private val highlightAlphaController: AnimationController
+
     init {
-        // Immediately begin fading-in the initial splash.
+        // Immediately begin fading-in the initial ripple.
         fadeInController = AnimationController(
             duration = FadeInDuration,
-            vsync = controller.vsync
+            vsync = rippleSurface.vsync
         )
-        fadeInController.addListener(controller::markNeedsPaint)
+        fadeInController.addListener(rippleSurface::markNeedsRedraw)
         fadeInController.forward()
         fadeIn = Tween(
             begin = 0,
             end = color.alpha
         ).animate(fadeInController)
 
-        // Controls the splash radius and its center. Starts upon confirm.
+        // Controls the ripple finalRadius and its center. Starts upon confirm.
         radiusController = AnimationController(
             duration = UnconfirmedRippleDuration,
-            vsync = controller.vsync
+            vsync = rippleSurface.vsync
         )
-        radiusController.addListener(controller::markNeedsPaint)
+        radiusController.addListener(rippleSurface::markNeedsRedraw)
         radiusController.forward()
-        // Initial splash diameter is 60% of the target diameter, final
+        // Initial ripple diameter is 60% of the target diameter, final
         // diameter is 10dps larger than the target diameter.
-        radius = Tween(
+        this.radius = Tween(
             begin = targetRadius * 0.3f,
             end = targetRadius + 5.dp
         ).animate(
@@ -212,14 +212,13 @@ class InkRipple(
             )
         )
 
-        // Controls the splash radius and its center. Starts upon confirm however its
-        // Interval delays changes until the radius expansion has completed.
+        // Controls the ripple finalRadius and its center. Starts upon confirm however its
+        // Interval delays changes until the finalRadius expansion has completed.
         fadeOutController = AnimationController(
             duration = FadeOutDuration,
-            vsync = controller.vsync
+            vsync = rippleSurface.vsync
         )
-        fadeOutController.addListener(controller::markNeedsPaint)
-        fadeOutController.addStatusListener(this::handleAlphaStatusChanged)
+        fadeOutController.addListener(rippleSurface::markNeedsRedraw)
         fadeOutController.forward()
         fadeOut = Tween(
             begin = color.alpha,
@@ -231,7 +230,20 @@ class InkRipple(
             )
         )
 
-        controller.addInkFeature(this)
+        highlightAlphaController = AnimationController(
+            duration = HighlightFadeDuration,
+            vsync = rippleSurface.vsync
+        )
+        highlightAlphaController.addListener { rippleSurface.markNeedsRedraw() }
+        highlightAlphaController.addStatusListener(this::handleAlphaStatusChanged)
+        highlightAlphaController.forward()
+        highlightAlpha = Tween(
+            begin = 0,
+            end = color.alpha / 2
+        ).animate(highlightAlphaController)
+        highlightAlphaController.forward()
+
+        rippleSurface.addEffect(this)
     }
 
     override fun confirm() {
@@ -240,22 +252,24 @@ class InkRipple(
         // This confirm may have been preceded by a cancel.
         fadeInController.forward()
         fadeOutController.animateTo(1f, duration = FadeOutDuration)
+        highlightAlphaController.reverse()
     }
 
     override fun cancel() {
         fadeInController.stop()
-        // Watch out: setting _fadeOutController's value to 1.0 will
-        // trigger a call to _handleAlphaStatusChanged() which will
-        // dispose _fadeOutController.
+        // Watch out: setting fadeOutController's value to 1.0 will
+        // trigger a call to handleAlphaStatusChanged() which will
+        // dispose fadeOutController.
         val fadeOutValue = 1f - fadeInController.value
         fadeOutController.value = fadeOutValue
         if (fadeOutValue < 1f) {
             fadeOutController.animateTo(1f, duration = CancelDuration)
         }
+        highlightAlphaController.reverse()
     }
 
     private fun handleAlphaStatusChanged(status: AnimationStatus) {
-        if (status == AnimationStatus.COMPLETED) {
+        if (status == AnimationStatus.COMPLETED && highlightAlphaController.value == 0f) {
             dispose()
         }
     }
@@ -264,6 +278,7 @@ class InkRipple(
         radiusController.dispose()
         fadeInController.dispose()
         fadeOutController.dispose()
+        highlightAlphaController.dispose()
         super.dispose()
     }
 
@@ -289,13 +304,13 @@ class InkRipple(
         }
     }
 
-    override fun paintFeature(canvas: Canvas, transform: Matrix4, density: Density) {
+    override fun drawEffect(canvas: Canvas, transform: Matrix4, density: Density) {
         val alpha = if (fadeInController.isAnimating) fadeIn.value else fadeOut.value
         val paint = Paint()
         paint.color = color.withAlpha(alpha)
-        // Splash moves to the center of the reference box.
+        // Ripple moves to the center of the parent layout
         val center = lerp(
-            position,
+            touchPosition,
             coordinates.size.center(),
             Curves.ease.transform(radiusController.value)
         )
@@ -318,6 +333,34 @@ class InkRipple(
             canvas.drawCircle(centerOffset + originOffset, radius.value.toPx(density), paint)
             if (clipRect != null) {
                 canvas.restore()
+            }
+        }
+
+        // highlight
+        paint.color = color.withAlpha(highlightAlpha.value)
+        val bounds = clipCallback?.invoke(coordinates) ?: coordinates.size.toBounds()
+        val rect = bounds.toRect(density)
+        if (originOffset == null) {
+            canvas.save()
+            canvas.transform(transform)
+            drawHighlight(canvas, rect, paint, density)
+            canvas.restore()
+        } else {
+            drawHighlight(canvas, rect.shift(originOffset), paint, density)
+        }
+    }
+
+    private fun drawHighlight(canvas: Canvas, rect: Rect, paint: Paint, density: Density) {
+        when (shape) {
+            BoxShape.CIRCLE ->
+                canvas.drawCircle(rect.getCenter(), DefaultSplashRadius.toPx(density), paint)
+            BoxShape.RECTANGLE -> {
+                if (borderRadius != BorderRadius.Zero) {
+                    val clipRRect = clipRRectFromRect(rect)
+                    canvas.drawRRect(clipRRect, paint)
+                } else {
+                    canvas.drawRect(rect, paint)
+                }
             }
         }
     }

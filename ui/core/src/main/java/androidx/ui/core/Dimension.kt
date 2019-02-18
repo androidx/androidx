@@ -17,6 +17,7 @@
 
 package androidx.ui.core
 
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.lerpFloat
 import kotlin.math.sqrt
 
@@ -459,6 +460,13 @@ inline class DimensionInverse(val idp: Float)
  * A size in Pixels
  */
 data class PixelSize(val width: Float, val height: Float)
+
+/**
+ * Convert a [PixelSize] to a [Rect].
+ */
+fun PixelSize.toRect(): Rect {
+    return Rect(0f, 0f, width, height)
+}
 
 /**
  * A four dimensional bounds using [Dimension] for units
