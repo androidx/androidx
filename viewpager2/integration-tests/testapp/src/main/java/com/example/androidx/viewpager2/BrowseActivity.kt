@@ -57,7 +57,7 @@ class BrowseActivity : ListActivity() {
             Intent(Intent.ACTION_VIEW).setClassName(this.packageName, activity)
 
     override fun onListItemClick(listView: ListView, view: View, position: Int, id: Long) {
-        val map = listView.getItemAtPosition(position) as Map<String, Any>
+        val map = listView.getItemAtPosition(position) as Map<*, *>
 
         val intent = Intent(map["intent"] as Intent)
         intent.addCategory(Intent.CATEGORY_SAMPLE_CODE)
