@@ -101,7 +101,7 @@ package androidx.room.paging {
     method public int countItems();
     method public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T>);
     method public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams, androidx.paging.PositionalDataSource.LoadRangeCallback<T>);
-    method public java.util.List<T>? loadRange(int, int);
+    method public java.util.List<T> loadRange(int, int);
   }
 
 }
