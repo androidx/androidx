@@ -132,6 +132,38 @@ package androidx.ui.material {
     method public androidx.ui.painting.TextStyle getSubtitle2();
   }
 
+  public final class RadioButtonKt {
+    ctor public RadioButtonKt();
+    method public static void RadioButton(boolean checked, androidx.ui.painting.Color? color = null);
+  }
+
+  public final class RadioButtonWrapper extends com.google.r4a.Component {
+    ctor public RadioButtonWrapper();
+    method public void compose();
+    method public boolean getChecked();
+    method public androidx.ui.painting.Color? getColor();
+    method public void setChecked(boolean p);
+    method public void setColor(androidx.ui.painting.Color? p);
+    property public final boolean checked;
+    property public final androidx.ui.painting.Color? color;
+  }
+
+  public final class SwitchKt {
+    ctor public SwitchKt();
+    method public static void Switch(boolean checked, androidx.ui.painting.Color? color = null);
+  }
+
+  public final class SwitchWrapper extends com.google.r4a.Component {
+    ctor public SwitchWrapper();
+    method public void compose();
+    method public boolean getChecked();
+    method public androidx.ui.painting.Color? getColor();
+    method public void setChecked(boolean p);
+    method public void setColor(androidx.ui.painting.Color? p);
+    property public final boolean checked;
+    property public final androidx.ui.painting.Color? color;
+  }
+
 }
 
 package androidx.ui.material.borders {
@@ -264,6 +296,16 @@ package androidx.ui.material.demos {
 
   public final class RippleDemoKt {
     ctor public RippleDemoKt();
+  }
+
+  public final class SelectionsControlsDemo extends com.google.r4a.Component {
+    ctor public SelectionsControlsDemo();
+    method public void compose();
+  }
+
+  public final class SelectionsControlsDemoKt {
+    ctor public SelectionsControlsDemoKt();
+    method public static void FillGrid(int horizontalGridCount, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }

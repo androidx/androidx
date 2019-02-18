@@ -96,7 +96,7 @@ class Color(colorValue: Int) {
          *
          * Out of range values are brought into range using modulo 255.
          *
-         * See also [fromARGB], which takes the alpha value as a floating point
+         * See also [fromRGBO], which takes the alpha value as a floating point
          * value.
          */
         fun fromARGB(a: Int, r: Int, g: Int, b: Int): Color {
