@@ -117,6 +117,10 @@ public class SlidingPaneLayout extends ViewGroup {
      */
     private static final int MIN_FLING_VELOCITY = 400; // dips per second
 
+    /** Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage. */
+    private static final String ACCESSIBILITY_CLASS_NAME =
+            "androidx.slidingpanelayout.widget.SlidingPaneLayout";
+
     /**
      * The fade color used for the panel covered by the slider. 0 = no fading.
      */
@@ -1520,7 +1524,7 @@ public class SlidingPaneLayout extends ViewGroup {
             copyNodeInfoNoChildren(info, superNode);
             superNode.recycle();
 
-            info.setClassName(SlidingPaneLayout.class.getName());
+            info.setClassName(ACCESSIBILITY_CLASS_NAME);
             info.setSource(host);
 
             final ViewParent parent = ViewCompat.getParentForAccessibility(host);
@@ -1546,7 +1550,7 @@ public class SlidingPaneLayout extends ViewGroup {
         public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
             super.onInitializeAccessibilityEvent(host, event);
 
-            event.setClassName(SlidingPaneLayout.class.getName());
+            event.setClassName(ACCESSIBILITY_CLASS_NAME);
         }
 
         @Override

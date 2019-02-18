@@ -72,6 +72,10 @@ class StreamingTextView extends EditText {
         }
     };
 
+    /** Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage. */
+    private static final String ACCESSIBILITY_CLASS_NAME =
+            "androidx.leanback.widget.StreamingTextView";
+
     final Random mRandom = new Random();
 
     Bitmap mOneDot;
@@ -230,7 +234,7 @@ class StreamingTextView extends EditText {
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         super.onInitializeAccessibilityNodeInfo(info);
-        info.setClassName(StreamingTextView.class.getCanonicalName());
+        info.setClassName(ACCESSIBILITY_CLASS_NAME);
     }
 
     private class DottySpan extends ReplacementSpan {
