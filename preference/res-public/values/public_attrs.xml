@@ -47,22 +47,15 @@
     <public type="attr" name="orderingFromXml" />
     <public type="attr" name="persistent" />
     <public type="attr" name="positiveButtonText" />
-    <public type="attr" name="preferenceActivityStyle" />
     <public type="attr" name="preferenceCategoryStyle" />
     <public type="attr" name="preferenceCategoryTitleTextAppearance" />
     <public type="attr" name="preferenceFragmentCompatStyle" />
     <public type="attr" name="preferenceFragmentListStyle" />
-    <public type="attr" name="preferenceFragmentPaddingSide" />
     <public type="attr" name="preferenceFragmentStyle" />
-    <public type="attr" name="preferenceHeaderPanelStyle" />
     <public type="attr" name="preferenceInformationStyle" />
-    <public type="attr" name="preferenceLayoutChild" />
-    <public type="attr" name="preferenceListStyle" />
-    <public type="attr" name="preferencePanelStyle" />
     <public type="attr" name="preferenceScreenStyle" />
     <public type="attr" name="preferenceStyle" />
     <public type="attr" name="preferenceTheme" />
-    <public type="attr" name="ringtonePreferenceStyle" />
     <public type="attr" name="seekBarIncrement" />
     <public type="attr" name="seekBarPreferenceStyle" />
     <public type="attr" name="selectable" />
@@ -79,5 +72,4 @@
     <public type="attr" name="switchTextOn" />
     <public type="attr" name="title" />
     <public type="attr" name="widgetLayout" />
-    <public type="attr" name="yesNoPreferenceStyle" />
 </resources>

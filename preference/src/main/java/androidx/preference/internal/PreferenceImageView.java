@@ -30,6 +30,8 @@ import androidx.preference.R;
 /**
  * Extension of {@link ImageView} that correctly applies maxWidth and maxHeight.
  *
+ * Used by Car.
+ *
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
