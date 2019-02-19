@@ -65,9 +65,21 @@ function checkLicenseAgreement() {
     if [ "${acceptsLicenseAgreement}" == "-y" ]; then
       touch "${licenseAcceptedPath}"
     else
-      echo "Do you accept the license agreement at $(getLicensePath) ?"
-      echo "If you do, then rerun this script with a '-y' argument"
-      exit 1
+      read -r -n 1 -p "Do you accept the license agreement at $(getLicensePath) [Y/n]? " reply
+
+      if [ ! -z "${reply}" ]; then
+	# Fix missing newline
+        echo
+      fi
+
+      case "${reply}" in
+        [yY]|"")
+          touch "${licenseAcceptedPath}"
+          ;;
+        *)
+          exit 1
+          ;;
+      esac
     fi
   fi
 }
