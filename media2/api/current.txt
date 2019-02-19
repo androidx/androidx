@@ -47,7 +47,7 @@ package androidx.media2 {
     method public int getResultCode();
     field public static final int RESULT_ERROR_BAD_VALUE = -3; // 0xfffffffd
     field public static final int RESULT_ERROR_INVALID_STATE = -2; // 0xfffffffe
-    field public static final int RESULT_ERROR_IO_ERROR = -5; // 0xfffffffb
+    field public static final int RESULT_ERROR_IO = -5; // 0xfffffffb
     field public static final int RESULT_ERROR_NOT_SUPPORTED = -6; // 0xfffffffa
     field public static final int RESULT_ERROR_PERMISSION_DENIED = -4; // 0xfffffffc
     field public static final int RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED = -102; // 0xffffff9a
@@ -58,7 +58,7 @@ package androidx.media2 {
     field public static final int RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED = -103; // 0xffffff99
     field public static final int RESULT_ERROR_SESSION_SETUP_REQUIRED = -108; // 0xffffff94
     field public static final int RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED = -107; // 0xffffff95
-    field public static final int RESULT_ERROR_UNKNOWN_ERROR = -1; // 0xffffffff
+    field public static final int RESULT_ERROR_UNKNOWN = -1; // 0xffffffff
     field public static final int RESULT_INFO_SKIPPED = 1; // 0x1
     field public static final int RESULT_SUCCESS = 0; // 0x0
   }
@@ -640,10 +640,10 @@ package androidx.media2 {
     method public int getResultCode();
     field public static final int RESULT_ERROR_BAD_VALUE = -3; // 0xfffffffd
     field public static final int RESULT_ERROR_INVALID_STATE = -2; // 0xfffffffe
-    field public static final int RESULT_ERROR_IO_ERROR = -5; // 0xfffffffb
+    field public static final int RESULT_ERROR_IO = -5; // 0xfffffffb
     field public static final int RESULT_ERROR_NOT_SUPPORTED = -6; // 0xfffffffa
     field public static final int RESULT_ERROR_PERMISSION_DENIED = -4; // 0xfffffffc
-    field public static final int RESULT_ERROR_UNKNOWN_ERROR = -1; // 0xffffffff
+    field public static final int RESULT_ERROR_UNKNOWN = -1; // 0xffffffff
     field public static final int RESULT_INFO_SKIPPED = 1; // 0x1
     field public static final int RESULT_SUCCESS = 0; // 0x0
   }
@@ -656,7 +656,7 @@ package androidx.media2 {
     method public int getResultCode();
     field public static final int RESULT_ERROR_BAD_VALUE = -3; // 0xfffffffd
     field public static final int RESULT_ERROR_INVALID_STATE = -2; // 0xfffffffe
-    field public static final int RESULT_ERROR_IO_ERROR = -5; // 0xfffffffb
+    field public static final int RESULT_ERROR_IO = -5; // 0xfffffffb
     field public static final int RESULT_ERROR_NOT_SUPPORTED = -6; // 0xfffffffa
     field public static final int RESULT_ERROR_PERMISSION_DENIED = -4; // 0xfffffffc
     field public static final int RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED = -102; // 0xffffff9a
@@ -667,7 +667,7 @@ package androidx.media2 {
     field public static final int RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED = -103; // 0xffffff99
     field public static final int RESULT_ERROR_SESSION_SETUP_REQUIRED = -108; // 0xffffff94
     field public static final int RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED = -107; // 0xffffff95
-    field public static final int RESULT_ERROR_UNKNOWN_ERROR = -1; // 0xffffffff
+    field public static final int RESULT_ERROR_UNKNOWN = -1; // 0xffffffff
     field public static final int RESULT_INFO_SKIPPED = 1; // 0x1
     field public static final int RESULT_SUCCESS = 0; // 0x0
   }

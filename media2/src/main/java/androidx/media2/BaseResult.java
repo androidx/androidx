@@ -40,7 +40,7 @@ interface BaseResult {
     /**
      * Result code represents that call is ended with an unknown error.
      */
-    int RESULT_ERROR_UNKNOWN_ERROR = -1;
+    int RESULT_ERROR_UNKNOWN = -1;
 
     /**
      * Result code representing that the command cannot be completed because the current state is
@@ -61,7 +61,7 @@ interface BaseResult {
     /**
      * Result code representing a file or network related command error.
      */
-    int RESULT_ERROR_IO_ERROR = -5;
+    int RESULT_ERROR_IO = -5;
 
     /**
      * Result code representing that the command is not supported nor implemented.
