@@ -18,7 +18,6 @@ package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -92,16 +91,15 @@ public class CaptureSessionAndroidTest {
                 .isEqualTo(mTestParameters0.mSessionConfiguration);
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void setCaptureSessionOnClosedSession_throwsException() {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
         SessionConfiguration newSessionConfiguration = mTestParameters0.mSessionConfiguration;
 
         captureSession.close();
 
-        assertThrows(
-                IllegalStateException.class,
-                () -> captureSession.setSessionConfiguration(newSessionConfiguration));
+        // Should throw IllegalStateException
+        captureSession.setSessionConfiguration(newSessionConfiguration);
     }
 
     @Test
@@ -241,17 +239,14 @@ public class CaptureSessionAndroidTest {
                 .onCaptureCompleted(any());
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void issueSingleCaptureRequestOnClosedSession_throwsException() {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
 
         captureSession.close();
 
-        assertThrows(
-                IllegalStateException.class,
-                () ->
-                        captureSession.issueSingleCaptureRequest(
-                                mTestParameters0.mCaptureRequestConfiguration));
+        // Should throw IllegalStateException
+        captureSession.issueSingleCaptureRequest(mTestParameters0.mCaptureRequestConfiguration);
     }
 
     /**

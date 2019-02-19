@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2;
 
-import static org.junit.Assert.assertThrows;
-
 import android.content.Context;
 
 import androidx.camera.core.AppConfiguration;
@@ -48,34 +46,28 @@ public final class UseCaseSurfaceOccupancyManagerAndroidTest {
         CameraX.init(context, appConfig);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void failedWhenBindTooManyImageCaptureUseCase() {
         ImageCaptureUseCaseConfiguration configuration =
                 new ImageCaptureUseCaseConfiguration.Builder().build();
         ImageCaptureUseCase useCase1 = new ImageCaptureUseCase(configuration);
         ImageCaptureUseCase useCase2 = new ImageCaptureUseCase(configuration);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> {
-                    UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
-                            Arrays.asList(useCase1), Arrays.asList(useCase2));
-                });
+        // Should throw IllegalArgumentException
+        UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(Arrays.asList(useCase1),
+                Arrays.asList(useCase2));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void failedWhenBindTooManyVideoCaptureUseCase() {
         VideoCaptureUseCaseConfiguration configuration =
                 new VideoCaptureUseCaseConfiguration.Builder().build();
         VideoCaptureUseCase useCase1 = new VideoCaptureUseCase(configuration);
         VideoCaptureUseCase useCase2 = new VideoCaptureUseCase(configuration);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> {
-                    UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
-                            Arrays.asList(useCase1), Arrays.asList(useCase2));
-                });
+        // Should throw IllegalArgumentException
+        UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(Arrays.asList(useCase1),
+                Arrays.asList(useCase2));
     }
 
     @Test

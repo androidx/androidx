@@ -18,8 +18,6 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import androidx.camera.core.Configuration.Option;
 import androidx.test.filters.SmallTest;
 
@@ -148,12 +146,9 @@ public class OptionsBundleRobolectricTest {
         assertThat(value.get()).isSameAs(VALUE_2);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void retrieveMissingOption_willThrow() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> {
-                    mAllOpts.retrieveOption(OPTION_MISSING);
-                });
+        // Should throw IllegalArgumentException
+        mAllOpts.retrieveOption(OPTION_MISSING);
     }
 }

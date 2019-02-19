@@ -18,8 +18,6 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -111,12 +109,11 @@ public final class UseCaseGroupRepositoryAndroidTest {
         assertThat(useCase.isCleared()).isTrue();
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void exception_whenCreatingWithDestroyedLifecycle() {
         mLifecycle.destroy();
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> mRepository.getOrCreateUseCaseGroup(mLifecycle));
+        // Should throw IllegalArgumentException
+        mRepository.getOrCreateUseCaseGroup(mLifecycle);
     }
 }
