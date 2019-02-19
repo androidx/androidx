@@ -26,7 +26,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.AttributeSet;
@@ -643,10 +642,8 @@ public class MediaControlView extends ViewGroup {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float alpha = (float) animation.getAnimatedValue();
-                Drawable thumb = mProgress.getThumb();
-                if (thumb != null) {
-                    thumb.setLevel((int) (MAX_SCALE_LEVEL * alpha));
-                }
+                int scaleLevel = mSizeType == SIZE_TYPE_MINIMAL ? 0 : MAX_SCALE_LEVEL;
+                mProgress.getThumb().setLevel((int) (scaleLevel * alpha));
 
                 mCenterView.setAlpha(alpha);
                 mMinimalFullScreenView.setAlpha(alpha);
@@ -666,10 +663,8 @@ public class MediaControlView extends ViewGroup {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float alpha = (float) animation.getAnimatedValue();
-                Drawable thumb = mProgress.getThumb();
-                if (thumb != null) {
-                    thumb.setLevel((int) (MAX_SCALE_LEVEL * alpha));
-                }
+                int scaleLevel = mSizeType == SIZE_TYPE_MINIMAL ? 0 : MAX_SCALE_LEVEL;
+                mProgress.getThumb().setLevel((int) (scaleLevel * alpha));
 
                 mCenterView.setAlpha(alpha);
                 mMinimalFullScreenView.setAlpha(alpha);
@@ -1353,12 +1348,11 @@ public class MediaControlView extends ViewGroup {
             case SIZE_TYPE_FULL:
             case SIZE_TYPE_EMBEDDED:
                 // Relating to Progress Bar
-                mProgress.setThumb(mResources.getDrawable(R.drawable.custom_progress_thumb));
-                mProgress.setThumbOffset(0);
+                mProgress.getThumb().setLevel(MAX_SCALE_LEVEL);
                 break;
             case SIZE_TYPE_MINIMAL:
                 // Relating to Progress Bar
-                mProgress.setThumb(null);
+                mProgress.getThumb().setLevel(0);
                 break;
         }
 
