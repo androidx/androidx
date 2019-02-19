@@ -34,10 +34,12 @@ import android.graphics.Rect;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.MeteringRectangle;
 import android.os.Handler;
+import android.os.Looper;
 
 import androidx.camera.core.CaptureRequestConfiguration;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.SessionConfiguration;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -50,16 +52,18 @@ import org.mockito.ArgumentCaptor;
 @RunWith(AndroidJUnit4.class)
 public class Camera2CameraControlAndroidTest {
 
-    Camera2CameraControl mCamera2CameraControl;
-    Camera2RequestRunner mCamera2RequestRunner;
+    private Camera2CameraControl mCamera2CameraControl;
+    private Camera2RequestRunner mCamera2RequestRunner;
 
     @Before
     public void setUp() {
         mCamera2RequestRunner = mock(Camera2RequestRunner.class);
-        mCamera2CameraControl = new Camera2CameraControl(mCamera2RequestRunner, new Handler());
+        mCamera2CameraControl = new Camera2CameraControl(mCamera2RequestRunner, new Handler(
+                Looper.getMainLooper()));
     }
 
     @Test
+    @UiThreadTest
     public void setCropRegion_cropRectSetAndRepeatingRequestUpdated() {
         Rect rect = new Rect(0, 0, 10, 10);
 
@@ -78,6 +82,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void focus_focusRectSetAndRequestsExecuted() {
         Rect focusRect = new Rect(0, 0, 10, 10);
         Rect meteringRect = new Rect(20, 20, 30, 30);
@@ -161,6 +166,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void cancelFocus_regionRestored() {
         Rect focusRect = new Rect(0, 0, 10, 10);
         Rect meteringRect = new Rect(20, 20, 30, 30);
@@ -208,6 +214,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void defaultAFAWBMode_ShouldBeCAFWhenNotFocusLocked() {
         Camera2Configuration repeatingConfig =
                 new Camera2Configuration(
@@ -247,6 +254,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void focus_afModeSetToAuto() {
         Rect focusRect = new Rect(0, 0, 10, 10);
         mCamera2CameraControl.focus(focusRect, focusRect);
@@ -289,6 +297,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void setFlashModeAuto_aeModeSetAndRequestUpdated() {
         mCamera2CameraControl.setFlashMode(FlashMode.AUTO);
 
@@ -305,6 +314,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void setFlashModeOff_aeModeSetAndRequestUpdated() {
         mCamera2CameraControl.setFlashMode(FlashMode.OFF);
 
@@ -321,6 +331,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void setFlashModeOn_aeModeSetAndRequestUpdated() {
         mCamera2CameraControl.setFlashMode(FlashMode.ON);
 
@@ -337,6 +348,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void enableTorch_aeModeSetAndRequestUpdated() {
         mCamera2CameraControl.enableTorch(true);
 
@@ -357,6 +369,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void disableTorchFlashModeAuto_aeModeSetAndRequestUpdated() {
         mCamera2CameraControl.setFlashMode(FlashMode.AUTO);
         mCamera2CameraControl.enableTorch(false);
@@ -388,6 +401,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void triggerAf_singleRequestSent() {
         mCamera2CameraControl.triggerAf();
 
@@ -404,6 +418,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void triggerAePrecapture_singleRequestSent() {
         mCamera2CameraControl.triggerAePrecapture();
 
@@ -420,6 +435,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void cancelAfAeTrigger_singleRequestSent() {
         mCamera2CameraControl.cancelAfAeTrigger(true, true);
 
@@ -442,6 +458,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void cancelAfTrigger_singleRequestSent() {
         mCamera2CameraControl.cancelAfAeTrigger(true, false);
 
@@ -463,6 +480,7 @@ public class Camera2CameraControlAndroidTest {
     }
 
     @Test
+    @UiThreadTest
     public void cancelAeTrigger_singleRequestSent() {
         mCamera2CameraControl.cancelAfAeTrigger(false, true);
 
