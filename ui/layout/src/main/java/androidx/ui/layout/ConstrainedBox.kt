@@ -22,6 +22,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.enforce
 import androidx.ui.core.satisfiable
 import com.google.r4a.Children
+import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
@@ -55,4 +56,18 @@ fun ConstrainedBox(
             placeable?.place(0.dp, 0.dp)
         }
     </MeasureBox>
+}
+
+/**
+ * [ConstrainedBox] component, required to workaround the R4A multiple modules issue.
+ */
+class ConstrainedBoxComponent(
+    private val additionalConstraints: Constraints,
+    @Children private val children: () -> Unit
+) : Component() {
+    override fun compose() {
+        <ConstrainedBox additionalConstraints>
+            <children />
+        </ConstrainedBox>
+    }
 }
