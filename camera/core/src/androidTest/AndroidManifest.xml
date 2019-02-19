@@ -13,37 +13,4 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.camera.core">
-
-    <uses-sdk
-        android:minSdkVersion="21"
-        android:targetSdkVersion="27" />
-
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
-    <uses-feature android:name="android.hardware.camera" />
-
-    <application android:debuggable="true">
-        <uses-library
-            android:name="android.test.runner"
-            android:required="false" />
-        <uses-library
-            android:name="android.test.base"
-            android:required="false" />
-        <uses-library
-            android:name="android.test.mock"
-            android:required="false" />
-
-        <activity
-            android:name="androidx.camera.core.FakeActivity"
-            android:label="Fake Activity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-    </application>
-</manifest>
+<manifest package="androidx.camera.core.test"/>
