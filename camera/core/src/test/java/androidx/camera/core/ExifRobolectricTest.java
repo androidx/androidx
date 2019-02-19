@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.location.Location;
 
+import androidx.test.filters.SmallTest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +33,7 @@ import org.robolectric.shadows.ShadowSystemClock;
 import java.io.IOException;
 import java.io.InputStream;
 
+@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class ExifRobolectricTest {

@@ -25,6 +25,7 @@ import android.util.Size;
 
 import androidx.annotation.Nullable;
 import androidx.camera.core.CheckedSurfaceTexture.OnTextureChangedListener;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +33,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CheckedSurfaceTextureRobolectricTest {

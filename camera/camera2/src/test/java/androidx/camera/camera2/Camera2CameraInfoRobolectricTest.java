@@ -26,6 +26,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +37,7 @@ import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
 
+@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class Camera2CameraInfoRobolectricTest {

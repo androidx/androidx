@@ -16,12 +16,15 @@
 
 package androidx.camera.core;
 
+import androidx.test.filters.SmallTest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class ExtendableUseCaseConfigFactoryRobolectricTest {
