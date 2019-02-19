@@ -69,7 +69,7 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
     private static final int ITEM_TYPE_ROUTE = 2;
 
     // Do not update the route list immediately to avoid unnatural dialog change.
-    static final int MSG_UPDATE_ROUTES = 1;
+    private static final int MSG_UPDATE_ROUTES = 1;
 
     final MediaRouter mRouter;
     private final MediaRouteDevicePickerDialog.MediaRouterCallback mCallback;
@@ -251,7 +251,7 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
         mLastUpdateTime = SystemClock.uptimeMillis();
         mRoutes.clear();
         mRoutes.addAll(routes);
-        mAdapter.setItems();
+        mAdapter.rebuildItems();
     }
 
     private final class MediaRouterCallback extends MediaRouter.Callback {
@@ -310,11 +310,11 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
             mTvIcon = MediaRouterThemeHelper.getTvDrawableIcon(mContext);
             mSpeakerIcon = MediaRouterThemeHelper.getSpeakerDrawableIcon(mContext);
             mSpeakerGroupIcon = MediaRouterThemeHelper.getSpeakerGroupDrawableIcon(mContext);
-            setItems();
+            rebuildItems();
         }
 
         // Create a list of items with mMemberRoutes and add them to mItems
-        void setItems() {
+        void rebuildItems() {
             mItems.clear();
 
             mItems.add(new Item(mContext.getString(R.string.mr_chooser_title)));
@@ -349,7 +349,7 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
 
             switch (viewType) {
                 case ITEM_TYPE_HEADER:
-                    ((HeaderViewHolder) holder).binHeaderView(item);
+                    ((HeaderViewHolder) holder).bindHeaderView(item);
                     break;
                 case ITEM_TYPE_ROUTE:
                     ((RouteViewHolder) holder).bindRouteView(item);
@@ -446,7 +446,7 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
                 mTextView = itemView.findViewById(R.id.mr_picker_header_name);
             }
 
-            public void binHeaderView(Item item) {
+            public void bindHeaderView(Item item) {
                 String headerName = item.getData().toString();
 
                 mTextView.setText(headerName);
