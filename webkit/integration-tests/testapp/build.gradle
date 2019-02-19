@@ -28,6 +28,9 @@ android {
     defaultConfig {
         minSdkVersion 19
     }
+    lintOptions {
+        disable 'UnusedResources'
+    }
     buildTypes {
         release {
             minifyEnabled true
