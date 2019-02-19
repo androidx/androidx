@@ -28,6 +28,17 @@ internal data class PointerInputChangeEvent(
     val changes: List<PointerInputChange>
 )
 
+fun PointerInputChange.subtractOffset(offset: Offset): PointerInputChange {
+    return if (offset == Offset.zero) {
+        this
+    } else {
+        this.copy(
+            current = current.copy(position = this.current.position?.minus(offset)),
+            previous = previous.copy(position = this.previous.position?.minus(offset))
+        )
+    }
+}
+
 // Change querying functions
 
 fun PointerInputChange.changedToDown() = !consumed.downChange && !previous.down && current.down

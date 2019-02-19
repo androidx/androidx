@@ -20,12 +20,16 @@ import androidx.ui.core.ComponentNode
 import androidx.ui.core.Density
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerInputNode
+import androidx.ui.core.Position
 import androidx.ui.core.Size
+import androidx.ui.core.childToLocal
+import androidx.ui.core.dp
+import androidx.ui.core.localToGlobal
 import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Offset
 
 typealias PointerInputHandler = (PointerInputChange, PointerEventPass) -> PointerInputChange
-private typealias PointerInputHandlerPath = List<PointerInputHandler>
+private typealias PointerInputHandlerPath = List<PointerInputNode>
 
 /**
  * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
@@ -52,11 +56,71 @@ private class PointerInputChangeEventProducer {
 }
 
 /**
+ * Applies offsets to [PointerInputChange]'s via the offset of the [LayoutNode] associated with the
+ * [PointerInputNode] that is about to receive the [PointerInputChange].
+ *
+ * Call [offsetPointerInputChange] to apply the offset over time and call [reset] when the
+ * incoming pointerInputChange is new and has not yet been processed by
+ * [PointerInputChangeOffsetManager].
+ */
+private class PointerInputChangeOffsetManager(val density: Density) {
+    private val positionZero = Position(0.dp, 0.dp)
+    private val pointerInputNodeGlobalOffsets: MutableMap<PointerInputNode, Offset> = mutableMapOf()
+    private val changeOffsets: MutableMap<Int, Offset> = mutableMapOf()
+
+    fun reset(pointerInputNodePaths: Collection<PointerInputHandlerPath>) {
+        changeOffsets.clear()
+        pointerInputNodeGlobalOffsets.clear()
+
+        // Discover the global positions of PointerInputNodes and cache them
+        var previousParentLayoutNode: LayoutNode? = null
+        var previousOffset = Offset(0f, 0f)
+        pointerInputNodePaths.flatten().forEach {
+            if (!pointerInputNodeGlobalOffsets.containsKey(it)) {
+                val parentLayoutNode = it.parentLayoutNode
+                val offset: Offset = previousOffset +
+                        when (parentLayoutNode) {
+                            null -> Offset.zero
+                            previousParentLayoutNode -> Offset.zero
+                            else -> {
+                                val position = previousParentLayoutNode?.childToLocal(
+                                    parentLayoutNode,
+                                    positionZero
+                                ) ?: parentLayoutNode.localToGlobal(positionZero)
+                                Offset(position.x.toPx(density), position.y.toPx(density))
+                            }
+                        }
+                pointerInputNodeGlobalOffsets[it] = offset
+                previousOffset = offset
+                previousParentLayoutNode = parentLayoutNode
+            }
+        }
+    }
+
+    fun offsetPointerInputChange(
+        change: PointerInputChange,
+        node: PointerInputNode
+    ): PointerInputChange {
+        val newOffset = pointerInputNodeGlobalOffsets[node]!!
+        val oldOffset = changeOffsets.getOrPut(change.id) {
+            Offset.zero
+        }
+        val offsetDiff = newOffset - oldOffset
+        changeOffsets[change.id] = newOffset
+        if (offsetDiff != Offset.zero) {
+            return change.subtractOffset(offsetDiff)
+        }
+        return change
+    }
+}
+
+/**
  * The core element that receives [PointerInputEvent]s and process them through Crane.
  */
 internal class PointerInputEventProcessor(val density: Density, val root: LayoutNode) {
 
     private val pointerInputChangeEventProducer = PointerInputChangeEventProducer()
+    private val offsetManager = PointerInputChangeOffsetManager(density)
     private val pointerInputHandlerPaths: MutableMap<Int, PointerInputHandlerPath> = mutableMapOf()
 
     /**
@@ -71,13 +135,15 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
 
     private fun addReceiversDueToDownEvents(pointerInputChangeEvent: PointerInputChangeEvent) {
         pointerInputChangeEvent.changes.filter { it.changedToDownIgnoreConsumed() }.forEach {
-            val hitTestResult: MutableList<PointerInputHandler> = mutableListOf()
-            hitTestOnChildren(root, it.current.position!!, root.size, hitTestResult)
-            pointerInputHandlerPaths[it.id] = hitTestResult
+            val hitResult: MutableList<PointerInputNode> = mutableListOf()
+            hitTestOnChildren(root, it.current.position!!, root.size, hitResult)
+            pointerInputHandlerPaths[it.id] = hitResult
         }
     }
 
     private fun dispatchToReceivers(pointerInputChangeEvent: PointerInputChangeEvent) {
+        offsetManager.reset(pointerInputHandlerPaths.values)
+
         pointerInputChangeEvent.changes.forEach { pointerInputChange ->
             val pointerInputHandlerPath =
                 pointerInputHandlerPaths[pointerInputChange.id] ?: return@forEach
@@ -87,27 +153,32 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
             val childtoParent = parentToChild.reversed()
             var change = pointerInputChange
 
+            // TODO(b/124523868): PointerInputNodes should opt into passes prevent having to visit
+            // each one for every PointerInputChange.
+
             // Down from parent to child
-            parentToChild.forEach {
-                change = it(change, PointerEventPass.InitialDown)
-            }
+            change = parentToChild.dispatchChange(change, PointerEventPass.InitialDown)
             // PrePass up (hacky up path of onNestedPreScroll)
-            childtoParent.forEach {
-                change = it(change, PointerEventPass.PreUp)
-            }
+            change = childtoParent.dispatchChange(change, PointerEventPass.PreUp)
             // Pre-pass down (onNestedPreScroll)
-            parentToChild.forEach {
-                change = it(change, PointerEventPass.PreDown)
-            }
+            change = parentToChild.dispatchChange(change, PointerEventPass.PreDown)
             // Post-pass up (onNestedScroll)
-            childtoParent.forEach {
-                change = it(change, PointerEventPass.PostUp)
-            }
+            change = childtoParent.dispatchChange(change, PointerEventPass.PostUp)
             // Post-pass down (hacky down path of onNestedScroll)
-            parentToChild.forEach {
-                change = it(change, PointerEventPass.PostDown)
-            }
+            parentToChild.dispatchChange(change, PointerEventPass.PostDown)
         }
+    }
+
+    private fun PointerInputHandlerPath.dispatchChange(
+        pointerInputChange: PointerInputChange,
+        pass: PointerEventPass
+    ): PointerInputChange {
+        var change = pointerInputChange
+        forEach {
+            change = offsetManager.offsetPointerInputChange(change, it)
+            change = it.pointerInputHandler(change, pass)
+        }
+        return change
     }
 
     private fun removeReceiversDueToUpEvents(pointerInputChangeEvent: PointerInputChangeEvent) {
@@ -129,7 +200,7 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
         parent: ComponentNode,
         offset: Offset,
         size: Size,
-        hitTestResult: MutableList<PointerInputHandler>
+        hitPointerInputNodes: MutableList<PointerInputNode>
     ) {
         parent.visitChildren { child ->
             // If the child is a PointerInputNode, then hit test on that child.
@@ -140,7 +211,7 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
                     offset.dy >= 0 &&
                     offset.dy < parentSize.height
                 ) {
-                    hitTestResult.add(child.pointerInputHandler)
+                    hitPointerInputNodes.add(child)
                 }
             }
 
@@ -158,7 +229,7 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
                     child.size
                 } else size
 
-            hitTestOnChildren(child, newOffset, newSize, hitTestResult)
+            hitTestOnChildren(child, newOffset, newSize, hitPointerInputNodes)
         }
     }
 }

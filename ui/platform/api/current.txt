@@ -187,6 +187,7 @@ package androidx.ui.core.pointerinput {
     method public static androidx.ui.engine.geometry.Offset positionChangeIgnoreConsumed(androidx.ui.core.pointerinput.PointerInputChange);
     method public static boolean positionChanged(androidx.ui.core.pointerinput.PointerInputChange);
     method public static boolean positionChangedIgnoreConsumed(androidx.ui.core.pointerinput.PointerInputChange);
+    method public static androidx.ui.core.pointerinput.PointerInputChange subtractOffset(androidx.ui.core.pointerinput.PointerInputChange, androidx.ui.engine.geometry.Offset offset);
   }
 
   public final class PointerInputEventData {

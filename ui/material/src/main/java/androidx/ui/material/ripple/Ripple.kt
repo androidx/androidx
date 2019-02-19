@@ -121,8 +121,7 @@ class Ripple(
     private lateinit var coordinates: LayoutCoordinates
     private lateinit var theme: RippleTheme
 
-    private fun createRippleEffect(globalPosition: Position): RippleEffect {
-        val position = coordinates.globalToLocal(globalPosition)
+    private fun createRippleEffect(position: Position): RippleEffect {
         val boundsCallback = if (bounded) boundsCallback else null
         val borderRadius = clippingBorderRadius
         val color = theme.colorCallback.invoke(rippleSurface.backgroundColor)
@@ -151,8 +150,8 @@ class Ripple(
         return effect
     }
 
-    private fun handleStart(globalPosition: Position) {
-        val effect = createRippleEffect(globalPosition)
+    private fun handleStart(position: Position) {
+        val effect = createRippleEffect(position)
         effects.add(effect)
         currentEffect = effect
     }
