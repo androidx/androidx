@@ -26,7 +26,8 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.media.Image;
 
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +35,7 @@ import org.junit.runner.RunWith;
 
 import java.nio.ByteBuffer;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class AndroidImageProxyAndroidTest {
     private static final long INITIAL_TIMESTAMP = 138990020L;

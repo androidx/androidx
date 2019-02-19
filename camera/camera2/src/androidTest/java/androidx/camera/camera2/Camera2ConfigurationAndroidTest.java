@@ -27,12 +27,14 @@ import android.util.Range;
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.testing.fakes.FakeConfiguration;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-@RunWith(JUnit4.class)
+@SmallTest
+@RunWith(AndroidJUnit4.class)
 public final class Camera2ConfigurationAndroidTest {
     private static final int INVALID_TEMPLATE_TYPE = -1;
     private static final int INVALID_COLOR_CORRECTION_MODE = -1;

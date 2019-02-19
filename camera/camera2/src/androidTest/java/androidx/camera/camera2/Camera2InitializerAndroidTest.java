@@ -28,8 +28,9 @@ import android.test.mock.MockContext;
 
 import androidx.camera.core.FakeActivity;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,6 +45,7 @@ import org.junit.runner.RunWith;
  * service to test CameraX initialization. Therefore, we copy the test strategy employed in
  * CalendarProvider2Test, where we override a method of the mock Context.
  */
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class Camera2InitializerAndroidTest {
     private static final String TEST_AUTHORITY = "androidx.camera.core";

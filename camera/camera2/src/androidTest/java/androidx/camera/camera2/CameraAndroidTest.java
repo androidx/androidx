@@ -38,7 +38,8 @@ import androidx.camera.core.FakeUseCaseConfiguration;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfiguration;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -51,6 +52,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class CameraAndroidTest {
     private static final LensFacing DEFAULT_LENS_FACING = LensFacing.BACK;

@@ -32,7 +32,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.view.Surface;
 
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class ForwardingImageReaderListenerAndroidTest {
     private static final int IMAGE_WIDTH = 640;

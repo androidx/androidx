@@ -23,7 +23,8 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureRequest.Key;
 import android.view.Surface;
 
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,7 @@ import org.mockito.Mockito;
 import java.util.List;
 import java.util.Map;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class SessionConfigurationAndroidTest {
     private DeferrableSurface mMockSurface0;

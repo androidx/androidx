@@ -32,7 +32,8 @@ import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfiguration;
 import androidx.camera.core.UseCaseGroup;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +45,7 @@ import java.util.Map;
  * Contains tests for {@link androidx.camera.core.CameraRepository} which require an actual
  * implementation to run.
  */
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class Camera2ImplCameraRepositoryAndroidTest {
     private CameraRepository mCameraRepository;

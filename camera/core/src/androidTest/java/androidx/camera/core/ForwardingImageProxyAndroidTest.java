@@ -25,7 +25,8 @@ import static org.mockito.Mockito.when;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +35,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class ForwardingImageProxyAndroidTest {
 

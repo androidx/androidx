@@ -22,13 +22,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class UseCaseGroupAndroidTest {
     private final UseCaseGroup.StateChangeListener mMockListener =

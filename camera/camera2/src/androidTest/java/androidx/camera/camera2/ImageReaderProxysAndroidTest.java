@@ -36,7 +36,8 @@ import androidx.camera.core.ImageReaderProxys;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfiguration;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -49,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageReaderProxysAndroidTest {
     private static final String CAMERA_ID = "0";

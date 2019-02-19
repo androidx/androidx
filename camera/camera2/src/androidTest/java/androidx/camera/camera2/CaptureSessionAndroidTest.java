@@ -43,7 +43,8 @@ import androidx.camera.core.CameraUtil;
 import androidx.camera.core.CaptureRequestConfiguration;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfiguration;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -59,6 +60,7 @@ import java.util.concurrent.TimeUnit;
  * android.hardware.camera2.CameraDevice} can be opened since it is used to open a {@link
  * android.hardware.camera2.CaptureRequest}.
  */
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class CaptureSessionAndroidTest {
     private CaptureSessionTestParameters mTestParameters0;

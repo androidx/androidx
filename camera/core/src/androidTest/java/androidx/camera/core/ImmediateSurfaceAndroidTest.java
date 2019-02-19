@@ -20,7 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.view.Surface;
 
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -30,6 +31,7 @@ import org.mockito.Mockito;
 
 import java.util.concurrent.ExecutionException;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class ImmediateSurfaceAndroidTest {
     private Surface mMockSurface = Mockito.mock(Surface.class);

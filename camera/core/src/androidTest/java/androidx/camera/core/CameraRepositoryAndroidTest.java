@@ -21,7 +21,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.camera.testing.fakes.FakeCameraFactory;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Set;
 
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class CameraRepositoryAndroidTest {
 
