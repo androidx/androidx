@@ -238,7 +238,7 @@ class PathParser {
 
         cx *= a
         cy *= b
-        val tcx = cx;
+        val tcx = cx
         cx = cx * cosTheta - cy * sinTheta
         cy = tcx * sinTheta + cy * cosTheta
 

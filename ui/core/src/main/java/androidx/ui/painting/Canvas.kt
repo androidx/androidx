@@ -16,6 +16,7 @@
 
 package androidx.ui.painting
 
+import android.graphics.Matrix
 import androidx.ui.Vertices
 import androidx.ui.core.toFrameworkRect
 import androidx.ui.engine.geometry.Offset
@@ -300,16 +301,32 @@ class Canvas {
      */
     fun transform(matrix4: Matrix4) {
         if (!matrix4.isIdentity()) {
-            TODO("Migration/njawad framework canvas does not provide transform method " +
-                    "given a matrix")
+            val frameworkMatrix = Matrix()
+            if (matrix4.get(2, 0) != 0f ||
+                    matrix4.get(2, 1) != 0f ||
+                    matrix4.get(2, 0) != 0f ||
+                    matrix4.get(2, 1) != 0f ||
+                    matrix4.get(2, 2) != 1f ||
+                    matrix4.get(2, 3) != 0f ||
+                    matrix4.get(3, 2) != 0f) {
+                throw IllegalStateException("Android does not support arbitrary transforms")
+            }
+            val values = floatArrayOf(
+                matrix4.get(0, 0),
+                matrix4.get(1, 0),
+                matrix4.get(3, 0),
+                matrix4.get(0, 1),
+                matrix4.get(1, 1),
+                matrix4.get(3, 1),
+                matrix4.get(0, 3),
+                matrix4.get(1, 3),
+                matrix4.get(3, 3)
+            )
+            frameworkMatrix.setValues(values)
+            toFrameworkCanvas().concat(frameworkMatrix)
         }
-//        assert(matrix4 != null);
-//        if (matrix4.length != 16)
-//            throw new ArgumentError('"matrix4" must have 16 entries.');
-//        _transform(matrix4);
     }
-//    void _transform(Float64List matrix4) native 'Canvas_transform';
-//
+
     /**
      * Reduces the clip region to the intersection of the current clip and the
      * given rectangle.

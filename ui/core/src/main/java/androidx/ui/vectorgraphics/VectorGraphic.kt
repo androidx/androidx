@@ -10,7 +10,6 @@ import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.Path
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
-import androidx.ui.skia.SkMatrix
 
 const val DEFAULT_GROUP_NAME = ""
 const val DEFAULT_ROTATE = 0.0f
@@ -27,7 +26,7 @@ val EMPTY_PATH = emptyArray<PathNode>()
  * paint used to draw the cached vector graphic to the provided canvas
  * TODO (njawad) Can we update the Crane Canvas API to make this paint optional?
  */
-private val EMPTY_PAINT = Paint()
+internal val EMPTY_PAINT = Paint()
 
 // TODO (njawad) merge VNode into R4A equivalent once IR metadata issues are resolved
 sealed class VNode {
@@ -99,7 +98,7 @@ class VectorGraphic(
 // TODO (njawad) merge VGroup into R4A equivalent once IR metadata issues are resolved
 class VGroup(val name: String = DEFAULT_GROUP_NAME) : VNode() {
 
-    private var groupMatrix: SkMatrix? = null
+    private var groupMatrix: Matrix? = null
 
     private val children = mutableListOf<VNode>()
 
@@ -188,9 +187,9 @@ class VGroup(val name: String = DEFAULT_GROUP_NAME) : VNode() {
         val target = groupMatrix
         if (target == null) {
             matrix = Matrix()
-            groupMatrix = SkMatrix(matrix)
+            groupMatrix = matrix
         } else {
-            matrix = target.frameworkMatrix
+            matrix = target
         }
         with(matrix) {
             reset()
@@ -255,7 +254,7 @@ class VGroup(val name: String = DEFAULT_GROUP_NAME) : VNode() {
 
             val matrix = groupMatrix
             if (matrix != null) {
-                toFrameworkCanvas().concat(matrix.frameworkMatrix)
+                toFrameworkCanvas().concat(matrix)
             }
 
             for (node in children) {

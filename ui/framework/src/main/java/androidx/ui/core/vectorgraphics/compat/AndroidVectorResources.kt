@@ -21,7 +21,7 @@ import androidx.annotation.StyleableRes
 /**
  * Constants used to resolve VectorDrawable attributes during xml inflation
  */
-object AndroidVectorResources {
+internal object AndroidVectorResources {
 
     // Resources ID generated in the latest R.java for framework.
     val STYLEABLE_VECTOR_DRAWABLE_TYPE_ARRAY = intArrayOf(
