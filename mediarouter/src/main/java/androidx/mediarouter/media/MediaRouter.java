@@ -2797,14 +2797,10 @@ public final class MediaRouter {
                     MediaRouteProvider.DynamicGroupRouteController controller =
                             route.getProviderInstance().onCreateDynamicGroupRouteController(
                                     route.mDescriptorId);
-                    // Note: Controller doesn't have a valid route id yet.
-                    // It will be informed with updated provider's route descriptors.
                     controller.setOnDynamicRoutesChangedListener(
                             ContextCompat.getMainExecutor(mApplicationContext),
                             mDynamicRoutesListener);
                     mSelectedRouteController = controller;
-                    // Select the initial member route for now. It is replaced with dynamic group
-                    // route once MRP publishes corresponding route descriptor.
                     mSelectedRoute = route;
                 } else {
                     mSelectedRouteController = route.getProviderInstance().onCreateRouteController(
