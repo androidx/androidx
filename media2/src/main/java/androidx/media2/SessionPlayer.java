@@ -629,7 +629,7 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @return the index of current media item. Can be {@link #INVALID_ITEM_INDEX} when current
      *         media item is null or not in the playlist, and when the playlist hasn't been set.
      */
-    public abstract int getCurrentMediaItemIndex();
+    public abstract @IntRange(from = INVALID_ITEM_INDEX) int getCurrentMediaItemIndex();
 
     /**
      * Gets the previous item index in the playlist. The returned value can be outdated after
@@ -639,7 +639,7 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @return the index of previous media item. Can be {@link #INVALID_ITEM_INDEX} only when
      *         previous media item does not exist or playlist hasn't been set.
      */
-    public abstract int getPreviousMediaItemIndex();
+    public abstract @IntRange(from = INVALID_ITEM_INDEX) int getPreviousMediaItemIndex();
 
     /**
      * Gets the next item index in the playlist. The returned value can be outdated after
@@ -649,7 +649,7 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @return the index of next media item. Can be {@link #INVALID_ITEM_INDEX} only when next media
      *         item does not exist or playlist hasn't been set.
      */
-    public abstract int getNextMediaItemIndex();
+    public abstract @IntRange(from = INVALID_ITEM_INDEX) int getNextMediaItemIndex();
 
     // Listeners / Callback related
     // Intentionally final not to allow developers to change the behavior
