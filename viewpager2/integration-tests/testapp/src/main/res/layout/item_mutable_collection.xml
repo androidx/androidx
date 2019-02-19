@@ -14,63 +14,69 @@
      limitations under the License.
 -->
 
-<LinearLayout
+<!--Topmost element margins are not supported (ignored) hence the wrapping FrameLayout-->
+<FrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="@dimen/spacer_large"
-        android:gravity="center_vertical|start"
-        android:background="@drawable/border"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:background="@color/magnolia_100"
-            android:layout_margin="@dimen/spacer_large">
-
-        <TextView
-                android:layout_margin="@dimen/spacer_small"
-                android:text="@string/id_colon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-        <TextView
-                android:layout_margin="@dimen/spacer_small"
-                android:id="@+id/textViewItemText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-    </LinearLayout>
-
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/magnolia_100"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_margin="@dimen/spacer_large">
-
-        <TextView
-                android:layout_margin="@dimen/spacer_small"
-                android:text="@string/count_colon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-
-        <TextView
-                android:layout_margin="@dimen/spacer_small"
-                android:id="@+id/textViewCount"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"/>
-    </LinearLayout>
-
-    <Button
-            android:id="@+id/buttonCountIncrease"
+            android:layout_height="match_parent"
             android:layout_margin="@dimen/spacer_large"
-            android:layout_width="wrap_content"
-            android:backgroundTint="@color/teal_200"
-            android:text="@string/increase_count"
-            android:layout_height="wrap_content"/>
-</LinearLayout>
+            android:gravity="center_vertical|start"
+            android:background="@drawable/border"
+            android:orientation="vertical">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@color/magnolia_100"
+                android:layout_margin="@dimen/spacer_large">
+
+            <TextView
+                    android:layout_margin="@dimen/spacer_small"
+                    android:text="@string/id_colon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            <TextView
+                    android:layout_margin="@dimen/spacer_small"
+                    android:id="@+id/textViewItemText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/magnolia_100"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_margin="@dimen/spacer_large">
+
+            <TextView
+                    android:layout_margin="@dimen/spacer_small"
+                    android:text="@string/count_colon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            <TextView
+                    android:layout_margin="@dimen/spacer_small"
+                    android:id="@+id/textViewCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+        </LinearLayout>
+
+        <Button
+                android:id="@+id/buttonCountIncrease"
+                android:layout_margin="@dimen/spacer_large"
+                android:layout_width="wrap_content"
+                android:backgroundTint="@color/teal_200"
+                android:text="@string/increase_count"
+                android:layout_height="wrap_content"/>
+    </LinearLayout>
+</FrameLayout>

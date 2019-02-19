@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.LongSparseArray;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
@@ -30,9 +31,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Similar in behavior to {@link FragmentStatePagerAdapter}
@@ -52,39 +50,17 @@ import java.util.List;
  */
 public abstract class FragmentStateAdapter extends
         RecyclerView.Adapter<FragmentViewHolder> implements StatefulAdapter {
-    private static final String STATE_ARG_KEYS = "keys";
-    private static final String STATE_ARG_VALUES = "values";
+    private static final String KEY_PREFIX_FRAGMENT = "f#";
+    private static final String KEY_PREFIX_STATE = "s#";
 
     private final LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
     private final LongSparseArray<Fragment.SavedState> mSavedStates = new LongSparseArray<>();
-
-    private final RecyclerView.AdapterDataObserver mDataObserver =
-            new RecyclerView.AdapterDataObserver() {
-                @Override
-                public void onChanged() {
-                    // TODO(122667374): implement more efficiently
-                    /** Below effectively removes all Fragments and state of no longer used items.
-                     * See {@link FragmentStateAdapter#containsItem(long)} */
-                    Parcelable state = FragmentStateAdapter.this.saveState();
-                    FragmentStateAdapter.this.restoreState(state);
-                }
-            };
 
     private final FragmentManager mFragmentManager;
 
     public FragmentStateAdapter(@NonNull FragmentManager fragmentManager) {
         mFragmentManager = fragmentManager;
         super.setHasStableIds(true);
-    }
-
-    @Override
-    public final void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-        registerAdapterDataObserver(mDataObserver);
-    }
-
-    @Override
-    public final void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-        unregisterAdapterDataObserver(mDataObserver);
     }
 
     /**
@@ -123,20 +99,99 @@ public abstract class FragmentStateAdapter extends
     }
 
     private Fragment getFragment(int position) {
-        Fragment fragment = getItem(position);
         long itemId = getItemId(position);
-        fragment.setInitialSavedState(mSavedStates.get(itemId));
-        mFragments.put(itemId, fragment);
-        return fragment;
+        Fragment activeFragment = mFragments.get(itemId);
+        if (activeFragment != null) {
+            return activeFragment;
+        }
+
+        Fragment newFragment = getItem(position);
+        newFragment.setInitialSavedState(mSavedStates.get(itemId));
+        mFragments.put(itemId, newFragment);
+        return newFragment;
     }
 
     @Override
     public final void onViewAttachedToWindow(@NonNull FragmentViewHolder holder) {
-        if (holder.mFragment.isAdded()) {
+        Fragment fragment = holder.mFragment;
+        FrameLayout container = holder.getContainer();
+        View view = fragment.getView();
+
+        /*
+        possible states:
+        - fragment: { added, notAdded }
+        - view: { created, notCreated }
+        - view: { attached, notAttached }
+
+        combinations:
+        - { f:added, v:created, v:attached } -> check if attached to the right container
+        - { f:added, v:created, v:notAttached} -> attach view to container
+        - { f:added, v:notCreated, v:attached } -> impossible
+        - { f:added, v:notCreated, v:notAttached} -> schedule callback for when created
+        - { f:notAdded, v:created, v:attached } -> illegal state
+        - { f:notAdded, v:created, v:notAttached } -> illegal state
+        - { f:notAdded, v:notCreated, v:attached } -> impossible
+        - { f:notAdded, v:notCreated, v:notAttached } -> add, create, attach
+         */
+
+        // { f:notAdded, v:created, v:attached } -> illegal state
+        // { f:notAdded, v:created, v:notAttached } -> illegal state
+        if (!fragment.isAdded() && view != null) {
+            throw new IllegalStateException("Design assumption violated.");
+        }
+
+        // { f:added, v:notCreated, v:notAttached} -> schedule callback for when created
+        if (fragment.isAdded() && view == null) {
+            scheduleViewAttach(fragment, container);
             return;
         }
-        mFragmentManager.beginTransaction().add(holder.getContainer().getId(),
-                holder.mFragment).commit(); // TODO(122669030): review transaction commit type usage
+
+        // { f:added, v:created, v:attached } -> check if attached to the right container
+        if (fragment.isAdded() && view.getParent() != null) {
+            if (view.getParent() != container) {
+                ((FrameLayout) view.getParent()).removeAllViews();
+                addViewToContainer(view, container);
+            }
+            return;
+        }
+
+        // { f:added, v:created, v:notAttached} -> attach view to container
+        if (fragment.isAdded()) {
+            addViewToContainer(view, container);
+            return;
+        }
+
+        // { f:notAdded, v:notCreated, v:notAttached } -> add, create, attach
+        scheduleViewAttach(fragment, container);
+        // TODO(b/122669030): this call might fail, so address with recovery steps
+        mFragmentManager.beginTransaction().add(fragment, "f" + holder.getItemId()).commitNow();
+    }
+
+    private void scheduleViewAttach(final Fragment fragment, final FrameLayout container) {
+        // After a config change, Fragments that were in FragmentManager will be recreated. Since
+        // ViewHolder container ids are dynamically generated, we opted to manually handle
+        // attaching Fragment views to containers. For consistency, we use the same mechanism for
+        // all Fragment views.
+        mFragmentManager.registerFragmentLifecycleCallbacks(
+                new FragmentManager.FragmentLifecycleCallbacks() {
+                    @Override
+                    public void onFragmentViewCreated(@NonNull FragmentManager fm,
+                            @NonNull Fragment f, @NonNull View v,
+                            @Nullable Bundle savedInstanceState) {
+                        if (f == fragment) {
+                            fm.unregisterFragmentLifecycleCallbacks(this);
+                            addViewToContainer(v, container);
+                        }
+                    }
+                }, false);
+    }
+
+    @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
+    void addViewToContainer(@NonNull View v, FrameLayout container) {
+        if (container.getChildCount() != 0) {
+            throw new IllegalStateException("Design assumption violated.");
+        }
+        container.addView(v);
     }
 
     @Override
@@ -156,6 +211,7 @@ public abstract class FragmentStateAdapter extends
 
     private void removeFragment(@NonNull FragmentViewHolder holder) {
         removeFragment(holder.mFragment, holder.getItemId());
+        holder.getContainer().removeAllViews();
         holder.mFragment = null;
     }
 
@@ -165,6 +221,7 @@ public abstract class FragmentStateAdapter extends
     private void removeFragment(Fragment fragment, long itemId) {
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         removeFragment(fragment, itemId, fragmentTransaction);
+        // TODO(b/122669030): this call might fail, so address with recovery steps
         fragmentTransaction.commitNow();
     }
 
@@ -220,60 +277,71 @@ public abstract class FragmentStateAdapter extends
 
     @Override
     public @NonNull Parcelable saveState() {
-        /** remove active fragments saving their state in {@link mSavedStates) */
-        List<Long> toRemove = new ArrayList<>();
+        /** TODO(b/122670461): use custom {@link Parcelable} instead of Bundle to save space */
+        Bundle savedState = new Bundle(mFragments.size() + mSavedStates.size());
+
+        /** save references to active fragments */
         for (int ix = 0; ix < mFragments.size(); ix++) {
-            toRemove.add(mFragments.keyAt(ix));
-        }
-        if (!toRemove.isEmpty()) {
-            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-            for (Long itemId : toRemove) {
-                removeFragment(mFragments.get(itemId), itemId, fragmentTransaction);
+            long itemId = mFragments.keyAt(ix);
+            Fragment fragment = mFragments.get(itemId);
+            if (fragment != null && fragment.isAdded()) {
+                String key = createKey(KEY_PREFIX_FRAGMENT, itemId);
+                mFragmentManager.putFragment(savedState, key, fragment);
             }
-            // TODO(b/122669030): add a recovery step / handle in a more graceful manner
-            fragmentTransaction.commitNowAllowingStateLoss();
         }
 
         /** Write {@link mSavedStates) into a {@link Parcelable} */
-        final int length = mSavedStates.size();
-        long[] keys = new long[length];
-        Fragment.SavedState[] values = new Fragment.SavedState[length];
-        for (int ix = 0; ix < length; ix++) {
+        for (int ix = 0; ix < mSavedStates.size(); ix++) {
             long itemId = mSavedStates.keyAt(ix);
             if (containsItem(itemId)) {
-                keys[ix] = itemId;
-                values[ix] = mSavedStates.get(keys[ix]);
+                String key = createKey(KEY_PREFIX_STATE, itemId);
+                savedState.putParcelable(key, mSavedStates.get(itemId));
             }
         }
 
-        /** TODO(b/122670461): use custom {@link Parcelable} instead of Bundle to save space */
-        Bundle savedState = new Bundle(2);
-        savedState.putLongArray(STATE_ARG_KEYS, keys);
-        savedState.putParcelableArray(STATE_ARG_VALUES, values);
         return savedState;
     }
 
     @Override
     public void restoreState(@NonNull Parcelable savedState) {
-        try {
-            Bundle bundle = (Bundle) savedState;
-            long[] keys = bundle.getLongArray(STATE_ARG_KEYS);
-            Fragment.SavedState[] values =
-                    (Fragment.SavedState[]) bundle.getParcelableArray(STATE_ARG_VALUES);
-            //noinspection ConstantConditions
-            if (keys.length != values.length) {
-                throw new IllegalStateException();
+        if (!mSavedStates.isEmpty() || !mFragments.isEmpty()) {
+            throw new IllegalStateException(
+                    "Expected the adapter to be 'fresh' while restoring state.");
+        }
+
+        Bundle bundle = (Bundle) savedState;
+
+        for (String key : bundle.keySet()) {
+            if (isValidKey(key, KEY_PREFIX_FRAGMENT)) {
+                long itemId = parseIdFromKey(key, KEY_PREFIX_FRAGMENT);
+                Fragment fragment = mFragmentManager.getFragment(bundle, key);
+                mFragments.put(itemId, fragment);
+                continue;
             }
 
-            mSavedStates.clear();
-            for (int ix = 0; ix < keys.length; ix++) {
-                long itemId = keys[ix];
-                if (containsItem(itemId)) {
-                    mSavedStates.put(itemId, values[ix]);
-                }
+            if (isValidKey(key, KEY_PREFIX_STATE)) {
+                long itemId = parseIdFromKey(key, KEY_PREFIX_STATE);
+                Fragment.SavedState state = bundle.getParcelable(key);
+                mSavedStates.put(itemId, state);
+                continue;
             }
-        } catch (Exception ex) {
-            throw new IllegalStateException("Invalid savedState passed to the adapter.", ex);
+
+            throw new IllegalArgumentException("Unexpected key in savedState: " + key);
         }
+    }
+
+    // Helper function for dealing with save / restore state
+    private static @NonNull String createKey(@NonNull String prefix, long id) {
+        return prefix + id;
+    }
+
+    // Helper function for dealing with save / restore state
+    private static boolean isValidKey(@NonNull String key, @NonNull String prefix) {
+        return key.startsWith(prefix) && key.length() > prefix.length();
+    }
+
+    // Helper function for dealing with save / restore state
+    private static long parseIdFromKey(@NonNull String key, @NonNull String prefix) {
+        return Long.parseLong(key.substring(prefix.length()));
     }
 }

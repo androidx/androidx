@@ -26,7 +26,7 @@ import androidx.annotation.ColorRes
 import com.example.androidx.viewpager2.R
 
 /** Inflates and populates a [View] representing a [Card]  */
-class CardView(layoutInflater: LayoutInflater, container: ViewGroup) {
+class CardView(layoutInflater: LayoutInflater, container: ViewGroup?) {
     val view: View = layoutInflater.inflate(R.layout.item_card_layout, container, false)
     private val textSuite: TextView
     private val textCorner1: TextView
