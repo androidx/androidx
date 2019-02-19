@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.Manifest;
 import android.content.Context;
 import android.util.Size;
 
@@ -37,8 +38,10 @@ import androidx.test.InstrumentationRegistry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -68,6 +71,10 @@ public final class VideoCaptureUseCaseAndroidTest {
             Mockito.mock(OnVideoSavedListener.class);
     private VideoCaptureUseCaseConfiguration mDefaultConfiguration;
     private String mCameraId;
+
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.RECORD_AUDIO);
 
     @Before
     public void setUp() {
