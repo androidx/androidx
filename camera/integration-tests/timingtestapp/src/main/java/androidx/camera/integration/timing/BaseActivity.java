@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.camera.testapp.timingapp;
+package androidx.camera.integration.timing;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

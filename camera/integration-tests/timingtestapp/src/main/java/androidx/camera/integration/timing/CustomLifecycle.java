@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.camera.testapp.timingapp;
+package androidx.camera.integration.timing;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.Lifecycle.State;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LifecycleRegistry;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleRegistry;
 
 /** A customized lifecycle owner which obeys the lifecycle transition rules. */
 public final class CustomLifecycle implements LifecycleOwner {
@@ -31,8 +31,8 @@ public final class CustomLifecycle implements LifecycleOwner {
 
     public CustomLifecycle() {
         mLifecycleRegistry = new LifecycleRegistry(this);
-        mLifecycleRegistry.markState(Lifecycle.State.INITIALIZED);
-        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.INITIALIZED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.CREATED);
     }
 
     @NonNull
@@ -49,7 +49,7 @@ public final class CustomLifecycle implements LifecycleOwner {
             mMainHandler.post(() -> doOnResume());
             return;
         }
-        mLifecycleRegistry.markState(State.RESUMED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.RESUMED);
     }
 
     /**
@@ -60,6 +60,6 @@ public final class CustomLifecycle implements LifecycleOwner {
             mMainHandler.post(() -> doDestroyed());
             return;
         }
-        mLifecycleRegistry.markState(State.DESTROYED);
+        mLifecycleRegistry.setCurrentState(Lifecycle.State.DESTROYED);
     }
 }
