@@ -3734,7 +3734,7 @@ public class ExifInterface {
      */
     public ExifInterface(@NonNull File file) throws IOException {
         if (file == null) {
-            throw new IllegalArgumentException("file cannot be null");
+            throw new NullPointerException("file cannot be null");
         }
         initForFilename(file.getAbsolutePath());
     }
@@ -3743,9 +3743,6 @@ public class ExifInterface {
      * Reads Exif tags from the specified image file.
      */
     public ExifInterface(@NonNull String filename) throws IOException {
-        if (filename == null) {
-            throw new IllegalArgumentException("filename cannot be null");
-        }
         initForFilename(filename);
     }
 
@@ -3756,7 +3753,7 @@ public class ExifInterface {
      */
     public ExifInterface(@NonNull FileDescriptor fileDescriptor) throws IOException {
         if (fileDescriptor == null) {
-            throw new IllegalArgumentException("fileDescriptor cannot be null");
+            throw new NullPointerException("fileDescriptor cannot be null");
         }
         mAssetInputStream = null;
         mFilename = null;
@@ -3790,7 +3787,7 @@ public class ExifInterface {
      */
     public ExifInterface(@NonNull InputStream inputStream) throws IOException {
         if (inputStream == null) {
-            throw new IllegalArgumentException("inputStream cannot be null");
+            throw new NullPointerException("inputStream cannot be null");
         }
         mFilename = null;
         if (inputStream instanceof AssetManager.AssetInputStream) {
@@ -4754,6 +4751,9 @@ public class ExifInterface {
     }
 
     private void initForFilename(String filename) throws IOException {
+        if (filename == null) {
+            throw new NullPointerException("filename cannot be null");
+        }
         FileInputStream in = null;
         mAssetInputStream = null;
         mFilename = filename;
