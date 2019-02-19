@@ -28,8 +28,8 @@ private val PAGE_COLOR_EVEN = Color.parseColor("#FFAAAA")
 private val PAGE_COLOR_ODD = Color.parseColor("#AAAAFF")
 
 object PageView {
-    fun inflatePage(parent: ViewGroup): View =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_test_layout, parent, false)
+    fun inflatePage(layoutInflater: LayoutInflater, parent: ViewGroup?): View =
+        layoutInflater.inflate(R.layout.item_test_layout, parent, false)
 
     fun findPageInActivity(activity: Activity): View? = activity.findViewById(R.id.text_view)
 
