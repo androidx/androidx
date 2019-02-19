@@ -39,6 +39,7 @@ import androidx.ui.painting.Paint
  *                   parent text span, or, for the root text spans, with the line box.
  * * `baselineShift`: This parameter specifies how much the baseline is shifted from the current position.
  * * `height`: The height of this text span, as a multiple of the font size.
+ * * `textGeometricTransform`: The geometric transformation applied the text.
  * * `locale`: The locale used to select region-specific glyphs.
  * * `background`: The background color for the text.
  * * `foreground`: The paint used to draw the text. If this is specified, `color` must be null.
@@ -56,6 +57,7 @@ data class TextStyle constructor(
     val wordSpacing: Float? = null,
     val textBaseline: TextBaseline? = null,
     val baselineShift: BaselineShift? = null,
+    val textGeometricTransform: TextGeometricTransform? = null,
     val height: Float? = null,
     val locale: Locale? = null,
     // TODO(Migration/haoyuchang): background is changed to color from paint.
