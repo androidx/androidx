@@ -20,11 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ProviderInfo;
-import android.test.IsolatedContext;
-import android.test.RenamingDelegatingContext;
-import android.test.mock.MockContentResolver;
-import android.test.mock.MockContext;
 
 import androidx.camera.core.FakeActivity;
 import androidx.test.core.app.ApplicationProvider;
@@ -39,54 +34,20 @@ import org.junit.runner.RunWith;
 
 /**
  * Unit tests for {@link Camera2Initializer}.
- *
- * <p>The default ProviderTestCase2 cannot be used, because its mock Context returns null when we
- * call Context.getSystemService(Context.CAMERA_SERVICE). We need to be able to get the camera
- * service to test CameraX initialization. Therefore, we copy the test strategy employed in
- * CalendarProvider2Test, where we override a method of the mock Context.
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class Camera2InitializerAndroidTest {
-    private static final String TEST_AUTHORITY = "androidx.camera.core";
+
     @Rule
     public ActivityTestRule<FakeActivity> activityRule =
             new ActivityTestRule<>(
                     FakeActivity.class, /*initialTouchMode=*/ false, /*launchActivity=*/ false);
     private Context mAppContext;
-    private Context mTestContext;
-    private ProviderInfo mProviderInfo;
-    private Camera2Initializer mProvider;
 
     @Before
     public void setUp() {
         mAppContext = ApplicationProvider.getApplicationContext();
-        Context targetContextWrapper =
-                new RenamingDelegatingContext(new MockContext(), mAppContext, "test.");
-        MockContentResolver resolver = new MockContentResolver();
-        mTestContext =
-                new IsolatedContext(resolver, targetContextWrapper) {
-                    @Override
-                    public Object getSystemService(String name) {
-                        if (Context.CAMERA_SERVICE.equals(name)
-                                || Context.WINDOW_SERVICE.equals(name)) {
-                            return mAppContext.getSystemService(name);
-                        }
-                        return super.getSystemService(name);
-                    }
-                };
-
-        mProviderInfo = new ProviderInfo();
-        mProviderInfo.authority = TEST_AUTHORITY;
-        mProvider = new Camera2Initializer();
-        mProvider.attachInfo(mTestContext, mProviderInfo);
-
-        resolver.addProvider(TEST_AUTHORITY, mProvider);
-    }
-
-    @Test
-    public void initializerIsConnectedToContext() {
-        assertThat(mProvider.getContext()).isSameAs(mTestContext);
     }
 
     @Test
