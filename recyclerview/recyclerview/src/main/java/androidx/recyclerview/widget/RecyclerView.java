@@ -17,7 +17,7 @@
 
 package androidx.recyclerview.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.view.ViewCompat.TYPE_NON_TOUCH;
 import static androidx.core.view.ViewCompat.TYPE_TOUCH;
 
@@ -262,7 +262,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     static final boolean DISPATCH_TEMP_DETACH = false;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({HORIZONTAL, VERTICAL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Orientation {}
@@ -12157,7 +12157,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * This is public so that the CREATOR can be accessed on cold launch.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static class SavedState extends AbsSavedState {
 
         Parcelable mLayoutState;

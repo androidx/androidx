@@ -52,7 +52,7 @@ public final class AsyncDifferConfig<T> {
 
     /** @hide */
     @SuppressWarnings("WeakerAccess")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
     public Executor getMainThreadExecutor() {
         return mMainThreadExecutor;
@@ -96,7 +96,7 @@ public final class AsyncDifferConfig<T> {
          *
          * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         @NonNull
         public Builder<T> setMainThreadExecutor(Executor executor) {
             mMainThreadExecutor = executor;

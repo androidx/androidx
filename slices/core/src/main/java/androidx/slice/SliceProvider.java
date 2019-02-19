@@ -239,7 +239,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * Generate a slice that contains a permission request.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @RequiresApi(19)
     public static Slice createPermissionSlice(Context context, Uri sliceUri,
             String callingPackage) {
@@ -271,7 +271,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * Create a PendingIntent pointing at the permission dialog.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @RequiresApi(19)
     public static PendingIntent createPermissionIntent(Context context, Uri sliceUri,
             String callingPackage) {
@@ -292,7 +292,7 @@ public abstract class SliceProvider extends ContentProvider implements
      * Get string describing permission request.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @RequiresApi(19)
     public static CharSequence getPermissionString(Context context, String callingPackage) {
         PackageManager pm = context.getPackageManager();
@@ -483,7 +483,7 @@ public abstract class SliceProvider extends ContentProvider implements
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @RequiresApi(19)
     public static Set<SliceSpec> getCurrentSpecs() {
         return sSpecs;
@@ -501,7 +501,7 @@ public abstract class SliceProvider extends ContentProvider implements
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(19)
     public static Clock getClock() {
         return sClock;

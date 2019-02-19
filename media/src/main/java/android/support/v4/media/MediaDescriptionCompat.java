@@ -15,7 +15,7 @@
  */
 package android.support.v4.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -140,7 +140,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String DESCRIPTION_KEY_MEDIA_URI =
             "android.support.v4.media.description.MEDIA_URI";
     /**
@@ -148,7 +148,7 @@ public final class MediaDescriptionCompat implements Parcelable {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String DESCRIPTION_KEY_NULL_BUNDLE_FLAG =
             "android.support.v4.media.description.NULL_BUNDLE_FLAG";
     /**

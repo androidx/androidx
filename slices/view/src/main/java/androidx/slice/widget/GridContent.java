@@ -35,7 +35,6 @@ import static androidx.slice.core.SliceHints.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.SMALL_IMAGE;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 
-import android.annotation.SuppressLint;
 import android.app.slice.Slice;
 
 import androidx.annotation.NonNull;
@@ -53,7 +52,7 @@ import java.util.List;
  * Extracts information required to present content in a grid format from a slice.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
 public class GridContent extends SliceContent {
 
@@ -126,7 +125,6 @@ public class GridContent extends SliceContent {
      * @return the title of this grid row, if it exists.
      */
     @Nullable
-    @SuppressLint("RestrictedApi")
     public CharSequence getTitle() {
         if (mTitleItem != null) {
             return mTitleItem.getSanitizedText();
@@ -185,7 +183,6 @@ public class GridContent extends SliceContent {
     /**
      * Filters non-cell items out of the list of items and finds content description.
      */
-    @SuppressLint("RestrictedApi")
     private List<SliceItem> filterAndProcessItems(List<SliceItem> items) {
         List<SliceItem> filteredItems = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
@@ -239,7 +236,7 @@ public class GridContent extends SliceContent {
      * Extracts information required to present content in a cell.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static class CellContent {
         private SliceItem mContentIntent;
         private ArrayList<SliceItem> mCellItems = new ArrayList<>();
@@ -329,7 +326,6 @@ public class GridContent extends SliceContent {
         /**
          * @return whether this is content that is valid to show in a grid cell.
          */
-        @SuppressLint("RestrictedApi")
         private boolean isValidCellContent(SliceItem cellItem) {
             final String format = cellItem.getFormat();
             boolean isNonCellContent = SUBTYPE_CONTENT_DESCRIPTION.equals(cellItem.getSubType())

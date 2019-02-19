@@ -17,9 +17,8 @@
 package androidx.preference;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -202,7 +201,6 @@ public class Preference implements Comparable<Preference> {
      *                     theme. Can be 0 to not look for defaults.
      * @see #Preference(Context, android.util.AttributeSet)
      */
-    @SuppressLint("RestrictedApi")
     public Preference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         mContext = context;
 
@@ -310,7 +308,6 @@ public class Preference implements Comparable<Preference> {
      * @param attrs   The attributes of the XML tag that is inflating the preference
      * @see #Preference(Context, AttributeSet, int)
      */
-    @SuppressLint("RestrictedApi")
     public Preference(Context context, AttributeSet attrs) {
         this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.preferenceStyle,
                 android.R.attr.preferenceStyle));
@@ -1146,7 +1143,7 @@ public class Preference implements Comparable<Preference> {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void performClick(View view) {
         performClick();
     }
@@ -1156,7 +1153,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void performClick() {
 
         if (!isEnabled()) {
@@ -1300,7 +1297,7 @@ public class Preference implements Comparable<Preference> {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void onAttachedToHierarchy(PreferenceManager preferenceManager, long id) {
         mId = id;
         mHasId = true;

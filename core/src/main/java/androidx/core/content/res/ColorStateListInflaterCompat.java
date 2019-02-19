@@ -16,7 +16,7 @@
 
 package androidx.core.content.res;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -43,7 +43,7 @@ import java.io.IOException;
 /**
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class ColorStateListInflaterCompat {
 
     private ColorStateListInflaterCompat() {

@@ -16,7 +16,7 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -353,7 +353,7 @@ public class ListPopupWindow implements ShowableListMenu {
      *
      * @hide Used only by AutoCompleteTextView to handle some internal special cases.
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setForceIgnoreOutsideTouch(boolean forceIgnoreOutsideTouch) {
         mForceIgnoreOutsideTouch = forceIgnoreOutsideTouch;
     }
@@ -369,7 +369,7 @@ public class ListPopupWindow implements ShowableListMenu {
      *
      * @hide Only used by AutoCompleteTextView under special conditions.
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setDropDownAlwaysVisible(boolean dropDownAlwaysVisible) {
         mDropDownAlwaysVisible = dropDownAlwaysVisible;
     }
@@ -379,7 +379,7 @@ public class ListPopupWindow implements ShowableListMenu {
      *
      * @hide Only used by AutoCompleteTextView under special conditions.
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isDropDownAlwaysVisible() {
         return mDropDownAlwaysVisible;
     }
@@ -1334,7 +1334,7 @@ public class ListPopupWindow implements ShowableListMenu {
      * @hide Only used by {@link androidx.appcompat.view.menu.CascadingMenuPopup} to position
      * a submenu correctly.
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setOverlapAnchor(boolean overlapAnchor) {
         mOverlapAnchorSet = true;
         mOverlapAnchor = overlapAnchor;

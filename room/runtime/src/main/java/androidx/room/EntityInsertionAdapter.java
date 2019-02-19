@@ -32,7 +32,7 @@ import java.util.List;
  * @hide
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
     /**
      * Creates an InsertionAdapter that can insert the entity type T into the given database.

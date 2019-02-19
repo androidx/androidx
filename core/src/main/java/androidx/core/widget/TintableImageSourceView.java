@@ -16,7 +16,7 @@
 
 package androidx.core.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
@@ -30,7 +30,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide Internal use only
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface TintableImageSourceView {
 
     /**

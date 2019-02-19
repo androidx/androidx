@@ -36,7 +36,7 @@ import java.util.Map;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class EntityBundle implements SchemaEquality<EntityBundle> {
 
     static final String NEW_TABLE_PREFIX = "_new_";

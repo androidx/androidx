@@ -17,7 +17,7 @@
 package androidx.core.app;
 
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Activity;
 import android.os.Build;
@@ -172,7 +172,7 @@ public class FrameMetricsAggregator {
     private FrameMetricsBaseImpl mInstance;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(
             flag = true,

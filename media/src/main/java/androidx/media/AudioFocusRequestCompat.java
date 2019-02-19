@@ -16,7 +16,7 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -46,7 +46,7 @@ public class AudioFocusRequestCompat {
             new AudioAttributesCompat.Builder().setUsage(AudioAttributesCompat.USAGE_MEDIA).build();
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(SOURCE)
     @IntDef({
         AudioManagerCompat.AUDIOFOCUS_GAIN,
@@ -394,7 +394,7 @@ public class AudioFocusRequestCompat {
          * @return true if focusGain is a valid value for an audio focus request.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         static boolean isValidFocusGain(@FocusGainType int focusGain) {
             switch (focusGain) {
                 case AudioManagerCompat.AUDIOFOCUS_GAIN:

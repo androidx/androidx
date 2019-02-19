@@ -66,7 +66,7 @@ public abstract class ContentProviderWithCallbacks<T extends ContentProviderWith
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Override
     public RemoteCallback toRemoteCallback(Class<T> cls, Context context, String authority,
             Bundle args, String method) {

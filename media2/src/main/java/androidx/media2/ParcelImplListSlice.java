@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.os.Binder;
@@ -41,7 +41,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("BanParcelableUsage")
 public class ParcelImplListSlice implements Parcelable {
     private static final String TAG = "ParcelImplListSlice";

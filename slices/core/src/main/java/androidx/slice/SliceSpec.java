@@ -43,7 +43,7 @@ import androidx.versionedparcelable.VersionedParcelize;
  * @see Slice
  * @see SliceProvider#onBindSlice(Uri)
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize(allowSerialization = true)
 @RequiresApi(19)
 public final class SliceSpec implements VersionedParcelable {

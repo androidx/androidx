@@ -16,7 +16,7 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -36,7 +36,7 @@ import java.util.ArrayList;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class TintContextWrapper extends ContextWrapper {
 
     private static final Object CACHE_LOCK = new Object();

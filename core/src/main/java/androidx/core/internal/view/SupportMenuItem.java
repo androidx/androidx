@@ -16,7 +16,7 @@
 
 package androidx.core.internal.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
@@ -36,7 +36,7 @@ import androidx.core.view.ActionProvider;
  * @see android.view.MenuItem
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface SupportMenuItem extends android.view.MenuItem {
     /*
     * These should be kept in sync with attrs.xml enum constants for showAsAction

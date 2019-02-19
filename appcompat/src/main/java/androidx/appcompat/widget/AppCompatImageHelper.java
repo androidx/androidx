@@ -16,7 +16,7 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
@@ -34,7 +34,7 @@ import androidx.core.widget.ImageViewCompat;
 /**
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class AppCompatImageHelper {
     private final ImageView mView;
 

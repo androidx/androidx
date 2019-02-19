@@ -33,7 +33,7 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RequiresApi(api = 28)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class CoreComponentFactory extends AppComponentFactory {
     @Override
     public Activity instantiateActivity(ClassLoader cl, String className, Intent intent)
@@ -81,7 +81,7 @@ public class CoreComponentFactory extends AppComponentFactory {
      * on certain API levels.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public interface CompatWrapped {
         /**
          * Called while this class is being instantiated by the OS.

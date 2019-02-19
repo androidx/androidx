@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo;
  * Constants for each of the slice specs
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
 public class SliceSpecs {
 

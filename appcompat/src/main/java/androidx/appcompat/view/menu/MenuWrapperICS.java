@@ -16,7 +16,7 @@
 
 package androidx.appcompat.view.menu;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -33,7 +33,7 @@ import androidx.core.internal.view.SupportMenu;
  * Wraps a support {@link SupportMenu} as a framework {@link android.view.Menu}
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class MenuWrapperICS extends BaseMenuWrapper implements Menu {
     private final SupportMenu mWrappedObject;
 

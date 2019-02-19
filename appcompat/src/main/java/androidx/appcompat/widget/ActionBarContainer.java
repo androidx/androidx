@@ -16,7 +16,7 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -36,7 +36,7 @@ import androidx.core.view.ViewCompat;
  * It applies special styles as needed to help handle animated transitions between them.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ActionBarContainer extends FrameLayout {
     private boolean mIsTransitioning;
     private View mTabContainer;

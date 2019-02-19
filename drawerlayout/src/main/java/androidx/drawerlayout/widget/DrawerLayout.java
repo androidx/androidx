@@ -17,7 +17,7 @@
 
 package androidx.drawerlayout.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -399,7 +399,7 @@ public class DrawerLayout extends ViewGroup {
      * @hide Internal use only; called to apply window insets when configured
      * with fitsSystemWindows="true"
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setChildInsets(Object insets, boolean draw) {
         mLastInsets = insets;
         mDrawStatusBarBackground = draw;

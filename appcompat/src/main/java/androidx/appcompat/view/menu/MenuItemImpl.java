@@ -16,7 +16,7 @@
 
 package androidx.appcompat.view.menu;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -48,7 +48,7 @@ import androidx.core.view.ActionProvider;
 /**
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class MenuItemImpl implements SupportMenuItem {
 
     private static final String TAG = "MenuItemImpl";

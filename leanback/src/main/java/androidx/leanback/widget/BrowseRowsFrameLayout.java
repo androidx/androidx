@@ -13,7 +13,7 @@
  */
 package androidx.leanback.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -28,7 +28,7 @@ import androidx.annotation.RestrictTo;
  * using hardcoded DIPS.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class BrowseRowsFrameLayout extends FrameLayout {
 
     public BrowseRowsFrameLayout(Context context) {

@@ -16,7 +16,7 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
 
 import android.media.AudioAttributes;
@@ -27,7 +27,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 /** @hide */
 @VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesImplApi26")
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(26)
 public class AudioAttributesImplApi26 extends AudioAttributesImplApi21 {
     private static final String TAG = "AudioAttributesCompat26";

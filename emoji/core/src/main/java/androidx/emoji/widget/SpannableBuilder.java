@@ -15,7 +15,7 @@
  */
 package androidx.emoji.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.text.Editable;
 import android.text.SpanWatcher;
@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @hide
  * @see EmojiEditableFactory
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class SpannableBuilder extends SpannableStringBuilder {
     /**
      * DynamicLayout$ChangeWatcher class.
@@ -63,7 +63,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     SpannableBuilder(@NonNull Class<?> watcherClass) {
         Preconditions.checkNotNull(watcherClass, "watcherClass cannot be null");
         mWatcherClass = watcherClass;
@@ -72,7 +72,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     SpannableBuilder(@NonNull Class<?> watcherClass, @NonNull CharSequence text) {
         super(text);
         Preconditions.checkNotNull(watcherClass, "watcherClass cannot be null");
@@ -82,7 +82,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     SpannableBuilder(@NonNull Class<?> watcherClass, @NonNull CharSequence text, int start,
             int end) {
         super(text, start, end);
@@ -93,7 +93,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     static SpannableBuilder create(@NonNull Class<?> clazz, @NonNull CharSequence text) {
         return new SpannableBuilder(clazz, text);
     }
@@ -255,7 +255,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void beginBatchEdit() {
         blockWatchers();
     }
@@ -263,7 +263,7 @@ public final class SpannableBuilder extends SpannableStringBuilder {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void endBatchEdit() {
         unblockwatchers();
         fireWatchers();

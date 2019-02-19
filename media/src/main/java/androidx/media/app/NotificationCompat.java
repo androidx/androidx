@@ -16,7 +16,7 @@
 
 package androidx.media.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.app.NotificationCompat.COLOR_DEFAULT;
 
 import android.app.Notification;
@@ -204,7 +204,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 21) {
@@ -229,7 +229,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
         public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 21) {
@@ -297,7 +297,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
         public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 21) {
@@ -382,7 +382,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {
@@ -396,7 +396,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
         public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {
@@ -438,7 +438,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
         public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {
@@ -470,7 +470,7 @@ public class NotificationCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
         public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {

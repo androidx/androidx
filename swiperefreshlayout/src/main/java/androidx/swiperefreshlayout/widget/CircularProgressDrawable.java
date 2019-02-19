@@ -16,7 +16,7 @@
 
 package androidx.swiperefreshlayout.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
@@ -68,7 +68,7 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
     private static final Interpolator MATERIAL_INTERPOLATOR = new FastOutSlowInInterpolator();
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({LARGE, DEFAULT})
     public @interface ProgressDrawableSize {

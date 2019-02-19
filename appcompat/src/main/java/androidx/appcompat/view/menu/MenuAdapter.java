@@ -15,7 +15,7 @@
  */
 package androidx.appcompat.view.menu;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 /**
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class MenuAdapter extends BaseAdapter {
     MenuBuilder mAdapterMenu;
 

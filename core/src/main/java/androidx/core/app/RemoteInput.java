@@ -57,7 +57,7 @@ public final class RemoteInput {
 
     /** @hide */
     @IntDef({SOURCE_FREE_FORM_INPUT, SOURCE_CHOICE})
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     public @interface Source {}
 

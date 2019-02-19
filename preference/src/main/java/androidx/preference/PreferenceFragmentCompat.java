@@ -16,7 +16,7 @@
 
 package androidx.preference;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -496,11 +496,11 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void onBindPreferences() {}
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void onUnbindPreferences() {}
 
     public final RecyclerView getListView() {
@@ -611,7 +611,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      * @return The {@link Fragment} to possibly use as a callback
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public Fragment getCallbackFragment() {
         return null;
     }

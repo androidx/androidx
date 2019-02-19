@@ -31,7 +31,7 @@ import java.util.WeakHashMap;
  * @param <V> Value type
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */

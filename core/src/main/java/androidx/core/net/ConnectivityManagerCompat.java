@@ -26,7 +26,7 @@ import static android.net.ConnectivityManager.TYPE_MOBILE_SUPL;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.ConnectivityManager.TYPE_WIMAX;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -47,7 +47,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class ConnectivityManagerCompat {
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {
             RESTRICT_BACKGROUND_STATUS_DISABLED,

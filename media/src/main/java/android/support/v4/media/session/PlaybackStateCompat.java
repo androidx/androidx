@@ -15,7 +15,7 @@
  */
 package android.support.v4.media.session;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.media.session.PlaybackState;
@@ -48,7 +48,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @LongDef(flag=true, value={ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND,
             ACTION_SKIP_TO_PREVIOUS, ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_SET_RATING,
             ACTION_SEEK_TO, ACTION_PLAY_PAUSE, ACTION_PLAY_FROM_MEDIA_ID, ACTION_PLAY_FROM_SEARCH,
@@ -61,7 +61,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @LongDef({ACTION_STOP, ACTION_PAUSE, ACTION_PLAY, ACTION_REWIND, ACTION_SKIP_TO_PREVIOUS,
             ACTION_SKIP_TO_NEXT, ACTION_FAST_FORWARD, ACTION_PLAY_PAUSE})
     @Retention(RetentionPolicy.SOURCE)
@@ -226,7 +226,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({STATE_NONE, STATE_STOPPED, STATE_PAUSED, STATE_PLAYING, STATE_FAST_FORWARDING,
             STATE_REWINDING, STATE_BUFFERING, STATE_ERROR, STATE_CONNECTING,
             STATE_SKIPPING_TO_PREVIOUS, STATE_SKIPPING_TO_NEXT, STATE_SKIPPING_TO_QUEUE_ITEM})
@@ -339,7 +339,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({REPEAT_MODE_INVALID, REPEAT_MODE_NONE, REPEAT_MODE_ONE, REPEAT_MODE_ALL,
             REPEAT_MODE_GROUP})
     @Retention(RetentionPolicy.SOURCE)
@@ -380,7 +380,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({SHUFFLE_MODE_INVALID, SHUFFLE_MODE_NONE, SHUFFLE_MODE_ALL, SHUFFLE_MODE_GROUP})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ShuffleMode {}
@@ -414,7 +414,7 @@ public final class PlaybackStateCompat implements Parcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({ERROR_CODE_UNKNOWN_ERROR, ERROR_CODE_APP_ERROR, ERROR_CODE_NOT_SUPPORTED,
             ERROR_CODE_AUTHENTICATION_EXPIRED, ERROR_CODE_PREMIUM_ACCOUNT_REQUIRED,
             ERROR_CODE_CONCURRENT_STREAM_LIMIT, ERROR_CODE_PARENTAL_CONTROL_RESTRICTED,
@@ -668,7 +668,7 @@ public final class PlaybackStateCompat implements Parcelable {
      * @return The current playback position in ms
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public long getCurrentPosition(Long timeDiff) {
         long expectedPosition = mPosition + (long) (mSpeed * (
                 (timeDiff != null) ? timeDiff : SystemClock.elapsedRealtime() - mUpdateTime));

@@ -16,7 +16,7 @@
 
 package androidx.car.cluster.navigation;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -39,7 +39,7 @@ public class Segment implements VersionedParcelable {
      * Used by {@link VersionedParcelable}
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     Segment() {
     }
 

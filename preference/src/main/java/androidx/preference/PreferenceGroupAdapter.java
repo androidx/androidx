@@ -16,7 +16,7 @@
 
 package androidx.preference;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
@@ -42,7 +42,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewHolder>
         implements Preference.OnPreferenceChangeInternalListener,
         PreferenceGroup.PreferencePositionCallback {

@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.SessionPlayer.BUFFERING_STATE_UNKNOWN;
 import static androidx.media2.SessionPlayer.PLAYER_STATE_IDLE;
 import static androidx.media2.SessionPlayer.REPEAT_MODE_NONE;
@@ -100,7 +100,7 @@ public class MediaController implements AutoCloseable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({AudioManager.ADJUST_LOWER, AudioManager.ADJUST_RAISE, AudioManager.ADJUST_SAME,
             AudioManager.ADJUST_MUTE, AudioManager.ADJUST_UNMUTE, AudioManager.ADJUST_TOGGLE_MUTE})
     @Retention(RetentionPolicy.SOURCE)
@@ -109,7 +109,7 @@ public class MediaController implements AutoCloseable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef(value = {AudioManager.FLAG_SHOW_UI, AudioManager.FLAG_ALLOW_RINGER_MODES,
             AudioManager.FLAG_PLAY_SOUND, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE,
             AudioManager.FLAG_VIBRATE}, flag = true)
@@ -413,7 +413,7 @@ public class MediaController implements AutoCloseable {
      *               to be played.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public ListenableFuture<SessionResult> playFromMediaId(@NonNull String mediaId,
             @Nullable Bundle extras) {
         if (TextUtils.isEmpty(mediaId)) {
@@ -432,7 +432,7 @@ public class MediaController implements AutoCloseable {
      * @param extras Optional extras that can include extra information about the query.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public ListenableFuture<SessionResult> playFromSearch(@NonNull String query,
             @Nullable Bundle extras) {
         if (TextUtils.isEmpty(query)) {
@@ -452,7 +452,7 @@ public class MediaController implements AutoCloseable {
      *               to be played.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public ListenableFuture<SessionResult> playFromUri(@NonNull Uri uri,
             @Nullable Bundle extras) {
         if (uri == null) {
@@ -478,7 +478,7 @@ public class MediaController implements AutoCloseable {
      *               to be prepared.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public ListenableFuture<SessionResult> prepareFromMediaId(@NonNull String mediaId,
             @Nullable Bundle extras) {
         if (TextUtils.isEmpty(mediaId)) {
@@ -503,7 +503,7 @@ public class MediaController implements AutoCloseable {
      * @param extras Optional extras that can include extra information about the query.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public ListenableFuture<SessionResult> prepareFromSearch(@NonNull String query,
             @Nullable Bundle extras) {
         if (TextUtils.isEmpty(query)) {
@@ -529,7 +529,7 @@ public class MediaController implements AutoCloseable {
      *               to be prepared.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public ListenableFuture<SessionResult> prepareFromUri(@NonNull Uri uri,
             @Nullable Bundle extras) {
         if (uri == null) {
@@ -1069,7 +1069,7 @@ public class MediaController implements AutoCloseable {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setTimeDiff(Long timeDiff) {
         mTimeDiff = timeDiff;
     }

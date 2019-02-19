@@ -16,7 +16,7 @@
 
 package androidx.collection;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -410,7 +410,7 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
      * The array must already be large enough to contain the item.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void append(E value) {
         final int index = mSize;
         final int hash = value == null ? 0 : value.hashCode();

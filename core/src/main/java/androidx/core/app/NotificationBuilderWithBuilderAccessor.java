@@ -16,7 +16,7 @@
 
 package androidx.core.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Notification;
 
@@ -29,7 +29,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface NotificationBuilderWithBuilderAccessor {
     Notification.Builder getBuilder();
 }

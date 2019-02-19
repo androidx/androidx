@@ -16,7 +16,6 @@ package androidx.appcompat.widget;
  * limitations under the License.
  */
 
-import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.ComponentName;
@@ -90,7 +89,6 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
 
     // private final Runnable mStartSpinnerRunnable;
     // private final Runnable mStopSpinnerRunnable;
-    @SuppressLint("RestrictedApi")
     public SuggestionsAdapter(Context context, SearchView searchView, SearchableInfo searchable,
             WeakHashMap<String, Drawable.ConstantState> outsideDrawablesCache) {
         super(context, searchView.getSuggestionRowLayout(), null /* no initial cursor */,
@@ -333,7 +331,6 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
         }
     }
 
-    @SuppressLint("RestrictedApi")
     private CharSequence formatUrl(CharSequence url) {
         if (mUrlColor == null) {
             // Lazily get the URL color from the current theme.
@@ -447,7 +444,6 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
      * @see android.widget.ListAdapter#getView(int, View, ViewGroup)
      */
     @Override
-    @SuppressLint("RestrictedApi")
     public View getView(int position, View convertView, ViewGroup parent) {
         try {
             return super.getView(position, convertView, parent);
@@ -471,7 +467,6 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
      * @see android.widget.CursorAdapter#getDropDownView(int, View, ViewGroup)
      */
     @Override
-    @SuppressLint("RestrictedApi")
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
         try {
             return super.getDropDownView(position, convertView, parent);
@@ -605,7 +600,6 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
      * @param cursor A cursor positioned at the current suggestion.
      * @return A non-null drawable.
      */
-    @SuppressLint("RestrictedApi")
     private Drawable getDefaultIcon1(Cursor cursor) {
         // Check the component that gave us the suggestion
         Drawable drawable = getActivityIconWithCache(mSearchable.getSearchActivity());
@@ -648,7 +642,6 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
      * @return A drawable, or {@code null} if neither the activity or the application
      *         have an icon set.
      */
-    @SuppressLint("RestrictedApi")
     private Drawable getActivityIcon(ComponentName component) {
         PackageManager pm = mContext.getPackageManager();
         final ActivityInfo activityInfo;
@@ -701,7 +694,6 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
      * Import of hidden method: ContentResolver.getResourceId(Uri).
      * Modified to return a drawable, rather than a hidden type.
      */
-    @SuppressLint("RestrictedApi")
     Drawable getDrawableFromResourceUri(Uri uri) throws FileNotFoundException {
         String authority = uri.getAuthority();
         Resources r;
@@ -740,7 +732,6 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
     /**
      * Import of hidden method: SearchManager.getSuggestions(SearchableInfo, String, int).
      */
-    @SuppressLint("RestrictedApi")
     Cursor getSearchManagerSuggestions(SearchableInfo searchable, String query, int limit) {
         if (searchable == null) {
             return null;

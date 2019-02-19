@@ -15,7 +15,7 @@
  */
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -34,7 +34,7 @@ import androidx.core.view.ViewCompat;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ButtonBarLayout extends LinearLayout {
     /** Amount of the second button to "peek" above the fold when stacked. */
     private static final int PEEK_BUTTON_DP = 16;

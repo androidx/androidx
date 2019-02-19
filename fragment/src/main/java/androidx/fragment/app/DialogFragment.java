@@ -16,7 +16,7 @@
 
 package androidx.fragment.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -51,7 +51,7 @@ public class DialogFragment extends Fragment
         implements DialogInterface.OnCancelListener, DialogInterface.OnDismissListener {
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({STYLE_NORMAL, STYLE_NO_TITLE, STYLE_NO_FRAME, STYLE_NO_INPUT})
     @Retention(RetentionPolicy.SOURCE)
     private @interface DialogStyle {}
@@ -388,7 +388,7 @@ public class DialogFragment extends Fragment
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setupDialog(@NonNull Dialog dialog, int style) {
         switch (style) {
             case STYLE_NO_INPUT:

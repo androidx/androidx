@@ -16,7 +16,7 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -129,7 +129,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintList(@Nullable ColorStateList tint) {
         if (mBackgroundTintHelper != null) {
@@ -143,7 +143,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     @Nullable
     public ColorStateList getSupportBackgroundTintList() {
@@ -157,7 +157,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setSupportBackgroundTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mBackgroundTintHelper != null) {
@@ -171,7 +171,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     @Nullable
     public PorterDuff.Mode getSupportBackgroundTintMode() {
@@ -232,7 +232,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setAutoSizeTextTypeWithDefaults(
             @TextViewCompat.AutoSizeTextType int autoSizeTextType) {
@@ -252,7 +252,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setAutoSizeTextTypeUniformWithConfiguration(
             int autoSizeMinTextSize,
@@ -277,7 +277,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void setAutoSizeTextTypeUniformWithPresetSizes(@NonNull int[] presetSizes, int unit)
             throws IllegalArgumentException {
@@ -296,7 +296,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     @TextViewCompat.AutoSizeTextType
     public int getAutoSizeTextType() {
@@ -318,7 +318,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int getAutoSizeStepGranularity() {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
@@ -337,7 +337,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int getAutoSizeMinTextSize() {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
@@ -356,7 +356,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int getAutoSizeMaxTextSize() {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
@@ -375,7 +375,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public int[] getAutoSizeTextAvailableSizes() {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
@@ -626,7 +626,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      */
     @Nullable
     @Override
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public ColorStateList getSupportCompoundDrawablesTintList() {
         return mTextHelper.getCompoundDrawableTintList();
     }
@@ -649,7 +649,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * @hide
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSupportCompoundDrawablesTintList(@Nullable ColorStateList tintList) {
         mTextHelper.setCompoundDrawableTintList(tintList);
         mTextHelper.applyCompoundDrawablesTints();
@@ -669,7 +669,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      */
     @Nullable
     @Override
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public PorterDuff.Mode getSupportCompoundDrawablesTintMode() {
         return mTextHelper.getCompoundDrawableTintMode();
     }
@@ -689,7 +689,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
      * @hide
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSupportCompoundDrawablesTintMode(@Nullable PorterDuff.Mode tintMode) {
         mTextHelper.setCompoundDrawableTintMode(tintMode);
         mTextHelper.applyCompoundDrawablesTints();

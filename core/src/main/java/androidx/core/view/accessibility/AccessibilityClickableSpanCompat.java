@@ -15,7 +15,7 @@
  */
 package androidx.core.view.accessibility;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Bundle;
 import android.text.style.ClickableSpan;
@@ -41,7 +41,7 @@ public final class AccessibilityClickableSpanCompat extends ClickableSpan {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String SPAN_ID = "ACCESSIBILITY_CLICKABLE_SPAN_ID";
 
     /**
@@ -49,7 +49,7 @@ public final class AccessibilityClickableSpanCompat extends ClickableSpan {
      * @param nodeInfoCompat The nodeInfoCompat to be associated with this span.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public AccessibilityClickableSpanCompat(int originalClickableSpanId,
             AccessibilityNodeInfoCompat nodeInfoCompat, int clickableSpanActionId) {
         mOriginalClickableSpanId = originalClickableSpanId;

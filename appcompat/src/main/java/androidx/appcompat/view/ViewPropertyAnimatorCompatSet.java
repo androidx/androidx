@@ -16,7 +16,7 @@
 
 package androidx.appcompat.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.view.View;
 import android.view.animation.Interpolator;
@@ -34,7 +34,7 @@ import java.util.ArrayList;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ViewPropertyAnimatorCompatSet {
 
     final ArrayList<ViewPropertyAnimatorCompat> mAnimators;

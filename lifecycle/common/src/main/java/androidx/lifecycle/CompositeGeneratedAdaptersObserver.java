@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo;
 /**
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class CompositeGeneratedAdaptersObserver implements LifecycleEventObserver {
 
     private final GeneratedAdapter[] mGeneratedAdapters;

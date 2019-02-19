@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.media.AudioTrack;
 import android.os.Build;
@@ -63,7 +63,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class PlaybackParams {
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef(
             value = {
                     AUDIO_FALLBACK_MODE_DEFAULT,
@@ -148,7 +148,7 @@ public final class PlaybackParams {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @RequiresApi(23)
     public android.media.PlaybackParams getPlaybackParams() {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -175,7 +175,7 @@ public final class PlaybackParams {
         }
 
         /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @RequiresApi(23)
         public Builder(android.media.PlaybackParams playbackParams) {
             mPlaybackParams = playbackParams;

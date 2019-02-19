@@ -18,7 +18,7 @@ package androidx.core.content.res;
 
 import static android.graphics.Color.TRANSPARENT;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.content.res.ColorStateList;
@@ -50,7 +50,7 @@ import java.io.IOException;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class ComplexColorCompat {
     private static final String LOG_TAG = "ComplexColorCompat";
 
