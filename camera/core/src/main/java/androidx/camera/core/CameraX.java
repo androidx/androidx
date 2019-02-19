@@ -330,8 +330,10 @@ public final class CameraX {
      *
      * <p>Any previous call to {@link #init(Context, AppConfiguration)} would have initialized
      * CameraX.
+     * @hide
      */
-    static boolean isInitialized() {
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static boolean isInitialized() {
         return INSTANCE.mInitialized.get();
     }
 

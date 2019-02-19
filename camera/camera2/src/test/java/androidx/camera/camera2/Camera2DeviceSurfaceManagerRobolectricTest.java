@@ -24,12 +24,11 @@ import static junit.framework.Assert.assertTrue;
 
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
-import static org.robolectric.RuntimeEnvironment.application;
 
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
-import android.os.Build.VERSION_CODES;
+import android.os.Build;
 import android.util.Rational;
 import android.util.Size;
 import android.view.WindowManager;
@@ -54,6 +53,7 @@ import androidx.camera.core.VideoCaptureUseCaseConfiguration;
 import androidx.camera.core.ViewFinderUseCase;
 import androidx.camera.core.ViewFinderUseCaseConfiguration;
 import androidx.camera.testing.StreamConfigurationMapUtil;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -61,7 +61,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
@@ -77,7 +76,8 @@ import java.util.Map;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = VERSION_CODES.LOLLIPOP)
+// TODO(b/124267925): Bump down to LOLLIPOP once our minSdk is 21
+@Config(minSdk = Build.VERSION_CODES.N)
 public final class Camera2DeviceSurfaceManagerRobolectricTest {
     private static final String LEGACY_CAMERA_ID = "0";
     private static final String LIMITED_CAMERA_ID = "1";
@@ -117,7 +117,7 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
                     new Size(320, 180)
             };
 
-    private final Context mContext = RuntimeEnvironment.application.getApplicationContext();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
     private CameraDeviceSurfaceManager mSurfaceManager;
 
     @Before
@@ -524,7 +524,9 @@ public final class Camera2DeviceSurfaceManagerRobolectricTest {
                     CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES, capabilities);
         }
 
-        ((ShadowCameraManager) Shadow.extract(application.getSystemService(Context.CAMERA_SERVICE)))
+        ((ShadowCameraManager) Shadow.extract(
+                ApplicationProvider.getApplicationContext().getSystemService(
+                        Context.CAMERA_SERVICE)))
                 .addCamera(cameraId, characteristics);
 
         shadowCharacteristics.set(

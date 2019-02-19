@@ -170,8 +170,11 @@ public abstract class BaseUseCase {
      *
      * <p>The names will correspond to those of the camera as defined by {@link
      * android.hardware.camera2.CameraManager}.
+     *
+     * @hide
      */
-    Set<String> getAttachedCameraIds() {
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public Set<String> getAttachedCameraIds() {
         return mAttachedCameraIdToSessionConfigurationMap.keySet();
     }
 
@@ -218,8 +221,11 @@ public abstract class BaseUseCase {
      * transition events.
      *
      * <p>If the listener isn't currently listening to the BaseUseCase then this call does nothing.
+     *
+     * @hide
      */
-    void removeStateChangeListener(StateChangeListener listener) {
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void removeStateChangeListener(StateChangeListener listener) {
         mListeners.remove(listener);
     }
 

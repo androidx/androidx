@@ -38,10 +38,10 @@ import androidx.camera.camera2.CaptureSession.State;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureCallbacks;
 import androidx.camera.core.CameraCaptureResult;
-import androidx.camera.core.CameraUtil;
 import androidx.camera.core.CaptureRequestConfiguration;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfiguration;
+import androidx.camera.testing.CameraUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 

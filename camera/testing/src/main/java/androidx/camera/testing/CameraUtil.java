@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.testing;
 
+import android.Manifest;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
@@ -24,6 +25,9 @@ import android.hardware.camera2.CameraManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 
+import androidx.annotation.RequiresPermission;
+import androidx.camera.core.BaseCamera;
+import androidx.camera.core.BaseUseCase;
 import androidx.test.core.app.ApplicationProvider;
 
 import java.util.Arrays;
@@ -49,6 +53,7 @@ public final class CameraUtil {
      * @throws InterruptedException  if a {@link CameraDevice} can not be retrieved within a set
      *                               time
      */
+    @RequiresPermission(Manifest.permission.CAMERA)
     public static CameraDevice getCameraDevice()
             throws CameraAccessException, InterruptedException {
         // Setup threading required for callback on openCamera()
@@ -67,13 +72,11 @@ public final class CameraUtil {
         String cameraName = cameraIds[0];
 
         // Use an AtomicReference to store the CameraDevice because it is initialized in a lambda.
-        // This
-        // way the AtomicReference itself is effectively final.
+        // This way the AtomicReference itself is effectively final.
         AtomicReference<CameraDevice> cameraDeviceHolder = new AtomicReference<>();
 
         // Open the camera using the CameraManager which returns a valid and open CameraDevice only
-        // when
-        // onOpened() is called.
+        // when onOpened() is called.
         CountDownLatch latch = new CountDownLatch(1);
         cameraManager.openCamera(
                 cameraName,

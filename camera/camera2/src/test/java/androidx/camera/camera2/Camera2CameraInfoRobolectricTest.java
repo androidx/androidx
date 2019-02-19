@@ -18,8 +18,10 @@ package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
+import android.os.Build;
 import android.view.Surface;
 
 import androidx.camera.core.CameraInfo;
@@ -32,6 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowCameraCharacteristics;
@@ -40,6 +43,8 @@ import org.robolectric.shadows.ShadowCameraManager;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+// TODO(b/124267925): Bump down to LOLLIPOP once our minSdk is 21
+@Config(minSdk = Build.VERSION_CODES.N)
 public class Camera2CameraInfoRobolectricTest {
 
     private static final String CAMERA0_ID = "0";
@@ -57,7 +62,8 @@ public class Camera2CameraInfoRobolectricTest {
     public void setUp() {
         initCameras();
         mCameraManager =
-                ApplicationProvider.getApplicationContext().getSystemService(CameraManager.class);
+                (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
+                        Context.CAMERA_SERVICE);
     }
 
     @Test
@@ -128,7 +134,7 @@ public class Camera2CameraInfoRobolectricTest {
         ((ShadowCameraManager)
                 Shadow.extract(
                         ApplicationProvider.getApplicationContext()
-                                .getSystemService(CameraManager.class)))
+                                .getSystemService(Context.CAMERA_SERVICE)))
                 .addCamera(CAMERA0_ID, characteristics0);
 
         // **** Camera 1 characteristics ****//
@@ -148,7 +154,7 @@ public class Camera2CameraInfoRobolectricTest {
         ((ShadowCameraManager)
                 Shadow.extract(
                         ApplicationProvider.getApplicationContext()
-                                .getSystemService(CameraManager.class)))
+                                .getSystemService(Context.CAMERA_SERVICE)))
                 .addCamera(CAMERA1_ID, characteristics1);
     }
 }

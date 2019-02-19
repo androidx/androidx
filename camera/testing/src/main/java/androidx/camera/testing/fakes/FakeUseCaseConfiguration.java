@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.testing.fakes;
+
+import androidx.camera.core.CameraDeviceConfiguration;
+import androidx.camera.core.Configuration;
+import androidx.camera.core.MutableConfiguration;
+import androidx.camera.core.MutableOptionsBundle;
+import androidx.camera.core.OptionsBundle;
+import androidx.camera.core.UseCaseConfiguration;
 
 /** A fake configuration for {@link FakeUseCase}. */
 public class FakeUseCaseConfiguration
@@ -22,7 +29,7 @@ public class FakeUseCaseConfiguration
 
     private final Configuration mConfig;
 
-    private FakeUseCaseConfiguration(Configuration config) {
+    FakeUseCaseConfiguration(Configuration config) {
         mConfig = config;
     }
 

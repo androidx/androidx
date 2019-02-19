@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.testing.fakes;
 
 import android.util.Size;
 
+import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.UseCaseConfiguration;
 
 import java.util.Map;
 
@@ -27,12 +29,12 @@ public class FakeUseCase extends BaseUseCase {
     private volatile boolean mIsCleared = false;
 
     /** Creates a new instance of a {@link FakeUseCase} with a given configuration. */
-    protected FakeUseCase(FakeUseCaseConfiguration configuration) {
+    public FakeUseCase(FakeUseCaseConfiguration configuration) {
         super(configuration);
     }
 
     /** Creates a new instance of a {@link FakeUseCase} with a default configuration. */
-    protected FakeUseCase() {
+    public FakeUseCase() {
         this(new FakeUseCaseConfiguration.Builder().build());
     }
 
