@@ -68,10 +68,10 @@ class PageFragment : Fragment() {
     var onDestroyListener: () -> Unit = {}
 
     override fun onCreateView(
-        inflater: LayoutInflater,
+        layoutInflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = PageView.inflatePage(container!!)
+    ): View = PageView.inflatePage(layoutInflater, container)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setValue(when {
