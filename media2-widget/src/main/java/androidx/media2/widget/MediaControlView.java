@@ -650,10 +650,13 @@ public class MediaControlView extends ViewGroup {
 
                 mCenterView.setAlpha(alpha);
                 mMinimalFullScreenView.setAlpha(alpha);
-                if (alpha == 0.0f) {
-                    mCenterView.setVisibility(View.INVISIBLE);
-                    mMinimalFullScreenView.setVisibility(View.INVISIBLE);
-                }
+            }
+        });
+        fadeOutAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCenterView.setVisibility(View.INVISIBLE);
+                mMinimalFullScreenView.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -670,10 +673,13 @@ public class MediaControlView extends ViewGroup {
 
                 mCenterView.setAlpha(alpha);
                 mMinimalFullScreenView.setAlpha(alpha);
-                if (alpha == 0.0f) {
-                    mCenterView.setVisibility(View.VISIBLE);
-                    mMinimalFullScreenView.setVisibility(View.VISIBLE);
-                }
+            }
+        });
+        fadeInAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mCenterView.setVisibility(View.VISIBLE);
+                mMinimalFullScreenView.setVisibility(View.VISIBLE);
             }
         });
 
