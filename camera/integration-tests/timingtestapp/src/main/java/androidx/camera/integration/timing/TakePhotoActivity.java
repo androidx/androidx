@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.testapp.timingapp;
+package androidx.camera.integration.timing;
 
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCaptureSession;
