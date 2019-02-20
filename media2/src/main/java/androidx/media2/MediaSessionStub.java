@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.media2.BaseResult.RESULT_ERROR_UNKNOWN_ERROR;
+import static androidx.media2.BaseResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media2.MediaUtils.DIRECT_EXECUTOR;
 import static androidx.media2.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand.COMMAND_VERSION_CURRENT;
@@ -288,13 +288,13 @@ class MediaSessionStub extends IMediaSession.Stub {
                         if (task instanceof PlayerTask) {
                             sendPlayerResult(controller, seq,
                                     new PlayerResult(
-                                            PlayerResult.RESULT_ERROR_UNKNOWN_ERROR, null));
+                                            PlayerResult.RESULT_ERROR_UNKNOWN, null));
                         } else if (task instanceof SessionCallbackTask) {
                             sendSessionResult(controller, seq,
-                                    SessionResult.RESULT_ERROR_UNKNOWN_ERROR);
+                                    SessionResult.RESULT_ERROR_UNKNOWN);
                         } else if (task instanceof LibrarySessionCallbackTask) {
                             sendLibraryResult(controller, seq,
-                                    LibraryResult.RESULT_ERROR_UNKNOWN_ERROR);
+                                    LibraryResult.RESULT_ERROR_UNKNOWN);
                         }
                     }
                 }
@@ -644,7 +644,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                         throw new RuntimeException("SessionCallback#onCustomCommand has returned"
                                 + " null, command=" + sessionCommand);
                     } else {
-                        result = new SessionResult(RESULT_ERROR_UNKNOWN_ERROR);
+                        result = new SessionResult(RESULT_ERROR_UNKNOWN);
                     }
                 }
                 return result;
@@ -1230,7 +1230,7 @@ class MediaSessionStub extends IMediaSession.Stub {
         @Override
         void onSessionResult(int seq, @Nullable SessionResult result) throws RemoteException {
             if (result == null) {
-                result = new SessionResult(RESULT_ERROR_UNKNOWN_ERROR, null);
+                result = new SessionResult(RESULT_ERROR_UNKNOWN, null);
             }
             mIControllerCallback.onSessionResult(seq, MediaUtils.toParcelable(result));
         }
@@ -1238,7 +1238,7 @@ class MediaSessionStub extends IMediaSession.Stub {
         @Override
         void onLibraryResult(int seq, LibraryResult result) throws RemoteException {
             if (result == null) {
-                result = new LibraryResult(LibraryResult.RESULT_ERROR_UNKNOWN_ERROR);
+                result = new LibraryResult(LibraryResult.RESULT_ERROR_UNKNOWN);
             }
             mIControllerCallback.onLibraryResult(seq, MediaUtils.toParcelable(result));
         }

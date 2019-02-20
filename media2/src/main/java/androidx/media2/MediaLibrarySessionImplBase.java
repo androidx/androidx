@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.media2.LibraryResult.RESULT_ERROR_UNKNOWN_ERROR;
+import static androidx.media2.LibraryResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media2.LibraryResult.RESULT_SUCCESS;
 
 import android.annotation.SuppressLint;
@@ -162,7 +162,7 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements MediaL
             }
             for (MediaItem item : items) {
                 if (!isValidItem(item)) {
-                    return new LibraryResult(RESULT_ERROR_UNKNOWN_ERROR);
+                    return new LibraryResult(RESULT_ERROR_UNKNOWN);
                 }
             }
         }
@@ -173,7 +173,7 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements MediaL
         returnedResult = ensureNonNullResult(returnedResult);
         if (returnedResult.getResultCode() == RESULT_SUCCESS) {
             if (!isValidItem(returnedResult.getMediaItem())) {
-                return new LibraryResult(RESULT_ERROR_UNKNOWN_ERROR);
+                return new LibraryResult(RESULT_ERROR_UNKNOWN);
             }
         }
         return returnedResult;
