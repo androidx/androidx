@@ -130,8 +130,6 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
                 dispatchStateChanged(SCROLL_STATE_SETTLING);
                 // Determine target page and dispatch onPageSelected on next scroll event
                 mDispatchSelected = true;
-                // Reset value to recognise if onPageSelected has been fired when going to idle
-                mScrollHappened = false;
             }
             return;
         }
@@ -148,23 +146,22 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
                 } else {
                     // Don't dispatch settling event
                     mDispatchSelected = true;
-                    mScrollHappened = false;
                 }
             } else if (mScrollState == SCROLL_STATE_SETTLING && !mScrollHappened) {
                 throw new IllegalStateException("RecyclerView sent SCROLL_STATE_SETTLING event "
                         + "without scrolling any further before going to SCROLL_STATE_IDLE");
             }
-            if (!mScrollHappened) {
-                // Special case if we were snapped at a page when going from dragging to settling
-                // Happens if there was no velocity or if it was the first or last page
-                if (mDispatchSelected) {
-                    // Fire onPageSelected when snapped page is different from initial position
-                    // E.g.: smooth scroll from 0 to 1, interrupt with drag at 0.5, release at 0
-                    updateScrollEventValues();
-                    if (mDragStartPosition != mScrollValues.mPosition) {
-                        dispatchSelected(mScrollValues.mPosition);
-                    }
+            // Special case if we were snapped at a page when going from dragging to settling
+            // Happens if there was no velocity or if it was the first or last page
+            if (mDispatchSelected) {
+                // Fire onPageSelected when snapped page is different from initial position
+                // E.g.: smooth scroll from 0 to 1, interrupt with drag at 0.5, release at 0
+                updateScrollEventValues();
+                if (mDragStartPosition != mScrollValues.mPosition) {
+                    dispatchSelected(mScrollValues.mPosition);
                 }
+            }
+            if (!mScrollHappened || mDispatchSelected) {
                 // Normally idle is fired in onScrolled, but scroll did not happen
                 dispatchStateChanged(SCROLL_STATE_IDLE);
                 resetState();
