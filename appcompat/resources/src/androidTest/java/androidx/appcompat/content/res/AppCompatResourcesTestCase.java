@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,42 +14,37 @@
  * limitations under the License.
  */
 
-package androidx.appcompat.res.content;
+package androidx.appcompat.content.res;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.res.ColorStateList;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.test.R;
+import androidx.appcompat.resources.test.R;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
 
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class AppCompatResourcesTestCase {
-    @Rule
-    public final ActivityTestRule<AppCompatActivity> mActivityTestRule;
+    private Context mContext;
 
     public AppCompatResourcesTestCase() {
-        mActivityTestRule = new ActivityTestRule<>(AppCompatActivity.class);
+        mContext = ApplicationProvider.getApplicationContext();
     }
 
     @Test
     public void testColorStateListCaching() {
-        final Activity context = mActivityTestRule.getActivity();
         final ColorStateList result1 = AppCompatResources.getColorStateList(
-                context, R.color.color_state_list_themed_attrs);
+                mContext, R.color.color_state_list_themed_attrs);
         final ColorStateList result2 = AppCompatResources.getColorStateList(
-                context, R.color.color_state_list_themed_attrs);
+                mContext, R.color.color_state_list_themed_attrs);
         assertNotNull(result1);
         assertNotNull(result2);
         assertEquals(result1, result2);
@@ -57,14 +52,11 @@ public class AppCompatResourcesTestCase {
 
     @Test
     public void testGetDrawableVectorResource() {
-        final Activity context = mActivityTestRule.getActivity();
-        assertNotNull(AppCompatResources.getDrawable(context, R.drawable.test_vector_off));
+        assertNotNull(AppCompatResources.getDrawable(mContext, R.drawable.test_vector_off));
     }
 
     @Test
     public void testGetAnimatedStateListDrawable() {
-        final Activity context = mActivityTestRule.getActivity();
-        assertNotNull(AppCompatResources.getDrawable(context, R.drawable.asl_heart));
+        assertNotNull(AppCompatResources.getDrawable(mContext, R.drawable.asl_heart));
     }
-
 }
