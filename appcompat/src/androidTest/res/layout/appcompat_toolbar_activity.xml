@@ -16,39 +16,48 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:minHeight="?attr/actionBarSize"
-            android:background="?attr/colorPrimaryDark"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimaryDark"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_textcolor_csl"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            app:title="Title"
-            app:subtitle="Subtitle"
-            android:minHeight="?attr/actionBarSize"
-            app:titleTextColor="@color/color_state_lilac_alpha"
-            app:subtitleTextColor="@color/color_state_lilac_alpha"/>
+        android:id="@+id/toolbar_textcolor_csl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        app:subtitle="Subtitle"
+        app:subtitleTextColor="@color/color_state_lilac_alpha"
+        app:title="Title"
+        app:titleTextColor="@color/color_state_lilac_alpha" />
 
     <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_textcolor_hex"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            app:title="Title"
-            app:subtitle="Subtitle"
-            android:minHeight="?attr/actionBarSize"
-            app:titleTextColor="#FF00FF"
-            app:subtitleTextColor="#FF00FF"/>
+        android:id="@+id/toolbar_textcolor_hex"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        app:subtitle="Subtitle"
+        app:subtitleTextColor="#FF00FF"
+        app:title="Title"
+        app:titleTextColor="#FF00FF" />
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_themedcsl_colorcontrolnormal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.ThemedCslMagenta"
+        app:subtitle="Subtitle"
+        app:title="Title" />
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_menu"
