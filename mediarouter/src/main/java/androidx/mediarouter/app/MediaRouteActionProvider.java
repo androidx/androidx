@@ -208,8 +208,9 @@ public class MediaRouteActionProvider extends ActionProvider {
     }
 
     /**
-     * Sets weather {@link MediaRouteButton} is visible when no routes are available.
+     * Sets whether {@link MediaRouteButton} is visible when no routes are available.
      * When true, the button is visible even if there are no routes to connect.
+     * The default is false.
      *
      * @param alwaysVisible true to show MediaRouteButton always.
      *
