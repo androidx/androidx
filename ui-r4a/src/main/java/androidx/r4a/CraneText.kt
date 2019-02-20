@@ -44,6 +44,8 @@ fun TextDemo() {
                 <TextDemoLetterSpacing />
                 <TagLine tag="wordSpacing" />
                 <TextDemoWordSpacing />
+                <TagLine tag="baselineShift" />
+                <TextDemoBaselineShift />
                 <TagLine tag="height" />
                 <TextDemoHeight />
                 <TagLine tag="background" />
@@ -262,6 +264,34 @@ fun TextDemoWordSpacing() {
         ) />
     </CraneWrapper>
 
+}
+
+@Composable
+fun TextDemoBaselineShift() {
+    <CraneWrapper>
+        <Text text=TextSpan(
+            text = displayText,
+            style = TextStyle(
+                fontSize = fontSize8
+            ),
+            children = listOf(
+                TextSpan(
+                    text = "superscript",
+                    style = TextStyle(
+                        baselineShift = BaselineShift.SUPERSCRIPT,
+                        fontSize = fontSize4
+                    ),
+                    children = listOf(
+                        TextSpan(
+                            text = "subscript",
+                            style = TextStyle(
+                                baselineShift = BaselineShift.SUBSCRIPT,
+                                fontSize = fontSize4
+                            )
+                        )
+                    )
+                ))) />
+    </CraneWrapper>
 }
 
 @Composable
