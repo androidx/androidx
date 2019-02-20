@@ -148,7 +148,16 @@ public class MediaRouteButton extends View {
     public MediaRouteButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(MediaRouterThemeHelper.createThemedButtonContext(context), attrs, defStyleAttr);
         context = getContext();
-
+        TypedArray a = context.obtainStyledAttributes(attrs,
+                R.styleable.MediaRouteButton, defStyleAttr, 0);
+        if (isInEditMode()) {
+            mRouter = null;
+            mCallback = null;
+            int remoteIndicatorStaticResId = a.getResourceId(
+                    R.styleable.MediaRouteButton_externalRouteEnabledDrawableStatic, 0);
+            mRemoteIndicator = getResources().getDrawable(remoteIndicatorStaticResId);
+            return;
+        }
         mRouter = MediaRouter.getInstance(context);
         mCallback = new MediaRouterCallback();
 
@@ -156,8 +165,6 @@ public class MediaRouteButton extends View {
             sConnectivityReceiver = new ConnectivityReceiver(context.getApplicationContext());
         }
 
-        TypedArray a = context.obtainStyledAttributes(attrs,
-                R.styleable.MediaRouteButton, defStyleAttr, 0);
         mButtonTint = a.getColorStateList(R.styleable.MediaRouteButton_mediaRouteButtonTint);
         mMinWidth = a.getDimensionPixelSize(
                 R.styleable.MediaRouteButton_android_minWidth, 0);
@@ -445,6 +452,10 @@ public class MediaRouteButton extends View {
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
 
+        if (isInEditMode()) {
+            return;
+        }
+
         mAttachedToWindow = true;
         if (!mSelector.isEmpty()) {
             mRouter.addCallback(mSelector, mCallback);
@@ -456,12 +467,14 @@ public class MediaRouteButton extends View {
 
     @Override
     public void onDetachedFromWindow() {
-        mAttachedToWindow = false;
-        if (!mSelector.isEmpty()) {
-            mRouter.removeCallback(mCallback);
-        }
+        if (!isInEditMode()) {
+            mAttachedToWindow = false;
+            if (!mSelector.isEmpty()) {
+                mRouter.removeCallback(mCallback);
+            }
 
-        sConnectivityReceiver.unregisterReceiver(this);
+            sConnectivityReceiver.unregisterReceiver(this);
+        }
 
         super.onDetachedFromWindow();
     }
