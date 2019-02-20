@@ -303,6 +303,15 @@ public interface WorkSpecDao {
     List<WorkSpec> getScheduledWork();
 
     /**
+     * @return The List of {@link WorkSpec}s that are unfinished and scheduled.
+     */
+    @Query("SELECT * FROM workspec WHERE "
+            // Unfinished work
+            + "state=" + WorkTypeConverters.StateIds.ENQUEUED
+    )
+    List<WorkSpec> getEnqueuedWork();
+
+    /**
      * Immediately prunes eligible work from the database meeting the following criteria:
      * - Is finished (succeeded, failed, or cancelled)
      * - Has zero unfinished dependents
