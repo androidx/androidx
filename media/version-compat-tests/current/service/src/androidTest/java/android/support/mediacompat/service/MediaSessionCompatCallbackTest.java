@@ -37,6 +37,7 @@ import static android.support.mediacompat.testlib.MediaControllerConstants.SEND_
 import static android.support.mediacompat.testlib.MediaControllerConstants.SEND_CUSTOM_ACTION;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SEND_CUSTOM_ACTION_PARCELABLE;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_CAPTIONING_ENABLED;
+import static android.support.mediacompat.testlib.MediaControllerConstants.SET_PLAYBACK_SPEED;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_RATING;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_REPEAT_MODE;
 import static android.support.mediacompat.testlib.MediaControllerConstants.SET_SHUFFLE_MODE;
@@ -696,6 +697,26 @@ public class MediaSessionCompatCallbackTest {
     }
 
     /**
+     * Tests {@link MediaSessionCompat.Callback#onSetPlaybackSpeed(float)}.
+     */
+    @Test
+    @SmallTest
+    public void testCallback_onSetPlaybackSpeed() {
+        if (!TextUtils.equals(VERSION_TOT, mClientVersion)) {
+            // In previous versions, MediaControllerCompat#setPlaybackSpeed() does not exist.
+            return;
+        }
+
+        mCallback.reset(1);
+        final float testSpeed = 2.0f;
+        callTransportControlsMethod(
+                SET_PLAYBACK_SPEED, testSpeed, getApplicationContext(), mSession.getSessionToken());
+        assertTrue(mCallback.await(TIME_OUT_MS));
+        assertTrue(mCallback.mOnSetPlaybackSpeedCalled);
+        assertEquals(testSpeed, mCallback.mSpeed, 0.0f);
+    }
+
+    /**
      * Tests {@link MediaSessionCompat.Callback#onMediaButtonEvent}.
      */
     @Test
@@ -1098,6 +1119,7 @@ public class MediaSessionCompatCallbackTest {
         private int mQueueIndex;
         private MediaDescriptionCompat mQueueDescription;
         private List<MediaSessionCompat.QueueItem> mQueue = new ArrayList<>();
+        private float mSpeed;
 
         private int mOnPlayCalledCount;
         private boolean mOnPauseCalled;
@@ -1124,6 +1146,7 @@ public class MediaSessionCompatCallbackTest {
         private boolean mOnAddQueueItemCalled;
         private boolean mOnAddQueueItemAtCalled;
         private boolean mOnRemoveQueueItemCalled;
+        private boolean mOnSetPlaybackSpeedCalled;
 
         public void reset(int count) {
             mLatch = new CountDownLatch(count);
@@ -1147,6 +1170,7 @@ public class MediaSessionCompatCallbackTest {
             mShuffleMode = PlaybackStateCompat.SHUFFLE_MODE_NONE;
             mQueueIndex = -1;
             mQueueDescription = null;
+            mSpeed = -1.0f;
 
             mRemoteUserInfoForStop = null;
             mOnPlayCalledCount = 0;
@@ -1174,6 +1198,7 @@ public class MediaSessionCompatCallbackTest {
             mOnAddQueueItemCalled = false;
             mOnAddQueueItemAtCalled = false;
             mOnRemoveQueueItemCalled = false;
+            mOnSetPlaybackSpeedCalled = false;
         }
 
         public void reset(int count, String expectedCallerPackageName) {
@@ -1482,6 +1507,17 @@ public class MediaSessionCompatCallbackTest {
             }
             mOnSetShuffleModeCalled = true;
             mShuffleMode = shuffleMode;
+            mLatch.countDown();
+        }
+
+        @Override
+        public void onSetPlaybackSpeed(float speed) {
+            if (!isCallerTestClient()) {
+                // Ignore
+                return;
+            }
+            mOnSetPlaybackSpeedCalled = true;
+            mSpeed = speed;
             mLatch.countDown();
         }
 

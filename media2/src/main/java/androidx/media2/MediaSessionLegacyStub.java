@@ -299,6 +299,16 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     }
 
     @Override
+    public void onSetPlaybackSpeed(final float speed) {
+        dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED, new SessionTask() {
+            @Override
+            public void run(ControllerInfo controller) throws RemoteException {
+                mSessionImpl.setPlaybackSpeed(speed);
+            }
+        });
+    }
+
+    @Override
     public void onSkipToQueueItem(final long queueId) {
         dispatchSessionTask(SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
                 new SessionTask() {

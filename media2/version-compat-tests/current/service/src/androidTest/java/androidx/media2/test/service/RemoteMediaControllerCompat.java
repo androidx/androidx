@@ -248,6 +248,14 @@ public class RemoteMediaControllerCompat {
             }
         }
 
+        public void setPlaybackSpeed(float speed) {
+            try {
+                mBinder.setPlaybackSpeed(mControllerId, speed);
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call setPlaybackSpeed()");
+            }
+        }
+
         public void fastForward() {
             try {
                 mBinder.fastForward(mControllerId);

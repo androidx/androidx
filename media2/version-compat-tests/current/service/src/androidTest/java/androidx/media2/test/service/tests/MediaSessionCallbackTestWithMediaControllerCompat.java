@@ -79,8 +79,8 @@ import java.util.concurrent.TimeUnit;
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
-    private static final String TAG = "MediaSessionLegacyCallbackTest";
+public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSessionTestBase {
+    private static final String TAG = "MediaSessionCallbackTestWithMediaControllerCompat";
 
     private static final String EXPECTED_CONTROLLER_PACKAGE_NAME =
             (Build.VERSION.SDK_INT < 21 || Build.VERSION.SDK_INT >= 24)
@@ -211,6 +211,20 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
         }
         assertTrue(mPlayer.mSeekToCalled);
         assertEquals(seekPosition, mPlayer.mSeekPosition);
+    }
+
+    @Test
+    public void testSetPlaybackSpeed() {
+        prepareLooper();
+        final float testSpeed = 2.0f;
+        mController.getTransportControls().setPlaybackSpeed(testSpeed);
+        try {
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        }
+        assertTrue(mPlayer.mSetPlaybackSpeedCalled);
+        assertEquals(testSpeed, mPlayer.mPlaybackSpeed, 0.0f);
     }
 
     @Test
