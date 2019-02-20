@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.testapp.hellocamerax;
+package androidx.camera.integration.core;
 
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -50,8 +50,8 @@ import androidx.camera.core.VideoCaptureUseCase;
 import androidx.camera.core.VideoCaptureUseCaseConfiguration;
 import androidx.camera.core.ViewFinderUseCase;
 import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.legacy.app.ActivityCompat;
 import androidx.lifecycle.MutableLiveData;
 
 import java.io.File;

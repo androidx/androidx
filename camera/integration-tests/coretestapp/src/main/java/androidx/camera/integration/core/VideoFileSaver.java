@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.testapp.hellocamerax;
+package androidx.camera.integration.core;
 
 import android.util.Log;
 

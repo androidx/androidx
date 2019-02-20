@@ -20,7 +20,7 @@ limitations under the License.
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="androidx.camera.app.CameraXActivity">
+    tools:context="androidx.camera.integration.core.CameraXActivity">
 
     <TextureView
         android:id="@+id/textureView"
