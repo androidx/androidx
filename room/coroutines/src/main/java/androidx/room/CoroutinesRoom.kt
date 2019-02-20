@@ -27,7 +27,7 @@ import java.util.concurrent.Callable
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class CoroutinesRoom {
+class CoroutinesRoom private constructor() {
 
     companion object {
         @JvmStatic
