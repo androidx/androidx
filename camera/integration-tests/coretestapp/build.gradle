@@ -24,7 +24,7 @@ plugins {
 
 android {
     defaultConfig {
-        applicationId "androidx.camera.testapp.hellocamerax"
+        applicationId "androidx.camera.integration.core"
         minSdkVersion 24
         versionCode 1
         multiDexEnabled true
@@ -46,28 +46,14 @@ android {
         release {
         }
     }
-
-    lintOptions {
-        abortOnError false
-    }
 }
 
 dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-core"))
-
-    // Lifecycle and LiveData
-    implementation(project(":lifecycle:lifecycle-extensions"))
-    implementation(project(":lifecycle:lifecycle-livedata"))
-    implementation(project(":lifecycle:lifecycle-runtime"))
-    implementation(project(":lifecycle:lifecycle-common-java8"))
 
     // Android Support Library
     api(CONSTRAINT_LAYOUT, { transitive = true })
-    implementation(project(":annotation"))
     implementation(project(":appcompat"))
-    implementation(project(":core"))
-    implementation(project(":legacy-support-v13"))
 }
 
