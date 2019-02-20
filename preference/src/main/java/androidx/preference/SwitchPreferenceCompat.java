@@ -16,7 +16,7 @@
 
 package androidx.preference;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -187,7 +187,7 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @Override
     protected void performClick(View view) {
         super.performClick(view);

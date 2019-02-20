@@ -42,22 +42,15 @@ attr order
 attr orderingFromXml
 attr persistent
 attr positiveButtonText
-attr preferenceActivityStyle
 attr preferenceCategoryStyle
 attr preferenceCategoryTitleTextAppearance
 attr preferenceFragmentCompatStyle
 attr preferenceFragmentListStyle
-attr preferenceFragmentPaddingSide
 attr preferenceFragmentStyle
-attr preferenceHeaderPanelStyle
 attr preferenceInformationStyle
-attr preferenceLayoutChild
-attr preferenceListStyle
-attr preferencePanelStyle
 attr preferenceScreenStyle
 attr preferenceStyle
 attr preferenceTheme
-attr ringtonePreferenceStyle
 attr seekBarIncrement
 attr seekBarPreferenceStyle
 attr selectable
@@ -74,4 +67,3 @@ attr switchTextOff
 attr switchTextOn
 attr title
 attr widgetLayout
-attr yesNoPreferenceStyle
