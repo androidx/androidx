@@ -168,6 +168,9 @@ public final class PlaybackParams {
         private Float mSpeed;
         private android.media.PlaybackParams mPlaybackParams;
 
+        /**
+         * Default constructor
+         */
         public Builder() {
             if (Build.VERSION.SDK_INT >= 23) {
                 mPlaybackParams = new android.media.PlaybackParams();
@@ -181,6 +184,11 @@ public final class PlaybackParams {
             mPlaybackParams = playbackParams;
         }
 
+        /**
+         * Constructs a new PlaybackParams builder using data from {@code playbackParams}.
+         *
+         * @param playbackParams the non-null instance to initialize from.
+         */
         public Builder(@NonNull PlaybackParams playbackParams) {
             if (Build.VERSION.SDK_INT >= 23) {
                 mPlaybackParams = playbackParams.getPlaybackParams();
@@ -239,6 +247,7 @@ public final class PlaybackParams {
 
         /**
          * Takes the values of the Builder object and creates a PlaybackParams object.
+         *
          * @return PlaybackParams object with values from the Builder.
          */
         public @NonNull PlaybackParams build() {
