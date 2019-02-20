@@ -18,6 +18,9 @@ package androidx.work.impl.utils;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -31,13 +34,18 @@ import android.content.Intent;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.work.Configuration;
+import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Collections;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -45,6 +53,8 @@ public class ForceStopRunnableTest {
 
     private Context mContext;
     private WorkManagerImpl mWorkManager;
+    private Scheduler mScheduler;
+    private Configuration mConfiguration;
     private WorkDatabase mWorkDatabase;
     private WorkSpecDao mWorkSpecDao;
     private Preferences mPreferences;
@@ -57,9 +67,14 @@ public class ForceStopRunnableTest {
         mWorkDatabase = mock(WorkDatabase.class);
         mWorkSpecDao = mock(WorkSpecDao.class);
         mPreferences = mock(Preferences.class);
+        mScheduler = mock(Scheduler.class);
+        mConfiguration = new Configuration.Builder().build();
+
         when(mWorkManager.getWorkDatabase()).thenReturn(mWorkDatabase);
+        when(mWorkManager.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
         when(mWorkDatabase.workSpecDao()).thenReturn(mWorkSpecDao);
         when(mWorkManager.getPreferences()).thenReturn(mPreferences);
+        when(mWorkManager.getConfiguration()).thenReturn(mConfiguration);
         mRunnable = new ForceStopRunnable(mContext, mWorkManager);
     }
 
@@ -98,5 +113,25 @@ public class ForceStopRunnableTest {
         when(runnable.shouldRescheduleWorkers()).thenReturn(true);
         runnable.run();
         verify(mPreferences, times(1)).setNeedsReschedule(false);
+    }
+
+    @Test
+    public void test_UnfinishedWork_getsScheduled() {
+        ForceStopRunnable runnable = spy(mRunnable);
+        when(runnable.shouldRescheduleWorkers()).thenReturn(false);
+        when(runnable.isForceStopped()).thenReturn(false);
+        String id = "id";
+        String worker = "Worker";
+        WorkSpec workSpec = new WorkSpec(id, worker);
+
+        when(mWorkSpecDao.getEnqueuedWork()).thenReturn(Collections.singletonList(workSpec));
+        when(mWorkSpecDao.getEligibleWorkForScheduling(anyInt())).thenReturn(
+                Collections.singletonList(workSpec));
+
+        runnable.run();
+        verify(mWorkSpecDao, times(2))
+                .markWorkSpecScheduled(eq(id), anyLong());
+
+        verify(mScheduler, times(1)).schedule(eq(workSpec));
     }
 }
