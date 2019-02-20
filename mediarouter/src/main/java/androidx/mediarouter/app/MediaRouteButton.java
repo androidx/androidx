@@ -407,10 +407,11 @@ public class MediaRouteButton extends View {
     }
 
     /**
-     * Sets weather the button is visible when no routes are available.
+     * Sets whether the button is visible when no routes are available.
      * When true, the button is visible even if there are no routes to connect.
      * You may want to override {@link View#performClick()} to change the behavior
      * when the button is clicked.
+     * The default is false.
      * It doesn't overrides the {@link View#getVisibility visibility} status of the button.
      *
      * @param alwaysVisible true to show button always.
