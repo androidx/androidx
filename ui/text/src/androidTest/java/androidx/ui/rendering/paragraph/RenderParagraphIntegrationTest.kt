@@ -246,6 +246,19 @@ class RenderParagraphIntegrationTest {
     }
 
     @Test
+    fun testSelectionPaint_customized_color() {
+        val text = TextSpan()
+        val selectionColor = Color(0x66AABB33)
+
+        val paragraph = RenderParagraph(
+            text = text,
+            textDirection = TextDirection.LTR,
+            selectionColor = selectionColor)
+
+        assertThat(paragraph.selectionPaint.color).isEqualTo(selectionColor)
+    }
+
+    @Test
     fun testSelectionPaint_paint_with_default_color() {
         // Setup test.
         val selectionStart = 0
@@ -346,6 +359,56 @@ class RenderParagraphIntegrationTest {
         paragraph.paintSelection(
             actualCanvas,
             TextSelection(selectionLTRStart, textLTR.length + selectionRTLEnd)
+        )
+
+        // Assert
+        Assert.assertThat(actualBitmap, equalToBitmap(expectedBitmap))
+    }
+
+    @Test
+    fun testSelectionPaint_paint_with_customized_color() {
+        // Setup test.
+        val selectionStart = 0
+        val selectionEnd = 3
+        val fontSize = 20.0f
+        val text = "Hello"
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+        val textSpan = TextSpan(text = text, style = textStyle)
+        val selectionColor = Color(0x66AABB33)
+        val paragraph = RenderParagraph(
+            text = textSpan,
+            textDirection = TextDirection.LTR,
+            selectionColor = selectionColor)
+        paragraph.layoutText()
+
+        val expectedBitmap = Bitmap.createBitmap(
+            ceil(paragraph.width).toInt(),
+            ceil(paragraph.height).toInt(),
+            Bitmap.Config.ARGB_8888
+        )
+        val expectedCanvas = androidx.ui.painting.Canvas(android.graphics.Canvas(expectedBitmap))
+        val expectedPaint = Paint()
+        expectedPaint.color = selectionColor
+        expectedCanvas.drawRect(
+            Rect(
+                left = 0f,
+                top = 0f,
+                right = fontSize * (selectionEnd - selectionStart),
+                bottom = fontSize
+            ),
+            expectedPaint)
+
+        val actualBitmap = Bitmap.createBitmap(
+            ceil(paragraph.width).toInt(),
+            ceil(paragraph.height).toInt(),
+            Bitmap.Config.ARGB_8888
+        )
+        val actualCanvas = androidx.ui.painting.Canvas(android.graphics.Canvas(actualBitmap))
+
+        // Run.
+        paragraph.paintSelection(
+            actualCanvas,
+            TextSelection(selectionStart, selectionEnd)
         )
 
         // Assert

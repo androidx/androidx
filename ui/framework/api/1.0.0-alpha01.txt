@@ -130,6 +130,7 @@ package androidx.ui.core {
     method public Integer? getMaxLines();
     method public androidx.ui.rendering.paragraph.TextOverflow getOverflow();
     method public androidx.ui.services.text_editing.TextSelection? getSelection();
+    method public androidx.ui.painting.Color getSelectionColor();
     method public boolean getSoftWrap();
     method public androidx.ui.painting.TextSpan getText();
     method public androidx.ui.engine.text.TextAlign getTextAlign();
@@ -138,6 +139,7 @@ package androidx.ui.core {
     method public void setMaxLines(Integer? p);
     method public void setOverflow(androidx.ui.rendering.paragraph.TextOverflow p);
     method public void setSelection(androidx.ui.services.text_editing.TextSelection? p);
+    method public void setSelectionColor(androidx.ui.painting.Color p);
     method public void setSoftWrap(boolean p);
     method public void setText(androidx.ui.painting.TextSpan p);
     method public void setTextAlign(androidx.ui.engine.text.TextAlign p);
@@ -146,6 +148,7 @@ package androidx.ui.core {
     property public final Integer? maxLines;
     property public final androidx.ui.rendering.paragraph.TextOverflow overflow;
     property public final androidx.ui.services.text_editing.TextSelection? selection;
+    property public final androidx.ui.painting.Color selectionColor;
     property public final boolean softWrap;
     property public final androidx.ui.painting.TextSpan text;
     property public final androidx.ui.engine.text.TextAlign textAlign;

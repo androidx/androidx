@@ -40,7 +40,7 @@ import androidx.ui.services.text_editing.TextRange
 import androidx.ui.services.text_editing.TextSelection
 
 /** The default selection color if none is specified. */
-private val defaultSelectionColor = Color(0x6633B5E5)
+private val DEFAULT_SELECTION_COLOR = Color(0x6633B5E5)
 /**
  * A render object that displays a paragraph of text
  *
@@ -83,7 +83,8 @@ class RenderParagraph(
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.CLIP,
     textScaleFactor: Float = 1.0f,
-    maxLines: Int? = null
+    maxLines: Int? = null,
+    selectionColor: Color = DEFAULT_SELECTION_COLOR
 ) {
     @VisibleForTesting
     // TODO(migration/qqd): Should be internal. Removed internal due to hacking reason for now.
@@ -105,7 +106,7 @@ class RenderParagraph(
             ellipsis = overflow == TextOverflow.ELLIPSIS
         )
         selectionPaint = Paint()
-        selectionPaint.color = defaultSelectionColor
+        selectionPaint.color = selectionColor
     }
 
     var text: TextSpan
