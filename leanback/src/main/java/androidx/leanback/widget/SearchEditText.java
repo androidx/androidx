@@ -18,7 +18,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 
-import androidx.core.widget.TextViewCompat;
 import androidx.leanback.R;
 
 /**
@@ -58,8 +57,8 @@ public class SearchEditText extends StreamingTextView {
             if (DEBUG) Log.v(TAG, "Keyboard being dismissed");
             if (mKeyboardDismissListener != null) {
                 mKeyboardDismissListener.onKeyboardDismiss();
+                return true;
             }
-            return false;
         }
         return super.onKeyPreIme(keyCode, event);
     }
