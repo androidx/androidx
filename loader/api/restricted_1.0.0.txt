@@ -1,0 +1,9 @@
+// Signature format: 3.0
+package androidx.loader.content {
+
+  public abstract class AsyncTaskLoader<D> extends androidx.loader.content.Loader<D> {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void waitForLoader();
+  }
+
+}
+

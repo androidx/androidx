@@ -1,0 +1,10 @@
+// Signature format: 3.0
+package androidx.exifinterface.media {
+
+  public class ExifInterface {
+  }
+
+  }
+
+}
+

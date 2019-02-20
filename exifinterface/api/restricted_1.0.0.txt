@@ -1,0 +1,14 @@
+// Signature format: 3.0
+package androidx.exifinterface.media {
+
+  public class ExifInterface {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public long getDateTime();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public long getGpsDateTime();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public void setDateTime(long);
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static @interface ExifInterface.IfdType {
+  }
+
+}
+

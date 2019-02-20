@@ -70,4 +70,5 @@ supportLibrary {
     url = SupportLibraryExtension.ARCHITECTURE_URL
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
+    trackRestrictedAPIs = false
 }

@@ -1,0 +1,30 @@
+// Signature format: 3.0
+package androidx.lifecycle {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class CompositeGeneratedAdaptersObserver implements androidx.lifecycle.GenericLifecycleObserver {
+    method public void onStateChanged(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface GeneratedAdapter {
+    method public void callMethods(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!, boolean, androidx.lifecycle.MethodCallsLogger!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public interface GenericLifecycleObserver extends androidx.lifecycle.LifecycleObserver {
+    method public void onStateChanged(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class Lifecycling {
+    method public static String! getAdapterName(String!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class MethodCallsLogger {
+    ctor public MethodCallsLogger();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean approveCall(String!, int);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SingleGeneratedAdapterObserver implements androidx.lifecycle.GenericLifecycleObserver {
+    method public void onStateChanged(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!);
+  }
+
+}
+

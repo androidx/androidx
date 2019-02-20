@@ -1,0 +1,13 @@
+// Signature format: 3.0
+package androidx.lifecycle {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class ComputableLiveData<T> {
+    ctor public ComputableLiveData();
+    ctor public ComputableLiveData(java.util.concurrent.Executor);
+    method @WorkerThread protected abstract T! compute();
+    method public androidx.lifecycle.LiveData<T> getLiveData();
+    method public void invalidate();
+  }
+
+}
+

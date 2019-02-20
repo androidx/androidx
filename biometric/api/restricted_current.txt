@@ -1,0 +1,52 @@
+// Signature format: 3.0
+package androidx.biometric {
+
+    field public static final int ERROR_CANCELED = 5; // 0x5
+    field public static final int ERROR_HW_NOT_PRESENT = 12; // 0xc
+    field public static final int ERROR_HW_UNAVAILABLE = 1; // 0x1
+    field public static final int ERROR_LOCKOUT = 7; // 0x7
+    field public static final int ERROR_LOCKOUT_PERMANENT = 9; // 0x9
+    field public static final int ERROR_NEGATIVE_BUTTON = 13; // 0xd
+    field public static final int ERROR_NO_BIOMETRICS = 11; // 0xb
+    field public static final int ERROR_NO_SPACE = 4; // 0x4
+    field public static final int ERROR_TIMEOUT = 3; // 0x3
+    field public static final int ERROR_UNABLE_TO_PROCESS = 2; // 0x2
+    field public static final int ERROR_USER_CANCELED = 10; // 0xa
+    field public static final int ERROR_VENDOR = 8; // 0x8
+  }
+
+    ctor public BiometricFragment();
+    method protected void cancel();
+    method protected CharSequence! getNegativeButtonText();
+    method public static androidx.biometric.BiometricFragment! newInstance();
+    method public void setBundle(android.os.Bundle!);
+    method protected void setCallbacks(java.util.concurrent.Executor!, android.content.DialogInterface.OnClickListener!, androidx.biometric.BiometricPrompt.AuthenticationCallback!);
+    method protected void setCryptoObject(androidx.biometric.BiometricPrompt.CryptoObject!);
+  }
+
+    ctor public FingerprintDialogFragment();
+    method protected android.os.Handler! getHandler();
+    method protected CharSequence! getNegativeButtonText();
+    method public static androidx.biometric.FingerprintDialogFragment! newInstance();
+    method public void setBundle(android.os.Bundle!);
+    method protected void setNegativeButtonListener(android.content.DialogInterface.OnClickListener!);
+    field protected static final int HIDE_DIALOG_DELAY = 2000; // 0x7d0
+    field protected static final int MSG_DISMISS_DIALOG = 3; // 0x3
+    field protected static final int MSG_RESET_MESSAGE = 4; // 0x4
+    field protected static final int MSG_SHOW_ERROR = 2; // 0x2
+    field protected static final int MSG_SHOW_HELP = 1; // 0x1
+  }
+
+    ctor public FingerprintHelperFragment();
+    method protected void cancel(int);
+    method public static androidx.biometric.FingerprintHelperFragment! newInstance();
+    method protected void setCallback(java.util.concurrent.Executor!, androidx.biometric.BiometricPrompt.AuthenticationCallback!);
+    method public void setCryptoObject(androidx.biometric.BiometricPrompt.CryptoObject!);
+    method protected void setHandler(android.os.Handler!);
+    field protected static final int USER_CANCELED_FROM_NEGATIVE_BUTTON = 2; // 0x2
+    field protected static final int USER_CANCELED_FROM_NONE = 0; // 0x0
+    field protected static final int USER_CANCELED_FROM_USER = 1; // 0x1
+  }
+
+}
+
