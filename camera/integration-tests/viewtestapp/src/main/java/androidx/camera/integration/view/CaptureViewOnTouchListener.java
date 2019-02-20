@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.app.cameraview;
+package androidx.camera.integration.view;
 
 import android.content.Intent;
 import android.graphics.Rect;

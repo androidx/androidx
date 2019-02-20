@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.camera.app.cameraview;
+package androidx.camera.integration.view;
 
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +33,8 @@ import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
 import androidx.camera.view.CameraView.ScaleType;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import java.io.File;
 import java.io.IOException;
@@ -109,6 +111,11 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
+
+        if (ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new IllegalStateException("App has not been granted CAMERA permission");
+        }
 
         // Set the lifecycle that will be used to control the camera
         mCameraView.bindToLifecycle(getActivity());

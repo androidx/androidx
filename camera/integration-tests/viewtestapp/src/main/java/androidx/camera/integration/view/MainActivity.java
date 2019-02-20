@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.camera.app.cameraview;
+package androidx.camera.integration.view;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 /** The main activity. */
 public class MainActivity extends AppCompatActivity {
