@@ -54,6 +54,7 @@ package androidx.ui.core {
     method public static androidx.ui.core.Position childToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode child, androidx.ui.core.Position childLocal);
     method public static java.util.List<java.lang.Object> childrenMeasureBoxes(androidx.ui.core.LayoutNode);
     method public static androidx.ui.core.Position globalToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.Position global);
+    method public static boolean isAttached(androidx.ui.core.ComponentNode);
     method public static androidx.ui.core.Position localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.core.Position local);
   }
 
