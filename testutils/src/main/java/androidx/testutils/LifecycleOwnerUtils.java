@@ -19,6 +19,8 @@ package androidx.testutils;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import android.app.Activity;
+
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -37,6 +39,17 @@ public class LifecycleOwnerUtils {
         public void run() {
         }
     };
+
+    /**
+     * Waits until the the Activity current held the ActivityTestRule has the specified
+     * {@link androidx.lifecycle.Lifecycle.State}. If the owner has not hit that state within a
+     * suitable time period, it asserts that the current state equals the given state.
+     */
+    public static <T extends Activity & LifecycleOwner> void waitUntilState(
+            final ActivityTestRule<T> activityRule,
+            final Lifecycle.State state) throws Throwable {
+        waitUntilState(activityRule.getActivity(), activityRule, state);
+    }
 
     /**
      * Waits until the given {@link LifecycleOwner} has the specified

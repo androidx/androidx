@@ -17,10 +17,10 @@
 package androidx.appcompat.app;
 
 import static androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals;
-import static androidx.appcompat.testutils.NightModeUtils.setLocalNightModeAndWait;
+import static androidx.appcompat.testutils.NightModeUtils.setLocalNightModeAndWaitForDestroy;
 import static androidx.appcompat.testutils.TestUtilsActions.rotateScreenOrientation;
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 
 import static org.junit.Assert.assertSame;
 
@@ -56,7 +56,7 @@ public class NightModeOrientationConfigChangesTestCase {
     @Test
     public void testRotateDoesNotRecreateActivity() throws Throwable {
         // Set local night mode to YES
-        setLocalNightModeAndWait(mActivityTestRule, AppCompatDelegate.MODE_NIGHT_YES);
+        setLocalNightModeAndWaitForDestroy(mActivityTestRule, AppCompatDelegate.MODE_NIGHT_YES);
 
         final Activity activity = mActivityTestRule.getActivity();
 
@@ -65,7 +65,7 @@ public class NightModeOrientationConfigChangesTestCase {
                 activity.getResources().getConfiguration());
 
         // Now rotate the device
-        onView(withId(android.R.id.content)).perform(rotateScreenOrientation(activity));
+        onView(isRoot()).perform(rotateScreenOrientation(activity));
 
         // And assert that we have the same Activity, and thus was not recreated
         assertSame(activity, mActivityTestRule.getActivity());
