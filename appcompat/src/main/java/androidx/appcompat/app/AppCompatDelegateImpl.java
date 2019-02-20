@@ -303,6 +303,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 sLocalNightModes.remove(mHost.getClass());
             }
         }
+
+        // Preload appcompat-specific handling of drawables that should be handled in a special
+        // way (for tinting etc). After the following line completes, calls from AppCompatResources
+        // to ResourceManagerInternal (in appcompat-resources) will handle those internal drawable
+        // paths correctly without having to go through AppCompatDrawableManager APIs.
+        AppCompatDrawableManager.preload();
     }
 
     @Override

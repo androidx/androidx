@@ -1,4 +1,13 @@
 // Signature format: 3.0
+package androidx.appcompat.content.res {
+
+  public final class AppCompatResources {
+    method public static android.content.res.ColorStateList! getColorStateList(android.content.Context, @ColorRes int);
+    method public static android.graphics.drawable.Drawable? getDrawable(android.content.Context, @DrawableRes int);
+  }
+
+}
+
 package androidx.appcompat.graphics.drawable {
 
   public class AnimatedStateListDrawableCompat extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback androidx.core.graphics.drawable.TintAwareDrawable {
