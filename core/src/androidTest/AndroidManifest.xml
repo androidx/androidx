@@ -49,6 +49,7 @@
                   android:icon="@drawable/test_drawable_blue"/>
 
         <activity android:name="androidx.core.app.TestComponentActivity"/>
+        <activity android:name="androidx.core.app.TestActivityWithLifecycle"/>
 
         <activity android:name="androidx.core.view.DragStartHelperTestActivity"/>
 
