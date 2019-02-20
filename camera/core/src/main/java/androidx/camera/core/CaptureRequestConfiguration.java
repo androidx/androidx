@@ -97,11 +97,6 @@ public final class CaptureRequestConfiguration {
         mUseRepeatingSurface = useRepeatingSurface;
     }
 
-    /** Add a surface that the request will write data to. */
-    public void addSurface(DeferrableSurface surface) {
-        mSurfaces.add(surface);
-    }
-
     /** Get all the surfaces that the request will write data to. */
     public List<DeferrableSurface> getSurfaces() {
         return Collections.unmodifiableList(mSurfaces);
