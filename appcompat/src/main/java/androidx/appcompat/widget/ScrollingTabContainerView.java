@@ -387,6 +387,10 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         private ImageView mIconView;
         private View mCustomView;
 
+        // Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage.
+        private static final String ACCESSIBILITY_CLASS_NAME =
+                "androidx.appcompat.app.ActionBar$Tab";
+
         public TabView(Context context, ActionBar.Tab tab, boolean forList) {
             super(context, null, R.attr.actionBarTabStyle);
             mTab = tab;
@@ -423,7 +427,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
         public void onInitializeAccessibilityEvent(AccessibilityEvent event) {
             super.onInitializeAccessibilityEvent(event);
             // This view masquerades as an action bar tab.
-            event.setClassName(ActionBar.Tab.class.getName());
+            event.setClassName(ACCESSIBILITY_CLASS_NAME);
         }
 
         @Override
@@ -431,7 +435,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
             super.onInitializeAccessibilityNodeInfo(info);
 
             // This view masquerades as an action bar tab.
-            info.setClassName(ActionBar.Tab.class.getName());
+            info.setClassName(ACCESSIBILITY_CLASS_NAME);
         }
 
         @Override

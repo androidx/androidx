@@ -119,6 +119,10 @@ public class ViewPager extends ViewGroup {
 
     private static final int MIN_FLING_VELOCITY = 400; // dips
 
+    /** Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage. */
+    private static final String ACCESSIBILITY_CLASS_NAME =
+            "androidx.viewpager.widget.ViewPager";
+
     static final int[] LAYOUT_ATTRS = new int[] {
         android.R.attr.layout_gravity
     };
@@ -3048,7 +3052,7 @@ public class ViewPager extends ViewGroup {
         @Override
         public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
             super.onInitializeAccessibilityEvent(host, event);
-            event.setClassName(ViewPager.class.getName());
+            event.setClassName(ACCESSIBILITY_CLASS_NAME);
             event.setScrollable(canScroll());
             if (event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED && mAdapter != null) {
                 event.setItemCount(mAdapter.getCount());
@@ -3060,7 +3064,7 @@ public class ViewPager extends ViewGroup {
         @Override
         public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
             super.onInitializeAccessibilityNodeInfo(host, info);
-            info.setClassName(ViewPager.class.getName());
+            info.setClassName(ACCESSIBILITY_CLASS_NAME);
             info.setScrollable(canScroll());
             if (canScrollHorizontally(1)) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
