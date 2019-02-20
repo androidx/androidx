@@ -23,5 +23,5 @@
         android:layout_width="match_parent"
         android:startColor="@color/title_bar_gradient_start"
         android:endColor="@color/title_bar_gradient_end"
-        android:angle="-270" />
+        android:angle="270" />
 </shape>
