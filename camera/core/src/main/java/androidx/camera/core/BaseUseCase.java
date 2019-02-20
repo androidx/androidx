@@ -101,7 +101,9 @@ public abstract class BaseUseCase {
      * configuration will be used directly.
      *
      * @return A builder pre-populated with use case default options.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
         return null;
@@ -143,7 +145,9 @@ public abstract class BaseUseCase {
      * @param userConfiguration    The user-supplied configuration.
      * @param defaultConfigBuilder A builder containing use-case default values.
      * @return The configuration that will be used by this use case.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected UseCaseConfiguration<?> applyDefaults(
             UseCaseConfiguration<?> userConfiguration,
             UseCaseConfiguration.Builder<?, ?, ?> defaultConfigBuilder) {
@@ -184,7 +188,9 @@ public abstract class BaseUseCase {
      *
      * @param cameraId The name of the camera as defined by {@link
      *                 android.hardware.camera2.CameraManager#getCameraIdList()}.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected void attachToCamera(String cameraId, SessionConfiguration sessionConfiguration) {
         mAttachedCameraIdToSessionConfigurationMap.put(cameraId, sessionConfiguration);
     }
@@ -235,7 +241,9 @@ public abstract class BaseUseCase {
      * @param cameraId the id of the camera as referred to be {@link
      *                 android.hardware.camera2.CameraManager}
      * @throws IllegalArgumentException if no camera with the specified cameraId is attached
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public SessionConfiguration getSessionConfiguration(String cameraId) {
         SessionConfiguration sessionConfiguration =
                 mAttachedCameraIdToSessionConfigurationMap.get(cameraId);
@@ -267,7 +275,9 @@ public abstract class BaseUseCase {
     /**
      * Notify all {@link StateChangeListener} that are listening to this BaseUseCase that it has a
      * single capture request.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void notifySingleCapture(CaptureRequestConfiguration requestConfiguration) {
         for (StateChangeListener listener : mListeners) {
             listener.onUseCaseSingleRequest(this, requestConfiguration);
