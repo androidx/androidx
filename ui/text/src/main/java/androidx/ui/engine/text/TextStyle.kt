@@ -32,6 +32,8 @@ import androidx.ui.painting.Paint
  * * `fontStyle`: The typeface variant to use when drawing the letters (e.g., italics).
  * * `fontFamily`: The name of the font to use when painting the text (e.g., Roboto).
  * * `fontSize`: The size of glyphs (in logical pixels) to use when painting the text.
+ * * `fontFeatureSettings`: The advanced typography settings provided by font. The format is the same as the CSS font-feature-settings attribute:
+ * *  https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
  * * `letterSpacing`: The amount of space (in EM) to add between each letter.
  * * `wordSpacing`: The amount of space (in logical pixels) to add at each sequence of white-space
  *                  (i.e. between each word). Only works on Android Q and above.
@@ -53,6 +55,7 @@ data class TextStyle constructor(
     val fontStyle: FontStyle? = null,
     val fontFamily: FontFamily? = null,
     val fontSize: Float? = null,
+    val fontFeatureSettings: String? = null,
     val letterSpacing: Float? = null,
     val wordSpacing: Float? = null,
     val textBaseline: TextBaseline? = null,

@@ -14,6 +14,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.text.StaticLayoutCompat
 import androidx.text.style.BaselineShiftSpan
+import androidx.text.style.FontFeatureSpan
 import androidx.text.style.LetterSpacingSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
@@ -737,6 +738,26 @@ class ParagraphAndroidTest {
             paragraph.underlyingText,
             hasSpan(TypefaceSpan::class, expectedStart, expectedEnd) { span ->
                 span.typeface == expectedTypeface
+            })
+    }
+
+    @Test
+    fun textStyle_fontFeatureSetting_setSpanOnText() {
+        val text = "abc"
+        val fontFeatureSettings = "\"kern\" 0"
+        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(FontFeatureSpan::class, 0, "abc".length) {
+                it.fontFeatureSettings == fontFeatureSettings
             })
     }
 

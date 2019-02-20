@@ -43,6 +43,7 @@ import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
 import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.TextLayout
 import androidx.text.style.BaselineShiftSpan
+import androidx.text.style.FontFeatureSpan
 import androidx.text.style.LetterSpacingSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
@@ -293,6 +294,15 @@ internal class ParagraphAndroid constructor(
             style.fontSize?.let {
                 spannableString.setSpan(
                     AbsoluteSizeSpan(it.roundToInt()),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+
+            style.fontFeatureSettings?.let {
+                spannableString.setSpan(
+                    FontFeatureSpan(it),
                     start,
                     end,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
