@@ -13,7 +13,7 @@ plugins {
 dependencies {
     api project(":ui-core")
     api project(":ui-framework")
-    api project(":ui-core-adapter")
+    api project(":ui-framework-adapter")
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)

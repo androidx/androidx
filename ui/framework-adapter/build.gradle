@@ -37,10 +37,10 @@ android {
 }
 
 supportLibrary {
-    name = "Androidx UI Framework core IR-less adapter for R4a"
+    name = "Androidx UI Framework framework IR-less adapter for R4a"
     publish = true
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
-    description = "core components adapter for androidx UI."
+    description = "framework components adapter for androidx UI."
 }

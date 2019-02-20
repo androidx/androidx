@@ -28,7 +28,7 @@ dependencies {
     api "androidx.annotation:annotation:1.0.0"
     api project(":ui-core")
     api project(':ui-framework')
-    api project(':ui-core-adapter')
+    api project(':ui-framework-adapter')
     api project(':ui-layout-adapter')
     api project(':ui-port')
     api(KOTLIN_R4A_STDLIB)
