@@ -43,6 +43,8 @@ public class ProxyControllerTest {
 
     @Before
     public void setUp() throws IOException {
+        WebkitUtils.checkFeature(WebViewFeature.PROXY_OVERRIDE);
+
         mWebViewOnUiThread = new androidx.webkit.WebViewOnUiThread();
         mContentServer = new MockWebServer();
         mProxyServer = new MockWebServer();
@@ -52,6 +54,8 @@ public class ProxyControllerTest {
 
     @After
     public void tearDown() throws Exception {
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.PROXY_OVERRIDE)) return;
+
         clearProxyOverrideSync();
         if (mWebViewOnUiThread != null) {
             mWebViewOnUiThread.cleanUp();
@@ -71,8 +75,6 @@ public class ProxyControllerTest {
      */
     @Test
     public void testCallbacks() throws Exception {
-        WebkitUtils.checkFeature(WebViewFeature.PROXY_OVERRIDE);
-
         // Test setProxyOverride's callback
         setProxyOverrideSync(new ProxyConfig.Builder().build());
         // Test clearProxyOverride's callback with a proxy override setting
@@ -87,8 +89,6 @@ public class ProxyControllerTest {
      */
     @Test
     public void testProxyOverride() throws Exception {
-        WebkitUtils.checkFeature(WebViewFeature.PROXY_OVERRIDE);
-
         final String contentUrl = mContentServer.url("/").toString();
         final String proxyUrl = mProxyServer.getHostName() + ":" + mProxyServer.getPort();
 
@@ -124,8 +124,6 @@ public class ProxyControllerTest {
      */
     @Test
     public void testProxyOverrideLocalhost() throws Exception {
-        WebkitUtils.checkFeature(WebViewFeature.PROXY_OVERRIDE);
-
         final String contentUrl = mContentServer.url("/").toString();
         int proxyServerRequestCount = mProxyServer.getRequestCount();
 
@@ -147,7 +145,6 @@ public class ProxyControllerTest {
      */
     @Test
     public void testValidInput() throws Exception {
-        WebkitUtils.checkFeature(WebViewFeature.PROXY_OVERRIDE);
         ProxyConfig validRules = new ProxyConfig.Builder()
                 .addProxyRule("direct://")
                 .addProxyRule("www.example.com")
@@ -177,7 +174,6 @@ public class ProxyControllerTest {
      */
     @Test
     public void testInvalidProxyUrls() throws Exception {
-        WebkitUtils.checkFeature(WebViewFeature.PROXY_OVERRIDE);
         String[] invalidProxyUrls = {
                 null,
                 "", // empty
@@ -206,7 +202,6 @@ public class ProxyControllerTest {
      */
     @Test
     public void testInvalidBypassRules() throws Exception {
-        WebkitUtils.checkFeature(WebViewFeature.PROXY_OVERRIDE);
         String[] invalidBypassRules = {
                 null,
                 "", // empty
