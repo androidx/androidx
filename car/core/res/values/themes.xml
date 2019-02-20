@@ -44,7 +44,8 @@ limitations under the License.
         <item name="android:progressBackgroundTint">@color/car_seekbar_track_background_dark</item>
         <item name="android:progressTint">?attr/android:colorControlActivated</item>
         <item name="android:secondaryProgressTint">@color/car_seekbar_track_secondary_progress</item>
-        <item name="android:selectableItemBackground">@drawable/car_card_ripple_background</item>
+        <item name="android:selectableItemBackground">@drawable/car_card_ripple_background_light</item>
+        <item name="android:selectableItemBackgroundBorderless">@drawable/car_button_ripple_background_light</item>
         <item name="android:seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
         <item name="android:textColor">@color/car_body1_light</item>
         <item name="android:textColorPrimary">@color/car_display1_light</item>
@@ -53,7 +54,7 @@ limitations under the License.
         <item name="android:spinnerStyle">@style/Widget.Spinner.Car</item>
         <item name="android:spinnerItemStyle">@style/CarSpinnerItem</item>
         <item name="android:spinnerDropDownItemStyle">@style/CarSpinnerItem</item>
-        <item name="actionBarItemBackground">@drawable/car_card_ripple_background</item>
+        <item name="actionBarItemBackground">@drawable/car_card_ripple_background_light</item>
         <item name="actionBarSize">@dimen/car_app_bar_height</item>
         <item name="actionButtonStyle">@style/Widget.Car.ActionButton.Light</item>
         <item name="actionMenuTextAppearance">@style/TextAppearance.Car.ActionBar.Menu</item>
@@ -79,6 +80,8 @@ limitations under the License.
         <item name="pagedListViewStyle">@style/Widget.Car.List.Light</item>
         <item name="pagedScrollBarViewStyle">@style/Widget.Car.Scrollbar.Light</item>
         <item name="seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
+        <item name="selectableItemBackground">@drawable/car_card_ripple_background_light</item>
+        <item name="selectableItemBackgroundBorderless">@drawable/car_button_ripple_background_light</item>
         <item name="switchStyle">@style/Widget.Car.Switch</item>
         <item name="tabStyle">@style/Widget.Car.TabLayout</item>
         <item name="checkboxStyle">@style/Widget.Car.CheckBox.Light</item>
@@ -115,6 +118,7 @@ limitations under the License.
         <item name="android:progressTint">?attr/android:colorControlActivated</item>
         <item name="android:secondaryProgressTint">@color/car_seekbar_track_secondary_progress</item>
         <item name="android:selectableItemBackground">@drawable/car_card_ripple_background</item>
+        <item name="android:selectableItemBackgroundBorderless">@drawable/car_button_ripple_background</item>
         <item name="android:spinnerStyle">@style/Widget.Spinner.Car</item>
         <item name="android:spinnerItemStyle">@style/CarSpinnerItem</item>
         <item name="android:spinnerDropDownItemStyle">@style/CarSpinnerItem</item>
@@ -149,6 +153,8 @@ limitations under the License.
         <item name="pagedListViewStyle">@style/Widget.Car.List</item>
         <item name="pagedScrollBarViewStyle">@style/Widget.Car.Scrollbar</item>
         <item name="seekBarStyle">@style/Widget.Car.SeekBar</item>
+        <item name="selectableItemBackground">@drawable/car_card_ripple_background</item>
+        <item name="selectableItemBackgroundBorderless">@drawable/car_button_ripple_background</item>
         <item name="switchStyle">@style/Widget.Car.Switch</item>
         <item name="checkboxStyle">@style/Widget.Car.CheckBox</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation</item>
