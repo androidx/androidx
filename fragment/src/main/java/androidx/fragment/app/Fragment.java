@@ -1576,7 +1576,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mCalled = true;
-        mSavedStateRegistryController.performRestore(savedInstanceState);
         restoreChildFragmentState(savedInstanceState);
         if (mChildFragmentManager != null
                 && !mChildFragmentManager.isStateAtLeast(Fragment.CREATED)) {
@@ -2520,6 +2519,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
         mState = CREATED;
         mCalled = false;
+        mSavedStateRegistryController.performRestore(savedInstanceState);
         onCreate(savedInstanceState);
         mIsCreated = true;
         if (!mCalled) {
