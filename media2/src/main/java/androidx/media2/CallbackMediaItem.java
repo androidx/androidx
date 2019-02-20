@@ -17,6 +17,7 @@
 package androidx.media2;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.Preconditions;
 import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelUtils;
@@ -36,7 +37,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 public class CallbackMediaItem extends MediaItem {
     @NonParcelField
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            DataSourceCallback mDataSourceCallback;
+    DataSourceCallback mDataSourceCallback;
 
     /**
      * Used for VersionedParcelable
@@ -64,7 +65,7 @@ public class CallbackMediaItem extends MediaItem {
     /**
      * This Builder class simplifies the creation of a {@link CallbackMediaItem} object.
      */
-    public static final class Builder extends BuilderBase<Builder> {
+    public static final class Builder extends MediaItem.Builder {
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
                 DataSourceCallback mDataSourceCallback;
@@ -78,11 +79,33 @@ public class CallbackMediaItem extends MediaItem {
             mDataSourceCallback = dsc2;
         }
 
+        // Override just to change return type.
+        @NonNull
+        @Override
+        public Builder setMetadata(@Nullable MediaMetadata metadata) {
+            return (Builder) super.setMetadata(metadata);
+        }
+
+        // Override just to change return type.
+        @NonNull
+        @Override
+        public Builder setStartPosition(long position) {
+            return (Builder) super.setStartPosition(position);
+        }
+
+        // Override just to change return type.
+        @NonNull
+        @Override
+        public Builder setEndPosition(long position) {
+            return (Builder) super.setEndPosition(position);
+        }
+
         /**
          * @return A new CallbackMediaItem with values supplied by the Builder.
          */
+        @NonNull
         @Override
-        public @NonNull CallbackMediaItem build() {
+        public CallbackMediaItem build() {
             return new CallbackMediaItem(this);
         }
     }
