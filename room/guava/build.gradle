@@ -32,6 +32,7 @@ dependencies {
 
     api(SUPPORT_ANNOTATIONS, libs.support_exclude_config)
     api(GUAVA_ANDROID)
+    api(GUAVA_LISTENABLE_FUTURE)
 }
 
 supportLibrary {
