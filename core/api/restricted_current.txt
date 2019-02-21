@@ -108,9 +108,7 @@ package androidx.core.content {
 
 package androidx.core.content.pm {
 
-  }
 
-  }
 
   public class ShortcutInfoCompat {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.core.graphics.drawable.IconCompat! getIcon();
@@ -279,7 +277,6 @@ package androidx.core.graphics.drawable {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mType;
   }
 
-  }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface TintAwareDrawable {
     method public void setTint(@ColorInt int);
