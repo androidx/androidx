@@ -25,6 +25,7 @@ import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import com.google.r4a.Children
+import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
@@ -112,4 +113,24 @@ fun Container(
     }
 
     <container />
+}
+
+/**
+ * [Container] component required to workaround the R4A multiple modules issue.
+ */
+class ContainerComponent(
+    private val padding: EdgeInsets? = null,
+    private val color: Color? = null,
+    private val alignment: Alignment? = null,
+    private val margin: EdgeInsets? = null,
+    private val constraints: Constraints? = null,
+    private val width: Dimension? = null,
+    private val height: Dimension? = null,
+    @Children() private val children: () -> Unit
+) : Component() {
+    override fun compose() {
+        <Container padding color alignment margin constraints width height>
+            <children />
+        </Container>
+    }
 }

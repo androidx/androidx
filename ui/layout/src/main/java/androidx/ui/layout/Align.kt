@@ -25,6 +25,7 @@ import androidx.ui.core.center
 import androidx.ui.core.minus
 import androidx.ui.core.times
 import com.google.r4a.Children
+import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
@@ -116,4 +117,15 @@ fun Align(alignment: Alignment, @Children children: () -> Unit) {
 @Composable
 fun Center(@Children children: () -> Unit) {
     <Align alignment=Alignment.Center children />
+}
+
+/**
+ * [Center] component, required to workaround the R4A multiple modules issue.
+ */
+class CenterComponent(@Children private val children: () -> Unit) : Component() {
+    override fun compose() {
+        <Center>
+            <children />
+        </Center>
+    }
 }
