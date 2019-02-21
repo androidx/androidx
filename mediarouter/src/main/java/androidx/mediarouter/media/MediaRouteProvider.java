@@ -56,6 +56,12 @@ import java.util.concurrent.Executor;
  * by implementing {@link #onCreateRouteController} to return a {@link RouteController}
  * for a particular route.
  * </p><p>
+ * A media route provider can support
+ * {@link MediaRouteProviderDescriptor#supportsDynamicGroupRoute dynamic group} that
+ * allows the user to add or remove a route from the selected route dynamically.
+ * To control dynamic group, {@link DynamicGroupRouteController} returned by
+ * {@link #onCreateDynamicGroupRouteController} is used instead of {@link RouteController}.
+ * </p><p>
  * A media route provider may be used privately within the scope of a single
  * application process by calling {@link MediaRouter#addProvider MediaRouter.addProvider}
  * to add it to the local {@link MediaRouter}.  A media route provider may also be made
@@ -447,18 +453,13 @@ public abstract class MediaRouteProvider {
 
     /**
      * Provides control over a dynamic group route.
+     * A dynamic group route is a group of routes such that a route can be added or removed
+     * from the group by the user dynamically.
      */
     public abstract static class DynamicGroupRouteController extends RouteController {
         /**
-         * Gets the ID of the dynamic group route. Note that the route may have not been
-         * published yet by the time the {@link DynamicGroupRouteController} is created.
-         */
-
-        // TODO add @link annotation in front of MediaRouteCastDialog.
-        /**
-         * Gets the title of the groupable routes section on the UX such as
-         * androidx.mediarouter.app.MediaRouteCastDialog, which is proposed by
-         * {@link MediaRouteProvider}.
+         * Gets the title of the groupable routes section which will be shown to the user.
+         * It is provided by {@link MediaRouteProvider}.
          * e.g. "Add a device."
          */
         @Nullable
@@ -466,10 +467,9 @@ public abstract class MediaRouteProvider {
             return null;
         }
 
-        // TODO add @link annotation in front of MediaRouteCastDialog.
         /**
-         * Gets the title of the transferable routes section on the UX such as
-         * androidx.mediarouter.app.MediaRouteCastDialog, which is proposed by
+         * Gets the title of the transferable routes section which will be shown to the user.
+         * It is provided by {@link MediaRouteProvider}.
          * {@link MediaRouteProvider}.
          * e.g. "Play on group."
          */
@@ -517,6 +517,9 @@ public abstract class MediaRouteProvider {
          */
         public interface OnDynamicRoutesChangedListener {
             /**
+             * The provider should call this method when routes' properties change.
+             * (e.g. when a route becomes ungroupable)
+             *
              * @param controller the {@link DynamicGroupRouteController} which keeps this listener.
              * @param routes the collection of routes contains selected routes
              *               (can be unselectable or not)
