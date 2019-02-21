@@ -695,6 +695,7 @@ package androidx.appcompat.widget {
     method public android.view.View? getAnchorView();
     method @StyleRes public int getAnimationStyle();
     method public android.graphics.drawable.Drawable? getBackground();
+    method public android.graphics.Rect? getEpicenterBounds();
     method public int getHeight();
     method public int getHorizontalOffset();
     method public int getInputMethodMode();
@@ -721,6 +722,7 @@ package androidx.appcompat.widget {
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
     method public void setContentWidth(int);
     method public void setDropDownGravity(int);
+    method public void setEpicenterBounds(android.graphics.Rect?);
     method public void setHeight(int);
     method public void setHorizontalOffset(int);
     method public void setInputMethodMode(int);
