@@ -29,7 +29,7 @@ import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Density
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.MeasureBox
 import androidx.ui.core.Placeable
@@ -74,7 +74,7 @@ class ContainingViewTest {
     @Before
     fun setup() {
         activity = activityTestRule.activity
-        activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
+//        activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
         instrumentation = InstrumentationRegistry.getInstrumentation()
         // Kotlin IR compiler doesn't seem too happy with auto-conversion from
         // lambda to Runnable, so separate it here
@@ -212,17 +212,17 @@ class ContainingViewTest {
     }
 }
 
-private fun Placeable.place(x: Dimension, y: Dimension) {
+private fun Placeable.place(x: Dp, y: Dp) {
     // Place using reflection. TODO(popam) This should only be needed until the adapter packages are
     // removed as this module cannot depend on framework-adapter, so this is a temporary workaround.
     val placeBlockField = Placeable::class.java.getDeclaredField("placeBlock")
     placeBlockField.isAccessible = true
-    val placeBlock = placeBlockField.get(this) as (Dimension, Dimension) -> Unit
+    val placeBlock = placeBlockField.get(this) as (Dp, Dp) -> Unit
     placeBlock(x, y)
 }
 
 @Composable
-fun AtLeastSize(size: Dimension, @Children children: @Composable() () -> Unit) {
+fun AtLeastSize(size: Dp, @Children children: @Composable() () -> Unit) {
     <MeasureBox> constraints, measureOperations ->
         val measurables = measureOperations.collect(children)
         val newConstraints = Constraints(
@@ -249,7 +249,7 @@ fun AtLeastSize(size: Dimension, @Children children: @Composable() () -> Unit) {
 }
 
 @Composable
-fun Padding(size: Dimension, @Children children: @Composable() () -> Unit) {
+fun Padding(size: Dp, @Children children: @Composable() () -> Unit) {
     <MeasureBox> constraints, measureOperations ->
         val measurables = measureOperations.collect(children)
         val totalDiff = size * 2

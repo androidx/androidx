@@ -88,10 +88,10 @@ package androidx.ui.core {
     method public androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? getRef();
     method public androidx.ui.core.Size getSize();
     method public boolean getVisible();
-    method public androidx.ui.core.Dimension getX();
-    method public androidx.ui.core.Dimension getY();
-    method public void moveTo(androidx.ui.core.Dimension x, androidx.ui.core.Dimension y);
-    method public void resize(androidx.ui.core.Dimension width, androidx.ui.core.Dimension height);
+    method public androidx.ui.core.Dp getX();
+    method public androidx.ui.core.Dp getY();
+    method public void moveTo(androidx.ui.core.Dp x, androidx.ui.core.Dp y);
+    method public void resize(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
     method public void setConstraints(androidx.ui.core.Constraints p);
     method public void setMeasureBox(Object? p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
@@ -105,8 +105,8 @@ package androidx.ui.core {
     property public final androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? ref;
     property public final androidx.ui.core.Size size;
     property public final boolean visible;
-    property public final androidx.ui.core.Dimension x;
-    property public final androidx.ui.core.Dimension y;
+    property public final androidx.ui.core.Dp x;
+    property public final androidx.ui.core.Dp y;
   }
 
   public interface Owner {

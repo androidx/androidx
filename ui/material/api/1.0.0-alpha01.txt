@@ -238,16 +238,16 @@ package androidx.ui.material.borders {
   }
 
   public final class BorderSide {
-    ctor public BorderSide(androidx.ui.painting.Color color, androidx.ui.core.Dimension width, androidx.ui.material.borders.BorderStyle style);
+    ctor public BorderSide(androidx.ui.painting.Color color, androidx.ui.core.Dp width, androidx.ui.material.borders.BorderStyle style);
     ctor public BorderSide();
     method public androidx.ui.painting.Color component1();
-    method public androidx.ui.core.Dimension component2();
+    method public androidx.ui.core.Dp component2();
     method public androidx.ui.material.borders.BorderStyle component3();
-    method public androidx.ui.material.borders.BorderSide copy(androidx.ui.painting.Color color, androidx.ui.core.Dimension width, androidx.ui.material.borders.BorderStyle style);
+    method public androidx.ui.material.borders.BorderSide copy(androidx.ui.painting.Color color, androidx.ui.core.Dp width, androidx.ui.material.borders.BorderStyle style);
     method public androidx.ui.painting.Color getColor();
     method public static androidx.ui.material.borders.BorderSide getNone();
     method public androidx.ui.material.borders.BorderStyle getStyle();
-    method public androidx.ui.core.Dimension getWidth();
+    method public androidx.ui.core.Dp getWidth();
     method public androidx.ui.material.borders.BorderSide scale(float t);
     method public androidx.ui.painting.Paint toPaint(androidx.ui.core.Density density);
     field public static final androidx.ui.material.borders.BorderSide.Companion! Companion;
@@ -383,11 +383,11 @@ package androidx.ui.material.ripple {
 
   public final class BoundedRippleKt {
     ctor public BoundedRippleKt();
-    method public static void BoundedRipple(androidx.ui.core.Dimension? finalRadius = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHighlightChanged = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void BoundedRipple(androidx.ui.core.Dp? finalRadius = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHighlightChanged = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DefaultRippleEffectFactory extends androidx.ui.material.ripple.RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position touchPosition, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape, androidx.ui.core.Dimension? finalRadius, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, androidx.ui.material.borders.BorderRadius? clippingBorderRadius, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
+    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position touchPosition, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape, androidx.ui.core.Dp? finalRadius, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, androidx.ui.material.borders.BorderRadius? clippingBorderRadius, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
     field public static final androidx.ui.material.ripple.DefaultRippleEffectFactory! INSTANCE;
   }
 
@@ -402,20 +402,20 @@ package androidx.ui.material.ripple {
     method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? getBoundsCallback();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
     method public androidx.ui.material.borders.BorderRadius? getClippingBorderRadius();
-    method public androidx.ui.core.Dimension? getFinalRadius();
+    method public androidx.ui.core.Dp? getFinalRadius();
     method public kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? getOnHighlightChanged();
     method public androidx.ui.material.borders.BoxShape getShape();
     method public void setBounded(boolean p);
     method public void setBoundsCallback(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? p);
     method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setClippingBorderRadius(androidx.ui.material.borders.BorderRadius? p);
-    method public void setFinalRadius(androidx.ui.core.Dimension? p);
+    method public void setFinalRadius(androidx.ui.core.Dp? p);
     method public void setOnHighlightChanged(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? p);
     method public void setShape(androidx.ui.material.borders.BoxShape p);
     property public final boolean bounded;
     property public final kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback;
     property public final androidx.ui.material.borders.BorderRadius? clippingBorderRadius;
-    property public final androidx.ui.core.Dimension? finalRadius;
+    property public final androidx.ui.core.Dp? finalRadius;
     property public final kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? onHighlightChanged;
     property public final androidx.ui.material.borders.BoxShape shape;
   }
@@ -435,7 +435,7 @@ package androidx.ui.material.ripple {
 
   public abstract class RippleEffectFactory {
     ctor public RippleEffectFactory();
-    method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position touchPosition, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.RECTANGLE, androidx.ui.core.Dimension? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
+    method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position touchPosition, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.RECTANGLE, androidx.ui.core.Dp? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
   }
 
   public final class RippleSurface extends com.google.r4a.Component {
@@ -479,7 +479,7 @@ package androidx.ui.material.surface {
 
   public final class CardKt {
     ctor public CardKt();
-    method public static void Card(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), androidx.ui.painting.Color? color = ColorNotProvided, androidx.ui.core.Dimension elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Card(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), androidx.ui.painting.Color? color = ColorNotProvided, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DrawBorderKt {
@@ -494,12 +494,12 @@ package androidx.ui.material.surface {
 
   public final class DrawShadowKt {
     ctor public DrawShadowKt();
-    method public static void DrawShadow(androidx.ui.core.Dimension elevation, androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path> clipper, androidx.ui.painting.Color shadowColor);
+    method public static void DrawShadow(androidx.ui.core.Dp elevation, androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path> clipper, androidx.ui.painting.Color shadowColor);
   }
 
   public final class SurfaceKt {
     ctor public SurfaceKt();
-    method public static void Surface(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), androidx.ui.painting.Color? color = null, androidx.ui.core.Dimension elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Surface(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static com.google.r4a.Ambient<androidx.ui.painting.Color> getCurrentSurfaceShadowColor();
   }
 

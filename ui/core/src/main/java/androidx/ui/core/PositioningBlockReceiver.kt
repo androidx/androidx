@@ -20,7 +20,7 @@ package androidx.ui.core
  * Receiver scope for [layoutResult's] lambda.
  */
 class PositioningBlockReceiver {
-    fun Placeable.place(x: Dimension, y: Dimension) {
+    fun Placeable.place(x: Dp, y: Dp) {
         this.placeBlock(x, y)
     }
 }

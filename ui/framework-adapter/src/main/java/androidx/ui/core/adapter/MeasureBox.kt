@@ -19,7 +19,7 @@ package androidx.ui.core.adapter
 import androidx.ui.core.ComplexMeasureBox
 import androidx.ui.core.ComplexMeasureOperations
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.IntrinsicMeasureOperations
 import androidx.ui.core.LayoutKt
 import androidx.ui.core.Measurable
@@ -92,7 +92,7 @@ class ComplexMeasureBoxReceiver internal constructor(
      * Set the min intrinsic width of the current layout. The block is not aware of constraints,
      * and is unable to measure their children.
      */
-    fun minIntrinsicWidth(block: IntrinsicMeasurementsReceiver.(Dimension) -> Dimension) {
+    fun minIntrinsicWidth(block: IntrinsicMeasurementsReceiver.(Dp) -> Dp) {
         complexMeasureOperations.minIntrinsicWidth { h, intrinsics ->
             val intrinsicMeasurementsReceiver =
                     IntrinsicMeasurementsReceiver(this::collect, intrinsics)
@@ -106,7 +106,7 @@ class ComplexMeasureBoxReceiver internal constructor(
      * Set the max intrinsic width of the current layout. The block is not aware of constraints,
      * and is unable to measure their children.
      */
-    fun maxIntrinsicWidth(block: IntrinsicMeasurementsReceiver.(Dimension) -> Dimension) {
+    fun maxIntrinsicWidth(block: IntrinsicMeasurementsReceiver.(Dp) -> Dp) {
         complexMeasureOperations.maxIntrinsicWidth { h, intrinsics ->
             val intrinsicMeasurementsReceiver =
                     IntrinsicMeasurementsReceiver(this::collect, intrinsics)
@@ -120,7 +120,7 @@ class ComplexMeasureBoxReceiver internal constructor(
      * Set the min intrinsic height of the current layout. The block is not aware of constraints,
      * and is unable to measure their children.
      */
-    fun minIntrinsicHeight(block: IntrinsicMeasurementsReceiver.(Dimension) -> Dimension) {
+    fun minIntrinsicHeight(block: IntrinsicMeasurementsReceiver.(Dp) -> Dp) {
         complexMeasureOperations.minIntrinsicHeight { w, intrinsics ->
             val intrinsicMeasurementsReceiver =
                     IntrinsicMeasurementsReceiver(this::collect, intrinsics)
@@ -134,7 +134,7 @@ class ComplexMeasureBoxReceiver internal constructor(
      * Set the max intrinsic height of the current layout. The block is not aware of constraints,
      * and is unable to measure their children.
      */
-    fun maxIntrinsicHeight(block: IntrinsicMeasurementsReceiver.(Dimension) -> Dimension) {
+    fun maxIntrinsicHeight(block: IntrinsicMeasurementsReceiver.(Dp) -> Dp) {
         complexMeasureOperations.maxIntrinsicHeight { w, intrinsics ->
             val intrinsicMeasurementsReceiver =
                     IntrinsicMeasurementsReceiver(this::collect, intrinsics)
@@ -154,10 +154,10 @@ class IntrinsicMeasurementsReceiver internal constructor(
     private val intrinsics: IntrinsicMeasureOperations
 ) {
     fun collect(@Children children: () -> Unit) = doCollect(children)
-    fun Measurable.minIntrinsicWidth(h: Dimension) = intrinsics.minIntrinsicWidth(this, h)
-    fun Measurable.maxIntrinsicWidth(h: Dimension) = intrinsics.maxIntrinsicWidth(this, h)
-    fun Measurable.minIntrinsicHeight(w: Dimension) = intrinsics.minIntrinsicHeight(this, w)
-    fun Measurable.maxIntrinsicHeight(w: Dimension) = intrinsics.maxIntrinsicHeight(this, w)
+    fun Measurable.minIntrinsicWidth(h: Dp) = intrinsics.minIntrinsicWidth(this, h)
+    fun Measurable.maxIntrinsicWidth(h: Dp) = intrinsics.maxIntrinsicWidth(this, h)
+    fun Measurable.minIntrinsicHeight(w: Dp) = intrinsics.minIntrinsicHeight(this, w)
+    fun Measurable.maxIntrinsicHeight(w: Dp) = intrinsics.maxIntrinsicHeight(this, w)
 }
 
 /**
@@ -167,23 +167,23 @@ class IntrinsicMeasurementsReceiver internal constructor(
 class LayoutBlockReceiver internal constructor(
     private val measure: (Measurable, Constraints) -> Placeable,
     private val intrinsics: IntrinsicMeasureOperations,
-    private val doLayoutResult: (Dimension, Dimension, () -> Unit) -> Unit,
+    private val doLayoutResult: (Dp, Dp, () -> Unit) -> Unit,
     private val doCollect: (@Composable() () -> Unit) -> List<Measurable>
 ) {
     fun Measurable.measure(constraints: Constraints) = measure(this, constraints)
     fun layoutResult(
-        width: Dimension,
-        height: Dimension,
+        width: Dp,
+        height: Dp,
         block: PositioningBlockReceiver.() -> Unit
     ) {
         val positioningBlockReceiver = PositioningBlockReceiver()
         doLayoutResult(width, height, { with(positioningBlockReceiver) { block } })
     }
     fun collect(@Children children: () -> Unit) = doCollect(children)
-    fun Measurable.minIntrinsicWidth(h: Dimension) = intrinsics.minIntrinsicWidth(this, h)
-    fun Measurable.maxIntrinsicWidth(h: Dimension) = intrinsics.maxIntrinsicWidth(this, h)
-    fun Measurable.minIntrinsicHeight(w: Dimension) = intrinsics.minIntrinsicHeight(this, w)
-    fun Measurable.maxIntrinsicHeight(w: Dimension) = intrinsics.maxIntrinsicHeight(this, w)
+    fun Measurable.minIntrinsicWidth(h: Dp) = intrinsics.minIntrinsicWidth(this, h)
+    fun Measurable.maxIntrinsicWidth(h: Dp) = intrinsics.maxIntrinsicWidth(this, h)
+    fun Measurable.minIntrinsicHeight(w: Dp) = intrinsics.minIntrinsicHeight(this, w)
+    fun Measurable.maxIntrinsicHeight(w: Dp) = intrinsics.maxIntrinsicHeight(this, w)
 }
 
 /**
@@ -195,7 +195,7 @@ class MeasureBoxReceiver internal constructor(
     fun collect(@Children children: () -> Unit) = measureOperations.collect(children)
     fun Measurable.measure(constraints: Constraints) =
             measureOperations.measure(this, constraints)
-    fun layout(width: Dimension, height: Dimension, block: PositioningBlockReceiver.() -> Unit) {
+    fun layout(width: Dp, height: Dp, block: PositioningBlockReceiver.() -> Unit) {
         measureOperations.layout(width, height,
             { with(PositioningBlockReceiver()) { block() } })
     }

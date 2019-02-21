@@ -20,7 +20,6 @@ import android.app.Activity
 import android.util.TypedValue
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.testutils.PollingCheck
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -30,7 +29,7 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class DimensionDeviceTest {
+class DpDeviceTest {
     @get:Rule
     val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
 
@@ -39,7 +38,6 @@ class DimensionDeviceTest {
     @Before
     fun setup() {
         activity = activityTestRule.activity
-        PollingCheck.waitFor { activity.hasWindowFocus() }
     }
 
     @Test

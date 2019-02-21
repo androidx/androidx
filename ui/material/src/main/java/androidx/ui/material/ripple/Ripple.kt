@@ -17,7 +17,7 @@
 package androidx.ui.material.ripple
 
 import androidx.ui.core.Bounds
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.Position
@@ -92,7 +92,7 @@ class Ripple(
      * the size of the RECTANGLE provided by [boundsCallback], or the size of
      * the [Ripple] itself.
      */
-    var finalRadius: Dimension? = null
+    var finalRadius: Dp? = null
     /**
      * The clipping radius of the containing rect.
      *

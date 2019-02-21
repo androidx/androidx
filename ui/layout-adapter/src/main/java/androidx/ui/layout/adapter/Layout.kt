@@ -17,7 +17,7 @@
 package androidx.ui.core.adapter
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexChildren
 import androidx.ui.layout.StackChildren
@@ -161,8 +161,8 @@ fun Container(
     alignment: androidx.ui.layout.Alignment? = null,
     margin: EdgeInsets? = null,
     constraints: Constraints? = null,
-    width: Dimension? = null,
-    height: Dimension? = null,
+    width: Dp? = null,
+    height: Dp? = null,
     @Children() block: () -> Unit
 ) {
     ContainerKt.Container(padding, color, alignment, margin, constraints, width, height, block)

@@ -198,7 +198,7 @@ class AndroidCraneView constructor(context: Context)
         val size = MeasureSpec.getSize(measureSpec).toDp(Density(context))
         return when (mode) {
             MeasureSpec.EXACTLY -> ConstraintRange(size, size)
-            MeasureSpec.UNSPECIFIED -> ConstraintRange(0.dp, Dimension.Infinity)
+            MeasureSpec.UNSPECIFIED -> ConstraintRange(0.dp, Dp.Infinity)
             MeasureSpec.AT_MOST -> ConstraintRange(0.dp, size)
             else -> throw IllegalStateException()
         }
@@ -233,7 +233,7 @@ class AndroidCraneView constructor(context: Context)
     }
 }
 
-private class ConstraintRange(val min: Dimension, val max: Dimension)
+private class ConstraintRange(val min: Dp, val max: Dp)
 
 /**
  * Defines a View used to keep RenderNode information on LayoutNodes and DrawNodes.

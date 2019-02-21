@@ -17,7 +17,7 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.withTight
 import androidx.ui.engine.geometry.Rect
@@ -54,8 +54,8 @@ fun Container(
     alignment: Alignment? = null,
     margin: EdgeInsets? = null,
     constraints: Constraints? = null,
-    width: Dimension? = null,
-    height: Dimension? = null,
+    width: Dp? = null,
+    height: Dp? = null,
     @Children() children: () -> Unit
 ) {
     var container = children
@@ -124,8 +124,8 @@ class ContainerComponent(
     private val alignment: Alignment? = null,
     private val margin: EdgeInsets? = null,
     private val constraints: Constraints? = null,
-    private val width: Dimension? = null,
-    private val height: Dimension? = null,
+    private val width: Dp? = null,
+    private val height: Dp? = null,
     @Children() private val children: () -> Unit
 ) : Component() {
     override fun compose() {

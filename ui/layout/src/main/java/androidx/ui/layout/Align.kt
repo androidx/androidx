@@ -17,7 +17,7 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.Position
 import androidx.ui.core.Size
@@ -83,12 +83,12 @@ fun Align(alignment: Alignment, @Children children: () -> Unit) {
 
             // The layout is as large as possible for bounded constraints,
             // or wrap content otherwise.
-            val layoutWidth = if (constraints.maxWidth != Dimension.Infinity) {
+            val layoutWidth = if (constraints.maxWidth != Dp.Infinity) {
                 constraints.maxWidth
             } else {
                 placeable.width
             }
-            val layoutHeight = if (constraints.maxHeight != Dimension.Infinity) {
+            val layoutHeight = if (constraints.maxHeight != Dp.Infinity) {
                 constraints.maxHeight
             } else {
                 placeable.height

@@ -17,7 +17,7 @@
 package androidx.ui.material.borders
 
 import androidx.ui.core.Density
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.compareTo
 import androidx.ui.core.dp
 import androidx.ui.core.lerp
@@ -73,7 +73,7 @@ data class BorderSide(
      * zero-width border is a hairline border. To omit the border
      * entirely, set the [style] to [BorderStyle.NONE].
      */
-    val width: Dimension = 1.dp,
+    val width: Dp = 1.dp,
     /**
      * The style of this side of the border.
      *

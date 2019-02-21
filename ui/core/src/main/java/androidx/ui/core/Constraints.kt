@@ -38,10 +38,10 @@ package androidx.ui.core
  * as it depends on the child layout model, but is a common behavior for core layout components).
  */
 data class Constraints(
-    val minWidth: Dimension = 0.dp,
-    val maxWidth: Dimension = Dimension.Infinity,
-    val minHeight: Dimension = 0.dp,
-    val maxHeight: Dimension = Dimension.Infinity
+    val minWidth: Dp = 0.dp,
+    val maxWidth: Dp = Dp.Infinity,
+    val minHeight: Dp = 0.dp,
+    val maxHeight: Dp = Dp.Infinity
 ) {
     init {
         assert(minWidth.dp.isFinite())
@@ -52,25 +52,25 @@ data class Constraints(
         /**
          * Creates constraints tight in both dimensions.
          */
-        fun tightConstraints(width: Dimension, height: Dimension) =
+        fun tightConstraints(width: Dp, height: Dp) =
             Constraints(width, width, height, height)
 
         /**
          * Creates constraints with tight width and loose height.
          */
-        fun tightConstraintsForWidth(width: Dimension) = Constraints(
+        fun tightConstraintsForWidth(width: Dp) = Constraints(
             minWidth = width,
             maxWidth = width,
             minHeight = 0.dp,
-            maxHeight = Dimension.Infinity
+            maxHeight = Dp.Infinity
         )
 
         /**
          * Creates constraints with tight height and loose width.
          */
-        fun tightConstraintsForHeight(height: Dimension) = Constraints(
+        fun tightConstraintsForHeight(height: Dp) = Constraints(
             minWidth = 0.dp,
-            maxWidth = Dimension.Infinity,
+            maxWidth = Dp.Infinity,
             minHeight = height,
             maxHeight = height
         )
@@ -129,7 +129,7 @@ fun Constraints.enforce(otherConstraints: Constraints) = Constraints(
 /**
  * Returns a copy of the current instance, overriding the specified values to be tight.
  */
-fun Constraints.withTight(width: Dimension? = null, height: Dimension? = null) = Constraints(
+fun Constraints.withTight(width: Dp? = null, height: Dp? = null) = Constraints(
     minWidth = width ?: this.minWidth,
     maxWidth = width ?: this.maxWidth,
     minHeight = height ?: this.minHeight,

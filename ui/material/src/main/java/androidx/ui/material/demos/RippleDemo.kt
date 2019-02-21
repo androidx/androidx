@@ -17,7 +17,7 @@
 package androidx.ui.material.demos
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.minus
@@ -37,7 +37,7 @@ import com.google.r4a.composer
 // TODO("Andrey: Let's keep demos in 'ui-material' as well")
 
 @Composable
-internal fun FillAll(padding: Dimension, @Children children: () -> Unit) {
+internal fun FillAll(padding: Dp, @Children children: () -> Unit) {
     <MeasureBox> constraints ->
         val measurables = collect(children)
         val itemConstraints = Constraints.tightConstraints(constraints.maxWidth - padding * 2,

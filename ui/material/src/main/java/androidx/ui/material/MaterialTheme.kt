@@ -156,7 +156,7 @@ data class MaterialTypography(
     // TODO(clara): case
     // TODO(clara): letter spacing (specs don't match)
     // TODO(clara): b/123001228 need a font abstraction layer
-    // TODO(clara): fontSize should be a Dimension, translating here will loose context changes
+    // TODO(clara): fontSize should be a Dp, translating here will loose context changes
     val h1: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.w100,

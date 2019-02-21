@@ -55,22 +55,22 @@ internal class MeasurableImpl internal constructor(private val measureBox: Compl
         return MeasuredPlaceable(measureBox)
     }
 
-    internal fun minIntrinsicWidth(h: Dimension): Dimension {
+    internal fun minIntrinsicWidth(h: Dp): Dp {
         runBlock()
         return measureBox.minIntrinsicWidthBlock(h, IntrinsicMeasureOperations)
     }
 
-    internal fun maxIntrinsicWidth(h: Dimension): Dimension {
+    internal fun maxIntrinsicWidth(h: Dp): Dp {
         runBlock()
         return measureBox.maxIntrinsicWidthBlock(h, IntrinsicMeasureOperations)
     }
 
-    internal fun minIntrinsicHeight(w: Dimension): Dimension {
+    internal fun minIntrinsicHeight(w: Dp): Dp {
         runBlock()
         return measureBox.minIntrinsicHeightBlock(w, IntrinsicMeasureOperations)
     }
 
-    internal fun maxIntrinsicHeight(w: Dimension): Dimension {
+    internal fun maxIntrinsicHeight(w: Dp): Dp {
         runBlock()
         return measureBox.maxIntrinsicHeightBlock(w, IntrinsicMeasureOperations)
     }
@@ -87,14 +87,14 @@ internal class MeasuredPlaceable internal constructor(
     override val width = complexMeasureBox.layoutNode.size.width
     override val height = complexMeasureBox.layoutNode.size.height
     companion object {
-        internal fun place(complexMeasureBox: ComplexMeasureBox, x: Dimension, y: Dimension) {
+        internal fun place(complexMeasureBox: ComplexMeasureBox, x: Dp, y: Dp) {
             complexMeasureBox.moveTo(x, y)
             complexMeasureBox.placeChildren()
         }
     }
 }
 
-internal class DummyPlaceable(override val width: Dimension, override val height: Dimension)
+internal class DummyPlaceable(override val width: Dp, override val height: Dp)
     : Placeable({ _, _ -> })
 
 /**
@@ -143,7 +143,7 @@ class ComplexMeasureBox(@Children(composable = false) var block:
         Constraints,
         (Measurable, Constraints) -> Placeable,
         IntrinsicMeasureOperations,
-        (Dimension, Dimension, () -> Unit) -> Unit
+        (Dp, Dp, () -> Unit) -> Unit
     ) -> Unit = { _, _ , _, _ -> }
     internal var positioningBlock: () -> Unit = {}
     internal var minIntrinsicWidthBlock = IntrinsicMeasurementStub
@@ -199,17 +199,17 @@ class ComplexMeasureBox(@Children(composable = false) var block:
         }
     }
 
-    internal fun moveTo(x: Dimension, y: Dimension) {
+    internal fun moveTo(x: Dp, y: Dp) {
         layoutNode.moveTo(x, y)
     }
 
-    internal fun resize(width: Dimension, height: Dimension) {
+    internal fun resize(width: Dp, height: Dp) {
         layoutNode.resize(width, height)
     }
 
     companion object {
         // Default stub for intrinsic measurements blocks.
-        internal val IntrinsicMeasurementStub: (Dimension, IntrinsicMeasureOperations) -> Dimension
+        internal val IntrinsicMeasurementStub: (Dp, IntrinsicMeasureOperations) -> Dp
             = { _, _ -> throw NotImplementedError() }
     }
 }
@@ -219,12 +219,12 @@ class ComplexMeasureBox(@Children(composable = false) var block:
  */
 // TODO(popam): remove this when receiver scopes for lambdas are available
 object IntrinsicMeasureOperations {
-    fun minIntrinsicWidth(m: Measurable, h: Dimension) = (m as MeasurableImpl).minIntrinsicWidth(h)
-    fun maxIntrinsicWidth(m: Measurable, h: Dimension) = (m as MeasurableImpl).maxIntrinsicWidth(h)
-    fun minIntrinsicHeight(m: Measurable, w: Dimension) =
+    fun minIntrinsicWidth(m: Measurable, h: Dp) = (m as MeasurableImpl).minIntrinsicWidth(h)
+    fun maxIntrinsicWidth(m: Measurable, h: Dp) = (m as MeasurableImpl).maxIntrinsicWidth(h)
+    fun minIntrinsicHeight(m: Measurable, w: Dp) =
         (m as MeasurableImpl).minIntrinsicHeight(w)
 
-    fun maxIntrinsicHeight(m: Measurable, w: Dimension) =
+    fun maxIntrinsicHeight(m: Measurable, w: Dp) =
         (m as MeasurableImpl).maxIntrinsicHeight(w)
 }
 
@@ -280,7 +280,7 @@ class ComplexMeasureOperations internal constructor(
      */
     fun layout(block: (Constraints, (Measurable, Constraints) -> Placeable,
                        IntrinsicMeasureOperations,
-                       (Dimension, Dimension, () -> Unit) -> Unit) -> Unit) {
+                       (Dp, Dp, () -> Unit) -> Unit) -> Unit) {
         complexMeasureBox.layoutBlock = block
     }
 
@@ -288,7 +288,7 @@ class ComplexMeasureOperations internal constructor(
      * Set the min intrinsic width of the current layout. The block is not aware of constraints,
      * and is unable to measure their children.
      */
-    fun minIntrinsicWidth(block: (Dimension, IntrinsicMeasureOperations) -> Dimension) {
+    fun minIntrinsicWidth(block: (Dp, IntrinsicMeasureOperations) -> Dp) {
         complexMeasureBox.minIntrinsicWidthBlock = block
     }
 
@@ -296,7 +296,7 @@ class ComplexMeasureOperations internal constructor(
      * Set the max intrinsic width of the current layout. The block is not aware of constraints,
      * and is unable to measure their children.
      */
-    fun maxIntrinsicWidth(block: (Dimension, IntrinsicMeasureOperations) -> Dimension) {
+    fun maxIntrinsicWidth(block: (Dp, IntrinsicMeasureOperations) -> Dp) {
         complexMeasureBox.maxIntrinsicWidthBlock = block
     }
 
@@ -304,7 +304,7 @@ class ComplexMeasureOperations internal constructor(
      * Set the min intrinsic height of the current layout. The block is not aware of constraints,
      * and is unable to measure their children.
      */
-    fun minIntrinsicHeight(block: (Dimension, IntrinsicMeasureOperations) -> Dimension) {
+    fun minIntrinsicHeight(block: (Dp, IntrinsicMeasureOperations) -> Dp) {
         complexMeasureBox.minIntrinsicHeightBlock = block
     }
 
@@ -312,7 +312,7 @@ class ComplexMeasureOperations internal constructor(
      * Set the max intrinsic height of the current layout. The block is not aware of constraints,
      * and is unable to measure their children.
      */
-    fun maxIntrinsicHeight(block: (Dimension, IntrinsicMeasureOperations) -> Dimension) {
+    fun maxIntrinsicHeight(block: (Dp, IntrinsicMeasureOperations) -> Dp) {
         complexMeasureBox.maxIntrinsicHeightBlock = block
     }
 }
@@ -386,7 +386,7 @@ class MeasureBox(
 class MeasureOperations(
     private val complexMeasureOperations: ComplexMeasureOperations,
     private val complexMeasure: (Measurable, Constraints) -> Placeable,
-    private val complexLayoutResult: (Dimension, Dimension, () -> Unit) -> Unit
+    private val complexLayoutResult: (Dp, Dp, () -> Unit) -> Unit
 ) {
     /**
      * Compose [children] into the [MeasureBox] and return a list of [Measurable]s within
@@ -409,7 +409,7 @@ class MeasureOperations(
      * calls to [Placeable.place], defining the positions of the children relative to the current
      * layout.
      */
-    fun layout(width: Dimension, height: Dimension, block: () -> Unit) {
+    fun layout(width: Dp, height: Dp, block: () -> Unit) {
         complexLayoutResult(width, height, block)
     }
 }

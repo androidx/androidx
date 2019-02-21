@@ -16,7 +16,7 @@
 
 package androidx.ui.material.surface
 
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.dp
 import androidx.ui.material.Colors
 import androidx.ui.material.MaterialColors
@@ -56,7 +56,7 @@ fun Card(
      * The z-coordinate at which to place this surface. This controls the size
      * of the shadow below the surface.
      */
-    elevation: Dimension = 0.dp,
+    elevation: Dp = 0.dp,
     @Children children: () -> Unit
 ) {
     if (color == ColorNotProvided) {

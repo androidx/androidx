@@ -18,19 +18,19 @@ package androidx.r4a
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.adapter.Align
 import androidx.ui.core.adapter.Alignment
-import androidx.ui.core.adapter.Column
-import androidx.ui.core.adapter.ConstrainedBox
-import androidx.ui.core.adapter.ComplexMeasureBox
-import androidx.ui.core.adapter.Row
-import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.adapter.Center
+import androidx.ui.core.adapter.Column
+import androidx.ui.core.adapter.ComplexMeasureBox
+import androidx.ui.core.adapter.ConstrainedBox
 import androidx.ui.core.adapter.Container
 import androidx.ui.core.adapter.FlexColumn
 import androidx.ui.core.adapter.FlexRow
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.adapter.Padding
+import androidx.ui.core.adapter.Row
 import androidx.ui.core.adapter.Stack
 import androidx.ui.core.dp
 import androidx.ui.layout.EdgeInsets
@@ -44,7 +44,7 @@ import com.google.r4a.composer
  * dimensions are not specified.
  */
 @Composable
-fun SizedRectangle(color: Color, width: Dimension? = null, height: Dimension? = null) {
+fun SizedRectangle(color: Color, width: Dp? = null, height: Dp? = null) {
     <MeasureBox> constraints ->
         collect {
             <DrawRectangle color />
@@ -98,10 +98,10 @@ fun Wrapper(@Children() children: () -> Unit) {
         layout { constraints ->
             // Check the default intrinsic methods used by MeasureBoxes.
             // TODO(popam): make this a proper test instead
-            require(child.minIntrinsicWidth(Dimension.Infinity) == 90.dp)
-            require(child.maxIntrinsicWidth(Dimension.Infinity) == 450.dp)
-            require(child.minIntrinsicHeight(Dimension.Infinity) == 30.dp)
-            require(child.maxIntrinsicHeight(Dimension.Infinity) == 150.dp)
+            require(child.minIntrinsicWidth(Dp.Infinity) == 90.dp)
+            require(child.maxIntrinsicWidth(Dp.Infinity) == 450.dp)
+            require(child.minIntrinsicHeight(Dp.Infinity) == 30.dp)
+            require(child.maxIntrinsicHeight(Dp.Infinity) == 150.dp)
             val placeable = child.measure(constraints)
             layoutResult(placeable.width, placeable.height) {
                 placeable.place(0.dp, 0.dp)

@@ -55,28 +55,28 @@ package androidx.ui.layout {
   }
 
   public final class ContainerComponent extends com.google.r4a.Component {
-    ctor public ContainerComponent(androidx.ui.layout.EdgeInsets? padding, androidx.ui.painting.Color? color, androidx.ui.layout.Alignment? alignment, androidx.ui.layout.EdgeInsets? margin, androidx.ui.core.Constraints? constraints, androidx.ui.core.Dimension? width, androidx.ui.core.Dimension? height, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    ctor public ContainerComponent(androidx.ui.layout.EdgeInsets? padding, androidx.ui.painting.Color? color, androidx.ui.layout.Alignment? alignment, androidx.ui.layout.EdgeInsets? margin, androidx.ui.core.Constraints? constraints, androidx.ui.core.Dp? width, androidx.ui.core.Dp? height, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void compose();
   }
 
   public final class ContainerKt {
     ctor public ContainerKt();
-    method public static void Container(androidx.ui.layout.EdgeInsets? padding = null, androidx.ui.painting.Color? color = null, androidx.ui.layout.Alignment? alignment = null, androidx.ui.layout.EdgeInsets? margin = null, androidx.ui.core.Constraints? constraints = null, androidx.ui.core.Dimension? width = null, androidx.ui.core.Dimension? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Container(androidx.ui.layout.EdgeInsets? padding = null, androidx.ui.painting.Color? color = null, androidx.ui.layout.Alignment? alignment = null, androidx.ui.layout.EdgeInsets? margin = null, androidx.ui.core.Constraints? constraints = null, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class EdgeInsets {
-    ctor public EdgeInsets(androidx.ui.core.Dimension left, androidx.ui.core.Dimension top, androidx.ui.core.Dimension right, androidx.ui.core.Dimension bottom);
+    ctor public EdgeInsets(androidx.ui.core.Dp left, androidx.ui.core.Dp top, androidx.ui.core.Dp right, androidx.ui.core.Dp bottom);
     ctor public EdgeInsets();
-    ctor public EdgeInsets(androidx.ui.core.Dimension all);
-    method public androidx.ui.core.Dimension component1();
-    method public androidx.ui.core.Dimension component2();
-    method public androidx.ui.core.Dimension component3();
-    method public androidx.ui.core.Dimension component4();
-    method public androidx.ui.layout.EdgeInsets copy(androidx.ui.core.Dimension left, androidx.ui.core.Dimension top, androidx.ui.core.Dimension right, androidx.ui.core.Dimension bottom);
-    method public androidx.ui.core.Dimension getBottom();
-    method public androidx.ui.core.Dimension getLeft();
-    method public androidx.ui.core.Dimension getRight();
-    method public androidx.ui.core.Dimension getTop();
+    ctor public EdgeInsets(androidx.ui.core.Dp all);
+    method public androidx.ui.core.Dp component1();
+    method public androidx.ui.core.Dp component2();
+    method public androidx.ui.core.Dp component3();
+    method public androidx.ui.core.Dp component4();
+    method public androidx.ui.layout.EdgeInsets copy(androidx.ui.core.Dp left, androidx.ui.core.Dp top, androidx.ui.core.Dp right, androidx.ui.core.Dp bottom);
+    method public androidx.ui.core.Dp getBottom();
+    method public androidx.ui.core.Dp getLeft();
+    method public androidx.ui.core.Dp getRight();
+    method public androidx.ui.core.Dp getTop();
   }
 
   public final class FlexChildren {
@@ -107,7 +107,7 @@ package androidx.ui.layout {
   public final class StackChildren {
     ctor public StackChildren();
     method public void aligned(androidx.ui.layout.Alignment alignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void positioned(androidx.ui.core.Dimension? leftInset = null, androidx.ui.core.Dimension? topInset = null, androidx.ui.core.Dimension? rightInset = null, androidx.ui.core.Dimension? bottomInset = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void positioned(androidx.ui.core.Dp? leftInset = null, androidx.ui.core.Dp? topInset = null, androidx.ui.core.Dp? rightInset = null, androidx.ui.core.Dp? bottomInset = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class StackKt {
