@@ -19,7 +19,7 @@ package androidx.ui.material.ripple
 import androidx.ui.core.Bounds
 import androidx.ui.core.Dimension
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.engine.geometry.BorderRadius
+import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BoxShape
 import com.google.r4a.Children
 import com.google.r4a.Composable

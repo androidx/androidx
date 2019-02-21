@@ -45,12 +45,6 @@ package androidx.ui.material {
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getContent();
   }
 
-  public final class MaterialAnimationUtilKt {
-    ctor public MaterialAnimationUtilKt();
-    method public static androidx.ui.animation.Tween<androidx.ui.core.Dimension> Tween(androidx.ui.core.Dimension? begin = null, androidx.ui.core.Dimension? end = null);
-    method public static void UseTickerProvider(kotlin.jvm.functions.Function1<? super androidx.ui.scheduler.ticker.TickerProvider,kotlin.Unit> children);
-  }
-
   public final class MaterialColors {
     ctor public MaterialColors(androidx.ui.painting.Color primary, androidx.ui.painting.Color primaryVariant, androidx.ui.painting.Color secondary, androidx.ui.painting.Color secondaryVariant, androidx.ui.painting.Color background, androidx.ui.painting.Color surface, androidx.ui.painting.Color error, androidx.ui.painting.Color onPrimary, androidx.ui.painting.Color onSecondary, androidx.ui.painting.Color onBackground, androidx.ui.painting.Color onSurface, androidx.ui.painting.Color onError);
     ctor public MaterialColors();
@@ -168,6 +162,81 @@ package androidx.ui.material {
 
 package androidx.ui.material.borders {
 
+  public final class BorderRadius extends androidx.ui.material.borders.BorderRadiusGeometry {
+    ctor public BorderRadius(androidx.ui.engine.geometry.Radius topLeft, androidx.ui.engine.geometry.Radius topRight, androidx.ui.engine.geometry.Radius bottomLeft, androidx.ui.engine.geometry.Radius bottomRight);
+    ctor public BorderRadius();
+    method public operator androidx.ui.material.borders.BorderRadius div(float other);
+    method public androidx.ui.engine.geometry.Radius getBottomEnd();
+    method public androidx.ui.engine.geometry.Radius getBottomLeft();
+    method public androidx.ui.engine.geometry.Radius getBottomRight();
+    method public androidx.ui.engine.geometry.Radius getBottomStart();
+    method public androidx.ui.engine.geometry.Radius getTopEnd();
+    method public androidx.ui.engine.geometry.Radius getTopLeft();
+    method public androidx.ui.engine.geometry.Radius getTopRight();
+    method public androidx.ui.engine.geometry.Radius getTopStart();
+    method public static androidx.ui.material.borders.BorderRadius getZero();
+    method public operator androidx.ui.material.borders.BorderRadius minus(androidx.ui.material.borders.BorderRadiusGeometry other);
+    method public operator androidx.ui.material.borders.BorderRadius plus(androidx.ui.material.borders.BorderRadius other);
+    method public operator androidx.ui.material.borders.BorderRadius rem(float other);
+    method public androidx.ui.material.borders.BorderRadius resolve(androidx.ui.engine.text.TextDirection? direction);
+    method public operator androidx.ui.material.borders.BorderRadius times(float other);
+    method public androidx.ui.engine.geometry.RRect toRRect(androidx.ui.engine.geometry.Rect rect);
+    method public androidx.ui.material.borders.BorderRadiusGeometry truncDiv(float other);
+    method public androidx.ui.material.borders.BorderRadius unaryMinus();
+    property public androidx.ui.engine.geometry.Radius bottomEnd;
+    property public androidx.ui.engine.geometry.Radius bottomStart;
+    property public androidx.ui.engine.geometry.Radius topEnd;
+    property public androidx.ui.engine.geometry.Radius topStart;
+    field public static final androidx.ui.material.borders.BorderRadius.Companion! Companion;
+  }
+
+  public static final class BorderRadius.Companion {
+    method public androidx.ui.material.borders.BorderRadius all(androidx.ui.engine.geometry.Radius radius);
+    method public androidx.ui.material.borders.BorderRadius circular(float radius);
+    method public androidx.ui.material.borders.BorderRadius getZero();
+    method public androidx.ui.material.borders.BorderRadius horizontal(androidx.ui.engine.geometry.Radius left = Radius.zero, androidx.ui.engine.geometry.Radius right = Radius.zero);
+    method public androidx.ui.material.borders.BorderRadius vertical(androidx.ui.engine.geometry.Radius top = Radius.zero, androidx.ui.engine.geometry.Radius bottom = Radius.zero);
+    property public final androidx.ui.material.borders.BorderRadius Zero;
+  }
+
+  public abstract class BorderRadiusGeometry {
+    ctor public BorderRadiusGeometry();
+    method public androidx.ui.material.borders.BorderRadiusGeometry add(androidx.ui.material.borders.BorderRadiusGeometry other);
+    method public abstract operator androidx.ui.material.borders.BorderRadiusGeometry div(float other);
+    method public abstract androidx.ui.engine.geometry.Radius getBottomEnd();
+    method public abstract androidx.ui.engine.geometry.Radius getBottomLeft();
+    method public abstract androidx.ui.engine.geometry.Radius getBottomRight();
+    method public abstract androidx.ui.engine.geometry.Radius getBottomStart();
+    method public abstract androidx.ui.engine.geometry.Radius getTopEnd();
+    method public abstract androidx.ui.engine.geometry.Radius getTopLeft();
+    method public abstract androidx.ui.engine.geometry.Radius getTopRight();
+    method public abstract androidx.ui.engine.geometry.Radius getTopStart();
+    method public abstract operator androidx.ui.material.borders.BorderRadiusGeometry rem(float other);
+    method public abstract androidx.ui.material.borders.BorderRadius resolve(androidx.ui.engine.text.TextDirection? direction);
+    method public androidx.ui.material.borders.BorderRadiusGeometry subtract(androidx.ui.material.borders.BorderRadiusGeometry other);
+    method public abstract operator androidx.ui.material.borders.BorderRadiusGeometry times(float other);
+    method public abstract androidx.ui.material.borders.BorderRadiusGeometry truncDiv(float other);
+    method public abstract operator androidx.ui.material.borders.BorderRadiusGeometry unaryMinus();
+    property public abstract androidx.ui.engine.geometry.Radius bottomEnd;
+    property public abstract androidx.ui.engine.geometry.Radius bottomLeft;
+    property public abstract androidx.ui.engine.geometry.Radius bottomRight;
+    property public abstract androidx.ui.engine.geometry.Radius bottomStart;
+    property public abstract androidx.ui.engine.geometry.Radius topEnd;
+    property public abstract androidx.ui.engine.geometry.Radius topLeft;
+    property public abstract androidx.ui.engine.geometry.Radius topRight;
+    property public abstract androidx.ui.engine.geometry.Radius topStart;
+  }
+
+  public final class BorderRadiusGeometryKt {
+    ctor public BorderRadiusGeometryKt();
+    method public static androidx.ui.material.borders.BorderRadiusGeometry? lerp(androidx.ui.material.borders.BorderRadiusGeometry? a, androidx.ui.material.borders.BorderRadiusGeometry? b, float t);
+  }
+
+  public final class BorderRadiusKt {
+    ctor public BorderRadiusKt();
+    method public static androidx.ui.material.borders.BorderRadius? lerp(androidx.ui.material.borders.BorderRadius? a, androidx.ui.material.borders.BorderRadius? b, float t);
+  }
+
   public final class BorderSide {
     ctor public BorderSide(androidx.ui.painting.Color color, androidx.ui.core.Dimension width, androidx.ui.material.borders.BorderStyle style);
     ctor public BorderSide();
@@ -219,12 +288,12 @@ package androidx.ui.material.borders {
   }
 
   public final class RoundedRectangleBorder extends androidx.ui.material.borders.ShapeBorder {
-    ctor public RoundedRectangleBorder(androidx.ui.material.borders.BorderSide side, androidx.ui.engine.geometry.BorderRadius borderRadius);
+    ctor public RoundedRectangleBorder(androidx.ui.material.borders.BorderSide side, androidx.ui.material.borders.BorderRadius borderRadius);
     ctor public RoundedRectangleBorder();
     method public androidx.ui.material.borders.BorderSide component1();
-    method public androidx.ui.engine.geometry.BorderRadius component2();
-    method public androidx.ui.material.borders.RoundedRectangleBorder copy(androidx.ui.material.borders.BorderSide side, androidx.ui.engine.geometry.BorderRadius borderRadius);
-    method public androidx.ui.engine.geometry.BorderRadius getBorderRadius();
+    method public androidx.ui.material.borders.BorderRadius component2();
+    method public androidx.ui.material.borders.RoundedRectangleBorder copy(androidx.ui.material.borders.BorderSide side, androidx.ui.material.borders.BorderRadius borderRadius);
+    method public androidx.ui.material.borders.BorderRadius getBorderRadius();
     method public androidx.ui.painting.Path getInnerPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.painting.Path getOuterPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.material.borders.BorderSide getSide();
@@ -314,11 +383,11 @@ package androidx.ui.material.ripple {
 
   public final class BoundedRippleKt {
     ctor public BoundedRippleKt();
-    method public static void BoundedRipple(androidx.ui.core.Dimension? finalRadius = null, androidx.ui.engine.geometry.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHighlightChanged = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void BoundedRipple(androidx.ui.core.Dimension? finalRadius = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHighlightChanged = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DefaultRippleEffectFactory extends androidx.ui.material.ripple.RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position touchPosition, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape, androidx.ui.core.Dimension? finalRadius, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, androidx.ui.engine.geometry.BorderRadius? clippingBorderRadius, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
+    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position touchPosition, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape, androidx.ui.core.Dimension? finalRadius, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, androidx.ui.material.borders.BorderRadius? clippingBorderRadius, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
     field public static final androidx.ui.material.ripple.DefaultRippleEffectFactory! INSTANCE;
   }
 
@@ -332,20 +401,20 @@ package androidx.ui.material.ripple {
     method public boolean getBounded();
     method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? getBoundsCallback();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public androidx.ui.engine.geometry.BorderRadius? getClippingBorderRadius();
+    method public androidx.ui.material.borders.BorderRadius? getClippingBorderRadius();
     method public androidx.ui.core.Dimension? getFinalRadius();
     method public kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? getOnHighlightChanged();
     method public androidx.ui.material.borders.BoxShape getShape();
     method public void setBounded(boolean p);
     method public void setBoundsCallback(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? p);
     method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setClippingBorderRadius(androidx.ui.engine.geometry.BorderRadius? p);
+    method public void setClippingBorderRadius(androidx.ui.material.borders.BorderRadius? p);
     method public void setFinalRadius(androidx.ui.core.Dimension? p);
     method public void setOnHighlightChanged(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? p);
     method public void setShape(androidx.ui.material.borders.BoxShape p);
     property public final boolean bounded;
     property public final kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback;
-    property public final androidx.ui.engine.geometry.BorderRadius? clippingBorderRadius;
+    property public final androidx.ui.material.borders.BorderRadius? clippingBorderRadius;
     property public final androidx.ui.core.Dimension? finalRadius;
     property public final kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? onHighlightChanged;
     property public final androidx.ui.material.borders.BoxShape shape;
@@ -353,10 +422,9 @@ package androidx.ui.material.ripple {
 
   public abstract class RippleEffect {
     ctor public RippleEffect(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.painting.Color color, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
-    method public void cancel();
-    method public void confirm();
     method @CallSuper public void dispose();
     method protected abstract void drawEffect(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, androidx.ui.core.Density density);
+    method public abstract void finish(boolean canceled);
     method public final androidx.ui.painting.Color getColor();
     method public final androidx.ui.core.LayoutCoordinates getCoordinates();
     method public final kotlin.jvm.functions.Function0<kotlin.Unit>? getOnRemoved();
@@ -367,7 +435,7 @@ package androidx.ui.material.ripple {
 
   public abstract class RippleEffectFactory {
     ctor public RippleEffectFactory();
-    method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position touchPosition, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.RECTANGLE, androidx.ui.core.Dimension? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, androidx.ui.engine.geometry.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
+    method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position touchPosition, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.RECTANGLE, androidx.ui.core.Dimension? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
   }
 
   public final class RippleSurface extends com.google.r4a.Component {
@@ -386,11 +454,9 @@ package androidx.ui.material.ripple {
   public interface RippleSurfaceOwner {
     method public void addEffect(androidx.ui.material.ripple.RippleEffect feature);
     method public androidx.ui.painting.Color? getBackgroundColor();
-    method public androidx.ui.scheduler.ticker.TickerProvider getVsync();
     method public void markNeedsRedraw();
     method public void removeEffect(androidx.ui.material.ripple.RippleEffect feature);
     property public abstract androidx.ui.painting.Color? backgroundColor;
-    property public abstract androidx.ui.scheduler.ticker.TickerProvider vsync;
   }
 
   public final class RippleTheme {

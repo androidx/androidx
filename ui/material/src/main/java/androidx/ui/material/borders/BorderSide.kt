@@ -28,7 +28,6 @@ import androidx.ui.core.toPx
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
-import androidx.ui.runtimeType
 
 /**
  * A side of a border of a box.
@@ -137,8 +136,6 @@ data class BorderSide(
             }
         }
     }
-
-    override fun toString() = "$runtimeType($color, $width, $style)"
 
     companion object {
 

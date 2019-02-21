@@ -22,7 +22,7 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.Position
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
-import androidx.ui.engine.geometry.BorderRadius
+import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BoxShape
 import com.google.r4a.Children
 import com.google.r4a.Component
@@ -156,14 +156,8 @@ class Ripple(
         currentEffect = effect
     }
 
-    private fun handleStop() {
-        currentEffect?.confirm()
-        currentEffect = null
-        onHighlightChanged?.invoke(false)
-    }
-
-    private fun handleCancel() {
-        currentEffect?.cancel()
+    private fun handleFinish(canceled: Boolean) {
+        currentEffect?.finish(canceled)
         currentEffect = null
         onHighlightChanged?.invoke(false)
     }
@@ -191,8 +185,8 @@ class Ripple(
 
         <PressIndicatorGestureDetector
             onStart=::handleStart
-            onStop=::handleStop
-            onCancel=::handleCancel>
+            onStop={ handleFinish(false) }
+            onCancel={ handleFinish(true) }>
             <children />
         </PressIndicatorGestureDetector>
     }

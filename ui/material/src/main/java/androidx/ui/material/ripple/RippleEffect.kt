@@ -86,22 +86,11 @@ abstract class RippleEffect(
     protected abstract fun drawEffect(canvas: Canvas, transform: Matrix4, density: Density)
 
     /**
-     * Called when the user input that triggered this ripple's appearance was confirmed.
+     * Called when the user input that triggered this ripple's appearance was confirmed or canceled.
      *
-     * Typically causes the ripple to propagate faster across the surface. By default this
-     * method does nothing.
+     * Typically causes the ripple to start disappearance animation.
      */
-    open fun confirm() {
-    }
-
-    /**
-     * Called when the user input that triggered this ripple's appearance was canceled.
-     *
-     * Typically causes the ripple to gradually disappear. By default this method does
-     * nothing.
-     */
-    open fun cancel() {
-    }
+    abstract fun finish(canceled: Boolean)
 
     /** The ripple's color. */
     var color: Color = color

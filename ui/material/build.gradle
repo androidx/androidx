@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.SupportLibraryExtension
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -30,8 +31,8 @@ dependencies {
     api project(':ui-framework')
     api project(':ui-framework-adapter')
     api project(':ui-layout-adapter')
-    api project(':ui-port')
     api(KOTLIN_R4A_STDLIB)
+    implementation "androidx.interpolator:interpolator:1.0.0"
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)

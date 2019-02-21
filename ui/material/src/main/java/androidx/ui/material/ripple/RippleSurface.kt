@@ -19,9 +19,7 @@ package androidx.ui.material.ripple
 import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.material.UseTickerProvider
 import androidx.ui.painting.Color
-import androidx.ui.scheduler.ticker.TickerProvider
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
@@ -33,15 +31,6 @@ import com.google.r4a.composer
  * An interface for creating [RippleEffect]s on a [RippleSurface].
  */
 interface RippleSurfaceOwner {
-
-    /**
-     * The ticker provider used by the [RippleSurface].
-     *
-     * Ripple effects that are added to this [RippleSurface] with [addEffect] should
-     * use this vsync to drive their animations.
-     */
-    // TODO(Andrey: We will not need it for the new Animation framework)
-    val vsync: TickerProvider
 
     /**
      * The surface background color.
@@ -99,31 +88,28 @@ class RippleSurface(
     private lateinit var owner: RippleSurfaceOwnerImpl
 
     override fun compose() {
-        <UseTickerProvider> vsync ->
-            if (!::owner.isInitialized) {
-                owner = RippleSurfaceOwnerImpl(color, vsync, this::recompose)
-            }
-            <DensityConsumer> density ->
-                <Draw> canvas, size ->
-                    if (owner.effects.isNotEmpty()) {
-                        canvas.save()
-                        canvas.clipRect(Rect(0f, 0f, size.width, size.height))
-                        owner.effects.forEach { it.draw(canvas, density) }
-                        canvas.restore()
-                    }
-                </Draw>
-            </DensityConsumer>
-            <CurrentRippleSurface.Provider value=owner>
-                <children />
-            </CurrentRippleSurface.Provider>
-        </UseTickerProvider>
+        if (!::owner.isInitialized) {
+            owner = RippleSurfaceOwnerImpl(color, this::recompose)
+        }
+        <DensityConsumer> density ->
+            <Draw> canvas, size ->
+                if (owner.effects.isNotEmpty()) {
+                    canvas.save()
+                    canvas.clipRect(Rect(0f, 0f, size.width, size.height))
+                    owner.effects.forEach { it.draw(canvas, density) }
+                    canvas.restore()
+                }
+            </Draw>
+        </DensityConsumer>
+        <CurrentRippleSurface.Provider value=owner>
+            <children />
+        </CurrentRippleSurface.Provider>
     }
 
 }
 
 private class RippleSurfaceOwnerImpl(
     override val backgroundColor: Color?,
-    override val vsync: TickerProvider,
     private val recompose: () -> Unit
 ) : RippleSurfaceOwner {
 
