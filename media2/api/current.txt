@@ -5,9 +5,12 @@ package androidx.media2 {
     method public androidx.media2.DataSourceCallback getDataSourceCallback();
   }
 
-  public static final class CallbackMediaItem.Builder {
+  public static final class CallbackMediaItem.Builder extends androidx.media2.MediaItem.Builder {
     ctor public CallbackMediaItem.Builder(androidx.media2.DataSourceCallback);
     method public androidx.media2.CallbackMediaItem build();
+    method public androidx.media2.CallbackMediaItem.Builder setEndPosition(long);
+    method public androidx.media2.CallbackMediaItem.Builder setMetadata(androidx.media2.MediaMetadata?);
+    method public androidx.media2.CallbackMediaItem.Builder setStartPosition(long);
   }
 
   public abstract class DataSourceCallback implements java.io.Closeable {
@@ -23,10 +26,13 @@ package androidx.media2 {
     field public static final long FD_LENGTH_UNKNOWN = 576460752303423487L; // 0x7ffffffffffffffL
   }
 
-  public static final class FileMediaItem.Builder {
+  public static final class FileMediaItem.Builder extends androidx.media2.MediaItem.Builder {
     ctor public FileMediaItem.Builder(android.os.ParcelFileDescriptor);
     ctor public FileMediaItem.Builder(android.os.ParcelFileDescriptor, long, long);
     method public androidx.media2.FileMediaItem build();
+    method public androidx.media2.FileMediaItem.Builder setEndPosition(long);
+    method public androidx.media2.FileMediaItem.Builder setMetadata(androidx.media2.MediaMetadata?);
+    method public androidx.media2.FileMediaItem.Builder setStartPosition(long);
   }
 
   public final class HeartRating implements androidx.media2.Rating {
@@ -170,7 +176,10 @@ package androidx.media2 {
 
   public static class MediaItem.Builder {
     ctor public MediaItem.Builder();
-    method public androidx.media2.MediaItem! build();
+    method public androidx.media2.MediaItem build();
+    method public androidx.media2.MediaItem.Builder setEndPosition(long);
+    method public androidx.media2.MediaItem.Builder setMetadata(androidx.media2.MediaMetadata?);
+    method public androidx.media2.MediaItem.Builder setStartPosition(long);
   }
 
   public abstract class MediaLibraryService extends androidx.media2.MediaSessionService {
@@ -720,10 +729,13 @@ package androidx.media2 {
     method public java.util.Map<java.lang.String,java.lang.String>? getUriHeaders();
   }
 
-  public static final class UriMediaItem.Builder {
+  public static final class UriMediaItem.Builder extends androidx.media2.MediaItem.Builder {
     ctor public UriMediaItem.Builder(android.content.Context, android.net.Uri);
     ctor public UriMediaItem.Builder(android.content.Context, android.net.Uri, java.util.Map<java.lang.String,java.lang.String>?, java.util.List<java.net.HttpCookie>?);
     method public androidx.media2.UriMediaItem build();
+    method public androidx.media2.UriMediaItem.Builder setEndPosition(long);
+    method public androidx.media2.UriMediaItem.Builder setMetadata(androidx.media2.MediaMetadata?);
+    method public androidx.media2.UriMediaItem.Builder setStartPosition(long);
   }
 
   public final class VideoSize {

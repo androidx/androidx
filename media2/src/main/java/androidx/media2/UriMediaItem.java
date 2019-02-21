@@ -115,7 +115,7 @@ public class UriMediaItem extends MediaItem {
     /**
      * This Builder class simplifies the creation of a {@link UriMediaItem} object.
      */
-    public static final class Builder extends BuilderBase<Builder> {
+    public static final class Builder extends MediaItem.Builder {
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         Uri mUri;
@@ -180,11 +180,33 @@ public class UriMediaItem extends MediaItem {
             mUriContext = context;
         }
 
+        // Override just to change return type.
+        @NonNull
+        @Override
+        public Builder setMetadata(@Nullable MediaMetadata metadata) {
+            return (Builder) super.setMetadata(metadata);
+        }
+
+        // Override just to change return type.
+        @NonNull
+        @Override
+        public Builder setStartPosition(long position) {
+            return (Builder) super.setStartPosition(position);
+        }
+
+        // Override just to change return type.
+        @NonNull
+        @Override
+        public Builder setEndPosition(long position) {
+            return (Builder) super.setEndPosition(position);
+        }
+
         /**
          * @return A new UriMediaItem with values supplied by the Builder.
          */
+        @NonNull
         @Override
-        public @NonNull UriMediaItem build() {
+        public UriMediaItem build() {
             return new UriMediaItem(this);
         }
     }

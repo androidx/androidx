@@ -17,21 +17,26 @@
 package androidx.media2.test.service.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Parcel;
+import android.os.ParcelFileDescriptor;
 
+import androidx.annotation.NonNull;
+import androidx.media2.CallbackMediaItem;
+import androidx.media2.DataSourceCallback;
+import androidx.media2.FileMediaItem;
 import androidx.media2.MediaItem;
 import androidx.media2.MediaMetadata;
 import androidx.media2.MediaUtils;
 import androidx.media2.UriMediaItem;
 import androidx.media2.test.service.MediaTestUtils;
+import androidx.media2.test.service.test.R;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.versionedparcelable.ParcelImpl;
@@ -40,75 +45,181 @@ import androidx.versionedparcelable.ParcelUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
- * Tests {@link MediaItem}.
+ * Tests {@link MediaItem} and its subclasses.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
-@RunWith(AndroidJUnit4.class)
+@RunWith(Parameterized.class)
 @SmallTest
 public class MediaItemTest {
+    private final MediaItemFactory mItemFactory;
+    private final Class mItemBuilderClass;
     private Context mContext;
+    private MediaItem mTestItem;
+
+    private static final MediaItemFactory sMediaItemFactory = new MediaItemFactory() {
+        @Override
+        public MediaItem create(Context context) {
+            final MediaMetadata testMetadata = new MediaMetadata.Builder()
+                    .putLong("MediaItemTest", 1).build();
+            return new MediaItem.Builder()
+                    .setMetadata(testMetadata)
+                    .setStartPosition(1)
+                    .setEndPosition(10)
+                    .build();
+        }
+    };
+
+    private static final MediaItemFactory sUriMediaItemFactory = new MediaItemFactory() {
+        @Override
+        public MediaItem create(Context context) {
+            final MediaMetadata testMetadata = new MediaMetadata.Builder()
+                    .putString("MediaItemTest", "MediaItemTest").build();
+            return new UriMediaItem.Builder(context, Uri.parse("test://test"))
+                    .setMetadata(testMetadata)
+                    .setStartPosition(1)
+                    .setEndPosition(1000)
+                    .build();
+        }
+    };
+
+    private static final MediaItemFactory sCallbackMediaItemFactory = new MediaItemFactory() {
+        @Override
+        public MediaItem create(Context context) {
+            final MediaMetadata testMetadata = new MediaMetadata.Builder()
+                    .putText("MediaItemTest", "testtest").build();
+            final DataSourceCallback callback = new DataSourceCallback() {
+                @Override
+                public int readAt(long position, @NonNull byte[] buffer, int offset, int size)
+                        throws IOException {
+                    return 0;
+                }
+
+                @Override
+                public long getSize() throws IOException {
+                    return 0;
+                }
+
+                @Override
+                public void close() throws IOException {
+                    // no-op
+                }
+            };
+            return new CallbackMediaItem.Builder(callback)
+                    .setMetadata(testMetadata)
+                    .setStartPosition(0)
+                    .setEndPosition(0)
+                    .build();
+        }
+    };
+
+    private static final MediaItemFactory sFileMediaItemFactory = new MediaItemFactory() {
+        @Override
+        public MediaItem create(Context context) {
+            int resId = R.raw.midi8sec;
+            try (AssetFileDescriptor afd = context.getResources().openRawResourceFd(resId)) {
+                return new FileMediaItem.Builder(
+                        ParcelFileDescriptor.dup(afd.getFileDescriptor())).build();
+            } catch (Exception e) {
+                return null;
+            }
+        }
+    };
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][]{
+                {sMediaItemFactory, MediaItem.Builder.class},
+                {sUriMediaItemFactory, UriMediaItem.Builder.class},
+                {sCallbackMediaItemFactory, CallbackMediaItem.Builder.class},
+                {sFileMediaItemFactory, FileMediaItem.Builder.class}});
+    }
+
+    public MediaItemTest(MediaItemFactory factory, Class builderClass) {
+        mItemFactory = factory;
+        mItemBuilderClass = builderClass;
+    }
 
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
+        mTestItem = mItemFactory.create(mContext);
     }
 
     @Test
     public void testSubclass_sameProcess() {
-        final UriMediaItem testUriItem = createUriMediaItem();
-        final ParcelImpl parcel = MediaUtils.toParcelable(testUriItem);
+        final ParcelImpl parcel = MediaUtils.toParcelable(mTestItem);
 
         final MediaItem testRemoteItem = MediaUtils.fromParcelable(parcel);
-        assertEquals(testUriItem, testRemoteItem);
+        assertEquals(mTestItem, testRemoteItem);
     }
 
     @Test
     public void testSubclass_acrossProcessWithMediaUtils() {
-        final UriMediaItem testUriItem = createUriMediaItem();
-
         // Mocks the binder call across the processes by using writeParcelable/readParcelable
         // which only happens between processes. Code snippets are copied from
         // VersionedParcelIntegTest#parcelCopy.
         final Parcel p = Parcel.obtain();
-        p.writeParcelable(MediaUtils.toParcelable(testUriItem), 0);
+        p.writeParcelable(MediaUtils.toParcelable(mTestItem), 0);
         p.setDataPosition(0);
         final MediaItem testRemoteItem = MediaUtils.fromParcelable(
                 (ParcelImpl) p.readParcelable(MediaItem.class.getClassLoader()));
 
-        assertFalse(testRemoteItem instanceof UriMediaItem);
-        assertEquals(testUriItem.getStartPosition(), testRemoteItem.getStartPosition());
-        assertEquals(testUriItem.getEndPosition(), testRemoteItem.getEndPosition());
+        assertEquals(MediaItem.class, testRemoteItem.getClass());
+        assertEquals(mTestItem.getStartPosition(), testRemoteItem.getStartPosition());
+        assertEquals(mTestItem.getEndPosition(), testRemoteItem.getEndPosition());
         MediaTestUtils.assertMediaMetadataEquals(
-                testUriItem.getMetadata(), testRemoteItem.getMetadata());
+                mTestItem.getMetadata(), testRemoteItem.getMetadata());
     }
 
     @Test
     public void testSubclass_acrossProcessWithParcelUtils() {
-        final UriMediaItem testUriItem = createUriMediaItem();
-
-        // Mocks the binder call across the processes by using writeParcelable/readParcelable
-        // which only happens between processes. Code snippets are copied from
-        // VersionedParcelIntegTest#parcelCopy.
+        if (mTestItem.getClass() == MediaItem.class) {
+            return;
+        }
         try {
+            // Mocks the binder call across the processes by using writeParcelable/readParcelable
+            // which only happens between processes. Code snippets are copied from
+            // VersionedParcelIntegTest#parcelCopy.
             final Parcel p = Parcel.obtain();
-            p.writeParcelable(ParcelUtils.toParcelable(testUriItem), 0);
+            p.writeParcelable(ParcelUtils.toParcelable(mTestItem), 0);
             p.setDataPosition(0);
             final MediaItem testRemoteItem = ParcelUtils.fromParcelable(
                     (ParcelImpl) p.readParcelable(MediaItem.class.getClassLoader()));
-            fail("Write to parcel should fail for subclass of MediaItem");
+
+            assertTrue("Write to parcel should fail for subclass of MediaItem",
+                    mTestItem.getClass() == MediaItem.class);
         } catch (Exception e) {
         }
     }
 
-    private UriMediaItem createUriMediaItem() {
-        final MediaMetadata testMetadata = new MediaMetadata.Builder()
-                .putString("MediaItemTest", "MediaItemTest").build();
-        return new UriMediaItem.Builder(mContext, Uri.parse("test://test"))
-                        .setMetadata(testMetadata)
-                        .setStartPosition(1)
-                        .setEndPosition(1000)
-                        .build();
+    /**
+     * Tests whether the methods in MediaItem.Builder have been hidden in subclasses by overriding
+     * them all.
+     */
+    @Test
+    public void testSubclass_overriddenAllMethods() throws Exception {
+        Method[] mediaItemBuilderMethods = MediaItem.Builder.class.getDeclaredMethods();
+        for (int i = 0; i < mediaItemBuilderMethods.length; i++) {
+            Method mediaItemBuilderMethod = mediaItemBuilderMethods[i];
+            if (!Modifier.isPublic(mediaItemBuilderMethod.getModifiers())) {
+                continue;
+            }
+            Method subclassMethod = mItemBuilderClass.getMethod(
+                    mediaItemBuilderMethod.getName(), mediaItemBuilderMethod.getParameterTypes());
+            assertEquals(subclassMethod.getDeclaringClass(), mItemBuilderClass);
+        }
+    }
+
+    interface MediaItemFactory {
+        MediaItem create(Context context);
     }
 }
