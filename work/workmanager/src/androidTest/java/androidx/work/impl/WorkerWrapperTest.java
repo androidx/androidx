@@ -1080,6 +1080,19 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
     }
 
+    @Test
+    @SmallTest
+    public void testWorkerThatThrowsAnException() {
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(ExceptionWorker.class).build();
+        insertWork(work);
+        WorkerWrapper workerWrapper = createBuilder(work.getStringId()).build();
+        FutureListener listener = createAndAddFutureListener(workerWrapper);
+        workerWrapper.run();
+        assertThat(listener.mResult, is(false));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
+    }
+
     private WorkerWrapper.Builder createBuilder(String workSpecId) {
         return new WorkerWrapper.Builder(
                 mContext,
