@@ -168,9 +168,7 @@ public final class ToolbarController {
             final int end = spannable.getSpanEnd(highlight);
             final int min = Math.max(0, Math.min(start, end));
             final int max = Math.max(0, Math.max(start, end));
-            if (min >= 0) {
-                return textView.getText().subSequence(min, max).toString();
-            }
+            return textView.getText().subSequence(min, max).toString();
         }
         return null;
     }
