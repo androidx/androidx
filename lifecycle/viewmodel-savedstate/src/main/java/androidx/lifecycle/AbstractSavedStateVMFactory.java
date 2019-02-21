@@ -32,7 +32,7 @@ import androidx.savedstate.SavedStateRegistry;
 public abstract class AbstractSavedStateVMFactory implements ViewModelProvider.KeyedFactory {
     static final String TAG_SAVED_STATE_HANDLE = "androidx.lifecycle.savedstate.vm.tag";
 
-    private final SavedStateRegistry<Bundle> mSavedStateRegistry;
+    private final SavedStateRegistry mSavedStateRegistry;
     private final Bundle mDefaultArgs;
 
     /**
@@ -40,7 +40,7 @@ public abstract class AbstractSavedStateVMFactory implements ViewModelProvider.K
      */
     public AbstractSavedStateVMFactory(
             @NonNull Application application,
-            @NonNull SavedStateRegistry<Bundle> savedStateRegistry,
+            @NonNull SavedStateRegistry savedStateRegistry,
             @Nullable Bundle defaultArgs) {
         mSavedStateRegistry = savedStateRegistry;
         mDefaultArgs = defaultArgs;

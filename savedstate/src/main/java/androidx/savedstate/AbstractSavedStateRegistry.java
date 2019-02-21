@@ -16,6 +16,9 @@
 
 package androidx.savedstate;
 
+import android.annotation.SuppressLint;
+import android.os.Bundle;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,25 +34,24 @@ import java.util.Map;
  * Implementations simply need to call {@link #restoreSavedState(Map)} to initialize restored state
  * and call {@link #saveState()} once system requests saved state.
  *
- * @param <S> represents a class for saving a state, typically it is {@link android.os.Bundle}
- *
  * @see androidx.activity.BundleSavedStateRegistry
  */
-public abstract class AbstractSavedStateRegistry<S> implements SavedStateRegistry<S> {
-    private SafeIterableMap<String, SavedStateProvider<S>> mComponents =
+@SuppressLint("RestrictedApi")
+public abstract class AbstractSavedStateRegistry implements SavedStateRegistry {
+    private SafeIterableMap<String, SavedStateProvider> mComponents =
             new SafeIterableMap<>();
-    private Map<String, S> mSavedState;
+    private Map<String, Bundle> mSavedState;
     private boolean mRestored;
 
     @MainThread
     @Nullable
     @Override
-    public final S consumeRestoredStateForKey(@NonNull String key) {
+    public final Bundle consumeRestoredStateForKey(@NonNull String key) {
         if (!mRestored) {
             throw new IllegalStateException("You can consumeRestoredStateForKey "
                     + "only after super.onCreate of corresponding component");
         }
-        S state = null;
+        Bundle state = null;
         if (mSavedState != null) {
             state = mSavedState.remove(key);
             if (mSavedState.isEmpty()) {
@@ -62,8 +64,8 @@ public abstract class AbstractSavedStateRegistry<S> implements SavedStateRegistr
     @MainThread
     @Override
     public final void registerSavedStateProvider(@NonNull String key,
-            @NonNull SavedStateProvider<S> provider) {
-        SavedStateProvider<S> previous = mComponents.putIfAbsent(key, provider);
+            @NonNull SavedStateProvider provider) {
+        SavedStateProvider previous = mComponents.putIfAbsent(key, provider);
         if (previous != null) {
             throw new IllegalArgumentException("SavedStateProvider with the given key is"
                     + " already registered");
@@ -99,7 +101,7 @@ public abstract class AbstractSavedStateRegistry<S> implements SavedStateRegistr
      */
     @SuppressWarnings("WeakerAccess")
     @MainThread
-    protected final void restoreSavedState(@Nullable Map<String, S> initialState) {
+    protected final void restoreSavedState(@Nullable Map<String, Bundle> initialState) {
         if (initialState != null) {
             mSavedState = new HashMap<>(initialState);
         }
@@ -115,14 +117,14 @@ public abstract class AbstractSavedStateRegistry<S> implements SavedStateRegistr
      */
     @MainThread
     @NonNull
-    protected final Map<String, S> saveState() {
-        Map<String, S> savedState = new HashMap<>();
+    protected final Map<String, Bundle> saveState() {
+        Map<String, Bundle> savedState = new HashMap<>();
         if (mSavedState != null) {
             savedState.putAll(mSavedState);
         }
-        for (Iterator<Map.Entry<String, SavedStateProvider<S>>> it =
+        for (Iterator<Map.Entry<String, SavedStateProvider>> it =
                 mComponents.iteratorWithAdditions(); it.hasNext(); ) {
-            Map.Entry<String, SavedStateProvider<S>> entry = it.next();
+            Map.Entry<String, SavedStateProvider> entry = it.next();
             savedState.put(entry.getKey(), entry.getValue().saveState());
         }
         return savedState;

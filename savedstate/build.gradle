@@ -15,7 +15,7 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
-    api(project(":savedstate:savedstate-common"))
+    implementation(ARCH_CORE_COMMON)
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(TEST_EXT_JUNIT)

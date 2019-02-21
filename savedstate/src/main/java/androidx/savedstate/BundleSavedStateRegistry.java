@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.savedstate.bundle;
+package androidx.savedstate;
 
 import android.os.Bundle;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.savedstate.AbstractSavedStateRegistry;
-import androidx.savedstate.SavedStateRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +34,7 @@ import java.util.Map;
  * To collect saved state supplied by {@link SavedStateRegistry.SavedStateProvider}
  * an owner should call {@link #performSave(Bundle)}
  */
-public final class BundleSavedStateRegistry extends AbstractSavedStateRegistry<Bundle> {
+public final class BundleSavedStateRegistry extends AbstractSavedStateRegistry {
     private static final String SAVED_COMPONENTS_KEY =
             "androidx.lifecycle.BundlableSavedStateRegistry.key";
 
