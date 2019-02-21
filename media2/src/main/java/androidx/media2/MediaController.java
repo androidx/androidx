@@ -749,15 +749,16 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Returns the cached playlist from {@link ControllerCallback#onPlaylistChanged}.
+     * Returns the cached playlist from {@link ControllerCallback#onPlaylistChanged}. Can be
+     * {@code null} if the playlist hasn't been set or it's reset by {@link #setMediaItem}.
      * <p>
      * This list may differ with the list that was specified with
      * {@link #setPlaylist(List, MediaMetadata)} depending on the {@link SessionPlayer}
      * implementation. Use media items returned here for other playlist agent APIs such as
-     * {@link SessionPlayer#skipToPlaylistItem(MediaItem)}.
+     * {@link SessionPlayer#skipToPlaylistItem}.
      *
-     * @return playlist, or {@code null} if the playlist hasn't set, controller isn't connected,
-     *         or it doesn't have enough permission
+     * @return playlist, or {@code null} if the playlist hasn't been set, controller isn't
+     *         connected, or it doesn't have enough permission.
      * @see SessionCommand#COMMAND_CODE_PLAYER_GET_PLAYLIST
      */
     @Nullable
@@ -766,13 +767,22 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Sets the playlist with the list of media IDs. All media IDs in the list shouldn't be empty.
+     * Sets the playlist with the list of media IDs. Use this or {@link #setMediaItem} to specify
+     * which items to play.
+     * <p>
+     * All media IDs in the list shouldn't be an empty string.
+     * <p>
+     * The {@link ControllerCallback#onPlaylistChanged} and
+     * {@link ControllerCallback#onCurrentMediaItemChanged} would be called when it's completed.
+     * The current item would be the first item in the playlist.
      *
      * @param list list of media id. Shouldn't contain an empty id.
      * @param metadata metadata of the playlist
-     * @see #getPlaylist()
+     * @see #setMediaItem
+     * @see ControllerCallback#onCurrentMediaItemChanged
      * @see ControllerCallback#onPlaylistChanged
      * @see MediaMetadata#METADATA_KEY_MEDIA_ID
+     * @throws IllegalArgumentException if the list is {@code null} or contains any empty string.
      */
     @NonNull
     public ListenableFuture<SessionResult> setPlaylist(@NonNull List<String> list,
@@ -792,9 +802,19 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Sets a {@link MediaItem} for playback.
+     * Sets a {@link MediaItem} for playback with the media ID. Use this or {@link #setPlaylist}
+     * to specify which items to play. If you want to change current item in the playlist, use one
+     * of {@link #skipToPlaylistItem}, {@link #skipToNextPlaylistItem}, or
+     * {@link #skipToPreviousPlaylistItem} instead of this method.
+     * <p>
+     * The {@link ControllerCallback#onPlaylistChanged} and
+     * {@link ControllerCallback#onCurrentMediaItemChanged} would be called when it's completed.
+     * The current item would be the item given here.
      *
      * @param mediaId The non-empty media id of the item to play
+     * @see #setPlaylist
+     * @see ControllerCallback#onCurrentMediaItemChanged
+     * @see ControllerCallback#onPlaylistChanged
      * @see MediaMetadata#METADATA_KEY_MEDIA_ID
      */
     @NonNull
@@ -909,6 +929,8 @@ public class MediaController implements AutoCloseable {
      * {@link ControllerCallback#onCurrentMediaItemChanged(MediaController, MediaItem)}.
      *
      * @return the currently playing item, or null if unknown or not connected
+     * @see #setMediaItem
+     * @see #setPlaylist
      */
     @Nullable
     public MediaItem getCurrentMediaItem() {
@@ -1289,25 +1311,31 @@ public class MediaController implements AutoCloseable {
         public void onSeekCompleted(@NonNull MediaController controller, long position) {}
 
         /**
-         * Called when the player's currently playing item is changed
+         * Called when the player's current item is changed. It's also called after
+         * {@link #setPlaylist} or {@link #setMediaItem}.
          * <p>
          * When it's called, you should invalidate previous playback information and wait for later
          * callbacks. Also, current, previous, and next media item indices may need to be updated.
          *
          * @param controller the controller for this event
-         * @param item new item
+         * @param item new current media item
+         * @see #getPlaylist()
+         * @see #getPlaylistMetadata()
          */
         public void onCurrentMediaItemChanged(@NonNull MediaController controller,
                 @Nullable MediaItem item) {}
 
         /**
-         * Called when a playlist is changed.
+         * Called when a playlist is changed. It's also called after {@link #setPlaylist} or
+         * {@link #setMediaItem}.
          * <p>
          * When it's called, current, previous, and next media item indices may need to be updated.
          *
          * @param controller the controller for this event
          * @param list new playlist
          * @param metadata new metadata
+         * @see #getPlaylist()
+         * @see #getPlaylistMetadata()
          */
         public void onPlaylistChanged(@NonNull MediaController controller,
                 @Nullable List<MediaItem> list, @Nullable MediaMetadata metadata) {}
