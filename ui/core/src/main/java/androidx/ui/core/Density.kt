@@ -36,7 +36,7 @@ fun Density(context: Context): Density =
 /**
  * Convert [Dp] to pixels. Pixels are used to paint to [Canvas].
  */
-fun Dp.toPx(density: Density): Float = dp * density.density
+fun Dp.toPx(density: Density): Float = value * density.density
 
 /** Convert a [Float] pixel value to a Dp */
 fun Float.toDp(density: Density): Dp = (this / density.density).dp

@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui
+package androidx.ui.core
+
+import androidx.ui.engine.geometry.Rect
 
 /**
- * Linearly interpolate between [a] and [b] with [t] fraction between them.
+ * A size in Pixels
  */
-fun lerp(a: Float, b: Float, t: Float): Float {
-    return a + (b - a) * t
-}
+data class PixelSize(val width: Float, val height: Float)
 
 /**
- * Linearly interpolate between [a] and [b] with [t] fraction between them.
+ * Convert a [PixelSize] to a [Rect].
  */
-fun lerpInt(a: Int, b: Int, t: Float): Float {
-    return a + (b - a) * t
+fun PixelSize.toRect(): Rect {
+    return Rect(0f, 0f, width, height)
 }
-
-fun Float.toStringAsFixed(digits: Int) = String.format("%.${digits}f", this)
-
-fun Int.toHexString() = "0x${toUInt().toString(16).padStart(8, '0')}"

@@ -16,7 +16,7 @@
 
 package androidx.ui.engine.geometry
 
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 import androidx.ui.toStringAsFixed
 import kotlin.math.absoluteValue
 
@@ -584,17 +584,17 @@ fun lerp(a: RRect?, b: RRect?, t: Float): RRect? = when {
         )
     }
     else -> RRect(
-        left = lerpFloat(a.left, b.left, t),
-        top = lerpFloat(a.top, b.top, t),
-        right = lerpFloat(a.right, b.right, t),
-        bottom = lerpFloat(a.bottom, b.bottom, t),
-        topLeftRadiusX = lerpFloat(a.topLeftRadiusX, b.topLeftRadiusX, t),
-        topLeftRadiusY = lerpFloat(a.topLeftRadiusY, b.topLeftRadiusY, t),
-        topRightRadiusX = lerpFloat(a.topRightRadiusX, b.topRightRadiusX, t),
-        topRightRadiusY = lerpFloat(a.topRightRadiusY, b.topRightRadiusY, t),
-        bottomRightRadiusX = lerpFloat(a.bottomRightRadiusX, b.bottomRightRadiusX, t),
-        bottomRightRadiusY = lerpFloat(a.bottomRightRadiusY, b.bottomRightRadiusY, t),
-        bottomLeftRadiusX = lerpFloat(a.bottomLeftRadiusX, b.bottomLeftRadiusX, t),
-        bottomLeftRadiusY = lerpFloat(a.bottomLeftRadiusY, b.bottomLeftRadiusY, t)
+        left = lerp(a.left, b.left, t),
+        top = lerp(a.top, b.top, t),
+        right = lerp(a.right, b.right, t),
+        bottom = lerp(a.bottom, b.bottom, t),
+        topLeftRadiusX = lerp(a.topLeftRadiusX, b.topLeftRadiusX, t),
+        topLeftRadiusY = lerp(a.topLeftRadiusY, b.topLeftRadiusY, t),
+        topRightRadiusX = lerp(a.topRightRadiusX, b.topRightRadiusX, t),
+        topRightRadiusY = lerp(a.topRightRadiusY, b.topRightRadiusY, t),
+        bottomRightRadiusX = lerp(a.bottomRightRadiusX, b.bottomRightRadiusX, t),
+        bottomRightRadiusY = lerp(a.bottomRightRadiusY, b.bottomRightRadiusY, t),
+        bottomLeftRadiusX = lerp(a.bottomLeftRadiusX, b.bottomLeftRadiusX, t),
+        bottomLeftRadiusY = lerp(a.bottomLeftRadiusY, b.bottomLeftRadiusY, t)
     )
 }

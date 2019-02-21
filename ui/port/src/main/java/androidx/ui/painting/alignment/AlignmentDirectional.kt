@@ -16,7 +16,7 @@
 
 package androidx.ui.painting.alignment
 
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.toStringAsFixed
 import androidx.ui.truncDiv
@@ -138,10 +138,19 @@ class AlignmentDirectional(
             if (a == null && b == null)
                 return null
             if (a == null)
-                return AlignmentDirectional(lerpFloat(0.0f, b!!.start, t), lerpFloat(0.0f, b.y, t))
+                return AlignmentDirectional(
+                    lerp(0.0f, b!!.start, t),
+                    lerp(0.0f, b.y, t)
+                )
             if (b == null)
-                return AlignmentDirectional(lerpFloat(a.start, 0.0f, t), lerpFloat(a.y, 0.0f, t))
-            return AlignmentDirectional(lerpFloat(a.start, b.start, t), lerpFloat(a.y, b.y, t))
+                return AlignmentDirectional(
+                    lerp(a.start, 0.0f, t),
+                    lerp(a.y, 0.0f, t)
+                )
+            return AlignmentDirectional(
+                lerp(a.start, b.start, t),
+                lerp(a.y, b.y, t)
+            )
         }
 
         fun _stringify(start: Float, y: Float): String {

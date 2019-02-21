@@ -21,7 +21,7 @@ import androidx.ui.assert
 import androidx.ui.clamp
 import androidx.ui.core.Duration
 import androidx.ui.foundation.assertions.FlutterError
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 import androidx.ui.physics.Simulation
 import androidx.ui.runtimeType
 import androidx.ui.scheduler.ticker.Ticker
@@ -653,7 +653,7 @@ private class RepeatingSimulation(
     override fun x(timeInSeconds: Float): Float {
         assert(timeInSeconds >= 0.0f)
         val t = (timeInSeconds / periodInSeconds) % 1.0f
-        return lerpFloat(min, max, t)
+        return lerp(min, max, t)
     }
 
     override fun dx(timeInSeconds: Float): Float = (max - min) / periodInSeconds

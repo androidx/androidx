@@ -3,7 +3,7 @@ package androidx.ui.painting.alignment
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.toStringAsFixed
 import androidx.ui.truncDiv
@@ -113,10 +113,10 @@ class Alignment(
             if (a == null && b == null)
                 return null
             if (a == null)
-                return Alignment(lerpFloat(0.0f, b!!.x, t), lerpFloat(0.0f, b.y, t))
+                return Alignment(lerp(0.0f, b!!.x, t), lerp(0.0f, b.y, t))
             if (b == null)
-                return Alignment(lerpFloat(a.x, 0.0f, t), lerpFloat(a.y, 0.0f, t))
-            return Alignment(lerpFloat(a.x, b.x, t), lerpFloat(a.y, b.y, t))
+                return Alignment(lerp(a.x, 0.0f, t), lerp(a.y, 0.0f, t))
+            return Alignment(lerp(a.x, b.x, t), lerp(a.y, b.y, t))
         }
 
         internal fun _stringify(x: Float, y: Float): String {

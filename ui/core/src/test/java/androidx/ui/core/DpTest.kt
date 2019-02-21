@@ -28,57 +28,57 @@ class DpTest {
 
     @Test
     fun constructor() {
-        val dim1 = Dp(dp = 5f)
-        assertEquals(5f, dim1.dp, 0f)
+        val dim1 = Dp(value = 5f)
+        assertEquals(5f, dim1.value, 0f)
 
-        val dim2 = Dp(dp = Float.POSITIVE_INFINITY)
-        assertEquals(Float.POSITIVE_INFINITY, dim2.dp, 0f)
+        val dim2 = Dp(value = Float.POSITIVE_INFINITY)
+        assertEquals(Float.POSITIVE_INFINITY, dim2.value, 0f)
 
-        val dim3 = Dp(dp = Float.NaN)
-        assertEquals(Float.NaN, dim3.dp, 0f)
+        val dim3 = Dp(value = Float.NaN)
+        assertEquals(Float.NaN, dim3.value, 0f)
     }
 
     @Test
     fun dpIntegerConstruction() {
         val dim = 10.dp
-        assertEquals(10f, dim.dp, 0f)
+        assertEquals(10f, dim.value, 0f)
     }
 
     @Test
     fun dpFloatConstruction() {
         val dim = 10f.dp
-        assertEquals(10f, dim.dp, 0f)
+        assertEquals(10f, dim.value, 0f)
     }
 
     @Test
     fun dpDoubleConstruction() {
         val dim = 10.0.dp
-        assertEquals(10f, dim.dp, 0f)
+        assertEquals(10f, dim.value, 0f)
     }
 
     @Test
     fun subtractOperator() {
-        assertEquals(-1f, (3.dp - 4.dp).dp)
-        assertEquals(1f, (10.dp - 9.dp).dp, 0f)
+        assertEquals(-1f, (3.dp - 4.dp).value)
+        assertEquals(1f, (10.dp - 9.dp).value, 0f)
     }
 
     @Test
     fun addOperator() {
-        assertEquals(2f, (1.dp + 1.dp).dp, 0f)
-        assertEquals(10f, (6.dp + 4.dp).dp, 0f)
+        assertEquals(2f, (1.dp + 1.dp).value, 0f)
+        assertEquals(10f, (6.dp + 4.dp).value, 0f)
     }
 
     @Test
     fun multiplyOperator() {
-        assertEquals(0f, (1.dp * 0f).dp, 0f)
-        assertEquals(10f, (1.dp * 10f).dp, 0f)
+        assertEquals(0f, (1.dp * 0f).value, 0f)
+        assertEquals(10f, (1.dp * 10f).value, 0f)
     }
 
     @Test
     fun multiplyOperatorScalar() {
-        assertEquals(10f, 10f * 1.dp.dp, 0f)
-        assertEquals(10f, 10 * 1.dp.dp, 0f)
-        assertEquals(10f, (10.0 * 1.dp).dp, 0f)
+        assertEquals(10f, 10f * 1.dp.value, 0f)
+        assertEquals(10f, 10 * 1.dp.value, 0f)
+        assertEquals(10f, (10.0 * 1.dp).value, 0f)
     }
 
     @Test
@@ -116,12 +116,12 @@ class DpTest {
 
     @Test
     fun hairline() {
-        assertEquals(0f, Dp.Hairline.dp, 0f)
+        assertEquals(0f, Dp.Hairline.value, 0f)
     }
 
     @Test
     fun infinite() {
-        assertEquals(Float.POSITIVE_INFINITY, Dp.Infinity.dp, 0f)
+        assertEquals(Float.POSITIVE_INFINITY, Dp.Infinity.value, 0f)
     }
 
     @Suppress("DIVISION_BY_ZERO")
@@ -158,7 +158,7 @@ class DpTest {
 
     @Test
     fun divideDimension2Dimension() {
-        assertEquals(1f, ((2.dp * 2.dp) / 4.dp).dp, 0f)
+        assertEquals(1f, ((2.dp * 2.dp) / 4.dp).value, 0f)
     }
 
     @Test
@@ -211,7 +211,7 @@ class DpTest {
 
     @Test
     fun divideDimension3Dimension2() {
-        assertEquals(1f, ((2.dp * 2.dp * 1.dp) / (2.dp * 2.dp)).dp, 0f)
+        assertEquals(1f, ((2.dp * 2.dp * 1.dp) / (2.dp * 2.dp)).value, 0f)
     }
 
     @Test
@@ -259,7 +259,7 @@ class DpTest {
 
     @Test
     fun multiplyDimensionInverseDimension2() {
-        assertEquals(4f, ((1 / 2.dp) * (8.dp * 1.dp)).dp, 0f)
+        assertEquals(4f, ((1 / 2.dp) * (8.dp * 1.dp)).value, 0f)
     }
 
     @Test
@@ -277,23 +277,23 @@ class DpTest {
 
     @Test
     fun minTest() {
-        assertEquals(10f, min(10.dp, 20.dp).dp, 0f)
-        assertEquals(10f, min(20.dp, 10.dp).dp, 0f)
-        assertEquals(10f, min(10.dp, 10.dp).dp, 0f)
+        assertEquals(10f, min(10.dp, 20.dp).value, 0f)
+        assertEquals(10f, min(20.dp, 10.dp).value, 0f)
+        assertEquals(10f, min(10.dp, 10.dp).value, 0f)
     }
 
     @Test
     fun maxTest() {
-        assertEquals(20f, max(10.dp, 20.dp).dp, 0f)
-        assertEquals(20f, max(20.dp, 10.dp).dp, 0f)
-        assertEquals(20f, max(20.dp, 20.dp).dp, 0f)
+        assertEquals(20f, max(10.dp, 20.dp).value, 0f)
+        assertEquals(20f, max(20.dp, 10.dp).value, 0f)
+        assertEquals(20f, max(20.dp, 20.dp).value, 0f)
     }
 
     @Test
     fun coerceIn() {
-        assertEquals(10f, 10.dp.coerceIn(0.dp, 20.dp).dp, 0f)
-        assertEquals(10f, 20.dp.coerceIn(0.dp, 10.dp).dp, 0f)
-        assertEquals(10f, 0.dp.coerceIn(10.dp, 20.dp).dp, 0f)
+        assertEquals(10f, 10.dp.coerceIn(0.dp, 20.dp).value, 0f)
+        assertEquals(10f, 20.dp.coerceIn(0.dp, 10.dp).value, 0f)
+        assertEquals(10f, 0.dp.coerceIn(10.dp, 20.dp).value, 0f)
         try {
             10.dp.coerceIn(20.dp, 10.dp)
             fail("Expected an exception here")
@@ -304,15 +304,15 @@ class DpTest {
 
     @Test
     fun coerceAtLeast() {
-        assertEquals(10f, 0.dp.coerceAtLeast(10.dp).dp, 0f)
-        assertEquals(10f, 10.dp.coerceAtLeast(5.dp).dp, 0f)
-        assertEquals(10f, 10.dp.coerceAtLeast(10.dp).dp, 0f)
+        assertEquals(10f, 0.dp.coerceAtLeast(10.dp).value, 0f)
+        assertEquals(10f, 10.dp.coerceAtLeast(5.dp).value, 0f)
+        assertEquals(10f, 10.dp.coerceAtLeast(10.dp).value, 0f)
     }
 
     @Test
     fun coerceAtMost() {
-        assertEquals(10f, 100.dp.coerceAtMost(10.dp).dp, 0f)
-        assertEquals(10f, 10.dp.coerceAtMost(20.dp).dp, 0f)
-        assertEquals(10f, 10.dp.coerceAtMost(10.dp).dp, 0f)
+        assertEquals(10f, 100.dp.coerceAtMost(10.dp).value, 0f)
+        assertEquals(10f, 10.dp.coerceAtMost(20.dp).value, 0f)
+        assertEquals(10f, 10.dp.coerceAtMost(10.dp).value, 0f)
     }
 }
