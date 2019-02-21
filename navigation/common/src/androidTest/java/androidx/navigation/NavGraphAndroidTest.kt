@@ -50,6 +50,33 @@ class NavGraphAndroidTest {
     }
 
     @Test
+    fun matchDeepLinkBestMatchExact() {
+        val navigatorProvider = NavigatorProvider().apply {
+            addNavigator(NavGraphNavigator(this))
+        }
+        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
+            .createDestination()
+
+        graph.addDeepLink("www.example.com/users/index.html")
+
+        val idArgument = NavArgument.Builder()
+            .setType(NavType.StringType)
+            .build()
+        graph.addArgument("id", idArgument)
+        graph.addDeepLink("www.example.com/users/{name}")
+
+        val match = graph.matchDeepLink(
+            Uri.parse("https://www.example.com/users/index.html"))
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link should pick the exact match")
+            .that(match?.matchingArgs?.size())
+            .isEqualTo(0)
+    }
+
+    @Test
     fun matchDotStar() {
         val navigatorProvider = NavigatorProvider().apply {
             addNavigator(NavGraphNavigator(this))
