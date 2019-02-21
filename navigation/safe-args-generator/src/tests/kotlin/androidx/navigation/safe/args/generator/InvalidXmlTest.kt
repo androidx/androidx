@@ -23,6 +23,7 @@ import androidx.navigation.safe.args.generator.NavParserErrors.invalidDefaultVal
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidDefaultValueReference
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidId
 import androidx.navigation.safe.args.generator.NavParserErrors.invalidNavReference
+import androidx.navigation.safe.args.generator.NavParserErrors.nullDefaultValueReference
 import androidx.navigation.safe.args.generator.NavParserErrors.sameSanitizedNameActions
 import androidx.navigation.safe.args.generator.NavParserErrors.sameSanitizedNameArguments
 import androidx.navigation.safe.args.generator.NavParserErrors.typeIsNotNullable
@@ -44,6 +45,8 @@ class InvalidXmlTest(private val testCase: ErrorMessage) {
             ErrorMessage("unnamed_destination_with_action.xml", 25, 5, UNNAMED_DESTINATION),
             ErrorMessage("invalid_default_value_reference.xml", 23, 9,
                 invalidDefaultValueReference("foo/")),
+            ErrorMessage("null_default_value_reference.xml", 23, 9,
+                nullDefaultValueReference("myarg1")),
             ErrorMessage("invalid_default_value_int.xml", 24, 9,
                 invalidDefaultValue("101034f", IntType)),
             ErrorMessage("invalid_id_action.xml", 22, 44, invalidId("@+fppid/finish")),
