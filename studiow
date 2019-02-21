@@ -58,10 +58,17 @@ function getLicensePath() {
 
 function checkLicenseAgreement() {
   # TODO: Is there a more official way to check that the user accepts the license?
-  if [ "${acceptsLicenseAgreement}" != "-y" ]; then
-    echo "Do you accept the license agreement at $(getLicensePath) ?"
-    echo "If you do, then rerun this script with a '-y' argument"
-    exit 1
+
+  licenseAcceptedPath="${studioUnzippedPath}/STUDIOW_LICENSE_ACCEPTED"
+
+  if [ ! -f "${licenseAcceptedPath}" ]; then
+    if [ "${acceptsLicenseAgreement}" == "-y" ]; then
+      touch "${licenseAcceptedPath}"
+    else
+      echo "Do you accept the license agreement at $(getLicensePath) ?"
+      echo "If you do, then rerun this script with a '-y' argument"
+      exit 1
+    fi
   fi
 }
 
