@@ -105,6 +105,7 @@ import java.util.List;
  * connecting any session in this service. In that case, {@link #onGetPrimarySession()} will be
  * called to know which session to handle incoming connection request. Pick the best session among
  * added sessions, or create new one and return from the {@link #onGetPrimarySession()}.
+ * </div>
  */
 public abstract class MediaSessionService extends Service {
     /**
