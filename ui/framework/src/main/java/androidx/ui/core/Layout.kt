@@ -29,7 +29,7 @@ import com.google.r4a.R4a
  * @return a [Placeable] that can be used within a [layoutResult] block
  */
 // TODO(mount): Make this an inline class when private constructors are possible
-class MeasurableImpl internal constructor(private val measureBox: ComplexMeasureBox) :
+internal class MeasurableImpl internal constructor(private val measureBox: ComplexMeasureBox) :
     Measurable {
     private fun runBlock() {
         measureBox.minIntrinsicWidthBlock = ComplexMeasureBox.IntrinsicMeasurementStub
@@ -81,21 +81,21 @@ class MeasurableImpl internal constructor(private val measureBox: ComplexMeasure
  * [ComplexMeasureOperations.layout]. In the future, this will only be accessible within the
  * [layoutResult] call.
  */
-private class MeasuredPlaceable internal constructor(
-    private val complexMeasureBox: ComplexMeasureBox) : Placeable {
+internal class MeasuredPlaceable internal constructor(
+    private val complexMeasureBox: ComplexMeasureBox
+) : Placeable({ x, y -> place(complexMeasureBox, x, y)}) {
     override val width = complexMeasureBox.layoutNode.size.width
     override val height = complexMeasureBox.layoutNode.size.height
-
-    override fun place(x: Dimension, y: Dimension) {
-        complexMeasureBox.moveTo(x, y)
-        complexMeasureBox.placeChildren()
+    companion object {
+        internal fun place(complexMeasureBox: ComplexMeasureBox, x: Dimension, y: Dimension) {
+            complexMeasureBox.moveTo(x, y)
+            complexMeasureBox.placeChildren()
+        }
     }
 }
 
-private class DummyPlaceable(override val width: Dimension, override val height: Dimension)
-    : Placeable {
-    override fun place(x: Dimension, y: Dimension) {}
-}
+internal class DummyPlaceable(override val width: Dimension, override val height: Dimension)
+    : Placeable({ _, _ -> })
 
 /**
  * ComplexMeasureBox is a tag that can be used to measure and position zero or more children.
@@ -331,13 +331,13 @@ class MeasureBox(
         <ComplexMeasureBox> measureOperations ->
             measureOperations.layout { constraints, measure, _, layoutResult ->
                 block(constraints,
-                    MeasureOperationsImpl(measureOperations, measure, layoutResult)
+                    MeasureOperations(measureOperations, measure, layoutResult)
                 )
             }
 
             measureOperations.minIntrinsicWidth { h, intrinsics ->
                 var intrinsicWidth = 0.dp
-                val measureOperations = MeasureOperationsImpl(measureOperations, { m, c ->
+                val measureOperations = MeasureOperations(measureOperations, { m, c ->
                     val width = intrinsics.minIntrinsicWidth(m, c.minHeight)
                     DummyPlaceable(width, h)
                 }, { width, _, _ -> intrinsicWidth = width })
@@ -347,7 +347,7 @@ class MeasureBox(
             }
             measureOperations.maxIntrinsicWidth { h, intrinsics ->
                 var intrinsicWidth = 0.dp
-                val measureOperations = MeasureOperationsImpl(measureOperations, { m, c ->
+                val measureOperations = MeasureOperations(measureOperations, { m, c ->
                     val width = intrinsics.maxIntrinsicWidth(m, c.minHeight)
                     DummyPlaceable(width, h)
                 }, { width, _, _ -> intrinsicWidth = width })
@@ -357,7 +357,7 @@ class MeasureBox(
             }
             measureOperations.minIntrinsicHeight { w, intrinsics ->
                 var intrinsicHeight = 0.dp
-                val measureOperations = MeasureOperationsImpl(measureOperations, { m, c ->
+                val measureOperations = MeasureOperations(measureOperations, { m, c ->
                     val height = intrinsics.minIntrinsicHeight(m, c.minWidth)
                     DummyPlaceable(w, height)
                 }, { _, height, _ -> intrinsicHeight = height })
@@ -367,7 +367,7 @@ class MeasureBox(
             }
             measureOperations.maxIntrinsicHeight { w, intrinsics ->
                 var intrinsicHeight = 0.dp
-                val measureOperations = MeasureOperationsImpl(measureOperations, { m, c ->
+                val measureOperations = MeasureOperations(measureOperations, { m, c ->
                     val height = intrinsics.maxIntrinsicHeight(m, c.minWidth)
                     DummyPlaceable(w, height)
                 }, { _, height, _ -> intrinsicHeight = height })
@@ -383,25 +383,25 @@ class MeasureBox(
  * Measure operations to be used with [MeasureBox].
  * Used to mask away intrinsics inside [MeasureBox].
  */
-private class MeasureOperationsImpl(
+class MeasureOperations(
     private val complexMeasureOperations: ComplexMeasureOperations,
     private val complexMeasure: (Measurable, Constraints) -> Placeable,
     private val complexLayoutResult: (Dimension, Dimension, () -> Unit) -> Unit
-) : MeasureOperations {
+) {
     /**
      * Compose [children] into the [MeasureBox] and return a list of [Measurable]s within
      * the children. Composition stops at [MeasureBox] children. Further composition requires
      * calling [Measurable.measure].
      */
     // TODO(popam): prevent collect from happening before every intrinsic measurement
-    override fun collect(@Children children: () -> Unit): List<Measurable>
+    fun collect(@Children children: () -> Unit): List<Measurable>
             = complexMeasureOperations.collect(children)
 
     /**
      * Measure the child [Measurable] with a specific set of [Constraints]. The result
      * is a [Placeable], which can be used inside the [layout] method to position the child.
      */
-    override fun measure(measurable: Measurable, constraints: Constraints): Placeable
+    fun measure(measurable: Measurable, constraints: Constraints): Placeable
             = complexMeasure(measurable, constraints)
 
     /**
@@ -409,7 +409,7 @@ private class MeasureOperationsImpl(
      * calls to [Placeable.place], defining the positions of the children relative to the current
      * layout.
      */
-    override fun layout(width: Dimension, height: Dimension, block: () -> Unit) {
+    fun layout(width: Dimension, height: Dimension, block: () -> Unit) {
         complexLayoutResult(width, height, block)
     }
 }

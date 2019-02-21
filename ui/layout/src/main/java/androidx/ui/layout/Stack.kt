@@ -88,8 +88,8 @@ fun Stack(
     defaultAlignment: Alignment,
     @Children(composable=false) block: (children: StackChildren) -> Unit
 ) {
-    <MeasureBox> constraints, measureOperations ->
-        val children = with(StackChildren())  {
+    <MeasureBox> constraints ->
+        val children = with(StackChildren()) {
             apply(block)
             stackChildren
         }
@@ -97,8 +97,8 @@ fun Stack(
         val placeables = arrayOfNulls<List<Placeable>?>(children.size)
         // First measure aligned children to get the size of the layout.
         (0 until children.size).filter { i -> !children[i].positioned }.forEach { i ->
-           measureOperations.collect(children[i].children).map { measurable ->
-               measureOperations.measure(measurable,
+           collect(children[i].children).map { measurable ->
+               measurable.measure(
                    Constraints(0.dp, constraints.maxWidth, 0.dp, constraints.maxHeight)
                )
            }.also {
@@ -131,8 +131,8 @@ fun Stack(
             } else {
                 0.dp
             }
-            measureOperations.collect(stackChild.children).map { measurable ->
-                measureOperations.measure(measurable, Constraints(
+            collect(stackChild.children).map { measurable ->
+                measurable.measure(Constraints(
                     childMinWidth, childMaxWidth, childMinHeight, childMaxHeight
                 ))
             }.also {
@@ -141,7 +141,7 @@ fun Stack(
         }
 
         // Position the children.
-        measureOperations.layout(stackWidth, stackHeight) {
+        layout(stackWidth, stackHeight) {
             (0 until children.size).forEach { i ->
                 val stackChild = children[i]
                 if (!stackChild.positioned) {

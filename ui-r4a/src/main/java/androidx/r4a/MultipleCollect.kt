@@ -37,15 +37,15 @@ import com.google.r4a.composer
 
 @Composable
 fun ColoredRect(color: Color) {
-    <MeasureBox> constraints, operations ->
-        operations.collect {
+    <MeasureBox> constraints ->
+        collect {
             val paint = Paint()
             paint.color = color
             <Draw> canvas, parentSize ->
                 canvas.drawRect(Rect(0f, 0f, parentSize.width, parentSize.height), paint)
             </Draw>
         }
-        operations.layout(constraints.maxWidth, constraints.maxHeight) {
+        layout(constraints.maxWidth, constraints.maxHeight) {
         }
     </MeasureBox>
 }
@@ -56,19 +56,18 @@ fun HeaderFooterLayout(
     footer: () -> Unit,
     @Children children: () -> Unit
 ) {
-    <MeasureBox> constraints, measureOperations ->
-        val headerMeasurable = measureOperations.collect { <header /> }.first()
-        val contentMeasurables = measureOperations.collect { <children /> }
-        val footerMeasurable = measureOperations.collect { <footer /> }.first()
-        measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
-            val headerPlaceable = measureOperations.measure(
-                    headerMeasurable,
+    <MeasureBox> constraints ->
+        val headerMeasurable = collect { <header /> }.first()
+        val contentMeasurables = collect { <children /> }
+        val footerMeasurable = collect { <footer /> }.first()
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            val headerPlaceable = headerMeasurable.measure(
                     Constraints.tightConstraints(constraints.maxWidth, 100.dp)
             )
             headerPlaceable.place(0.dp, 0.dp)
 
             val footerPadding = 50.dp
-            val footerPlaceable = measureOperations.measure(footerMeasurable,
+            val footerPlaceable = footerMeasurable.measure(
                 Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.dp))
             footerPlaceable.place(footerPadding, constraints.maxHeight - footerPlaceable.height)
 
@@ -77,7 +76,7 @@ fun HeaderFooterLayout(
                         contentMeasurables.size
             val itemConstraint = Constraints.tightConstraints(constraints.maxWidth, itemHeight)
             var top = headerPlaceable.height
-            contentMeasurables.map { measureOperations.measure(it, itemConstraint) }.forEach {
+            contentMeasurables.map { it.measure(itemConstraint) }.forEach {
                 it.place(0.dp, top)
                 top += itemHeight
             }

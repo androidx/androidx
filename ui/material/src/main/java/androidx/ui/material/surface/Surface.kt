@@ -113,7 +113,7 @@ fun Surface(
  */
 @Composable
 internal fun SurfaceMeasureBox(@Children children: () -> Unit) {
-    <MeasureBox> constraints, operations ->
+    <MeasureBox> constraints ->
         val width = if (constraints.hasBoundedWidth) {
             constraints.maxWidth
         } else {
@@ -126,9 +126,9 @@ internal fun SurfaceMeasureBox(@Children children: () -> Unit) {
             constraints.minHeight
         }
 
-        val measurables = operations.collect(children)
-        operations.layout(width, height) {
-            measurables.forEach { operations.measure(it, constraints).place(0.dp, 0.dp) }
+        val measurables = collect(children)
+        layout(width, height) {
+            measurables.forEach { it.measure(constraints).place(0.dp, 0.dp) }
         }
     </MeasureBox>
 }

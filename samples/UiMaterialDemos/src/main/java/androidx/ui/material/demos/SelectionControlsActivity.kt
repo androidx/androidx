@@ -49,7 +49,7 @@ open class SelectionControlsActivity : Activity() {
 
 @Composable
 fun TmpLayout() {
-    <MeasureBox> constraints, measureOperations ->
+    <MeasureBox> constraints ->
         val width = if (constraints.hasBoundedWidth) {
             constraints.maxWidth
         } else {
@@ -62,7 +62,7 @@ fun TmpLayout() {
             constraints.minHeight
         }
 
-        val measurables = measureOperations.collect {
+        val measurables = collect {
             <Checkbox value=ToggleableState.CHECKED/>
             <Checkbox value=ToggleableState.UNCHECKED/>
             <Checkbox value=ToggleableState.INDETERMINATE/>
@@ -71,9 +71,9 @@ fun TmpLayout() {
 
         val size = min(width, height)
         val rectSize = size / 2
-        measureOperations.layout(size, size) {
+        layout(size, size) {
             val placeables = measurables.map {
-                measureOperations.measure(it, Constraints.tightConstraints(rectSize, rectSize))
+                it.measure(Constraints.tightConstraints(rectSize, rectSize))
             }
             placeables[0].place(0.dp, 0.dp)
             placeables[1].place(rectSize, 0.dp)

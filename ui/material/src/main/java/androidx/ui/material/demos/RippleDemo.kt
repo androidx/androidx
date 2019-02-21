@@ -38,13 +38,13 @@ import com.google.r4a.composer
 
 @Composable
 internal fun FillAll(padding: Dimension, @Children children: () -> Unit) {
-    <MeasureBox> constraints, measureOperations ->
-        val measurables = measureOperations.collect(children)
+    <MeasureBox> constraints ->
+        val measurables = collect(children)
         val itemConstraints = Constraints.tightConstraints(constraints.maxWidth - padding * 2,
             constraints.maxHeight - padding * 2)
-        measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
+        layout(constraints.maxWidth, constraints.maxHeight) {
             measurables.forEach {
-                measureOperations.measure(it, itemConstraints).place(padding, padding)
+                it.measure(itemConstraints).place(padding, padding)
             }
         }
     </MeasureBox>

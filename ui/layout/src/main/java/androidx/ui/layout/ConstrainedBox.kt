@@ -17,7 +17,7 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.enforce
 import androidx.ui.core.satisfiable
@@ -40,18 +40,18 @@ fun ConstrainedBox(
     additionalConstraints: Constraints,
     @Children children: @Composable() () -> Unit
 ) {
-    <MeasureBox> constraints, measureOperations ->
-        val measurable = measureOperations.collect(children).firstOrNull()
+    <MeasureBox> constraints ->
+        val measurable = collect(children).firstOrNull()
         val childConstraints = additionalConstraints.enforce(constraints)
         val placeable = if (measurable != null) {
-            measureOperations.measure(measurable, childConstraints)
+            measurable.measure(childConstraints)
         } else {
             null
         }
 
         val layoutWidth = placeable?.width ?: constraints.minWidth
         val layoutHeight = placeable?.height ?: constraints.minHeight
-        measureOperations.layout(layoutWidth, layoutHeight) {
+        layout(layoutWidth, layoutHeight) {
             placeable?.place(0.dp, 0.dp)
         }
     </MeasureBox>

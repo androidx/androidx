@@ -68,17 +68,17 @@ data class Alignment(val verticalBias: Float, val horizontalBias: Float) {
  */
 @Composable
 fun Align(alignment: Alignment, @Children children: () -> Unit) {
-    <MeasureBox> constraints, measureOperations ->
-        val measurable = measureOperations.collect(children).firstOrNull()
+    <MeasureBox> constraints ->
+        val measurable = collect(children).firstOrNull()
         if (measurable == null) {
-            measureOperations.layout(constraints.minWidth, constraints.minHeight) {}
+            layout(constraints.minWidth, constraints.minHeight) {}
         } else {
             // The child cannot be larger than our max constraints, but we ignore min constraints.
             val childConstraints = Constraints(
                 maxWidth = constraints.maxWidth,
                 maxHeight = constraints.maxHeight
             )
-            val placeable = measureOperations.measure(measurable, childConstraints)
+            val placeable = measurable.measure(childConstraints)
 
             // The layout is as large as possible for bounded constraints,
             // or wrap content otherwise.
@@ -93,7 +93,7 @@ fun Align(alignment: Alignment, @Children children: () -> Unit) {
                 placeable.height
             }
 
-            measureOperations.layout(layoutWidth, layoutHeight) {
+            layout(layoutWidth, layoutHeight) {
                 val position = alignment.align(
                     Size(layoutWidth - placeable.width, layoutHeight - placeable.height)
                 )
