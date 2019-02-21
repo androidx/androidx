@@ -223,7 +223,7 @@ public class MediaBrowser extends MediaController {
      * item.
      *
      * @param mediaId non-empty media id for specifying the item
-     * @see LibraryResult#getMediaItems()
+     * @see LibraryResult#getMediaItem()
      */
     public @NonNull ListenableFuture<LibraryResult> getItem(@NonNull final String mediaId) {
         if (TextUtils.isEmpty(mediaId)) {
