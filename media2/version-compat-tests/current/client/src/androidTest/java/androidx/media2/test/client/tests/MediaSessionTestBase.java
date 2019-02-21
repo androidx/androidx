@@ -60,6 +60,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 abstract class MediaSessionTestBase {
     static final int TIMEOUT_MS = 1000;
+    static final int BROWSER_COMPAT_CONNECT_TIMEOUT_MS = 3000;
 
     static SyncHandler sHandler;
     static Executor sHandlerExecutor;
