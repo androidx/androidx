@@ -81,8 +81,8 @@ public final class Step implements VersionedParcelable {
         private RichText mCue;
 
         /**
-         * Sets the distance from the current position to the point where this navigation step
-         * should be executed, or null if this step doesn't involve a maneuver.
+         * Sets the maneuver to be performed on this step, or null if this step doesn't involve a
+         * maneuver.
          *
          * @return this object for chaining
          */
@@ -93,8 +93,8 @@ public final class Step implements VersionedParcelable {
         }
 
         /**
-         * Sets the maneuver to be performed on this step, or null if distance to this step is not
-         * provided.
+         * Sets the distance from the current position to the point where this navigation step
+         * should be executed, or null if distance to this step is not provided.
          *
          * @return this object for chaining
          */
