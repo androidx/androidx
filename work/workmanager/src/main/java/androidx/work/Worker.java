@@ -81,8 +81,13 @@ public abstract class Worker extends ListenableWorker {
         getBackgroundExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                Result result = doWork();
-                mFuture.set(result);
+                try {
+                    Result result = doWork();
+                    mFuture.set(result);
+                } catch (Throwable throwable) {
+                    mFuture.setException(throwable);
+                }
+
             }
         });
         return mFuture;
