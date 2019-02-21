@@ -327,15 +327,21 @@ public class VideoCaptureUseCase extends BaseUseCase {
 
         notifyActive();
         mAudioHandler.post(
-                () -> {
-                    audioEncode(listener);
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        VideoCaptureUseCase.this.audioEncode(listener);
+                    }
                 });
 
         mVideoHandler.post(
-                () -> {
-                    boolean errorOccurred = videoEncode(listener);
-                    if (!errorOccurred) {
-                        listener.onVideoSaved(saveLocation);
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean errorOccurred = VideoCaptureUseCase.this.videoEncode(listener);
+                        if (!errorOccurred) {
+                            listener.onVideoSaved(saveLocation);
+                        }
                     }
                 });
     }

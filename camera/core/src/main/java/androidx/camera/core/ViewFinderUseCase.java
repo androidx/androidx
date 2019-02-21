@@ -56,8 +56,12 @@ public class ViewFinderUseCase extends BaseUseCase {
     private static final String TAG = "ViewFinderUseCase";
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final CheckedSurfaceTexture.OnTextureChangedListener mSurfaceTextureListener =
-            (newSurfaceTexture, newResolution) ->
+            new CheckedSurfaceTexture.OnTextureChangedListener() {
+                @Override
+                public void onTextureChanged(SurfaceTexture newSurfaceTexture, Size newResolution) {
                     ViewFinderUseCase.this.updateOutput(newSurfaceTexture, newResolution);
+                }
+            };
     private final CheckedSurfaceTexture mCheckedSurfaceTexture =
             new CheckedSurfaceTexture(mSurfaceTextureListener, mMainHandler);
     private final ViewFinderUseCaseConfiguration.Builder mUseCaseConfigBuilder;

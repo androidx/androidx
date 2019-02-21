@@ -210,7 +210,7 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
-        ImageAnalysisUseCaseConfiguration configuration =
+        final ImageAnalysisUseCaseConfiguration configuration =
                 (ImageAnalysisUseCaseConfiguration) getUseCaseConfiguration();
 
         String cameraId;
@@ -243,21 +243,24 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
 
         tryUpdateRelativeRotation(cameraId);
         mImageReader.setOnImageAvailableListener(
-                imageReader -> {
-                    Analyzer analyzer = mSubscribedAnalyzer.get();
-                    try (ImageProxy image =
-                                 configuration
-                                         .getImageReaderMode(configuration.getImageReaderMode())
-                                         .equals(ImageReaderMode.ACQUIRE_NEXT_IMAGE)
-                                         ? imageReader.acquireNextImage()
-                                         : imageReader.acquireLatestImage()) {
-                        // Do not analyze if unable to acquire an ImageProxy
-                        if (image == null) {
-                            return;
-                        }
+                new ImageReaderProxy.OnImageAvailableListener() {
+                    @Override
+                    public void onImageAvailable(ImageReaderProxy imageReader) {
+                        Analyzer analyzer = mSubscribedAnalyzer.get();
+                        try (ImageProxy image =
+                                     configuration
+                                             .getImageReaderMode(configuration.getImageReaderMode())
+                                             .equals(ImageReaderMode.ACQUIRE_NEXT_IMAGE)
+                                             ? imageReader.acquireNextImage()
+                                             : imageReader.acquireLatestImage()) {
+                            // Do not analyze if unable to acquire an ImageProxy
+                            if (image == null) {
+                                return;
+                            }
 
-                        if (analyzer != null) {
-                            analyzer.analyze(image, mRelativeRotation.get());
+                            if (analyzer != null) {
+                                analyzer.analyze(image, mRelativeRotation.get());
+                            }
                         }
                     }
                 },

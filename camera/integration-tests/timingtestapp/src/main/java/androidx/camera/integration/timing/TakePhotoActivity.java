@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.TextureView.SurfaceTextureListener;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
@@ -148,53 +149,58 @@ public class TakePhotoActivity extends BaseActivity {
         openCameraStartTime = System.currentTimeMillis();
 
         mViewFinderUseCase.setOnViewFinderOutputUpdateListener(
-                viewFinderOutput -> {
-                    TextureView textureView = this.findViewById(R.id.textureView);
-                    ViewGroup viewGroup = (ViewGroup) textureView.getParent();
-                    viewGroup.removeView(textureView);
-                    viewGroup.addView(textureView);
-                    textureView.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
-                    textureView.setSurfaceTextureListener(
-                            new SurfaceTextureListener() {
-                                @Override
-                                public void onSurfaceTextureAvailable(
-                                        SurfaceTexture surfaceTexture, int i, int i1) {
-                                }
-
-                                @Override
-                                public void onSurfaceTextureSizeChanged(
-                                        SurfaceTexture surfaceTexture, int i, int i1) {
-                                }
-
-                                @Override
-                                public boolean onSurfaceTextureDestroyed(
-                                        SurfaceTexture surfaceTexture) {
-                                    return false;
-                                }
-
-                                @Override
-                                public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
-                                    Log.d(TAG, "[onSurfaceTextureUpdated]");
-                                    if (0 == totalTime) {
-                                        return;
+                new ViewFinderUseCase.OnViewFinderOutputUpdateListener() {
+                    @Override
+                    public void onUpdated(ViewFinderUseCase.ViewFinderOutput viewFinderOutput) {
+                        TextureView textureView = TakePhotoActivity.this.findViewById(
+                                R.id.textureView);
+                        ViewGroup viewGroup = (ViewGroup) textureView.getParent();
+                        viewGroup.removeView(textureView);
+                        viewGroup.addView(textureView);
+                        textureView.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
+                        textureView.setSurfaceTextureListener(
+                                new SurfaceTextureListener() {
+                                    @Override
+                                    public void onSurfaceTextureAvailable(
+                                            SurfaceTexture surfaceTexture, int i, int i1) {
                                     }
 
-                                    if (0 == mFrameCount) {
-                                        mPreviewSampleStartTime = System.currentTimeMillis();
-                                    } else if (FRAMERATE_SAMPLE_WINDOW == mFrameCount) {
-                                        final long duration =
-                                                System.currentTimeMillis()
-                                                        - mPreviewSampleStartTime;
-                                        previewFrameRate =
-                                                (MICROS_IN_SECOND
-                                                        * FRAMERATE_SAMPLE_WINDOW
-                                                        / duration);
-                                        closeCameraStartTime = System.currentTimeMillis();
-                                        mCustomLifecycle.doDestroyed();
+                                    @Override
+                                    public void onSurfaceTextureSizeChanged(
+                                            SurfaceTexture surfaceTexture, int i, int i1) {
                                     }
-                                    mFrameCount++;
-                                }
-                            });
+
+                                    @Override
+                                    public boolean onSurfaceTextureDestroyed(
+                                            SurfaceTexture surfaceTexture) {
+                                        return false;
+                                    }
+
+                                    @Override
+                                    public void onSurfaceTextureUpdated(
+                                            SurfaceTexture surfaceTexture) {
+                                        Log.d(TAG, "[onSurfaceTextureUpdated]");
+                                        if (0 == totalTime) {
+                                            return;
+                                        }
+
+                                        if (0 == mFrameCount) {
+                                            mPreviewSampleStartTime = System.currentTimeMillis();
+                                        } else if (FRAMERATE_SAMPLE_WINDOW == mFrameCount) {
+                                            final long duration =
+                                                    System.currentTimeMillis()
+                                                            - mPreviewSampleStartTime;
+                                            previewFrameRate =
+                                                    (MICROS_IN_SECOND
+                                                            * FRAMERATE_SAMPLE_WINDOW
+                                                            / duration);
+                                            closeCameraStartTime = System.currentTimeMillis();
+                                            mCustomLifecycle.doDestroyed();
+                                        }
+                                        mFrameCount++;
+                                    }
+                                });
+                    }
                 });
 
         CameraX.bindToLifecycle(mCustomLifecycle, mViewFinderUseCase);
@@ -213,22 +219,25 @@ public class TakePhotoActivity extends BaseActivity {
 
         final Button button = this.findViewById(R.id.Picture);
         button.setOnClickListener(
-                view -> {
-                    startTime = System.currentTimeMillis();
-                    mImageCaptureUseCase.takePicture(
-                            new ImageCaptureUseCase.OnImageCapturedListener() {
-                                @Override
-                                public void onCaptureSuccess(
-                                        ImageProxy image, int rotationDegrees) {
-                                    totalTime = System.currentTimeMillis() - startTime;
-                                    if (image != null) {
-                                        imageResolution =
-                                                image.getWidth() + "x" + image.getHeight();
-                                    } else {
-                                        Log.e(TAG, "[onCaptureSuccess] image is null");
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startTime = System.currentTimeMillis();
+                        mImageCaptureUseCase.takePicture(
+                                new ImageCaptureUseCase.OnImageCapturedListener() {
+                                    @Override
+                                    public void onCaptureSuccess(
+                                            ImageProxy image, int rotationDegrees) {
+                                        totalTime = System.currentTimeMillis() - startTime;
+                                        if (image != null) {
+                                            imageResolution =
+                                                    image.getWidth() + "x" + image.getHeight();
+                                        } else {
+                                            Log.e(TAG, "[onCaptureSuccess] image is null");
+                                        }
                                     }
-                                }
-                            });
+                                });
+                    }
                 });
     }
 

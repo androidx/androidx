@@ -119,13 +119,16 @@ final class CheckedSurfaceTexture implements DeferrableSurface {
     public ListenableFuture<Surface> getSurface() {
         SettableFuture<Surface> deferredSurface = SettableFuture.create();
         Runnable checkAndSetRunnable =
-                () -> {
-                    if (surfaceTextureReleased(mSurfaceTexture)) {
-                        // Reset the surface texture and notify the listener
-                        resetSurfaceTexture();
-                    }
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (CheckedSurfaceTexture.this.surfaceTextureReleased(mSurfaceTexture)) {
+                            // Reset the surface texture and notify the listener
+                            CheckedSurfaceTexture.this.resetSurfaceTexture();
+                        }
 
-                    deferredSurface.set(mSurface);
+                        deferredSurface.set(mSurface);
+                    }
                 };
 
         if (Looper.myLooper() == mMainThreadHandler.getLooper()) {

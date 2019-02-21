@@ -120,7 +120,12 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     @Override
     public void open() {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> open());
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera.this.open();
+                }
+            });
             return;
         }
 
@@ -145,7 +150,12 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     @Override
     public void close() {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> close());
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera.this.close();
+                }
+            });
             return;
         }
 
@@ -174,7 +184,12 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     @Override
     public void release() {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> release());
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera.this.release();
+                }
+            });
             return;
         }
 
@@ -204,7 +219,12 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     @Override
     public void onUseCaseActive(BaseUseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> onUseCaseActive(useCase));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera.this.onUseCaseActive(useCase);
+                }
+            });
             return;
         }
 
@@ -220,7 +240,12 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     @Override
     public void onUseCaseInactive(BaseUseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> onUseCaseInactive(useCase));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera.this.onUseCaseInactive(useCase);
+                }
+            });
             return;
         }
 
@@ -236,7 +261,12 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     @Override
     public void onUseCaseUpdated(BaseUseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> onUseCaseUpdated(useCase));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera.this.onUseCaseUpdated(useCase);
+                }
+            });
             return;
         }
 
@@ -251,7 +281,12 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     @Override
     public void onUseCaseReset(BaseUseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> onUseCaseReset(useCase));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera.this.onUseCaseReset(useCase);
+                }
+            });
             return;
         }
 
@@ -281,7 +316,12 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
         }
 
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> addOnlineUseCase(useCases));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera.this.addOnlineUseCase(useCases);
+                }
+            });
             return;
         }
 
@@ -308,7 +348,12 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
         }
 
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> removeOnlineUseCase(useCases));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera.this.removeOnlineUseCase(useCases);
+                }
+            });
             return;
         }
 
@@ -492,7 +537,12 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     @Override
     public void submitSingleRequest(CaptureRequestConfiguration captureRequestConfiguration) {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> submitSingleRequest(captureRequestConfiguration));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera.this.submitSingleRequest(captureRequestConfiguration);
+                }
+            });
             return;
         }
         Log.d(TAG, "issue single capture request for camera " + mCameraId);
@@ -516,7 +566,12 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     @Override
     public void updateRepeatingRequest() {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> updateRepeatingRequest());
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera.this.updateRepeatingRequest();
+                }
+            });
             return;
         }
 

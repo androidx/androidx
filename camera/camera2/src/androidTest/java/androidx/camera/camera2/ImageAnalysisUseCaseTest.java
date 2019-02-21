@@ -78,9 +78,12 @@ public final class ImageAnalysisUseCaseTest {
         mAnalysisResults = new HashSet<>();
         mAnalysisResultsSemaphore = new Semaphore(/*permits=*/ 0);
         mAnalyzer =
-                (image, rotationDegrees) -> {
-                    mAnalysisResults.add(new ImageProperties(image, rotationDegrees));
-                    mAnalysisResultsSemaphore.release();
+                new Analyzer() {
+                    @Override
+                    public void analyze(ImageProxy image, int rotationDegrees) {
+                        mAnalysisResults.add(new ImageProperties(image, rotationDegrees));
+                        mAnalysisResultsSemaphore.release();
+                    }
                 };
         Context context = ApplicationProvider.getApplicationContext();
         AppConfiguration config = Camera2AppConfiguration.create(context);

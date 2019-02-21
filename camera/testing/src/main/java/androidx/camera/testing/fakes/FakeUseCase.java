@@ -20,20 +20,27 @@ import android.util.Size;
 
 import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.SessionConfiguration;
 import androidx.camera.core.UseCaseConfiguration;
 
 import java.util.Map;
 
-/** A fake {@link BaseUseCase}. */
+/**
+ * A fake {@link BaseUseCase}.
+ */
 public class FakeUseCase extends BaseUseCase {
     private volatile boolean mIsCleared = false;
 
-    /** Creates a new instance of a {@link FakeUseCase} with a given configuration. */
+    /**
+     * Creates a new instance of a {@link FakeUseCase} with a given configuration.
+     */
     public FakeUseCase(FakeUseCaseConfiguration configuration) {
         super(configuration);
     }
 
-    /** Creates a new instance of a {@link FakeUseCase} with a default configuration. */
+    /**
+     * Creates a new instance of a {@link FakeUseCase} with a default configuration.
+     */
     public FakeUseCase() {
         this(new FakeUseCaseConfiguration.Builder().build());
     }
@@ -42,7 +49,11 @@ public class FakeUseCase extends BaseUseCase {
     protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
         return new FakeUseCaseConfiguration.Builder()
                 .setLensFacing(LensFacing.BACK)
-                .setOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> {
+                .setOptionUnpacker(new SessionConfiguration.OptionUnpacker() {
+                    @Override
+                    public void unpack(UseCaseConfiguration<?> useCaseConfig,
+                            SessionConfiguration.Builder sessionConfigBuilder) {
+                    }
                 });
     }
 
@@ -58,7 +69,9 @@ public class FakeUseCase extends BaseUseCase {
         return suggestedResolutionMap;
     }
 
-    /** Returns true if {@link #clear()} has been called previously. */
+    /**
+     * Returns true if {@link #clear()} has been called previously.
+     */
     public boolean isCleared() {
         return mIsCleared;
     }

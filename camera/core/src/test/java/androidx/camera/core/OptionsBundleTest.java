@@ -106,20 +106,26 @@ public class OptionsBundleTest {
     public void canFindPartialIds() {
         mAllOpts.findOptions(
                 "option.1",
-                option -> {
-                    assertThat(option).isAnyOf(OPTION_1, OPTION_1_A);
-                    return true;
+                new Configuration.OptionMatcher() {
+                    @Override
+                    public boolean onOptionMatched(Option<?> option) {
+                        assertThat(option).isAnyOf(OPTION_1, OPTION_1_A);
+                        return true;
+                    }
                 });
     }
 
     @Test
     public void canStopSearchingAfterFirstMatch() {
-        AtomicInteger count = new AtomicInteger();
+        final AtomicInteger count = new AtomicInteger();
         mAllOpts.findOptions(
                 "option",
-                option -> {
-                    count.getAndIncrement();
-                    return false;
+                new Configuration.OptionMatcher() {
+                    @Override
+                    public boolean onOptionMatched(Option<?> option) {
+                        count.getAndIncrement();
+                        return false;
+                    }
                 });
 
         assertThat(count.get()).isEqualTo(1);
@@ -127,12 +133,15 @@ public class OptionsBundleTest {
 
     @Test
     public void canGetZeroResults_fromFind() {
-        AtomicInteger count = new AtomicInteger();
+        final AtomicInteger count = new AtomicInteger();
         mAllOpts.findOptions(
                 "invalid_find_string",
-                option -> {
-                    count.getAndIncrement();
-                    return false;
+                new Configuration.OptionMatcher() {
+                    @Override
+                    public boolean onOptionMatched(Option<?> option) {
+                        count.getAndIncrement();
+                        return false;
+                    }
                 });
 
         assertThat(count.get()).isEqualTo(0);
@@ -140,12 +149,15 @@ public class OptionsBundleTest {
 
     @Test
     public void canRetrieveValue_fromFindLambda() {
-        AtomicReference<Object> value = new AtomicReference<>(VALUE_MISSING);
+        final AtomicReference<Object> value = new AtomicReference<>(VALUE_MISSING);
         mAllOpts.findOptions(
                 "option.2",
-                option -> {
-                    value.set(mAllOpts.retrieveOption(option));
-                    return true;
+                new Configuration.OptionMatcher() {
+                    @Override
+                    public boolean onOptionMatched(Option<?> option) {
+                        value.set(mAllOpts.retrieveOption(option));
+                        return true;
+                    }
                 });
 
         assertThat(value.get()).isSameAs(VALUE_2);

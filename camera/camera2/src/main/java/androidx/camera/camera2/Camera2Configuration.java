@@ -90,9 +90,12 @@ public final class Camera2Configuration implements Configuration.Reader {
         Set<Option<?>> optionSet = new HashSet<>();
         findOptions(
                 Camera2Configuration.CAPTURE_REQUEST_ID_STEM,
-                option -> {
-                    optionSet.add(option);
-                    return true;
+                new OptionMatcher() {
+                    @Override
+                    public boolean onOptionMatched(Option<?> option) {
+                        optionSet.add(option);
+                        return true;
+                    }
                 });
         return optionSet;
     }

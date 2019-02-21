@@ -121,11 +121,21 @@ final class ImageSaver implements Runnable {
     }
 
     private void postSuccess() {
-        mHandler.post(() -> mListener.onImageSaved(mFile));
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mListener.onImageSaved(mFile);
+            }
+        });
     }
 
     private void postError(SaveError saveError, String message, @Nullable Throwable cause) {
-        mHandler.post(() -> mListener.onError(saveError, message, cause));
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mListener.onError(saveError, message, cause);
+            }
+        });
     }
 
     private byte[] getBytes() throws EncodeFailedException {
