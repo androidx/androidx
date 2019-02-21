@@ -489,7 +489,10 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final PlayerOperation sGetMetricsOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
-            player.getMetrics();
+            // Validate media metrics from API 21 where PersistableBundle was added.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                player.getMetrics();
+            }
         }
 
         @Override
