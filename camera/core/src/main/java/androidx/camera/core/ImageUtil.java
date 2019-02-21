@@ -27,6 +27,7 @@ import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.Nullable;
+import androidx.camera.core.ImageOutputConfiguration.RotationValue;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -34,6 +35,7 @@ import java.nio.ByteBuffer;
 /**
  * Utility class for image related operations.
  *
+ * @hide
  */
 final class ImageUtil {
     private static final String TAG = "ImageUtil";
@@ -47,25 +49,11 @@ final class ImageUtil {
         if (image.getFormat() == ImageFormat.JPEG) {
             data = jpegImageToJpegByteArray(image);
         } else if (image.getFormat() == ImageFormat.YUV_420_888) {
-            data = yuvImageToJpegByteArray(image, null);
+            data = yuvImageToJpegByteArray(image);
         } else {
             Log.w(TAG, "Unrecognized image format: " + image.getFormat());
         }
         return data;
-    }
-
-    public static byte[] jpegImageToJpegByteArray(ImageProxy image) {
-        ImageProxy.PlaneProxy[] planes = image.getPlanes();
-        ByteBuffer buffer = planes[0].getBuffer();
-        byte[] data = new byte[buffer.capacity()];
-        buffer.get(data);
-        return data;
-    }
-
-    public static byte[] yuvImageToJpegByteArray(ImageProxy image, @Nullable Rect cropRect)
-            throws EncodeFailedException {
-        return ImageUtil.nv21ToJpeg(
-                ImageUtil.yuv_420_888toNv21(image), image.getWidth(), image.getHeight(), cropRect);
     }
 
     /** Crops byte array with given {@link android.graphics.Rect}. */
@@ -182,6 +170,21 @@ final class ImageUtil {
         return new Rect(cropLeft, cropTop, cropLeft + outputWidth, cropTop + outputHeight);
     }
 
+    /**
+     * Rotate rational by rotation value, which inverse it if the degree is 90 or 270.
+     *
+     * @param rational Rational to be rotated.
+     * @param rotation Rotation value being applied.
+     * */
+    public static Rational rotate(
+            Rational rational, @RotationValue int rotation) {
+        if (rotation == 90 || rotation == 270) {
+            return inverseRational(rational);
+        }
+
+        return rational;
+    }
+
     private static byte[] nv21ToJpeg(byte[] nv21, int width, int height, @Nullable Rect cropRect)
             throws EncodeFailedException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -256,6 +259,42 @@ final class ImageUtil {
 
         return sourceHeight != Math.round((sourceWidth / (float) numerator) * denominator)
                 || sourceWidth != Math.round((sourceHeight / (float) denominator) * numerator);
+    }
+
+    private static Rational inverseRational(Rational rational) {
+        if (rational == null) {
+            return rational;
+        }
+        return new Rational(
+                /*numerator=*/ rational.getDenominator(),
+                /*denominator=*/ rational.getNumerator());
+    }
+
+    private static boolean shouldCropImage(ImageProxy image) {
+        Size sourceSize = new Size(image.getWidth(), image.getHeight());
+        Size targetSize = new Size(image.getCropRect().width(), image.getCropRect().height());
+
+        return !targetSize.equals(sourceSize);
+    }
+
+    private static byte[] jpegImageToJpegByteArray(ImageProxy image) throws EncodeFailedException {
+        ImageProxy.PlaneProxy[] planes = image.getPlanes();
+        ByteBuffer buffer = planes[0].getBuffer();
+        byte[] data = new byte[buffer.capacity()];
+        buffer.get(data);
+        if (shouldCropImage(image)) {
+            data = cropByteArray(data, image.getCropRect());
+        }
+        return data;
+    }
+
+    private static byte[] yuvImageToJpegByteArray(ImageProxy image)
+            throws EncodeFailedException {
+        return ImageUtil.nv21ToJpeg(
+                ImageUtil.yuv_420_888toNv21(image),
+                image.getWidth(),
+                image.getHeight(),
+                shouldCropImage(image) ? image.getCropRect() : null);
     }
 
     /** Exception for error during encoding image. */

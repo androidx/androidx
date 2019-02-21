@@ -28,10 +28,10 @@ import static org.mockito.Mockito.when;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Base64;
-import android.util.Rational;
 
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageSaver.OnImageSavedListener;
@@ -56,6 +56,8 @@ public class ImageSaverTest {
 
     private static final int WIDTH = 160;
     private static final int HEIGHT = 120;
+    private static final int CROP_WIDTH = 100;
+    private static final int CROP_HEIGHT = 100;
     private static final int Y_PIXEL_STRIDE = 1;
     private static final int Y_ROW_STRIDE = WIDTH;
     private static final int UV_PIXEL_STRIDE = 1;
@@ -141,11 +143,13 @@ public class ImageSaverTest {
         when(mVPlane.getRowStride()).thenReturn(UV_ROW_STRIDE);
         when(mMockYuvImage.getPlanes())
                 .thenReturn(new ImageProxy.PlaneProxy[]{mYPlane, mUPlane, mVPlane});
+        when(mMockYuvImage.getCropRect()).thenReturn(new Rect(0, 0, CROP_WIDTH, CROP_HEIGHT));
 
         // The JPEG image's behavior
         when(mMockJpegImage.getFormat()).thenReturn(ImageFormat.JPEG);
         when(mMockJpegImage.getWidth()).thenReturn(WIDTH);
         when(mMockJpegImage.getHeight()).thenReturn(HEIGHT);
+        when(mMockJpegImage.getCropRect()).thenReturn(new Rect(0, 0, CROP_WIDTH, CROP_HEIGHT));
 
         when(mJpegDataPlane.getBuffer()).thenReturn(mJpegDataBuffer);
         when(mMockJpegImage.getPlanes()).thenReturn(new ImageProxy.PlaneProxy[]{mJpegDataPlane});
@@ -169,7 +173,6 @@ public class ImageSaverTest {
                 /*reversedHorizontal=*/ false,
                 /*reversedVertical=*/ false,
                 /*location=*/ null,
-                /*cropAspectRatio=*/ null,
                 mSyncListener,
                 mBackgroundHandler);
     }
@@ -248,8 +251,6 @@ public class ImageSaverTest {
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
 
-        Rational viewRatio = new Rational(1, 1);
-
         ImageSaver imageSaver =
                 new ImageSaver(
                         image,
@@ -258,7 +259,6 @@ public class ImageSaverTest {
                         /*reversedHorizontal=*/ false,
                         /*reversedVertical=*/ false,
                         /*location=*/ null,
-                        /*cropAspectRatio=*/ viewRatio,
                         mSyncListener,
                         mBackgroundHandler);
         imageSaver.run();
