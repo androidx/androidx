@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.ui.engine.geometry
+package androidx.ui.material.borders
 
+import androidx.ui.engine.geometry.RRect
+import androidx.ui.engine.geometry.Radius
+import androidx.ui.engine.geometry.Rect
+import androidx.ui.engine.geometry.lerp
 import androidx.ui.engine.text.TextDirection
 
 /**

@@ -16,13 +16,11 @@
 
 package androidx.ui.material.ripple
 
-import androidx.ui.animation.Animation
-import androidx.ui.animation.AnimationController
-import androidx.ui.animation.AnimationStatus
-import androidx.ui.animation.Curves
-import androidx.ui.animation.Interval
-import androidx.ui.animation.Tween
-import androidx.ui.animation.animations.CurvedAnimation
+// TODO("Andrey: Android dependencies are temporary. To be replaced with Crane's animations system)
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.ui.core.Bounds
 import androidx.ui.core.Density
 import androidx.ui.core.Dimension
@@ -35,37 +33,29 @@ import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.getDistance
 import androidx.ui.core.lerp
+import androidx.ui.core.max
 import androidx.ui.core.plus
 import androidx.ui.core.times
 import androidx.ui.core.toBounds
 import androidx.ui.core.toPx
 import androidx.ui.core.toRect
 import androidx.ui.core.toSize
-import androidx.ui.engine.geometry.BorderRadius
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.material.Tween
+import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BoxShape
 import androidx.ui.material.surface.Surface
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import androidx.ui.vectormath64.getAsTranslation
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.getAsTranslation
 
-// TODO(Andrey) Implement the animation from the current specification: b/124504971
-
-internal val UnconfirmedRippleDuration = Duration.create(seconds = 1)
 internal val FadeInDuration = Duration.create(milliseconds = 75)
 internal val RadiusDuration = Duration.create(milliseconds = 225)
-internal val FadeOutDuration = Duration.create(milliseconds = 375)
-internal val CancelDuration = Duration.create(milliseconds = 75)
-internal val HighlightFadeDuration = Duration.create(milliseconds = 200)
-internal val DefaultSplashRadius = 35.dp
-
-// The fade out begins 225ms after the fadeOutController starts. See confirm().
-private val FadeOutIntervalStart = 225f / 375f
+internal val FadeOutDuration = Duration.create(milliseconds = 150)
+internal val FadeOutMinStartDelay = Duration.create(milliseconds = 225)
 
 internal fun getRippleClipCallback(
     containedInkWell: Boolean,
@@ -81,13 +71,16 @@ internal fun getRippleClipCallback(
     return null
 }
 
-internal fun getRippleTargetRadius(
+internal fun getSurfaceSize(
     coordinates: LayoutCoordinates,
     boundsCallback: ((LayoutCoordinates) -> Bounds)?
-): Dimension {
-    val size: Size = boundsCallback?.invoke(coordinates)?.toSize() ?: coordinates.size
-    return Position(size.width, size.height).getDistance() / 2f
-}
+) = boundsCallback?.invoke(coordinates)?.toSize() ?: coordinates.size
+
+internal fun getRippleStartRadius(size: Size) =
+    max(size.width, size.height) * 0.3f
+
+internal fun getRippleTargetRadius(size: Size) =
+    Position(size.width, size.height).getDistance() / 2f + 10.dp
 
 /**
  * Used to specify this type of [RippleEffect] for an [BoundedRipple] and [Ripple].
@@ -111,7 +104,6 @@ object DefaultRippleEffectFactory : RippleEffectFactory() {
             coordinates,
             touchPosition,
             color,
-            shape,
             finalRadius,
             containedInkWell,
             boundsCallback,
@@ -154,7 +146,6 @@ internal class DefaultRippleEffect(
     coordinates: LayoutCoordinates,
     private val touchPosition: Position,
     color: Color,
-    private val shape: BoxShape = BoxShape.RECTANGLE,
     finalRadius: Dimension? = null,
     containedInkWell: Boolean = false,
     boundsCallback: ((LayoutCoordinates) -> Bounds)? = null,
@@ -162,124 +153,66 @@ internal class DefaultRippleEffect(
     onRemoved: (() -> Unit)? = null
 ) : RippleEffect(rippleSurface, coordinates, color, onRemoved) {
 
-    private val borderRadius: BorderRadius = clippingBorderRadius ?: BorderRadius.Zero
-    private val targetRadius: Dimension =
-        finalRadius ?: getRippleTargetRadius(coordinates, boundsCallback)
+    private val borderRadius: BorderRadius =
+        clippingBorderRadius ?: BorderRadius.Zero
     private val clipCallback: ((LayoutCoordinates) -> Bounds)? =
         getRippleClipCallback(containedInkWell, boundsCallback)
+    private val startedTime: Duration =
+        Duration.create(milliseconds = System.currentTimeMillis())
 
-    private val radius: Animation<Dimension>
-    private val radiusController: AnimationController
-
-    private val fadeIn: Animation<Int>
-    private val fadeInController: AnimationController
-
-    private val fadeOut: Animation<Int>
-    private val fadeOutController: AnimationController
-
-    private val highlightAlpha: Animation<Int>
-    private val highlightAlphaController: AnimationController
+    private val radius: ValueAnimator
+    private val fadeIn: ValueAnimator
+    private val fadeOut: ValueAnimator
 
     init {
+        val surfaceSize = getSurfaceSize(coordinates, boundsCallback)
+        val startRadius = getRippleStartRadius(surfaceSize)
+        val targetRadius = finalRadius ?: getRippleTargetRadius(surfaceSize)
+
+        val redrawListener = object : ValueAnimator.AnimatorUpdateListener {
+            override fun onAnimationUpdate(animation: ValueAnimator?) {
+                rippleSurface.markNeedsRedraw()
+            }
+        }
+
         // Immediately begin fading-in the initial ripple.
-        fadeInController = AnimationController(
-            duration = FadeInDuration,
-            vsync = rippleSurface.vsync
-        )
-        fadeInController.addListener(rippleSurface::markNeedsRedraw)
-        fadeInController.forward()
-        fadeIn = Tween(
-            begin = 0,
-            end = color.alpha
-        ).animate(fadeInController)
+        fadeIn = ValueAnimator.ofInt(0, color.alpha)
+        fadeIn.duration = FadeInDuration.inMilliseconds
+        fadeIn.addUpdateListener(redrawListener)
+        fadeIn.start()
 
-        // Controls the ripple finalRadius and its center. Starts upon confirm.
-        radiusController = AnimationController(
-            duration = UnconfirmedRippleDuration,
-            vsync = rippleSurface.vsync
-        )
-        radiusController.addListener(rippleSurface::markNeedsRedraw)
-        radiusController.forward()
-        // Initial ripple diameter is 60% of the target diameter, final
-        // diameter is 10dps larger than the target diameter.
-        this.radius = Tween(
-            begin = targetRadius * 0.3f,
-            end = targetRadius + 5.dp
-        ).animate(
-            CurvedAnimation(
-                parent = radiusController,
-                curve = Curves.ease
-            )
-        )
+        // Controls the ripple radius and its center.
+        radius = ValueAnimator.ofFloat(startRadius.dp, targetRadius.dp)
+        radius.duration = RadiusDuration.inMilliseconds
+        radius.interpolator = FastOutSlowInInterpolator()
+        radius.addUpdateListener(redrawListener)
+        radius.start()
 
-        // Controls the ripple finalRadius and its center. Starts upon confirm however its
-        // Interval delays changes until the finalRadius expansion has completed.
-        fadeOutController = AnimationController(
-            duration = FadeOutDuration,
-            vsync = rippleSurface.vsync
-        )
-        fadeOutController.addListener(rippleSurface::markNeedsRedraw)
-        fadeOutController.forward()
-        fadeOut = Tween(
-            begin = color.alpha,
-            end = 0
-        ).animate(
-            CurvedAnimation(
-                parent = fadeOutController,
-                curve = Interval(FadeOutIntervalStart, 1f)
-            )
-        )
-
-        highlightAlphaController = AnimationController(
-            duration = HighlightFadeDuration,
-            vsync = rippleSurface.vsync
-        )
-        highlightAlphaController.addListener { rippleSurface.markNeedsRedraw() }
-        highlightAlphaController.addStatusListener(this::handleAlphaStatusChanged)
-        highlightAlphaController.forward()
-        highlightAlpha = Tween(
-            begin = 0,
-            end = color.alpha / 2
-        ).animate(highlightAlphaController)
-        highlightAlphaController.forward()
+        // Controls the fading-out effects. Will be started in finish callback
+        fadeOut = ValueAnimator.ofInt(color.alpha, 0)
+        fadeOut.duration = FadeOutDuration.inMilliseconds
+        fadeOut.addUpdateListener(redrawListener)
+        fadeOut.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator?) {
+                dispose()
+            }
+        })
 
         rippleSurface.addEffect(this)
     }
 
-    override fun confirm() {
-        radiusController.duration = RadiusDuration
-        radiusController.forward()
-        // This confirm may have been preceded by a cancel.
-        fadeInController.forward()
-        fadeOutController.animateTo(1f, duration = FadeOutDuration)
-        highlightAlphaController.reverse()
-    }
-
-    override fun cancel() {
-        fadeInController.stop()
-        // Watch out: setting fadeOutController's value to 1.0 will
-        // trigger a call to handleAlphaStatusChanged() which will
-        // dispose fadeOutController.
-        val fadeOutValue = 1f - fadeInController.value
-        fadeOutController.value = fadeOutValue
-        if (fadeOutValue < 1f) {
-            fadeOutController.animateTo(1f, duration = CancelDuration)
+    override fun finish(canceled: Boolean) {
+        // if we still fading-in we should immediately switch to the final alpha.
+        if (fadeIn.isRunning) {
+            fadeIn.end()
         }
-        highlightAlphaController.reverse()
-    }
-
-    private fun handleAlphaStatusChanged(status: AnimationStatus) {
-        if (status == AnimationStatus.COMPLETED && highlightAlphaController.value == 0f) {
-            dispose()
-        }
-    }
-
-    override fun dispose() {
-        radiusController.dispose()
-        fadeInController.dispose()
-        fadeOutController.dispose()
-        highlightAlphaController.dispose()
-        super.dispose()
+        val currentTime = Duration.create(milliseconds = System.currentTimeMillis())
+        // starting fading-out but not before [FadeOutMinStartDelay] after the ripple start.
+        val difference = currentTime - startedTime
+        val startDelay = if (difference < FadeOutMinStartDelay)
+            FadeOutMinStartDelay - difference else Duration.zero
+        fadeOut.startDelay = startDelay.inMilliseconds
+        fadeOut.start()
     }
 
     private fun clipRRectFromRect(rect: Rect): RRect {
@@ -305,15 +238,16 @@ internal class DefaultRippleEffect(
     }
 
     override fun drawEffect(canvas: Canvas, transform: Matrix4, density: Density) {
-        val alpha = if (fadeInController.isAnimating) fadeIn.value else fadeOut.value
+        val alpha = (if (fadeOut.isRunning) fadeOut.animatedValue else fadeIn.animatedValue) as Int
         val paint = Paint()
         paint.color = color.withAlpha(alpha)
         // Ripple moves to the center of the parent layout
         val center = lerp(
             touchPosition,
             coordinates.size.center(),
-            Curves.ease.transform(radiusController.value)
+            radius.animatedFraction
         )
+        val radius = Dimension(radius.animatedValue as Float)
         val centerOffset = Offset(center.x.toPx(density), center.y.toPx(density))
         val originOffset = transform.getAsTranslation()
         val clipRect = clipCallback?.invoke(coordinates)?.toRect(density)
@@ -323,44 +257,16 @@ internal class DefaultRippleEffect(
             if (clipRect != null) {
                 clipCanvasWithRect(canvas, clipRect)
             }
-            canvas.drawCircle(centerOffset, radius.value.toPx(density), paint)
+            canvas.drawCircle(centerOffset, radius.toPx(density), paint)
             canvas.restore()
         } else {
             if (clipRect != null) {
                 canvas.save()
                 clipCanvasWithRect(canvas, clipRect, offset = originOffset)
             }
-            canvas.drawCircle(centerOffset + originOffset, radius.value.toPx(density), paint)
+            canvas.drawCircle(centerOffset + originOffset, radius.toPx(density), paint)
             if (clipRect != null) {
                 canvas.restore()
-            }
-        }
-
-        // highlight
-        paint.color = color.withAlpha(highlightAlpha.value)
-        val bounds = clipCallback?.invoke(coordinates) ?: coordinates.size.toBounds()
-        val rect = bounds.toRect(density)
-        if (originOffset == null) {
-            canvas.save()
-            canvas.transform(transform)
-            drawHighlight(canvas, rect, paint, density)
-            canvas.restore()
-        } else {
-            drawHighlight(canvas, rect.shift(originOffset), paint, density)
-        }
-    }
-
-    private fun drawHighlight(canvas: Canvas, rect: Rect, paint: Paint, density: Density) {
-        when (shape) {
-            BoxShape.CIRCLE ->
-                canvas.drawCircle(rect.getCenter(), DefaultSplashRadius.toPx(density), paint)
-            BoxShape.RECTANGLE -> {
-                if (borderRadius != BorderRadius.Zero) {
-                    val clipRRect = clipRRectFromRect(rect)
-                    canvas.drawRRect(clipRRect, paint)
-                } else {
-                    canvas.drawRect(rect, paint)
-                }
             }
         }
     }

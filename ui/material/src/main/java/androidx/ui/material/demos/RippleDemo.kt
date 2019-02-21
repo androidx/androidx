@@ -22,7 +22,7 @@ import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.minus
 import androidx.ui.core.times
-import androidx.ui.engine.geometry.BorderRadius
+import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BorderSide
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.ripple.BoundedRipple

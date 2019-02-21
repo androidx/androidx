@@ -18,21 +18,44 @@ package androidx.ui.material.demos
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.Gravity
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.ui.core.CraneWrapper
 import androidx.ui.material.MaterialTheme
-import com.google.r4a.setContent
+import com.google.r4a.adapters.dp
+import com.google.r4a.adapters.setPadding
 import com.google.r4a.composer
+import com.google.r4a.setContent
 
 class RippleActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <RippleDemo />
-                </MaterialTheme>
-            </CraneWrapper>
+            val layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+            val gravity = Gravity.CENTER_HORIZONTAL
+            <LinearLayout orientation=LinearLayout.VERTICAL>
+                <TextView gravity text="Crane card with ripple:" />
+                <FrameLayout layoutParams>
+                    <CraneWrapper>
+                        <MaterialTheme>
+                            <RippleDemo />
+                        </MaterialTheme>
+                    </CraneWrapper>
+                </FrameLayout>
+                <TextView gravity text="Platform button with ripple:" />
+                <FrameLayout layoutParams padding=50.dp>
+                    <Button background=getDrawable(R.drawable.ripple) />
+                </FrameLayout>
+            </LinearLayout>
         }
     }
 }

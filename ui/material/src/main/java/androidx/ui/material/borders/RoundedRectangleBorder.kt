@@ -19,9 +19,7 @@ package androidx.ui.material.borders
 import androidx.ui.core.Density
 import androidx.ui.core.dp
 import androidx.ui.core.toPx
-import androidx.ui.engine.geometry.BorderRadius
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.engine.geometry.lerp
 import androidx.ui.engine.geometry.shrink
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.lerpFloat
