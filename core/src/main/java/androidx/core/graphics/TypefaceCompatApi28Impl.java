@@ -16,7 +16,7 @@
 
 package androidx.core.graphics;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.graphics.Typeface;
 
@@ -31,7 +31,7 @@ import java.lang.reflect.Method;
  * Implementation of the Typeface compat methods for API 28 and above.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(28)
 public class TypefaceCompatApi28Impl extends TypefaceCompatApi26Impl {
     private static final String CREATE_FROM_FAMILIES_WITH_DEFAULT_METHOD =

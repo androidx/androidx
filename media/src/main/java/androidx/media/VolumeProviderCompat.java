@@ -16,7 +16,7 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.media.VolumeProvider;
 import android.os.Build;
@@ -39,7 +39,7 @@ public abstract class VolumeProviderCompat {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({VOLUME_CONTROL_FIXED, VOLUME_CONTROL_RELATIVE, VOLUME_CONTROL_ABSOLUTE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ControlType {}

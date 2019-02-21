@@ -16,7 +16,7 @@
 
 package androidx.car.cluster.navigation;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -43,14 +43,14 @@ public class RichText implements VersionedParcelable {
      * Used by {@link VersionedParcelable}
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     RichText() {
     }
 
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     RichText(@NonNull List<RichTextElement> elements) {
         mElements = new ArrayList<>(elements);
     }

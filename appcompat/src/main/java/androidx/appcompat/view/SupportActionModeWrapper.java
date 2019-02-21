@@ -16,7 +16,7 @@
 
 package androidx.appcompat.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.view.ActionMode;
@@ -39,7 +39,7 @@ import java.util.ArrayList;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class SupportActionModeWrapper extends ActionMode {
 
     final Context mContext;
@@ -139,7 +139,7 @@ public class SupportActionModeWrapper extends ActionMode {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static class CallbackWrapper implements androidx.appcompat.view.ActionMode.Callback {
         final Callback mWrappedCallback;
         final Context mContext;

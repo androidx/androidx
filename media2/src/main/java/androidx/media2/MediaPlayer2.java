@@ -17,7 +17,7 @@
 package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -251,7 +251,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public MediaPlayer2() { }
 
     /**
@@ -261,7 +261,7 @@ public abstract class MediaPlayer2 {
      * @return {@code false} if the task could not be cancelled; {@code true} otherwise.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public abstract boolean cancel(Object token);
 
     /**
@@ -630,7 +630,7 @@ public abstract class MediaPlayer2 {
             SEEK_CLOSEST,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface SeekMode {}
 
     /**
@@ -778,7 +778,7 @@ public abstract class MediaPlayer2 {
         public static final int MEDIA_TRACK_TYPE_AUDIO = 2;
 
         /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public static final int MEDIA_TRACK_TYPE_TIMEDTEXT = 3;
 
         public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
@@ -1032,7 +1032,7 @@ public abstract class MediaPlayer2 {
             PLAYER_STATE_PLAYING,
             PLAYER_STATE_ERROR})
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface MediaPlayer2State {}
 
     /** Unspecified media player error.
@@ -1068,7 +1068,7 @@ public abstract class MediaPlayer2 {
      * @see EventCallback#onError
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int MEDIA_ERROR_SYSTEM = -2147483648;
 
     /**
@@ -1083,7 +1083,7 @@ public abstract class MediaPlayer2 {
             MEDIA_ERROR_SYSTEM
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface MediaError {}
 
     /** Unspecified media player info.
@@ -1151,7 +1151,7 @@ public abstract class MediaPlayer2 {
      * @see EventCallback#onInfo
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int MEDIA_INFO_NETWORK_BANDWIDTH = 703;
 
     /**
@@ -1188,7 +1188,7 @@ public abstract class MediaPlayer2 {
      *  JAVA framework to avoid triggering track scanning.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int MEDIA_INFO_EXTERNAL_METADATA_UPDATE = 803;
 
     /** Informs that audio is not playing. Note that playback of the video
@@ -1205,9 +1205,9 @@ public abstract class MediaPlayer2 {
 
     /** Failed to handle timed text track properly.
      * @see EventCallback#onInfo
-     * {@hide}
+     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int MEDIA_INFO_TIMED_TEXT_ERROR = 900;
 
     /** Subtitle track was not supported by the media framework.
@@ -1248,7 +1248,7 @@ public abstract class MediaPlayer2 {
             MEDIA_INFO_SUBTITLE_TIMED_OUT
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface MediaInfo {}
 
     //--------------------------------------------------------------------------
@@ -1347,14 +1347,14 @@ public abstract class MediaPlayer2 {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int SEPARATE_CALL_COMPLETE_CALLBACK_START = 1000;
 
     /** The player just completed a call {@code notifyWhenCommandLabelReached}.
      * @see EventCallback#onCommandLabelReached
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED =
             SEPARATE_CALL_COMPLETE_CALLBACK_START;
 
@@ -1362,7 +1362,7 @@ public abstract class MediaPlayer2 {
      * @see EventCallback#onCommandLabelReached
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int CALL_COMPLETED_PREPARE_DRM =
             SEPARATE_CALL_COMPLETE_CALLBACK_START + 1;
 
@@ -1392,7 +1392,7 @@ public abstract class MediaPlayer2 {
             CALL_COMPLETED_PREPARE_DRM,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface CallCompleted {}
 
     /** Status code represents that call is completed without an error.
@@ -1443,7 +1443,7 @@ public abstract class MediaPlayer2 {
             CALL_STATUS_ERROR_IO,
             CALL_STATUS_SKIPPED})
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface CallStatus {}
 
     // Modular DRM begin
@@ -1565,7 +1565,7 @@ public abstract class MediaPlayer2 {
             PREPARE_DRM_STATUS_RESOURCE_BUSY,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface PrepareDrmStatusCode {}
 
     /**

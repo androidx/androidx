@@ -16,7 +16,7 @@
 
 package androidx.car.navigation.utils;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Bundle;
 
@@ -55,7 +55,7 @@ import java.util.function.Supplier;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class BundleMarshaller {
     /**
      * Separator used to concatenate identifiers when marshalling non-primitive types (e.g. lists

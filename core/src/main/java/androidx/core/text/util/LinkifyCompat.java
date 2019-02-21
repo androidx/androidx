@@ -16,7 +16,7 @@
 
 package androidx.core.text.util;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
@@ -80,7 +80,7 @@ public final class LinkifyCompat {
     };
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef(flag = true, value = { Linkify.WEB_URLS, Linkify.EMAIL_ADDRESSES, Linkify.PHONE_NUMBERS,
             Linkify.MAP_ADDRESSES, Linkify.ALL })
     @Retention(RetentionPolicy.SOURCE)

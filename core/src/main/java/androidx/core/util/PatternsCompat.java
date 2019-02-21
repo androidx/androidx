@@ -16,7 +16,7 @@
 
 package androidx.core.util;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import androidx.annotation.RestrictTo;
 
@@ -299,7 +299,7 @@ public final class PatternsCompat {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final Pattern AUTOLINK_WEB_URL = Pattern.compile(
             "(" + WEB_URL_WITH_PROTOCOL + "|" + WEB_URL_WITHOUT_PROTOCOL + ")");
 
@@ -328,7 +328,7 @@ public final class PatternsCompat {
      * and the special characters #&~!^`{}/=$*?| that are included in RFC5321.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final Pattern AUTOLINK_EMAIL_ADDRESS = Pattern.compile("(" + WORD_BOUNDARY +
             "(?:" + EMAIL_ADDRESS_LOCAL_PART + "@" + EMAIL_ADDRESS_DOMAIN + ")" +
             WORD_BOUNDARY + ")"

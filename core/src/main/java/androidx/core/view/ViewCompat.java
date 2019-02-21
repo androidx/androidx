@@ -16,7 +16,7 @@
 
 package androidx.core.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
@@ -86,20 +86,20 @@ public class ViewCompat {
     private static final String TAG = "ViewCompat";
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({View.FOCUS_LEFT, View.FOCUS_UP, View.FOCUS_RIGHT, View.FOCUS_DOWN,
             View.FOCUS_FORWARD, View.FOCUS_BACKWARD})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FocusDirection {}
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({View.FOCUS_LEFT, View.FOCUS_UP, View.FOCUS_RIGHT, View.FOCUS_DOWN})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FocusRealDirection {}
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({View.FOCUS_FORWARD, View.FOCUS_BACKWARD})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FocusRelativeDirection {}
@@ -352,7 +352,7 @@ public class ViewCompat {
      */
     @IntDef(value = {SCROLL_AXIS_NONE, SCROLL_AXIS_HORIZONTAL, SCROLL_AXIS_VERTICAL}, flag = true)
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface ScrollAxis {}
 
     /**
@@ -375,7 +375,7 @@ public class ViewCompat {
      */
     @IntDef({TYPE_TOUCH, TYPE_NON_TOUCH})
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface NestedScrollType {}
 
     /**
@@ -390,7 +390,7 @@ public class ViewCompat {
     public static final int TYPE_NON_TOUCH = 1;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true,
             value = {

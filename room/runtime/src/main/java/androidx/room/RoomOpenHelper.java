@@ -34,7 +34,7 @@ import java.util.List;
  * @hide
  */
 @SuppressWarnings("unused")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
     @Nullable
     private DatabaseConfiguration mConfiguration;
@@ -165,7 +165,7 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public abstract static class Delegate {
         public final int version;
 

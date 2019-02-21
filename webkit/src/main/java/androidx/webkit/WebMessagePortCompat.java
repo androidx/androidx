@@ -83,7 +83,7 @@ public abstract class WebMessagePortCompat {
     /**
      * @hide disallow app devs to extend this class.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public WebMessagePortCompat() { }
 
     /**
@@ -152,7 +152,7 @@ public abstract class WebMessagePortCompat {
      * @hide
      */
     @RequiresApi(23)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public abstract WebMessagePort getFrameworkPort();
 
     /**
@@ -161,7 +161,7 @@ public abstract class WebMessagePortCompat {
      * the WebView APK supports {@link WebMessagePortCompat}.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public abstract InvocationHandler getInvocationHandler();
 
 }

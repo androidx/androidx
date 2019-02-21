@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.SessionResult.RESULT_ERROR_NOT_SUPPORTED;
 import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
@@ -189,7 +189,7 @@ public class MediaSession implements AutoCloseable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isClosed() {
         return mImpl.isClosed();
     }
@@ -343,7 +343,7 @@ public class MediaSession implements AutoCloseable {
      * @hide
      * @return Bundle
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public MediaSessionCompat getSessionCompat() {
         return mImpl.getSessionCompat();
     }
@@ -558,7 +558,7 @@ public class MediaSession implements AutoCloseable {
          * @see SessionCommand#COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @ResultCode
         public int onPlayFromMediaId(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull String mediaId,
@@ -577,7 +577,7 @@ public class MediaSession implements AutoCloseable {
          * @see SessionCommand#COMMAND_CODE_SESSION_PLAY_FROM_SEARCH
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @ResultCode
         public int onPlayFromSearch(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull String query,
@@ -596,7 +596,7 @@ public class MediaSession implements AutoCloseable {
          * @see SessionCommand#COMMAND_CODE_SESSION_PLAY_FROM_URI
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @ResultCode
         public int onPlayFromUri(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull Uri uri,
@@ -625,7 +625,7 @@ public class MediaSession implements AutoCloseable {
          * @see SessionCommand#COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @ResultCode
         public int onPrepareFromMediaId(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull String mediaId,
@@ -654,7 +654,7 @@ public class MediaSession implements AutoCloseable {
          * @see SessionCommand#COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @ResultCode
         public int onPrepareFromSearch(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull String query,
@@ -683,7 +683,7 @@ public class MediaSession implements AutoCloseable {
          * @see SessionCommand#COMMAND_CODE_SESSION_PREPARE_FROM_URI
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @ResultCode
         public int onPrepareFromUri(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull Uri uri, @Nullable Bundle extras) {
@@ -831,7 +831,7 @@ public class MediaSession implements AutoCloseable {
          *           SessionCallback#onConnected().
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         ControllerInfo(@NonNull RemoteUserInfo remoteUserInfo, boolean trusted,
                 @Nullable ControllerCb cb) {
             mRemoteUserInfo = remoteUserInfo;
@@ -842,7 +842,7 @@ public class MediaSession implements AutoCloseable {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public @NonNull RemoteUserInfo getRemoteUserInfo() {
             return mRemoteUserInfo;
         }
@@ -871,7 +871,7 @@ public class MediaSession implements AutoCloseable {
          * @return {@code true} if the controller is trusted.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public boolean isTrusted() {
             return mIsTrusted;
         }
@@ -1160,7 +1160,7 @@ public class MediaSession implements AutoCloseable {
      *              T, U, C extends androidx.media2.MediaSession.SessionCallback>, C></pre>
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     abstract static class BuilderBase
             <T extends MediaSession, U extends BuilderBase<T, U, C>, C extends SessionCallback> {
         final Context mContext;

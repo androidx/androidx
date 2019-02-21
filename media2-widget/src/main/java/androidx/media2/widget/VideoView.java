@@ -16,7 +16,7 @@
 
 package androidx.media2.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.SessionResult.RESULT_ERROR_INVALID_STATE;
 import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
@@ -128,7 +128,7 @@ import java.util.concurrent.Executor;
  */
 public class VideoView extends SelectiveLayout {
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({
             VIEW_TYPE_TEXTUREVIEW,
             VIEW_TYPE_SURFACEVIEW

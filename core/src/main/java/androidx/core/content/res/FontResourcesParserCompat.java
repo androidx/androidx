@@ -16,7 +16,7 @@
 
 package androidx.core.content.res;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -48,7 +48,7 @@ import java.util.List;
  * Parser for xml type font resources.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class FontResourcesParserCompat {
     private static final int NORMAL_WEIGHT = 400;
     private static final int ITALIC = 1;

@@ -147,7 +147,6 @@ public class LeanbackListPreferenceDialogFragment extends LeanbackPreferenceDial
         }
     }
 
-    @SuppressWarnings("RestrictedApi")
     @Override
     public @Nullable View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {

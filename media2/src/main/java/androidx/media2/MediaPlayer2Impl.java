@@ -15,7 +15,7 @@
  */
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.media.AudioAttributes;
 import android.media.DeniedByServerException;
@@ -66,7 +66,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @hide
  */
 @RequiresApi(28)
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class MediaPlayer2Impl extends MediaPlayer2 {
 
     private static final String TAG = "MediaPlayer2Impl";

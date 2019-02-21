@@ -16,7 +16,7 @@
 
 package androidx.preference.internal;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,7 +32,7 @@ import androidx.preference.R;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("AppCompatCustomView")
 public class PreferenceImageView extends ImageView {
 

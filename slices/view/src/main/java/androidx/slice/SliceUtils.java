@@ -32,7 +32,6 @@ import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -185,7 +184,6 @@ public class SliceUtils {
      * @param options Options defining how to handle non-serializable items.
      * @throws IllegalArgumentException if the slice cannot be serialized using the given options.
      */
-    @SuppressLint("RestrictedApi")
     public static void serializeSlice(@NonNull Slice s, @NonNull final Context context,
             @NonNull OutputStream output,
             @NonNull final SerializeOptions options) throws IllegalArgumentException {
@@ -266,7 +264,6 @@ public class SliceUtils {
      * @param listener Listener used to handle actions when reconstructing the slice.
      * @throws SliceParseException if the InputStream cannot be parsed.
      */
-    @SuppressLint("RestrictedApi")
     public static @NonNull Slice parseSlice(@NonNull final Context context,
             @NonNull InputStream input, @NonNull String encoding,
             @NonNull final SliceActionListener listener) throws IOException, SliceParseException {

@@ -44,7 +44,7 @@ import java.util.Set;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public abstract class LimitOffsetDataSource<T> extends PositionalDataSource<T> {
     private final RoomSQLiteQuery mSourceQuery;
     private final String mCountQuery;

@@ -16,7 +16,7 @@
 
 package androidx.transition;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -265,7 +265,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         protected ViewParent invalidateChildInParentFast(int left, int top, Rect dirty) {
             if (mHostView instanceof ViewGroup && sInvalidateChildInParentFastMethod != null) {
                 try {

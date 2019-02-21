@@ -15,7 +15,7 @@
  */
 package androidx.appcompat.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.view.Menu;
@@ -35,7 +35,7 @@ import java.lang.ref.WeakReference;
 /**
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class StandaloneActionMode extends ActionMode implements MenuBuilder.Callback {
     private Context mContext;
     private ActionBarContextView mContextView;

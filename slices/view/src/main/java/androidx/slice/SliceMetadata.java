@@ -498,7 +498,7 @@ public class SliceMetadata {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public ListContent getListContent() {
         return mListContent;
     }

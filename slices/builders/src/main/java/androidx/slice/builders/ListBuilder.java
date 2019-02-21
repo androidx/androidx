@@ -17,7 +17,7 @@
 package androidx.slice.builders;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -1470,7 +1470,7 @@ public class ListBuilder extends TemplateSliceBuilder {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public HeaderBuilder(Uri uri) {
             mUri = uri;
         }

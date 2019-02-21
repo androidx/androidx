@@ -16,7 +16,7 @@
 
 package androidx.fragment.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Bundle;
 import android.view.View;
@@ -198,7 +198,7 @@ public abstract class FragmentTransaction {
     public static final int TRANSIT_EXIT_MASK = 0x2000;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({TRANSIT_NONE, TRANSIT_FRAGMENT_OPEN, TRANSIT_FRAGMENT_CLOSE, TRANSIT_FRAGMENT_FADE})
     @Retention(RetentionPolicy.SOURCE)
     private @interface Transit {}

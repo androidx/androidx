@@ -16,7 +16,7 @@
 
 package androidx.leanback.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -37,13 +37,13 @@ import androidx.leanback.R;
  * The widget does not deal with KeyEvent, it's client's responsibility to set a key listener.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class SeekBar extends View {
 
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public abstract static class AccessibilitySeekListener {
         /**
          * Called to perform AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD

@@ -16,7 +16,7 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.annotation.RestrictTo.Scope.TESTS;
 
 import android.content.Context;
@@ -504,7 +504,7 @@ public class Toolbar extends ViewGroup {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean canShowOverflowMenu() {
         return getVisibility() == VISIBLE && mMenuView != null && mMenuView.isOverflowReserved();
     }
@@ -520,7 +520,7 @@ public class Toolbar extends ViewGroup {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isOverflowMenuShowPending() {
         return mMenuView != null && mMenuView.isOverflowMenuShowPending();
     }
@@ -544,7 +544,7 @@ public class Toolbar extends ViewGroup {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setMenu(MenuBuilder menu, ActionMenuPresenter outerPresenter) {
         if (menu == null && mMenuView == null) {
             return;
@@ -590,7 +590,7 @@ public class Toolbar extends ViewGroup {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isTitleTruncated() {
         if (mTitleTextView == null) {
             return false;
@@ -2218,7 +2218,7 @@ public class Toolbar extends ViewGroup {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public DecorToolbar getWrapper() {
         if (mWrapper == null) {
             mWrapper = new ToolbarWidgetWrapper(this, true);
@@ -2257,7 +2257,7 @@ public class Toolbar extends ViewGroup {
      * it could be considered "empty" (no visible elements with nonzero measured size)
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setCollapsible(boolean collapsible) {
         mCollapsible = collapsible;
         requestLayout();
@@ -2267,7 +2267,7 @@ public class Toolbar extends ViewGroup {
      * Must be called before the menu is accessed
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setMenuCallbacks(MenuPresenter.Callback pcb, MenuBuilder.Callback mcb) {
         mActionMenuPresenterCallback = pcb;
         mMenuBuilderCallback = mcb;

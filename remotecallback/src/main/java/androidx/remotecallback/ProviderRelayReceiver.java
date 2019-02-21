@@ -29,7 +29,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ProviderRelayReceiver extends BroadcastReceiver {
 
     public static final String ACTION_PROVIDER_RELAY =

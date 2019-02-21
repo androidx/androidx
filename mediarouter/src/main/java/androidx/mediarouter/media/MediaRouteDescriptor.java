@@ -15,7 +15,7 @@
  */
 package androidx.mediarouter.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.IntentFilter;
 import android.content.IntentSender;
@@ -92,7 +92,7 @@ public final class MediaRouteDescriptor {
      * </p>
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public List<String> getGroupMemberIds() {
         ensureGroupMemberIds();
         return mGroupMemberIds;
@@ -310,7 +310,7 @@ public final class MediaRouteDescriptor {
      * Gets the minimum client version required for this route.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int getMinClientVersion() {
         return mBundle.getInt(KEY_MIN_CLIENT_VERSION,
                 MediaRouteProviderProtocol.CLIENT_VERSION_START);
@@ -320,7 +320,7 @@ public final class MediaRouteDescriptor {
      * Gets the maximum client version required for this route.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int getMaxClientVersion() {
         return mBundle.getInt(KEY_MAX_CLIENT_VERSION, Integer.MAX_VALUE);
     }
@@ -446,7 +446,7 @@ public final class MediaRouteDescriptor {
          * </p>
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder addGroupMemberId(String groupMemberId) {
             if (TextUtils.isEmpty(groupMemberId)) {
                 throw new IllegalArgumentException("groupMemberId must not be empty");
@@ -469,7 +469,7 @@ public final class MediaRouteDescriptor {
          * </p>
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder addGroupMemberIds(Collection<String> groupMemberIds) {
             if (groupMemberIds == null) {
                 throw new IllegalArgumentException("groupMemberIds must not be null");
@@ -491,7 +491,7 @@ public final class MediaRouteDescriptor {
          * </p>
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder removeGroupMemberId(String memberRouteId) {
             if (TextUtils.isEmpty(memberRouteId)) {
                 throw new IllegalArgumentException("memberRouteId must not be empty");
@@ -726,7 +726,7 @@ public final class MediaRouteDescriptor {
          * A router whose version is lower than this will not be able to connect to this route.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder setMinClientVersion(int minVersion) {
             mBundle.putInt(KEY_MIN_CLIENT_VERSION, minVersion);
             return this;
@@ -737,7 +737,7 @@ public final class MediaRouteDescriptor {
          * A router whose version is higher than this will not be able to connect to this route.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder setMaxClientVersion(int maxVersion) {
             mBundle.putInt(KEY_MAX_CLIENT_VERSION, maxVersion);
             return this;

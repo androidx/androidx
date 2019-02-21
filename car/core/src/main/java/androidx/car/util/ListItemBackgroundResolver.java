@@ -16,7 +16,7 @@
 
 package androidx.car.util;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.view.View;
 
@@ -30,7 +30,7 @@ import androidx.car.R;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ListItemBackgroundResolver {
     private ListItemBackgroundResolver() {}
 

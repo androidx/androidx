@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -465,7 +465,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see Builder#putFloat(String, float)
      * @see #getFloat(String)
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String METADATA_KEY_RADIO_FREQUENCY =
             "androidx.media2.metadata.RADIO_FREQUENCY";
 
@@ -479,7 +479,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String METADATA_KEY_RADIO_PROGRAM_NAME =
             "androidx.media2.metadata.RADIO_PROGRAM_NAME";
 
@@ -639,7 +639,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @StringDef({METADATA_KEY_TITLE, METADATA_KEY_ARTIST, METADATA_KEY_ALBUM, METADATA_KEY_AUTHOR,
             METADATA_KEY_WRITER, METADATA_KEY_COMPOSER, METADATA_KEY_COMPILATION,
             METADATA_KEY_DATE, METADATA_KEY_GENRE, METADATA_KEY_ALBUM_ARTIST, METADATA_KEY_ART_URI,
@@ -652,7 +652,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @StringDef({METADATA_KEY_DURATION, METADATA_KEY_YEAR, METADATA_KEY_TRACK_NUMBER,
             METADATA_KEY_NUM_TRACKS, METADATA_KEY_DISC_NUMBER, METADATA_KEY_BROWSABLE,
             METADATA_KEY_PLAYABLE, METADATA_KEY_ADVERTISEMENT, METADATA_KEY_DOWNLOAD_STATUS})
@@ -662,7 +662,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @StringDef({METADATA_KEY_ART, METADATA_KEY_ALBUM_ART, METADATA_KEY_DISPLAY_ICON})
     @Retention(RetentionPolicy.SOURCE)
     public @interface BitmapKey {}
@@ -670,7 +670,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @StringDef({METADATA_KEY_USER_RATING, METADATA_KEY_RATING})
     @Retention(RetentionPolicy.SOURCE)
     public @interface RatingKey {}
@@ -678,7 +678,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @StringDef({METADATA_KEY_RADIO_FREQUENCY})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FloatKey {}
@@ -686,7 +686,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @StringDef({METADATA_KEY_EXTRAS})
     @Retention(RetentionPolicy.SOURCE)
     public @interface BundleKey {}
@@ -956,7 +956,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @Nullable Object getObject(@NonNull String key) {
         if (key == null) {
             throw new IllegalArgumentException("key shouldn't be null");
@@ -968,7 +968,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @hide
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void onPreParceling(boolean isStream) {
         List<ParcelImpl> parcelImplList = new ArrayList<>();
         List<String> keysForBitmap = new ArrayList<>();
@@ -992,7 +992,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @hide
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void onPostParceling() {
         List<ParcelImpl> parcelImplList = mBitmapListSlice.getList();
         for (ParcelImpl parcelImpl : parcelImplList) {

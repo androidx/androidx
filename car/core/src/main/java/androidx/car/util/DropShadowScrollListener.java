@@ -36,7 +36,7 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class DropShadowScrollListener extends PagedListView.OnScrollListener {
     private static final String TAG = "DropShadowScrollListener";
     private static final int ANIMATION_DURATION_MS = 100;

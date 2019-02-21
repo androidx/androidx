@@ -16,7 +16,7 @@
 
 package android.support.v4.os;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -41,7 +41,7 @@ import androidx.annotation.RestrictTo;
  * break if your process goes away for any reason, etc.</p>
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("BanParcelableUsage")
 public class ResultReceiver implements Parcelable {
     final boolean mLocal;

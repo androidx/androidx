@@ -13,7 +13,7 @@
  */
 package androidx.leanback.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.database.Observable;
 
@@ -217,7 +217,7 @@ public abstract class ObjectAdapter {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public final boolean hasObserver() {
         return mObservable.hasObserver();
     }

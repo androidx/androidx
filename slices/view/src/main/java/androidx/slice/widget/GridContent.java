@@ -52,7 +52,7 @@ import java.util.List;
  * Extracts information required to present content in a grid format from a slice.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
 public class GridContent extends SliceContent {
 
@@ -236,7 +236,7 @@ public class GridContent extends SliceContent {
      * Extracts information required to present content in a cell.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static class CellContent {
         private SliceItem mContentIntent;
         private ArrayList<SliceItem> mCellItems = new ArrayList<>();

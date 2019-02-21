@@ -16,7 +16,7 @@
 
 package androidx.car.cluster.navigation;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -53,14 +53,14 @@ public final class Step implements VersionedParcelable {
 
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     Step() {
     }
 
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     Step(@Nullable Distance distance, @Nullable Maneuver maneuver, @NonNull List<Lane> lanes,
             @Nullable ImageReference lanesImage, @Nullable RichText cue) {
         mDistance = distance;

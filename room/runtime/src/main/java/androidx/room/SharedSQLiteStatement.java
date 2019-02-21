@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @hide
  */
 @SuppressWarnings({"WeakerAccess", "unused"})
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public abstract class SharedSQLiteStatement {
     private final AtomicBoolean mLock = new AtomicBoolean(false);
 

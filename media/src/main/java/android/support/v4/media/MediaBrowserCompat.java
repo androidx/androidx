@@ -16,7 +16,7 @@
 package android.support.v4.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_DISCONNECT;
@@ -461,7 +461,7 @@ public final class MediaBrowserCompat {
         private final MediaDescriptionCompat mDescription;
 
         /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef(flag=true, value = { FLAG_BROWSABLE, FLAG_PLAYABLE })
         public @interface Flags { }

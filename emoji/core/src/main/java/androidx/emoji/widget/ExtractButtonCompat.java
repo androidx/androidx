@@ -16,7 +16,7 @@
 
 package androidx.emoji.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.os.Build;
@@ -33,7 +33,7 @@ import androidx.core.widget.TextViewCompat;
  * inflating {@link EmojiExtractEditText} for keyboard use.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ExtractButtonCompat extends Button {
     public ExtractButtonCompat(Context context) {
         super(context, null);

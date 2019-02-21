@@ -16,7 +16,7 @@
 
 package androidx.versionedparcelable;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -41,7 +41,7 @@ public class ParcelUtils {
      * Turn a VersionedParcelable into a Parcelable
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static Parcelable toParcelable(VersionedParcelable obj) {
         return new ParcelImpl(obj);
     }
@@ -50,7 +50,7 @@ public class ParcelUtils {
      * Turn a Parcelable into a VersionedParcelable.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @SuppressWarnings("TypeParameterUnusedInFormals")
     public static <T extends VersionedParcelable> T fromParcelable(Parcelable p) {
         if (!(p instanceof ParcelImpl)) {
@@ -63,7 +63,7 @@ public class ParcelUtils {
      * Write a VersionedParcelable into an OutputStream.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static void toOutputStream(VersionedParcelable obj, OutputStream output) {
         VersionedParcelStream stream = new VersionedParcelStream(null, output);
         stream.writeVersionedParcelable(obj);
@@ -75,7 +75,7 @@ public class ParcelUtils {
      * @hide
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static <T extends VersionedParcelable> T fromInputStream(InputStream input) {
         VersionedParcelStream stream = new VersionedParcelStream(input, null);
         return stream.readVersionedParcelable();

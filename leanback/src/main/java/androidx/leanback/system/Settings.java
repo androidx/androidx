@@ -16,7 +16,7 @@
 
 package androidx.leanback.system;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -76,7 +76,7 @@ public class Settings {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean preferStaticShadows() {
         return mPreferStaticShadows;
     }
@@ -86,7 +86,7 @@ public class Settings {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isOutlineClippingDisabled() {
         return mOutlineClippingDisabled;
     }

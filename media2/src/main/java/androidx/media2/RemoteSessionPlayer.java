@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -33,12 +33,14 @@ import java.util.concurrent.Future;
  * <p>
  * If you use this to the {@link MediaSession}, session would dispatch incoming volume change event
  * to the player instead of changing device stream volume.
+ * @hide
  */
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public abstract class RemoteSessionPlayer extends SessionPlayer {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({VOLUME_CONTROL_FIXED, VOLUME_CONTROL_RELATIVE, VOLUME_CONTROL_ABSOLUTE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface VolumeControlType {}
@@ -127,7 +129,9 @@ public abstract class RemoteSessionPlayer extends SessionPlayer {
      * <p>
      * This is registered by {@link MediaSession} to notify volume changes to the
      * {@link MediaController}.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static class Callback extends SessionPlayer.PlayerCallback {
         /**
          * Called to indicate that the volume has changed.

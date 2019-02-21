@@ -16,7 +16,7 @@
 
 package androidx.preference;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Bundle;
 import android.view.View;
@@ -33,7 +33,7 @@ import androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class PreferenceRecyclerViewAccessibilityDelegate
         extends RecyclerViewAccessibilityDelegate {
     final RecyclerView mRecyclerView;

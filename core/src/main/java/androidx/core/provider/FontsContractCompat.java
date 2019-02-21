@@ -16,7 +16,7 @@
 
 package androidx.core.provider;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
@@ -156,16 +156,16 @@ public class FontsContractCompat {
      * returned to the ResultReceiver in getFont.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String PARCEL_FONT_RESULTS = "font_results";
 
     // Error codes internal to the system, which can not come from a provider. To keep the number
     // space open for new provider codes, these should all be negative numbers.
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     /* package */ static final int RESULT_CODE_PROVIDER_NOT_FOUND = -1;
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     /* package */ static final int RESULT_CODE_WRONG_CERTIFICATES = -2;
     // Note -3 is used by FontRequestCallback to indicate the font failed to load.
 
@@ -218,13 +218,13 @@ public class FontsContractCompat {
      * Used for tests, should not be used otherwise.
      * @hide
      **/
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static void resetCache() {
         sTypefaceCache.evictAll();
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static Typeface getFontSync(final Context context, final FontRequest request,
             final @Nullable ResourcesCompat.FontCallback fontCallback,
             final @Nullable Handler handler, boolean isBlockingFetch, int timeout,
@@ -340,7 +340,7 @@ public class FontsContractCompat {
          *
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public FontInfo(@NonNull Uri uri, @IntRange(from = 0) int ttcIndex,
                 @IntRange(from = 1, to = 1000) int weight,
                 boolean italic, int resultCode) {
@@ -414,7 +414,7 @@ public class FontsContractCompat {
         public static final int STATUS_UNEXPECTED_DATA_PROVIDED = 2;
 
         /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @IntDef({STATUS_OK, STATUS_WRONG_CERTIFICATES, STATUS_UNEXPECTED_DATA_PROVIDED})
         @Retention(RetentionPolicy.SOURCE)
         @interface FontResultStatus {}
@@ -423,7 +423,7 @@ public class FontsContractCompat {
         private final FontInfo[] mFonts;
 
         /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public FontFamilyResult(@FontResultStatus int statusCode, @Nullable FontInfo[] fonts) {
             mStatusCode = statusCode;
             mFonts = fonts;
@@ -443,7 +443,7 @@ public class FontsContractCompat {
      */
     public static class FontRequestCallback {
         /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public static final int RESULT_OK = Columns.RESULT_CODE_OK;
         /**
          * Constant returned by {@link #onTypefaceRequestFailed(int)} signaling that the given
@@ -482,7 +482,7 @@ public class FontsContractCompat {
         public static final int FAIL_REASON_MALFORMED_QUERY = Columns.RESULT_CODE_MALFORMED_QUERY;
 
         /** @hide */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @IntDef({ FAIL_REASON_PROVIDER_NOT_FOUND, FAIL_REASON_FONT_LOAD_ERROR,
                 FAIL_REASON_FONT_NOT_FOUND, FAIL_REASON_FONT_UNAVAILABLE,
                 FAIL_REASON_MALFORMED_QUERY, FAIL_REASON_WRONG_CERTIFICATES,
@@ -673,7 +673,7 @@ public class FontsContractCompat {
      * @return A map from {@link Uri} to {@link ByteBuffer}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @RequiresApi(19)
     public static Map<Uri, ByteBuffer> prepareFontData(Context context, FontInfo[] fonts,
             CancellationSignal cancellationSignal) {
@@ -728,7 +728,7 @@ public class FontsContractCompat {
 
     /** @hide */
     @VisibleForTesting
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static @Nullable ProviderInfo getProvider(@NonNull PackageManager packageManager,
             @NonNull FontRequest request, @Nullable Resources resources)
             throws PackageManager.NameNotFoundException {

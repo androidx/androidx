@@ -15,7 +15,7 @@
  */
 package androidx.emoji.text;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
@@ -70,7 +70,7 @@ public final class MetadataRepo {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     MetadataRepo() {
         mTypeface = null;
         mMetadataList = null;
@@ -148,7 +148,7 @@ public final class MetadataRepo {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     Typeface getTypeface() {
         return mTypeface;
     }
@@ -156,7 +156,7 @@ public final class MetadataRepo {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     int getMetadataVersion() {
         return mMetadataList.version();
     }
@@ -164,7 +164,7 @@ public final class MetadataRepo {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     Node getRootNode() {
         return mRootNode;
     }
@@ -172,7 +172,7 @@ public final class MetadataRepo {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public char[] getEmojiCharArray() {
         return mEmojiCharArray;
     }
@@ -180,7 +180,7 @@ public final class MetadataRepo {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public MetadataList getMetadataList() {
         return mMetadataList;
     }
@@ -190,7 +190,7 @@ public final class MetadataRepo {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
     void put(@NonNull final EmojiMetadata data) {
         Preconditions.checkNotNull(data, "emoji metadata cannot be null");
@@ -206,7 +206,7 @@ public final class MetadataRepo {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     static class Node {
         private final SparseArray<Node> mChildren;
         private EmojiMetadata mData;

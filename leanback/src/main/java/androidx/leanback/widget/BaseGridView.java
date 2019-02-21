@@ -13,7 +13,7 @@
  */
 package androidx.leanback.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -45,14 +45,14 @@ public abstract class BaseGridView extends RecyclerView {
      * is back to the view.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public final static int FOCUS_SCROLL_ALIGNED = 0;
 
     /**
      * Scroll to make the focused item inside client area.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public final static int FOCUS_SCROLL_ITEM = 1;
 
     /**
@@ -60,7 +60,7 @@ public abstract class BaseGridView extends RecyclerView {
      * The page size matches the client area size of RecyclerView.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public final static int FOCUS_SCROLL_PAGE = 2;
 
     /**
@@ -272,7 +272,7 @@ public abstract class BaseGridView extends RecyclerView {
      * </ul>
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setFocusScrollStrategy(int scrollStrategy) {
         if (scrollStrategy != FOCUS_SCROLL_ALIGNED && scrollStrategy != FOCUS_SCROLL_ITEM
             && scrollStrategy != FOCUS_SCROLL_PAGE) {
@@ -291,7 +291,7 @@ public abstract class BaseGridView extends RecyclerView {
      * </ul>
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int getFocusScrollStrategy() {
         return mLayoutManager.getFocusScrollStrategy();
     }
@@ -685,7 +685,7 @@ public abstract class BaseGridView extends RecyclerView {
      * Changes the selected item and/or subposition immediately without animation.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSelectedPositionWithSub(int position, int subposition) {
         mLayoutManager.setSelectionWithSub(position, subposition, 0);
     }
@@ -705,7 +705,7 @@ public abstract class BaseGridView extends RecyclerView {
      * another {@link #setSelectedPosition} or {@link #setSelectedPositionSmooth} call.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSelectedPositionWithSub(int position, int subposition, int scrollExtra) {
         mLayoutManager.setSelectionWithSub(position, subposition, scrollExtra);
     }
@@ -724,7 +724,7 @@ public abstract class BaseGridView extends RecyclerView {
      * position.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSelectedPositionSmoothWithSub(int position, int subposition) {
         mLayoutManager.setSelectionSmoothWithSub(position, subposition);
     }
@@ -796,7 +796,7 @@ public abstract class BaseGridView extends RecyclerView {
      * is defined.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int getSelectedSubPosition() {
         return mLayoutManager.getSubSelection();
     }
@@ -1109,7 +1109,7 @@ public abstract class BaseGridView extends RecyclerView {
      *                          Must be bigger or equals to 0.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setExtraLayoutSpace(int extraLayoutSpace) {
         mLayoutManager.setExtraLayoutSpace(extraLayoutSpace);
     }
@@ -1119,7 +1119,7 @@ public abstract class BaseGridView extends RecyclerView {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int getExtraLayoutSpace() {
         return mLayoutManager.getExtraLayoutSpace();
     }

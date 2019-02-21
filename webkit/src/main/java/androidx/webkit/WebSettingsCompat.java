@@ -160,7 +160,7 @@ public class WebSettingsCompat {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @IntDef(flag = true, value = {
             WebSettings.MENU_ITEM_NONE,
             WebSettings.MENU_ITEM_SHARE,

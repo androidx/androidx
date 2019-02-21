@@ -16,7 +16,7 @@
 
 package androidx.sharetarget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -60,7 +60,7 @@ import java.util.concurrent.TimeUnit;
  * @hide
  */
 @RequiresApi(19)
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 //TODO: we need Futures.addCallback and CallbackToFutureAdapter, update once they're available
 public class ShortcutInfoCompatSaverImpl extends ShortcutInfoCompatSaver {
 

@@ -16,7 +16,7 @@
 
 package androidx.car.navigation.utils;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Bundle;
 
@@ -85,7 +85,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface Bundlable {
     /**
      * Serializes this object into a {@link BundleMarshaller} by writing all its fields to it.

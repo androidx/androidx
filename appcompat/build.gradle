@@ -11,7 +11,7 @@ dependencies {
 
     api(project(":core"))
     implementation(project(":collection"))
-    api("androidx.cursoradapter:cursoradapter:1.0.0")
+    api(project(":cursoradapter"))
     api(project(":fragment"))
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")

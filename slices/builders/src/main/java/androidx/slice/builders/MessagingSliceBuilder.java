@@ -17,7 +17,7 @@
 package androidx.slice.builders;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.graphics.drawable.Icon;
@@ -40,7 +40,7 @@ import androidx.slice.builders.impl.TemplateBuilderImpl;
  * Builder to construct slice content in a messaging format.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
 public class MessagingSliceBuilder extends TemplateSliceBuilder {
 

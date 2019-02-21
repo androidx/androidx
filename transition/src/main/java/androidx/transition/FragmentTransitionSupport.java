@@ -16,7 +16,7 @@
 
 package androidx.transition;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.graphics.Rect;
 import android.view.View;
@@ -35,7 +35,7 @@ import java.util.List;
  */
 // This is instantiated in androidx.fragment.app.FragmentTransition
 @SuppressWarnings("unused")
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class FragmentTransitionSupport extends FragmentTransitionImpl {
 
     @Override

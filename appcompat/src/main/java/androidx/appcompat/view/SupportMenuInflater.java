@@ -16,7 +16,7 @@
 
 package androidx.appcompat.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Activity;
 import android.content.Context;
@@ -65,7 +65,7 @@ import java.lang.reflect.Method;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class SupportMenuInflater extends MenuInflater {
     static final String LOG_TAG = "SupportMenuInflater";
 

@@ -16,7 +16,7 @@
 
 package androidx.versionedparcelable;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.IBinder;
 import android.os.IInterface;
@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public @interface VersionedParcelize {
     /**
      * Whether or not to allow this VersionedParcelable to be used with

@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import android.annotation.SuppressLint
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
 import java.util.concurrent.Executor
@@ -35,7 +34,6 @@ import java.util.concurrent.Executor
  *
  * @see LivePagedListBuilder
  */
-@SuppressLint("RestrictedApi")
 fun <Key, Value> DataSource.Factory<Key, Value>.toLiveData(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
@@ -63,7 +61,6 @@ fun <Key, Value> DataSource.Factory<Key, Value>.toLiveData(
  *
  * @see LivePagedListBuilder
  */
-@SuppressLint("RestrictedApi")
 fun <Key, Value> DataSource.Factory<Key, Value>.toLiveData(
     pageSize: Int,
     initialLoadKey: Key? = null,

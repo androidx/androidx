@@ -16,7 +16,7 @@
 
 package androidx.leanback.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -48,7 +48,7 @@ import androidx.leanback.R;
  * A page indicator with dots.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class PagingIndicator extends View {
     private static final long DURATION_ALPHA = 167;
     private static final long DURATION_DIAMETER = 417;

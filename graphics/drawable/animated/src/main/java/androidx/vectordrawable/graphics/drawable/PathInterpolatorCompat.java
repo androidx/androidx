@@ -15,7 +15,7 @@
  */
 package androidx.vectordrawable.graphics.drawable;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
@@ -52,7 +52,7 @@ import org.xmlpull.v1.XmlPullParser;
  * </pre></blockquote></p>
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class PathInterpolatorCompat implements Interpolator {
 
     // This governs how accurate the approximation of the Path is.

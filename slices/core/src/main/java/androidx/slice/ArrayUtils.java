@@ -26,7 +26,7 @@ import java.lang.reflect.Array;
 /**
  * @hide
  */
-@RestrictTo(Scope.LIBRARY)
+@RestrictTo(Scope.LIBRARY_GROUP)
 @RequiresApi(19)
 class ArrayUtils {
 
