@@ -22,14 +22,13 @@ import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.Position
 import androidx.ui.core.Size
-import androidx.ui.core.childToLocal
 import androidx.ui.core.dp
+import androidx.ui.core.isAttached
 import androidx.ui.core.localToGlobal
 import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Offset
 
 typealias PointerInputHandler = (PointerInputChange, PointerEventPass) -> PointerInputChange
-private typealias PointerInputHandlerPath = List<PointerInputNode>
 
 /**
  * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
@@ -65,34 +64,23 @@ private class PointerInputChangeEventProducer {
  */
 private class PointerInputChangeOffsetManager(val density: Density) {
     private val positionZero = Position(0.dp, 0.dp)
-    private val pointerInputNodeGlobalOffsets: MutableMap<PointerInputNode, Offset> = mutableMapOf()
+    private val nodeGlobalOffsets: MutableMap<PointerInputNode, Offset> = mutableMapOf()
     private val changeOffsets: MutableMap<Int, Offset> = mutableMapOf()
 
-    fun reset(pointerInputNodePaths: Collection<PointerInputHandlerPath>) {
+    fun reset(targetNodeSequences: Collection<List<PointerInputNode>>) {
         changeOffsets.clear()
-        pointerInputNodeGlobalOffsets.clear()
+        nodeGlobalOffsets.clear()
 
         // Discover the global positions of PointerInputNodes and cache them
-        var previousParentLayoutNode: LayoutNode? = null
-        var previousOffset = Offset(0f, 0f)
-        pointerInputNodePaths.flatten().forEach {
-            if (!pointerInputNodeGlobalOffsets.containsKey(it)) {
+        // TODO(b/124960509): Make this more efficient.
+        targetNodeSequences.flatten().forEach {
+            if (!nodeGlobalOffsets.containsKey(it)) {
                 val parentLayoutNode = it.parentLayoutNode
-                val offset: Offset = previousOffset +
-                        when (parentLayoutNode) {
-                            null -> Offset.zero
-                            previousParentLayoutNode -> Offset.zero
-                            else -> {
-                                val position = previousParentLayoutNode?.childToLocal(
-                                    parentLayoutNode,
-                                    positionZero
-                                ) ?: parentLayoutNode.localToGlobal(positionZero)
-                                Offset(position.x.toPx(density), position.y.toPx(density))
-                            }
-                        }
-                pointerInputNodeGlobalOffsets[it] = offset
-                previousOffset = offset
-                previousParentLayoutNode = parentLayoutNode
+                nodeGlobalOffsets[it] =
+                    parentLayoutNode?.run {
+                        val position = parentLayoutNode.localToGlobal(positionZero)
+                        Offset(position.x.toPx(density), position.y.toPx(density))
+                    } ?: Offset.zero
             }
         }
     }
@@ -101,7 +89,7 @@ private class PointerInputChangeOffsetManager(val density: Density) {
         change: PointerInputChange,
         node: PointerInputNode
     ): PointerInputChange {
-        val newOffset = pointerInputNodeGlobalOffsets[node]!!
+        val newOffset = nodeGlobalOffsets[node]!!
         val oldOffset = changeOffsets.getOrPut(change.id) {
             Offset.zero
         }
@@ -121,7 +109,7 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
 
     private val pointerInputChangeEventProducer = PointerInputChangeEventProducer()
     private val offsetManager = PointerInputChangeOffsetManager(density)
-    private val pointerInputHandlerPaths: MutableMap<Int, PointerInputHandlerPath> = mutableMapOf()
+    private val targetNodeSequences: MutableMap<Int, List<PointerInputNode>> = mutableMapOf()
 
     /**
      * Receives [PointerInputEvent]s and process them through Crane.
@@ -129,6 +117,8 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
     fun process(pointerEvent: PointerInputEvent) {
         val pointerInputChangeEvent = pointerInputChangeEventProducer.produce(pointerEvent)
         addReceiversDueToDownEvents(pointerInputChangeEvent)
+        removeDetachedReceivers()
+        resolveLayoutOffsetInformation()
         dispatchToReceivers(pointerInputChangeEvent)
         removeReceiversDueToUpEvents(pointerInputChangeEvent)
     }
@@ -137,19 +127,27 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
         pointerInputChangeEvent.changes.filter { it.changedToDownIgnoreConsumed() }.forEach {
             val hitResult: MutableList<PointerInputNode> = mutableListOf()
             hitTestOnChildren(root, it.current.position!!, root.size, hitResult)
-            pointerInputHandlerPaths[it.id] = hitResult
+            targetNodeSequences[it.id] = hitResult
         }
     }
 
-    private fun dispatchToReceivers(pointerInputChangeEvent: PointerInputChangeEvent) {
-        offsetManager.reset(pointerInputHandlerPaths.values)
+    private fun removeDetachedReceivers() {
+        targetNodeSequences.keys.forEach {
+            targetNodeSequences[it] = targetNodeSequences[it]!!.filter { it.isAttached() }
+        }
+    }
 
+    private fun resolveLayoutOffsetInformation() {
+        offsetManager.reset(targetNodeSequences.values)
+    }
+
+    private fun dispatchToReceivers(pointerInputChangeEvent: PointerInputChangeEvent) {
         pointerInputChangeEvent.changes.forEach { pointerInputChange ->
-            val pointerInputHandlerPath =
-                pointerInputHandlerPaths[pointerInputChange.id] ?: return@forEach
+            val targetNodeSequence =
+                targetNodeSequences[pointerInputChange.id] ?: return@forEach
 
             // Forwards is from child to parent
-            val parentToChild = pointerInputHandlerPath
+            val parentToChild = targetNodeSequence
             val childtoParent = parentToChild.reversed()
             var change = pointerInputChange
 
@@ -169,7 +167,7 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
         }
     }
 
-    private fun PointerInputHandlerPath.dispatchChange(
+    private fun List<PointerInputNode>.dispatchChange(
         pointerInputChange: PointerInputChange,
         pass: PointerEventPass
     ): PointerInputChange {
@@ -183,7 +181,7 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
 
     private fun removeReceiversDueToUpEvents(pointerInputChangeEvent: PointerInputChangeEvent) {
         pointerInputChangeEvent.changes.filter { it.changedToUpIgnoreConsumed() }.forEach {
-            pointerInputHandlerPaths.remove(it.id)
+            targetNodeSequences.remove(it.id)
         }
     }
 

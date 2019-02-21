@@ -16,6 +16,7 @@
 package androidx.ui.core
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -42,11 +43,13 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
         assertEquals(owner, node.owner)
+        assertTrue(node.isAttached())
 
         verify(owner, times(1)).onAttach(node)
 
         node.detach()
         assertNull(node.owner)
+        assertFalse(node.isAttached())
         verify(owner, times(1)).onDetach(node)
     }
 

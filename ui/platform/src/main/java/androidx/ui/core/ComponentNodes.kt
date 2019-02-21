@@ -192,6 +192,12 @@ sealed class ComponentNode : Emittable {
 }
 
 /**
+ * Returns true if this [ComponentNode] currently has an [owner].  Semantically, this means that
+ * the ComponentNode is currently a part of a component tree.
+ */
+fun ComponentNode.isAttached() = owner != null
+
+/**
  * Base class for [ComponentNode]s that have zero or one child
  */
 open class SingleChildComponentNode() : ComponentNode() {
