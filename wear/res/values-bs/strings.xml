@@ -16,6 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="ws_navigation_drawer_content_description" msgid="7216697245762194759">"Panel za navigaciju"</string>
-    <string name="ws_action_drawer_content_description" msgid="1837365417701148489">"Panel za radnju"</string>
+    <string name="ws_navigation_drawer_content_description" msgid="7216697245762194759">"Ladica za navigaciju"</string>
+    <string name="ws_action_drawer_content_description" msgid="1837365417701148489">"Ladica za radnju"</string>
 </resources>
