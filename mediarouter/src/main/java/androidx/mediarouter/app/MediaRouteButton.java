@@ -125,6 +125,7 @@ public class MediaRouteButton extends View {
     private int mMinHeight;
 
     private boolean mUseDynamicGroup;
+    private boolean mAlwaysVisible;
 
     // The checked state is used when connected to a remote route.
     private static final int[] CHECKED_STATE_SET = {
@@ -398,6 +399,23 @@ public class MediaRouteButton extends View {
         setRemoteIndicatorDrawableInternal(d);
     }
 
+    /**
+     * Sets weather the button is visible when no routes are available.
+     * When true, the button is visible even if there are no routes to connect.
+     * You may want to override {@link View#performClick()} to change the behavior
+     * when the button is clicked.
+     * It doesn't overrides the {@link View#getVisibility visibility} status of the button.
+     *
+     * @param alwaysVisible true to show button always.
+     */
+    public void setAlwaysVisible(boolean alwaysVisible) {
+        if (alwaysVisible != mAlwaysVisible) {
+            mAlwaysVisible = alwaysVisible;
+            refreshVisibility();
+            refreshRoute();
+        }
+    }
+
     @Override
     protected boolean verifyDrawable(Drawable who) {
         return super.verifyDrawable(who) || who == mRemoteIndicator;
@@ -562,7 +580,8 @@ public class MediaRouteButton extends View {
     }
 
     void refreshVisibility() {
-        super.setVisibility(mVisibility == VISIBLE && !sConnectivityReceiver.isConnected()
+        super.setVisibility(mVisibility == VISIBLE
+                && !(mAlwaysVisible || sConnectivityReceiver.isConnected())
                 ? INVISIBLE : mVisibility);
         if (mRemoteIndicator != null) {
             mRemoteIndicator.setVisible(getVisibility() == VISIBLE, false);
@@ -591,7 +610,7 @@ public class MediaRouteButton extends View {
         }
 
         if (mAttachedToWindow) {
-            setEnabled(mRouter.isRouteAvailable(mSelector,
+            setEnabled(mAlwaysVisible || mRouter.isRouteAvailable(mSelector,
                     MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE));
         }
         if (mRemoteIndicator != null
