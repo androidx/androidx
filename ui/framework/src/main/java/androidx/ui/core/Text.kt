@@ -19,6 +19,7 @@ import android.content.Context
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
+import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import androidx.ui.rendering.paragraph.RenderParagraph
@@ -31,6 +32,8 @@ import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
+/** The default selection color if none is specified. */
+private val DEFAULT_SELECTION_COLOR = Color(0x6633B5E5)
 /**
  * Text Widget Crane version.
  *
@@ -70,6 +73,8 @@ class Text() : Component() {
      */
     var selection: TextSelection? = null
 
+    var selectionColor: Color = DEFAULT_SELECTION_COLOR
+
     override fun compose() {
         assert(text != null)
         val context = composer.composer.context
@@ -89,7 +94,8 @@ class Text() : Component() {
                             softWrap = softWrap,
                             overflow = overflow,
                             textScaleFactor = textScaleFactor,
-                            maxLines = maxLines
+                            maxLines = maxLines,
+                            selectionColor = selectionColor
                         )
 
                         // TODO(Migration/siyamed): This is temporary and should be removed when resource

@@ -38,6 +38,10 @@ android {
         minSdkVersion 21
         multiDexEnabled true
     }
+
+    lintOptions {
+        ignore("SyntheticAccessor")
+    }
 }
 
 supportLibrary {
