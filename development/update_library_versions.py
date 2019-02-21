@@ -159,6 +159,9 @@ def increment_alpha_beta_version(version):
 	else:
 		return version, changed
 
+def artifactId_to_kotlin_macro(artifactId):
+	return artifactId.replace('-','_').upper()
+
 def update_artifact_version(lv_lines, artifact):
 	num_lines = len(lv_lines)
 	for i in range(num_lines):
@@ -170,7 +173,7 @@ def update_artifact_version(lv_lines, artifact):
 			new_version, ver_was_updated = increment_alpha_beta_version(artifact.version)
 			if ver_was_updated:
 				# Only modify line if the version was actually changed
-				lv_lines[i] ="    val " + artifactId.upper() + " = Version(\"" + new_version + "\")\n"
+				lv_lines[i] ="    val " + artifactId_to_kotlin_macro(artifactId) + " = Version(\"" + new_version + "\")\n"
 				summary_log.append("Updated %s to FROM %s TO %s" % (artifactId.upper(), artifact.version, new_version))
 				# Assert incremented version doesn't exist
 				if does_exist_on_gmaven(artifact.groupId, artifact.artifactId, new_version):
