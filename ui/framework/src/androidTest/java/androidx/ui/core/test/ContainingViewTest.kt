@@ -74,7 +74,7 @@ class ContainingViewTest {
     @Before
     fun setup() {
         activity = activityTestRule.activity
-//        activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
+        activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
         instrumentation = InstrumentationRegistry.getInstrumentation()
         // Kotlin IR compiler doesn't seem too happy with auto-conversion from
         // lambda to Runnable, so separate it here
