@@ -101,6 +101,7 @@ import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.appcompat.widget.ViewStubCompat;
 import androidx.appcompat.widget.ViewUtils;
 import androidx.collection.ArrayMap;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
 import androidx.core.view.KeyEventDispatcher;
 import androidx.core.view.LayoutInflaterCompat;
@@ -2231,14 +2232,14 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             if (currentNightMode != newNightMode) {
                 if (allowRecreation && (Build.VERSION.SDK_INT >= 17 || mCreated)
                         && mHost instanceof Activity) {
-                    // If we're created and are an Activity, we can recreate() to apply
+                    // If we're created and are an Activity, we can recreate to apply
                     // The SDK_INT check above is because applyOverrideConfiguration only exists on
                     // API 17+, so we don't want to get into an loop of infinite recreations.
                     // On < API 17 we need to use updateConfiguration before we're 'created'
                     if (DEBUG) {
                         Log.d(TAG, "updateForNightMode. Recreating Activity");
                     }
-                    ((Activity) mHost).recreate();
+                    ActivityCompat.recreate((Activity) mHost);
                     handled = true;
                 }
                 if (!handled) {
