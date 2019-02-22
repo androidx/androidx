@@ -17,8 +17,9 @@
 package androidx.navigation;
 
 import android.os.Bundle;
-import android.support.annotation.IdRes;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.Nullable;
 
 /**
  * Navigation actions provide a level of indirection between your navigation code and the

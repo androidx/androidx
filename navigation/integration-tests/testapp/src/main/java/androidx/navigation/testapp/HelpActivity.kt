@@ -18,22 +18,22 @@ package androidx.navigation.testapp
 
 import android.os.Build
 import android.os.Bundle
-import android.support.design.widget.BottomSheetDialogFragment
-import android.support.design.widget.NavigationView
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.graphics.drawable.DrawerArrowDrawable
-import android.support.v7.widget.Toolbar
 import android.transition.Fade
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
+import androidx.appcompat.widget.Toolbar
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavController
 import androidx.navigation.createGraph
 import androidx.navigation.testing.TestNavigator
 import androidx.navigation.testing.test
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.navigation.NavigationView
 
 /**
  * Simple 'Help' activity that shows the data URI passed to it. In a real world app, it would

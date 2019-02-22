@@ -18,8 +18,9 @@ package androidx.navigation;
 
 
 import android.os.Bundle;
-import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 
 /**
  * An interface that describes a navigation operation: action's id and arguments
