@@ -99,8 +99,11 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
             @Nullable ImageReaderProxy.OnImageAvailableListener listener,
             @Nullable Handler handler) {
         ImageReader.OnImageAvailableListener transformedListener =
-                reader -> {
-                    listener.onImageAvailable(AndroidImageReaderProxy.this);
+                new ImageReader.OnImageAvailableListener() {
+                    @Override
+                    public void onImageAvailable(ImageReader reader) {
+                        listener.onImageAvailable(AndroidImageReaderProxy.this);
+                    }
                 };
         mImageReader.setOnImageAvailableListener(transformedListener, handler);
     }

@@ -115,10 +115,13 @@ public final class ImageReaderProxys {
         sSharedImageReader.setOnImageAvailableListener(
                 new ForwardingImageReaderListener(sSharedImageReaderProxys), handler);
         imageReaderProxy.addOnReaderCloseListener(
-                reader -> {
-                    sSharedImageReaderProxys.remove(reader);
-                    if (sSharedImageReaderProxys.isEmpty()) {
-                        clearSharedReaders();
+                new QueuedImageReaderProxy.OnReaderCloseListener() {
+                    @Override
+                    public void onReaderClose(ImageReaderProxy reader) {
+                        sSharedImageReaderProxys.remove(reader);
+                        if (sSharedImageReaderProxys.isEmpty()) {
+                            clearSharedReaders();
+                        }
                     }
                 });
         return imageReaderProxy;

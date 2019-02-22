@@ -63,9 +63,12 @@ public final class ForwardingImageProxyTest {
         Semaphore closedImageSemaphore = new Semaphore(/*permits=*/ 0);
         AtomicReference<ImageProxy> closedImage = new AtomicReference<>();
         mImageProxy.addOnImageCloseListener(
-                image -> {
-                    closedImage.set(image);
-                    closedImageSemaphore.release();
+                new ForwardingImageProxy.OnImageCloseListener() {
+                    @Override
+                    public void onImageClose(ImageProxy image) {
+                        closedImage.set(image);
+                        closedImageSemaphore.release();
+                    }
                 });
 
         mImageProxy.close();

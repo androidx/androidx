@@ -107,14 +107,24 @@ public final class UseCaseAttachState {
 
     public Collection<BaseUseCase> getOnlineUseCases() {
         return Collections.unmodifiableCollection(
-                getUseCases(useCaseAttachInfo -> useCaseAttachInfo.getOnline()));
+                getUseCases(new AttachStateFilter() {
+                    @Override
+                    public boolean filter(UseCaseAttachInfo useCaseAttachInfo) {
+                        return useCaseAttachInfo.getOnline();
+                    }
+                }));
     }
 
     public Collection<BaseUseCase> getActiveAndOnlineUseCases() {
         return Collections.unmodifiableCollection(
                 getUseCases(
-                        useCaseAttachInfo -> useCaseAttachInfo.getActive()
-                                && useCaseAttachInfo.getOnline()));
+                        new AttachStateFilter() {
+                            @Override
+                            public boolean filter(UseCaseAttachInfo useCaseAttachInfo) {
+                                return useCaseAttachInfo.getActive()
+                                        && useCaseAttachInfo.getOnline();
+                            }
+                        }));
     }
 
     /**

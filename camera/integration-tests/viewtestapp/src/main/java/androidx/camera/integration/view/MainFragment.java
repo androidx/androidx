@@ -138,18 +138,25 @@ public class MainFragment extends Fragment {
         // Set listeners here, or else restoring state will trigger them.
         if (mToggleCameraButton != null) {
             mToggleCameraButton.setOnCheckedChangeListener(
-                    (b, checked) ->
+                    new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton b, boolean checked) {
                             mCameraView.setCameraByLensFacing(
-                                    checked ? LensFacing.FRONT : LensFacing.BACK));
+                                    checked ? LensFacing.FRONT : LensFacing.BACK);
+                        }
+                    });
         }
 
         mToggleCropButton.setChecked(mCameraView.getScaleType() == ScaleType.CENTER_CROP);
         mToggleCropButton.setOnCheckedChangeListener(
-                (b, checked) -> {
-                    if (checked) {
-                        mCameraView.setScaleType(ScaleType.CENTER_CROP);
-                    } else {
-                        mCameraView.setScaleType(ScaleType.CENTER_INSIDE);
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton b, boolean checked) {
+                        if (checked) {
+                            mCameraView.setScaleType(ScaleType.CENTER_CROP);
+                        } else {
+                            mCameraView.setScaleType(ScaleType.CENTER_INSIDE);
+                        }
                     }
                 });
 
@@ -157,25 +164,28 @@ public class MainFragment extends Fragment {
             updateModeButtonIcon();
 
             mModeButton.setOnClickListener(
-                    view -> {
-                        if (mCameraView.isRecording()) {
-                            Toast.makeText(
-                                    getContext(),
-                                    "Can not switch mode during video recording.",
-                                    Toast.LENGTH_SHORT)
-                                    .show();
-                            return;
-                        }
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (mCameraView.isRecording()) {
+                                Toast.makeText(
+                                        MainFragment.this.getContext(),
+                                        "Can not switch mode during video recording.",
+                                        Toast.LENGTH_SHORT)
+                                        .show();
+                                return;
+                            }
 
-                        if (mCameraView.getCaptureMode() == CaptureMode.MIXED) {
-                            mCameraView.setCaptureMode(CaptureMode.IMAGE);
-                        } else if (mCameraView.getCaptureMode() == CaptureMode.IMAGE) {
-                            mCameraView.setCaptureMode(CaptureMode.VIDEO);
-                        } else {
-                            mCameraView.setCaptureMode(CaptureMode.MIXED);
-                        }
+                            if (mCameraView.getCaptureMode() == CaptureMode.MIXED) {
+                                mCameraView.setCaptureMode(CaptureMode.IMAGE);
+                            } else if (mCameraView.getCaptureMode() == CaptureMode.IMAGE) {
+                                mCameraView.setCaptureMode(CaptureMode.VIDEO);
+                            } else {
+                                mCameraView.setCaptureMode(CaptureMode.MIXED);
+                            }
 
-                        updateModeButtonIcon();
+                            MainFragment.this.updateModeButtonIcon();
+                        }
                     });
         }
     }

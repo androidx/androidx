@@ -63,11 +63,14 @@ public final class QueuedImageReaderProxyTest {
     }
 
     private static ConcreteImageProxy createSemaphoreReleasingOnCloseImageProxy(
-            Semaphore semaphore) {
+            final Semaphore semaphore) {
         ConcreteImageProxy image = createForwardingImageProxy();
         image.addOnImageCloseListener(
-                closedImage -> {
-                    semaphore.release();
+                new ForwardingImageProxy.OnImageCloseListener() {
+                    @Override
+                    public void onImageClose(ImageProxy closedImage) {
+                        semaphore.release();
+                    }
                 });
         return image;
     }

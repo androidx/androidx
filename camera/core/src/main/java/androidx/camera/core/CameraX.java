@@ -495,7 +495,12 @@ public final class CameraX {
 
     private UseCaseGroupLifecycleController getOrCreateUseCaseGroup(LifecycleOwner lifecycleOwner) {
         return mUseCaseGroupRepository.getOrCreateUseCaseGroup(
-                lifecycleOwner, useCaseGroup -> useCaseGroup.setListener(mCameraRepository));
+                lifecycleOwner, new UseCaseGroupRepository.UseCaseGroupSetup() {
+                    @Override
+                    public void setup(UseCaseGroup useCaseGroup) {
+                        useCaseGroup.setListener(mCameraRepository);
+                    }
+                });
     }
 
     private CameraRepository getCameraRepository() {

@@ -32,7 +32,12 @@ import java.util.TreeMap;
 public final class MutableOptionsBundle extends OptionsBundle implements MutableConfiguration {
 
     private static final Comparator<Option<?>> ID_COMPARE =
-            (o1, o2) -> o1.getId().compareTo(o2.getId());
+            new Comparator<Option<?>>() {
+                @Override
+                public int compare(Option<?> o1, Option<?> o2) {
+                    return o1.getId().compareTo(o2.getId());
+                }
+            };
 
     private MutableOptionsBundle(TreeMap<Option<?>, Object> persistentOptions) {
         super(persistentOptions);

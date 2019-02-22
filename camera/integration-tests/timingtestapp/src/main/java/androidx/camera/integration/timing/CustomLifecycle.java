@@ -46,7 +46,12 @@ public final class CustomLifecycle implements LifecycleOwner {
      */
     public void doOnResume() {
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mMainHandler.post(() -> doOnResume());
+            mMainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    CustomLifecycle.this.doOnResume();
+                }
+            });
             return;
         }
         mLifecycleRegistry.setCurrentState(Lifecycle.State.RESUMED);
@@ -57,7 +62,12 @@ public final class CustomLifecycle implements LifecycleOwner {
      */
     public void doDestroyed() {
         if (Looper.getMainLooper() != Looper.myLooper()) {
-            mMainHandler.post(() -> doDestroyed());
+            mMainHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    CustomLifecycle.this.doDestroyed();
+                }
+            });
             return;
         }
         mLifecycleRegistry.setCurrentState(Lifecycle.State.DESTROYED);

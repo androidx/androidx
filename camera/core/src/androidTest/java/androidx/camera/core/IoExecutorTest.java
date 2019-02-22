@@ -39,47 +39,56 @@ public final class IoExecutorTest {
     @GuardedBy("lock")
     private RunnableState mState = RunnableState.CLEAR;
     private final Runnable mRunnable1 =
-            () -> {
-                mLock.lock();
-                try {
-                    mState = RunnableState.RUNNABLE1_WAITING;
-                    mCondition.signalAll();
-                    while (mState != RunnableState.CLEAR) {
-                        mCondition.await();
-                    }
+            new Runnable() {
+                @Override
+                public void run() {
+                    mLock.lock();
+                    try {
+                        mState = RunnableState.RUNNABLE1_WAITING;
+                        mCondition.signalAll();
+                        while (mState != RunnableState.CLEAR) {
+                            mCondition.await();
+                        }
 
-                    mState = RunnableState.RUNNABLE1_FINISHED;
-                    mCondition.signalAll();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException("Thread interrupted unexpectedly", e);
-                } finally {
-                    mLock.unlock();
+                        mState = RunnableState.RUNNABLE1_FINISHED;
+                        mCondition.signalAll();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException("Thread interrupted unexpectedly", e);
+                    } finally {
+                        mLock.unlock();
+                    }
                 }
             };
     private final Runnable mRunnable2 =
-            () -> {
-                mLock.lock();
-                try {
-                    while (mState != RunnableState.RUNNABLE1_WAITING) {
-                        mCondition.await();
-                    }
+            new Runnable() {
+                @Override
+                public void run() {
+                    mLock.lock();
+                    try {
+                        while (mState != RunnableState.RUNNABLE1_WAITING) {
+                            mCondition.await();
+                        }
 
-                    mState = RunnableState.RUNNABLE2_FINISHED;
-                    mCondition.signalAll();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException("Thread interrupted unexpectedly", e);
-                } finally {
-                    mLock.unlock();
+                        mState = RunnableState.RUNNABLE2_FINISHED;
+                        mCondition.signalAll();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException("Thread interrupted unexpectedly", e);
+                    } finally {
+                        mLock.unlock();
+                    }
                 }
             };
     private final Runnable mSimpleRunnable1 =
-            () -> {
-                mLock.lock();
-                try {
-                    mState = RunnableState.RUNNABLE1_FINISHED;
-                    mCondition.signalAll();
-                } finally {
-                    mLock.unlock();
+            new Runnable() {
+                @Override
+                public void run() {
+                    mLock.lock();
+                    try {
+                        mState = RunnableState.RUNNABLE1_FINISHED;
+                        mCondition.signalAll();
+                    } finally {
+                        mLock.unlock();
+                    }
                 }
             };
 

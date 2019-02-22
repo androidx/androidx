@@ -52,7 +52,10 @@ final class UseCaseGroupRepository {
      * @param lifecycleOwner to associate with the group
      */
     UseCaseGroupLifecycleController getOrCreateUseCaseGroup(LifecycleOwner lifecycleOwner) {
-        return getOrCreateUseCaseGroup(lifecycleOwner, useCaseGroup -> {
+        return getOrCreateUseCaseGroup(lifecycleOwner, new UseCaseGroupSetup() {
+            @Override
+            public void setup(UseCaseGroup useCaseGroup) {
+            }
         });
     }
 

@@ -72,15 +72,23 @@ public final class Camera2CameraControl implements CameraControl {
     private volatile Handler mFocusListenerHandler = null;
     private volatile CaptureResultListener mSessionListenerForFocus = null;
     private final Runnable mHandleFocusTimeoutRunnable =
-            () -> {
-                cancelFocus();
+            new Runnable() {
+                @Override
+                public void run() {
+                    Camera2CameraControl.this.cancelFocus();
 
-                mSessionCallback.removeListener(mSessionListenerForFocus);
+                    mSessionCallback.removeListener(mSessionListenerForFocus);
 
-                if (mFocusListener != null
-                        && mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
-                    runInFocusListenerHandler(
-                            () -> mFocusListener.onFocusTimedOut(mAfRect.getRect()));
+                    if (mFocusListener != null
+                            && mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
+                        Camera2CameraControl.this.runInFocusListenerHandler(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mFocusListener.onFocusTimedOut(mAfRect.getRect());
+                                    }
+                                });
+                    }
                 }
             };
 
@@ -93,7 +101,12 @@ public final class Camera2CameraControl implements CameraControl {
     @Override
     public void setCropRegion(Rect crop) {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> setCropRegion(crop));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera2CameraControl.this.setCropRegion(crop);
+                }
+            });
             return;
         }
 
@@ -109,7 +122,12 @@ public final class Camera2CameraControl implements CameraControl {
             @Nullable OnFocusCompletedListener listener,
             @Nullable Handler listenerHandler) {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> focus(focus, metering, listener, listenerHandler));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera2CameraControl.this.focus(focus, metering, listener, listenerHandler);
+                }
+            });
             return;
         }
 
@@ -133,29 +151,42 @@ public final class Camera2CameraControl implements CameraControl {
         if (listener != null) {
 
             mSessionListenerForFocus =
-                    (result) -> {
-                        Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
-                        if (afState == null) {
-                            return false;
-                        }
-
-                        if (mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
-                            if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED) {
-                                runInFocusListenerHandler(
-                                        () -> mFocusListener.onFocusLocked(mAfRect.getRect()));
-                                return true; // finished
-                            } else if (afState
-                                    == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
-                                runInFocusListenerHandler(
-                                        () -> mFocusListener.onFocusUnableToLock(
-                                                mAfRect.getRect()));
-                                return true; // finished
+                    new CaptureResultListener() {
+                        @Override
+                        public boolean onCaptureResult(TotalCaptureResult result) {
+                            Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
+                            if (afState == null) {
+                                return false;
                             }
+
+                            if (mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
+                                if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED) {
+                                    Camera2CameraControl.this.runInFocusListenerHandler(
+                                            new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    mFocusListener.onFocusLocked(mAfRect.getRect());
+                                                }
+                                            });
+                                    return true; // finished
+                                } else if (afState
+                                        == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
+                                    Camera2CameraControl.this.runInFocusListenerHandler(
+                                            new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    mFocusListener.onFocusUnableToLock(
+                                                            mAfRect.getRect());
+                                                }
+                                            });
+                                    return true; // finished
+                                }
+                            }
+                            if (!mCurrentAfState.equals(afState)) {
+                                mCurrentAfState = afState;
+                            }
+                            return false; // continue checking
                         }
-                        if (!mCurrentAfState.equals(afState)) {
-                            mCurrentAfState = afState;
-                        }
-                        return false; // continue checking
                     };
 
             mSessionCallback.addListener(mSessionListenerForFocus);
@@ -178,7 +209,12 @@ public final class Camera2CameraControl implements CameraControl {
     @VisibleForTesting
     void cancelFocus() {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> cancelFocus());
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera2CameraControl.this.cancelFocus();
+                }
+            });
             return;
         }
 
@@ -205,7 +241,12 @@ public final class Camera2CameraControl implements CameraControl {
 
     private void updateRepeatingRequest() {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> updateRepeatingRequest());
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera2CameraControl.this.updateRepeatingRequest();
+                }
+            });
             return;
         }
 
@@ -236,7 +277,12 @@ public final class Camera2CameraControl implements CameraControl {
 
     private void enableTorchInternal(boolean torch) {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> enableTorchInternal(torch));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera2CameraControl.this.enableTorchInternal(torch);
+                }
+            });
             return;
         }
 
@@ -270,7 +316,12 @@ public final class Camera2CameraControl implements CameraControl {
     @Override
     public void triggerAf() {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> triggerAf());
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera2CameraControl.this.triggerAf();
+                }
+            });
             return;
         }
 
@@ -290,7 +341,12 @@ public final class Camera2CameraControl implements CameraControl {
     @Override
     public void triggerAePrecapture() {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> triggerAePrecapture());
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera2CameraControl.this.triggerAePrecapture();
+                }
+            });
             return;
         }
 
@@ -311,7 +367,13 @@ public final class Camera2CameraControl implements CameraControl {
     @Override
     public void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger) {
         if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(() -> cancelAfAeTrigger(cancelAfTrigger, cancelAePrecaptureTrigger));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera2CameraControl.this.cancelAfAeTrigger(cancelAfTrigger,
+                            cancelAePrecaptureTrigger);
+                }
+            });
             return;
         }
         CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();

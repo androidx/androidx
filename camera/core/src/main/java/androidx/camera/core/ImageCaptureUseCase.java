@@ -44,6 +44,9 @@ import androidx.camera.core.CameraCaptureResult.EmptyCameraCaptureResult;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;
 
+import com.google.common.base.Function;
+import com.google.common.util.concurrent.AsyncCallable;
+import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -254,11 +257,14 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void takePicture(OnImageCapturedListener listener) {
+    public void takePicture(final OnImageCapturedListener listener) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             mMainHandler.post(
-                    () -> {
-                        takePicture(listener);
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            ImageCaptureUseCase.this.takePicture(listener);
+                        }
                     });
             return;
         }
@@ -290,11 +296,16 @@ public class ImageCaptureUseCase extends BaseUseCase {
      *                           EXIF.
      */
     public void takePicture(
-            File saveLocation, OnImageSavedListener imageSavedListener, Metadata metadata) {
+            final File saveLocation, final OnImageSavedListener imageSavedListener,
+            final Metadata metadata) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             mMainHandler.post(
-                    () -> {
-                        takePicture(saveLocation, imageSavedListener, metadata);
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            ImageCaptureUseCase.this.takePicture(saveLocation, imageSavedListener,
+                                    metadata);
+                        }
                     });
             return;
         }
@@ -425,11 +436,21 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * <p>(3) Post-take picture, which will cancel af/ae scan or close torch if necessary.
      */
     private void takePictureInternal() {
-        TakePictureState state = new TakePictureState();
+        final TakePictureState state = new TakePictureState();
 
         FluentFuture.from(preTakePicture(state))
-                .transformAsync(v -> issueTakePicture(), mExecutor)
-                .transformAsync(v -> postTakePicture(state), mExecutor)
+                .transformAsync(new AsyncFunction<Void, Void>() {
+                    @Override
+                    public ListenableFuture<Void> apply(Void v) throws Exception {
+                        return ImageCaptureUseCase.this.issueTakePicture();
+                    }
+                }, mExecutor)
+                .transformAsync(new AsyncFunction<Void, Void>() {
+                    @Override
+                    public ListenableFuture<Void> apply(Void v) throws Exception {
+                        return ImageCaptureUseCase.this.postTakePicture(state);
+                    }
+                }, mExecutor)
                 .addCallback(
                         new FutureCallback<Void>() {
                             @Override
@@ -500,36 +521,39 @@ public class ImageCaptureUseCase extends BaseUseCase {
                         mHandler);
 
         mImageReader.setOnImageAvailableListener(
-                imageReader -> {
-                    // Call the listener so that the captured image can be processed.
-                    ImageCaptureRequest imageCaptureRequest = mImageCaptureRequests.peek();
-                    if (imageCaptureRequest != null) {
-                        ImageProxy image = null;
-                        try {
-                            image = imageReader.acquireLatestImage();
-                        } catch (IllegalStateException e) {
-                            Log.e(TAG, "Failed to acquire latest image.", e);
-                        } finally {
-                            if (image != null) {
-                                // Remove the first listener from the queue
-                                mImageCaptureRequests.poll();
+                new ImageReaderProxy.OnImageAvailableListener() {
+                    @Override
+                    public void onImageAvailable(ImageReaderProxy imageReader) {
+                        // Call the listener so that the captured image can be processed.
+                        ImageCaptureRequest imageCaptureRequest = mImageCaptureRequests.peek();
+                        if (imageCaptureRequest != null) {
+                            ImageProxy image = null;
+                            try {
+                                image = imageReader.acquireLatestImage();
+                            } catch (IllegalStateException e) {
+                                Log.e(TAG, "Failed to acquire latest image.", e);
+                            } finally {
+                                if (image != null) {
+                                    // Remove the first listener from the queue
+                                    mImageCaptureRequests.poll();
 
-                                // Inform the listener
-                                imageCaptureRequest.dispatchImage(image);
+                                    // Inform the listener
+                                    imageCaptureRequest.dispatchImage(image);
 
-                                issueImageCaptureRequests();
+                                    ImageCaptureUseCase.this.issueImageCaptureRequests();
+                                }
                             }
-                        }
-                    } else {
-                        // Flush the queue if we have no requests
-                        ImageProxy image = null;
-                        try {
-                            image = imageReader.acquireLatestImage();
-                        } catch (IllegalStateException e) {
-                            Log.e(TAG, "Failed to acquire latest image.", e);
-                        } finally {
-                            if (image != null) {
-                                image.close();
+                        } else {
+                            // Flush the queue if we have no requests
+                            ImageProxy image = null;
+                            try {
+                                image = imageReader.acquireLatestImage();
+                            } catch (IllegalStateException e) {
+                                Log.e(TAG, "Failed to acquire latest image.", e);
+                            } finally {
+                                if (image != null) {
+                                    image.close();
+                                }
                             }
                         }
                     }
@@ -558,19 +582,28 @@ public class ImageCaptureUseCase extends BaseUseCase {
     private ListenableFuture<Void> preTakePicture(TakePictureState state) {
         return FluentFuture.from(getPreCaptureStateIfNeeded())
                 .transformAsync(
-                        captureResult -> {
-                            state.mPreCaptureState = captureResult;
-                            triggerAfIfNeeded(state);
+                        new AsyncFunction<CameraCaptureResult, Boolean>() {
+                            @Override
+                            public ListenableFuture<Boolean> apply(
+                                    CameraCaptureResult captureResult) throws Exception {
+                                state.mPreCaptureState = captureResult;
+                                ImageCaptureUseCase.this.triggerAfIfNeeded(state);
 
-                            if (isFlashRequired(state)) {
-                                state.mIsFlashTriggered = true;
-                                triggerAePrecapture(state);
+                                if (ImageCaptureUseCase.this.isFlashRequired(state)) {
+                                    state.mIsFlashTriggered = true;
+                                    ImageCaptureUseCase.this.triggerAePrecapture(state);
+                                }
+                                return ImageCaptureUseCase.this.check3AConverged(state);
                             }
-                            return check3AConverged(state);
                         },
                         mExecutor)
                 // Ignore the 3A convergence result.
-                .transform(is3AConverged -> null, mExecutor);
+                .transform(new Function<Boolean, Void>() {
+                    @Override
+                    public Void apply(Boolean is3AConverged) {
+                        return null;
+                    }
+                }, mExecutor);
     }
 
     /**
@@ -580,9 +613,12 @@ public class ImageCaptureUseCase extends BaseUseCase {
      */
     private ListenableFuture<Void> postTakePicture(TakePictureState state) {
         return Futures.submitAsync(
-                () -> {
-                    cancelAfAeTrigger(state);
-                    return Futures.immediateFuture(null);
+                new AsyncCallable<Void>() {
+                    @Override
+                    public ListenableFuture<Void> call() throws Exception {
+                        ImageCaptureUseCase.this.cancelAfAeTrigger(state);
+                        return Futures.immediateFuture(null);
+                    }
                 },
                 mExecutor);
     }
@@ -602,7 +638,14 @@ public class ImageCaptureUseCase extends BaseUseCase {
     // checking the capture result. Remove this check once no repeating surface issue is fixed.
     private ListenableFuture<CameraCaptureResult> getPreCaptureStateIfNeeded() {
         if (mEnableCheck3AConverged || getFlashMode() == FlashMode.AUTO) {
-            return mSessionCallbackChecker.checkCaptureResult((captureResult) -> captureResult);
+            return mSessionCallbackChecker.checkCaptureResult(
+                    new CaptureCallbackChecker.CaptureResultChecker<CameraCaptureResult>() {
+                        @Override
+                        public CameraCaptureResult check(
+                                @NonNull CameraCaptureResult captureResult) {
+                            return captureResult;
+                        }
+                    });
         }
         return Futures.immediateFuture(null);
     }
@@ -628,19 +671,22 @@ public class ImageCaptureUseCase extends BaseUseCase {
         }
 
         return mSessionCallbackChecker.checkCaptureResult(
-                (captureResult) -> {
-                    // If afMode is CAF, don't check af locked to speed up.
-                    if ((captureResult.getAfMode() == AfMode.ON_CONTINUOUS_AUTO
-                            || (captureResult.getAfState() == AfState.FOCUSED
-                            || captureResult.getAfState() == AfState.LOCKED_FOCUSED
-                            || captureResult.getAfState()
-                            == AfState.LOCKED_NOT_FOCUSED))
-                            && captureResult.getAeState() == AeState.CONVERGED
-                            && captureResult.getAwbState() == AwbState.CONVERGED) {
-                        return true;
+                new CaptureCallbackChecker.CaptureResultChecker<Boolean>() {
+                    @Override
+                    public Boolean check(@NonNull CameraCaptureResult captureResult) {
+                        // If afMode is CAF, don't check af locked to speed up.
+                        if ((captureResult.getAfMode() == AfMode.ON_CONTINUOUS_AUTO
+                                || (captureResult.getAfState() == AfState.FOCUSED
+                                || captureResult.getAfState() == AfState.LOCKED_FOCUSED
+                                || captureResult.getAfState()
+                                == AfState.LOCKED_NOT_FOCUSED))
+                                && captureResult.getAeState() == AeState.CONVERGED
+                                && captureResult.getAwbState() == AwbState.CONVERGED) {
+                            return true;
+                        }
+                        // Return null to continue check.
+                        return null;
                     }
-                    // Return null to continue check.
-                    return null;
                 },
                 CHECK_3A_TIMEOUT_IN_MS,
                 false);
@@ -926,26 +972,31 @@ public class ImageCaptureUseCase extends BaseUseCase {
          * @return a listenable future for capture result check process.
          */
         public <T> ListenableFuture<T> checkCaptureResult(
-                CaptureResultChecker<T> checker, long timeoutInMs, T defValue) {
+                final CaptureResultChecker<T> checker, final long timeoutInMs, final T defValue) {
             if (timeoutInMs < NO_TIMEOUT) {
                 throw new IllegalArgumentException("Invalid timeout value: " + timeoutInMs);
             }
-            long startTimeInMs = (timeoutInMs != NO_TIMEOUT) ? SystemClock.elapsedRealtime() : 0L;
+            final long startTimeInMs =
+                    (timeoutInMs != NO_TIMEOUT) ? SystemClock.elapsedRealtime() : 0L;
 
-            SettableFuture<T> future = SettableFuture.create();
+            final SettableFuture<T> future = SettableFuture.create();
             addListener(
-                    (captureResult) -> {
-                        T result = checker.check(captureResult);
-                        if (result != null) {
-                            future.set(result);
-                            return true;
-                        } else if (startTimeInMs > 0
-                                && SystemClock.elapsedRealtime() - startTimeInMs > timeoutInMs) {
-                            future.set(defValue);
-                            return true;
+                    new CaptureResultListener() {
+                        @Override
+                        public boolean onCaptureResult(@NonNull CameraCaptureResult captureResult) {
+                            T result = checker.check(captureResult);
+                            if (result != null) {
+                                future.set(result);
+                                return true;
+                            } else if (startTimeInMs > 0
+                                    && SystemClock.elapsedRealtime() - startTimeInMs
+                                    > timeoutInMs) {
+                                future.set(defValue);
+                                return true;
+                            }
+                            // Return false to continue check.
+                            return false;
                         }
-                        // Return false to continue check.
-                        return false;
                     });
             return future;
         }
@@ -1019,12 +1070,15 @@ public class ImageCaptureUseCase extends BaseUseCase {
             mRotationDegrees = rotationDegrees;
         }
 
-        void dispatchImage(ImageProxy image) {
+        void dispatchImage(final ImageProxy image) {
             if (mHandler != null && Looper.myLooper() != mHandler.getLooper()) {
                 boolean posted =
                         mHandler.post(
-                                () -> {
-                                    dispatchImage(image);
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        ImageCaptureRequest.this.dispatchImage(image);
+                                    }
                                 });
                 // Unable to post to the supplied handler, close the image.
                 if (!posted) {

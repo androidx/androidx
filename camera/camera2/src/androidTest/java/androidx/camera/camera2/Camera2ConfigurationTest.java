@@ -26,6 +26,7 @@ import android.util.Range;
 
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CameraDeviceStateCallbacks;
+import androidx.camera.core.Configuration;
 import androidx.camera.testing.fakes.FakeConfiguration;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -146,13 +147,16 @@ public final class Camera2ConfigurationTest {
 
         config.findOptions(
                 "camera2.captureRequest.option",
-                option -> {
-                    // The token should be the capture request key
-                    assertThat(option.getToken())
-                            .isAnyOf(
-                                    CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
-                                    CaptureRequest.COLOR_CORRECTION_MODE);
-                    return true;
+                new Configuration.OptionMatcher() {
+                    @Override
+                    public boolean onOptionMatched(Configuration.Option<?> option) {
+                        // The token should be the capture request key
+                        assertThat(option.getToken())
+                                .isAnyOf(
+                                        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+                                        CaptureRequest.COLOR_CORRECTION_MODE);
+                        return true;
+                    }
                 });
 
         assertThat(config.listOptions()).hasSize(3);

@@ -76,10 +76,13 @@ public final class ForwardingImageReaderListenerTest {
      * a semaphore.
      */
     private static ImageReaderProxy.OnImageAvailableListener
-            createSemaphoreReleasingClosingListener(Semaphore semaphore) {
-        return imageReaderProxy -> {
-            imageReaderProxy.acquireNextImage().close();
-            semaphore.release();
+            createSemaphoreReleasingClosingListener(final Semaphore semaphore) {
+        return new ImageReaderProxy.OnImageAvailableListener() {
+            @Override
+            public void onImageAvailable(ImageReaderProxy imageReaderProxy) {
+                imageReaderProxy.acquireNextImage().close();
+                semaphore.release();
+            }
         };
     }
 

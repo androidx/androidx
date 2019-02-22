@@ -36,6 +36,7 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageAnalysisUseCase;
 import androidx.camera.core.ImageAnalysisUseCaseConfiguration;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -63,8 +64,11 @@ public final class Camera2ImplCameraXTest {
     private static final LensFacing DEFAULT_LENS_FACING = LensFacing.BACK;
     private final MutableLiveData<Long> mAnalysisResult = new MutableLiveData<>();
     private final ImageAnalysisUseCase.Analyzer mImageAnalyzer =
-            (image, rotationDegrees) -> {
-                mAnalysisResult.postValue(image.getTimestamp());
+            new ImageAnalysisUseCase.Analyzer() {
+                @Override
+                public void analyze(ImageProxy image, int rotationDegrees) {
+                    mAnalysisResult.postValue(image.getTimestamp());
+                }
             };
     private FakeLifecycleOwner mLifecycle;
     private HandlerThread mHandlerThread;
@@ -73,8 +77,11 @@ public final class Camera2ImplCameraXTest {
     private CameraDevice.StateCallback mMockStateCallback;
 
     private static Observer<Long> createCountIncrementingObserver(final AtomicLong counter) {
-        return value -> {
-            counter.incrementAndGet();
+        return new Observer<Long>() {
+            @Override
+            public void onChanged(Long value) {
+                counter.incrementAndGet();
+            }
         };
     }
 
@@ -106,18 +113,21 @@ public final class Camera2ImplCameraXTest {
     @Test
     public void lifecycleResume_opensCameraAndStreamsFrames() throws InterruptedException {
         final AtomicLong observedCount = new AtomicLong(0);
-        mMainThreadHandler.post(() -> {
-            ImageAnalysisUseCaseConfiguration configuration =
-                    new ImageAnalysisUseCaseConfiguration.Builder()
-                            .setLensFacing(DEFAULT_LENS_FACING)
-                            .build();
-            ImageAnalysisUseCase useCase = new ImageAnalysisUseCase(configuration);
-            CameraX.bindToLifecycle(mLifecycle, useCase);
+        mMainThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                ImageAnalysisUseCaseConfiguration configuration =
+                        new ImageAnalysisUseCaseConfiguration.Builder()
+                                .setLensFacing(DEFAULT_LENS_FACING)
+                                .build();
+                ImageAnalysisUseCase useCase = new ImageAnalysisUseCase(configuration);
+                CameraX.bindToLifecycle(mLifecycle, useCase);
 
-            useCase.setAnalyzer(mImageAnalyzer);
-            mAnalysisResult.observe(mLifecycle, createCountIncrementingObserver(observedCount));
+                useCase.setAnalyzer(mImageAnalyzer);
+                mAnalysisResult.observe(mLifecycle, createCountIncrementingObserver(observedCount));
 
-            mLifecycle.startAndResume();
+                mLifecycle.startAndResume();
+            }
         });
 
         // Wait a little bit for the camera to open and stream frames.
@@ -130,20 +140,23 @@ public final class Camera2ImplCameraXTest {
     @Test
     public void removedUseCase_doesNotStreamWhenLifecycleResumes() throws InterruptedException {
         final AtomicLong observedCount = new AtomicLong(0);
-        mMainThreadHandler.post(() -> {
-            ImageAnalysisUseCaseConfiguration configuration =
-                    new ImageAnalysisUseCaseConfiguration.Builder()
-                            .setLensFacing(DEFAULT_LENS_FACING)
-                            .build();
-            ImageAnalysisUseCase useCase = new ImageAnalysisUseCase(configuration);
-            CameraX.bindToLifecycle(mLifecycle, useCase);
-            useCase.setAnalyzer(mImageAnalyzer);
-            mAnalysisResult.observe(mLifecycle, createCountIncrementingObserver(observedCount));
-            assertThat(observedCount.get()).isEqualTo(0);
+        mMainThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                ImageAnalysisUseCaseConfiguration configuration =
+                        new ImageAnalysisUseCaseConfiguration.Builder()
+                                .setLensFacing(DEFAULT_LENS_FACING)
+                                .build();
+                ImageAnalysisUseCase useCase = new ImageAnalysisUseCase(configuration);
+                CameraX.bindToLifecycle(mLifecycle, useCase);
+                useCase.setAnalyzer(mImageAnalyzer);
+                mAnalysisResult.observe(mLifecycle, createCountIncrementingObserver(observedCount));
+                assertThat(observedCount.get()).isEqualTo(0);
 
-            CameraX.unbind(useCase);
+                CameraX.unbind(useCase);
 
-            mLifecycle.startAndResume();
+                mLifecycle.startAndResume();
+            }
         });
 
         // Wait a little bit for the camera to open and stream frames.
@@ -158,19 +171,23 @@ public final class Camera2ImplCameraXTest {
         final AtomicLong observedCount = new AtomicLong(0);
         SessionCaptureCallback sessionCaptureCallback = new SessionCaptureCallback();
         DeviceStateCallback deviceStateCallback = new DeviceStateCallback();
-        mMainThreadHandler.post(() -> {
-            ImageAnalysisUseCaseConfiguration.Builder configurationBuilder =
-                    new ImageAnalysisUseCaseConfiguration.Builder().setLensFacing(
-                            DEFAULT_LENS_FACING);
-            new Camera2Configuration.Extender(configurationBuilder)
-                    .setDeviceStateCallback(deviceStateCallback)
-                    .setSessionCaptureCallback(sessionCaptureCallback);
-            ImageAnalysisUseCase useCase = new ImageAnalysisUseCase(configurationBuilder.build());
-            CameraX.bindToLifecycle(mLifecycle, useCase);
-            useCase.setAnalyzer(mImageAnalyzer);
-            mAnalysisResult.observe(mLifecycle, createCountIncrementingObserver(observedCount));
+        mMainThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                ImageAnalysisUseCaseConfiguration.Builder configurationBuilder =
+                        new ImageAnalysisUseCaseConfiguration.Builder().setLensFacing(
+                                DEFAULT_LENS_FACING);
+                new Camera2Configuration.Extender(configurationBuilder)
+                        .setDeviceStateCallback(deviceStateCallback)
+                        .setSessionCaptureCallback(sessionCaptureCallback);
+                ImageAnalysisUseCase useCase = new ImageAnalysisUseCase(
+                        configurationBuilder.build());
+                CameraX.bindToLifecycle(mLifecycle, useCase);
+                useCase.setAnalyzer(mImageAnalyzer);
+                mAnalysisResult.observe(mLifecycle, createCountIncrementingObserver(observedCount));
 
-            mLifecycle.startAndResume();
+                mLifecycle.startAndResume();
+            }
         });
 
         // Wait a little bit for the camera to open and stream frames.

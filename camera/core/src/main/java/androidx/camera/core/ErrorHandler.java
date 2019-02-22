@@ -52,7 +52,12 @@ public final class ErrorHandler {
     void postError(ErrorCode error, String message) {
         synchronized (mErrorLock) {
             ErrorListener listenerReference = mListener;
-            mHandler.post(() -> listenerReference.onError(error, message));
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    listenerReference.onError(error, message);
+                }
+            });
         }
     }
 

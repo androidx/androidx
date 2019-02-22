@@ -47,10 +47,13 @@ public class FakeRepeatingUseCase extends FakeUseCase {
         FakeUseCaseConfiguration configWithDefaults =
                 (FakeUseCaseConfiguration) getUseCaseConfiguration();
         mImageReader.setOnImageAvailableListener(
-                imageReader -> {
-                    Image image = imageReader.acquireLatestImage();
-                    if (image != null) {
-                        image.close();
+                new ImageReader.OnImageAvailableListener() {
+                    @Override
+                    public void onImageAvailable(ImageReader imageReader) {
+                        Image image = imageReader.acquireLatestImage();
+                        if (image != null) {
+                            image.close();
+                        }
                     }
                 },
                 new Handler(Looper.getMainLooper()));
@@ -74,9 +77,13 @@ public class FakeRepeatingUseCase extends FakeUseCase {
         return new FakeUseCaseConfiguration.Builder()
                 .setLensFacing(LensFacing.BACK)
                 .setOptionUnpacker(
-                        (useCaseConfig, sessionConfigBuilder) -> {
-                            // Set the template since it is currently required by implementation
-                            sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+                        new SessionConfiguration.OptionUnpacker() {
+                            @Override
+                            public void unpack(UseCaseConfiguration<?> useCaseConfig,
+                                    SessionConfiguration.Builder sessionConfigBuilder) {
+                                // Set the template since it is currently required by implementation
+                                sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+                            }
                         });
     }
 

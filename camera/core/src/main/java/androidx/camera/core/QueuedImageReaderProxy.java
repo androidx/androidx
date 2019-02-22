@@ -154,9 +154,12 @@ final class QueuedImageReaderProxy
             if (mOnImageAvailableListener != null && mOnImageAvailableHandler != null) {
                 final OnImageAvailableListener listener = mOnImageAvailableListener;
                 mOnImageAvailableHandler.post(
-                        () -> {
-                            if (!QueuedImageReaderProxy.this.isClosed()) {
-                                listener.onImageAvailable(QueuedImageReaderProxy.this);
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                if (!QueuedImageReaderProxy.this.isClosed()) {
+                                    listener.onImageAvailable(QueuedImageReaderProxy.this);
+                                }
                             }
                         });
             }

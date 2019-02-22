@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
@@ -37,7 +38,12 @@ import java.util.TreeMap;
 public class OptionsBundle implements Configuration {
 
     private static final OptionsBundle EMPTY_BUNDLE =
-            new OptionsBundle(new TreeMap<>((o1, o2) -> o1.getId().compareTo(o2.getId())));
+            new OptionsBundle(new TreeMap<>(new Comparator<Option<?>>() {
+                @Override
+                public int compare(Option<?> o1, Option<?> o2) {
+                    return o1.getId().compareTo(o2.getId());
+                }
+            }));
     // TODO: Make these options parcelable
     protected final TreeMap<Option<?>, Object> mOptions;
 
@@ -60,7 +66,12 @@ public class OptionsBundle implements Configuration {
         }
 
         TreeMap<Option<?>, Object> persistentOptions =
-                new TreeMap<>((o1, o2) -> o1.getId().compareTo(o2.getId()));
+                new TreeMap<>(new Comparator<Option<?>>() {
+                    @Override
+                    public int compare(Option<?> o1, Option<?> o2) {
+                        return o1.getId().compareTo(o2.getId());
+                    }
+                });
         for (Option<?> opt : otherConfig.listOptions()) {
             persistentOptions.put(opt, otherConfig.retrieveOption(opt));
         }

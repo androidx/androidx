@@ -196,9 +196,13 @@ public final class ViewFinderUseCaseTest {
         SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
         useCase.setOnViewFinderOutputUpdateListener(
-                viewFinderOutput -> {
-                    surfaceTextureCallable0.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
-                    future0.run();
+                new OnViewFinderOutputUpdateListener() {
+                    @Override
+                    public void onUpdated(ViewFinderOutput viewFinderOutput) {
+                        surfaceTextureCallable0.setSurfaceTexture(
+                                viewFinderOutput.getSurfaceTexture());
+                        future0.run();
+                    }
                 });
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
@@ -208,9 +212,13 @@ public final class ViewFinderUseCaseTest {
         SurfaceTextureCallable surfaceTextureCallable1 = new SurfaceTextureCallable();
         FutureTask<SurfaceTexture> future1 = new FutureTask<>(surfaceTextureCallable1);
         useCase.setOnViewFinderOutputUpdateListener(
-                viewFinderOutput -> {
-                    surfaceTextureCallable1.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
-                    future1.run();
+                new OnViewFinderOutputUpdateListener() {
+                    @Override
+                    public void onUpdated(ViewFinderOutput viewFinderOutput) {
+                        surfaceTextureCallable1.setSurfaceTexture(
+                                viewFinderOutput.getSurfaceTexture());
+                        future1.run();
+                    }
                 });
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
         SurfaceTexture surfaceTexture1 = future1.get(1, TimeUnit.SECONDS);
@@ -232,9 +240,13 @@ public final class ViewFinderUseCaseTest {
         FutureTask<SurfaceTexture> future = new FutureTask<>(surfaceTextureCallable);
 
         useCase.setOnViewFinderOutputUpdateListener(
-                viewFinderOutput -> {
-                    surfaceTextureCallable.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
-                    future.run();
+                new OnViewFinderOutputUpdateListener() {
+                    @Override
+                    public void onUpdated(ViewFinderOutput viewFinderOutput) {
+                        surfaceTextureCallable.setSurfaceTexture(
+                                viewFinderOutput.getSurfaceTexture());
+                        future.run();
+                    }
                 });
 
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
@@ -255,9 +267,13 @@ public final class ViewFinderUseCaseTest {
         SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
         useCase.setOnViewFinderOutputUpdateListener(
-                viewFinderOutput -> {
-                    surfaceTextureCallable0.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
-                    future0.run();
+                new OnViewFinderOutputUpdateListener() {
+                    @Override
+                    public void onUpdated(ViewFinderOutput viewFinderOutput) {
+                        surfaceTextureCallable0.setSurfaceTexture(
+                                viewFinderOutput.getSurfaceTexture());
+                        future0.run();
+                    }
                 });
 
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
@@ -266,9 +282,13 @@ public final class ViewFinderUseCaseTest {
         SurfaceTextureCallable surfaceTextureCallable1 = new SurfaceTextureCallable();
         FutureTask<SurfaceTexture> future1 = new FutureTask<>(surfaceTextureCallable1);
         useCase.setOnViewFinderOutputUpdateListener(
-                viewFinderOutput -> {
-                    surfaceTextureCallable1.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
-                    future1.run();
+                new OnViewFinderOutputUpdateListener() {
+                    @Override
+                    public void onUpdated(ViewFinderOutput viewFinderOutput) {
+                        surfaceTextureCallable1.setSurfaceTexture(
+                                viewFinderOutput.getSurfaceTexture());
+                        future1.run();
+                    }
                 });
 
         SurfaceTexture surfaceTexture1 = future1.get(1, TimeUnit.SECONDS);
@@ -333,8 +353,11 @@ public final class ViewFinderUseCaseTest {
 
         AtomicInteger calledCount = new AtomicInteger(0);
         useCase.setOnViewFinderOutputUpdateListener(
-                viewFinderOutput -> {
-                    calledCount.incrementAndGet();
+                new OnViewFinderOutputUpdateListener() {
+                    @Override
+                    public void onUpdated(ViewFinderOutput viewFinderOutput) {
+                        calledCount.incrementAndGet();
+                    }
                 });
 
         int initialCount = calledCount.get();
@@ -357,8 +380,11 @@ public final class ViewFinderUseCaseTest {
 
         AtomicReference<ViewFinderOutput> latestViewFinderOutput = new AtomicReference<>();
         useCase.setOnViewFinderOutputUpdateListener(
-                viewFinderOutput -> {
-                    latestViewFinderOutput.set(viewFinderOutput);
+                new OnViewFinderOutputUpdateListener() {
+                    @Override
+                    public void onUpdated(ViewFinderOutput viewFinderOutput) {
+                        latestViewFinderOutput.set(viewFinderOutput);
+                    }
                 });
 
         ViewFinderOutput initialOutput = latestViewFinderOutput.get();
@@ -381,17 +407,23 @@ public final class ViewFinderUseCaseTest {
         Semaphore semaphore = new Semaphore(0);
 
         mainHandler.post(
-                () -> {
-                    useCase.updateSuggestedResolution(
-                            Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        useCase.updateSuggestedResolution(
+                                Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
-                    useCase.setOnViewFinderOutputUpdateListener(
-                            viewFinderOutput -> {
-                                // Release the surface texture
-                                viewFinderOutput.getSurfaceTexture().release();
+                        useCase.setOnViewFinderOutputUpdateListener(
+                                new OnViewFinderOutputUpdateListener() {
+                                    @Override
+                                    public void onUpdated(ViewFinderOutput viewFinderOutput) {
+                                        // Release the surface texture
+                                        viewFinderOutput.getSurfaceTexture().release();
 
-                                semaphore.release();
-                            });
+                                        semaphore.release();
+                                    }
+                                });
+                    }
                 });
 
         // Wait for the surface texture to be released
@@ -414,9 +446,13 @@ public final class ViewFinderUseCaseTest {
         SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
         useCase.setOnViewFinderOutputUpdateListener(
-                viewFinderOutput -> {
-                    surfaceTextureCallable0.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
-                    future0.run();
+                new OnViewFinderOutputUpdateListener() {
+                    @Override
+                    public void onUpdated(ViewFinderOutput viewFinderOutput) {
+                        surfaceTextureCallable0.setSurfaceTexture(
+                                viewFinderOutput.getSurfaceTexture());
+                        future0.run();
+                    }
                 });
 
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
@@ -437,9 +473,13 @@ public final class ViewFinderUseCaseTest {
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         useCase.setOnViewFinderOutputUpdateListener(
-                viewFinderOutput -> {
-                    surfaceTextureCallable0.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
-                    future0.run();
+                new OnViewFinderOutputUpdateListener() {
+                    @Override
+                    public void onUpdated(ViewFinderOutput viewFinderOutput) {
+                        surfaceTextureCallable0.setSurfaceTexture(
+                                viewFinderOutput.getSurfaceTexture());
+                        future0.run();
+                    }
                 });
         SurfaceTexture surfaceTexture0 = future0.get();
 

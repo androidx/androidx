@@ -61,11 +61,14 @@ public final class ImageReaderProxysTest {
 
     private static ImageReaderProxy.OnImageAvailableListener createSemaphoreReleasingListener(
             Semaphore semaphore) {
-        return reader -> {
-            ImageProxy image = reader.acquireLatestImage();
-            if (image != null) {
-                semaphore.release();
-                image.close();
+        return new ImageReaderProxy.OnImageAvailableListener() {
+            @Override
+            public void onImageAvailable(ImageReaderProxy reader) {
+                ImageProxy image = reader.acquireLatestImage();
+                if (image != null) {
+                    semaphore.release();
+                    image.close();
+                }
             }
         };
     }

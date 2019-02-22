@@ -267,11 +267,14 @@ public final class CaptureSessionTest {
 
         /** Image reader that unlocks the latch waiting for the first image data to appear. */
         private final OnImageAvailableListener mOnImageAvailableListener =
-                reader -> {
-                    Image image = reader.acquireNextImage();
-                    if (image != null) {
-                        image.close();
-                        mDataLatch.countDown();
+                new OnImageAvailableListener() {
+                    @Override
+                    public void onImageAvailable(ImageReader reader) {
+                        Image image = reader.acquireNextImage();
+                        if (image != null) {
+                            image.close();
+                            mDataLatch.countDown();
+                        }
                     }
                 };
 
