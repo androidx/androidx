@@ -28,7 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 @RequiresApi(21)
-class GhostViewApi21 implements GhostViewImpl {
+class GhostViewPlatform implements GhostView {
 
     private static final String TAG = "GhostViewApi21";
 
@@ -39,11 +39,11 @@ class GhostViewApi21 implements GhostViewImpl {
     private static Method sRemoveGhostMethod;
     private static boolean sRemoveGhostMethodFetched;
 
-    static GhostViewImpl addGhost(View view, ViewGroup viewGroup, Matrix matrix) {
+    static GhostView addGhost(View view, ViewGroup viewGroup, Matrix matrix) {
         fetchAddGhostMethod();
         if (sAddGhostMethod != null) {
             try {
-                return new GhostViewApi21(
+                return new GhostViewPlatform(
                         (View) sAddGhostMethod.invoke(null, view, viewGroup, matrix));
             } catch (IllegalAccessException e) {
                 // Do nothing
@@ -70,7 +70,7 @@ class GhostViewApi21 implements GhostViewImpl {
     /** A handle to the platform android.view.GhostView. */
     private final View mGhostView;
 
-    private GhostViewApi21(@NonNull View ghostView) {
+    private GhostViewPlatform(@NonNull View ghostView) {
         mGhostView = ghostView;
     }
 
