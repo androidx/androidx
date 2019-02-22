@@ -19,23 +19,36 @@ import static org.junit.Assert.assertEquals;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.util.Pair;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.Animation;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.test.FragmentTestActivity;
+import androidx.lifecycle.ViewModelStore;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 public class FragmentTestUtil {
+
     private static final Runnable DO_NOTHING = new Runnable() {
         @Override
         public void run() {
@@ -155,7 +168,8 @@ public class FragmentTestUtil {
             @Override
             public void run() {
                 Handler handler = new Handler();
-                HostCallbacks hostCallbacks = new HostCallbacks(activity, handler, 0);
+                androidx.fragment.app.HostCallbacks hostCallbacks =
+                        new androidx.fragment.app.HostCallbacks(activity, handler, 0);
                 controller[0] = FragmentController.createController(hostCallbacks);
             }
         });
@@ -240,5 +254,131 @@ public class FragmentTestUtil {
                 } while (leak.get((int) (Math.random() * leak.size())).get() != null);
             }
         }
+    }
+
+    static class HostCallbacks extends FragmentHostCallback<FragmentActivity>
+            implements ViewModelStoreOwner {
+        private final FragmentActivity mActivity;
+        private final ViewModelStore mViewModelStore;
+
+        HostCallbacks(FragmentActivity activity, ViewModelStore viewModelStore) {
+            super(activity);
+            mActivity = activity;
+            mViewModelStore = viewModelStore;
+        }
+
+        @NonNull
+        @Override
+        public ViewModelStore getViewModelStore() {
+            return mViewModelStore;
+        }
+
+        @Override
+        public void onDump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        }
+
+        @Override
+        public boolean onShouldSaveFragmentState(Fragment fragment) {
+            return !mActivity.isFinishing();
+        }
+
+        @Override
+        @NonNull
+        public LayoutInflater onGetLayoutInflater() {
+            return mActivity.getLayoutInflater().cloneInContext(mActivity);
+        }
+
+        @Override
+        public FragmentActivity onGetHost() {
+            return mActivity;
+        }
+
+        @Override
+        public void onSupportInvalidateOptionsMenu() {
+            mActivity.supportInvalidateOptionsMenu();
+        }
+
+        @Override
+        public void onStartActivityFromFragment(Fragment fragment, Intent intent, int requestCode) {
+            mActivity.startActivityFromFragment(fragment, intent, requestCode);
+        }
+
+        @Override
+        public void onStartActivityFromFragment(
+                Fragment fragment, Intent intent, int requestCode, @Nullable Bundle options) {
+            mActivity.startActivityFromFragment(fragment, intent, requestCode, options);
+        }
+
+        @Override
+        public void onRequestPermissionsFromFragment(@NonNull Fragment fragment,
+                @NonNull String[] permissions, int requestCode) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean onShouldShowRequestPermissionRationale(@NonNull String permission) {
+            return ActivityCompat.shouldShowRequestPermissionRationale(
+                    mActivity, permission);
+        }
+
+        @Override
+        public boolean onHasWindowAnimations() {
+            return mActivity.getWindow() != null;
+        }
+
+        @Override
+        public int onGetWindowAnimations() {
+            final Window w = mActivity.getWindow();
+            return (w == null) ? 0 : w.getAttributes().windowAnimations;
+        }
+
+        @Override
+        public void onAttachFragment(Fragment fragment) {
+            mActivity.onAttachFragment(fragment);
+        }
+
+        @Nullable
+        @Override
+        public View onFindViewById(int id) {
+            return mActivity.findViewById(id);
+        }
+
+        @Override
+        public boolean onHasView() {
+            final Window w = mActivity.getWindow();
+            return (w != null && w.peekDecorView() != null);
+        }
+    }
+
+    public static FragmentController startupFragmentController(FragmentActivity activity,
+            Parcelable savedState, ViewModelStore viewModelStore) {
+        final FragmentController fc = FragmentController.createController(
+                new HostCallbacks(activity, viewModelStore));
+        fc.attachHost(null);
+        fc.restoreSaveState(savedState);
+        fc.dispatchCreate();
+        fc.dispatchActivityCreated();
+        fc.noteStateNotSaved();
+        fc.execPendingActions();
+        fc.dispatchStart();
+        fc.dispatchResume();
+        fc.execPendingActions();
+        return fc;
+    }
+
+    public static FragmentController restartFragmentController(FragmentActivity activity,
+            FragmentController fc, ViewModelStore viewModelStore) {
+        Parcelable savedState = shutdownFragmentController(fc, viewModelStore);
+        return startupFragmentController(activity, savedState, viewModelStore);
+    }
+
+    public static Parcelable shutdownFragmentController(FragmentController fc,
+            ViewModelStore viewModelStore) {
+        fc.dispatchPause();
+        final Parcelable savedState = fc.saveAllState();
+        fc.dispatchStop();
+        viewModelStore.clear();
+        fc.dispatchDestroy();
+        return savedState;
     }
 }
