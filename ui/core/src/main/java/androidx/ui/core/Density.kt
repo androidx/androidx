@@ -38,6 +38,11 @@ fun Density(context: Context): Density =
  */
 fun Dp.toPx(density: Density): Float = value * density.density
 
+/**
+ * Convert [Px] to [Dp].
+ */
+fun Px.toDp(density: Density): Dp = (value / density.density).dp
+
 /** Convert a [Float] pixel value to a Dp */
 fun Float.toDp(density: Density): Dp = (this / density.density).dp
 

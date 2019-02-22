@@ -26,7 +26,7 @@ import kotlin.math.sqrt
 /**
  * Dimension value representing device-independent pixels (dp). Component APIs specify their
  * dimensions such as line thickness in DP with Dp objects. Hairline (1 pixel) thickness
- * may be specified with [Hairline], a dimension that take up no space. Dimensions are normally
+ * may be specified with [Hairline], a dimension that take up no space. Dp are normally
  * defined using [dp], which can be applied to [Int], [Double], and [Float].
  *     val leftMargin = 10.dp
  *     val rightMargin = 10f.dp
@@ -52,7 +52,7 @@ data /*inline*/ class Dp(val value: Float) {
     }
 }
 
-// TODO(mount): regain the inline in the below extension properties. These don't work with jococo
+// TODO(mount): regain the inline in the below extension properties. These don't work with jacoco
 /**
  * Create a [Dp] using an [Int]:
  *     val left = 10
@@ -439,10 +439,10 @@ fun lerp(a: Position, b: Position, t: Float): Position =
     Position(x - other.x, y - other.y)
 
 /**
- * Subtract a [Dp] from both [x] and [y] coordinates of [Position]
+ * Add a [Position] to another one.
  */
-/*inline*/ operator fun Position.minus(dp: Dp) =
-    Position(x - dp, y - dp)
+/*inline*/ operator fun Position.plus(other: Position) =
+    Position(x + other.x, y + other.y)
 
 /**
  * A four dimensional bounds using [Dp] for units

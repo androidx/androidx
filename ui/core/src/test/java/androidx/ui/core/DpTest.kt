@@ -315,4 +315,65 @@ class DpTest {
         assertEquals(10f, 10.dp.coerceAtMost(20.dp).value, 0f)
         assertEquals(10f, 10.dp.coerceAtMost(10.dp).value, 0f)
     }
+
+    @Test
+    fun sizeCenter() {
+        val size = Size(width = 10.dp, height = 20.dp)
+        assertEquals(Position(5.dp, 10.dp), size.center())
+    }
+
+    @Test
+    fun positionDistance() {
+        val position = Position(3.dp, 4.dp)
+        assertEquals(5.dp, position.getDistance())
+    }
+
+    @Test
+    fun lerpPosition() {
+        val a = Position(3.dp, 10.dp)
+        val b = Position(5.dp, 8.dp)
+        assertEquals(Position(4.dp, 9.dp), lerp(a, b, 0.5f))
+        assertEquals(Position(3.dp, 10.dp), lerp(a, b, 0f))
+        assertEquals(Position(5.dp, 8.dp), lerp(a, b, 1f))
+    }
+
+    @Test
+    fun positionMinus() {
+        val a = Position(3.dp, 10.dp)
+        val b = Position(5.dp, 8.dp)
+        assertEquals(Position(-2.dp, 2.dp), a - b)
+        assertEquals(Position(2.dp, -2.dp), b - a)
+    }
+
+    @Test
+    fun positionPlus() {
+        val a = Position(3.dp, 10.dp)
+        val b = Position(5.dp, 8.dp)
+        assertEquals(Position(8.dp, 18.dp), a + b)
+        assertEquals(Position(8.dp, 18.dp), b + a)
+    }
+
+    @Test
+    fun boundsWidth() {
+        val bounds = Bounds(10.dp, 5.dp, 25.dp, 15.dp)
+        assertEquals(15.dp, bounds.width)
+    }
+
+    @Test
+    fun boundsHeight() {
+        val bounds = Bounds(10.dp, 5.dp, 25.dp, 15.dp)
+        assertEquals(10.dp, bounds.height)
+    }
+
+    @Test
+    fun sizeToBounds() {
+        val size = Size(10.dp, 25.dp)
+        assertEquals(Bounds(0.dp, 0.dp, 10.dp, 25.dp), size.toBounds())
+    }
+
+    @Test
+    fun boundsToSize() {
+        val bounds = Bounds(5.dp, 5.dp, 15.dp, 30.dp)
+        assertEquals(Size(10.dp, 25.dp), bounds.toSize())
+    }
 }
