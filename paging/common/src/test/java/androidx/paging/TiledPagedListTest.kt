@@ -454,7 +454,7 @@ class TiledPagedListTest {
         val config = PagedList.Config.Builder()
                 .setPageSize(PAGE_SIZE)
                 .setPrefetchDistance(PAGE_SIZE)
-                .setInitialLoadSizeHint(PAGE_SIZE)
+                .setInitialLoadSizeHint(2 * PAGE_SIZE)
                 .setEnablePlaceholders(false)
                 .build()
         val pagedList = PagedList.Builder<Int, Item>(ListDataSource(ITEMS), config)
@@ -468,7 +468,7 @@ class TiledPagedListTest {
         @Suppress("UNCHECKED_CAST")
         val contiguousPagedList = pagedList as ContiguousPagedList<Int, Item>
         assertEquals(0, contiguousPagedList.mStorage.leadingNullCount)
-        assertEquals(PAGE_SIZE, contiguousPagedList.mStorage.storageCount)
+        assertEquals(2 * PAGE_SIZE, contiguousPagedList.mStorage.storageCount)
         assertEquals(0, contiguousPagedList.mStorage.trailingNullCount)
     }
 
