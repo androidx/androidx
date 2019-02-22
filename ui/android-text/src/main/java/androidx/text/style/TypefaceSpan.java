@@ -22,11 +22,15 @@ import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
  * Span that displays text in the given Typeface. In Android Framework, TypefaceSpan that accepts
  * a Typeface as constructor argument was added in API 28, therefore was not usable before 28.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TypefaceSpan extends MetricAffectingSpan {
 
     @NonNull
