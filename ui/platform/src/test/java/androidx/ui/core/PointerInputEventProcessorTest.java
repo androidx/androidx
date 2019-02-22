@@ -1291,8 +1291,8 @@ public class PointerInputEventProcessorTest {
 
     private LayoutNode createLayoutNode(int xDp, int yDp, int xDp2, int yDp2) {
         LayoutNode layoutNode = new LayoutNode();
-        layoutNode.moveTo(new Dimension(xDp), new Dimension(yDp));
-        layoutNode.resize(new Dimension(xDp2 - xDp), new Dimension(yDp2 - yDp));
+        layoutNode.moveTo(new Dp(xDp), new Dp(yDp));
+        layoutNode.resize(new Dp(xDp2 - xDp), new Dp(yDp2 - yDp));
         return layoutNode;
     }
 
@@ -1319,7 +1319,7 @@ public class PointerInputEventProcessorTest {
     }
 
     private float createPixelDimension(int dp) {
-        return DensityKt.toPx(new Dimension(dp), mDensity);
+        return DensityKt.toPx(new Dp(dp), mDensity);
     }
 
     private ConsumedData createConsumeData() {

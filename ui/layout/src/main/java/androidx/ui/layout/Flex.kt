@@ -17,7 +17,7 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.Placeable
 import androidx.ui.core.div
@@ -182,10 +182,10 @@ internal data class FlexChild(
  * Box [Constraints], but which abstract away width and height in favor of main axis and cross axis.
  */
 private data class OrientationIndependentConstraints(
-    var mainAxisMin: Dimension,
-    var mainAxisMax: Dimension,
-    var crossAxisMin: Dimension,
-    var crossAxisMax: Dimension
+    var mainAxisMin: Dp,
+    var mainAxisMax: Dp,
+    var crossAxisMin: Dp,
+    var crossAxisMax: Dp
 ) {
     constructor(c: Constraints, orientation: Int) : this(
         if (orientation == FlexOrientation.Horizontal) c.minWidth else c.minHeight,
@@ -196,7 +196,7 @@ private data class OrientationIndependentConstraints(
 
     // Creates a new instance with the same cross axis constraints and unbounded main axis.
     fun looseMainAxis() = OrientationIndependentConstraints(
-        0.dp, Dimension.Infinity, crossAxisMin, crossAxisMax
+        0.dp, Dp.Infinity, crossAxisMin, crossAxisMax
     )
 
     // Given an orientation, resolves the current instance to traditional constraints.

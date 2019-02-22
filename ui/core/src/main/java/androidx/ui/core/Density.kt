@@ -20,7 +20,7 @@ import android.content.Context
 import androidx.ui.engine.geometry.Rect
 
 /**
- * A density of the screen. Used for convert [Dimension] to pixels.
+ * A density of the screen. Used for convert [Dp] to pixels.
  */
 // TODO(Andrey): Mark it as inline when it will work stable for us.
 /*inline*/ data class Density(val density: Float)
@@ -34,15 +34,15 @@ fun Density(context: Context): Density =
     Density(context.resources.displayMetrics.density)
 
 /**
- * Convert [Dimension] to pixels. Pixels are used to paint to [Canvas].
+ * Convert [Dp] to pixels. Pixels are used to paint to [Canvas].
  */
-fun Dimension.toPx(density: Density): Float = dp * density.density
+fun Dp.toPx(density: Density): Float = dp * density.density
 
-/** Convert a [Float] pixel value to a Dimension */
-fun Float.toDp(density: Density): Dimension = (this / density.density).dp
+/** Convert a [Float] pixel value to a Dp */
+fun Float.toDp(density: Density): Dp = (this / density.density).dp
 
-/** Convert a [Float] pixel value to a Dimension */
-fun Int.toDp(density: Density): Dimension = toFloat().toDp(density)
+/** Convert a [Float] pixel value to a Dp */
+fun Int.toDp(density: Density): Dp = toFloat().toDp(density)
 
 /**
  * Convert a [Size] to a [PixelSize].

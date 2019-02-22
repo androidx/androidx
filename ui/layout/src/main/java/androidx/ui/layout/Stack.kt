@@ -17,7 +17,7 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.Placeable
 import androidx.ui.core.Size
@@ -38,8 +38,8 @@ class StackChildren() {
     internal val stackChildren: List<StackChild>
         get() = _stackChildren
 
-    fun positioned(leftInset: Dimension? = null, topInset: Dimension? = null,
-                   rightInset: Dimension? = null, bottomInset: Dimension? = null,
+    fun positioned(leftInset: Dp? = null, topInset: Dp? = null,
+                   rightInset: Dp? = null, bottomInset: Dp? = null,
                    children: @Composable() () -> Unit) {
         require(leftInset != null || topInset != null || rightInset != null
                 || bottomInset != null) { "Please specify at least one inset for a positioned." }
@@ -182,12 +182,12 @@ fun Stack(
 
 internal data class StackChild(
     val alignment: Alignment? = null,
-    val leftInset: Dimension? = null,
-    val topInset: Dimension? = null,
-    val rightInset: Dimension? = null,
-    val bottomInset: Dimension? = null,
-    val width: Dimension? = null,
-    val height: Dimension? = null,
+    val leftInset: Dp? = null,
+    val topInset: Dp? = null,
+    val rightInset: Dp? = null,
+    val bottomInset: Dp? = null,
+    val width: Dp? = null,
+    val height: Dp? = null,
     val children: @Composable() () -> Unit)
 {
     val positioned =

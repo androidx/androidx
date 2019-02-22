@@ -17,7 +17,7 @@
 package androidx.ui.material.ripple
 
 import androidx.ui.core.Bounds
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Position
 import androidx.ui.material.borders.BorderRadius
@@ -46,7 +46,7 @@ abstract class RippleEffectFactory {
         // It is strange now that BoxShape can be a circle and there's a separate border
         // radius attribute")
         shape: BoxShape = BoxShape.RECTANGLE,
-        finalRadius: Dimension? = null,
+        finalRadius: Dp? = null,
         containedInkWell: Boolean = false,
         boundsCallback: ((LayoutCoordinates) -> Bounds)? = null,
         clippingBorderRadius: BorderRadius? = null,

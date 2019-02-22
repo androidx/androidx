@@ -18,7 +18,7 @@ package androidx.ui.material
 
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
@@ -65,7 +65,7 @@ class Checkbox : Component() {
     }
 }
 
-internal fun DrawCheckbox(value: ToggleableState, color: Color, strokeWidth: Dimension) {
+internal fun DrawCheckbox(value: ToggleableState, color: Color, strokeWidth: Dp) {
     <DensityConsumer> density ->
         val radius = Radius.circular(radiusSize.toPx(density))
         val strokeWidthPx = strokeWidth.toPx(density)

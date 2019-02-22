@@ -17,7 +17,7 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.dp
@@ -34,12 +34,12 @@ import com.google.r4a.composer
  * it is used to describe padding for the [Padding] widget.
  */
 data class EdgeInsets(
-    val left: Dimension = 0.dp,
-    val top: Dimension = 0.dp,
-    val right: Dimension = 0.dp,
-    val bottom: Dimension = 0.dp
+    val left: Dp = 0.dp,
+    val top: Dp = 0.dp,
+    val right: Dp = 0.dp,
+    val bottom: Dp = 0.dp
 ) {
-    constructor(all: Dimension) : this(all, all, all, all)
+    constructor(all: Dp) : this(all, all, all, all)
 }
 
 /**

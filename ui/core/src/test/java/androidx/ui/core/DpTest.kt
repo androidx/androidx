@@ -24,17 +24,17 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class DimensionTest {
+class DpTest {
 
     @Test
     fun constructor() {
-        val dim1 = Dimension(dp = 5f)
+        val dim1 = Dp(dp = 5f)
         assertEquals(5f, dim1.dp, 0f)
 
-        val dim2 = Dimension(dp = Float.POSITIVE_INFINITY)
+        val dim2 = Dp(dp = Float.POSITIVE_INFINITY)
         assertEquals(Float.POSITIVE_INFINITY, dim2.dp, 0f)
 
-        val dim3 = Dimension(dp = Float.NaN)
+        val dim3 = Dp(dp = Float.NaN)
         assertEquals(Float.NaN, dim3.dp, 0f)
     }
 
@@ -83,12 +83,12 @@ class DimensionTest {
 
     @Test
     fun multiplyDimension() {
-        assertEquals(DimensionSquared(40f), 10.dp * 4.dp)
+        assertEquals(DpSquared(40f), 10.dp * 4.dp)
     }
 
     @Test
     fun multiplyDimensionSquared() {
-        assertEquals(DimensionCubed(40f), 10.dp * (2.dp * 2.dp))
+        assertEquals(DpCubed(40f), 10.dp * (2.dp * 2.dp))
     }
 
     @Test
@@ -99,9 +99,9 @@ class DimensionTest {
 
     @Test
     fun divideOperatorInverse() {
-        assertEquals(DimensionInverse(10f), 100f / 10.dp)
-        assertEquals(DimensionInverse(10f), 100.0 / 10.dp)
-        assertEquals(DimensionInverse(10f), 100 / 10.dp)
+        assertEquals(DpInverse(10f), 100f / 10.dp)
+        assertEquals(DpInverse(10f), 100.0 / 10.dp)
+        assertEquals(DpInverse(10f), 100 / 10.dp)
     }
 
     @Test
@@ -111,17 +111,17 @@ class DimensionTest {
 
     @Test
     fun divideToInverse() {
-        assertEquals(DimensionInverse(10f), 100.dp / (5.dp * 2.dp))
+        assertEquals(DpInverse(10f), 100.dp / (5.dp * 2.dp))
     }
 
     @Test
     fun hairline() {
-        assertEquals(0f, Dimension.Hairline.dp, 0f)
+        assertEquals(0f, Dp.Hairline.dp, 0f)
     }
 
     @Test
     fun infinite() {
-        assertEquals(Float.POSITIVE_INFINITY, Dimension.Infinity.dp, 0f)
+        assertEquals(Float.POSITIVE_INFINITY, Dp.Infinity.dp, 0f)
     }
 
     @Suppress("DIVISION_BY_ZERO")
@@ -131,9 +131,9 @@ class DimensionTest {
         assertTrue(1.dp < 3.dp)
         assertEquals(0, 1.dp.compareTo(1.dp))
         assertTrue(1.dp > 0.dp)
-        assertTrue(Float.NEGATIVE_INFINITY.dp < Dimension.Infinity)
+        assertTrue(Float.NEGATIVE_INFINITY.dp < Dp.Infinity)
         assertTrue(Float.NEGATIVE_INFINITY.dp < 0.dp)
-        assertTrue(Dimension.Infinity > Float.MAX_VALUE.dp)
+        assertTrue(Dp.Infinity > Float.MAX_VALUE.dp)
 
         val zeroNaN = 0f / 0f
         val infNaN = Float.POSITIVE_INFINITY / Float.NEGATIVE_INFINITY
@@ -143,17 +143,17 @@ class DimensionTest {
 
     @Test
     fun addDimension2() {
-        assertEquals(DimensionSquared(4f), (2.dp * 1.dp) + (1.dp * 2.dp))
+        assertEquals(DpSquared(4f), (2.dp * 1.dp) + (1.dp * 2.dp))
     }
 
     @Test
     fun subtractDimension2() {
-        assertEquals(DimensionSquared(0f), (2.dp * 3.dp) - (3.dp * 2.dp))
+        assertEquals(DpSquared(0f), (2.dp * 3.dp) - (3.dp * 2.dp))
     }
 
     @Test
     fun divideDimension2() {
-        assertEquals(DimensionSquared(1f), (2.dp * 5.dp) / 10f)
+        assertEquals(DpSquared(1f), (2.dp * 5.dp) / 10f)
     }
 
     @Test
@@ -168,45 +168,45 @@ class DimensionTest {
 
     @Test
     fun divideDimension2Dimension3() {
-        assertEquals(DimensionInverse(0.5f), (2.dp * 2.dp) / (2.dp * 2.dp * 2.dp))
+        assertEquals(DpInverse(0.5f), (2.dp * 2.dp) / (2.dp * 2.dp * 2.dp))
     }
 
     @Test
     fun multiplyDimension2() {
-        assertEquals(DimensionSquared(4f), (2.dp * 1.dp) * 2f)
+        assertEquals(DpSquared(4f), (2.dp * 1.dp) * 2f)
     }
 
     @Test
     fun multiplyDimension2Dimension() {
-        assertEquals(DimensionCubed(4f), (2.dp * 1.dp) * 2.dp)
+        assertEquals(DpCubed(4f), (2.dp * 1.dp) * 2.dp)
     }
 
     @Test
     fun compareDimension2() {
-        assertTrue(DimensionSquared(0f) < DimensionSquared(Float.MIN_VALUE))
-        assertTrue(DimensionSquared(1f) < DimensionSquared(3f))
-        assertTrue(DimensionSquared(1f) == DimensionSquared(1f))
-        assertTrue(DimensionSquared(1f) > DimensionSquared(0f))
+        assertTrue(DpSquared(0f) < DpSquared(Float.MIN_VALUE))
+        assertTrue(DpSquared(1f) < DpSquared(3f))
+        assertTrue(DpSquared(1f) == DpSquared(1f))
+        assertTrue(DpSquared(1f) > DpSquared(0f))
     }
 
     @Test
     fun addDimension3() {
-        assertEquals(DimensionCubed(4f), (2.dp * 1.dp * 1.dp) + (1.dp * 2.dp * 1.dp))
+        assertEquals(DpCubed(4f), (2.dp * 1.dp * 1.dp) + (1.dp * 2.dp * 1.dp))
     }
 
     @Test
     fun subtractDimension3() {
-        assertEquals(DimensionCubed(0f), (2.dp * 3.dp * 1.dp) - (3.dp * 2.dp * 1.dp))
+        assertEquals(DpCubed(0f), (2.dp * 3.dp * 1.dp) - (3.dp * 2.dp * 1.dp))
     }
 
     @Test
     fun divideDimension3() {
-        assertEquals(DimensionCubed(1f), (2.dp * 5.dp * 1.dp) / 10f)
+        assertEquals(DpCubed(1f), (2.dp * 5.dp * 1.dp) / 10f)
     }
 
     @Test
     fun divideDimension3Dimension() {
-        assertEquals(DimensionSquared(1f), (2.dp * 2.dp * 1.dp) / 4.dp)
+        assertEquals(DpSquared(1f), (2.dp * 2.dp * 1.dp) / 4.dp)
     }
 
     @Test
@@ -221,35 +221,35 @@ class DimensionTest {
 
     @Test
     fun multiplyDimension3() {
-        assertEquals(DimensionCubed(4f), (2.dp * 1.dp * 1.dp) * 2f)
+        assertEquals(DpCubed(4f), (2.dp * 1.dp * 1.dp) * 2f)
     }
 
     @Test
     fun compareDimension3() {
-        assertTrue(DimensionCubed(0f) < DimensionCubed(Float.MIN_VALUE))
-        assertTrue(DimensionCubed(1f) < DimensionCubed(3f))
-        assertTrue(DimensionCubed(1f) == DimensionCubed(1f))
-        assertTrue(DimensionCubed(1f) > DimensionCubed(0f))
+        assertTrue(DpCubed(0f) < DpCubed(Float.MIN_VALUE))
+        assertTrue(DpCubed(1f) < DpCubed(3f))
+        assertTrue(DpCubed(1f) == DpCubed(1f))
+        assertTrue(DpCubed(1f) > DpCubed(0f))
     }
 
     @Test
     fun addDimensionInverse() {
-        assertEquals(DimensionInverse(1f), 1 / 2.dp + 1 / 2.dp)
+        assertEquals(DpInverse(1f), 1 / 2.dp + 1 / 2.dp)
     }
 
     @Test
     fun subtractDimensionInverse() {
-        assertEquals(DimensionInverse(0f), 1 / 2.dp - 1 / 2.dp)
+        assertEquals(DpInverse(0f), 1 / 2.dp - 1 / 2.dp)
     }
 
     @Test
     fun divideDimensionInverse() {
-        assertEquals(DimensionInverse(1f), (10 / 1.dp) / 10f)
+        assertEquals(DpInverse(1f), (10 / 1.dp) / 10f)
     }
 
     @Test
     fun multiplyDimensionInverse() {
-        assertEquals(DimensionInverse(4f), (1 / 2.dp) * 8f)
+        assertEquals(DpInverse(4f), (1 / 2.dp) * 8f)
     }
 
     @Test
@@ -264,15 +264,15 @@ class DimensionTest {
 
     @Test
     fun multiplyDimensionInverseDimension3() {
-        assertEquals(DimensionSquared(4f), (1 / 2.dp) * (8.dp * 1.dp * 1.dp))
+        assertEquals(DpSquared(4f), (1 / 2.dp) * (8.dp * 1.dp * 1.dp))
     }
 
     @Test
     fun compareDimensionInverse() {
-        assertTrue(DimensionInverse(0f) < DimensionInverse(Float.MIN_VALUE))
-        assertTrue(DimensionInverse(1f) < DimensionInverse(3f))
-        assertTrue(DimensionInverse(1f) == DimensionInverse(1f))
-        assertTrue(DimensionInverse(1f) > DimensionInverse(0f))
+        assertTrue(DpInverse(0f) < DpInverse(Float.MIN_VALUE))
+        assertTrue(DpInverse(1f) < DpInverse(3f))
+        assertTrue(DpInverse(1f) == DpInverse(1f))
+        assertTrue(DpInverse(1f) > DpInverse(0f))
     }
 
     @Test

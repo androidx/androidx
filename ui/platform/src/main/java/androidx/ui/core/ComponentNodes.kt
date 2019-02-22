@@ -406,7 +406,7 @@ class LayoutNode : ComponentNode() {
         }
     }
 
-    fun moveTo(x: Dimension, y: Dimension) {
+    fun moveTo(x: Dp, y: Dp) {
         if (x != this.x || y != this.y) {
             this.x = x
             this.y = y
@@ -414,7 +414,7 @@ class LayoutNode : ComponentNode() {
         }
     }
 
-    fun resize(width: Dimension, height: Dimension) {
+    fun resize(width: Dp, height: Dp) {
         if (width != size.width || height != size.height) {
             size = Size(width = width, height = height)
             owner?.onSizeChange(this)
@@ -482,8 +482,8 @@ class Ref<T>() {
  * Converts a global position into a local position within this LayoutNode.
  */
 fun LayoutNode.globalToLocal(global: Position): Position {
-    var x: Dimension = global.x
-    var y: Dimension = global.y
+    var x: Dp = global.x
+    var y: Dp = global.y
     var node: LayoutNode? = this
     while (node != null) {
         x -= node.x
@@ -497,8 +497,8 @@ fun LayoutNode.globalToLocal(global: Position): Position {
  * Converts a local position within this LayoutNode into a global one.
  */
 fun LayoutNode.localToGlobal(local: Position): Position {
-    var x: Dimension = local.x
-    var y: Dimension = local.y
+    var x: Dp = local.x
+    var y: Dp = local.y
     var node: LayoutNode? = this
     while (node != null) {
         x += node.x
@@ -515,8 +515,8 @@ fun LayoutNode.childToLocal(child: LayoutNode, childLocal: Position): Position {
     if (child === this) {
         return childLocal
     }
-    var x: Dimension = childLocal.x
-    var y: Dimension = childLocal.y
+    var x: Dp = childLocal.x
+    var y: Dp = childLocal.y
     var node: LayoutNode? = child
     while (true) {
         if (node == null) {

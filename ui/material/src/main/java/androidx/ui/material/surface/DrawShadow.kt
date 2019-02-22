@@ -16,7 +16,7 @@
 
 package androidx.ui.material.surface
 
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.dp
@@ -36,7 +36,7 @@ import com.google.r4a.composer
 @Composable
 fun DrawShadow(
     /** The z-coordinate at which to place this physical object. */
-    elevation: Dimension,
+    elevation: Dp,
     /** Defines a shape of the physical object */
     clipper: CustomClipper<Path>,
     /** When elevation is non zero the color to use for the shadow colorCallback. */

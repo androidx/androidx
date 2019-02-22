@@ -23,7 +23,7 @@ import android.animation.ValueAnimator
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.ui.core.Bounds
 import androidx.ui.core.Density
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.Duration
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Position
@@ -93,7 +93,7 @@ object DefaultRippleEffectFactory : RippleEffectFactory() {
         touchPosition: Position,
         color: Color,
         shape: BoxShape,
-        finalRadius: Dimension?,
+        finalRadius: Dp?,
         containedInkWell: Boolean,
         boundsCallback: ((LayoutCoordinates) -> Bounds)?,
         clippingBorderRadius: BorderRadius?,
@@ -146,7 +146,7 @@ internal class DefaultRippleEffect(
     coordinates: LayoutCoordinates,
     private val touchPosition: Position,
     color: Color,
-    finalRadius: Dimension? = null,
+    finalRadius: Dp? = null,
     containedInkWell: Boolean = false,
     boundsCallback: ((LayoutCoordinates) -> Bounds)? = null,
     clippingBorderRadius: BorderRadius? = null,
@@ -247,7 +247,7 @@ internal class DefaultRippleEffect(
             coordinates.size.center(),
             radius.animatedFraction
         )
-        val radius = Dimension(radius.animatedValue as Float)
+        val radius = Dp(radius.animatedValue as Float)
         val centerOffset = Offset(center.x.toPx(density), center.y.toPx(density))
         val originOffset = transform.getAsTranslation()
         val clipRect = clipCallback?.invoke(coordinates)?.toRect(density)

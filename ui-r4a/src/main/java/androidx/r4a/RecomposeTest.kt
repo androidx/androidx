@@ -36,7 +36,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.Dimension
+import androidx.ui.core.Dp
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.div
@@ -72,7 +72,7 @@ fun GrayRect() {
 @Composable
 fun ListWithOffset(
     itemsCount: Int,
-    offset: Dimension,
+    offset: Dp,
     @Children item: () -> Unit
 ) {
     <MeasureBox> constraints ->
