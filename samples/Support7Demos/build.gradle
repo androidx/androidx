@@ -17,4 +17,7 @@ android {
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
     }
+    lintOptions {
+        disable "WrongThread"
+    }
 }
