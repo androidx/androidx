@@ -24,6 +24,7 @@ import com.android.tools.build.jetifier.processor.archive.Archive
 import com.android.tools.build.jetifier.processor.archive.ArchiveFile
 import com.android.tools.build.jetifier.processor.archive.ArchiveItemVisitor
 import com.android.tools.build.jetifier.processor.archive.FileSearchResult
+import com.android.tools.build.jetifier.processor.com.android.tools.build.jetifier.processor.transform.java.JavaTransformer
 import com.android.tools.build.jetifier.processor.transform.TransformationContext
 import com.android.tools.build.jetifier.processor.transform.Transformer
 import com.android.tools.build.jetifier.processor.transform.bytecode.ByteCodeTransformer
@@ -57,7 +58,8 @@ class Processor private constructor(
             // Register your transformers here
             ByteCodeTransformer(context),
             XmlResourcesTransformer(context),
-            ProGuardTransformer(context)
+            ProGuardTransformer(context),
+            JavaTransformer(context)
         )
 
         /**
@@ -219,12 +221,13 @@ class Processor private constructor(
     /**
      * Transforms the input libraries given in [inputLibraries] using all the registered
      * [Transformer]s and returns a list of replacement libraries (the newly created libraries are
-     * get stored into [outputPath]).
+     * get stored into [outputPath]). Also supports transforming single source files (java and xml.)
      *
      * Currently we have the following transformers:
      * - [ByteCodeTransformer] for java native code
-     * - [XmlResourcesTransformer] for java native code
+     * - [XmlResourcesTransformer] for java native code and xml resource files
      * - [ProGuardTransformer] for PorGuard files
+     * - [JavaTransformer] for java source code
      *
      * @param input Files to process together with a path where they should be saved to.
      * @param copyUnmodifiedLibsAlso Whether archives that were not modified should be also copied
@@ -232,7 +235,25 @@ class Processor private constructor(
      * @return list of files (existing and generated) that should replace the given [input] files.
      */
     fun transform(input: Set<FileMapping>, copyUnmodifiedLibsAlso: Boolean = true): Set<File> {
-        val inputLibraries = input.map { it.from }.toSet()
+        val nonSingleFiles = HashSet<FileMapping>(input)
+        for (fileMapping in nonSingleFiles) {
+            // Treat all files as single files and check if they are transformable.
+            val file = ArchiveFile(fileMapping.from.toPath(), fileMapping.from.readBytes())
+            file.setIsSingleFile(true)
+            val transformer = transformers.firstOrNull { it.canTransform(file) }
+            if (transformer != null) {
+                // Single file is transformable, set relativePath to the output path.
+                file.updateRelativePath(fileMapping.to.toPath())
+                transformer.runTransform(file)
+                nonSingleFiles.remove(fileMapping)
+            }
+        }
+        if (nonSingleFiles.isEmpty()) {
+            // all files were single files, we're done.
+            return emptySet()
+        }
+
+        val inputLibraries = nonSingleFiles.map { it.from }.toSet()
         if (inputLibraries.size != input.size) {
             throw IllegalArgumentException("Input files are duplicated!")
         }

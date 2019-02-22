@@ -29,7 +29,8 @@ class ByteCodeTransformer internal constructor(
     private val context: TransformationContext
 ) : Transformer {
 
-    override fun canTransform(file: ArchiveFile) = file.isClassFile()
+    // Does not yet support single bytecode file transformation, file has to be within archive.
+    override fun canTransform(file: ArchiveFile) = file.isClassFile() && !file.isSingleFile
 
     override fun runTransform(file: ArchiveFile) {
         val reader = ClassReader(file.data)
