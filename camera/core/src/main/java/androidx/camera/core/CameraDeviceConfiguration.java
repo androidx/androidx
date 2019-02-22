@@ -38,7 +38,7 @@ public interface CameraDeviceConfiguration extends Configuration.Reader {
             Option.create("camerax.core.camera.lensFacing", CameraX.LensFacing.class);
 
     /**
-     * Retrieves the lens facing direction for the primary camera to be configured.
+     * Returns the lens-facing direction of the camera being configured.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
