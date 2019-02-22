@@ -15,13 +15,6 @@ package androidx.versionedparcelable {
     method public abstract int value();
   }
 
-    ctor public ParcelImpl(androidx.versionedparcelable.VersionedParcelable!);
-    ctor protected ParcelImpl(android.os.Parcel!);
-    method public int describeContents();
-    method public <T extends androidx.versionedparcelable.VersionedParcelable> T! getVersionedParcel();
-    method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<androidx.versionedparcelable.ParcelImpl>! CREATOR;
-  }
 
   public class ParcelUtils {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T extends androidx.versionedparcelable.VersionedParcelable> T! fromInputStream(java.io.InputStream!);

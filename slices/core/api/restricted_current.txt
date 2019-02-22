@@ -37,7 +37,6 @@ package androidx.slice {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.slice.Slice.Builder! setSpec(androidx.slice.SliceSpec!);
   }
 
-  }
 
   @RequiresApi(28) public class SliceConvert {
   }
@@ -59,15 +58,7 @@ package androidx.slice {
     method public void onAction(androidx.slice.SliceItem!, android.content.Context!, android.content.Intent!);
   }
 
-  }
 
-    ctor public SliceItemHolder(String!, Object!, boolean);
-    method public Object! getObj(String!);
-    method public void release();
-    field public androidx.versionedparcelable.VersionedParcelable! mVersionedParcelable;
-    field public static androidx.slice.SliceItemHolder.HolderHandler! sHandler;
-    field public static final Object! sSerializeLock;
-  }
 
   public static interface SliceItemHolder.HolderHandler {
     method public void handle(androidx.slice.SliceItemHolder!, String!);
@@ -118,12 +109,6 @@ package androidx.slice {
 
 package androidx.slice.compat {
 
-    ctor public CompatPermissionManager(android.content.Context!, String!, int, String[]!);
-    method public int checkSlicePermission(android.net.Uri!, int, int);
-    method public void grantSlicePermission(android.net.Uri!, String!);
-    method public void revokeSlicePermission(android.net.Uri!, String!);
-    field public static final String ALL_SUFFIX = "_all";
-  }
 
   public static class CompatPermissionManager.PermissionState {
     method public String! getKey();
@@ -132,19 +117,7 @@ package androidx.slice.compat {
     method public java.util.Set<java.lang.String>! toPersistable();
   }
 
-    ctor public CompatPinnedList(android.content.Context!, String!);
-    method public boolean addPin(android.net.Uri!, String!, java.util.Set<androidx.slice.SliceSpec>!);
-    method @VisibleForTesting protected long getBootTime();
-    method public java.util.List<android.net.Uri>! getPinnedSlices();
-    method public androidx.collection.ArraySet<androidx.slice.SliceSpec>! getSpecs(android.net.Uri!);
-    method public boolean removePin(android.net.Uri!, String!);
-  }
 
-    ctor public SlicePermissionActivity();
-    method public void onClick(android.content.DialogInterface!, int);
-    method public void onDestroy();
-    method public void onDismiss(android.content.DialogInterface!);
-  }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(19) public class SliceProviderCompat {
     ctor public SliceProviderCompat(androidx.slice.SliceProvider!, androidx.slice.compat.CompatPermissionManager!, android.content.Context!);
@@ -188,7 +161,6 @@ package androidx.slice.compat {
     field public static final String PERMS_PREFIX = "slice_perms_";
   }
 
-  }
 
   @RequiresApi(28) public static class SliceProviderWrapperContainer.SliceProviderWrapper extends android.app.slice.SliceProvider {
     ctor public SliceProviderWrapperContainer.SliceProviderWrapper(androidx.slice.SliceProvider!, String[]!);
