@@ -1285,7 +1285,9 @@ public class MediaSessionCompat {
          * @param speed the playback speed
          * @see #setPlaybackState(PlaybackStateCompat)
          * @see PlaybackStateCompat.Builder#setState(int, long, float)
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public void onSetPlaybackSpeed(float speed) {
         }
 
