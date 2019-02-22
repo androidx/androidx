@@ -1,8 +1,6 @@
 // Signature format: 3.0
 package androidx.preference {
 
-    field public static final int ANDROID_R_ICON_FRAME = 16908350; // 0x102003e
-  }
 
   public class Preference implements java.lang.Comparable<androidx.preference.Preference> {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void onAttachedToHierarchy(androidx.preference.PreferenceManager!, long);
@@ -74,12 +72,4 @@ package androidx.preference {
 
 }
 
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PreferenceImageView extends android.widget.ImageView {
-    ctor public PreferenceImageView(android.content.Context!);
-    ctor public PreferenceImageView(android.content.Context!, android.util.AttributeSet!);
-    ctor public PreferenceImageView(android.content.Context!, android.util.AttributeSet!, int);
-  }
-
-}
 
