@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,27 +30,23 @@ import androidx.appcompat.app.AppCompatActivity;
  * ListView} which starts other Activities, each of which may similarly be a ListView, or may
  * actually exercise specific {@link android.webkit.WebView} features.
  */
-public class MainActivity extends AppCompatActivity {
+public class AssetLoaderListActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_asset_loader_list);
+        setTitle(R.string.asset_loader_list_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
         final Context activityContext = this;
-        MenuListView listView = findViewById(R.id.top_level_list);
+        MenuListView listView = findViewById(R.id.asset_loader_list);
         MenuListView.MenuItem[] menuItems = new MenuListView.MenuItem[] {
                 new MenuListView.MenuItem(
-                        getResources().getString(R.string.safebrowsing_activity_title),
-                        new Intent(activityContext, SafeBrowsingActivity.class)),
-                new MenuListView.MenuItem(
-                        getResources().getString(R.string.proxy_override_activity_title),
-                        new Intent(activityContext, ProxyOverrideActivity.class)),
-                new MenuListView.MenuItem(
-                        getResources().getString(R.string.asset_loader_list_activity_title),
-                        new Intent(activityContext, AssetLoaderListActivity.class)),
+                        getResources()
+                                .getString(R.string.asset_loader_simple_activity_title),
+                        new Intent(activityContext, AssetLoaderSimpleActivity.class)),
         };
         listView.setItems(menuItems);
     }
