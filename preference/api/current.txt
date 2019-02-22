@@ -481,12 +481,16 @@ package androidx.preference {
     method public int getMax();
     method public int getMin();
     method public final int getSeekBarIncrement();
+    method public boolean getShowSeekBarValue();
+    method public boolean getUpdatesContinuously();
     method public int getValue();
     method public boolean isAdjustable();
     method public void setAdjustable(boolean);
     method public final void setMax(int);
     method public void setMin(int);
     method public final void setSeekBarIncrement(int);
+    method public void setShowSeekBarValue(boolean);
+    method public void setUpdatesContinuously(boolean);
     method public void setValue(int);
   }
 

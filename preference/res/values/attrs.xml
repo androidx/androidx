@@ -324,6 +324,11 @@
         value will be displayed. If true, the view is VISIBLE; if false, the view will be GONE.
         By default, this view is GONE. -->
         <attr name="showSeekBarValue" format="boolean" />
+        <!-- Flag indicating whether the SeekBarPreference should continuously save the Seekbar
+        value while the Seekbar is being dragged. If true, the SeekBarPreference should continuously
+        save the Seekbar value while it is being dragged. If false, the Seekbar value is only saved
+        when released. By default, this boolean is false. -->
+        <attr name="updatesContinuously" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="SwitchPreference">
