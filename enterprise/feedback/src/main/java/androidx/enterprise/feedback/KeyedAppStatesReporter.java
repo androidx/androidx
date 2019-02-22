@@ -224,7 +224,7 @@ public class KeyedAppStatesReporter {
     }
 
     /**
-     * Performs the same function as {@link #set(Collection<KeyedAppState>)}, except it also
+     * Performs the same function as {@link #set(Collection)}, except it also
      * requests
      * that the states are immediately uploaded to be accessible via server APIs.
      *
