@@ -404,8 +404,11 @@ public class ImageCaptureUseCase extends BaseUseCase {
             Log.e(TAG, "Unable to retrieve camera sensor orientation.", e);
         }
 
+        Rational targetRatio = mConfiguration.getTargetAspectRatio();
+        targetRatio = ImageUtil.rotate(targetRatio, relativeRotation);
+
         mImageCaptureRequests.offer(
-                new ImageCaptureRequest(listener, listenerHandler, relativeRotation));
+                new ImageCaptureRequest(listener, listenerHandler, relativeRotation, targetRatio));
         if (mImageCaptureRequests.size() == 1) {
             issueImageCaptureRequests();
         }
@@ -1058,14 +1061,17 @@ public class ImageCaptureUseCase extends BaseUseCase {
         Handler mHandler;
         @RotationValue
         int mRotationDegrees;
+        Rational mTargetRatio;
 
         ImageCaptureRequest(
                 OnImageCapturedListener listener,
                 @Nullable Handler handler,
-                @RotationValue int rotationDegrees) {
+                @RotationValue int rotationDegrees,
+                Rational targetRatio) {
             mListener = listener;
             mHandler = handler;
             mRotationDegrees = rotationDegrees;
+            mTargetRatio = targetRatio;
         }
 
         void dispatchImage(final ImageProxy image) {
@@ -1086,12 +1092,10 @@ public class ImageCaptureUseCase extends BaseUseCase {
                 return;
             }
 
-            Rational targetRatio = mConfiguration.getTargetAspectRatio();
-            targetRatio = ImageUtil.rotate(targetRatio, mRotationDegrees);
             Size sourceSize = new Size(image.getWidth(), image.getHeight());
-            if (ImageUtil.isAspectRatioValid(sourceSize, targetRatio)) {
+            if (ImageUtil.isAspectRatioValid(sourceSize, mTargetRatio)) {
                 image.setCropRect(
-                        ImageUtil.computeCropRectFromAspectRatio(sourceSize, targetRatio));
+                        ImageUtil.computeCropRectFromAspectRatio(sourceSize, mTargetRatio));
             }
 
             mListener.onCaptureSuccess(image, mRotationDegrees);
