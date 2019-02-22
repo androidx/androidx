@@ -2292,6 +2292,11 @@ public final class MediaRouter {
                         + "dynamic group route.");
             }
             if (!mSelectedRoute.getMemberRoutes().contains(route) || !route.isUnselectable()) {
+                Log.w(TAG, "Ignoring attempt to remove not unselectable member route : " + route);
+                return;
+            }
+            if (mSelectedRoute.getMemberRoutes().size() <= 1) {
+                Log.w(TAG, "Ignoring attempt to remove the last member route.");
                 return;
             }
             ((DynamicGroupRouteController) mSelectedRouteController)
