@@ -54,6 +54,7 @@ public class MediaControllerConstants {
     public static final int SET_CAPTIONING_ENABLED = 320;
     public static final int SET_REPEAT_MODE = 321;
     public static final int SET_SHUFFLE_MODE = 322;
+    public static final int SET_PLAYBACK_SPEED = 323;
 
     private MediaControllerConstants() {
     }

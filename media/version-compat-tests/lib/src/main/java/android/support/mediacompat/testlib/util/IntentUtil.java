@@ -116,6 +116,8 @@ public class IntentUtil {
             intent.putExtra(KEY_ARGUMENT, (long) arg);
         } else if (arg instanceof Boolean) {
             intent.putExtra(KEY_ARGUMENT, (boolean) arg);
+        } else if (arg instanceof Float) {
+            intent.putExtra(KEY_ARGUMENT, (float) arg);
         } else if (arg instanceof Parcelable) {
             intent.putExtra(KEY_ARGUMENT, (Parcelable) arg);
         } else if (arg instanceof ArrayList<?>) {
