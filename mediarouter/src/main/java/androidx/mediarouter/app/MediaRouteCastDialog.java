@@ -1191,6 +1191,10 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 if (mUngroupableRoutes.contains(route)) {
                     return false;
                 }
+                // The last member route can not be removed.
+                if (isSelected(route) && mSelectedRoute.getMemberRoutes().size() < 2) {
+                    return false;
+                }
                 // Selected route that can't be unselected has to be disabled.
                 if (isSelected(route) && mSelectedRoute.isDynamicRoute()) {
                     return route.isUnselectable();
