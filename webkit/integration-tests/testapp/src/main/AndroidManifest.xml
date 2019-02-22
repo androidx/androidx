@@ -23,17 +23,21 @@
     <application android:label="@string/main_activity_title"
                  android:hardwareAccelerated="true"
                  android:theme="@style/AppTheme"
-                 android:supportsRtl="true">
+                 android:supportsRtl="true"
+                 android:usesCleartextTraffic="true">
 
         <!-- Top-level Activity -->
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
         <activity android:name=".SafeBrowsingActivity"
+          android:exported="true" />
+        <activity android:name=".ProxyOverrideActivity"
           android:exported="true" />
     </application>
 </manifest>
