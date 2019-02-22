@@ -4,7 +4,6 @@ package androidx.exifinterface.media {
   public class ExifInterface {
   }
 
-  }
 
 }
 

@@ -53,18 +53,10 @@ package androidx.leanback.app {
   @Deprecated public class PlaybackFragment extends android.app.Fragment {
   }
 
-    ctor @Deprecated public PlaybackFragment.OnFadeCompleteListener();
-    method @Deprecated public void onFadeInComplete();
-    method @Deprecated public void onFadeOutComplete();
-  }
 
   public class PlaybackSupportFragment extends androidx.fragment.app.Fragment {
   }
 
-    ctor public PlaybackSupportFragment.OnFadeCompleteListener();
-    method public void onFadeInComplete();
-    method public void onFadeOutComplete();
-  }
 
 }
 
@@ -147,9 +139,6 @@ package androidx.leanback.transition {
     ctor public SlideNoPropagation(android.content.Context!, android.util.AttributeSet!);
   }
 
-    ctor public TransitionEpicenterCallback();
-    method public abstract android.graphics.Rect! onGetEpicenter(Object!);
-  }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TransitionHelper {
     method public static void addSharedElement(android.app.FragmentTransaction!, android.view.View!, String!);
@@ -220,8 +209,6 @@ package androidx.leanback.transition {
 
 package androidx.leanback.util {
 
-    method public static int safeLongToInt(long);
-  }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class StateMachine {
     ctor public StateMachine();
@@ -280,14 +267,6 @@ package androidx.leanback.widget {
     ctor public BrowseRowsFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
   }
 
-    ctor public DetailsParallaxDrawable(android.content.Context!, androidx.leanback.widget.DetailsParallax!, android.graphics.drawable.Drawable!, androidx.leanback.widget.ParallaxTarget!);
-    ctor public DetailsParallaxDrawable(android.content.Context!, androidx.leanback.widget.DetailsParallax!, android.graphics.drawable.Drawable!, android.graphics.drawable.Drawable!, androidx.leanback.widget.ParallaxTarget!);
-    ctor public DetailsParallaxDrawable(android.content.Context!, androidx.leanback.widget.DetailsParallax!);
-    method public android.graphics.drawable.Drawable! getBottomDrawable();
-    method public android.graphics.drawable.Drawable! getCoverDrawable();
-    method @ColorInt public int getSolidColor();
-    method public void setSolidColor(@ColorInt int);
-  }
 
   public class DividerPresenter extends androidx.leanback.widget.Presenter {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DividerPresenter(int);
@@ -456,10 +435,6 @@ package androidx.leanback.widget {
     method public static boolean isDescendant(android.view.ViewGroup!, android.view.View!);
   }
 
-    ctor public VideoSurfaceView(android.content.Context!);
-    ctor public VideoSurfaceView(android.content.Context!, android.util.AttributeSet!);
-    ctor public VideoSurfaceView(android.content.Context!, android.util.AttributeSet!, int);
-  }
 
   @IntDef({android.view.View.VISIBLE, android.view.View.INVISIBLE, android.view.View.GONE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public @interface Visibility {
   }
