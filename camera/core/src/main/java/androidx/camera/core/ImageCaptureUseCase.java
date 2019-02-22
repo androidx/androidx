@@ -354,8 +354,6 @@ public class ImageCaptureUseCase extends BaseUseCase {
                     }
                 };
 
-        Rational targetRatio = mConfiguration.getTargetAspectRatio();
-
         // Wrap the ImageCaptureUseCase.OnImageSavedListener with an OnImageCapturedListener so it
         // can
         // be put into the capture request queue
@@ -373,7 +371,6 @@ public class ImageCaptureUseCase extends BaseUseCase {
                                                 metadata.isReversedHorizontal,
                                                 metadata.isReversedVertical,
                                                 metadata.location,
-                                                targetRatio,
                                                 imageSavedListenerWrapper,
                                                 completionHandler));
                     }
@@ -912,7 +909,8 @@ public class ImageCaptureUseCase extends BaseUseCase {
         /** Indicates a left-right mirroring (reflection). */
         public boolean isReversedVertical;
         /** Data representing a geographic location. */
-        public @Nullable Location location;
+        @Nullable
+        public Location location;
     }
 
     /**
@@ -1086,6 +1084,14 @@ public class ImageCaptureUseCase extends BaseUseCase {
                     image.close();
                 }
                 return;
+            }
+
+            Rational targetRatio = mConfiguration.getTargetAspectRatio();
+            targetRatio = ImageUtil.rotate(targetRatio, mRotationDegrees);
+            Size sourceSize = new Size(image.getWidth(), image.getHeight());
+            if (ImageUtil.isAspectRatioValid(sourceSize, targetRatio)) {
+                image.setCropRect(
+                        ImageUtil.computeCropRectFromAspectRatio(sourceSize, targetRatio));
             }
 
             mListener.onCaptureSuccess(image, mRotationDegrees);

@@ -16,12 +16,8 @@
 
 package androidx.camera.core;
 
-import android.graphics.ImageFormat;
 import android.location.Location;
 import android.os.Handler;
-import android.util.Log;
-import android.util.Rational;
-import android.util.Size;
 
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageUtil.EncodeFailedException;
@@ -32,7 +28,8 @@ import java.io.IOException;
 
 final class ImageSaver implements Runnable {
     private static final String TAG = "ImageSaver";
-    private final @Nullable Location mLocation;
+    @Nullable
+    private final Location mLocation;
     // The image that was captured
     private final ImageProxy mImage;
     // The orientation of the image
@@ -48,9 +45,6 @@ final class ImageSaver implements Runnable {
     private final OnImageSavedListener mListener;
     // The handler to call back on
     private final Handler mHandler;
-    // The width/height ratio output should be cropped to
-    @Nullable
-    private final Rational mCropAspectRatio;
 
     ImageSaver(
             ImageProxy image,
@@ -59,7 +53,6 @@ final class ImageSaver implements Runnable {
             boolean reversedHorizontal,
             boolean reversedVertical,
             @Nullable Location location,
-            @Nullable Rational cropAspectRatio,
             OnImageSavedListener listener,
             Handler handler) {
         mImage = image;
@@ -70,13 +63,6 @@ final class ImageSaver implements Runnable {
         mListener = listener;
         mHandler = handler;
         mLocation = location;
-
-        // Fix cropRatio by orientation.
-        if (orientation == 90 || orientation == 270) {
-            mCropAspectRatio = inverseRational(cropAspectRatio);
-        } else {
-            mCropAspectRatio = cropAspectRatio;
-        }
     }
 
     @Override
@@ -87,7 +73,7 @@ final class ImageSaver implements Runnable {
         Exception exception = null;
         try (ImageProxy imageToClose = mImage;
              FileOutputStream output = new FileOutputStream(mFile)) {
-            byte[] bytes = getBytes();
+            byte[] bytes = ImageUtil.imageToJpegByteArray(mImage);
             output.write(bytes);
 
             Exif exif = Exif.createFromFile(mFile);
@@ -136,42 +122,6 @@ final class ImageSaver implements Runnable {
                 mListener.onError(saveError, message, cause);
             }
         });
-    }
-
-    private byte[] getBytes() throws EncodeFailedException {
-        byte[] data = null;
-        Size sourceSize = new Size(mImage.getWidth(), mImage.getHeight());
-
-        if (ImageUtil.isAspectRatioValid(sourceSize, mCropAspectRatio)) {
-            if (mImage.getFormat() == ImageFormat.JPEG) {
-                data =
-                        ImageUtil.cropByteArray(
-                                ImageUtil.jpegImageToJpegByteArray(mImage),
-                                ImageUtil.computeCropRectFromAspectRatio(
-                                        sourceSize, mCropAspectRatio));
-            } else if (mImage.getFormat() == ImageFormat.YUV_420_888) {
-                data =
-                        ImageUtil.yuvImageToJpegByteArray(
-                                mImage,
-                                ImageUtil.computeCropRectFromAspectRatio(
-                                        sourceSize, mCropAspectRatio));
-            } else {
-                data = ImageUtil.imageToJpegByteArray(mImage);
-                Log.w(TAG, "Unrecognized mImage format: " + mImage.getFormat());
-            }
-        } else {
-            data = ImageUtil.imageToJpegByteArray(mImage);
-        }
-
-        return data;
-    }
-
-    private Rational inverseRational(Rational rational) {
-        if (rational == null) {
-            return rational;
-        }
-        return new Rational(
-                /*numerator=*/ rational.getDenominator(), /*denominator=*/ rational.getNumerator());
     }
 
     /** Type of error that occurred during save */
