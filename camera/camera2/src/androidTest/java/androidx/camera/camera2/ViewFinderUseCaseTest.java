@@ -19,11 +19,12 @@ package androidx.camera.camera2;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.params.MeteringRectangle;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -37,6 +38,7 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CaptureRequestConfiguration;
 import androidx.camera.core.DeferrableSurfaces;
+import androidx.camera.core.SessionConfiguration;
 import androidx.camera.core.ViewFinderUseCase;
 import androidx.camera.core.ViewFinderUseCase.OnViewFinderOutputUpdateListener;
 import androidx.camera.core.ViewFinderUseCase.ViewFinderOutput;
@@ -49,6 +51,7 @@ import androidx.test.filters.SmallTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -129,27 +132,18 @@ public final class ViewFinderUseCaseTest {
         ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
-        CameraControl cameraControl = getFakeCameraControl();
+        CameraControl cameraControl = Mockito.mock(CameraControl.class);
         useCase.attachCameraControl(mCameraId, cameraControl);
 
         Rect rect = new Rect(/*left=*/ 200, /*top=*/ 200, /*right=*/ 800, /*bottom=*/ 800);
         useCase.focus(rect, rect);
 
-        Camera2Configuration configuration =
-                new Camera2Configuration(cameraControl.getSingleRequestImplOptions());
-        MeteringRectangle[] aeMeteringRects =
-                configuration.getCaptureRequestOption(CaptureRequest.CONTROL_AE_REGIONS, null);
-        MeteringRectangle[] afMeteringRects =
-                configuration.getCaptureRequestOption(CaptureRequest.CONTROL_AF_REGIONS, null);
-        MeteringRectangle[] awbMeteringRects =
-                configuration.getCaptureRequestOption(CaptureRequest.CONTROL_AWB_REGIONS, null);
-        assertThat(aeMeteringRects).hasLength(1);
-        assertThat(afMeteringRects).hasLength(1);
-        assertThat(awbMeteringRects).hasLength(1);
-
-        assertThat(aeMeteringRects[0].getRect()).isEqualTo(rect);
-        assertThat(afMeteringRects[0].getRect()).isEqualTo(rect);
-        assertThat(awbMeteringRects[0].getRect()).isEqualTo(rect);
+        ArgumentCaptor<Rect> rectArgumentCaptor1 = ArgumentCaptor.forClass(Rect.class);
+        ArgumentCaptor<Rect> rectArgumentCaptor2 = ArgumentCaptor.forClass(Rect.class);
+        verify(cameraControl).focus(rectArgumentCaptor1.capture(), rectArgumentCaptor2.capture(),
+                any(), any());
+        assertThat(rectArgumentCaptor1.getValue()).isEqualTo(rect);
+        assertThat(rectArgumentCaptor2.getValue()).isEqualTo(rect);
     }
 
     @Test
@@ -158,17 +152,15 @@ public final class ViewFinderUseCaseTest {
         ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
-        CameraControl cameraControl = getFakeCameraControl();
+        CameraControl cameraControl = Mockito.mock(CameraControl.class);
         useCase.attachCameraControl(mCameraId, cameraControl);
 
         Rect rect = new Rect(/*left=*/ 200, /*top=*/ 200, /*right=*/ 800, /*bottom=*/ 800);
         useCase.zoom(rect);
 
-        Camera2Configuration configuration =
-                new Camera2Configuration(cameraControl.getSingleRequestImplOptions());
-        Rect cropRect =
-                configuration.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null);
-        assertThat(cropRect).isEqualTo(rect);
+        ArgumentCaptor<Rect> rectArgumentCaptor = ArgumentCaptor.forClass(Rect.class);
+        verify(cameraControl).setCropRegion(rectArgumentCaptor.capture());
+        assertThat(rectArgumentCaptor.getValue()).isEqualTo(rect);
     }
 
     @Test
@@ -488,14 +480,15 @@ public final class ViewFinderUseCaseTest {
 
     private CameraControl getFakeCameraControl() {
         return new Camera2CameraControl(
-                new Camera2RequestRunner() {
+                new CameraControl.ControlUpdateListener() {
                     @Override
-                    public void submitSingleRequest(
-                            CaptureRequestConfiguration singleRequestConfig) {
+                    public void onCameraControlUpdateSessionConfiguration(
+                            SessionConfiguration sessionConfiguration) {
                     }
 
                     @Override
-                    public void updateRepeatingRequest() {
+                    public void onCameraControlSingleRequest(
+                            CaptureRequestConfiguration captureRequestConfiguration) {
                     }
                 },
                 new Handler());

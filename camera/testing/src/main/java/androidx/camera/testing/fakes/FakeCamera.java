@@ -21,6 +21,7 @@ import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CaptureRequestConfiguration;
+import androidx.camera.core.SessionConfiguration;
 
 import java.util.Collection;
 
@@ -74,11 +75,6 @@ public class FakeCamera implements BaseCamera {
     public void onUseCaseReset(BaseUseCase useCase) {
     }
 
-    @Override
-    public void onUseCaseSingleRequest(
-            BaseUseCase useCase, CaptureRequestConfiguration captureRequestConfiguration) {
-    }
-
     // Returns fixed CameraControl instance in order to verify the instance is correctly attached.
     @Override
     public CameraControl getCameraControl() {
@@ -88,5 +84,15 @@ public class FakeCamera implements BaseCamera {
     @Override
     public CameraInfo getCameraInfo() {
         return mCameraInfo;
+    }
+
+    @Override
+    public void onCameraControlUpdateSessionConfiguration(
+            SessionConfiguration sessionConfiguration) {
+    }
+
+    @Override
+    public void onCameraControlSingleRequest(
+            CaptureRequestConfiguration captureRequestConfiguration) {
     }
 }

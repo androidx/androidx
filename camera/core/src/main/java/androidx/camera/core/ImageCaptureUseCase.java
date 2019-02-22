@@ -788,7 +788,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                         future.set(null);
                     }
                 });
-        notifySingleCapture(builder.build());
+        getCurrentCameraControl().submitSingleRequest(builder.build());
         return future;
     }
 

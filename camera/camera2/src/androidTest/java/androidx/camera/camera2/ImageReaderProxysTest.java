@@ -109,7 +109,7 @@ public final class ImageReaderProxysTest {
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
         UseCase useCase = new UseCase(configuration, readers);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase);
+        CameraUtil.openCameraWithUseCase(CAMERA_ID, mCamera, useCase);
 
         // Wait for a few frames to be observed.
         for (Semaphore semaphore : semaphores) {
@@ -135,7 +135,7 @@ public final class ImageReaderProxysTest {
         FakeUseCaseConfiguration configuration =
                 new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
         UseCase useCase = new UseCase(configuration, readers);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase);
+        CameraUtil.openCameraWithUseCase(CAMERA_ID, mCamera, useCase);
 
         // Wait for a few frames to be observed.
         for (Semaphore semaphore : semaphores) {

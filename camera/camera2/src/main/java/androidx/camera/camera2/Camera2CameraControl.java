@@ -55,10 +55,12 @@ public final class Camera2CameraControl implements CameraControl {
     @VisibleForTesting
     static final long FOCUS_TIMEOUT = 5000;
     private static final String TAG = "Camera2CameraControl";
-    private final Camera2RequestRunner mCamera2RequestRunner;
+    private final ControlUpdateListener mControlUpdateListener;
     private final Handler mHandler;
     private final CameraControlSessionCallback mSessionCallback =
             new CameraControlSessionCallback();
+    private final SessionConfiguration.Builder mSessionConfigurationBuilder =
+            new SessionConfiguration.Builder();
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
     private volatile boolean mIsFocusLocked = false;
@@ -92,9 +94,14 @@ public final class Camera2CameraControl implements CameraControl {
                 }
             };
 
-    public Camera2CameraControl(Camera2RequestRunner camera2RequestRunner, Handler handler) {
-        mCamera2RequestRunner = camera2RequestRunner;
+    public Camera2CameraControl(ControlUpdateListener controlUpdateListener, Handler handler) {
+        mControlUpdateListener = controlUpdateListener;
         mHandler = handler;
+
+        mSessionConfigurationBuilder.setTemplateType(getDefaultTemplate());
+        mSessionConfigurationBuilder.setCameraCaptureCallback(
+                CaptureCallbackContainer.create(mSessionCallback));
+        updateSessionConfiguration();
     }
 
     /** {@inheritDoc} */
@@ -111,7 +118,7 @@ public final class Camera2CameraControl implements CameraControl {
         }
 
         mCropRect = crop;
-        mCamera2RequestRunner.updateRepeatingRequest();
+        updateSessionConfiguration();
     }
 
     /** {@inheritDoc} */
@@ -191,7 +198,7 @@ public final class Camera2CameraControl implements CameraControl {
 
             mSessionCallback.addListener(mSessionListenerForFocus);
         }
-        mCamera2RequestRunner.updateRepeatingRequest();
+        updateSessionConfiguration();
 
         triggerAf();
         if (FOCUS_TIMEOUT != 0) {
@@ -233,29 +240,17 @@ public final class Camera2CameraControl implements CameraControl {
 
         // Send a single request to cancel af process
         CaptureRequestConfiguration.Builder singleRequestBuilder =
-                new CaptureRequestConfiguration.Builder();
+                createCaptureRequestBuilderWithSharedOptions();
         singleRequestBuilder.setTemplateType(getDefaultTemplate());
         singleRequestBuilder.setUseRepeatingSurface(true);
-        singleRequestBuilder.addCharacteristic(
-                CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
-        mCamera2RequestRunner.submitSingleRequest(singleRequestBuilder.build());
+        Camera2Configuration.Builder configBuilder = new Camera2Configuration.Builder();
+        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
+        singleRequestBuilder.addImplementationOptions(configBuilder.build());
+        notifySingleRequest(singleRequestBuilder.build());
 
         mIsFocusLocked = false;
-        mCamera2RequestRunner.updateRepeatingRequest();
-    }
-
-    private void updateRepeatingRequest() {
-        if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera2CameraControl.this.updateRepeatingRequest();
-                }
-            });
-            return;
-        }
-
-        mCamera2RequestRunner.updateRepeatingRequest();
+        updateSessionConfiguration();
     }
 
     @Override
@@ -269,7 +264,7 @@ public final class Camera2CameraControl implements CameraControl {
         // update mFlashMode immediately so that following getFlashMode() returns correct value.
         mFlashMode = flashMode;
 
-        updateRepeatingRequest();
+        updateSessionConfiguration();
     }
 
     /** {@inheritDoc} */
@@ -293,15 +288,16 @@ public final class Camera2CameraControl implements CameraControl {
 
         if (!torch) {
             CaptureRequestConfiguration.Builder singleRequestBuilder =
-                    new CaptureRequestConfiguration.Builder();
+                    createCaptureRequestBuilderWithSharedOptions();
             singleRequestBuilder.setTemplateType(getDefaultTemplate());
-            singleRequestBuilder.addCharacteristic(
-                    CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
             singleRequestBuilder.setUseRepeatingSurface(true);
-
-            mCamera2RequestRunner.submitSingleRequest(singleRequestBuilder.build());
+            Camera2Configuration.Builder configBuilder = new Camera2Configuration.Builder();
+            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
+                    CaptureRequest.CONTROL_AE_MODE_ON);
+            singleRequestBuilder.addImplementationOptions(configBuilder.build());
+            notifySingleRequest(singleRequestBuilder.build());
         }
-        mCamera2RequestRunner.updateRepeatingRequest();
+        updateSessionConfiguration();
     }
 
     /** {@inheritDoc} */
@@ -330,13 +326,15 @@ public final class Camera2CameraControl implements CameraControl {
             return;
         }
 
-        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
-
+        CaptureRequestConfiguration.Builder builder =
+                createCaptureRequestBuilderWithSharedOptions();
         builder.setTemplateType(getDefaultTemplate());
         builder.setUseRepeatingSurface(true);
-        builder.addCharacteristic(
-                CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START);
-        mCamera2RequestRunner.submitSingleRequest(builder.build());
+        Camera2Configuration.Builder configBuilder = new Camera2Configuration.Builder();
+        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START);
+        builder.addImplementationOptions(configBuilder.build());
+        notifySingleRequest(builder.build());
     }
 
     /**
@@ -355,13 +353,15 @@ public final class Camera2CameraControl implements CameraControl {
             return;
         }
 
-        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+        CaptureRequestConfiguration.Builder builder =
+                createCaptureRequestBuilderWithSharedOptions();
         builder.setTemplateType(getDefaultTemplate());
         builder.setUseRepeatingSurface(true);
-        builder.addCharacteristic(
-                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
+        Camera2Configuration.Builder configBuilder = new Camera2Configuration.Builder();
+        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
-        mCamera2RequestRunner.submitSingleRequest(builder.build());
+        builder.addImplementationOptions(configBuilder.build());
+        notifySingleRequest(builder.build());
     }
 
     /**
@@ -382,42 +382,110 @@ public final class Camera2CameraControl implements CameraControl {
             });
             return;
         }
-        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+        CaptureRequestConfiguration.Builder builder =
+                createCaptureRequestBuilderWithSharedOptions();
         builder.setUseRepeatingSurface(true);
         builder.setTemplateType(getDefaultTemplate());
+
+        Camera2Configuration.Builder configBuilder = new Camera2Configuration.Builder();
         if (cancelAfTrigger) {
-            builder.addCharacteristic(
-                    CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
+            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
+                    CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
         }
         if (cancelAePrecaptureTrigger) {
-            builder.addCharacteristic(
-                    CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
+            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                     CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);
         }
-        mCamera2RequestRunner.submitSingleRequest(builder.build());
+        builder.addImplementationOptions(configBuilder.build());
+        notifySingleRequest(builder.build());
     }
 
     private int getDefaultTemplate() {
         return CameraDevice.TEMPLATE_PREVIEW;
     }
 
+    private void notifySingleRequest(CaptureRequestConfiguration captureRequestConfiguration) {
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera2CameraControl.this.notifySingleRequest(captureRequestConfiguration);
+                }
+            });
+            return;
+        }
+        mControlUpdateListener.onCameraControlSingleRequest(captureRequestConfiguration);
+    }
+
+    private void updateSessionConfiguration() {
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera2CameraControl.this.updateSessionConfiguration();
+                }
+            });
+            return;
+        }
+        mSessionConfigurationBuilder.setImplementationOptions(getSharedOptions());
+        mControlUpdateListener.onCameraControlUpdateSessionConfiguration(
+                mSessionConfigurationBuilder.build());
+    }
+
     /** {@inheritDoc} */
     @Override
-    public SessionConfiguration getControlSessionConfiguration() {
-        SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+    public void submitSingleRequest(CaptureRequestConfiguration captureRequestConfiguration) {
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Camera2CameraControl.this.submitSingleRequest(captureRequestConfiguration);
+                }
+            });
+            return;
+        }
 
-        builder.setTemplateType(getDefaultTemplate());
-        builder.setCameraCaptureCallback(CaptureCallbackContainer.create(mSessionCallback));
+        CaptureRequestConfiguration.Builder builder = CaptureRequestConfiguration.Builder.from(
+                captureRequestConfiguration);
+        // Always override options by shared options for the single request from outside.
+        builder.addImplementationOptions(getSharedOptions());
+        notifySingleRequest(builder.build());
+    }
 
-        Camera2Configuration.Builder requestOptionBuilder = new Camera2Configuration.Builder();
+    /**
+     * Creates a CaptureRequestConfiguration.Builder contains shared options.
+     *
+     * @return a {@link CaptureRequestConfiguration.Builder} contains shared options.
+     */
+    private CaptureRequestConfiguration.Builder createCaptureRequestBuilderWithSharedOptions() {
+        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+        builder.addImplementationOptions(getSharedOptions());
+        return builder;
+    }
 
+    /**
+     * Gets shared options by current status.
+     *
+     * <p>The shared options are based on the current torch status, flash mode, focus area, crop
+     * area, etc... They should be appended to the repeat request and each single capture request.
+     */
+    Configuration getSharedOptions() {
+        Camera2Configuration.Builder builder = new Camera2Configuration.Builder();
+        builder.setCaptureRequestOption(
+                CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
+
+        builder.setCaptureRequestOption(
+                CaptureRequest.CONTROL_AF_MODE,
+                isFocusLocked()
+                        ? CaptureRequest.CONTROL_AF_MODE_AUTO
+                        : CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+
+        int aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
         if (mIsTorchOn) {
-            requestOptionBuilder.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
-            requestOptionBuilder.setCaptureRequestOption(
-                    CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH);
+            aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
+            builder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
+                    CaptureRequest.FLASH_MODE_TORCH);
         } else {
-            int aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
             switch (mFlashMode) {
                 case OFF:
                     aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
@@ -429,42 +497,8 @@ public final class Camera2CameraControl implements CameraControl {
                     aeMode = CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH;
                     break;
             }
-            requestOptionBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, aeMode);
         }
-
-        // also apply the common option for single requests.
-        Configuration singleRequestImpOptions = getSingleRequestImplOptions();
-        requestOptionBuilder.insertAllOptions(singleRequestImpOptions);
-        builder.setImplementationOptions(requestOptionBuilder.build());
-
-        return builder.build();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Configuration getSingleRequestImplOptions() {
-        Camera2Configuration.Builder builder = new Camera2Configuration.Builder();
-
-        builder.setCaptureRequestOption(
-                CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
-
-        builder.setCaptureRequestOption(
-                CaptureRequest.CONTROL_AF_MODE,
-                isFocusLocked()
-                        ? CaptureRequest.CONTROL_AF_MODE_AUTO
-                        : CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-
-        if (mIsTorchOn) {
-            // In case some random single request turns off the torch by accident, attach FLASH_MODE
-            // and
-            // CONTROL_AE_MODE_ON to all single requests.
-            builder.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
-            builder.setCaptureRequestOption(
-                    CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH);
-        }
-        // Turning off Flash requires a single request of AE mode set to CONTROL_AE_MODE_ON. This is
-        // the reason why we do not specify AE mode by default for single request.
+        builder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, aeMode);
 
         builder.setCaptureRequestOption(
                 CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_AUTO);

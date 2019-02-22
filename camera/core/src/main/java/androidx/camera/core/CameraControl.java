@@ -110,14 +110,11 @@ public interface CameraControl {
     void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger);
 
     /**
-     * Hooks a SessionConfiguration into the final SessionConfiguration ValidatingBuilder.
-     * CameraControl can modify SessionConfiguration to add implementation options or add a listener
-     * to check the capture result.
+     * Performs a single capture request.
+     *
+     * @param captureRequestConfiguration
      */
-    SessionConfiguration getControlSessionConfiguration();
-
-    /** Attaches the common request implementation options to every SINGLE requests. */
-    Configuration getSingleRequestImplOptions();
+    void submitSingleRequest(CaptureRequestConfiguration captureRequestConfiguration);
 
     CameraControl DEFAULT_EMPTY_INSTANCE = new CameraControl() {
         @Override
@@ -170,13 +167,18 @@ public interface CameraControl {
         }
 
         @Override
-        public SessionConfiguration getControlSessionConfiguration() {
-            return SessionConfiguration.defaultEmptySessionConfiguration();
-        }
-
-        @Override
-        public Configuration getSingleRequestImplOptions() {
-            return OptionsBundle.emptyBundle();
+        public void submitSingleRequest(
+                CaptureRequestConfiguration captureRequestConfiguration) {
         }
     };
+
+    /** Listener called when CameraControl need to notify event. */
+    interface ControlUpdateListener {
+
+        /** Called when CameraControl has updated session configuration. */
+        void onCameraControlUpdateSessionConfiguration(SessionConfiguration sessionConfiguration);
+
+        /** Called when CameraControl need to send single request. */
+        void onCameraControlSingleRequest(CaptureRequestConfiguration captureRequestConfiguration);
+    }
 }

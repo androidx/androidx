@@ -273,18 +273,6 @@ public abstract class BaseUseCase {
     }
 
     /**
-     * Notify all {@link StateChangeListener} that are listening to this BaseUseCase that it has a
-     * single capture request.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    protected final void notifySingleCapture(CaptureRequestConfiguration requestConfiguration) {
-        for (StateChangeListener listener : mListeners) {
-            listener.onUseCaseSingleRequest(this, requestConfiguration);
-        }
-    }
-
-    /**
      * Notify all {@link StateChangeListener} that are listening to this BaseUseCase that the
      * settings have been updated.
      */
@@ -479,13 +467,5 @@ public abstract class BaseUseCase {
          * includes updating the {@link android.view.Surface} used by the use case.
          */
         void onUseCaseReset(BaseUseCase useCase);
-
-        /**
-         * Called when a {@link BaseUseCase} need a single capture request
-         *
-         * @param captureRequestConfiguration used to construct the single capture request
-         */
-        void onUseCaseSingleRequest(
-                BaseUseCase useCase, CaptureRequestConfiguration captureRequestConfiguration);
     }
 }

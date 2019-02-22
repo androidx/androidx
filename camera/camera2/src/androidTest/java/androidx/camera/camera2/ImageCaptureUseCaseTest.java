@@ -187,7 +187,7 @@ public final class ImageCaptureUseCaseTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
         useCase.takePicture(mOnImageCapturedListener);
@@ -205,7 +205,7 @@ public final class ImageCaptureUseCaseTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
         int numImages = 5;
@@ -239,7 +239,7 @@ public final class ImageCaptureUseCaseTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
         int numImages = 5;
@@ -269,7 +269,7 @@ public final class ImageCaptureUseCaseTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
@@ -289,7 +289,7 @@ public final class ImageCaptureUseCaseTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
@@ -318,7 +318,7 @@ public final class ImageCaptureUseCaseTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
@@ -345,7 +345,7 @@ public final class ImageCaptureUseCaseTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
@@ -368,7 +368,7 @@ public final class ImageCaptureUseCaseTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
         File saveLocation = File.createTempFile("test", ".jpg");
@@ -392,7 +392,7 @@ public final class ImageCaptureUseCaseTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
         int numImages = 5;
@@ -415,7 +415,7 @@ public final class ImageCaptureUseCaseTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
         useCase.addStateChangeListener(mCamera);
 
         // Note the invalid path
@@ -442,7 +442,7 @@ public final class ImageCaptureUseCaseTest {
             suggestedResolutionMap.put(mCameraId, size);
             // Update SessionConfiguration with resolution setting
             useCase.updateSuggestedResolution(suggestedResolutionMap);
-            CameraUtil.openCameraWithUseCase(mCamera, useCase, mRepeatingUseCase);
+            CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
 
             useCase.takePicture(mOnImageCapturedListener);
             // Wait for the signal that the image has been captured.

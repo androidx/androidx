@@ -27,7 +27,8 @@ import java.util.Collection;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public interface BaseCamera extends BaseUseCase.StateChangeListener {
+public interface BaseCamera extends BaseUseCase.StateChangeListener,
+        CameraControl.ControlUpdateListener {
     /**
      * Open the camera asynchronously.
      *

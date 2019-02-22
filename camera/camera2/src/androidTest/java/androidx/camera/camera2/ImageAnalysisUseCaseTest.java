@@ -164,7 +164,7 @@ public final class ImageAnalysisUseCaseTest {
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
-        CameraUtil.openCameraWithUseCase(mCamera, useCase);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase);
         useCase.setAnalyzer(mAnalyzer);
 
         int sensorRotation = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees();
@@ -209,7 +209,7 @@ public final class ImageAnalysisUseCaseTest {
             Map<String, Size> suggestedResolutionMap = new HashMap<>();
             suggestedResolutionMap.put(mCameraId, size);
             useCase.updateSuggestedResolution(suggestedResolutionMap);
-            CameraUtil.openCameraWithUseCase(mCamera, useCase);
+            CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase);
 
             // Clear previous results
             mAnalysisResults.clear();

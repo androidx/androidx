@@ -144,20 +144,6 @@ public class BaseUseCaseTest {
     }
 
     @Test
-    public void notifySingleCapture() {
-        FakeUseCaseConfiguration configuration =
-                new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
-        TestUseCase testUseCase = new TestUseCase(configuration);
-        testUseCase.addStateChangeListener(mMockUseCaseListener);
-        CaptureRequestConfiguration captureRequestConfiguration =
-                new CaptureRequestConfiguration.Builder().build();
-
-        testUseCase.notifySingleCapture(captureRequestConfiguration);
-        verify(mMockUseCaseListener, times(1))
-                .onUseCaseSingleRequest(testUseCase, captureRequestConfiguration);
-    }
-
-    @Test
     public void useCaseConfiguration_canBeUpdated() {
         String originalName = "UseCase";
         FakeUseCaseConfiguration.Builder configurationBuilder =

@@ -56,7 +56,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>Capture requests will be issued only for use cases which are in both the online and active
  * state.
  */
-final class Camera implements BaseCamera, Camera2RequestRunner {
+final class Camera implements BaseCamera {
     private static final String TAG = "Camera";
 
     private final Object mAttachedUseCaseLock = new Object();
@@ -94,6 +94,9 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     CameraDevice mCameraDevice;
     /** The configured session which handles issuing capture requests. */
     private CaptureSession mCaptureSession = new CaptureSession(null);
+    /** The session configuration of camera control. */
+    private SessionConfiguration mCameraControlSessionConfiguration =
+            SessionConfiguration.defaultEmptySessionConfiguration();
 
     /**
      * Constructor for a camera.
@@ -299,12 +302,6 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
         openCaptureSession();
     }
 
-    @Override
-    public void onUseCaseSingleRequest(
-            BaseUseCase useCase, CaptureRequestConfiguration captureRequestConfiguration) {
-        submitSingleRequest(captureRequestConfiguration);
-    }
-
     /**
      * Sets the use case to be in the state where the capture session will be configured to handle
      * capture requests from the use case.
@@ -412,7 +409,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
         if (validatingBuilder.isValid()) {
             // Apply CameraControl's SessionConfiguration to let CameraControl be able to control
             // Repeating Request and process results.
-            validatingBuilder.add(mCameraControl.getControlSessionConfiguration());
+            validatingBuilder.add(mCameraControlSessionConfiguration);
 
             SessionConfiguration sessionConfiguration = validatingBuilder.build();
             mCaptureSession.setSessionConfiguration(sessionConfiguration);
@@ -530,7 +527,6 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
     public void submitSingleRequest(final CaptureRequestConfiguration captureRequestConfiguration) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
@@ -555,33 +551,24 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
             }
         }
 
-        // Adds implementationOptions from CameraControl
-        builder.addImplementationOptions(mCameraControl.getSingleRequestImplOptions());
-
         Log.d(TAG, "issue single capture request for camera " + mCameraId);
 
         mCaptureSession.issueSingleCaptureRequest(builder.build());
     }
 
-    /**
-     * Re-sends repeating request based on current SessionConfigurations and CameraControl's Global
-     * SessionConfiguration
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    /** {@inheritDoc} */
     @Override
-    public void updateRepeatingRequest() {
-        if (Looper.myLooper() != mHandler.getLooper()) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Camera.this.updateRepeatingRequest();
-                }
-            });
-            return;
-        }
-
+    public void onCameraControlUpdateSessionConfiguration(
+            SessionConfiguration sessionConfiguration) {
+        mCameraControlSessionConfiguration = sessionConfiguration;
         updateCaptureSessionConfiguration();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void onCameraControlSingleRequest(
+            CaptureRequestConfiguration captureRequestConfiguration) {
+        submitSingleRequest(captureRequestConfiguration);
     }
 
     enum State {

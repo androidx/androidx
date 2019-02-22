@@ -130,12 +130,15 @@ public final class CameraUtil {
      * capture requests to the camera. The caller is responsible for making the use case inactive
      * and offline and for closing the camera afterwards.
      *
+     * @param cameraId to open
      * @param camera   to open
      * @param useCases to associate with
      */
-    public static void openCameraWithUseCase(BaseCamera camera, BaseUseCase... useCases) {
+    public static void openCameraWithUseCase(String cameraId, BaseCamera camera,
+            BaseUseCase... useCases) {
         camera.addOnlineUseCase(Arrays.asList(useCases));
         for (BaseUseCase useCase : useCases) {
+            useCase.attachCameraControl(cameraId, camera.getCameraControl());
             camera.onUseCaseActive(useCase);
         }
     }
