@@ -1034,6 +1034,8 @@
         <!-- A color to apply to the subtitle string. -->
         <attr name="subtitleTextColor" format="color" />
         <attr name="android:minHeight" />
+        <!-- Menu resource to inflate to be shown in the toolbar -->
+        <attr name="menu" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="PopupWindowBackgroundState">
