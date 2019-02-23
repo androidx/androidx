@@ -479,21 +479,15 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     }
 
     /**
-     * Attach a repeating surface to a {@link CaptureRequestConfiguration} when the configuration
-     * indicate that it needs a repeating surface.
+     * Checks if there's valid repeating surface and attaches one to
+     * {@link CaptureRequestConfiguration.Builder}.
      *
-     * @param captureRequestConfiguration the configuration to attach a repeating surface
+     * @param captureRequestConfigurationBuilder the configuration builder to attach a repeating
+     *                                           surface
+     * @return True if repeating surface has been successfully attached, otherwise false.
      */
-    private void checkAndAttachRepeatingSurface(
-            CaptureRequestConfiguration captureRequestConfiguration) {
-        if (!captureRequestConfiguration.getSurfaces().isEmpty()) {
-            return;
-        }
-
-        if (!captureRequestConfiguration.isUseRepeatingSurface()) {
-            return;
-        }
-
+    private boolean checkAndAttachRepeatingSurface(
+            CaptureRequestConfiguration.Builder captureRequestConfigurationBuilder) {
         Collection<BaseUseCase> activeUseCases;
         synchronized (mAttachedUseCaseLock) {
             activeUseCases = mUseCaseAttachState.getActiveAndOnlineUseCases();
@@ -514,11 +508,13 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
         }
 
         if (repeatingSurface == null) {
-            throw new IllegalStateException(
+            Log.w(TAG,
                     "Unable to find a repeating surface to attach to CaptureRequestConfiguration");
+            return false;
         }
 
-        captureRequestConfiguration.addSurface(repeatingSurface);
+        captureRequestConfigurationBuilder.addSurface(repeatingSurface);
+        return true;
     }
 
     /** Returns the Camera2CameraControl attached to Camera */
@@ -545,14 +541,24 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
             });
             return;
         }
-        Log.d(TAG, "issue single capture request for camera " + mCameraId);
 
-        checkAndAttachRepeatingSurface(captureRequestConfiguration);
-
-        // Recreates the Builder to add implementationOptions from CameraControl
+        // Recreates the Builder to add extra config needed
         CaptureRequestConfiguration.Builder builder =
                 CaptureRequestConfiguration.Builder.from(captureRequestConfiguration);
+
+        if (captureRequestConfiguration.getSurfaces().isEmpty()
+                && captureRequestConfiguration.isUseRepeatingSurface()) {
+            // Checks and attaches if there's valid repeating surface. If there's no, skip this
+            // single request.
+            if (!checkAndAttachRepeatingSurface(builder)) {
+                return;
+            }
+        }
+
+        // Adds implementationOptions from CameraControl
         builder.addImplementationOptions(mCameraControl.getSingleRequestImplOptions());
+
+        Log.d(TAG, "issue single capture request for camera " + mCameraId);
 
         mCaptureSession.issueSingleCaptureRequest(builder.build());
     }
