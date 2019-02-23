@@ -23,6 +23,9 @@ import android.text.TextDirectionHeuristics;
 import androidx.annotation.IntDef;
 import androidx.annotation.RestrictTo;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * LayoutCompat class which provides all supported attributes by framework, and also defines
  * default value of those attributes for Crane.
@@ -150,6 +153,7 @@ public class LayoutCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             ALIGN_NORMAL,
             ALIGN_CENTER,
@@ -164,6 +168,7 @@ public class LayoutCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             JUSTIFICATION_MODE_NONE,
             JUSTIFICATION_MODE_INTER_WORD
@@ -174,6 +179,7 @@ public class LayoutCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             BREAK_STRATEGY_SIMPLE,
             BREAK_STRATEGY_HIGH_QUALITY,
@@ -185,6 +191,7 @@ public class LayoutCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             HYPHENATION_FREQUENCY_NORMAL,
             HYPHENATION_FREQUENCY_FULL,
@@ -196,6 +203,7 @@ public class LayoutCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             TEXT_DIRECTION_LTR,
             TEXT_DIRECTION_RTL,
