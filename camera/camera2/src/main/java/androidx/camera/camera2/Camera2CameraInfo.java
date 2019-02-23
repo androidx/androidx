@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
+import android.view.Surface;
 
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
@@ -89,5 +90,10 @@ final class Camera2CameraInfo implements CameraInfo {
                     "Camera characteristics map is missing value for characteristic: "
                             + readableName);
         }
+    }
+
+    @Override
+    public int getSensorRotationDegrees() {
+        return getSensorRotationDegrees(Surface.ROTATION_0);
     }
 }

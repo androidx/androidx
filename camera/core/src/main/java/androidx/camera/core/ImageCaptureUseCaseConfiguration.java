@@ -16,10 +16,17 @@
 
 package androidx.camera.core;
 
+import android.os.Handler;
+import android.util.Rational;
+import android.util.Size;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageCaptureUseCase.CaptureMode;
+
+import java.util.Set;
+import java.util.UUID;
 
 /** Configuration for an image capture use case. */
 public final class ImageCaptureUseCaseConfiguration
@@ -191,5 +198,331 @@ public final class ImageCaptureUseCaseConfiguration
             getMutableConfiguration().insertOption(OPTION_FLASH_MODE, flashMode);
             return builder();
         }
+
+
+        // Start of the default implementation of Configuration.Builder
+        // *****************************************************************************************
+
+        // Implementations of Configuration.Builder default methods
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public <ValueT> Builder insertOption(Option<ValueT> opt, ValueT value) {
+            getMutableConfiguration().insertOption(opt, value);
+            return builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @Nullable
+        public <ValueT> Builder removeOption(Option<ValueT> opt) {
+            getMutableConfiguration().removeOption(opt);
+            return builder();
+        }
+
+        // Implementations of TargetConfiguration.Builder default methods
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setTargetClass(Class<ImageCaptureUseCase> targetClass) {
+            getMutableConfiguration().insertOption(OPTION_TARGET_CLASS, targetClass);
+
+            // If no name is set yet, then generate a unique name
+            if (null == getMutableConfiguration().retrieveOption(OPTION_TARGET_NAME, null)) {
+                String targetName = targetClass.getCanonicalName() + "-" + UUID.randomUUID();
+                setTargetName(targetName);
+            }
+
+            return builder();
+        }
+
+        @Override
+        public Builder setTargetName(String targetName) {
+            getMutableConfiguration().insertOption(OPTION_TARGET_NAME, targetName);
+            return builder();
+        }
+
+        // Implementations of CameraDeviceConfiguration.Builder default methods
+
+        @Override
+        public Builder setLensFacing(CameraX.LensFacing lensFacing) {
+            getMutableConfiguration().insertOption(OPTION_LENS_FACING, lensFacing);
+            return builder();
+        }
+
+        // Implementations of ImageOutputConfiguration.Builder default methods
+
+        @Override
+        public Builder setTargetAspectRatio(Rational aspectRatio) {
+            getMutableConfiguration().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
+            return builder();
+        }
+
+        @Override
+        public Builder setTargetRotation(@RotationValue int rotation) {
+            getMutableConfiguration().insertOption(OPTION_TARGET_ROTATION, rotation);
+            return builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setTargetResolution(Size resolution) {
+            getMutableConfiguration().insertOption(OPTION_TARGET_RESOLUTION, resolution);
+            return builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setMaxResolution(Size resolution) {
+            getMutableConfiguration().insertOption(OPTION_MAX_RESOLUTION, resolution);
+            return builder();
+        }
+
+        // Implementations of ThreadConfiguration.Builder default methods
+
+        @Override
+        public Builder setCallbackHandler(Handler handler) {
+            getMutableConfiguration().insertOption(OPTION_CALLBACK_HANDLER, handler);
+            return builder();
+        }
+
+        // Implementations of UseCaseConfiguration.Builder default methods
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setDefaultSessionConfiguration(SessionConfiguration sessionConfig) {
+            getMutableConfiguration().insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionConfig);
+            return builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setOptionUnpacker(SessionConfiguration.OptionUnpacker optionUnpacker) {
+            getMutableConfiguration().insertOption(OPTION_CONFIG_UNPACKER, optionUnpacker);
+            return builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setSurfaceOccupancyPriority(int priority) {
+            getMutableConfiguration().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            return builder();
+        }
+
+        // End of the default implementation of Configuration.Builder
+        // *****************************************************************************************
     }
+
+    // Start of the default implementation of Configuration
+    // *********************************************************************************************
+
+    // Implementations of Configuration.Reader default methods
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public boolean containsOption(Option<?> id) {
+        return getConfiguration().containsOption(id);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
+        return getConfiguration().retrieveOption(id);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
+        return getConfiguration().retrieveOption(id, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void findOptions(String idStem, OptionMatcher matcher) {
+        getConfiguration().findOptions(idStem, matcher);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Set<Option<?>> listOptions() {
+        return getConfiguration().listOptions();
+    }
+
+    // Implementations of TargetConfiguration default methods
+
+    @Override
+    @Nullable
+    public Class<ImageCaptureUseCase> getTargetClass(
+            @Nullable Class<ImageCaptureUseCase> valueIfMissing) {
+        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
+                Class<ImageCaptureUseCase> storedClass =
+                (Class<ImageCaptureUseCase>) retrieveOption(
+                        OPTION_TARGET_CLASS,
+                        valueIfMissing);
+        return storedClass;
+    }
+
+    @Override
+    public Class<ImageCaptureUseCase> getTargetClass() {
+        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
+                Class<ImageCaptureUseCase> storedClass =
+                (Class<ImageCaptureUseCase>) retrieveOption(
+                        OPTION_TARGET_CLASS);
+        return storedClass;
+    }
+
+    @Override
+    @Nullable
+    public String getTargetName(@Nullable String valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_NAME, valueIfMissing);
+    }
+
+    @Override
+    public String getTargetName() {
+        return retrieveOption(OPTION_TARGET_NAME);
+    }
+
+    // Implementations of CameraDeviceConfiguration default methods
+
+    @Override
+    @Nullable
+    public CameraX.LensFacing getLensFacing(@Nullable CameraX.LensFacing valueIfMissing) {
+        return retrieveOption(OPTION_LENS_FACING, valueIfMissing);
+    }
+
+    @Override
+    public CameraX.LensFacing getLensFacing() {
+        return retrieveOption(OPTION_LENS_FACING);
+    }
+
+    // Implementations of ImageOutputConfiguration default methods
+
+    @Override
+    @Nullable
+    public Rational getTargetAspectRatio(@Nullable Rational valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_ASPECT_RATIO, valueIfMissing);
+    }
+
+    @Override
+    public Rational getTargetAspectRatio() {
+        return retrieveOption(OPTION_TARGET_ASPECT_RATIO);
+    }
+
+    @Override
+    @RotationValue
+    public int getTargetRotation(int valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_ROTATION, valueIfMissing);
+    }
+
+    @Override
+    @RotationValue
+    public int getTargetRotation() {
+        return retrieveOption(OPTION_TARGET_ROTATION);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Size getTargetResolution(Size valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_RESOLUTION, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Size getTargetResolution() {
+        return retrieveOption(OPTION_TARGET_RESOLUTION);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Size getMaxResolution(Size valueIfMissing) {
+        return retrieveOption(OPTION_MAX_RESOLUTION, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Size getMaxResolution() {
+        return retrieveOption(OPTION_MAX_RESOLUTION);
+    }
+
+    // Implementations of ThreadConfiguration default methods
+
+    @Override
+    @Nullable
+    public Handler getCallbackHandler(@Nullable Handler valueIfMissing) {
+        return retrieveOption(OPTION_CALLBACK_HANDLER, valueIfMissing);
+    }
+
+    @Override
+    public Handler getCallbackHandler() {
+        return retrieveOption(OPTION_CALLBACK_HANDLER);
+    }
+
+    // Implementations of UseCaseConfiguration default methods
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public SessionConfiguration getDefaultSessionConfiguration(
+            @Nullable SessionConfiguration valueIfMissing) {
+        return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public SessionConfiguration getDefaultSessionConfiguration() {
+        return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public SessionConfiguration.OptionUnpacker getOptionUnpacker(
+            @Nullable SessionConfiguration.OptionUnpacker valueIfMissing) {
+        return retrieveOption(OPTION_CONFIG_UNPACKER, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public SessionConfiguration.OptionUnpacker getOptionUnpacker() {
+        return retrieveOption(OPTION_CONFIG_UNPACKER);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public int getSurfaceOccupancyPriority(int valueIfMissing) {
+        return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public int getSurfaceOccupancyPriority() {
+        return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
+    }
+
+    // End of the default implementation of Configuration
+    // *********************************************************************************************
+
 }

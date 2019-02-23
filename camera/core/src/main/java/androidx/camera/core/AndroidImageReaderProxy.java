@@ -96,7 +96,7 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
 
     @Override
     public synchronized void setOnImageAvailableListener(
-            @Nullable ImageReaderProxy.OnImageAvailableListener listener,
+            @Nullable final ImageReaderProxy.OnImageAvailableListener listener,
             @Nullable Handler handler) {
         ImageReader.OnImageAvailableListener transformedListener =
                 new ImageReader.OnImageAvailableListener() {

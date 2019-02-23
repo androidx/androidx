@@ -51,9 +51,7 @@ public interface CameraInfo {
      * @return The sensor orientation in degrees.
      * @see Surface#ROTATION_0, the natural orientation of the device.
      */
-    default int getSensorRotationDegrees() {
-        return getSensorRotationDegrees(Surface.ROTATION_0);
-    }
+    int getSensorRotationDegrees();
 
     /**
      * Returns the sensor rotation, in degrees, relative to the given rotation value.

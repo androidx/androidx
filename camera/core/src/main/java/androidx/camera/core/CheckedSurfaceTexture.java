@@ -117,7 +117,7 @@ final class CheckedSurfaceTexture implements DeferrableSurface {
      */
     @Override
     public ListenableFuture<Surface> getSurface() {
-        SettableFuture<Surface> deferredSurface = SettableFuture.create();
+        final SettableFuture<Surface> deferredSurface = SettableFuture.create();
         Runnable checkAndSetRunnable =
                 new Runnable() {
                     @Override

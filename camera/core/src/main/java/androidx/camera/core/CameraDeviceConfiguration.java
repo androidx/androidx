@@ -45,9 +45,7 @@ public interface CameraDeviceConfiguration extends Configuration.Reader {
      * configuration.
      */
     @Nullable
-    default CameraX.LensFacing getLensFacing(@Nullable LensFacing valueIfMissing) {
-        return retrieveOption(OPTION_LENS_FACING, valueIfMissing);
-    }
+    CameraX.LensFacing getLensFacing(@Nullable LensFacing valueIfMissing);
 
     /**
      * Retrieves the lens facing direction for the primary camera to be configured.
@@ -55,9 +53,7 @@ public interface CameraDeviceConfiguration extends Configuration.Reader {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    default CameraX.LensFacing getLensFacing() {
-        return retrieveOption(OPTION_LENS_FACING);
-    }
+    CameraX.LensFacing getLensFacing();
 
     // Option Declarations:
     // *********************************************************************************************
@@ -80,9 +76,6 @@ public interface CameraDeviceConfiguration extends Configuration.Reader {
          * @param lensFacing The direction of the camera's lens.
          * @return the current Builder.
          */
-        default B setLensFacing(CameraX.LensFacing lensFacing) {
-            getMutableConfiguration().insertOption(OPTION_LENS_FACING, lensFacing);
-            return builder();
-        }
+        B setLensFacing(CameraX.LensFacing lensFacing);
     }
 }

@@ -67,7 +67,7 @@ public final class DeferrableSurfaces {
             surfaces.removeAll(Collections.singleton(null));
             return Collections.unmodifiableList(surfaces);
         } catch (InterruptedException | ExecutionException e) {
-            return Collections.unmodifiableList(Collections.emptyList());
+            return Collections.unmodifiableList(Collections.<Surface>emptyList());
         }
     }
 
@@ -91,7 +91,7 @@ public final class DeferrableSurfaces {
             surfaces.removeAll(Collections.singleton(null));
             return Collections.unmodifiableSet(surfaces);
         } catch (InterruptedException | ExecutionException e) {
-            return Collections.unmodifiableSet(Collections.emptySet());
+            return Collections.unmodifiableSet(Collections.<Surface>emptySet());
         }
     }
 }

@@ -16,12 +16,15 @@
 
 package androidx.camera.testing.fakes;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Configuration;
 import androidx.camera.core.MutableConfiguration;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.OptionsBundle;
+
+import java.util.Set;
 
 /**
  * Wrapper for an empty Configuration
@@ -65,5 +68,75 @@ public final class FakeConfiguration implements Configuration.Reader {
         public FakeConfiguration build() {
             return new FakeConfiguration(OptionsBundle.from(mOptionsBundle));
         }
+
+        // Start of the default implementation of Configuration.Builder
+        // *****************************************************************************************
+
+        // Implementations of Configuration.Builder default methods
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public <ValueT> Builder insertOption(Option<ValueT> opt, ValueT value) {
+            getMutableConfiguration().insertOption(opt, value);
+            return builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @Nullable
+        public <ValueT> Builder removeOption(Option<ValueT> opt) {
+            getMutableConfiguration().removeOption(opt);
+            return builder();
+        }
+
+        // End of the default implementation of Configuration.Builder
+        // *****************************************************************************************
     }
+
+    // Start of the default implementation of Configuration
+    // *********************************************************************************************
+
+    // Implementations of Configuration.Reader default methods
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public boolean containsOption(Option<?> id) {
+        return getConfiguration().containsOption(id);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
+        return getConfiguration().retrieveOption(id);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
+        return getConfiguration().retrieveOption(id, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void findOptions(String idStem, OptionMatcher matcher) {
+        getConfiguration().findOptions(idStem, matcher);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Set<Option<?>> listOptions() {
+        return getConfiguration().listOptions();
+    }
+
+    // End of the default implementation of Configuration
+    // *********************************************************************************************
 }

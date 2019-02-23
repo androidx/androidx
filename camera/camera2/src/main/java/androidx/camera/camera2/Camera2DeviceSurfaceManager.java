@@ -52,7 +52,12 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
     private boolean mIsInitialized = false;
 
     Camera2DeviceSurfaceManager(Context context) {
-        init(context, CamcorderProfile::hasProfile);
+        init(context, new CamcorderProfileHelper() {
+            @Override
+            public boolean hasProfile(int cameraId, int quality) {
+                return CamcorderProfile.hasProfile(cameraId, quality);
+            }
+        });
     }
 
     @VisibleForTesting

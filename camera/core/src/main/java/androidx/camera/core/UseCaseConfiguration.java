@@ -69,10 +69,8 @@ public interface UseCaseConfiguration<T extends BaseUseCase> extends TargetConfi
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    default SessionConfiguration getDefaultSessionConfiguration(
-            @Nullable SessionConfiguration valueIfMissing) {
-        return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG, valueIfMissing);
-    }
+    SessionConfiguration getDefaultSessionConfiguration(
+            @Nullable SessionConfiguration valueIfMissing);
 
     /**
      * Retrieves the default session configuration for this use case.
@@ -85,9 +83,7 @@ public interface UseCaseConfiguration<T extends BaseUseCase> extends TargetConfi
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    default SessionConfiguration getDefaultSessionConfiguration() {
-        return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG);
-    }
+    SessionConfiguration getDefaultSessionConfiguration();
 
     /**
      * Retrieves the {@link SessionConfiguration.OptionUnpacker} for this use case.
@@ -104,10 +100,8 @@ public interface UseCaseConfiguration<T extends BaseUseCase> extends TargetConfi
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    default SessionConfiguration.OptionUnpacker getOptionUnpacker(
-            @Nullable SessionConfiguration.OptionUnpacker valueIfMissing) {
-        return retrieveOption(OPTION_CONFIG_UNPACKER, valueIfMissing);
-    }
+    SessionConfiguration.OptionUnpacker getOptionUnpacker(
+            @Nullable SessionConfiguration.OptionUnpacker valueIfMissing);
 
     /**
      * Retrieves the {@link SessionConfiguration.OptionUnpacker} for this use case.
@@ -122,9 +116,7 @@ public interface UseCaseConfiguration<T extends BaseUseCase> extends TargetConfi
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    default SessionConfiguration.OptionUnpacker getOptionUnpacker() {
-        return retrieveOption(OPTION_CONFIG_UNPACKER);
-    }
+    SessionConfiguration.OptionUnpacker getOptionUnpacker();
 
     // Option Declarations:
     // *********************************************************************************************
@@ -139,9 +131,7 @@ public interface UseCaseConfiguration<T extends BaseUseCase> extends TargetConfi
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    default int getSurfaceOccupancyPriority(int valueIfMissing) {
-        return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, valueIfMissing);
-    }
+    int getSurfaceOccupancyPriority(int valueIfMissing);
 
     /**
      * Retrieves the surface occupancy priority of the target intending to use from this
@@ -152,9 +142,7 @@ public interface UseCaseConfiguration<T extends BaseUseCase> extends TargetConfi
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    default int getSurfaceOccupancyPriority() {
-        return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
-    }
+    int getSurfaceOccupancyPriority();
 
     /**
      * Builder for a {@link UseCaseConfiguration}.
@@ -176,10 +164,7 @@ public interface UseCaseConfiguration<T extends BaseUseCase> extends TargetConfi
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        default B setDefaultSessionConfiguration(SessionConfiguration sessionConfig) {
-            getMutableConfiguration().insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionConfig);
-            return builder();
-        }
+        B setDefaultSessionConfiguration(SessionConfiguration sessionConfig);
 
         /**
          * Sets the Option Unpacker for translating this configuration into a {@link
@@ -193,10 +178,7 @@ public interface UseCaseConfiguration<T extends BaseUseCase> extends TargetConfi
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        default B setOptionUnpacker(SessionConfiguration.OptionUnpacker optionUnpacker) {
-            getMutableConfiguration().insertOption(OPTION_CONFIG_UNPACKER, optionUnpacker);
-            return builder();
-        }
+        B setOptionUnpacker(SessionConfiguration.OptionUnpacker optionUnpacker);
 
         /**
          * Sets the surface occupancy priority of the intended target from this configuration.
@@ -212,9 +194,6 @@ public interface UseCaseConfiguration<T extends BaseUseCase> extends TargetConfi
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        default B setSurfaceOccupancyPriority(int priority) {
-            getMutableConfiguration().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
-            return builder();
-        }
+        B setSurfaceOccupancyPriority(int priority);
     }
 }
