@@ -35,9 +35,15 @@ import static androidx.media2.SessionToken.TYPE_SESSION;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.DeadObjectException;
@@ -52,6 +58,7 @@ import android.support.v4.media.session.MediaSessionCompat.Token;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -81,10 +88,27 @@ class MediaSessionImplBase implements MediaSessionImpl {
     private static final String DEFAULT_MEDIA_SESSION_TAG_DELIM = ".";
     private static final int ITEM_NONE = -1;
 
+    // Create a static lock for synchronize methods below.
+    // We'd better not use MediaSessionImplBase.class for synchronized(), which indirectly exposes
+    // lock object to the outside of the class.
+    private static final Object STATIC_LOCK = new Object();
+    @GuardedBy("STATIC_LOCK")
+    private static boolean sComponentNamesInitialized = false;
+    @GuardedBy("STATIC_LOCK")
+    private static ComponentName sServiceComponentName;
+
     static final String TAG = "MSImplBase";
     static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
 
     private static final SessionResult RESULT_WHEN_CLOSED = new SessionResult(RESULT_INFO_SKIPPED);
+
+    final Object mLock = new Object();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Uri mSessionUri;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Executor mCallbackExecutor;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final SessionCallback mCallback;
 
     private final Context mContext;
     private final HandlerThread mHandlerThread;
@@ -92,18 +116,14 @@ class MediaSessionImplBase implements MediaSessionImpl {
     private final MediaSessionCompat mSessionCompat;
     private final MediaSessionStub mSessionStub;
     private final MediaSessionLegacyStub mSessionLegacyStub;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Executor mCallbackExecutor;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final SessionCallback mCallback;
     private final String mSessionId;
     private final SessionToken mSessionToken;
     private final AudioManager mAudioManager;
     private final SessionPlayer.PlayerCallback mPlayerCallback;
     private final MediaSession mInstance;
     private final PendingIntent mSessionActivity;
-
-    final Object mLock = new Object();
+    private final PendingIntent mMediaButtonIntent;
+    private final BroadcastReceiver mBroadcastReceiver;
 
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -132,12 +152,65 @@ class MediaSessionImplBase implements MediaSessionImpl {
         mPlayerCallback = new SessionPlayerCallback(this);
 
         mSessionId = id;
+        // Build Uri that differentiate sessions across the creation/destruction in PendingIntent.
+        // Here's the reason why Session ID / SessionToken aren't suitable here.
+        //   - Session ID
+        //     PendingIntent from the previously closed session with the same ID can be sent to the
+        //     newly created session.
+        //   - SessionToken
+        //     SessionToken is a Parcelable so we can only put it into the intent extra.
+        //     However, creating two different PendingIntent that only differs extras isn't allowed.
+        //     See {@link PendingIntent} and {@link Intent#filterEquals} for details.
+        mSessionUri = new Uri.Builder().scheme(MediaSessionImplBase.class.getName()).appendPath(id)
+                .appendPath(String.valueOf(SystemClock.elapsedRealtime())).build();
         mSessionToken = new SessionToken(new SessionTokenImplBase(Process.myUid(),
                 TYPE_SESSION, context.getPackageName(), mSessionStub));
         String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
                 new String[] {DEFAULT_MEDIA_SESSION_TAG_PREFIX, id});
 
-        mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mSessionToken);
+        ComponentName mbrComponent = null;
+        synchronized (STATIC_LOCK) {
+            if (!sComponentNamesInitialized) {
+                sServiceComponentName = getServiceComponentByAction(
+                        MediaLibraryService.SERVICE_INTERFACE);
+                if (sServiceComponentName == null) {
+                    sServiceComponentName = getServiceComponentByAction(
+                            MediaSessionService.SERVICE_INTERFACE);
+                }
+                sComponentNamesInitialized = true;
+                mbrComponent = sServiceComponentName;
+            }
+        }
+        if (mbrComponent == null) {
+            // No service to revive playback after it's dead.
+            // Create a PendingIntent that points to the runtime broadcast receiver.
+            mbrComponent = new ComponentName(context, context.getClass());
+            Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+            intent.setPackage(context.getPackageName());
+            mMediaButtonIntent = PendingIntent.getBroadcast(
+                    context, 0 /* requestCode */, intent, 0 /* flags */);
+
+            // Create and register a BroadcastReceiver for receiving PendingIntent.
+            // TODO: Introduce MediaButtonReceiver in AndroidManifest instead of this,
+            //       or register only one receiver for all sessions.
+            mBroadcastReceiver = new MediaButtonReceiver();
+            context.registerReceiver(mBroadcastReceiver,
+                    new IntentFilter(Intent.ACTION_MEDIA_BUTTON));
+        } else {
+            // Has MediaSessionService to revive playback after it's dead.
+            Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+            intent.setData(mSessionUri);
+            intent.setComponent(mbrComponent);
+            if (Build.VERSION.SDK_INT >= 26) {
+                mMediaButtonIntent = PendingIntent.getForegroundService(mContext, 0, intent, 0);
+            } else {
+                mMediaButtonIntent = PendingIntent.getService(mContext, 0, intent, 0);
+            }
+            mBroadcastReceiver = null;
+        }
+
+        mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mbrComponent,
+                mMediaButtonIntent, mSessionToken);
         // NOTE: mSessionLegacyStub should be created after mSessionCompat created.
         mSessionLegacyStub = new MediaSessionLegacyStub(this);
 
@@ -282,6 +355,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
             }
             mPlayer.unregisterPlayerCallback(mPlayerCallback);
             mSessionCompat.release();
+            mMediaButtonIntent.cancel();
+            if (mBroadcastReceiver != null) {
+                mContext.unregisterReceiver(mBroadcastReceiver);
+            }
             mCallback.onSessionClosed(mInstance);
             dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                 @Override
@@ -310,6 +387,11 @@ class MediaSessionImplBase implements MediaSessionImpl {
     @Override
     public String getId() {
         return mSessionId;
+    }
+
+    @Override
+    public Uri getUri() {
+        return mSessionUri;
     }
 
     @Override
@@ -1113,6 +1195,19 @@ class MediaSessionImplBase implements MediaSessionImpl {
         mSessionStub.getConnectedControllersManager().removeController(controller);
     }
 
+    @Nullable
+    private ComponentName getServiceComponentByAction(@NonNull String action) {
+        PackageManager pm = mContext.getPackageManager();
+        Intent queryIntent = new Intent(action);
+        queryIntent.setPackage(mContext.getPackageName());
+        List<ResolveInfo> resolveInfos = pm.queryIntentServices(queryIntent, 0 /* flags */);
+        if (resolveInfos == null || resolveInfos.isEmpty()) {
+            return null;
+        }
+        ResolveInfo resolveInfo = resolveInfos.get(0);
+        return new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name);
+    }
+
     ///////////////////////////////////////////////////
     // Inner classes
     ///////////////////////////////////////////////////
@@ -1509,4 +1604,23 @@ class MediaSessionImplBase implements MediaSessionImpl {
             }
         }
     }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final class MediaButtonReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (!Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
+                return;
+            }
+            Uri sessionUri = intent.getData();
+            if (!ObjectsCompat.equals(sessionUri, mSessionUri)) {
+                return;
+            }
+            KeyEvent keyEvent = (KeyEvent) intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+            if (keyEvent == null) {
+                return;
+            }
+            getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent);
+        }
+    };
 }

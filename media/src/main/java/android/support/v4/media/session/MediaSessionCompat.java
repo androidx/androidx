@@ -496,14 +496,9 @@ public class MediaSessionCompat {
 
     /**
      * @hide
-     * Creates session for MediaSession.
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public MediaSessionCompat(Context context, String tag, VersionedParcelable session2Token) {
-        this(context, tag, null, null, session2Token);
-    }
-
-    private MediaSessionCompat(Context context, String tag, ComponentName mbrComponent,
+    public MediaSessionCompat(Context context, String tag, ComponentName mbrComponent,
             PendingIntent mbrIntent, VersionedParcelable session2Token) {
         if (context == null) {
             throw new IllegalArgumentException("context must not be null");
