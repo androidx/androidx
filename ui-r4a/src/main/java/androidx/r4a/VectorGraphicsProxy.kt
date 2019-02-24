@@ -18,8 +18,10 @@ package androidx.r4a
 
 import android.content.res.Resources
 import android.view.View
-import androidx.ui.core.vectorgraphics.VectorKt
-import androidx.ui.core.vectorgraphics.compat.VectorResourceKt
+import androidx.ui.core.vectorgraphics.adoptVectorGraphic
+import androidx.ui.core.vectorgraphics.group
+import androidx.ui.core.vectorgraphics.vector
+import androidx.ui.core.vectorgraphics.path
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
 import androidx.ui.vectorgraphics.BrushType
@@ -48,13 +50,13 @@ import com.google.r4a.Composable
 
 @SuppressWarnings("PLUGIN_ERROR")
 fun adoptVectorGraphic(parent: Any?, child: Any?): View? {
-    return VectorKt.adoptVectorGraphic(parent, child)
+    return adoptVectorGraphic(parent, child)
 }
 
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun vectorResource(res: Resources, resId: Int) {
-    VectorResourceKt.vectorResource(res, resId)
+    androidx.ui.core.vectorgraphics.compat.vectorResource(res, resId)
 }
 
 @Composable
@@ -67,7 +69,7 @@ fun vector(
     viewportWidth: Float,
     viewportHeight: Float
 ) {
-    VectorKt.vector(name, defaultWidth, defaultHeight, viewportWidth, viewportHeight, children)
+    vector(name, defaultWidth, defaultHeight, viewportWidth, viewportHeight, children)
 }
 
 @Composable
@@ -84,7 +86,7 @@ fun group(
     translateY: Float = DEFAULT_TRANSLATE_Y,
     clipPath: PathData = EMPTY_PATH
 ) {
-    VectorKt.group(name, rotate, pivotX, pivotY, scaleX,
+    group(name, rotate, pivotX, pivotY, scaleX,
         scaleY, translateX, translateY, clipPath, childNodes)
 }
 
@@ -102,6 +104,6 @@ fun path(
     strokeLineJoin: StrokeJoin = DEFAULT_STROKE_LINE_JOIN,
     strokeLineMiter: Float = DEFAULT_STROKE_LINE_MITER
 ) {
-    VectorKt.path(pathData, name, fill, fillAlpha, stroke, strokeAlpha, strokeLineWidth,
+    path(pathData, name, fill, fillAlpha, stroke, strokeAlpha, strokeLineWidth,
         strokeLineCap, strokeLineJoin, strokeLineMiter)
 }

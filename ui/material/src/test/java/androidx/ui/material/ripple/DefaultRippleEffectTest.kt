@@ -39,7 +39,7 @@ class DefaultRippleEffectTest {
         }
 
         // Top-level functions are not resolved properly in IR modules
-        val result = DefaultRippleEffectKt.getSurfaceSize(coordinates, null)
+        val result = getSurfaceSize(coordinates, null)
         assertThat(result).isEqualTo(size)
     }
 
@@ -50,7 +50,7 @@ class DefaultRippleEffectTest {
         val boundsCallback: (LayoutCoordinates) -> Bounds = { size.toBounds() }
 
         // Top-level functions are not resolved properly in IR modules
-        val result = DefaultRippleEffectKt.getSurfaceSize(coordinates, boundsCallback)
+        val result = getSurfaceSize(coordinates, boundsCallback)
         assertThat(result).isEqualTo(size)
     }
 
@@ -60,7 +60,7 @@ class DefaultRippleEffectTest {
         val expectedRadius = 9.dp // 30% of 30
 
         // Top-level functions are not resolved properly in IR modules
-        val result = DefaultRippleEffectKt.getRippleStartRadius(size)
+        val result = getRippleStartRadius(size)
         assertThat(result).isEqualTo(expectedRadius)
     }
 
@@ -72,7 +72,7 @@ class DefaultRippleEffectTest {
         val expectedRadius = halfDistance(width, height) + 10 // 10 is an extra offset from spec
 
         // Top-level functions are not resolved properly in IR modules
-        val result = DefaultRippleEffectKt.getRippleTargetRadius(size)
+        val result = getRippleTargetRadius(size)
         assertThat(result).isEqualTo(expectedRadius.dp)
     }
 

@@ -57,17 +57,3 @@ fun ConstrainedBox(
         }
     </MeasureBox>
 }
-
-/**
- * [ConstrainedBox] component, required to workaround the R4A multiple modules issue.
- */
-class ConstrainedBoxComponent(
-    private val additionalConstraints: Constraints,
-    @Children private val children: () -> Unit
-) : Component() {
-    override fun compose() {
-        <ConstrainedBox additionalConstraints>
-            <children />
-        </ConstrainedBox>
-    }
-}

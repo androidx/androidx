@@ -27,6 +27,7 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
+import androidx.ui.core.Dp
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.Position
 import androidx.ui.core.Size
@@ -38,11 +39,11 @@ import androidx.ui.core.plus
 import androidx.ui.core.times
 import androidx.ui.core.toDp
 import androidx.ui.core.unaryMinus
-import androidx.ui.layout.CenterComponent
-import androidx.ui.layout.ConstrainedBoxComponent
-import androidx.ui.layout.ContainerComponent
+import androidx.ui.layout.Center
+import androidx.ui.layout.ConstrainedBox
+import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.PaddingComponent
+import androidx.ui.layout.Padding
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composeInto
@@ -94,20 +95,20 @@ class PaddingTest {
         var childSize = Size(-1.dp, -1.dp)
         var childPosition = Position(-1.dp, -1.dp)
         show @Composable {
-            <CenterComponent>
-                <ConstrainedBoxComponent p0=Constraints.tightConstraints(size, size)>
-                    <PaddingComponent p0=EdgeInsets(padding)>
-                        <ContainerComponent p0=null p1=null p2=null p3=null
-                                            p4=null p5=null p6=null>
+            <Center>
+                <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
+                    <Padding padding=EdgeInsets(padding)>
+                        <Container padding=null color=null alignment=null margin=null
+                                            constraints=null width=null height=null>
                             <OnPositioned> coordinates ->
                                 childSize = coordinates.size
                                 childPosition = coordinates.localToGlobal(Position(0.dp, 0.dp))
                                 drawLatch.countDown()
                             </OnPositioned>
-                        </ContainerComponent>
-                    </PaddingComponent>
-                </ConstrainedBoxComponent>
-            </CenterComponent>
+                        </Container>
+                    </Padding>
+                </ConstrainedBox>
+            </Center>
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -132,20 +133,20 @@ class PaddingTest {
         var childSize = Size(-1.dp, -1.dp)
         var childPosition = Position(-1.dp, -1.dp)
         show @Composable {
-            <CenterComponent>
-                <ConstrainedBoxComponent p0=Constraints.tightConstraints(size, size)>
-                    <PaddingComponent p0=padding>
-                        <ContainerComponent p0=null p1=null p2=null p3=null
-                                            p4=null p5=null p6=null>
+            <Center>
+                <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
+                    <Padding padding>
+                        <Container padding=null color=null alignment=null margin=null
+                                            constraints=null width=null height=null>
                             <OnPositioned> coordinates ->
                                 childSize = coordinates.size
                                 childPosition = coordinates.localToGlobal(Position(0.dp, 0.dp))
                                 drawLatch.countDown()
                             </OnPositioned>
-                        </ContainerComponent>
-                    </PaddingComponent>
-                </ConstrainedBoxComponent>
-            </CenterComponent>
+                        </Container>
+                    </Padding>
+                </ConstrainedBox>
+            </Center>
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -176,20 +177,20 @@ class PaddingTest {
         var childSize = Size(-1.dp, -1.dp)
         var childPosition = Position(-1.dp, -1.dp)
         show @Composable {
-            <CenterComponent>
-                <ConstrainedBoxComponent p0=Constraints.tightConstraints(size, size)>
-                    <PaddingComponent p0=EdgeInsets(padding)>
-                        <ContainerComponent p0=null p1=null p2=null p3=null
-                                            p4=null p5=null p6=null>
+            <Center>
+                <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
+                    <Padding padding=EdgeInsets(padding)>
+                        <Container padding=null color=null alignment=null margin=null
+                                            constraints=null width=null height=null>
                             <OnPositioned> coordinates ->
                                 childSize = coordinates.size
                                 childPosition = coordinates.localToGlobal(Position(0.dp, 0.dp))
                                 drawLatch.countDown()
                             </OnPositioned>
-                        </ContainerComponent>
-                    </PaddingComponent>
-                </ConstrainedBoxComponent>
-            </CenterComponent>
+                        </Container>
+                    </Padding>
+                </ConstrainedBox>
+            </Center>
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 

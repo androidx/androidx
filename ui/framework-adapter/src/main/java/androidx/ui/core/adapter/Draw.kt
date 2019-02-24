@@ -22,7 +22,7 @@ import com.google.r4a.Children
 import com.google.r4a.Composable
 
 // Ignore that the IDEA cannot resolve this.
-import androidx.ui.core.DrawKt
+import androidx.ui.core.DrawComposable
 
 /**
  * All this module is needed to work around b/120971484
@@ -34,5 +34,5 @@ import androidx.ui.core.DrawKt
 @Suppress("PLUGIN_ERROR")
 fun Draw(@Children(composable = false) onPaint: (canvas: Canvas, parentSize: PixelSize) -> Unit) {
     // Ignore that the IDEA cannot resolve this.
-    DrawKt.DrawComposable(onPaint)
+    DrawComposable(onPaint)
 }

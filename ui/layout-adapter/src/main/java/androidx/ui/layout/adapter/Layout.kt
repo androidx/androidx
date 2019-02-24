@@ -27,13 +27,6 @@ import com.google.r4a.Composable
 // Ignore that the IDEA cannot resolve these.
 import androidx.ui.painting.Color
 
-import androidx.ui.layout.AlignKt
-import androidx.ui.layout.ConstrainedBoxKt
-import androidx.ui.layout.ContainerKt
-import androidx.ui.layout.FlexKt
-import androidx.ui.layout.PaddingKt
-import androidx.ui.layout.StackKt
-
 /**
  * For the original logic:
  * @see androidx.ui.layout.Flex
@@ -41,7 +34,7 @@ import androidx.ui.layout.StackKt
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun FlexRow(@Children() block: (FlexChildren) -> Unit) {
-    FlexKt.FlexRow(block)
+    androidx.ui.layout.FlexRow(block)
 }
 
 /**
@@ -51,7 +44,7 @@ fun FlexRow(@Children() block: (FlexChildren) -> Unit) {
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun FlexColumn(@Children() block: (FlexChildren) -> Unit) {
-    FlexKt.FlexColumn(block)
+    androidx.ui.layout.FlexColumn(block)
 }
 
 /**
@@ -61,7 +54,7 @@ fun FlexColumn(@Children() block: (FlexChildren) -> Unit) {
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun Row(@Children() block: () -> Unit) {
-    FlexKt.Row(block)
+    androidx.ui.layout.Row(block)
 }
 
 /**
@@ -71,7 +64,7 @@ fun Row(@Children() block: () -> Unit) {
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun Column(@Children() block: () -> Unit) {
-    FlexKt.Column(block)
+    androidx.ui.layout.Column(block)
 }
 
 /**
@@ -81,7 +74,7 @@ fun Column(@Children() block: () -> Unit) {
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun Center(@Children() block: () -> Unit) {
-    AlignKt.Center(block)
+    androidx.ui.layout.Center(block)
 }
 
 /**
@@ -110,7 +103,7 @@ class Alignment {
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun Align(alignment: androidx.ui.layout.Alignment, @Children() block: () -> Unit) {
-    AlignKt.Align(alignment, block)
+    androidx.ui.layout.Align(alignment, block)
 }
 
 /**
@@ -123,7 +116,7 @@ fun Stack(
     defaultAlignment: androidx.ui.layout.Alignment = Alignment.Center,
     @Children() block: (StackChildren) -> Unit
 ) {
-    StackKt.Stack(defaultAlignment, block)
+    androidx.ui.layout.Stack(defaultAlignment, block)
 }
 
 /**
@@ -133,7 +126,7 @@ fun Stack(
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun ConstrainedBox(additionalConstraints: Constraints, @Children() block: () -> Unit) {
-    ConstrainedBoxKt.ConstrainedBox(additionalConstraints, block)
+    androidx.ui.layout.ConstrainedBox(additionalConstraints, block)
 }
 
 /**
@@ -146,7 +139,7 @@ fun Padding(
     padding: EdgeInsets,
     @Children() block: () -> Unit
 ) {
-    PaddingKt.Padding(padding, block)
+    androidx.ui.layout.Padding(padding, block)
 }
 
 /**
@@ -165,5 +158,5 @@ fun Container(
     height: Dp? = null,
     @Children() block: () -> Unit
 ) {
-    ContainerKt.Container(padding, color, alignment, margin, constraints, width, height, block)
+    androidx.ui.layout.Container(padding, color, alignment, margin, constraints, width, height, block)
 }

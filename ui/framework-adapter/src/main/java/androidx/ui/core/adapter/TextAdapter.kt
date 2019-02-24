@@ -15,7 +15,7 @@
  */
 package androidx.ui.core.adapter
 
-import androidx.ui.core.TextKt
+import androidx.ui.core.TextComposable
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.TextSpan
@@ -41,7 +41,7 @@ fun Text(
     maxLines: Int? = null,
     selection: TextSelection? = null
 ) {
-    TextKt.TextComposable(
+    TextComposable(
         text,
         textAlign,
         textDirection,

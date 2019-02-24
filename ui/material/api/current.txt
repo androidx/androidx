@@ -39,12 +39,6 @@ package androidx.ui.material {
     ctor public CheckboxKt();
   }
 
-  public final class H1 extends com.google.r4a.Component {
-    ctor public H1(kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method public void compose();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getContent();
-  }
-
   public final class MaterialColors {
     ctor public MaterialColors(androidx.ui.painting.Color primary, androidx.ui.painting.Color primaryVariant, androidx.ui.painting.Color secondary, androidx.ui.painting.Color secondaryVariant, androidx.ui.painting.Color background, androidx.ui.painting.Color surface, androidx.ui.painting.Color error, androidx.ui.painting.Color onPrimary, androidx.ui.painting.Color onSecondary, androidx.ui.painting.Color onBackground, androidx.ui.painting.Color onSurface, androidx.ui.painting.Color onError);
     ctor public MaterialColors();
@@ -81,6 +75,7 @@ package androidx.ui.material {
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
     method public androidx.ui.material.MaterialColors getColors();
     method public androidx.ui.material.MaterialTypography getTypography();
+    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setColors(androidx.ui.material.MaterialColors p);
     method public void setTypography(androidx.ui.material.MaterialTypography p);
     property public final androidx.ui.material.MaterialColors colors;
@@ -156,6 +151,11 @@ package androidx.ui.material {
     method public void setColor(androidx.ui.painting.Color? p);
     property public final boolean checked;
     property public final androidx.ui.painting.Color? color;
+  }
+
+  public final class TextKt {
+    ctor public TextKt();
+    method public static void H1(kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
 }

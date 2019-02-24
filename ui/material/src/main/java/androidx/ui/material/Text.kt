@@ -18,17 +18,14 @@ package androidx.ui.material
 
 import androidx.ui.core.CurrentTextStyleProvider
 import com.google.r4a.Children
-import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.composer
 
-
-class H1(@Children val content: () -> Unit) : Component() {
-    override fun compose() {
-        <Typography.Consumer> typography ->
-            <CurrentTextStyleProvider value=typography.h1>
-                <content />
-            </CurrentTextStyleProvider>
-        </Typography.Consumer>
-    }
-
+@Composable
+fun H1(@Children content: () -> Unit) {
+    <Typography.Consumer> typography ->
+        <CurrentTextStyleProvider value=typography.h1>
+            <content />
+        </CurrentTextStyleProvider>
+    </Typography.Consumer>
 }

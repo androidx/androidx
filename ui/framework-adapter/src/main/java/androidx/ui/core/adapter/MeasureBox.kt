@@ -21,7 +21,8 @@ import androidx.ui.core.ComplexMeasureOperations
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.IntrinsicMeasureOperations
-import androidx.ui.core.LayoutKt
+import androidx.ui.core.MeasureBoxComposable
+import androidx.ui.core.ComplexMeasureBoxComposable
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureOperations
 import androidx.ui.core.Placeable
@@ -41,7 +42,7 @@ fun MeasureBox(
     @Children(composable = false) block:
         MeasureBoxReceiver.(constraints: Constraints) -> Unit
 ) {
-    LayoutKt.MeasureBoxComposable { constraints, measureOperations ->
+    MeasureBoxComposable { constraints, measureOperations ->
         val measureBoxReceiver = MeasureBoxReceiver(measureOperations)
         with(measureBoxReceiver) {
             block(constraints)
@@ -60,7 +61,7 @@ fun MeasureBox(
 fun ComplexMeasureBox(
     @Children(composable = false) block: ComplexMeasureBoxReceiver.() -> Unit
 ) {
-    LayoutKt.ComplexMeasureBoxComposable { complexMeasureOperations ->
+    ComplexMeasureBoxComposable { complexMeasureOperations ->
         val complexMeasureBoxReceiver = ComplexMeasureBoxReceiver(complexMeasureOperations)
         with(complexMeasureBoxReceiver) {
             block()

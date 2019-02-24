@@ -86,17 +86,3 @@ fun Padding(
         }
     </MeasureBox>
 }
-
-/**
- * [Padding] component, required to workaround the R4A multiple modules issue.
- */
-class PaddingComponent(
-    private val padding: EdgeInsets,
-    @Children private val children: () -> Unit
-) : Component() {
-    override fun compose() {
-        <Padding padding>
-            <children />
-        </Padding>
-    }
-}

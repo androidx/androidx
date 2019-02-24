@@ -114,23 +114,3 @@ fun Container(
 
     <container />
 }
-
-/**
- * [Container] component required to workaround the R4A multiple modules issue.
- */
-class ContainerComponent(
-    private val padding: EdgeInsets? = null,
-    private val color: Color? = null,
-    private val alignment: Alignment? = null,
-    private val margin: EdgeInsets? = null,
-    private val constraints: Constraints? = null,
-    private val width: Dp? = null,
-    private val height: Dp? = null,
-    @Children() private val children: () -> Unit
-) : Component() {
-    override fun compose() {
-        <Container padding color alignment margin constraints width height>
-            <children />
-        </Container>
-    }
-}

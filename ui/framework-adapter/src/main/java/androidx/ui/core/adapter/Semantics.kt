@@ -16,7 +16,7 @@
 package androidx.ui.core.adapter
 
 // Ignore that the IDEA cannot resolve this.
-import androidx.ui.core.SemanticsKt
+import androidx.ui.core.Semantics
 import com.google.r4a.Children
 import com.google.r4a.Composable
 
@@ -72,7 +72,7 @@ fun Semantics(
 //    onDidGainAccessibilityFocus: (() -> Unit)? = null,
 //    onDidLoseAccessibilityFocus: (() -> Unit)? = null
 ) {
-    SemanticsKt.Semantics(
+    Semantics(
         children,
         container,
         explicitChildNodes,

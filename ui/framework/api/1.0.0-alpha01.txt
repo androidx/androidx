@@ -40,6 +40,7 @@ package androidx.ui.core {
     method public void compose();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
     method public androidx.ui.painting.TextStyle? getValue();
+    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setValue(androidx.ui.painting.TextStyle? p);
     property public final androidx.ui.painting.TextStyle? value;
   }

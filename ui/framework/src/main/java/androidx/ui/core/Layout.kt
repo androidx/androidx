@@ -432,7 +432,7 @@ internal val CoordinatesCallbacksAmbient = Ambient.of<MutableList<(LayoutCoordin
  * </Column>
  */
 class OnPositioned(
-    @Children(composable = false) private val callback: (coordinates: LayoutCoordinates) -> Unit
+    @Children(composable = false) private var callback: (coordinates: LayoutCoordinates) -> Unit
 ) : Component() {
 
     private var firstCompose = true

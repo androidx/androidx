@@ -39,24 +39,9 @@ package androidx.ui.layout {
     property public final androidx.ui.layout.Alignment TopRight;
   }
 
-  public final class CenterComponent extends com.google.r4a.Component {
-    ctor public CenterComponent(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-  }
-
-  public final class ConstrainedBoxComponent extends com.google.r4a.Component {
-    ctor public ConstrainedBoxComponent(androidx.ui.core.Constraints additionalConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-  }
-
   public final class ConstrainedBoxKt {
     ctor public ConstrainedBoxKt();
     method public static void ConstrainedBox(androidx.ui.core.Constraints additionalConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class ContainerComponent extends com.google.r4a.Component {
-    ctor public ContainerComponent(androidx.ui.layout.EdgeInsets? padding, androidx.ui.painting.Color? color, androidx.ui.layout.Alignment? alignment, androidx.ui.layout.EdgeInsets? margin, androidx.ui.core.Constraints? constraints, androidx.ui.core.Dp? width, androidx.ui.core.Dp? height, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
   }
 
   public final class ContainerKt {
@@ -92,11 +77,6 @@ package androidx.ui.layout {
     method public static void FlexColumn(kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
     method public static void FlexRow(kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
     method public static void Row(kotlin.jvm.functions.Function0<kotlin.Unit> block);
-  }
-
-  public final class PaddingComponent extends com.google.r4a.Component {
-    ctor public PaddingComponent(androidx.ui.layout.EdgeInsets padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
   }
 
   public final class PaddingKt {

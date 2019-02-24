@@ -118,14 +118,3 @@ fun Align(alignment: Alignment, @Children children: () -> Unit) {
 fun Center(@Children children: () -> Unit) {
     <Align alignment=Alignment.Center children />
 }
-
-/**
- * [Center] component, required to workaround the R4A multiple modules issue.
- */
-class CenterComponent(@Children private val children: () -> Unit) : Component() {
-    override fun compose() {
-        <Center>
-            <children />
-        </Center>
-    }
-}

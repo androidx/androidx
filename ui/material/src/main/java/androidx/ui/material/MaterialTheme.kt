@@ -46,7 +46,7 @@ import com.google.r4a.composer
  */
 class MaterialTheme(
     @Children
-    val children: () -> Unit
+    var children: () -> Unit
 ) : Component() {
 
     var colors: MaterialColors = MaterialColors()

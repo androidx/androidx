@@ -166,7 +166,7 @@ fun TextComposable(
  * styled explicitly.
  */
 // TODO(clara): Make this a function instead of a class when cross module is solved
-class CurrentTextStyleProvider(@Children val children: () -> Unit) : Component() {
+class CurrentTextStyleProvider(@Children var children: () -> Unit) : Component() {
     var value: TextStyle? = null
 
     override fun compose() {

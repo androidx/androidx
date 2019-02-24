@@ -20,7 +20,7 @@ import com.google.r4a.Children
 import com.google.r4a.Composable
 
 // Ignore that the IDEA cannot resolve this.
-import androidx.ui.core.gesture.PressGestureDetectorKt
+import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.Position
 
 @Composable
@@ -31,5 +31,5 @@ fun PressGestureDetector(
     onCancel: (() -> Unit)? = null,
     @Children children: () -> Unit
 ) {
-    PressGestureDetectorKt.PressGestureDetector(onPress, onRelease, onCancel, children)
+    PressGestureDetector(onPress, onRelease, onCancel, children)
 }

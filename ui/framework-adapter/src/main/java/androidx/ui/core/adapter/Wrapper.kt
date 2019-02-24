@@ -21,7 +21,8 @@ import com.google.r4a.Children
 import com.google.r4a.Composable
 
 // Ignore that the IDEA cannot resolve this.
-import androidx.ui.core.WrapperKt
+import androidx.ui.core.DensityConsumer
+import androidx.ui.core.CraneWrapperComposable
 
 /**
  * All this module is needed to work around b/120971484
@@ -33,11 +34,11 @@ import androidx.ui.core.WrapperKt
 @Suppress("PLUGIN_ERROR")
 fun DensityConsumer(@Children children: (density: Density) -> Unit) {
     // Ignore that the IDEA cannot resolve this.
-    WrapperKt.DensityConsumer(children)
+    DensityConsumer(children)
 }
 
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun CraneWrapper(@Children children: () -> Unit) {
-    WrapperKt.CraneWrapperComposable(children)
+    CraneWrapperComposable(children)
 }
