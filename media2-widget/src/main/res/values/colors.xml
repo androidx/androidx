@@ -24,7 +24,8 @@
     <color name="white">#ffffff</color>
     <color name="white_opacity_70">#B3ffffff</color>
     <color name="black_opacity_70">#B3000000</color>
-    <color name="title_bar_gradient_start">#50000000</color>
+    <color name="title_bar_gradient_start">#d0000000</color>
     <color name="title_bar_gradient_end">#00000000</color>
-    <color name="bottom_bar_background">#40202020</color>
+    <color name="center_view_background">#90000000</color>
+    <color name="bottom_bar_background">#b0000000</color>
 </resources>
