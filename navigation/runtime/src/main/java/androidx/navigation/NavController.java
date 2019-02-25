@@ -330,7 +330,7 @@ public class NavController {
      * @return true if navigation was successful, false otherwise
      */
     public boolean navigateUp() {
-        if (mBackStack.size() == 1) {
+        if (getDestinationCountOnBackStack() == 1) {
             // If there's only one entry, then we've deep linked into a specific destination
             // on another task so we need to find the parent and start our task from there
             NavDestination currentDestination = getCurrentDestination();
@@ -338,7 +338,7 @@ public class NavController {
             NavGraph parent = currentDestination.getParent();
             while (parent != null) {
                 if (parent.getStartDestination() != destId) {
-                    TaskStackBuilder parentIntents = new NavDeepLinkBuilder(NavController.this)
+                    TaskStackBuilder parentIntents = new NavDeepLinkBuilder(this)
                             .setDestination(parent.getId())
                             .createTaskStackBuilder();
                     parentIntents.startActivities();
@@ -355,6 +355,19 @@ public class NavController {
         } else {
             return popBackStack();
         }
+    }
+
+    /**
+     * Gets the number of non-NavGraph destinations on the back stack
+     */
+    private int getDestinationCountOnBackStack() {
+        int count = 0;
+        for (NavBackStackEntry entry : mBackStack) {
+            if (!(entry.getDestination() instanceof NavGraph)) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
