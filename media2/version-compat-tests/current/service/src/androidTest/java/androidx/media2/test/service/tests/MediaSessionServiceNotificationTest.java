@@ -62,7 +62,6 @@ import java.util.concurrent.CountDownLatch;
  */
 @LargeTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
-@Ignore("Comment out this line and manually run the test.")
 public class MediaSessionServiceNotificationTest extends MediaSessionTestBase {
     private static final long NOTIFICATION_SHOW_TIME_MS = 15000;
 
@@ -82,6 +81,7 @@ public class MediaSessionServiceNotificationTest extends MediaSessionTestBase {
     }
 
     @Test
+    @Ignore("Comment out this line and manually run the test.")
     public void testNotification() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
