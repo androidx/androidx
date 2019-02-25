@@ -43,5 +43,7 @@
           android:exported="true" />
         <activity android:name=".AssetLoaderSimpleActivity"
           android:exported="true" />
+        <activity android:name=".AssetLoaderAjaxActivity"
+          android:exported="true" />
     </application>
 </manifest>

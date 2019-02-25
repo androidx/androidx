@@ -44,9 +44,11 @@ public class AssetLoaderListActivity extends AppCompatActivity {
         MenuListView listView = findViewById(R.id.asset_loader_list);
         MenuListView.MenuItem[] menuItems = new MenuListView.MenuItem[] {
                 new MenuListView.MenuItem(
-                        getResources()
-                                .getString(R.string.asset_loader_simple_activity_title),
+                        getResources().getString(R.string.asset_loader_simple_activity_title),
                         new Intent(activityContext, AssetLoaderSimpleActivity.class)),
+                new MenuListView.MenuItem(
+                    getResources().getString(R.string.asset_loader_ajax_activity_title),
+                    new Intent(activityContext, AssetLoaderAjaxActivity.class)),
         };
         listView.setItems(menuItems);
     }
