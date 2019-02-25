@@ -28,7 +28,7 @@ import static androidx.media2.SessionPlayer.PLAYER_STATE_IDLE;
 import static androidx.media2.SessionPlayer.UNKNOWN_TIME;
 import static androidx.media2.SessionResult.RESULT_ERROR_INVALID_STATE;
 import static androidx.media2.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
-import static androidx.media2.SessionResult.RESULT_ERROR_UNKNOWN_ERROR;
+import static androidx.media2.SessionResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media2.SessionResult.RESULT_INFO_SKIPPED;
 import static androidx.media2.SessionResult.RESULT_SUCCESS;
 import static androidx.media2.SessionToken.TYPE_SESSION;
@@ -1098,7 +1098,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
             //   - DeadSystemException means that errors around it can be ignored.
             Log.w(TAG, "Exception in " + controller.toString(), e);
         }
-        return SessionResult.createFutureWithResult(RESULT_ERROR_UNKNOWN_ERROR);
+        return SessionResult.createFutureWithResult(RESULT_ERROR_UNKNOWN);
     }
 
     /**

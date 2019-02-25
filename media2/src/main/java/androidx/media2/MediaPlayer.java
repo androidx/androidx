@@ -19,9 +19,9 @@ package androidx.media2;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_INVALID_STATE;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_IO_ERROR;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_IO;
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_PERMISSION_DENIED;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_UNKNOWN_ERROR;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_INFO_SKIPPED;
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 
@@ -442,13 +442,13 @@ public class MediaPlayer extends SessionPlayer {
     static {
         sResultCodeMap = new ArrayMap<>();
         sResultCodeMap.put(MediaPlayer2.CALL_STATUS_NO_ERROR, RESULT_SUCCESS);
-        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_ERROR_UNKNOWN, RESULT_ERROR_UNKNOWN_ERROR);
+        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_ERROR_UNKNOWN, RESULT_ERROR_UNKNOWN);
         sResultCodeMap.put(
                 MediaPlayer2.CALL_STATUS_INVALID_OPERATION, RESULT_ERROR_INVALID_STATE);
         sResultCodeMap.put(MediaPlayer2.CALL_STATUS_BAD_VALUE, RESULT_ERROR_BAD_VALUE);
         sResultCodeMap.put(
                 MediaPlayer2.CALL_STATUS_PERMISSION_DENIED, RESULT_ERROR_PERMISSION_DENIED);
-        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_ERROR_IO, RESULT_ERROR_IO_ERROR);
+        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_ERROR_IO, RESULT_ERROR_IO);
         sResultCodeMap.put(MediaPlayer2.CALL_STATUS_SKIPPED, RESULT_INFO_SKIPPED);
 
         sErrorCodeMap = new ArrayMap<>();
@@ -708,7 +708,7 @@ public class MediaPlayer extends SessionPlayer {
                         addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_PLAY, future, token);
                     }
                 } else {
-                    future = createFutureForResultCode(RESULT_ERROR_UNKNOWN_ERROR);
+                    future = createFutureForResultCode(RESULT_ERROR_UNKNOWN);
                 }
                 futures.add(future);
                 return futures;
@@ -2471,7 +2471,7 @@ public class MediaPlayer extends SessionPlayer {
         }
         if (what != MediaPlayer2.CALL_COMPLETED_PREPARE_DRM) {
             Integer resultCode = sResultCodeMap.containsKey(status)
-                    ? sResultCodeMap.get(status) : RESULT_ERROR_UNKNOWN_ERROR;
+                    ? sResultCodeMap.get(status) : RESULT_ERROR_UNKNOWN;
             expected.mFuture.set(new PlayerResult(resultCode, item));
         } else {
             Integer resultCode = sPrepareDrmStatusMap.containsKey(status)

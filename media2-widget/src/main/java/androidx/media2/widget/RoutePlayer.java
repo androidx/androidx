@@ -19,7 +19,7 @@ package androidx.media2.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_INVALID_STATE;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_UNKNOWN_ERROR;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 
 import android.content.Context;
@@ -233,7 +233,7 @@ public class RoutePlayer extends RemoteSessionPlayer {
                             });
                         }
                     } else {
-                        result.set(new PlayerResult(RESULT_ERROR_UNKNOWN_ERROR,
+                        result.set(new PlayerResult(RESULT_ERROR_UNKNOWN,
                                 getCurrentMediaItem()));
                     }
                 }

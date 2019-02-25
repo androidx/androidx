@@ -1235,7 +1235,7 @@ public class MediaController implements AutoCloseable {
         /**
          * Called when the session sent a custom command. Returns a {@link SessionResult} for
          * session to get notification back. If the {@code null} is returned,
-         * {@link SessionResult#RESULT_ERROR_UNKNOWN_ERROR} will be returned.
+         * {@link SessionResult#RESULT_ERROR_UNKNOWN} will be returned.
          * <p>
          * Default implementation returns {@link SessionResult#RESULT_ERROR_NOT_SUPPORTED}.
          *

@@ -47,11 +47,11 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
      */
     @IntDef(flag = false, /*prefix = "RESULT_CODE",*/ value = {
             RESULT_SUCCESS,
-            RESULT_ERROR_UNKNOWN_ERROR,
+            RESULT_ERROR_UNKNOWN,
             RESULT_ERROR_INVALID_STATE,
             RESULT_ERROR_BAD_VALUE,
             RESULT_ERROR_PERMISSION_DENIED,
-            RESULT_ERROR_IO_ERROR,
+            RESULT_ERROR_IO,
             RESULT_INFO_SKIPPED,
             RESULT_ERROR_SESSION_DISCONNECTED,
             RESULT_ERROR_NOT_SUPPORTED,
@@ -140,11 +140,11 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
      *
      * @return result code
      * @see #RESULT_SUCCESS
-     * @see #RESULT_ERROR_UNKNOWN_ERROR
+     * @see #RESULT_ERROR_UNKNOWN
      * @see #RESULT_ERROR_INVALID_STATE
      * @see #RESULT_ERROR_BAD_VALUE
      * @see #RESULT_ERROR_PERMISSION_DENIED
-     * @see #RESULT_ERROR_IO_ERROR
+     * @see #RESULT_ERROR_IO
      * @see #RESULT_INFO_SKIPPED
      * @see #RESULT_ERROR_SESSION_DISCONNECTED
      * @see #RESULT_ERROR_NOT_SUPPORTED

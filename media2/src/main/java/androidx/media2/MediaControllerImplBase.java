@@ -51,7 +51,7 @@ import static androidx.media2.SessionPlayer.BUFFERING_STATE_UNKNOWN;
 import static androidx.media2.SessionPlayer.UNKNOWN_TIME;
 import static androidx.media2.SessionResult.RESULT_ERROR_PERMISSION_DENIED;
 import static androidx.media2.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
-import static androidx.media2.SessionResult.RESULT_ERROR_UNKNOWN_ERROR;
+import static androidx.media2.SessionResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media2.SessionResult.RESULT_INFO_SKIPPED;
 import static androidx.media2.SessionToken.TYPE_SESSION;
 
@@ -1174,7 +1174,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                         throw new RuntimeException("ControllerCallback#onCustomCommand() has"
                                 + " returned null, command=" + command.getCustomCommand());
                     } else {
-                        result = new SessionResult(RESULT_ERROR_UNKNOWN_ERROR);
+                        result = new SessionResult(RESULT_ERROR_UNKNOWN);
                     }
                 }
                 sendControllerResult(seq, result);
