@@ -107,6 +107,11 @@ public interface BiometricConstants {
     int ERROR_NEGATIVE_BUTTON = 13;
 
     /**
+     * The device does not have pin, pattern, or password set up.
+     */
+    int ERROR_NO_DEVICE_CREDENTIAL = 14;
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)

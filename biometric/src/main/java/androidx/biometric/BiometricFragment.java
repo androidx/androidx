@@ -22,12 +22,14 @@ import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.core.os.BuildCompat;
 import androidx.fragment.app.Fragment;
 
 import java.util.concurrent.Executor;
@@ -207,13 +209,25 @@ public class BiometricFragment extends Fragment {
         // Start the actual authentication when the fragment is attached.
         if (!mShowing) {
             mNegativeButtonText = mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);
-            mBiometricPrompt = new android.hardware.biometrics.BiometricPrompt.Builder(getContext())
-                    .setTitle(mBundle.getCharSequence(BiometricPrompt.KEY_TITLE))
+            final android.hardware.biometrics.BiometricPrompt.Builder builder =
+                    new android.hardware.biometrics.BiometricPrompt.Builder(getContext());
+            builder.setTitle(mBundle.getCharSequence(BiometricPrompt.KEY_TITLE))
                     .setSubtitle(mBundle.getCharSequence(BiometricPrompt.KEY_SUBTITLE))
-                    .setDescription(mBundle.getCharSequence(BiometricPrompt.KEY_DESCRIPTION))
-                    .setNegativeButton(mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT),
-                            mClientExecutor, mNegativeButtonListener)
-                    .build();
+                    .setDescription(mBundle.getCharSequence(BiometricPrompt.KEY_DESCRIPTION));
+            // The negative text could be empty if setAllowDeviceCredential is true.
+            if (!TextUtils.isEmpty(mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT))) {
+                builder.setNegativeButton(
+                        mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT),
+                        mClientExecutor, mNegativeButtonListener);
+            }
+
+            if (BuildCompat.isAtLeastQ()) {
+                builder.setRequireConfirmation(
+                        mBundle.getBoolean((BiometricPrompt.KEY_REQUIRE_CONFIRMATION), true));
+                builder.setAllowDeviceCredential(
+                        mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL));
+            }
+            mBiometricPrompt = builder.build();
             mCancellationSignal = new CancellationSignal();
             if (mCryptoObject == null) {
                 mBiometricPrompt.authenticate(mCancellationSignal, mExecutor,

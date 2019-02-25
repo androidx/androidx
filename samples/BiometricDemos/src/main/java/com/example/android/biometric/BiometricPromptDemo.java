@@ -28,11 +28,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.biometric.BiometricPrompt;
+import androidx.core.os.BuildCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import java.io.IOException;
@@ -66,9 +68,6 @@ public class BiometricPromptDemo extends FragmentActivity {
 
     private static final String TAG = "BiometricPromptDemo";
 
-    private static final String KEY_SAVED_USE_CRYPTO = "saved_use_crypto_state";
-    private static final String KEY_SAVED_RADIO = "saved_radio_state";
-    private static final String KEY_SAVED_FAILURES = "saved_failures_state";
     private static final String KEY_COUNTER = "saved_counter";
 
     private static final String DEFAULT_KEY_NAME = "default_key";
@@ -78,12 +77,13 @@ public class BiometricPromptDemo extends FragmentActivity {
     private static final int MODE_CANCEL_ON_CONFIGURATION_CHANGE = 2;
     private static final int MODE_CANCEL_AFTER_THREE_FAILURES = 3;
 
-    private int mMode = MODE_NONE;
-    private boolean mUseCrypto;
-
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private KeyStore mKeyStore;
     private BiometricPrompt mBiometricPrompt;
+
+    private CheckBox mUseCryptoCheckbox;
+    private CheckBox mRequireConfirmationCheckbox;
+    private CheckBox mAllowDeviceCredential;
 
     private int mCounter;
     private int mNumberFailedAttempts;
@@ -128,7 +128,7 @@ public class BiometricPromptDemo extends FragmentActivity {
             mNumberFailedAttempts++;
 
             // Cancel authentication after 3 failed attempts to test the cancel() method.
-            if (mMode == MODE_CANCEL_AFTER_THREE_FAILURES && mNumberFailedAttempts == 3) {
+            if (getMode() == MODE_CANCEL_AFTER_THREE_FAILURES && mNumberFailedAttempts == 3) {
                 mBiometricPrompt.cancelAuthentication();
             }
         }
@@ -139,9 +139,6 @@ public class BiometricPromptDemo extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
-            mUseCrypto = savedInstanceState.getBoolean(KEY_SAVED_USE_CRYPTO);
-            mMode = savedInstanceState.getInt(KEY_SAVED_RADIO);
-            mNumberFailedAttempts = savedInstanceState.getInt(KEY_SAVED_FAILURES);
             mCounter = savedInstanceState.getInt(KEY_COUNTER);
         }
 
@@ -152,6 +149,10 @@ public class BiometricPromptDemo extends FragmentActivity {
         final Button buttonAuthenticate;
         buttonAuthenticate = findViewById(R.id.button_authenticate);
 
+        mUseCryptoCheckbox = findViewById(R.id.checkbox_use_crypto);
+        mRequireConfirmationCheckbox = findViewById(R.id.checkbox_require_confirmation);
+        mAllowDeviceCredential = findViewById(R.id.checkbox_enable_fallback);
+
         mBiometricPrompt = new BiometricPrompt(this /* fragmentActivity */, mExecutor,
                 mAuthenticationCallback);
 
@@ -161,7 +162,7 @@ public class BiometricPromptDemo extends FragmentActivity {
             throw new RuntimeException("Failed to get an instance of KeyStore", e);
         }
 
-        if (!mUseCrypto) {
+        if (!useCrypto()) {
             buttonCreateKeys.setVisibility(View.GONE);
         } else {
             buttonCreateKeys.setVisibility(View.VISIBLE);
@@ -171,11 +172,21 @@ public class BiometricPromptDemo extends FragmentActivity {
             buttonCreateKeys.setOnClickListener(v -> enableBiometricWithCrypto());
         }
         buttonAuthenticate.setOnClickListener(v -> startAuthentication());
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            mRequireConfirmationCheckbox.setEnabled(false);
+            mRequireConfirmationCheckbox.setChecked(false);
+        }
+        if (!BuildCompat.isAtLeastQ()) {
+            mAllowDeviceCredential.setEnabled(false);
+            mAllowDeviceCredential.setChecked(false);
+        }
+
     }
 
     @Override
     protected void onPause() {
-        if (mMode == MODE_CANCEL_ON_CONFIGURATION_CHANGE) {
+        if (getMode() == MODE_CANCEL_ON_CONFIGURATION_CHANGE) {
             mBiometricPrompt.cancelAuthentication();
         }
         super.onPause();
@@ -184,51 +195,7 @@ public class BiometricPromptDemo extends FragmentActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean(KEY_SAVED_USE_CRYPTO, mUseCrypto);
-        outState.putInt(KEY_SAVED_RADIO, mMode);
-        outState.putInt(KEY_SAVED_FAILURES, mNumberFailedAttempts);
         outState.putInt(KEY_COUNTER, mCounter);
-    }
-
-    /**
-     * Callback when the radio buttons are clicked.
-     * @param view
-     */
-    public void onRadioButtonClicked(View view) {
-        mNumberFailedAttempts = 0;
-
-        switch(view.getId()) {
-            case R.id.radio_persist_across_configuration_changes:
-                mMode = MODE_PERSIST_ACROSS_CONFIGURATION_CHANGES;
-                break;
-            case R.id.radio_cancel_on_configuration_change:
-                mMode = MODE_CANCEL_ON_CONFIGURATION_CHANGE;
-                break;
-            case R.id.radio_cancel_after_three_failures:
-                mMode = MODE_CANCEL_AFTER_THREE_FAILURES;
-                break;
-        }
-    }
-
-    /**
-     * Callback when the checkbox is clicked.
-     * @param view
-     */
-    public void onCheckboxClicked(View view) {
-        boolean checked = ((CheckBox) view).isChecked();
-
-        switch(view.getId()) {
-            case R.id.checkbox_use_crypto:
-                if (checked) {
-                    findViewById(R.id.button_enable_biometric_with_crypto)
-                            .setVisibility(View.VISIBLE);
-                } else {
-                    findViewById(R.id.button_enable_biometric_with_crypto)
-                            .setVisibility(View.GONE);
-                }
-                mUseCrypto = checked;
-                break;
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -244,25 +211,34 @@ public class BiometricPromptDemo extends FragmentActivity {
     }
 
     private void startAuthentication() {
-        if (mMode == MODE_NONE) {
+        if (getMode() == MODE_NONE) {
             Toast.makeText(getApplicationContext(), "Select a test first", Toast.LENGTH_SHORT)
                     .show();
             return;
         }
 
         // Build the biometric prompt info
-        BiometricPrompt.PromptInfo info =
-                new BiometricPrompt.PromptInfo.Builder()
-                        .setTitle("Title " + mCounter)
-                        .setSubtitle("Subtitle " + mCounter)
-                        .setDescription(
-                                "Lorem ipsum dolor sit amet, consecte etur adipisicing elit. "
-                                        + mCounter)
-                        .setNegativeButtonText("Negative Button " + mCounter)
-                        .build();
+        BiometricPrompt.PromptInfo.Builder builder = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Title " + mCounter)
+                .setSubtitle("Subtitle " + mCounter)
+                .setDescription(
+                        "Lorem ipsum dolor sit amet, consecte etur adipisicing elit. "
+                                + mCounter)
+                .setRequireConfirmation(mRequireConfirmationCheckbox.isChecked());
+
+        if (BuildCompat.isAtLeastQ()) {
+            if (mAllowDeviceCredential.isChecked()) {
+                builder.setAllowDeviceCredential(true);
+            } else {
+                builder.setNegativeButtonText("Negative Button " + mCounter);
+            }
+        } else {
+            builder.setNegativeButtonText("Negative Button " + mCounter);
+        }
+        BiometricPrompt.PromptInfo info = builder.build();
         mCounter++;
 
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && mUseCrypto) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && useCrypto()) {
             try {
                 // Initialize the cipher. The cipher will be unlocked by KeyStore after the user has
                 // authenticated via biometrics.
@@ -349,4 +325,26 @@ public class BiometricPromptDemo extends FragmentActivity {
             throw new RuntimeException(e);
         }
     }
+
+    private boolean useCrypto() {
+        return mUseCryptoCheckbox.isChecked();
+    }
+
+    /**
+     * @return The currently selected configuration.
+     */
+    private int getMode() {
+        int id = ((RadioGroup) findViewById(R.id.radio_group)).getCheckedRadioButtonId();
+        switch (id) {
+            case R.id.radio_persist_across_configuration_changes:
+                return MODE_PERSIST_ACROSS_CONFIGURATION_CHANGES;
+            case R.id.radio_cancel_on_configuration_change:
+                return MODE_CANCEL_ON_CONFIGURATION_CHANGE;
+            case R.id.radio_cancel_after_three_failures:
+                return MODE_CANCEL_AFTER_THREE_FAILURES;
+            default:
+                return MODE_NONE;
+        }
+    }
+
 }
