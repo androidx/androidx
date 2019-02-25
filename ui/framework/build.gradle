@@ -5,6 +5,7 @@ import androidx.build.LibraryVersions
 // TODO(mount): Make this platform-independent after making platform multi-platform
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
 }
 
@@ -31,17 +32,6 @@ dependencies {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
     androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 21
-        multiDexEnabled true
-    }
-
-    lintOptions {
-        ignore("SyntheticAccessor")
-    }
 }
 
 supportLibrary {

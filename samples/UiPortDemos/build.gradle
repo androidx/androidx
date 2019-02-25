@@ -6,12 +6,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 21
-    }
-}
-
 dependencies {
     implementation(project(":ui-port"))
     implementation(project(":ui-r4a"))

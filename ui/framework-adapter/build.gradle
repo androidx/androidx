@@ -20,6 +20,7 @@ import androidx.build.LibraryVersions
 
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
 }
 
@@ -27,13 +28,6 @@ dependencies {
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
     api project(":ui-framework")
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 21
-        multiDexEnabled true
-    }
 }
 
 supportLibrary {
