@@ -772,14 +772,14 @@ public class NavController {
             combinedArgs.putAll(args);
         }
 
-        if (destId == 0 && navOptions != null && navOptions.getPopUpTo() != 0) {
+        if (destId == 0 && navOptions != null && navOptions.getPopUpTo() != -1) {
             popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
             return;
         }
 
         if (destId == 0) {
             throw new IllegalArgumentException("Destination id == 0 can only be used"
-                    + " in conjunction with navOptions.popUpTo != 0");
+                    + " in conjunction with a valid navOptions.popUpTo");
         }
 
         NavDestination node = findDestination(destId);
@@ -798,7 +798,7 @@ public class NavController {
             @Nullable NavOptions navOptions, @Nullable Navigator.Extras navigatorExtras) {
         boolean popped = false;
         if (navOptions != null) {
-            if (navOptions.getPopUpTo() != 0) {
+            if (navOptions.getPopUpTo() != -1) {
                 popped = popBackStackInternal(navOptions.getPopUpTo(),
                         navOptions.isPopUpToInclusive());
             }
