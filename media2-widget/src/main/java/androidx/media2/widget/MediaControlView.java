@@ -325,7 +325,8 @@ public class MediaControlView extends ViewGroup {
 
     @Override
     public CharSequence getAccessibilityClassName() {
-        return MediaControlView.class.getName();
+        // Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage.
+        return "androidx.media2.widget.MediaControlView";
     }
 
     @Override
