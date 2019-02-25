@@ -63,8 +63,8 @@ abstract class CoroutineWorker(
         val coroutineScope = CoroutineScope(coroutineContext + job)
         coroutineScope.launch {
             try {
-                val payload = doWork()
-                future.set(payload)
+                val result = doWork()
+                future.set(result)
             } catch (t: Throwable) {
                 future.setException(t)
             }
