@@ -38,7 +38,7 @@ class Card private constructor(val suit: String, val value: String) {
     }
 
     companion object {
-        private val ARGS_BUNDLE = Card::class.java.name + ":Bundle"
+        internal val ARGS_BUNDLE = Card::class.java.name + ":Bundle"
 
         val SUITS = setOf("♣" /* clubs*/, "♦" /* diamonds*/, "♥" /* hearts*/, "♠" /*spades*/)
         val VALUES = setOf("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")
@@ -49,7 +49,7 @@ class Card private constructor(val suit: String, val value: String) {
         /** Use in conjunction with [Card.toBundle]  */
         fun fromBundle(bundle: Bundle): Card {
             val spec = bundle.getStringArray(ARGS_BUNDLE)
-            return Card(spec[0], spec[1])
+            return Card(spec!![0], spec[1])
         }
     }
 }
