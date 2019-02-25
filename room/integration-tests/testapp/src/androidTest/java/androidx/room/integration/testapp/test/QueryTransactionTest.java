@@ -194,34 +194,70 @@ public class QueryTransactionTest {
 
     @Test
     public void pagedList() {
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setPageSize(1)
+                .setInitialLoadSizeHint(3)
+                .setPrefetchDistance(2)
+                .setEnablePlaceholders(false)
+                .build();
         LiveData<PagedList<Entity1>> pagedList =
-                new LivePagedListBuilder<>(mDao.pagedList(), 10).build();
+                new LivePagedListBuilder<>(mDao.pagedList(), config).build();
         observeForever(pagedList);
         drain();
-        assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 0 : 0));
+        assertThat(sStartedTransactionCount.get(), is(1));
 
         mDao.insert(new Entity1(1, "foo"));
         drain();
         //noinspection ConstantConditions
         assertThat(pagedList.getValue().size(), is(1));
-        assertTransactionCount(pagedList.getValue(), mUseTransactionDao ? 2 : 1);
+        assertTransactionCount(pagedList.getValue(), 3);
 
-        mDao.insert(new Entity1(2, "bar"));
+        mDao.insert(
+                new Entity1(2, "bar"),
+                new Entity1(3, "baz"),
+                new Entity1(4, "bup"));
         drain();
-        assertThat(pagedList.getValue().size(), is(2));
-        assertTransactionCount(pagedList.getValue(), mUseTransactionDao ? 4 : 2);
+        assertThat(pagedList.getValue().size(), is(3));
+        assertTransactionCount(pagedList.getValue(), 5);
+
+        // only loadRange is affected by transaction dao, since initial load requires transaction
+        pagedList.getValue().loadAround(2);
+        drain();
+        assertThat(pagedList.getValue().size(), is(4));
+        // note: we don't use assertTransactionCount here, since last item loaded separately
+        assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 6 : 5));
     }
 
     @Test
-    public void dataSource() {
+    public void dataSourceRange() {
         mDao.insert(new Entity1(2, "bar"));
         drain();
         resetTransactionCount();
-        @SuppressWarnings("deprecation")
         LimitOffsetDataSource<Entity1> dataSource =
                 (LimitOffsetDataSource<Entity1>) mDao.dataSource();
         dataSource.loadRange(0, 10);
         assertThat(sStartedTransactionCount.get(), is(mUseTransactionDao ? 1 : 0));
+    }
+
+    @Test
+    public void dataSourceInitial() {
+        mDao.insert(new Entity1(2, "bar"));
+        drain();
+        resetTransactionCount();
+        LimitOffsetDataSource<Entity1> dataSource =
+                (LimitOffsetDataSource<Entity1>) mDao.dataSource();
+        dataSource.loadInitial(
+                new PositionalDataSource.LoadInitialParams(0, 30, 10, true),
+                new PositionalDataSource.LoadInitialCallback<Entity1>() {
+                    @Override
+                    public void onResult(@NonNull List<Entity1> data, int position,
+                            int totalCount) {}
+
+                    @Override
+                    public void onResult(@NonNull List<Entity1> data, int position) {}
+                });
+        // always use a transaction, since we're loading count + initial data
+        assertThat(sStartedTransactionCount.get(), is(1));
     }
 
     private void assertTransactionCount(List<Entity1> allEntities, int expectedTransactionCount) {
@@ -360,6 +396,9 @@ public class QueryTransactionTest {
 
         @Insert
         void insert(Entity1 entity1);
+
+        @Insert
+        void insert(Entity1... entities);
 
         @Insert
         void insert(Child entity1);
