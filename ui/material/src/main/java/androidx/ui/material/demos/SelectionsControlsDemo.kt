@@ -21,6 +21,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.div
 import androidx.ui.core.times
+import androidx.ui.core.toRoundedPixels
 import androidx.ui.material.Checkbox
 import androidx.ui.material.RadioButton
 import androidx.ui.material.Switch

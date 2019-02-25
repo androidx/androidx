@@ -38,10 +38,10 @@ package androidx.ui.core
  * as it depends on the child layout model, but is a common behavior for core layout components).
  */
 data class Constraints(
-    val minWidth: Dp = 0.dp,
-    val maxWidth: Dp = Dp.Infinity,
-    val minHeight: Dp = 0.dp,
-    val maxHeight: Dp = Dp.Infinity
+    val minWidth: Px = 0.px,
+    val maxWidth: Px = Px.Infinity,
+    val minHeight: Px = 0.px,
+    val maxHeight: Px = Px.Infinity
 ) {
     init {
         assert(minWidth.value.isFinite())
@@ -52,25 +52,25 @@ data class Constraints(
         /**
          * Creates constraints tight in both dimensions.
          */
-        fun tightConstraints(width: Dp, height: Dp) =
+        fun tightConstraints(width: Px, height: Px) =
             Constraints(width, width, height, height)
 
         /**
          * Creates constraints with tight width and loose height.
          */
-        fun tightConstraintsForWidth(width: Dp) = Constraints(
+        fun tightConstraintsForWidth(width: Px) = Constraints(
             minWidth = width,
             maxWidth = width,
-            minHeight = 0.dp,
-            maxHeight = Dp.Infinity
+            minHeight = 0.px,
+            maxHeight = Px.Infinity
         )
 
         /**
          * Creates constraints with tight height and loose width.
          */
-        fun tightConstraintsForHeight(height: Dp) = Constraints(
-            minWidth = 0.dp,
-            maxWidth = Dp.Infinity,
+        fun tightConstraintsForHeight(height: Px) = Constraints(
+            minWidth = 0.px,
+            maxWidth = Px.Infinity,
             minHeight = height,
             maxHeight = height
         )
@@ -109,7 +109,7 @@ val Constraints.hasTightHeight get() = maxHeight == minHeight
 /**
  * Whether there is exactly one height value that satisfies the constraints.
  */
-val Constraints.isZero get() = maxWidth == 0.dp || maxHeight == 0.dp
+val Constraints.isZero get() = maxWidth == 0.px || maxHeight == 0.px
 
 /**
  * Whether there is any size that satisfies the current constraints.
@@ -129,7 +129,7 @@ fun Constraints.enforce(otherConstraints: Constraints) = Constraints(
 /**
  * Returns a copy of the current instance, overriding the specified values to be tight.
  */
-fun Constraints.withTight(width: Dp? = null, height: Dp? = null) = Constraints(
+fun Constraints.withTight(width: Px? = null, height: Px? = null) = Constraints(
     minWidth = width ?: this.minWidth,
     maxWidth = width ?: this.maxWidth,
     minHeight = height ?: this.minHeight,

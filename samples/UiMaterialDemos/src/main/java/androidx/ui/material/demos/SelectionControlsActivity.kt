@@ -27,6 +27,8 @@ import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.min
+import androidx.ui.core.px
+import androidx.ui.core.toRoundedPixels
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
 import androidx.ui.painting.Color
@@ -70,14 +72,14 @@ fun TmpLayout() {
         }
 
         val size = min(width, height)
-        val rectSize = size / 2
+        val rectSize = (size / 2).toRoundedPixels()
         layout(size, size) {
             val placeables = measurables.map {
-                it.measure(Constraints.tightConstraints(rectSize, rectSize))
+                it.measure(Constraints.tightConstraints(rectSize.px, rectSize.px))
             }
-            placeables[0].place(0.dp, 0.dp)
-            placeables[1].place(rectSize, 0.dp)
-            placeables[2].place(0.dp, rectSize)
+            placeables[0].place(0, 0)
+            placeables[1].place(rectSize, 0)
+            placeables[2].place(0, rectSize)
             placeables[3].place(rectSize, rectSize)
         }
     </MeasureBox>

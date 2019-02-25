@@ -14,11 +14,13 @@ package androidx.ui.core {
 
   public final class ComplexMeasureOperations {
     method public java.util.List<androidx.ui.core.Measurable> collect(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void layout(kotlin.jvm.functions.Function4<? super androidx.ui.core.Constraints,? super kotlin.jvm.functions.Function2<? super androidx.ui.core.Measurable,? super androidx.ui.core.Constraints,? extends androidx.ui.core.Placeable>,? super androidx.ui.core.IntrinsicMeasureOperations,? super kotlin.jvm.functions.Function3<? super androidx.ui.core.Dp,? super androidx.ui.core.Dp,? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit>,kotlin.Unit> block);
-    method public void maxIntrinsicHeight(kotlin.jvm.functions.Function2<? super androidx.ui.core.Dp,? super androidx.ui.core.IntrinsicMeasureOperations,androidx.ui.core.Dp> block);
-    method public void maxIntrinsicWidth(kotlin.jvm.functions.Function2<? super androidx.ui.core.Dp,? super androidx.ui.core.IntrinsicMeasureOperations,androidx.ui.core.Dp> block);
-    method public void minIntrinsicHeight(kotlin.jvm.functions.Function2<? super androidx.ui.core.Dp,? super androidx.ui.core.IntrinsicMeasureOperations,androidx.ui.core.Dp> block);
-    method public void minIntrinsicWidth(kotlin.jvm.functions.Function2<? super androidx.ui.core.Dp,? super androidx.ui.core.IntrinsicMeasureOperations,androidx.ui.core.Dp> block);
+    method public androidx.ui.core.Density getDensity();
+    method public void layout(kotlin.jvm.functions.Function4<? super androidx.ui.core.Constraints,? super kotlin.jvm.functions.Function2<? super androidx.ui.core.Measurable,? super androidx.ui.core.Constraints,? extends androidx.ui.core.Placeable>,? super androidx.ui.core.IntrinsicMeasureOperations,? super kotlin.jvm.functions.Function3<? super java.lang.Integer,? super java.lang.Integer,? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit>,kotlin.Unit> block);
+    method public void maxIntrinsicHeight(kotlin.jvm.functions.Function2<? super androidx.ui.core.Px,? super androidx.ui.core.IntrinsicMeasureOperations,java.lang.Integer> block);
+    method public void maxIntrinsicWidth(kotlin.jvm.functions.Function2<? super androidx.ui.core.Px,? super androidx.ui.core.IntrinsicMeasureOperations,java.lang.Integer> block);
+    method public void minIntrinsicHeight(kotlin.jvm.functions.Function2<? super androidx.ui.core.Px,? super androidx.ui.core.IntrinsicMeasureOperations,java.lang.Integer> block);
+    method public void minIntrinsicWidth(kotlin.jvm.functions.Function2<? super androidx.ui.core.Px,? super androidx.ui.core.IntrinsicMeasureOperations,java.lang.Integer> block);
+    property public final androidx.ui.core.Density density;
   }
 
   public final class CraneWrapper extends com.google.r4a.Component {
@@ -58,22 +60,22 @@ package androidx.ui.core {
   }
 
   public final class IntrinsicMeasureOperations {
-    method public androidx.ui.core.Dp maxIntrinsicHeight(androidx.ui.core.Measurable m, androidx.ui.core.Dp w);
-    method public androidx.ui.core.Dp maxIntrinsicWidth(androidx.ui.core.Measurable m, androidx.ui.core.Dp h);
-    method public androidx.ui.core.Dp minIntrinsicHeight(androidx.ui.core.Measurable m, androidx.ui.core.Dp w);
-    method public androidx.ui.core.Dp minIntrinsicWidth(androidx.ui.core.Measurable m, androidx.ui.core.Dp h);
+    method public int maxIntrinsicHeight(androidx.ui.core.Measurable m, androidx.ui.core.Px w);
+    method public int maxIntrinsicWidth(androidx.ui.core.Measurable m, androidx.ui.core.Px h);
+    method public int minIntrinsicHeight(androidx.ui.core.Measurable m, androidx.ui.core.Px w);
+    method public int minIntrinsicWidth(androidx.ui.core.Measurable m, androidx.ui.core.Px h);
     field public static final androidx.ui.core.IntrinsicMeasureOperations! INSTANCE;
   }
 
   public interface LayoutCoordinates {
-    method public androidx.ui.core.Position childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.core.Position childLocal);
+    method public androidx.ui.core.PxPosition childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.core.PxPosition childLocal);
     method public androidx.ui.core.LayoutCoordinates? getParentCoordinates();
-    method public androidx.ui.core.Position getPosition();
-    method public androidx.ui.core.Size getSize();
-    method public androidx.ui.core.Position globalToLocal(androidx.ui.core.Position global);
-    method public androidx.ui.core.Position localToGlobal(androidx.ui.core.Position local);
-    property public abstract androidx.ui.core.Position position;
-    property public abstract androidx.ui.core.Size size;
+    method public androidx.ui.core.PxPosition getPosition();
+    method public androidx.ui.core.PxSize getSize();
+    method public androidx.ui.core.PxPosition globalToLocal(androidx.ui.core.PxPosition global);
+    method public androidx.ui.core.PxPosition localToGlobal(androidx.ui.core.PxPosition local);
+    property public abstract androidx.ui.core.PxPosition position;
+    property public abstract androidx.ui.core.PxSize size;
   }
 
   public final class LayoutKt {
@@ -90,10 +92,12 @@ package androidx.ui.core {
   }
 
   public final class MeasureOperations {
-    ctor public MeasureOperations(androidx.ui.core.ComplexMeasureOperations complexMeasureOperations, kotlin.jvm.functions.Function2<? super androidx.ui.core.Measurable,? super androidx.ui.core.Constraints,? extends androidx.ui.core.Placeable> complexMeasure, kotlin.jvm.functions.Function3<? super androidx.ui.core.Dp,? super androidx.ui.core.Dp,? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> complexLayoutResult);
+    ctor public MeasureOperations(androidx.ui.core.ComplexMeasureOperations complexMeasureOperations, kotlin.jvm.functions.Function2<? super androidx.ui.core.Measurable,? super androidx.ui.core.Constraints,? extends androidx.ui.core.Placeable> complexMeasure, kotlin.jvm.functions.Function3<? super java.lang.Integer,? super java.lang.Integer,? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> complexLayoutResult);
     method public java.util.List<androidx.ui.core.Measurable> collect(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void layout(androidx.ui.core.Dp width, androidx.ui.core.Dp height, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public androidx.ui.core.Density getDensity();
+    method public void layout(int width, int height, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints);
+    property public final androidx.ui.core.Density density;
   }
 
   public final class OnPositioned extends com.google.r4a.Component {
@@ -180,7 +184,7 @@ package androidx.ui.core.gesture {
 
   public final class PressGestureDetectorKt {
     ctor public PressGestureDetectorKt();
-    method public static void PressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.Position,kotlin.Unit>? onPress = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void PressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit>? onPress = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class PressIndicatorGestureDetector extends com.google.r4a.Component {
@@ -188,14 +192,14 @@ package androidx.ui.core.gesture {
     method public void compose();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnCancel();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.Position,kotlin.Unit>? getOnStart();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.PxPosition,kotlin.Unit>? getOnStart();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnStop();
     method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setOnCancel(kotlin.jvm.functions.Function0<kotlin.Unit>? value);
-    method public void setOnStart(kotlin.jvm.functions.Function1<? super androidx.ui.core.Position,kotlin.Unit>? p);
+    method public void setOnStart(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit>? p);
     method public void setOnStop(kotlin.jvm.functions.Function0<kotlin.Unit>? value);
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel;
-    property public final kotlin.jvm.functions.Function1<androidx.ui.core.Position,kotlin.Unit>? onStart;
+    property public final kotlin.jvm.functions.Function1<androidx.ui.core.PxPosition,kotlin.Unit>? onStart;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onStop;
   }
 

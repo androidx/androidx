@@ -383,11 +383,11 @@ package androidx.ui.material.ripple {
 
   public final class BoundedRippleKt {
     ctor public BoundedRippleKt();
-    method public static void BoundedRipple(androidx.ui.core.Dp? finalRadius = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHighlightChanged = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void BoundedRipple(androidx.ui.core.Px? finalRadius = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHighlightChanged = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DefaultRippleEffectFactory extends androidx.ui.material.ripple.RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position touchPosition, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape, androidx.ui.core.Dp? finalRadius, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, androidx.ui.material.borders.BorderRadius? clippingBorderRadius, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
+    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.painting.Color color, androidx.ui.core.Density density, androidx.ui.material.borders.BoxShape shape, androidx.ui.core.Px? finalRadius, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback, androidx.ui.material.borders.BorderRadius? clippingBorderRadius, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
     field public static final androidx.ui.material.ripple.DefaultRippleEffectFactory! INSTANCE;
   }
 
@@ -399,23 +399,23 @@ package androidx.ui.material.ripple {
     ctor public Ripple(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void compose();
     method public boolean getBounded();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? getBoundsCallback();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? getBoundsCallback();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
     method public androidx.ui.material.borders.BorderRadius? getClippingBorderRadius();
-    method public androidx.ui.core.Dp? getFinalRadius();
+    method public androidx.ui.core.Px? getFinalRadius();
     method public kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? getOnHighlightChanged();
     method public androidx.ui.material.borders.BoxShape getShape();
     method public void setBounded(boolean p);
-    method public void setBoundsCallback(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? p);
+    method public void setBoundsCallback(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? p);
     method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setClippingBorderRadius(androidx.ui.material.borders.BorderRadius? p);
-    method public void setFinalRadius(androidx.ui.core.Dp? p);
+    method public void setFinalRadius(androidx.ui.core.Px? p);
     method public void setOnHighlightChanged(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? p);
     method public void setShape(androidx.ui.material.borders.BoxShape p);
     property public final boolean bounded;
-    property public final kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback;
+    property public final kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback;
     property public final androidx.ui.material.borders.BorderRadius? clippingBorderRadius;
-    property public final androidx.ui.core.Dp? finalRadius;
+    property public final androidx.ui.core.Px? finalRadius;
     property public final kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? onHighlightChanged;
     property public final androidx.ui.material.borders.BoxShape shape;
   }
@@ -423,7 +423,7 @@ package androidx.ui.material.ripple {
   public abstract class RippleEffect {
     ctor public RippleEffect(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.painting.Color color, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
     method @CallSuper public void dispose();
-    method protected abstract void drawEffect(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, androidx.ui.core.Density density);
+    method protected abstract void drawEffect(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform);
     method public abstract void finish(boolean canceled);
     method public final androidx.ui.painting.Color getColor();
     method public final androidx.ui.core.LayoutCoordinates getCoordinates();
@@ -435,7 +435,7 @@ package androidx.ui.material.ripple {
 
   public abstract class RippleEffectFactory {
     ctor public RippleEffectFactory();
-    method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position touchPosition, androidx.ui.painting.Color color, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.RECTANGLE, androidx.ui.core.Dp? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
+    method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.painting.Color color, androidx.ui.core.Density density, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.RECTANGLE, androidx.ui.core.Px? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
   }
 
   public final class RippleSurface extends com.google.r4a.Component {

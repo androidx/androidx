@@ -19,6 +19,7 @@ package androidx.r4a
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
+import androidx.ui.core.Px
 import androidx.ui.core.adapter.Align
 import androidx.ui.core.adapter.Alignment
 import androidx.ui.core.adapter.Center
@@ -33,6 +34,8 @@ import androidx.ui.core.adapter.Padding
 import androidx.ui.core.adapter.Row
 import androidx.ui.core.adapter.Stack
 import androidx.ui.core.dp
+import androidx.ui.core.px
+import androidx.ui.core.toRoundedPixels
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.painting.Color
 import com.google.r4a.Children
@@ -49,7 +52,9 @@ fun SizedRectangle(color: Color, width: Dp? = null, height: Dp? = null) {
         collect {
             <DrawRectangle color />
         }
-        layout(width ?: constraints.maxWidth, height ?: constraints.maxHeight) {}
+        val widthPx = width?.toPx() ?: constraints.maxWidth
+        val heightPx = height?.toPx() ?: constraints.maxHeight
+        layout(widthPx, heightPx) {}
     </MeasureBox>
 }
 
@@ -65,14 +70,14 @@ fun IntrinsicWidth(@Children() children: () -> Unit) {
             // Force child be as wide as its min intrinsic width.
             val width = child.minIntrinsicWidth(constraints.minHeight)
             val childConstraints = Constraints(
-                width,
-                width,
+                width.px,
+                width.px,
                 constraints.minHeight,
                 constraints.maxHeight
             )
             val childPlaceable = child.measure(childConstraints)
             layoutResult(childPlaceable.width, childPlaceable.height) {
-                childPlaceable.place(0.dp, 0.dp)
+                childPlaceable.place(0, 0)
             }
         }
 
@@ -98,13 +103,13 @@ fun Wrapper(@Children() children: () -> Unit) {
         layout { constraints ->
             // Check the default intrinsic methods used by MeasureBoxes.
             // TODO(popam): make this a proper test instead
-            require(child.minIntrinsicWidth(Dp.Infinity) == 90.dp)
-            require(child.maxIntrinsicWidth(Dp.Infinity) == 450.dp)
-            require(child.minIntrinsicHeight(Dp.Infinity) == 30.dp)
-            require(child.maxIntrinsicHeight(Dp.Infinity) == 150.dp)
+            require(child.minIntrinsicWidth(Px.Infinity) == 90)
+            require(child.maxIntrinsicWidth(Px.Infinity) == 450)
+            require(child.minIntrinsicHeight(Px.Infinity) == 30)
+            require(child.maxIntrinsicHeight(Px.Infinity) == 150)
             val placeable = child.measure(constraints)
             layoutResult(placeable.width, placeable.height) {
-                placeable.place(0.dp, 0.dp)
+                placeable.place(0, 0)
             }
         }
     </ComplexMeasureBox>
@@ -120,12 +125,12 @@ fun RectangleWithIntrinsics(color: Color) {
             <DrawRectangle color />
         }
         layout {
-            layoutResult(80.dp, 80.dp) {}
+            layoutResult(80, 80) {}
         }
-        minIntrinsicWidth { 30.dp }
-        maxIntrinsicWidth { 150.dp }
-        minIntrinsicHeight { 30.dp }
-        maxIntrinsicHeight { 150.dp }
+        minIntrinsicWidth { 30 }
+        maxIntrinsicWidth { 150 }
+        minIntrinsicHeight { 30 }
+        maxIntrinsicHeight { 150 }
     </ComplexMeasureBox>
 }
 

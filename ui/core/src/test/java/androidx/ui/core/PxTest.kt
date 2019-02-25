@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import androidx.ui.engine.geometry.Rect
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -357,5 +358,26 @@ class PxTest {
     fun boundsHeight() {
         val bounds = PxBounds(10.px, 5.px, 25.px, 15.px)
         assertEquals(10.px, bounds.height)
+    }
+
+    @Test
+    fun toSize() {
+        val size = PxSize(15.px, 10.px)
+        val bounds = PxBounds(10.px, 5.px, 25.px, 15.px)
+        assertEquals(size, bounds.toSize())
+    }
+
+    @Test
+    fun toBounds() {
+        val size = PxSize(15.px, 10.px)
+        val bounds = PxBounds(0.px, 0.px, 15.px, 10.px)
+        assertEquals(bounds, size.toBounds())
+    }
+
+    @Test
+    fun toRect() {
+        val bounds = PxBounds(10.px, 5.px, 25.px, 15.px)
+        val rect = Rect(10f, 5f, 25f, 15f)
+        assertEquals(rect, bounds.toRect())
     }
 }

@@ -91,16 +91,14 @@ class RippleSurface(
         if (!::owner.isInitialized) {
             owner = RippleSurfaceOwnerImpl(color, this::recompose)
         }
-        <DensityConsumer> density ->
-            <Draw> canvas, size ->
-                if (owner.effects.isNotEmpty()) {
-                    canvas.save()
-                    canvas.clipRect(Rect(0f, 0f, size.width, size.height))
-                    owner.effects.forEach { it.draw(canvas, density) }
-                    canvas.restore()
-                }
-            </Draw>
-        </DensityConsumer>
+        <Draw> canvas, size ->
+            if (owner.effects.isNotEmpty()) {
+                canvas.save()
+                canvas.clipRect(Rect(0f, 0f, size.width, size.height))
+                owner.effects.forEach { it.draw(canvas) }
+                canvas.restore()
+            }
+        </Draw>
         <CurrentRippleSurface.Provider value=owner>
             <children />
         </CurrentRippleSurface.Provider>

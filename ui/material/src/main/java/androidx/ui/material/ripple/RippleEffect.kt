@@ -17,7 +17,6 @@
 package androidx.ui.material.ripple
 
 import androidx.annotation.CallSuper
-import androidx.ui.core.Density
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.material.surface.Surface
 import androidx.ui.painting.Canvas
@@ -56,7 +55,7 @@ abstract class RippleEffect(
         onRemoved?.invoke()
     }
 
-    internal fun draw(canvas: Canvas, density: Density) {
+    internal fun draw(canvas: Canvas) {
         assert(!debugDisposed)
         // TODO("Migration|Andrey: Calculate transformation matrix using parents")
         // TODO("Migration|Andrey: Currently we don't have such a logic")
@@ -74,7 +73,7 @@ abstract class RippleEffect(
 //        for (index in descendants.size - 1 downTo 1) {
 //            descendants[index].applyPaintTransform(descendants[index - 1], transform)
 //        }
-        drawEffect(canvas, transform, density)
+        drawEffect(canvas, transform)
     }
 
     /**
@@ -83,7 +82,7 @@ abstract class RippleEffect(
      * The transform argument gives the coordinate conversion from the coordinate
      * system of the canvas to the coordinate system of the target layout.
      */
-    protected abstract fun drawEffect(canvas: Canvas, transform: Matrix4, density: Density)
+    protected abstract fun drawEffect(canvas: Canvas, transform: Matrix4)
 
     /**
      * Called when the user input that triggered this ripple's appearance was confirmed or canceled.

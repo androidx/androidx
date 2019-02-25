@@ -21,12 +21,12 @@ import com.google.r4a.Composable
 
 // Ignore that the IDEA cannot resolve this.
 import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.core.Position
+import androidx.ui.core.PxPosition
 
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun PressGestureDetector(
-    onPress: ((Position) -> Unit)? = null,
+    onPress: ((PxPosition) -> Unit)? = null,
     onRelease: (() -> Unit)? = null,
     onCancel: (() -> Unit)? = null,
     @Children children: () -> Unit

@@ -28,18 +28,16 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.Density
-import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.MeasureBox
 import androidx.ui.core.Placeable
+import androidx.ui.core.Px
 import androidx.ui.core.coerceAtLeast
-import androidx.ui.core.dp
 import androidx.ui.core.max
 import androidx.ui.core.minus
-import androidx.ui.core.plus
+import androidx.ui.core.px
 import androidx.ui.core.times
-import androidx.ui.core.toPx
+import androidx.ui.core.toRoundedPixels
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.painting.Color
@@ -55,10 +53,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.lang.Math.round
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.math.ceil
+import kotlin.math.max
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -100,8 +97,8 @@ class ContainingViewTest {
                             canvas.drawRect(Rect(0.0f, 0.0f,
                                 parentSize.width, parentSize.height), paint)
                         </Draw>
-                        <Padding size=10.dp>
-                            <AtLeastSize size=10.dp>
+                        <Padding size=10.px>
+                            <AtLeastSize size=10.px>
                                 <Draw> canvas, parentSize ->
                                     drawLatch.countDown()
                                     val paint = Paint()
@@ -122,15 +119,14 @@ class ContainingViewTest {
         activityTestRule.runOnUiThread(runnable)
         drawLatch.await(1, TimeUnit.SECONDS)
         val bitmap = waitAndScreenShot()
-        val density = Density(activity)
-        val totalSize = 30.dp.toPx(density).toDouble()
-        assertEquals(ceil(totalSize).toInt(), bitmap.width)
-        assertEquals(ceil(totalSize).toInt(), bitmap.height)
+        val totalSize = 30
+        assertEquals(totalSize, bitmap.width)
+        assertEquals(totalSize, bitmap.height)
 
-        val offset = round(10.dp.toPx(density))
-        val endRect = round(20.dp.toPx(density))
-        for (x in 0 until totalSize.toInt()) {
-            for (y in 0 until totalSize.toInt()) {
+        val offset = 10
+        val endRect = 20
+        for (x in 0 until totalSize) {
+            for (y in 0 until totalSize) {
                 val pixel = bitmap.getPixel(x, y)
                 val pixelString = (pixel.toLong() and 0xFFFFFFFF).toString(16)
                 if (x in offset + 1 until endRect - 1 && y in offset + 1 until endRect - 1) {
@@ -212,17 +208,17 @@ class ContainingViewTest {
     }
 }
 
-private fun Placeable.place(x: Dp, y: Dp) {
+private fun Placeable.place(x: Int, y: Int) {
     // Place using reflection. TODO(popam) This should only be needed until the adapter packages are
     // removed as this module cannot depend on framework-adapter, so this is a temporary workaround.
     val placeBlockField = Placeable::class.java.getDeclaredField("placeBlock")
     placeBlockField.isAccessible = true
-    val placeBlock = placeBlockField.get(this) as (Dp, Dp) -> Unit
+    val placeBlock = placeBlockField.get(this) as (Int, Int) -> Unit
     placeBlock(x, y)
 }
 
 @Composable
-fun AtLeastSize(size: Dp, @Children children: @Composable() () -> Unit) {
+fun AtLeastSize(size: Px, @Children children: @Composable() () -> Unit) {
     <MeasureBox> constraints, measureOperations ->
         val measurables = measureOperations.collect(children)
         val newConstraints = Constraints(
@@ -234,43 +230,43 @@ fun AtLeastSize(size: Dp, @Children children: @Composable() () -> Unit) {
         val placeables = measurables.map { m ->
             measureOperations.measure(m, newConstraints)
         }
-        var maxWidth = size
-        var maxHeight = size
+        var maxWidth = size.toRoundedPixels()
+        var maxHeight = size.toRoundedPixels()
         placeables.forEach { child ->
             maxHeight = max(child.height, maxHeight)
             maxWidth = max(child.width, maxWidth)
         }
         measureOperations.layout(maxWidth, maxHeight) {
             placeables.forEach { child ->
-                child.place(0.dp, 0.dp)
+                child.place(0, 0)
             }
         }
     </MeasureBox>
 }
 
 @Composable
-fun Padding(size: Dp, @Children children: @Composable() () -> Unit) {
+fun Padding(size: Px, @Children children: @Composable() () -> Unit) {
     <MeasureBox> constraints, measureOperations ->
         val measurables = measureOperations.collect(children)
         val totalDiff = size * 2
         val newConstraints = Constraints(
-            minWidth = (constraints.minWidth - totalDiff).coerceAtLeast(0.dp),
-            maxWidth = (constraints.maxWidth - totalDiff).coerceAtLeast(0.dp),
-            minHeight = (constraints.minHeight - totalDiff).coerceAtLeast(0.dp),
-            maxHeight = (constraints.maxHeight - totalDiff).coerceAtLeast(0.dp)
+            minWidth = (constraints.minWidth - totalDiff).coerceAtLeast(0.px),
+            maxWidth = (constraints.maxWidth - totalDiff).coerceAtLeast(0.px),
+            minHeight = (constraints.minHeight - totalDiff).coerceAtLeast(0.px),
+            maxHeight = (constraints.maxHeight - totalDiff).coerceAtLeast(0.px)
         )
         val placeables = measurables.map { m ->
             measureOperations.measure(m, newConstraints)
         }
-        var maxWidth = size
-        var maxHeight = size
+        var maxWidth = size.toRoundedPixels()
+        var maxHeight = size.toRoundedPixels()
         placeables.forEach { child ->
-            maxHeight = max(child.height + totalDiff, maxHeight)
-            maxWidth = max(child.width + totalDiff, maxWidth)
+            maxHeight = max(child.height + totalDiff.toRoundedPixels(), maxHeight)
+            maxWidth = max(child.width + totalDiff.toRoundedPixels(), maxWidth)
         }
         measureOperations.layout(maxWidth, maxHeight) {
             placeables.forEach { child ->
-                child.place(size, size)
+                child.place(size.toRoundedPixels(), size.toRoundedPixels())
             }
         }
     </MeasureBox>

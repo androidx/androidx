@@ -16,9 +16,9 @@
 
 package androidx.ui.material.ripple
 
-import androidx.ui.core.Bounds
-import androidx.ui.core.Dp
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Px
+import androidx.ui.core.PxBounds
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BoxShape
 import com.google.r4a.Children
@@ -46,7 +46,7 @@ fun BoundedRipple(
      * the size of the RECTANGLE provided by [boundsCallback], or the size of
      * the [BoundedRipple] itself.
      */
-    finalRadius: Dp? = null,
+    finalRadius: Px? = null,
     /**
      * The clipping radius of the containing rect.
      *
@@ -73,7 +73,7 @@ fun BoundedRipple(
      * returning the target layout argument's bounding box (though
      * slightly more efficient).
      */
-    boundsCallback: ((LayoutCoordinates) -> Bounds)? = null,
+    boundsCallback: ((LayoutCoordinates) -> PxBounds)? = null,
     @Children children: () -> Unit
 ) {
     <Ripple

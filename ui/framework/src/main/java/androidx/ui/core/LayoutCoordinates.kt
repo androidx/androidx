@@ -25,27 +25,27 @@ interface LayoutCoordinates {
     /**
      * The position within the parent of this layout.
      */
-    val position: Position
+    val position: PxPosition
 
     /**
      * The size of this layout in the local coordinates space.
      */
-    val size: Size
+    val size: PxSize
 
     /**
      * Converts a global position into a local position within this layout.
      */
-    fun globalToLocal(global: Position): Position
+    fun globalToLocal(global: PxPosition): PxPosition
 
     /**
      * Converts a local position within this layout into a global one.
      */
-    fun localToGlobal(local: Position): Position
+    fun localToGlobal(local: PxPosition): PxPosition
 
     /**
      * Converts a child layout position into a local position within this layout.
      */
-    fun childToLocal(child: LayoutCoordinates, childLocal: Position): Position
+    fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition
 
     /**
      * Returns a coordinates of the parent layout. If there is no parent returns null.
@@ -66,15 +66,15 @@ internal class LayoutNodeCoordinates(
     private val layoutNode: LayoutNode
 ) : LayoutCoordinates {
 
-    override val position get() = Position(layoutNode.x, layoutNode.y)
+    override val position get() = PxPosition(layoutNode.x.px, layoutNode.y.px)
 
-    override val size get() = layoutNode.size
+    override val size get() = PxSize(layoutNode.width.px, layoutNode.height.px)
 
-    override fun globalToLocal(global: Position) = layoutNode.globalToLocal(global)
+    override fun globalToLocal(global: PxPosition) = layoutNode.globalToLocal(global)
 
-    override fun localToGlobal(local: Position) = layoutNode.localToGlobal(local)
+    override fun localToGlobal(local: PxPosition) = layoutNode.localToGlobal(local)
 
-    override fun childToLocal(child: LayoutCoordinates, childLocal: Position): Position {
+    override fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition {
         if (child !is LayoutNodeCoordinates) {
             throw IllegalArgumentException("Incorrect child provided.")
         }

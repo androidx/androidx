@@ -355,7 +355,7 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(0)).onSizeChange(node)
-        node.resize(10.dp, 10.dp)
+        node.resize(10, 10)
         verify(owner, times(1)).onSizeChange(node)
     }
 
@@ -365,7 +365,7 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(0)).onPositionChange(node)
-        node.moveTo(10.dp, 10.dp)
+        node.moveTo(10, 10)
         verify(owner, times(1)).onPositionChange(node)
     }
 
@@ -453,20 +453,19 @@ class ComponentNodeTest {
         val node1 = LayoutNode()
         node0.emitInsertAt(0, node1)
 
-        val x0 = 100.dp
-        val y0 = 10.dp
-        val x1 = 50.dp
-        val y1 = 80.dp
+        val x0 = 100
+        val y0 = 10
+        val x1 = 50
+        val y1 = 80
         node0.moveTo(x0, y0)
         node1.moveTo(x1, y1)
 
-        val globalPosition = Position(250.dp, 300.dp)
+        val globalPosition = PxPosition(250.px, 300.px)
 
-        val expectedX = globalPosition.x - x0 - x1
-        val expectedY = globalPosition.y - y0 - y1
-        val expectedPosition = Position(expectedX, expectedY)
+        val expectedX = globalPosition.x - x0.px - x1.px
+        val expectedY = globalPosition.y - y0.px - y1.px
+        val expectedPosition = PxPosition(expectedX, expectedY)
 
-        // Top-level functions are not resolved properly in IR modules
         val result = node1.globalToLocal(globalPosition)
 
         assertEquals(expectedPosition, result)
@@ -478,20 +477,19 @@ class ComponentNodeTest {
         val node1 = LayoutNode()
         node0.emitInsertAt(0, node1)
 
-        val x0 = 100.dp
-        val y0 = 10.dp
-        val x1 = 50.dp
-        val y1 = 80.dp
+        val x0 = 100
+        val y0 = 10
+        val x1 = 50
+        val y1 = 80
         node0.moveTo(x0, y0)
         node1.moveTo(x1, y1)
 
-        val localPosition = Position(5.dp, 15.dp)
+        val localPosition = PxPosition(5.px, 15.px)
 
-        val expectedX = localPosition.x + x0 + x1
-        val expectedY = localPosition.y + y0 + y1
-        val expectedPosition = Position(expectedX, expectedY)
+        val expectedX = localPosition.x + x0.px + x1.px
+        val expectedY = localPosition.y + y0.px + y1.px
+        val expectedPosition = PxPosition(expectedX, expectedY)
 
-        // Top-level functions are not resolved properly in IR modules
         val result = node1.localToGlobal(localPosition)
 
         assertEquals(expectedPosition, result)
@@ -503,18 +501,17 @@ class ComponentNodeTest {
         val node1 = LayoutNode()
         node0.emitInsertAt(0, node1)
 
-        val x1 = 50.dp
-        val y1 = 80.dp
-        node0.moveTo(100.dp, 10.dp)
+        val x1 = 50
+        val y1 = 80
+        node0.moveTo(100, 10)
         node1.moveTo(x1, y1)
 
-        val localPosition = Position(5.dp, 15.dp)
+        val localPosition = PxPosition(5.px, 15.px)
 
-        val expectedX = localPosition.x + x1
-        val expectedY = localPosition.y + y1
-        val expectedPosition = Position(expectedX, expectedY)
+        val expectedX = localPosition.x + x1.px
+        val expectedY = localPosition.y + y1.px
+        val expectedPosition = PxPosition(expectedX, expectedY)
 
-        // Top-level functions are not resolved properly in IR modules
         val result = node0.childToLocal(node1, localPosition)
 
         assertEquals(expectedPosition, result)
@@ -530,8 +527,7 @@ class ComponentNodeTest {
 
         thrown.expect(IllegalStateException::class.java)
 
-        // Top-level functions are not resolved properly in IR modules
-        node2.childToLocal(node1, Position(5.dp, 15.dp))
+        node2.childToLocal(node1, PxPosition(5.px, 15.px))
     }
 
     @Test
@@ -541,16 +537,14 @@ class ComponentNodeTest {
 
         thrown.expect(IllegalStateException::class.java)
 
-        // Top-level functions are not resolved properly in IR modules
-        node1.childToLocal(node0, Position(5.dp, 15.dp))
+        node1.childToLocal(node0, PxPosition(5.px, 15.px))
     }
 
     @Test
     fun testChildToLocalTheSameNode() {
         val node = LayoutNode()
-        val position = Position(5.dp, 15.dp)
+        val position = PxPosition(5.px, 15.px)
 
-        // Top-level functions are not resolved properly in IR modules
         val result = node.childToLocal(node, position)
 
         assertEquals(position, result)

@@ -22,6 +22,7 @@ import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.R4a
 import com.google.r4a.composer
+import kotlin.math.max
 
 class CraneWrapper(@Children var children: () -> Unit) : Component() {
     private val androidCraneView = arrayOfNulls<AndroidCraneView>(1)
@@ -50,15 +51,15 @@ class CraneWrapper(@Children var children: () -> Unit) : Component() {
                     </DensityAmbient.Provider>
                 </ContextAmbient.Provider>
             }
-            var width = 0.dp
-            var height = 0.dp
+            var width = 0
+            var height = 0
             layoutNode.childrenMeasureBoxes().forEach { measureBox ->
                 measureBox as ComplexMeasureBox
                 measureBox.runBlock()
                 measureBox.measure(craneView.constraints)
                 measureBox.placeChildren()
-                width = max(width, measureBox.layoutNode.size.width)
-                height = max(height, measureBox.layoutNode.size.height)
+                width = max(width, measureBox.layoutNode.width)
+                height = max(height, measureBox.layoutNode.height)
             }
             layoutNode.resize(width, height)
         }

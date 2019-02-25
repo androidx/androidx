@@ -26,7 +26,9 @@ import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.minus
 import androidx.ui.core.plus
+import androidx.ui.core.px
 import androidx.ui.core.times
+import androidx.ui.core.toRoundedPixels
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -62,23 +64,24 @@ fun HeaderFooterLayout(
         val footerMeasurable = collect { <footer /> }.first()
         layout(constraints.maxWidth, constraints.maxHeight) {
             val headerPlaceable = headerMeasurable.measure(
-                    Constraints.tightConstraints(constraints.maxWidth, 100.dp)
+                    Constraints.tightConstraints(constraints.maxWidth, 100.px)
             )
-            headerPlaceable.place(0.dp, 0.dp)
+            headerPlaceable.place(0, 0)
 
-            val footerPadding = 50.dp
+            val footerPadding = 50.px
             val footerPlaceable = footerMeasurable.measure(
-                Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.dp))
-            footerPlaceable.place(footerPadding, constraints.maxHeight - footerPlaceable.height)
+                Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.px))
+            footerPlaceable.place(footerPadding,
+                constraints.maxHeight - footerPlaceable.height.px)
 
             val itemHeight =
-                (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
+                (constraints.maxHeight - headerPlaceable.height.px - footerPlaceable.height.px) /
                         contentMeasurables.size
             val itemConstraint = Constraints.tightConstraints(constraints.maxWidth, itemHeight)
             var top = headerPlaceable.height
             contentMeasurables.map { it.measure(itemConstraint) }.forEach {
-                it.place(0.dp, top)
-                top += itemHeight
+                it.place(0, top)
+                top += itemHeight.toRoundedPixels()
             }
         }
     </MeasureBox>

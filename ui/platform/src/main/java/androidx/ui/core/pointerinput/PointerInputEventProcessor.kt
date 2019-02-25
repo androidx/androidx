@@ -17,15 +17,13 @@
 package androidx.ui.core.pointerinput
 
 import androidx.ui.core.ComponentNode
-import androidx.ui.core.Density
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerInputNode
-import androidx.ui.core.Position
-import androidx.ui.core.Size
-import androidx.ui.core.dp
+import androidx.ui.core.PxPosition
+import androidx.ui.core.PxSize
 import androidx.ui.core.isAttached
 import androidx.ui.core.localToGlobal
-import androidx.ui.core.toPx
+import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
 
 typealias PointerInputHandler = (PointerInputChange, PointerEventPass) -> PointerInputChange
@@ -62,8 +60,8 @@ private class PointerInputChangeEventProducer {
  * incoming pointerInputChange is new and has not yet been processed by
  * [PointerInputChangeOffsetManager].
  */
-private class PointerInputChangeOffsetManager(val density: Density) {
-    private val positionZero = Position(0.dp, 0.dp)
+private class PointerInputChangeOffsetManager() {
+    private val positionZero = PxPosition(0.px, 0.px)
     private val nodeGlobalOffsets: MutableMap<PointerInputNode, Offset> = mutableMapOf()
     private val changeOffsets: MutableMap<Int, Offset> = mutableMapOf()
 
@@ -79,7 +77,7 @@ private class PointerInputChangeOffsetManager(val density: Density) {
                 nodeGlobalOffsets[it] =
                     parentLayoutNode?.run {
                         val position = parentLayoutNode.localToGlobal(positionZero)
-                        Offset(position.x.toPx(density), position.y.toPx(density))
+                        Offset(position.x.value, position.y.value)
                     } ?: Offset.zero
             }
         }
@@ -105,10 +103,10 @@ private class PointerInputChangeOffsetManager(val density: Density) {
 /**
  * The core element that receives [PointerInputEvent]s and process them through Crane.
  */
-internal class PointerInputEventProcessor(val density: Density, val root: LayoutNode) {
+internal class PointerInputEventProcessor(val root: LayoutNode) {
 
     private val pointerInputChangeEventProducer = PointerInputChangeEventProducer()
-    private val offsetManager = PointerInputChangeOffsetManager(density)
+    private val offsetManager = PointerInputChangeOffsetManager()
     private val targetNodeSequences: MutableMap<Int, List<PointerInputNode>> = mutableMapOf()
 
     /**
@@ -126,7 +124,8 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
     private fun addReceiversDueToDownEvents(pointerInputChangeEvent: PointerInputChangeEvent) {
         pointerInputChangeEvent.changes.filter { it.changedToDownIgnoreConsumed() }.forEach {
             val hitResult: MutableList<PointerInputNode> = mutableListOf()
-            hitTestOnChildren(root, it.current.position!!, root.size, hitResult)
+            hitTestOnChildren(root, it.current.position!!,
+                PxSize(root.width.px, root.height.px), hitResult)
             targetNodeSequences[it.id] = hitResult
         }
     }
@@ -197,17 +196,16 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
     private fun hitTestOnChildren(
         parent: ComponentNode,
         offset: Offset,
-        size: Size,
+        size: PxSize,
         hitPointerInputNodes: MutableList<PointerInputNode>
     ) {
         parent.visitChildren { child ->
             // If the child is a PointerInputNode, then hit test on that child.
             if (child is PointerInputNode) {
-                val parentSize = size.toPx(density)
                 if (offset.dx >= 0 &&
-                    offset.dx < parentSize.width &&
+                    offset.dx < size.width.value &&
                     offset.dy >= 0 &&
-                    offset.dy < parentSize.height
+                    offset.dy < size.height.value
                 ) {
                     hitPointerInputNodes.add(child)
                 }
@@ -219,12 +217,12 @@ internal class PointerInputEventProcessor(val density: Density, val root: Layout
             // 1. Update the offset to be relative to that LayoutNode
             val newOffset =
                 if (child is LayoutNode) {
-                    Offset(offset.dx - child.x.toPx(density), offset.dy - child.y.toPx(density))
+                    Offset(offset.dx - child.x, offset.dy - child.y)
                 } else offset
             // 2. Update the size to be the size of the LayoutNode
             val newSize =
                 if (child is LayoutNode) {
-                    child.size
+                    PxSize(child.width.px, child.height.px)
                 } else size
 
             hitTestOnChildren(child, newOffset, newSize, hitPointerInputNodes)

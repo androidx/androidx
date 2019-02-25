@@ -15,11 +15,14 @@
  */
 package androidx.ui.material.ripple
 
-import androidx.ui.core.Bounds
+import androidx.ui.core.Density
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Size
+import androidx.ui.core.PxBounds
+import androidx.ui.core.PxSize
 import androidx.ui.core.dp
+import androidx.ui.core.px
 import androidx.ui.core.toBounds
+import androidx.ui.core.toPx
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -33,7 +36,7 @@ class DefaultRippleEffectTest {
 
     @Test
     fun testSurfaceSizeWithoutBoundsCallback() {
-        val size = Size(100f.dp, 50.dp)
+        val size = PxSize(100.px, 50.px)
         val coordinates = mock<LayoutCoordinates> {
             on { this.size } doReturn size
         }
@@ -45,9 +48,9 @@ class DefaultRippleEffectTest {
 
     @Test
     fun testSurfaceSizeWithBoundsCallback() {
-        val size = Size(10f.dp, 40.dp)
+        val size = PxSize(10.px, 40.px)
         val coordinates = mock<LayoutCoordinates>()
-        val boundsCallback: (LayoutCoordinates) -> Bounds = { size.toBounds() }
+        val boundsCallback: (LayoutCoordinates) -> PxBounds = { size.toBounds() }
 
         // Top-level functions are not resolved properly in IR modules
         val result = getSurfaceSize(coordinates, boundsCallback)
@@ -56,8 +59,8 @@ class DefaultRippleEffectTest {
 
     @Test
     fun testStartRadius() {
-        val size = Size(10f.dp, 30f.dp)
-        val expectedRadius = 9.dp // 30% of 30
+        val size = PxSize(10.px, 30.px)
+        val expectedRadius = 9.px // 30% of 30
 
         // Top-level functions are not resolved properly in IR modules
         val result = getRippleStartRadius(size)
@@ -68,12 +71,14 @@ class DefaultRippleEffectTest {
     fun testTargetRadius() {
         val width = 100f
         val height = 160f
-        val size = Size(width.dp, height.dp)
-        val expectedRadius = halfDistance(width, height) + 10 // 10 is an extra offset from spec
+        val size = PxSize(width.px, height.px)
+        val density = Density(2f)
+        // 10 is an extra offset from spec
+        val expectedRadius = halfDistance(width, height) + 10.dp.toPx(density)
 
         // Top-level functions are not resolved properly in IR modules
-        val result = getRippleTargetRadius(size)
-        assertThat(result).isEqualTo(expectedRadius.dp)
+        val result = getRippleTargetRadius(size, density)
+        assertThat(result).isEqualTo(expectedRadius.px)
     }
 
     private fun halfDistance(width: Float, height: Float) =

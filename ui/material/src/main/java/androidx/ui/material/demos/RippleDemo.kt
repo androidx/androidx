@@ -22,6 +22,7 @@ import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.minus
 import androidx.ui.core.times
+import androidx.ui.core.toRoundedPixels
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BorderSide
 import androidx.ui.material.borders.RoundedRectangleBorder
@@ -39,12 +40,13 @@ import com.google.r4a.composer
 @Composable
 internal fun FillAll(padding: Dp, @Children children: () -> Unit) {
     <MeasureBox> constraints ->
+        val paddingPx = padding.toPx()
         val measurables = collect(children)
-        val itemConstraints = Constraints.tightConstraints(constraints.maxWidth - padding * 2,
-            constraints.maxHeight - padding * 2)
+        val itemConstraints = Constraints.tightConstraints(constraints.maxWidth - paddingPx * 2,
+            constraints.maxHeight - paddingPx * 2)
         layout(constraints.maxWidth, constraints.maxHeight) {
             measurables.forEach {
-                it.measure(itemConstraints).place(padding, padding)
+                it.measure(itemConstraints).place(paddingPx, paddingPx)
             }
         }
     </MeasureBox>

@@ -29,15 +29,16 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Density
 import androidx.ui.core.Dp
 import androidx.ui.core.OnPositioned
-import androidx.ui.core.Position
-import androidx.ui.core.Size
+import androidx.ui.core.PxPosition
+import androidx.ui.core.PxSize
 import androidx.ui.core.adapter.CraneWrapper
 import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.minus
-import androidx.ui.core.plus
+import androidx.ui.core.px
 import androidx.ui.core.times
-import androidx.ui.core.toDp
+import androidx.ui.core.toPx
+import androidx.ui.core.toRoundedPixels
 import androidx.ui.core.unaryMinus
 import androidx.ui.layout.Center
 import androidx.ui.layout.ConstrainedBox
@@ -57,6 +58,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -88,12 +91,13 @@ class PaddingTest {
 
     @Test
     fun testPaddingIsApplied() {
-        val size = 50.dp
+        val size = 50.dp.toPx(density).roundToInt().px
         val padding = 10.dp
+        val paddingPx = padding.toPx(density).px
 
         val drawLatch = CountDownLatch(10)
-        var childSize = Size(-1.dp, -1.dp)
-        var childPosition = Position(-1.dp, -1.dp)
+        var childSize = PxSize(-1.px, -1.px)
+        var childPosition = PxPosition(-1.px, -1.px)
         show @Composable {
             <Center>
                 <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
@@ -102,7 +106,8 @@ class PaddingTest {
                                             constraints=null width=null height=null>
                             <OnPositioned> coordinates ->
                                 childSize = coordinates.size
-                                childPosition = coordinates.localToGlobal(Position(0.dp, 0.dp))
+                                childPosition =
+                                    coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
                             </OnPositioned>
                         </Container>
@@ -115,23 +120,24 @@ class PaddingTest {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        assertEquals(Size(size - padding * 2, size - padding * 2), childSize)
-        val width = root.width.toDp(density)
-        val height = root.height.toDp(density)
+        val innerSize = (size - paddingPx * 2).toRoundedPixels().px
+        assertEquals(PxSize(innerSize, innerSize), childSize)
+        val left = ((root.width.px - size) / 2).toRoundedPixels() + paddingPx.toRoundedPixels()
+        val top = ((root.height.px - size) / 2).toRoundedPixels() + paddingPx.toRoundedPixels()
         assertEquals(
-            Position(width / 2 - size / 2 + padding, height / 2 - size / 2 + padding),
+            PxPosition(left.px, top.px),
             childPosition
         )
     }
 
     @Test
     fun testPaddingIsApplied_withDifferentInsets() {
-        val size = 50.dp
+        val size = 50.dp.toPx(density).roundToInt().px
         val padding = EdgeInsets(10.dp, 15.dp, 20.dp, 30.dp)
 
         val drawLatch = CountDownLatch(10)
-        var childSize = Size(-1.dp, -1.dp)
-        var childPosition = Position(-1.dp, -1.dp)
+        var childSize = PxSize(-1.px, -1.px)
+        var childPosition = PxPosition(-1.px, -1.px)
         show @Composable {
             <Center>
                 <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
@@ -140,7 +146,8 @@ class PaddingTest {
                                             constraints=null width=null height=null>
                             <OnPositioned> coordinates ->
                                 childSize = coordinates.size
-                                childPosition = coordinates.localToGlobal(Position(0.dp, 0.dp))
+                                childPosition =
+                                    coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
                             </OnPositioned>
                         </Container>
@@ -153,29 +160,32 @@ class PaddingTest {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
+        val paddingLeft = padding.left.toPx(density).roundToInt()
+        val paddingRight = padding.right.toPx(density).roundToInt()
+        val paddingTop = padding.top.toPx(density).roundToInt()
+        val paddingBottom = padding.bottom.toPx(density).roundToInt()
         assertEquals(
-            Size(size - padding.left - padding.right, size - padding.top - padding.bottom),
+            PxSize(size - paddingLeft.px - paddingRight.px,
+                size - paddingTop.px - paddingBottom.px),
             childSize
         )
-        val width = root.width.toDp(density)
-        val height = root.height.toDp(density)
+        val left = ((root.width.px - size) / 2).toRoundedPixels() + paddingLeft
+        val top = ((root.height.px - size) / 2).toRoundedPixels() + paddingTop
         assertEquals(
-            Position(
-                width / 2 - size / 2 + padding.left,
-                height / 2 - size / 2 + padding.top
-            ),
+            PxPosition(left.px, top.px),
             childPosition
         )
     }
 
     @Test
     fun testPadding_withInsufficientSpace() {
-        val size = 50.dp
+        val size = 50.dp.toPx(density).roundToInt().px
         val padding = 30.dp
+        val paddingPx = padding.toPx(density).px
 
         val drawLatch = CountDownLatch(10)
-        var childSize = Size(-1.dp, -1.dp)
-        var childPosition = Position(-1.dp, -1.dp)
+        var childSize = PxSize(-1.px, -1.px)
+        var childPosition = PxPosition(-1.px, -1.px)
         show @Composable {
             <Center>
                 <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
@@ -184,7 +194,7 @@ class PaddingTest {
                                             constraints=null width=null height=null>
                             <OnPositioned> coordinates ->
                                 childSize = coordinates.size
-                                childPosition = coordinates.localToGlobal(Position(0.dp, 0.dp))
+                                childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
                             </OnPositioned>
                         </Container>
@@ -197,16 +207,10 @@ class PaddingTest {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        assertEquals(Size(0.dp, 0.dp), childSize)
-        val width = root.width.toDp(density)
-        val height = root.height.toDp(density)
-        assertEquals(
-            Position(
-                width / 2 - size / 2 + padding,
-                height / 2 - size / 2 + padding
-            ),
-            childPosition
-        )
+        assertEquals(PxSize(0.px, 0.px), childSize)
+        val left = ((root.width.px - size) / 2).toRoundedPixels() + paddingPx.toRoundedPixels()
+        val top = ((root.height.px - size) / 2).toRoundedPixels() + paddingPx.toRoundedPixels()
+        assertEquals(PxPosition(left.px, top.px), childPosition)
     }
 
     private fun show(@Children composable: () -> Unit) {

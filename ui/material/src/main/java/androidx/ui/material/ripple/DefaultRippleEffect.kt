@@ -21,13 +21,13 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
-import androidx.ui.core.Bounds
 import androidx.ui.core.Density
-import androidx.ui.core.Dp
 import androidx.ui.core.Duration
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Position
-import androidx.ui.core.Size
+import androidx.ui.core.Px
+import androidx.ui.core.PxBounds
+import androidx.ui.core.PxPosition
+import androidx.ui.core.PxSize
 import androidx.ui.core.center
 import androidx.ui.core.div
 import androidx.ui.core.dp
@@ -35,6 +35,7 @@ import androidx.ui.core.getDistance
 import androidx.ui.core.lerp
 import androidx.ui.core.max
 import androidx.ui.core.plus
+import androidx.ui.core.px
 import androidx.ui.core.times
 import androidx.ui.core.toBounds
 import androidx.ui.core.toPx
@@ -59,8 +60,8 @@ internal val FadeOutMinStartDelay = Duration.create(milliseconds = 225)
 
 internal fun getRippleClipCallback(
     containedInkWell: Boolean,
-    boundsCallback: ((LayoutCoordinates) -> Bounds)?
-): ((LayoutCoordinates) -> Bounds)? {
+    boundsCallback: ((LayoutCoordinates) -> PxBounds)?
+): ((LayoutCoordinates) -> PxBounds)? {
     if (boundsCallback != null) {
         assert(containedInkWell)
         return boundsCallback
@@ -73,14 +74,14 @@ internal fun getRippleClipCallback(
 
 internal fun getSurfaceSize(
     coordinates: LayoutCoordinates,
-    boundsCallback: ((LayoutCoordinates) -> Bounds)?
+    boundsCallback: ((LayoutCoordinates) -> PxBounds)?
 ) = boundsCallback?.invoke(coordinates)?.toSize() ?: coordinates.size
 
-internal fun getRippleStartRadius(size: Size) =
+internal fun getRippleStartRadius(size: PxSize) =
     max(size.width, size.height) * 0.3f
 
-internal fun getRippleTargetRadius(size: Size) =
-    Position(size.width, size.height).getDistance() / 2f + 10.dp
+internal fun getRippleTargetRadius(size: PxSize, density: Density) =
+    PxPosition(size.width, size.height).getDistance() / 2f + 10.dp.toPx(density).px
 
 /**
  * Used to specify this type of [RippleEffect] for an [BoundedRipple] and [Ripple].
@@ -90,12 +91,13 @@ object DefaultRippleEffectFactory : RippleEffectFactory() {
     override fun create(
         rippleSurface: RippleSurfaceOwner,
         coordinates: LayoutCoordinates,
-        touchPosition: Position,
+        touchPosition: PxPosition,
         color: Color,
+        density: Density,
         shape: BoxShape,
-        finalRadius: Dp?,
+        finalRadius: Px?,
         containedInkWell: Boolean,
-        boundsCallback: ((LayoutCoordinates) -> Bounds)?,
+        boundsCallback: ((LayoutCoordinates) -> PxBounds)?,
         clippingBorderRadius: BorderRadius?,
         onRemoved: (() -> Unit)?
     ): RippleEffect {
@@ -104,6 +106,7 @@ object DefaultRippleEffectFactory : RippleEffectFactory() {
             coordinates,
             touchPosition,
             color,
+            density,
             finalRadius,
             containedInkWell,
             boundsCallback,
@@ -144,18 +147,19 @@ object DefaultRippleEffectFactory : RippleEffectFactory() {
 internal class DefaultRippleEffect(
     rippleSurface: RippleSurfaceOwner,
     coordinates: LayoutCoordinates,
-    private val touchPosition: Position,
+    private val touchPosition: PxPosition,
     color: Color,
-    finalRadius: Dp? = null,
+    density: Density,
+    finalRadius: Px? = null,
     containedInkWell: Boolean = false,
-    boundsCallback: ((LayoutCoordinates) -> Bounds)? = null,
+    boundsCallback: ((LayoutCoordinates) -> PxBounds)? = null,
     clippingBorderRadius: BorderRadius? = null,
     onRemoved: (() -> Unit)? = null
 ) : RippleEffect(rippleSurface, coordinates, color, onRemoved) {
 
     private val borderRadius: BorderRadius =
         clippingBorderRadius ?: BorderRadius.Zero
-    private val clipCallback: ((LayoutCoordinates) -> Bounds)? =
+    private val clipCallback: ((LayoutCoordinates) -> PxBounds)? =
         getRippleClipCallback(containedInkWell, boundsCallback)
     private val startedTime: Duration =
         Duration.create(milliseconds = System.currentTimeMillis())
@@ -167,7 +171,7 @@ internal class DefaultRippleEffect(
     init {
         val surfaceSize = getSurfaceSize(coordinates, boundsCallback)
         val startRadius = getRippleStartRadius(surfaceSize)
-        val targetRadius = finalRadius ?: getRippleTargetRadius(surfaceSize)
+        val targetRadius = finalRadius ?: getRippleTargetRadius(surfaceSize, density)
 
         val redrawListener = object : ValueAnimator.AnimatorUpdateListener {
             override fun onAnimationUpdate(animation: ValueAnimator?) {
@@ -237,7 +241,7 @@ internal class DefaultRippleEffect(
         }
     }
 
-    override fun drawEffect(canvas: Canvas, transform: Matrix4, density: Density) {
+    override fun drawEffect(canvas: Canvas, transform: Matrix4) {
         val alpha = (if (fadeOut.isRunning) fadeOut.animatedValue else fadeIn.animatedValue) as Int
         val paint = Paint()
         paint.color = color.withAlpha(alpha)
@@ -247,24 +251,24 @@ internal class DefaultRippleEffect(
             coordinates.size.center(),
             radius.animatedFraction
         )
-        val radius = Dp(radius.animatedValue as Float)
-        val centerOffset = Offset(center.x.toPx(density), center.y.toPx(density))
+        val radius = radius.animatedValue as Float
+        val centerOffset = Offset(center.x.value, center.y.value)
         val originOffset = transform.getAsTranslation()
-        val clipRect = clipCallback?.invoke(coordinates)?.toRect(density)
+        val clipRect = clipCallback?.invoke(coordinates)?.toRect()
         if (originOffset == null) {
             canvas.save()
             canvas.transform(transform)
             if (clipRect != null) {
                 clipCanvasWithRect(canvas, clipRect)
             }
-            canvas.drawCircle(centerOffset, radius.toPx(density), paint)
+            canvas.drawCircle(centerOffset, radius, paint)
             canvas.restore()
         } else {
             if (clipRect != null) {
                 canvas.save()
                 clipCanvasWithRect(canvas, clipRect, offset = originOffset)
             }
-            canvas.drawCircle(centerOffset + originOffset, radius.toPx(density), paint)
+            canvas.drawCircle(centerOffset + originOffset, radius, paint)
             if (clipRect != null) {
                 canvas.restore()
             }

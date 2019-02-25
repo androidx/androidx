@@ -44,6 +44,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.minus
 import androidx.ui.core.plus
 import androidx.ui.core.times
+import androidx.ui.core.toRoundedPixels
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -81,13 +82,13 @@ fun ListWithOffset(
                 <item />
             }
         }
-        val itemHeight = (constraints.maxHeight - offset * (itemsCount - 1)) / itemsCount
+        val itemHeight = (constraints.maxHeight - offset.toPx() * (itemsCount - 1)) / itemsCount
         val itemConstraint = Constraints.tightConstraints(constraints.maxWidth, itemHeight)
         layout(constraints.maxWidth, constraints.maxHeight) {
-            var top = 0.dp
+            var top = 0
             measurables.map { it.measure(itemConstraint) }.forEach {
-                it.place(0.dp, top)
-                top += itemHeight + offset
+                it.place(0, top)
+                top += itemHeight.toRoundedPixels() + offset.toRoundedPixels()
             }
         }
     </MeasureBox>

@@ -17,10 +17,15 @@
 package androidx.ui.material.ripple
 
 import androidx.ui.core.Bounds
+import androidx.ui.core.Density
 import androidx.ui.core.Dp
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.Position
+import androidx.ui.core.Px
+import androidx.ui.core.PxBounds
+import androidx.ui.core.PxPosition
+import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BoxShape
@@ -92,7 +97,7 @@ class Ripple(
      * the size of the RECTANGLE provided by [boundsCallback], or the size of
      * the [Ripple] itself.
      */
-    var finalRadius: Dp? = null
+    var finalRadius: Px? = null
     /**
      * The clipping radius of the containing rect.
      *
@@ -111,7 +116,7 @@ class Ripple(
      * returning the target layout argument's bounding box (though
      * slightly more efficient).
      */
-    var boundsCallback: ((LayoutCoordinates) -> Bounds)? = null
+    var boundsCallback: ((LayoutCoordinates) -> PxBounds)? = null
 
     private var effects = mutableSetOf<RippleEffect>()
     private var currentEffect: RippleEffect? = null
@@ -120,8 +125,9 @@ class Ripple(
     private lateinit var rippleSurface: RippleSurfaceOwner
     private lateinit var coordinates: LayoutCoordinates
     private lateinit var theme: RippleTheme
+    private lateinit var density: Density
 
-    private fun createRippleEffect(position: Position): RippleEffect {
+    private fun createRippleEffect(position: PxPosition): RippleEffect {
         val boundsCallback = if (bounded) boundsCallback else null
         val borderRadius = clippingBorderRadius
         val color = theme.colorCallback.invoke(rippleSurface.backgroundColor)
@@ -139,6 +145,7 @@ class Ripple(
             coordinates,
             position,
             color,
+            density,
             shape,
             finalRadius,
             bounded,
@@ -150,7 +157,7 @@ class Ripple(
         return effect
     }
 
-    private fun handleStart(position: Position) {
+    private fun handleStart(position: PxPosition) {
         val effect = createRippleEffect(position)
         effects.add(effect)
         currentEffect = effect
@@ -169,6 +176,10 @@ class Ripple(
 //    }
 
     override fun compose() {
+        <DensityConsumer> density ->
+            this.density = density
+        </DensityConsumer>
+
         // TODO: Rewrite this with use of +state effect. b/124500412
         <OnPositioned> coordinates ->
             this.coordinates = coordinates

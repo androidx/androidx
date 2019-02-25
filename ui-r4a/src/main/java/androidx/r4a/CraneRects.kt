@@ -20,18 +20,17 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.Position
+import androidx.ui.core.PxPosition
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.adapter.Padding
-import androidx.ui.core.div
-import androidx.ui.core.dp
 import androidx.ui.core.adapter.PressGestureDetector
+import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.min
-import androidx.ui.core.minus
-import androidx.ui.core.plus
+import androidx.ui.core.px
+import androidx.ui.core.toRoundedPixels
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.layout.EdgeInsets
@@ -117,15 +116,15 @@ fun Rectangles() {
             <FourQuadrants />
         }
 
-        val size = min(width, height)
+        val size = min(width, height).toRoundedPixels()
         val rectSize = size / 2
         layout(size, size) {
             val placeables = measurables.map {
-                it.measure(Constraints.tightConstraints(rectSize, rectSize))
+                it.measure(Constraints.tightConstraints(rectSize.px, rectSize.px))
             }
-            placeables[0].place(0.dp, 0.dp)
-            placeables[1].place(rectSize, 0.dp)
-            placeables[2].place(0.dp, rectSize)
+            placeables[0].place(0, 0)
+            placeables[1].place(rectSize, 0)
+            placeables[2].place(0, rectSize)
             placeables[3].place(rectSize, rectSize)
         }
     </MeasureBox>
@@ -138,7 +137,7 @@ var pressed = false
 fun CraneRects() {
     <CraneWrapper>
         <Recompose> recompose ->
-            val onPress: (Position) -> Unit = {
+            val onPress: (PxPosition) -> Unit = {
                 pressed = true
                 recompose()
             }

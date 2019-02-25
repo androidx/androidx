@@ -83,45 +83,43 @@ class Text() : Component() {
             val mergedStyle = style.merge(text.style)
             // Make a wrapper to avoid modifying the style on the original element
             val styledText = TextSpan(style = mergedStyle, children = listOf(text))
-            <DensityConsumer> density ->
-                <Semantics
-                    label=text.toString()>
-                    <MeasureBox> constraints, measureOperations ->
-                        val renderParagraph = RenderParagraph(
-                            text = styledText,
-                            textAlign = textAlign,
-                            textDirection = textDirection,
-                            softWrap = softWrap,
-                            overflow = overflow,
-                            textScaleFactor = textScaleFactor,
-                            maxLines = maxLines,
-                            selectionColor = selectionColor
-                        )
+            <Semantics
+                label=text.toString()>
+                <MeasureBox> constraints, measureOperations ->
+                    val renderParagraph = RenderParagraph(
+                        text = styledText,
+                        textAlign = textAlign,
+                        textDirection = textDirection,
+                        softWrap = softWrap,
+                        overflow = overflow,
+                        textScaleFactor = textScaleFactor,
+                        maxLines = maxLines,
+                        selectionColor = selectionColor
+                    )
 
-                        // TODO(Migration/siyamed): This is temporary and should be removed when resource
-                        // system is resolved.
-                        attachContextToFont(styledText, context)
+                    // TODO(Migration/siyamed): This is temporary and should be removed when resource
+                    // system is resolved.
+                    attachContextToFont(styledText, context)
 
-                        val boxConstraints = TextConstraints(
-                            constraints.minWidth.toPx(density),
-                            constraints.maxWidth.toPx(density),
-                            constraints.minHeight.toPx(density),
-                            constraints.maxHeight.toPx(density)
-                        )
-                        renderParagraph.performLayout(boxConstraints)
-                        measureOperations.collect {
-                            <Draw> canvas, parent ->
-                                selection?.let{renderParagraph.paintSelection(canvas, it)}
-                                renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
-                            </Draw>
-                        }
-                        measureOperations.layout(
-                            renderParagraph.width.toDp(density),
-                            renderParagraph.height.toDp(density)
-                        ) {}
-                    </MeasureBox>
-                </Semantics>
-            </DensityConsumer>
+                    val boxConstraints = TextConstraints(
+                        constraints.minWidth.value,
+                        constraints.maxWidth.value,
+                        constraints.minHeight.value,
+                        constraints.maxHeight.value
+                    )
+                    renderParagraph.performLayout(boxConstraints)
+                    measureOperations.collect {
+                        <Draw> canvas, parent ->
+                            selection?.let{renderParagraph.paintSelection(canvas, it)}
+                            renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
+                        </Draw>
+                    }
+                    measureOperations.layout(
+                        renderParagraph.width.px.toRoundedPixels(),
+                        renderParagraph.height.px.toRoundedPixels()
+                    ) {}
+                </MeasureBox>
+            </Semantics>
         </CurrentTextStyleAmbient.Consumer>
     }
 

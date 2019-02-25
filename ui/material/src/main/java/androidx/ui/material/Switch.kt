@@ -53,8 +53,8 @@ fun Switch(checked: Boolean, color: Color? = null) {
                     val colors = +ambient(Colors)
                     <DrawSwitch value density color=(color ?: colors.primary) />
                 }
-                val height = max(constraints.minHeight, min(constraints.maxHeight, minHeight))
-                val width = max(constraints.minWidth, min(constraints.maxWidth, minWidth))
+                val height = max(constraints.minHeight, min(constraints.maxHeight, minHeight.toPx()))
+                val width = max(constraints.minWidth, min(constraints.maxWidth, minWidth.toPx()))
                 layout(width, height) {
                     // no children to place
                 }

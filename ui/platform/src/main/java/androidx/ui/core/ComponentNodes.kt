@@ -326,7 +326,7 @@ class LayoutNode : ComponentNode() {
     /**
      * The constraints used the last time [layout] was called.
      */
-    var constraints: Constraints = Constraints.tightConstraints(0.dp, 0.dp)
+    var constraints: Constraints = Constraints.tightConstraints(0.px, 0.px)
 
     var ref: Ref<LayoutNode>?
         get() = null
@@ -338,21 +338,27 @@ class LayoutNode : ComponentNode() {
     var measureBox: Any? = null
 
     /**
-     * The size of this layout
+     * The width of this layout
      */
-    var size = Size(0.dp, 0.dp)
+    var width = 0
+        private set
+
+    /**
+     * The height of this layout
+     */
+    var height = 0
         private set
 
     /**
      * The horizontal position within the parent of this layout
      */
-    var x = 0.dp
+    var x = 0
         private set
 
     /**
      * The vertical position within the parent of this layout
      */
-    var y = 0.dp
+    var y = 0
         private set
 
     /**
@@ -406,7 +412,7 @@ class LayoutNode : ComponentNode() {
         }
     }
 
-    fun moveTo(x: Dp, y: Dp) {
+    fun moveTo(x: Int, y: Int) {
         if (x != this.x || y != this.y) {
             this.x = x
             this.y = y
@@ -414,9 +420,10 @@ class LayoutNode : ComponentNode() {
         }
     }
 
-    fun resize(width: Dp, height: Dp) {
-        if (width != size.width || height != size.height) {
-            size = Size(width = width, height = height)
+    fun resize(width: Int, height: Int) {
+        if (width != this.width || height != this.height) {
+            this.width = width
+            this.height = height
             owner?.onSizeChange(this)
         }
     }
@@ -481,55 +488,55 @@ class Ref<T>() {
 /**
  * Converts a global position into a local position within this LayoutNode.
  */
-fun LayoutNode.globalToLocal(global: Position): Position {
-    var x: Dp = global.x
-    var y: Dp = global.y
+fun LayoutNode.globalToLocal(global: PxPosition): PxPosition {
+    var x: Px = global.x
+    var y: Px = global.y
     var node: LayoutNode? = this
     while (node != null) {
-        x -= node.x
-        y -= node.y
+        x -= node.x.px
+        y -= node.y.px
         node = node.parentLayoutNode
     }
-    return Position(x, y)
+    return PxPosition(x, y)
 }
 
 /**
  * Converts a local position within this LayoutNode into a global one.
  */
-fun LayoutNode.localToGlobal(local: Position): Position {
-    var x: Dp = local.x
-    var y: Dp = local.y
+fun LayoutNode.localToGlobal(local: PxPosition): PxPosition {
+    var x: Px = local.x
+    var y: Px = local.y
     var node: LayoutNode? = this
     while (node != null) {
-        x += node.x
-        y += node.y
+        x += node.x.px
+        y += node.y.px
         node = node.parentLayoutNode
     }
-    return Position(x, y)
+    return PxPosition(x, y)
 }
 
 /**
  * Converts a child LayoutNode position into a local position within this LayoutNode.
  */
-fun LayoutNode.childToLocal(child: LayoutNode, childLocal: Position): Position {
+fun LayoutNode.childToLocal(child: LayoutNode, childLocal: PxPosition): PxPosition {
     if (child === this) {
         return childLocal
     }
-    var x: Dp = childLocal.x
-    var y: Dp = childLocal.y
+    var x: Px = childLocal.x
+    var y: Px = childLocal.y
     var node: LayoutNode? = child
     while (true) {
         if (node == null) {
             throw IllegalStateException("Current layout is not an ancestor of the provided" +
                     "child layout")
         }
-        x += node.x
-        y += node.y
+        x += node.x.px
+        y += node.y.px
         node = node.parentLayoutNode
         if (node === this) {
             // found the node
             break
         }
     }
-    return Position(x, y)
+    return PxPosition(x, y)
 }

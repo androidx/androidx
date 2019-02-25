@@ -21,6 +21,7 @@ import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
+import androidx.ui.core.toRoundedPixels
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.clip.ClipPath
@@ -128,7 +129,7 @@ internal fun SurfaceMeasureBox(@Children children: () -> Unit) {
 
         val measurables = collect(children)
         layout(width, height) {
-            measurables.forEach { it.measure(constraints).place(0.dp, 0.dp) }
+            measurables.forEach { it.measure(constraints).place(0, 0) }
         }
     </MeasureBox>
 }

@@ -20,13 +20,17 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.Placeable
+import androidx.ui.core.PxSize
 import androidx.ui.core.Size
 import androidx.ui.core.dp
 import androidx.ui.core.max
 import androidx.ui.core.minus
+import androidx.ui.core.px
+import androidx.ui.core.toRoundedPixels
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
+import kotlin.math.max
 
 /**
  * Collects information about the children of a [Stack] when its body is executed
@@ -99,7 +103,7 @@ fun Stack(
         (0 until children.size).filter { i -> !children[i].positioned }.forEach { i ->
            collect(children[i].children).map { measurable ->
                measurable.measure(
-                   Constraints(0.dp, constraints.maxWidth, 0.dp, constraints.maxHeight)
+                   Constraints(0.px, constraints.maxWidth, 0.px, constraints.maxHeight)
                )
            }.also {
                placeables[i] = it
@@ -107,33 +111,35 @@ fun Stack(
         }
 
         val (stackWidth, stackHeight) = with(placeables.filterNotNull().flatten()) {
-            Pair(max(maxBy { it.width.value }?.width ?: 0.dp, constraints.minWidth),
-                max(maxBy { it.height.value }?.height ?: 0.dp, constraints.minHeight))
+            Pair(max(maxBy { it.width }?.width ?: 0, constraints.minWidth.toRoundedPixels()),
+                max(maxBy { it.height }?.height ?: 0, constraints.minHeight.toRoundedPixels()))
         }
 
         // Now measure positioned children.
         (0 until children.size).filter { i -> children[i].positioned }.forEach { i ->
             val stackChild = children[i]
             // Obtain width constraints.
-            val childMaxWidth = stackWidth -
-                    (stackChild.leftInset ?: 0.dp) - (stackChild.rightInset ?: 0.dp)
+            val childMaxWidth =
+                stackWidth - ((stackChild.leftInset ?: 0.dp) - (stackChild.rightInset
+                    ?: 0.dp)).toRoundedPixels()
             val childMinWidth = if (stackChild.leftInset != null && stackChild.rightInset != null) {
                 childMaxWidth
             } else  {
-                0.dp
+                0
             }
             // Obtain height constraints.
-            val childMaxHeight = stackHeight -
-                    (stackChild.topInset ?: 0.dp) - (stackChild.bottomInset ?: 0.dp)
+            val childMaxHeight =
+                stackHeight - ((stackChild.topInset ?: 0.dp) - (stackChild.bottomInset
+                    ?: 0.dp)).toRoundedPixels()
             val childMinHeight = if (stackChild.topInset != null && stackChild.bottomInset != null)
             {
                 childMaxHeight
             } else {
-                0.dp
+                0
             }
             collect(stackChild.children).map { measurable ->
                 measurable.measure(Constraints(
-                    childMinWidth, childMaxWidth, childMinHeight, childMaxHeight
+                    childMinWidth.px, childMaxWidth.px, childMinHeight.px, childMaxHeight.px
                 ))
             }.also {
                 placeables[i] = it
@@ -147,30 +153,39 @@ fun Stack(
                 if (!stackChild.positioned) {
                     placeables[i]?.forEach { placeable ->
                         val position = (stackChild.alignment ?: defaultAlignment).align(
-                            Size(stackWidth - placeable.width, stackHeight - placeable.height)
+                            PxSize(
+                                (stackWidth - placeable.width).px,
+                                (stackHeight - placeable.height).px
+                            )
                         )
                         placeable.place(position.x, position.y)
                     }
                 } else {
                     placeables[i]?.forEach { placeable ->
                         val x = if (stackChild.leftInset != null) {
-                            stackChild.leftInset
+                            stackChild.leftInset.toRoundedPixels()
                         } else if (stackChild.rightInset != null) {
-                            stackWidth - stackChild.rightInset - placeable.width
+                            stackWidth - stackChild.rightInset.toRoundedPixels() - placeable.width
                         } else {
                             (stackChild.alignment ?: defaultAlignment).align(
-                                Size(stackWidth - placeable.width, stackHeight - placeable.height)
-                            ).x
+                                PxSize(
+                                    (stackWidth - placeable.width).px,
+                                    (stackHeight - placeable.height).px
+                                )
+                            ).x.toRoundedPixels()
                         }
 
                         val y = if (stackChild.topInset != null) {
-                            stackChild.topInset
+                            stackChild.topInset.toRoundedPixels()
                         } else if (stackChild.bottomInset != null) {
-                            stackHeight - stackChild.bottomInset - placeable.height
+                            stackHeight - stackChild.bottomInset.toRoundedPixels() - placeable.height
                         } else {
                             (stackChild.alignment ?: defaultAlignment).align(
-                                Size(stackWidth - placeable.width, stackHeight - placeable.height)
-                            ).y
+                                PxSize(
+                                    (stackWidth - placeable.width).px,
+                                    (stackHeight - placeable.height).px
+                                )
+                            ).y.toRoundedPixels()
                         }
                         placeable.place(x, y)
                     }

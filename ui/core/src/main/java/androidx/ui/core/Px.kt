@@ -17,9 +17,11 @@
 
 package androidx.ui.core
 
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.lerp
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
@@ -197,6 +199,12 @@ data /*inline*/ class Px(val value: Float) {
 fun lerp(a: Px, b: Px, t: Float): Px {
     return Px(lerp(a.value, b.value, t))
 }
+
+/**
+ * Round to the nearest whole pixel and return [Int] pixels. This is a useful
+ * method for layout and drawing.
+ */
+fun Px.toRoundedPixels(): Int = value.roundToInt()
 
 /**
  * Holds a unit of squared dimensions, such as `1.value * 2.px`. [PxSquared], [PxCubed],
@@ -460,4 +468,24 @@ val PxBounds.height: Px get() = bottom - top
  */
 fun PxBounds.toSize(): PxSize {
     return PxSize(width, height)
+}
+
+/**
+ * Convert a [PxSize] to a [PxBounds]. The left and top are 0.px and the right and bottom
+ * are the width and height, respectively.
+ */
+fun PxSize.toBounds(): PxBounds {
+    return PxBounds(0.px, 0.px, width, height)
+}
+
+/**
+ * Convert a [PxBounds] to a [Rect].
+ */
+fun PxBounds.toRect(): Rect {
+    return Rect(
+        left.value,
+        top.value,
+        right.value,
+        bottom.value
+    )
 }

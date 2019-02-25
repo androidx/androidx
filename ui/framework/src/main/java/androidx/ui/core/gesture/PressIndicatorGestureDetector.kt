@@ -19,6 +19,7 @@ package androidx.ui.core.gesture
 import androidx.ui.core.DensityConsumer
 import androidx.ui.core.PointerInput
 import androidx.ui.core.Position
+import androidx.ui.core.PxPosition
 import androidx.ui.core.pointerinput.PointerEventPass
 import androidx.ui.core.pointerinput.PointerInputChange
 import androidx.ui.core.pointerinput.anyPositionChangeConsumed
@@ -26,6 +27,7 @@ import androidx.ui.core.pointerinput.changedToDown
 import androidx.ui.core.pointerinput.changedToDownIgnoreConsumed
 import androidx.ui.core.pointerinput.changedToUpIgnoreConsumed
 import androidx.ui.core.pointerinput.consumeDownChange
+import androidx.ui.core.px
 import androidx.ui.core.toDp
 import androidx.ui.engine.geometry.Offset
 import com.google.r4a.Children
@@ -54,7 +56,7 @@ import com.google.r4a.composer
 class PressIndicatorGestureDetector(
     @Children var children: () -> Unit
 ) : Component() {
-    var onStart: ((Position) -> Unit)? = null
+    var onStart: ((PxPosition) -> Unit)? = null
     var onStop: (() -> Unit)?
         get() = recognizer.onStop
         set(value) {
@@ -73,16 +75,14 @@ class PressIndicatorGestureDetector(
         // TODO(shepshapard): This logic needs to be tested.
         // TODO(shepshapard): Once effects are ready, remove this mutation in compose and access
         // the density with an effect.
-        <DensityConsumer> density ->
-            recognizer.onStart = onStart?.run {
-                { offset ->
-                    invoke(Position(offset.dx.toDp(density), offset.dy.toDp(density)))
-                }
+        recognizer.onStart = onStart?.run {
+            { offset ->
+                invoke(PxPosition(offset.dx.px, offset.dy.px))
             }
-            <PointerInput pointerInputHandler=recognizer.pointerInputHandler>
-                <children />
-            </PointerInput>
-        </DensityConsumer>
+        }
+        <PointerInput pointerInputHandler=recognizer.pointerInputHandler>
+            <children />
+        </PointerInput>
     }
 }
 

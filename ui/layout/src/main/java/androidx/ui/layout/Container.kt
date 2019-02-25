@@ -19,6 +19,9 @@ package androidx.ui.layout
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
+import androidx.ui.core.adapter.DensityConsumer
+import androidx.ui.core.px
+import androidx.ui.core.toPx
 import androidx.ui.core.withTight
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
@@ -94,13 +97,19 @@ fun Container(
     }
 
     if (constraints != null || width != null || height != null) {
-        val additionalConstraints = (constraints ?: Constraints()).withTight(width, height)
-        val childContainer = container
-        container = @Composable {
-            <ConstrainedBox additionalConstraints>
-                <childContainer />
-            </ConstrainedBox>
-        }
+        <DensityConsumer> density ->
+            val additionalConstraints =
+                (constraints ?: Constraints()).withTight(
+                    width?.toPx(density)?.px,
+                    height?.toPx(density)?.px
+                )
+            val childContainer = container
+            container = @Composable {
+                <ConstrainedBox additionalConstraints>
+                    <childContainer />
+                </ConstrainedBox>
+            }
+        </DensityConsumer>
     }
 
     if (margin != null) {

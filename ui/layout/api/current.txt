@@ -9,7 +9,7 @@ package androidx.ui.layout {
 
   public final class Alignment {
     ctor public Alignment(float verticalBias, float horizontalBias);
-    method public androidx.ui.core.Position align(androidx.ui.core.Size size);
+    method public androidx.ui.core.PxPosition align(androidx.ui.core.PxSize size);
     method public float component1();
     method public float component2();
     method public androidx.ui.layout.Alignment copy(float verticalBias, float horizontalBias);
