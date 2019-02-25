@@ -1,0 +1,15 @@
+// Signature format: 3.0
+package androidx.sharetarget {
+
+  @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ChooserTargetServiceCompat extends android.service.chooser.ChooserTargetService {
+    ctor public ChooserTargetServiceCompat();
+    method public java.util.List<android.service.chooser.ChooserTarget>! onGetChooserTargets(android.content.ComponentName!, android.content.IntentFilter!);
+  }
+
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ShortcutInfoCompatSaverImpl extends androidx.core.content.pm.ShortcutInfoCompatSaver {
+    method @AnyThread public static androidx.sharetarget.ShortcutInfoCompatSaverImpl! getInstance(android.content.Context!);
+    method @WorkerThread public androidx.core.graphics.drawable.IconCompat! getShortcutIcon(String!) throws java.lang.Exception;
+  }
+
+}
+

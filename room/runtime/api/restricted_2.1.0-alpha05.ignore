@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.room.DatabaseConfiguration#DatabaseConfiguration(android.content.Context, String, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>, boolean, androidx.room.RoomDatabase.JournalMode, java.util.concurrent.Executor, boolean, java.util.Set<java.lang.Integer>):
+    Removed constructor androidx.room.DatabaseConfiguration(android.content.Context,String,androidx.sqlite.db.SupportSQLiteOpenHelper.Factory,androidx.room.RoomDatabase.MigrationContainer,java.util.List<androidx.room.RoomDatabase.Callback>,boolean,androidx.room.RoomDatabase.JournalMode,java.util.concurrent.Executor,boolean,java.util.Set<java.lang.Integer>)
+
+

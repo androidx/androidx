@@ -1,0 +1,16 @@
+// Signature format: 3.0
+package androidx.work {
+
+  @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public enum DirectExecutor {
+    ctor protected DirectExecutor();
+    method public void execute(Runnable);
+    method public String toString();
+    enum_constant public static final androidx.work.DirectExecutor INSTANCE;
+  }
+
+  public final class ListenableFutureKt {
+    method @RestrictTo({android.support.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static <R> Object? await(com.google.common.util.concurrent.ListenableFuture<R>, kotlin.coroutines.Continuation<? super R>);
+  }
+
+}
+

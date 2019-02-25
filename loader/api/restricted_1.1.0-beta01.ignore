@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+DeprecationMismatch: androidx.loader.content.AsyncTaskLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]):
+    Method androidx.loader.content.AsyncTaskLoader.dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.loader.content.CursorLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]):
+    Method androidx.loader.content.CursorLoader.dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+
+

@@ -1,0 +1,212 @@
+// Signature format: 3.0
+package androidx.wear.ambient {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class WearableControllerProvider {
+    ctor public WearableControllerProvider();
+    method public com.google.android.wearable.compat.WearableActivityController! getWearableController(android.app.Activity!, androidx.wear.ambient.AmbientDelegate.AmbientCallback!);
+  }
+
+}
+
+package androidx.wear.internal.widget {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final class ResourcesUtil {
+    method public static int getFractionOfScreenPx(android.content.Context!, int, @FractionRes int);
+    method public static int getScreenHeightPx(android.content.Context!);
+    method public static int getScreenWidthPx(android.content.Context!);
+  }
+
+}
+
+package androidx.wear.internal.widget.drawer {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class MultiPagePresenter extends androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter {
+    ctor public MultiPagePresenter(androidx.wear.widget.drawer.WearableNavigationDrawerView!, androidx.wear.internal.widget.drawer.MultiPagePresenter.Ui!, boolean);
+    method public void onDataSetChanged();
+    method public boolean onDrawerTapped();
+    method public void onNewAdapter(androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter!);
+    method public void onSelected(int);
+    method public void onSetCurrentItemRequested(int, boolean);
+  }
+
+  public static interface MultiPagePresenter.Ui {
+    method public void initialize(androidx.wear.widget.drawer.WearableNavigationDrawerView!, androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter!);
+    method public void notifyNavigationPagerAdapterDataChanged();
+    method public void notifyPageIndicatorDataChanged();
+    method public void setNavigationPagerAdapter(androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter!);
+    method public void setNavigationPagerSelectedItem(int, boolean);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class MultiPageUi implements androidx.wear.internal.widget.drawer.MultiPagePresenter.Ui {
+    ctor public MultiPageUi();
+    method public void initialize(androidx.wear.widget.drawer.WearableNavigationDrawerView!, androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter!);
+    method public void notifyNavigationPagerAdapterDataChanged();
+    method public void notifyPageIndicatorDataChanged();
+    method public void setNavigationPagerAdapter(androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter!);
+    method public void setNavigationPagerSelectedItem(int, boolean);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class SinglePagePresenter extends androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter {
+    ctor public SinglePagePresenter(androidx.wear.internal.widget.drawer.SinglePagePresenter.Ui!, boolean);
+    method public void onDataSetChanged();
+    method public boolean onDrawerTapped();
+    method public void onNewAdapter(androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter!);
+    method public void onSelected(int);
+    method public void onSetCurrentItemRequested(int, boolean);
+  }
+
+  public static interface SinglePagePresenter.Ui {
+    method public void closeDrawerDelayed(long);
+    method public void deselectItem(int);
+    method public void initialize(int);
+    method public void peekDrawer();
+    method public void selectItem(int);
+    method public void setIcon(int, android.graphics.drawable.Drawable!, CharSequence!);
+    method public void setPresenter(androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter!);
+    method public void setText(CharSequence!, boolean);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class SinglePageUi implements androidx.wear.internal.widget.drawer.SinglePagePresenter.Ui {
+    ctor public SinglePageUi(androidx.wear.widget.drawer.WearableNavigationDrawerView!);
+    method public void closeDrawerDelayed(long);
+    method public void deselectItem(int);
+    method public void initialize(int);
+    method public void peekDrawer();
+    method public void selectItem(int);
+    method public void setIcon(int, android.graphics.drawable.Drawable!, CharSequence!);
+    method public void setPresenter(androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter!);
+    method public void setText(CharSequence!, boolean);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public abstract class WearableNavigationDrawerPresenter {
+    ctor public WearableNavigationDrawerPresenter();
+    method @MainThread public abstract void onDataSetChanged();
+    method @MainThread public abstract boolean onDrawerTapped();
+    method @MainThread public void onItemSelectedListenerAdded(androidx.wear.widget.drawer.WearableNavigationDrawerView.OnItemSelectedListener!);
+    method @MainThread public void onItemSelectedListenerRemoved(androidx.wear.widget.drawer.WearableNavigationDrawerView.OnItemSelectedListener!);
+    method @MainThread public abstract void onNewAdapter(androidx.wear.widget.drawer.WearableNavigationDrawerView.WearableNavigationDrawerAdapter!);
+    method @MainThread public abstract void onSelected(int);
+    method @MainThread public abstract void onSetCurrentItemRequested(int, boolean);
+  }
+
+}
+
+package androidx.wear.widget {
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static @interface BoxInsetLayout.LayoutParams.BoxedEdges {
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class CircledImageView {
+    ctor public CircledImageView(android.content.Context!);
+    ctor public CircledImageView(android.content.Context!, android.util.AttributeSet!);
+    ctor public CircledImageView(android.content.Context!, android.util.AttributeSet!, int);
+    method protected void drawableStateChanged();
+    method public android.content.res.ColorStateList! getCircleColorStateList();
+    method public float getCircleRadius();
+    method public float getCircleRadiusPercent();
+    method public float getCircleRadiusPressed();
+    method public float getCircleRadiusPressedPercent();
+    method public long getColorChangeAnimationDuration();
+    method public int getDefaultCircleColor();
+    method public android.graphics.drawable.Drawable! getImageDrawable();
+    method public float getInitialCircleRadius();
+    method protected void onDraw(android.graphics.Canvas!);
+    method protected void onLayout(boolean, int, int, int, int);
+    method protected void onMeasure(int, int);
+    method protected boolean onSetAlpha(int);
+    method public void onSizeChanged(int, int, int, int);
+    method protected void onVisibilityChanged(android.view.View!, int);
+    method protected void onWindowVisibilityChanged(int);
+    method public void setCircleBorderCap(android.graphics.Paint.Cap!);
+    method public void setCircleBorderColor(int);
+    method public void setCircleBorderWidth(float);
+    method public void setCircleColor(int);
+    method public void setCircleColorStateList(android.content.res.ColorStateList!);
+    method public void setCircleHidden(boolean);
+    method public void setCircleRadius(float);
+    method public void setCircleRadiusPercent(float);
+    method public void setCircleRadiusPressed(float);
+    method public void setCircleRadiusPressedPercent(float);
+    method public void setColorChangeAnimationDuration(long);
+    method public void setImageCirclePercentage(float);
+    method public void setImageDrawable(android.graphics.drawable.Drawable!);
+    method public void setImageHorizontalOffcenterPercentage(float);
+    method public void setImageResource(int);
+    method public void setImageTint(int);
+    method public void setPadding(@Px int, @Px int, @Px int, @Px int);
+    method public void setPressed(boolean);
+    method public void setProgress(float);
+    method public void setShadowVisibility(float);
+    method public void showIndeterminateProgress(boolean);
+  }
+
+  public class ConfirmationOverlay {
+    method @MainThread @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @VisibleForTesting public void hide();
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class SimpleAnimatorListener {
+    ctor public SimpleAnimatorListener();
+    method public void onAnimationCancel(android.animation.Animator!);
+    method public void onAnimationComplete(android.animation.Animator!);
+    method public void onAnimationEnd(android.animation.Animator!);
+    method public void onAnimationRepeat(android.animation.Animator!);
+    method public void onAnimationStart(android.animation.Animator!);
+    method public boolean wasCanceled();
+  }
+
+}
+
+package androidx.wear.widget.drawer {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class PageIndicatorView {
+    ctor public PageIndicatorView(android.content.Context!);
+    ctor public PageIndicatorView(android.content.Context!, android.util.AttributeSet!);
+    ctor public PageIndicatorView(android.content.Context!, android.util.AttributeSet!, int);
+    method public int getDotColor();
+    method public int getDotColorSelected();
+    method public int getDotFadeInDuration();
+    method public int getDotFadeOutDelay();
+    method public int getDotFadeOutDuration();
+    method public boolean getDotFadeWhenIdle();
+    method public float getDotRadius();
+    method public float getDotRadiusSelected();
+    method public int getDotShadowColor();
+    method public float getDotShadowDx();
+    method public float getDotShadowDy();
+    method public float getDotShadowRadius();
+    method public float getDotSpacing();
+    method public void notifyDataSetChanged();
+    method protected void onDraw(android.graphics.Canvas!);
+    method protected void onMeasure(int, int);
+    method public void onPageScrollStateChanged(int);
+    method public void onPageScrolled(int, float, int);
+    method public void onPageSelected(int);
+    method public void setDotColor(int);
+    method public void setDotColorSelected(int);
+    method public void setDotFadeInDuration(int, java.util.concurrent.TimeUnit!);
+    method public void setDotFadeOutDelay(int);
+    method public void setDotFadeOutDuration(int, java.util.concurrent.TimeUnit!);
+    method public void setDotFadeWhenIdle(boolean);
+    method public void setDotRadius(int);
+    method public void setDotRadiusSelected(int);
+    method public void setDotShadowColor(int);
+    method public void setDotShadowDx(float);
+    method public void setDotShadowDy(float);
+    method public void setDotShadowRadius(float);
+    method public void setDotSpacing(int);
+    method public void setPager(androidx.viewpager.widget.ViewPager!);
+    method public void setPagerAdapter(androidx.viewpager.widget.PagerAdapter!);
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static @interface WearableDrawerView.DrawerState {
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static @interface WearableNavigationDrawerView.NavigationStyle {
+  }
+
+  public abstract static class WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public void setPresenter(androidx.wear.internal.widget.drawer.WearableNavigationDrawerPresenter!);
+  }
+
+}
+

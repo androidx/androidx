@@ -1,0 +1,79 @@
+// Baseline format: 1.0
+HiddenTypeParameter: androidx.work.impl.WorkDatabase#dependencyDao():
+    Method androidx.work.impl.WorkDatabase.dependencyDao() references hidden type androidx.work.impl.model.DependencyDao.
+HiddenTypeParameter: androidx.work.impl.WorkDatabase#systemIdInfoDao():
+    Method androidx.work.impl.WorkDatabase.systemIdInfoDao() references hidden type androidx.work.impl.model.SystemIdInfoDao.
+HiddenTypeParameter: androidx.work.impl.WorkDatabase#workNameDao():
+    Method androidx.work.impl.WorkDatabase.workNameDao() references hidden type androidx.work.impl.model.WorkNameDao.
+HiddenTypeParameter: androidx.work.impl.WorkDatabase#workSpecDao():
+    Method androidx.work.impl.WorkDatabase.workSpecDao() references hidden type androidx.work.impl.model.WorkSpecDao.
+HiddenTypeParameter: androidx.work.impl.WorkDatabase#workTagDao():
+    Method androidx.work.impl.WorkDatabase.workTagDao() references hidden type androidx.work.impl.model.WorkTagDao.
+HiddenTypeParameter: androidx.work.impl.background.greedy.GreedyScheduler#GreedyScheduler(androidx.work.impl.WorkManagerImpl, androidx.work.impl.constraints.WorkConstraintsTracker) parameter #1:
+    Parameter workConstraintsTracker references hidden type androidx.work.impl.constraints.WorkConstraintsTracker.
+HiddenTypeParameter: androidx.work.impl.background.systemjob.SystemJobScheduler#SystemJobScheduler(android.content.Context, androidx.work.impl.WorkManagerImpl, android.app.job.JobScheduler, androidx.work.impl.background.systemjob.SystemJobInfoConverter) parameter #3:
+    Parameter systemJobInfoConverter references hidden type androidx.work.impl.background.systemjob.SystemJobInfoConverter.
+HiddenTypeParameter: androidx.work.impl.constraints.trackers.ConstraintTracker#addListener(androidx.work.impl.constraints.ConstraintListener<T>) parameter #0:
+    Parameter listener references hidden type androidx.work.impl.constraints.ConstraintListener<T>.
+HiddenTypeParameter: androidx.work.impl.constraints.trackers.ConstraintTracker#removeListener(androidx.work.impl.constraints.ConstraintListener<T>) parameter #0:
+    Parameter listener references hidden type androidx.work.impl.constraints.ConstraintListener<T>.
+HiddenTypeParameter: androidx.work.impl.constraints.trackers.NetworkStateTracker#getInitialState():
+    Method androidx.work.impl.constraints.trackers.NetworkStateTracker.getInitialState() references hidden type androidx.work.impl.constraints.NetworkState.
+
+
+ReferencesHidden: androidx.work.impl.WorkDatabase#dependencyDao():
+    Class androidx.work.impl.model.DependencyDao is hidden but was referenced (as return type) from public method androidx.work.impl.WorkDatabase.dependencyDao()
+ReferencesHidden: androidx.work.impl.WorkDatabase#systemIdInfoDao():
+    Class androidx.work.impl.model.SystemIdInfoDao is hidden but was referenced (as return type) from public method androidx.work.impl.WorkDatabase.systemIdInfoDao()
+ReferencesHidden: androidx.work.impl.WorkDatabase#workNameDao():
+    Class androidx.work.impl.model.WorkNameDao is hidden but was referenced (as return type) from public method androidx.work.impl.WorkDatabase.workNameDao()
+ReferencesHidden: androidx.work.impl.WorkDatabase#workSpecDao():
+    Class androidx.work.impl.model.WorkSpecDao is hidden but was referenced (as return type) from public method androidx.work.impl.WorkDatabase.workSpecDao()
+ReferencesHidden: androidx.work.impl.WorkDatabase#workTagDao():
+    Class androidx.work.impl.model.WorkTagDao is hidden but was referenced (as return type) from public method androidx.work.impl.WorkDatabase.workTagDao()
+ReferencesHidden: androidx.work.impl.background.greedy.GreedyScheduler#GreedyScheduler(androidx.work.impl.WorkManagerImpl, androidx.work.impl.constraints.WorkConstraintsTracker) parameter #1:
+    Class androidx.work.impl.constraints.WorkConstraintsTracker is hidden but was referenced (as parameter type) from public parameter workConstraintsTracker in androidx.work.impl.background.greedy.GreedyScheduler(androidx.work.impl.WorkManagerImpl workManagerImpl, androidx.work.impl.constraints.WorkConstraintsTracker workConstraintsTracker)
+ReferencesHidden: androidx.work.impl.background.systemjob.SystemJobScheduler#SystemJobScheduler(android.content.Context, androidx.work.impl.WorkManagerImpl, android.app.job.JobScheduler, androidx.work.impl.background.systemjob.SystemJobInfoConverter) parameter #3:
+    Class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not public but was referenced (as parameter type) from public parameter systemJobInfoConverter in androidx.work.impl.background.systemjob.SystemJobScheduler(android.content.Context context, androidx.work.impl.WorkManagerImpl workManager, android.app.job.JobScheduler jobScheduler, androidx.work.impl.background.systemjob.SystemJobInfoConverter systemJobInfoConverter)
+ReferencesHidden: androidx.work.impl.constraints.trackers.ConstraintTracker#addListener(androidx.work.impl.constraints.ConstraintListener<T>) parameter #0:
+    Class androidx.work.impl.constraints.ConstraintListener is hidden but was referenced (as parameter type) from public parameter listener in androidx.work.impl.constraints.trackers.ConstraintTracker.addListener(androidx.work.impl.constraints.ConstraintListener<T> listener)
+ReferencesHidden: androidx.work.impl.constraints.trackers.ConstraintTracker#removeListener(androidx.work.impl.constraints.ConstraintListener<T>) parameter #0:
+    Class androidx.work.impl.constraints.ConstraintListener is hidden but was referenced (as parameter type) from public parameter listener in androidx.work.impl.constraints.trackers.ConstraintTracker.removeListener(androidx.work.impl.constraints.ConstraintListener<T> listener)
+ReferencesHidden: androidx.work.impl.constraints.trackers.NetworkStateTracker#getInitialState():
+    Class androidx.work.impl.constraints.NetworkState is hidden but was referenced (as return type) from public method androidx.work.impl.constraints.trackers.NetworkStateTracker.getInitialState()
+
+
+RemovedClass: androidx.work.impl.WorkDatabase_Impl:
+    Removed class androidx.work.impl.WorkDatabase_Impl
+
+
+RemovedInterface: androidx.work.impl.background.greedy.GreedyScheduler:
+    Class androidx.work.impl.background.greedy.GreedyScheduler no longer implements androidx.work.impl.constraints.WorkConstraintsCallback
+RemovedInterface: androidx.work.impl.background.systemalarm.DelayMetCommandHandler:
+    Class androidx.work.impl.background.systemalarm.DelayMetCommandHandler no longer implements androidx.work.impl.constraints.WorkConstraintsCallback
+RemovedInterface: androidx.work.impl.workers.ConstraintTrackingWorker:
+    Class androidx.work.impl.workers.ConstraintTrackingWorker no longer implements androidx.work.impl.constraints.WorkConstraintsCallback
+
+
+RemovedMethod: androidx.work.impl.WorkManagerImpl#rescheduleEligibleWork():
+    Removed method androidx.work.impl.WorkManagerImpl.rescheduleEligibleWork()
+
+
+UnavailableSymbol: androidx.work.impl.WorkDatabase#dependencyDao():
+    Method androidx.work.impl.WorkDatabase.dependencyDao returns unavailable type DependencyDao
+UnavailableSymbol: androidx.work.impl.WorkDatabase#systemIdInfoDao():
+    Method androidx.work.impl.WorkDatabase.systemIdInfoDao returns unavailable type SystemIdInfoDao
+UnavailableSymbol: androidx.work.impl.WorkDatabase#workNameDao():
+    Method androidx.work.impl.WorkDatabase.workNameDao returns unavailable type WorkNameDao
+UnavailableSymbol: androidx.work.impl.WorkDatabase#workSpecDao():
+    Method androidx.work.impl.WorkDatabase.workSpecDao returns unavailable type WorkSpecDao
+UnavailableSymbol: androidx.work.impl.WorkDatabase#workTagDao():
+    Method androidx.work.impl.WorkDatabase.workTagDao returns unavailable type WorkTagDao
+UnavailableSymbol: androidx.work.impl.constraints.trackers.ConstraintTracker#addListener(androidx.work.impl.constraints.ConstraintListener<T>):
+    Parameter of unavailable type androidx.work.impl.constraints.ConstraintListener<T> in androidx.work.impl.constraints.trackers.ConstraintTracker.addListener()
+UnavailableSymbol: androidx.work.impl.constraints.trackers.ConstraintTracker#removeListener(androidx.work.impl.constraints.ConstraintListener<T>):
+    Parameter of unavailable type androidx.work.impl.constraints.ConstraintListener<T> in androidx.work.impl.constraints.trackers.ConstraintTracker.removeListener()
+UnavailableSymbol: androidx.work.impl.constraints.trackers.NetworkStateTracker#getInitialState():
+    Method androidx.work.impl.constraints.trackers.NetworkStateTracker.getInitialState returns unavailable type NetworkState
+
+
