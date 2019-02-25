@@ -95,14 +95,15 @@ class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
 // region test definitions
 
 private fun createTestSet(): List<TestConfig> {
-    return listOf(
-            fragmentAdapterProvider to ORIENTATION_HORIZONTAL,
-            fragmentAdapterProvider to ORIENTATION_VERTICAL,
-            fragmentAdapterProviderCustomIds to ORIENTATION_HORIZONTAL,
-            fragmentAdapterProviderCustomIds to ORIENTATION_VERTICAL,
-            viewAdapterProvider to ORIENTATION_HORIZONTAL,
-            viewAdapterProvider to ORIENTATION_VERTICAL)
-            .flatMap { (activity, orientation) -> createTestSet(activity, orientation) }
+    return listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).flatMap { orientation ->
+        listOf(
+            fragmentAdapterProvider,
+            fragmentAdapterProviderCustomIds,
+            viewAdapterProvider
+        ).flatMap { activity ->
+            createTestSet(activity, orientation)
+        }
+    }
 }
 
 private fun createTestSet(
