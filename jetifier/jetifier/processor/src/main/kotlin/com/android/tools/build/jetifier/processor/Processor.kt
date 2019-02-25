@@ -110,7 +110,11 @@ class Processor private constructor(
                     reversedRestrictToPackagePrefixes = config.restrictToPackagePrefixes,
                     rulesMap = config.rulesMap.reverse().appendRules(config.slRules),
                     slRules = config.slRules,
-                    pomRewriteRules = config.pomRewriteRules.map { it.getReversed() }.toSet(),
+                    pomRewriteRules = config.pomRewriteRules
+                        // Remove uiautomator-v18 from the reversed version
+                        .filterNot { it.from.artifactId == "uiautomator-v18" }
+                        .map { it.getReversed() }
+                        .toSet(),
                     typesMap = config.typesMap.reverseMapOrDie(),
                     proGuardMap = config.proGuardMap.reverseMap(),
                     versionsMap = config.versionsMap,
