@@ -16,7 +16,7 @@
 
 package androidx.ui.engine.geometry
 
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 import androidx.ui.toStringAsFixed
 import kotlin.math.absoluteValue
 
@@ -345,9 +345,9 @@ data class Rect(
  */
 fun lerp(a: Rect, b: Rect, t: Float): Rect {
     return Rect.fromLTRB(
-        lerpFloat(a.left, b.left, t),
-        lerpFloat(a.top, b.top, t),
-        lerpFloat(a.right, b.right, t),
-        lerpFloat(a.bottom, b.bottom, t)
+        lerp(a.left, b.left, t),
+        lerp(a.top, b.top, t),
+        lerp(a.right, b.right, t),
+        lerp(a.bottom, b.bottom, t)
     )
 }

@@ -16,7 +16,7 @@
 
 package androidx.ui.engine.geometry
 
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 import androidx.ui.toStringAsFixed
 import kotlin.math.atan2
 import kotlin.math.sqrt
@@ -93,7 +93,7 @@ data class Offset(override val dx: Float, override val dy: Float) : OffsetBase {
 //                return b * t
 //            if (b == null)
 //                return a * (1.0 - t)
-            return Offset(lerpFloat(a.dx, b.dx, t), lerpFloat(a.dy, b.dy, t))
+            return Offset(lerp(a.dx, b.dx, t), lerp(a.dy, b.dy, t))
         }
 
         fun isValid(offset: Offset): Boolean {

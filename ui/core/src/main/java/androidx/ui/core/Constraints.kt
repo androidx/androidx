@@ -44,8 +44,8 @@ data class Constraints(
     val maxHeight: Dp = Dp.Infinity
 ) {
     init {
-        assert(minWidth.dp.isFinite())
-        assert(minHeight.dp.isFinite())
+        assert(minWidth.value.isFinite())
+        assert(minHeight.value.isFinite())
     }
 
     companion object {
@@ -81,13 +81,13 @@ data class Constraints(
  * Whether or not the upper bound on the maximum height.
  * @see hasBoundedWidth
  */
-val Constraints.hasBoundedHeight get() = maxHeight.dp.isFinite()
+val Constraints.hasBoundedHeight get() = maxHeight.value.isFinite()
 
 /**
  * Whether or not the upper bound on the maximum width.
  * @see hasBoundedHeight
  */
-val Constraints.hasBoundedWidth get() = maxWidth.dp.isFinite()
+val Constraints.hasBoundedWidth get() = maxWidth.value.isFinite()
 
 /**
  * Whether there is exactly one size that satisfies the constraints.

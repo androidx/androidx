@@ -5,7 +5,7 @@ import androidx.ui.clamp
 import androidx.ui.engine.geometry.Size
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.assertions.InformationCollector
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 import androidx.ui.rendering.obj.Constraints
 import androidx.ui.toStringAsFixed
 import androidx.ui.truncDiv
@@ -199,14 +199,14 @@ data class BoxConstraints(
                             b.maxHeight == Float.POSITIVE_INFINITY)
             ) { "Cannot interpolate between finite constraints and unbounded constraints." }
             return BoxConstraints(
-                    minWidth = if (a.minWidth.isFinite()) lerpFloat(a.minWidth, b.minWidth,
-                            t) else Float.POSITIVE_INFINITY,
-                    maxWidth = if (a.maxWidth.isFinite()) lerpFloat(a.maxWidth, b.maxWidth,
-                            t) else Float.POSITIVE_INFINITY,
-                    minHeight = if (a.minHeight.isFinite()) lerpFloat(a.minHeight, b.minHeight,
-                            t) else Float.POSITIVE_INFINITY,
-                    maxHeight = if (a.maxHeight.isFinite()) lerpFloat(a.maxHeight, b.maxHeight,
-                            t) else Float.POSITIVE_INFINITY
+                    minWidth = if (a.minWidth.isFinite()) lerp(a.minWidth, b.minWidth,
+                        t) else Float.POSITIVE_INFINITY,
+                    maxWidth = if (a.maxWidth.isFinite()) lerp(a.maxWidth, b.maxWidth,
+                        t) else Float.POSITIVE_INFINITY,
+                    minHeight = if (a.minHeight.isFinite()) lerp(a.minHeight, b.minHeight,
+                        t) else Float.POSITIVE_INFINITY,
+                    maxHeight = if (a.maxHeight.isFinite()) lerp(a.maxHeight, b.maxHeight,
+                        t) else Float.POSITIVE_INFINITY
             )
         }
     }

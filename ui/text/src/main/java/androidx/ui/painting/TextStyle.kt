@@ -37,7 +37,7 @@ import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.MessageProperty
 import androidx.ui.foundation.diagnostics.StringProperty
 import androidx.ui.foundation.diagnostics.describeIdentity*/
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 import androidx.ui.painting.basictypes.RenderComparison
 import androidx.ui.toStringAsFixed
 
@@ -321,29 +321,29 @@ data class TextStyle(
 
             // TODO(Migration/qqd): Currently [fontSize], [letterSpacing], [wordSpacing] and
             // [height] of textstyles a and b cannot be null if both a and b are not null, because
-            // [lerpFloat(Float, Float, Float)] API cannot take null parameters. We could have a
+            // [lerp(Float, Float, Float)] API cannot take null parameters. We could have a
             // workaround by using 0.0, but for now let's keep it this way.
             return TextStyle(
                 inherit = b.inherit,
                 color = Color.lerp(a.color, b.color, t),
                 fontFamily = if (t < 0.5) a.fontFamily else b.fontFamily,
-                fontSize = lerpFloat(a.fontSize ?: b.fontSize!!, b.fontSize ?: a.fontSize!!, t),
+                fontSize = lerp(a.fontSize ?: b.fontSize!!, b.fontSize ?: a.fontSize!!, t),
                 fontWeight = FontWeight.lerp(a.fontWeight, b.fontWeight, t),
                 fontStyle = if (t < 0.5) a.fontStyle else b.fontStyle,
                 fontSynthesis = if (t < 0.5) a.fontSynthesis else b.fontSynthesis,
-                letterSpacing = lerpFloat(
+                letterSpacing = lerp(
                     a.letterSpacing ?: b.letterSpacing!!,
                     b.letterSpacing ?: a.letterSpacing!!,
                     t
                 ),
-                wordSpacing = lerpFloat(
+                wordSpacing = lerp(
                     a.wordSpacing ?: b.wordSpacing!!,
                     b.wordSpacing ?: a.wordSpacing!!,
                     t
                 ),
                 textBaseline = if (t < 0.5) a.textBaseline else b.textBaseline,
                 baselineShift = BaselineShift.lerp(a.baselineShift, b.baselineShift, t),
-                height = lerpFloat(a.height ?: b.height!!, b.height ?: a.height!!, t),
+                height = lerp(a.height ?: b.height!!, b.height ?: a.height!!, t),
                 locale = if (t < 0.5) a.locale else b.locale,
                 background = if (t < 0.5) a.background else b.background,
                 decoration = if (t < 0.5) a.decoration else b.decoration,

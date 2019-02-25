@@ -22,7 +22,7 @@ import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.shrink
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
 import androidx.ui.painting.Path
@@ -177,7 +177,7 @@ private data class RoundedRectangleToCircleBorder(
             return RoundedRectangleToCircleBorder(
                 side = lerp(a.side, side, t),
                 borderRadius = lerp(a.borderRadius, borderRadius, t)!!,
-                circleness = lerpFloat(a.circleness, circleness, t)
+                circleness = lerp(a.circleness, circleness, t)
             )
         }
         return super.lerpFrom(a, t)
@@ -202,7 +202,7 @@ private data class RoundedRectangleToCircleBorder(
             return RoundedRectangleToCircleBorder(
                 side = lerp(side, b.side, t),
                 borderRadius = lerp(borderRadius, b.borderRadius, t)!!,
-                circleness = lerpFloat(circleness, b.circleness, t)
+                circleness = lerp(circleness, b.circleness, t)
             )
         }
         return super.lerpTo(b, t)

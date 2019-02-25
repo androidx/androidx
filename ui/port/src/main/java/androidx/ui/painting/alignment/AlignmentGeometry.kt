@@ -16,7 +16,7 @@
 
 package androidx.ui.painting.alignment
 
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 import androidx.ui.engine.text.TextDirection
 
 /**
@@ -132,9 +132,9 @@ abstract class AlignmentGeometry {
             if (a is AlignmentDirectional && b is AlignmentDirectional)
                 return AlignmentDirectional.lerp(a, b, t)
             return _MixedAlignment(
-                    lerpFloat(a._x, b._x, t),
-                    lerpFloat(a._start, b._start, t),
-                    lerpFloat(a._y, b._y, t)
+                lerp(a._x, b._x, t),
+                lerp(a._start, b._start, t),
+                lerp(a._y, b._y, t)
             )
         }
     }

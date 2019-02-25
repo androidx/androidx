@@ -16,7 +16,7 @@
 
 package androidx.ui.engine.geometry
 
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 import androidx.ui.toStringAsFixed
 import kotlin.math.truncate
 
@@ -141,7 +141,7 @@ data class Radius(
 //            val k: Double = 1.0 - t
 //            return elliptical(a.x * k, a.y * k)
 //        }
-        return elliptical(lerpFloat(a.x, b.x, t), lerpFloat(a.y, b.y, t))
+        return elliptical(lerp(a.x, b.x, t), lerp(a.y, b.y, t))
     }
 
     override fun toString(): String {
@@ -194,5 +194,5 @@ fun lerp(a: Radius, b: Radius, t: Float): Radius? {
         val k: Float = 1.0f - t
         return Radius.elliptical(a.x * k, a.y * k)
     }
-    return Radius.elliptical(lerpFloat(a.x, b.x, t), lerpFloat(a.y, b.y, t))
+    return Radius.elliptical(lerp(a.x, b.x, t), lerp(a.y, b.y, t))
 }

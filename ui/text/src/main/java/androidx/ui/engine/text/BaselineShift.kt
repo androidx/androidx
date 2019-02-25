@@ -16,7 +16,7 @@
 
 package androidx.ui.engine.text
 
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 
 /**
  * The amount by which the text is shifted up from current baseline.
@@ -50,7 +50,7 @@ data class BaselineShift constructor(
             if (b == null) {
                 return BaselineShift(a.multiplier * (1f - t))
             }
-            return BaselineShift(lerpFloat(a.multiplier, b.multiplier, t))
+            return BaselineShift(lerp(a.multiplier, b.multiplier, t))
         }
     }
 }

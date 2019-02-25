@@ -182,7 +182,7 @@ internal class DefaultRippleEffect(
         fadeIn.start()
 
         // Controls the ripple radius and its center.
-        radius = ValueAnimator.ofFloat(startRadius.dp, targetRadius.dp)
+        radius = ValueAnimator.ofFloat(startRadius.value, targetRadius.value)
         radius.duration = RadiusDuration.inMilliseconds
         radius.interpolator = FastOutSlowInInterpolator()
         radius.addUpdateListener(redrawListener)

@@ -16,7 +16,7 @@
 
 package androidx.ui.engine.geometry
 
-import androidx.ui.lerpFloat
+import androidx.ui.lerp
 import androidx.ui.toStringAsFixed
 import kotlin.math.absoluteValue
 import kotlin.math.truncate
@@ -119,7 +119,10 @@ open class Size(val width: Float, val height: Float) : OffsetBase {
 //                return b * t
 //            if (b == null)
 //                return a * (1.0 - t)
-            return Size(lerpFloat(a.width, b.width, t), lerpFloat(a.height, b.height, t))
+            return Size(
+                lerp(a.width, b.width, t),
+                lerp(a.height, b.height, t)
+            )
         }
     }
 

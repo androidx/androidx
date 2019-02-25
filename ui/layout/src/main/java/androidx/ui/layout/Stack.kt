@@ -107,8 +107,8 @@ fun Stack(
         }
 
         val (stackWidth, stackHeight) = with(placeables.filterNotNull().flatten()) {
-            Pair(max(maxBy { it.width.dp }?.width ?: 0.dp, constraints.minWidth),
-                max(maxBy { it.height.dp }?.height ?: 0.dp, constraints.minHeight))
+            Pair(max(maxBy { it.width.value }?.width ?: 0.dp, constraints.minWidth),
+                max(maxBy { it.height.value }?.height ?: 0.dp, constraints.minHeight))
         }
 
         // Now measure positioned children.
