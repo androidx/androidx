@@ -682,34 +682,32 @@ public class MediaControlView extends ViewGroup {
                 .with(AnimatorUtil.ofTranslationY(0, -titleBarHeight, mTitleBar))
                 .with(AnimatorUtil.ofTranslationYTogether(0, bottomBarHeight, bottomBarGroup));
         mHideMainBarsAnimator.setDuration(HIDE_TIME_MS);
-        mHideMainBarsAnimator.getChildAnimations().get(0).addListener(
-                new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        mUxState = UX_STATE_ANIMATING;
-                    }
+        mHideMainBarsAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mUxState = UX_STATE_ANIMATING;
+            }
 
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        mUxState = UX_STATE_ONLY_PROGRESS_VISIBLE;
-                    }
-                });
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mUxState = UX_STATE_ONLY_PROGRESS_VISIBLE;
+            }
+        });
 
         mHideProgressBarAnimator = AnimatorUtil.ofTranslationYTogether(
                 bottomBarHeight, bottomBarHeight + progressBarHeight, bottomBarGroup);
         mHideProgressBarAnimator.setDuration(HIDE_TIME_MS);
-        mHideProgressBarAnimator.getChildAnimations().get(0).addListener(
-                new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        mUxState = UX_STATE_ANIMATING;
-                    }
+        mHideProgressBarAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mUxState = UX_STATE_ANIMATING;
+            }
 
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        mUxState = UX_STATE_NONE_VISIBLE;
-                    }
-                });
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mUxState = UX_STATE_NONE_VISIBLE;
+            }
+        });
 
         mHideAllBarsAnimator = new AnimatorSet();
         mHideAllBarsAnimator.play(fadeOutAnimator)
@@ -717,7 +715,7 @@ public class MediaControlView extends ViewGroup {
                 .with(AnimatorUtil.ofTranslationYTogether(
                         0, bottomBarHeight + progressBarHeight, bottomBarGroup));
         mHideAllBarsAnimator.setDuration(HIDE_TIME_MS);
-        mHideAllBarsAnimator.getChildAnimations().get(0).addListener(new AnimatorListenerAdapter() {
+        mHideAllBarsAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 mUxState = UX_STATE_ANIMATING;
@@ -734,18 +732,17 @@ public class MediaControlView extends ViewGroup {
                 .with(AnimatorUtil.ofTranslationY(-titleBarHeight, 0, mTitleBar))
                 .with(AnimatorUtil.ofTranslationYTogether(bottomBarHeight, 0, bottomBarGroup));
         mShowMainBarsAnimator.setDuration(SHOW_TIME_MS);
-        mShowMainBarsAnimator.getChildAnimations().get(0).addListener(
-                new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationStart(Animator animation) {
-                        mUxState = UX_STATE_ANIMATING;
-                    }
+        mShowMainBarsAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                mUxState = UX_STATE_ANIMATING;
+            }
 
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        mUxState = UX_STATE_ALL_VISIBLE;
-                    }
-                });
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mUxState = UX_STATE_ALL_VISIBLE;
+            }
+        });
 
         mShowAllBarsAnimator = new AnimatorSet();
         mShowAllBarsAnimator.play(fadeInAnimator)
@@ -753,7 +750,7 @@ public class MediaControlView extends ViewGroup {
                 .with(AnimatorUtil.ofTranslationYTogether(
                         bottomBarHeight + progressBarHeight, 0, bottomBarGroup));
         mShowAllBarsAnimator.setDuration(SHOW_TIME_MS);
-        mShowAllBarsAnimator.getChildAnimations().get(0).addListener(new AnimatorListenerAdapter() {
+        mShowAllBarsAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 mUxState = UX_STATE_ANIMATING;
