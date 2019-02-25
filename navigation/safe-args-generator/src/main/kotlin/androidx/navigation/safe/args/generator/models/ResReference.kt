@@ -23,5 +23,3 @@ data class ResReference(val packageName: String, val resType: String, val name: 
 
     fun isId() = resType == "id"
 }
-
-fun ResReference?.accessor() = this?.let { "$packageName.R.$resType.$javaIdentifier" } ?: "0"

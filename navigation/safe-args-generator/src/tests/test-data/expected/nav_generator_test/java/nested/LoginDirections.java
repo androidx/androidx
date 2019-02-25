@@ -26,6 +26,6 @@ public class LoginDirections {
 
     @NonNull
     public static NavDirections actionDone() {
-        return new ActionOnlyNavDirections(foo.R.id.action_done);
+        return new ActionOnlyNavDirections(R.id.action_done);
     }
 }
