@@ -16,12 +16,8 @@
 
 package androidx.preference;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import android.content.Context;
 import android.text.TextUtils;
-
-import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +28,6 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(LIBRARY)
 final class ExpandButton extends Preference {
     private long mId;
 

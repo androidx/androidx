@@ -16,23 +16,24 @@
 
 package androidx.preference;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
+import android.annotation.SuppressLint;
 
 import androidx.annotation.RestrictTo;
 
 /**
+ * Utility class for attributes unavailable on older APIs
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY)
+@SuppressLint("InlinedApi")
 public class AndroidResources {
 
     public static final int ANDROID_R_ICON_FRAME = android.R.id.icon_frame;
-    public static final int ANDROID_R_LIST_CONTAINER = android.R.id.list_container;
-    public static final int ANDROID_R_SWITCH_WIDGET = android.R.id.switch_widget;
-    public static final int ANDROID_R_PREFERENCE_FRAGMENT_STYLE
-            = android.R.attr.preferenceFragmentStyle;
-    public static final int ANDROID_R_EDITTEXT_PREFERENCE_STYLE
-            = android.R.attr.editTextPreferenceStyle;
+    static final int ANDROID_R_LIST_CONTAINER = android.R.id.list_container;
+    static final int ANDROID_R_SWITCH_WIDGET = android.R.id.switch_widget;
+    static final int ANDROID_R_PREFERENCE_FRAGMENT_STYLE = android.R.attr.preferenceFragmentStyle;
 
     private AndroidResources() {}
 }

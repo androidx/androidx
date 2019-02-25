@@ -29,6 +29,8 @@ import androidx.annotation.RestrictTo;
  * By default, the pressed state is propagated to all the children that are not clickable
  * or long-clickable.
  *
+ * Used by Leanback and Car.
+ *
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
