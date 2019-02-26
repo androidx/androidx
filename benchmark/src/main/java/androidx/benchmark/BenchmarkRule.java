@@ -32,7 +32,6 @@ import org.junit.runners.model.Statement;
  * Use this rule to make sure we report the status after the test success.
  *
  * <pre>
- *
  * {@literal @}Rule public BenchmarkRule benchmarkRule = new BenchmarkRule();
  * {@literal @}Test public void functionName() {
  *     ...
@@ -55,9 +54,16 @@ public class BenchmarkRule implements TestRule {
     private static final String TAG = "BenchmarkRule";
     @SuppressWarnings("WeakerAccess") // synthetic access
     final BenchmarkState mState = new BenchmarkState();
+    @SuppressWarnings("WeakerAccess") // synthetic access
+    boolean mApplied = false;
 
     @NonNull
     public BenchmarkState getState() {
+        if (!mApplied) {
+            throw new IllegalStateException("Cannot get state before BenchmarkRule is applied"
+                    + " to a test. Check that your BenchmarkRule is annotated correctly"
+                    + " (@Rule in Java, @get:Rule in Kotlin).");
+        }
         return mState;
     }
 
@@ -67,6 +73,7 @@ public class BenchmarkRule implements TestRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
+                mApplied = true;
                 String invokeMethodName = description.getMethodName();
                 Log.i(TAG, "Running " + description.getClassName() + "#" + invokeMethodName);
 
