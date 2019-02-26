@@ -35,8 +35,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-// TODO(b/124267925): Bump down to LOLLIPOP once our minSdk is 21
-@Config(minSdk = Build.VERSION_CODES.N)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class AppConfigurationTest {
 
     private AppConfiguration mAppConfiguration;

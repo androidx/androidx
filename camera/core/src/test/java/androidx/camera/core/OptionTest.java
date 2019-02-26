@@ -36,8 +36,7 @@ import java.util.Map;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-// TODO(b/124267925): Bump down to LOLLIPOP once our minSdk is 21
-@Config(minSdk = Build.VERSION_CODES.N)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class OptionTest {
 
     private static final String OPTION_1_ID = "option.1";

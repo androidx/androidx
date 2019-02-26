@@ -169,8 +169,8 @@ public final class Camera2ImplCameraXTest {
     @Test
     public void lifecyclePause_closesCameraAndStopsStreamingFrames() throws InterruptedException {
         final AtomicLong observedCount = new AtomicLong(0);
-        SessionCaptureCallback sessionCaptureCallback = new SessionCaptureCallback();
-        DeviceStateCallback deviceStateCallback = new DeviceStateCallback();
+        final SessionCaptureCallback sessionCaptureCallback = new SessionCaptureCallback();
+        final DeviceStateCallback deviceStateCallback = new DeviceStateCallback();
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -193,8 +193,11 @@ public final class Camera2ImplCameraXTest {
         // Wait a little bit for the camera to open and stream frames.
         sessionCaptureCallback.waitForOnCaptureCompleted(5);
 
-        mMainThreadHandler.post(() -> {
-            mLifecycle.pauseAndStop();
+        mMainThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mLifecycle.pauseAndStop();
+            }
         });
 
         // Wait a little bit for the camera to close.

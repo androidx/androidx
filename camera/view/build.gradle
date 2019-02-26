@@ -30,14 +30,8 @@ dependencies {
     api(project(":camera:camera-core"))
 }
 android {
-    // TODO(b/124267925): Remove Java 8 features from code and set minSdkVersion to 21 once removed.
     defaultConfig {
-        minSdkVersion 24
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        minSdkVersion 21
     }
 }
 supportLibrary {

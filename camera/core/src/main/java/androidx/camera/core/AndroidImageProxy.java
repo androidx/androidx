@@ -16,7 +16,6 @@
 
 package androidx.camera.core;
 
-import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.media.Image;
 import android.os.Build;
@@ -31,8 +30,6 @@ final class AndroidImageProxy implements ImageProxy {
      * Image.setTimestamp(long) was added in M. On lower API levels, we use our own timestamp field
      * to provide a more consistent behavior across more devices.
      */
-    // TODO(b/124267925): Remove @SuppressLint once we target API 21
-    @SuppressLint("ObsoleteSdkInt")
     private static final boolean SET_TIMESTAMP_AVAILABLE_IN_FRAMEWORK =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
 

@@ -37,8 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-// TODO(b/124267925): Bump down to LOLLIPOP once our minSdk is 21
-@Config(minSdk = Build.VERSION_CODES.N)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class OptionsBundleTest {
 
     private static final Option<Object> OPTION_1 = Option.create("option.1", Object.class);

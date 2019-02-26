@@ -59,7 +59,7 @@ public final class ImageProxyDownsamplerTest {
     }
 
     private static ImageProxy.PlaneProxy createPlaneWithRampPattern(
-            int width, int height, int pixelStride, int initialValue) {
+            final int width, final int height, final int pixelStride, final int initialValue) {
         return new ImageProxy.PlaneProxy() {
             final ByteBuffer mBuffer =
                     createBufferWithRampPattern(width, height, pixelStride, initialValue);

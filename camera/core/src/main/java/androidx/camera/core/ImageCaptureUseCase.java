@@ -794,10 +794,10 @@ public class ImageCaptureUseCase extends BaseUseCase {
 
     /**
      * Describes the error that occurred during an image capture operation (such as {@link
-     * ImageCaptureUseCase.takePicture()}).
+     * ImageCaptureUseCase#takePicture(OnImageCapturedListener)}).
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
-     * ImageCaptureUseCase.OnImageSavedListener.onError}.
+     * ImageCaptureUseCase.OnImageSavedListener#onError(UseCaseError, String, Throwable)}.
      */
     public enum UseCaseError {
         /**

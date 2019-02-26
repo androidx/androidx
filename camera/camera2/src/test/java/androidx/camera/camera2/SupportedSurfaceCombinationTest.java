@@ -73,8 +73,7 @@ import java.util.Map;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-// TODO(b/124267925): Bump down to LOLLIPOP once our minSdk is 21
-@Config(minSdk = Build.VERSION_CODES.N)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class SupportedSurfaceCombinationTest {
     private static final String LEGACY_CAMERA_ID = "0";
     private static final String LIMITED_CAMERA_ID = "1";
