@@ -1,49 +1,15 @@
 // Signature format: 3.0
 package androidx.text {
 
-    method public static android.text.BoringLayout.Metrics? isBoring(CharSequence!, android.text.TextPaint!, android.text.TextDirectionHeuristic!);
-  }
 
-    ctor public BoringLayoutCompat.Builder(CharSequence, android.text.TextPaint, @IntRange(from=0) int, android.text.BoringLayout.Metrics);
-    method public android.text.BoringLayout build();
-    method public androidx.text.BoringLayoutCompat.Builder setAlignment(android.text.Layout.Alignment);
-    method public androidx.text.BoringLayoutCompat.Builder setEllipsize(android.text.TextUtils.TruncateAt?);
-    method public androidx.text.BoringLayoutCompat.Builder setEllipsizedWidth(@IntRange(from=0) int);
-    method public androidx.text.BoringLayoutCompat.Builder setIncludePad(boolean);
-  }
 
-  }
 
-  }
 
-  }
 
-  }
 
-  }
 
-  }
 
-  }
 
-    ctor public StaticLayoutCompat.Builder(CharSequence, android.text.TextPaint, @IntRange(from=0) int);
-    method public android.text.StaticLayout build();
-    method public androidx.text.StaticLayoutCompat.Builder setAlignment(android.text.Layout.Alignment);
-    method public androidx.text.StaticLayoutCompat.Builder setBreakStrategy(@androidx.text.LayoutCompat.BreakStrategy int);
-    method public androidx.text.StaticLayoutCompat.Builder setEllipsize(android.text.TextUtils.TruncateAt?);
-    method public androidx.text.StaticLayoutCompat.Builder setEllipsizedWidth(@IntRange(from=0) int);
-    method public androidx.text.StaticLayoutCompat.Builder! setEnd(@IntRange(from=0) int);
-    method public androidx.text.StaticLayoutCompat.Builder setHyphenationFrequency(@androidx.text.LayoutCompat.HyphenationFrequency int);
-    method public androidx.text.StaticLayoutCompat.Builder setIncludePad(boolean);
-    method public androidx.text.StaticLayoutCompat.Builder setIndents(int[]?, int[]?);
-    method public androidx.text.StaticLayoutCompat.Builder setJustificationMode(@androidx.text.LayoutCompat.JustificationMode int);
-    method public androidx.text.StaticLayoutCompat.Builder setLineSpacingExtra(float);
-    method public androidx.text.StaticLayoutCompat.Builder setLineSpacingMultiplier(@FloatRange(from=0.0f) float);
-    method public androidx.text.StaticLayoutCompat.Builder setMaxLines(@IntRange(from=0) int);
-    method public androidx.text.StaticLayoutCompat.Builder! setStart(@IntRange(from=0) int);
-    method public androidx.text.StaticLayoutCompat.Builder setTextDirection(android.text.TextDirectionHeuristic);
-    method public androidx.text.StaticLayoutCompat.Builder setUseLineSpacingFromFallbacks(boolean);
-  }
 
   @RestrictTo({RestrictTo.Scope.LIBRARY}) public final class TextLayout {
     ctor public TextLayout(CharSequence charSequence, float width, android.text.TextPaint textPaint, @androidx.text.LayoutCompat.TextLayoutAlignment int alignment, android.text.TextUtils.TruncateAt? ellipsize, @androidx.text.LayoutCompat.TextDirection int textDirectionHeuristic, float lineSpacingMultiplier, float lineSpacingExtra, boolean includePadding, int maxLines, @androidx.text.LayoutCompat.BreakStrategy int breakStrategy, @androidx.text.LayoutCompat.HyphenationFrequency int hyphenationFrequency, @androidx.text.LayoutCompat.JustificationMode int justificationMode, int[]? leftIndents, int[]? rightIndents);
@@ -69,27 +35,9 @@ package androidx.text {
 
 package androidx.text.style {
 
-    ctor public BaselineShiftSpan(float);
-    method public void updateDrawState(android.text.TextPaint!);
-    method public void updateMeasureState(android.text.TextPaint);
-  }
 
-    ctor public LetterSpacingSpan(float);
-    method public void updateDrawState(android.text.TextPaint);
-    method public void updateMeasureState(android.text.TextPaint);
-  }
 
-    ctor public TypefaceSpan(android.graphics.Typeface);
-    method public android.graphics.Typeface getTypeface();
-    method public void updateDrawState(android.text.TextPaint);
-    method public void updateMeasureState(android.text.TextPaint);
-  }
 
-    ctor public WordSpacingSpan(float);
-    method public float getWordSpacing();
-    method public void updateDrawState(android.text.TextPaint!);
-    method public void updateMeasureState(android.text.TextPaint!);
-  }
 
 }
 
