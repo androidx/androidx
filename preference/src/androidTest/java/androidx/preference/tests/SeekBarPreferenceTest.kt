@@ -16,6 +16,7 @@
 
 package androidx.preference.tests
 
+import android.os.Build
 import android.util.DisplayMetrics
 import android.view.View
 import android.widget.SeekBar
@@ -36,6 +37,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
 import org.hamcrest.Description
 import org.hamcrest.Matchers.allOf
@@ -168,6 +170,10 @@ class SeekBarPreferenceTest {
     }
 
     @Test
+    // Seems that these tests are flaky on certain devices with large screens due to the swipe not
+    // fully dragging from one end to another. Should be safer to only run them on newer devices
+    // where they are stable.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     fun testSeekBarPreferenceChangeListener() {
         // How many times the change listener has been called
         var updateCount = 0
@@ -199,6 +205,10 @@ class SeekBarPreferenceTest {
     }
 
     @Test
+    // Seems that these tests are flaky on certain devices with large screens due to the swipe not
+    // fully dragging from one end to another. Should be safer to only run them on newer devices
+    // where they are stable.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     fun testSeekBarPreferenceChangeListenerWithContinuousUpdates() {
         // How many times the change listener has been called
         var updateCount = 0
