@@ -7,6 +7,7 @@ import androidx.build.SupportLibraryExtension;
 
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
 }
 
@@ -32,13 +33,6 @@ dependencies {
     }
     androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
     androidTestCompile project(path: ':ui-platform')
-}
-
-android {
-    defaultConfig {
-        minSdkVersion 21
-        multiDexEnabled true
-    }
 }
 
 supportLibrary {
