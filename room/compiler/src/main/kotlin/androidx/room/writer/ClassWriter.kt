@@ -45,23 +45,26 @@ abstract class ClassWriter(private val className: ClassName) {
         sharedFieldSpecs.values.forEach { builder.addField(it) }
         sharedMethodSpecs.values.forEach { builder.addMethod(it) }
         addGeneratedAnnotationIfAvailable(builder, processingEnv)
-        addSuppressUnchecked(builder)
+        addSuppressWarnings(builder)
         JavaFile.builder(className.packageName(), builder.build())
-                .build()
-                .writeTo(processingEnv.filer)
+            .build()
+            .writeTo(processingEnv.filer)
     }
 
-    private fun addSuppressUnchecked(builder: TypeSpec.Builder) {
-        val suppressSpec = AnnotationSpec.builder(SuppressWarnings::class.typeName()).addMember(
+    private fun addSuppressWarnings(builder: TypeSpec.Builder) {
+        val suppressSpec = AnnotationSpec.builder(SuppressWarnings::class.typeName())
+            .addMember(
                 "value",
-                S,
-                "unchecked"
-        ).build()
+                "{$S, $S}",
+                "unchecked", "deprecation"
+            ).build()
         builder.addAnnotation(suppressSpec)
     }
 
-    private fun addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder: TypeSpec.Builder,
-                                                  processingEnv: ProcessingEnvironment) {
+    private fun addGeneratedAnnotationIfAvailable(
+        adapterTypeSpecBuilder: TypeSpec.Builder,
+        processingEnv: ProcessingEnvironment
+    ) {
         val generatedAnnotationAvailable = processingEnv
                 .elementUtils
                 .getTypeElement("$GENERATED_PACKAGE.$GENERATED_NAME") != null

@@ -29,6 +29,7 @@ import com.google.common.base.Optional
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.TestSubscriber
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
@@ -36,6 +37,7 @@ import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.fail
 import org.junit.Test
 import java.util.Date
 
@@ -321,6 +323,39 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.getPublishers().run {
             assertThat(this.size, `is`(1))
             assertThat(this.first(), `is`(equalTo(TestUtil.PUBLISHER)))
+        }
+    }
+
+    @Test
+    fun deleteBooksWithZeroSales() {
+        val books = listOf(
+            TestUtil.BOOK_1.copy(salesCnt = 0),
+            TestUtil.BOOK_2.copy(salesCnt = 0)
+        )
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(*books.toTypedArray())
+
+        runBlocking {
+            assertThat(booksDao.deleteBooksWithZeroSales(), `is`(equalTo(books)))
+            assertThat(booksDao.getBooksSuspend(), `is`(equalTo(emptyList())))
+        }
+    }
+
+    @Test
+    fun addAuthorPublisherBooks_failure() {
+        runBlocking {
+            try {
+                booksDao.addAuthorPublisherBooks(
+                    author = TestUtil.AUTHOR_1,
+                    publisher = TestUtil.PUBLISHER,
+                    books = *arrayOf(TestUtil.BOOK_1, TestUtil.BOOK_1)
+                )
+                fail("addAuthorPublisherBooks should have failed")
+            } catch (ex: SQLiteConstraintException) {
+                // ignored on purpose
+            }
+
+            assertThat(booksDao.getBooksSuspend().isEmpty(), `is`(true))
         }
     }
 }

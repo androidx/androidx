@@ -169,6 +169,7 @@ public class WriteAheadLoggingTest {
         stopObserver(usersList, observer);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void readInBackground() throws InterruptedException, ExecutionException {
         final UserDao dao = mDatabase.getUserDao();
@@ -188,6 +189,7 @@ public class WriteAheadLoggingTest {
         assertThat(dao.count(), is(0));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     @LargeTest
     public void observeInvalidationInBackground() throws InterruptedException, ExecutionException {

@@ -17,11 +17,27 @@
 package androidx.room.integration.kotlintestapp.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.integration.kotlintestapp.vo.Author
+import androidx.room.integration.kotlintestapp.vo.Book
 
 @Dao
 abstract class AbstractDao {
     // For verifying b/123466702
     @Query("DELETE FROM book")
     internal abstract suspend fun deleteAllBooksSuspend()
+
+    @Insert
+    abstract fun addBooks(vararg books: Book)
+
+    @Insert
+    abstract fun addAuthors(vararg authors: Author)
+
+    @Transaction
+    open suspend fun insertBookAndAuthorSuspend(book: Book, author: Author) {
+        addBooks(book)
+        addAuthors(author)
+    }
 }
