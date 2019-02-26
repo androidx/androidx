@@ -287,7 +287,7 @@ public final class NavInflater {
 
         NavOptions.Builder builder = new NavOptions.Builder();
         builder.setLaunchSingleTop(a.getBoolean(R.styleable.NavAction_launchSingleTop, false));
-        builder.setPopUpTo(a.getResourceId(R.styleable.NavAction_popUpTo, 0),
+        builder.setPopUpTo(a.getResourceId(R.styleable.NavAction_popUpTo, -1),
                 a.getBoolean(R.styleable.NavAction_popUpToInclusive, false));
         builder.setEnterAnim(a.getResourceId(R.styleable.NavAction_enterAnim, -1));
         builder.setExitAnim(a.getResourceId(R.styleable.NavAction_exitAnim, -1));

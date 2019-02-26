@@ -477,6 +477,21 @@ class NavControllerTest {
     }
 
     @Test
+    fun testNavigateThenNavigateWithPopRoot() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
+        assertEquals(1, navigator.backStack.size)
+
+        navController.navigate(R.id.second_test, null, navOptions {
+            popUpTo(0) { inclusive = true }
+        })
+        assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
+        assertEquals(1, navigator.backStack.size)
+    }
+
+    @Test
     fun testNavigateThenNavigateUp() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
