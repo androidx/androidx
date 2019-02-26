@@ -1304,7 +1304,9 @@ public final class MediaControllerCompat {
          * Set the playback speed.
          *
          * @param speed The playback speed
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public void setPlaybackSpeed(float speed) {}
 
         /**
