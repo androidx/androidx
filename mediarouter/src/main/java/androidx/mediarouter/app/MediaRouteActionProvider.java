@@ -199,9 +199,10 @@ public class MediaRouteActionProvider extends ActionProvider {
 
     /**
      * Enables dynamic group feature.
-     * After enabling dynamic group feature, clicking the media route button will show
-     * a dialog which can interact with
-     * {@link androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController}.
+     * With this enabled, a different set of {@link MediaRouteChooserDialog} and
+     * {@link MediaRouteControllerDialog} is shown when the button is clicked.
+     * If a {@link androidx.mediarouter.media.MediaRouteProvider media route provider}
+     * supports dynamic group, the users can use that feature with the dialogs.
      *
      * @see MediaRouteButton#enableDynamicGroup()
      * @see androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController
