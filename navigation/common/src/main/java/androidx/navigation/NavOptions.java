@@ -126,7 +126,7 @@ public final class NavOptions {
     public static final class Builder {
         boolean mSingleTop;
         @IdRes
-        int mPopUpTo;
+        int mPopUpTo = -1;
         boolean mPopUpToInclusive;
         @AnimRes @AnimatorRes
         int mEnterAnim = -1;

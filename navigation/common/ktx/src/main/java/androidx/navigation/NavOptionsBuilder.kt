@@ -50,7 +50,7 @@ class NavOptionsBuilder {
      * from the back stack until this destination is found.
      */
     @IdRes
-    var popUpTo: Int = 0
+    var popUpTo: Int = -1
         set(value) {
             field = value
             inclusive = false
