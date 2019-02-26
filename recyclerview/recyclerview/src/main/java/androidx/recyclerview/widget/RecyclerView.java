@@ -5894,7 +5894,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             mAdapter.bindViewHolder(holder, offsetPosition);
             long endBindNs = getNanoTime();
             mRecyclerPool.factorInBindTime(holder.getItemViewType(), endBindNs - startBindNs);
-            setAccessibilityImportantOnBind(holder);
+            attachAccessibilityDelegateOnBind(holder);
             if (mState.isPreLayout()) {
                 holder.mPreLayoutPosition = position;
             }
@@ -6115,10 +6115,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         return null;
                     }
                     holder = mAdapter.createViewHolder(RecyclerView.this, type);
-                    if (!ViewCompat.hasAccessibilityDelegate(holder.itemView)) {
-                        ViewCompat.setAccessibilityDelegate(holder.itemView,
-                                mAccessibilityDelegate.getItemDelegate());
-                    }
                     if (ALLOW_THREAD_GAP_WORK) {
                         // only bother finding nested RV if prefetching
                         RecyclerView innerView = findNestedRecyclerView(holder.itemView);
@@ -6181,13 +6177,18 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return holder;
         }
 
-        private void setAccessibilityImportantOnBind(ViewHolder holder) {
+        private void attachAccessibilityDelegateOnBind(ViewHolder holder) {
             if (isAccessibilityEnabled()) {
                 final View itemView = holder.itemView;
                 if (ViewCompat.getImportantForAccessibility(itemView)
                         == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
                     ViewCompat.setImportantForAccessibility(itemView,
                             ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+                }
+                if (!ViewCompat.hasAccessibilityDelegate(itemView)) {
+                    holder.addFlags(ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE);
+                    ViewCompat.setAccessibilityDelegate(itemView,
+                            mAccessibilityDelegate.getItemDelegate());
                 }
             }
         }
@@ -6397,6 +6398,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          */
         void addViewHolderToRecycledViewPool(@NonNull ViewHolder holder, boolean dispatchRecycled) {
             clearNestedRecyclerViewIfNotNested(holder);
+            if (holder.hasAnyOfTheFlags(ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE)) {
+                holder.setFlags(0, ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE);
+                ViewCompat.setAccessibilityDelegate(holder.itemView, null);
+            }
             if (dispatchRecycled) {
                 dispatchViewRecycled(holder);
             }
@@ -10913,6 +10918,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * already there.
          */
         static final int FLAG_BOUNCED_FROM_HIDDEN_LIST = 1 << 13;
+
+        /**
+         * Flags that RecyclerView assigned {@link RecyclerViewAccessibilityDelegate
+         * #getItemDelegate()} in onBindView when app does not provide a delegate.
+         */
+        static final int FLAG_SET_A11Y_ITEM_DELEGATE = 1 << 14;
 
         int mFlags;
 
