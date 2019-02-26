@@ -16,7 +16,9 @@
 
 package androidx.viewpager2.widget
 
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.LargeTest
+import androidx.testutils.SwipeToLocation.flingToCenter
 import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
 import androidx.viewpager2.widget.DragWhileSmoothScrollTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.DragWhileSmoothScrollTest.Event.OnPageScrolledEvent
@@ -35,6 +37,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.util.concurrent.TimeUnit.SECONDS
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.max
 
 /**
@@ -49,7 +53,8 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         val startPage: Int = 0,
         val targetPage: Int,
         val dragInOppositeDirection: Boolean,
-        val distanceToTargetWhenStartDrag: Float
+        val distanceToTargetWhenStartDrag: Float,
+        val endInSnappedPosition: Boolean = false
     )
 
     companion object {
@@ -78,7 +83,9 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
                 waitTillCloseEnough.await(1, SECONDS)
 
                 // then perform a swipe
-                if (dragInOppositeDirection == movingForward) {
+                if (endInSnappedPosition) {
+                    onPage(withText("${pageToSnapTo(movingForward)}")).perform(flingToCenter())
+                } else if (dragInOppositeDirection == movingForward) {
                     swipeBackward(SwipeMethod.MANUAL)
                 } else {
                     swipeForward(SwipeMethod.MANUAL)
@@ -140,6 +147,19 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         return RecordingCallback().also { registerOnPageChangeCallback(it) }
     }
 
+    private fun TestConfig.pageToSnapTo(movingForward: Boolean): Int {
+        val positionToStartDragging = if (movingForward) {
+            targetPage - distanceToTargetWhenStartDrag
+        } else {
+            targetPage + distanceToTargetWhenStartDrag
+        }
+        return if (movingForward == dragInOppositeDirection) {
+            floor(positionToStartDragging).toInt()
+        } else {
+            ceil(positionToStartDragging).toInt()
+        }
+    }
+
     private sealed class Event {
         data class OnPageScrolledEvent(
             val position: Int,
@@ -198,7 +218,28 @@ private fun createTestSet(): List<TestConfig> {
     return listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).flatMap { orientation ->
         listOf(true, false).flatMap { dragInOppositeDirection ->
             listOf(0.4f, 1.5f).flatMap { distanceToTarget ->
-                createTestSet(orientation, dragInOppositeDirection, distanceToTarget)
+                listOf(true, false).flatMap { endInSnappedPosition ->
+                    listOf(
+                        TestConfig(
+                            title = "forward",
+                            orientation = orientation,
+                            startPage = 0,
+                            targetPage = 4,
+                            dragInOppositeDirection = dragInOppositeDirection,
+                            distanceToTargetWhenStartDrag = distanceToTarget,
+                            endInSnappedPosition = endInSnappedPosition
+                        ),
+                        TestConfig(
+                            title = "backward",
+                            orientation = orientation,
+                            startPage = 8,
+                            targetPage = 4,
+                            dragInOppositeDirection = dragInOppositeDirection,
+                            distanceToTargetWhenStartDrag = distanceToTarget,
+                            endInSnappedPosition = endInSnappedPosition
+                        )
+                    )
+                }
             }
         }.plus(listOf(
             TestConfig(
@@ -211,31 +252,6 @@ private fun createTestSet(): List<TestConfig> {
             )
         ))
     }
-}
-
-private fun createTestSet(
-    orientation: Int,
-    dragInOppositeDirection: Boolean,
-    distanceToTarget: Float
-): List<TestConfig> {
-    return listOf(
-        TestConfig(
-            title = "forward",
-            orientation = orientation,
-            startPage = 0,
-            targetPage = 4,
-            dragInOppositeDirection = dragInOppositeDirection,
-            distanceToTargetWhenStartDrag = distanceToTarget
-        ),
-        TestConfig(
-            title = "backward",
-            orientation = orientation,
-            startPage = 8,
-            targetPage = 4,
-            dragInOppositeDirection = dragInOppositeDirection,
-            distanceToTargetWhenStartDrag = distanceToTarget
-        )
-    )
 }
 
 // endregion
