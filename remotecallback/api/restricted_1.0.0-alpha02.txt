@@ -35,7 +35,6 @@ package androidx.remotecallback {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String EXTRA_METHOD = "remotecallback.method";
   }
 
-  }
 
 }
 

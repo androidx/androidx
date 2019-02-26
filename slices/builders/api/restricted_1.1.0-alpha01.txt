@@ -14,12 +14,10 @@ package androidx.slice.builders {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ListBuilder.HeaderBuilder(android.net.Uri!);
   }
 
-  }
 
   public static class ListBuilder.InputRangeBuilder {
   }
 
-  }
 
   public static class ListBuilder.RangeBuilder {
   }
@@ -58,76 +56,13 @@ package androidx.slice.builders {
 
 package androidx.slice.builders.impl {
 
-    ctor public GridRowBuilderListV1Impl(androidx.slice.builders.impl.ListBuilderImpl, androidx.slice.builders.GridRowBuilder!);
-    method public void addCell(androidx.slice.builders.GridRowBuilder.CellBuilder!);
-    method public void apply(androidx.slice.Slice.Builder!);
-    method public void setContentDescription(CharSequence!);
-    method public void setLayoutDirection(int);
-    method public void setPrimaryAction(androidx.slice.builders.SliceAction!);
-    method public void setSeeMoreAction(android.app.PendingIntent!);
-    method public void setSeeMoreCell(androidx.slice.builders.GridRowBuilder.CellBuilder);
-  }
 
   public static final class GridRowBuilderListV1Impl.CellBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
     method public void fillFrom(androidx.slice.builders.GridRowBuilder.CellBuilder!);
   }
 
-    method public void addAction(androidx.slice.builders.SliceAction!);
-    method public void addGridRow(androidx.slice.builders.GridRowBuilder!);
-    method public void addInputRange(androidx.slice.builders.ListBuilder.InputRangeBuilder!);
-    method public void addRange(androidx.slice.builders.ListBuilder.RangeBuilder!);
-    method public void addRow(androidx.slice.builders.ListBuilder.RowBuilder!);
-    method public void addSelection(androidx.slice.builders.SelectionBuilder!);
-    method public void setColor(@ColorInt int);
-    method public void setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder!);
-    method public void setIsError(boolean);
-    method public void setKeywords(java.util.Set<java.lang.String>!);
-    method public void setLayoutDirection(int);
-    method public void setSeeMoreAction(android.app.PendingIntent!);
-    method public void setSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder!);
-    method public void setTtl(long);
-    method @RequiresApi(26) public void setTtl(java.time.Duration?);
-  }
 
-    ctor public ListBuilderBasicImpl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!);
-    method public void addAction(androidx.slice.builders.SliceAction!);
-    method public void addGridRow(androidx.slice.builders.GridRowBuilder!);
-    method public void addInputRange(androidx.slice.builders.ListBuilder.InputRangeBuilder!);
-    method public void addRange(androidx.slice.builders.ListBuilder.RangeBuilder!);
-    method public void addRow(androidx.slice.builders.ListBuilder.RowBuilder!);
-    method public void addSelection(androidx.slice.builders.SelectionBuilder!);
-    method public void apply(androidx.slice.Slice.Builder!);
-    method public void setColor(@ColorInt int);
-    method public void setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder!);
-    method public void setIsError(boolean);
-    method public void setKeywords(java.util.Set<java.lang.String>!);
-    method public void setLayoutDirection(int);
-    method public void setSeeMoreAction(android.app.PendingIntent!);
-    method public void setSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder!);
-    method public void setTtl(long);
-    method @RequiresApi(26) public void setTtl(java.time.Duration?);
-  }
 
-    ctor public ListBuilderImpl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!);
-    ctor public ListBuilderImpl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!, androidx.slice.Clock!);
-    method public void addAction(androidx.slice.builders.SliceAction);
-    method public void addGridRow(androidx.slice.builders.GridRowBuilder);
-    method public void addInputRange(androidx.slice.builders.ListBuilder.InputRangeBuilder!);
-    method public void addRange(androidx.slice.builders.ListBuilder.RangeBuilder!);
-    method public void addRow(androidx.slice.builders.ListBuilder.RowBuilder);
-    method public void addRow(androidx.slice.builders.impl.ListBuilderImpl.RowBuilderImpl);
-    method public void addSelection(androidx.slice.builders.SelectionBuilder!);
-    method public void apply(androidx.slice.Slice.Builder!);
-    method public void setColor(@ColorInt int);
-    method public void setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder);
-    method public void setIsError(boolean);
-    method public void setKeywords(java.util.Set<java.lang.String>);
-    method public void setLayoutDirection(int);
-    method public void setSeeMoreAction(android.app.PendingIntent!);
-    method public void setSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder!);
-    method public void setTtl(long);
-    method @RequiresApi(26) public void setTtl(java.time.Duration?);
-  }
 
   public static class ListBuilderImpl.HeaderBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
     method public void apply(androidx.slice.Slice.Builder!);
@@ -156,11 +91,6 @@ package androidx.slice.builders.impl {
     method protected void setTitleItem(androidx.core.graphics.drawable.IconCompat!, int);
   }
 
-    ctor public MessagingBasicImpl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!);
-    method public void add(androidx.slice.builders.impl.TemplateBuilderImpl!);
-    method public void apply(androidx.slice.Slice.Builder!);
-    method public androidx.slice.builders.impl.TemplateBuilderImpl! createMessageBuilder();
-  }
 
   public static final class MessagingBasicImpl.MessageBuilder extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder.MessageBuilder {
     ctor public MessagingBasicImpl.MessageBuilder(androidx.slice.builders.impl.MessagingBasicImpl!);
@@ -170,9 +100,6 @@ package androidx.slice.builders.impl {
     method public void apply(androidx.slice.Slice.Builder!);
   }
 
-    method public void add(androidx.slice.builders.impl.TemplateBuilderImpl!);
-    method public androidx.slice.builders.impl.TemplateBuilderImpl! createMessageBuilder();
-  }
 
   public static interface MessagingBuilder.MessageBuilder {
     method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
@@ -180,11 +107,6 @@ package androidx.slice.builders.impl {
     method public void addTimestamp(long);
   }
 
-    ctor public MessagingListV1Impl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!);
-    method public void add(androidx.slice.builders.impl.TemplateBuilderImpl!);
-    method public void apply(androidx.slice.Slice.Builder!);
-    method public androidx.slice.builders.impl.TemplateBuilderImpl! createMessageBuilder();
-  }
 
   public static final class MessagingListV1Impl.MessageBuilder extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder.MessageBuilder {
     ctor public MessagingListV1Impl.MessageBuilder(androidx.slice.builders.impl.MessagingListV1Impl!);
@@ -194,11 +116,6 @@ package androidx.slice.builders.impl {
     method public void apply(androidx.slice.Slice.Builder!);
   }
 
-    ctor public MessagingV1Impl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!);
-    method public void add(androidx.slice.builders.impl.TemplateBuilderImpl!);
-    method public void apply(androidx.slice.Slice.Builder!);
-    method public androidx.slice.builders.impl.TemplateBuilderImpl! createMessageBuilder();
-  }
 
   public static final class MessagingV1Impl.MessageBuilder extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder.MessageBuilder {
     ctor public MessagingV1Impl.MessageBuilder(androidx.slice.builders.impl.MessagingV1Impl!);
@@ -208,23 +125,9 @@ package androidx.slice.builders.impl {
     method public void apply(androidx.slice.Slice.Builder!);
   }
 
-    ctor public SelectionBuilderBasicImpl(androidx.slice.Slice.Builder!, androidx.slice.builders.SelectionBuilder!);
-    method public void apply(androidx.slice.Slice.Builder!);
-  }
 
-    ctor public SelectionBuilderImpl(androidx.slice.Slice.Builder!, androidx.slice.builders.SelectionBuilder!);
-    method protected androidx.slice.builders.SelectionBuilder! getSelectionBuilder();
-  }
 
-    ctor public SelectionBuilderListV2Impl(androidx.slice.Slice.Builder!, androidx.slice.builders.SelectionBuilder!);
-    method public void apply(androidx.slice.Slice.Builder!);
-  }
 
-    ctor protected TemplateBuilderImpl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!);
-    ctor protected TemplateBuilderImpl(androidx.slice.Slice.Builder!, androidx.slice.SliceSpec!, androidx.slice.Clock!);
-    method public androidx.slice.Slice! build();
-    method protected void setBuilder(androidx.slice.Slice.Builder!);
-  }
 
 }
 

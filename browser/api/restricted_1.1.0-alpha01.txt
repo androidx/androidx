@@ -18,11 +18,6 @@ package androidx.browser.browseractions {
   @IntDef({androidx.browser.browseractions.BrowserActionsIntent.URL_TYPE_NONE, androidx.browser.browseractions.BrowserActionsIntent.URL_TYPE_IMAGE, androidx.browser.browseractions.BrowserActionsIntent.URL_TYPE_VIDEO, androidx.browser.browseractions.BrowserActionsIntent.URL_TYPE_AUDIO, androidx.browser.browseractions.BrowserActionsIntent.URL_TYPE_FILE, androidx.browser.browseractions.BrowserActionsIntent.URL_TYPE_PLUGIN}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface BrowserActionsIntent.BrowserActionsUrlType {
   }
 
-    ctor public BrowserServiceFileProvider();
-    method public static void grantReadPermission(android.content.Intent, java.util.List<android.net.Uri>?, android.content.Context);
-    method public static com.google.common.util.concurrent.ListenableFuture<android.graphics.Bitmap> loadBitmap(android.content.ContentResolver, android.net.Uri);
-    method @UiThread public static androidx.concurrent.futures.ResolvableFuture<android.net.Uri> saveBitmap(android.content.Context, android.graphics.Bitmap, String, int);
-  }
 
 }
 

@@ -1,12 +1,7 @@
 // Signature format: 3.0
 package androidx.textclassifier {
 
-    ctor public MainThreadExecutor();
-    method public void execute(Runnable);
-  }
 
-    method public static androidx.textclassifier.PlatformTextClassifierWrapper create(android.content.Context);
-  }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SelectionEvent {
     method public static androidx.textclassifier.SelectionEvent createFromBundle(android.os.Bundle);
@@ -55,11 +50,8 @@ package androidx.textclassifier {
     field public static final int INVOCATION_UNKNOWN = 0; // 0x0
   }
 
-  }
 
-  }
 
-  }
 
   public final class TextClassificationSessionId {
   }
@@ -73,9 +65,7 @@ package androidx.textclassifier {
   public final class TextLinks {
   }
 
-  }
 
-  }
 
   public static class TextLinks.TextLinkSpanData {
   }
