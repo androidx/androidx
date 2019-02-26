@@ -50,7 +50,7 @@ public class InnerSettingsDirections {
 
         @Override
         public int getActionId() {
-            return foo.R.id.exit;
+            return R.id.exit;
         }
 
         @SuppressWarnings("unchecked")

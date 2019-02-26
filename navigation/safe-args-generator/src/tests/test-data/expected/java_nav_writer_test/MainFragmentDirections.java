@@ -90,7 +90,7 @@ public class MainFragmentDirections {
 
         @Override
         public int getActionId() {
-            return a.b.R.id.previous;
+            return R.id.previous;
         }
 
         @SuppressWarnings("unchecked")
@@ -196,7 +196,7 @@ public class MainFragmentDirections {
 
         @Override
         public int getActionId() {
-            return a.b.R.id.next;
+            return R.id.next;
         }
 
         @SuppressWarnings("unchecked")

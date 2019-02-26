@@ -41,7 +41,7 @@ public static class Finish implements NavDirections {
 
     @Override
     public int getActionId() {
-        return a.b.R.id.finish;
+        return R.id.finish;
     }
 
     @Override
