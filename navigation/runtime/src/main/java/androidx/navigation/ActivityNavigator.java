@@ -77,7 +77,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
             return;
         }
         int popEnterAnim = intent.getIntExtra(EXTRA_POP_ENTER_ANIM, -1);
-        int popExitAnim = intent.getIntExtra(EXTRA_POP_ENTER_ANIM, -1);
+        int popExitAnim = intent.getIntExtra(EXTRA_POP_EXIT_ANIM, -1);
         if (popEnterAnim != -1 || popExitAnim != -1) {
             popEnterAnim = popEnterAnim != -1 ? popEnterAnim : 0;
             popExitAnim = popExitAnim != -1 ? popExitAnim : 0;
