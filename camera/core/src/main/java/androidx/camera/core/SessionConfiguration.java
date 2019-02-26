@@ -80,7 +80,7 @@ public final class SessionConfiguration {
     /** Returns an instance of a session configuration with minimal configurations. */
     public static SessionConfiguration defaultEmptySessionConfiguration() {
         return new SessionConfiguration(
-                new ArrayList<>(),
+                new ArrayList<DeferrableSurface>(),
                 CameraDeviceStateCallbacks.createNoOpCallback(),
                 CameraCaptureSessionStateCallbacks.createNoOpCallback(),
                 new CaptureRequestConfiguration.Builder().build());

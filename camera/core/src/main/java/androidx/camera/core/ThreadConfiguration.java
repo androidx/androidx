@@ -42,9 +42,7 @@ public interface ThreadConfiguration extends Configuration.Reader {
      * configuration.
      */
     @Nullable
-    default Handler getCallbackHandler(@Nullable Handler valueIfMissing) {
-        return retrieveOption(OPTION_CALLBACK_HANDLER, valueIfMissing);
-    }
+    Handler getCallbackHandler(@Nullable Handler valueIfMissing);
 
     /**
      * Returns the default handler that will be used for callbacks.
@@ -52,9 +50,7 @@ public interface ThreadConfiguration extends Configuration.Reader {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    default Handler getCallbackHandler() {
-        return retrieveOption(OPTION_CALLBACK_HANDLER);
-    }
+    Handler getCallbackHandler();
 
     // Option Declarations:
     // *********************************************************************************************
@@ -83,9 +79,6 @@ public interface ThreadConfiguration extends Configuration.Reader {
          * @param handler The handler which will be used to post callbacks.
          * @return the current Builder.
          */
-        default B setCallbackHandler(Handler handler) {
-            getMutableConfiguration().insertOption(OPTION_CALLBACK_HANDLER, handler);
-            return builder();
-        }
+        B setCallbackHandler(Handler handler);
     }
 }

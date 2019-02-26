@@ -99,7 +99,7 @@ public final class Camera2CameraControl implements CameraControl {
 
     /** {@inheritDoc} */
     @Override
-    public void setCropRegion(Rect crop) {
+    public void setCropRegion(final Rect crop) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -117,10 +117,10 @@ public final class Camera2CameraControl implements CameraControl {
     /** {@inheritDoc} */
     @Override
     public void focus(
-            Rect focus,
-            Rect metering,
-            @Nullable OnFocusCompletedListener listener,
-            @Nullable Handler listenerHandler) {
+            final Rect focus,
+            final Rect metering,
+            @Nullable final OnFocusCompletedListener listener,
+            @Nullable final Handler listenerHandler) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -199,6 +199,11 @@ public final class Camera2CameraControl implements CameraControl {
         }
     }
 
+    @Override
+    public void focus(Rect focus, Rect metering) {
+        focus(focus, metering, null, null);
+    }
+
     private void runInFocusListenerHandler(Runnable runnable) {
         if (mFocusListenerHandler != null) {
             mFocusListenerHandler.post(runnable);
@@ -275,7 +280,7 @@ public final class Camera2CameraControl implements CameraControl {
         enableTorchInternal(torch);
     }
 
-    private void enableTorchInternal(boolean torch) {
+    private void enableTorchInternal(final boolean torch) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -365,7 +370,8 @@ public final class Camera2CameraControl implements CameraControl {
      * exposure scan.
      */
     @Override
-    public void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger) {
+    public void cancelAfAeTrigger(final boolean cancelAfTrigger,
+            final boolean cancelAePrecaptureTrigger) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override

@@ -411,7 +411,7 @@ public abstract class BaseUseCase {
     protected CameraControl getCameraControl(String cameraId) {
         CameraControl cameraControl = mAttachedCameraControlMap.get(cameraId);
         if (cameraControl == null) {
-            return CameraControl.defaultEmptyInstance();
+            return CameraControl.DEFAULT_EMPTY_INSTANCE;
         }
         return cameraControl;
     }

@@ -146,9 +146,7 @@ public interface Configuration {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        default boolean containsOption(Option<?> id) {
-            return getConfiguration().containsOption(id);
-        }
+        boolean containsOption(Option<?> id);
 
         /**
          * {@inheritDoc}
@@ -158,9 +156,7 @@ public interface Configuration {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @Nullable
-        default <ValueT> ValueT retrieveOption(Option<ValueT> id) {
-            return getConfiguration().retrieveOption(id);
-        }
+        <ValueT> ValueT retrieveOption(Option<ValueT> id);
 
         /**
          * {@inheritDoc}
@@ -170,9 +166,7 @@ public interface Configuration {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         @Nullable
-        default <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
-            return getConfiguration().retrieveOption(id, valueIfMissing);
-        }
+        <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing);
 
         /**
          * {@inheritDoc}
@@ -181,9 +175,7 @@ public interface Configuration {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        default void findOptions(String idStem, OptionMatcher matcher) {
-            getConfiguration().findOptions(idStem, matcher);
-        }
+        void findOptions(String idStem, OptionMatcher matcher);
 
         /**
          * {@inheritDoc}
@@ -192,9 +184,8 @@ public interface Configuration {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        default Set<Option<?>> listOptions() {
-            return getConfiguration().listOptions();
-        }
+        Set<Option<?>> listOptions();
+
     }
 
     /**
@@ -233,10 +224,7 @@ public interface Configuration {
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        default <ValueT> T insertOption(Option<ValueT> opt, ValueT value) {
-            getMutableConfiguration().insertOption(opt, value);
-            return builder();
-        }
+        <ValueT> T insertOption(Option<ValueT> opt, ValueT value);
 
         /**
          * Removes an option from the configuration if it exists.
@@ -249,10 +237,7 @@ public interface Configuration {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
-        default <ValueT> T removeOption(Option<ValueT> opt) {
-            getMutableConfiguration().removeOption(opt);
-            return builder();
-        }
+        <ValueT> T removeOption(Option<ValueT> opt);
 
         /**
          * Creates an immutable {@link Configuration} object from the current state of this builder.

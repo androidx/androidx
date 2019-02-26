@@ -65,12 +65,8 @@ public interface BaseCamera extends BaseUseCase.StateChangeListener {
     void removeOnlineUseCase(Collection<BaseUseCase> baseUseCases);
 
     /** Returns the global CameraControl attached to this camera. */
-    default CameraControl getCameraControl() {
-        return CameraControl.defaultEmptyInstance();
-    }
+    CameraControl getCameraControl();
 
     /** Returns an interface to retrieve characteristics of the camera. */
-    default CameraInfo getCameraInfo() throws CameraInfoUnavailableException {
-        throw new CameraInfoUnavailableException("Camera info not implemented.");
-    }
+    CameraInfo getCameraInfo() throws CameraInfoUnavailableException;
 }

@@ -16,6 +16,8 @@
 
 package androidx.camera.testing.fakes;
 
+import android.view.Surface;
+
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraX.LensFacing;
@@ -49,5 +51,10 @@ class FakeCameraInfo implements CameraInfo {
     @Override
     public int getSensorRotationDegrees(@RotationValue int relativeRotation) {
         return mSensorRotation;
+    }
+
+    @Override
+    public int getSensorRotationDegrees() {
+        return getSensorRotationDegrees(Surface.ROTATION_0);
     }
 }

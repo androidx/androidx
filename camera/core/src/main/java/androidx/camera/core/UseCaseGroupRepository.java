@@ -18,9 +18,11 @@ package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.VisibleForTesting;
-import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.State;
+import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -93,9 +95,9 @@ final class UseCaseGroupRepository {
      *
      * @param lifecycleOwner to associate with the group
      * @return a new {@link UseCaseGroupLifecycleController}
-     * @throws IllegalArgumentException if the {@link android.arch.lifecycle.Lifecycle} of
+     * @throws IllegalArgumentException if the {@link androidx.lifecycle.Lifecycle} of
      *                                  lifecycleOwner is already
-     *                                  {@link android.arch.lifecycle.Lifecycle.State.DESTROYED}.
+     *                                  {@link androidx.lifecycle.Lifecycle.State.DESTROYED}.
      */
     private UseCaseGroupLifecycleController createUseCaseGroup(LifecycleOwner lifecycleOwner) {
         if (lifecycleOwner.getLifecycle().getCurrentState() == State.DESTROYED) {
@@ -114,15 +116,15 @@ final class UseCaseGroupRepository {
     }
 
     /**
-     * Creates a {@link DefaultLifecycleObserver} which removes any {@link
+     * Creates a {@link LifecycleObserver} which removes any {@link
      * UseCaseGroupLifecycleController} associated with a {@link LifecycleOwner} from this
      * repository when that lifecycle is destroyed.
      *
-     * @return a new {@link DefaultLifecycleObserver}
+     * @return a new {@link LifecycleObserver}
      */
-    private DefaultLifecycleObserver createRemoveOnDestroyObserver() {
-        return new DefaultLifecycleObserver() {
-            @Override
+    private LifecycleObserver createRemoveOnDestroyObserver() {
+        return new LifecycleObserver() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             public void onDestroy(LifecycleOwner lifecycleOwner) {
                 synchronized (mUseCasesLock) {
                     mLifecycleToUseCaseGroupControllerMap.remove(lifecycleOwner);

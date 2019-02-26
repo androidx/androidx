@@ -39,7 +39,7 @@ final class Camera2OptionUnpacker implements SessionConfiguration.OptionUnpacker
     static final Camera2OptionUnpacker INSTANCE = new Camera2OptionUnpacker();
 
     @Override
-    public void unpack(UseCaseConfiguration<?> config, SessionConfiguration.Builder builder) {
+    public void unpack(UseCaseConfiguration<?> config, final SessionConfiguration.Builder builder) {
         SessionConfiguration defaultSessionConfig =
                 config.getDefaultSessionConfiguration(/*valueIfMissing=*/ null);
 
@@ -68,7 +68,7 @@ final class Camera2OptionUnpacker implements SessionConfiguration.OptionUnpacker
         builder.setImplementationOptions(implOptions);
 
         // Get Camera2 extended options
-        Camera2Configuration camera2Config = new Camera2Configuration(config);
+        final Camera2Configuration camera2Config = new Camera2Configuration(config);
 
         // Apply template type
         builder.setTemplateType(camera2Config.getCaptureRequestTemplate(templateType));

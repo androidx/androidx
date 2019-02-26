@@ -115,7 +115,8 @@ final class ImageSaver implements Runnable {
         });
     }
 
-    private void postError(SaveError saveError, String message, @Nullable Throwable cause) {
+    private void postError(final SaveError saveError, final String message,
+            @Nullable final Throwable cause) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {

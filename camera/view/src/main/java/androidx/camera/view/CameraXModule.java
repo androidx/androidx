@@ -50,10 +50,10 @@ import androidx.camera.core.ViewFinderUseCase;
 import androidx.camera.core.ViewFinderUseCaseConfiguration;
 import androidx.camera.view.CameraView.CaptureMode;
 import androidx.camera.view.CameraView.Quality;
-import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import java.io.File;
 import java.util.Arrays;
@@ -91,8 +91,8 @@ final class CameraXModule {
     @Nullable
     LifecycleOwner mCurrentLifecycle;
     private final LifecycleObserver mCurrentLifecycleObserver =
-            new DefaultLifecycleObserver() {
-                @Override
+            new LifecycleObserver() {
+                @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
                 public void onDestroy(LifecycleOwner owner) {
                     if (owner == mCurrentLifecycle) {
                         clearCurrentLifecycle();
@@ -179,7 +179,7 @@ final class CameraXModule {
             throw new IllegalArgumentException("Cannot bind to lifecycle in a destroyed state.");
         }
 
-        int cameraOrientation;
+        final int cameraOrientation;
         try {
             String cameraId;
             Set<LensFacing> available = getAvailableCameraLensFacing();
@@ -250,18 +250,22 @@ final class CameraXModule {
 
         mViewFinderUseCase = new ViewFinderUseCase(mViewFinderConfigBuilder.build());
         mViewFinderUseCase.setOnViewFinderOutputUpdateListener(
-                output -> {
-                    boolean needReverse = cameraOrientation != 0 && cameraOrientation != 180;
-                    int textureWidth =
-                            needReverse
-                                    ? output.getTextureSize().getHeight()
-                                    : output.getTextureSize().getWidth();
-                    int textureHeight =
-                            needReverse
-                                    ? output.getTextureSize().getWidth()
-                                    : output.getTextureSize().getHeight();
-                    onViewfinderSourceDimensUpdated(textureWidth, textureHeight);
-                    setSurfaceTexture(output.getSurfaceTexture());
+                new ViewFinderUseCase.OnViewFinderOutputUpdateListener() {
+                    @Override
+                    public void onUpdated(ViewFinderUseCase.ViewFinderOutput output) {
+                        boolean needReverse = cameraOrientation != 0 && cameraOrientation != 180;
+                        int textureWidth =
+                                needReverse
+                                        ? output.getTextureSize().getHeight()
+                                        : output.getTextureSize().getWidth();
+                        int textureHeight =
+                                needReverse
+                                        ? output.getTextureSize().getWidth()
+                                        : output.getTextureSize().getHeight();
+                        CameraXModule.this.onViewfinderSourceDimensUpdated(textureWidth,
+                                textureHeight);
+                        CameraXModule.this.setSurfaceTexture(output.getSurfaceTexture());
+                    }
                 });
 
         if (getCaptureMode() == CaptureMode.IMAGE) {
@@ -323,7 +327,7 @@ final class CameraXModule {
         mImageCaptureUseCase.takePicture(saveLocation, listener, metadata);
     }
 
-    public void startRecording(File file, OnVideoSavedListener listener) {
+    public void startRecording(File file, final OnVideoSavedListener listener) {
         if (mVideoCaptureUseCase == null) {
             return;
         }

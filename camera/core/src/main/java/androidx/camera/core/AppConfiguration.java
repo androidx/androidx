@@ -20,6 +20,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
+import java.util.Set;
+import java.util.UUID;
+
 /**
  * Configuration for adding implementation and user-specific behavior to CameraX.
  *
@@ -176,5 +179,132 @@ public final class AppConfiguration implements TargetConfiguration<CameraX> {
         public AppConfiguration build() {
             return new AppConfiguration(OptionsBundle.from(mMutableConfig));
         }
+
+
+        // Start of the default implementation of Configuration.Builder
+        // *****************************************************************************************
+
+        // Implementations of Configuration.Builder default methods
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public <ValueT> Builder insertOption(Option<ValueT> opt, ValueT value) {
+            getMutableConfiguration().insertOption(opt, value);
+            return builder();
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @Nullable
+        public <ValueT> Builder removeOption(Option<ValueT> opt) {
+            getMutableConfiguration().removeOption(opt);
+            return builder();
+        }
+
+        // Implementations of TargetConfiguration.Builder default methods
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setTargetClass(Class<CameraX> targetClass) {
+            getMutableConfiguration().insertOption(OPTION_TARGET_CLASS, targetClass);
+
+            // If no name is set yet, then generate a unique name
+            if (null == getMutableConfiguration().retrieveOption(OPTION_TARGET_NAME, null)) {
+                String targetName = targetClass.getCanonicalName() + "-" + UUID.randomUUID();
+                setTargetName(targetName);
+            }
+
+            return builder();
+        }
+
+        @Override
+        public Builder setTargetName(String targetName) {
+            getMutableConfiguration().insertOption(OPTION_TARGET_NAME, targetName);
+            return builder();
+        }
+
+        // End of the default implementation of Configuration.Builder
+        // *****************************************************************************************
     }
+
+
+    // Start of the default implementation of Configuration
+    // *********************************************************************************************
+
+    // Implementations of Configuration.Reader default methods
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public boolean containsOption(Option<?> id) {
+        return getConfiguration().containsOption(id);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
+        return getConfiguration().retrieveOption(id);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
+        return getConfiguration().retrieveOption(id, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void findOptions(String idStem, OptionMatcher matcher) {
+        getConfiguration().findOptions(idStem, matcher);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Set<Option<?>> listOptions() {
+        return getConfiguration().listOptions();
+    }
+
+    // Implementations of TargetConfiguration default methods
+
+    @Override
+    @Nullable
+    public Class<CameraX> getTargetClass(
+            @Nullable Class<CameraX> valueIfMissing) {
+        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
+                Class<CameraX> storedClass = (Class<CameraX>) retrieveOption(
+                OPTION_TARGET_CLASS,
+                valueIfMissing);
+        return storedClass;
+    }
+
+    @Override
+    public Class<CameraX> getTargetClass() {
+        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
+                Class<CameraX> storedClass = (Class<CameraX>) retrieveOption(
+                OPTION_TARGET_CLASS);
+        return storedClass;
+    }
+
+    @Override
+    @Nullable
+    public String getTargetName(@Nullable String valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_NAME, valueIfMissing);
+    }
+
+    @Override
+    public String getTargetName() {
+        return retrieveOption(OPTION_TARGET_NAME);
+    }
+
+    // End of the default implementation of Configuration
+    // *********************************************************************************************
 }

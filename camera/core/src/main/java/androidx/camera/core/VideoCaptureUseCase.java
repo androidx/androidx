@@ -254,7 +254,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
      * @param metadata     Metadata to save with the recorded video
      */
     public void startRecording(
-            File saveLocation, OnVideoSavedListener listener, Metadata metadata) {
+            final File saveLocation, final OnVideoSavedListener listener, Metadata metadata) {
         Log.i(TAG, "startRecording");
 
         if (!mEndOfAudioVideoSignal.get()) {

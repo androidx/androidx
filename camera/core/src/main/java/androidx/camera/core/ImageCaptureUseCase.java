@@ -330,7 +330,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
          */
 
         // Convert the ImageSaver.OnImageSavedListener to ImageCaptureUseCase.OnImageSavedListener
-        ImageSaver.OnImageSavedListener imageSavedListenerWrapper =
+        final ImageSaver.OnImageSavedListener imageSavedListenerWrapper =
                 new ImageSaver.OnImageSavedListener() {
                     @Override
                     public void onImageSaved(File file) {
@@ -579,7 +579,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      *
      * <p>For example, trigger 3A scan, open torch and check 3A converged if necessary.
      */
-    private ListenableFuture<Void> preTakePicture(TakePictureState state) {
+    private ListenableFuture<Void> preTakePicture(final TakePictureState state) {
         return FluentFuture.from(getPreCaptureStateIfNeeded())
                 .transformAsync(
                         new AsyncFunction<CameraCaptureResult, Boolean>() {
@@ -611,7 +611,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      *
      * <p>For example, cancel 3A scan, close torch if necessary.
      */
-    private ListenableFuture<Void> postTakePicture(TakePictureState state) {
+    private ListenableFuture<Void> postTakePicture(final TakePictureState state) {
         return Futures.submitAsync(
                 new AsyncCallable<Void>() {
                     @Override
@@ -771,7 +771,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
 
         applyPixelHdrPlusChangeForCaptureMode(mCaptureMode, builder);
 
-        SettableFuture<Void> future = SettableFuture.create();
+        final SettableFuture<Void> future = SettableFuture.create();
         builder.setCameraCaptureCallback(
                 new CameraCaptureCallback() {
                     @Override
@@ -849,18 +849,18 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public interface OnImageCapturedListener {
+    public abstract static class OnImageCapturedListener {
         /**
          * Callback for when the image has been captured.
          *
          * <p>The listener is responsible for closing the supplied {@link Image}.
          */
-        default void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
+        public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
             image.close();
         }
 
         /** Callback for when an error occurred during image capture. */
-        default void onError(
+        public void onError(
                 UseCaseError useCaseError, String message, @Nullable Throwable cause) {
         }
     }

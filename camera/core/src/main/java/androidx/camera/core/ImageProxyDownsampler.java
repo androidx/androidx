@@ -187,7 +187,7 @@ final class ImageProxyDownsampler {
     }
 
     private static ImageProxy.PlaneProxy createPlaneProxy(
-            int rowStride, int pixelStride, byte[] data) {
+            final int rowStride, final int pixelStride, final byte[] data) {
         return new ImageProxy.PlaneProxy() {
             final ByteBuffer mBuffer = ByteBuffer.wrap(data);
 

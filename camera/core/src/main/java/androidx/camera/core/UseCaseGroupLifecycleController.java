@@ -17,13 +17,14 @@
 package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
-import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.State;
+import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.OnLifecycleEvent;
 
 /** A {@link UseCaseGroup} whose starting and stopping is controlled by a {@link Lifecycle}. */
-final class UseCaseGroupLifecycleController implements DefaultLifecycleObserver {
+final class UseCaseGroupLifecycleController implements LifecycleObserver {
     private final Object mUseCaseGroupLock = new Object();
 
     @GuardedBy("mUseCaseGroupLock")
@@ -44,21 +45,21 @@ final class UseCaseGroupLifecycleController implements DefaultLifecycleObserver 
         lifecycle.addObserver(this);
     }
 
-    @Override
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onStart(LifecycleOwner lifecycleOwner) {
         synchronized (mUseCaseGroupLock) {
             mUseCaseGroup.start();
         }
     }
 
-    @Override
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onStop(LifecycleOwner lifecycleOwner) {
         synchronized (mUseCaseGroupLock) {
             mUseCaseGroup.stop();
         }
     }
 
-    @Override
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     public void onDestroy(LifecycleOwner lifecycleOwner) {
         synchronized (mUseCaseGroupLock) {
             mUseCaseGroup.clear();

@@ -82,9 +82,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
      * configuration.
      */
     @Nullable
-    default Rational getTargetAspectRatio(@Nullable Rational valueIfMissing) {
-        return retrieveOption(OPTION_TARGET_ASPECT_RATIO, valueIfMissing);
-    }
+    Rational getTargetAspectRatio(@Nullable Rational valueIfMissing);
 
     /**
      * Retrieves the aspect ratio of the target intending to use images from this configuration.
@@ -96,9 +94,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    default Rational getTargetAspectRatio() {
-        return retrieveOption(OPTION_TARGET_ASPECT_RATIO);
-    }
+    Rational getTargetAspectRatio();
 
     /**
      * Retrieves the rotation of the target intending to use images from this configuration.
@@ -112,9 +108,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
      * configuration.
      */
     @RotationValue
-    default int getTargetRotation(int valueIfMissing) {
-        return retrieveOption(OPTION_TARGET_ROTATION, valueIfMissing);
-    }
+    int getTargetRotation(int valueIfMissing);
 
     /**
      * Retrieves the rotation of the target intending to use images from this configuration.
@@ -127,9 +121,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @RotationValue
-    default int getTargetRotation() {
-        return retrieveOption(OPTION_TARGET_ROTATION);
-    }
+    int getTargetRotation();
 
     /**
      * Retrieves the resolution of the target intending to use from this configuration.
@@ -140,9 +132,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    default Size getTargetResolution(Size valueIfMissing) {
-        return retrieveOption(OPTION_TARGET_RESOLUTION, valueIfMissing);
-    }
+    Size getTargetResolution(Size valueIfMissing);
 
     /**
      * Retrieves the resolution of the target intending to use from this configuration.
@@ -152,9 +142,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    default Size getTargetResolution() {
-        return retrieveOption(OPTION_TARGET_RESOLUTION);
-    }
+    Size getTargetResolution();
 
     // Option Declarations:
     // *********************************************************************************************
@@ -169,9 +157,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    default Size getMaxResolution(Size valueIfMissing) {
-        return retrieveOption(OPTION_MAX_RESOLUTION, valueIfMissing);
-    }
+    Size getMaxResolution(Size valueIfMissing);
 
     /**
      * Retrieves the max resolution limitation of the target intending to use from this
@@ -182,9 +168,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    default Size getMaxResolution() {
-        return retrieveOption(OPTION_MAX_RESOLUTION);
-    }
+    Size getMaxResolution();
 
     /**
      * Builder for a {@link ImageOutputConfiguration}.
@@ -206,10 +190,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
          *                    height.
          * @return The current Builder.
          */
-        default T setTargetAspectRatio(Rational aspectRatio) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
-            return builder();
-        }
+        T setTargetAspectRatio(Rational aspectRatio);
 
         /**
          * Sets the rotation of the intended target for images from this configuration.
@@ -221,10 +202,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
          */
-        default T setTargetRotation(@RotationValue int rotation) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_ROTATION, rotation);
-            return builder();
-        }
+        T setTargetRotation(@RotationValue int rotation);
 
         /**
          * Sets the resolution of the intended target from this configuration.
@@ -234,10 +212,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        default T setTargetResolution(Size resolution) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_RESOLUTION, resolution);
-            return builder();
-        }
+        T setTargetResolution(Size resolution);
 
         /**
          * Sets the max resolution limitation of the intended target from this configuration.
@@ -248,10 +223,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        default T setMaxResolution(Size resolution) {
-            getMutableConfiguration().insertOption(OPTION_MAX_RESOLUTION, resolution);
-            return builder();
-        }
+        T setMaxResolution(Size resolution);
     }
 
     /**

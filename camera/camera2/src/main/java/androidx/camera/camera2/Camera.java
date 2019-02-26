@@ -217,7 +217,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      * <p>The use case must also be online in order for it to issue capture requests.
      */
     @Override
-    public void onUseCaseActive(BaseUseCase useCase) {
+    public void onUseCaseActive(final BaseUseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -238,7 +238,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
 
     /** Removes the use case from a state of issuing capture requests. */
     @Override
-    public void onUseCaseInactive(BaseUseCase useCase) {
+    public void onUseCaseInactive(final BaseUseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -259,7 +259,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
 
     /** Updates the capture requests based on the latest settings. */
     @Override
-    public void onUseCaseUpdated(BaseUseCase useCase) {
+    public void onUseCaseUpdated(final BaseUseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -279,7 +279,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     }
 
     @Override
-    public void onUseCaseReset(BaseUseCase useCase) {
+    public void onUseCaseReset(final BaseUseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -310,7 +310,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      * capture requests from the use case.
      */
     @Override
-    public void addOnlineUseCase(Collection<BaseUseCase> useCases) {
+    public void addOnlineUseCase(final Collection<BaseUseCase> useCases) {
         if (useCases.isEmpty()) {
             return;
         }
@@ -342,7 +342,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      * handle capture requests from the use case.
      */
     @Override
-    public void removeOnlineUseCase(Collection<BaseUseCase> useCases) {
+    public void removeOnlineUseCase(final Collection<BaseUseCase> useCases) {
         if (useCases.isEmpty()) {
             return;
         }
@@ -531,7 +531,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void submitSingleRequest(CaptureRequestConfiguration captureRequestConfiguration) {
+    public void submitSingleRequest(final CaptureRequestConfiguration captureRequestConfiguration) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override

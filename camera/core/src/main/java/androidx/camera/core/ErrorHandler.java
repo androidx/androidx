@@ -49,9 +49,9 @@ public final class ErrorHandler {
      * @param error   the type of error that occurred
      * @param message detailed message of the error condition
      */
-    void postError(ErrorCode error, String message) {
+    void postError(final ErrorCode error, final String message) {
         synchronized (mErrorLock) {
-            ErrorListener listenerReference = mListener;
+            final ErrorListener listenerReference = mListener;
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {

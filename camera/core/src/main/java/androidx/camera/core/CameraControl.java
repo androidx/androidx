@@ -38,69 +38,6 @@ import androidx.annotation.RestrictTo.Scope;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public interface CameraControl {
-    /** Returns an instance of CameraControl that does nothing. */
-    static CameraControl defaultEmptyInstance() {
-        return new CameraControl() {
-            @Override
-            public void setCropRegion(Rect crop) {
-            }
-
-            @Override
-            public void focus(
-                    Rect focus,
-                    Rect metering,
-                    @Nullable OnFocusCompletedListener listener,
-                    @Nullable Handler handler) {
-            }
-
-            @Override
-            public FlashMode getFlashMode() {
-                return null;
-            }
-
-            @Override
-            public void setFlashMode(FlashMode flashMode) {
-            }
-
-            @Override
-            public void enableTorch(boolean torch) {
-            }
-
-            @Override
-            public boolean isTorchOn() {
-                return false;
-            }
-
-            @Override
-            public boolean isFocusLocked() {
-                return false;
-            }
-
-            @Override
-            public void triggerAf() {
-            }
-
-            @Override
-            public void triggerAePrecapture() {
-            }
-
-            @Override
-            public void cancelAfAeTrigger(
-                    boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger) {
-            }
-
-            @Override
-            public SessionConfiguration getControlSessionConfiguration() {
-                return SessionConfiguration.defaultEmptySessionConfiguration();
-            }
-
-            @Override
-            public Configuration getSingleRequestImplOptions() {
-                return OptionsBundle.emptyBundle();
-            }
-        };
-    }
-
     /**
      * Set the desired crop region of the sensor to read out for all capture requests.
      *
@@ -138,9 +75,7 @@ public interface CameraControl {
      * @param focus    rectangle with dimensions in sensor coordinate frame for focus
      * @param metering rectangle with dimensions in sensor coordinate frame for metering
      */
-    default void focus(Rect focus, Rect metering) {
-        focus(focus, metering, null, null);
-    }
+    void focus(Rect focus, Rect metering);
 
     /** Returns the current flash mode. */
     FlashMode getFlashMode();
@@ -183,4 +118,65 @@ public interface CameraControl {
 
     /** Attaches the common request implementation options to every SINGLE requests. */
     Configuration getSingleRequestImplOptions();
+
+    CameraControl DEFAULT_EMPTY_INSTANCE = new CameraControl() {
+        @Override
+        public void setCropRegion(Rect crop) {
+        }
+
+        @Override
+        public void focus(Rect focus, Rect metering, @Nullable OnFocusCompletedListener listener,
+                @Nullable Handler handler) {
+        }
+
+        @Override
+        public void focus(Rect focus, Rect metering) {
+        }
+
+        @Override
+        public FlashMode getFlashMode() {
+            return null;
+        }
+
+        @Override
+        public void setFlashMode(FlashMode flashMode) {
+        }
+
+        @Override
+        public void enableTorch(boolean torch) {
+        }
+
+        @Override
+        public boolean isTorchOn() {
+            return false;
+        }
+
+        @Override
+        public boolean isFocusLocked() {
+            return false;
+        }
+
+        @Override
+        public void triggerAf() {
+        }
+
+        @Override
+        public void triggerAePrecapture() {
+        }
+
+        @Override
+        public void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger) {
+
+        }
+
+        @Override
+        public SessionConfiguration getControlSessionConfiguration() {
+            return SessionConfiguration.defaultEmptySessionConfiguration();
+        }
+
+        @Override
+        public Configuration getSingleRequestImplOptions() {
+            return OptionsBundle.emptyBundle();
+        }
+    };
 }

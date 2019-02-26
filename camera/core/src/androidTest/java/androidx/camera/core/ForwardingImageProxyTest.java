@@ -60,8 +60,8 @@ public final class ForwardingImageProxyTest {
     @Test
     public void close_notifiesOnImageCloseListener_afterSetOnImageCloseListener()
             throws InterruptedException {
-        Semaphore closedImageSemaphore = new Semaphore(/*permits=*/ 0);
-        AtomicReference<ImageProxy> closedImage = new AtomicReference<>();
+        final Semaphore closedImageSemaphore = new Semaphore(/*permits=*/ 0);
+        final AtomicReference<ImageProxy> closedImage = new AtomicReference<>();
         mImageProxy.addOnImageCloseListener(
                 new ForwardingImageProxy.OnImageCloseListener() {
                     @Override

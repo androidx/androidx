@@ -57,7 +57,7 @@ public final class CameraUtil {
     public static CameraDevice getCameraDevice()
             throws CameraAccessException, InterruptedException {
         // Setup threading required for callback on openCamera()
-        HandlerThread handlerThread = new HandlerThread("handler thread");
+        final HandlerThread handlerThread = new HandlerThread("handler thread");
         handlerThread.start();
         Handler handler = new Handler(handlerThread.getLooper());
 
@@ -73,11 +73,11 @@ public final class CameraUtil {
 
         // Use an AtomicReference to store the CameraDevice because it is initialized in a lambda.
         // This way the AtomicReference itself is effectively final.
-        AtomicReference<CameraDevice> cameraDeviceHolder = new AtomicReference<>();
+        final AtomicReference<CameraDevice> cameraDeviceHolder = new AtomicReference<>();
 
         // Open the camera using the CameraManager which returns a valid and open CameraDevice only
         // when onOpened() is called.
-        CountDownLatch latch = new CountDownLatch(1);
+        final CountDownLatch latch = new CountDownLatch(1);
         cameraManager.openCamera(
                 cameraName,
                 new StateCallback() {

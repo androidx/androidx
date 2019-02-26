@@ -20,8 +20,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
-import java.util.UUID;
-
 /**
  * Configuration containing options used to identify the target class and object being configured.
  *
@@ -54,12 +52,7 @@ public interface TargetConfiguration<T> extends Configuration.Reader {
      * configuration.
      */
     @Nullable
-    default Class<T> getTargetClass(@Nullable Class<T> valueIfMissing) {
-        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<T> storedClass = (Class<T>) retrieveOption(OPTION_TARGET_CLASS,
-                valueIfMissing);
-        return storedClass;
-    }
+    Class<T> getTargetClass(@Nullable Class<T> valueIfMissing);
 
     /**
      * Retrieves the class of the object being configured.
@@ -67,11 +60,7 @@ public interface TargetConfiguration<T> extends Configuration.Reader {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    default Class<T> getTargetClass() {
-        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<T> storedClass = (Class<T>) retrieveOption(OPTION_TARGET_CLASS);
-        return storedClass;
-    }
+    Class<T> getTargetClass();
 
     /**
      * Retrieves the name of the target object being configured.
@@ -84,9 +73,7 @@ public interface TargetConfiguration<T> extends Configuration.Reader {
      * configuration.
      */
     @Nullable
-    default String getTargetName(@Nullable String valueIfMissing) {
-        return retrieveOption(OPTION_TARGET_NAME, valueIfMissing);
-    }
+    String getTargetName(@Nullable String valueIfMissing);
 
     // Option Declarations:
     // *********************************************************************************************
@@ -100,9 +87,7 @@ public interface TargetConfiguration<T> extends Configuration.Reader {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    default String getTargetName() {
-        return retrieveOption(OPTION_TARGET_NAME);
-    }
+    String getTargetName();
 
     /**
      * Builder for a {@link TargetConfiguration}.
@@ -129,17 +114,7 @@ public interface TargetConfiguration<T> extends Configuration.Reader {
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        default B setTargetClass(Class<T> targetClass) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_CLASS, targetClass);
-
-            // If no name is set yet, then generate a unique name
-            if (null == getMutableConfiguration().retrieveOption(OPTION_TARGET_NAME, null)) {
-                String targetName = targetClass.getCanonicalName() + "-" + UUID.randomUUID();
-                setTargetName(targetName);
-            }
-
-            return builder();
-        }
+        B setTargetClass(Class<T> targetClass);
 
         /**
          * Sets the name of the target object being configured.
@@ -151,9 +126,6 @@ public interface TargetConfiguration<T> extends Configuration.Reader {
          *                   configured.
          * @return the current Builder.
          */
-        default B setTargetName(String targetName) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_NAME, targetName);
-            return builder();
-        }
+        B setTargetName(String targetName);
     }
 }
