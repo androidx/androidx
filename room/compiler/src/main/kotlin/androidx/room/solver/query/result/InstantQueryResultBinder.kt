@@ -21,6 +21,7 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
+import androidx.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
 
 /**
@@ -34,6 +35,9 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
+        scope.builder().apply {
+            addStatement("$N.assertNotSuspendingTransaction()", DaoWriter.dbField)
+        }
         val transactionWrapper = if (inTransaction) {
             scope.builder().transactionWrapper(dbField)
         } else {
