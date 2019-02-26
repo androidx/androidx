@@ -46,6 +46,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
         _statement.bindLong(_argIndex, id);
+        __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int _cursorIndexOfFullName = CursorUtil.getColumnIndexOrThrow(_cursor, "fullName");
@@ -71,6 +72,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
         _statement.bindLong(_argIndex, id);
+        __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
@@ -112,6 +114,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         } else {
             _statement.bindString(_argIndex, lastName);
         }
+        __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
@@ -152,6 +155,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _statement.bindLong(_argIndex, _item);
             _argIndex ++;
         }
+        __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
@@ -183,6 +187,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
         _statement.bindLong(_argIndex, id);
+        __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int _result;
@@ -213,6 +218,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _statement.bindLong(_argIndex, _item);
             _argIndex ++;
         }
+        __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int[] _result = new int[_cursor.getCount()];
@@ -249,6 +255,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             }
             _argIndex ++;
         }
+        __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
@@ -393,6 +400,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _statement.bindLong(_argIndex, _item_2);
             _argIndex ++;
         }
+        __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
@@ -416,6 +424,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     public List<Child1> getChild1List() {
         final String _sql = "SELECT * FROM Child1";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+        __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
@@ -451,6 +460,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     public List<Child2> getChild2List() {
         final String _sql = "SELECT * FROM Child2";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+        __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
             final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");

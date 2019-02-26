@@ -43,6 +43,7 @@ package androidx.room {
 
   public abstract class RoomDatabase {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void assertNotMainThread();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void assertNotSuspendingTransaction();
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int MAX_BIND_PARAMETER_CNT = 999; // 0x3e7
   }
 
