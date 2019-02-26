@@ -2,12 +2,13 @@ package foo.flavor
 
 import android.os.Bundle
 import androidx.navigation.NavDirections
+import foo.R
 import kotlin.Int
 import kotlin.String
 
 class SettingsFragmentDirections private constructor() {
     private data class Exit(val exitReason: String = "DIFFERENT") : NavDirections {
-        override fun getActionId(): Int = foo.R.id.exit
+        override fun getActionId(): Int = R.id.exit
 
         override fun getArguments(): Bundle {
             val result = Bundle()

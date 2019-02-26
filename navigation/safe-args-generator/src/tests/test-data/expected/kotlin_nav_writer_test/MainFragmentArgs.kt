@@ -20,7 +20,7 @@ import kotlin.jvm.JvmStatic
 data class MainFragmentArgs(
     val main: String,
     val optional: Int = -1,
-    val reference: Int = a.b.R.drawable.background,
+    val reference: Int = R.drawable.background,
     val referenceZeroDefaultValue: Int = 0,
     val floatArg: Float = 1F,
     val floatArrayArg: FloatArray,
@@ -77,7 +77,7 @@ data class MainFragmentArgs(
             if (bundle.containsKey("reference")) {
                 __reference = bundle.getInt("reference")
             } else {
-                __reference = a.b.R.drawable.background
+                __reference = R.drawable.background
             }
             val __referenceZeroDefaultValue : Int
             if (bundle.containsKey("referenceZeroDefaultValue")) {

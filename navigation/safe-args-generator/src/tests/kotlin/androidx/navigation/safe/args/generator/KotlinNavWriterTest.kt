@@ -106,6 +106,18 @@ class KotlinNavWriterTest {
     }
 
     @Test
+    fun testDirectionsClassGeneration_withKeywordId() {
+        val funAction = Action(ResReference("fun.is.in", "id", "next"), id("destA"),
+            listOf())
+
+        val dest = Destination(null, ClassName.get("a.b", "FunFragment"), "fragment", listOf(),
+            listOf(funAction))
+
+        val actual = generateDirectionsCodeFile(dest, emptyList(), false)
+        assertThat(actual.toString()).parsesAs("a.b.FunFragmentDirections")
+    }
+
+    @Test
     fun testArgumentsClassGeneration() {
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(
             Argument("main", StringType),

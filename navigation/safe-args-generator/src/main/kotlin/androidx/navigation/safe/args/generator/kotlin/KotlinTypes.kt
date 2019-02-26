@@ -42,7 +42,7 @@ import androidx.navigation.safe.args.generator.StringValue
 import androidx.navigation.safe.args.generator.WritableValue
 import androidx.navigation.safe.args.generator.ext.toClassNameParts
 import androidx.navigation.safe.args.generator.models.Argument
-import androidx.navigation.safe.args.generator.models.accessor
+import androidx.navigation.safe.args.generator.models.ResReference
 import com.squareup.kotlinpoet.ARRAY
 import com.squareup.kotlinpoet.BOOLEAN
 import com.squareup.kotlinpoet.ClassName
@@ -178,7 +178,7 @@ internal fun NavType.typeName(): TypeName = when (this) {
 
 internal fun WritableValue.write(): CodeBlock {
     return when (this) {
-        is ReferenceValue -> CodeBlock.of(resReference.accessor())
+        is ReferenceValue -> resReference.accessor()
         is StringValue -> CodeBlock.of("%S", value)
         is IntValue -> CodeBlock.of(value)
         is LongValue -> CodeBlock.of(value)
@@ -189,3 +189,7 @@ internal fun WritableValue.write(): CodeBlock {
         else -> throw IllegalStateException("Unknown value: $this")
     }
 }
+
+internal fun ResReference?.accessor() = this?.let {
+    CodeBlock.of("%T.%N", ClassName(packageName, "R", resType), javaIdentifier)
+} ?: CodeBlock.of("0")

@@ -90,7 +90,7 @@ public class SanitizedMainFragmentDirections {
 
         @Override
         public int getActionId() {
-            return a.b.R.id.previous_action;
+            return R.id.previous_action;
         }
 
         @SuppressWarnings("unchecked")
@@ -196,7 +196,7 @@ public class SanitizedMainFragmentDirections {
 
         @Override
         public int getActionId() {
-            return a.b.R.id.next_action;
+            return R.id.next_action;
         }
 
         @SuppressWarnings("unchecked")

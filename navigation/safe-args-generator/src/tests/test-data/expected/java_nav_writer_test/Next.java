@@ -160,7 +160,7 @@ public static class Next implements NavDirections {
 
     @Override
     public int getActionId() {
-        return a.b.R.id.next;
+        return R.id.next;
     }
 
     @SuppressWarnings("unchecked")

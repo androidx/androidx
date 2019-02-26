@@ -19,7 +19,7 @@ private data class Next(
     val parcelable: ActivityInfo,
     val innerData: ActivityInfo.WindowLayout
 ) : NavDirections {
-    override fun getActionId(): Int = a.b.R.id.next
+    override fun getActionId(): Int = R.id.next
 
     @Suppress("CAST_NEVER_SUCCEEDS")
     override fun getArguments(): Bundle {
