@@ -96,6 +96,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public void deleteUser(final User user) {
+    __db.assertNotSuspendingTransaction();
     __db.beginTransaction();
     try {
       __deletionAdapterOfUser.handle(user);
@@ -107,6 +108,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public void deleteUsers(final User user1, final List<User> others) {
+    __db.assertNotSuspendingTransaction();
     __db.beginTransaction();
     try {
       __deletionAdapterOfUser.handle(user1);
@@ -119,6 +121,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public void deleteArrayOfUsers(final User[] users) {
+    __db.assertNotSuspendingTransaction();
     __db.beginTransaction();
     try {
       __deletionAdapterOfUser.handleMultiple(users);
@@ -130,6 +133,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public Integer deleteUserAndReturnCountObject(final User user) {
+    __db.assertNotSuspendingTransaction();
     int _total = 0;
     __db.beginTransaction();
     try {
@@ -143,6 +147,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public int deleteUserAndReturnCount(final User user) {
+    __db.assertNotSuspendingTransaction();
     int _total = 0;
     __db.beginTransaction();
     try {
@@ -156,6 +161,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public int deleteUserAndReturnCount(final User user1, final List<User> others) {
+    __db.assertNotSuspendingTransaction();
     int _total = 0;
     __db.beginTransaction();
     try {
@@ -170,6 +176,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public int deleteUserAndReturnCount(final User[] users) {
+    __db.assertNotSuspendingTransaction();
     int _total = 0;
     __db.beginTransaction();
     try {
@@ -236,6 +243,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public int multiPKey(final MultiPKeyEntity entity) {
+    __db.assertNotSuspendingTransaction();
     int _total = 0;
     __db.beginTransaction();
     try {
@@ -249,6 +257,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public void deleteUserAndBook(final User user, final Book book) {
+    __db.assertNotSuspendingTransaction();
     __db.beginTransaction();
     try {
       __deletionAdapterOfUser.handle(user);
@@ -261,6 +270,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public int deleteByUid(final int uid) {
+    __db.assertNotSuspendingTransaction();
     final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
     int _argIndex = 1;
     _stmt.bindLong(_argIndex, uid);
@@ -340,6 +350,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public int deleteEverything() {
+    __db.assertNotSuspendingTransaction();
     final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteEverything.acquire();
     __db.beginTransaction();
     try {
@@ -354,6 +365,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public int deleteByUidList(final int... uid) {
+    __db.assertNotSuspendingTransaction();
     StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("DELETE FROM user where uid IN(");
     final int _inputSize = uid.length;
