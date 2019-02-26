@@ -64,10 +64,21 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
         setTitle(R.string.asset_loader_ajax_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        mAssetLoader = new WebViewAssetLoader(this);
-        mWebView = new WebView(this);
+        // The "https://example.com" domain with the virtual path "/androidx_webkit/example/
+        // is used to host resources/assets is used for demonstration purpose only.
+        // The developer should ALWAYS use a domain which they are in control of or use
+        // the default androidplatform.net reserved by Google for this purpose.
+        WebViewAssetLoader.Builder assetLoaderBuilder = new WebViewAssetLoader.Builder(this);
+        // using the domain "example.com" instead of the default "appassets.androidplatfrom.net"
+        assetLoaderBuilder.setDomain("example.com");
+        // Host app resources ... under https://example.com/androidx_webkit/example/res/...
+        assetLoaderBuilder.setResourcesHostingPath("/androidx_webkit/example/res/");
+        // Host app assets under https://example.com/androidx_webkit/example/assets/...
+        assetLoaderBuilder.setAssetsHostingPath("/androidx_webkit/example/assets/");
+        mAssetLoader = assetLoaderBuilder.build();
+
+        mWebView = findViewById(R.id.webview_asset_loader_webview);
         mWebView.setWebViewClient(new MyWebViewClient());
-        setContentView(mWebView);
 
         WebSettings webViewSettings = mWebView.getSettings();
         webViewSettings.setJavaScriptEnabled(true);
@@ -79,19 +90,9 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
         webViewSettings.setAllowFileAccess(false);
         webViewSettings.setAllowContentAccess(false);
 
-        // The "http://example.com" domain with the virtual path "/androidx_webkit/example/
-        // is used to host resources/assets is used for demonstration purpose only.
-        // The developer should ALWAYS use a domain which they are in control of or use
-        // the default androidplatform.net reserved by Google for this purpose.
-
-        // Host android resources ... under http(s)://example.com/androidx_webkit/example/res/...
-        mAssetLoader.hostResources("example.com", "/androidx_webkit/example/res/", true);
-        // Host the app assets under http(s)://example.com/androidx_webkit/example/assets/...
-        mAssetLoader.hostAssets("example.com", "/androidx_webkit/example/assets/", true);
         Uri path = mAssetLoader.getAssetsHttpsPrefix().buildUpon()
-                                                .appendPath("www")
-                                                .appendPath("ajax_requests.html").build();
-
+                                        .appendPath("www")
+                                        .appendPath("ajax_requests.html").build();
         // Load the url http(s)://example.com/androidx_webkit/example/assets/www/ajax_requests.html
         mWebView.loadUrl(path.toString());
     }
