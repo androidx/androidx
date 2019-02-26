@@ -25,16 +25,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.spy
-import org.mockito.Mockito.timeout
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -82,22 +77,20 @@ class NavControllerActivityTest {
         assertThat(navigator.backStack.size)
             .isEqualTo(1)
 
+        assertThat(activityRule.activity.isFinishCalled)
+            .isFalse()
         assertThat(navController.navigateUp())
             .isTrue()
-        assertThat(activityRule.activity.isFinishing)
+        assertThat(activityRule.activity.isFinishCalled)
             .isTrue()
-    }
-
-    private fun waitForActivity(): TargetActivity {
-        verify(TargetActivity.instances, timeout(3000)).add(any())
-        verifyNoMoreInteractions(TargetActivity.instances)
-        val targetActivity: ArrayList<TargetActivity> = ArrayList()
-        activityRule.runOnUiThread {
-            targetActivity.addAll(TargetActivity.instances)
-        }
-        assertTrue("Only expected a single TargetActivity", targetActivity.size == 1)
-        return targetActivity[0]
     }
 }
 
-class NavControllerActivity : Activity()
+class NavControllerActivity : Activity() {
+    var isFinishCalled = false
+
+    override fun finish() {
+        super.finish()
+        isFinishCalled = true
+    }
+}
