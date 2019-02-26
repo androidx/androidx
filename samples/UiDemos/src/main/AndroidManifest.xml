@@ -16,10 +16,10 @@
 
 <manifest
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" package="com.example.ui.port">
+        xmlns:tools="http://schemas.android.com/tools" package="com.example.androidx.ui">
 
     <application
-            android:label="Ui port sample"
+            android:label="AndroidX UI sample"
             android:supportsRtl="true" tools:ignore="GoogleAppIndexingWarning"
             android:allowBackup="false" android:icon="@mipmap/ic_launcher">
 
@@ -31,9 +31,72 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ColorChangingActivity"
+        <activity android:name="androidx.r4a.HelloWorldActivity"
                   android:configChanges="orientation|screenSize"
-                  android:label="Color Changing Activity">
+                  android:label="R4A Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="androidx.r4a.CraneRectsActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Crane R4A Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="androidx.r4a.CraneTextActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Crane Text Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="androidx.ui.material.demos.MainActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Material demos">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="androidx.r4a.RecomposeTestActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Recompose test">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="androidx.r4a.MultipleCollectActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Multiple collects measure">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="androidx.r4a.ComplexLayoutActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Complex layout activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="androidx.r4a.VectorGraphicsActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Vector Graphics Activity">
             <!--we currently not support multiple FlutterViews, so lets not recreate activity
                 on a rotation as the view will also be recreated-->
             <intent-filter>
@@ -42,59 +105,5 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".FlippingActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Flipping Activity">
-            <!--we currently not support multiple FlutterViews, so lets not recreate activity
-                on a rotation as the view will also be recreated-->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".TouchActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Touch Activity">
-            <!--we currently not support multiple FlutterViews, so lets not recreate activity
-                on a rotation as the view will also be recreated-->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".WoodPeckerDemo"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Woodpecker Demo">
-            <!--we currently not support multiple FlutterViews, so lets not recreate activity
-                on a rotation as the view will also be recreated-->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".ContainingViewActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="ContainingView Activity">
-            <!--we currently not support multiple FlutterViews, so lets not recreate activity
-                on a rotation as the view will also be recreated-->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".RowsAndColumnsActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Rows and Columns Activity">
-            <!--we currently not support multiple FlutterViews, so lets not recreate activity
-                on a rotation as the view will also be recreated-->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
     </application>
 </manifest>
