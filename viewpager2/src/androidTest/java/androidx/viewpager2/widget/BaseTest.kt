@@ -21,6 +21,11 @@ import android.os.Build
 import android.view.View
 import android.view.View.OVER_SCROLL_NEVER
 import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_RIGHT
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_LEFT
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_UP
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_DOWN
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
@@ -221,6 +226,58 @@ open class BaseTest {
                     )
                 )
         }
+
+        fun assertPageActions() {
+            var actions = getActionList(viewPager)
+            var currentPage = viewPager.currentItem
+            var numPages = viewPager.adapter!!.itemCount
+            var isUserInputEnabled = viewPager.isUserInputEnabled
+            var isHorizontalOrientation = viewPager.orientation == ViewPager2.ORIENTATION_HORIZONTAL
+            var isVerticalOrientation = viewPager.orientation == ViewPager2.ORIENTATION_VERTICAL
+
+            val expectPageLeftAction = isUserInputEnabled && isHorizontalOrientation &&
+                    (if (isRtl) currentPage < numPages - 1 else currentPage > 0)
+
+            val expectPageRightAction = isUserInputEnabled && isHorizontalOrientation &&
+                    (if (isRtl) currentPage > 0 else currentPage < numPages - 1)
+
+            val expectPageUpAction = isUserInputEnabled && isVerticalOrientation &&
+                    currentPage > 0
+
+            val expectPageDownAction = isUserInputEnabled && isVerticalOrientation &&
+                    currentPage < numPages - 1
+
+            assertThat("Left action expected: $expectPageLeftAction",
+                hasPageAction(actions, ACTION_PAGE_LEFT.id),
+                equalTo(expectPageLeftAction)
+            )
+
+            assertThat("Right action expected: $expectPageRightAction",
+                hasPageAction(actions, ACTION_PAGE_RIGHT.id),
+                equalTo(expectPageRightAction)
+            )
+            assertThat("Up action expected: $expectPageUpAction",
+                hasPageAction(actions, ACTION_PAGE_UP.id),
+                equalTo(expectPageUpAction)
+            )
+            assertThat("Down action expected: $expectPageDownAction",
+                hasPageAction(actions, ACTION_PAGE_DOWN.id),
+                equalTo(expectPageDownAction)
+            )
+        }
+
+        private fun hasPageAction(
+            actions: List<AccessibilityNodeInfoCompat.AccessibilityActionCompat>,
+            accessibilityActionId: Int
+        ): Boolean {
+            return actions.any { it.id == accessibilityActionId }
+        }
+
+        private fun getActionList(view: View):
+                List<AccessibilityNodeInfoCompat.AccessibilityActionCompat> {
+            return view.getTag(R.id.tag_accessibility_actions) as?
+                    ArrayList<AccessibilityNodeInfoCompat.AccessibilityActionCompat> ?: ArrayList()
+        }
     }
 
     /**
@@ -346,6 +403,7 @@ open class BaseTest {
         if (viewPager.adapter is SelfChecking) {
             (viewPager.adapter as SelfChecking).selfCheck()
         }
+        assertPageActions()
     }
 
     fun ViewPager2.setCurrentItemSync(
