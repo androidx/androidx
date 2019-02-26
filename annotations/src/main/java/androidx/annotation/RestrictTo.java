@@ -77,7 +77,7 @@ public @interface RestrictTo {
          * com.foo.bar:lib1 and com.foo.baz:lib2 where they share
          * "com.foo.". Library com.bar.qux:lib3 however will not
          * be able to use the restricted api because it only
-         * shares the prefix "foo." and not all the way until the
+         * shares the prefix "com." and not all the way until the
          * last ".".
          */
         LIBRARY_GROUP_PREFIX,
