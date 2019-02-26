@@ -68,6 +68,10 @@ public class FtsTableInfoTest {
                 "tokenize=unicode61 \"tokenchars=,\"");
 
         assertOptions("CREATE VIRTUAL TABLE `Book` USING FTS4(tokenize=unicode61 "
+                        + "`tokenchars=,`)",
+                "tokenize=unicode61 `tokenchars=,`");
+
+        assertOptions("CREATE VIRTUAL TABLE `Book` USING FTS4(tokenize=unicode61 "
                         + "\"tokenchars=.=\" \"separators=X\", `pages`, notindexed=pages)",
                 "tokenize=unicode61 \"tokenchars=.=\" \"separators=X\"",
                 "notindexed=pages");
