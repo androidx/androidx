@@ -7,7 +7,7 @@ import kotlin.String
 
 class SettingsDirections private constructor() {
     private data class Main(val enterReason: String = "DEFAULT") : NavDirections {
-        override fun getActionId(): Int = foo.R.id.main
+        override fun getActionId(): Int = R.id.main
 
         override fun getArguments(): Bundle {
             val result = Bundle()
@@ -17,7 +17,7 @@ class SettingsDirections private constructor() {
     }
 
     private data class Exit(val exitReason: String = "DEFAULT") : NavDirections {
-        override fun getActionId(): Int = foo.R.id.exit
+        override fun getActionId(): Int = R.id.exit
 
         override fun getArguments(): Bundle {
             val result = Bundle()
