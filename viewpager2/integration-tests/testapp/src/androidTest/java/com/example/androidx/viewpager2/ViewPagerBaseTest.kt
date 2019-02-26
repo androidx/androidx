@@ -31,6 +31,13 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runners.Parameterized
 
+/**
+ * Generic test class for testing [BaseCardActivity]s. For each combination of orientation, rotation
+ * animation, translation animation and scale animation, swipes from the first to the second page
+ * and verifies if the expected pages are shown and if the expected animation was performed.
+ * Implementations simply define the Activity under test, see [ViewPagerViewTest] and
+ * [ViewPagerFragmentTest].
+ */
 abstract class ViewPagerBaseTest<T : BaseCardActivity>(
     clazz: Class<T>,
     private val config: TestConfig

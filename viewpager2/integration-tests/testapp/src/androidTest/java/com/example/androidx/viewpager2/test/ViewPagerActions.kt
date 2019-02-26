@@ -32,10 +32,18 @@ import com.example.androidx.viewpager2.test.SwipeAction.Direction.FORWARD
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.Matcher
 
+/**
+ * ViewAction that issues a swipe gesture on a [ViewPager2] to move that ViewPager2 to the next
+ * page, taking orientation and layout direction into account.
+ */
 fun swipeNext(): ViewAction {
     return SwipeAction(FORWARD)
 }
 
+/**
+ * ViewAction that issues a swipe gesture on a [ViewPager2] to move that ViewPager2 to the previous
+ * page, taking orientation and layout direction into account.
+ */
 fun swipePrevious(): ViewAction {
     return SwipeAction(BACKWARD)
 }
