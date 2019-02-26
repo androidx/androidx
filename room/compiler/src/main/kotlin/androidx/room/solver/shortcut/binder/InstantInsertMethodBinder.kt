@@ -16,9 +16,11 @@
 
 package androidx.room.solver.shortcut.binder
 
+import androidx.room.ext.N
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
+import androidx.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.TypeSpec
 
@@ -33,6 +35,9 @@ class InstantInsertMethodBinder(adapter: InsertMethodAdapter?) : InsertMethodBin
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {
+        scope.builder().apply {
+            addStatement("$N.assertNotSuspendingTransaction()", DaoWriter.dbField)
+        }
         adapter?.createInsertionMethodBody(
                 parameters = parameters,
                 insertionAdapters = insertionAdapters,
