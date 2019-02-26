@@ -116,6 +116,7 @@ public class MigrationTest {
         assertThat(entity2s.size(), is(2));
     }
 
+    @SuppressWarnings("deprecation")
     private MigrationDb getLatestDb() {
         MigrationDb db = Room.databaseBuilder(
                 InstrumentationRegistry.getInstrumentation().getTargetContext(),

@@ -301,7 +301,10 @@ public abstract class RoomDatabase {
 
     /**
      * Wrapper for {@link SupportSQLiteDatabase#beginTransaction()}.
+     *
+     * @deprecated Use {@link #runInTransaction(Runnable)}
      */
+    @Deprecated
     public void beginTransaction() {
         assertNotMainThread();
         SupportSQLiteDatabase database = mOpenHelper.getWritableDatabase();
@@ -311,7 +314,10 @@ public abstract class RoomDatabase {
 
     /**
      * Wrapper for {@link SupportSQLiteDatabase#endTransaction()}.
+     *
+     * @deprecated Use {@link #runInTransaction(Runnable)}
      */
+    @Deprecated
     public void endTransaction() {
         mOpenHelper.getWritableDatabase().endTransaction();
         if (!inTransaction()) {
@@ -331,7 +337,10 @@ public abstract class RoomDatabase {
 
     /**
      * Wrapper for {@link SupportSQLiteDatabase#setTransactionSuccessful()}.
+     *
+     * @deprecated Use {@link #runInTransaction(Runnable)}
      */
+    @Deprecated
     public void setTransactionSuccessful() {
         mOpenHelper.getWritableDatabase().setTransactionSuccessful();
     }
@@ -342,6 +351,7 @@ public abstract class RoomDatabase {
      *
      * @param body The piece of code to execute.
      */
+    @SuppressWarnings("deprecation")
     public void runInTransaction(@NonNull Runnable body) {
         beginTransaction();
         try {
@@ -360,6 +370,7 @@ public abstract class RoomDatabase {
      * @param <V>  The type of the return value.
      * @return The value returned from the {@link Callable}.
      */
+    @SuppressWarnings("deprecation")
     public <V> V runInTransaction(@NonNull Callable<V> body) {
         beginTransaction();
         try {

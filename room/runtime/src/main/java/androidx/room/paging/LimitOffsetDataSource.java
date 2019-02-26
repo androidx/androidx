@@ -156,18 +156,21 @@ public abstract class LimitOffsetDataSource<T> extends PositionalDataSource<T> {
     public List<T> loadRange(int startPosition, int loadCount) {
         final RoomSQLiteQuery sqLiteQuery = getSQLiteQuery(startPosition, loadCount);
         if (mInTransaction) {
+            //noinspection deprecation
             mDb.beginTransaction();
             Cursor cursor = null;
             //noinspection TryFinallyCanBeTryWithResources
             try {
                 cursor = mDb.query(sqLiteQuery);
                 List<T> rows = convertRows(cursor);
+                //noinspection deprecation
                 mDb.setTransactionSuccessful();
                 return rows;
             } finally {
                 if (cursor != null) {
                     cursor.close();
                 }
+                //noinspection deprecation
                 mDb.endTransaction();
                 sqLiteQuery.release();
             }

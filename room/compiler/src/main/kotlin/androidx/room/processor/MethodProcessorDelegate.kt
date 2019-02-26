@@ -32,8 +32,13 @@ import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.C
 import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
+import androidx.room.solver.transaction.binder.InstantTransactionMethodBinder
+import androidx.room.solver.transaction.binder.CoroutineTransactionMethodBinder
+import androidx.room.solver.transaction.binder.TransactionMethodBinder
+import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import androidx.room.vo.QueryParameter
 import androidx.room.vo.ShortcutQueryParameter
+import androidx.room.vo.TransactionMethod
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.VariableElement
@@ -79,6 +84,10 @@ abstract class MethodProcessorDelegate(
     ): InsertMethodBinder
 
     abstract fun findDeleteOrUpdateMethodBinder(returnType: TypeMirror): DeleteOrUpdateMethodBinder
+
+    abstract fun findTransactionMethodBinder(
+        callType: TransactionMethod.CallType
+    ): TransactionMethodBinder
 
     companion object {
         fun createFor(
@@ -144,6 +153,10 @@ class DefaultMethodProcessorDelegate(
 
     override fun findDeleteOrUpdateMethodBinder(returnType: TypeMirror) =
         context.typeAdapterStore.findDeleteOrUpdateMethodBinder(returnType)
+
+    override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
+        InstantTransactionMethodBinder(
+            TransactionMethodAdapter(executableElement.simpleName.toString(), callType))
 }
 
 /**
@@ -225,4 +238,10 @@ class SuspendMethodProcessorDelegate(
                 continuationParam.simpleName.toString()
             )
         }
+
+    override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
+        CoroutineTransactionMethodBinder(
+            adapter = TransactionMethodAdapter(executableElement.simpleName.toString(), callType),
+            continuationParamName = continuationParam.simpleName.toString()
+        )
 }
