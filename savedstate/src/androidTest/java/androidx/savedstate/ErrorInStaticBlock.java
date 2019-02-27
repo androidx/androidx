@@ -16,19 +16,11 @@
 
 package androidx.savedstate;
 
+import org.junit.Assert;
 
-import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
+public class ErrorInStaticBlock {
 
-/**
- * A scope that owns {@link SavedStateRegistry}
- */
-public interface SavedStateRegistryOwner extends LifecycleOwner {
-    /**
-     * Returns owned {@link SavedStateRegistry}
-     *
-     * @return a {@link SavedStateRegistry}
-     */
-    @NonNull
-    SavedStateRegistry getSavedStateRegistry();
+    static {
+        Assert.fail("This class shouldn't be initialized!");
+    }
 }

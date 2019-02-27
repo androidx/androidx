@@ -23,12 +23,18 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.internal.SafeIterableMap;
+import androidx.lifecycle.GenericLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.util.Iterator;
 import java.util.Map;
 
 /**
  * An interface for plugging components that consumes and contributes to the saved state.
+ *
+ * <p>This objects lifetime is bound to the lifecycle of owning component: when activity or
+ * fragment is recreated, new instance of the object is created as well.
  */
 @SuppressLint("RestrictedApi")
 public final class SavedStateRegistry {
@@ -40,6 +46,8 @@ public final class SavedStateRegistry {
     @Nullable
     private Bundle mRestoredState;
     private boolean mRestored;
+    private Recreator.SavedStateProvider mRecreatorProvider;
+    boolean mAllowingSavingState = true;
 
     SavedStateRegistry() {
     }
@@ -127,19 +135,76 @@ public final class SavedStateRegistry {
     }
 
     /**
+     * Subclasses of this interface will be automatically recreated if they were previously
+     * registered via {{@link #runOnNextRecreation(Class)}}.
+     * <p>
+     * Subclasses must have a default constructor
+     */
+    public interface AutoRecreated {
+        /**
+         * This method will be called during
+         * dispatching of {@link androidx.lifecycle.Lifecycle.Event#ON_CREATE} of owning component.
+         *
+         * @param owner a component that was restarted
+         */
+        void onRecreated(@NonNull SavedStateRegistryOwner owner);
+    }
+
+    /**
+     * Executes the given class when the owning component restarted.
+     * <p>
+     * The given class will be automatically instantiated via default constructor and method
+     * {@link AutoRecreated#onRecreated(SavedStateRegistryOwner)} will be called.
+     * It is called as part of dispatching of {@link androidx.lifecycle.Lifecycle.Event#ON_CREATE}
+     * event.
+     *
+     * @param clazz that will need to be instantiated on the next component recreation
+     * @throws IllegalStateException if you try to call if after {@link Lifecycle.Event#ON_STOP}
+     *                               was dispatched
+     */
+    @MainThread
+    public void runOnNextRecreation(@NonNull Class<? extends AutoRecreated> clazz) {
+        if (!mAllowingSavingState) {
+            throw new IllegalStateException(
+                    "Can not perform this action after onSaveInstanceState");
+        }
+        if (mRecreatorProvider == null) {
+            mRecreatorProvider = new Recreator.SavedStateProvider(this);
+        }
+        try {
+            clazz.getDeclaredConstructor();
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("Class" + clazz.getSimpleName() + " must have "
+                    + "default constructor in order to be automatically recreated", e);
+        }
+        mRecreatorProvider.add(clazz.getName());
+    }
+
+    /**
      * An interface for an owner of this @{code {@link SavedStateRegistry} to restore saved state.
      *
-     * @param savedState restored state
      */
     @SuppressWarnings("WeakerAccess")
     @MainThread
-    void performRestore(@Nullable Bundle savedState) {
+    void performRestore(@NonNull Lifecycle lifecycle, @Nullable Bundle savedState) {
         if (mRestored) {
             throw new IllegalStateException("SavedStateRegistry was already restored.");
         }
         if (savedState != null) {
             mRestoredState = savedState.getBundle(SAVED_COMPONENTS_KEY);
         }
+
+        lifecycle.addObserver(new GenericLifecycleObserver() {
+            @Override
+            public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+                if (event == Lifecycle.Event.ON_START) {
+                    mAllowingSavingState = true;
+                } else if (event == Lifecycle.Event.ON_STOP) {
+                    mAllowingSavingState = false;
+                }
+            }
+        });
+
         mRestored = true;
     }
 
