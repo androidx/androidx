@@ -61,6 +61,8 @@
     <dimen name="mr_cast_group_volume_seekbar_height">4dp</dimen>
     <!-- Size of a seekbar thumb for both route volume and group volume. -->
     <dimen name="mr_cast_seekbar_thumb_size">8dp</dimen>
+    <!-- Size of image view for art metadata. -->
+    <dimen name="mr_cast_meta_art_size">36dp</dimen>
     <!-- Volume slider layout expand/collapse animation duration. -->
     <integer name="mr_cast_volume_slider_layout_animation_duration_ms">400</integer>
 
