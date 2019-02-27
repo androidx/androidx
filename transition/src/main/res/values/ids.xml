@@ -22,6 +22,7 @@
     <item name="transition_transform" type="id"/>
     <item name="parent_matrix" type="id"/>
     <item name="ghost_view" type="id"/>
+    <item name="ghost_view_holder" type="id"/>
     <item name="save_non_transition_alpha" type="id"/>
     <item name="save_overlay_view" type="id"/>
 </resources>

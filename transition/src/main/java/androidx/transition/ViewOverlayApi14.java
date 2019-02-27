@@ -135,6 +135,8 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
          */
         ViewOverlayApi14 mViewOverlay;
 
+        private boolean mDisposed;
+
         OverlayViewGroup(Context context, ViewGroup hostView, View requestingView,
                 ViewOverlayApi14 viewOverlay) {
             super(context);
@@ -153,6 +155,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
         }
 
         public void add(Drawable drawable) {
+            assertNotDisposed();
             if (mDrawables == null) {
 
                 mDrawables = new ArrayList<>();
@@ -170,6 +173,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
                 mDrawables.remove(drawable);
                 invalidate(drawable.getBounds());
                 drawable.setCallback(null);
+                disposeIfEmpty();
             }
         }
 
@@ -179,6 +183,7 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
         }
 
         public void add(View child) {
+            assertNotDisposed();
             if (child.getParent() instanceof ViewGroup) {
                 ViewGroup parent = (ViewGroup) child.getParent();
                 if (parent != mHostView && parent.getParent() != null
@@ -202,19 +207,26 @@ class ViewOverlayApi14 implements ViewOverlayImpl {
                     parent.removeView(child);
                 }
             }
-            super.addView(child, getChildCount() - 1);
+            super.addView(child);
         }
 
         public void remove(View view) {
             super.removeView(view);
-            if (isEmpty()) {
-                mHostView.removeView(this);
+            disposeIfEmpty();
+        }
+
+        private void assertNotDisposed() {
+            if (mDisposed) {
+                throw new IllegalStateException("This overlay was disposed already. "
+                        + "Please use a new one via ViewGroupUtils.getOverlay()");
             }
         }
 
-        boolean isEmpty() {
-            return getChildCount() == 0
-                    && (mDrawables == null || mDrawables.size() == 0);
+        private void disposeIfEmpty() {
+            if (getChildCount() == 0 && (mDrawables == null || mDrawables.size() == 0)) {
+                mDisposed = true;
+                mHostView.removeView(this);
+            }
         }
 
         @Override
