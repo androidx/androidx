@@ -269,7 +269,6 @@ includeProject(":webview-support-interfaces", new File(externalRoot, "webview_su
 */
 ///// CRANE START
 
-includeProject(":ui-port", "ui/port")
 includeProject(":ui-android-text", "ui/android-text")
 includeProject(":ui-text", "ui/text")
 includeProject(":ui-core", "ui/core")
@@ -284,7 +283,7 @@ includeProject(":ui-android-view", "ui/android-view")
 includeProject(":ui-android", "ui/android")
 includeProject(":ui-layout", "ui/layout")
 includeProject(":ui-layout-adapter", "ui/layout-adapter")
-includeProject(":ui-port-demos", new File(samplesRoot, "UiPortDemos"))
+includeProject(":ui-demos", new File(samplesRoot, "UiDemos"))
 includeProject(":ui-material-demos", new File(samplesRoot, "UiMaterialDemos"))
 includeProject(":ui-r4a", "ui-r4a")
 
