@@ -2,10 +2,8 @@
 ChangedSuperclass: androidx.lifecycle.GenericLifecycleObserver:
     Class androidx.lifecycle.GenericLifecycleObserver superclass changed from androidx.lifecycle.LifecycleObserver to androidx.lifecycle.LifecycleEventObserver
 
+RemovedClass: androidx.lifecycle.CompositeGeneratedAdaptersObserver:
+    Removed class androidx.lifecycle.CompositeGeneratedAdaptersObserver
 
-RemovedInterface: androidx.lifecycle.CompositeGeneratedAdaptersObserver:
-    Class androidx.lifecycle.CompositeGeneratedAdaptersObserver no longer implements androidx.lifecycle.GenericLifecycleObserver
-RemovedInterface: androidx.lifecycle.SingleGeneratedAdapterObserver:
-    Class androidx.lifecycle.SingleGeneratedAdapterObserver no longer implements androidx.lifecycle.GenericLifecycleObserver
-
-
+RemovedClass: androidx.lifecycle.SingleGeneratedAdapterObserver:
+    Removed class androidx.lifecycle.SingleGeneratedAdapterObserver
