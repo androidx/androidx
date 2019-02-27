@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit;
  * In order to get the media key events, the player state is set to 'Playing' before every test
  * method.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSession_KeyEventTest extends MediaSessionTestBase {
@@ -65,7 +65,7 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
     private TestSessionCallback mSessionCallback;
 
     static {
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (Build.VERSION.SDK_INT >= 28 || Build.VERSION.SDK_INT < 21) {
             sExpectedControllerPackageName = SERVICE_PACKAGE_NAME;
         } else if (Build.VERSION.SDK_INT >= 24) {
             // KeyEvent from system service has the package name "android".

@@ -50,7 +50,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -130,20 +130,23 @@ import java.util.concurrent.Executor;
 public class MediaSession implements AutoCloseable {
     static final String TAG = "MediaSession";
 
+    // It's better to have private static lock instead of using MediaSession.class because the
+    // private lock object isn't exposed.
+    private static final Object STATIC_LOCK = new Object();
     // Note: This checks the uniqueness of a session ID only in single process.
     // When the framework becomes able to check the uniqueness, this logic should be removed.
-    @GuardedBy("MediaSession.class")
-    private static final List<String> SESSION_ID_LIST = new ArrayList<>();
+    @GuardedBy("STATIC_LOCK")
+    private static final HashMap<String, MediaSession> SESSION_ID_TO_SESSION_MAP = new HashMap<>();
 
     private final MediaSessionImpl mImpl;
 
     MediaSession(Context context, String id, SessionPlayer player,
             PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback) {
-        synchronized (MediaSession.class) {
-            if (SESSION_ID_LIST.contains(id)) {
+        synchronized (STATIC_LOCK) {
+            if (SESSION_ID_TO_SESSION_MAP.containsKey(id)) {
                 throw new IllegalStateException("Session ID must be unique. ID=" + id);
             }
-            SESSION_ID_LIST.add(id);
+            SESSION_ID_TO_SESSION_MAP.put(id, this);
         }
         mImpl = createImpl(context, id, player, sessionActivity, callbackExecutor,
                 callback);
@@ -162,6 +165,17 @@ public class MediaSession implements AutoCloseable {
         return mImpl;
     }
 
+    static MediaSession getSession(Uri sessionUri) {
+        synchronized (STATIC_LOCK) {
+            for (MediaSession session : SESSION_ID_TO_SESSION_MAP.values()) {
+                if (ObjectsCompat.equals(session.getUri(), sessionUri)) {
+                    return session;
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Updates the underlying {@link SessionPlayer} for this session to dispatch incoming event to.
      *
@@ -177,8 +191,8 @@ public class MediaSession implements AutoCloseable {
     @Override
     public void close() {
         try {
-            synchronized (MediaSession.class) {
-                SESSION_ID_LIST.remove(mImpl.getId());
+            synchronized (STATIC_LOCK) {
+                SESSION_ID_TO_SESSION_MAP.remove(mImpl.getId());
             }
             mImpl.close();
         } catch (Exception e) {
@@ -363,6 +377,11 @@ public class MediaSession implements AutoCloseable {
 
     IBinder getLegacyBrowerServiceBinder() {
         return mImpl.getLegacyBrowserServiceBinder();
+    }
+
+    @NonNull
+    private Uri getUri() {
+        return mImpl.getUri();
     }
 
     /**
@@ -1117,6 +1136,7 @@ public class MediaSession implements AutoCloseable {
         void updatePlayer(@NonNull SessionPlayer player);
         @NonNull SessionPlayer getPlayer();
         @NonNull String getId();
+        @NonNull Uri getUri();
         @NonNull SessionToken getToken();
         @NonNull List<ControllerInfo> getConnectedControllers();
         boolean isConnected(@NonNull ControllerInfo controller);

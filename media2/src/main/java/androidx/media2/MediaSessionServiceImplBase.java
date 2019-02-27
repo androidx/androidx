@@ -146,7 +146,10 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                 if (instance == null) {
                     Log.wtf(TAG, "Service hasn't created");
                 }
-                final MediaSession session = instance.onGetPrimarySession();
+                MediaSession session = MediaSession.getSession(intent.getData());
+                if (session == null) {
+                    session = instance.onGetPrimarySession();
+                }
                 if (session == null) {
                     Log.w(TAG, "No session for handling media key");
                     break;
