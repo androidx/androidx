@@ -29,7 +29,7 @@ import androidx.camera.core.ViewFinderUseCaseConfiguration;
 /** Provides defaults for {@link ViewFinderUseCaseConfiguration} in the Camera2 implementation. */
 final class DefaultViewFinderConfigurationProvider
         implements ConfigurationProvider<ViewFinderUseCaseConfiguration> {
-    private static final String TAG = "DefaultViewFinderConfigurationProvider";
+    private static final String TAG = "DefViewFinderProvider";
 
     private final CameraFactory mCameraFactory;
 

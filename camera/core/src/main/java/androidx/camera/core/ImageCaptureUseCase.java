@@ -90,7 +90,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
     final Handler mHandler;
     final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final SessionConfiguration.Builder mSessionConfigBuilder;
-    private final ArrayDeque<ImageCaptureRequest> mImageCaptureRequests = new ArrayDeque<>();
+    final ArrayDeque<ImageCaptureRequest> mImageCaptureRequests = new ArrayDeque<>();
     private final ExecutorService mExecutor =
             Executors.newFixedThreadPool(
                     1,
@@ -416,7 +416,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
 
     /** Issues saved ImageCaptureRequest. */
     @UiThread
-    private void issueImageCaptureRequests() {
+    void issueImageCaptureRequests() {
         if (mImageCaptureRequests.isEmpty()) {
             return;
         }
@@ -611,7 +611,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      *
      * <p>For example, cancel 3A scan, close torch if necessary.
      */
-    private ListenableFuture<Void> postTakePicture(final TakePictureState state) {
+    ListenableFuture<Void> postTakePicture(final TakePictureState state) {
         return Futures.submitAsync(
                 new AsyncCallable<Void>() {
                     @Override
@@ -650,7 +650,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
         return Futures.immediateFuture(null);
     }
 
-    private boolean isFlashRequired(TakePictureState state) {
+    boolean isFlashRequired(TakePictureState state) {
         switch (getFlashMode()) {
             case ON:
                 return true;
@@ -662,7 +662,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
         throw new AssertionError(getFlashMode());
     }
 
-    private ListenableFuture<Boolean> check3AConverged(TakePictureState state) {
+    ListenableFuture<Boolean> check3AConverged(TakePictureState state) {
         // Besides enableCheck3AConverged == true (MAX_QUALITY), if flash is triggered we also need
         // to
         // wait for 3A convergence.
@@ -700,7 +700,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * {@link AfState#INACTIVE}. If the AF mode is {@link AfMode#ON_MANUAL_AUTO} and AF state is not
      * inactive, it means that a manual or auto focus request may be in progress or completed.
      */
-    private void triggerAfIfNeeded(TakePictureState state) {
+    void triggerAfIfNeeded(TakePictureState state) {
         if (mEnableCheck3AConverged
                 && state.mPreCaptureState.getAfMode() == AfMode.ON_MANUAL_AUTO
                 && state.mPreCaptureState.getAfState() == AfState.INACTIVE) {
@@ -720,7 +720,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * Issues a {@link CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER_START} request to start auto
      * exposure scan.
      */
-    private void triggerAePrecapture(TakePictureState state) {
+    void triggerAePrecapture(TakePictureState state) {
         state.mIsAePrecaptureTriggered = true;
         getCurrentCameraControl().triggerAePrecapture();
     }
@@ -730,7 +730,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL} request to cancel auto focus or auto
      * exposure scan.
      */
-    private void cancelAfAeTrigger(TakePictureState state) {
+    void cancelAfAeTrigger(TakePictureState state) {
         if (!state.mIsAfTriggered && !state.mIsAePrecaptureTriggered) {
             return;
         }
@@ -764,7 +764,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
     }
 
     /** Issues a take picture request. */
-    private ListenableFuture<Void> issueTakePicture() {
+    ListenableFuture<Void> issueTakePicture() {
         CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
         builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
         builder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);

@@ -55,8 +55,8 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "ImageAnalysisUseCase";
-    private final AtomicReference<Analyzer> mSubscribedAnalyzer;
-    private final AtomicInteger mRelativeRotation = new AtomicInteger();
+    final AtomicReference<Analyzer> mSubscribedAnalyzer;
+    final AtomicInteger mRelativeRotation = new AtomicInteger();
     private final Handler mHandler;
     private final ImageAnalysisUseCaseConfiguration.Builder mUseCaseConfigBuilder;
     @Nullable

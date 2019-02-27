@@ -140,6 +140,7 @@ public final class CameraCaptureSessionStateCallbacks {
             }
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.M)
         @Override
         public void onSurfacePrepared(CameraCaptureSession session, Surface surface) {
             for (CameraCaptureSession.StateCallback callback : mCallbacks) {

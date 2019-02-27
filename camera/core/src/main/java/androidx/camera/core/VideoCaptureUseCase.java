@@ -542,7 +542,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
      *
      * @return returns {@code true} if an error condition occurred, otherwise returns {@code false}
      */
-    private boolean videoEncode(OnVideoSavedListener videoSavedListener) {
+    boolean videoEncode(OnVideoSavedListener videoSavedListener) {
         VideoCaptureUseCaseConfiguration configuration =
                 (VideoCaptureUseCaseConfiguration) getUseCaseConfiguration();
         // Main encoding loop. Exits on end of stream.
@@ -628,7 +628,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
         return errorOccurred;
     }
 
-    private boolean audioEncode(OnVideoSavedListener videoSavedListener) {
+    boolean audioEncode(OnVideoSavedListener videoSavedListener) {
         // Audio encoding loop. Exits on end of stream.
         boolean audioEos = false;
         int outIndex;

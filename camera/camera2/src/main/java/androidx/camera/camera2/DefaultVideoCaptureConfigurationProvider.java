@@ -29,7 +29,7 @@ import androidx.camera.core.VideoCaptureUseCaseConfiguration;
 /** Provides defaults for {@link VideoCaptureUseCaseConfiguration} in the Camera2 implementation. */
 final class DefaultVideoCaptureConfigurationProvider
         implements ConfigurationProvider<VideoCaptureUseCaseConfiguration> {
-    private static final String TAG = "DefaultVideoCaptureConfigurationProvider";
+    private static final String TAG = "DefVideoCapProvider";
 
     private final CameraFactory mCameraFactory;
 

@@ -39,9 +39,9 @@ final class CheckedSurfaceTexture implements DeferrableSurface {
     private final OnTextureChangedListener mOutputChangedListener;
     private final Handler mMainThreadHandler;
     @Nullable
-    private SurfaceTexture mSurfaceTexture;
+    SurfaceTexture mSurfaceTexture;
     @Nullable
-    private Surface mSurface;
+    Surface mSurface;
     @Nullable
     private Size mResolution;
     CheckedSurfaceTexture(
@@ -76,7 +76,7 @@ final class CheckedSurfaceTexture implements DeferrableSurface {
         mOutputChangedListener.onTextureChanged(mSurfaceTexture, mResolution);
     }
 
-    private boolean surfaceTextureReleased(SurfaceTexture surfaceTexture) {
+    boolean surfaceTextureReleased(SurfaceTexture surfaceTexture) {
         boolean released = false;
 
         // TODO(b/121196683) Refactor workaround into a compatibility module

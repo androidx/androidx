@@ -21,8 +21,10 @@ import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.os.Build;
 import android.view.Surface;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
@@ -112,6 +114,7 @@ public final class Camera2CaptureSessionCaptureCallbacks {
             }
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.N)
         @Override
         public void onCaptureBufferLost(
                 CameraCaptureSession session, CaptureRequest request, Surface surface, long frame) {

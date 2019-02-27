@@ -756,7 +756,7 @@ final class CameraXModule {
      * @param width  width of camera source buffers.
      * @param height height of camera source buffers.
      */
-    private void onViewfinderSourceDimensUpdated(int width, int height) {
+    void onViewfinderSourceDimensUpdated(int width, int height) {
         mCameraView.onViewfinderSourceDimensUpdated(width, height);
     }
 

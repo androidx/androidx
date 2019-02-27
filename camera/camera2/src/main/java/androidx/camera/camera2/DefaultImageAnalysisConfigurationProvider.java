@@ -31,7 +31,7 @@ import androidx.camera.core.SessionConfiguration;
  */
 final class DefaultImageAnalysisConfigurationProvider
         implements ConfigurationProvider<ImageAnalysisUseCaseConfiguration> {
-    private static final String TAG = "DefaultImageAnalysisConfigurationProvider";
+    private static final String TAG = "DefImgAnalysisProvider";
 
     private final CameraFactory mCameraFactory;
 

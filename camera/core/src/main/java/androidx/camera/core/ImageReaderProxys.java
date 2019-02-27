@@ -40,7 +40,7 @@ public final class ImageReaderProxys {
     private static final String TAG = ImageReaderProxys.class.getSimpleName();
     private static final int SHARED_IMAGE_FORMAT = ImageFormat.YUV_420_888;
     private static final int SHARED_MAX_IMAGES = 8;
-    private static final List<QueuedImageReaderProxy> sSharedImageReaderProxys = new ArrayList<>();
+    static final List<QueuedImageReaderProxy> sSharedImageReaderProxys = new ArrayList<>();
     private static Set<DeviceProperties> sSharedReaderWhitelist;
     private static ImageReader sSharedImageReader;
 
@@ -150,7 +150,7 @@ public final class ImageReaderProxys {
         return sSharedReaderWhitelist.contains(device);
     }
 
-    private static void clearSharedReaders() {
+    static void clearSharedReaders() {
         sSharedImageReaderProxys.clear();
         sSharedImageReader.setOnImageAvailableListener(null, null);
         sSharedImageReader.close();

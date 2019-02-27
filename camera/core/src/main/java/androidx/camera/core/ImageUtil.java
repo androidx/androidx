@@ -27,6 +27,8 @@ import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;
 
 import java.io.ByteArrayOutputStream;
@@ -37,6 +39,7 @@ import java.nio.ByteBuffer;
  *
  * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 final class ImageUtil {
     private static final String TAG = "ImageUtil";
 

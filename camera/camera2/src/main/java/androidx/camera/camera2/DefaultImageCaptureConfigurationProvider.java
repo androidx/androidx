@@ -29,7 +29,7 @@ import androidx.camera.core.SessionConfiguration;
 /** Provides defaults for {@link ImageCaptureUseCaseConfiguration} in the Camera2 implementation. */
 final class DefaultImageCaptureConfigurationProvider
         implements ConfigurationProvider<ImageCaptureUseCaseConfiguration> {
-    private static final String TAG = "DefaultImageCaptureConfigurationProvider";
+    private static final String TAG = "DefImgCapProvider";
 
     private final CameraFactory mCameraFactory;
 

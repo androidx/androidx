@@ -54,7 +54,7 @@ public final class Camera2CameraControl implements CameraControl {
     private static final String TAG = "Camera2CameraControl";
     private final ControlUpdateListener mControlUpdateListener;
     private final Handler mHandler;
-    private final CameraControlSessionCallback mSessionCallback =
+    final CameraControlSessionCallback mSessionCallback =
             new CameraControlSessionCallback();
     private final SessionConfiguration.Builder mSessionConfigurationBuilder =
             new SessionConfiguration.Builder();
@@ -63,13 +63,13 @@ public final class Camera2CameraControl implements CameraControl {
     private volatile boolean mIsFocusLocked = false;
     private volatile FlashMode mFlashMode = FlashMode.OFF;
     private volatile Rect mCropRect = null;
-    private volatile MeteringRectangle mAfRect;
+    volatile MeteringRectangle mAfRect;
     private volatile MeteringRectangle mAeRect;
     private volatile MeteringRectangle mAwbRect;
-    private volatile Integer mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
-    private volatile OnFocusCompletedListener mFocusListener = null;
+    volatile Integer mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
+    volatile OnFocusCompletedListener mFocusListener = null;
     private volatile Handler mFocusListenerHandler = null;
-    private volatile CaptureResultListener mSessionListenerForFocus = null;
+    volatile CaptureResultListener mSessionListenerForFocus = null;
     private final Runnable mHandleFocusTimeoutRunnable =
             new Runnable() {
                 @Override
@@ -208,7 +208,7 @@ public final class Camera2CameraControl implements CameraControl {
         focus(focus, metering, null, null);
     }
 
-    private void runInFocusListenerHandler(Runnable runnable) {
+    void runInFocusListenerHandler(Runnable runnable) {
         if (mFocusListenerHandler != null) {
             mFocusListenerHandler.post(runnable);
         }
@@ -272,7 +272,7 @@ public final class Camera2CameraControl implements CameraControl {
         enableTorchInternal(torch);
     }
 
-    private void enableTorchInternal(final boolean torch) {
+    void enableTorchInternal(final boolean torch) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -401,7 +401,7 @@ public final class Camera2CameraControl implements CameraControl {
         return CameraDevice.TEMPLATE_PREVIEW;
     }
 
-    private void notifySingleRequest(
+    void notifySingleRequest(
             final CaptureRequestConfiguration captureRequestConfiguration) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
@@ -415,7 +415,7 @@ public final class Camera2CameraControl implements CameraControl {
         mControlUpdateListener.onCameraControlSingleRequest(captureRequestConfiguration);
     }
 
-    private void updateSessionConfiguration() {
+    void updateSessionConfiguration() {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override

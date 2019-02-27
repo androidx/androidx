@@ -88,7 +88,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class CameraX {
 
     private static final CameraX INSTANCE = new CameraX();
-    private final CameraRepository mCameraRepository = new CameraRepository();
+    final CameraRepository mCameraRepository = new CameraRepository();
     private final AtomicBoolean mInitialized = new AtomicBoolean(false);
     private final UseCaseGroupRepository mUseCaseGroupRepository = new UseCaseGroupRepository();
     private final ErrorHandler mErrorHandler = new ErrorHandler();

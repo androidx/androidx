@@ -323,7 +323,7 @@ public class ViewFinderUseCase extends BaseUseCase {
     }
 
     @UiThread
-    private void updateOutput(SurfaceTexture surfaceTexture, Size resolution) {
+    void updateOutput(SurfaceTexture surfaceTexture, Size resolution) {
         ViewFinderUseCaseConfiguration useCaseConfig =
                 (ViewFinderUseCaseConfiguration) getUseCaseConfiguration();
 

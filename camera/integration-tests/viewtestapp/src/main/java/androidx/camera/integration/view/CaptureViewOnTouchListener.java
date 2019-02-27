@@ -51,7 +51,7 @@ import java.util.Locale;
  */
 class CaptureViewOnTouchListener
         implements View.OnTouchListener, OnImageSavedListener, OnVideoSavedListener {
-    private static final String TAG = "CaptureViewOnTouchListener";
+    private static final String TAG = "ViewOnTouchListener";
 
     private static final String FILENAME = "yyyy-MM-dd-HH-mm-ss-SSS";
     private static final String PHOTO_EXTENSION = ".jpg";

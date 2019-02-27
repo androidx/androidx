@@ -29,7 +29,7 @@ import androidx.camera.core.CameraCaptureResult;
 
 /** The camera2 implementation for the capture result of a single image capture. */
 final class Camera2CameraCaptureResult implements CameraCaptureResult {
-    private static final String TAG = "Camera2CameraCaptureResult";
+    private static final String TAG = "C2CameraCaptureResult";
 
     /** The actual camera2 {@link CaptureResult}. */
     private final CaptureResult mCaptureResult;

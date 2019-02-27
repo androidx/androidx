@@ -18,6 +18,7 @@ package androidx.camera.integration.view;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -44,11 +45,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (null == savedInstanceState) {
-            if (allPermissionsGranted()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (allPermissionsGranted()) {
+                    startCamera();
+                } else if (!mCheckedPermissions) {
+                    requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
+                    mCheckedPermissions = true;
+                }
+            } else {
                 startCamera();
-            } else if (!mCheckedPermissions) {
-                requestPermissions(REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
-                mCheckedPermissions = true;
             }
         }
     }

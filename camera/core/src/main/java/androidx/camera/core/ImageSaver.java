@@ -40,9 +40,9 @@ final class ImageSaver implements Runnable {
     // If true, the picture taken is reversed vertically and needs to be flipped.
     private final boolean mIsReversedVertical;
     // The file to save the image to
-    private final File mFile;
+    final File mFile;
     // The callback to call on completion
-    private final OnImageSavedListener mListener;
+    final OnImageSavedListener mListener;
     // The handler to call back on
     private final Handler mHandler;
 
