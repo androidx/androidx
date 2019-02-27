@@ -28,16 +28,16 @@ import androidx.camera.core.ImageOutputConfiguration.RotationValue;
  *
  * <p>This camera info can be constructed with fake values.
  */
-class FakeCameraInfo implements CameraInfo {
+public class FakeCameraInfo implements CameraInfo {
 
     private final int mSensorRotation;
     private final LensFacing mLensFacing;
 
-    FakeCameraInfo() {
+    public FakeCameraInfo() {
         this(/*sensorRotation=*/ 0, /*lensFacing=*/ LensFacing.BACK);
     }
 
-    FakeCameraInfo(int sensorRotation, LensFacing lensFacing) {
+    public FakeCameraInfo(int sensorRotation, LensFacing lensFacing) {
         mSensorRotation = sensorRotation;
         mLensFacing = lensFacing;
     }

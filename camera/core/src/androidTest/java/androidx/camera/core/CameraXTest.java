@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import android.content.Context;
@@ -28,8 +29,10 @@ import android.util.Size;
 import androidx.camera.core.CameraX.ErrorCode;
 import androidx.camera.core.CameraX.ErrorListener;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
+import androidx.camera.testing.fakes.FakeCameraInfo;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
@@ -51,9 +54,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class CameraXTest {
-    static CameraFactory sCameraFactory = new FakeCameraFactory();
-    String mCameraId;
-    BaseCamera mCamera;
+    // TODO(b/126431497): This shouldn't need to be static, but the initialization behavior does
+    //  not allow us to reinitialize before each test.
+    private static FakeCameraFactory sCameraFactory = new FakeCameraFactory();
+
+    static {
+        String cameraId = sCameraFactory.cameraIdForLensFacing(LensFacing.BACK);
+        sCameraFactory.insertCamera(cameraId,
+                new FakeCamera(new FakeCameraInfo(), mock(CameraControl.class)));
+    }
+
+    private String mCameraId;
+    private BaseCamera mCamera;
     private FakeLifecycleOwner mLifecycle;
     private CountingErrorListener mErrorlistener;
     private CountDownLatch mLatch;
@@ -92,13 +104,16 @@ public final class CameraXTest {
         // the CameraFactory instance in static fields.
         CameraX.init(context, appConfigBuilder.build());
         mLifecycle = new FakeLifecycleOwner();
-        mCameraId = getCameraIdUnchecked(LensFacing.BACK);
-        mCamera = sCameraFactory.getCamera(mCameraId);
+
+
         mLatch = new CountDownLatch(1);
         mErrorlistener = new CountingErrorListener(mLatch);
         mHandlerThread = new HandlerThread("ErrorHandlerThread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
+        mCameraId = getCameraIdUnchecked(LensFacing.BACK);
+        mCamera = sCameraFactory.getCamera(mCameraId);
+
     }
 
     @After
@@ -224,7 +239,8 @@ public final class CameraXTest {
         assertThat(fakeUseCase.getCameraControl(mCameraId)).isNotEqualTo(
                 mCamera.getCameraControl());
         // UseCase still gets a non-null default CameraControl that does nothing.
-        assertThat(fakeUseCase.getCameraControl(mCameraId)).isNotNull();
+        assertThat(fakeUseCase.getCameraControl(mCameraId)).isEqualTo(
+                CameraControl.DEFAULT_EMPTY_INSTANCE);
     }
 
     @Test

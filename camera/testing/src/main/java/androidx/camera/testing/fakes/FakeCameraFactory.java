@@ -40,7 +40,7 @@ public final class FakeCameraFactory implements CameraFactory {
     private static final String BACK_ID = "0";
     private static final String FRONT_ID = "1";
 
-    private final Set<String> mCameraIds;
+    private Set<String> mCameraIds;
 
     private final Map<String, BaseCamera> mCameraMap = new HashMap<>();
 
@@ -63,6 +63,22 @@ public final class FakeCameraFactory implements CameraFactory {
             return camera;
         }
         throw new IllegalArgumentException("Unknown camera: " + cameraId);
+    }
+
+    /**
+     * Inserts a camera with the given camera ID.
+     *
+     * @param cameraId Identifier to use for the camera.
+     * @param camera Camera implementation.
+     */
+    public void insertCamera(String cameraId, BaseCamera camera) {
+        if (!mCameraIds.contains(cameraId)) {
+            HashSet<String> newCameraIds = new HashSet<>(mCameraIds);
+            newCameraIds.add(cameraId);
+            mCameraIds = Collections.unmodifiableSet(newCameraIds);
+        }
+
+        mCameraMap.put(cameraId, camera);
     }
 
     @Override
