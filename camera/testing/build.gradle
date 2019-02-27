@@ -37,7 +37,7 @@ android {
 }
 supportLibrary {
     name = "Jetpack Camera Testing Library"
-    publish = false
+    publish = true
     mavenVersion = UnpublishedLibraryVersions.CAMERA
     mavenGroup = UnpublishedLibraryGroups.CAMERA
     inceptionYear = "2019"
