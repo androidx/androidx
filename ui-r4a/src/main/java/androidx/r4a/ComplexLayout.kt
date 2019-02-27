@@ -36,6 +36,7 @@ import androidx.ui.core.adapter.Stack
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.painting.Color
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -248,15 +249,35 @@ fun PaddingUsage() {
 @Composable
 fun ContainerUsage() {
     <Align alignment=Alignment.Center>
-        <Container padding=null color=Color(0xFF0000FF.toInt()) alignment=Alignment.BottomRight
-            constraints=null width=100.dp height=100.dp margin=EdgeInsets(20.dp)>
-            <Container padding=EdgeInsets(20.dp) color=Color(0xFF000000.toInt())
-                alignment=Alignment.BottomRight constraints=null width=50.dp height=50.dp
-                margin=null>
+        <Container
+            color=Color(0xFF0000FF.toInt())
+            alignment=Alignment.BottomRight
+            width=100.dp
+            height=100.dp
+            margin=EdgeInsets(20.dp)>
+            <Container
+                padding=EdgeInsets(20.dp)
+                color=Color(0xFF000000.toInt())
+                alignment=Alignment.BottomRight
+                width=50.dp
+                height=50.dp>
                 <SizedRectangle color=Color(0xFFFFFFFF.toInt()) />
             </Container>
         </Container>
     </Align>
+}
+
+@Composable
+fun RowWithCrossAxisAlignmentUsage() {
+    <Center>
+        <Row crossAxisAlignment=CrossAxisAlignment.Start>
+            <Container color=Color(0xFF00FF00.toInt()) width=50.dp height=50.dp/>
+            <Container color=Color(0xFF0000FF.toInt()) width=80.dp height=80.dp/>
+            <Container color=Color(0xFFFF0000.toInt()) width=70.dp height=70.dp/>
+            <Container color=Color(0xFF00FF00.toInt()) width=100.dp height=100.dp/>
+            <Container color=Color(0xFF0000FF.toInt()) width=20.dp height=20.dp/>
+        </Row>
+    </Center>
 }
 
 /**
@@ -265,6 +286,6 @@ fun ContainerUsage() {
 @Composable
 fun ComplexLayout() {
     <CraneWrapper>
-        <ContainerUsage />
+        <RowWithCrossAxisAlignmentUsage />
     </CraneWrapper>
 }

@@ -453,8 +453,8 @@ internal val CoordinatesCallbacksAmbient =
  *     </OnPositioned>
  * </Column>
  */
-class OnPositioned(
-    @Children(composable = false) private var callback: (coordinates: LayoutCoordinates) -> Unit
+private class OnPositionedComponent(
+    @Children(composable = false) /*private*/ var callback: (coordinates: LayoutCoordinates) -> Unit
 ) : Component() {
 
     private var firstCompose = true
@@ -469,6 +469,12 @@ class OnPositioned(
             }
         </CoordinatesCallbacksAmbient.Consumer>
     }
+}
+
+/* TODO(popam): remove this when callback can be private in OnPositionedComponent */
+@Composable
+fun OnPositioned(@Children(composable = false) callback: (coordinates: LayoutCoordinates) -> Unit) {
+    <OnPositionedComponent callback />
 }
 
 /**

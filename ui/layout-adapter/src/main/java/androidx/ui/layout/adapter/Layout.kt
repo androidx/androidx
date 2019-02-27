@@ -20,6 +20,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexChildren
+import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.StackChildren
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -33,8 +34,11 @@ import androidx.ui.painting.Color
  */
 @Composable
 @Suppress("PLUGIN_ERROR")
-fun FlexRow(@Children() block: (FlexChildren) -> Unit) {
-    androidx.ui.layout.FlexRow(block)
+fun FlexRow(
+    crossAxisAlignment: Int = CrossAxisAlignment.Center,
+    @Children() block: (FlexChildren) -> Unit
+) {
+    androidx.ui.layout.FlexRow(crossAxisAlignment, block)
 }
 
 /**
@@ -43,8 +47,11 @@ fun FlexRow(@Children() block: (FlexChildren) -> Unit) {
  */
 @Composable
 @Suppress("PLUGIN_ERROR")
-fun FlexColumn(@Children() block: (FlexChildren) -> Unit) {
-    androidx.ui.layout.FlexColumn(block)
+fun FlexColumn(
+    crossAxisAlignment: Int = CrossAxisAlignment.Center,
+    @Children() block: (FlexChildren) -> Unit
+) {
+    androidx.ui.layout.FlexColumn(crossAxisAlignment, block)
 }
 
 /**
@@ -53,8 +60,8 @@ fun FlexColumn(@Children() block: (FlexChildren) -> Unit) {
  */
 @Composable
 @Suppress("PLUGIN_ERROR")
-fun Row(@Children() block: () -> Unit) {
-    androidx.ui.layout.Row(block)
+fun Row(crossAxisAlignment: Int = CrossAxisAlignment.Center, @Children() block: () -> Unit) {
+    androidx.ui.layout.Row(crossAxisAlignment, block)
 }
 
 /**
@@ -63,8 +70,8 @@ fun Row(@Children() block: () -> Unit) {
  */
 @Composable
 @Suppress("PLUGIN_ERROR")
-fun Column(@Children() block: () -> Unit) {
-    androidx.ui.layout.Column(block)
+fun Column(crossAxisAlignment: Int = CrossAxisAlignment.Center, @Children() block: () -> Unit) {
+    androidx.ui.layout.Column(crossAxisAlignment, block)
 }
 
 /**
@@ -156,7 +163,9 @@ fun Container(
     constraints: Constraints? = null,
     width: Dp? = null,
     height: Dp? = null,
-    @Children() block: () -> Unit
+    @Children() block: (() -> Unit) = {}
 ) {
-    androidx.ui.layout.Container(padding, color, alignment, margin, constraints, width, height, block)
+    androidx.ui.layout.Container(
+        padding, color, alignment, margin, constraints, width, height, block
+    )
 }

@@ -57,7 +57,7 @@ fun Container(
     constraints: Constraints? = null,
     width: Dp? = null,
     height: Dp? = null,
-    @Children() children: () -> Unit
+    @Children() children: () -> Unit = {}
 ) {
     var container = children
 

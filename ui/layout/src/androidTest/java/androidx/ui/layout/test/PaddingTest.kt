@@ -16,21 +16,11 @@
 
 package androidx.ui.layout.test
 
-import android.app.Instrumentation
-import android.os.Handler
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
-import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.Constraints
-import androidx.ui.core.Density
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
-import androidx.ui.core.adapter.CraneWrapper
 import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
@@ -46,14 +36,9 @@ import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
-import com.google.r4a.Children
 import com.google.r4a.Composable
-import com.google.r4a.composeInto
 import com.google.r4a.composer
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -62,39 +47,14 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
-class PaddingTest {
-    @get:Rule
-    val activityTestRule = ActivityTestRule<TestActivity>(
-        TestActivity::class.java
-    )
-    private lateinit var activity: TestActivity
-    private lateinit var instrumentation: Instrumentation
-    private lateinit var handler: Handler
-    private lateinit var density: Density
-
-    @Before
-    fun setup() {
-        activity = activityTestRule.activity
-        density = Density(activity)
-        activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
-        instrumentation = InstrumentationRegistry.getInstrumentation()
-        // Kotlin IR compiler doesn't seem too happy with auto-conversion from
-        // lambda to Runnable, so separate it here
-        val runnable: Runnable = object : Runnable {
-            override fun run() {
-                handler = Handler()
-            }
-        }
-        activityTestRule.runOnUiThread(runnable)
-    }
-
+class PaddingTest : LayoutTest() {
     @Test
     fun testPaddingIsApplied() {
         val size = 50.dp.toIntPx(density)
         val padding = 10.dp
         val paddingPx = padding.toIntPx(density)
 
-        val drawLatch = CountDownLatch(10)
+        val drawLatch = CountDownLatch(1)
         var childSize = PxSize(-1.px, -1.px)
         var childPosition = PxPosition(-1.px, -1.px)
         show @Composable {
@@ -140,7 +100,7 @@ class PaddingTest {
         val size = 50.dp.toIntPx(density)
         val padding = EdgeInsets(10.dp, 15.dp, 20.dp, 30.dp)
 
-        val drawLatch = CountDownLatch(10)
+        val drawLatch = CountDownLatch(1)
         var childSize = PxSize(-1.px, -1.px)
         var childPosition = PxPosition(-1.px, -1.px)
         show @Composable {
@@ -196,7 +156,7 @@ class PaddingTest {
         val padding = 30.dp
         val paddingPx = padding.toIntPx(density)
 
-        val drawLatch = CountDownLatch(10)
+        val drawLatch = CountDownLatch(1)
         var childSize = PxSize(-1.px, -1.px)
         var childPosition = PxPosition(-1.px, -1.px)
         show @Composable {
@@ -230,50 +190,5 @@ class PaddingTest {
         val left = ((root.width.ipx - size) / 2) + paddingPx
         val top = ((root.height.ipx - size) / 2) + paddingPx
         assertEquals(PxPosition(left.toPx(), top.toPx()), childPosition)
-    }
-
-    private fun show(@Children composable: () -> Unit) {
-        val runnable: Runnable = object : Runnable {
-            override fun run() {
-                activity.composeInto {
-                    <CraneWrapper>
-                        <composable />
-                    </CraneWrapper>
-                }
-            }
-        }
-        activityTestRule.runOnUiThread(runnable)
-    }
-
-    private fun findAndroidCraneView(): AndroidCraneView {
-        val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
-        return findAndroidCraneView(contentViewGroup)!!
-    }
-
-    private fun findAndroidCraneView(parent: ViewGroup): AndroidCraneView? {
-        for (index in 0 until parent.childCount) {
-            val child = parent.getChildAt(index)
-            if (child is AndroidCraneView) {
-                return child
-            } else if (child is ViewGroup) {
-                val craneView = findAndroidCraneView(child)
-                if (craneView != null) {
-                    return craneView
-                }
-            }
-        }
-        return null
-    }
-
-    private fun waitForDraw(view: View) {
-        val viewDrawLatch = CountDownLatch(1)
-        val listener = object : ViewTreeObserver.OnDrawListener {
-            override fun onDraw() {
-                viewDrawLatch.countDown()
-            }
-        }
-        view.viewTreeObserver.addOnDrawListener(listener)
-        view.invalidate()
-        assertTrue(viewDrawLatch.await(1, TimeUnit.SECONDS))
     }
 }
