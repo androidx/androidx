@@ -89,6 +89,11 @@ public class SliceProviderWrapperContainer {
             if (mAutoGrantPermissions != null) {
                 checkPermissions(sliceUri);
             }
+            PendingIntent action = mSliceProvider.onCreatePermissionRequest(
+                    sliceUri, getCallingPackage());
+            if (action != null) {
+                return action;
+            }
             return super.onCreatePermissionRequest(sliceUri);
         }
 
