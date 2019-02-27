@@ -45,10 +45,12 @@ class MetaInfTransformer internal constructor(
         )
     }
 
+    // Does not support single proguard file transformation, file has to be within archive.
     override fun canTransform(file: ArchiveFile): Boolean {
         return context.rewritingSupportLib &&
             file.relativePath.toString().contains(META_INF_DIR, ignoreCase = true) &&
-            file.fileName.endsWith(VERSION_FILE_SUFFIX, ignoreCase = true)
+            file.fileName.endsWith(VERSION_FILE_SUFFIX, ignoreCase = true) &&
+            !file.isSingleFile
     }
 
     override fun runTransform(file: ArchiveFile) {
