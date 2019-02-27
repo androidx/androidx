@@ -388,7 +388,7 @@ public class ChangeTransform extends Transition {
         Matrix localEndMatrix = new Matrix(endMatrix);
         ViewUtils.transformMatrixToLocal(sceneRoot, localEndMatrix);
 
-        GhostViewImpl ghostView = GhostViewUtils.addGhost(view, sceneRoot, localEndMatrix);
+        GhostView ghostView = GhostViewUtils.addGhost(view, sceneRoot, localEndMatrix);
         if (ghostView == null) {
             return;
         }
@@ -513,9 +513,9 @@ public class ChangeTransform extends Transition {
     private static class GhostListener extends TransitionListenerAdapter {
 
         private View mView;
-        private GhostViewImpl mGhostView;
+        private GhostView mGhostView;
 
-        GhostListener(View view, GhostViewImpl ghostView) {
+        GhostListener(View view, GhostView ghostView) {
             mView = view;
             mGhostView = ghostView;
         }

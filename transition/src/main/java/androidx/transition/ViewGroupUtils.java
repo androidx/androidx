@@ -21,10 +21,16 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 /**
  * Compatibility utilities for platform features of {@link ViewGroup}.
  */
 class ViewGroupUtils {
+
+    private static Method sGetChildDrawingOrderMethod;
+    private static boolean sGetChildDrawingOrderMethodFetched;
 
     /**
      * Backward-compatible {@link ViewGroup#getOverlay()}.
@@ -46,6 +52,33 @@ class ViewGroupUtils {
             ViewGroupUtilsApi14.suppressLayout(group, suppress);
         }
     }
+
+    /**
+     * Returns the index of the child to draw for this iteration.
+     */
+    static int getChildDrawingOrder(@NonNull ViewGroup viewGroup, int i) {
+        if (!sGetChildDrawingOrderMethodFetched) {
+            try {
+                sGetChildDrawingOrderMethod = ViewGroup.class.getDeclaredMethod(
+                        "getChildDrawingOrder", int.class, int.class);
+                sGetChildDrawingOrderMethod.setAccessible(true);
+            } catch (NoSuchMethodException ignore) {
+
+            }
+            sGetChildDrawingOrderMethodFetched = true;
+        }
+        if (sGetChildDrawingOrderMethod != null) {
+            try {
+                return (Integer) sGetChildDrawingOrderMethod.invoke(viewGroup,
+                        viewGroup.getChildCount(), i);
+            } catch (IllegalAccessException ignore) {
+            } catch (InvocationTargetException ignore) {
+            }
+        }
+        // fallback implementation
+        return i;
+    }
+
 
     private ViewGroupUtils() {
     }
