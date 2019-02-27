@@ -35,7 +35,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
             import java.lang.SuppressWarnings;
             import javax.annotation.Generated;
             @Generated("androidx.room.RoomProcessor")
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings({"unchecked", "deprecation"})
             public class MyContainerClass {
             """.trimIndent()
         const val OUT_SUFFIX = "}"
@@ -80,8 +80,11 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
                 """.trimIndent())
     }
 
-    fun generateAndMatch(input: String, output: String,
-                         attributes: Map<String, String> = mapOf()) {
+    fun generateAndMatch(
+        input: String,
+        output: String,
+        attributes: Map<String, String> = mapOf()
+    ) {
         generate(input, attributes)
                 .compilesWithoutError()
                 .and()

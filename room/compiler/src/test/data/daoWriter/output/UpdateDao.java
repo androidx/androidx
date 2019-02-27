@@ -18,7 +18,7 @@ import java.util.concurrent.Callable;
 import javax.annotation.Generated;
 
 @Generated("androidx.room.RoomProcessor")
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "deprecation"})
 public final class UpdateDao_Impl implements UpdateDao {
   private final RoomDatabase __db;
 

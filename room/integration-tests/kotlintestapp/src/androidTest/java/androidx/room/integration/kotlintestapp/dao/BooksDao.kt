@@ -70,6 +70,9 @@ interface BooksDao {
     @Insert
     fun addPublisherMaybe(publisher: Publisher): Maybe<Long>
 
+    @Insert
+    fun addPublisherSuspend(publisher: Publisher)
+
     @Delete
     fun deletePublishers(vararg publishers: Publisher)
 
@@ -102,6 +105,9 @@ interface BooksDao {
 
     @Insert
     fun addAuthors(vararg authors: Author)
+
+    @Insert
+    suspend fun addAuthorsSuspend(vararg authors: Author)
 
     @Query("SELECT * FROM author WHERE authorId = :authorId")
     fun getAuthor(authorId: String): Author
@@ -339,4 +345,29 @@ interface BooksDao {
     // see: b/123767877, suspend function with inner class as parameter issues.
     @Query("SELECT 'YES' FROM book")
     suspend fun getAnswer(): AnswerConverter.Answer
+
+    @Transaction
+    suspend fun insertBookAndAuthorSuspend(book: Book, author: Author) {
+        addBooks(book)
+        addAuthors(author)
+    }
+
+    @Query("SELECT * FROM book WHERE salesCnt = :count")
+    suspend fun getBooksSalesCountSuspend(count: Int): List<Book>
+
+    @Transaction
+    suspend fun deleteBooksWithZeroSales(): List<Book> {
+        val books = getBooksSalesCountSuspend(0)
+        deleteBookWithIds(*books.map { it.bookId }.toTypedArray())
+        return books
+    }
+
+    @Transaction
+    suspend fun addAuthorPublisherBooks(author: Author, publisher: Publisher, vararg books: Book) {
+        addAuthorsSuspend(author)
+        addPublisherSuspend(publisher)
+        for (book in books) {
+            insertBookSuspend(book)
+        }
+    }
 }

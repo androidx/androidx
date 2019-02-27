@@ -240,6 +240,7 @@ public class ForeignKeyTest {
     @Test
     public void immediateForeignKeyFailure() {
         Throwable t = catchException(new ThrowingRunnable() {
+            @SuppressWarnings("deprecation")
             @Override
             public void run() throws Exception {
                 try {
@@ -255,6 +256,7 @@ public class ForeignKeyTest {
         assertThat(t, instanceOf(SQLiteException.class));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void deferredForeignKeySuccess() {
         try {
@@ -390,7 +392,7 @@ public class ForeignKeyTest {
                 .or(both(containsString("CODE 19")).and(containsString("CONSTRAINT FAILED")));
     }
 
-    @SuppressWarnings("Duplicates")
+    @SuppressWarnings({"Duplicates", "deprecation"})
     private void deleteInTransaction(A a, B b) {
         mDb.beginTransaction();
         try {
@@ -402,7 +404,7 @@ public class ForeignKeyTest {
         }
     }
 
-    @SuppressWarnings("Duplicates")
+    @SuppressWarnings({"Duplicates", "deprecation"})
     private void deleteInTransaction(A a, C c) {
         mDb.beginTransaction();
         try {

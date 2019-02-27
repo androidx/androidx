@@ -53,6 +53,7 @@ object SupportDbTypeNames {
 object RoomTypeNames {
     val STRING_UTIL: ClassName = ClassName.get("androidx.room.util", "StringUtil")
     val ROOM_DB: ClassName = ClassName.get("androidx.room", "RoomDatabase")
+    val ROOM_DB_KT: ClassName = ClassName.get("androidx.room", "RoomDatabaseKt")
     val ROOM_DB_CONFIG: ClassName = ClassName.get("androidx.room",
             "DatabaseConfiguration")
     val INSERTION_ADAPTER: ClassName =
@@ -160,6 +161,7 @@ object RoomCoroutinesTypeNames {
 object KotlinTypeNames {
     val UNIT = ClassName.get("kotlin", "Unit")
     val CONTINUATION = ClassName.get("kotlin.coroutines", "Continuation")
+    val COROUTINE_SCOPE = ClassName.get("kotlinx.coroutines", "CoroutineScope")
 }
 
 fun TypeName.defaultValue(): String {
@@ -180,6 +182,32 @@ fun CallableTypeSpecBuilder(
     addMethod(MethodSpec.methodBuilder("call").apply {
         returns(parameterTypeName)
         addException(Exception::class.typeName())
+        addModifiers(Modifier.PUBLIC)
+        addAnnotation(Override::class.java)
+        callBody()
+    }.build())
+}
+
+fun Function2TypeSpecBuilder(
+    parameter1: Pair<TypeName, String>,
+    parameter2: Pair<TypeName, String>,
+    returnTypeName: TypeName,
+    callBody: MethodSpec.Builder.() -> Unit
+) = TypeSpec.anonymousClassBuilder("").apply {
+    val (param1TypeName, param1Name) = parameter1
+    val (param2TypeName, param2Name) = parameter2
+    superclass(
+        ParameterizedTypeName.get(
+            Function2::class.typeName(),
+            param1TypeName,
+            param2TypeName,
+            returnTypeName
+        )
+    )
+    addMethod(MethodSpec.methodBuilder("invoke").apply {
+        addParameter(param1TypeName, param1Name)
+        addParameter(param2TypeName, param2Name)
+        returns(returnTypeName)
         addModifiers(Modifier.PUBLIC)
         addAnnotation(Override::class.java)
         callBody()

@@ -98,6 +98,7 @@ class MigrationKotlinTest {
         assertThat(entity2s.size, `is`(2))
     }
 
+    @Suppress("DEPRECATION")
     private fun getLatestDb(): MigrationDbKotlin {
         val db = Room.databaseBuilder(
                 InstrumentationRegistry.getInstrumentation().targetContext,

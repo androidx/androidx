@@ -484,6 +484,7 @@ public class QueryTransactionTest {
     }
 
     @Database(version = 1, entities = {Entity1.class, Child.class}, exportSchema = false)
+    @SuppressWarnings("deprecation")
     abstract static class TransactionDb extends RoomDatabase {
         abstract EntityDao dao();
 
