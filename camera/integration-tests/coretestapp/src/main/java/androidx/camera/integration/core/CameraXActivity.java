@@ -35,6 +35,7 @@ import android.view.TextureView.SurfaceTextureListener;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -628,6 +629,49 @@ public class CameraXActivity extends AppCompatActivity
                     @Override
                     public void run() {
                         CameraXActivity.this.createUseCases();
+
+                        ImageButton directionToggle = findViewById(R.id.direction_toggle);
+                        directionToggle.setVisibility(View.VISIBLE);
+                        directionToggle.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (mCurrentCameraLensFacing == LensFacing.BACK) {
+                                    mCurrentCameraLensFacing = LensFacing.FRONT;
+                                } else if (mCurrentCameraLensFacing == LensFacing.FRONT) {
+                                    mCurrentCameraLensFacing = LensFacing.BACK;
+                                }
+
+                                Log.d(TAG, "Change camera direction: " + mCurrentCameraLensFacing);
+
+                                // Rebind all use cases.
+                                CameraX.unbindAll();
+                                if (mImageCaptureUseCase != null) {
+                                    enableImageCaptureUseCase();
+                                }
+                                if (mViewFinderUseCase != null) {
+                                    enableViewFinderUseCase();
+                                }
+                                if (mImageAnalysisUseCase != null) {
+                                    enableImageAnalysisUseCase();
+                                }
+                                if (mVideoCaptureUseCase != null) {
+                                    enableVideoCaptureUseCase();
+                                }
+                            }
+                        });
+
+                        ImageButton torchToggle = findViewById(R.id.torch_toggle);
+                        torchToggle.setVisibility(View.VISIBLE);
+                        torchToggle.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (mViewFinderUseCase != null) {
+                                    boolean toggledState = !mViewFinderUseCase.isTorchOn();
+                                    Log.d(TAG, "Set camera torch: " + toggledState);
+                                    mViewFinderUseCase.enableTorch(toggledState);
+                                }
+                            }
+                        });
                     }
                 });
     }
