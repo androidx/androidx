@@ -39,7 +39,7 @@ class Main {
         val OPTION_INPUT = createOption(
             argName = "i",
             argNameLong = "input",
-            desc = "Input library path (jar, aar, zip)",
+            desc = "Input library path (jar, aar, zip), or source file (java, xml)",
             isRequired = true
         )
         val OPTION_OUTPUT = createOption(
@@ -119,17 +119,12 @@ class Main {
 
         Log.setLevel(cmd.getOptionValue(OPTION_LOG_LEVEL.opt))
 
-        val inputLibrary = File(cmd.getOptionValue(OPTION_INPUT.opt))
+        val input = File(cmd.getOptionValue(OPTION_INPUT.opt))
         val output = cmd.getOptionValue(OPTION_OUTPUT.opt)
         val rebuildTopOfTree = cmd.hasOption(OPTION_REBUILD_TOP_OF_TREE.opt)
-
-        val fileMappings = mutableSetOf<FileMapping>()
-        if (rebuildTopOfTree) {
-            val tempFile = createTempFile(suffix = "zip")
-            fileMappings.add(FileMapping(inputLibrary, tempFile))
-        } else {
-            fileMappings.add(FileMapping(inputLibrary, File(output)))
-        }
+        val isReversed = cmd.hasOption(OPTION_REVERSED.opt)
+        val isStrict = cmd.hasOption(OPTION_STRICT.opt)
+        val shouldStripSignatures = cmd.hasOption(OPTION_STRIP_SIGNATURES.opt)
 
         val config = if (cmd.hasOption(OPTION_CONFIG.opt)) {
             val configPath = Paths.get(cmd.getOptionValue(OPTION_CONFIG.opt))
@@ -144,9 +139,13 @@ class Main {
             return
         }
 
-        val isReversed = cmd.hasOption(OPTION_REVERSED.opt)
-        val isStrict = cmd.hasOption(OPTION_STRICT.opt)
-        val shouldStripSignatures = cmd.hasOption(OPTION_STRIP_SIGNATURES.opt)
+        val fileMappings = mutableSetOf<FileMapping>()
+        if (rebuildTopOfTree) {
+            val tempFile = createTempFile(suffix = "zip")
+            fileMappings.add(FileMapping(input, tempFile))
+        } else {
+            fileMappings.add(FileMapping(input, File(output)))
+        }
 
         val processor = Processor.createProcessor3(
             config = config,
