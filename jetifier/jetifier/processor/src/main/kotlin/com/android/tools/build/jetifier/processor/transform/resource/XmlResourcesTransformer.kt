@@ -72,6 +72,10 @@ class XmlResourcesTransformer internal constructor(private val context: Transfor
     override fun canTransform(file: ArchiveFile) = file.isXmlFile() && !file.isPomFile()
 
     override fun runTransform(file: ArchiveFile) {
+        if (file.isSingleFile) {
+            transformSource(file, context)
+            return
+        }
         if (file.fileName == "maven-metadata.xml") {
             // Dejetification is picking this file and we don't want to deal with it.
             return
