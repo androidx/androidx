@@ -61,7 +61,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     private final LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
     private final SavedStateRegistryController mSavedStateRegistryController =
-            new SavedStateRegistryController();
+            SavedStateRegistryController.create(this);
 
     // Lazily recreated from NonConfigurationInstances by getViewModelStore()
     private ViewModelStore mViewModelStore;
