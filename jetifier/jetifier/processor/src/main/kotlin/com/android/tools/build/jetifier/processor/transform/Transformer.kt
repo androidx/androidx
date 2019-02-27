@@ -32,4 +32,13 @@ interface Transformer {
      * Runs transformation of the given file.
      */
     fun runTransform(file: ArchiveFile)
+
+    /**
+     * Transforms the the given source file.
+     */
+    fun Transformer.transformSource(file: ArchiveFile, context: TransformationContext) {
+        SourceJetifier.jetifySourceFile(context.config,
+            String(file.data),
+            file.relativePath.toFile())
+    }
 }
