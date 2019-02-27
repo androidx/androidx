@@ -16,7 +16,6 @@
 
 package androidx.camera.testing;
 
-import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
@@ -69,8 +68,6 @@ public final class StreamConfigurationMapUtil {
      * @param supportedSizes   The supported sizes to be added
      * @return a fake {@link StreamConfigurationMap} object
      */
-    // TODO(b/124267925): Remove @SuppressLint once we target API 21
-    @SuppressLint("ObsoleteSdkInt")
     public static StreamConfigurationMap generateFakeStreamConfigurationMap(
             int[] supportedFormats, Size[] supportedSizes) {
         StreamConfigurationMap map;

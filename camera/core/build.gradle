@@ -24,15 +24,14 @@ plugins {
 }
 
 dependencies {
-    // TODO(b/124267925): Remove Java 8 features from code and switch to lifecycle-common
-    api("androidx.lifecycle:lifecycle-common-java8:2.0.0", libs.exclude_annotations_transitive)
+    api("androidx.lifecycle:lifecycle-common:2.0.0", libs.exclude_annotations_transitive)
     implementation("androidx.annotation:annotation:1.0.0")
     implementation("androidx.exifinterface:exifinterface:1.0.0")
 
     implementation(AUTO_VALUE_ANNOTATIONS)
     implementation(GUAVA_LISTENABLE_FUTURE)
     implementation(GUAVA_ANDROID) // TODO(b/120832996): Remove once we've isolated needed Futures methods
-    implementation(TRUTH) // TODO(b/124267925): Needed to resolve a version conflict in tests with GUAVA_ANDROID. Remove once we've removed GUAVA_ANDROID.
+    implementation(TRUTH) // TODO(b/120832996): Needed to resolve a version conflict in tests with GUAVA_ANDROID. Remove once we've removed GUAVA_ANDROID.
 
     annotationProcessor(AUTO_VALUE)
 
@@ -54,14 +53,8 @@ dependencies {
 }
 
 android {
-    // TODO(b/124267925): Remove Java 8 features from code and set minSdkVersion to 21 once removed.
     defaultConfig {
-        minSdkVersion 24
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        minSdkVersion 21
     }
 
     // Use Robolectric 4.+

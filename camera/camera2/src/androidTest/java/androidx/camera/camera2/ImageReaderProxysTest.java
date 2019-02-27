@@ -60,7 +60,7 @@ public final class ImageReaderProxysTest {
     private Handler mHandler;
 
     private static ImageReaderProxy.OnImageAvailableListener createSemaphoreReleasingListener(
-            Semaphore semaphore) {
+            final Semaphore semaphore) {
         return new ImageReaderProxy.OnImageAvailableListener() {
             @Override
             public void onImageAvailable(ImageReaderProxy reader) {

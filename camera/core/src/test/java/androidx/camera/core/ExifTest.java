@@ -38,8 +38,7 @@ import java.io.InputStream;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-// TODO(b/124267925): Bump down to LOLLIPOP once our minSdk is 21
-@Config(minSdk = Build.VERSION_CODES.N)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class ExifTest {
     private static final InputStream FAKE_INPUT_STREAM =
             new InputStream() {

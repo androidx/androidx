@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
@@ -38,6 +39,7 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CaptureRequestConfiguration;
 import androidx.camera.core.DeferrableSurfaces;
+import androidx.camera.core.OnFocusCompletedListener;
 import androidx.camera.core.SessionConfiguration;
 import androidx.camera.core.ViewFinderUseCase;
 import androidx.camera.core.ViewFinderUseCase.OnViewFinderOutputUpdateListener;
@@ -53,7 +55,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
@@ -80,7 +81,7 @@ public final class ViewFinderUseCaseTest {
     @Before
     public void setUp() {
         // Instantiates OnViewFinderOutputUpdateListener before each test run.
-        mMockListener = Mockito.mock(OnViewFinderOutputUpdateListener.class);
+        mMockListener = mock(OnViewFinderOutputUpdateListener.class);
         Context context = ApplicationProvider.getApplicationContext();
         AppConfiguration appConfig = Camera2AppConfiguration.create(context);
         CameraFactory cameraFactory = appConfig.getCameraFactory(/*valueIfMissing=*/ null);
@@ -132,16 +133,16 @@ public final class ViewFinderUseCaseTest {
         ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
-        CameraControl cameraControl = Mockito.mock(CameraControl.class);
+        CameraControl cameraControl = mock(CameraControl.class);
         useCase.attachCameraControl(mCameraId, cameraControl);
 
         Rect rect = new Rect(/*left=*/ 200, /*top=*/ 200, /*right=*/ 800, /*bottom=*/ 800);
-        useCase.focus(rect, rect);
+        useCase.focus(rect, rect, mock(OnFocusCompletedListener.class));
 
         ArgumentCaptor<Rect> rectArgumentCaptor1 = ArgumentCaptor.forClass(Rect.class);
         ArgumentCaptor<Rect> rectArgumentCaptor2 = ArgumentCaptor.forClass(Rect.class);
         verify(cameraControl).focus(rectArgumentCaptor1.capture(), rectArgumentCaptor2.capture(),
-                any(), any());
+                any(OnFocusCompletedListener.class), any(Handler.class));
         assertThat(rectArgumentCaptor1.getValue()).isEqualTo(rect);
         assertThat(rectArgumentCaptor2.getValue()).isEqualTo(rect);
     }
@@ -152,7 +153,7 @@ public final class ViewFinderUseCaseTest {
         ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
-        CameraControl cameraControl = Mockito.mock(CameraControl.class);
+        CameraControl cameraControl = mock(CameraControl.class);
         useCase.attachCameraControl(mCameraId, cameraControl);
 
         Rect rect = new Rect(/*left=*/ 200, /*top=*/ 200, /*right=*/ 800, /*bottom=*/ 800);
@@ -185,8 +186,8 @@ public final class ViewFinderUseCaseTest {
         }
         ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
 
-        SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
-        FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
+        final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
+        final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
         useCase.setOnViewFinderOutputUpdateListener(
                 new OnViewFinderOutputUpdateListener() {
                     @Override
@@ -201,8 +202,8 @@ public final class ViewFinderUseCaseTest {
         SurfaceTexture surfaceTexture0 = future0.get(1, TimeUnit.SECONDS);
         surfaceTexture0.release();
 
-        SurfaceTextureCallable surfaceTextureCallable1 = new SurfaceTextureCallable();
-        FutureTask<SurfaceTexture> future1 = new FutureTask<>(surfaceTextureCallable1);
+        final SurfaceTextureCallable surfaceTextureCallable1 = new SurfaceTextureCallable();
+        final FutureTask<SurfaceTexture> future1 = new FutureTask<>(surfaceTextureCallable1);
         useCase.setOnViewFinderOutputUpdateListener(
                 new OnViewFinderOutputUpdateListener() {
                     @Override
@@ -228,8 +229,8 @@ public final class ViewFinderUseCaseTest {
         }
         ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
 
-        SurfaceTextureCallable surfaceTextureCallable = new SurfaceTextureCallable();
-        FutureTask<SurfaceTexture> future = new FutureTask<>(surfaceTextureCallable);
+        final SurfaceTextureCallable surfaceTextureCallable = new SurfaceTextureCallable();
+        final FutureTask<SurfaceTexture> future = new FutureTask<>(surfaceTextureCallable);
 
         useCase.setOnViewFinderOutputUpdateListener(
                 new OnViewFinderOutputUpdateListener() {
@@ -256,8 +257,8 @@ public final class ViewFinderUseCaseTest {
 
         ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
 
-        SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
-        FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
+        final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
+        final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
         useCase.setOnViewFinderOutputUpdateListener(
                 new OnViewFinderOutputUpdateListener() {
                     @Override
@@ -271,8 +272,8 @@ public final class ViewFinderUseCaseTest {
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
         SurfaceTexture surfaceTexture0 = future0.get();
 
-        SurfaceTextureCallable surfaceTextureCallable1 = new SurfaceTextureCallable();
-        FutureTask<SurfaceTexture> future1 = new FutureTask<>(surfaceTextureCallable1);
+        final SurfaceTextureCallable surfaceTextureCallable1 = new SurfaceTextureCallable();
+        final FutureTask<SurfaceTexture> future1 = new FutureTask<>(surfaceTextureCallable1);
         useCase.setOnViewFinderOutputUpdateListener(
                 new OnViewFinderOutputUpdateListener() {
                     @Override
@@ -343,7 +344,7 @@ public final class ViewFinderUseCaseTest {
         ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
-        AtomicInteger calledCount = new AtomicInteger(0);
+        final AtomicInteger calledCount = new AtomicInteger(0);
         useCase.setOnViewFinderOutputUpdateListener(
                 new OnViewFinderOutputUpdateListener() {
                     @Override
@@ -370,7 +371,7 @@ public final class ViewFinderUseCaseTest {
         useCase.setTargetRotation(Surface.ROTATION_0);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
-        AtomicReference<ViewFinderOutput> latestViewFinderOutput = new AtomicReference<>();
+        final AtomicReference<ViewFinderOutput> latestViewFinderOutput = new AtomicReference<>();
         useCase.setOnViewFinderOutputUpdateListener(
                 new OnViewFinderOutputUpdateListener() {
                     @Override
@@ -394,9 +395,9 @@ public final class ViewFinderUseCaseTest {
     @Test
     public void viewFinderOutput_isResetByReleasedSurface()
             throws InterruptedException, ExecutionException {
-        ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
+        final ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
         Handler mainHandler = new Handler(Looper.getMainLooper());
-        Semaphore semaphore = new Semaphore(0);
+        final Semaphore semaphore = new Semaphore(0);
 
         mainHandler.post(
                 new Runnable() {
@@ -435,8 +436,8 @@ public final class ViewFinderUseCaseTest {
 
         ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
 
-        SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
-        FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
+        final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
+        final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
         useCase.setOnViewFinderOutputUpdateListener(
                 new OnViewFinderOutputUpdateListener() {
                     @Override
@@ -460,8 +461,8 @@ public final class ViewFinderUseCaseTest {
 
         ViewFinderUseCase useCase = new ViewFinderUseCase(mDefaultConfiguration);
 
-        SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
-        FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
+        final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
+        final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         useCase.setOnViewFinderOutputUpdateListener(

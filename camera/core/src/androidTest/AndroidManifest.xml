@@ -13,4 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<manifest package="androidx.camera.core.test"/>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.camera.core.test">
+
+    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+
+</manifest>

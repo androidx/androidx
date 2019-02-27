@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
@@ -226,7 +225,8 @@ public final class ImageCaptureUseCaseTest {
         // Wait for the signal that all images have been captured.
         mSemaphore.acquire(numImages);
 
-        verify(mMockImageCapturedListener, times(numImages)).onCaptureSuccess(any(), anyInt());
+        verify(mMockImageCapturedListener, times(numImages)).onCaptureSuccess(any(ImageProxy.class),
+                anyInt());
     }
 
     @Test
@@ -260,7 +260,8 @@ public final class ImageCaptureUseCaseTest {
         // Wait for the signal that all images have been captured.
         mSemaphore.acquire(numImages);
 
-        verify(mMockImageCapturedListener, times(numImages)).onCaptureSuccess(any(), anyInt());
+        verify(mMockImageCapturedListener, times(numImages)).onCaptureSuccess(any(ImageProxy.class),
+                anyInt());
     }
 
     @Test
@@ -406,7 +407,7 @@ public final class ImageCaptureUseCaseTest {
         // Wait for the signal that all images have been saved.
         mSemaphore.acquire(numImages);
 
-        verify(mMockImageSavedListener, times(numImages)).onImageSaved(anyObject());
+        verify(mMockImageSavedListener, times(numImages)).onImageSaved(any(File.class));
     }
 
     @Test
@@ -426,7 +427,7 @@ public final class ImageCaptureUseCaseTest {
         mSemaphore.acquire();
 
         verify(mMockImageSavedListener)
-                .onError(eq(UseCaseError.FILE_IO_ERROR), anyString(), anyObject());
+                .onError(eq(UseCaseError.FILE_IO_ERROR), anyString(), any(Throwable.class));
     }
 
     @Test

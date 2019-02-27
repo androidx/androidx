@@ -45,9 +45,6 @@ import java.util.Set;
 /**
  * A Camera2 implementation for CameraControl interface
  *
- * <p>It takes a {@link Camera2RequestRunner} for executing capture request and a {@link Handler} in
- * which methods run.
- *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -404,7 +401,8 @@ public final class Camera2CameraControl implements CameraControl {
         return CameraDevice.TEMPLATE_PREVIEW;
     }
 
-    private void notifySingleRequest(CaptureRequestConfiguration captureRequestConfiguration) {
+    private void notifySingleRequest(
+            final CaptureRequestConfiguration captureRequestConfiguration) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -434,7 +432,7 @@ public final class Camera2CameraControl implements CameraControl {
 
     /** {@inheritDoc} */
     @Override
-    public void submitSingleRequest(CaptureRequestConfiguration captureRequestConfiguration) {
+    public void submitSingleRequest(final CaptureRequestConfiguration captureRequestConfiguration) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override

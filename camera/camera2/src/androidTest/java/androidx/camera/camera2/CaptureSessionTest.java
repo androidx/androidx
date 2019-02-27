@@ -119,7 +119,7 @@ public final class CaptureSessionTest {
 
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(mTestParameters0.mSessionCameraCaptureCallback, timeout(3000).atLeast(1))
-                .onCaptureCompleted(any());
+                .onCaptureCompleted(any(CameraCaptureResult.class));
     }
 
     @Test
@@ -201,7 +201,7 @@ public final class CaptureSessionTest {
 
         // Second session should have CameraCaptureCallback.onCaptureCompleted() call.
         verify(mTestParameters1.mSessionCameraCaptureCallback, timeout(3000).atLeast(1))
-                .onCaptureCompleted(any());
+                .onCaptureCompleted(any(CameraCaptureResult.class));
     }
 
     @Test
@@ -220,7 +220,7 @@ public final class CaptureSessionTest {
 
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(mTestParameters0.mCameraCaptureCallback, timeout(3000).times(1))
-                .onCaptureCompleted(any());
+                .onCaptureCompleted(any(CameraCaptureResult.class));
     }
 
     @Test
@@ -236,7 +236,7 @@ public final class CaptureSessionTest {
 
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(mTestParameters0.mCameraCaptureCallback, timeout(3000).times(1))
-                .onCaptureCompleted(any());
+                .onCaptureCompleted(any(CameraCaptureResult.class));
     }
 
     @Test(expected = IllegalStateException.class)

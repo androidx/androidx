@@ -22,14 +22,22 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
+import android.hardware.camera2.TotalCaptureResult;
 import android.os.Handler;
 import android.os.HandlerThread;
 
 import androidx.annotation.RequiresPermission;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.BaseUseCase;
 import androidx.test.core.app.ApplicationProvider;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -156,5 +164,66 @@ public final class CameraUtil {
             camera.onUseCaseInactive(useCase);
         }
         camera.removeOnlineUseCase(Arrays.asList(useCases));
+    }
+
+    /**
+     * Creates a dummy {@link TotalCaptureResult} which can be used as an argument.
+     *
+     * @return A dummy capture result.
+     * @hide Used as a workaround for final TotalCaptureResult mocking.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static TotalCaptureResult createDummyCaptureResult() {
+        TotalCaptureResult totalCaptureResult;
+        try {
+            Class<?> cameraMetadataNativeClass = Class.forName(
+                    "android.hardware.camera2.impl.CameraMetadataNative");
+            Method setMethod = cameraMetadataNativeClass.getDeclaredMethod("set",
+                    CaptureResult.Key.class, Object.class);
+
+
+            Object nativeMetadata =
+                    cameraMetadataNativeClass.getDeclaredConstructor().newInstance();
+
+            // Must set a value so metadata is not empty
+            setMethod.invoke(nativeMetadata, CaptureResult.SENSOR_TIMESTAMP, 0L);
+
+            totalCaptureResult = TotalCaptureResult.class.getDeclaredConstructor(
+                    cameraMetadataNativeClass, int.class).newInstance(
+                    nativeMetadata, 0);
+        } catch (ClassNotFoundException
+                | IllegalAccessException
+                | InstantiationException
+                | NoSuchMethodException
+                | InvocationTargetException e) {
+            throw new AssertionError(e);
+        }
+
+        return totalCaptureResult;
+    }
+
+    /**
+     * Creates a dummy {@link CaptureRequest} which can be used as an argument.
+     *
+     * @return A dummy capture request.
+     * @hide Used as a workaround for final CaptureRequest mocking.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static CaptureRequest createDummyCaptureRequest() {
+        CaptureRequest captureRequest;
+        try {
+            Constructor<CaptureRequest> requestConstructor =
+                    CaptureRequest.class.getDeclaredConstructor();
+            requestConstructor.setAccessible(true);
+
+            captureRequest = requestConstructor.newInstance();
+        } catch (IllegalAccessException
+                | InstantiationException
+                | NoSuchMethodException
+                | InvocationTargetException e) {
+            throw new AssertionError(e);
+        }
+
+        return captureRequest;
     }
 }

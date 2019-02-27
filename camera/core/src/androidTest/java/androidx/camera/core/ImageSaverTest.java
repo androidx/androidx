@@ -18,7 +18,7 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -62,24 +62,6 @@ public class ImageSaverTest {
     private static final int Y_ROW_STRIDE = WIDTH;
     private static final int UV_PIXEL_STRIDE = 1;
     private static final int UV_ROW_STRIDE = WIDTH / 2;
-
-    // The image used here has a YUV_420_888 format.
-    @Mock
-    private final ImageProxy mMockYuvImage = mock(ImageProxy.class);
-    @Mock
-    private final ImageProxy.PlaneProxy mYPlane = mock(ImageProxy.PlaneProxy.class);
-    @Mock
-    private final ImageProxy.PlaneProxy mUPlane = mock(ImageProxy.PlaneProxy.class);
-    @Mock
-    private final ImageProxy.PlaneProxy mVPlane = mock(ImageProxy.PlaneProxy.class);
-    private final ByteBuffer mYBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT);
-    private final ByteBuffer mUBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 4);
-    private final ByteBuffer mVBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 4);
-
-    @Mock
-    private final ImageProxy mMockJpegImage = mock(ImageProxy.class);
-    @Mock
-    private final ImageProxy.PlaneProxy mJpegDataPlane = mock(ImageProxy.PlaneProxy.class);
     private static final String JPEG_IMAGE_DATA_BASE_64 =
             "/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB"
                     + "AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEB"
@@ -98,6 +80,22 @@ public class ImageSaverTest {
                     + "KKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoo"
                     + "ooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiii"
                     + "gAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9k=";
+    // The image used here has a YUV_420_888 format.
+    @Mock
+    private final ImageProxy mMockYuvImage = mock(ImageProxy.class);
+    @Mock
+    private final ImageProxy.PlaneProxy mYPlane = mock(ImageProxy.PlaneProxy.class);
+    @Mock
+    private final ImageProxy.PlaneProxy mUPlane = mock(ImageProxy.PlaneProxy.class);
+    @Mock
+    private final ImageProxy.PlaneProxy mVPlane = mock(ImageProxy.PlaneProxy.class);
+    private final ByteBuffer mYBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT);
+    private final ByteBuffer mUBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 4);
+    private final ByteBuffer mVBuffer = ByteBuffer.allocateDirect(WIDTH * HEIGHT / 4);
+    @Mock
+    private final ImageProxy mMockJpegImage = mock(ImageProxy.class);
+    @Mock
+    private final ImageProxy.PlaneProxy mJpegDataPlane = mock(ImageProxy.PlaneProxy.class);
     private final ByteBuffer mJpegDataBuffer =
             ByteBuffer.wrap(Base64.decode(JPEG_IMAGE_DATA_BASE_64, Base64.DEFAULT));
 
@@ -188,7 +186,7 @@ public class ImageSaverTest {
 
         mSemaphore.acquire();
 
-        verify(mMockListener).onImageSaved(anyObject());
+        verify(mMockListener).onImageSaved(any(File.class));
     }
 
     @Test
@@ -202,7 +200,7 @@ public class ImageSaverTest {
 
         mSemaphore.acquire();
 
-        verify(mMockListener).onImageSaved(anyObject());
+        verify(mMockListener).onImageSaved(any(File.class));
     }
 
     @Test
@@ -216,7 +214,8 @@ public class ImageSaverTest {
 
         mSemaphore.acquire();
 
-        verify(mMockListener).onError(eq(SaveError.FILE_IO_FAILED), anyString(), anyObject());
+        verify(mMockListener).onError(eq(SaveError.FILE_IO_FAILED), anyString(),
+                any(Throwable.class));
     }
 
     @Test

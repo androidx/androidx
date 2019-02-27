@@ -84,7 +84,7 @@ public class BaseUseCaseTest {
 
         testUseCase.activate();
 
-        verify(mMockUseCaseListener, never()).onUseCaseActive(any());
+        verify(mMockUseCaseListener, never()).onUseCaseActive(any(BaseUseCase.class));
     }
 
     @Test
@@ -96,7 +96,7 @@ public class BaseUseCaseTest {
         testUseCase.clear();
 
         testUseCase.activate();
-        verify(mMockUseCaseListener, never()).onUseCaseActive(any());
+        verify(mMockUseCaseListener, never()).onUseCaseActive(any(BaseUseCase.class));
     }
 
     @Test

@@ -19,6 +19,7 @@ package androidx.camera.camera2;
 import android.content.Context;
 
 import androidx.camera.core.AppConfiguration;
+import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCaptureUseCase;
 import androidx.camera.core.ImageCaptureUseCaseConfiguration;
@@ -32,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 /** JUnit test cases for UseCaseSurfaceOccupancyManager class. */
 @SmallTest
@@ -54,8 +55,9 @@ public final class UseCaseSurfaceOccupancyManagerTest {
         ImageCaptureUseCase useCase2 = new ImageCaptureUseCase(configuration);
 
         // Should throw IllegalArgumentException
-        UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(Arrays.asList(useCase1),
-                Arrays.asList(useCase2));
+        UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
+                Collections.<BaseUseCase>singletonList(useCase1),
+                Collections.<BaseUseCase>singletonList(useCase2));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -66,8 +68,9 @@ public final class UseCaseSurfaceOccupancyManagerTest {
         VideoCaptureUseCase useCase2 = new VideoCaptureUseCase(configuration);
 
         // Should throw IllegalArgumentException
-        UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(Arrays.asList(useCase1),
-                Arrays.asList(useCase2));
+        UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
+                Collections.<BaseUseCase>singletonList(useCase1),
+                Collections.<BaseUseCase>singletonList(useCase2));
     }
 
     @Test
@@ -83,6 +86,7 @@ public final class UseCaseSurfaceOccupancyManagerTest {
                 new VideoCaptureUseCase(videoCaptureConfiguration);
 
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
-                Arrays.asList(imageCaptureUseCase), Arrays.asList(videoCaptureUseCase));
+                Collections.<BaseUseCase>singletonList(imageCaptureUseCase),
+                Collections.<BaseUseCase>singletonList(videoCaptureUseCase));
     }
 }
