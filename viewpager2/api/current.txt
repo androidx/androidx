@@ -5,10 +5,8 @@ package androidx.viewpager2.adapter {
     ctor public FragmentStateAdapter(androidx.fragment.app.FragmentManager);
     method public boolean containsItem(long);
     method public abstract androidx.fragment.app.Fragment getItem(int);
-    method public final void onAttachedToRecyclerView(androidx.recyclerview.widget.RecyclerView);
     method public final void onBindViewHolder(androidx.viewpager2.adapter.FragmentViewHolder, int);
     method public final androidx.viewpager2.adapter.FragmentViewHolder onCreateViewHolder(android.view.ViewGroup, int);
-    method public final void onDetachedFromRecyclerView(androidx.recyclerview.widget.RecyclerView);
     method public final boolean onFailedToRecycleView(androidx.viewpager2.adapter.FragmentViewHolder);
     method public final void onViewAttachedToWindow(androidx.viewpager2.adapter.FragmentViewHolder);
     method public final void onViewRecycled(androidx.viewpager2.adapter.FragmentViewHolder);
