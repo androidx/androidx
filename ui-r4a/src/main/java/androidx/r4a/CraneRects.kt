@@ -25,11 +25,13 @@ import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.adapter.Padding
 import androidx.ui.core.adapter.PressGestureDetector
+import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.min
 import androidx.ui.core.px
+import androidx.ui.core.toRect
 import androidx.ui.core.toRoundedPixels
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
@@ -63,7 +65,7 @@ fun DrawImage(bitmap: Bitmap) {
         canvas.save()
         val width = parentSize.width
         val height = parentSize.height
-        val scale = min(width / bitmap.width.toFloat(), height / bitmap.height.toFloat())
+        val scale = min(width / bitmap.width.px, height / bitmap.height.px)
         canvas.scale(scale, scale)
         canvas.drawImage(Image(bitmap), Offset(0.0f, 0.0f), paint)
         canvas.restore()
@@ -75,9 +77,7 @@ fun DrawRectangle(color: Color) {
     val paint = Paint()
     paint.color = color
     <Draw> canvas, parentSize ->
-        val widthPx = parentSize.width
-        val heightPx = parentSize.height
-        canvas.drawRect(Rect(0.0f, 0.0f, widthPx, heightPx), paint)
+        canvas.drawRect(parentSize.toRect(), paint)
     </Draw>
 }
 

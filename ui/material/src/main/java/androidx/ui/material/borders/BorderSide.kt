@@ -126,7 +126,7 @@ data class BorderSide(
         return when (style) {
             BorderStyle.SOLID -> Paint().apply {
                 color = color
-                strokeWidth = width.toPx(density)
+                strokeWidth = width.toPx(density).value
                 style = PaintingStyle.stroke
             }
             BorderStyle.NONE -> Paint().apply {

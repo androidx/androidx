@@ -375,9 +375,16 @@ class PxTest {
     }
 
     @Test
-    fun toRect() {
+    fun boundsToRect() {
         val bounds = PxBounds(10.px, 5.px, 25.px, 15.px)
         val rect = Rect(10f, 5f, 25f, 15f)
         assertEquals(rect, bounds.toRect())
+    }
+
+    @Test
+    fun sizeToRect() {
+        val size = PxSize(10.px, 5.px)
+        val rect = Rect(0f, 0f, 10f, 5f)
+        assertEquals(rect, size.toRect())
     }
 }

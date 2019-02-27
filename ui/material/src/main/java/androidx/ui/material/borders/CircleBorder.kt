@@ -69,7 +69,7 @@ data class CircleBorder(
             addOval(
                 Rect.fromCircle(
                     rect.getCenter(),
-                    max(0.0f, rect.getShortestSide() / 2.0f - side.width.toPx(density))
+                    max(0.0f, rect.getShortestSide() / 2.0f - side.width.toPx(density).value)
                 )
             )
         }
@@ -98,7 +98,7 @@ data class CircleBorder(
             BorderStyle.SOLID ->
                 canvas.drawCircle(
                     rect.getCenter(),
-                    (rect.getShortestSide() - side.width.toPx(density)) / 2.0f,
+                    (rect.getShortestSide() - side.width.toPx(density).value) / 2.0f,
                     side.toPaint(density)
                 )
         }

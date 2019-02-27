@@ -70,10 +70,10 @@ class Checkbox : Component() {
 
 internal fun DrawCheckbox(value: ToggleableState, color: Color, strokeWidth: Dp) {
     <DensityConsumer> density ->
-        val radius = Radius.circular(radiusSize.toPx(density))
-        val strokeWidthPx = strokeWidth.toPx(density)
+        val radius = Radius.circular(radiusSize.toPx(density).value)
+        val strokeWidthPx = strokeWidth.toPx(density).value
         <Draw> canvas, parentSize ->
-            val outer = RRect(0f, 0f, parentSize.width, parentSize.height, radius)
+            val outer = RRect(0f, 0f, parentSize.width.value, parentSize.height.value, radius)
             if (value == ToggleableState.CHECKED) {
                 drawChecked(canvas, outer, color, strokeWidthPx)
             } else if (value == ToggleableState.UNCHECKED) {

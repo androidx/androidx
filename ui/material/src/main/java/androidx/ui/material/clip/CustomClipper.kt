@@ -17,7 +17,7 @@
 package androidx.ui.material.clip
 
 import androidx.ui.core.Density
-import androidx.ui.core.PixelSize
+import androidx.ui.core.PxSize
 
 /**
  * An interface for providing custom clips.
@@ -38,5 +38,5 @@ interface CustomClipper<T> {
      * Returns a description of the clip given that the layout being
      * clipped is of the given size.
      */
-    fun getClip(size: PixelSize, density: Density): T
+    fun getClip(size: PxSize, density: Density): T
 }

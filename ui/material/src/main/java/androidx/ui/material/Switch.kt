@@ -74,7 +74,7 @@ internal fun DrawSwitch(value: ToggleableState, density: Density, color: Color) 
 
 internal fun drawTrack(
         canvas: Canvas,
-        parentSize: PixelSize,
+        parentSize: PxSize,
         state: ToggleableState,
         colors: Color,
         density: Density
@@ -85,14 +85,14 @@ internal fun drawTrack(
     paint.color = (if (state == ToggleableState.CHECKED) colors else uncheckedTrackColor)
             .withAlpha(trackAlpha)
     paint.strokeCap = StrokeCap.round
-    paint.strokeWidth = trackHeight.toPx(density)
+    paint.strokeWidth = trackHeight.toPx(density).value
 
     // TODO(malkov): currently Switch gravity is always CENTER but we need to be flexible
-    val centerHeight = parentSize.height / 2
-    val centerWidth = parentSize.width / 2
+    val centerHeight = parentSize.height.value / 2
+    val centerWidth = parentSize.width.value / 2
 
-    val startW = centerWidth - trackWidth.toPx(density) / 2
-    val endW = centerWidth + trackWidth.toPx(density) / 2
+    val startW = centerWidth - trackWidth.toPx(density).value / 2
+    val endW = centerWidth + trackWidth.toPx(density).value / 2
 
     canvas.drawLine(Offset(startW, centerHeight), Offset(endW, centerHeight), paint)
 }
@@ -103,7 +103,7 @@ internal fun pointPosition(state: ToggleableState) =
 
 internal fun drawThumb(
         canvas: Canvas,
-        parentSize: PixelSize,
+        parentSize: PxSize,
         state: ToggleableState,
         colors: Color,
         density: Density
@@ -114,14 +114,14 @@ internal fun drawThumb(
     paint.color = if (state == ToggleableState.CHECKED) colors else uncheckedThumbColor
 
     // currently I assume that layout gravity of Switch is always CENTER
-    val centerHeight = parentSize.height / 2
-    val centerWidth = parentSize.width / 2
+    val centerHeight = parentSize.height.value / 2
+    val centerWidth = parentSize.width.value / 2
 
     val thumbTrackWidth = trackWidth + pointRadius
-    val thumbStartPoint = centerWidth - thumbTrackWidth.toPx(density) / 2
+    val thumbStartPoint = centerWidth - thumbTrackWidth.toPx(density).value / 2
 
-    val start = thumbStartPoint + thumbTrackWidth.toPx(density) * pointPosition(state)
-    canvas.drawCircle(Offset(start, centerHeight), pointRadius.toPx(density), paint)
+    val start = thumbStartPoint + thumbTrackWidth.toPx(density).value * pointPosition(state)
+    canvas.drawCircle(Offset(start, centerHeight), pointRadius.toPx(density).value, paint)
 }
 
 // TODO(malkov): see how it goes and maybe move it to styles or cross-widget defaults

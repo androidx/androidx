@@ -91,9 +91,9 @@ class PaddingTest {
 
     @Test
     fun testPaddingIsApplied() {
-        val size = 50.dp.toPx(density).roundToInt().px
+        val size = 50.dp.toPx(density).toRoundedPixels().px
         val padding = 10.dp
-        val paddingPx = padding.toPx(density).px
+        val paddingPx = padding.toPx(density)
 
         val drawLatch = CountDownLatch(10)
         var childSize = PxSize(-1.px, -1.px)
@@ -132,7 +132,7 @@ class PaddingTest {
 
     @Test
     fun testPaddingIsApplied_withDifferentInsets() {
-        val size = 50.dp.toPx(density).roundToInt().px
+        val size = 50.dp.toPx(density).toRoundedPixels().px
         val padding = EdgeInsets(10.dp, 15.dp, 20.dp, 30.dp)
 
         val drawLatch = CountDownLatch(10)
@@ -160,10 +160,10 @@ class PaddingTest {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val paddingLeft = padding.left.toPx(density).roundToInt()
-        val paddingRight = padding.right.toPx(density).roundToInt()
-        val paddingTop = padding.top.toPx(density).roundToInt()
-        val paddingBottom = padding.bottom.toPx(density).roundToInt()
+        val paddingLeft = padding.left.toPx(density).toRoundedPixels()
+        val paddingRight = padding.right.toPx(density).toRoundedPixels()
+        val paddingTop = padding.top.toPx(density).toRoundedPixels()
+        val paddingBottom = padding.bottom.toPx(density).toRoundedPixels()
         assertEquals(
             PxSize(size - paddingLeft.px - paddingRight.px,
                 size - paddingTop.px - paddingBottom.px),
@@ -179,9 +179,9 @@ class PaddingTest {
 
     @Test
     fun testPadding_withInsufficientSpace() {
-        val size = 50.dp.toPx(density).roundToInt().px
+        val size = 50.dp.toPx(density).toRoundedPixels().px
         val padding = 30.dp
-        val paddingPx = padding.toPx(density).px
+        val paddingPx = padding.toPx(density)
 
         val drawLatch = CountDownLatch(10)
         var childSize = PxSize(-1.px, -1.px)

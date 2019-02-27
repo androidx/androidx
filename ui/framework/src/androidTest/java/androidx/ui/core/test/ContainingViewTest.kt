@@ -37,6 +37,7 @@ import androidx.ui.core.max
 import androidx.ui.core.minus
 import androidx.ui.core.px
 import androidx.ui.core.times
+import androidx.ui.core.toRect
 import androidx.ui.core.toRoundedPixels
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.TestActivity
@@ -94,8 +95,7 @@ class ContainingViewTest {
                         <Draw> canvas, parentSize ->
                             val paint = Paint()
                             paint.color = Color(0xFFFFFF00.toInt())
-                            canvas.drawRect(Rect(0.0f, 0.0f,
-                                parentSize.width, parentSize.height), paint)
+                            canvas.drawRect(parentSize.toRect(), paint)
                         </Draw>
                         <Padding size=10.px>
                             <AtLeastSize size=10.px>
@@ -105,10 +105,7 @@ class ContainingViewTest {
                                     paint.color = Color(0xFF0000FF.toInt())
                                     val width = parentSize.width
                                     val height = parentSize.height
-                                    canvas.drawRect(
-                                        Rect(0.0f, 0.0f, width, height),
-                                        paint
-                                    )
+                                    canvas.drawRect(parentSize.toRect(), paint)
                                 </Draw>
                             </AtLeastSize>
                         </Padding>

@@ -17,7 +17,7 @@
 package androidx.ui.material.clip.cache
 
 import androidx.ui.core.Density
-import androidx.ui.core.PixelSize
+import androidx.ui.core.PxSize
 import androidx.ui.material.clip.CustomClipper
 import androidx.ui.painting.Path
 import com.google.r4a.Children
@@ -35,7 +35,7 @@ class CachingClipper<T>(
 ) : Component() {
 
     internal var lastClipper: CustomClipper<T> = clipper
-    internal var lastSize: PixelSize? = null
+    internal var lastSize: PxSize? = null
     internal var lastClip: T? = null
 
     private val cachingClipper = object : CustomClipper<T> {
@@ -46,7 +46,7 @@ class CachingClipper<T>(
          * It will recreate a clip only when clipper or parent size have been changed,
          * otherwise will return the cached object.
          */
-        override fun getClip(size: PixelSize, density: Density): T {
+        override fun getClip(size: PxSize, density: Density): T {
             if (lastClipper != clipper) {
                 lastClip = null
             }

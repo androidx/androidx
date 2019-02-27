@@ -48,15 +48,15 @@ package androidx.ui.core {
   }
 
   public final class Draw extends com.google.r4a.Component {
-    ctor public Draw(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Canvas,? super androidx.ui.core.PixelSize,kotlin.Unit> onPaint);
+    ctor public Draw(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> onPaint);
     method public void compose();
-    method public kotlin.jvm.functions.Function2<androidx.ui.painting.Canvas,androidx.ui.core.PixelSize,kotlin.Unit> getOnPaint();
-    method public void setOnPaint(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Canvas,? super androidx.ui.core.PixelSize,kotlin.Unit> p);
+    method public kotlin.jvm.functions.Function2<androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit> getOnPaint();
+    method public void setOnPaint(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> p);
   }
 
   public final class DrawKt {
     ctor public DrawKt();
-    method public static void DrawComposable(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Canvas,? super androidx.ui.core.PixelSize,kotlin.Unit> onPaint);
+    method public static void DrawComposable(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> onPaint);
   }
 
   public final class IntrinsicMeasureOperations {

@@ -18,18 +18,25 @@ package androidx.ui.material
 
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
-import androidx.ui.core.*
+import androidx.ui.core.Density
+import androidx.ui.core.PxSize
 import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
+import androidx.ui.core.div
+import androidx.ui.core.dp
+import androidx.ui.core.max
+import androidx.ui.core.min
+import androidx.ui.core.minus
+import androidx.ui.core.times
+import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
-
-import com.google.r4a.Composable
 import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.unaryPlus
@@ -74,7 +81,7 @@ internal fun DrawRadioButton(value: ToggleableState, color: Color) {
 
 internal fun drawRadio(
         canvas: Canvas,
-        parentSize: PixelSize,
+        parentSize: PxSize,
         density: Density,
         state: ToggleableState,
         color: Color
@@ -82,20 +89,20 @@ internal fun drawRadio(
     val p = Paint()
     p.isAntiAlias = true
     p.color = if (state == ToggleableState.CHECKED) color else uncheckedRadioColor
-    p.strokeWidth = radioStrokeWidth.toPx(density)
+    p.strokeWidth = radioStrokeWidth.toPx(density).value
     p.style = PaintingStyle.stroke
 
     // TODO(malkov): currently Radio gravity is always CENTER but we need to be flexible
-    val centerW = parentSize.width / 2
-    val centerH = parentSize.height / 2
+    val centerW = parentSize.width.value / 2
+    val centerH = parentSize.height.value / 2
     val center = Offset(centerW, centerH)
 
-    canvas.drawCircle(center, (radioRadius - strokeWidth / 2).toPx(density), p)
+    canvas.drawCircle(center, (radioRadius - strokeWidth / 2).toPx(density).value, p)
 
     if (state == ToggleableState.CHECKED) {
         p.style = PaintingStyle.fill
         p.strokeWidth = 0f
-        canvas.drawCircle(center, innerCircleSize.toPx(density), p)
+        canvas.drawCircle(center, innerCircleSize.toPx(density).value, p)
     }
 }
 

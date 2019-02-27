@@ -18,6 +18,7 @@ package androidx.ui.material.ripple
 
 import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
+import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
 import com.google.r4a.Ambient
@@ -94,7 +95,7 @@ class RippleSurface(
         <Draw> canvas, size ->
             if (owner.effects.isNotEmpty()) {
                 canvas.save()
-                canvas.clipRect(Rect(0f, 0f, size.width, size.height))
+                canvas.clipRect(size.toRect())
                 owner.effects.forEach { it.draw(canvas) }
                 canvas.restore()
             }

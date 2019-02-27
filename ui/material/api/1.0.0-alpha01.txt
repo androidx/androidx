@@ -328,7 +328,7 @@ package androidx.ui.material.clip {
   }
 
   public interface CustomClipper<T> {
-    method public T! getClip(androidx.ui.core.PixelSize size, androidx.ui.core.Density density);
+    method public T! getClip(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
   }
 
   public final class ShapeBorderClipper implements androidx.ui.material.clip.CustomClipper<androidx.ui.painting.Path> {
@@ -336,7 +336,7 @@ package androidx.ui.material.clip {
     method public androidx.ui.material.borders.ShapeBorder component1();
     method public androidx.ui.engine.text.TextDirection? component2();
     method public androidx.ui.material.clip.ShapeBorderClipper copy(androidx.ui.material.borders.ShapeBorder shape, androidx.ui.engine.text.TextDirection? textDirection);
-    method public androidx.ui.painting.Path getClip(androidx.ui.core.PixelSize size, androidx.ui.core.Density density);
+    method public androidx.ui.painting.Path getClip(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
     method public androidx.ui.material.borders.ShapeBorder getShape();
     method public androidx.ui.engine.text.TextDirection? getTextDirection();
   }

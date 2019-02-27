@@ -18,6 +18,7 @@ package androidx.ui.core
 
 import android.content.Context
 import androidx.ui.engine.geometry.Rect
+import kotlin.math.round
 
 /**
  * A density of the screen. Used for convert [Dp] to pixels.
@@ -34,9 +35,19 @@ fun Density(context: Context): Density =
     Density(context.resources.displayMetrics.density)
 
 /**
- * Convert [Dp] to pixels. Pixels are used to paint to [Canvas].
+ * Convert [Dp] to [Px]. Pixels are used to paint to [Canvas].
  */
-fun Dp.toPx(density: Density): Float = value * density.density
+fun Dp.toPx(density: Density): Px = Px(value * density.density)
+
+/**
+ * Convert [Dp] to Pixels in Float.
+ */
+fun Dp.toPixels(density: Density): Float = value * density.density
+
+/**
+ * Convert [Dp] to Pixels, rounded to the nearest Int value
+ */
+fun Dp.toRoundedPixels(density: Density): Float = round(value * density.density)
 
 /**
  * Convert [Px] to [Dp].
@@ -50,19 +61,19 @@ fun Float.toDp(density: Density): Dp = (this / density.density).dp
 fun Int.toDp(density: Density): Dp = toFloat().toDp(density)
 
 /**
- * Convert a [Size] to a [PixelSize].
+ * Convert a [Size] to a [PxSize].
  */
-fun Size.toPx(density: Density): PixelSize =
-    PixelSize(width.toPx(density), height.toPx(density))
+fun Size.toPx(density: Density): PxSize =
+    PxSize(width.toPx(density), height.toPx(density))
 
 /**
  * Convert a [Bounds] to a [Rect].
  */
 fun Bounds.toRect(density: Density): Rect {
     return Rect(
-        left.toPx(density),
-        top.toPx(density),
-        right.toPx(density),
-        bottom.toPx(density)
+        left.toPx(density).value,
+        top.toPx(density).value,
+        right.toPx(density).value,
+        bottom.toPx(density).value
     )
 }

@@ -44,7 +44,7 @@ class DpDeviceTest {
     fun dimensionCalculation() {
         val dm = activity.resources.displayMetrics
         val dp10InPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, dm)
-        assertEquals(dp10InPx, 10.dp.toPx(Density(activity)), 0.01f)
+        assertEquals(dp10InPx, 10.dp.toPx(Density(activity)).value, 0.01f)
     }
 
     companion object {

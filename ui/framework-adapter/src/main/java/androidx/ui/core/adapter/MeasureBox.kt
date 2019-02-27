@@ -148,7 +148,7 @@ class ComplexMeasureBoxReceiver internal constructor(
         }
     }
 
-    fun Dp.toPx(): Px = Px(toPx(complexMeasureOperations.density))
+    fun Dp.toPx(): Px = toPx(complexMeasureOperations.density)
     fun Dp.toRoundedPixels(): Int = toPx().toRoundedPixels()
 }
 
@@ -211,6 +211,6 @@ class MeasureBoxReceiver internal constructor(
         layout(width.toRoundedPixels(), height.toRoundedPixels(), block)
     }
 
-    fun Dp.toPx(): Px = Px(toPx(measureOperations.density))
+    fun Dp.toPx(): Px = toPx(measureOperations.density)
     fun Dp.toRoundedPixels(): Int = toPx().toRoundedPixels()
 }

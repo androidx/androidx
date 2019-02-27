@@ -16,13 +16,12 @@
 
 package androidx.ui.core.adapter
 
-import androidx.ui.core.PixelSize
+// Ignore that the IDEA cannot resolve this.
+import androidx.ui.core.DrawComposable
+import androidx.ui.core.PxSize
 import androidx.ui.painting.Canvas
 import com.google.r4a.Children
 import com.google.r4a.Composable
-
-// Ignore that the IDEA cannot resolve this.
-import androidx.ui.core.DrawComposable
 
 /**
  * All this module is needed to work around b/120971484
@@ -32,7 +31,7 @@ import androidx.ui.core.DrawComposable
  */
 @Composable
 @Suppress("PLUGIN_ERROR")
-fun Draw(@Children(composable = false) onPaint: (canvas: Canvas, parentSize: PixelSize) -> Unit) {
+fun Draw(@Children(composable = false) onPaint: (canvas: Canvas, parentSize: PxSize) -> Unit) {
     // Ignore that the IDEA cannot resolve this.
     DrawComposable(onPaint)
 }

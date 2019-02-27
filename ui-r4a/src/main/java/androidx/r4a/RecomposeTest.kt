@@ -44,6 +44,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.minus
 import androidx.ui.core.plus
 import androidx.ui.core.times
+import androidx.ui.core.toRect
 import androidx.ui.core.toRoundedPixels
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
@@ -62,7 +63,7 @@ fun GrayRect() {
             val paint = Paint()
             paint.color = Color(android.graphics.Color.GRAY)
             <Draw> canvas, parentSize ->
-                canvas.drawRect(Rect(0f, 0f, parentSize.width, parentSize.height), paint)
+                canvas.drawRect(parentSize.toRect(), paint)
             </Draw>
         }
         layout(constraints.maxWidth, constraints.maxHeight) {

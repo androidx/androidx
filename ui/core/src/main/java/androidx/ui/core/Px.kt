@@ -489,3 +489,10 @@ fun PxBounds.toRect(): Rect {
         bottom.value
     )
 }
+
+/**
+ * Convert a [PxSize] to a [Rect].
+ */
+fun PxSize.toRect(): Rect {
+    return Rect(0f, 0f, width.value, height.value)
+}

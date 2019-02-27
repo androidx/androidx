@@ -205,7 +205,7 @@ class AndroidCraneView constructor(context: Context)
         node.visitChildren { child ->
             if (child is DrawNode) {
                 // TODO(mount): get rid of PixelSize and use PxSize instead
-                child.onPaint(canvas, PixelSize(root.width.toFloat(), root.height.toFloat()))
+                child.onPaint(canvas, PxSize(root.width.px, root.height.px))
                 child.needsPaint = false
             } else if (child is LayoutNode) {
                 val view = (child.ownerData as AndroidData).view
@@ -273,7 +273,7 @@ private class NodeView(container: ViewGroup, val node: LayoutNode) :
             if (child is DrawNode) {
                 child.onPaint(
                     canvas,
-                    PixelSize(this.node.width.toFloat(), this.node.height.toFloat())
+                    PxSize(this.node.width.px, this.node.height.px)
                 )
                 child.needsPaint = false
             } else if (child is LayoutNode) {

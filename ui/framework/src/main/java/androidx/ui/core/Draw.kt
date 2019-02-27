@@ -30,7 +30,7 @@ import com.google.r4a.composer
  *         canvas.drawRect(Rect(0.0f, 0.0f, parentSize.width, parentSize.height, paint)
  *     </Draw>
  */
-class Draw(@Children(composable = false) var onPaint: (canvas: Canvas, parentSize: PixelSize) -> Unit) : Component() {
+class Draw(@Children(composable = false) var onPaint: (canvas: Canvas, parentSize: PxSize) -> Unit) : Component() {
 
     override fun compose() {
         // Hide the internals of DrawNode
@@ -42,6 +42,6 @@ class Draw(@Children(composable = false) var onPaint: (canvas: Canvas, parentSiz
  * Temporary needed to be able to use the component from the adapter module. b/120971484
  */
 @Composable
-fun DrawComposable(@Children(composable = false) onPaint: (canvas: Canvas, parentSize: PixelSize) -> Unit) {
+fun DrawComposable(@Children(composable = false) onPaint: (canvas: Canvas, parentSize: PxSize) -> Unit) {
     <Draw onPaint />
 }

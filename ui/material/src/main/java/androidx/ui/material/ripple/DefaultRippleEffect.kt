@@ -35,7 +35,6 @@ import androidx.ui.core.getDistance
 import androidx.ui.core.lerp
 import androidx.ui.core.max
 import androidx.ui.core.plus
-import androidx.ui.core.px
 import androidx.ui.core.times
 import androidx.ui.core.toBounds
 import androidx.ui.core.toPx
@@ -81,7 +80,7 @@ internal fun getRippleStartRadius(size: PxSize) =
     max(size.width, size.height) * 0.3f
 
 internal fun getRippleTargetRadius(size: PxSize, density: Density) =
-    PxPosition(size.width, size.height).getDistance() / 2f + 10.dp.toPx(density).px
+    PxPosition(size.width, size.height).getDistance() / 2f + 10.dp.toPx(density)
 
 /**
  * Used to specify this type of [RippleEffect] for an [BoundedRipple] and [Ripple].

@@ -74,7 +74,7 @@ class DefaultRippleEffectTest {
         val size = PxSize(width.px, height.px)
         val density = Density(2f)
         // 10 is an extra offset from spec
-        val expectedRadius = halfDistance(width, height) + 10.dp.toPx(density)
+        val expectedRadius = halfDistance(width, height) + 10.dp.toPx(density).value
 
         // Top-level functions are not resolved properly in IR modules
         val result = getRippleTargetRadius(size, density)

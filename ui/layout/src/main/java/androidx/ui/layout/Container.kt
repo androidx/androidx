@@ -22,6 +22,7 @@ import androidx.ui.core.Draw
 import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.px
 import androidx.ui.core.toPx
+import androidx.ui.core.toRect
 import androidx.ui.core.withTight
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
@@ -89,7 +90,7 @@ fun Container(
                 val paint = Paint()
                 paint.color = color
                 paint.style = PaintingStyle.fill
-                canvas.drawRect(Rect(0f, 0f, parentSize.width, parentSize.height), paint)
+                canvas.drawRect(parentSize.toRect(), paint)
             </Draw>
 
             <childContainer />
@@ -100,8 +101,8 @@ fun Container(
         <DensityConsumer> density ->
             val additionalConstraints =
                 (constraints ?: Constraints()).withTight(
-                    width?.toPx(density)?.px,
-                    height?.toPx(density)?.px
+                    width?.toPx(density),
+                    height?.toPx(density)
                 )
             val childContainer = container
             container = @Composable {
