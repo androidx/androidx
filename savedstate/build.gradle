@@ -11,13 +11,17 @@ android {
     lintOptions {
         fatal("UnknownNullness")
     }
+    buildTypes.all {
+        consumerProguardFiles("proguard-rules.pro")
+    }
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
     implementation(ARCH_CORE_COMMON)
-
+    implementation(ARCH_LIFECYCLE_COMMON, libs.exclude_annotations_transitive)
     androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(ARCH_LIFECYCLE_RUNTIME, libs.exclude_annotations_transitive)
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
