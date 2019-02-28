@@ -16,9 +16,7 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.DensityConsumer
 import androidx.ui.core.PointerInput
-import androidx.ui.core.Position
 import androidx.ui.core.PxPosition
 import androidx.ui.core.pointerinput.PointerEventPass
 import androidx.ui.core.pointerinput.PointerInputChange
@@ -28,7 +26,6 @@ import androidx.ui.core.pointerinput.changedToDownIgnoreConsumed
 import androidx.ui.core.pointerinput.changedToUpIgnoreConsumed
 import androidx.ui.core.pointerinput.consumeDownChange
 import androidx.ui.core.px
-import androidx.ui.core.toDp
 import androidx.ui.engine.geometry.Offset
 import com.google.r4a.Children
 import com.google.r4a.Component
@@ -124,8 +121,8 @@ internal class PressIndicatorGestureRecognizer {
             pointerCount++
         }
 
-        if (pass == PointerEventPass.PostUp
-            && pointerCount == 1
+        if (pass == PointerEventPass.PostUp &&
+            pointerCount == 1
         ) {
             if (pointerEvent.changedToDown()) {
                 started = true
