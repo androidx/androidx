@@ -21,6 +21,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
@@ -169,6 +170,8 @@ public class ChangeBounds extends Transition {
     public ChangeBounds() {
     }
 
+    @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
+    // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
     public ChangeBounds(Context context, AttributeSet attrs) {
         super(context, attrs);
 

@@ -18,6 +18,7 @@ package androidx.transition;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,8 @@ import java.util.List;
 // This is instantiated in androidx.fragment.app.FragmentTransition
 @SuppressWarnings("unused")
 @RestrictTo(LIBRARY_GROUP_PREFIX)
+@SuppressLint("RestrictedApi") // remove once fragment lib would be released with the new
+// LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
 public class FragmentTransitionSupport extends FragmentTransitionImpl {
 
     @Override
