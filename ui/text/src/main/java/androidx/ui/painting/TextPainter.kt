@@ -511,11 +511,9 @@ class TextPainter(
     }
 
     /** Returns the position within the text for the given pixel offset. */
-    // TODO(Migration/qqd): Implement getPositionForOffset.
     fun getPositionForOffset(offset: Offset): TextPosition {
-        TODO()
-//        assert(!needsLayout)
-//        return paragraph!!.getPositionForOffset(offset)
+        assert(!needsLayout)
+        return paragraph!!.getPositionForOffset(offset)
     }
 
     /**
