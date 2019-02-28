@@ -81,27 +81,32 @@ class ViewGroupUtils {
     /**
      * Returns the index of the child to draw for this iteration.
      */
+    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
     static int getChildDrawingOrder(@NonNull ViewGroup viewGroup, int i) {
-        if (!sGetChildDrawingOrderMethodFetched) {
-            try {
-                sGetChildDrawingOrderMethod = ViewGroup.class.getDeclaredMethod(
-                        "getChildDrawingOrder", int.class, int.class);
-                sGetChildDrawingOrderMethod.setAccessible(true);
-            } catch (NoSuchMethodException ignore) {
+        if (BuildCompat.isAtLeastQ()) {
+            return viewGroup.getChildDrawingOrder(i);
+        } else {
+            if (!sGetChildDrawingOrderMethodFetched) {
+                try {
+                    sGetChildDrawingOrderMethod = ViewGroup.class.getDeclaredMethod(
+                            "getChildDrawingOrder", int.class, int.class);
+                    sGetChildDrawingOrderMethod.setAccessible(true);
+                } catch (NoSuchMethodException ignore) {
 
+                }
+                sGetChildDrawingOrderMethodFetched = true;
             }
-            sGetChildDrawingOrderMethodFetched = true;
-        }
-        if (sGetChildDrawingOrderMethod != null) {
-            try {
-                return (Integer) sGetChildDrawingOrderMethod.invoke(viewGroup,
-                        viewGroup.getChildCount(), i);
-            } catch (IllegalAccessException ignore) {
-            } catch (InvocationTargetException ignore) {
+            if (sGetChildDrawingOrderMethod != null) {
+                try {
+                    return (Integer) sGetChildDrawingOrderMethod.invoke(viewGroup,
+                            viewGroup.getChildCount(), i);
+                } catch (IllegalAccessException ignore) {
+                } catch (InvocationTargetException ignore) {
+                }
             }
+            // fallback implementation
+            return i;
         }
-        // fallback implementation
-        return i;
     }
 
 
