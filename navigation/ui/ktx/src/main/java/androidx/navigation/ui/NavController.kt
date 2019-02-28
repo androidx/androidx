@@ -16,7 +16,7 @@
 
 package androidx.navigation.ui
 
-import android.support.v4.widget.DrawerLayout
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 
 /**

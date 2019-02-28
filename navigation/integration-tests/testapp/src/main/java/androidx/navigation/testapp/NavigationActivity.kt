@@ -18,19 +18,19 @@ package androidx.navigation.testapp
 
 import android.content.res.Resources
 import android.os.Bundle
-import android.support.design.widget.BottomNavigationView
-import android.support.design.widget.NavigationView
-import android.support.v4.app.ActivityOptionsCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityOptionsCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.ActivityNavigatorExtras
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationView
 
 /**
  * A simple activity demonstrating use of a NavHostFragment with a navigation drawer.
@@ -60,7 +60,8 @@ class NavigationActivity : AppCompatActivity() {
                 when (item.itemId) {
                     R.id.help_activity -> {
                         navController.navigate(R.id.help_activity, null, null,
-                                ActivityNavigatorExtras(ActivityOptionsCompat
+                                ActivityNavigatorExtras(
+                                    ActivityOptionsCompat
                                         .makeSceneTransitionAnimation(this,
                                                 toolbar, "toolbar")))
                         true

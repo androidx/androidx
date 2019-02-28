@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 
-<android.support.design.widget.NavigationView
+<com.google.android.material.navigation.NavigationView
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"

@@ -13,7 +13,7 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="android.arch.navigation.safeargs.testapp">
+    package="androidx.navigation.safeargs.testapp">
 
     <application
         android:allowBackup="true"

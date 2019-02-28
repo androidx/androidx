@@ -18,7 +18,7 @@
 
 package androidx.navigation.testing
 
-import android.support.annotation.IdRes
+import androidx.annotation.IdRes
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraphBuilder
