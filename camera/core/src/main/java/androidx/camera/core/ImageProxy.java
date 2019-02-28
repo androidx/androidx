@@ -20,6 +20,8 @@ import android.graphics.Rect;
 
 import java.nio.ByteBuffer;
 
+import javax.annotation.Nullable;
+
 /** An image proxy which has an analogous interface as {@link android.media.Image}. */
 public interface ImageProxy extends AutoCloseable {
     /**
@@ -111,4 +113,12 @@ public interface ImageProxy extends AutoCloseable {
 
     // TODO(b/123902197): HardwareBuffer access is provided on higher API levels. Wrap
     // getHardwareBuffer() once we figure out how to provide compatibility with lower API levels.
+
+    /**
+     * Returns the {@link ImageInfo}.
+     *
+     * <p> Will be null if there is no associated additional metadata.
+     */
+    @Nullable
+    ImageInfo getImageInfo();
 }

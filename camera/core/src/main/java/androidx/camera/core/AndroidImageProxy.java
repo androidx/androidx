@@ -141,4 +141,13 @@ final class AndroidImageProxy implements ImageProxy {
             return mPlane.getBuffer();
         }
     }
+
+    /**
+     * The {@link Image} that comes from the framework does not contain any additional metadata, so
+     * will always return null.
+     */
+    @Override
+    public ImageInfo getImageInfo() {
+        return null;
+    }
 }

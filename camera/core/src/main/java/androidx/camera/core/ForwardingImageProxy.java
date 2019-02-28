@@ -95,6 +95,11 @@ abstract class ForwardingImageProxy implements ImageProxy {
         return mImage.getPlanes();
     }
 
+    @Override
+    public synchronized ImageInfo getImageInfo() {
+        return mImage.getImageInfo();
+    }
+
     /**
      * Adds a listener for close calls on this image.
      *
