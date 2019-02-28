@@ -28,6 +28,8 @@ import androidx.savedstate.SavedStateRegistry.AutoRecreated;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressLint("RestrictedApi")
 final class Recreator implements GenericLifecycleObserver {
@@ -92,7 +94,7 @@ final class Recreator implements GenericLifecycleObserver {
 
     static final class SavedStateProvider implements SavedStateRegistry.SavedStateProvider {
         @SuppressWarnings("WeakerAccess") // synthetic access
-        final ArrayList<String> mClasses = new ArrayList<>();
+        final Set<String> mClasses = new HashSet<>();
 
         SavedStateProvider(final SavedStateRegistry registry) {
             registry.registerSavedStateProvider(COMPONENT_KEY, this);
@@ -102,7 +104,7 @@ final class Recreator implements GenericLifecycleObserver {
         @Override
         public Bundle saveState() {
             Bundle bundle = new Bundle();
-            bundle.putStringArrayList(CLASSES_KEY, mClasses);
+            bundle.putStringArrayList(CLASSES_KEY, new ArrayList<>(mClasses));
             return bundle;
         }
 
