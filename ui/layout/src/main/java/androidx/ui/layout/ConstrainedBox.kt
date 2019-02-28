@@ -18,12 +18,9 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.adapter.MeasureBox
-import androidx.ui.core.dp
 import androidx.ui.core.enforce
-import androidx.ui.core.satisfiable
 import androidx.ui.core.toRoundedPixels
 import com.google.r4a.Children
-import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
 

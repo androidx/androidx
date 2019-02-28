@@ -18,12 +18,10 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
-import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.Placeable
 import androidx.ui.core.PxSize
-import androidx.ui.core.Size
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
-import androidx.ui.core.max
 import androidx.ui.core.minus
 import androidx.ui.core.px
 import androidx.ui.core.toRoundedPixels
@@ -42,17 +40,27 @@ class StackChildren() {
     internal val stackChildren: List<StackChild>
         get() = _stackChildren
 
-    fun positioned(leftInset: Dp? = null, topInset: Dp? = null,
-                   rightInset: Dp? = null, bottomInset: Dp? = null,
-                   children: @Composable() () -> Unit) {
-        require(leftInset != null || topInset != null || rightInset != null
-                || bottomInset != null) { "Please specify at least one inset for a positioned." }
-        _stackChildren.add(StackChild(leftInset=leftInset, topInset=topInset,
-            rightInset=rightInset, bottomInset=bottomInset, children=children))
+    fun positioned(
+        leftInset: Dp? = null,
+        topInset: Dp? = null,
+        rightInset: Dp? = null,
+        bottomInset: Dp? = null,
+        children: @Composable() () -> Unit
+    ) {
+        require(
+            leftInset != null || topInset != null || rightInset != null ||
+                    bottomInset != null
+        ) { "Please specify at least one inset for a positioned." }
+        _stackChildren.add(
+            StackChild(
+                leftInset = leftInset, topInset = topInset,
+                rightInset = rightInset, bottomInset = bottomInset, children = children
+            )
+        )
     }
 
     fun aligned(alignment: Alignment, children: @Composable() () -> Unit) {
-        _stackChildren.add(StackChild(alignment=alignment, children=children))
+        _stackChildren.add(StackChild(alignment = alignment, children = children))
     }
 }
 
@@ -90,7 +98,7 @@ class StackChildren() {
 @Composable
 fun Stack(
     defaultAlignment: Alignment,
-    @Children(composable=false) block: (children: StackChildren) -> Unit
+    @Children(composable = false) block: (children: StackChildren) -> Unit
 ) {
     <MeasureBox> constraints ->
         val children = with(StackChildren()) {
@@ -101,18 +109,20 @@ fun Stack(
         val placeables = arrayOfNulls<List<Placeable>?>(children.size)
         // First measure aligned children to get the size of the layout.
         (0 until children.size).filter { i -> !children[i].positioned }.forEach { i ->
-           collect(children[i].children).map { measurable ->
-               measurable.measure(
-                   Constraints(0.px, constraints.maxWidth, 0.px, constraints.maxHeight)
-               )
-           }.also {
-               placeables[i] = it
-           }
+            collect(children[i].children).map { measurable ->
+                measurable.measure(
+                    Constraints(0.px, constraints.maxWidth, 0.px, constraints.maxHeight)
+                )
+            }.also {
+                placeables[i] = it
+            }
         }
 
         val (stackWidth, stackHeight) = with(placeables.filterNotNull().flatten()) {
-            Pair(max(maxBy { it.width }?.width ?: 0, constraints.minWidth.toRoundedPixels()),
-                max(maxBy { it.height }?.height ?: 0, constraints.minHeight.toRoundedPixels()))
+            Pair(
+                max(maxBy { it.width }?.width ?: 0, constraints.minWidth.toRoundedPixels()),
+                max(maxBy { it.height }?.height ?: 0, constraints.minHeight.toRoundedPixels())
+            )
         }
 
         // Now measure positioned children.
@@ -124,23 +134,25 @@ fun Stack(
                     ?: 0.dp)).toRoundedPixels()
             val childMinWidth = if (stackChild.leftInset != null && stackChild.rightInset != null) {
                 childMaxWidth
-            } else  {
+            } else {
                 0
             }
             // Obtain height constraints.
             val childMaxHeight =
                 stackHeight - ((stackChild.topInset ?: 0.dp) - (stackChild.bottomInset
                     ?: 0.dp)).toRoundedPixels()
-            val childMinHeight = if (stackChild.topInset != null && stackChild.bottomInset != null)
-            {
-                childMaxHeight
-            } else {
-                0
-            }
+            val childMinHeight =
+                if (stackChild.topInset != null && stackChild.bottomInset != null) {
+                    childMaxHeight
+                } else {
+                    0
+                }
             collect(stackChild.children).map { measurable ->
-                measurable.measure(Constraints(
-                    childMinWidth.px, childMaxWidth.px, childMinHeight.px, childMaxHeight.px
-                ))
+                measurable.measure(
+                    Constraints(
+                        childMinWidth.px, childMaxWidth.px, childMinHeight.px, childMaxHeight.px
+                    )
+                )
             }.also {
                 placeables[i] = it
             }
@@ -178,7 +190,8 @@ fun Stack(
                         val y = if (stackChild.topInset != null) {
                             stackChild.topInset.toRoundedPixels()
                         } else if (stackChild.bottomInset != null) {
-                            stackHeight - stackChild.bottomInset.toRoundedPixels() - placeable.height
+                            stackHeight - stackChild.bottomInset.toRoundedPixels() -
+                                    placeable.height
                         } else {
                             (stackChild.alignment ?: defaultAlignment).align(
                                 PxSize(
@@ -203,8 +216,8 @@ internal data class StackChild(
     val bottomInset: Dp? = null,
     val width: Dp? = null,
     val height: Dp? = null,
-    val children: @Composable() () -> Unit)
-{
+    val children: @Composable() () -> Unit
+) {
     val positioned =
         leftInset != null || topInset != null || rightInset != null || bottomInset != null
 }

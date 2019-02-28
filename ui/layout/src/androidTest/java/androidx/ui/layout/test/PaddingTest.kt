@@ -27,7 +27,6 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
-import androidx.ui.core.Dp
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
@@ -58,7 +57,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.math.max
 import kotlin.math.roundToInt
 
 @SmallTest
@@ -102,8 +100,14 @@ class PaddingTest {
             <Center>
                 <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
                     <Padding padding=EdgeInsets(padding)>
-                        <Container padding=null color=null alignment=null margin=null
-                                            constraints=null width=null height=null>
+                        <Container
+                            padding=null
+                            color=null
+                            alignment=null
+                            margin=null
+                            constraints=null
+                            width=null
+                            height=null>
                             <OnPositioned> coordinates ->
                                 childSize = coordinates.size
                                 childPosition =
@@ -142,8 +146,14 @@ class PaddingTest {
             <Center>
                 <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
                     <Padding padding>
-                        <Container padding=null color=null alignment=null margin=null
-                                            constraints=null width=null height=null>
+                        <Container
+                            padding=null
+                            color=null
+                            alignment=null
+                            margin=null
+                            constraints=null
+                            width=null
+                            height=null>
                             <OnPositioned> coordinates ->
                                 childSize = coordinates.size
                                 childPosition =
@@ -165,8 +175,10 @@ class PaddingTest {
         val paddingTop = padding.top.toPx(density).roundToInt()
         val paddingBottom = padding.bottom.toPx(density).roundToInt()
         assertEquals(
-            PxSize(size - paddingLeft.px - paddingRight.px,
-                size - paddingTop.px - paddingBottom.px),
+            PxSize(
+                size - paddingLeft.px - paddingRight.px,
+                size - paddingTop.px - paddingBottom.px
+            ),
             childSize
         )
         val left = ((root.width.px - size) / 2).toRoundedPixels() + paddingLeft
@@ -190,8 +202,14 @@ class PaddingTest {
             <Center>
                 <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
                     <Padding padding=EdgeInsets(padding)>
-                        <Container padding=null color=null alignment=null margin=null
-                                            constraints=null width=null height=null>
+                        <Container
+                            padding=null
+                            color=null
+                            alignment=null
+                            margin=null
+                            constraints=null
+                            width=null
+                            height=null>
                             <OnPositioned> coordinates ->
                                 childSize = coordinates.size
                                 childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))

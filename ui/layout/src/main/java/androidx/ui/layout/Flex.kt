@@ -17,16 +17,10 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dp
-import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.Placeable
 import androidx.ui.core.Px
-import androidx.ui.core.div
-import androidx.ui.core.dp
-import androidx.ui.core.minus
-import androidx.ui.core.plus
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.px
-import androidx.ui.core.times
 import androidx.ui.core.toRoundedPixels
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -44,7 +38,7 @@ class FlexChildren {
         get() = _flexChildren
 
     fun expanded(flex: Float, children: @Composable() () -> Unit) {
-       _flexChildren.add(FlexChild(flex, FlexFit.Tight, children))
+        _flexChildren.add(FlexChild(flex, FlexFit.Tight, children))
     }
 
     fun flexible(flex: Float, children: @Composable() () -> Unit) {
@@ -85,7 +79,7 @@ class FlexChildren {
  *     </RowFlex>
  */
 @Composable
-fun FlexRow(@Children(composable=false) block: (children: FlexChildren) -> Unit) {
+fun FlexRow(@Children(composable = false) block: (children: FlexChildren) -> Unit) {
     <Flex orientation=FlexOrientation.Horizontal block />
 }
 
@@ -118,7 +112,7 @@ fun FlexRow(@Children(composable=false) block: (children: FlexChildren) -> Unit)
  *     </ColumnFlex>
  */
 @Composable
-fun FlexColumn(@Children(composable=false) block: (children: FlexChildren) -> Unit) {
+fun FlexColumn(@Children(composable = false) block: (children: FlexChildren) -> Unit) {
     <Flex orientation=FlexOrientation.Vertical block />
 }
 
@@ -232,8 +226,8 @@ private data class OrientationIndependentConstraints(
 @Composable
 private fun Flex(
     orientation: Int /*FlexOrientation*/,
-    @Children(composable=false) block: (children: FlexChildren) -> Unit)
-{
+    @Children(composable = false) block: (children: FlexChildren) -> Unit
+) {
     <MeasureBox> constraints ->
         val constraints = OrientationIndependentConstraints(constraints, orientation)
 
