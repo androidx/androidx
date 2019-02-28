@@ -51,9 +51,10 @@ class Checkbox : Component() {
             <MeasureBox> constraints ->
                 collect {
                     <Colors.Consumer> colors ->
-                        <DrawCheckbox color=(color ?: colors.secondary)
-                                      value
-                                      strokeWidth=strokeWidth/>
+                        <DrawCheckbox
+                            color=(color ?: colors.secondary)
+                            value
+                            strokeWidth=strokeWidth />
                     </Colors.Consumer>
                 }
                 val calculatedWidth = min(

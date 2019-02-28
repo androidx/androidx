@@ -16,12 +16,9 @@
 
 package androidx.ui.material.ripple
 
-import androidx.ui.core.Bounds
 import androidx.ui.core.Density
-import androidx.ui.core.Dp
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
-import androidx.ui.core.Position
 import androidx.ui.core.Px
 import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
@@ -176,24 +173,20 @@ class Ripple(
 //    }
 
     override fun compose() {
+        // TODO: Rewrite this with use of +state effect. b/124500412
         <DensityConsumer> density ->
             this.density = density
         </DensityConsumer>
-
-        // TODO: Rewrite this with use of +state effect. b/124500412
         <OnPositioned> coordinates ->
             this.coordinates = coordinates
         </OnPositioned>
-
         <RippleSurfaceConsumer> rippleSurface ->
             this.rippleSurface = rippleSurface
         </RippleSurfaceConsumer>
-
         <CurrentRippleTheme.Consumer> theme ->
             this.theme = theme
             currentEffect?.color = theme.colorCallback.invoke(rippleSurface.backgroundColor)
         </CurrentRippleTheme.Consumer>
-
         <PressIndicatorGestureDetector
             onStart=::handleStart
             onStop={ handleFinish(false) }

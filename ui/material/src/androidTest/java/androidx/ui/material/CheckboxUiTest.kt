@@ -30,7 +30,6 @@ import androidx.ui.test.assertSemanticsIsEqualTo
 import androidx.ui.test.findByTag
 import com.google.r4a.composer
 
-
 @SmallTest
 @RunWith(JUnit4::class)
 class CheckboxUiTest : AndroidUiTestRunner() {
@@ -42,7 +41,7 @@ class CheckboxUiTest : AndroidUiTestRunner() {
         setContent {
             <CraneWrapper>
                 <MaterialTheme>
-                    <Checkbox testTag="myCheckbox"/> //TODO(pavlis): Start using tags
+                    <Checkbox testTag="myCheckbox"/> // TODO(pavlis): Start using tags
                 </MaterialTheme>
             </CraneWrapper>
         }

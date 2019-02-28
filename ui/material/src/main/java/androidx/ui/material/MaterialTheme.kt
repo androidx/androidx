@@ -211,7 +211,6 @@ data class MaterialTypography(
         fontSize = 10f)
 )
 
-
 /**
  * Applies the default [RippleTheme] parameters based on the Material Design
  * guidelines for descendants

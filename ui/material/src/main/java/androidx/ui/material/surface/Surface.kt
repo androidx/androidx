@@ -21,7 +21,6 @@ import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
-import androidx.ui.core.toRoundedPixels
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.clip.ClipPath
@@ -104,7 +103,6 @@ fun Surface(
         </SurfaceMeasureBox>
     </CurrentSurfaceShadowColor.Consumer>
 }
-
 
 /**
  * A simple MeasureBox which just reserves a space for a [Surface].

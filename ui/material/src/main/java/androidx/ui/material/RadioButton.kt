@@ -19,6 +19,7 @@ package androidx.ui.material
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.Density
+
 import androidx.ui.core.PxSize
 import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
@@ -57,7 +58,7 @@ fun RadioButton(checked: Boolean, color: Color? = null) {
         <MeasureBox> constraints ->
             collect {
                 val colors = +ambient(Colors)
-                <DrawRadioButton value color=(color ?: colors.primary)/>
+                <DrawRadioButton value color=(color ?: colors.primary) />
             }
             val size = (radioRadius * 2).toPx()
             val w = max(constraints.minWidth, min(constraints.maxWidth, size))
@@ -78,13 +79,12 @@ internal fun DrawRadioButton(value: ToggleableState, color: Color) {
     </DensityConsumer>
 }
 
-
 internal fun drawRadio(
-        canvas: Canvas,
-        parentSize: PxSize,
-        density: Density,
-        state: ToggleableState,
-        color: Color
+    canvas: Canvas,
+    parentSize: PxSize,
+    density: Density,
+    state: ToggleableState,
+    color: Color
 ) {
     val p = Paint()
     p.isAntiAlias = true

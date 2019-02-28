@@ -27,7 +27,6 @@ import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
-
 /** The helper object to understand when the parameter was explicitly provided */
 internal val ColorNotProvided = Color(0)
 

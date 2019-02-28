@@ -58,12 +58,9 @@ class CachingClipper<T>(
             lastClip = clip
             return clip
         }
-
     }
 
     override fun compose() {
-        <children clipper=cachingClipper/>
+        <children clipper=cachingClipper />
     }
-
 }
-

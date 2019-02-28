@@ -16,17 +16,14 @@
 
 package androidx.ui.material.ripple
 
-import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.toRect
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
-
 
 /**
  * An interface for creating [RippleEffect]s on a [RippleSurface].
@@ -52,7 +49,6 @@ interface RippleSurfaceOwner {
 
     /** Notifies the [RippleSurface] that one of its effects needs to redraw. */
     fun markNeedsRedraw()
-
 }
 
 /**
@@ -104,7 +100,6 @@ class RippleSurface(
             <children />
         </CurrentRippleSurface.Provider>
     }
-
 }
 
 private class RippleSurfaceOwnerImpl(

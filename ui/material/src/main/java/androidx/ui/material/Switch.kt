@@ -18,18 +18,23 @@ package androidx.ui.material
 
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
-import androidx.ui.core.*
+import androidx.ui.core.Density
+import androidx.ui.core.PxSize
 import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
+import androidx.ui.core.dp
+import androidx.ui.core.max
+import androidx.ui.core.min
+import androidx.ui.core.plus
+import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.StrokeCap
-
-import com.google.r4a.Composable
 import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.unaryPlus
@@ -53,7 +58,10 @@ fun Switch(checked: Boolean, color: Color? = null) {
                     val colors = +ambient(Colors)
                     <DrawSwitch value density color=(color ?: colors.primary) />
                 }
-                val height = max(constraints.minHeight, min(constraints.maxHeight, minHeight.toPx()))
+                val height = max(
+                    constraints.minHeight,
+                    min(constraints.maxHeight, minHeight.toPx())
+                )
                 val width = max(constraints.minWidth, min(constraints.maxWidth, minWidth.toPx()))
                 layout(width, height) {
                     // no children to place
@@ -71,19 +79,18 @@ internal fun DrawSwitch(value: ToggleableState, density: Density, color: Color) 
     </Draw>
 }
 
-
 internal fun drawTrack(
-        canvas: Canvas,
-        parentSize: PxSize,
-        state: ToggleableState,
-        colors: Color,
-        density: Density
+    canvas: Canvas,
+    parentSize: PxSize,
+    state: ToggleableState,
+    colors: Color,
+    density: Density
 ) {
     val paint = Paint()
 
     paint.isAntiAlias = true
     paint.color = (if (state == ToggleableState.CHECKED) colors else uncheckedTrackColor)
-            .withAlpha(trackAlpha)
+        .withAlpha(trackAlpha)
     paint.strokeCap = StrokeCap.round
     paint.strokeWidth = trackHeight.toPx(density).value
 
@@ -99,14 +106,14 @@ internal fun drawTrack(
 
 // TODO(malkov): figure our animation of this value
 internal fun pointPosition(state: ToggleableState) =
-        if (state == ToggleableState.CHECKED) 1f else 0f
+    if (state == ToggleableState.CHECKED) 1f else 0f
 
 internal fun drawThumb(
-        canvas: Canvas,
-        parentSize: PxSize,
-        state: ToggleableState,
-        colors: Color,
-        density: Density
+    canvas: Canvas,
+    parentSize: PxSize,
+    state: ToggleableState,
+    colors: Color,
+    density: Density
 ) {
     val paint = Paint()
 
