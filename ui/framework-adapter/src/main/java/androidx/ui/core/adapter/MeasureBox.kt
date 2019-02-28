@@ -23,13 +23,14 @@ import androidx.ui.core.Dp
 import androidx.ui.core.IntrinsicMeasureOperations
 import androidx.ui.core.MeasureBoxComposable
 import androidx.ui.core.ComplexMeasureBoxComposable
+import androidx.ui.core.IntPx
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureOperations
 import androidx.ui.core.Placeable
 import androidx.ui.core.PositioningBlockReceiver
 import androidx.ui.core.Px
+import androidx.ui.core.round
 import androidx.ui.core.toPx
-import androidx.ui.core.toRoundedPixels
 import com.google.r4a.Children
 import com.google.r4a.Composable
 
@@ -96,7 +97,7 @@ class ComplexMeasureBoxReceiver internal constructor(
      * Set the min intrinsic width of the current layout. The block is not aware of constraints,
      * and is unable to measure their children.
      */
-    fun minIntrinsicWidth(block: IntrinsicMeasurementsReceiver.(Px) -> Int) {
+    fun minIntrinsicWidth(block: IntrinsicMeasurementsReceiver.(IntPx) -> IntPx) {
         complexMeasureOperations.minIntrinsicWidth { h, intrinsics ->
             val intrinsicMeasurementsReceiver =
                     IntrinsicMeasurementsReceiver(this::collect, intrinsics)
@@ -110,7 +111,7 @@ class ComplexMeasureBoxReceiver internal constructor(
      * Set the max intrinsic width of the current layout. The block is not aware of constraints,
      * and is unable to measure their children.
      */
-    fun maxIntrinsicWidth(block: IntrinsicMeasurementsReceiver.(Px) -> Int) {
+    fun maxIntrinsicWidth(block: IntrinsicMeasurementsReceiver.(IntPx) -> IntPx) {
         complexMeasureOperations.maxIntrinsicWidth { h, intrinsics ->
             val intrinsicMeasurementsReceiver =
                     IntrinsicMeasurementsReceiver(this::collect, intrinsics)
@@ -124,7 +125,7 @@ class ComplexMeasureBoxReceiver internal constructor(
      * Set the min intrinsic height of the current layout. The block is not aware of constraints,
      * and is unable to measure their children.
      */
-    fun minIntrinsicHeight(block: IntrinsicMeasurementsReceiver.(Px) -> Int) {
+    fun minIntrinsicHeight(block: IntrinsicMeasurementsReceiver.(IntPx) -> IntPx) {
         complexMeasureOperations.minIntrinsicHeight { w, intrinsics ->
             val intrinsicMeasurementsReceiver =
                     IntrinsicMeasurementsReceiver(this::collect, intrinsics)
@@ -138,7 +139,7 @@ class ComplexMeasureBoxReceiver internal constructor(
      * Set the max intrinsic height of the current layout. The block is not aware of constraints,
      * and is unable to measure their children.
      */
-    fun maxIntrinsicHeight(block: IntrinsicMeasurementsReceiver.(Px) -> Int) {
+    fun maxIntrinsicHeight(block: IntrinsicMeasurementsReceiver.(IntPx) -> IntPx) {
         complexMeasureOperations.maxIntrinsicHeight { w, intrinsics ->
             val intrinsicMeasurementsReceiver =
                     IntrinsicMeasurementsReceiver(this::collect, intrinsics)
@@ -149,7 +150,7 @@ class ComplexMeasureBoxReceiver internal constructor(
     }
 
     fun Dp.toPx(): Px = toPx(complexMeasureOperations.density)
-    fun Dp.toRoundedPixels(): Int = toPx().toRoundedPixels()
+    fun Dp.toIntPx(): IntPx = toPx().round()
 }
 
 /**
@@ -161,10 +162,10 @@ class IntrinsicMeasurementsReceiver internal constructor(
     private val intrinsics: IntrinsicMeasureOperations
 ) {
     fun collect(@Children children: () -> Unit) = doCollect(children)
-    fun Measurable.minIntrinsicWidth(h: Px) = intrinsics.minIntrinsicWidth(this, h)
-    fun Measurable.maxIntrinsicWidth(h: Px) = intrinsics.maxIntrinsicWidth(this, h)
-    fun Measurable.minIntrinsicHeight(w: Px) = intrinsics.minIntrinsicHeight(this, w)
-    fun Measurable.maxIntrinsicHeight(w: Px) = intrinsics.maxIntrinsicHeight(this, w)
+    fun Measurable.minIntrinsicWidth(h: IntPx) = intrinsics.minIntrinsicWidth(this, h)
+    fun Measurable.maxIntrinsicWidth(h: IntPx) = intrinsics.maxIntrinsicWidth(this, h)
+    fun Measurable.minIntrinsicHeight(w: IntPx) = intrinsics.minIntrinsicHeight(this, w)
+    fun Measurable.maxIntrinsicHeight(w: IntPx) = intrinsics.maxIntrinsicHeight(this, w)
 }
 
 /**
@@ -174,23 +175,23 @@ class IntrinsicMeasurementsReceiver internal constructor(
 class LayoutBlockReceiver internal constructor(
     private val measure: (Measurable, Constraints) -> Placeable,
     private val intrinsics: IntrinsicMeasureOperations,
-    private val doLayoutResult: (Int, Int, () -> Unit) -> Unit,
+    private val doLayoutResult: (IntPx, IntPx, () -> Unit) -> Unit,
     private val doCollect: (@Composable() () -> Unit) -> List<Measurable>
 ) {
     fun Measurable.measure(constraints: Constraints) = measure(this, constraints)
     fun layoutResult(
-        width: Int,
-        height: Int,
+        width: IntPx,
+        height: IntPx,
         block: PositioningBlockReceiver.() -> Unit
     ) {
         val positioningBlockReceiver = PositioningBlockReceiver()
         doLayoutResult(width, height, { with(positioningBlockReceiver) { block } })
     }
     fun collect(@Children children: () -> Unit) = doCollect(children)
-    fun Measurable.minIntrinsicWidth(h: Px) = intrinsics.minIntrinsicWidth(this, h)
-    fun Measurable.maxIntrinsicWidth(h: Px) = intrinsics.maxIntrinsicWidth(this, h)
-    fun Measurable.minIntrinsicHeight(w: Px) = intrinsics.minIntrinsicHeight(this, w)
-    fun Measurable.maxIntrinsicHeight(w: Px) = intrinsics.maxIntrinsicHeight(this, w)
+    fun Measurable.minIntrinsicWidth(h: IntPx) = intrinsics.minIntrinsicWidth(this, h)
+    fun Measurable.maxIntrinsicWidth(h: IntPx) = intrinsics.maxIntrinsicWidth(this, h)
+    fun Measurable.minIntrinsicHeight(w: IntPx) = intrinsics.minIntrinsicHeight(this, w)
+    fun Measurable.maxIntrinsicHeight(w: IntPx) = intrinsics.maxIntrinsicHeight(this, w)
 }
 
 /**
@@ -202,15 +203,15 @@ class MeasureBoxReceiver internal constructor(
     fun collect(@Children children: () -> Unit) = measureOperations.collect(children)
     fun Measurable.measure(constraints: Constraints) =
             measureOperations.measure(this, constraints)
-    fun layout(width: Int, height: Int, block: PositioningBlockReceiver.() -> Unit) {
+    fun layout(width: IntPx, height: IntPx, block: PositioningBlockReceiver.() -> Unit) {
         measureOperations.layout(width, height,
             { with(PositioningBlockReceiver()) { block() } })
     }
 
     fun layout(width: Px, height: Px, block: PositioningBlockReceiver.() -> Unit) {
-        layout(width.toRoundedPixels(), height.toRoundedPixels(), block)
+        layout(width.round(), height.round(), block)
     }
 
     fun Dp.toPx(): Px = toPx(measureOperations.density)
-    fun Dp.toRoundedPixels(): Int = toPx().toRoundedPixels()
+    fun Dp.toIntPx(): IntPx = toPx().round()
 }

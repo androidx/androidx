@@ -29,17 +29,16 @@ import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
+import androidx.ui.core.IntPx
 import androidx.ui.core.MeasureBox
 import androidx.ui.core.Placeable
-import androidx.ui.core.Px
 import androidx.ui.core.coerceAtLeast
+import androidx.ui.core.ipx
 import androidx.ui.core.max
 import androidx.ui.core.minus
-import androidx.ui.core.px
+import androidx.ui.core.plus
 import androidx.ui.core.times
 import androidx.ui.core.toRect
-import androidx.ui.core.toRoundedPixels
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -56,7 +55,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.math.max
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -97,8 +95,8 @@ class ContainingViewTest {
                             paint.color = Color(0xFFFFFF00.toInt())
                             canvas.drawRect(parentSize.toRect(), paint)
                         </Draw>
-                        <Padding size=10.px>
-                            <AtLeastSize size=10.px>
+                        <Padding size=10.ipx>
+                            <AtLeastSize size=10.ipx>
                                 <Draw> canvas, parentSize ->
                                     drawLatch.countDown()
                                     val paint = Paint()
@@ -205,17 +203,17 @@ class ContainingViewTest {
     }
 }
 
-private fun Placeable.place(x: Int, y: Int) {
+private fun Placeable.place(x: IntPx, y: IntPx) {
     // Place using reflection. TODO(popam) This should only be needed until the adapter packages are
     // removed as this module cannot depend on framework-adapter, so this is a temporary workaround.
     val placeBlockField = Placeable::class.java.getDeclaredField("placeBlock")
     placeBlockField.isAccessible = true
-    val placeBlock = placeBlockField.get(this) as (Int, Int) -> Unit
+    val placeBlock = placeBlockField.get(this) as (IntPx, IntPx) -> Unit
     placeBlock(x, y)
 }
 
 @Composable
-fun AtLeastSize(size: Px, @Children children: @Composable() () -> Unit) {
+fun AtLeastSize(size: IntPx, @Children children: @Composable() () -> Unit) {
     <MeasureBox> constraints, measureOperations ->
         val measurables = measureOperations.collect(children)
         val newConstraints = Constraints(
@@ -227,43 +225,43 @@ fun AtLeastSize(size: Px, @Children children: @Composable() () -> Unit) {
         val placeables = measurables.map { m ->
             measureOperations.measure(m, newConstraints)
         }
-        var maxWidth = size.toRoundedPixels()
-        var maxHeight = size.toRoundedPixels()
+        var maxWidth = size
+        var maxHeight = size
         placeables.forEach { child ->
             maxHeight = max(child.height, maxHeight)
             maxWidth = max(child.width, maxWidth)
         }
         measureOperations.layout(maxWidth, maxHeight) {
             placeables.forEach { child ->
-                child.place(0, 0)
+                child.place(0.ipx, 0.ipx)
             }
         }
     </MeasureBox>
 }
 
 @Composable
-fun Padding(size: Px, @Children children: @Composable() () -> Unit) {
+fun Padding(size: IntPx, @Children children: @Composable() () -> Unit) {
     <MeasureBox> constraints, measureOperations ->
         val measurables = measureOperations.collect(children)
         val totalDiff = size * 2
         val newConstraints = Constraints(
-            minWidth = (constraints.minWidth - totalDiff).coerceAtLeast(0.px),
-            maxWidth = (constraints.maxWidth - totalDiff).coerceAtLeast(0.px),
-            minHeight = (constraints.minHeight - totalDiff).coerceAtLeast(0.px),
-            maxHeight = (constraints.maxHeight - totalDiff).coerceAtLeast(0.px)
+            minWidth = (constraints.minWidth - totalDiff).coerceAtLeast(0.ipx),
+            maxWidth = (constraints.maxWidth - totalDiff).coerceAtLeast(0.ipx),
+            minHeight = (constraints.minHeight - totalDiff).coerceAtLeast(0.ipx),
+            maxHeight = (constraints.maxHeight - totalDiff).coerceAtLeast(0.ipx)
         )
         val placeables = measurables.map { m ->
             measureOperations.measure(m, newConstraints)
         }
-        var maxWidth = size.toRoundedPixels()
-        var maxHeight = size.toRoundedPixels()
+        var maxWidth = size
+        var maxHeight = size
         placeables.forEach { child ->
-            maxHeight = max(child.height + totalDiff.toRoundedPixels(), maxHeight)
-            maxWidth = max(child.width + totalDiff.toRoundedPixels(), maxWidth)
+            maxHeight = max(child.height + totalDiff, maxHeight)
+            maxWidth = max(child.width + totalDiff, maxWidth)
         }
         measureOperations.layout(maxWidth, maxHeight) {
             placeables.forEach { child ->
-                child.place(size.toRoundedPixels(), size.toRoundedPixels())
+                child.place(size, size)
             }
         }
     </MeasureBox>

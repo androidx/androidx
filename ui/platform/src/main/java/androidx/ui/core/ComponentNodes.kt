@@ -326,7 +326,7 @@ class LayoutNode : ComponentNode() {
     /**
      * The constraints used the last time [layout] was called.
      */
-    var constraints: Constraints = Constraints.tightConstraints(0.px, 0.px)
+    var constraints: Constraints = Constraints.tightConstraints(IntPx.Zero, IntPx.Zero)
 
     var ref: Ref<LayoutNode>?
         get() = null
@@ -340,25 +340,25 @@ class LayoutNode : ComponentNode() {
     /**
      * The width of this layout
      */
-    var width = 0
+    var width = IntPx.Zero
         private set
 
     /**
      * The height of this layout
      */
-    var height = 0
+    var height = IntPx.Zero
         private set
 
     /**
      * The horizontal position within the parent of this layout
      */
-    var x = 0
+    var x = IntPx.Zero
         private set
 
     /**
      * The vertical position within the parent of this layout
      */
-    var y = 0
+    var y = IntPx.Zero
         private set
 
     /**
@@ -412,7 +412,7 @@ class LayoutNode : ComponentNode() {
         }
     }
 
-    fun moveTo(x: Int, y: Int) {
+    fun moveTo(x: IntPx, y: IntPx) {
         if (x != this.x || y != this.y) {
             this.x = x
             this.y = y
@@ -420,7 +420,7 @@ class LayoutNode : ComponentNode() {
         }
     }
 
-    fun resize(width: Int, height: Int) {
+    fun resize(width: IntPx, height: IntPx) {
         if (width != this.width || height != this.height) {
             this.width = width
             this.height = height
@@ -493,8 +493,8 @@ fun LayoutNode.globalToLocal(global: PxPosition): PxPosition {
     var y: Px = global.y
     var node: LayoutNode? = this
     while (node != null) {
-        x -= node.x.px
-        y -= node.y.px
+        x -= node.x.toPx()
+        y -= node.y.toPx()
         node = node.parentLayoutNode
     }
     return PxPosition(x, y)
@@ -508,8 +508,8 @@ fun LayoutNode.localToGlobal(local: PxPosition): PxPosition {
     var y: Px = local.y
     var node: LayoutNode? = this
     while (node != null) {
-        x += node.x.px
-        y += node.y.px
+        x += node.x.toPx()
+        y += node.y.toPx()
         node = node.parentLayoutNode
     }
     return PxPosition(x, y)
@@ -530,8 +530,8 @@ fun LayoutNode.childToLocal(child: LayoutNode, childLocal: PxPosition): PxPositi
             throw IllegalStateException("Current layout is not an ancestor of the provided" +
                     "child layout")
         }
-        x += node.x.px
-        y += node.y.px
+        x += node.x.toPx()
+        y += node.y.toPx()
         node = node.parentLayoutNode
         if (node === this) {
             // found the node

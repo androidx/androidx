@@ -60,9 +60,9 @@ fun Switch(checked: Boolean, color: Color? = null) {
                 }
                 val height = max(
                     constraints.minHeight,
-                    min(constraints.maxHeight, minHeight.toPx())
+                    min(constraints.maxHeight, minHeight.toIntPx())
                 )
-                val width = max(constraints.minWidth, min(constraints.maxWidth, minWidth.toPx()))
+                val width = max(constraints.minWidth, min(constraints.maxWidth, minWidth.toIntPx()))
                 layout(width, height) {
                     // no children to place
                 }

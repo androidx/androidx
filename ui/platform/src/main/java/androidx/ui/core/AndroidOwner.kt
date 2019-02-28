@@ -51,7 +51,7 @@ class AndroidCraneView constructor(context: Context)
 
     private val pointerInputEventProcessor = PointerInputEventProcessor(root)
 
-    var constraints = Constraints.tightConstraints(width = 0.px, height = 0.px)
+    var constraints = Constraints.tightConstraints(width = IntPx.Zero, height = IntPx.Zero)
     // TODO(mount): reinstate when coroutines are supported by IR compiler
 //    private val ownerScope = CoroutineScope(Dispatchers.Main.immediate + Job())
 
@@ -143,14 +143,11 @@ class AndroidCraneView constructor(context: Context)
             constraintsChanged()
         }
 
-        setMeasuredDimension(
-            root.width,
-            root.height
-        )
+        setMeasuredDimension(root.width.value, root.height.value)
 
         adjustedLayouts.forEach { layout ->
-            val layoutWidth = layout.width
-            val layoutHeight = layout.height
+            val layoutWidth = layout.width.value
+            val layoutHeight = layout.height.value
             val width = View.MeasureSpec.makeMeasureSpec(layoutWidth, View.MeasureSpec.EXACTLY)
             val height = View.MeasureSpec.makeMeasureSpec(layoutHeight, View.MeasureSpec.EXACTLY)
             layout.androidData?.view?.measure(width, height)
@@ -175,10 +172,10 @@ class AndroidCraneView constructor(context: Context)
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         adjustedLayouts.forEach { layout ->
-            val left = layout.x
-            val top = layout.y
-            val right = left + layout.width
-            val bottom = top + layout.height
+            val left = layout.x.value
+            val top = layout.y.value
+            val right = left + layout.width.value
+            val bottom = top + layout.height.value
             layout.androidData?.view?.layout(left, top, right, bottom)
         }
         adjustedLayouts.clear()
@@ -192,11 +189,11 @@ class AndroidCraneView constructor(context: Context)
 
     private fun convertMeasureSpec(measureSpec: Int): ConstraintRange {
         val mode = MeasureSpec.getMode(measureSpec)
-        val size = MeasureSpec.getSize(measureSpec).px
+        val size = IntPx(MeasureSpec.getSize(measureSpec))
         return when (mode) {
             MeasureSpec.EXACTLY -> ConstraintRange(size, size)
-            MeasureSpec.UNSPECIFIED -> ConstraintRange(0.px, Px.Infinity)
-            MeasureSpec.AT_MOST -> ConstraintRange(0.px, size)
+            MeasureSpec.UNSPECIFIED -> ConstraintRange(IntPx.Zero, IntPx.Infinity)
+            MeasureSpec.AT_MOST -> ConstraintRange(IntPx.Zero, size)
             else -> throw IllegalStateException()
         }
     }
@@ -204,8 +201,7 @@ class AndroidCraneView constructor(context: Context)
     private fun callDrawOnChildren(node: ComponentNode, canvas: Canvas) {
         node.visitChildren { child ->
             if (child is DrawNode) {
-                // TODO(mount): get rid of PixelSize and use PxSize instead
-                child.onPaint(canvas, PxSize(root.width.px, root.height.px))
+                child.onPaint(canvas, PxSize(root.width, root.height))
                 child.needsPaint = false
             } else if (child is LayoutNode) {
                 val view = (child.ownerData as AndroidData).view
@@ -234,7 +230,7 @@ class AndroidCraneView constructor(context: Context)
     }
 }
 
-private class ConstraintRange(val min: Px, val max: Px)
+private class ConstraintRange(val min: IntPx, val max: IntPx)
 
 /**
  * Defines a View used to keep RenderNode information on LayoutNodes and DrawNodes.
@@ -277,7 +273,7 @@ private class NodeView(container: ViewGroup, val node: LayoutNode) :
             if (child is DrawNode) {
                 child.onPaint(
                     canvas,
-                    PxSize(this.node.width.px, this.node.height.px)
+                    PxSize(this.node.width, this.node.height)
                 )
                 child.needsPaint = false
             } else if (child is LayoutNode) {

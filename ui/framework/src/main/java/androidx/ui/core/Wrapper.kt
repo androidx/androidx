@@ -52,8 +52,8 @@ class CraneWrapper(@Children var children: () -> Unit) : Component() {
                     </DensityAmbient.Provider>
                 </ContextAmbient.Provider>
             }
-            var width = 0
-            var height = 0
+            var width = IntPx.Zero
+            var height = IntPx.Zero
             layoutNode.childrenMeasureBoxes().forEach { measureBox ->
                 measureBox as ComplexMeasureBox
                 measureBox.runBlock()

@@ -17,15 +17,13 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Px
-import androidx.ui.core.PxPosition
-import androidx.ui.core.PxSize
+import androidx.ui.core.IntPxPosition
+import androidx.ui.core.IntPxSize
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.center
+import androidx.ui.core.isFinite
 import androidx.ui.core.minus
-import androidx.ui.core.px
 import androidx.ui.core.times
-import androidx.ui.core.toRoundedPixels
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -55,11 +53,9 @@ data class Alignment(val verticalBias: Float, val horizontalBias: Float) {
      * Returns the position of a 2D point in a container of a given size,
      * according to this [Alignment].
      */
-    fun align(size: PxSize): PxPosition {
-        return PxPosition(
-            (size.center().x * (1 + horizontalBias)).toRoundedPixels().px,
-            (size.center().y * (1 + verticalBias)).toRoundedPixels().px
-        )
+    fun align(size: IntPxSize): IntPxPosition {
+        val center = size.center()
+        return IntPxPosition(center.x * (1 + horizontalBias), center.y * (1 + verticalBias))
     }
 }
 
@@ -84,22 +80,20 @@ fun Align(alignment: Alignment, @Children children: () -> Unit) {
 
             // The layout is as large as possible for bounded constraints,
             // or wrap content otherwise.
-            val layoutWidth = if (constraints.maxWidth != Px.Infinity) {
-                constraints.maxWidth.toRoundedPixels()
+            val layoutWidth = if (constraints.maxWidth.isFinite()) {
+                constraints.maxWidth
             } else {
                 placeable.width
             }
-            val layoutHeight = if (constraints.maxHeight != Px.Infinity) {
-                constraints.maxHeight.toRoundedPixels()
+            val layoutHeight = if (constraints.maxHeight.isFinite()) {
+                constraints.maxHeight
             } else {
                 placeable.height
             }
 
             layout(layoutWidth, layoutHeight) {
                 val position = alignment.align(
-                    PxSize(
-                        layoutWidth.px - placeable.width.px,
-                        layoutHeight.px - placeable.height.px)
+                    IntPxSize(layoutWidth - placeable.width, layoutHeight - placeable.height)
                 )
                 placeable.place(position.x, position.y)
             }

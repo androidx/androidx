@@ -17,6 +17,7 @@
 package androidx.ui.material.surface
 
 import androidx.ui.core.Dp
+import androidx.ui.core.IntPx
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
@@ -127,7 +128,7 @@ internal fun SurfaceMeasureBox(@Children children: () -> Unit) {
 
         val measurables = collect(children)
         layout(width, height) {
-            measurables.forEach { it.measure(constraints).place(0, 0) }
+            measurables.forEach { it.measure(constraints).place(IntPx.Zero, IntPx.Zero) }
         }
     </MeasureBox>
 }

@@ -23,20 +23,16 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.div
-import androidx.ui.core.dp
+import androidx.ui.core.ipx
 import androidx.ui.core.minus
 import androidx.ui.core.plus
-import androidx.ui.core.px
 import androidx.ui.core.times
 import androidx.ui.core.toRect
-import androidx.ui.core.toRoundedPixels
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
-
 
 @Composable
 fun ColoredRect(color: Color) {
@@ -65,24 +61,24 @@ fun HeaderFooterLayout(
         val footerMeasurable = collect { <footer /> }.first()
         layout(constraints.maxWidth, constraints.maxHeight) {
             val headerPlaceable = headerMeasurable.measure(
-                    Constraints.tightConstraints(constraints.maxWidth, 100.px)
+                    Constraints.tightConstraints(constraints.maxWidth, 100.ipx)
             )
-            headerPlaceable.place(0, 0)
+            headerPlaceable.place(0.ipx, 0.ipx)
 
-            val footerPadding = 50.px
+            val footerPadding = 50.ipx
             val footerPlaceable = footerMeasurable.measure(
-                Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.px))
+                Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.ipx))
             footerPlaceable.place(footerPadding,
-                constraints.maxHeight - footerPlaceable.height.px)
+                constraints.maxHeight - footerPlaceable.height)
 
             val itemHeight =
-                (constraints.maxHeight - headerPlaceable.height.px - footerPlaceable.height.px) /
+                (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
                         contentMeasurables.size
             val itemConstraint = Constraints.tightConstraints(constraints.maxWidth, itemHeight)
             var top = headerPlaceable.height
             contentMeasurables.map { it.measure(itemConstraint) }.forEach {
-                it.place(0, top)
-                top += itemHeight.toRoundedPixels()
+                it.place(0.ipx, top)
+                top += itemHeight
             }
         }
     </MeasureBox>

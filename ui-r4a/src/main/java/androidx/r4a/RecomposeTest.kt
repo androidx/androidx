@@ -41,12 +41,11 @@ import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.div
 import androidx.ui.core.dp
+import androidx.ui.core.ipx
 import androidx.ui.core.minus
 import androidx.ui.core.plus
 import androidx.ui.core.times
 import androidx.ui.core.toRect
-import androidx.ui.core.toRoundedPixels
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import com.google.r4a.Children
@@ -54,7 +53,6 @@ import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
 import com.google.r4a.Recompose
-
 
 @Composable
 fun GrayRect() {
@@ -83,13 +81,14 @@ fun ListWithOffset(
                 <item />
             }
         }
-        val itemHeight = (constraints.maxHeight - offset.toPx() * (itemsCount - 1)) / itemsCount
+        val offsetPx = offset.toIntPx()
+        val itemHeight = (constraints.maxHeight - offsetPx * (itemsCount - 1)) / itemsCount
         val itemConstraint = Constraints.tightConstraints(constraints.maxWidth, itemHeight)
         layout(constraints.maxWidth, constraints.maxHeight) {
-            var top = 0
+            var top = 0.ipx
             measurables.map { it.measure(itemConstraint) }.forEach {
-                it.place(0, top)
-                top += itemHeight.toRoundedPixels() + offset.toRoundedPixels()
+                it.place(0.ipx, top)
+                top += itemHeight + offsetPx
             }
         }
     </MeasureBox>

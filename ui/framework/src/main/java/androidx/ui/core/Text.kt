@@ -110,10 +110,10 @@ class Text() : Component() {
                     attachContextToFont(styledText, context)
 
                     val boxConstraints = TextConstraints(
-                        constraints.minWidth.value,
-                        constraints.maxWidth.value,
-                        constraints.minHeight.value,
-                        constraints.maxHeight.value
+                        constraints.minWidth.value.toFloat(),
+                        constraints.maxWidth.value.toFloat(),
+                        constraints.minHeight.value.toFloat(),
+                        constraints.maxHeight.value.toFloat()
                     )
                     renderParagraph.performLayout(boxConstraints)
 
@@ -133,8 +133,8 @@ class Text() : Component() {
                         </Draw>
                     }
                     measureOperations.layout(
-                        renderParagraph.width.px.toRoundedPixels(),
-                        renderParagraph.height.px.toRoundedPixels()
+                        renderParagraph.width.px.round(),
+                        renderParagraph.height.px.round()
                     ) {}
                 </MeasureBox>
             </Semantics>

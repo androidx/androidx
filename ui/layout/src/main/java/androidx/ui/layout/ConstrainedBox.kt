@@ -17,9 +17,9 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
+import androidx.ui.core.IntPx
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.enforce
-import androidx.ui.core.toRoundedPixels
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -48,10 +48,10 @@ fun ConstrainedBox(
             null
         }
 
-        val layoutWidth = placeable?.width ?: constraints.minWidth.toRoundedPixels()
-        val layoutHeight = placeable?.height ?: constraints.minHeight.toRoundedPixels()
+        val layoutWidth = placeable?.width ?: constraints.minWidth
+        val layoutHeight = placeable?.height ?: constraints.minHeight
         layout(layoutWidth, layoutHeight) {
-            placeable?.place(0, 0)
+            placeable?.place(IntPx.Zero, IntPx.Zero)
         }
     </MeasureBox>
 }
