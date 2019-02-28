@@ -49,7 +49,9 @@ dependencies {
     androidTestImplementation(TRUTH)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation project(":camera:camera-testing"), {
+        exclude group: "androidx.camera", module: "camera-core"
+    }
 }
 
 android {
@@ -59,11 +61,6 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
-
-    // TODO(b/124544514): This is needed to get the androidTest to build. Remove in the future.
-    packagingOptions {
-        pickFirst 'META-INF/support.camera_camera-core.version'
-    }
 }
 
 supportLibrary {
