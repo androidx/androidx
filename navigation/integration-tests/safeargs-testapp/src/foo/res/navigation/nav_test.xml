@@ -25,7 +25,7 @@
         </action>
     </fragment>
     <fragment android:id="@+id/foo_fragment"
-              android:name="android.arch.navigation.FooFragment">
+              android:name="androidx.navigation.FooFragment">
         <argument android:name="myarg2" />
     </fragment>
     <fragment android:id="@+id/next_fragment"/>

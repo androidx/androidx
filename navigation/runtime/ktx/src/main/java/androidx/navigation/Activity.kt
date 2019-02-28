@@ -17,7 +17,7 @@
 package androidx.navigation
 
 import android.app.Activity
-import android.support.annotation.IdRes
+import androidx.annotation.IdRes
 
 /**
  * Find a [NavController] given the id of a View and its containing

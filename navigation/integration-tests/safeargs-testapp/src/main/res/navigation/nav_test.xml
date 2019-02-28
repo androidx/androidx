@@ -19,14 +19,14 @@
             xmlns:tools="http://schemas.android.com/tools"
             app:startDestination="@+id/first_screen">
     <fragment android:id="@+id/first_screen"
-              android:name="android.arch.navigation.testapp.MainFragment">
+              android:name="androidx.navigation.testapp.MainFragment">
         <action android:id="@+id/next" app:destination="@+id/next_fragment">
             <argument android:name="myarg2"/>
             <argument android:name="randomArgument"/>
         </action>
     </fragment>
     <fragment android:id="@+id/next_fragment"
-              android:name="android.arch.navigation.testapp.NextFragment">
+              android:name="androidx.navigation.testapp.NextFragment">
         <argument android:name="myarg2" />
     </fragment>
 </navigation>
