@@ -89,7 +89,7 @@ class ViewUtilsBase {
             transformMatrixToLocal(vp, matrix);
             matrix.postTranslate(vp.getScrollX(), vp.getScrollY());
         }
-        matrix.postTranslate(view.getLeft(), view.getTop());
+        matrix.postTranslate(-view.getLeft(), -view.getTop());
         final Matrix vm = view.getMatrix();
         if (!vm.isIdentity()) {
             final Matrix inverted = new Matrix();
