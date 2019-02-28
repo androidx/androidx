@@ -199,7 +199,7 @@ public class DialogFragment extends Fragment
      * the fragment.
      */
     public void dismiss() {
-        dismissInternal(false);
+        dismissInternal(false, false);
     }
 
     /**
@@ -209,10 +209,10 @@ public class DialogFragment extends Fragment
      * documentation for further details.
      */
     public void dismissAllowingStateLoss() {
-        dismissInternal(true);
+        dismissInternal(true, false);
     }
 
-    void dismissInternal(boolean allowStateLoss) {
+    void dismissInternal(boolean allowStateLoss, boolean fromOnDismiss) {
         if (mDismissed) {
             return;
         }
@@ -224,14 +224,16 @@ public class DialogFragment extends Fragment
             // that the callback happens before onDestroy()
             mDialog.setOnDismissListener(null);
             mDialog.dismiss();
-            // onDismiss() is always called on the main thread, so
-            // we mimic that behavior here. The difference here is that
-            // we don't post the message to ensure that the onDismiss()
-            // callback still happens before onDestroy()
-            if (Looper.myLooper() == mHandler.getLooper()) {
-                onDismiss(mDialog);
-            } else {
-                mHandler.post(mDismissRunnable);
+            if (!fromOnDismiss) {
+                // onDismiss() is always called on the main thread, so
+                // we mimic that behavior here. The difference here is that
+                // we don't post the message to ensure that the onDismiss()
+                // callback still happens before onDestroy()
+                if (Looper.myLooper() == mHandler.getLooper()) {
+                    onDismiss(mDialog);
+                } else {
+                    mHandler.post(mDismissRunnable);
+                }
             }
         }
         mViewDestroyed = true;
@@ -440,7 +442,7 @@ public class DialogFragment extends Fragment
             // dispatches this asynchronously so we can receive the call
             // after the activity is paused.  Worst case, when the user comes
             // back to the activity they see the dialog again.
-            dismissInternal(true);
+            dismissInternal(true, true);
         }
     }
 
