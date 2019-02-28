@@ -21,7 +21,7 @@ package androidx.navigation
 import android.app.Activity
 import android.content.ComponentName
 import android.net.Uri
-import android.support.annotation.IdRes
+import androidx.annotation.IdRes
 import kotlin.reflect.KClass
 
 /**

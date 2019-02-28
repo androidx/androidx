@@ -16,8 +16,8 @@
 
 package androidx.navigation.ui
 
-import android.support.design.widget.NavigationView
 import androidx.navigation.NavController
+import com.google.android.material.navigation.NavigationView
 
 /**
  * Sets up a [NavigationView] for use with a [NavController]. This will call

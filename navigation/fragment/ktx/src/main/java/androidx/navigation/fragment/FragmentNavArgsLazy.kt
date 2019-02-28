@@ -16,8 +16,8 @@
 
 package androidx.navigation.fragment
 
-import android.support.annotation.MainThread
-import android.support.v4.app.Fragment
+import androidx.annotation.MainThread
+import androidx.fragment.app.Fragment
 import androidx.navigation.NavArgs
 import androidx.navigation.NavArgsLazy
 

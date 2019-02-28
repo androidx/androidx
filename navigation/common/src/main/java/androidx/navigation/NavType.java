@@ -18,9 +18,10 @@ package androidx.navigation;
 
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.AnyRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.AnyRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.Serializable;
 import java.text.ParseException;

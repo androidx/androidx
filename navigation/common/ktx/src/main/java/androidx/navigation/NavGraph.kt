@@ -18,7 +18,7 @@
 
 package androidx.navigation
 
-import android.support.annotation.IdRes
+import androidx.annotation.IdRes
 
 /**
  * Returns the destination with `id`.
