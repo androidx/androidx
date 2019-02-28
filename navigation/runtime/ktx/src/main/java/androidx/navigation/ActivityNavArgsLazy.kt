@@ -17,7 +17,7 @@
 package androidx.navigation
 
 import android.app.Activity
-import android.support.annotation.MainThread
+import androidx.annotation.MainThread
 
 /**
  * Returns a [Lazy] delegate to access the Activity's extras as an [Args] instance.

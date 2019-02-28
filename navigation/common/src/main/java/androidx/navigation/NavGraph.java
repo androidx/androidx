@@ -19,12 +19,12 @@ package androidx.navigation;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.net.Uri;
-import android.support.annotation.IdRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.collection.SparseArrayCompat;
 import androidx.navigation.common.R;
 
 import java.util.Collection;

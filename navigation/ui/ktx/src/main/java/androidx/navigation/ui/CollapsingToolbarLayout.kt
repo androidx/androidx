@@ -16,10 +16,10 @@
 
 package androidx.navigation.ui
 
-import android.support.design.widget.CollapsingToolbarLayout
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.widget.Toolbar
+import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
+import com.google.android.material.appbar.CollapsingToolbarLayout
 
 /**
  * Sets up a [CollapsingToolbarLayout] and [Toolbar] for use with a [NavController].

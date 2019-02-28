@@ -16,7 +16,7 @@
 
 package androidx.navigation
 
-import android.support.annotation.IdRes
+import androidx.annotation.IdRes
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before

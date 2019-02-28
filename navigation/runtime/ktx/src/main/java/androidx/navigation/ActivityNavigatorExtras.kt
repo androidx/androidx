@@ -16,7 +16,7 @@
 
 package androidx.navigation
 
-import android.support.v4.app.ActivityOptionsCompat
+import androidx.core.app.ActivityOptionsCompat
 
 /**
  * Create a new [ActivityNavigator.Extras] instance with a specific [ActivityOptionsCompat]

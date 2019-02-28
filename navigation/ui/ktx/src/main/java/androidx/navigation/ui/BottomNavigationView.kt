@@ -16,8 +16,8 @@
 
 package androidx.navigation.ui
 
-import android.support.design.widget.BottomNavigationView
 import androidx.navigation.NavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
  * Sets up a [BottomNavigationView] for use with a [NavController]. This will call

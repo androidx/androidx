@@ -16,7 +16,7 @@
 
 package androidx.navigation.fragment
 
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import androidx.navigation.contains
 import androidx.navigation.createGraph
 import androidx.navigation.get
