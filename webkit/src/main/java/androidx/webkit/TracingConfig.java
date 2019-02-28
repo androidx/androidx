@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class TracingConfig {
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(flag = true, value = {CATEGORIES_NONE, CATEGORIES_ALL, CATEGORIES_ANDROID_WEBVIEW,
             CATEGORIES_WEB_DEVELOPER, CATEGORIES_INPUT_LATENCY, CATEGORIES_RENDERING,
             CATEGORIES_JAVASCRIPT_AND_RENDERING, CATEGORIES_FRAME_VIEWER})
@@ -97,7 +97,7 @@ public class TracingConfig {
             android.webkit.TracingConfig.CATEGORIES_FRAME_VIEWER;
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({RECORD_UNTIL_FULL, RECORD_CONTINUOUSLY})
     @Retention(RetentionPolicy.SOURCE)
     public @interface TracingMode {}
@@ -124,7 +124,7 @@ public class TracingConfig {
     private @TracingMode int mTracingMode;
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public TracingConfig(@PredefinedCategories int predefinedCategories,
                          @NonNull List<String> customIncludedCategories,
                          @TracingMode int tracingMode) {
