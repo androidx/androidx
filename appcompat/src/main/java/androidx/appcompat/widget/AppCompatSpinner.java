@@ -1015,12 +1015,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         }
 
         @Override
-        @SuppressLint("SyntheticAccessor")
-        public void show() {
-            showPopup();
-        }
-
-        @Override
         public void show(int textDirection, int textAlignment) {
             final boolean wasShowing = isShowing();
 
