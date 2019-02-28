@@ -68,11 +68,19 @@ class Text() : Component() {
      *  The value may be null. If it is not null, then it must be greater than zero.
      */
     var maxLines: Int? = null
+    // TODO(qqd): Make variable selection private in future.
     /**
      *  The selection of the text.
      */
     var selection: TextSelection? = null
-
+    /**
+     *  The selection's start and end offset. In this pair, the first is start, and the second is
+     *  end.
+     */
+    var selectionPosition: Pair<Offset, Offset>? = null
+    /**
+     *  The color used to draw selected region.
+     */
     var selectionColor: Color = DEFAULT_SELECTION_COLOR
 
     override fun compose() {
@@ -108,6 +116,16 @@ class Text() : Component() {
                         constraints.maxHeight.value
                     )
                     renderParagraph.performLayout(boxConstraints)
+
+                    // Convert the selection's start and end offset to a TextSelection object.
+                    selectionPosition?.let {
+                        var selectionStart = renderParagraph.getPositionForOffset(it.first).offset
+                        var selectionEnd = renderParagraph.getPositionForOffset(it.second).offset
+
+                        if (selectionEnd == selectionStart) selectionEnd = selectionStart + 1
+                        selection = TextSelection(selectionStart, selectionEnd)
+                    }
+
                     measureOperations.collect {
                         <Draw> canvas, parent ->
                             selection?.let{renderParagraph.paintSelection(canvas, it)}

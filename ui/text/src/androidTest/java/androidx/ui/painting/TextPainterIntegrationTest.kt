@@ -18,6 +18,7 @@ package androidx.ui.painting
 
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.engine.text.TextBaseline
@@ -190,5 +191,41 @@ class TextPainterIntegrationTest {
         textPainter.layout(0.0f, 20.0f)
 
         assertThat(textPainter.paragraph).isNotNull()
+    }
+
+    @Test
+    fun getPositionForOffset_First_Character() {
+        val fontSize = 20.0f
+        val textPainter =
+            TextPainter(
+                text = TextSpan(
+                    text = "Hello",
+                    style = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+                ), textDirection = TextDirection.LTR
+            )
+        textPainter.layout()
+
+        val selection = textPainter.getPositionForOffset(Offset(dx = 0f, dy = 0f))
+
+        assertThat(selection.offset).isEqualTo(0)
+    }
+
+    @Test
+    fun getPositionForOffset_other_Character() {
+        val fontSize = 20.0f
+        val characterIndex = 2 // Start from 0.
+        val textPainter =
+            TextPainter(
+                text = TextSpan(
+                    text = "Hello",
+                    style = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+                ), textDirection = TextDirection.LTR
+            )
+        textPainter.layout()
+
+        val selection =
+            textPainter.getPositionForOffset(Offset(dx = fontSize * characterIndex + 1f, dy = 0f))
+
+        assertThat(selection.offset).isEqualTo(characterIndex)
     }
 }
