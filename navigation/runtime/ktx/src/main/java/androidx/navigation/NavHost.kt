@@ -16,7 +16,7 @@
 
 package androidx.navigation
 
-import android.support.annotation.IdRes
+import androidx.annotation.IdRes
 
 /**
  * Construct a new [NavGraph]
