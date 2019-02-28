@@ -16,23 +16,17 @@
 
 package com.example.androidx.viewpager2
 
-import android.view.View
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
-import com.example.androidx.viewpager2.test.onCurrentPage
-import com.example.androidx.viewpager2.test.withRotation
-import com.example.androidx.viewpager2.test.withScale
-import com.example.androidx.viewpager2.test.withTranslation
+import com.example.androidx.viewpager2.test.AnimationVerifier
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.Matcher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runners.Parameterized
@@ -80,12 +74,18 @@ abstract class ViewPagerBaseTest<T : BaseCardActivity>(
 
     @Test
     fun testSwipe() {
+        val animationVerifier = AnimationVerifier(viewPager)
+
         // Swipe to page 2
-        swipeToNextPage { verifyAnimation() }
+        animationVerifier.reset()
+        swipeToNextPage()
+        animationVerifier.verify()
         verifyCurrentPage(threeOfSpades)
 
         // Swipe back to page 1
-        swipeToPreviousPage { verifyAnimation() }
+        animationVerifier.reset()
+        swipeToPreviousPage()
+        animationVerifier.verify()
         verifyCurrentPage(twoOfSpades)
     }
 
@@ -104,11 +104,12 @@ abstract class ViewPagerBaseTest<T : BaseCardActivity>(
         onView(allOf(withId(id), isNotChecked())).perform(click())
     }
 
-    private fun verifyAnimation() {
-        val animationVerifiers = mutableListOf<Matcher<View>>()
-        if (config.animateRotate) animationVerifiers.add(withRotation())
-        if (config.animateTranslate) animationVerifiers.add(withTranslation())
-        if (config.animateScale) animationVerifiers.add(withScale())
-        onCurrentPage().check(matches(allOf(animationVerifiers)))
+    private fun AnimationVerifier.verify() {
+        awaitAnimation()
+        verify(
+            expectRotation = config.animateRotate,
+            expectTranslation = config.animateTranslate,
+            expectScale = config.animateScale
+        )
     }
 }
