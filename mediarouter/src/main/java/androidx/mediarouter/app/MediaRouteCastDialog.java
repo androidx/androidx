@@ -1479,7 +1479,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                     }
                     // Calculate required size to decode the art and possibly resize it.
                     options.inJustDecodeBounds = false;
-                    int reqHeight = mArtView.getHeight();
+                    int reqHeight = mContext.getResources().getDimensionPixelSize(
+                            R.dimen.mr_cast_meta_art_size);
                     int ratio = options.outHeight / reqHeight;
                     options.inSampleSize = Math.max(1, Integer.highestOneBit(ratio));
                     if (isCancelled()) {
