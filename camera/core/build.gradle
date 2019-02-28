@@ -40,7 +40,9 @@ dependencies {
     testImplementation(TEST_RUNNER)
     testImplementation(TRUTH)
     testImplementation(ROBOLECTRIC)
-    testImplementation(project(":camera:camera-testing"))
+    testImplementation project(":camera:camera-testing"), {
+        exclude group: "androidx.camera", module: "camera-core"
+    }
 
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
@@ -61,6 +63,10 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+
+    packagingOptions {
+        pickFirst 'META-INF/support.camera_camera-core.version'
+    }
 }
 
 supportLibrary {
