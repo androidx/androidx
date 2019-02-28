@@ -20,6 +20,11 @@ import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.LinearLayout
+import androidx.ui.core.vectorgraphics.adoptVectorGraphic
+import androidx.ui.core.vectorgraphics.compat.vectorResource
+import androidx.ui.core.vectorgraphics.group
+import androidx.ui.core.vectorgraphics.path
+import androidx.ui.core.vectorgraphics.vector
 import androidx.ui.vectorgraphics.PathBuilder
 import androidx.ui.vectorgraphics.PathDelegate
 import com.google.r4a.Composable
