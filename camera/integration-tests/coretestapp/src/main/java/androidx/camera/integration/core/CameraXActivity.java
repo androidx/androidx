@@ -39,6 +39,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceConfiguration;
@@ -57,6 +58,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -100,6 +102,12 @@ public class CameraXActivity extends AppCompatActivity
     private ImageAnalysisUseCase mImageAnalysisUseCase;
     private ImageCaptureUseCase mImageCaptureUseCase;
     private VideoCaptureUseCase mVideoCaptureUseCase;
+
+    // Espresso testing variables
+    @VisibleForTesting
+    CountingIdlingResource mIdlingResource = new CountingIdlingResource("view");
+    // just choose 60 currently and could change later
+    private static final int FRAMES_UNTIL_VIEW_IS_READY = 60;
 
     /**
      * Creates a view finder use case.
@@ -163,6 +171,10 @@ public class CameraXActivity extends AppCompatActivity
 
         transformPreview();
 
+        for (int i = 0; i < FRAMES_UNTIL_VIEW_IS_READY; ++i) {
+            mIdlingResource.increment();
+        }
+
         textureView.setSurfaceTextureListener(
                 new SurfaceTextureListener() {
                     @Override
@@ -183,6 +195,10 @@ public class CameraXActivity extends AppCompatActivity
 
                     @Override
                     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+                        // Wait until surface texture receives enough updates.
+                        if (!mIdlingResource.isIdleNow()) {
+                            mIdlingResource.decrement();
+                        }
                     }
                 });
     }
