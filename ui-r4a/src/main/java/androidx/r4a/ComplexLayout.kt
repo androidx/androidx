@@ -135,20 +135,19 @@ fun RectangleWithIntrinsics(color: Color) {
 
 @Composable
 fun FlexRowUsage() {
-    <FlexRow> children ->
-        // TODO(popam): named arguments cannot be used because of the adapter hack
-        children.expanded(/*flex=*/2f) {
+    <FlexRow>
+        expanded(flex=2f) {
             <Center>
                 <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
             </Center>
             <SizedRectangle color=Color(0xFF0000FF.toInt()) height=40.dp />
         }
-        children.inflexible {
+        inflexible {
             <SizedRectangle color=Color(0xFFFF0000.toInt()) width=40.dp />
             <SizedRectangle color=Color(0xFF00FF00.toInt()) width=50.dp />
             <SizedRectangle color=Color(0xFF0000FF.toInt()) width=60.dp />
         }
-        children.expanded(/*flex=*/1f) {
+        expanded(flex=1f) {
             <SizedRectangle color=Color(0xFF00FF00.toInt()) />
         }
     </FlexRow>
@@ -156,20 +155,19 @@ fun FlexRowUsage() {
 
 @Composable
 fun FlexColumnUsage() {
-    <FlexColumn> children ->
-        // TODO(popam): named arguments cannot be used because of the adapter hack
-        children.expanded(/*flex=*/2f) {
+    <FlexColumn>
+        expanded(flex=2f) {
             <Center>
                 <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
             </Center>
             <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp />
         }
-        children.inflexible {
+        inflexible {
             <SizedRectangle color=Color(0xFFFF0000.toInt()) height=40.dp />
             <SizedRectangle color=Color(0xFF00FF00.toInt()) height=50.dp />
             <SizedRectangle color=Color(0xFF0000FF.toInt()) height=60.dp />
         }
-        children.expanded(/*flex=*/1f) {
+        expanded(flex=1f) {
             <SizedRectangle color=Color(0xFF00FF00.toInt()) />
         }
     </FlexColumn>

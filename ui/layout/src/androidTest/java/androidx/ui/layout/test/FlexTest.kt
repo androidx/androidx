@@ -109,10 +109,10 @@ class FlexTest : LayoutTest() {
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
             <Center>
-                <FlexRow> children ->
+                <FlexRow>
                     val widthDp = 50.px.toDp(density)
 
-                    children.expanded(flex=1f) {
+                    expanded(flex=1f) {
                         <Container width=widthDp height=heightDp>
                             <OnPositioned> coordinates ->
                                 childSize[0] = coordinates.size
@@ -122,7 +122,7 @@ class FlexTest : LayoutTest() {
                         </Container>
                     }
 
-                    children.expanded(flex=2f) {
+                    expanded(flex=2f) {
                         <Container width=widthDp height=(heightDp * 2)>
                             <OnPositioned> coordinates ->
                                 childSize[1] = coordinates.size
@@ -168,8 +168,8 @@ class FlexTest : LayoutTest() {
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
             <Center>
-                <FlexRow> children ->
-                    children.flexible(flex=1f) {
+                <FlexRow>
+                    flexible(flex=1f) {
                         <Container width=childrenWidthDp height=childrenHeightDp>
                             <OnPositioned> coordinates ->
                                 childSize[0] = coordinates.size
@@ -179,7 +179,7 @@ class FlexTest : LayoutTest() {
                         </Container>
                     }
 
-                    children.flexible(flex=2f) {
+                    flexible(flex=2f) {
                         <Container width=childrenWidthDp height=(childrenHeightDp * 2)>
                             <OnPositioned> coordinates ->
                                 childSize[1] = coordinates.size
@@ -270,10 +270,10 @@ class FlexTest : LayoutTest() {
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
             <Center>
-                <FlexColumn> children ->
+                <FlexColumn>
                     val heightDp = 50.px.toDp(density)
 
-                    children.expanded(flex=1f) {
+                    expanded(flex=1f) {
                         <Container width=widthDp height=heightDp>
                             <OnPositioned> coordinates ->
                                 childSize[0] = coordinates.size
@@ -283,7 +283,7 @@ class FlexTest : LayoutTest() {
                         </Container>
                     }
 
-                    children.expanded(flex=2f) {
+                    expanded(flex=2f) {
                         <Container width=(widthDp * 2) height=heightDp>
                             <OnPositioned> coordinates ->
                                 childSize[1] = coordinates.size
@@ -331,9 +331,8 @@ class FlexTest : LayoutTest() {
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
             <Center>
-                <FlexColumn> children ->
-
-                    children.flexible(flex=1f) {
+                <FlexColumn>
+                    flexible(flex=1f) {
                         <Container width=childrenWidthDp height=childrenHeightDp>
                             <OnPositioned> coordinates ->
                                 childSize[0] = coordinates.size
@@ -343,7 +342,7 @@ class FlexTest : LayoutTest() {
                         </Container>
                     }
 
-                    children.flexible(flex=2f) {
+                    flexible(flex=2f) {
                         <Container width=(childrenWidthDp * 2) height=childrenHeightDp>
                             <OnPositioned> coordinates ->
                                 childSize[1] = coordinates.size

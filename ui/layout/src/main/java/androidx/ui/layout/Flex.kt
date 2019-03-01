@@ -102,7 +102,7 @@ internal data class FlexChild(
 @Composable
 fun FlexRow(
     crossAxisAlignment: Int = CrossAxisAlignment.Center,
-    @Children(composable = false) block: (children: FlexChildren) -> Unit
+    @Children(composable = false) block: FlexChildren.() -> Unit
 ) {
     <Flex orientation=FlexOrientation.Horizontal crossAxisAlignment block />
 }
@@ -138,7 +138,7 @@ fun FlexRow(
 @Composable
 fun FlexColumn(
     crossAxisAlignment: Int = CrossAxisAlignment.Center,
-    @Children(composable=false) block: (children: FlexChildren) -> Unit
+    @Children(composable=false) block: FlexChildren.() -> Unit
 ) {
     <Flex orientation=FlexOrientation.Vertical crossAxisAlignment block />
 }
@@ -155,8 +155,8 @@ fun FlexColumn(
  */
 @Composable
 fun Row(crossAxisAlignment: Int = CrossAxisAlignment.Center, @Children block: () -> Unit) {
-    <FlexRow crossAxisAlignment> children ->
-        children.inflexible {
+    <FlexRow crossAxisAlignment>
+        inflexible {
             <block />
         }
     </FlexRow>
@@ -174,8 +174,8 @@ fun Row(crossAxisAlignment: Int = CrossAxisAlignment.Center, @Children block: ()
  */
 @Composable
 fun Column(crossAxisAlignment: Int = CrossAxisAlignment.Center, @Children block: () -> Unit) {
-    <FlexColumn crossAxisAlignment> children ->
-        children.inflexible {
+    <FlexColumn crossAxisAlignment>
+        inflexible {
             <block />
         }
     </FlexColumn>
@@ -285,7 +285,7 @@ private data class OrientationIndependentConstraints(
 private fun Flex(
     orientation: Int /*FlexOrientation*/,
     crossAxisAlignment: Int /*CrossAxisAlignment*/ = CrossAxisAlignment.Center,
-    @Children(composable = false) block: (children: FlexChildren) -> Unit
+    @Children(composable = false) block: FlexChildren.() -> Unit
 ) {
     fun Placeable.mainAxisSize() = if (orientation == FlexOrientation.Horizontal) width else height
     fun Placeable.crossAxisSize() = if (orientation == FlexOrientation.Horizontal) height else width
@@ -296,7 +296,7 @@ private fun Flex(
         var totalFlex: Float /* TODO(popam): make these val when compiler bug is fixed */
         var children: List<FlexChild>
         with(FlexChildren(::collect)) {
-            apply(block)
+            block(this)
             totalFlex = this.flexSum
             children = this.flexChildren
         }
