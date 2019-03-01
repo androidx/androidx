@@ -52,7 +52,10 @@ import androidx.ui.vectorgraphics.VNode
 import androidx.ui.vectorgraphics.VPath
 import androidx.ui.vectorgraphics.VectorGraphic
 import androidx.ui.vectorgraphics.obtainBrush
-import com.google.r4a.*
+import com.google.r4a.Children
+import com.google.r4a.Composable
+import com.google.r4a.Emittable
+import com.google.r4a.composer
 
 fun parsePathNodes(pathStr: String?): Array<PathNode> =
     if (pathStr == null) {
@@ -68,7 +71,8 @@ fun vector(
     viewportHeight: Float,
     defaultWidth: Float = viewportWidth,
     defaultHeight: Float = viewportHeight,
-    @Children children: () -> Unit) {
+    @Children children: () -> Unit
+) {
     <Vector name defaultWidth defaultHeight viewportWidth viewportHeight>
         <children />
     </Vector>
@@ -105,16 +109,16 @@ fun group(
 
 @Composable
 fun path(
-         pathData: PathData,
-         name: String = DEFAULT_PATH_NAME,
-         fill: BrushType? = null,
-         fillAlpha: Float = DEFAULT_ALPHA,
-         stroke: BrushType? = null,
-         strokeAlpha: Float = DEFAULT_ALPHA,
-         strokeLineWidth: Float = DEFAULT_STROKE_LINE_WIDTH,
-         strokeLineCap: StrokeCap = DEFAULT_STROKE_LINE_CAP,
-         strokeLineJoin: StrokeJoin = DEFAULT_STROKE_LINE_JOIN,
-         strokeLineMiter: Float = DEFAULT_STROKE_LINE_MITER
+    pathData: PathData,
+    name: String = DEFAULT_PATH_NAME,
+    fill: BrushType? = null,
+    fillAlpha: Float = DEFAULT_ALPHA,
+    stroke: BrushType? = null,
+    strokeAlpha: Float = DEFAULT_ALPHA,
+    strokeLineWidth: Float = DEFAULT_STROKE_LINE_WIDTH,
+    strokeLineCap: StrokeCap = DEFAULT_STROKE_LINE_CAP,
+    strokeLineJoin: StrokeJoin = DEFAULT_STROKE_LINE_JOIN,
+    strokeLineMiter: Float = DEFAULT_STROKE_LINE_MITER
 ) {
 
     val pathNodes = createPath(pathData)
@@ -139,20 +143,21 @@ private sealed class VectorGraphicComponent {
     abstract fun draw(canvas: Canvas)
 }
 
-private class Vector(name: String = "",
-                     viewportWidth: Float,
-                     viewportHeight: Float,
-                     defaultWidth: Float = viewportWidth,
-                     defaultHeight: Float = viewportHeight
-): VectorGraphicComponent(), Emittable {
+private class Vector(
+    name: String = "",
+    viewportWidth: Float,
+    viewportHeight: Float,
+    defaultWidth: Float = viewportWidth,
+    defaultHeight: Float = viewportHeight
+) : VectorGraphicComponent(), Emittable {
 
     private val vectorGraphic = VectorGraphic(
-            name,
-            defaultWidth,
-            defaultHeight,
-            viewportWidth,
-            viewportHeight
-        )
+        name,
+        defaultWidth,
+        defaultHeight,
+        viewportWidth,
+        viewportHeight
+    )
 
     val name: String = vectorGraphic.name
 
@@ -187,7 +192,7 @@ private class Vector(name: String = "",
     }
 }
 
-private class Path(name: String): VectorGraphicComponent(), Emittable {
+private class Path(name: String) : VectorGraphicComponent(), Emittable {
 
     private var path = VPath(name)
 
@@ -357,7 +362,7 @@ private fun createPath(pathData: PathData): Array<PathNode> {
     return when (pathData) {
         is Array<*> -> pathData as Array<PathNode>
         is PathDelegate -> {
-            with (PathBuilder()) {
+            with(PathBuilder()) {
                 pathData.delegate(this)
                 getNodes()
             }
