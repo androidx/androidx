@@ -28,10 +28,18 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import org.hamcrest.CoreMatchers.allOf
 
+/**
+ * Creates a [ViewInteraction] that interacts with a [ViewPager2].
+ */
 fun onViewPager(): ViewInteraction {
     return onView(isAssignableFrom(ViewPager2::class.java))
 }
 
+/**
+ * Creates a [ViewInteraction] that interacts with the currently visible page of a [ViewPager2]. The
+ * currently visible page is the page that is displaying at least 50% of its content. When two pages
+ * both show exactly 50%, the selected page is undefined.
+ */
 fun onCurrentPage(): ViewInteraction {
     return onView(allOf(
         withParent(withParent(isAssignableFrom(ViewPager2::class.java))),
@@ -39,6 +47,10 @@ fun onCurrentPage(): ViewInteraction {
     ))
 }
 
+/**
+ * Creates a [ViewInteraction] that interacts with a tab from a [TabLayout] that contains the given
+ * text.
+ */
 fun onTab(withText: String): ViewInteraction {
     return onView(
         allOf(
