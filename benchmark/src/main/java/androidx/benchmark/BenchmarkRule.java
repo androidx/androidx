@@ -19,6 +19,7 @@ package androidx.benchmark;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.app.Activity;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -102,8 +103,8 @@ public class BenchmarkRule implements TestRule {
 
                 base.evaluate();
 
-                mState.sendFullStatusReport(InstrumentationRegistry.getInstrumentation(),
-                        invokeMethodName);
+                InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK,
+                        mState.getFullStatusReport(invokeMethodName));
             }
         };
     }

@@ -18,6 +18,7 @@ package androidx.benchmark
 
 import androidx.test.filters.LargeTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,5 +60,23 @@ class BenchmarkStateTest {
 
         assertEquals(summary1.indexOf("foo"),
             summary2.indexOf("foo"))
+    }
+
+    @Test
+    fun bundle() {
+        val bundle = BenchmarkState().apply {
+            while (keepRunning()) {
+                // nothing, we're ignoring numbers
+            }
+        }.getFullStatusReport("foo")
+        val expectedLabel = WarningState.WARNING_PREFIX + "foo"
+
+        assertTrue(
+            (bundle.get("android.studio.display.benchmark") as String).contains(expectedLabel))
+
+        // check attribute presence and naming
+        assertNotNull(bundle.get(expectedLabel + "_min"))
+        assertNotNull(bundle.get(expectedLabel + "_mean"))
+        assertNotNull(bundle.get(expectedLabel + "_count"))
     }
 }
