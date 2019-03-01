@@ -31,7 +31,7 @@ dependencies {
     api project(":ui-core")
     api project(':ui-framework')
     api project(':ui-framework-adapter')
-    api project(':ui-layout-adapter')
+    api project(':ui-layout')
     api(KOTLIN_R4A_STDLIB)
     implementation "androidx.interpolator:interpolator:1.0.0"
     testImplementation(JUNIT)

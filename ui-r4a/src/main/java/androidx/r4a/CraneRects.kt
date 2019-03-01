@@ -24,7 +24,6 @@ import androidx.ui.core.IntPx
 import androidx.ui.core.PxPosition
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
-import androidx.ui.core.adapter.Padding
 import androidx.ui.core.adapter.PressGestureDetector
 import androidx.ui.core.div
 import androidx.ui.core.dp
@@ -35,6 +34,7 @@ import androidx.ui.core.px
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.Padding
 import androidx.ui.painting.Color
 import androidx.ui.painting.Image
 import androidx.ui.painting.Paint

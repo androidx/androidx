@@ -14,7 +14,7 @@ dependencies {
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
     implementation project(':ui-framework-adapter')
-    implementation project(':ui-layout-adapter')
+    implementation project(':ui-layout')
     implementation project(':ui-framework')
 }
 

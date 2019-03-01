@@ -15,7 +15,7 @@ dependencies {
     api(KOTLIN_R4A_COROUTINES)
     api project(':ui-material')
     implementation project(":ui-framework-adapter")
-    implementation project(":ui-layout-adapter")
+    implementation project(":ui-layout")
 }
 
 android {
