@@ -406,7 +406,7 @@ public final class NavigationUI {
      * the drawer will be closed when a menu item is selected.
      * <p>
      * Similarly, if the {@link NavigationView} has a {@link BottomSheetBehavior} associated with
-     * it (as is the case when using a {@link android.support.design.widget.BottomSheetDialog}),
+     * it (as is the case when using a {@link com.google.android.material.bottomsheet.BottomSheetDialog}),
      * the bottom sheet will be hidden when a menu item is selected.
      *
      * @param navigationView The NavigationView that should be kept in sync with changes to the
