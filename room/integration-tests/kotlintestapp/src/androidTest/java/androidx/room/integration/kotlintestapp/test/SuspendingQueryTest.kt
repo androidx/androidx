@@ -16,6 +16,7 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import android.os.Build
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.integration.kotlintestapp.NewThreadDispatcher
@@ -840,9 +841,16 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     database.endTransaction()
                 }
             } catch (ex: IllegalStateException) {
-                assertThat(ex).hasMessageThat()
-                    .contains("Cannot perform this operation because there is no current " +
-                            "transaction")
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                    assertThat(ex).hasMessageThat()
+                        .contains(
+                            "Cannot perform this operation because there is no current " +
+                                    "transaction"
+                        )
+                } else {
+                    assertThat(ex).hasMessageThat()
+                        .contains("Don't have database lock")
+                }
             }
         }
     }
@@ -860,9 +868,16 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     throw RuntimeException()
                 }
             } catch (ex: IllegalStateException) {
-                assertThat(ex).hasMessageThat()
-                    .contains("Cannot perform this operation because there is no current " +
-                            "transaction")
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                    assertThat(ex).hasMessageThat()
+                        .contains(
+                            "Cannot perform this operation because there is no current " +
+                                    "transaction"
+                        )
+                } else {
+                    assertThat(ex).hasMessageThat()
+                        .contains("Don't have database lock")
+                }
             }
         }
     }
