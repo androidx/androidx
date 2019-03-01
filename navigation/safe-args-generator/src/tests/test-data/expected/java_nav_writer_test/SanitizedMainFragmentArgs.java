@@ -17,7 +17,7 @@
 package a.b;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import androidx.navigation.NavArgs;
 import java.lang.IllegalArgumentException;
 import java.lang.Object;
