@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.ui.core.pointerinput
 
 import androidx.ui.core.pointerinput.PointerEventPass.InitialDown
 import androidx.ui.core.pointerinput.PointerEventPass.PreUp
@@ -22,13 +22,12 @@ import androidx.ui.core.pointerinput.PointerEventPass.PreUp
 import org.mockito.Mockito.mock
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.pointerinput.ConsumedData
-import androidx.ui.core.pointerinput.PointerEventPass
-import androidx.ui.core.pointerinput.PointerInputChange
-import androidx.ui.core.pointerinput.PointerInputData
-import androidx.ui.core.pointerinput.PointerInputEvent
-import androidx.ui.core.pointerinput.PointerInputEventData
-import androidx.ui.core.pointerinput.PointerInputEventProcessor
+import androidx.ui.core.Duration
+import androidx.ui.core.LayoutNode
+import androidx.ui.core.Owner
+import androidx.ui.core.PointerInputNode
+import androidx.ui.core.ipx
+import androidx.ui.core.minus
 import androidx.ui.engine.geometry.Offset
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -95,7 +94,8 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val pointerInputNode: PointerInputNode = PointerInputNode()
+            .apply {
             pointerInputHandler = spy(MyPointerInputHandler())
         }
         val layoutNode: LayoutNode = LayoutNode(0, 0, 500, 500).apply {
@@ -155,7 +155,8 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val pointerInputNode: PointerInputNode = PointerInputNode()
+            .apply {
             pointerInputHandler = spy(MyPointerInputHandler())
         }
         val childOffset = Offset(dx = 100f, dy = 200f)
@@ -210,7 +211,8 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val pointerInputNode: PointerInputNode = PointerInputNode()
+            .apply {
             pointerInputHandler = spy(MyPointerInputHandler())
         }
         val childLayoutNode: LayoutNode = LayoutNode(100, 200, 301, 401).apply {
@@ -269,20 +271,23 @@ class PointerInputEventProcessorTest {
     private fun process_partialTreeHits(numberOfChildrenHit: Int) {
         // Arrange
 
-        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val childPointerInputNode: PointerInputNode = PointerInputNode()
+            .apply {
             pointerInputHandler = spy(MyPointerInputHandler())
         }
         val childLayoutNode: LayoutNode = LayoutNode(100, 100, 200, 200).apply {
             emitInsertAt(0, childPointerInputNode)
         }
-        val middlePointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val middlePointerInputNode: PointerInputNode = PointerInputNode()
+            .apply {
             emitInsertAt(0, childLayoutNode)
             pointerInputHandler = spy(MyPointerInputHandler())
         }
         val middleLayoutNode: LayoutNode = LayoutNode(100, 100, 400, 400).apply {
             emitInsertAt(0, middlePointerInputNode)
         }
-        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val parentPointerInputNode: PointerInputNode = PointerInputNode()
+            .apply {
             emitInsertAt(0, middleLayoutNode)
             pointerInputHandler = spy(MyPointerInputHandler())
         }
@@ -346,7 +351,8 @@ class PointerInputEventProcessorTest {
             consumed = ConsumedData(positionChange = Offset(13f, 0f))
         )
 
-        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val pointerInputNode: PointerInputNode = PointerInputNode()
+            .apply {
             pointerInputHandler = spy(MyPointerInputHandler())
             whenever(pointerInputHandler.invoke(input, InitialDown)).thenReturn(output)
         }
@@ -430,14 +436,16 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
-        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val childPointerInputNode: PointerInputNode = PointerInputNode()
+            .apply {
             pointerInputHandler = spy(MyPointerInputHandler())
         }
         val childOffset = Offset(dx = cX1.toFloat(), dy = cY1.toFloat())
         val childLayoutNode: LayoutNode = LayoutNode(cX1, cY1, cX2, cY2).apply {
             emitInsertAt(0, childPointerInputNode)
         }
-        val middlePointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val middlePointerInputNode: PointerInputNode = PointerInputNode()
+            .apply {
             emitInsertAt(0, childLayoutNode)
             pointerInputHandler = spy(MyPointerInputHandler())
         }
@@ -445,7 +453,8 @@ class PointerInputEventProcessorTest {
         val middleLayoutNode: LayoutNode = LayoutNode(mX1, mY1, mX2, mY2).apply {
             emitInsertAt(0, middlePointerInputNode)
         }
-        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val parentPointerInputNode: PointerInputNode = PointerInputNode()
+            .apply {
             emitInsertAt(0, middleLayoutNode)
             pointerInputHandler = spy(MyPointerInputHandler())
         }
@@ -520,13 +529,15 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
-        val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
+        val childPointerInputNode1: PointerInputNode = PointerInputNode()
+            .apply {
             pointerInputHandler = spy(MyPointerInputHandler())
         }
         val childLayoutNode1: LayoutNode = LayoutNode(0, 0, 50, 50).apply {
             emitInsertAt(0, childPointerInputNode1)
         }
-        val childPointerInputNode2: PointerInputNode = PointerInputNode().apply {
+        val childPointerInputNode2: PointerInputNode = PointerInputNode()
+            .apply {
             pointerInputHandler = spy(MyPointerInputHandler())
         }
         val childLayoutNode2: LayoutNode = LayoutNode(50, 50, 100, 100).apply {
@@ -585,13 +596,15 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
-        val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val childPointerInputNode: PointerInputNode = PointerInputNode()
+            .apply {
             pointerInputHandler = spy(MyPointerInputHandler())
         }
         val childLayoutNode: LayoutNode = LayoutNode(0, 0, 100, 100).apply {
             emitInsertAt(0, childPointerInputNode)
         }
-        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
+        val parentPointerInputNode: PointerInputNode = PointerInputNode()
+            .apply {
             emitInsertAt(0, childLayoutNode)
             pointerInputHandler = spy(MyPointerInputHandler())
         }
