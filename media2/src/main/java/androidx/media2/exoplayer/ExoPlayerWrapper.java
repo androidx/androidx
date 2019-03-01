@@ -538,7 +538,10 @@ import java.util.Map;
                 maybeNotifyReadyEvents();
                 break;
             case Player.STATE_ENDED:
-                mMediaItemQueue.onPlayerEnded();
+                if (playWhenReady) {
+                    mMediaItemQueue.onPlayerEnded();
+                    mPlayer.setPlayWhenReady(false);
+                }
                 break;
             case Player.STATE_IDLE:
                 // Do nothing.
