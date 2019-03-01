@@ -29,8 +29,9 @@ class CraneWrapper(@Children var children: () -> Unit) : Component() {
     private var ambients: Ambient.Reference? = null
 
     override fun compose() {
-        <AndroidCraneView ref=androidCraneView
-                          constraintsChanged={ composeChildren() }>
+        <AndroidCraneView
+            ref=androidCraneView
+            constraintsChanged={ composeChildren() }>
             <Ambient.Portal> reference ->
                 ambients = reference
             </Ambient.Portal>
@@ -46,7 +47,7 @@ class CraneWrapper(@Children var children: () -> Unit) : Component() {
 
             R4a.composeInto(container = layoutNode, context = context, parent = ambients!!) {
                 <ContextAmbient.Provider value=context>
-                    <DensityAmbient.Provider value = Density(context)>
+                    <DensityAmbient.Provider value=Density(context)>
                         <children />
                     </DensityAmbient.Provider>
                 </ContextAmbient.Provider>
@@ -86,4 +87,3 @@ fun CraneWrapperComposable(@Children children: () -> Unit) {
         <children />
     </CraneWrapper>
 }
-
