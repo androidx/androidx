@@ -66,8 +66,7 @@ fun Semantics(
     onSetSelection: ((selection: TextSelection) -> Unit)? = null,
     onDidGainAccessibilityFocus: (() -> Unit)? = null,
     onDidLoseAccessibilityFocus: (() -> Unit)? = null
-
-    ) {
+) {
     <SemanticsR4ANode
         container=container
         explicitChildNodes=explicitChildNodes
@@ -112,7 +111,6 @@ fun Semantics(
         <children />
     </SemanticsR4ANode>
 }
-
 
 // TODO(pavlis): Temporary workaround for meta-data bug.
 class SemanticsProxy(
