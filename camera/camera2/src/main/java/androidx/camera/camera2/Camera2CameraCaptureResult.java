@@ -180,4 +180,15 @@ final class Camera2CameraCaptureResult implements CameraCaptureResult {
         Log.e(TAG, "Undefined flash state: " + state);
         return FlashState.UNKNOWN;
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public long getTimestamp() {
+        Long timestamp = mCaptureResult.get(CaptureResult.SENSOR_TIMESTAMP);
+        if (timestamp == null) {
+            return -1L;
+        }
+
+        return timestamp;
+    }
 }
