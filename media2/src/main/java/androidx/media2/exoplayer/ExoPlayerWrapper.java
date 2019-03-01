@@ -658,7 +658,8 @@ import java.util.Map;
             // start position.
             mPendingSeek = false;
             mListener.onSeekCompleted();
-        } else if (mRebuffering) {
+        }
+        if (mRebuffering) {
             mRebuffering = false;
             if (mMediaItemQueue.getCurrentMediaItemIsRemote()) {
                 mListener.onBandwidthSample(
