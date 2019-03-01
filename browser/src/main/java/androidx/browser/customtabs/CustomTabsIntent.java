@@ -29,12 +29,16 @@ import android.widget.RemoteViews;
 
 import androidx.annotation.AnimRes;
 import androidx.annotation.ColorInt;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.BundleCompat;
 import androidx.core.content.ContextCompat;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 
 /**
@@ -65,6 +69,42 @@ public final class CustomTabsIntent {
      * Null if there is no need to match any service side sessions with the intent.
      */
     public static final String EXTRA_SESSION = "android.support.customtabs.extra.SESSION";
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({DARK_THEME_AUTO, DARK_THEME_ENABLE, DARK_THEME_DISABLE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface DarkThemeBehavior {
+    }
+
+    /**
+     * Dark theme will be enabled or disabled according to system configuration.
+     */
+    public static final int DARK_THEME_AUTO = 0;
+
+    /**
+     * Dark theme should be enabled for the custom tab. The user interface will be darkened, and the
+     * website will receive signals enabling it to participate in the dark theme as well.
+     */
+    public static final int DARK_THEME_ENABLE = 1;
+
+    /**
+     * Dark theme should be disabled for the custom tab.
+     */
+    public static final int DARK_THEME_DISABLE = 2;
+
+    /**
+     * Maximum value for the DARK_THEME_* configuration options. For validation purposes only.
+     */
+    private static final int DARK_THEME_MAX = 2;
+
+    /**
+     * Extra (int) that specifies whether dark theme should be applied to the custom tab. Default is
+     * {@link #DARK_THEME_AUTO}.
+     */
+    public static final String EXTRA_DARK_THEME = "androidx.browser.customtabs.extra.DARK_THEME";
 
     /**
      * Extra that changes the background color for the toolbar. colorRes is an int that specifies a
@@ -309,6 +349,7 @@ public final class CustomTabsIntent {
          *
          * @param color {@link Color}
          */
+        @NonNull
         public Builder setToolbarColor(@ColorInt int color) {
             mIntent.putExtra(EXTRA_TOOLBAR_COLOR, color);
             return this;
@@ -317,6 +358,7 @@ public final class CustomTabsIntent {
         /**
          * Enables the url bar to hide as the user scrolls down on the page.
          */
+        @NonNull
         public Builder enableUrlBarHiding() {
             mIntent.putExtra(EXTRA_ENABLE_URLBAR_HIDING, true);
             return this;
@@ -327,6 +369,7 @@ public final class CustomTabsIntent {
          *
          * @param icon The icon {@link Bitmap}
          */
+        @NonNull
         public Builder setCloseButtonIcon(@NonNull Bitmap icon) {
             mIntent.putExtra(EXTRA_CLOSE_BUTTON_ICON, icon);
             return this;
@@ -337,6 +380,7 @@ public final class CustomTabsIntent {
          *
          * @param showTitle Whether the title should be shown.
          */
+        @NonNull
         public Builder setShowTitle(boolean showTitle) {
             mIntent.putExtra(EXTRA_TITLE_VISIBILITY_STATE,
                     showTitle ? SHOW_PAGE_TITLE : NO_TITLE);
@@ -349,6 +393,7 @@ public final class CustomTabsIntent {
          * @param label Menu label.
          * @param pendingIntent Pending intent delivered when the menu item is clicked.
          */
+        @NonNull
         public Builder addMenuItem(@NonNull String label, @NonNull PendingIntent pendingIntent) {
             if (mMenuItems == null) mMenuItems = new ArrayList<>();
             Bundle bundle = new Bundle();
@@ -361,6 +406,7 @@ public final class CustomTabsIntent {
         /**
          * Adds a default share item to the menu.
          */
+        @NonNull
         public Builder addDefaultShareMenuItem() {
             mIntent.putExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM, true);
             return this;
@@ -380,6 +426,7 @@ public final class CustomTabsIntent {
          *
          * @see CustomTabsIntent.Builder#addToolbarItem(int, Bitmap, String, PendingIntent)
          */
+        @NonNull
         public Builder setActionButton(@NonNull Bitmap icon, @NonNull String description,
                 @NonNull PendingIntent pendingIntent, boolean shouldTint) {
             Bundle bundle = new Bundle();
@@ -398,6 +445,7 @@ public final class CustomTabsIntent {
          * @see CustomTabsIntent.Builder#setActionButton(
          * Bitmap, String, PendingIntent, boolean)
          */
+        @NonNull
         public Builder setActionButton(@NonNull Bitmap icon, @NonNull String description,
                 @NonNull PendingIntent pendingIntent) {
             return setActionButton(icon, description, pendingIntent, false);
@@ -422,6 +470,7 @@ public final class CustomTabsIntent {
          * CustomTabsIntent.Builder#setSecondaryToolbarViews(RemoteViews, int[], PendingIntent).
          */
         @Deprecated
+        @NonNull
         public Builder addToolbarItem(int id, @NonNull Bitmap icon, @NonNull String description,
                 PendingIntent pendingIntent) throws IllegalStateException {
             if (mActionButtons == null) {
@@ -444,6 +493,7 @@ public final class CustomTabsIntent {
          * Sets the color of the secondary toolbar.
          * @param color The color for the secondary toolbar.
          */
+        @NonNull
         public Builder setSecondaryToolbarColor(@ColorInt int color) {
             mIntent.putExtra(EXTRA_SECONDARY_TOOLBAR_COLOR, color);
             return this;
@@ -464,6 +514,7 @@ public final class CustomTabsIntent {
          * @see CustomTabsIntent#EXTRA_REMOTEVIEWS_PENDINGINTENT
          * @see CustomTabsIntent#EXTRA_REMOTEVIEWS_CLICKED_ID
          */
+        @NonNull
         public Builder setSecondaryToolbarViews(@NonNull RemoteViews remoteViews,
                 @Nullable int[] clickableIDs, @Nullable PendingIntent pendingIntent) {
             mIntent.putExtra(EXTRA_REMOTEVIEWS, remoteViews);
@@ -477,6 +528,7 @@ public final class CustomTabsIntent {
 
          * @param enabled Whether Instant Apps should be enabled.
          */
+        @NonNull
         public Builder setInstantAppsEnabled(boolean enabled) {
             mInstantAppsEnabled = enabled;
             return this;
@@ -489,6 +541,7 @@ public final class CustomTabsIntent {
          * @param enterResId Resource ID of the "enter" animation for the browser.
          * @param exitResId Resource ID of the "exit" animation for the application.
          */
+        @NonNull
         public Builder setStartAnimations(
                 @NonNull Context context, @AnimRes int enterResId, @AnimRes int exitResId) {
             mStartAnimationBundle = ActivityOptionsCompat.makeCustomAnimation(
@@ -503,6 +556,7 @@ public final class CustomTabsIntent {
          * @param enterResId Resource ID of the "enter" animation for the application.
          * @param exitResId Resource ID of the "exit" animation for the browser.
          */
+        @NonNull
         public Builder setExitAnimations(
                 @NonNull Context context, @AnimRes int enterResId, @AnimRes int exitResId) {
             Bundle bundle = ActivityOptionsCompat.makeCustomAnimation(
@@ -512,9 +566,27 @@ public final class CustomTabsIntent {
         }
 
         /**
+         * Sets behavior of the custom tab in regards to dark theme.
+         *
+         * @param behavior Desired dark theme behavior.
+         * @see CustomTabsIntent#DARK_THEME_AUTO
+         * @see CustomTabsIntent#DARK_THEME_ENABLE
+         * @see CustomTabsIntent#DARK_THEME_DISABLE
+         */
+        @NonNull
+        public Builder setDarkThemeBehavior(@DarkThemeBehavior int behavior) {
+            if (behavior < 0 || behavior > DARK_THEME_MAX) {
+                throw new IllegalArgumentException("Invalid value for the behavior argument");
+            }
+            mIntent.putExtra(EXTRA_DARK_THEME, behavior);
+            return this;
+        }
+
+        /**
          * Combines all the options that have been set and returns a new {@link CustomTabsIntent}
          * object.
          */
+        @NonNull
         public CustomTabsIntent build() {
             if (mMenuItems != null) {
                 mIntent.putParcelableArrayListExtra(CustomTabsIntent.EXTRA_MENU_ITEMS, mMenuItems);
