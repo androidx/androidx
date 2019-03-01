@@ -114,6 +114,26 @@ package androidx.ui.core {
     method public void place(androidx.ui.core.Placeable, androidx.ui.core.Px x, androidx.ui.core.Px y);
   }
 
+  public final class Selection {
+    ctor public Selection(androidx.ui.engine.geometry.Offset startOffset, androidx.ui.engine.geometry.Offset endOffset);
+    method public androidx.ui.engine.geometry.Offset component1();
+    method public androidx.ui.engine.geometry.Offset component2();
+    method public androidx.ui.core.Selection copy(androidx.ui.engine.geometry.Offset startOffset, androidx.ui.engine.geometry.Offset endOffset);
+    method public androidx.ui.engine.geometry.Offset getEndOffset();
+    method public androidx.ui.engine.geometry.Offset getStartOffset();
+  }
+
+  public final class SelectionKt {
+    ctor public SelectionKt();
+    method public static void SelectionContainer(androidx.ui.core.Selection? selection, kotlin.jvm.functions.Function1<? super androidx.ui.core.Selection,kotlin.Unit> onSelectionChange, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.compose.Ambient<androidx.ui.core.SelectionRegistrar> getSelectionRegistrarAmbient();
+  }
+
+  public interface SelectionRegistrar {
+    method public Object subscribe(androidx.ui.core.TextSelectionHandler handler);
+    method public void unsubscribe(Object key);
+  }
+
   public final class SemanticsKt {
     ctor public SemanticsKt();
     method public static void Semantics(boolean container = false, boolean explicitChildNodes = false, Boolean? enabled = null, Boolean? checked = null, Boolean? selected = null, Boolean? button = null, Boolean? inMutuallyExclusiveGroup = null, Boolean? hidden = null, String? label = null, String? value = null, androidx.ui.engine.text.TextDirection? textDirection = null, String? testTag = null, java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> actions = emptyList(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -129,9 +149,13 @@ package androidx.ui.core {
   public final class TextKt {
     ctor public TextKt();
     method public static void CurrentTextStyleProvider(androidx.ui.painting.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Text(androidx.ui.painting.TextSpan text, androidx.ui.engine.text.TextAlign textAlign = androidx.ui.core.TextKt.DefaultTextAlign, androidx.ui.engine.text.TextDirection textDirection = androidx.ui.core.TextKt.DefaultTextDirection, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, float textScaleFactor = 1.0f, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.services.text_editing.TextSelection? selection = null, kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset>? selectionPosition = null, androidx.ui.painting.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor);
+    method public static void Text(androidx.ui.painting.TextSpan text, androidx.ui.engine.text.TextAlign textAlign = androidx.ui.core.TextKt.DefaultTextAlign, androidx.ui.engine.text.TextDirection textDirection = androidx.ui.core.TextKt.DefaultTextDirection, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, float textScaleFactor = 1.0f, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.painting.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor);
     method public static void Text(String text, androidx.ui.painting.TextStyle? style = null, androidx.ui.engine.text.TextAlign textAlign = androidx.ui.core.TextKt.DefaultTextAlign, androidx.ui.engine.text.TextDirection textDirection = androidx.ui.core.TextKt.DefaultTextDirection, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines);
     method public static androidx.compose.Effect<androidx.ui.painting.TextStyle> currentTextStyle();
+  }
+
+  public interface TextSelectionHandler {
+    method public androidx.ui.core.Selection? getSelection(kotlin.Pair<androidx.ui.core.PxPosition,androidx.ui.core.PxPosition> coordinates);
   }
 
   public final class WrapperKt {
