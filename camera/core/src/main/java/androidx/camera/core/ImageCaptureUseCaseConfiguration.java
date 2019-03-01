@@ -42,6 +42,10 @@ public final class ImageCaptureUseCaseConfiguration
                     "camerax.core.imageCapture.captureMode", ImageCaptureUseCase.CaptureMode.class);
     static final Option<FlashMode> OPTION_FLASH_MODE =
             Option.create("camerax.core.imageCapture.flashMode", FlashMode.class);
+    static final Option<CaptureBundle> OPTION_CAPTURE_BUNDLE =
+            Option.create("camerax.core.imageCapture.captureBundle", CaptureBundle.class);
+    static final Option<CaptureProcessor> OPTION_CAPTURE_PROCESSOR =
+            Option.create("camerax.core.imageCapture.captureProcessor", CaptureProcessor.class);
     private final OptionsBundle mConfig;
 
     /** Creates a new configuration instance. */
@@ -103,6 +107,58 @@ public final class ImageCaptureUseCaseConfiguration
      */
     public FlashMode getFlashMode() {
         return getConfiguration().retrieveOption(OPTION_FLASH_MODE);
+    }
+
+    /**
+     * Returns the {@link CaptureBundle}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public CaptureBundle getCaptureBundle(@Nullable CaptureBundle valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_CAPTURE_BUNDLE, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link CaptureBundle}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public CaptureBundle getCaptureBundle() {
+        return getConfiguration().retrieveOption(OPTION_CAPTURE_BUNDLE);
+    }
+
+    /**
+     * Returns the {@link CaptureProcessor}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public CaptureProcessor getCaptureProcessor(@Nullable CaptureProcessor valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_CAPTURE_PROCESSOR, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link CaptureProcessor}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public CaptureProcessor getCaptureProcessor() {
+        return getConfiguration().retrieveOption(OPTION_CAPTURE_PROCESSOR);
     }
 
     /** Builder for a {@link ImageCaptureUseCaseConfiguration}. */
@@ -199,6 +255,31 @@ public final class ImageCaptureUseCaseConfiguration
             return builder();
         }
 
+        /**
+         * Sets the {@link CaptureBundle}.
+         *
+         * @param captureBundle The requested capture bundle for extension.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setCaptureBundle(CaptureBundle captureBundle) {
+            getMutableConfiguration().insertOption(OPTION_CAPTURE_BUNDLE, captureBundle);
+            return builder();
+        }
+
+        /**
+         * Sets the {@link CaptureProcessor}.
+         *
+         * @param captureProcessor The requested capture processor for extension.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setCaptureProcessor(CaptureProcessor captureProcessor) {
+            getMutableConfiguration().insertOption(OPTION_CAPTURE_PROCESSOR, captureProcessor);
+            return builder();
+        }
 
         // Start of the default implementation of Configuration.Builder
         // *****************************************************************************************
