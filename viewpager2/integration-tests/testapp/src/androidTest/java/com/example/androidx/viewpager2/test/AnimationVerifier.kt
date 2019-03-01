@@ -26,6 +26,11 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
+/**
+ * Verifies if animation happened in the given [ViewPager2]. It listens to
+ * [ViewPager2.OnPageChangeCallback.onPageScrolled] to wait for a frame where the ViewPager2 is not
+ * snapped and assumes that if animation should occur, it will occur in that frame.
+ */
 class AnimationVerifier(private val viewPager: ViewPager2) {
     private val epsilon = 0.00001f
     private val timeout = 2L
