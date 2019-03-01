@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -73,5 +74,33 @@ public class CustomTabsIntentTest {
                 color == intent.getIntExtra(CustomTabsIntent.EXTRA_TOOLBAR_COLOR, 0));
         intent = new CustomTabsIntent.Builder().setToolbarColor(color).build().intent;
         assertEquals(color, intent.getIntExtra(CustomTabsIntent.EXTRA_TOOLBAR_COLOR, 0));
+    }
+
+    @Test
+    public void testDarkThemeBehavior() {
+        try {
+            new CustomTabsIntent.Builder().setDarkThemeBehavior(-1);
+            fail("Underflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+
+        try {
+            new CustomTabsIntent.Builder().setDarkThemeBehavior(42);
+            fail("Overflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+
+        // None of the valid parameters should throw.
+        final int[] behaviourValues = new int[] {
+            CustomTabsIntent.DARK_THEME_AUTO,
+            CustomTabsIntent.DARK_THEME_ENABLE,
+            CustomTabsIntent.DARK_THEME_DISABLE
+        };
+
+        for (int value : behaviourValues) {
+            Intent intent =
+                    new CustomTabsIntent.Builder().setDarkThemeBehavior(value).build().intent;
+            assertEquals(value, intent.getIntExtra(CustomTabsIntent.EXTRA_DARK_THEME, -1));
+        }
     }
 }
