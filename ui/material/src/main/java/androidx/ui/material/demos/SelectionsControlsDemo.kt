@@ -73,7 +73,7 @@ class SelectionsControlsDemo : Component() {
         <FillGrid horizontalGridCount=4>
             <Checkbox value=state0.value onToggle={ state0.toggle() } />
             <Checkbox value=UNCHECKED />
-            <Checkbox color=customColor />
+            <Checkbox value=CHECKED color=customColor />
             <Checkbox value=INDETERMINATE />
             <Switch checked=true />
             <Switch checked=false />

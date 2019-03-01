@@ -13,7 +13,7 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsTreeQuery assertIsHidden(androidx.ui.test.SemanticsTreeQuery);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsNotChecked(androidx.ui.test.SemanticsTreeQuery);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsVisible(androidx.ui.test.SemanticsTreeQuery);
-    method public static void assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeQuery, androidx.ui.core.semantics.SemanticsProperties expectedProperties);
+    method public static androidx.ui.test.SemanticsTreeQuery assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeQuery, androidx.ui.core.semantics.SemanticsProperties expectedProperties);
   }
 
   public final class FindersKt {
@@ -21,9 +21,26 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsTreeQuery findByTag(androidx.ui.test.UiTestRunner, String testTag);
   }
 
+  public final class GoldenSemanticsKt {
+    ctor public GoldenSemanticsKt();
+    method public static void assertEquals(androidx.ui.core.semantics.SemanticsProperties, androidx.ui.core.semantics.SemanticsProperties expected);
+    method public static androidx.ui.core.semantics.SemanticsProperties copyWith(androidx.ui.core.semantics.SemanticsProperties, kotlin.jvm.functions.Function1<? super androidx.ui.test.SemanticsPropertiesBuilder,kotlin.Unit> diff);
+    method public static androidx.ui.core.semantics.SemanticsProperties createFullSemantics(Boolean? enabled, Boolean? checked);
+    method public static androidx.ui.test.SemanticsPropertiesBuilder toBuilder(androidx.ui.core.semantics.SemanticsProperties);
+  }
+
   public final class OutputKt {
     ctor public OutputKt();
     method public static void dumpSemantics(androidx.ui.test.SemanticsTreeQuery, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> consumer);
+  }
+
+  public final class SemanticsPropertiesBuilder {
+    ctor public SemanticsPropertiesBuilder(Boolean? enabled, Boolean? checked);
+    method public androidx.ui.core.semantics.SemanticsProperties build();
+    method public Boolean? getChecked();
+    method public Boolean? getEnabled();
+    method public void setChecked(Boolean? p);
+    method public void setEnabled(Boolean? p);
   }
 
   public final class SemanticsTreeQuery {
