@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -37,6 +38,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -240,7 +242,7 @@ public final class ViewPager2 extends ViewGroup {
 
     /**
      * Update the ViewPager2's available page accessibility actions. These are updated in response
-     * to page, adapter, and orientation changes.
+     * to page, adapter, and orientation changes. Compatible with API >= 21.
      */
     void updatePageAccessibilityActions() {
         ViewCompat.removeAccessibilityAction(this, ACTION_PAGE_LEFT.getId());
@@ -717,6 +719,9 @@ public final class ViewPager2 extends ViewGroup {
     public void setUserInputEnabled(boolean enabled) {
         mUserInputEnabled = enabled;
         updatePageAccessibilityActions();
+        if (Build.VERSION.SDK_INT < 21) {
+            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
+        }
     }
 
     /**
@@ -769,6 +774,44 @@ public final class ViewPager2 extends ViewGroup {
     public void setLayoutDirection(int layoutDirection) {
         super.setLayoutDirection(layoutDirection);
         updatePageAccessibilityActions();
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+        super.onInitializeAccessibilityNodeInfo(info);
+        if (Build.VERSION.SDK_INT < 21) {
+            if (getAdapter() == null) {
+                return;
+            }
+            int itemCount = mRecyclerView.getAdapter().getItemCount();
+            if (itemCount == 0 || !mUserInputEnabled) {
+                return;
+            }
+
+            if (mCurrentItem > 0) {
+                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+            }
+
+            if (mCurrentItem < itemCount - 1) {
+                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+            }
+            info.setScrollable(true);
+        }
+    }
+
+    @Override
+    public boolean performAccessibilityAction(int action, Bundle arguments) {
+        switch (action) {
+            case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
+            case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
+                int nextItem = (action == AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD)
+                        ? getCurrentItem() - 1
+                        : getCurrentItem() + 1;
+
+                setCurrentItem(nextItem, true);
+                return true;
+        }
+        return super.performAccessibilityAction(action, arguments);
     }
 
     /**

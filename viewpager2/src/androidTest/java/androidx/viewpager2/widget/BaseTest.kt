@@ -20,12 +20,15 @@ import android.content.Intent
 import android.os.Build
 import android.view.View
 import android.view.View.OVER_SCROLL_NEVER
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_RIGHT
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_LEFT
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_UP
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_DOWN
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
@@ -232,42 +235,75 @@ open class BaseTest {
         }
 
         fun assertPageActions() {
-            var actions = getActionList(viewPager)
+            var customActions = getActionList(viewPager)
             var currentPage = viewPager.currentItem
             var numPages = viewPager.adapter!!.itemCount
             var isUserInputEnabled = viewPager.isUserInputEnabled
             var isHorizontalOrientation = viewPager.orientation == ViewPager2.ORIENTATION_HORIZONTAL
             var isVerticalOrientation = viewPager.orientation == ViewPager2.ORIENTATION_VERTICAL
 
-            val expectPageLeftAction = isUserInputEnabled && isHorizontalOrientation &&
+            val expectPageLeftAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                    isUserInputEnabled && isHorizontalOrientation &&
                     (if (isRtl) currentPage < numPages - 1 else currentPage > 0)
 
-            val expectPageRightAction = isUserInputEnabled && isHorizontalOrientation &&
+            val expectPageRightAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                    isUserInputEnabled && isHorizontalOrientation &&
                     (if (isRtl) currentPage > 0 else currentPage < numPages - 1)
 
-            val expectPageUpAction = isUserInputEnabled && isVerticalOrientation &&
+            val expectPageUpAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                    isUserInputEnabled && isVerticalOrientation &&
                     currentPage > 0
 
-            val expectPageDownAction = isUserInputEnabled && isVerticalOrientation &&
+            val expectPageDownAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
+                    isUserInputEnabled && isVerticalOrientation &&
                     currentPage < numPages - 1
 
+            val expectScrollBackwardAction = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
+                    isUserInputEnabled && currentPage > 0
+
+            val expectScrollForwardAction = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
+                    isUserInputEnabled && currentPage < numPages - 1
+
             assertThat("Left action expected: $expectPageLeftAction",
-                hasPageAction(actions, ACTION_PAGE_LEFT.id),
+                hasPageAction(customActions, ACTION_PAGE_LEFT.id),
                 equalTo(expectPageLeftAction)
             )
 
             assertThat("Right action expected: $expectPageRightAction",
-                hasPageAction(actions, ACTION_PAGE_RIGHT.id),
+                hasPageAction(customActions, ACTION_PAGE_RIGHT.id),
                 equalTo(expectPageRightAction)
             )
             assertThat("Up action expected: $expectPageUpAction",
-                hasPageAction(actions, ACTION_PAGE_UP.id),
+                hasPageAction(customActions, ACTION_PAGE_UP.id),
                 equalTo(expectPageUpAction)
             )
             assertThat("Down action expected: $expectPageDownAction",
-                hasPageAction(actions, ACTION_PAGE_DOWN.id),
+                hasPageAction(customActions, ACTION_PAGE_DOWN.id),
                 equalTo(expectPageDownAction)
             )
+
+            var node = AccessibilityNodeInfo.obtain()
+            activityTestRule.runOnUiThread { viewPager.onInitializeAccessibilityNodeInfo(node) }
+            var standardActions = node.actions
+
+            assertThat("scroll backward action expected: $expectScrollBackwardAction",
+                hasScrollAction(standardActions, ACTION_SCROLL_BACKWARD),
+                equalTo(expectScrollBackwardAction)
+            )
+
+            assertThat("Scroll forward action expected: $expectScrollForwardAction",
+                hasScrollAction(standardActions, ACTION_SCROLL_FORWARD),
+                equalTo(expectScrollForwardAction)
+            )
+        }
+
+        private fun hasScrollAction(
+            actions: Int,
+            accessibilityActionId: Int
+        ): Boolean {
+            return actions and accessibilityActionId != 0
         }
 
         private fun hasPageAction(

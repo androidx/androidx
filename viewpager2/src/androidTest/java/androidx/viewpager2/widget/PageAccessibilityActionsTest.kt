@@ -16,7 +16,9 @@
 
 package androidx.viewpager2.widget
 
+import android.os.Build
 import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_DOWN
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_LEFT
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_RIGHT
@@ -53,7 +55,7 @@ class PageAccessibilityActionsTest(private val config: TestConfig) : BaseTest() 
     }
 
     @Test
-    fun test_onPerformPageAction_onHorizontalOrientation() {
+    fun test_onPerformPageAction() {
         setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(6)))
 
@@ -93,25 +95,32 @@ class PageAccessibilityActionsTest(private val config: TestConfig) : BaseTest() 
     }
 
     private fun getNextPageAction(orientation: Int, isRtl: Boolean): Int {
-        if (orientation == ViewPager2.ORIENTATION_HORIZONTAL) {
-            if (isRtl) {
-                return ACTION_PAGE_LEFT.id
-            } else {
-                return ACTION_PAGE_RIGHT.id
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+            if (orientation == ViewPager2.ORIENTATION_HORIZONTAL) {
+                if (isRtl) {
+                    return ACTION_PAGE_LEFT.id
+                } else {
+                    return ACTION_PAGE_RIGHT.id
+                }
             }
+            return ACTION_PAGE_DOWN.id
         }
-        return ACTION_PAGE_DOWN.id
+        return AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD
     }
 
     private fun getPreviousPageAction(orientation: Int, isRtl: Boolean): Int {
-        if (orientation == ViewPager2.ORIENTATION_HORIZONTAL) {
-            if (isRtl) {
-                return ACTION_PAGE_RIGHT.id
-            } else {
-                return ACTION_PAGE_LEFT.id
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (orientation == ViewPager2.ORIENTATION_HORIZONTAL) {
+                if (isRtl) {
+                    return ACTION_PAGE_RIGHT.id
+                } else {
+                    return ACTION_PAGE_LEFT.id
+                }
             }
+            return ACTION_PAGE_UP.id
         }
-        return ACTION_PAGE_UP.id
+        return AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
     }
 
     private fun getOppositeOrientation(orientation: Int): Int {
