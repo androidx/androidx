@@ -17,20 +17,16 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dp
-import androidx.ui.core.adapter.MeasureBox
-import androidx.ui.core.Position
 import androidx.ui.core.Px
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
-import androidx.ui.core.Size
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.center
 import androidx.ui.core.minus
 import androidx.ui.core.px
 import androidx.ui.core.times
 import androidx.ui.core.toRoundedPixels
 import com.google.r4a.Children
-import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
 

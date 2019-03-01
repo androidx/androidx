@@ -27,7 +27,6 @@ import androidx.ui.core.plus
 import androidx.ui.core.px
 import androidx.ui.core.toRoundedPixels
 import com.google.r4a.Children
-import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
