@@ -27,6 +27,13 @@ import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Test
 
+/**
+ * Generic test class for testing [MutableCollectionBaseActivity]s. Swipes from the first to the
+ * eighth page, increases the count on the eighth page, inserts a new page at the beginning, swipes
+ * back to the eighth page, swipes back to the first page and finally to the newly inserted page. On
+ * each page, verifies the page number and the expected count. Implementations simply define the
+ * Activity under test, see [MutableCollectionViewTest] and [MutableCollectionFragmentTest].
+ */
 abstract class MutableCollectionBaseTest<T : MutableCollectionBaseActivity>(clazz: Class<T>) :
     BaseTest<T>(clazz) {
     override val layoutId get() = R.id.viewPager

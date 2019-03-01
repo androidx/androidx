@@ -35,6 +35,14 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 
+/**
+ * Base class for all tests. Contains common functionality, like finding the [ViewPager2] under
+ * test, swiping back and forth on it and waiting for it to become idle.
+ *
+ * @see ViewPagerBaseTest
+ * @see MutableCollectionBaseTest
+ * @see TabLayoutTest
+ */
 abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
     @Rule
     @JvmField
@@ -49,7 +57,7 @@ abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
     @Before
     open fun setUp() {
         viewPager = activityTestRule.activity.findViewById(layoutId)
-        idleWatcher = ViewPagerIdleWatcher.registerViewPagerIdlingResource(viewPager)
+        idleWatcher = ViewPagerIdleWatcher(viewPager)
     }
 
     @After
