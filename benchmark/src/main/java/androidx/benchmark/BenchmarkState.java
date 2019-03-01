@@ -16,9 +16,6 @@
 
 package androidx.benchmark;
 
-import android.app.Activity;
-import android.app.Instrumentation;
-import android.content.pm.ApplicationInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
@@ -50,10 +47,10 @@ import java.util.concurrent.TimeUnit;
  * }
  */
 public final class BenchmarkState {
-    private static final String TAG = "BenchmarkState";
+    private static final String TAG = "Benchmark";
     private static final String CSV_TAG = "BenchmarkCsv";
-    private static final String STUDIO_OUTPUT_KEY = "android.studio.display.benchmark";
-    private static final boolean IS_DEBUGGABLE;
+    private static final String STUDIO_OUTPUT_KEY_PREFIX = "android.studio.display.";
+    private static final String STUDIO_OUTPUT_KEY_ID = "benchmark";
 
     private static final boolean ENABLE_PROFILING = false;
 
@@ -62,17 +59,13 @@ public final class BenchmarkState {
     private static final int RUNNING = 2;  // The benchmark is running.
     private static final int FINISHED = 3;  // The benchmark has stopped.
 
-    // values determined emperically
+    // values determined empirically
     private static final long TARGET_TEST_DURATION_NS = TimeUnit.MILLISECONDS.toNanos(500);
     private static final int MAX_TEST_ITERATIONS = 1000000;
     private static final int MIN_TEST_ITERATIONS = 10;
     private static final int REPEAT_COUNT = 5;
 
     static {
-        ApplicationInfo appInfo = InstrumentationRegistry.getInstrumentation().getTargetContext()
-                .getApplicationInfo();
-        IS_DEBUGGABLE = (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
-
         StringBuilder sb = new StringBuilder();
         sb.append("Benchmark");
         for (int i = 0; i < REPEAT_COUNT; i++) {
@@ -266,6 +259,32 @@ public final class BenchmarkState {
         return sb.toString();
     }
 
+    @NonNull
+    private String ideSummaryLineWrapped(@NonNull String key) {
+        StringBuilder result = null;
+
+        String warningString = WarningState.acquireWarningStringForLogging();
+        if (warningString != null) {
+            for (String s : warningString.split("\n")) {
+                if (result == null) {
+                    if (s.isEmpty()) {
+                        continue;
+                    }
+                    result = new StringBuilder(s).append("\n");
+                } else {
+                    result.append(STUDIO_OUTPUT_KEY_ID).append(": ").append(s).append("\n");
+                }
+            }
+            if (result != null) {
+                result.append(STUDIO_OUTPUT_KEY_ID).append(": ").append(ideSummaryLine(key));
+                return result.toString();
+            }
+        }
+
+        return ideSummaryLine(key);
+    }
+
+    @NonNull
     String ideSummaryLine(@NonNull String key) {
         // NOTE: this summary line will use default locale to determine separators. As
         // this line is only meant for human eyes, we don't worry about consistency here.
@@ -286,17 +305,12 @@ public final class BenchmarkState {
     }
 
     /**
-     * Submit status report bundle as a RESULT_OK to the passed Instrumentation
+     * Acquires a status report bundle
      *
-     * @param instrumentation Instrumentation used to signal result.
      * @param key Run identifier, prepended to bundle properties.
      */
-    @SuppressWarnings("WeakerAccess")
-    public void sendFullStatusReport(@NonNull Instrumentation instrumentation,
-            @NonNull String key) {
-        if (IS_DEBUGGABLE) {
-            key = "DEBUGGABLE_" + key;
-        }
+    Bundle getFullStatusReport(@NonNull String key) {
+        key = WarningState.WARNING_PREFIX + key;
         Log.i(TAG, key + summaryLine());
         Log.i(CSV_TAG, key + csvLine());
         Bundle status = new Bundle();
@@ -305,7 +319,8 @@ public final class BenchmarkState {
         status.putLong(key + "_min", min());
         status.putLong(key + "_standardDeviation", standardDeviation());
         status.putLong(key + "_count", count());
-        status.putString(STUDIO_OUTPUT_KEY, ideSummaryLine(key));
-        instrumentation.sendStatus(Activity.RESULT_OK, status);
+        status.putString(STUDIO_OUTPUT_KEY_PREFIX + STUDIO_OUTPUT_KEY_ID,
+                ideSummaryLineWrapped(key));
+        return status;
     }
 }
