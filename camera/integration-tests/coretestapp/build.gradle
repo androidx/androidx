@@ -61,6 +61,6 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)
-
+    androidTestImplementation(TEST_UIAUTOMATOR)
 }
 
