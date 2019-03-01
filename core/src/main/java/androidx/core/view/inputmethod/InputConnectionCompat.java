@@ -131,7 +131,7 @@ public final class InputConnectionCompat {
      *
      * <p>Make sure that the content provider owning the Uri sets the
      * {@link android.R.attr#grantUriPermissions grantUriPermissions} attribute in its manifest or
-     * included the {@code &lt;grant-uri-permissions&gt;} tag.</p>
+     * included the {@code <grant-uri-permissions>} tag.</p>
      *
      * <p>Supported only on API &gt;= 25.</p>
      *
