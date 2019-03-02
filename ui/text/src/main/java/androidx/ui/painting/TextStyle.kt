@@ -26,19 +26,10 @@ import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextGeometricTransform
+import androidx.ui.engine.text.TextIndent
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.lerp
 import androidx.ui.engine.window.Locale
-/*import androidx.ui.foundation.diagnostics.DiagnosticLevel
-import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
-import androidx.ui.foundation.diagnostics.Diagnosticable
-import androidx.ui.foundation.diagnostics.DiagnosticsNode
-import androidx.ui.foundation.diagnostics.DiagnosticsProperty
-import androidx.ui.foundation.diagnostics.EnumProperty
-import androidx.ui.foundation.diagnostics.FloatProperty
-import androidx.ui.foundation.diagnostics.MessageProperty
-import androidx.ui.foundation.diagnostics.StringProperty
-import androidx.ui.foundation.diagnostics.describeIdentity*/
 import androidx.ui.lerp
 import androidx.ui.painting.basictypes.RenderComparison
 import androidx.ui.toStringAsFixed
@@ -99,6 +90,7 @@ data class TextStyle(
     // painting/TextStyle, but has it in engine/TextStyle.
     val decoration: TextDecoration? = null,
     var fontFamily: FontFamily? = null,
+    val textIndent: TextIndent? = null,
     val debugLabel: String? = null
 ) /*: Diagnosticable*/ {
 
@@ -218,6 +210,7 @@ data class TextStyle(
             locale = other.locale ?: this.locale,
             background = other.background ?: this.background,
             decoration = other.decoration ?: this.decoration,
+            textIndent = other.textIndent ?: this.textIndent,
             debugLabel = mergedDebugLabel
         )
     }
@@ -323,6 +316,11 @@ data class TextStyle(
                 locale = if (t < 0.5) a.locale else b.locale,
                 background = if (t < 0.5) a.background else b.background,
                 decoration = if (t < 0.5) a.decoration else b.decoration,
+                textIndent = lerp(
+                    a.textIndent ?: TextIndent.NONE,
+                    b.textIndent ?: TextIndent.NONE,
+                    t
+                ),
                 debugLabel = lerpDebugLabel
             )
         }

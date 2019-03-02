@@ -5,6 +5,7 @@ import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
+import android.text.style.LeadingMarginSpan
 import android.text.style.LocaleSpan
 import android.text.style.ScaleXSpan
 import android.text.style.StrikethroughSpan
@@ -19,6 +20,7 @@ import androidx.text.style.LetterSpacingSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.text.style.WordSpacingSpan
+import androidx.ui.core.px
 import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
@@ -36,9 +38,11 @@ import androidx.ui.engine.window.Locale
 import androidx.ui.painting.Color
 import androidx.ui.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.engine.text.TextGeometricTransform
+import androidx.ui.engine.text.TextIndent
 import androidx.ui.matchers.equalToBitmap
 import androidx.ui.matchers.hasSpan
 import androidx.ui.matchers.hasSpanOnTop
+import androidx.ui.matchers.notHasSpan
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -665,6 +669,170 @@ class ParagraphAndroidTest {
             hasSpan(SkewXSpan::class, 0, text.length) { it.skewX == skewX }
         )
         assertThat(paragraph.underlyingText, not(hasSpan(ScaleXSpan::class, 0, text.length)))
+    }
+
+    @Test
+    fun textStyle_setTextIndent_onWholeParagraph() {
+        val text = "abc\ndef"
+        val firstLine = 40
+        val restLine = 20
+        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length)
+            )
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(LeadingMarginSpan.Standard::class, 0, "abc".length) {
+                it.getLeadingMargin(true) == firstLine && it.getLeadingMargin(false) == restLine
+            }
+        )
+    }
+
+    @Test
+    fun textStyle_setTextIndent_onPartParagraph() {
+        val text = "abc\ndef"
+        val firstLine = 40
+        val restLine = 20
+        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, 1)
+            )
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(LeadingMarginSpan.Standard::class, 0, "abc".length) {
+                it.getLeadingMargin(true) == firstLine && it.getLeadingMargin(false) == restLine
+            }
+        )
+    }
+
+    @Test
+    fun textStyle_setTextIndent_lastCharIsLineFeed() {
+        val text = "abc\ndef"
+        val firstLine = 40
+        val restLine = 20
+        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc\n".length)
+            )
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(LeadingMarginSpan.Standard::class, 0, "abc".length) {
+                it.getLeadingMargin(true) == firstLine && it.getLeadingMargin(false) == restLine
+            }
+        )
+    }
+
+    @Test
+    fun textStyle_setTextIndent_firstCharIsLineFeed() {
+        val text = "abc\ndef"
+        val firstLine = 40
+        val restLine = 20
+        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, "abc".length, "abc\nd".length)
+            )
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(LeadingMarginSpan.Standard::class, "abc\n".length, "abc\ndef".length) {
+                it.getLeadingMargin(true) == firstLine && it.getLeadingMargin(false) == restLine
+            }
+        )
+    }
+
+    @Test
+    fun textStyle_setTextIndent_coverLineFeed() {
+        val text = "abc\ndef"
+        val firstLine = 40
+        val restLine = 20
+        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, "abc".length, "abc\n".length)
+            )
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(
+            paragraph.underlyingText,
+            notHasSpan(LeadingMarginSpan.Standard::class, 0, text.length)
+        )
+    }
+
+    @Test
+    fun textStyle_setTextIndent_coverEmptyParagraph() {
+        val text = "abc\n\ndef"
+        val firstLine = 40
+        val restLine = 20
+        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, "abc".length, "abc\n\n".length)
+            )
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(LeadingMarginSpan.Standard::class, "abc\n".length, "abc\n\n".length)
+        )
+    }
+
+    @Test
+    fun textStyle_setTextIndent_coverMultiParagraph() {
+        val text = "abc\ndef\nghi"
+        val firstLine = 40
+        val restLine = 20
+        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, "ab".length, "abc\nd".length)
+            )
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(LeadingMarginSpan.Standard::class, 0, "abc\ndef".length) {
+                it.getLeadingMargin(true) == firstLine && it.getLeadingMargin(false) == restLine
+            }
+        )
     }
 
     @Test

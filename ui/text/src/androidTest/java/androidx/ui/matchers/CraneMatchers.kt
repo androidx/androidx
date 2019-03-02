@@ -57,6 +57,23 @@ fun <T : Any> hasSpan(
 }
 
 /**
+ * Returns a matcher to check if the given text doesn't contain any span matching the given class
+ * in the given range.
+ *
+ * @param spanClazz the class of the checked span
+ * @param start the start range checked range
+ * @param end the end of the checked range
+ * @see HasSpan
+ */
+fun <T : Any> notHasSpan(
+    spanClazz: KClass<out T>,
+    start: Int,
+    end: Int
+): Matcher<CharSequence> {
+    return NotHasSpan(spanClazz, start, end)
+}
+
+/**
  * Similar to [hasSpan], and the returned matcher will also check that the span is not covered by
  * other spans.
  *
