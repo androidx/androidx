@@ -128,15 +128,13 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
         onReceivedError(view, request, new WebResourceErrorImpl(handler));
     }
 
-    /**
-     * Applications are not meant to override this, and should instead override the non-final {@link
-     * #onReceivedError(WebView, WebResourceRequest, WebResourceErrorCompat)} method.
-     * @hide
-     */
     // Invoked by chromium (in legacy, pre-67 WebView APKs) for the {@code onReceivedError} event on
     // {@link Build.VERSION_CODES.M} and above. This delegates the callback to the non-final method,
     // which the app may have overridden.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    /**
+     * Applications are not meant to override this, and should instead override the non-final {@link
+     * #onReceivedError(WebView, WebResourceRequest, WebResourceErrorCompat)} method.
+     */
     @Override
     @RequiresApi(23)
     public final void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
@@ -212,15 +210,13 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
         onSafeBrowsingHit(view, request, threatType, new SafeBrowsingResponseImpl(handler));
     }
 
-    /**
-     * Applications are not meant to override this, and should instead override the non-final {@link
-     * #onSafeBrowsingHit(WebView, WebResourceRequest, int, SafeBrowsingResponseCompat)} method.
-     * @hide
-     */
     // Invoked by chromium (in legacy, pre-67 WebView APKs) for the {@code onSafeBrowsingHit} event
     // on {@link Build.VERSION_CODES.O_MR1} and above. This delegates the callback to the non-final
     // method, which the app may have overridden.
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    /**
+     * Applications are not meant to override this, and should instead override the non-final {@link
+     * #onSafeBrowsingHit(WebView, WebResourceRequest, int, SafeBrowsingResponseCompat)} method.
+     */
     @Override
     @RequiresApi(27)
     public final void onSafeBrowsingHit(@NonNull WebView view, @NonNull WebResourceRequest request,
