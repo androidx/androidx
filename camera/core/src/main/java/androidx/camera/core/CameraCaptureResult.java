@@ -53,6 +53,13 @@ public interface CameraCaptureResult {
     @NonNull
     FlashState getFlashState();
 
+    /**
+     * Returns the timestamp in nanoseconds.
+     *
+     * <p> If the timestamp was unavailable then it will return {@code -1L}.
+     */
+    long getTimestamp();
+
     /** An implementation of CameraCaptureResult which always return default results. */
     final class EmptyCameraCaptureResult implements CameraCaptureResult {
 
@@ -88,6 +95,11 @@ public interface CameraCaptureResult {
         @Override
         public FlashState getFlashState() {
             return FlashState.UNKNOWN;
+        }
+
+        @Override
+        public long getTimestamp() {
+            return -1L;
         }
     }
 }
