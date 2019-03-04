@@ -2181,13 +2181,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnPlayCalled.reset();
         mPlayer.play();
         mOnPlayCalled.waitForSignal();
-        while (mPlayer.getState() == MediaPlayer2.PLAYER_STATE_PLAYING) {
-            Log.i("@@@@", "position: " + mPlayer.getCurrentPosition());
-            Thread.sleep(100);
-        }
-        Log.i("@@@@", "final position: " + mPlayer.getCurrentPosition());
+        mOnCompletionCalled.waitForSignal();
         long pos = mPlayer.getCurrentPosition();
-        assertTrue("current pos (" + pos + "us) does not match the duration (" + duration + "us).",
+        assertTrue("current pos (" + pos + "ms) does not match the duration (" + duration + "ms).",
                 Math.abs(pos - duration) < 1000);
         mPlayer.reset();
         return 1;
