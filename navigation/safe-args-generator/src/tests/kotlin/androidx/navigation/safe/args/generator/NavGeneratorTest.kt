@@ -49,7 +49,7 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
         applicationId = applicationId,
         navigationXml = navigationXml,
         outputDir = outputDir,
-        useAndroidX = false,
+        useAndroidX = true,
         generateKotlin = generateKotlin
     ).generate()
 
