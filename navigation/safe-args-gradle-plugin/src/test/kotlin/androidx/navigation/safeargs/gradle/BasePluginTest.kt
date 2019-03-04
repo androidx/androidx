@@ -117,6 +117,13 @@ abstract class BasePluginTest {
         debugKeystore = properties.getProperty("debugKeystore")
         navigationCommon = properties.getProperty("navigationCommon")
         kotlinStblib = properties.getProperty("kotlinStdlib")
+
+        val propertiesFile = File(projectRoot(), "gradle.properties")
+        propertiesFile.writer().use {
+            val props = Properties()
+            props.setProperty("android.useAndroidX", "true")
+            props.store(it, null)
+        }
     }
 
     internal fun setupSimpleBuildGradle() {

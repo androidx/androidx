@@ -16,7 +16,7 @@
 
 package foo.flavor.account;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import androidx.navigation.NavDirections;
 import foo.LoginDirections;
 

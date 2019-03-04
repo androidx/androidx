@@ -42,7 +42,7 @@ open class ArgumentsGenerationTask : DefaultTask() {
     var applicationId: String? = null // null on AGP 3.3.0 and above
 
     @get:Input
-    var useAndroidX: Boolean = false
+    var useAndroidX: Boolean = true
 
     @get:Input
     var generateKotlin: Boolean = false

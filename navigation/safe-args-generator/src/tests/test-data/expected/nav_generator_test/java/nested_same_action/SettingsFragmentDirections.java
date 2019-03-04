@@ -1,7 +1,7 @@
 package foo.flavor;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import androidx.navigation.NavDirections;
 import foo.R;
 import java.lang.IllegalArgumentException;

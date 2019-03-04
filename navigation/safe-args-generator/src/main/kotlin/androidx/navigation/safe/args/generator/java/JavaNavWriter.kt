@@ -54,7 +54,7 @@ const val S = "\$S"
 const val BEGIN_STMT = "\$["
 const val END_STMT = "\$]"
 
-class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter<JavaCodeFile> {
+class JavaNavWriter(private val useAndroidX: Boolean = true) : NavWriter<JavaCodeFile> {
 
     override fun generateDirectionsCodeFile(
         destination: Destination,
