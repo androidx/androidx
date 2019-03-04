@@ -20,6 +20,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.IntPx
 import androidx.ui.core.PxPosition
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
@@ -32,9 +33,7 @@ import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.min
 import androidx.ui.core.px
 import androidx.ui.core.toRect
-import androidx.ui.core.toRoundedPixels
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.painting.Color
 import androidx.ui.painting.Image
@@ -116,15 +115,15 @@ fun Rectangles() {
             <FourQuadrants />
         }
 
-        val size = min(width, height).toRoundedPixels()
+        val size = min(width, height)
         val rectSize = size / 2
         layout(size, size) {
             val placeables = measurables.map {
-                it.measure(Constraints.tightConstraints(rectSize.px, rectSize.px))
+                it.measure(Constraints.tightConstraints(rectSize, rectSize))
             }
-            placeables[0].place(0, 0)
-            placeables[1].place(rectSize, 0)
-            placeables[2].place(0, rectSize)
+            placeables[0].place(IntPx.Zero, IntPx.Zero)
+            placeables[1].place(rectSize, IntPx.Zero)
+            placeables[2].place(IntPx.Zero, rectSize)
             placeables[3].place(rectSize, rectSize)
         }
     </MeasureBox>

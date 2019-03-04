@@ -25,7 +25,7 @@ fun lerp(a: Float, b: Float, t: Float): Float {
 /**
  * Linearly interpolate between [a] and [b] with [t] fraction between them.
  */
-fun lerpInt(a: Int, b: Int, t: Float): Float {
+fun lerp(a: Int, b: Int, t: Float): Float {
     return a + (b - a) * t
 }
 

@@ -19,7 +19,7 @@ package androidx.r4a
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
-import androidx.ui.core.Px
+import androidx.ui.core.IntPx
 import androidx.ui.core.adapter.Align
 import androidx.ui.core.adapter.Alignment
 import androidx.ui.core.adapter.Center
@@ -34,8 +34,7 @@ import androidx.ui.core.adapter.Padding
 import androidx.ui.core.adapter.Row
 import androidx.ui.core.adapter.Stack
 import androidx.ui.core.dp
-import androidx.ui.core.px
-import androidx.ui.core.toRoundedPixels
+import androidx.ui.core.ipx
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.painting.Color
 import com.google.r4a.Children
@@ -52,8 +51,8 @@ fun SizedRectangle(color: Color, width: Dp? = null, height: Dp? = null) {
         collect {
             <DrawRectangle color />
         }
-        val widthPx = width?.toPx() ?: constraints.maxWidth
-        val heightPx = height?.toPx() ?: constraints.maxHeight
+        val widthPx = width?.toIntPx() ?: constraints.maxWidth
+        val heightPx = height?.toIntPx() ?: constraints.maxHeight
         layout(widthPx, heightPx) {}
     </MeasureBox>
 }
@@ -70,14 +69,14 @@ fun IntrinsicWidth(@Children() children: () -> Unit) {
             // Force child be as wide as its min intrinsic width.
             val width = child.minIntrinsicWidth(constraints.minHeight)
             val childConstraints = Constraints(
-                width.px,
-                width.px,
+                width,
+                width,
                 constraints.minHeight,
                 constraints.maxHeight
             )
             val childPlaceable = child.measure(childConstraints)
             layoutResult(childPlaceable.width, childPlaceable.height) {
-                childPlaceable.place(0, 0)
+                childPlaceable.place(IntPx.Zero, IntPx.Zero)
             }
         }
 
@@ -103,13 +102,13 @@ fun Wrapper(@Children() children: () -> Unit) {
         layout { constraints ->
             // Check the default intrinsic methods used by MeasureBoxes.
             // TODO(popam): make this a proper test instead
-            require(child.minIntrinsicWidth(Px.Infinity) == 90)
-            require(child.maxIntrinsicWidth(Px.Infinity) == 450)
-            require(child.minIntrinsicHeight(Px.Infinity) == 30)
-            require(child.maxIntrinsicHeight(Px.Infinity) == 150)
+            require(child.minIntrinsicWidth(IntPx.Infinity) == 90.ipx)
+            require(child.maxIntrinsicWidth(IntPx.Infinity) == 450.ipx)
+            require(child.minIntrinsicHeight(IntPx.Infinity) == 30.ipx)
+            require(child.maxIntrinsicHeight(IntPx.Infinity) == 150.ipx)
             val placeable = child.measure(constraints)
             layoutResult(placeable.width, placeable.height) {
-                placeable.place(0, 0)
+                placeable.place(IntPx.Zero, IntPx.Zero)
             }
         }
     </ComplexMeasureBox>
@@ -120,17 +119,16 @@ fun Wrapper(@Children() children: () -> Unit) {
  */
 @Composable
 fun RectangleWithIntrinsics(color: Color) {
-    <ComplexMeasureBox>
-        collect {
-            <DrawRectangle color />
-        }
+    <ComplexMeasureBox> collect {
+        <DrawRectangle color />
+    }
         layout {
-            layoutResult(80, 80) {}
+            layoutResult(80.ipx, 80.ipx) {}
         }
-        minIntrinsicWidth { 30 }
-        maxIntrinsicWidth { 150 }
-        minIntrinsicHeight { 30 }
-        maxIntrinsicHeight { 150 }
+        minIntrinsicWidth { 30.ipx }
+        maxIntrinsicWidth { 150.ipx }
+        minIntrinsicHeight { 30.ipx }
+        maxIntrinsicHeight { 150.ipx }
     </ComplexMeasureBox>
 }
 
@@ -223,7 +221,7 @@ fun StackUsage() {
         }
         children.positioned(null, null, 40.dp, null) {
             <SizedRectangle color=Color(0xFFFFFF00) width=40.dp />
-         }
+        }
     </Stack>
 }
 
@@ -239,10 +237,10 @@ fun ConstrainedBoxUsage() {
 fun PaddingUsage() {
     <Row>
         <Padding padding=EdgeInsets(20.dp)>
-            <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height= 20.dp />
+            <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height=20.dp />
         </Padding>
         <Padding padding=EdgeInsets(20.dp)>
-            <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height= 20.dp />
+            <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height=20.dp />
         </Padding>
     </Row>
 }
@@ -251,10 +249,10 @@ fun PaddingUsage() {
 fun ContainerUsage() {
     <Align alignment=Alignment.Center>
         <Container padding=null color=Color(0xFF0000FF.toInt()) alignment=Alignment.BottomRight
-               constraints=null width=100.dp height=100.dp margin=EdgeInsets(20.dp)>
+            constraints=null width=100.dp height=100.dp margin=EdgeInsets(20.dp)>
             <Container padding=EdgeInsets(20.dp) color=Color(0xFF000000.toInt())
-                       alignment=Alignment.BottomRight constraints=null width=50.dp height=50.dp
-                       margin=null>
+                alignment=Alignment.BottomRight constraints=null width=50.dp height=50.dp
+                margin=null>
                 <SizedRectangle color=Color(0xFFFFFFFF.toInt()) />
             </Container>
         </Container>

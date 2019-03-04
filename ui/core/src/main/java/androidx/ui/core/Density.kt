@@ -40,14 +40,9 @@ fun Density(context: Context): Density =
 fun Dp.toPx(density: Density): Px = Px(value * density.density)
 
 /**
- * Convert [Dp] to Pixels in Float.
+ * Convert [Dp] to [IntPx] by rounding
  */
-fun Dp.toPixels(density: Density): Float = value * density.density
-
-/**
- * Convert [Dp] to Pixels, rounded to the nearest Int value
- */
-fun Dp.toRoundedPixels(density: Density): Float = round(value * density.density)
+fun Dp.toIntPx(density: Density): IntPx = toPx(density).round()
 
 /**
  * Convert [Px] to [Dp].

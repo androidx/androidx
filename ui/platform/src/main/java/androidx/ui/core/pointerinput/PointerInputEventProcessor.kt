@@ -125,7 +125,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         pointerInputChangeEvent.changes.filter { it.changedToDownIgnoreConsumed() }.forEach {
             val hitResult: MutableList<PointerInputNode> = mutableListOf()
             hitTestOnChildren(root, it.current.position!!,
-                PxSize(root.width.px, root.height.px), hitResult)
+                PxSize(root.width, root.height), hitResult)
             targetNodeSequences[it.id] = hitResult
         }
     }
@@ -217,12 +217,12 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             // 1. Update the offset to be relative to that LayoutNode
             val newOffset =
                 if (child is LayoutNode) {
-                    Offset(offset.dx - child.x, offset.dy - child.y)
+                    Offset(offset.dx - child.x.value, offset.dy - child.y.value)
                 } else offset
             // 2. Update the size to be the size of the LayoutNode
             val newSize =
                 if (child is LayoutNode) {
-                    PxSize(child.width.px, child.height.px)
+                    PxSize(child.width, child.height)
                 } else size
 
             hitTestOnChildren(child, newOffset, newSize, hitPointerInputNodes)

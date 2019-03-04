@@ -355,7 +355,7 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(0)).onSizeChange(node)
-        node.resize(10, 10)
+        node.resize(10.ipx, 10.ipx)
         verify(owner, times(1)).onSizeChange(node)
     }
 
@@ -365,7 +365,7 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(0)).onPositionChange(node)
-        node.moveTo(10, 10)
+        node.moveTo(10.ipx, 10.ipx)
         verify(owner, times(1)).onPositionChange(node)
     }
 
@@ -453,17 +453,17 @@ class ComponentNodeTest {
         val node1 = LayoutNode()
         node0.emitInsertAt(0, node1)
 
-        val x0 = 100
-        val y0 = 10
-        val x1 = 50
-        val y1 = 80
+        val x0 = 100.ipx
+        val y0 = 10.ipx
+        val x1 = 50.ipx
+        val y1 = 80.ipx
         node0.moveTo(x0, y0)
         node1.moveTo(x1, y1)
 
         val globalPosition = PxPosition(250.px, 300.px)
 
-        val expectedX = globalPosition.x - x0.px - x1.px
-        val expectedY = globalPosition.y - y0.px - y1.px
+        val expectedX = globalPosition.x - x0.toPx() - x1.toPx()
+        val expectedY = globalPosition.y - y0.toPx() - y1.toPx()
         val expectedPosition = PxPosition(expectedX, expectedY)
 
         val result = node1.globalToLocal(globalPosition)
@@ -477,17 +477,17 @@ class ComponentNodeTest {
         val node1 = LayoutNode()
         node0.emitInsertAt(0, node1)
 
-        val x0 = 100
-        val y0 = 10
-        val x1 = 50
-        val y1 = 80
+        val x0 = 100.ipx
+        val y0 = 10.ipx
+        val x1 = 50.ipx
+        val y1 = 80.ipx
         node0.moveTo(x0, y0)
         node1.moveTo(x1, y1)
 
         val localPosition = PxPosition(5.px, 15.px)
 
-        val expectedX = localPosition.x + x0.px + x1.px
-        val expectedY = localPosition.y + y0.px + y1.px
+        val expectedX = localPosition.x + x0.toPx() + x1.toPx()
+        val expectedY = localPosition.y + y0.toPx() + y1.toPx()
         val expectedPosition = PxPosition(expectedX, expectedY)
 
         val result = node1.localToGlobal(localPosition)
@@ -501,15 +501,15 @@ class ComponentNodeTest {
         val node1 = LayoutNode()
         node0.emitInsertAt(0, node1)
 
-        val x1 = 50
-        val y1 = 80
-        node0.moveTo(100, 10)
+        val x1 = 50.ipx
+        val y1 = 80.ipx
+        node0.moveTo(100.ipx, 10.ipx)
         node1.moveTo(x1, y1)
 
         val localPosition = PxPosition(5.px, 15.px)
 
-        val expectedX = localPosition.x + x1.px
-        val expectedY = localPosition.y + y1.px
+        val expectedX = localPosition.x + x1.toPx()
+        val expectedY = localPosition.y + y1.toPx()
         val expectedPosition = PxPosition(expectedX, expectedY)
 
         val result = node0.childToLocal(node1, localPosition)

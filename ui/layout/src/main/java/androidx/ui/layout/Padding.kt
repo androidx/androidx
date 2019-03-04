@@ -18,14 +18,13 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
+import androidx.ui.core.IntPx
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.dp
 import androidx.ui.core.min
 import androidx.ui.core.minus
 import androidx.ui.core.plus
-import androidx.ui.core.px
-import androidx.ui.core.toRoundedPixels
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -68,24 +67,24 @@ fun Padding(
         if (measurable == null) {
             layout(constraints.minWidth, constraints.minHeight) {}
         } else {
-            val paddingLeft = padding.left.toRoundedPixels()
-            val paddingTop = padding.top.toRoundedPixels()
-            val paddingRight = padding.right.toRoundedPixels()
-            val paddingBottom = padding.bottom.toRoundedPixels()
-            val horizontalPadding = (paddingLeft + paddingRight).px
-            val verticalPadding = (paddingTop + paddingBottom).px
+            val paddingLeft = padding.left.toIntPx()
+            val paddingTop = padding.top.toIntPx()
+            val paddingRight = padding.right.toIntPx()
+            val paddingBottom = padding.bottom.toIntPx()
+            val horizontalPadding = (paddingLeft + paddingRight)
+            val verticalPadding = (paddingTop + paddingBottom)
 
             val newConstraints = Constraints(
-                minWidth = (constraints.minWidth - horizontalPadding).coerceAtLeast(0.px),
-                maxWidth = (constraints.maxWidth - horizontalPadding).coerceAtLeast(0.px),
-                minHeight = (constraints.minHeight - verticalPadding).coerceAtLeast(0.px),
-                maxHeight = (constraints.maxHeight - verticalPadding).coerceAtLeast(0.px)
+                minWidth = (constraints.minWidth - horizontalPadding).coerceAtLeast(IntPx.Zero),
+                maxWidth = (constraints.maxWidth - horizontalPadding).coerceAtLeast(IntPx.Zero),
+                minHeight = (constraints.minHeight - verticalPadding).coerceAtLeast(IntPx.Zero),
+                maxHeight = (constraints.maxHeight - verticalPadding).coerceAtLeast(IntPx.Zero)
             )
             val placeable = measurable.measure(newConstraints)
             val width =
-                min(placeable.width.px + horizontalPadding, constraints.maxWidth).toRoundedPixels()
+                min(placeable.width + horizontalPadding, constraints.maxWidth)
             val height =
-                min(placeable.height.px + verticalPadding, constraints.maxHeight).toRoundedPixels()
+                min(placeable.height + verticalPadding, constraints.maxHeight)
 
             layout(width, height) {
                 placeable.place(paddingLeft, paddingTop)

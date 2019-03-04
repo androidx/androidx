@@ -25,7 +25,6 @@ import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.min
 import androidx.ui.core.toPx
-import androidx.ui.core.toRoundedPixels
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Radius
@@ -58,10 +57,9 @@ class Checkbox : Component() {
                             strokeWidth=strokeWidth />
                     </Colors.Consumer>
                 }
-                val calculatedWidth = min(
-                    min(constraints.maxHeight, constraints.maxWidth),
-                    checkboxSize.toPx()
-                ).toRoundedPixels()
+                val checkboxSizePx = checkboxSize.toIntPx()
+                val calculatedWidth =
+                    min(min(constraints.maxHeight, constraints.maxWidth), checkboxSizePx)
                 layout(calculatedWidth, calculatedWidth) {
                     // No mChildren to place
                 }

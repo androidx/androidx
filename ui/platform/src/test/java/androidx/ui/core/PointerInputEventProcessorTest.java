@@ -383,12 +383,12 @@ public class PointerInputEventProcessorTest {
         // Assert
 
         Offset middleOffset = new Offset(
-                middleLayoutNode.getX(),
-                middleLayoutNode.getY());
+                middleLayoutNode.getX().getValue(),
+                middleLayoutNode.getY().getValue());
 
         Offset childOffset = middleOffset.plus(new Offset(
-                childLayoutNode.getX(),
-                childLayoutNode.getY()));
+                childLayoutNode.getX().getValue(),
+                childLayoutNode.getY().getValue()));
 
         assertThat(mTrackerList.size(), is(equalTo(3)));
         assertPointerInputChange(
@@ -478,8 +478,8 @@ public class PointerInputEventProcessorTest {
         // Assert
 
         Offset middleOffset = new Offset(
-                middleLayoutNode.getX(),
-                middleLayoutNode.getY());
+                middleLayoutNode.getX().getValue(),
+                middleLayoutNode.getY().getValue());
 
         assertThat(mTrackerList.size(), is(equalTo(2)));
         assertPointerInputChange(
@@ -809,8 +809,8 @@ public class PointerInputEventProcessorTest {
 
         // Assert
         Offset child2Offset = new Offset(
-                childLayoutNode2.getX(),
-                childLayoutNode2.getY());
+                childLayoutNode2.getX().getValue(),
+                childLayoutNode2.getY().getValue());
 
         assertThat(mTrackerList.size(), is(equalTo(10)));
 
@@ -900,12 +900,12 @@ public class PointerInputEventProcessorTest {
         // Assert
 
         Offset middleOffset = new Offset(
-                middleLayoutNode.getX(),
-                middleLayoutNode.getY());
+                middleLayoutNode.getX().getValue(),
+                middleLayoutNode.getY().getValue());
 
         Offset childOffset = middleOffset.plus(new Offset(
-                childLayoutNode.getX(),
-                childLayoutNode.getY()));
+                childLayoutNode.getX().getValue(),
+                childLayoutNode.getY().getValue()));
 
         assertThat(mTrackerList.size(), is(equalTo(15)));
 
@@ -1123,12 +1123,12 @@ public class PointerInputEventProcessorTest {
         // Assert
 
         Offset middleOffset = new Offset(
-                middleLayoutNode.getX(),
-                middleLayoutNode.getY());
+                middleLayoutNode.getX().getValue(),
+                middleLayoutNode.getY().getValue());
 
         Offset childOffset = middleOffset.plus(new Offset(
-                childLayoutNode.getX(),
-                childLayoutNode.getY()));
+                childLayoutNode.getX().getValue(),
+                childLayoutNode.getY().getValue()));
 
         assertThat(mTrackerList.size(), is(equalTo(6)));
         assertPointerInputChange(
@@ -1226,8 +1226,8 @@ public class PointerInputEventProcessorTest {
         childLayoutNode.emitInsertAt(0, childPointerInputNode);
 
         Offset childOffset = new Offset(
-                childLayoutNode.getX(),
-                childLayoutNode.getY());
+                childLayoutNode.getX().getValue(),
+                childLayoutNode.getY().getValue());
 
         Offset offset = new Offset(99, 99);
 
@@ -1289,8 +1289,8 @@ public class PointerInputEventProcessorTest {
 
     private LayoutNode createLayoutNode(int x, int y, int x2, int y2) {
         LayoutNode layoutNode = new LayoutNode();
-        layoutNode.moveTo(x, y);
-        layoutNode.resize(x2 - x, y2 - y);
+        layoutNode.moveTo(new IntPx(x), new IntPx(y));
+        layoutNode.resize(new IntPx(x2 - x), new IntPx(y2 - y));
         return layoutNode;
     }
 

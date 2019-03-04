@@ -60,7 +60,7 @@ fun RadioButton(checked: Boolean, color: Color? = null) {
                 val colors = +ambient(Colors)
                 <DrawRadioButton value color=(color ?: colors.primary) />
             }
-            val size = (radioRadius * 2).toPx()
+            val size = radioRadius.toIntPx() * 2
             val w = max(constraints.minWidth, min(constraints.maxWidth, size))
             val h = max(constraints.minHeight, min(constraints.maxHeight, size))
             layout(w, h) {

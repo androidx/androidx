@@ -33,11 +33,13 @@ import androidx.ui.core.PxSize
 import androidx.ui.core.adapter.CraneWrapper
 import androidx.ui.core.div
 import androidx.ui.core.dp
+import androidx.ui.core.ipx
 import androidx.ui.core.minus
+import androidx.ui.core.plus
 import androidx.ui.core.px
 import androidx.ui.core.times
+import androidx.ui.core.toIntPx
 import androidx.ui.core.toPx
-import androidx.ui.core.toRoundedPixels
 import androidx.ui.core.unaryMinus
 import androidx.ui.layout.Center
 import androidx.ui.layout.ConstrainedBox
@@ -57,7 +59,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -89,9 +90,9 @@ class PaddingTest {
 
     @Test
     fun testPaddingIsApplied() {
-        val size = 50.dp.toPx(density).toRoundedPixels().px
+        val size = 50.dp.toIntPx(density)
         val padding = 10.dp
-        val paddingPx = padding.toPx(density)
+        val paddingPx = padding.toIntPx(density)
 
         val drawLatch = CountDownLatch(10)
         var childSize = PxSize(-1.px, -1.px)
@@ -124,19 +125,19 @@ class PaddingTest {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val innerSize = (size - paddingPx * 2).toRoundedPixels().px
+        val innerSize = (size - paddingPx * 2)
         assertEquals(PxSize(innerSize, innerSize), childSize)
-        val left = ((root.width.px - size) / 2).toRoundedPixels() + paddingPx.toRoundedPixels()
-        val top = ((root.height.px - size) / 2).toRoundedPixels() + paddingPx.toRoundedPixels()
+        val left = ((root.width.ipx - size) / 2) + paddingPx
+        val top = ((root.height.ipx - size) / 2) + paddingPx
         assertEquals(
-            PxPosition(left.px, top.px),
+            PxPosition(left.toPx(), top.toPx()),
             childPosition
         )
     }
 
     @Test
     fun testPaddingIsApplied_withDifferentInsets() {
-        val size = 50.dp.toPx(density).toRoundedPixels().px
+        val size = 50.dp.toIntPx(density)
         val padding = EdgeInsets(10.dp, 15.dp, 20.dp, 30.dp)
 
         val drawLatch = CountDownLatch(10)
@@ -170,30 +171,30 @@ class PaddingTest {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val paddingLeft = padding.left.toPx(density).toRoundedPixels()
-        val paddingRight = padding.right.toPx(density).toRoundedPixels()
-        val paddingTop = padding.top.toPx(density).toRoundedPixels()
-        val paddingBottom = padding.bottom.toPx(density).toRoundedPixels()
+        val paddingLeft = padding.left.toIntPx(density)
+        val paddingRight = padding.right.toIntPx(density)
+        val paddingTop = padding.top.toIntPx(density)
+        val paddingBottom = padding.bottom.toIntPx(density)
         assertEquals(
             PxSize(
-                size - paddingLeft.px - paddingRight.px,
-                size - paddingTop.px - paddingBottom.px
+                size - paddingLeft - paddingRight,
+                size - paddingTop - paddingBottom
             ),
             childSize
         )
-        val left = ((root.width.px - size) / 2).toRoundedPixels() + paddingLeft
-        val top = ((root.height.px - size) / 2).toRoundedPixels() + paddingTop
+        val left = ((root.width.ipx - size) / 2) + paddingLeft
+        val top = ((root.height.ipx - size) / 2) + paddingTop
         assertEquals(
-            PxPosition(left.px, top.px),
+            PxPosition(left.toPx(), top.toPx()),
             childPosition
         )
     }
 
     @Test
     fun testPadding_withInsufficientSpace() {
-        val size = 50.dp.toPx(density).toRoundedPixels().px
+        val size = 50.dp.toIntPx(density)
         val padding = 30.dp
-        val paddingPx = padding.toPx(density)
+        val paddingPx = padding.toIntPx(density)
 
         val drawLatch = CountDownLatch(10)
         var childSize = PxSize(-1.px, -1.px)
@@ -226,9 +227,9 @@ class PaddingTest {
         waitForDraw(root)
 
         assertEquals(PxSize(0.px, 0.px), childSize)
-        val left = ((root.width.px - size) / 2).toRoundedPixels() + paddingPx.toRoundedPixels()
-        val top = ((root.height.px - size) / 2).toRoundedPixels() + paddingPx.toRoundedPixels()
-        assertEquals(PxPosition(left.px, top.px), childPosition)
+        val left = ((root.width.ipx - size) / 2) + paddingPx
+        val top = ((root.height.ipx - size) / 2) + paddingPx
+        assertEquals(PxPosition(left.toPx(), top.toPx()), childPosition)
     }
 
     private fun show(@Children composable: () -> Unit) {

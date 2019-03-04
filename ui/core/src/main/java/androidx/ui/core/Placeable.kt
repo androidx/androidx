@@ -21,7 +21,7 @@ package androidx.ui.core
  */
 // TODO(popam): investigate if this interface is really needed, as it blocks making
 //              MeasuredPlaceable an inline class
-open class Placeable(internal val placeBlock: (Int, Int) -> Unit) {
-    open val width: Int = 0
-    open val height: Int = 0
+open class Placeable(internal val placeBlock: (IntPx, IntPx) -> Unit) {
+    open val width: IntPx get() = IntPx.Zero
+    open val height: IntPx get() = IntPx.Zero
 }

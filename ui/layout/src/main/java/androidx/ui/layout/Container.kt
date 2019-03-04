@@ -20,11 +20,9 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.adapter.DensityConsumer
-import androidx.ui.core.px
-import androidx.ui.core.toPx
+import androidx.ui.core.toIntPx
 import androidx.ui.core.toRect
 import androidx.ui.core.withTight
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
@@ -100,8 +98,8 @@ fun Container(
         <DensityConsumer> density ->
             val additionalConstraints =
                 (constraints ?: Constraints()).withTight(
-                    width?.toPx(density),
-                    height?.toPx(density)
+                    width?.toIntPx(density),
+                    height?.toIntPx(density)
                 )
             val childContainer = container
             container = @Composable {

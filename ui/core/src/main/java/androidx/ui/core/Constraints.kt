@@ -38,39 +38,39 @@ package androidx.ui.core
  * as it depends on the child layout model, but is a common behavior for core layout components).
  */
 data class Constraints(
-    val minWidth: Px = 0.px,
-    val maxWidth: Px = Px.Infinity,
-    val minHeight: Px = 0.px,
-    val maxHeight: Px = Px.Infinity
+    val minWidth: IntPx = IntPx.Zero,
+    val maxWidth: IntPx = IntPx.Infinity,
+    val minHeight: IntPx = IntPx.Zero,
+    val maxHeight: IntPx = IntPx.Infinity
 ) {
     init {
-        assert(minWidth.value.isFinite())
-        assert(minHeight.value.isFinite())
+        assert(minWidth.isFinite())
+        assert(minHeight.isFinite())
     }
 
     companion object {
         /**
          * Creates constraints tight in both dimensions.
          */
-        fun tightConstraints(width: Px, height: Px) =
+        fun tightConstraints(width: IntPx, height: IntPx) =
             Constraints(width, width, height, height)
 
         /**
          * Creates constraints with tight width and loose height.
          */
-        fun tightConstraintsForWidth(width: Px) = Constraints(
+        fun tightConstraintsForWidth(width: IntPx) = Constraints(
             minWidth = width,
             maxWidth = width,
-            minHeight = 0.px,
-            maxHeight = Px.Infinity
+            minHeight = IntPx.Zero,
+            maxHeight = IntPx.Infinity
         )
 
         /**
          * Creates constraints with tight height and loose width.
          */
-        fun tightConstraintsForHeight(height: Px) = Constraints(
-            minWidth = 0.px,
-            maxWidth = Px.Infinity,
+        fun tightConstraintsForHeight(height: IntPx) = Constraints(
+            minWidth = IntPx.Zero,
+            maxWidth = IntPx.Infinity,
             minHeight = height,
             maxHeight = height
         )
@@ -81,13 +81,13 @@ data class Constraints(
  * Whether or not the upper bound on the maximum height.
  * @see hasBoundedWidth
  */
-val Constraints.hasBoundedHeight get() = maxHeight.value.isFinite()
+val Constraints.hasBoundedHeight get() = maxHeight != IntPx.Infinity
 
 /**
  * Whether or not the upper bound on the maximum width.
  * @see hasBoundedHeight
  */
-val Constraints.hasBoundedWidth get() = maxWidth.value.isFinite()
+val Constraints.hasBoundedWidth get() = maxWidth.isFinite()
 
 /**
  * Whether there is exactly one size that satisfies the constraints.
@@ -109,7 +109,7 @@ val Constraints.hasTightHeight get() = maxHeight == minHeight
 /**
  * Whether there is exactly one height value that satisfies the constraints.
  */
-val Constraints.isZero get() = maxWidth == 0.px || maxHeight == 0.px
+val Constraints.isZero get() = maxWidth == IntPx.Zero || maxHeight == IntPx.Zero
 
 /**
  * Whether there is any size that satisfies the current constraints.
@@ -129,7 +129,7 @@ fun Constraints.enforce(otherConstraints: Constraints) = Constraints(
 /**
  * Returns a copy of the current instance, overriding the specified values to be tight.
  */
-fun Constraints.withTight(width: Px? = null, height: Px? = null) = Constraints(
+fun Constraints.withTight(width: IntPx? = null, height: IntPx? = null) = Constraints(
     minWidth = width ?: this.minWidth,
     maxWidth = width ?: this.maxWidth,
     minHeight = height ?: this.minHeight,

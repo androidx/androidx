@@ -15,7 +15,7 @@
  */
 package androidx.ui.engine.text
 
-import androidx.ui.lerpInt
+import androidx.ui.lerp
 import kotlin.math.roundToInt
 
 // The thickness of the glyphs used to draw the text
@@ -75,7 +75,7 @@ class FontWeight private constructor(val index: Int, internal val weight: Int) :
         // an [AnimationController].
         // TODO(Migration/siyamed): I did not like the variable naming.
         fun lerp(a: FontWeight?, b: FontWeight?, t: Float): FontWeight {
-            return values[lerpInt(
+            return values[lerp(
                 a?.index ?: normal.index,
                 b?.index ?: normal.index,
                 t

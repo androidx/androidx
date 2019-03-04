@@ -17,15 +17,16 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Constraints
+import androidx.ui.core.IntPx
 import androidx.ui.core.Placeable
-import androidx.ui.core.Px
 import androidx.ui.core.adapter.MeasureBox
-import androidx.ui.core.px
-import androidx.ui.core.toRoundedPixels
+import androidx.ui.core.div
+import androidx.ui.core.minus
+import androidx.ui.core.plus
+import androidx.ui.core.times
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
-import kotlin.math.roundToInt
 
 /**
  * Collects information about the children of a [FlexColumn] or [FlexColumn]
@@ -180,10 +181,10 @@ internal data class FlexChild(
  * Box [Constraints], but which abstract away width and height in favor of main axis and cross axis.
  */
 private data class OrientationIndependentConstraints(
-    var mainAxisMin: Px,
-    var mainAxisMax: Px,
-    var crossAxisMin: Px,
-    var crossAxisMax: Px
+    var mainAxisMin: IntPx,
+    var mainAxisMax: IntPx,
+    var crossAxisMin: IntPx,
+    var crossAxisMax: IntPx
 ) {
     constructor(c: Constraints, orientation: Int) : this(
         if (orientation == FlexOrientation.Horizontal) c.minWidth else c.minHeight,
@@ -194,7 +195,7 @@ private data class OrientationIndependentConstraints(
 
     // Creates a new instance with the same cross axis constraints and unbounded main axis.
     fun looseMainAxis() = OrientationIndependentConstraints(
-        0.px, Px.Infinity, crossAxisMin, crossAxisMax
+        IntPx.Zero, IntPx.Infinity, crossAxisMin, crossAxisMax
     )
 
     // Given an orientation, resolves the current instance to traditional constraints.
@@ -237,7 +238,7 @@ private fun Flex(
         }
 
         val placeables = arrayOfNulls<List<Placeable>?>(children.size)
-        val mainAxisSize = Array(children.size) { 0 }
+        val mainAxisSize = Array(children.size) { IntPx.Zero }
         // First measure children with zero flex.
         (0 until children.size).filter { i -> children[i].flex == 0f }.forEach { i ->
             collect(children[i].child).map { measurable ->
@@ -248,14 +249,14 @@ private fun Flex(
             }.also {
                 mainAxisSize[i] = it.map {
                     if (orientation == FlexOrientation.Horizontal) it.width else it.height
-                }.fold(0) { a, b -> a + b }
+                }.fold(IntPx.Zero) { a, b -> a + b }
                 placeables[i] = it
             }
         }
 
         // Then measure the rest according to their flexes in the remaining main axis space.
-        val remainingSpace = constraints.mainAxisMax.toRoundedPixels() -
-                mainAxisSize.fold(0) { a, b -> a + b }
+        val remainingSpace = constraints.mainAxisMax -
+                mainAxisSize.fold(IntPx.Zero) { a, b -> a + b }
         val totalFlex = children.map { it.flex }.sum()
         (0 until children.size).filter { i -> children[i].flex > 0f }.forEach { i ->
             val child = children[i]
@@ -263,13 +264,13 @@ private fun Flex(
             if (measurables.isEmpty()) {
                 return@forEach
             }
-            mainAxisSize[i] = (remainingSpace * (child.flex / totalFlex)).roundToInt()
+            mainAxisSize[i] = remainingSpace * (child.flex / totalFlex)
             val childMaxMainAxisSize = mainAxisSize[i] / measurables.size
             measurables.map { measurable ->
                 measurable.measure(
                     OrientationIndependentConstraints(
-                        if (child.fit == FlexFit.Tight) 0.px else childMaxMainAxisSize.px,
-                        childMaxMainAxisSize.px,
+                        if (child.fit == FlexFit.Tight) IntPx.Zero else childMaxMainAxisSize,
+                        childMaxMainAxisSize,
                         constraints.crossAxisMin,
                         constraints.crossAxisMax
                     ).toBoxConstraints(orientation)
@@ -280,16 +281,22 @@ private fun Flex(
         }
 
         // Position the children.
-        val layoutWidth = constraints.maxWidth(orientation).toRoundedPixels()
-        val layoutHeight = constraints.maxHeight(orientation).toRoundedPixels()
+        val layoutWidth = constraints.maxWidth(orientation)
+        val layoutHeight = constraints.maxHeight(orientation)
         layout(layoutWidth, layoutHeight) {
-            var consumedMainAxisSpace = 0
+            var consumedMainAxisSpace = IntPx.Zero
             placeables.forEachIndexed { i, childPlaceables ->
                 childPlaceables?.map {
                     if (orientation == FlexOrientation.Horizontal) {
-                        it.place(consumedMainAxisSpace, 0 /*TODO(popam): cross axis alignment*/)
+                        it.place(
+                            consumedMainAxisSpace,
+                            IntPx.Zero /*TODO(popam): cross axis alignment*/
+                        )
                     } else {
-                        it.place(0 /*TODO(popam): cross axis alignment*/, consumedMainAxisSpace)
+                        it.place(
+                            IntPx.Zero /*TODO(popam): cross axis alignment*/,
+                            consumedMainAxisSpace
+                        )
                     }
                     consumedMainAxisSpace += mainAxisSize[i] / childPlaceables.size
                 }

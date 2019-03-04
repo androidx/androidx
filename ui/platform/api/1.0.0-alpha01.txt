@@ -84,16 +84,16 @@ package androidx.ui.core {
     method public java.util.List<androidx.ui.core.ComponentNode> getChildren();
     method public androidx.ui.core.Constraints getConstraints();
     method public int getCount();
-    method public int getHeight();
+    method public androidx.ui.core.IntPx getHeight();
     method public androidx.ui.core.LayoutNode getLayoutNode();
     method public Object? getMeasureBox();
     method public androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? getRef();
     method public boolean getVisible();
-    method public int getWidth();
-    method public int getX();
-    method public int getY();
-    method public void moveTo(int x, int y);
-    method public void resize(int width, int height);
+    method public androidx.ui.core.IntPx getWidth();
+    method public androidx.ui.core.IntPx getX();
+    method public androidx.ui.core.IntPx getY();
+    method public void moveTo(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
+    method public void resize(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height);
     method public void setConstraints(androidx.ui.core.Constraints p);
     method public void setMeasureBox(Object? p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
@@ -102,14 +102,14 @@ package androidx.ui.core {
     property public final java.util.List<androidx.ui.core.ComponentNode> children;
     property public final androidx.ui.core.Constraints constraints;
     property public int count;
-    property public final int height;
+    property public final androidx.ui.core.IntPx height;
     property public androidx.ui.core.LayoutNode layoutNode;
     property public final Object? measureBox;
     property public final androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? ref;
     property public final boolean visible;
-    property public final int width;
-    property public final int x;
-    property public final int y;
+    property public final androidx.ui.core.IntPx width;
+    property public final androidx.ui.core.IntPx x;
+    property public final androidx.ui.core.IntPx y;
   }
 
   public interface Owner {
