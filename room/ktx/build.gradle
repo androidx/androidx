@@ -34,11 +34,11 @@ dependencies {
 }
 
 supportLibrary {
-    name = "Android Room Coroutines Adapter"
+    name = "Android Room Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM
-    inceptionYear = "2018"
-    description = "Android Room Coroutines Adapter"
+    inceptionYear = "2019"
+    description = "Android Room Kotlin Extensions"
     url = SupportLibraryExtension.ARCHITECTURE_URL
 }

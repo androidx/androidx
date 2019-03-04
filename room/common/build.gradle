@@ -24,7 +24,7 @@ plugins {
 }
 
 dependencies {
-    compile(project(":annotation"))
+    compile(ANDROIDX_ANNOTATION)
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)
 }
