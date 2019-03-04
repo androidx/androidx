@@ -143,6 +143,7 @@ public abstract class SliceProvider extends ContentProvider implements
 
     private SliceProviderCompat mCompat;
 
+    private final Object mPinnedSliceUrisLock = new Object();
     private List<Uri> mPinnedSliceUris;
 
     /**
@@ -200,8 +201,6 @@ public abstract class SliceProvider extends ContentProvider implements
     @Override
     public final boolean onCreate() {
         if (Build.VERSION.SDK_INT < 19) return false;
-        mPinnedSliceUris = new ArrayList<>(SliceManager.getInstance(
-                getContext()).getPinnedSlices());
         if (Build.VERSION.SDK_INT < 28) {
             mCompat = new SliceProviderCompat(this,
                     onCreatePermissionManager(mAutoGrantPermissions), getContext());
@@ -361,8 +360,9 @@ public abstract class SliceProvider extends ContentProvider implements
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(19)
     public void handleSlicePinned(Uri sliceUri) {
-        if (!mPinnedSliceUris.contains(sliceUri)) {
-            mPinnedSliceUris.add(sliceUri);
+        List<Uri> pinnedSlices = getPinnedSlices();
+        if (!pinnedSlices.contains(sliceUri)) {
+            pinnedSlices.add(sliceUri);
         }
     }
 
@@ -372,8 +372,9 @@ public abstract class SliceProvider extends ContentProvider implements
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(19)
     public void handleSliceUnpinned(Uri sliceUri) {
-        if (mPinnedSliceUris.contains(sliceUri)) {
-            mPinnedSliceUris.remove(sliceUri);
+        List<Uri> pinnedSlices = getPinnedSlices();
+        if (pinnedSlices.contains(sliceUri)) {
+            pinnedSlices.remove(sliceUri);
         }
     }
 
@@ -413,6 +414,12 @@ public abstract class SliceProvider extends ContentProvider implements
      */
     @RequiresApi(19)
     @NonNull public List<Uri> getPinnedSlices() {
+        synchronized (mPinnedSliceUrisLock) {
+            if (mPinnedSliceUris == null) {
+                mPinnedSliceUris = new ArrayList<>(SliceManager.getInstance(getContext())
+                        .getPinnedSlices());
+            }
+        }
         return mPinnedSliceUris;
     }
 
