@@ -312,6 +312,7 @@ public final class TestUtils {
     }
 
     public static class Monitor {
+        private static final long MAX_TIME_OUT_MS = 20000;  // 20 seconds
         private int mNumSignal;
 
         public synchronized void reset() {
@@ -328,10 +329,7 @@ public final class TestUtils {
         }
 
         public synchronized int waitForCountedSignals(int targetCount) throws InterruptedException {
-            while (mNumSignal < targetCount) {
-                wait();
-            }
-            return mNumSignal;
+            return waitForCountedSignals(targetCount, MAX_TIME_OUT_MS * targetCount);
         }
 
         public synchronized boolean waitForSignal(long timeoutMs) throws InterruptedException {
