@@ -16,7 +16,7 @@
 
 package foo.flavor;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import foo.InnerSettingsDirections;
 import foo.SettingsDirections;
 

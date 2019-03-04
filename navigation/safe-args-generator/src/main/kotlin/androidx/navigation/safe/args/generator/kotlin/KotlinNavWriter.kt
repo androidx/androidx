@@ -33,7 +33,7 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asTypeName
 
-class KotlinNavWriter(private val useAndroidX: Boolean = false) : NavWriter<KotlinCodeFile> {
+class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<KotlinCodeFile> {
 
     override fun generateDirectionsCodeFile(
         destination: Destination,
