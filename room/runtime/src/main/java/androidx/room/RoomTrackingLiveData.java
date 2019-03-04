@@ -17,6 +17,8 @@
 package androidx.room;
 
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
@@ -119,6 +121,7 @@ class RoomTrackingLiveData<T> extends LiveData<T> {
             }
         }
     };
+    @SuppressLint("RestrictedApi")
     RoomTrackingLiveData(
             RoomDatabase database,
             InvalidationLiveDataContainer container,

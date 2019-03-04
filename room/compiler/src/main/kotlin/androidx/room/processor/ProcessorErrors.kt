@@ -513,8 +513,8 @@ object ProcessorErrors {
     val MISSING_ROOM_RXJAVA2_ARTIFACT = "To use RxJava2 features, you must add `rxjava2`" +
             " artifact from Room as a dependency. androidx.room:room-rxjava2:<version>"
 
-    val MISSING_ROOM_COROUTINE_ARTIFACT = "To use Coroutine features, you must add `coroutine`" +
-            " artifact from Room as a dependency. androidx.room:room-coroutines:<version>"
+    val MISSING_ROOM_COROUTINE_ARTIFACT = "To use Coroutine features, you must add `ktx`" +
+            " artifact from Room as a dependency. androidx.room:room-ktx:<version>"
 
     fun ambigiousConstructor(
         pojo: String,
