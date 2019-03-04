@@ -188,7 +188,10 @@ public final class TextLinks {
      * Annotates the given text with the generated links.
      *
      * <p><strong>NOTE: </strong>It may be necessary to set a LinkMovementMethod on the TextView
-     * widget to properly handle links. See {@link TextView#setMovementMethod(MovementMethod)}
+     * widget to properly handle links. See {@link TextView#setMovementMethod(MovementMethod)}.
+     * It is also necessary that the TextView be focusable.
+     * See {@link TextView#setFocusable(boolean)}} and
+     * {@link TextView#setFocusableInTouchMode(boolean)}.
      *
      * @param text the text to apply the links to. Must match the original text
      * @param textClassifier the TextClassifier to use to classify a clicked link. Should usually
