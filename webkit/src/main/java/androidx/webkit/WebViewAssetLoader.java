@@ -84,9 +84,8 @@ public class WebViewAssetLoader {
     private static final String HTTP_SCHEME = "http";
     private static final String HTTPS_SCHEME = "https";
 
-    @NonNull final AssetHelper mAssetHelper;
-    @Nullable @VisibleForTesting PathHandler mAssetsHandler;
-    @Nullable @VisibleForTesting PathHandler mResourcesHandler;
+    @NonNull private final PathHandler mAssetsHandler;
+    @NonNull private final PathHandler mResourcesHandler;
 
     /**
      * A handler that produces responses for the registered paths.
@@ -104,9 +103,6 @@ public class WebViewAssetLoader {
      */
     @VisibleForTesting
     /*package*/ abstract static class PathHandler {
-        @Nullable private String mMimeType;
-        @Nullable private String mEncoding;
-
         final boolean mHttpEnabled;
         @NonNull final String mAuthority;
         @NonNull final String mPath;
@@ -127,8 +123,6 @@ public class WebViewAssetLoader {
             if (!path.endsWith("/")) {
                 throw new IllegalArgumentException("Path should end with a slash '/'");
             }
-            this.mMimeType = null;
-            this.mEncoding = null;
             this.mAuthority = authority;
             this.mPath = path;
             this.mHttpEnabled = httpEnabled;
@@ -161,29 +155,173 @@ public class WebViewAssetLoader {
             }
             return uri.getPath().startsWith(mPath);
         }
+    }
 
-        @Nullable
-        public String getMimeType() {
-            return mMimeType;
+    static class AssetsPathHandler extends PathHandler {
+        private AssetHelper mAssetHelper;
+
+        AssetsPathHandler(@NonNull final String authority, @NonNull final String path,
+                                boolean httpEnabled, @NonNull AssetHelper assetHelper) {
+            super(authority, path, httpEnabled);
+            mAssetHelper = assetHelper;
         }
 
-        @Nullable
-        public String getEncoding() {
-            return mEncoding;
-        }
+        @Override
+        public InputStream handle(Uri url) {
+            String path = url.getPath().replaceFirst(this.mPath, "");
+            Uri.Builder assetUriBuilder = new Uri.Builder();
+            assetUriBuilder.path(path);
+            Uri assetUri = assetUriBuilder.build();
 
-        void setMimeType(@Nullable String mimeType) {
-            mMimeType = mimeType;
-        }
-
-        void setEncoding(@Nullable String encoding) {
-            mEncoding = encoding;
+            return mAssetHelper.openAsset(assetUri);
         }
     }
 
-    @VisibleForTesting
-    /*package*/ WebViewAssetLoader(@NonNull AssetHelper assetHelper) {
-        this.mAssetHelper = assetHelper;
+    static class ResourcesPathHandler extends PathHandler {
+        private AssetHelper mAssetHelper;
+
+        ResourcesPathHandler(@NonNull final String authority, @NonNull final String path,
+                                boolean httpEnabled, @NonNull AssetHelper assetHelper) {
+            super(authority, path, httpEnabled);
+            mAssetHelper = assetHelper;
+        }
+
+        @Override
+        public InputStream handle(Uri url) {
+            String path = url.getPath().replaceFirst(this.mPath, "");
+            Uri.Builder resourceUriBuilder = new Uri.Builder();
+            resourceUriBuilder.path(path);
+            Uri resourceUri = resourceUriBuilder.build();
+
+            return mAssetHelper.openResource(resourceUri);
+        }
+    }
+
+
+    /**
+     * A builder class for constructing WebViewAssetLoader objects.
+     */
+    public static final class Builder {
+        private final Context mContext;
+
+        boolean mAllowHttp;
+        @NonNull Uri mAssetsUri;
+        @NonNull Uri mResourcesUri;
+
+        public Builder(@NonNull Context context) {
+            mContext = context;
+            mAllowHttp = false;
+            mAssetsUri = createUriPrefix(KNOWN_UNUSED_AUTHORITY, "/assets/");
+            mResourcesUri = createUriPrefix(KNOWN_UNUSED_AUTHORITY, "/res/");
+        }
+
+        /**
+         * Set the domain under which app assets and resources can be accessed.
+         * The default domain is {@code "appassets.androidplatform.net"}
+         *
+         * @param domain the domain on which app assets are hosted.
+         * @return builder object.
+         */
+        public Builder setDomain(@NonNull String domain) {
+            mAssetsUri = createUriPrefix(domain, mAssetsUri.getPath());
+            mResourcesUri = createUriPrefix(domain, mResourcesUri.getPath());
+            return this;
+        }
+
+        /**
+         * Set the prefix path under which app assets are hosted.
+         * The default path for assets is {@code "/assets/"}
+         *
+         * @param path the path under which app assets are hosted.
+         * @return builder object.
+         */
+        public Builder setAssetsHostingPath(@NonNull String path) {
+            mAssetsUri = createUriPrefix(mAssetsUri.getAuthority(), path);
+            return this;
+        }
+
+        /**
+         * Set the prefix path under which app resources are hosted.
+         * the default path for resources is {@code "/res/"}
+         *
+         * @param path the path under which app resources are hosted.
+         * @return builder object.
+         */
+        public Builder setResourcesHostingPath(@NonNull String path) {
+            mResourcesUri = createUriPrefix(mResourcesUri.getAuthority(), path);
+            return this;
+        }
+
+        /**
+         * Allow using the HTTP scheme in addition to HTTPS.
+         * The default is to not allow HTTP.
+         *
+         * @return builder object.
+         */
+        public Builder allowHttp() {
+            this.mAllowHttp = true;
+            return this;
+        }
+
+        /**
+         * Build and return WebViewAssetLoader object.
+         *
+         * @return immutable WebViewAssetLoader object.
+         */
+        @NonNull
+        public WebViewAssetLoader build() {
+            AssetHelper assetHelper = new AssetHelper(mContext);
+            PathHandler assetHandler = new AssetsPathHandler(mAssetsUri.getAuthority(),
+                                                mAssetsUri.getPath(), mAllowHttp, assetHelper);
+
+            PathHandler resourceHandler = new ResourcesPathHandler(mResourcesUri.getAuthority(),
+                                                    mResourcesUri.getPath(), mAllowHttp,
+                                                    assetHelper);
+
+            return new WebViewAssetLoader(assetHandler, resourceHandler);
+        }
+
+        @VisibleForTesting
+        @NonNull
+        /*package*/ WebViewAssetLoader buildForTest(@NonNull AssetHelper assetHelper) {
+            PathHandler assetHandler = new AssetsPathHandler(mAssetsUri.getAuthority(),
+                                                mAssetsUri.getPath(), mAllowHttp, assetHelper);
+
+            PathHandler resourceHandler = new ResourcesPathHandler(mResourcesUri.getAuthority(),
+                                                    mResourcesUri.getPath(), mAllowHttp,
+                                                    assetHelper);
+
+            return new WebViewAssetLoader(assetHandler, resourceHandler);
+        }
+
+        @VisibleForTesting
+        @NonNull
+        /*package*/ WebViewAssetLoader buildForTest(@NonNull PathHandler assetHandler,
+                                                        @NonNull PathHandler resourceHandler) {
+            return new WebViewAssetLoader(assetHandler, resourceHandler);
+        }
+
+        @NonNull
+        private static Uri createUriPrefix(@NonNull String domain, @NonNull String virtualPath) {
+            if (virtualPath.indexOf('*') != -1) {
+                throw new IllegalArgumentException(
+                        "virtualPath cannot contain the '*' character.");
+            }
+            if (virtualPath.isEmpty() || virtualPath.charAt(0) != '/') {
+                throw new IllegalArgumentException(
+                        "virtualPath should start with a slash '/'.");
+            }
+            if (!virtualPath.endsWith("/")) {
+                throw new IllegalArgumentException(
+                        "virtualPath should end with a slash '/'.");
+            }
+
+            Uri.Builder uriBuilder = new Uri.Builder();
+            uriBuilder.authority(domain);
+            uriBuilder.path(virtualPath);
+
+            return uriBuilder.build();
+        }
     }
 
     /**
@@ -192,8 +330,10 @@ public class WebViewAssetLoader {
      *
      * @param context context used to resolve resources/assets.
      */
-    public WebViewAssetLoader(@NonNull Context context) {
-        this(new AssetHelper(context.getApplicationContext()));
+    /*package*/ WebViewAssetLoader(@NonNull PathHandler assetHandler,
+                                        @NonNull PathHandler resourceHandler) {
+        this.mAssetsHandler = assetHandler;
+        this.mResourcesHandler = resourceHandler;
     }
 
     @Nullable
@@ -226,18 +366,7 @@ public class WebViewAssetLoader {
     @RequiresApi(21)
     @Nullable
     public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {
-        PathHandler handler;
-
-        if (mAssetsHandler != null && mAssetsHandler.match(request.getUrl())) {
-            handler = mAssetsHandler;
-        } else if (mResourcesHandler != null && mResourcesHandler.match(request.getUrl())) {
-            handler = mResourcesHandler;
-        } else {
-            return null;
-        }
-
-        InputStream is = handler.handle(request.getUrl());
-        return new WebResourceResponse(handler.getMimeType(), handler.getEncoding(), is);
+        return shouldInterceptRequestImpl(request.getUrl());
     }
 
     /**
@@ -255,147 +384,24 @@ public class WebViewAssetLoader {
         if (uri == null) {
             return null;
         }
+        return shouldInterceptRequestImpl(uri);
+    }
 
-        if (mAssetsHandler != null && mAssetsHandler.match(uri)) {
+    @Nullable
+    private WebResourceResponse shouldInterceptRequestImpl(@NonNull Uri url) {
+        PathHandler handler;
+        if (mAssetsHandler.match(url)) {
             handler = mAssetsHandler;
-        } else if (mResourcesHandler != null && mResourcesHandler.match(uri)) {
+        } else if (mResourcesHandler.match(url)) {
             handler = mResourcesHandler;
         } else {
             return null;
         }
 
-        InputStream is = handler.handle(uri);
-        return new WebResourceResponse(handler.getMimeType(), handler.getEncoding(), is);
-    }
+        InputStream is = handler.handle(url);
+        String mimeType = URLConnection.guessContentTypeFromName(url.getPath());
 
-    /**
-     * Hosts the application's assets on an http(s):// URL. It will be available under
-     * <code>http(s)://appassets.androidplatform.net/assets/...</code>.
-     */
-    @NonNull
-    public void hostAssets() {
-        hostAssets(KNOWN_UNUSED_AUTHORITY, "/assets/", true);
-    }
-
-    /**
-     * Hosts the application's assets on an http(s):// URL. It will be available under
-     * <code>http(s)://appassets.androidplatform.net/{virtualAssetPath}/...</code>.
-     *
-     * @param virtualAssetPath the virtual path under which the assets should be hosted. Should
-     *                         have a leading and trailing slash (for example "/assets/www/").
-     * @param enableHttp whether to enable hosting using the http scheme.
-     */
-    @NonNull
-    public void hostAssets(@NonNull final String virtualAssetPath, boolean enableHttp) {
-        hostAssets(KNOWN_UNUSED_AUTHORITY, virtualAssetPath, enableHttp);
-    }
-
-    /**
-     * Hosts the application's assets on an http(s):// URL. It will be available under
-     * <code>http(s)://{domain}/{virtualAssetPath}/...</code>.
-     *
-     * @param domain custom domain on which the assets should be hosted (for example "example.com").
-     * * @param virtualAssetPath the virtual path under which the assets should be hosted. Should
-     *                         have a leading and trailing slash (for example "/assets/www/").
-     * @param enableHttp whether to enable hosting using the http scheme.
-     */
-    @NonNull
-    public void hostAssets(@NonNull final String domain, @NonNull final String virtualAssetPath,
-                                    boolean enableHttp) {
-        final Uri uriPrefix = createUriPrefix(domain, virtualAssetPath);
-
-        mAssetsHandler = new PathHandler(uriPrefix.getAuthority(), uriPrefix.getPath(),
-                                            enableHttp) {
-            @Override
-            public InputStream handle(Uri url) {
-                String path = url.getPath().replaceFirst(this.mPath, "");
-                Uri.Builder assetUriBuilder = new Uri.Builder();
-                assetUriBuilder.path(path);
-                Uri assetUri = assetUriBuilder.build();
-
-                InputStream stream = mAssetHelper.openAsset(assetUri);
-                this.setMimeType(URLConnection.guessContentTypeFromName(assetUri.getPath()));
-
-                return stream;
-            }
-        };
-    }
-
-    /**
-     * Hosts the application's resources on an http(s):// URL. Resources
-     * <code>http(s)://appassets.androidplatform.net/res/{resource_type}/{resource_name}</code>.
-     */
-    @NonNull
-    public void hostResources() {
-        hostResources(KNOWN_UNUSED_AUTHORITY, "/res/", true);
-    }
-
-    /**
-     * Hosts the application's resources on an http(s):// URL. Resources
-     * <code>http(s)://appassets.androidplatform.net/{virtualResourcesPath}/
-     * {resource_type}/{resource_name}</code>.
-     *
-     * @param virtualResourcesPath the virtual path under which the assets should be hosted. Should
-     *                         have a leading and trailing slash (for example "/resources/").
-     * @param enableHttp whether to enable hosting using the http scheme.
-     */
-    @NonNull
-    public void hostResources(@NonNull final String virtualResourcesPath, boolean enableHttp) {
-        hostResources(KNOWN_UNUSED_AUTHORITY, virtualResourcesPath, enableHttp);
-    }
-
-    /**
-     * Hosts the application's resources on an http(s):// URL. Resources
-     * <code>http(s)://{domain}/{virtualResourcesPath}/{resource_type}/{resource_name}</code>.
-     *
-     * @param domain custom domain on which the assets should be hosted (for example "example.com").
-     * @param virtualResourcesPath the virtual path under which the assets should be hosted. Should
-     *                         have a leading and trailing slash (for example "/resources/").
-     * @param enableHttp whether to enable hosting using the http scheme.
-     */
-    @NonNull
-    public void hostResources(@NonNull final String domain,
-                                    @NonNull final String virtualResourcesPath,
-                                    boolean enableHttp) {
-        final Uri uriPrefix = createUriPrefix(domain, virtualResourcesPath);
-
-        mResourcesHandler = new PathHandler(uriPrefix.getAuthority(), uriPrefix.getPath(),
-                                            enableHttp) {
-            @Override
-            public InputStream handle(Uri url) {
-                String path = url.getPath().replaceFirst(uriPrefix.getPath(), "");
-                Uri.Builder resourceUriBuilder = new Uri.Builder();
-                resourceUriBuilder.path(path);
-                Uri resourceUri = resourceUriBuilder.build();
-
-                InputStream stream  = mAssetHelper.openResource(resourceUri);
-                this.setMimeType(URLConnection.guessContentTypeFromName(resourceUri.getPath()));
-
-                return stream;
-            }
-        };
-    }
-
-    @NonNull
-    private static Uri createUriPrefix(@NonNull String domain, @NonNull String virtualPath) {
-        if (virtualPath.indexOf('*') != -1) {
-            throw new IllegalArgumentException(
-                    "virtualPath cannot contain the '*' character.");
-        }
-        if (virtualPath.isEmpty() || virtualPath.charAt(0) != '/') {
-            throw new IllegalArgumentException(
-                    "virtualPath should start with a slash '/'.");
-        }
-        if (!virtualPath.endsWith("/")) {
-            throw new IllegalArgumentException(
-                    "virtualPath should end with a slash '/'.");
-        }
-
-        Uri.Builder uriBuilder = new Uri.Builder();
-        uriBuilder.authority(domain);
-        uriBuilder.path(virtualPath);
-
-        return uriBuilder.build();
+        return new WebResourceResponse(mimeType, null, is);
     }
 
     /**
@@ -404,7 +410,7 @@ public class WebViewAssetLoader {
      */
     @Nullable
     public Uri getAssetsHttpPrefix() {
-        if (mAssetsHandler == null || !mAssetsHandler.mHttpEnabled) {
+        if (!mAssetsHandler.mHttpEnabled) {
             return null;
         }
 
@@ -420,12 +426,8 @@ public class WebViewAssetLoader {
      * Gets the https: scheme prefix at which assets are hosted.
      * @return  the https: scheme prefix at which assets are hosted. Can return null.
      */
-    @Nullable
+    @NonNull
     public Uri getAssetsHttpsPrefix() {
-        if (mAssetsHandler == null) {
-            return null;
-        }
-
         Uri.Builder uriBuilder = new Uri.Builder();
         uriBuilder.authority(mAssetsHandler.mAuthority);
         uriBuilder.path(mAssetsHandler.mPath);
@@ -440,7 +442,7 @@ public class WebViewAssetLoader {
      */
     @Nullable
     public Uri getResourcesHttpPrefix() {
-        if (mResourcesHandler == null || !mResourcesHandler.mHttpEnabled) {
+        if (!mResourcesHandler.mHttpEnabled) {
             return null;
         }
 
@@ -456,12 +458,8 @@ public class WebViewAssetLoader {
      * Gets the https: scheme prefix at which resources are hosted.
      * @return  the https: scheme prefix at which resources are hosted. Can return null.
      */
-    @Nullable
+    @NonNull
     public Uri getResourcesHttpsPrefix() {
-        if (mResourcesHandler == null) {
-            return null;
-        }
-
         Uri.Builder uriBuilder = new Uri.Builder();
         uriBuilder.authority(mResourcesHandler.mAuthority);
         uriBuilder.path(mResourcesHandler.mPath);
