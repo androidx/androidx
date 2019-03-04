@@ -45,6 +45,7 @@ import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceConfiguration;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageAnalysisUseCase;
 import androidx.camera.core.ImageAnalysisUseCaseConfiguration;
 import androidx.camera.core.ImageCaptureUseCase;
@@ -487,6 +488,8 @@ public class CameraXActivity extends AppCompatActivity
                                 });
                     }
                 });
+
+        refreshFlashButtonIcon();
     }
 
     void disableImageCaptureUseCase() {
@@ -495,6 +498,45 @@ public class CameraXActivity extends AppCompatActivity
         mImageCaptureUseCase = null;
         Button button = this.findViewById(R.id.Picture);
         button.setOnClickListener(null);
+
+        refreshFlashButtonIcon();
+    }
+
+    private void refreshFlashButtonIcon() {
+        ImageButton flashToggle = findViewById(R.id.flash_toggle);
+        if (mImageCaptureUseCase != null) {
+            flashToggle.setVisibility(View.VISIBLE);
+            flashToggle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FlashMode flashMode = mImageCaptureUseCase.getFlashMode();
+                    if (flashMode == FlashMode.ON) {
+                        mImageCaptureUseCase.setFlashMode(FlashMode.OFF);
+                    } else if (flashMode == FlashMode.OFF) {
+                        mImageCaptureUseCase.setFlashMode(FlashMode.AUTO);
+                    } else if (flashMode == FlashMode.AUTO) {
+                        mImageCaptureUseCase.setFlashMode(FlashMode.ON);
+                    }
+                    refreshFlashButtonIcon();
+                }
+            });
+            FlashMode flashMode = mImageCaptureUseCase.getFlashMode();
+            switch (flashMode) {
+                case ON:
+                    flashToggle.setImageResource(R.drawable.ic_flash_on);
+                    break;
+                case OFF:
+                    flashToggle.setImageResource(R.drawable.ic_flash_off);
+                    break;
+                case AUTO:
+                    flashToggle.setImageResource(R.drawable.ic_flash_auto);
+                    break;
+            }
+
+        } else {
+            flashToggle.setVisibility(View.GONE);
+            flashToggle.setOnClickListener(null);
+        }
     }
 
     /**
