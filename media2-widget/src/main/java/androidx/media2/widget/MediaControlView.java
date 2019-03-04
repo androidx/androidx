@@ -1099,14 +1099,14 @@ public class MediaControlView extends ViewGroup {
             resetHideCallbacks();
             removeCallbacks(mUpdateProgress);
 
-            long latestSeekPosition = getLatestSeekPosition();
-            if (mIsStopped && mDuration != 0) {
-                // If the media is currently stopped, rewinding will start the media from the
-                // beginning. Instead, seek to 10 seconds before the end of the media.
-                seekTo(mDuration - REWIND_TIME_MS, true);
-                updateForStoppedState(false);
-            } else {
-                seekTo(Math.max(latestSeekPosition - REWIND_TIME_MS, 0), true);
+            // If the media is currently stopped, rewinding will start the media from the
+            // beginning. Instead, seek to 10 seconds before the end of the media.
+            boolean stoppedWithDuration = mIsStopped && mDuration != 0;
+            long currentPosition = stoppedWithDuration ? mDuration : getLatestSeekPosition();
+            long seekPosition = Math.max(currentPosition - REWIND_TIME_MS, 0);
+            seekTo(seekPosition, /* shouldSeekNow= */ true);
+            if (stoppedWithDuration) {
+                updateForStoppedState(/* isStopped= */ false);
             }
         }
     };
