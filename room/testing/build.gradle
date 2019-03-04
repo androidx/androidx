@@ -26,10 +26,10 @@ plugins {
 dependencies {
     api(project(":room:room-common"))
     api(project(":room:room-runtime"))
-    api(project(":sqlite:sqlite"))
-    api(project(":sqlite:sqlite-framework"))
+    api(ANDROIDX_SQLITE)
+    api(ANDROIDX_SQLITE_FRAMEWORK)
     api(project(":room:room-migration"))
-    implementation(project(":arch:core-runtime"))
+    implementation(ARCH_CORE_RUNTIME)
     api(SUPPORT_CORE_UTILS, libs.support_exclude_config)
     api(JUNIT)
 }

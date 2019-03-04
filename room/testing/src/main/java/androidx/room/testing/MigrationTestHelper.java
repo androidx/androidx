@@ -16,6 +16,7 @@
 
 package androidx.room.testing;
 
+import android.annotation.SuppressLint;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.database.Cursor;
@@ -134,6 +135,7 @@ public class MigrationTestHelper extends TestWatcher {
      * @return A database connection which has the schema in the requested version.
      * @throws IOException If it cannot find the schema description in the assets folder.
      */
+    @SuppressLint("RestrictedApi")
     @SuppressWarnings("SameParameterValue")
     public SupportSQLiteDatabase createDatabase(String name, int version) throws IOException {
         File dbPath = mInstrumentation.getTargetContext().getDatabasePath(name);
@@ -192,6 +194,7 @@ public class MigrationTestHelper extends TestWatcher {
      * @throws IOException           If it cannot find the schema for {@code toVersion}.
      * @throws IllegalStateException If the schema validation fails.
      */
+    @SuppressLint("RestrictedApi")
     public SupportSQLiteDatabase runMigrationsAndValidate(String name, int version,
             boolean validateDroppedTables, Migration... migrations) throws IOException {
         File dbPath = mInstrumentation.getTargetContext().getDatabasePath(name);
