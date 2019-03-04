@@ -23,13 +23,16 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.os.BuildCompat;
 
 class GhostViewUtils {
 
     @Nullable
     static GhostView addGhost(@NonNull View view, @NonNull ViewGroup viewGroup,
             @Nullable Matrix matrix) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (!BuildCompat.isAtLeastQ() && // TODO we need this check as Q has the same number as P
+                Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            // Use the platform implementation on P as we can't backport the shadows drawing.
             return GhostViewPlatform.addGhost(view, viewGroup, matrix);
         } else {
             return GhostViewPort.addGhost(view, viewGroup, matrix);
@@ -37,7 +40,9 @@ class GhostViewUtils {
     }
 
     static void removeGhost(View view) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (!BuildCompat.isAtLeastQ() && // TODO we need this check as Q has the same number as P
+                Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            // Use the platform implementation on P as we can't backport the shadows drawing.
             GhostViewPlatform.removeGhost(view);
         } else {
             GhostViewPort.removeGhost(view);
