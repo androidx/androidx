@@ -65,12 +65,11 @@ public class AssetLoaderSimpleActivity extends AppCompatActivity {
         setTitle(R.string.asset_loader_simple_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        mAssetLoader = new WebViewAssetLoader(this);
+        mAssetLoader = (new WebViewAssetLoader.Builder(this)).build();
         mWebView = findViewById(R.id.webview_asset_loader_webview);
         mWebView.setWebViewClient(new MyWebViewClient());
 
         // Host application assets under http://appassets.androidplatform.net/assets/...
-        mAssetLoader.hostAssets();
         Uri path = mAssetLoader.getAssetsHttpsPrefix().buildUpon()
                                                 .appendPath("www")
                                                 .appendPath("some_text.html").build();

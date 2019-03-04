@@ -16,10 +16,12 @@
 
 package androidx.webkit;
 
+import android.content.ContextWrapper;
 import android.net.Uri;
 import android.util.Log;
 import android.webkit.WebResourceResponse;
 
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.webkit.internal.AssetHelper;
@@ -64,21 +66,30 @@ public class WebViewAssetLoaderTest {
         }
     }
 
+    private static class MockContext extends ContextWrapper {
+        MockContext() {
+            super(ApplicationProvider.getApplicationContext());
+        }
+    }
+
     @Test
     @SmallTest
     public void testCustomPathHandler() throws Throwable {
-        WebViewAssetLoader assetLoader = new WebViewAssetLoader(new MockAssetHelper());
         final String contents = "Some content for testing\n";
         final String encoding = "utf-8";
 
-        assetLoader.mResourcesHandler =
-                new WebViewAssetLoader.PathHandler("appassets.androidplatform.net", "/test/",
+        WebViewAssetLoader.PathHandler assetsHandler =
+                new WebViewAssetLoader.PathHandler("appassets.androidplatform.net", "/notused/",
                         true) {
             @Override
-            public String getEncoding() {
-                return encoding;
+            public InputStream handle(Uri url) {
+                return null;
             }
+        };
 
+        WebViewAssetLoader.PathHandler resourcesHandler =
+                new WebViewAssetLoader.PathHandler("appassets.androidplatform.net", "/test/",
+                        true) {
             @Override
             public InputStream handle(Uri url) {
                 try {
@@ -90,13 +101,14 @@ public class WebViewAssetLoaderTest {
             }
         };
 
+        WebViewAssetLoader assetLoader = (new WebViewAssetLoader.Builder(new MockContext()))
+                                                .buildForTest(assetsHandler, resourcesHandler);
+
         WebResourceResponse response =
                 assetLoader.shouldInterceptRequest("http://appassets.androidplatform.net/test/");
         Assert.assertNotNull(response);
 
-        Assert.assertEquals(encoding, response.getEncoding());
         Assert.assertEquals(contents, readAsString(response.getData(), encoding));
-
         Assert.assertNull(assetLoader.shouldInterceptRequest("http://foo.bar/"));
     }
 
@@ -105,7 +117,8 @@ public class WebViewAssetLoaderTest {
     public void testHostAssets() throws Throwable {
         final String testHtmlContents = "<body><div>hah</div></body>";
 
-        WebViewAssetLoader assetLoader = new WebViewAssetLoader(new MockAssetHelper() {
+        WebViewAssetLoader.Builder builder = new WebViewAssetLoader.Builder(new MockContext());
+        WebViewAssetLoader assetLoader = builder.buildForTest(new MockAssetHelper() {
             @Override
             public InputStream openAsset(Uri url) {
                 if (url.getPath().equals("www/test.html")) {
@@ -120,14 +133,12 @@ public class WebViewAssetLoaderTest {
             }
         });
 
-        assetLoader.hostAssets("/assets/", true);
-        Assert.assertEquals(assetLoader.getAssetsHttpPrefix(),
-                                    Uri.parse("http://appassets.androidplatform.net/assets/"));
+        Assert.assertNull(assetLoader.getAssetsHttpPrefix());
         Assert.assertEquals(assetLoader.getAssetsHttpsPrefix(),
                                     Uri.parse("https://appassets.androidplatform.net/assets/"));
 
         WebResourceResponse response =
-                assetLoader.shouldInterceptRequest("http://appassets.androidplatform.net/assets/www/test.html");
+                assetLoader.shouldInterceptRequest("https://appassets.androidplatform.net/assets/www/test.html");
         Assert.assertNotNull(response);
         Assert.assertEquals(testHtmlContents, readAsString(response.getData(), "utf-8"));
     }
@@ -137,7 +148,8 @@ public class WebViewAssetLoaderTest {
     public void testHostResources() throws Throwable {
         final String testHtmlContents = "<body><div>hah</div></body>";
 
-        WebViewAssetLoader assetLoader = new WebViewAssetLoader(new MockAssetHelper() {
+        WebViewAssetLoader.Builder builder = new WebViewAssetLoader.Builder(new MockContext());
+        WebViewAssetLoader assetLoader = builder.buildForTest(new MockAssetHelper() {
             @Override
             public InputStream openResource(Uri uri) {
                 try {
@@ -151,12 +163,80 @@ public class WebViewAssetLoaderTest {
             }
         });
 
-        assetLoader.hostResources("/res/", true);
-        Assert.assertEquals(assetLoader.getResourcesHttpPrefix(), Uri.parse("http://appassets.androidplatform.net/res/"));
+        Assert.assertNull(assetLoader.getResourcesHttpPrefix());
         Assert.assertEquals(assetLoader.getResourcesHttpsPrefix(), Uri.parse("https://appassets.androidplatform.net/res/"));
 
         WebResourceResponse response =
-                 assetLoader.shouldInterceptRequest("http://appassets.androidplatform.net/res/raw/test.html");
+                 assetLoader.shouldInterceptRequest("https://appassets.androidplatform.net/res/raw/test.html");
+        Assert.assertNotNull(response);
+        Assert.assertEquals(testHtmlContents, readAsString(response.getData(), "utf-8"));
+    }
+
+    @Test
+    @SmallTest
+    public void testHostAssetsOnCustomUri() throws Throwable {
+        final String testHtmlContents = "<body><div>hah</div></body>";
+
+        WebViewAssetLoader.Builder builder = new WebViewAssetLoader.Builder(new MockContext());
+        builder.setDomain("example.com")
+                        .setAssetsHostingPath("/android_assets/")
+                        .allowHttp();
+        WebViewAssetLoader assetLoader = builder.buildForTest(new MockAssetHelper() {
+            @Override
+            public InputStream openAsset(Uri url) {
+                if (url.getPath().equals("www/test.html")) {
+                    try {
+                        return new ByteArrayInputStream(testHtmlContents.getBytes("utf-8"));
+                    } catch (IOException e) {
+                        Log.e(TAG, "Unable to open asset URL: " + url);
+                        return null;
+                    }
+                }
+                return null;
+            }
+        });
+
+        Assert.assertEquals(assetLoader.getAssetsHttpPrefix(),
+                                    Uri.parse("http://example.com/android_assets/"));
+        Assert.assertEquals(assetLoader.getAssetsHttpsPrefix(),
+                                    Uri.parse("https://example.com/android_assets/"));
+
+        WebResourceResponse response =
+                assetLoader.shouldInterceptRequest("http://example.com/android_assets/www/test.html");
+        Assert.assertNotNull(response);
+        Assert.assertEquals(testHtmlContents, readAsString(response.getData(), "utf-8"));
+    }
+
+    @Test
+    @SmallTest
+    public void testHostResourcesOnCustomUri() throws Throwable {
+        final String testHtmlContents = "<body><div>hah</div></body>";
+
+        WebViewAssetLoader.Builder builder = new WebViewAssetLoader.Builder(new MockContext());
+        builder.setDomain("example.com")
+                        .setResourcesHostingPath("/android_res/")
+                        .allowHttp();
+        WebViewAssetLoader assetLoader = builder.buildForTest(new MockAssetHelper() {
+            @Override
+            public InputStream openResource(Uri uri) {
+                try {
+                    if (uri.getPath().equals("raw/test.html")) {
+                        return new ByteArrayInputStream(testHtmlContents.getBytes("utf-8"));
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "exception when creating response", e);
+                }
+                return null;
+            }
+        });
+
+        Assert.assertEquals(assetLoader.getResourcesHttpPrefix(),
+                                    Uri.parse("http://example.com/android_res/"));
+        Assert.assertEquals(assetLoader.getResourcesHttpsPrefix(),
+                                    Uri.parse("https://example.com/android_res/"));
+
+        WebResourceResponse response =
+                assetLoader.shouldInterceptRequest("http://example.com/android_res/raw/test.html");
         Assert.assertNotNull(response);
         Assert.assertEquals(testHtmlContents, readAsString(response.getData(), "utf-8"));
     }

@@ -94,7 +94,7 @@ public class WebViewAssetLoaderIntegrationTest {
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            mAssetLoader = new WebViewAssetLoader(this);
+            mAssetLoader = (new WebViewAssetLoader.Builder(this)).build();
             mWebView = new WebView(this);
             setUpWebView(mWebView);
             setContentView(mWebView);
@@ -118,9 +118,8 @@ public class WebViewAssetLoaderIntegrationTest {
             @Override
             public String call() {
                 WebViewAssetLoader assetLoader = activity.getAssetLoader();
-                assetLoader.hostAssets();
                 Uri.Builder testPath =
-                        assetLoader.getAssetsHttpPrefix().buildUpon()
+                        assetLoader.getAssetsHttpsPrefix().buildUpon()
                                 .appendPath(test_with_title_path);
 
                 String url = testPath.toString();
@@ -152,9 +151,8 @@ public class WebViewAssetLoaderIntegrationTest {
             @Override
             public String call() {
                 WebViewAssetLoader assetLoader = activity.getAssetLoader();
-                assetLoader.hostResources();
                 Uri.Builder testPath =
-                        assetLoader.getResourcesHttpPrefix().buildUpon()
+                        assetLoader.getResourcesHttpsPrefix().buildUpon()
                         .appendPath("raw")
                         .appendPath(test_with_title_path);
 
