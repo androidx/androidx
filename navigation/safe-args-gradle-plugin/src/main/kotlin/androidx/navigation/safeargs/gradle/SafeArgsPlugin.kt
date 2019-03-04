@@ -73,7 +73,13 @@ abstract class SafeArgsPlugin protected constructor(
                 task.navigationFiles = navigationFiles(variant)
                 task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
                 task.incrementalFolder = File(project.buildDir, "$INCREMENTAL_PATH/${task.name}")
-                task.useAndroidX = (project.findProperty("android.useAndroidX") == "true")
+                task.useAndroidX = (project.findProperty("android.useAndroidX") == "true").also {
+                    if (!it) {
+                        throw GradleException(
+                            "androidx.navigation.safeargs can only be used with an androidx project"
+                        )
+                    }
+                }
                 task.generateKotlin = generateKotlin
             }
             task.applicationIdResource?.let { task.dependsOn(it) }
