@@ -76,7 +76,13 @@ public abstract class FragmentStateAdapter extends
 
     @Override
     public final void onBindViewHolder(final @NonNull FragmentViewHolder holder, int position) {
-        holder.mFragment = getFragment(position);
+        Fragment fragment = getFragment(position);
+        if (holder.mFragment != fragment) {
+            /** There is no guarantee that {@link #onViewRecycled} happened since the last
+             *  {@link #onBindViewHolder}, so performing a clean-up here. */
+            removeFragment(holder);
+        }
+        holder.mFragment = fragment;
 
         /** Special case when {@link RecyclerView} decides to keep the {@link container}
          * attached to the window, but not to the view hierarchy (i.e. parent is null) */
@@ -149,7 +155,6 @@ public abstract class FragmentStateAdapter extends
         // { f:added, v:created, v:attached } -> check if attached to the right container
         if (fragment.isAdded() && view.getParent() != null) {
             if (view.getParent() != container) {
-                ((FrameLayout) view.getParent()).removeAllViews();
                 addViewToContainer(view, container);
             }
             return;
@@ -188,9 +193,22 @@ public abstract class FragmentStateAdapter extends
 
     @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
     void addViewToContainer(@NonNull View v, FrameLayout container) {
-        if (container.getChildCount() != 0) {
+        if (container.getChildCount() > 1) {
             throw new IllegalStateException("Design assumption violated.");
         }
+
+        if (v.getParent() == container) {
+            return;
+        }
+
+        if (container.getChildCount() > 0) {
+            container.removeAllViews();
+        }
+
+        if (v.getParent() != null) {
+            ((ViewGroup) v.getParent()).removeView(v);
+        }
+
         container.addView(v);
     }
 

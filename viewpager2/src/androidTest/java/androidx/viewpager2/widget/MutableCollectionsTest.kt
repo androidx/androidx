@@ -28,6 +28,7 @@ import androidx.viewpager2.widget.MutableCollectionsTest.TestConfig
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import androidx.viewpager2.widget.swipe.PageView
+import androidx.viewpager2.widget.swipe.SelfChecking
 import org.hamcrest.Matchers.equalTo
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -133,6 +134,9 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
 
             assertThat(isPageContentExpected(expectedValue), equalTo(true))
             assertThat(viewPager.currentItem, equalTo(pageIx))
+            if (viewPager.adapter is SelfChecking) {
+                (viewPager.adapter as SelfChecking).selfCheck()
+            }
         }
     }
 
@@ -337,7 +341,25 @@ private fun createTestSet(): List<TestConfig> {
                 expectedEndItems = listOf("0", "3", "4", "5")
             )
 
-            (1..RANDOM_TESTS_PER_CONFIG).forEach {
+            result += TestConfig(
+                name = "regression3",
+                _items = stringSequence(pageCount = 3),
+                adapterProvider = adapterProvider,
+                actions = listOf(RemoveItem(_position = 0), AddItem(_position = 1, item = "3")),
+                orientation = orientation,
+                expectedEndItems = listOf("1", "3", "2")
+            )
+
+            result += TestConfig(
+                name = "regression4",
+                _items = stringSequence(pageCount = 3),
+                adapterProvider = adapterProvider,
+                actions = listOf(RemoveItem(_position = 0), AddItem(_position = 0, item = "3")),
+                orientation = orientation,
+                expectedEndItems = listOf("3", "1", "2")
+            )
+
+            repeat(RANDOM_TESTS_PER_CONFIG) {
                 result += generateRandomTest(adapterProvider, orientation)
             }
         }
