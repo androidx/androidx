@@ -160,14 +160,30 @@ limitations under the License.
         android:scaleType="fitXY"
         android:src="@drawable/ic_flashlight"
         android:translationZ="1dp"
-        android:background="@null"
+        android:background="@android:drawable/btn_default"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.05"
         app:layout_constraintStart_toStartOf="@id/constraintLayout"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.6" />
+        app:layout_constraintVertical_bias="0.7" />
+
+    <ImageButton
+        android:id="@+id/flash_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_flash_off"
+        android:translationZ="1dp"
+        android:background="@android:drawable/btn_default"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.05"
+        app:layout_constraintStart_toStartOf="@id/constraintLayout"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5" />
 
     <ImageButton
         android:id="@+id/direction_toggle"
@@ -176,13 +192,13 @@ limitations under the License.
         android:scaleType="fitXY"
         android:src="@drawable/ic_camera_switch"
         android:translationZ="1dp"
-        android:background="@null"
+        android:background="@android:drawable/btn_default"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.05"
         app:layout_constraintStart_toStartOf="@id/constraintLayout"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.4" />
+        app:layout_constraintVertical_bias="0.3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
