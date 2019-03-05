@@ -152,9 +152,6 @@ public class BiometricPromptDemo extends FragmentActivity {
         final Button buttonAuthenticate;
         buttonAuthenticate = findViewById(R.id.button_authenticate);
 
-        mBiometricPrompt = new BiometricPrompt(this /* fragmentActivity */, mExecutor,
-                mAuthenticationCallback);
-
         try {
             mKeyStore = KeyStore.getInstance("AndroidKeyStore");
         } catch (java.security.KeyStoreException e) {
@@ -179,6 +176,17 @@ public class BiometricPromptDemo extends FragmentActivity {
             mBiometricPrompt.cancelAuthentication();
         }
         super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Developers should (re)create the BiometricPrompt every time the application is resumed.
+        // This is necessary because it is possible for the executor and callback to be GC'd.
+        // Instantiating the prompt here allows the library to handle things such as configuration
+        // changes.
+        mBiometricPrompt = new BiometricPrompt(this /* fragmentActivity */, mExecutor,
+                mAuthenticationCallback);
     }
 
     @Override
