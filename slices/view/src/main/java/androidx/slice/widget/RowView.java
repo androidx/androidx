@@ -235,10 +235,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     @Override
     public void setInsets(int l, int t, int r, int b) {
         super.setInsets(l, t, r, b);
-        mRootView.setPadding(l, t, r, b);
-        if (mRangeBar != null) {
-            updateRangePadding();
-        }
+        setPadding(l, t, r, b);
     }
 
     /**
@@ -290,18 +287,21 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
     }
 
+    private void measureChildWithExactHeight(View child, int widthMeasureSpec, int childHeight) {
+        int heightMeasureSpec = MeasureSpec.makeMeasureSpec(childHeight + mInsetTop + mInsetBottom,
+                MeasureSpec.EXACTLY);
+        measureChild(child, widthMeasureSpec, heightMeasureSpec);
+    }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int totalHeight = mRowContent != null
-                ? mRowContent.getHeight(mSliceStyle, mViewPolicy) : 0;
         int childWidth = 0;
 
         int rowHeight = getRowContentHeight();
         if (rowHeight != 0) {
             // Might be gone if we have range / progress but nothing else
             mRootView.setVisibility(View.VISIBLE);
-            heightMeasureSpec = MeasureSpec.makeMeasureSpec(rowHeight, MeasureSpec.EXACTLY);
-            measureChild(mRootView, widthMeasureSpec, heightMeasureSpec);
+            measureChildWithExactHeight(mRootView, widthMeasureSpec, rowHeight);
 
             childWidth = mRootView.getMeasuredWidth();
         } else {
@@ -310,32 +310,37 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         if (mRangeBar != null) {
             // If we're on a platform where SeekBar can't be stretched vertically, find out the
             // exact size it would like to be so we can honor that in onLayout.
-            int rangeMeasureSpec = sCanSpecifyLargerRangeBarHeight
-                    ? MeasureSpec.makeMeasureSpec(mIdealRangeHeight, MeasureSpec.EXACTLY)
-                    : MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
-            measureChild(mRangeBar, widthMeasureSpec, rangeMeasureSpec);
+            if (sCanSpecifyLargerRangeBarHeight) {
+                measureChildWithExactHeight(mRangeBar, widthMeasureSpec, mIdealRangeHeight);
+            } else {
+                measureChild(mRangeBar, widthMeasureSpec,
+                        MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            }
             // Remember the measured height later for onLayout, since super.onMeasure will overwrite
             // it.
             mMeasuredRangeHeight = mRangeBar.getMeasuredHeight();
             childWidth = Math.max(childWidth, mRangeBar.getMeasuredWidth());
         }
 
-        childWidth = Math.max(childWidth, getSuggestedMinimumWidth());
-        setMeasuredDimension(resolveSizeAndState(childWidth, widthMeasureSpec, 0), totalHeight);
+        childWidth = Math.max(childWidth + mInsetStart + mInsetEnd, getSuggestedMinimumWidth());
+        int totalHeight = mRowContent != null ? mRowContent.getHeight(mSliceStyle, mViewPolicy) : 0;
+        setMeasuredDimension(resolveSizeAndState(childWidth, widthMeasureSpec, 0),
+                totalHeight + mInsetTop + mInsetBottom);
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        int insets = mInsetStart + mInsetEnd;
-        mRootView.layout(0, 0, mRootView.getMeasuredWidth() + insets, getRowContentHeight());
+        int leftPadding = getPaddingLeft();
+        mRootView.layout(leftPadding, mInsetTop, mRootView.getMeasuredWidth() + leftPadding,
+                getRowContentHeight() + mInsetTop);
         if (mRangeBar != null) {
             // If we're on aa platform where SeekBar can't be stretched vertically, then
             // mMeasuredRangeHeight can (and probably will) be smaller than mIdealRangeHeight, so we
             // need to add some padding to make mRangeBar look like it's the larger size.
             int verticalPadding = (mIdealRangeHeight - mMeasuredRangeHeight) / 2;
-            int top = getRowContentHeight() + verticalPadding;
+            int top = getRowContentHeight() + verticalPadding + mInsetTop;
             int bottom = top + mMeasuredRangeHeight;
-            mRangeBar.layout(0, top, mRangeBar.getMeasuredWidth(), bottom);
+            mRangeBar.layout(leftPadding, top, mRangeBar.getMeasuredWidth() + leftPadding, bottom);
         }
     }
 
@@ -655,28 +660,6 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 seekBar.setThumb(thumbDrawable);
             }
             seekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
-        }
-        updateRangePadding();
-    }
-
-    private void updateRangePadding() {
-        if (mRangeBar != null) {
-            int thumbSize = mRangeBar instanceof SeekBar
-                    ? ((SeekBar) mRangeBar).getThumb().getIntrinsicWidth() : 0;
-            int topInsetPadding = mRowContent != null
-                    ? mRowContent.getLineCount() > 0 ? 0 : mInsetTop
-                    : mInsetTop;
-            // Check if the app defined inset is large enough for the drawable
-            if (thumbSize != 0 && mInsetStart >= thumbSize / 2 && mInsetEnd >= thumbSize / 2) {
-                // If row content has text then the top inset gets applied to mContent layout
-                // not the range layout.
-                mRangeBar.setPadding(mInsetStart, topInsetPadding, mInsetEnd, mInsetBottom);
-            } else {
-                // App defined inset not bug enough; we need to apply one
-                int thumbPadding = thumbSize != 0 ? thumbSize / 2 : 0;
-                mRangeBar.setPadding(mInsetStart + thumbPadding, topInsetPadding,
-                        mInsetEnd + thumbPadding, mInsetBottom);
-            }
         }
     }
 
