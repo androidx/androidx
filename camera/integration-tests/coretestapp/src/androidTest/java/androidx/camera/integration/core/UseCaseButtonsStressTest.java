@@ -32,10 +32,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-// Test basic UI operation when using CoreTest app.
+// Stress Test UseCase unbind/bind when using CameraX.
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class BasicUITest {
+public class UseCaseButtonsStressTest {
+
     private static final int TEST_COUNT = 10;
 
     @Rule
@@ -47,35 +48,37 @@ public class BasicUITest {
         checkViewReady();
     }
 
-    // Test the Analysis (image analysis) button.
+
+    // Test the Analysis (image analysis) button to check unbind/bind ImageAnalysisUseCase.
     @Test
-    public void testAnalysisButton() {
+    public void stressTestAnalysisButton() {
 
+        // Click once to disable, then once to re-enable continuously.
         for (int i = 0; i < TEST_COUNT; i++) {
-            // Click to disable the use case.
             onView(withId(R.id.AnalysisToggle)).perform(click());
-
-            // Click to enable use case and check use case if ready.
-            IdlingRegistry.getInstance().register(
-                    mActivityRule.getActivity().mAnalysisIdlingResource);
             onView(withId(R.id.AnalysisToggle)).perform(click());
-            IdlingRegistry.getInstance().unregister(
-                    mActivityRule.getActivity().mAnalysisIdlingResource);
-
         }
     }
 
-    // Test the Preview (view finder) button.
+    // Test the Preview (view finder) button to check unbind/bind ImageAnalysisUseCase.
     @Test
-    public void testPreviewButton() {
+    public void stressTestPreviewButton() {
 
-        // Click once to disable, then once to re-enable and check view is ready.
+        // Click once to disable, then once to re-enable continuously.
         for (int i = 0; i < TEST_COUNT; i++) {
-            // Disable Preview.
             onView(withId(R.id.PreviewToggle)).perform(click());
-            // Enable Preview.
             onView(withId(R.id.PreviewToggle)).perform(click());
-            checkViewReady();
+        }
+    }
+
+    // Test the Photo (image capture) button to check unbind/bind ImageCaptureUseCase.
+    @Test
+    public void stressTestPhotoButton() {
+
+        // Click once to disable, then once to re-enable continuously.
+        for (int i = 0; i < TEST_COUNT; i++) {
+            onView(withId(R.id.PhotoToggle)).perform(click());
+            onView(withId(R.id.PhotoToggle)).perform(click());
         }
     }
 
@@ -86,4 +89,3 @@ public class BasicUITest {
     }
 
 }
-

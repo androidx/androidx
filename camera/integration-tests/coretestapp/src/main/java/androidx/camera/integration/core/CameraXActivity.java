@@ -71,6 +71,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+
 /**
  * An activity with four use cases: (1) view finder, (2) image capture, (3) image analysis, (4)
  * video capture.
@@ -107,8 +108,14 @@ public class CameraXActivity extends AppCompatActivity
     // Espresso testing variables
     @VisibleForTesting
     CountingIdlingResource mIdlingResource = new CountingIdlingResource("view");
-    // just choose 60 currently and could change later
-    private static final int FRAMES_UNTIL_VIEW_IS_READY = 60;
+    private static final int FRAMES_UNTIL_VIEW_IS_READY = 5;
+    @VisibleForTesting
+    CountingIdlingResource mAnalysisIdlingResource =
+            new CountingIdlingResource("analysis");
+    @VisibleForTesting
+    CountingIdlingResource mImageSavedIdlingResource =
+            new CountingIdlingResource("imagesaved");
+
 
     /**
      * Creates a view finder use case.
@@ -165,16 +172,16 @@ public class CameraXActivity extends AppCompatActivity
                     }
                 });
 
+        for (int i = 0; i < FRAMES_UNTIL_VIEW_IS_READY; i++) {
+            mIdlingResource.increment();
+        }
+
         if (!bindToLifecycleSafely(mViewFinderUseCase, R.id.PreviewToggle)) {
             mViewFinderUseCase = null;
             return;
         }
 
         transformPreview();
-
-        for (int i = 0; i < FRAMES_UNTIL_VIEW_IS_READY; ++i) {
-            mIdlingResource.increment();
-        }
 
         textureView.setSurfaceTextureListener(
                 new SurfaceTextureListener() {
@@ -380,8 +387,8 @@ public class CameraXActivity extends AppCompatActivity
                         .build();
 
         mImageAnalysisUseCase = new ImageAnalysisUseCase(configuration);
-
         TextView textView = this.findViewById(R.id.textView);
+        mAnalysisIdlingResource.increment();
 
         if (!bindToLifecycleSafely(mImageAnalysisUseCase, R.id.AnalysisToggle)) {
             mImageAnalysisUseCase = null;
@@ -397,6 +404,10 @@ public class CameraXActivity extends AppCompatActivity
                         // here. If we weren't on the main thread, we would have to call postValue()
                         // instead.
                         mImageAnalysisResult.setValue(Long.toString(image.getTimestamp()));
+
+                        if (!mAnalysisIdlingResource.isIdleNow()) {
+                            mAnalysisIdlingResource.decrement();
+                        }
                     }
                 });
         mImageAnalysisResult.observe(
@@ -467,6 +478,8 @@ public class CameraXActivity extends AppCompatActivity
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        mImageSavedIdlingResource.increment();
+
                         mImageCaptureUseCase.takePicture(
                                 new File(
                                         dir,
@@ -476,6 +489,9 @@ public class CameraXActivity extends AppCompatActivity
                                     @Override
                                     public void onImageSaved(File file) {
                                         Log.d(TAG, "Saved image to " + file);
+                                        if (!mImageSavedIdlingResource.isIdleNow()) {
+                                            mImageSavedIdlingResource.decrement();
+                                        }
                                     }
 
                                     @Override
@@ -484,6 +500,9 @@ public class CameraXActivity extends AppCompatActivity
                                             String message,
                                             Throwable cause) {
                                         Log.e(TAG, "Failed to save image.", cause);
+                                        if (!mImageSavedIdlingResource.isIdleNow()) {
+                                            mImageSavedIdlingResource.decrement();
+                                        }
                                     }
                                 });
                     }
