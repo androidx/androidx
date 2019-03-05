@@ -215,6 +215,7 @@ public final class TestUtils {
     public static void assertMediaItemListEquals(List<MediaItem> a, List<MediaItem> b) {
         if (a == null || b == null) {
             assertEquals(a, b);
+            return;
         }
         assertEquals(a.size(), b.size());
 
@@ -312,7 +313,7 @@ public final class TestUtils {
     }
 
     public static class Monitor {
-        private static final long MAX_TIME_OUT_MS = 20000;  // 20 seconds
+        private static final long DEFAULT_TIME_OUT_MS = 20000;  // 20 seconds
         private int mNumSignal;
 
         public synchronized void reset() {
@@ -329,19 +330,24 @@ public final class TestUtils {
         }
 
         public synchronized int waitForCountedSignals(int targetCount) throws InterruptedException {
-            return waitForCountedSignals(targetCount, MAX_TIME_OUT_MS * targetCount);
+            return waitForCountedSignals(targetCount, 0);
         }
 
         public synchronized boolean waitForSignal(long timeoutMs) throws InterruptedException {
             return waitForCountedSignals(1, timeoutMs) > 0;
         }
 
+        /**
+         * @param targetCount It should be greater than zero.
+         * @param timeoutMs It should be equals to or greater than zero. If this is zero,
+         *                  then internal default timeout will be used.
+         * @return The number of received signals within given timeoutMs.
+         * @throws InterruptedException
+         */
         public synchronized int waitForCountedSignals(int targetCount, long timeoutMs)
                 throws InterruptedException {
-            if (timeoutMs == 0) {
-                return waitForCountedSignals(targetCount);
-            }
-            long deadline = System.currentTimeMillis() + timeoutMs;
+            long internalTimeoutMs = timeoutMs > 0 ? timeoutMs : DEFAULT_TIME_OUT_MS * targetCount;
+            long deadline = System.currentTimeMillis() + internalTimeoutMs;
             while (mNumSignal < targetCount) {
                 long delay = deadline - System.currentTimeMillis();
                 if (delay <= 0) {
