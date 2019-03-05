@@ -83,12 +83,12 @@ package androidx.browser.customtabs {
     method public void launchUrl(android.content.Context!, android.net.Uri!);
     method public static android.content.Intent! setAlwaysUseBrowserUI(android.content.Intent!);
     method public static boolean shouldAlwaysUseBrowserUI(android.content.Intent!);
-    field public static final int DARK_THEME_AUTO = 0; // 0x0
-    field public static final int DARK_THEME_DISABLE = 2; // 0x2
-    field public static final int DARK_THEME_ENABLE = 1; // 0x1
+    field public static final int COLOR_SCHEME_DARK = 2; // 0x2
+    field public static final int COLOR_SCHEME_LIGHT = 1; // 0x1
+    field public static final int COLOR_SCHEME_SYSTEM = 0; // 0x0
     field public static final String EXTRA_ACTION_BUTTON_BUNDLE = "android.support.customtabs.extra.ACTION_BUTTON_BUNDLE";
     field public static final String EXTRA_CLOSE_BUTTON_ICON = "android.support.customtabs.extra.CLOSE_BUTTON_ICON";
-    field public static final String EXTRA_DARK_THEME = "androidx.browser.customtabs.extra.DARK_THEME";
+    field public static final String EXTRA_COLOR_SCHEME = "androidx.browser.customtabs.extra.COLOR_SCHEME";
     field public static final String EXTRA_DEFAULT_SHARE_MENU_ITEM = "android.support.customtabs.extra.SHARE_MENU_ITEM";
     field public static final String EXTRA_ENABLE_INSTANT_APPS = "android.support.customtabs.extra.EXTRA_ENABLE_INSTANT_APPS";
     field public static final String EXTRA_ENABLE_URLBAR_HIDING = "android.support.customtabs.extra.ENABLE_URLBAR_HIDING";
@@ -127,7 +127,7 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent, boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder setDarkThemeBehavior(int);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorScheme(int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, @AnimRes int, @AnimRes int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setInstantAppsEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(@ColorInt int);
