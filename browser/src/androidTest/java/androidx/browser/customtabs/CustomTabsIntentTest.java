@@ -77,30 +77,30 @@ public class CustomTabsIntentTest {
     }
 
     @Test
-    public void testDarkThemeBehavior() {
+    public void testColorScheme() {
         try {
-            new CustomTabsIntent.Builder().setDarkThemeBehavior(-1);
+            new CustomTabsIntent.Builder().setColorScheme(-1);
             fail("Underflow arguments are expected to throw an exception");
         } catch (IllegalArgumentException exception) {
         }
 
         try {
-            new CustomTabsIntent.Builder().setDarkThemeBehavior(42);
+            new CustomTabsIntent.Builder().setColorScheme(42);
             fail("Overflow arguments are expected to throw an exception");
         } catch (IllegalArgumentException exception) {
         }
 
         // None of the valid parameters should throw.
-        final int[] behaviourValues = new int[] {
-            CustomTabsIntent.DARK_THEME_AUTO,
-            CustomTabsIntent.DARK_THEME_ENABLE,
-            CustomTabsIntent.DARK_THEME_DISABLE
+        final int[] colorSchemeValues = new int[] {
+            CustomTabsIntent.COLOR_SCHEME_SYSTEM,
+            CustomTabsIntent.COLOR_SCHEME_LIGHT,
+            CustomTabsIntent.COLOR_SCHEME_DARK
         };
 
-        for (int value : behaviourValues) {
+        for (int value : colorSchemeValues) {
             Intent intent =
-                    new CustomTabsIntent.Builder().setDarkThemeBehavior(value).build().intent;
-            assertEquals(value, intent.getIntExtra(CustomTabsIntent.EXTRA_DARK_THEME, -1));
+                    new CustomTabsIntent.Builder().setColorScheme(value).build().intent;
+            assertEquals(value, intent.getIntExtra(CustomTabsIntent.EXTRA_COLOR_SCHEME, -1));
         }
     }
 }
