@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -101,6 +102,9 @@ public class ActionBarContainer extends FrameLayout {
         setWillNotDraw(mIsSplit ? mSplitBackground == null :
                 mBackground == null && mStackedBackground == null);
         invalidate();
+        if (Build.VERSION.SDK_INT >= 21) {
+            invalidateOutline();
+        }
     }
 
     public void setStackedBackground(Drawable bg) {
@@ -119,6 +123,9 @@ public class ActionBarContainer extends FrameLayout {
         setWillNotDraw(mIsSplit ? mSplitBackground == null :
                 mBackground == null && mStackedBackground == null);
         invalidate();
+        if (Build.VERSION.SDK_INT >= 21) {
+            invalidateOutline();
+        }
     }
 
     public void setSplitBackground(Drawable bg) {
@@ -136,6 +143,9 @@ public class ActionBarContainer extends FrameLayout {
         setWillNotDraw(mIsSplit ? mSplitBackground == null :
                 mBackground == null && mStackedBackground == null);
         invalidate();
+        if (Build.VERSION.SDK_INT >= 21) {
+            invalidateOutline();
+        }
     }
 
     @Override

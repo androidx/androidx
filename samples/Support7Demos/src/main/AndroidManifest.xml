@@ -161,8 +161,17 @@
         </activity>
 
         <activity android:name=".app.ActionBarUsage"
-                android:label="@string/action_bar_usage"
-                android:theme="@style/Theme.AppCompat">
+            android:label="@string/action_bar_usage"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.ActionBarBackgroundChange"
+            android:label="@string/action_bar_background_change"
+            android:theme="@style/Theme.AppCompat.Light">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
@@ -325,6 +334,19 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
             </intent-filter>
+        </activity>
+
+        <activity android:name=".app.ToolbarBackgroundChange"
+            android:label="@string/toolbar_background_change"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.default_searchable"
+                android:value=".app.SearchActivity" />
         </activity>
 
         <activity android:name=".app.DialogUsage"
