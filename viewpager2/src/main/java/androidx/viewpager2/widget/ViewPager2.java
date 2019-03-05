@@ -58,7 +58,7 @@ import java.lang.annotation.Retention;
  *
  * @see androidx.viewpager.widget.ViewPager
  */
-public class ViewPager2 extends ViewGroup {
+public final class ViewPager2 extends ViewGroup {
     @Retention(SOURCE)
     @IntDef({ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL})
     public @interface Orientation {
@@ -333,16 +333,16 @@ public class ViewPager2 extends ViewGroup {
      * @see androidx.viewpager2.adapter.FragmentStateAdapter
      * @see RecyclerView#setAdapter(Adapter)
      */
-    public final void setAdapter(@Nullable Adapter adapter) {
+    public void setAdapter(@Nullable Adapter adapter) {
         mRecyclerView.setAdapter(adapter);
     }
 
-    public final @Nullable Adapter getAdapter() {
+    public @Nullable Adapter getAdapter() {
         return mRecyclerView.getAdapter();
     }
 
     @Override
-    public final void onViewAdded(View child) {
+    public void onViewAdded(View child) {
         // TODO(b/70666620): consider adding a support for Decor views
         throw new IllegalStateException(
                 getClass().getSimpleName() + " does not support direct child views");
@@ -390,11 +390,11 @@ public class ViewPager2 extends ViewGroup {
     /**
      * @param orientation @{link {@link ViewPager2.Orientation}}
      */
-    public final void setOrientation(@Orientation int orientation) {
+    public void setOrientation(@Orientation int orientation) {
         mLayoutManager.setOrientation(orientation);
     }
 
-    public final @Orientation int getOrientation() {
+    public @Orientation int getOrientation() {
         return mLayoutManager.getOrientation();
     }
 
@@ -408,7 +408,7 @@ public class ViewPager2 extends ViewGroup {
      *
      * @param item Item index to select
      */
-    public final void setCurrentItem(int item) {
+    public void setCurrentItem(int item) {
         setCurrentItem(item, true);
     }
 
@@ -420,7 +420,7 @@ public class ViewPager2 extends ViewGroup {
      * @param item Item index to select
      * @param smoothScroll True to smoothly scroll to the new item, false to transition immediately
      */
-    public final void setCurrentItem(int item, boolean smoothScroll) {
+    public void setCurrentItem(int item, boolean smoothScroll) {
         Adapter adapter = getAdapter();
         if (adapter == null || adapter.getItemCount() <= 0) {
             return;
@@ -468,7 +468,7 @@ public class ViewPager2 extends ViewGroup {
      *
      * @return Currently selected page
      */
-    public final int getCurrentItem() {
+    public int getCurrentItem() {
         return mCurrentItem;
     }
 
@@ -504,7 +504,7 @@ public class ViewPager2 extends ViewGroup {
      *
      * @param callback callback to add
      */
-    public final void registerOnPageChangeCallback(@NonNull OnPageChangeCallback callback) {
+    public void registerOnPageChangeCallback(@NonNull OnPageChangeCallback callback) {
         mExternalPageChangeCallbacks.addOnPageChangeCallback(callback);
     }
 
@@ -514,18 +514,18 @@ public class ViewPager2 extends ViewGroup {
      *
      * @param callback callback to remove
      */
-    public final void unregisterOnPageChangeCallback(@NonNull OnPageChangeCallback callback) {
+    public void unregisterOnPageChangeCallback(@NonNull OnPageChangeCallback callback) {
         mExternalPageChangeCallbacks.removeOnPageChangeCallback(callback);
     }
 
     /**
-     * Sets a {@link androidx.viewpager.widget.ViewPager.PageTransformer} that will be called for
-     * each attached page whenever the scroll position is changed. This allows the application to
-     * apply custom property transformations to each page, overriding the default sliding behavior.
+     * Sets a {@link PageTransformer} that will be called for each attached page whenever the
+     * scroll position is changed. This allows the application to apply custom property
+     * transformations to each page, overriding the default sliding behavior.
      *
      * @param transformer PageTransformer that will modify each page's animation properties
      */
-    public final void setPageTransformer(@Nullable PageTransformer transformer) {
+    public void setPageTransformer(@Nullable PageTransformer transformer) {
         // TODO: add support for reverseDrawingOrder: b/112892792
         // TODO: add support for pageLayerType: b/112893074
         mPageTransformerAdapter.setPageTransformer(transformer);
