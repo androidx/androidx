@@ -22,17 +22,17 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkRequest.MAX_BACKOFF_MILLIS;
 import static androidx.work.WorkRequest.MIN_BACKOFF_MILLIS;
 
-import android.arch.core.util.Function;
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Embedded;
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Index;
-import android.arch.persistence.room.PrimaryKey;
-import android.arch.persistence.room.Relation;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.arch.core.util.Function;
+import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
+import androidx.room.Entity;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
+import androidx.room.Relation;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.Data;

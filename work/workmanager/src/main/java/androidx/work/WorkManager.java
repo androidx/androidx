@@ -16,11 +16,11 @@
 
 package androidx.work;
 
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.lifecycle.LiveData;
 import androidx.work.impl.WorkManagerImpl;
 
 import com.google.common.util.concurrent.ListenableFuture;

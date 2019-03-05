@@ -16,13 +16,13 @@
 
 package androidx.work.impl;
 
-import android.arch.persistence.db.SupportSQLiteDatabase;
-import android.arch.persistence.room.migration.Migration;
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkTypeConverters;
 import androidx.work.impl.utils.Preferences;

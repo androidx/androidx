@@ -16,8 +16,8 @@
 package androidx.work.impl.constraints.controllers;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 
+import androidx.annotation.NonNull;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
 

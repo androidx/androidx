@@ -17,9 +17,9 @@
 package androidx.work.testing;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import androidx.work.impl.WorkManagerImpl;

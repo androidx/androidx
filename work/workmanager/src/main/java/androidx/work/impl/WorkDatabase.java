@@ -24,15 +24,15 @@ import static androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STA
 import static androidx.work.impl.model.WorkTypeConverters.StateIds.ENQUEUED;
 import static androidx.work.impl.model.WorkTypeConverters.StateIds.RUNNING;
 
-import android.arch.persistence.db.SupportSQLiteDatabase;
-import android.arch.persistence.room.Database;
-import android.arch.persistence.room.Room;
-import android.arch.persistence.room.RoomDatabase;
-import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.room.Database;
+import androidx.room.Room;
+import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.work.Data;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;

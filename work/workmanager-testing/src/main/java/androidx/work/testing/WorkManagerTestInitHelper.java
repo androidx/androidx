@@ -17,8 +17,8 @@
 package androidx.work.testing;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 
+import androidx.annotation.NonNull;
 import androidx.work.Configuration;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
