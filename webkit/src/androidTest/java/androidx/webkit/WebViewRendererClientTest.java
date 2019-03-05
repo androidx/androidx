@@ -21,7 +21,6 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -86,7 +85,7 @@ public class WebViewRendererClientTest {
     }
 
     private void blockRenderer(final JSBlocker blocker) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 WebView webView = mWebViewOnUiThread.getWebViewOnCurrentThread();
@@ -101,7 +100,7 @@ public class WebViewRendererClientTest {
     }
 
     private void addJsBlockerInterface(final JSBlocker blocker) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 WebView webView = mWebViewOnUiThread.getWebViewOnCurrentThread();
