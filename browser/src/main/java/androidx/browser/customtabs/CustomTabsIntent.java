@@ -74,37 +74,39 @@ public final class CustomTabsIntent {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({DARK_THEME_AUTO, DARK_THEME_ENABLE, DARK_THEME_DISABLE})
+    @IntDef({COLOR_SCHEME_SYSTEM, COLOR_SCHEME_LIGHT, COLOR_SCHEME_DARK})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface DarkThemeBehavior {
+    public @interface ColorScheme {
     }
 
     /**
-     * Dark theme will be enabled or disabled according to system configuration.
+     * Applies either a light or dark color scheme to the user interface in the custom tab depending
+     * on the user's system settings.
      */
-    public static final int DARK_THEME_AUTO = 0;
+    public static final int COLOR_SCHEME_SYSTEM = 0;
 
     /**
-     * Dark theme should be enabled for the custom tab. The user interface will be darkened, and the
-     * website will receive signals enabling it to participate in the dark theme as well.
+     * Applies a light color scheme to the user interface in the custom tab.
      */
-    public static final int DARK_THEME_ENABLE = 1;
+    public static final int COLOR_SCHEME_LIGHT = 1;
 
     /**
-     * Dark theme should be disabled for the custom tab.
+     * Applies a light color scheme to the user interface in the custom tab. Colors set through
+     * {@link #EXTRA_TOOLBAR_COLOR} may be darkened to match user expectations.
      */
-    public static final int DARK_THEME_DISABLE = 2;
+    public static final int COLOR_SCHEME_DARK = 2;
 
     /**
-     * Maximum value for the DARK_THEME_* configuration options. For validation purposes only.
+     * Maximum value for the COLOR_SCHEME_* configuration options. For validation purposes only.
      */
-    private static final int DARK_THEME_MAX = 2;
+    private static final int COLOR_SCHEME_MAX = 2;
 
     /**
-     * Extra (int) that specifies whether dark theme should be applied to the custom tab. Default is
-     * {@link #DARK_THEME_AUTO}.
+     * Extra (int) that specifies which color scheme should be applied to the custom tab. Default is
+     * {@link #COLOR_SCHEME_SYSTEM}.
      */
-    public static final String EXTRA_DARK_THEME = "androidx.browser.customtabs.extra.DARK_THEME";
+    public static final String EXTRA_COLOR_SCHEME =
+            "androidx.browser.customtabs.extra.COLOR_SCHEME";
 
     /**
      * Extra that changes the background color for the toolbar. colorRes is an int that specifies a
@@ -566,19 +568,19 @@ public final class CustomTabsIntent {
         }
 
         /**
-         * Sets behavior of the custom tab in regards to dark theme.
+         * Sets the color scheme that should be applied to the user interface in the custom tab.
          *
-         * @param behavior Desired dark theme behavior.
-         * @see CustomTabsIntent#DARK_THEME_AUTO
-         * @see CustomTabsIntent#DARK_THEME_ENABLE
-         * @see CustomTabsIntent#DARK_THEME_DISABLE
+         * @param colorScheme Desired color scheme.
+         * @see CustomTabsIntent#COLOR_SCHEME_SYSTEM
+         * @see CustomTabsIntent#COLOR_SCHEME_LIGHT
+         * @see CustomTabsIntent#COLOR_SCHEME_DARK
          */
         @NonNull
-        public Builder setDarkThemeBehavior(@DarkThemeBehavior int behavior) {
-            if (behavior < 0 || behavior > DARK_THEME_MAX) {
-                throw new IllegalArgumentException("Invalid value for the behavior argument");
+        public Builder setColorScheme(@ColorScheme int colorScheme) {
+            if (colorScheme < 0 || colorScheme > COLOR_SCHEME_MAX) {
+                throw new IllegalArgumentException("Invalid value for the colorScheme argument");
             }
-            mIntent.putExtra(EXTRA_DARK_THEME, behavior);
+            mIntent.putExtra(EXTRA_COLOR_SCHEME, colorScheme);
             return this;
         }
 
