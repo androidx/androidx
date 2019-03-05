@@ -251,6 +251,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".app.AppCompatWidgetsSwitches"
+            android:label="@string/appcompat_widgets_switches"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".app.AppCompatWidgetsTextInput"
                   android:label="@string/appcompat_widgets_text_input"
                   android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
