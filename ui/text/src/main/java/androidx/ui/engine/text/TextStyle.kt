@@ -70,26 +70,6 @@ data class TextStyle constructor(
                 "'foreground: new Paint()..color = color'."
         }
     }
-
-    override fun toString(): String {
-        return "TextStyle(" +
-        "color: ${color ?: "unspecified"}, " +
-        "decoration: ${decoration ?: "unspecified"}, " +
-        "fontWeight: ${fontWeight ?: "unspecified"}, " +
-        "fontStyle: ${fontStyle ?: "unspecified"}, " +
-        "textBaseline: ${textBaseline ?: "unspecified"}, " +
-        "fontFamily: ${fontFamily ?: "unspecified"}, " +
-        "fontSize: ${fontSize ?: "unspecified"}, " +
-        "letterSpacing: ${if (letterSpacing != null) "${letterSpacing}x" else "unspecified"}, " +
-        "wordSpacing: ${if (wordSpacing != null) "${wordSpacing}x" else "unspecified"}, " +
-        "height: ${if (height != null) "${height}x" else "unspecified"}, " +
-        "locale: ${locale ?: "unspecified"}, " +
-        "background: ${background ?: "unspecified"}, " +
-        "foreground: ${foreground ?: "unspecified"}, " +
-        "fontSynthesis: ${fontSynthesis ?: "unspecified"}, " +
-        "baselineShift: ${baselineShift ?: "unspecified"}" +
-        ")"
-    }
 }
 
 // TODO(Migration/siyamed) Remove, Native defaults

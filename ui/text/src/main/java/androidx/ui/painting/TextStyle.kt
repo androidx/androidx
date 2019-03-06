@@ -146,22 +146,19 @@ data class TextStyle(
             inherit = inherit,
             color = color ?: this.color,
             fontFamily = fontFamily ?: this.fontFamily,
-            fontSize = if (fontSize == null) null else fontSize * fontSizeFactor + fontSizeDelta,
-            fontWeight = if (fontWeight == null) null else {
+            fontSize = fontSize?.let { it * fontSizeFactor + fontSizeDelta },
+            fontWeight = fontWeight?.let {
                 FontWeight.values[
-                    (fontWeight.index + fontWeightDelta).coerceIn(0, FontWeight.values.size - 1)
+                    (it.index + fontWeightDelta).coerceIn(0, FontWeight.values.size - 1)
                 ]
             },
             fontStyle = fontStyle,
             fontSynthesis = fontSynthesis,
-            letterSpacing = if (letterSpacing == null) null else {
-                letterSpacing * letterSpacingFactor + letterSpacingDelta
-            },
-            wordSpacing =
-            if (wordSpacing == null) null else wordSpacing * wordSpacingFactor + wordSpacingDelta,
+            letterSpacing = letterSpacing?.let { it * letterSpacingFactor + letterSpacingDelta },
+            wordSpacing = wordSpacing?.let { it * wordSpacingFactor + wordSpacingDelta },
             textBaseline = textBaseline,
             baselineShift = baselineShift,
-            height = if (height == null) null else height * heightFactor + heightDelta,
+            height = height?.let { it * heightFactor + heightDelta},
             locale = locale,
             background = background,
             decoration = decoration ?: this.decoration,
@@ -242,75 +239,32 @@ data class TextStyle(
                 ?: _kDefaultDebugLabel})"
 
             if (a == null) {
-                val newB = TextStyle(
-                    inherit = b?.inherit,
-                    color = b?.color,
-                    fontFamily = b?.fontFamily,
-                    fontSize = b?.fontSize,
-                    fontWeight = b?.fontWeight,
-                    fontStyle = b?.fontStyle,
-                    fontSynthesis = b?.fontSynthesis,
-                    letterSpacing = b?.letterSpacing,
-                    wordSpacing = b?.wordSpacing,
-                    textBaseline = b?.textBaseline,
-                    baselineShift = b?.baselineShift,
-                    height = b?.height,
-                    locale = b?.locale,
-                    background = b?.background,
-                    decoration = b?.decoration,
-                    debugLabel = lerpDebugLabel
-                )
-                if (t < 0.5) {
-                    return TextStyle(
+                val newB =
+                    b?.copy(debugLabel = lerpDebugLabel)?: TextStyle(debugLabel = lerpDebugLabel)
+                return if (t < 0.5) {
+                    TextStyle(
                         inherit = newB.inherit,
                         color = Color.lerp(null, newB.color, t),
                         fontWeight = FontWeight.lerp(null, newB.fontWeight, t),
                         debugLabel = lerpDebugLabel
                     )
                 } else {
-                    return TextStyle(
-                        inherit = newB.inherit,
+                    newB.copy(
                         color = Color.lerp(null, newB.color, t),
-                        fontFamily = newB.fontFamily,
-                        fontSize = newB.fontSize,
-                        fontWeight = FontWeight.lerp(null, newB.fontWeight, t),
-                        fontStyle = newB.fontStyle,
-                        fontSynthesis = newB.fontSynthesis,
-                        letterSpacing = newB.letterSpacing,
-                        wordSpacing = newB.wordSpacing,
-                        textBaseline = newB.textBaseline,
-                        baselineShift = newB.baselineShift,
-                        height = newB.height,
-                        locale = newB.locale,
-                        background = newB.background,
-                        decoration = newB.decoration,
-                        debugLabel = lerpDebugLabel
+                        fontWeight = FontWeight.lerp(null, newB.fontWeight, t)
                     )
                 }
             }
 
             if (b == null) {
-                if (t < 0.5) {
-                    return TextStyle(
-                        inherit = a.inherit,
+                return if (t < 0.5) {
+                    a.copy(
                         color = Color.lerp(a.color, null, t),
-                        fontFamily = a.fontFamily,
-                        fontSize = a.fontSize,
                         fontWeight = FontWeight.lerp(a.fontWeight, null, t),
-                        fontStyle = a.fontStyle,
-                        fontSynthesis = a.fontSynthesis,
-                        letterSpacing = a.letterSpacing,
-                        wordSpacing = a.wordSpacing,
-                        textBaseline = a.textBaseline,
-                        baselineShift = a.baselineShift,
-                        height = a.height,
-                        locale = a.locale,
-                        background = a.background,
-                        decoration = a.decoration,
                         debugLabel = lerpDebugLabel
                     )
                 } else {
-                    return TextStyle(
+                    TextStyle(
                         inherit = a.inherit,
                         color = Color.lerp(a.color, null, t),
                         fontWeight = FontWeight.lerp(a.fontWeight, null, t),
