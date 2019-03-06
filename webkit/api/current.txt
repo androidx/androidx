@@ -98,6 +98,25 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingEnabled(android.webkit.WebSettings!, boolean);
   }
 
+  public class WebViewAssetLoader {
+    method public android.net.Uri? getAssetsHttpPrefix();
+    method public android.net.Uri getAssetsHttpsPrefix();
+    method public android.net.Uri? getResourcesHttpPrefix();
+    method public android.net.Uri getResourcesHttpsPrefix();
+    method @RequiresApi(21) public android.webkit.WebResourceResponse? shouldInterceptRequest(android.webkit.WebResourceRequest);
+    method public android.webkit.WebResourceResponse? shouldInterceptRequest(String);
+    field public static final String KNOWN_UNUSED_AUTHORITY = "appassets.androidplatform.net";
+  }
+
+  public static final class WebViewAssetLoader.Builder {
+    ctor public WebViewAssetLoader.Builder(android.content.Context);
+    method public androidx.webkit.WebViewAssetLoader.Builder allowHttp();
+    method public androidx.webkit.WebViewAssetLoader build();
+    method public androidx.webkit.WebViewAssetLoader.Builder setAssetsHostingPath(String);
+    method public androidx.webkit.WebViewAssetLoader.Builder setDomain(String);
+    method public androidx.webkit.WebViewAssetLoader.Builder setResourcesHostingPath(String);
+  }
+
   public class WebViewClientCompat extends android.webkit.WebViewClient {
     ctor public WebViewClientCompat();
     method @RequiresApi(23) public final void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError);
