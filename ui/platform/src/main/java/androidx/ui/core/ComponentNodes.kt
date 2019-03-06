@@ -116,7 +116,7 @@ sealed class ComponentNode : Emittable {
      * Execute [block] on all children of this ComponentNode. There is no single concept for
      * children in ComponentNode, so this method allows executing a method on all children.
      */
-    abstract fun visitChildren(block: (ComponentNode) -> Unit)
+    abstract fun visitChildren(reverse: Boolean = false, block: (ComponentNode) -> Unit)
 
     /**
      * Inserts a child [ComponentNode] at a particular index. If this ComponentNode [isAttached]
@@ -245,7 +245,7 @@ open class SingleChildComponentNode() : ComponentNode() {
         ErrorMessages.NoMovingSingleElements.unsupported()
     }
 
-    override fun visitChildren(block: (ComponentNode) -> Unit) {
+    override fun visitChildren(reverse: Boolean, block: (ComponentNode) -> Unit) {
         val child = this.child
         if (child != null) {
             block(child)
@@ -278,7 +278,7 @@ class DrawNode() : ComponentNode() {
 
     override val layoutNode: LayoutNode? get() = null // no children
 
-    override fun visitChildren(block: (ComponentNode) -> Unit) {
+    override fun visitChildren(reverse: Boolean, block: (ComponentNode) -> Unit) {
         // no children
     }
 
@@ -406,8 +406,9 @@ class LayoutNode : ComponentNode() {
         children.addAll(to, removed)
     }
 
-    override fun visitChildren(block: (ComponentNode) -> Unit) {
-        children.forEach() { child ->
+    override fun visitChildren(reverse: Boolean, block: (ComponentNode) -> Unit) {
+        val children = if (reverse) children.reversed() else children
+        children.forEach { child ->
             block(child)
         }
     }
