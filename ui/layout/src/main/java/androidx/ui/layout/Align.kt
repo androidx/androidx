@@ -19,7 +19,7 @@ package androidx.ui.layout
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
-import androidx.ui.core.adapter.MeasureBox
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.center
 import androidx.ui.core.isFinite
 import androidx.ui.core.minus

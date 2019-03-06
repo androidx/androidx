@@ -22,17 +22,14 @@ import androidx.ui.baseui.selection.ToggleableState.INDETERMINATE
 import androidx.ui.baseui.selection.ToggleableState.UNCHECKED
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.adapter.MeasureBox
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.div
+import androidx.ui.core.times
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
-import androidx.ui.painting.Color
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-import androidx.ui.core.times
 import androidx.ui.material.RadioButtonWrapper
 import androidx.ui.material.SwitchWrapper
+import androidx.ui.painting.Color
 import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertIsChecked
 import androidx.ui.test.assertIsNotChecked
@@ -47,6 +44,9 @@ import com.google.r4a.Composable
 import com.google.r4a.Model
 import com.google.r4a.composer
 import org.junit.Ignore
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
 
 @Model
 class CheckboxState(

@@ -19,9 +19,9 @@ package androidx.ui.material
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.DensityReceiver
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.PxSize
 import androidx.ui.core.adapter.Draw
-import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.max

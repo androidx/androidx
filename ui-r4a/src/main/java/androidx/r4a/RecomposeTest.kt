@@ -37,8 +37,8 @@ import android.os.Looper
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.adapter.Draw
-import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
@@ -51,8 +51,8 @@ import androidx.ui.painting.Paint
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
-import com.google.r4a.composer
 import com.google.r4a.Recompose
+import com.google.r4a.composer
 
 @Composable
 fun GrayRect() {

@@ -16,12 +16,12 @@
 
 package androidx.r4a
 
+import androidx.ui.core.ComplexMeasureBox
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
-import androidx.ui.core.adapter.ComplexMeasureBox
-import androidx.ui.core.adapter.MeasureBox
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.layout.Align

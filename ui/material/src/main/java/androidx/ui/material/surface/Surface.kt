@@ -18,7 +18,7 @@ package androidx.ui.material.surface
 
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
-import androidx.ui.core.adapter.MeasureBox
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth

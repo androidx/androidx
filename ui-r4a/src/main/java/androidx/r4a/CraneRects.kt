@@ -21,9 +21,9 @@ import android.graphics.BitmapFactory
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.IntPx
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.PxPosition
 import androidx.ui.core.adapter.Draw
-import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.adapter.PressGestureDetector
 import androidx.ui.core.div
 import androidx.ui.core.dp
