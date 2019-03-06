@@ -18,11 +18,11 @@ package androidx.work.impl.background.greedy;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
 import androidx.work.WorkInfo;
 import androidx.work.impl.ExecutionListener;

@@ -16,8 +16,7 @@
 
 package androidx.work.impl.utils;
 
-import android.support.annotation.RestrictTo;
-
+import androidx.annotation.RestrictTo;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.WorkManagerImpl;
 

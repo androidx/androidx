@@ -20,7 +20,8 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.RestrictTo;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * Generates unique IDs that are persisted in {@link SharedPreferences}.

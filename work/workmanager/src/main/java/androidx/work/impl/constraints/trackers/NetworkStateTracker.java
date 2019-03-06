@@ -25,10 +25,10 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.annotation.RestrictTo;
-import android.support.v4.net.ConnectivityManagerCompat;
 
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.core.net.ConnectivityManagerCompat;
 import androidx.work.Logger;
 import androidx.work.impl.constraints.NetworkState;
 

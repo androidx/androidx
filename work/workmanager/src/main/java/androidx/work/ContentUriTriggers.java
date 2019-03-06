@@ -17,8 +17,9 @@
 package androidx.work;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.util.HashSet;
 import java.util.Set;

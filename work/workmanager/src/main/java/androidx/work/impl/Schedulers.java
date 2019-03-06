@@ -21,9 +21,9 @@ import static androidx.work.impl.utils.PackageManagerHelper.setComponentEnabled;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
 import androidx.work.Logger;
 import androidx.work.impl.background.systemalarm.SystemAlarmScheduler;

@@ -15,7 +15,7 @@
  */
 package androidx.work.impl.constraints;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * The listener for constraint changes.

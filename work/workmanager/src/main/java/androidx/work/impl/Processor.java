@@ -16,9 +16,9 @@
 package androidx.work.impl;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
 import androidx.work.Logger;
 import androidx.work.WorkerParameters;

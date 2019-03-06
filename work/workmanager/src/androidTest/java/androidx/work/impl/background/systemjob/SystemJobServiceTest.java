@@ -28,15 +28,15 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import android.app.job.JobParameters;
-import android.arch.core.executor.ArchTaskExecutor;
-import android.arch.core.executor.TaskExecutor;
 import android.content.Context;
 import android.net.Network;
 import android.net.Uri;
 import android.os.Build;
 import android.os.PersistableBundle;
-import android.support.annotation.NonNull;
 
+import androidx.annotation.NonNull;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.TaskExecutor;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;

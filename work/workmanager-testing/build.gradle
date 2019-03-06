@@ -26,14 +26,12 @@ plugins {
 }
 
 dependencies {
-    // @aar and { transitive = true } are needed as a workaround for
-    // https://github.com/gradle/gradle/issues/3170
     implementation(project(':work:work-runtime'))
-    implementation("android.arch.lifecycle:livedata-core:1.1.0@aar") { transitive = true }
-    implementation("android.arch.persistence.room:runtime:1.1.1@aar") { transitive = true }
-    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
+    implementation(ARCH_LIFECYCLE_LIVEDATA_CORE)
+    implementation(ARCH_ROOM_RUNTIME)
+    annotationProcessor(ARCH_ROOM_COMPILER)
 
-    androidTestImplementation "android.arch.core:core-testing:1.1.0"
+    androidTestImplementation(ARCH_CORE_TESTING)
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
