@@ -29,8 +29,8 @@ import androidx.ui.material.clip.ShapeBorderClipper
 import androidx.ui.material.clip.cache.CachingClipper
 import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.material.ripple.RippleSurface
-import androidx.ui.material.ripple.RippleSurfaceConsumer
 import androidx.ui.material.ripple.RippleSurfaceOwner
+import androidx.ui.material.ripple.ambientRippleSurface
 import androidx.ui.painting.Color
 import com.google.r4a.Ambient
 import com.google.r4a.Children
@@ -64,7 +64,7 @@ val CurrentSurfaceShadowColor = Ambient.of { Color(0xFF000000.toInt()) }
  * Most user interface elements are either conceptually printed on a surface
  * or themselves made of surface. Surface reacts to user input using [RippleEffect] effects.
  * To trigger a reaction on the surface, use a [RippleSurfaceOwner] obtained via
- * [RippleSurfaceConsumer].
+ * [ambientRippleSurface].
  */
 @Composable
 fun Surface(

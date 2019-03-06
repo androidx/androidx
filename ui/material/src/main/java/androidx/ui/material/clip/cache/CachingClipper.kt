@@ -21,46 +21,45 @@ import androidx.ui.core.PxSize
 import androidx.ui.material.clip.CustomClipper
 import androidx.ui.painting.Path
 import com.google.r4a.Children
-import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.composer
+import com.google.r4a.memo
+import com.google.r4a.unaryPlus
 
 /**
  * A Composable to help cache the clip object and not execute [CustomClipper.getClip]
  * when the parent size didn't change. It helps to save extra allocations of the
  * complex objects like [Path].
  */
-class CachingClipper<T>(
-    var clipper: CustomClipper<T>,
-    @Children var children: (clipper: CustomClipper<T>) -> Unit
-) : Component() {
+@Composable
+fun <T> CachingClipper(
+    clipper: CustomClipper<T>,
+    @Children children: (clipper: CustomClipper<T>) -> Unit
+) {
+    val cachingClipper = +memo(clipper) { CachingCustomClipper(clipper) }
+    <children clipper=cachingClipper />
+}
 
-    internal var lastClipper: CustomClipper<T> = clipper
+internal class CachingCustomClipper<T>(
+    internal var clipper: CustomClipper<T>
+) : CustomClipper<T> {
+
     internal var lastSize: PxSize? = null
     internal var lastClip: T? = null
 
-    private val cachingClipper = object : CustomClipper<T> {
-
-        /**
-         * Returns a clip.
-         *
-         * It will recreate a clip only when clipper or parent size have been changed,
-         * otherwise will return the cached object.
-         */
-        override fun getClip(size: PxSize, density: Density): T {
-            if (lastClipper != clipper) {
-                lastClip = null
-            }
-            if (size != lastSize) {
-                lastClip = null
-                lastSize = size
-            }
-            val clip = lastClip ?: clipper.getClip(size, density)
-            lastClip = clip
-            return clip
+    /**
+     * Returns a clip.
+     *
+     * It will recreate a clip only when clipper or parent size have been changed,
+     * otherwise will return the cached object.
+     */
+    override fun getClip(size: PxSize, density: Density): T {
+        if (size != lastSize) {
+            lastClip = null
+            lastSize = size
         }
-    }
-
-    override fun compose() {
-        <children clipper=cachingClipper />
+        val clip = lastClip ?: clipper.getClip(size, density)
+        lastClip = clip
+        return clip
     }
 }

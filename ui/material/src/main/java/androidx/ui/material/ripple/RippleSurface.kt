@@ -16,14 +16,18 @@
 
 package androidx.ui.material.ripple
 
+import androidx.annotation.CheckResult
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.toRect
 import androidx.ui.painting.Color
 import com.google.r4a.Ambient
 import com.google.r4a.Children
-import com.google.r4a.Component
-import com.google.r4a.Composable
+import com.google.r4a.ambient
 import com.google.r4a.composer
+import com.google.r4a.effectOf
+import com.google.r4a.invalidate
+import com.google.r4a.memo
+import com.google.r4a.unaryPlus
 
 /**
  * An interface for creating [RippleEffect]s on a [RippleSurface].
@@ -61,51 +65,42 @@ internal val CurrentRippleSurface = Ambient.of<RippleSurfaceOwner> {
 }
 
 /**
- * Provides a current [RippleSurfaceOwner] from the [RippleSurface] ancestor.
+ * [ambient] to get a current [RippleSurfaceOwner] object from the [RippleSurface] ancestor.
  */
-@Composable
-fun RippleSurfaceConsumer(@Children children: (surface: RippleSurfaceOwner) -> Unit) {
-    <CurrentRippleSurface.Consumer> surface ->
-        <children surface />
-    </CurrentRippleSurface.Consumer>
-}
+@CheckResult(suggest = "+")
+fun ambientRippleSurface() = effectOf<RippleSurfaceOwner> { +ambient(CurrentRippleSurface) }
 
 /**
  * A surface used to draw [RippleEffect]s on top of it.
  */
-class RippleSurface(
+fun RippleSurface(
     /**
      * The surface background backgroundColor.
      */
-    val color: Color?,
-    @Children var children: () -> Unit
-) : Component() {
+    color: Color?,
+    @Children children: () -> Unit
+) {
+    val owner = +memo { RippleSurfaceOwnerImpl() }
+    owner.backgroundColor = color
+    owner.recompose = +invalidate
 
-    // TODO(Andrey: Use state effect and convert to function. b/124500412
-    private lateinit var owner: RippleSurfaceOwnerImpl
-
-    override fun compose() {
-        if (!::owner.isInitialized) {
-            owner = RippleSurfaceOwnerImpl(color, this::recompose)
+    <Draw> canvas, size ->
+        if (owner.effects.isNotEmpty()) {
+            canvas.save()
+            canvas.clipRect(size.toRect())
+            owner.effects.forEach { it.draw(canvas) }
+            canvas.restore()
         }
-        <Draw> canvas, size ->
-            if (owner.effects.isNotEmpty()) {
-                canvas.save()
-                canvas.clipRect(size.toRect())
-                owner.effects.forEach { it.draw(canvas) }
-                canvas.restore()
-            }
-        </Draw>
-        <CurrentRippleSurface.Provider value=owner>
-            <children />
-        </CurrentRippleSurface.Provider>
-    }
+    </Draw>
+    <CurrentRippleSurface.Provider value=owner>
+        <children />
+    </CurrentRippleSurface.Provider>
 }
 
-private class RippleSurfaceOwnerImpl(
-    override val backgroundColor: Color?,
-    private val recompose: () -> Unit
-) : RippleSurfaceOwner {
+private class RippleSurfaceOwnerImpl : RippleSurfaceOwner {
+
+    override var backgroundColor: Color? = null
+    internal var recompose: () -> Unit = {}
 
     internal var effects = mutableListOf<RippleEffect>()
 

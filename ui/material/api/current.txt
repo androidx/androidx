@@ -348,13 +348,9 @@ package androidx.ui.material.clip {
 
 package androidx.ui.material.clip.cache {
 
-  public final class CachingClipper<T> extends com.google.r4a.Component {
-    ctor public CachingClipper(androidx.ui.material.clip.CustomClipper<T> clipper, kotlin.jvm.functions.Function1<? super androidx.ui.material.clip.CustomClipper<T>,kotlin.Unit> children);
-    method public void compose();
-    method public kotlin.jvm.functions.Function1<androidx.ui.material.clip.CustomClipper<T>,kotlin.Unit> getChildren();
-    method public androidx.ui.material.clip.CustomClipper<T> getClipper();
-    method public void setChildren(kotlin.jvm.functions.Function1<? super androidx.ui.material.clip.CustomClipper<T>,kotlin.Unit> p);
-    method public void setClipper(androidx.ui.material.clip.CustomClipper<T> p);
+  public final class CachingClipperKt {
+    ctor public CachingClipperKt();
+    method public static <T> void CachingClipper(androidx.ui.material.clip.CustomClipper<T> clipper, kotlin.jvm.functions.Function1<? super androidx.ui.material.clip.CustomClipper<T>,kotlin.Unit> children);
   }
 
 }
@@ -369,15 +365,6 @@ package androidx.ui.material.demos {
     method public void setColor(androidx.ui.painting.Color? p);
     method public void setValue(androidx.ui.baseui.selection.ToggleableState p);
     method public void toggle();
-  }
-
-  public final class RippleDemo extends com.google.r4a.Component {
-    ctor public RippleDemo();
-    method public void compose();
-  }
-
-  public final class RippleDemoKt {
-    ctor public RippleDemoKt();
   }
 
   public final class SelectionsControlsDemo extends com.google.r4a.Component {
@@ -411,31 +398,6 @@ package androidx.ui.material.ripple {
     ctor public DefaultRippleEffectKt();
   }
 
-  public final class Ripple extends com.google.r4a.Component {
-    ctor public Ripple(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public boolean getBounded();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? getBoundsCallback();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public androidx.ui.material.borders.BorderRadius? getClippingBorderRadius();
-    method public androidx.ui.core.Px? getFinalRadius();
-    method public kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? getOnHighlightChanged();
-    method public androidx.ui.material.borders.BoxShape getShape();
-    method public void setBounded(boolean p);
-    method public void setBoundsCallback(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? p);
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setClippingBorderRadius(androidx.ui.material.borders.BorderRadius? p);
-    method public void setFinalRadius(androidx.ui.core.Px? p);
-    method public void setOnHighlightChanged(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? p);
-    method public void setShape(androidx.ui.material.borders.BoxShape p);
-    property public final boolean bounded;
-    property public final kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback;
-    property public final androidx.ui.material.borders.BorderRadius? clippingBorderRadius;
-    property public final androidx.ui.core.Px? finalRadius;
-    property public final kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? onHighlightChanged;
-    property public final androidx.ui.material.borders.BoxShape shape;
-  }
-
   public abstract class RippleEffect {
     ctor public RippleEffect(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.painting.Color color, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
     method @CallSuper public void dispose();
@@ -454,17 +416,15 @@ package androidx.ui.material.ripple {
     method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.painting.Color color, androidx.ui.core.Density density, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.RECTANGLE, androidx.ui.core.Px? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
   }
 
-  public final class RippleSurface extends com.google.r4a.Component {
-    ctor public RippleSurface(androidx.ui.painting.Color? color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public androidx.ui.painting.Color? getColor();
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+  public final class RippleKt {
+    ctor public RippleKt();
+    method public static void Ripple(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHighlightChanged = null, boolean bounded = false, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.CIRCLE, androidx.ui.core.Px? finalRadius = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class RippleSurfaceKt {
     ctor public RippleSurfaceKt();
-    method public static void RippleSurfaceConsumer(kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleSurfaceOwner,kotlin.Unit> children);
+    method public static void RippleSurface(androidx.ui.painting.Color? color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @CheckResult("+") public static com.google.r4a.Effect<androidx.ui.material.ripple.RippleSurfaceOwner> ambientRippleSurface();
   }
 
   public interface RippleSurfaceOwner {

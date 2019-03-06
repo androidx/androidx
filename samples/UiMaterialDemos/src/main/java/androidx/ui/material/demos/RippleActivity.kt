@@ -24,8 +24,6 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.ui.core.CraneWrapper
-import androidx.ui.material.MaterialTheme
 import com.google.r4a.adapters.dp
 import com.google.r4a.adapters.setPadding
 import com.google.r4a.composer
@@ -45,11 +43,7 @@ class RippleActivity : Activity() {
             <LinearLayout orientation=LinearLayout.VERTICAL>
                 <TextView gravity text="Crane card with ripple:" />
                 <FrameLayout layoutParams>
-                    <CraneWrapper>
-                        <MaterialTheme>
-                            <RippleDemo />
-                        </MaterialTheme>
-                    </CraneWrapper>
+                    <RippleDemo />
                 </FrameLayout>
                 <TextView gravity text="Platform button with ripple:" />
                 <FrameLayout layoutParams padding=50.dp>
