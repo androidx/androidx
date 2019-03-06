@@ -62,7 +62,7 @@ public class ViewFinderUseCase extends BaseUseCase {
                     ViewFinderUseCase.this.updateOutput(newSurfaceTexture, newResolution);
                 }
             };
-    private final CheckedSurfaceTexture mCheckedSurfaceTexture =
+    final CheckedSurfaceTexture mCheckedSurfaceTexture =
             new CheckedSurfaceTexture(mSurfaceTextureListener, mMainHandler);
     private final ViewFinderUseCaseConfiguration.Builder mUseCaseConfigBuilder;
     @Nullable
@@ -268,7 +268,14 @@ public class ViewFinderUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
-        mCheckedSurfaceTexture.release();
+        mCheckedSurfaceTexture.setOnSurfaceDetachedListener(
+                MainThreadExecutor.getInstance(),
+                new DeferrableSurface.OnSurfaceDetachedListener() {
+                    @Override
+                    public void onSurfaceDetached() {
+                        mCheckedSurfaceTexture.release();
+                    }
+                });
         removeViewFinderOutputListener();
         notifyInactive();
 

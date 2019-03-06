@@ -167,7 +167,10 @@ final class Camera implements BaseCamera {
             case OPENED:
                 mState.set(State.CLOSING);
                 mCameraDevice.close();
+                mCaptureSession.notifyCameraDeviceClose();
+                resetCaptureSession();
                 mCameraDevice = null;
+
                 break;
             case OPENING:
             case REOPENING:
@@ -203,6 +206,7 @@ final class Camera implements BaseCamera {
             case OPENED:
                 mState.set(State.RELEASING);
                 mCameraDevice.close();
+                mCaptureSession.notifyCameraDeviceClose();
                 break;
             case OPENING:
             case CLOSING:
@@ -361,12 +365,12 @@ final class Camera implements BaseCamera {
             }
 
             if (mUseCaseAttachState.getOnlineUseCases().isEmpty()) {
-                resetCaptureSession();
                 close();
                 return;
             }
         }
 
+        openCaptureSession();
         updateCaptureSessionConfiguration();
     }
 
@@ -656,6 +660,7 @@ final class Camera implements BaseCamera {
         @Override
         public void onClosed(CameraDevice cameraDevice) {
             Log.d(TAG, "CameraDevice.onClosed(): " + cameraDevice.getId());
+
             resetCaptureSession();
             switch (mState.get()) {
                 case CLOSING:
@@ -675,6 +680,8 @@ final class Camera implements BaseCamera {
                             CameraX.ErrorCode.CAMERA_STATE_INCONSISTENT,
                             "Camera closed while in state: " + mState.get());
             }
+
+
         }
 
         @Override

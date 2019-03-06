@@ -39,6 +39,7 @@ import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureCallbacks;
 import androidx.camera.core.CameraCaptureResult;
 import androidx.camera.core.CaptureRequestConfiguration;
+import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfiguration;
 import androidx.camera.testing.CameraUtil;
@@ -52,6 +53,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -249,6 +251,33 @@ public final class CaptureSessionTest {
         captureSession.issueSingleCaptureRequest(mTestParameters0.mCaptureRequestConfiguration);
     }
 
+    @Test
+    public void surfaceOnDetachedListenerIsCalledWhenSessionIsClose()
+            throws CameraAccessException, InterruptedException {
+        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        captureSession.setSessionConfiguration(mTestParameters0.mSessionConfiguration);
+
+        captureSession.open(mTestParameters0.mSessionConfiguration, mCameraDevice);
+
+        mTestParameters0.waitForData();
+
+        DeferrableSurface.OnSurfaceDetachedListener listener =
+                Mockito.mock(DeferrableSurface.OnSurfaceDetachedListener.class);
+        Executor executor = new Executor() {
+            @Override
+            public void execute(Runnable command) {
+                command.run();
+            }
+        };
+        mTestParameters0.mDeferrableSurface.setOnSurfaceDetachedListener(executor, listener);
+
+        captureSession.release();
+
+        Thread.sleep(3000);
+
+        Mockito.verify(listener, times(1)).onSurfaceDetached();
+    }
+
     /**
      * Collection of parameters required for setting a {@link CaptureSession} and wait for it to
      * produce data.
@@ -289,6 +318,7 @@ public final class CaptureSessionTest {
         private final CameraCaptureCallback mCameraCaptureCallback =
                 Mockito.mock(CameraCaptureCallback.class);
 
+        private final DeferrableSurface mDeferrableSurface;
         /**
          * A composite capture callback that dispatches callbacks to both mock and real callbacks.
          * The mock callback is used to verify the callback result. The real callback is used to
@@ -315,7 +345,8 @@ public final class CaptureSessionTest {
 
             SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
+            mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
+            builder.addSurface(mDeferrableSurface);
             builder.setSessionStateCallback(mSessionStateCallback);
             builder.setCameraCaptureCallback(mSessionCameraCaptureCallback);
 

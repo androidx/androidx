@@ -32,6 +32,7 @@ import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CaptureRequestConfiguration;
 import androidx.camera.core.Configuration;
 import androidx.camera.core.Configuration.Option;
+import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.DeferrableSurfaces;
 import androidx.camera.core.SessionConfiguration;
 
@@ -75,6 +76,9 @@ final class CaptureSession {
             SessionConfiguration.defaultEmptySessionConfiguration();
     /** The list of surfaces used to configure the current capture session. */
     private List<Surface> mConfiguredSurfaces = Collections.emptyList();
+    /** The list of DeferrableSurface used to notify surface detach events */
+    @GuardedBy("mConfiguredDeferrableSurfaces")
+    private List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
     /** Tracks the current state of the session. */
     @GuardedBy("mStateLock")
     State mState = State.UNINITIALIZED;
@@ -162,15 +166,18 @@ final class CaptureSession {
                     throw new IllegalStateException(
                             "open() should not be possible in state: " + mState);
                 case INITIALIZED:
+                    mConfiguredDeferrableSurfaces = new ArrayList<>(
+                            sessionConfiguration.getSurfaces());
                     mConfiguredSurfaces =
                             new ArrayList<>(
                                     DeferrableSurfaces.surfaceSet(
-                                            sessionConfiguration.getSurfaces()));
+                                            mConfiguredDeferrableSurfaces));
                     if (mConfiguredSurfaces.isEmpty()) {
                         Log.e(TAG, "Unable to open capture session with no surfaces. ");
                         return;
                     }
 
+                    notifySurfaceAttached();
                     mState = State.OPENING;
                     Log.d(TAG, "Opening capture session.");
                     CameraCaptureSession.StateCallback comboCallback =
@@ -244,6 +251,27 @@ final class CaptureSession {
                 case RELEASING:
                 case RELEASED:
             }
+        }
+    }
+
+    // Notify the surface is attached to a new capture session.
+    void notifySurfaceAttached() {
+        synchronized (mConfiguredDeferrableSurfaces) {
+            for (DeferrableSurface deferrableSurface : mConfiguredDeferrableSurfaces) {
+                deferrableSurface.notifySurfaceAttached();
+            }
+        }
+    }
+
+    // Notify the surface is detached from current capture session.
+    void notifySurfaceDetached() {
+        synchronized (mConfiguredDeferrableSurfaces) {
+            for (DeferrableSurface deferredSurface : mConfiguredDeferrableSurfaces) {
+                deferredSurface.notifySurfaceDetached();
+            }
+            // Clears the mConfiguredDeferrableSurfaces to prevent from duplicate
+            // notifySurfaceDetached calls.
+            mConfiguredDeferrableSurfaces.clear();
         }
     }
 
@@ -488,6 +516,9 @@ final class CaptureSession {
                         mCameraCaptureSession = null;
                 }
                 Log.d(TAG, "CameraCaptureSession.onClosed()");
+
+                notifySurfaceDetached();
+
             }
         }
 
@@ -513,5 +544,10 @@ final class CaptureSession {
                 Log.e(TAG, "CameraCaptureSession.onConfiguredFailed()");
             }
         }
+    }
+
+    /** Also notify the surface detach event if receives camera device close event */
+    public void notifyCameraDeviceClose() {
+        notifySurfaceDetached();
     }
 }

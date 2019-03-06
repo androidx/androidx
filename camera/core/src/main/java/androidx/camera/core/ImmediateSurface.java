@@ -30,7 +30,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class ImmediateSurface implements DeferrableSurface {
+public final class ImmediateSurface extends DeferrableSurface {
     private final Surface mSurface;
 
     public ImmediateSurface(Surface surface) {
