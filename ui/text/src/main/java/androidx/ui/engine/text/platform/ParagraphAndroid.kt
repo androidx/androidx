@@ -43,6 +43,7 @@ import androidx.text.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
 import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
 import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.TextLayout
+import androidx.text.selection.WordBoundary
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.FontFeatureSpan
 import androidx.text.style.LetterSpacingSpan
@@ -223,6 +224,16 @@ internal class ParagraphAndroid constructor(
         val path = android.graphics.Path()
         ensureLayout.layout.getSelectionPath(start, end, path)
         return Path(path)
+    }
+
+    private var wordBoundary: WordBoundary? = null
+
+    fun getWordBoundary(offset: Int): Pair<Int, Int> {
+        if (wordBoundary == null) {
+            wordBoundary = WordBoundary(textLocale, ensureLayout.text)
+        }
+
+        return Pair(wordBoundary!!.getWordStart(offset), wordBoundary!!.getWordEnd(offset))
     }
 
     fun getLineLeft(lineIndex: Int): Float = ensureLayout.getLineLeft(lineIndex)

@@ -76,6 +76,17 @@ package androidx.text {
 
 }
 
+package androidx.text.selection {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class WordBoundary {
+    ctor public WordBoundary(java.util.Locale!, CharSequence!);
+    method public int getWordEnd(int);
+    method public int getWordStart(int);
+  }
+
+
+}
+
 package androidx.text.style {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class BaselineShiftSpan extends android.text.style.MetricAffectingSpan {

@@ -1549,9 +1549,41 @@ class ParagraphIntegrationTest {
         assertThat(diff, equalTo(Rect.zero))
     }
 
-    // TODO(migration/siyamed) add test
     @Test
-    fun getWordBoundary() {
+    fun testGetWordBoundary() {
+        val text = "abc def"
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+            text = text,
+            fontFamily = fontFamilyMeasureFont,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val result = paragraph.getWordBoundary(text.indexOf('a'))
+
+        assertThat(result.start, equalTo(text.indexOf('a')))
+        assertThat(result.end, equalTo(text.indexOf(' ')))
+    }
+
+    @Test
+    fun testGetWordBoundary_Bidi() {
+        val text = "abc \u05d0\u05d1\u05d2 def"
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+            text = text,
+            fontFamily = fontFamilyMeasureFont,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val resultEnglish = paragraph.getWordBoundary(text.indexOf('a'))
+        val resultHebrew = paragraph.getWordBoundary(text.indexOf('\u05d1'))
+
+        assertThat(resultEnglish.start, equalTo(text.indexOf('a')))
+        assertThat(resultEnglish.end, equalTo(text.indexOf(' ')))
+        assertThat(resultHebrew.start, equalTo(text.indexOf('\u05d0')))
+        assertThat(resultHebrew.end, equalTo(text.indexOf('\u05d2') + 1))
     }
 
     private fun simpleParagraph(
