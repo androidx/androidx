@@ -16,20 +16,29 @@
 
 package androidx.benchmark
 
-import androidx.test.filters.SmallTest
+import androidx.test.filters.LargeTest
+import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.TimeUnit
 
-@SmallTest
+@LargeTest
 @RunWith(JUnit4::class)
 class BenchmarkRuleTest {
-    @Suppress("MemberVisibilityCanBePrivate") // intentionally public
-    // NOTE: not annotated, so will throw when state is accessed
-    val rule = BenchmarkRule()
+    @get:Rule
+    val benchmarkRule = BenchmarkRule()
 
-    @Test(expected = IllegalStateException::class)
-    fun throwsIfNotAnnotated() {
-        rule.state
+    @Test
+    fun runWithTimingDisabled() {
+        benchmarkRule.measure {
+            runWithTimingDisabled {
+                Thread.sleep(5)
+            }
+        }
+        val min = benchmarkRule.state.stats.min
+        assertTrue("minimum $min should be less than 1ms",
+            min < TimeUnit.MILLISECONDS.toNanos(1))
     }
 }
