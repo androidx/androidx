@@ -22,6 +22,7 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.ui.core.Density
+import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Duration
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Px
@@ -41,9 +42,9 @@ import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.plus
 import androidx.ui.core.times
 import androidx.ui.core.toBounds
-import androidx.ui.core.toPx
 import androidx.ui.core.toRect
 import androidx.ui.core.toSize
+import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
@@ -83,8 +84,8 @@ internal fun getSurfaceSize(
 internal fun getRippleStartRadius(size: PxSize) =
     max(size.width, size.height) * 0.3f
 
-internal fun getRippleTargetRadius(size: PxSize, density: Density) =
-    PxPosition(size.width, size.height).getDistance() / 2f + 10.dp.toPx(density)
+internal fun DensityReceiver.getRippleTargetRadius(size: PxSize) =
+    PxPosition(size.width, size.height).getDistance() / 2f + 10.dp.toPx()
 
 /**
  * Used to specify this type of [RippleEffect] for an [BoundedRipple] and [Ripple].
@@ -175,7 +176,9 @@ internal class DefaultRippleEffect(
     init {
         val surfaceSize = getSurfaceSize(coordinates, boundsCallback)
         val startRadius = getRippleStartRadius(surfaceSize)
-        val targetRadius = finalRadius ?: getRippleTargetRadius(surfaceSize, density)
+        val targetRadius = finalRadius ?: withDensity(density) {
+            getRippleTargetRadius(surfaceSize)
+        }
 
         val redrawListener = object : ValueAnimator.AnimatorUpdateListener {
             override fun onAnimationUpdate(animation: ValueAnimator?) {

@@ -17,7 +17,7 @@
 package androidx.ui.material.borders
 
 import androidx.ui.core.Density
-import androidx.ui.core.toPx
+import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.Canvas
@@ -64,16 +64,17 @@ data class CircleBorder(
         return super.lerpTo(b, t)
     }
 
-    override fun getInnerPath(rect: Rect, density: Density, textDirection: TextDirection?): Path {
-        return Path().apply {
-            addOval(
-                Rect.fromCircle(
-                    rect.getCenter(),
-                    max(0.0f, rect.getShortestSide() / 2.0f - side.width.toPx(density).value)
+    override fun getInnerPath(rect: Rect, density: Density, textDirection: TextDirection?): Path =
+        withDensity(density) {
+            Path().apply {
+                addOval(
+                    Rect.fromCircle(
+                        rect.getCenter(),
+                        max(0.0f, rect.getShortestSide() / 2.0f - side.width.toPx().value)
+                    )
                 )
-            )
+            }
         }
-    }
 
     override fun getOuterPath(rect: Rect, density: Density, textDirection: TextDirection?): Path {
         return Path().apply {
@@ -91,14 +92,14 @@ data class CircleBorder(
         density: Density,
         rect: Rect,
         textDirection: TextDirection?
-    ) {
+    ) = withDensity(density) {
         when (side.style) {
             BorderStyle.NONE -> {
             }
             BorderStyle.SOLID ->
                 canvas.drawCircle(
                     rect.getCenter(),
-                    (rect.getShortestSide() - side.width.toPx(density).value) / 2.0f,
+                    (rect.getShortestSide() - side.width.toPx().value) / 2.0f,
                     side.toPaint(density)
                 )
         }

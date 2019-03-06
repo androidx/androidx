@@ -55,6 +55,8 @@ class AndroidCraneView constructor(context: Context)
     // TODO(mount): reinstate when coroutines are supported by IR compiler
 //    private val ownerScope = CoroutineScope(Dispatchers.Main.immediate + Job())
 
+    private val densityReceiver = DensityReceiverImpl(Density(context))
+
     init {
         setWillNotDraw(false)
     }
@@ -201,7 +203,11 @@ class AndroidCraneView constructor(context: Context)
     private fun callDrawOnChildren(node: ComponentNode, canvas: Canvas) {
         node.visitChildren { child ->
             if (child is DrawNode) {
-                child.onPaint(canvas, PxSize(root.width, root.height))
+                child.onPaint(
+                    densityReceiver,
+                    canvas,
+                    PxSize(root.width, root.height)
+                )
                 child.needsPaint = false
             } else if (child is LayoutNode) {
                 val view = (child.ownerData as AndroidData).view
@@ -244,6 +250,8 @@ private class NodeView(container: ViewGroup, val node: LayoutNode) :
         setWillNotDraw(false)
     }
 
+    private val densityReceiver = DensityReceiverImpl(Density(context))
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         assert(MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY)
         assert(MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY)
@@ -272,6 +280,7 @@ private class NodeView(container: ViewGroup, val node: LayoutNode) :
         node.visitChildren { child ->
             if (child is DrawNode) {
                 child.onPaint(
+                    densityReceiver,
                     canvas,
                     PxSize(this.node.width, this.node.height)
                 )

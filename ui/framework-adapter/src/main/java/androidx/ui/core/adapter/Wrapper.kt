@@ -16,26 +16,11 @@
 
 package androidx.ui.core.adapter
 
-import androidx.ui.core.Density
 import com.google.r4a.Children
 import com.google.r4a.Composable
 
 // Ignore that the IDEA cannot resolve this.
-import androidx.ui.core.DensityConsumer
 import androidx.ui.core.CraneWrapperComposable
-
-/**
- * All this module is needed to work around b/120971484
- *
- * For the original logic:
- * @see androidx.ui.core.DensityConsumer
- */
-@Composable
-@Suppress("PLUGIN_ERROR")
-fun DensityConsumer(@Children children: (density: Density) -> Unit) {
-    // Ignore that the IDEA cannot resolve this.
-    DensityConsumer(children)
-}
 
 @Composable
 @Suppress("PLUGIN_ERROR")

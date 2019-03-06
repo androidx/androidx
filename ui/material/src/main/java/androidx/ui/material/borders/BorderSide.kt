@@ -24,7 +24,7 @@ import androidx.ui.core.lerp
 import androidx.ui.core.max
 import androidx.ui.core.plus
 import androidx.ui.core.times
-import androidx.ui.core.toPx
+import androidx.ui.core.withDensity
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
@@ -122,11 +122,11 @@ data class BorderSide(
      * non-uniform rectangular [Border]s have beveled edges and so paint their
      * border sides as filled shapes rather than using a stroke.
      */
-    fun toPaint(density: Density): Paint {
-        return when (style) {
+    fun toPaint(density: Density): Paint = withDensity(density) {
+        when (style) {
             BorderStyle.SOLID -> Paint().apply {
                 color = color
-                strokeWidth = width.toPx(density).value
+                strokeWidth = width.toPx().value
                 style = PaintingStyle.stroke
             }
             BorderStyle.NONE -> Paint().apply {

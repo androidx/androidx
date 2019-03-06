@@ -16,7 +16,6 @@
 
 package androidx.ui.material.clip
 
-import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.painting.Path
 import com.google.r4a.Children
@@ -50,12 +49,10 @@ fun ClipPath(
 //        }
 //        return super.hitTest(result, position = position)
 //    }
-    <DensityConsumer> density ->
-        <Draw> canvas, parentSize ->
-            canvas.save()
-            canvas.clipPath(clipper.getClip(parentSize, density))
-        </Draw>
-    </DensityConsumer>
+    <Draw> canvas, parentSize ->
+        canvas.save()
+        canvas.clipPath(clipper.getClip(parentSize, density))
+    </Draw>
     <children />
     <Draw> canvas, _ ->
         canvas.restore()

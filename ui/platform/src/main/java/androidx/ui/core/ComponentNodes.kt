@@ -265,7 +265,7 @@ class PointerInputNode() : SingleChildComponentNode() {
  * Backing node for the [Draw] component.
  */
 class DrawNode() : ComponentNode() {
-    var onPaint: (canvas: Canvas, parentSize: PxSize) -> Unit = { _, _ -> }
+    var onPaint: DensityReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit = { _, _ -> }
         set(value) {
             field = value
             invalidate()

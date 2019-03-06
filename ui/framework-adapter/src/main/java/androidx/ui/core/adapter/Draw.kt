@@ -17,6 +17,7 @@
 package androidx.ui.core.adapter
 
 // Ignore that the IDEA cannot resolve this.
+import androidx.ui.core.DensityReceiver
 import androidx.ui.core.DrawComposable
 import androidx.ui.core.PxSize
 import androidx.ui.painting.Canvas
@@ -31,7 +32,10 @@ import com.google.r4a.Composable
  */
 @Composable
 @Suppress("PLUGIN_ERROR")
-fun Draw(@Children(composable = false) onPaint: (canvas: Canvas, parentSize: PxSize) -> Unit) {
+fun Draw(
+    @Children(composable = false)
+    onPaint: DensityReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
+) {
     // Ignore that the IDEA cannot resolve this.
     DrawComposable(onPaint)
 }

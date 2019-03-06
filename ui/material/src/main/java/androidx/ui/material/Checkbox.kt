@@ -19,12 +19,10 @@ package androidx.ui.material
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.Dp
-import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.min
-import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Radius
@@ -69,21 +67,19 @@ class Checkbox : Component() {
 }
 
 internal fun DrawCheckbox(value: ToggleableState, color: Color, strokeWidth: Dp) {
-    <DensityConsumer> density ->
-        val radius = Radius.circular(radiusSize.toPx(density).value)
-        val strokeWidthPx = strokeWidth.toPx(density).value
-        <Draw> canvas, parentSize ->
-            val outer = RRect(0f, 0f, parentSize.width.value, parentSize.height.value, radius)
-            if (value == ToggleableState.CHECKED) {
-                drawChecked(canvas, outer, color, strokeWidthPx)
-            } else if (value == ToggleableState.UNCHECKED) {
-                // TODO(clara): Where does this color come from?
-                drawUnchecked(canvas, outer, color, strokeWidthPx)
-            } else { // Indeterminate
-                drawIndeterminate(canvas, outer, color, strokeWidthPx)
-            }
-        </Draw>
-    </DensityConsumer>
+    <Draw> canvas, parentSize ->
+        val radius = Radius.circular(radiusSize.toPx().value)
+        val strokeWidthPx = strokeWidth.toPx().value
+        val outer = RRect(0f, 0f, parentSize.width.value, parentSize.height.value, radius)
+        if (value == ToggleableState.CHECKED) {
+            drawChecked(canvas, outer, color, strokeWidthPx)
+        } else if (value == ToggleableState.UNCHECKED) {
+            // TODO(clara): Where does this color come from?
+            drawUnchecked(canvas, outer, color, strokeWidthPx)
+        } else { // Indeterminate
+            drawIndeterminate(canvas, outer, color, strokeWidthPx)
+        }
+    </Draw>
 }
 
 internal fun drawUnchecked(canvas: Canvas, outer: RRect, color: Color, strokeWidth: Float) {

@@ -27,10 +27,9 @@ import androidx.ui.core.plus
 import androidx.ui.core.px
 import androidx.ui.core.round
 import androidx.ui.core.times
-import androidx.ui.core.toDp
-import androidx.ui.core.toIntPx
 import androidx.ui.core.toPx
 import androidx.ui.core.unaryMinus
+import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -51,9 +50,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class FlexTest : LayoutTest() {
     @Test
-    fun testRow() {
+    fun testRow() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
@@ -86,7 +85,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(size, size), childSize[0])
         assertEquals(
-            PxSize((sizeDp.toPx(density) * 2).round(), (sizeDp.toPx(density) * 2).round()),
+            PxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
             childSize[1]
         )
         assertEquals(
@@ -100,9 +99,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRowFlex_withExpandedChildren() {
+    fun testRowFlex_withExpandedChildren() = withDensity(density) {
         val heightDp = 50.dp
-        val childrenHeight = 50.dp.toIntPx(density)
+        val childrenHeight = 50.dp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
@@ -110,7 +109,7 @@ class FlexTest : LayoutTest() {
         show @Composable {
             <Center>
                 <FlexRow>
-                    val widthDp = 50.px.toDp(density)
+                    val widthDp = 50.px.toDp()
 
                     expanded(flex=1f) {
                         <Container width=widthDp height=heightDp>
@@ -141,7 +140,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(root.width.px / 3, childrenHeight.toPx()), childSize[0])
         assertEquals(
-            PxSize(2 * root.width.px / 3, (heightDp.toPx(density) * 2).round().toPx()),
+            PxSize(2 * root.width.px / 3, (heightDp.toPx() * 2).round().toPx()),
             childSize[1]
         )
         assertEquals(
@@ -157,11 +156,11 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRowFlex_withFlexibleChildren() {
+    fun testRowFlex_withFlexibleChildren() = withDensity(density) {
         val childrenWidthDp = 50.dp
-        val childrenWidth = childrenWidthDp.toIntPx(density)
+        val childrenWidth = childrenWidthDp.toIntPx()
         val childrenHeightDp = 50.dp
-        val childrenHeight = childrenHeightDp.toIntPx(density)
+        val childrenHeight = childrenHeightDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
@@ -198,7 +197,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(childrenWidth.toPx(), childrenHeight.toPx()), childSize[0])
         assertEquals(
-            PxSize(childrenWidth.toPx(), (childrenHeightDp.toPx(density) * 2).round().toPx()),
+            PxSize(childrenWidth.toPx(), (childrenHeightDp.toPx() * 2).round().toPx()),
             childSize[1]
         )
         assertEquals(
@@ -213,9 +212,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn() {
+    fun testColumn() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
@@ -247,7 +246,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(size, size), childSize[0])
         assertEquals(
-            PxSize((sizeDp.toPx(density) * 2).round(), (sizeDp.toPx(density) * 2).round()),
+            PxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
             childSize[1]
         )
         assertEquals(
@@ -261,9 +260,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumnFlex_withExpandedChildren() {
+    fun testColumnFlex_withExpandedChildren() = withDensity(density) {
         val widthDp = 50.dp
-        val childrenWidth = widthDp.toIntPx(density)
+        val childrenWidth = widthDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
@@ -271,7 +270,7 @@ class FlexTest : LayoutTest() {
         show @Composable {
             <Center>
                 <FlexColumn>
-                    val heightDp = 50.px.toDp(density)
+                    val heightDp = 50.px.toDp()
 
                     expanded(flex=1f) {
                         <Container width=widthDp height=heightDp>
@@ -305,7 +304,7 @@ class FlexTest : LayoutTest() {
             childSize[0]
         )
         assertEquals(
-            PxSize((widthDp.toPx(density) * 2).round(), (2 * root.height.px / 3).round()),
+            PxSize((widthDp.toPx() * 2).round(), (2 * root.height.px / 3).round()),
             childSize[1]
         )
         assertEquals(
@@ -320,11 +319,11 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumnFlex_withFlexibleChildren() {
+    fun testColumnFlex_withFlexibleChildren() = withDensity(density) {
         val childrenWidthDp = 50.dp
-        val childrenWidth = childrenWidthDp.toIntPx(density)
+        val childrenWidth = childrenWidthDp.toIntPx()
         val childrenHeightDp = 50.dp
-        val childrenHeight = childrenHeightDp.toIntPx(density)
+        val childrenHeight = childrenHeightDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
@@ -361,7 +360,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(childrenWidth.toPx(), childrenHeight.toPx()), childSize[0])
         assertEquals(
-            PxSize((childrenWidthDp.toPx(density) * 2).round(), childrenHeight),
+            PxSize((childrenWidthDp.toPx() * 2).round(), childrenHeight),
             childSize[1]
         )
         assertEquals(
@@ -376,9 +375,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withStartCrossAxisAlignment() {
+    fun testRow_withStartCrossAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
@@ -411,7 +410,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(size, size), childSize[0])
         assertEquals(
-            PxSize((sizeDp.toPx(density) * 2).round(), (sizeDp.toPx(density) * 2).round()),
+            PxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
             childSize[1]
         )
         assertEquals(
@@ -425,9 +424,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withEndCrossAxisAlignment() {
+    fun testRow_withEndCrossAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
@@ -460,11 +459,11 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(size, size), childSize[0])
         assertEquals(
-            PxSize((sizeDp.toPx(density) * 2).round(), (sizeDp.toPx(density) * 2).round()),
+            PxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
             childSize[1]
         )
         assertEquals(
-            PxPosition(0.px, ((root.height.px + (2 * sizeDp.toPx(density))
+            PxPosition(0.px, ((root.height.px + (2 * sizeDp.toPx())
                 .round().toPx()) / 2 - size.toPx()).round().toPx()),
             childPosition[0]
         )
@@ -475,9 +474,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withStretchCrossAxisAlignment() {
+    fun testRow_withStretchCrossAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
@@ -510,7 +509,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(size.toPx(), root.height.px), childSize[0])
         assertEquals(
-            PxSize((sizeDp.toPx(density) * 2).round().toPx(), root.height.px),
+            PxSize((sizeDp.toPx() * 2).round().toPx(), root.height.px),
             childSize[1]
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
@@ -518,9 +517,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withStartCrossAxisAlignment() {
+    fun testColumn_withStartCrossAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
@@ -553,7 +552,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(size, size), childSize[0])
         assertEquals(
-            PxSize((sizeDp.toPx(density) * 2).round(), (sizeDp.toPx(density) * 2).round()),
+            PxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
             childSize[1]
         )
         assertEquals(
@@ -567,9 +566,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withEndCrossAxisAlignment() {
+    fun testColumn_withEndCrossAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
@@ -602,12 +601,12 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(size, size), childSize[0])
         assertEquals(
-            PxSize((sizeDp.toPx(density) * 2).round(), (sizeDp.toPx(density) * 2).round()),
+            PxSize((sizeDp.toPx() * 2).round(), (sizeDp.toPx() * 2).round()),
             childSize[1]
         )
         assertEquals(
             PxPosition(
-                (((root.width.px + (2 * sizeDp.toPx(density))
+                (((root.width.px + (2 * sizeDp.toPx())
                     .round().toPx()) / 2).round() - size).toPx(),
                 0.px
             ),
@@ -620,9 +619,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withStretchCrossAxisAlignment() {
+    fun testColumn_withStretchCrossAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
@@ -655,7 +654,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(root.width.px, size.toPx()), childSize[0])
         assertEquals(
-            PxSize(root.width.px, (sizeDp.toPx(density) * 2).round().toPx()),
+            PxSize(root.width.px, (sizeDp.toPx() * 2).round().toPx()),
             childSize[1]
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])

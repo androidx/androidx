@@ -16,13 +16,15 @@
 package androidx.ui.core
 
 import android.content.Context
+import androidx.annotation.CheckResult
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.R4a
+import com.google.r4a.ambient
 import com.google.r4a.composer
-import kotlin.math.max
+import com.google.r4a.effectOf
 
 class CraneWrapper(@Children var children: () -> Unit) : Component() {
     private val androidCraneView = arrayOfNulls<AndroidCraneView>(1)
@@ -71,11 +73,33 @@ val ContextAmbient = Ambient.of<Context>()
 
 internal val DensityAmbient = Ambient.of<Density>()
 
-@Composable
-fun DensityConsumer(@Children children: (density: Density) -> Unit) {
-    <DensityAmbient.Consumer> density ->
-        <children density />
-    </DensityAmbient.Consumer>
+/**
+ * [ambient] to get a [Density] object from an internal [DensityAmbient].
+ *
+ * Note: this is an experiment with the ways to achieve a read-only public [Ambient]s.
+ */
+@CheckResult(suggest = "+")
+fun ambientDensity() = effectOf<Density> { +ambient(DensityAmbient) }
+
+/**
+ * An effect to be able to convert dimensions between each other.
+ * A [Density] object will be taken from an ambient.
+ *
+ * Usage examples:
+ *
+ *     +withDensity() {
+ *        val pxHeight = DpHeight.toPx()
+ *     }
+ *
+ * or
+ *
+ *     val pxHeight = +withDensity(density) { DpHeight.toPx() }
+ *
+ */
+@CheckResult(suggest = "+")
+// can't make this inline as tests are failing with "DensityKt.$jacocoInit()' is inaccessible"
+/*inline*/ fun <R> withDensity(/*crossinline*/ block: DensityReceiver.() -> R) = effectOf<R> {
+    withDensity(+ambientDensity(), block)
 }
 
 /**
