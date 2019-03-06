@@ -117,7 +117,7 @@ abstract class MediaPlayerTestBase extends MediaTestBase {
                 .build();
 
         return mPlayer.setMediaItem(new UriMediaItem.Builder(
-                mContext, testVideoUri).build()).get().getResultCode()
+                testVideoUri).build()).get().getResultCode()
                 == androidx.media2.SessionPlayer.PlayerResult.RESULT_SUCCESS;
     }
 
