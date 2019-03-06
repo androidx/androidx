@@ -828,4 +828,20 @@ public class CameraXActivity extends AppCompatActivity
             return mValue.get();
         }
     }
+
+    ViewFinderUseCase getViewFinderUseCase() {
+        return mViewFinderUseCase;
+    }
+
+    ImageAnalysisUseCase getImageAnalysisUseCase() {
+        return mImageAnalysisUseCase;
+    }
+
+    ImageCaptureUseCase getImageCaptureUseCase() {
+        return mImageCaptureUseCase;
+    }
+
+    VideoCaptureUseCase getVideoCaptureUseCase() {
+        return mVideoCaptureUseCase;
+    }
 }
