@@ -16,9 +16,10 @@
 
 package androidx.work;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
  * The class that handles logging requests for {@link WorkManager}.  Currently, this class is not

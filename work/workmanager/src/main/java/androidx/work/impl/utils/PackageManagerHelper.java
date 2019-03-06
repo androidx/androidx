@@ -18,8 +18,8 @@ package androidx.work.impl.utils;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
 
+import androidx.annotation.NonNull;
 import androidx.work.Logger;
 
 /**

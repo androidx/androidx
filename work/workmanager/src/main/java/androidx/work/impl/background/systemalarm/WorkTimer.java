@@ -16,10 +16,9 @@
 
 package androidx.work.impl.background.systemalarm;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
 import androidx.work.WorkRequest;
 

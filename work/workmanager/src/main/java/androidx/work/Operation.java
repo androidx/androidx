@@ -17,11 +17,12 @@
 package androidx.work;
 
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

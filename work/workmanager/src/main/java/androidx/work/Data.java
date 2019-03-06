@@ -16,12 +16,13 @@
 
 package androidx.work;
 
-import android.arch.persistence.room.TypeConverter;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
+import androidx.room.TypeConverter;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

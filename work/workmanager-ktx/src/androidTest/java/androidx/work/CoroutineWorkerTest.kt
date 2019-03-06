@@ -16,9 +16,10 @@
 
 package androidx.work
 
-import android.arch.core.executor.ArchTaskExecutor
 import android.content.Context
 import android.util.Log
+import androidx.arch.core.executor.ArchTaskExecutor
+
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -48,7 +49,7 @@ class CoroutineWorkerTest {
     @Before
     fun setUp() {
         ArchTaskExecutor.getInstance()
-            .setDelegate(object : android.arch.core.executor.TaskExecutor() {
+            .setDelegate(object : androidx.arch.core.executor.TaskExecutor() {
                 override fun executeOnDiskIO(runnable: Runnable) {
                     runnable.run()
                 }

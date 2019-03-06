@@ -20,8 +20,8 @@ import static androidx.work.NetworkType.METERED;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.NonNull;
 
+import androidx.annotation.NonNull;
 import androidx.work.Logger;
 import androidx.work.impl.constraints.NetworkState;
 import androidx.work.impl.constraints.trackers.Trackers;

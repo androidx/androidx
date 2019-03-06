@@ -16,8 +16,8 @@
 package androidx.work.impl.constraints.trackers;
 
 import android.content.Context;
-import android.support.annotation.RestrictTo;
 
+import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
 import androidx.work.impl.constraints.ConstraintListener;
 

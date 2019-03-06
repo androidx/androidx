@@ -25,13 +25,13 @@ import static org.mockito.Mockito.when;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import android.arch.core.executor.ArchTaskExecutor;
-import android.arch.core.executor.TaskExecutor;
-import android.arch.lifecycle.Observer;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.arch.core.executor.TaskExecutor;
+import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;

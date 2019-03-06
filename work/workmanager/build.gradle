@@ -42,21 +42,27 @@ android {
 }
 
 dependencies {
-    // @aar and { transitive = true } are needed as a workaround for
-    // https://github.com/gradle/gradle/issues/3170
-    api("android.arch.lifecycle:extensions:1.1.0@aar") { transitive = true }
+    // Using -PuseMaxDepVersions does not use the right version of the annotation processor
+    // Remove this workaround after b/127495641 is fixed
+    if (project.hasProperty('useMaxDepVersions')) {
+        annotationProcessor(project(":room:room-compiler"))
+        implementation(project(":room:room-runtime"))
+        androidTestImplementation(project(":room:room-testing"))
+    } else {
+        annotationProcessor(ARCH_ROOM_COMPILER)
+        implementation(ARCH_ROOM_RUNTIME)
+        androidTestImplementation(ARCH_ROOM_TESTING)
+    }
+
+    api(ARCH_LIFECYCLE_EXTENSIONS)
     api(GUAVA_LISTENABLE_FUTURE)
-    implementation("android.arch.persistence.room:runtime:1.1.1@aar") { transitive = true }
-    annotationProcessor("android.arch.persistence.room:compiler:1.1.1")
-    androidTestImplementation("android.arch.core:core-testing:1.1.0")
-    androidTestImplementation("android.arch.persistence.room:testing:1.1.1")
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
+    androidTestImplementation(ARCH_CORE_TESTING)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
-
     testImplementation(JUNIT)
 }
 
