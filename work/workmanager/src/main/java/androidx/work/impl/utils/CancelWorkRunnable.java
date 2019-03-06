@@ -20,10 +20,9 @@ import static androidx.work.WorkInfo.State.CANCELLED;
 import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.WorkerThread;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.WorkerThread;
 import androidx.work.Operation;
 import androidx.work.WorkInfo;
 import androidx.work.impl.OperationImpl;

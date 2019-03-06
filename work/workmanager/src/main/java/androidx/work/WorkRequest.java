@@ -15,11 +15,10 @@
  */
 package androidx.work;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.work.impl.model.WorkSpec;
 
 import java.time.Duration;

@@ -18,13 +18,14 @@ package androidx.work;
 
 import static androidx.work.NetworkType.NOT_REQUIRED;
 
-import android.arch.persistence.room.ColumnInfo;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.annotation.RestrictTo;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.room.ColumnInfo;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;

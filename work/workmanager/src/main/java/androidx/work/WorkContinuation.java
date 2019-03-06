@@ -15,11 +15,11 @@
  */
 package androidx.work;
 
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -90,7 +90,7 @@ public abstract class WorkContinuation {
      * Returns a {@link LiveData} list of {@link WorkInfo}s that provide information about the
      * status of each {@link OneTimeWorkRequest} in this {@link WorkContinuation}, as well as their
      * prerequisites.  If the state or outputs of any of the work changes, any attached
-     * {@link android.arch.lifecycle.Observer}s will trigger.
+     * {@link Observer}s will trigger.
      *
      * @return A {@link LiveData} containing a list of {@link WorkInfo}s; you must use
      *         {@link LiveData#observe(LifecycleOwner, Observer)} to receive updates

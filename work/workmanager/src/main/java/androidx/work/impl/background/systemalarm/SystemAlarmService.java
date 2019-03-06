@@ -17,11 +17,11 @@
 package androidx.work.impl.background.systemalarm;
 
 import android.app.Service;
-import android.arch.lifecycle.LifecycleService;
 import android.content.Intent;
-import android.support.annotation.MainThread;
-import android.support.annotation.RestrictTo;
 
+import androidx.annotation.MainThread;
+import androidx.annotation.RestrictTo;
+import androidx.lifecycle.LifecycleService;
 import androidx.work.Logger;
 import androidx.work.impl.utils.WakeLocks;
 

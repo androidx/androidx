@@ -35,7 +35,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -110,7 +109,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 .setMinimumLoggingLevel(Log.VERBOSE)
                 .build();
         mWorkTaskExecutor = new InstantWorkTaskExecutor();
-        mWorkSpecDao = spy(mDatabase.workSpecDao());
+        mWorkSpecDao = mDatabase.workSpecDao();
         mDependencyDao = mDatabase.dependencyDao();
         mMockScheduler = mock(Scheduler.class);
     }

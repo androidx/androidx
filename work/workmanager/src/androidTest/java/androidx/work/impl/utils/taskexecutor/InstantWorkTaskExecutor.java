@@ -16,8 +16,7 @@
 
 package androidx.work.impl.utils.taskexecutor;
 
-import android.support.annotation.NonNull;
-
+import androidx.annotation.NonNull;
 import androidx.work.impl.utils.SynchronousExecutor;
 
 import java.util.concurrent.Executor;

@@ -20,11 +20,11 @@ import static androidx.work.impl.Scheduler.MAX_SCHEDULER_LIMIT;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 import android.util.Log;
 
+import androidx.annotation.IntRange;
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.utils.IdGenerator;
 

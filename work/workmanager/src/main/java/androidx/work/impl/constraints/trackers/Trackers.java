@@ -16,9 +16,10 @@
 package androidx.work.impl.constraints.trackers;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 /**
  * A singleton class to hold an instance of each {@link ConstraintTracker}.

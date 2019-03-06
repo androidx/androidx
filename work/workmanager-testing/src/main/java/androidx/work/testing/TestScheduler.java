@@ -17,9 +17,8 @@
 package androidx.work.testing;
 
 
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.work.Worker;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Scheduler;

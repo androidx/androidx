@@ -16,13 +16,14 @@
 
 package androidx.work.impl.utils;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 /**
  * Preferences for WorkManager.
@@ -103,7 +104,7 @@ public class Preferences {
     }
 
     /**
-     * A {@link android.arch.lifecycle.LiveData} that responds to changes in
+     * A {@link LiveData} that responds to changes in
      * {@link SharedPreferences} for the {@code lastCancelAllTime} value.
      */
     private static class LastCancelAllLiveData extends MutableLiveData<Long>

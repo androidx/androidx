@@ -16,7 +16,7 @@
 
 package androidx.work
 
-import android.support.annotation.RequiresApi
+import androidx.annotation.RequiresApi
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
@@ -27,8 +27,9 @@ import java.util.concurrent.TimeUnit
  * @param repeatIntervalTimeUnit @see [androidx.work.PeriodicWorkRequest.Builder]
  */
 inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
-        repeatInterval: Long,
-        repeatIntervalTimeUnit: TimeUnit): PeriodicWorkRequest.Builder {
+    repeatInterval: Long,
+    repeatIntervalTimeUnit: TimeUnit
+): PeriodicWorkRequest.Builder {
     return PeriodicWorkRequest.Builder(W::class.java, repeatInterval, repeatIntervalTimeUnit)
 }
 
@@ -39,7 +40,8 @@ inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
  */
 @RequiresApi(26)
 inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
-        repeatInterval: Duration): PeriodicWorkRequest.Builder {
+    repeatInterval: Duration
+): PeriodicWorkRequest.Builder {
     return PeriodicWorkRequest.Builder(W::class.java, repeatInterval)
 }
 
@@ -52,10 +54,11 @@ inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
  * @param flexIntervalTimeUnit @see [androidx.work.PeriodicWorkRequest.Builder]
  */
 inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
-        repeatInterval: Long,
-        repeatIntervalTimeUnit: TimeUnit,
-        flexTimeInterval: Long,
-        flexTimeIntervalUnit: TimeUnit): PeriodicWorkRequest.Builder {
+    repeatInterval: Long,
+    repeatIntervalTimeUnit: TimeUnit,
+    flexTimeInterval: Long,
+    flexTimeIntervalUnit: TimeUnit
+): PeriodicWorkRequest.Builder {
 
     return PeriodicWorkRequest.Builder(
             W::class.java,
@@ -73,7 +76,8 @@ inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
  */
 @RequiresApi(26)
 inline fun <reified W : ListenableWorker> PeriodicWorkRequestBuilder(
-        repeatInterval: Duration,
-        flexTimeInterval: Duration): PeriodicWorkRequest.Builder {
+    repeatInterval: Duration,
+    flexTimeInterval: Duration
+): PeriodicWorkRequest.Builder {
     return PeriodicWorkRequest.Builder(W::class.java, repeatInterval, flexTimeInterval)
 }

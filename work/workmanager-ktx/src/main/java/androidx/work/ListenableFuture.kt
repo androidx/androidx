@@ -18,7 +18,7 @@
 
 package androidx.work
 
-import android.support.annotation.RestrictTo
+import androidx.annotation.RestrictTo
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.CancellationException
