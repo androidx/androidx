@@ -17,4 +17,8 @@ android {
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
     }
+    lintOptions {
+        // TODO: Enable lint after appcompat:1.1.0 release or use lint-baseline.xml instead.
+        abortOnError false
+    }
 }
