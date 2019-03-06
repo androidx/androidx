@@ -273,6 +273,7 @@ includeProject(":webview-support-interfaces", new File(externalRoot, "webview_su
 includeProject(":camera:camera-core", "camera/core")
 includeProject(":camera:camera-camera2", "camera/camera2")
 includeProject(":camera:camera-view", "camera/view")
+includeProject(":camera:camera-extensions", "camera/extensions")
 includeProject(":camera:camera-testing", "camera/testing")
 includeProject(":camera:integration-tests:camera-testapp-core", "camera/integration-tests/coretestapp")
 includeProject(":camera:integration-tests:camera-testapp-view", "camera/integration-tests/viewtestapp")
