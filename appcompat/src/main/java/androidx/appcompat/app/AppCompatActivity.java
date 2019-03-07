@@ -84,7 +84,7 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     @Override
     public void setTheme(@StyleRes final int resId) {
         super.setTheme(resId);
-        getDelegate().onSetTheme(resId);
+        getDelegate().setTheme(resId);
     }
 
     @Override

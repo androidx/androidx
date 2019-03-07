@@ -316,7 +316,7 @@ public abstract class AppCompatDelegate {
      * This should be called from {@link Activity#setTheme(int)} to notify AppCompat of what
      * the current theme resource id is.
      */
-    public void onSetTheme(@StyleRes int themeResId) {
+    public void setTheme(@StyleRes int themeResId) {
     }
 
     /**
