@@ -75,13 +75,17 @@ public class MediaNotificationHandler extends
         mNotificationChannelName = mServiceInstance.getResources().getString(
                 R.string.default_notification_channel_name);
 
-        mPlayAction = createNotificationAction(R.drawable.ic_play,
+        mPlayAction = createNotificationAction(
+                R.drawable.media_session_service_notification_ic_play,
                 R.string.play_button_content_description, ACTION_PLAY);
-        mPauseAction = createNotificationAction(R.drawable.ic_pause,
+        mPauseAction = createNotificationAction(
+                R.drawable.media_session_service_notification_ic_pause,
                 R.string.pause_button_content_description, ACTION_PAUSE);
-        mSkipToPrevAction = createNotificationAction(R.drawable.ic_skip_to_previous,
+        mSkipToPrevAction = createNotificationAction(
+                R.drawable.media_session_service_notification_ic_skip_to_previous,
                 R.string.skip_to_previous_item_button_content_description, ACTION_SKIP_TO_PREVIOUS);
-        mSkipToNextAction = createNotificationAction(R.drawable.ic_skip_to_next,
+        mSkipToNextAction = createNotificationAction(
+                R.drawable.media_session_service_notification_ic_skip_to_next,
                 R.string.skip_to_next_item_button_content_description, ACTION_SKIP_TO_NEXT);
     }
 
@@ -223,7 +227,7 @@ public class MediaNotificationHandler extends
             return appIcon;
         } else {
             // App icon is not set.
-            return R.drawable.ic_music_note;
+            return R.drawable.media_session_service_notification_ic_music_note;
         }
     }
 
