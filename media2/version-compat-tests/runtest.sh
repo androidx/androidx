@@ -28,6 +28,8 @@ SERVICE_MODULE_NAME_BASE="support-media2-test-service"
 CLIENT_VERSION=""
 SERVICE_VERSION=""
 OPTION_TEST_TARGET=""
+VERSION_COMBINATION=""
+DEVICE_SERIAL=""
 
 function printRunTestUsage() {
   echo "Usage: ./runtest.sh <version_combination_number> [option]"
@@ -41,6 +43,7 @@ function printRunTestUsage() {
   echo ""
   echo "Option:"
   echo "    -t <class/method>: Only run the specific test class/method."
+  echo "    -s <serial>: Use device with the serial. Required if multiple devices are connected."
 }
 
 function runTest() {
@@ -54,11 +57,11 @@ function runTest() {
   ./gradlew $SERVICE_MODULE_NAME:assembleDebugAndroidTest || { echo "Build failed. Aborting."; exit 1; }
 
   echo "Installing the test apks"
-  adb install -r "../../out/dist/$CLIENT_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
-  adb install -r "../../out/dist/$SERVICE_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
+  adb $DEVICE_SERIAL install -r "../../out/dist/$CLIENT_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
+  adb $DEVICE_SERIAL install -r "../../out/dist/$SERVICE_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
 
   echo "Running the tests"
-  local test_command="adb shell am instrument -w -e debug false -e client_version $CLIENT_VERSION -e service_version $SERVICE_VERSION"
+  local test_command="adb $DEVICE_SERIAL shell am instrument -w -e debug false -e client_version $CLIENT_VERSION -e service_version $SERVICE_VERSION"
   local client_test_runner="androidx.media2.test.client.test/androidx.test.runner.AndroidJUnitRunner"
   local service_test_runner="androidx.media2.test.service.test/androidx.test.runner.AndroidJUnitRunner"
 
@@ -86,23 +89,39 @@ then
   exit 1;
 fi
 
-if [[ $# -eq 0 || $1 -le 0 || $1 -gt 4 ]]
-then
-  printRunTestUsage
-  exit 1;
-fi
-
-if [[ ${2} == "-t" ]]; then
-  if [[ ${3} == *"client"* || ${3} == *"service"* ]]; then
-    OPTION_TEST_TARGET="-e class ${3}"
-  else
-    echo "Wrong test class/method name. Aborting."
-    echo "It should be in the form of \"<FULL_CLASS_NAME>[#METHOD_NAME]\"."
-    exit 1;
-  fi
-fi
-
 case ${1} in
+  1)
+    VERSION_COMBINATION=${1}
+    shift
+    ;;
+  *)
+    printRunTestUsage
+    exit 1;
+esac
+
+while (( "$#" )); do
+  case ${1} in
+    -t)
+      if [[ ${2} == *"client"* || ${2} == *"service"* ]]; then
+        OPTION_TEST_TARGET="-e class ${2}"
+      else
+        echo "Wrong test class/method name. Aborting."
+        echo "It should be in the form of \"<FULL_CLASS_NAME>[#METHOD_NAME]\"."
+        exit 1;
+      fi
+      shift 2
+      ;;
+    -s)
+      DEVICE_SERIAL="-s ${2}"
+      shift 2
+      ;;
+    *)
+      printRunTestUsage
+      exit 1;
+  esac
+done
+
+case ${VERSION_COMBINATION} in
   1)
      CLIENT_VERSION="tot"
      SERVICE_VERSION="tot"
