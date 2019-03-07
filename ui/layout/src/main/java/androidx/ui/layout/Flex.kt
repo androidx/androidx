@@ -23,6 +23,7 @@ import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureBox
 import androidx.ui.core.Placeable
 import androidx.ui.core.div
+import androidx.ui.core.ipx
 import androidx.ui.core.max
 import androidx.ui.core.minus
 import androidx.ui.core.plus
@@ -101,10 +102,17 @@ internal data class FlexChild(
  */
 @Composable
 fun FlexRow(
+    mainAxisAlignment: Int = MainAxisAlignment.Start,
+    mainAxisSize: Int = MainAxisSize.Max,
     crossAxisAlignment: Int = CrossAxisAlignment.Center,
     @Children(composable = false) block: FlexChildren.() -> Unit
 ) {
-    <Flex orientation=FlexOrientation.Horizontal crossAxisAlignment block />
+    <Flex
+        orientation=FlexOrientation.Horizontal
+        mainAxisAlignment
+        mainAxisSize
+        crossAxisAlignment
+        block />
 }
 
 /**
@@ -137,10 +145,17 @@ fun FlexRow(
  */
 @Composable
 fun FlexColumn(
+    mainAxisAlignment: Int = MainAxisAlignment.Start,
+    mainAxisSize: Int = MainAxisSize.Max,
     crossAxisAlignment: Int = CrossAxisAlignment.Center,
     @Children(composable=false) block: FlexChildren.() -> Unit
 ) {
-    <Flex orientation=FlexOrientation.Vertical crossAxisAlignment block />
+    <Flex
+        orientation=FlexOrientation.Vertical
+        mainAxisAlignment
+        mainAxisSize
+        crossAxisAlignment
+        block />
 }
 
 /**
@@ -154,8 +169,13 @@ fun FlexColumn(
  *   </Row>
  */
 @Composable
-fun Row(crossAxisAlignment: Int = CrossAxisAlignment.Center, @Children block: () -> Unit) {
-    <FlexRow crossAxisAlignment>
+fun Row(
+    mainAxisAlignment: Int = MainAxisAlignment.Start,
+    mainAxisSize: Int = MainAxisSize.Max,
+    crossAxisAlignment: Int = CrossAxisAlignment.Center,
+    @Children block: () -> Unit
+) {
+    <FlexRow mainAxisAlignment mainAxisSize crossAxisAlignment>
         inflexible {
             <block />
         }
@@ -173,8 +193,13 @@ fun Row(crossAxisAlignment: Int = CrossAxisAlignment.Center, @Children block: ()
  *   </Column>
  */
 @Composable
-fun Column(crossAxisAlignment: Int = CrossAxisAlignment.Center, @Children block: () -> Unit) {
-    <FlexColumn crossAxisAlignment>
+fun Column(
+    mainAxisAlignment: Int = MainAxisAlignment.Start,
+    mainAxisSize: Int = MainAxisSize.Max,
+    crossAxisAlignment: Int = CrossAxisAlignment.Center,
+    @Children block: () -> Unit
+) {
+    <FlexColumn mainAxisAlignment mainAxisSize crossAxisAlignment>
         inflexible {
             <block />
         }
@@ -194,6 +219,162 @@ internal class FlexOrientation {
     companion object {
         val Horizontal = 0
         val Vertical = 1
+    }
+}
+
+// TODO(popam): convert this to enum when possible
+/**
+ * Used to specify the alignment of a layout's children, in main axis direction.
+ */
+class MainAxisAlignment {
+    companion object {
+        /**
+         * Place children such that they are as close as possible to the middle of the main axis.
+         */
+        val Center = 0
+        /**
+         * Place children such that they are as close as possible to the start of the main axis.
+         * TODO(popam): Consider rtl directionality.
+         */
+        val Start = 1
+        /**
+         * Place children such that they are as close as possible to the end of the main axis.
+         */
+        val End = 2
+        /**
+         * Place children such that they are spaced evenly across the main axis, including free
+         * space before the first child and after the last child.
+         */
+        val SpaceEvenly = 3
+        /**
+         * Place children such that they are spaced evenly across the main axis, without free
+         * space before the first child or after the last child.
+         */
+        val SpaceBetween = 4
+        /**
+         * Place children such that they are spaced evenly across the main axis, including free
+         * space before the first child and after the last child, but half the amount of space
+         * existing otherwise between two consecutive children.
+         */
+        val SpaceAround = 5
+        // TODO(popam): get rid of this array when MainAxisAlignment becomes enum
+        internal val values = arrayOf(
+            MainAxisCenterAligner(),
+            MainAxisStartAligner(),
+            MainAxisEndAligner(),
+            MainAxisSpaceEvenlyAligner(),
+            MainAxisSpaceBetweenAligner(),
+            MainAxisSpaceAroundAligner()
+        )
+
+        internal interface Aligner {
+            fun align(totalSize: IntPx, size: List<IntPx>): List<IntPx>
+        }
+
+        internal class MainAxisCenterAligner : Aligner {
+            override fun align(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
+                val consumedSize = size.fold(0.ipx) { a, b -> a + b }
+                val positions = mutableListOf<IntPx>()
+                var current = (totalSize - consumedSize) / 2
+                size.forEach {
+                    positions.add(current)
+                    current += it
+                }
+                return positions
+            }
+        }
+
+        internal class MainAxisStartAligner : Aligner {
+            override fun align(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
+                val positions = mutableListOf<IntPx>()
+                var current = 0.ipx
+                size.forEach {
+                    positions.add(current)
+                    current += it
+                }
+                return positions
+            }
+        }
+
+        internal class MainAxisEndAligner : Aligner {
+            override fun align(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
+                val consumedSize = size.fold(0.ipx) { a, b -> a + b }
+                val positions = mutableListOf<IntPx>()
+                var current = totalSize - consumedSize
+                size.forEach {
+                    positions.add(current)
+                    current += it
+                }
+                return positions
+            }
+        }
+
+        internal class MainAxisSpaceEvenlyAligner : Aligner {
+            override fun align(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
+                val consumedSize = size.fold(0.ipx) { a, b -> a + b }
+                val gapSize = (totalSize - consumedSize) / (size.size + 1)
+                val positions = mutableListOf<IntPx>()
+                var current = gapSize
+                size.forEach {
+                    positions.add(current)
+                    current += it + gapSize
+                }
+                return positions
+            }
+        }
+
+        internal class MainAxisSpaceBetweenAligner : Aligner {
+            override fun align(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
+                val consumedSize = size.fold(0.ipx) { a, b -> a + b }
+                val gapSize = if (size.size > 1) {
+                    (totalSize - consumedSize) / (size.size - 1)
+                } else {
+                    0.ipx
+                }
+                val positions = mutableListOf<IntPx>()
+                var current = 0.ipx
+                size.forEach {
+                    positions.add(current)
+                    current += it + gapSize
+                }
+                return positions
+            }
+        }
+
+        internal class MainAxisSpaceAroundAligner : Aligner {
+            override fun align(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
+                val consumedSize = size.fold(0.ipx) { a, b -> a + b }
+                val gapSize = if (!size.isEmpty()) {
+                    (totalSize - consumedSize) / size.size
+                } else {
+                    0.ipx
+                }
+                val positions = mutableListOf<IntPx>()
+                var current = gapSize / 2
+                size.forEach {
+                    positions.add(current)
+                    current += it + gapSize
+                }
+                return positions
+            }
+        }
+    }
+}
+
+// TODO(popam): convert this to enum when possible
+/**
+ * Used to specify how a layout chooses its own size when multiple behaviors are possible.
+ */
+class MainAxisSize {
+    companion object {
+        /**
+         * Minimize the amount of main axis free space, subject to the incoming layout constraints.
+         */
+        val Min = 0
+        /**
+         * Maximize the amount of main axis free space, subject to the incoming layout constraints.
+         */
+        val Max = 1
     }
 }
 
@@ -284,6 +465,8 @@ private data class OrientationIndependentConstraints(
 @Composable
 private fun Flex(
     orientation: Int /*FlexOrientation*/,
+    mainAxisSize: Int /*MainAxisSize*/ = MainAxisSize.Max,
+    mainAxisAlignment: Int /*MainAxisAlignment*/ = MainAxisAlignment.Start,
     crossAxisAlignment: Int /*CrossAxisAlignment*/ = CrossAxisAlignment.Center,
     @Children(composable = false) block: FlexChildren.() -> Unit
 ) {
@@ -316,10 +499,19 @@ private fun Flex(
         }
 
         // Then measure the rest according to their flexes in the remaining main axis space.
-        val remainingSpace = constraints.mainAxisMax - children.filter { it.flex == 0f }
-                .fold(IntPx.Zero) { sum, c -> sum + c.placeable.mainAxisSize() }
+
+        val inflexibleSpace = children.filter { it.flex == 0f }
+            .fold(IntPx.Zero) { sum, c -> sum + c.placeable.mainAxisSize() }
+        val targetSpace = if (mainAxisSize == MainAxisSize.Max) {
+            constraints.mainAxisMax
+        } else {
+            constraints.mainAxisMin
+        }
         children.filter { it.flex > 0f }.forEach { child ->
-            val childMainAxisSize = remainingSpace * child.flex / totalFlex
+            val childMainAxisSize = max(
+                IntPx.Zero,
+                (targetSpace - inflexibleSpace) * child.flex / totalFlex
+            )
             child.placeable = child.measurable.measure(
                 OrientationIndependentConstraints(
                     if (child.fit == FlexFit.Tight) childMainAxisSize else IntPx.Zero,
@@ -335,7 +527,8 @@ private fun Flex(
         }
 
         // Compute the Flex size and position the children.
-        val mainAxisLayoutSize = if (constraints.mainAxisMax != IntPx.Infinity) {
+        val mainAxisLayoutSize = if (constraints.mainAxisMax != IntPx.Infinity &&
+            mainAxisSize == MainAxisSize.Max) {
             constraints.mainAxisMax
         } else {
             max(
@@ -358,8 +551,10 @@ private fun Flex(
             mainAxisLayoutSize
         }
         layout(layoutWidth, layoutHeight) {
-            var consumedMainAxisSpace = IntPx.Zero
-            children.forEach { child ->
+            val childrenMainAxisSize = children.map { it.placeable.mainAxisSize() }
+            val mainAxisPositions = MainAxisAlignment.values[mainAxisAlignment]
+                .align(mainAxisLayoutSize, childrenMainAxisSize)
+            children.forEachIndexed { index, child ->
                 val crossAxis = when (crossAxisAlignment) {
                     CrossAxisAlignment.Start -> IntPx.Zero
                     CrossAxisAlignment.Stretch -> IntPx.Zero
@@ -375,11 +570,10 @@ private fun Flex(
                     else -> { IntPx.Zero /* TODO(popam): support baseline and use enum */}
                 }
                 if (orientation == FlexOrientation.Horizontal) {
-                    child.placeable.place(consumedMainAxisSpace, crossAxis)
+                    child.placeable.place(mainAxisPositions[index], crossAxis)
                 } else {
-                    child.placeable.place(crossAxis, consumedMainAxisSpace)
+                    child.placeable.place(crossAxis, mainAxisPositions[index])
                 }
-                consumedMainAxisSpace += child.placeable.mainAxisSize()
             }
         }
     </MeasureBox>
