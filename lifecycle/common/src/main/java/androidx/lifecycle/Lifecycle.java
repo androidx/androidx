@@ -18,6 +18,9 @@ package androidx.lifecycle;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Defines an object that has an Android Lifecycle. {@link androidx.fragment.app.Fragment Fragment}
@@ -73,6 +76,16 @@ import androidx.annotation.NonNull;
  * and events without tracking them manually.
  */
 public abstract class Lifecycle {
+
+    /**
+     * Lifecycle coroutines extensions stashes the CoroutineScope into this field.
+     *
+     * @hide used by lifecycle-common-ktx
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    AtomicReference<Object> mInternalScopeRef = new AtomicReference<>();
+
     /**
      * Adds a LifecycleObserver that will be notified when the LifecycleOwner changes
      * state.

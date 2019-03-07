@@ -1,0 +1,15 @@
+// Signature format: 3.0
+package androidx.lifecycle {
+
+  public final class LifecycleKt {
+    ctor public LifecycleKt();
+    method public static kotlinx.coroutines.CoroutineScope getCoroutineScope(androidx.lifecycle.Lifecycle);
+  }
+
+  public final class LifecycleOwnerKt {
+    ctor public LifecycleOwnerKt();
+    method public static kotlinx.coroutines.CoroutineScope getLifecycleScope(androidx.lifecycle.LifecycleOwner);
+  }
+
+}
+
