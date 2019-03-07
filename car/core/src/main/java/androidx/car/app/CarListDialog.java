@@ -21,11 +21,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -33,17 +30,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.annotation.StyleRes;
 import androidx.car.R;
 import androidx.car.util.DropShadowScrollListener;
 import androidx.car.widget.ListItem;
 import androidx.car.widget.ListItemAdapter;
 import androidx.car.widget.ListItemProvider;
 import androidx.car.widget.PagedListView;
-import androidx.car.widget.PagedScrollBarView;
 import androidx.car.widget.SubheaderListItem;
 import androidx.car.widget.TextListItem;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +63,6 @@ public class CarListDialog extends Dialog {
     private final int mInitialPosition;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     PagedListView mList;
-    private PagedScrollBarView mScrollBarView;
 
     @Nullable
     private final DialogInterface.OnClickListener mOnClickListener;
@@ -77,19 +70,9 @@ public class CarListDialog extends Dialog {
     /** Flag for if a touch on the scrim of the dialog will dismiss it. */
     private boolean mDismissOnTouchOutside;
 
-    private final ViewTreeObserver.OnGlobalLayoutListener mLayoutListener =
-            new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    updateScrollbar();
-                    // Remove this listener because the listener for the scroll state will be
-                    // enough to keep the scrollbar in sync.
-                    mList.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
-            };
 
     CarListDialog(Context context, Builder builder) {
-        super(context, getDialogTheme(context));
+        super(context, CarDialogUtil.getDialogTheme(context));
         mInitialPosition = builder.mInitialPosition;
         mOnClickListener = builder.mOnClickListener;
         mTitle = builder.mTitle;
@@ -139,7 +122,6 @@ public class CarListDialog extends Dialog {
 
         initializeTitle();
         initializeList();
-        initializeScrollbar();
 
         // Need to set this elevation listener last because the title and list need to be
         // initialized first.
@@ -167,16 +149,6 @@ public class CarListDialog extends Dialog {
         mList.addOnScrollListener(new DropShadowScrollListener(mTitleView));
     }
 
-    @Override
-    protected void onStop() {
-        // Cleanup to ensure that no stray view observers are still attached.
-        if (mList != null) {
-            mList.getViewTreeObserver().removeOnGlobalLayoutListener(mLayoutListener);
-        }
-
-        super.onStop();
-    }
-
     private void initializeList() {
         mList = getWindow().findViewById(R.id.list);
         mList.setMaxPages(PagedListView.UNLIMITED_PAGES);
@@ -188,47 +160,7 @@ public class CarListDialog extends Dialog {
             mList.snapToPosition(mInitialPosition);
         }
 
-        // Ensure that when the list is scrolled, the scrollbar updates to reflect the new position.
-        mList.getRecyclerView().addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                updateScrollbar();
-            }
-        });
-
-        // Update if the scrollbar should be visible after the PagedListView has finished
-        // laying itself out. This is needed because the only way to the state of scrollbar is to
-        // see the items after they have been laid out.
-        mList.getViewTreeObserver().addOnGlobalLayoutListener(mLayoutListener);
-    }
-
-    /**
-     * Initializes the scrollbar that appears off the dialog. This scrollbar is not the one that
-     * usually appears with the PagedListView, but mimics it in functionality.
-     */
-    private void initializeScrollbar() {
-        mScrollBarView = getWindow().findViewById(R.id.scrollbar);
-
-        mScrollBarView.setPaginationListener(new PagedScrollBarView.PaginationListener() {
-            @Override
-            public void onPaginate(int direction) {
-                switch (direction) {
-                    case PagedScrollBarView.PaginationListener.PAGE_UP:
-                        mList.pageUp();
-                        break;
-                    case PagedScrollBarView.PaginationListener.PAGE_DOWN:
-                        mList.pageDown();
-                        break;
-                    default:
-                        Log.e(TAG, "Unknown pagination direction (" + direction + ")");
-                }
-            }
-
-            @Override
-            public void onAlphaJump() {
-            }
-        });
+        CarDialogUtil.setUpDialogList(mList, getWindow().findViewById(R.id.scrollbar));
     }
 
     /**
@@ -308,56 +240,6 @@ public class CarListDialog extends Dialog {
             mOnClickListener.onClick(/* dialog= */ this, position);
         }
         dismiss();
-    }
-
-    /**
-     * Determines if scrollbar should be visible or not and shows/hides it accordingly.
-     *
-     * <p>If this is being called as a result of adapter changes, it should be called after the new
-     * layout has been calculated because the method of determining scrollbar visibility uses the
-     * current layout.
-     *
-     * <p>If this is called after an adapter change but before the new layout, the visibility
-     * determination may not be correct.
-     */
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void updateScrollbar() {
-        RecyclerView recyclerView = mList.getRecyclerView();
-
-        boolean isAtStart = mList.isAtStart();
-        boolean isAtEnd = mList.isAtEnd();
-
-        if ((isAtStart && isAtEnd)) {
-            mScrollBarView.setVisibility(View.INVISIBLE);
-            return;
-        }
-
-        mScrollBarView.setVisibility(View.VISIBLE);
-        mScrollBarView.setUpEnabled(!isAtStart);
-        mScrollBarView.setDownEnabled(!isAtEnd);
-
-        // Assume the list scrolls vertically because we control the list and know the
-        // LayoutManager cannot change.
-        mScrollBarView.setParameters(
-                recyclerView.computeVerticalScrollRange(),
-                recyclerView.computeVerticalScrollOffset(),
-                recyclerView.computeVerticalScrollExtent(),
-                /* animate= */ false);
-
-        getWindow().getDecorView().invalidate();
-    }
-
-    /**
-     * Returns the style that has been assigned to {@code carDialogTheme} in the
-     * current theme that is inflating this dialog. If a style has not been defined, a default
-     * style will be returned.
-     */
-    @StyleRes
-    private static int getDialogTheme(Context context) {
-        TypedValue outValue = new TypedValue();
-        boolean hasStyle =
-                context.getTheme().resolveAttribute(R.attr.carDialogTheme, outValue, true);
-        return hasStyle ? outValue.resourceId : R.style.Theme_Car_Dark_Dialog;
     }
 
     /**

@@ -478,6 +478,7 @@ public class CarAlertDialog extends Dialog {
          * @param titleId The resource id of the string to be used as the title.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setTitle(@StringRes int titleId) {
             mTitle = mContext.getString(titleId);
             return this;
@@ -489,6 +490,7 @@ public class CarAlertDialog extends Dialog {
          * @param title The string to be used as the title.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setTitle(CharSequence title) {
             mTitle = title;
             return this;
@@ -500,6 +502,7 @@ public class CarAlertDialog extends Dialog {
          * @param bodyId The resource id of the string to be used as the body text.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setBody(@StringRes int bodyId) {
             mBody = mContext.getString(bodyId);
             return this;
@@ -511,6 +514,7 @@ public class CarAlertDialog extends Dialog {
          * @param body The string to be used as the body text.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setBody(CharSequence body) {
             mBody = body;
             return this;
@@ -523,6 +527,7 @@ public class CarAlertDialog extends Dialog {
          * @return This {@code Builder} object to allow for chaining of calls.
          * @see TextView#setMovementMethod(MovementMethod)
          */
+        @NonNull
         public Builder setBodyMovementMethod(@Nullable MovementMethod movementMethod) {
             mBodyMovementMethod = movementMethod;
             return this;
@@ -541,6 +546,7 @@ public class CarAlertDialog extends Dialog {
          *                 when the button is clicked. Can be {@code null} to represent no listener.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setPositiveButton(@StringRes int textId,
                 @Nullable OnClickListener listener) {
             mPositiveButtonText = mContext.getString(textId);
@@ -561,6 +567,7 @@ public class CarAlertDialog extends Dialog {
          *                 when the button is clicked. Can be {@code null} to represent no listener.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setPositiveButton(CharSequence text, @Nullable OnClickListener listener) {
             mPositiveButtonText = text;
             mPositiveButtonListener = listener;
@@ -579,6 +586,7 @@ public class CarAlertDialog extends Dialog {
          *                 when the button is clicked. Can be {@code null} to represent no listener.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setNegativeButton(@StringRes int textId,
                 @Nullable OnClickListener listener) {
             mNegativeButtonText = mContext.getString(textId);
@@ -598,6 +606,7 @@ public class CarAlertDialog extends Dialog {
          *                 when the button is clicked. Can be {@code null} to represent no listener.
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setNegativeButton(CharSequence text, @Nullable OnClickListener listener) {
             mNegativeButtonText = text;
             mNegativeButtonListener = listener;
@@ -609,6 +618,7 @@ public class CarAlertDialog extends Dialog {
          *
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setCancelable(boolean cancelable) {
             mCancelable = cancelable;
             return this;
@@ -628,6 +638,7 @@ public class CarAlertDialog extends Dialog {
          * @see #setCancelable(boolean)
          * @see #setOnDismissListener(OnDismissListener)
          */
+        @NonNull
         public Builder setOnCancelListener(OnCancelListener onCancelListener) {
             mOnCancelListener = onCancelListener;
             return this;
@@ -638,6 +649,7 @@ public class CarAlertDialog extends Dialog {
          *
          * @return This {@code Builder} object to allow for chaining of calls.
          */
+        @NonNull
         public Builder setOnDismissListener(OnDismissListener onDismissListener) {
             mOnDismissListener = onDismissListener;
             return this;
@@ -649,6 +661,7 @@ public class CarAlertDialog extends Dialog {
          * <p>Calling this method does not display the dialog. Utilize this dialog within a
          * {@link androidx.fragment.app.DialogFragment} to show the dialog.
          */
+        @NonNull
         public CarAlertDialog create() {
             CarAlertDialog dialog = new CarAlertDialog(mContext, /* builder= */ this);
 

@@ -25,6 +25,7 @@
     <string name="switch_list_item_title">SwitchListItem</string>
     <string name="sub_header_list_item_title">SubheaderListItem</string>
     <string name="alpha_jump_title">Alpha Jump Demo</string>
+    <string name="single_selection_dialog_title">CarSingleChoiceDialog Demo</string>
 
     <string name="long_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
     <string name="super_long_text">
