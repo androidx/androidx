@@ -1,0 +1,183 @@
+// Signature format: 3.0
+package androidx.room {
+
+  public class DatabaseConfiguration {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>?, boolean, androidx.room.RoomDatabase.JournalMode!, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>?);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityDeletionOrUpdateAdapter<T> extends androidx.room.SharedSQLiteStatement {
+    ctor public EntityDeletionOrUpdateAdapter(androidx.room.RoomDatabase!);
+    method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement!, T!);
+    method public final int handle(T!);
+    method public final int handleMultiple(Iterable<T>!);
+    method public final int handleMultiple(T[]!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityInsertionAdapter<T> extends androidx.room.SharedSQLiteStatement {
+    ctor public EntityInsertionAdapter(androidx.room.RoomDatabase!);
+    method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement!, T!);
+    method public final void insert(T!);
+    method public final void insert(T[]!);
+    method public final void insert(Iterable<T>!);
+    method public final long insertAndReturnId(T!);
+    method public final long[]! insertAndReturnIdsArray(java.util.Collection<T>!);
+    method public final long[]! insertAndReturnIdsArray(T[]!);
+    method public final Long[]! insertAndReturnIdsArrayBox(java.util.Collection<T>!);
+    method public final Long[]! insertAndReturnIdsArrayBox(T[]!);
+    method public final java.util.List<java.lang.Long>! insertAndReturnIdsList(T[]!);
+    method public final java.util.List<java.lang.Long>! insertAndReturnIdsList(java.util.Collection<T>!);
+  }
+
+  public class InvalidationTracker {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase!, java.lang.String...!);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase!, java.util.Map<java.lang.String,java.lang.String>!, java.util.Map<java.lang.String,java.util.Set<java.lang.String>>!, java.lang.String...!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addWeakObserver(androidx.room.InvalidationTracker.Observer!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T>! createLiveData(String[]!, java.util.concurrent.Callable<T>!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @WorkerThread public void refreshVersionsSync();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MultiInstanceInvalidationService extends android.app.Service {
+    ctor public MultiInstanceInvalidationService();
+    method public android.os.IBinder? onBind(android.content.Intent!);
+  }
+
+  public abstract class RoomDatabase {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void assertNotMainThread();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void assertNotSuspendingTransaction();
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int MAX_BIND_PARAMETER_CNT = 999; // 0x3e7
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class RoomOpenHelper extends androidx.sqlite.db.SupportSQLiteOpenHelper.Callback {
+    ctor public RoomOpenHelper(androidx.room.DatabaseConfiguration, androidx.room.RoomOpenHelper.Delegate, String, String);
+    ctor public RoomOpenHelper(androidx.room.DatabaseConfiguration, androidx.room.RoomOpenHelper.Delegate, String);
+    method public void onCreate(androidx.sqlite.db.SupportSQLiteDatabase!);
+    method public void onUpgrade(androidx.sqlite.db.SupportSQLiteDatabase!, int, int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract static class RoomOpenHelper.Delegate {
+    ctor public RoomOpenHelper.Delegate(int);
+    method protected abstract void createAllTables(androidx.sqlite.db.SupportSQLiteDatabase!);
+    method protected abstract void dropAllTables(androidx.sqlite.db.SupportSQLiteDatabase!);
+    method protected abstract void onCreate(androidx.sqlite.db.SupportSQLiteDatabase!);
+    method protected abstract void onOpen(androidx.sqlite.db.SupportSQLiteDatabase!);
+    method protected void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase!);
+    method protected void onPreMigrate(androidx.sqlite.db.SupportSQLiteDatabase!);
+    method protected abstract void validateMigration(androidx.sqlite.db.SupportSQLiteDatabase!);
+    field public final int version;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class RoomSQLiteQuery implements androidx.sqlite.db.SupportSQLiteProgram androidx.sqlite.db.SupportSQLiteQuery {
+    method public static androidx.room.RoomSQLiteQuery! acquire(String!, int);
+    method public void bindBlob(int, byte[]!);
+    method public void bindDouble(int, double);
+    method public void bindLong(int, long);
+    method public void bindNull(int);
+    method public void bindString(int, String!);
+    method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram!);
+    method public void clearBindings();
+    method public void close();
+    method public void copyArgumentsFrom(androidx.room.RoomSQLiteQuery!);
+    method public static androidx.room.RoomSQLiteQuery! copyFrom(androidx.sqlite.db.SupportSQLiteQuery!);
+    method public int getArgCount();
+    method public String! getSql();
+    method public void release();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class SharedSQLiteStatement {
+    ctor public SharedSQLiteStatement(androidx.room.RoomDatabase!);
+    method public androidx.sqlite.db.SupportSQLiteStatement! acquire();
+    method protected void assertNotMainThread();
+    method protected abstract String! createQuery();
+    method public void release(androidx.sqlite.db.SupportSQLiteStatement!);
+  }
+
+}
+
+package androidx.room.paging {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class LimitOffsetDataSource<T> extends androidx.paging.PositionalDataSource<T> {
+    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean, java.lang.String...!);
+    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase!, androidx.room.RoomSQLiteQuery!, boolean, java.lang.String...!);
+    method protected abstract java.util.List<T>! convertRows(android.database.Cursor!);
+    method public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T>);
+    method public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams, androidx.paging.PositionalDataSource.LoadRangeCallback<T>);
+  }
+
+}
+
+package androidx.room.util {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class CursorUtil {
+    method public static android.database.Cursor copyAndClose(android.database.Cursor);
+    method public static int getColumnIndex(android.database.Cursor, String);
+    method public static int getColumnIndexOrThrow(android.database.Cursor, String);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DBUtil {
+    method public static void dropFtsSyncTriggers(androidx.sqlite.db.SupportSQLiteDatabase!);
+    method public static android.database.Cursor query(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FtsTableInfo {
+    ctor public FtsTableInfo(String!, java.util.Set<java.lang.String>!, java.util.Set<java.lang.String>!);
+    ctor public FtsTableInfo(String!, java.util.Set<java.lang.String>!, String!);
+    method public static androidx.room.util.FtsTableInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
+    field public final java.util.Set<java.lang.String>! columns;
+    field public final String! name;
+    field public final java.util.Set<java.lang.String>! options;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class StringUtil {
+    method public static void appendPlaceholders(StringBuilder!, int);
+    method public static String? joinIntoString(java.util.List<java.lang.Integer>?);
+    method public static StringBuilder! newStringBuilder();
+    method public static java.util.List<java.lang.Integer>? splitToIntList(String?);
+    field public static final String[]! EMPTY_STRING_ARRAY;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TableInfo {
+    ctor public TableInfo(String!, java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column>!, java.util.Set<androidx.room.util.TableInfo.ForeignKey>!, java.util.Set<androidx.room.util.TableInfo.Index>!);
+    ctor public TableInfo(String!, java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column>!, java.util.Set<androidx.room.util.TableInfo.ForeignKey>!);
+    method public static androidx.room.util.TableInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
+    field public final java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column>! columns;
+    field public final java.util.Set<androidx.room.util.TableInfo.ForeignKey>! foreignKeys;
+    field public final java.util.Set<androidx.room.util.TableInfo.Index>? indices;
+    field public final String! name;
+  }
+
+  public static class TableInfo.Column {
+    ctor public TableInfo.Column(String!, String!, boolean, int);
+    method public boolean isPrimaryKey();
+    field public final int affinity;
+    field public final String! name;
+    field public final boolean notNull;
+    field public final int primaryKeyPosition;
+    field public final String! type;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class TableInfo.ForeignKey {
+    ctor public TableInfo.ForeignKey(String, String, String, java.util.List<java.lang.String>, java.util.List<java.lang.String>);
+    field public final java.util.List<java.lang.String> columnNames;
+    field public final String onDelete;
+    field public final String onUpdate;
+    field public final java.util.List<java.lang.String> referenceColumnNames;
+    field public final String referenceTable;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class TableInfo.Index {
+    ctor public TableInfo.Index(String!, boolean, java.util.List<java.lang.String>!);
+    field public static final String DEFAULT_PREFIX = "index_";
+    field public final java.util.List<java.lang.String>! columns;
+    field public final String! name;
+    field public final boolean unique;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ViewInfo {
+    ctor public ViewInfo(String!, String!);
+    method public static androidx.room.util.ViewInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
+    field public final String! name;
+    field public final String! sql;
+  }
+
+}
+

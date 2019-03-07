@@ -1,0 +1,55 @@
+// Baseline format: 1.0
+DeprecationMismatch: androidx.core.app.NotificationCompat.Action.WearableExtender#getCancelLabel():
+    Method androidx.core.app.NotificationCompat.Action.WearableExtender.getCancelLabel(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.Action.WearableExtender#getConfirmLabel():
+    Method androidx.core.app.NotificationCompat.Action.WearableExtender.getConfirmLabel(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.Action.WearableExtender#getInProgressLabel():
+    Method androidx.core.app.NotificationCompat.Action.WearableExtender.getInProgressLabel(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.Action.WearableExtender#setCancelLabel(CharSequence):
+    Method androidx.core.app.NotificationCompat.Action.WearableExtender.setCancelLabel(CharSequence): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.Action.WearableExtender#setConfirmLabel(CharSequence):
+    Method androidx.core.app.NotificationCompat.Action.WearableExtender.setConfirmLabel(CharSequence): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.Action.WearableExtender#setInProgressLabel(CharSequence):
+    Method androidx.core.app.NotificationCompat.Action.WearableExtender.setInProgressLabel(CharSequence): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#getContentIcon():
+    Method androidx.core.app.NotificationCompat.WearableExtender.getContentIcon(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#getContentIconGravity():
+    Method androidx.core.app.NotificationCompat.WearableExtender.getContentIconGravity(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#getCustomContentHeight():
+    Method androidx.core.app.NotificationCompat.WearableExtender.getCustomContentHeight(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#getCustomSizePreset():
+    Method androidx.core.app.NotificationCompat.WearableExtender.getCustomSizePreset(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#getGravity():
+    Method androidx.core.app.NotificationCompat.WearableExtender.getGravity(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#getHintAvoidBackgroundClipping():
+    Method androidx.core.app.NotificationCompat.WearableExtender.getHintAvoidBackgroundClipping(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#getHintHideIcon():
+    Method androidx.core.app.NotificationCompat.WearableExtender.getHintHideIcon(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#getHintScreenTimeout():
+    Method androidx.core.app.NotificationCompat.WearableExtender.getHintScreenTimeout(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#getHintShowBackgroundOnly():
+    Method androidx.core.app.NotificationCompat.WearableExtender.getHintShowBackgroundOnly(): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#setContentIcon(int):
+    Method androidx.core.app.NotificationCompat.WearableExtender.setContentIcon(int): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#setContentIconGravity(int):
+    Method androidx.core.app.NotificationCompat.WearableExtender.setContentIconGravity(int): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#setCustomContentHeight(int):
+    Method androidx.core.app.NotificationCompat.WearableExtender.setCustomContentHeight(int): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#setCustomSizePreset(int):
+    Method androidx.core.app.NotificationCompat.WearableExtender.setCustomSizePreset(int): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#setGravity(int):
+    Method androidx.core.app.NotificationCompat.WearableExtender.setGravity(int): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#setHintAvoidBackgroundClipping(boolean):
+    Method androidx.core.app.NotificationCompat.WearableExtender.setHintAvoidBackgroundClipping(boolean): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#setHintHideIcon(boolean):
+    Method androidx.core.app.NotificationCompat.WearableExtender.setHintHideIcon(boolean): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#setHintScreenTimeout(int):
+    Method androidx.core.app.NotificationCompat.WearableExtender.setHintScreenTimeout(int): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+DeprecationMismatch: androidx.core.app.NotificationCompat.WearableExtender#setHintShowBackgroundOnly(boolean):
+    Method androidx.core.app.NotificationCompat.WearableExtender.setHintShowBackgroundOnly(boolean): @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
+
+
+RemovedDeprecatedMethod: androidx.core.graphics.drawable.IconCompat#createFromIcon(android.graphics.drawable.Icon):
+    Removed deprecated method androidx.core.graphics.drawable.IconCompat.createFromIcon(android.graphics.drawable.Icon)
+
+
