@@ -83,7 +83,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * lifecycle events are handled internally by CameraX.
  */
 public class CameraXActivity extends AppCompatActivity
-        implements ActivityCompat.OnRequestPermissionsResultCallback {
+        implements ActivityCompat.OnRequestPermissionsResultCallback, View.OnLayoutChangeListener {
     private static final String TAG = "CameraXActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
     // Possible values for this intent key: "backward" or "forward".
@@ -172,6 +172,8 @@ public class CameraXActivity extends AppCompatActivity
                     }
                 });
 
+        textureView.addOnLayoutChangeListener(this);
+
         for (int i = 0; i < FRAMES_UNTIL_VIEW_IS_READY; i++) {
             mIdlingResource.increment();
         }
@@ -193,7 +195,6 @@ public class CameraXActivity extends AppCompatActivity
                     @Override
                     public void onSurfaceTextureSizeChanged(
                             SurfaceTexture surfaceTexture, int i, int i1) {
-                        transformPreview();
                     }
 
                     @Override
@@ -832,6 +833,12 @@ public class CameraXActivity extends AppCompatActivity
         }
 
         return true;
+    }
+
+    @Override
+    public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
+            int oldTop, int oldRight, int oldBottom) {
+        transformPreview();
     }
 
     /** A {@link Callable} whose return value can be set. */
