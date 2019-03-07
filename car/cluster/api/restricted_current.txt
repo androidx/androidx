@@ -6,7 +6,7 @@ package androidx.car.cluster.navigation {
   }
 
   public class RichTextElement implements androidx.versionedparcelable.VersionedParcelable {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RichTextElement(String, androidx.car.cluster.navigation.ImageReference?);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RichTextElement(String?, androidx.car.cluster.navigation.ImageReference?);
   }
 
 }
