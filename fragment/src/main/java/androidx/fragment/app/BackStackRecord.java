@@ -422,7 +422,7 @@ final class BackStackRecord extends FragmentTransaction implements
                         + name + "' has already been added to the transaction.");
             } else if (mSharedElementSourceNames.contains(transitionName)) {
                 throw new IllegalArgumentException("A shared element with the source name '"
-                        + transitionName + " has already been added to the transaction.");
+                        + transitionName + "' has already been added to the transaction.");
             }
 
             mSharedElementSourceNames.add(transitionName);
