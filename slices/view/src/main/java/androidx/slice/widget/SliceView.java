@@ -18,6 +18,8 @@ package androidx.slice.widget;
 
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.SliceItem.FORMAT_INT;
+import static android.view.View.MeasureSpec.EXACTLY;
+import static android.view.View.MeasureSpec.makeMeasureSpec;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -227,10 +229,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         mTouchSlopSquared = slop * slop;
         mHandler = new Handler();
 
-        mCurrentView.setInsets(getPaddingStart(), getPaddingTop(), getPaddingEnd(),
-                getPaddingBottom());
         setClipToPadding(false);
-
         super.setOnClickListener(this);
     }
 
@@ -367,10 +366,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
-        int childWidth = MeasureSpec.getSize(widthMeasureSpec);
         if (MODE_SHORTCUT == getMode()) {
             // TODO: consider scaling the shortcut to fit if too small
-            childWidth = mShortcutSize;
             width = mShortcutSize + getPaddingLeft() + getPaddingRight();
         }
         final int actionHeight = mActionRow.getVisibility() != View.GONE
@@ -389,7 +386,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         if (heightAvailable >= sliceHeight + actionHeight
                 || heightMode == MeasureSpec.UNSPECIFIED) {
             // Available space is larger than the slice or we be what we want
-            if (heightMode == MeasureSpec.EXACTLY) {
+            if (heightMode == EXACTLY) {
                 height = Math.min(sliceHeight, height);
             } else {
                 height = sliceHeight;
@@ -407,33 +404,28 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             }
         }
 
-        int childHeight = height + getPaddingTop() + getPaddingBottom();
-        childWidth = childWidth + getPaddingLeft() + getPaddingRight();
-        int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(childWidth, MeasureSpec.EXACTLY);
-        int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(childHeight, MeasureSpec.EXACTLY);
-        measureChild(mCurrentView, childWidthMeasureSpec, childHeightMeasureSpec);
+        // Measure directly instead of calling measureChild as the later substracts padding
+        // from the provided size
+        int childWidthSpec = makeMeasureSpec(width, EXACTLY);
+        int actionRowHeight = actionHeight > 0 ? (actionHeight + getPaddingBottom()) : 0;
+        mActionRow.measure(childWidthSpec, makeMeasureSpec(actionRowHeight, EXACTLY));
 
-        int actionPaddedHeight = actionHeight + getPaddingTop() + getPaddingBottom();
-        int actionHeightSpec = MeasureSpec.makeMeasureSpec(actionPaddedHeight, MeasureSpec.EXACTLY);
-        measureChild(mActionRow, childWidthMeasureSpec, actionHeightSpec);
-
-        // Total height should include action row and our padding
-        height += actionHeight + getPaddingTop() + getPaddingBottom();
-        setMeasuredDimension(width, height);
+        // Include the bottom padding for currentView only if action row is invisible
+        int currentViewHeight = height + getPaddingTop()
+                + (actionHeight > 0 ? 0 : getPaddingBottom());
+        mCurrentView.measure(childWidthSpec, makeMeasureSpec(currentViewHeight, EXACTLY));
+        setMeasuredDimension(width,
+                mCurrentView.getMeasuredHeight() + mActionRow.getMeasuredHeight());
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         View v = mCurrentView;
-        final int left = 0;
-        final int top = 0;
-        v.layout(left, top, left + v.getMeasuredWidth() + getPaddingRight() + getPaddingLeft(),
-                top + v.getMeasuredHeight());
+        v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
         if (mActionRow.getVisibility() != View.GONE) {
-            mActionRow.layout(left,
-                    top + v.getMeasuredHeight(),
-                    left + mActionRow.getMeasuredWidth(),
-                    top + v.getMeasuredHeight() + mActionRow.getMeasuredHeight());
+            int top = v.getMeasuredHeight();
+            mActionRow.layout(0, top, mActionRow.getMeasuredWidth(),
+                    mActionRow.getMeasuredHeight() + top);
         }
     }
 
@@ -713,8 +705,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         // If the view changes we should apply any configurations to it
         if (newView) {
             mCurrentView.setPolicy(mViewPolicy);
-            mCurrentView.setInsets(getPaddingStart(), getPaddingTop(), getPaddingEnd(),
-                    getPaddingBottom());
             applyConfigurations();
             if (mListContent != null && mListContent.isValid()) {
                 mCurrentView.setSliceContent(mListContent);
@@ -741,6 +731,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             // No actions, hide the row, clear out the view
             mActionRow.setVisibility(View.GONE);
             mCurrentView.setSliceActions(null);
+            mCurrentView.setInsets(getPaddingStart(), getPaddingTop(), getPaddingEnd(),
+                    getPaddingBottom());
             return;
         }
         // Sort actions based on priority and set them in action rows.
@@ -750,11 +742,20 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             // Show in action row if available
             mActionRow.setActions(sortedActions, getTintColor());
             mActionRow.setVisibility(View.VISIBLE);
+
             // Hide them on the template
             mCurrentView.setSliceActions(null);
+
+            mCurrentView.setInsets(getPaddingStart(), getPaddingTop(), getPaddingEnd(), 0);
+            mActionRow.setPaddingRelative(getPaddingStart(), 0, getPaddingEnd(),
+                    getPaddingBottom());
+
         } else {
             // Otherwise set them on the template
             mCurrentView.setSliceActions(sortedActions);
+            mCurrentView.setInsets(getPaddingStart(), getPaddingTop(), getPaddingEnd(),
+                    getPaddingBottom());
+
             mActionRow.setVisibility(View.GONE);
         }
     }
