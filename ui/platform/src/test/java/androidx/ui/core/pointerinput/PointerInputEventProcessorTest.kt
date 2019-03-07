@@ -17,13 +17,17 @@
 package androidx.ui.core.pointerinput
 
 import androidx.test.filters.SmallTest
+import androidx.ui.core.ConsumedData
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Owner
+import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerEventPass.InitialDown
+import androidx.ui.core.PointerEventPass.PreUp
+import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.Timestamp
 import androidx.ui.core.ipx
-import androidx.ui.core.pointerinput.PointerEventPass.InitialDown
-import androidx.ui.core.pointerinput.PointerEventPass.PreUp
 import androidx.ui.engine.geometry.Offset
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -440,7 +444,10 @@ class PointerInputEventProcessorTest {
             ),
             PointerInputChange(
                 id = 0,
-                current = PointerInputData(offset - middleOffset - childOffset, true),
+                current = PointerInputData(
+                    offset - middleOffset - childOffset,
+                    true
+                ),
                 previous = PointerInputData(null, false),
                 consumed = ConsumedData()
             )

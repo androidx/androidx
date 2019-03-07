@@ -111,10 +111,10 @@ package androidx.ui.core {
     ctor public PointerInput(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void compose();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.pointerinput.PointerInputChange,androidx.ui.core.pointerinput.PointerEventPass,androidx.ui.core.pointerinput.PointerInputChange> getPointerInputHandler();
+    method public kotlin.jvm.functions.Function2<androidx.ui.core.PointerInputChange,androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> getPointerInputHandler();
     method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setPointerInputHandler(kotlin.jvm.functions.Function2<? super androidx.ui.core.pointerinput.PointerInputChange,? super androidx.ui.core.pointerinput.PointerEventPass,androidx.ui.core.pointerinput.PointerInputChange> p);
-    property public final kotlin.jvm.functions.Function2<androidx.ui.core.pointerinput.PointerInputChange,androidx.ui.core.pointerinput.PointerEventPass,androidx.ui.core.pointerinput.PointerInputChange> pointerInputHandler;
+    method public void setPointerInputHandler(kotlin.jvm.functions.Function2<? super androidx.ui.core.PointerInputChange,? super androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> p);
+    property public final kotlin.jvm.functions.Function2<androidx.ui.core.PointerInputChange,androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> pointerInputHandler;
   }
 
   public final class SemanticsKt {

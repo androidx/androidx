@@ -17,15 +17,20 @@
 package androidx.ui.core.pointerinput
 
 import androidx.ui.core.ComponentNode
+import androidx.ui.core.ConsumedData
 import androidx.ui.core.LayoutNode
+import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.PxPosition
+import androidx.ui.core.changedToDownIgnoreConsumed
+import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.isAttached
 import androidx.ui.core.localToGlobal
 import androidx.ui.core.px
+import androidx.ui.core.subtractOffset
 import androidx.ui.engine.geometry.Offset
-
-typealias PointerInputHandler = (PointerInputChange, PointerEventPass) -> PointerInputChange
 
 /**
  * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s

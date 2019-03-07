@@ -122,9 +122,9 @@ package androidx.ui.core {
 
   public final class PointerInputNode extends androidx.ui.core.SingleChildComponentNode {
     ctor public PointerInputNode();
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.pointerinput.PointerInputChange,androidx.ui.core.pointerinput.PointerEventPass,androidx.ui.core.pointerinput.PointerInputChange> getPointerInputHandler();
-    method public void setPointerInputHandler(kotlin.jvm.functions.Function2<? super androidx.ui.core.pointerinput.PointerInputChange,? super androidx.ui.core.pointerinput.PointerEventPass,androidx.ui.core.pointerinput.PointerInputChange> p);
-    property public final kotlin.jvm.functions.Function2<androidx.ui.core.pointerinput.PointerInputChange,androidx.ui.core.pointerinput.PointerEventPass,androidx.ui.core.pointerinput.PointerInputChange> pointerInputHandler;
+    method public kotlin.jvm.functions.Function2<androidx.ui.core.PointerInputChange,androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> getPointerInputHandler();
+    method public void setPointerInputHandler(kotlin.jvm.functions.Function2<? super androidx.ui.core.PointerInputChange,? super androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> p);
+    property public final kotlin.jvm.functions.Function2<androidx.ui.core.PointerInputChange,androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> pointerInputHandler;
   }
 
   public final class Ref<T> {
@@ -178,33 +178,13 @@ package androidx.ui.core.pointerinput {
     ctor public MotionEventAdapterKt();
   }
 
-  public final class PointerInputChangeEventKt {
-    ctor public PointerInputChangeEventKt();
-    method public static boolean anyPositionChangeConsumed(androidx.ui.core.pointerinput.PointerInputChange);
-    method public static boolean changedToDown(androidx.ui.core.pointerinput.PointerInputChange);
-    method public static boolean changedToDownIgnoreConsumed(androidx.ui.core.pointerinput.PointerInputChange);
-    method public static boolean changedToUp(androidx.ui.core.pointerinput.PointerInputChange);
-    method public static boolean changedToUpIgnoreConsumed(androidx.ui.core.pointerinput.PointerInputChange);
-    method public static androidx.ui.core.pointerinput.PointerInputChange consumeDownChange(androidx.ui.core.pointerinput.PointerInputChange);
-    method public static androidx.ui.core.pointerinput.PointerInputChange consumePositionChange(androidx.ui.core.pointerinput.PointerInputChange, float consumedDx, float consumedDy);
-    method public static androidx.ui.engine.geometry.Offset positionChange(androidx.ui.core.pointerinput.PointerInputChange);
-    method public static androidx.ui.engine.geometry.Offset positionChangeIgnoreConsumed(androidx.ui.core.pointerinput.PointerInputChange);
-    method public static boolean positionChanged(androidx.ui.core.pointerinput.PointerInputChange);
-    method public static boolean positionChangedIgnoreConsumed(androidx.ui.core.pointerinput.PointerInputChange);
-    method public static androidx.ui.core.pointerinput.PointerInputChange subtractOffset(androidx.ui.core.pointerinput.PointerInputChange, androidx.ui.engine.geometry.Offset offset);
-  }
-
   public final class PointerInputEventData {
-    ctor public PointerInputEventData(int id, androidx.ui.core.pointerinput.PointerInputData pointerInputData);
+    ctor public PointerInputEventData(int id, androidx.ui.core.PointerInputData pointerInputData);
     method public int component1();
-    method public androidx.ui.core.pointerinput.PointerInputData component2();
-    method public androidx.ui.core.pointerinput.PointerInputEventData copy(int id, androidx.ui.core.pointerinput.PointerInputData pointerInputData);
+    method public androidx.ui.core.PointerInputData component2();
+    method public androidx.ui.core.pointerinput.PointerInputEventData copy(int id, androidx.ui.core.PointerInputData pointerInputData);
     method public int getId();
-    method public androidx.ui.core.pointerinput.PointerInputData getPointerInputData();
-  }
-
-  public final class PointerInputEventProcessorKt {
-    ctor public PointerInputEventProcessorKt();
+    method public androidx.ui.core.PointerInputData getPointerInputData();
   }
 
 }

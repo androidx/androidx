@@ -16,9 +16,15 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.pointerinput.PointerEventPass
-import androidx.ui.core.pointerinput.consumeDownChange
+import androidx.ui.core.PointerEventPass
+import androidx.ui.core.consumeDownChange
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.testutils.consume
+import androidx.ui.testutils.down
+import androidx.ui.testutils.invokeOverAllPasses
+import androidx.ui.testutils.invokeOverPasses
+import androidx.ui.testutils.moveTo
+import androidx.ui.testutils.up
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never

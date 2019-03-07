@@ -20,6 +20,7 @@ import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import androidx.ui.core.millisecondsToTimestamp
+import androidx.ui.core.PointerInputData
 import androidx.ui.engine.geometry.Offset
 
 /**
