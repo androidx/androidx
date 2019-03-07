@@ -304,9 +304,21 @@ public class WebViewAssetLoader {
          * Build and return a {@link WebViewAssetLoader} object.
          *
          * @return immutable {@link WebViewAssetLoader} object.
+         * @throws IllegalArgumentException if the {@code Builder} received conflicting inputs.
          */
         @NonNull
         public WebViewAssetLoader build() {
+            String assetsPath = mAssetsUri.getPath();
+            String resourcesPath = mResourcesUri.getPath();
+            if (assetsPath.startsWith(resourcesPath)) {
+                throw new
+                    IllegalArgumentException("Resources path cannot be prefix of assets path");
+            }
+            if (resourcesPath.startsWith(assetsPath)) {
+                throw new
+                    IllegalArgumentException("Assets path cannot be prefix of resources path");
+            }
+
             AssetHelper assetHelper = new AssetHelper(mContext);
             PathHandler assetHandler = new AssetsPathHandler(mAssetsUri.getAuthority(),
                                                 mAssetsUri.getPath(), mAllowHttp, assetHelper);
