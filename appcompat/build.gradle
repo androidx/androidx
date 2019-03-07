@@ -1,6 +1,7 @@
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -10,8 +11,8 @@ dependencies {
     api(project(":annotation"))
 
     api(project(":core"))
-    implementation(project(":collection"))
-    api(project(":cursoradapter"))
+    implementation("androidx.collection:collection:1.0.0")
+    api("androidx.cursoradapter:cursoradapter:1.0.0")
     api(project(":fragment"))
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")

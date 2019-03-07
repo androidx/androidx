@@ -39,11 +39,11 @@ import android.util.Xml;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.resources.R;
 import androidx.appcompat.widget.ResourceManagerInternal;
 import androidx.collection.LongSparseArray;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.graphics.drawable.TintAwareDrawable;
-import androidx.appcompat.resources.R;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
@@ -87,6 +87,7 @@ import java.io.IOException;
  * {@link android.R.attr#state_pressed}
  * @see ResourceManagerInternal#getDrawable(Context, int)
  */
+@SuppressLint("RestrictedAPI") // Temporary until we have correct restriction scopes for 1.0
 public class AnimatedStateListDrawableCompat extends StateListDrawable
         implements TintAwareDrawable {
     private static final String LOGTAG = AnimatedStateListDrawableCompat.class.getSimpleName();
