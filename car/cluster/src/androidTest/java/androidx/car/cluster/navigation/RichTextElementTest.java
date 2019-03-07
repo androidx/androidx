@@ -44,20 +44,14 @@ public class RichTextElementTest {
         assertEquals(element, createSampleElement());
         assertNotEquals(element, new RichTextElement.Builder()
                 .setImage(TEST_IMAGE)
-                .build(""));
+                .setText("")
+                .build());
         assertNotEquals(element, new RichTextElement.Builder()
                 .setImage(null)
-                .build(TEST_TEXT));
+                .setText(TEST_TEXT)
+                .build());
 
         assertEquals(element.hashCode(), createSampleElement().hashCode());
-    }
-
-    /**
-     * Test that a text representation must be provided.
-     */
-    @Test(expected = NullPointerException.class)
-    public void builder_textIsMandatory() {
-        new RichTextElement.Builder().build(null);
     }
 
     /**
@@ -75,6 +69,7 @@ public class RichTextElementTest {
     public RichTextElement createSampleElement() {
         return new RichTextElement.Builder()
                 .setImage(TEST_IMAGE)
-                .build(TEST_TEXT);
+                .setText(TEST_TEXT)
+                .build();
     }
 }

@@ -196,12 +196,13 @@ package androidx.car.cluster.navigation {
 
   public class RichText implements androidx.versionedparcelable.VersionedParcelable {
     method public java.util.List<androidx.car.cluster.navigation.RichTextElement> getElements();
+    method public String getText();
   }
 
   public static final class RichText.Builder {
     ctor public RichText.Builder();
     method public androidx.car.cluster.navigation.RichText.Builder addElement(androidx.car.cluster.navigation.RichTextElement);
-    method public androidx.car.cluster.navigation.RichText build();
+    method public androidx.car.cluster.navigation.RichText build(String);
   }
 
   public class RichTextElement implements androidx.versionedparcelable.VersionedParcelable {
@@ -209,10 +210,11 @@ package androidx.car.cluster.navigation {
     method public String getText();
   }
 
-  public static class RichTextElement.Builder {
+  public static final class RichTextElement.Builder {
     ctor public RichTextElement.Builder();
-    method public androidx.car.cluster.navigation.RichTextElement! build(String);
-    method public androidx.car.cluster.navigation.RichTextElement.Builder! setImage(androidx.car.cluster.navigation.ImageReference?);
+    method public androidx.car.cluster.navigation.RichTextElement build();
+    method public androidx.car.cluster.navigation.RichTextElement.Builder setImage(androidx.car.cluster.navigation.ImageReference?);
+    method public androidx.car.cluster.navigation.RichTextElement.Builder setText(String?);
   }
 
   public class Segment implements androidx.versionedparcelable.VersionedParcelable {
