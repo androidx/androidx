@@ -107,7 +107,7 @@ public class CameraXActivity extends AppCompatActivity
 
     // Espresso testing variables
     @VisibleForTesting
-    CountingIdlingResource mIdlingResource = new CountingIdlingResource("view");
+    CountingIdlingResource mViewIdlingResource = new CountingIdlingResource("view");
     private static final int FRAMES_UNTIL_VIEW_IS_READY = 5;
     @VisibleForTesting
     CountingIdlingResource mAnalysisIdlingResource =
@@ -173,7 +173,7 @@ public class CameraXActivity extends AppCompatActivity
                 });
 
         for (int i = 0; i < FRAMES_UNTIL_VIEW_IS_READY; i++) {
-            mIdlingResource.increment();
+            mViewIdlingResource.increment();
         }
 
         if (!bindToLifecycleSafely(mViewFinderUseCase, R.id.PreviewToggle)) {
@@ -204,8 +204,8 @@ public class CameraXActivity extends AppCompatActivity
                     @Override
                     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
                         // Wait until surface texture receives enough updates.
-                        if (!mIdlingResource.isIdleNow()) {
-                            mIdlingResource.decrement();
+                        if (!mViewIdlingResource.isIdleNow()) {
+                            mViewIdlingResource.decrement();
                         }
                     }
                 });
