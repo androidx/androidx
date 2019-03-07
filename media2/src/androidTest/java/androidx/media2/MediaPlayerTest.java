@@ -825,7 +825,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         try {
             mPlayer.setMediaItem(null);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             // Expected exception
         }
     }
