@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,21 +27,25 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.os.Build;
 
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureCallbacks;
 import androidx.camera.core.CameraCaptureResult;
-import androidx.camera.testing.CameraUtil;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 @SmallTest
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
+@DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class CaptureCallbackConverterTest {
 
     private CameraCaptureSession mCameraCaptureSession;
@@ -51,9 +55,8 @@ public final class CaptureCallbackConverterTest {
     @Before
     public void setUp() {
         mCameraCaptureSession = mock(CameraCaptureSession.class);
-        // Mockito can't mock final class
-        mCaptureRequest = CameraUtil.createDummyCaptureRequest();
-        mCaptureResult = CameraUtil.createDummyCaptureResult();
+        mCaptureRequest = mock(CaptureRequest.class);
+        mCaptureResult = mock(TotalCaptureResult.class);
     }
 
     @Test
