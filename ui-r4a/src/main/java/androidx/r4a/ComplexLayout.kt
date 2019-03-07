@@ -20,22 +20,23 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
-import androidx.ui.core.adapter.Align
-import androidx.ui.core.adapter.Alignment
-import androidx.ui.core.adapter.Center
-import androidx.ui.core.adapter.Column
 import androidx.ui.core.adapter.ComplexMeasureBox
-import androidx.ui.core.adapter.ConstrainedBox
-import androidx.ui.core.adapter.Container
-import androidx.ui.core.adapter.FlexColumn
-import androidx.ui.core.adapter.FlexRow
 import androidx.ui.core.adapter.MeasureBox
-import androidx.ui.core.adapter.Padding
-import androidx.ui.core.adapter.Row
-import androidx.ui.core.adapter.Stack
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
+import androidx.ui.layout.Align
+import androidx.ui.layout.Alignment
+import androidx.ui.layout.Center
+import androidx.ui.layout.Column
+import androidx.ui.layout.ConstrainedBox
+import androidx.ui.layout.Container
+import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.FlexColumn
+import androidx.ui.layout.FlexRow
+import androidx.ui.layout.Padding
+import androidx.ui.layout.Row
+import androidx.ui.layout.Stack
 import androidx.ui.painting.Color
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -134,20 +135,19 @@ fun RectangleWithIntrinsics(color: Color) {
 
 @Composable
 fun FlexRowUsage() {
-    <FlexRow> children ->
-        // TODO(popam): named arguments cannot be used because of the adapter hack
-        children.expanded(/*flex=*/2f) {
+    <FlexRow>
+        expanded(flex=2f) {
             <Center>
                 <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
             </Center>
             <SizedRectangle color=Color(0xFF0000FF.toInt()) height=40.dp />
         }
-        children.inflexible {
+        inflexible {
             <SizedRectangle color=Color(0xFFFF0000.toInt()) width=40.dp />
             <SizedRectangle color=Color(0xFF00FF00.toInt()) width=50.dp />
             <SizedRectangle color=Color(0xFF0000FF.toInt()) width=60.dp />
         }
-        children.expanded(/*flex=*/1f) {
+        expanded(flex=1f) {
             <SizedRectangle color=Color(0xFF00FF00.toInt()) />
         }
     </FlexRow>
@@ -155,20 +155,19 @@ fun FlexRowUsage() {
 
 @Composable
 fun FlexColumnUsage() {
-    <FlexColumn> children ->
-        // TODO(popam): named arguments cannot be used because of the adapter hack
-        children.expanded(/*flex=*/2f) {
+    <FlexColumn>
+        expanded(flex=2f) {
             <Center>
                 <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
             </Center>
             <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp />
         }
-        children.inflexible {
+        inflexible {
             <SizedRectangle color=Color(0xFFFF0000.toInt()) height=40.dp />
             <SizedRectangle color=Color(0xFF00FF00.toInt()) height=50.dp />
             <SizedRectangle color=Color(0xFF0000FF.toInt()) height=60.dp />
         }
-        children.expanded(/*flex=*/1f) {
+        expanded(flex=1f) {
             <SizedRectangle color=Color(0xFF00FF00.toInt()) />
         }
     </FlexColumn>
@@ -248,15 +247,35 @@ fun PaddingUsage() {
 @Composable
 fun ContainerUsage() {
     <Align alignment=Alignment.Center>
-        <Container padding=null color=Color(0xFF0000FF.toInt()) alignment=Alignment.BottomRight
-            constraints=null width=100.dp height=100.dp margin=EdgeInsets(20.dp)>
-            <Container padding=EdgeInsets(20.dp) color=Color(0xFF000000.toInt())
-                alignment=Alignment.BottomRight constraints=null width=50.dp height=50.dp
-                margin=null>
+        <Container
+            color=Color(0xFF0000FF.toInt())
+            alignment=Alignment.BottomRight
+            width=100.dp
+            height=100.dp
+            margin=EdgeInsets(20.dp)>
+            <Container
+                padding=EdgeInsets(20.dp)
+                color=Color(0xFF000000.toInt())
+                alignment=Alignment.BottomRight
+                width=50.dp
+                height=50.dp>
                 <SizedRectangle color=Color(0xFFFFFFFF.toInt()) />
             </Container>
         </Container>
     </Align>
+}
+
+@Composable
+fun RowWithCrossAxisAlignmentUsage() {
+    <Center>
+        <Row crossAxisAlignment=CrossAxisAlignment.Start>
+            <Container color=Color(0xFF00FF00.toInt()) width=50.dp height=50.dp/>
+            <Container color=Color(0xFF0000FF.toInt()) width=80.dp height=80.dp/>
+            <Container color=Color(0xFFFF0000.toInt()) width=70.dp height=70.dp/>
+            <Container color=Color(0xFF00FF00.toInt()) width=100.dp height=100.dp/>
+            <Container color=Color(0xFF0000FF.toInt()) width=20.dp height=20.dp/>
+        </Row>
+    </Center>
 }
 
 /**
@@ -265,6 +284,6 @@ fun ContainerUsage() {
 @Composable
 fun ComplexLayout() {
     <CraneWrapper>
-        <ContainerUsage />
+        <RowWithCrossAxisAlignmentUsage />
     </CraneWrapper>
 }

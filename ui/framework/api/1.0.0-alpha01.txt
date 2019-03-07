@@ -82,6 +82,7 @@ package androidx.ui.core {
     ctor public LayoutKt();
     method public static void ComplexMeasureBoxComposable(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComplexMeasureOperations,kotlin.Unit> block);
     method public static void MeasureBoxComposable(kotlin.jvm.functions.Function2<? super androidx.ui.core.Constraints,? super androidx.ui.core.MeasureOperations,kotlin.Unit> block);
+    method public static void OnPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> callback);
   }
 
   public final class MeasureBox extends com.google.r4a.Component {
@@ -98,11 +99,6 @@ package androidx.ui.core {
     method public void layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Measurable measurable, androidx.ui.core.Constraints constraints);
     property public final androidx.ui.core.Density density;
-  }
-
-  public final class OnPositioned extends com.google.r4a.Component {
-    ctor public OnPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> callback);
-    method public void compose();
   }
 
   public final class PointerInput extends com.google.r4a.Component {

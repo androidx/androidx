@@ -46,7 +46,25 @@ package androidx.ui.layout {
 
   public final class ContainerKt {
     ctor public ContainerKt();
-    method public static void Container(androidx.ui.layout.EdgeInsets? padding = null, androidx.ui.painting.Color? color = null, androidx.ui.layout.Alignment? alignment = null, androidx.ui.layout.EdgeInsets? margin = null, androidx.ui.core.Constraints? constraints = null, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Container(androidx.ui.layout.EdgeInsets? padding = null, androidx.ui.painting.Color? color = null, androidx.ui.layout.Alignment? alignment = null, androidx.ui.layout.EdgeInsets? margin = null, androidx.ui.core.Constraints? constraints = null, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children = {});
+  }
+
+  public final class CrossAxisAlignment {
+    ctor public CrossAxisAlignment();
+    field public static final androidx.ui.layout.CrossAxisAlignment.Companion! Companion;
+  }
+
+  public static final class CrossAxisAlignment.Companion {
+    method public int getBaseline();
+    method public int getCenter();
+    method public int getEnd();
+    method public int getStart();
+    method public int getStretch();
+    property public final int Baseline;
+    property public final int Center;
+    property public final int End;
+    property public final int Start;
+    property public final int Stretch;
   }
 
   public final class EdgeInsets {
@@ -65,7 +83,6 @@ package androidx.ui.layout {
   }
 
   public final class FlexChildren {
-    ctor public FlexChildren();
     method public void expanded(float flex, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void flexible(float flex, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void inflexible(kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -73,10 +90,10 @@ package androidx.ui.layout {
 
   public final class FlexKt {
     ctor public FlexKt();
-    method public static void Column(kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method public static void FlexColumn(kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
-    method public static void FlexRow(kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
-    method public static void Row(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void Column(int crossAxisAlignment = 0, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void FlexColumn(int crossAxisAlignment = 0, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
+    method public static void FlexRow(int crossAxisAlignment = 0, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
+    method public static void Row(int crossAxisAlignment = 0, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
   public final class PaddingKt {
