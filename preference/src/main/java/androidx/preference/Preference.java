@@ -572,6 +572,7 @@ public class Preference implements Comparable<Preference> {
             mOnCopyListener = new OnPreferenceCopyListener(this);
         }
         holder.itemView.setOnCreateContextMenuListener(isCopyingEnabled() ? mOnCopyListener : null);
+        holder.itemView.setLongClickable(isCopyingEnabled());
     }
 
     /**
