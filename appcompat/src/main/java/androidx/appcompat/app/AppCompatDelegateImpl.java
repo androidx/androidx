@@ -591,7 +591,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @Override
-    public void onSetTheme(@StyleRes int themeResId) {
+    public void setTheme(@StyleRes int themeResId) {
         mThemeResId = themeResId;
     }
 
