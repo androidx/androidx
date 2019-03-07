@@ -1,6 +1,7 @@
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -8,9 +9,9 @@ plugins {
 
 dependencies {
     api(project(":annotation"))
-    api(project(":core"))
-    implementation(project(":collection"))
-    compileOnly project(':fragment')
+    api("androidx.core:core:1.0.1")
+    implementation("androidx.collection:collection:1.0.0")
+    compileOnly("androidx.fragment:fragment:1.0.0")
 
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
