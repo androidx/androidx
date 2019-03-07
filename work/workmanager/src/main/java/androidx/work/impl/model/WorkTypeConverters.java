@@ -25,9 +25,9 @@ import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
 
-import android.arch.persistence.room.TypeConverter;
 import android.net.Uri;
 
+import androidx.room.TypeConverter;
 import androidx.work.BackoffPolicy;
 import androidx.work.ContentUriTriggers;
 import androidx.work.NetworkType;

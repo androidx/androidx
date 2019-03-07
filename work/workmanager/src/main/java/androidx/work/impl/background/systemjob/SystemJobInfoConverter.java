@@ -16,18 +16,18 @@
 
 package androidx.work.impl.background.systemjob;
 
-import static android.support.annotation.VisibleForTesting.PACKAGE_PRIVATE;
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 
 import android.app.job.JobInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
 import android.os.PersistableBundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;

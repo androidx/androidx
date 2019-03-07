@@ -20,4 +20,4 @@
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package androidx.work.impl.utils.taskexecutor;
 
-import android.support.annotation.RestrictTo;
+import androidx.annotation.RestrictTo;

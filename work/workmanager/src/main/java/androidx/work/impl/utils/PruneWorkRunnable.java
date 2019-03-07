@@ -16,8 +16,7 @@
 
 package androidx.work.impl.utils;
 
-import android.support.annotation.RestrictTo;
-
+import androidx.annotation.RestrictTo;
 import androidx.work.Operation;
 import androidx.work.impl.OperationImpl;
 import androidx.work.impl.WorkDatabase;

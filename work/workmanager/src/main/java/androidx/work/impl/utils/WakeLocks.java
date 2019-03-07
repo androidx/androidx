@@ -20,9 +20,9 @@ import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 
 import android.content.Context;
 import android.os.PowerManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
 
 import java.util.HashMap;

@@ -19,7 +19,7 @@
 
 package androidx.work
 
-import android.support.annotation.NonNull
+import androidx.annotation.NonNull
 import kotlin.reflect.KClass
 
 /**

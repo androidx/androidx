@@ -16,11 +16,10 @@
 
 package androidx.work.impl;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.support.annotation.NonNull;
-import android.support.annotation.RestrictTo;
-
+import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.work.Operation;
 import androidx.work.impl.utils.futures.SettableFuture;
 

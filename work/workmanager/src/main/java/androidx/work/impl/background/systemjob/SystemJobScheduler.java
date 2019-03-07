@@ -20,11 +20,11 @@ import android.app.job.JobScheduler;
 import android.content.Context;
 import android.os.Build;
 import android.os.PersistableBundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.VisibleForTesting;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
 import androidx.work.WorkInfo;
 import androidx.work.impl.Scheduler;

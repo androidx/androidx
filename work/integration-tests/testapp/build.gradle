@@ -34,14 +34,24 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    // Using -PuseMaxDepVersions does not use the right version of the annotation processor
+    // Remove this workaround after b/127495641 is fixed
+    if (project.hasProperty('useMaxDepVersions')) {
+        annotationProcessor(project(":room:room-compiler"))
+        implementation(project(":room:room-runtime"))
+    } else {
+        annotationProcessor(ARCH_ROOM_COMPILER)
+        implementation(ARCH_ROOM_RUNTIME)
+    }
+
+    implementation(CONSTRAINT_LAYOUT)
     implementation project(':work:work-runtime-ktx')
-    implementation "android.arch.lifecycle:extensions:1.1.0"
-    implementation "android.arch.persistence.room:runtime:1.1.1"
-    annotationProcessor "android.arch.persistence.room:compiler:1.1.1"
-    implementation "com.android.support:recyclerview-v7:27.1.1"
-    implementation "com.android.support:appcompat-v7:27.1.1"
-    implementation "com.android.support:design:27.1.1"
+    implementation(ARCH_CORE_RUNTIME)
+    implementation(ARCH_LIFECYCLE_EXTENSIONS)
+    implementation(ANDROIDX_RECYCLERVIEW)
+    implementation(SUPPORT_APPCOMPAT)
+    // SUPPORT_DESIGN has a @aar. So it needs { transitive = true }
+    implementation(SUPPORT_DESIGN) { transitive = true }
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])

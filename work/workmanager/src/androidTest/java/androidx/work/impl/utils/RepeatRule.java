@@ -16,7 +16,7 @@
 
 package androidx.work.impl.utils;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
