@@ -1529,7 +1529,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
              * * OR we are laying out scrap children
              * * OR we are not doing pre-layout
              */
-            if (!layoutChunkResult.mIgnoreConsumed || mLayoutState.mScrapList != null
+            if (!layoutChunkResult.mIgnoreConsumed || layoutState.mScrapList != null
                     || !state.isPreLayout()) {
                 layoutState.mAvailable -= layoutChunkResult.mConsumed;
                 // we keep a separate remaining space because mAvailable is important for recycling
