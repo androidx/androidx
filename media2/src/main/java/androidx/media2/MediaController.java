@@ -302,7 +302,15 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the player start or resume playback.
+     * Requests that the player starts or resumes playback.
+     * <p>
+     * If the player state is {@link SessionPlayer#PLAYER_STATE_IDLE}, the session would also call
+     * {@link SessionPlayer#prepare} and then {@link SessionPlayer#play} to start playback. If you
+     * want to have finer grained control of the playback start call {@link #prepare} manually
+     * before this. Calling {@link #prepare} in advance would help this method to start playback
+     * faster and also help to take audio focus at the last moment.
+     *
+     * @see #prepare
      */
     @NonNull
     public ListenableFuture<SessionResult> play() {
@@ -313,7 +321,10 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the player pause playback.
+     * Requests that the player pauses playback.
+     * <p>
+     * This would transfer the player state from {@link SessionPlayer#PLAYER_STATE_PLAYING} to
+     * {@link SessionPlayer#PLAYER_STATE_PAUSED}.
      */
     @NonNull
     public ListenableFuture<SessionResult> pause() {
@@ -324,11 +335,15 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the player prepare the media items for playback. In other words, other
-     * sessions can continue to play during the prepare of this session. This method can be used
-     * to speed up the start of the playback. Once the prepare is done, the player will change
-     * its playback state to {@link SessionPlayer#PLAYER_STATE_PAUSED}. Afterwards, {@link #play}
-     * can be called to start playback.
+     * Requests that the player prepares the media items for playback.
+     * <p>
+     * This would transfer the player state from {@link SessionPlayer#PLAYER_STATE_IDLE} to
+     * {@link SessionPlayer#PLAYER_STATE_PAUSED}.
+     * <p>
+     * Playback can be started without this. But this provides finer grained control of playback
+     * start. See {@link #play} for details.
+     *
+     * @see #play
      */
     @NonNull
     public ListenableFuture<SessionResult> prepare() {
