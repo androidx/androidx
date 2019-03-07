@@ -290,9 +290,13 @@ package androidx.preference {
     method @Deprecated public androidx.preference.DialogPreference! getPreference();
     method @Deprecated protected void onBindDialogView(android.view.View!);
     method @Deprecated public void onClick(android.content.DialogInterface!, int);
+    method @Deprecated public void onCreate(android.os.Bundle!);
+    method @Deprecated public android.app.Dialog onCreateDialog(android.os.Bundle!);
     method @Deprecated protected android.view.View! onCreateDialogView(android.content.Context!);
     method @Deprecated public abstract void onDialogClosed(boolean);
+    method @Deprecated public void onDismiss(android.content.DialogInterface!);
     method @Deprecated protected void onPrepareDialogBuilder(android.app.AlertDialog.Builder!);
+    method @Deprecated public void onSaveInstanceState(android.os.Bundle);
     field @Deprecated protected static final String ARG_KEY = "key";
   }
 
@@ -314,13 +318,20 @@ package androidx.preference {
     method @Deprecated public final androidx.recyclerview.widget.RecyclerView! getListView();
     method @Deprecated public androidx.preference.PreferenceManager! getPreferenceManager();
     method @Deprecated public androidx.preference.PreferenceScreen! getPreferenceScreen();
+    method @Deprecated public void onCreate(android.os.Bundle!);
     method @Deprecated protected androidx.recyclerview.widget.RecyclerView.Adapter! onCreateAdapter(androidx.preference.PreferenceScreen!);
     method @Deprecated public androidx.recyclerview.widget.RecyclerView.LayoutManager! onCreateLayoutManager();
     method @Deprecated public abstract void onCreatePreferences(android.os.Bundle!, String!);
     method @Deprecated public androidx.recyclerview.widget.RecyclerView! onCreateRecyclerView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+    method @Deprecated public void onDestroyView();
     method @Deprecated public void onDisplayPreferenceDialog(androidx.preference.Preference!);
     method @Deprecated public void onNavigateToScreen(androidx.preference.PreferenceScreen!);
     method @Deprecated public boolean onPreferenceTreeClick(androidx.preference.Preference!);
+    method @Deprecated public void onSaveInstanceState(android.os.Bundle!);
+    method @Deprecated public void onStart();
+    method @Deprecated public void onStop();
+    method @Deprecated public void onViewCreated(android.view.View!, android.os.Bundle!);
     method @Deprecated public void scrollToPreference(String!);
     method @Deprecated public void scrollToPreference(androidx.preference.Preference!);
     method @Deprecated public void setDivider(android.graphics.drawable.Drawable!);
