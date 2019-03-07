@@ -93,6 +93,12 @@ class WorkTimer {
         }
     }
 
+    void onDestroy() {
+        // Calling shutdown() waits for pending scheduled WorkTimerRunnable's which is not
+        // something we care about. Hence call shutdownNow().
+        mExecutorService.shutdownNow();
+    }
+
     @VisibleForTesting
     synchronized Map<String, WorkTimerRunnable> getTimerMap() {
         return mTimerMap;
@@ -101,6 +107,11 @@ class WorkTimer {
     @VisibleForTesting
     synchronized Map<String, TimeLimitExceededListener> getListeners() {
         return mListeners;
+    }
+
+    @VisibleForTesting
+    ScheduledExecutorService getExecutorService() {
+        return mExecutorService;
     }
 
     /**
