@@ -26,6 +26,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
 import androidx.webkit.ProxyConfig;
 import androidx.webkit.ProxyController;
 import androidx.webkit.SafeBrowsingResponseCompat;
@@ -60,21 +61,24 @@ public enum WebViewFeatureInternal {
      * androidx.webkit.WebViewCompat.VisualStateCallback)}, and
      * {@link WebViewClientCompat#onPageCommitVisible(android.webkit.WebView, String)}.
      */
-    VISUAL_STATE_CALLBACK_FEATURE(WebViewFeature.VISUAL_STATE_CALLBACK, Build.VERSION_CODES.M),
+    VISUAL_STATE_CALLBACK_FEATURE(WebViewFeature.VISUAL_STATE_CALLBACK,
+            Features.VISUAL_STATE_CALLBACK, Build.VERSION_CODES.M),
 
     /**
      * This feature covers
      * {@link androidx.webkit.WebSettingsCompat#getOffscreenPreRaster(WebSettings)}, and
      * {@link androidx.webkit.WebSettingsCompat#setOffscreenPreRaster(WebSettings, boolean)}.
      */
-    OFF_SCREEN_PRERASTER(WebViewFeature.OFF_SCREEN_PRERASTER, Build.VERSION_CODES.M),
+    OFF_SCREEN_PRERASTER(WebViewFeature.OFF_SCREEN_PRERASTER, Features.OFF_SCREEN_PRERASTER,
+            Build.VERSION_CODES.M),
 
     /**
      * This feature covers
      * {@link androidx.webkit.WebSettingsCompat#getSafeBrowsingEnabled(WebSettings)}, and
      * {@link androidx.webkit.WebSettingsCompat#setSafeBrowsingEnabled(WebSettings, boolean)}.
      */
-    SAFE_BROWSING_ENABLE(WebViewFeature.SAFE_BROWSING_ENABLE, Build.VERSION_CODES.O),
+    SAFE_BROWSING_ENABLE(WebViewFeature.SAFE_BROWSING_ENABLE, Features.SAFE_BROWSING_ENABLE,
+            Build.VERSION_CODES.O),
 
     /**
      * This feature covers
@@ -82,39 +86,43 @@ public enum WebViewFeatureInternal {
      * {@link androidx.webkit.WebSettingsCompat#setDisabledActionModeMenuItems(WebSettings, int)}.
      */
     DISABLED_ACTION_MODE_MENU_ITEMS(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS,
-                                    Build.VERSION_CODES.N),
+            Features.DISABLED_ACTION_MODE_MENU_ITEMS, Build.VERSION_CODES.N),
 
     /**
      * This feature covers
      * {@link androidx.webkit.WebViewCompat#startSafeBrowsing(Context, ValueCallback)}.
      */
-    START_SAFE_BROWSING(WebViewFeature.START_SAFE_BROWSING, Build.VERSION_CODES.O_MR1),
+    START_SAFE_BROWSING(WebViewFeature.START_SAFE_BROWSING, Features.START_SAFE_BROWSING,
+            Build.VERSION_CODES.O_MR1),
 
     /**
      * This feature covers
      * {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(List, ValueCallback)}.
      */
-    SAFE_BROWSING_WHITELIST(WebViewFeature.SAFE_BROWSING_WHITELIST, Build.VERSION_CODES.O_MR1),
+    SAFE_BROWSING_WHITELIST(WebViewFeature.SAFE_BROWSING_WHITELIST,
+            Features.SAFE_BROWSING_WHITELIST, Build.VERSION_CODES.O_MR1),
 
     /**
      * This feature covers
      * {@link WebViewCompat#getSafeBrowsingPrivacyPolicyUrl()}.
      */
     SAFE_BROWSING_PRIVACY_POLICY_URL(WebViewFeature.SAFE_BROWSING_PRIVACY_POLICY_URL,
-            Build.VERSION_CODES.O_MR1),
+            Features.SAFE_BROWSING_PRIVACY_POLICY_URL, Build.VERSION_CODES.O_MR1),
 
     /**
      * This feature covers
      * {@link androidx.webkit.ServiceWorkerControllerCompat#getInstance()}.
      */
-    SERVICE_WORKER_BASIC_USAGE(WebViewFeature.SERVICE_WORKER_BASIC_USAGE, Build.VERSION_CODES.N),
+    SERVICE_WORKER_BASIC_USAGE(WebViewFeature.SERVICE_WORKER_BASIC_USAGE,
+            Features.SERVICE_WORKER_BASIC_USAGE, Build.VERSION_CODES.N),
 
     /**
      * This feature covers
      * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getCacheMode()}, and
      * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setCacheMode(int)}.
      */
-    SERVICE_WORKER_CACHE_MODE(WebViewFeature.SERVICE_WORKER_CACHE_MODE, Build.VERSION_CODES.N),
+    SERVICE_WORKER_CACHE_MODE(WebViewFeature.SERVICE_WORKER_CACHE_MODE,
+            Features.SERVICE_WORKER_CACHE_MODE, Build.VERSION_CODES.N),
 
     /**
      * This feature covers
@@ -122,14 +130,15 @@ public enum WebViewFeatureInternal {
      * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setAllowContentAccess(boolean)}.
      */
     SERVICE_WORKER_CONTENT_ACCESS(WebViewFeature.SERVICE_WORKER_CONTENT_ACCESS,
-            Build.VERSION_CODES.N),
+            Features.SERVICE_WORKER_CONTENT_ACCESS, Build.VERSION_CODES.N),
 
     /**
      * This feature covers
      * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#getAllowFileAccess()}, and
      * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setAllowFileAccess(boolean)}.
      */
-    SERVICE_WORKER_FILE_ACCESS(WebViewFeature.SERVICE_WORKER_FILE_ACCESS, Build.VERSION_CODES.N),
+    SERVICE_WORKER_FILE_ACCESS(WebViewFeature.SERVICE_WORKER_FILE_ACCESS,
+            Features.SERVICE_WORKER_FILE_ACCESS, Build.VERSION_CODES.N),
 
     /**
      * This feature covers
@@ -137,28 +146,30 @@ public enum WebViewFeatureInternal {
      * {@link androidx.webkit.ServiceWorkerWebSettingsCompat#setBlockNetworkLoads(boolean)}.
      */
     SERVICE_WORKER_BLOCK_NETWORK_LOADS(WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS,
-            Build.VERSION_CODES.N),
+            Features.SERVICE_WORKER_BLOCK_NETWORK_LOADS, Build.VERSION_CODES.N),
 
     /**
      * This feature covers
      * {@link ServiceWorkerClientCompat#shouldInterceptRequest(WebResourceRequest)}.
      */
     SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST(WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST,
-            Build.VERSION_CODES.N),
+            Features.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST, Build.VERSION_CODES.N),
 
     /**
      * This feature covers
      * {@link WebViewClientCompat#onReceivedError(android.webkit.WebView, WebResourceRequest,
      * WebResourceErrorCompat)}.
      */
-    RECEIVE_WEB_RESOURCE_ERROR(WebViewFeature.RECEIVE_WEB_RESOURCE_ERROR, Build.VERSION_CODES.M),
+    RECEIVE_WEB_RESOURCE_ERROR(WebViewFeature.RECEIVE_WEB_RESOURCE_ERROR,
+            Features.RECEIVE_WEB_RESOURCE_ERROR, Build.VERSION_CODES.M),
 
     /**
      * This feature covers
      * {@link WebViewClientCompat#onReceivedHttpError(android.webkit.WebView, WebResourceRequest,
      * WebResourceResponse)}.
      */
-    RECEIVE_HTTP_ERROR(WebViewFeature.RECEIVE_HTTP_ERROR, Build.VERSION_CODES.M),
+    RECEIVE_HTTP_ERROR(WebViewFeature.RECEIVE_HTTP_ERROR, Features.RECEIVE_HTTP_ERROR,
+            Build.VERSION_CODES.M),
 
     /**
      * This feature covers
@@ -166,49 +177,50 @@ public enum WebViewFeatureInternal {
      * WebResourceRequest)}.
      */
     SHOULD_OVERRIDE_WITH_REDIRECTS(WebViewFeature.SHOULD_OVERRIDE_WITH_REDIRECTS,
-            Build.VERSION_CODES.N),
+            Features.SHOULD_OVERRIDE_WITH_REDIRECTS, Build.VERSION_CODES.N),
 
     /**
      * This feature covers
      * {@link WebViewClientCompat#onSafeBrowsingHit(android.webkit.WebView,
      * WebResourceRequest, int, SafeBrowsingResponseCompat)}.
      */
-    SAFE_BROWSING_HIT(WebViewFeature.SAFE_BROWSING_HIT, Build.VERSION_CODES.O_MR1),
+    SAFE_BROWSING_HIT(WebViewFeature.SAFE_BROWSING_HIT, Features.SAFE_BROWSING_HIT,
+            Build.VERSION_CODES.O_MR1),
 
     /**
      * This feature covers
      * {@link WebResourceRequestCompat#isRedirect(WebResourceRequest)}.
      */
     WEB_RESOURCE_REQUEST_IS_REDIRECT(WebViewFeature.WEB_RESOURCE_REQUEST_IS_REDIRECT,
-            Build.VERSION_CODES.N),
+            Features.WEB_RESOURCE_REQUEST_IS_REDIRECT, Build.VERSION_CODES.N),
 
     /**
      * This feature covers
      * {@link WebResourceErrorCompat#getDescription()}.
      */
     WEB_RESOURCE_ERROR_GET_DESCRIPTION(WebViewFeature.WEB_RESOURCE_ERROR_GET_DESCRIPTION,
-            Build.VERSION_CODES.M),
+            Features.WEB_RESOURCE_ERROR_GET_DESCRIPTION, Build.VERSION_CODES.M),
 
     /**
      * This feature covers
      * {@link WebResourceErrorCompat#getErrorCode()}.
      */
     WEB_RESOURCE_ERROR_GET_CODE(WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE,
-            Build.VERSION_CODES.M),
+            Features.WEB_RESOURCE_ERROR_GET_CODE, Build.VERSION_CODES.M),
 
     /**
      * This feature covers
      * {@link SafeBrowsingResponseCompat#backToSafety(boolean)}.
      */
     SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY(WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY,
-            Build.VERSION_CODES.O_MR1),
+            Features.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY, Build.VERSION_CODES.O_MR1),
 
     /**
      * This feature covers
      * {@link SafeBrowsingResponseCompat#proceed(boolean)}.
      */
     SAFE_BROWSING_RESPONSE_PROCEED(WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED,
-            Build.VERSION_CODES.O_MR1),
+            Features.SAFE_BROWSING_RESPONSE_PROCEED, Build.VERSION_CODES.O_MR1),
 
     /**
      * This feature covers
@@ -216,20 +228,20 @@ public enum WebViewFeatureInternal {
      */
     SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL(
             WebViewFeature.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL,
-            Build.VERSION_CODES.O_MR1),
+            Features.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL, Build.VERSION_CODES.O_MR1),
 
     /**
      * This feature covers
      * {@link WebMessagePortCompat#postMessage(WebMessageCompat)}.
      */
     WEB_MESSAGE_PORT_POST_MESSAGE(WebViewFeature.WEB_MESSAGE_PORT_POST_MESSAGE,
-            Build.VERSION_CODES.M),
+            Features.WEB_MESSAGE_PORT_POST_MESSAGE, Build.VERSION_CODES.M),
 
     /**
      * * This feature covers
      * {@link androidx.webkit.WebMessagePortCompat#close()}.
      */
-    WEB_MESSAGE_PORT_CLOSE(WebViewFeature.WEB_MESSAGE_PORT_CLOSE,
+    WEB_MESSAGE_PORT_CLOSE(WebViewFeature.WEB_MESSAGE_PORT_CLOSE, Features.WEB_MESSAGE_PORT_CLOSE,
             Build.VERSION_CODES.M),
 
     /**
@@ -240,20 +252,20 @@ public enum WebViewFeatureInternal {
      * WebMessagePortCompat.WebMessageCallbackCompat)}.
      */
      WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK(WebViewFeature.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK,
-            Build.VERSION_CODES.M),
+            Features.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK, Build.VERSION_CODES.M),
 
     /**
      * This feature covers
      * {@link WebViewCompat#createWebMessageChannel(WebView)}.
      */
     CREATE_WEB_MESSAGE_CHANNEL(WebViewFeature.CREATE_WEB_MESSAGE_CHANNEL,
-            Build.VERSION_CODES.M),
+            Features.CREATE_WEB_MESSAGE_CHANNEL, Build.VERSION_CODES.M),
 
     /**
      * This feature covers
      * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)}.
      */
-    POST_WEB_MESSAGE(WebViewFeature.POST_WEB_MESSAGE,
+    POST_WEB_MESSAGE(WebViewFeature.POST_WEB_MESSAGE, Features.POST_WEB_MESSAGE,
             Build.VERSION_CODES.M),
 
     /**
@@ -261,20 +273,23 @@ public enum WebViewFeatureInternal {
      * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)}.
      */
     WEB_MESSAGE_CALLBACK_ON_MESSAGE(WebViewFeature.WEB_MESSAGE_CALLBACK_ON_MESSAGE,
-            Build.VERSION_CODES.M),
+            Features.WEB_MESSAGE_CALLBACK_ON_MESSAGE, Build.VERSION_CODES.M),
 
     /**
      * This feature covers {@link WebViewCompat#getWebViewClient(WebView)}.
      */
-    GET_WEB_VIEW_CLIENT(Features.GET_WEB_VIEW_CLIENT, Build.VERSION_CODES.O),
+    GET_WEB_VIEW_CLIENT(WebViewFeature.GET_WEB_VIEW_CLIENT, Features.GET_WEB_VIEW_CLIENT,
+            Build.VERSION_CODES.O),
 
     /**
      * This feature covers {@link WebViewCompat#getWebChromeClient(WebView)}.
      */
-    GET_WEB_CHROME_CLIENT(WebViewFeature.GET_WEB_CHROME_CLIENT, Build.VERSION_CODES.O),
+    GET_WEB_CHROME_CLIENT(WebViewFeature.GET_WEB_CHROME_CLIENT, Features.GET_WEB_CHROME_CLIENT,
+            Build.VERSION_CODES.O),
 
-    GET_WEB_VIEW_RENDERER(WebViewFeature.GET_WEB_VIEW_RENDERER),
-    WEB_VIEW_RENDERER_TERMINATE(WebViewFeature.WEB_VIEW_RENDERER_TERMINATE),
+    GET_WEB_VIEW_RENDERER(WebViewFeature.GET_WEB_VIEW_RENDERER, Features.GET_WEB_VIEW_RENDERER),
+    WEB_VIEW_RENDERER_TERMINATE(WebViewFeature.WEB_VIEW_RENDERER_TERMINATE,
+            Features.WEB_VIEW_RENDERER_TERMINATE),
 
     /**
      * This feature covers
@@ -284,7 +299,7 @@ public enum WebViewFeatureInternal {
      * {@link TracingController#stop(OutputStream, Executor)}.
      */
     TRACING_CONTROLLER_BASIC_USAGE(WebViewFeature.TRACING_CONTROLLER_BASIC_USAGE,
-                                   Build.VERSION_CODES.P),
+            Features.TRACING_CONTROLLER_BASIC_USAGE, Build.VERSION_CODES.P),
 
     /**
      * This feature covers
@@ -293,7 +308,8 @@ public enum WebViewFeatureInternal {
      * {@link WebViewRendererClient#onRendererUnresponsive(WebView,WebViewRenderer)},
      * {@link WebViewRendererClient#onRendererResponsive(WebView,WebViewRenderer)}
      */
-    WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE),
+    WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
+            Features.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE),
 
     /**
      * This feature covers
@@ -302,12 +318,13 @@ public enum WebViewFeatureInternal {
      * {@link ProxyController#clearProxyOverride(Executor, Runnable)}, and
      * {@link ProxyController#clearProxyOverride(Runnable)}.
      */
-    PROXY_OVERRIDE(WebViewFeature.PROXY_OVERRIDE),
+    PROXY_OVERRIDE(WebViewFeature.PROXY_OVERRIDE, Features.PROXY_OVERRIDE),
 
     ;  // This semicolon ends the enum. Add new features with a trailing comma above this line.
 
     private static final int NOT_SUPPORTED_BY_FRAMEWORK = -1;
-    private final String mFeatureValue;
+    private final String mPublicFeatureValue;
+    private final String mInternalFeatureValue;
     private final int mOsVersion;
 
     /**
@@ -316,33 +333,42 @@ public enum WebViewFeatureInternal {
      * <p>Features constructed with this constructor can be later converted to use the
      * other constructor if framework support is added.
      *
-     * @param featureValue The feature string denoting this feature
+     * @param publicFeatureValue   The public facing feature string denoting this feature
+     * @param internalFeatureValue The internal feature string denoting this feature
      */
-    WebViewFeatureInternal(String featureValue) {
-        this(featureValue, NOT_SUPPORTED_BY_FRAMEWORK);
+    WebViewFeatureInternal(@NonNull @WebViewFeature.WebViewSupportFeature String publicFeatureValue,
+            @NonNull String internalFeatureValue) {
+        this(publicFeatureValue, internalFeatureValue, NOT_SUPPORTED_BY_FRAMEWORK);
     }
 
     /**
      * Creates a WebViewFeatureInternal that is implemented in the framework.
      *
-     * @param featureValue The feature string denoting this feature
-     * @param osVersion    The Android SDK level after which this feature is implemented in the
-     *                     framework.
+     * @param publicFeatureValue   The public facing feature string denoting this feature
+     * @param internalFeatureValue The internal feature string denoting this feature
+     * @param osVersion            The Android SDK level after which this feature is implemented
+     *                             in the framework.
      */
-    WebViewFeatureInternal(String featureValue, int osVersion) {
-        assert !featureValue.endsWith(Features.DEV_SUFFIX);
-        mFeatureValue = featureValue;
+    WebViewFeatureInternal(@NonNull @WebViewFeature.WebViewSupportFeature String publicFeatureValue,
+            @NonNull String internalFeatureValue, int osVersion) {
+        assert !publicFeatureValue.endsWith(Features.DEV_SUFFIX);
+        assert !internalFeatureValue.endsWith(Features.DEV_SUFFIX);
+        mPublicFeatureValue = publicFeatureValue;
+        mInternalFeatureValue = internalFeatureValue;
         mOsVersion = osVersion;
     }
 
     /**
      * Return the {@link WebViewFeatureInternal} corresponding to {@param feature}.
      */
-    public static WebViewFeatureInternal getFeature(String feature) {
+    public static WebViewFeatureInternal getFeature(@NonNull @WebViewFeature.WebViewSupportFeature
+            String publicFeatureValue) {
         for (WebViewFeatureInternal internalFeature : WebViewFeatureInternal.values()) {
-            if (internalFeature.mFeatureValue.equals(feature)) return internalFeature;
+            if (internalFeature.mPublicFeatureValue.equals(publicFeatureValue)) {
+                return internalFeature;
+            }
         }
-        throw new RuntimeException("Unknown feature " + feature);
+        throw new RuntimeException("Unknown feature " + publicFeatureValue);
     }
 
     /**
@@ -361,7 +387,7 @@ public enum WebViewFeatureInternal {
      */
     public boolean isSupportedByWebView() {
         return BoundaryInterfaceReflectionUtil.containsFeature(
-                LAZY_HOLDER.WEBVIEW_APK_FEATURES, mFeatureValue);
+                LAZY_HOLDER.WEBVIEW_APK_FEATURES, mInternalFeatureValue);
     }
 
     private static class LAZY_HOLDER {

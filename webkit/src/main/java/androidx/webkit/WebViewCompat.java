@@ -38,7 +38,6 @@ import androidx.webkit.internal.WebViewProviderAdapter;
 import androidx.webkit.internal.WebViewProviderFactory;
 
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
-import org.chromium.support_lib_boundary.util.Features;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -441,7 +440,7 @@ public class WebViewCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull WebViewClient getWebViewClient(@NonNull WebView webview) {
         final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.getFeature(Features.GET_WEB_VIEW_CLIENT);
+                WebViewFeatureInternal.getFeature(WebViewFeature.GET_WEB_VIEW_CLIENT);
         if (feature.isSupportedByFramework()) {
             return webview.getWebViewClient();
         } else if (feature.isSupportedByWebView()) {
