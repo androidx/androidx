@@ -21,7 +21,6 @@
 
     <ImageButton
         android:id="@+id/page_up"
-        android:background="?attr/selectableItemBackgroundBorderless"
         android:layout_width="@dimen/car_scroll_bar_button_size"
         android:layout_height="@dimen/car_scroll_bar_button_size"
         android:contentDescription="@string/scroll_bar_page_up_button"
@@ -51,7 +50,6 @@
 
     <ImageButton
         android:id="@+id/page_down"
-        android:background="?attr/selectableItemBackgroundBorderless"
         android:layout_width="@dimen/car_scroll_bar_button_size"
         android:layout_height="@dimen/car_scroll_bar_button_size"
         android:contentDescription="@string/scroll_bar_page_down_button"
