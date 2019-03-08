@@ -35,8 +35,8 @@ dependencies {
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
 
-    implementation "androidx.annotation:annotation:1.0.0"
-    implementation "androidx.activity:activity:1.0.0-alpha01"
+    implementation project(":annotation")
+    implementation project(":activity")
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
@@ -53,7 +53,7 @@ dependencies {
     androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
-    androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
+    androidTestImplementation project(":internal-testutils")
 }
 
 android {

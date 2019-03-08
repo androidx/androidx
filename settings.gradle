@@ -26,8 +26,6 @@ def includeProject(name, filePath) {
     project(name).projectDir = file
 }
 
-/*
-
 /////////////////////////////
 //
 // Libraries
@@ -220,14 +218,12 @@ includeProject(":legacy-support-core-ui", "legacy/core-ui")
 includeProject(":legacy-support-core-utils", "legacy/core-utils")
 includeProject(":legacy-support-v13", "legacy/v13")
 
-*/
 /////////////////////////////
 //
 // Samples
 //
 /////////////////////////////
 File samplesRoot = new File(rootDir, "samples")
-/*
 // Note: don't add new samples/ apps. Instead, Create
 // <module>/integration-tests/testapp in the "Libraries" section above.
 includeProject(":support-animation-demos", new File(samplesRoot, "SupportAnimationDemos"))
@@ -269,10 +265,9 @@ includeProject(":support-media-compat-test-service", "media/version-compat-tests
 includeProject(":support-media-compat-test-service-previous", "media/version-compat-tests/previous/service")
 includeProject(":support-media-compat-test-lib", "media/version-compat-tests/lib")
 
-includeProject(":support-media2-test-client", "media2/session/version-compat-tests/current/client")
-includeProject(":support-media2-test-service", "media2/session/version-compat-tests/current/service")
-includeProject(":support-media2-test-common", "media2/session/version-compat-tests/common")
-*/
+includeProject(":support-media2-test-client", "media2/version-compat-tests/current/client")
+includeProject(":support-media2-test-service", "media2/version-compat-tests/current/service")
+includeProject(":support-media2-test-common", "media2/version-compat-tests/common")
 
 /////////////////////////////
 //
@@ -283,10 +278,8 @@ includeProject(":support-media2-test-common", "media2/session/version-compat-tes
 apply(from: "include-composite-deps.gradle")
 File externalRoot = new File(rootDir, "../../external")
 
-/*
 includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"))
 includeProject(":webview-support-interfaces", new File(externalRoot, "webview_support_interfaces"))
-*/
 ///// CRANE START
 
 includeProject(":compose-runtime", "compose/runtime")
