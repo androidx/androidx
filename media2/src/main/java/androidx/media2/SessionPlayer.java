@@ -274,7 +274,7 @@ public abstract class SessionPlayer implements AutoCloseable {
      */
     public static final int SHUFFLE_MODE_GROUP = 2;
 
-    public static final long UNKNOWN_TIME = -1;
+    public static final long UNKNOWN_TIME = Long.MIN_VALUE;
 
     /**
      * Media item index is invalid. This value will be returned when the corresponding media item
