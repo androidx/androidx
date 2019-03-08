@@ -1,6 +1,30 @@
 // Signature format: 3.0
 package androidx.webkit {
 
+  public class ProxyConfig {
+    field public static final String DIRECT = "direct://";
+    field public static final String MATCH_ALL_SCHEMES = "*";
+    field public static final String MATCH_HTTP = "http";
+    field public static final String MATCH_HTTPS = "https";
+  }
+
+  public static final class ProxyConfig.Builder {
+    ctor public ProxyConfig.Builder();
+    ctor public ProxyConfig.Builder(androidx.webkit.ProxyConfig);
+    method public androidx.webkit.ProxyConfig.Builder addBypassRule(String);
+    method public androidx.webkit.ProxyConfig.Builder addProxyRule(String);
+    method public androidx.webkit.ProxyConfig.Builder addProxyRule(String, String);
+    method public androidx.webkit.ProxyConfig build();
+    method public androidx.webkit.ProxyConfig.Builder bypassSimpleHostnames();
+    method public androidx.webkit.ProxyConfig.Builder subtractImplicitRules();
+  }
+
+  public abstract class ProxyController {
+    method public abstract void clearProxyOverride(java.util.concurrent.Executor, Runnable);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.PROXY_OVERRIDE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.ProxyController getInstance();
+    method public abstract void setProxyOverride(androidx.webkit.ProxyConfig, java.util.concurrent.Executor, Runnable);
+  }
+
   public abstract class SafeBrowsingResponseCompat {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void backToSafety(boolean);
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void proceed(boolean);
@@ -154,6 +178,7 @@ package androidx.webkit {
     field public static final String GET_WEB_VIEW_RENDERER = "GET_WEB_VIEW_RENDERER";
     field public static final String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
     field public static final String POST_WEB_MESSAGE = "POST_WEB_MESSAGE";
+    field public static final String PROXY_OVERRIDE = "PROXY_OVERRIDE";
     field public static final String RECEIVE_HTTP_ERROR = "RECEIVE_HTTP_ERROR";
     field public static final String RECEIVE_WEB_RESOURCE_ERROR = "RECEIVE_WEB_RESOURCE_ERROR";
     field public static final String SAFE_BROWSING_ENABLE = "SAFE_BROWSING_ENABLE";
