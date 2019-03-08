@@ -16,6 +16,7 @@ package androidx.appcompat.widget;
  * limitations under the License.
  */
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.ComponentName;
@@ -55,6 +56,7 @@ import java.util.WeakHashMap;
 /**
  * Provides the contents for the suggestion drop-down list.in {@link SearchView}.
  */
+@SuppressLint("RestrictedAPI") // Temporary until we have correct restriction scopes for 1.0
 class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListener {
 
     private static final boolean DBG = false;
