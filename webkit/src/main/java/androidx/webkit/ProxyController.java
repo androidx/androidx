@@ -17,7 +17,6 @@
 package androidx.webkit;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.ProxyControllerImpl;
@@ -49,11 +48,7 @@ import java.util.concurrent.Executor;
  * ...
  * ProxyController.getInstance().clearProxyOverride(executor, listener);
  * </pre>
- *
- * TODO(laisminchillo): unhide this when we're ready to expose this
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public abstract class ProxyController {
     /**
      * @hide Don't allow apps to sub-class this class.
@@ -83,38 +78,23 @@ public abstract class ProxyController {
     }
 
     /**
-     * Does everything that
-     * {@link ProxyController#setProxyOverride(ProxyConfig, Executor, Runnable)} does, but this
-     * listener will be called in the same thread this method was called from.
-     *
-     * @param proxyConfig Proxy config to be applied
-     * @param listener Optional listener called when the proxy setting change has been applied
-     */
-    public abstract void setProxyOverride(@NonNull ProxyConfig proxyConfig,
-            @Nullable Runnable listener);
-
-    /**
      * Sets {@link ProxyConfig} which will be used by all WebViews in the app. URLs that match
      * patterns in the bypass list will not be directed to any proxy. Instead, the request will be
      * made directly to the origin specified by the URL. Network connections are not guaranteed to
      * immediately use the new proxy setting; wait for the listener before loading a page. This
      * listener will be called in the provided executor.
      *
+     * <p class="note"><b>Note:</b> calling setProxyOverride will cause any existing system wide
+     * setting to be ignored.
+     *
      * @param proxyConfig Proxy config to be applied
      * @param executor Executor for the listener to be executed in
-     * @param listener Optional listener called when the proxy setting change has been applied
+     * @param listener Listener called when the proxy setting change has been applied
+     *
+     * @throws IllegalArgumentException If the proxyConfig is invalid
      */
     public abstract void setProxyOverride(@NonNull ProxyConfig proxyConfig,
-            @NonNull Executor executor, @Nullable Runnable listener);
-
-    /**
-     * Does everything that {@link ProxyController#clearProxyOverride(Executor, Runnable)} does,
-     * but this listener will be called in the same thread this method was called from.
-     *
-     * @param listener Optional listener called when the proxy setting change has been applied
-     */
-    public abstract void clearProxyOverride(@Nullable Runnable listener);
-
+            @NonNull Executor executor, @NonNull Runnable listener);
 
     /**
      * Clears the proxy settings. Network connections are not guaranteed to immediately use the
@@ -122,8 +102,8 @@ public abstract class ProxyController {
      * in the provided executor.
      *
      * @param executor Executor for the listener to be executed in
-     * @param listener Optional listener called when the proxy setting change has been applied
+     * @param listener Listener called when the proxy setting change has been applied
      */
     public abstract void clearProxyOverride(@NonNull Executor executor,
-            @Nullable Runnable listener);
+            @NonNull Runnable listener);
 }

@@ -380,10 +380,7 @@ public class WebViewFeature {
      * {@link ProxyController#setProxyOverride(ProxyConfig, Runnable)},
      * {@link ProxyController#clearProxyOverride(Executor, Runnable)}, and
      * {@link ProxyController#clearProxyOverride(Runnable)}.
-     * TODO(laisminchillo): unhide this when we're ready to expose this
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static final String PROXY_OVERRIDE = "PROXY_OVERRIDE";
 
     /**
