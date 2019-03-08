@@ -58,7 +58,7 @@ public class AppCompatDialog extends Dialog implements AppCompatCallback {
 
         final AppCompatDelegate delegate = getDelegate();
         // Make sure we provide the delegate with the current theme res id
-        delegate.onSetTheme(getThemeResId(context, theme));
+        delegate.setTheme(getThemeResId(context, theme));
 
         // This is a bit weird, but Dialog's are typically created and setup before being shown,
         // which means that we can't rely on onCreate() being called before a content view is set.
