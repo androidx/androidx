@@ -151,7 +151,7 @@ class BenchmarkRule : TestRule {
                 if (index > 0) {
                     val allDigits =
                         invokeMethodName.substring(index + 1, invokeMethodName.length - 1)
-                            .any { Character.isDigit(it) }
+                            .all { Character.isDigit(it) }
                     assertFalse(
                         "The name in [] can't contain only digits for $invokeMethodName",
                         allDigits
