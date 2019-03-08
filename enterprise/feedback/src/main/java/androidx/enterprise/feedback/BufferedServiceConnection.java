@@ -18,7 +18,6 @@ package androidx.enterprise.feedback;
 
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.canPackageReceiveAppStates;
 
-import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -96,8 +95,6 @@ class BufferedServiceConnection {
      *
      * <p>This can only be called once per instance.
      */
-    @SuppressLint("UntrackedBindService")
-    // Not dependent on GMS
     void bindService() {
         if (mHasBound) {
             throw new IllegalStateException(
