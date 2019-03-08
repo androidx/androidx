@@ -20,7 +20,6 @@ package androidx.slice;
 import android.content.Context;
 import android.net.Uri;
 
-import androidx.annotation.NonNull;
 import androidx.benchmark.BenchmarkRule;
 import androidx.benchmark.BenchmarkState;
 import androidx.slice.widget.SliceView;
@@ -32,12 +31,9 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.junit.runners.model.Statement;
 
-import java.lang.annotation.Annotation;
 import java.util.Arrays;
 
 @RunWith(Parameterized.class)
@@ -47,38 +43,21 @@ public class SliceViewMetrics {
 
     private final int mMode;
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name = "{1}")
     public static Iterable<? extends Object[]> data() {
-        return Arrays.asList(new Object[][]{{SliceView.MODE_SHORTCUT}, {SliceView.MODE_SMALL},
-                {SliceView.MODE_LARGE}});
+        return Arrays.asList(new Object[][]{
+                {SliceView.MODE_SHORTCUT, "shortcut"},
+                {SliceView.MODE_SMALL, "small"},
+                {SliceView.MODE_LARGE, "large"}
+        });
     }
 
-    public SliceViewMetrics(int mode) {
+    public SliceViewMetrics(int mode, @SuppressWarnings("unused") String ignored) {
         mMode = mode;
     }
 
     @Rule
-    public BenchmarkRule mBenchmarkRule = new BenchmarkRule() {
-        @NonNull
-        @Override
-        public Statement apply(@NonNull Statement base, @NonNull Description description) {
-            return super.apply(base, fixDescription(description));
-        }
-
-        private Description fixDescription(Description description) {
-            // Copies the Description and modifies the method to be compatible with BenchmarkRule.
-            return Description.createTestDescription(description.getClassName(),
-                    fixMethodName(description.getMethodName()),
-                    description.getAnnotations().toArray(new Annotation[0]));
-        }
-
-        private String fixMethodName(String methodName) {
-            // Replace [int] with [string] for BenchmarkRule and readability.
-            return methodName.replace("[0]", "[shortcut]")
-                    .replace("[1]", "[small]")
-                    .replace("[2]", "[large]");
-        }
-    };
+    public BenchmarkRule mBenchmarkRule = new BenchmarkRule();
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
