@@ -22,6 +22,8 @@ import static org.junit.Assert.assertThat;
 import android.view.MotionEvent;
 
 import androidx.test.filters.SmallTest;
+import androidx.ui.core.Timestamp;
+import androidx.ui.core.Timestamps;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +32,8 @@ import org.junit.runners.JUnit4;
 @SmallTest
 @RunWith(JUnit4.class)
 public class MotionEventAdapterTest {
+
+    private static final Timestamp EXPECTED_TIMESTAMP = Timestamps.millisecondsToTimestamp(2894L);
 
     @Test
     public void toPointerInputEvent_1pointerActionDown_convertsCorrectly() {
@@ -42,7 +46,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(1));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, true, 2967, 5928);
     }
@@ -58,7 +62,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(1));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, true, 2967, 5928);
     }
@@ -74,7 +78,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(1));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, false, 2967, 5928);
     }
@@ -95,7 +99,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(2));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, true, 2967, 5928);
         assertPointerInputEventData(actual.getPointers().get(1), 1516, true, 1942, 6729);
@@ -116,7 +120,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(2));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, true, 2967, 5928);
         assertPointerInputEventData(actual.getPointers().get(1), 1516, true, 1942, 6729);
@@ -139,7 +143,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(3));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, true, 2967, 5928);
         assertPointerInputEventData(actual.getPointers().get(1), 1516, true, 1942, 6729);
@@ -163,7 +167,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(3));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, true, 2967, 5928);
         assertPointerInputEventData(actual.getPointers().get(1), 1516, true, 1942, 6729);
@@ -187,7 +191,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(3));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, true, 2967, 5928);
         assertPointerInputEventData(actual.getPointers().get(1), 1516, true, 1942, 6729);
@@ -209,7 +213,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(2));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, true, 2967, 5928);
         assertPointerInputEventData(actual.getPointers().get(1), 1516, true, 1942, 6729);
@@ -230,7 +234,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(2));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, false, 2967, 5928);
         assertPointerInputEventData(actual.getPointers().get(1), 1516, true, 1942, 6729);
@@ -251,7 +255,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(2));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, true, 2967, 5928);
         assertPointerInputEventData(actual.getPointers().get(1), 1516, false, 1942, 6729);
@@ -274,7 +278,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(3));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, false, 2967, 5928);
         assertPointerInputEventData(actual.getPointers().get(1), 1516, true, 1942, 6729);
@@ -298,7 +302,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(3));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, true, 2967, 5928);
         assertPointerInputEventData(actual.getPointers().get(1), 1516, false, 1942, 6729);
@@ -322,7 +326,7 @@ public class MotionEventAdapterTest {
 
         PointerInputEvent actual = MotionEventAdapterKt.toPointerInputEvent(motionEvent);
 
-        assertThat(actual.getTimeStamp().getInMilliseconds(), is(2894L));
+        assertThat(actual.getTimeStamp(), is(EXPECTED_TIMESTAMP));
         assertThat(actual.getPointers().size(), is(3));
         assertPointerInputEventData(actual.getPointers().get(0), 8290, true, 2967, 5928);
         assertPointerInputEventData(actual.getPointers().get(1), 1516, true, 1942, 6729);

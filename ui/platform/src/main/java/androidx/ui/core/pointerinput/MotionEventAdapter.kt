@@ -19,7 +19,7 @@ package androidx.ui.core.pointerinput
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
-import androidx.ui.core.Duration
+import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.engine.geometry.Offset
 
 /**
@@ -40,7 +40,7 @@ internal fun MotionEvent.toPointerInputEvent(): PointerInputEvent {
         )
     }
 
-    return PointerInputEvent(Duration.create(milliseconds = this.eventTime), pointers)
+    return PointerInputEvent(eventTime.millisecondsToTimestamp(), pointers)
 }
 
 /**

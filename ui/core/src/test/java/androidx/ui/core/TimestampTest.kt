@@ -14,23 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.pointerinput
+package androidx.ui.core
 
-import androidx.ui.core.Timestamp
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
-/**
- * The normalized data structure for pointer input event information that is taken in processed by
- * Crane (via the [PointerEventProcessor]).
- */
-internal data class PointerInputEvent(
-    val timeStamp: Timestamp,
-    val pointers: List<PointerInputEventData>
-)
-
-/**
- * Data that describes a particular pointer
- */
-data class PointerInputEventData(
-    val id: Int,
-    val pointerInputData: PointerInputData
-)
+class TimestampTest {
+    @Test
+    fun durationArithmetic() {
+        val fiveDaysNanos = NanosecondsPerDay * 5
+        val startTime: Timestamp = fiveDaysNanos.nanosecondsToTimestamp()
+        val endTime: Timestamp = startTime + 25.minutes
+        assertEquals("end - start", 25.minutes, endTime - startTime)
+        assertEquals("end - 25.minutes", startTime, endTime - 25.minutes)
+    }
+}

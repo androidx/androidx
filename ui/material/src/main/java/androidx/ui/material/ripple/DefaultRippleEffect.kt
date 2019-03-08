@@ -28,12 +28,16 @@ import androidx.ui.core.Px
 import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
+import androidx.ui.core.Timestamp
 import androidx.ui.core.center
 import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.getDistance
+import androidx.ui.core.inMilliseconds
 import androidx.ui.core.lerp
 import androidx.ui.core.max
+import androidx.ui.core.milliseconds
+import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.plus
 import androidx.ui.core.times
 import androidx.ui.core.toBounds
@@ -52,10 +56,10 @@ import androidx.ui.painting.Paint
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.getAsTranslation
 
-internal val FadeInDuration = Duration.create(milliseconds = 75)
-internal val RadiusDuration = Duration.create(milliseconds = 225)
-internal val FadeOutDuration = Duration.create(milliseconds = 150)
-internal val FadeOutMinStartDelay = Duration.create(milliseconds = 225)
+internal val FadeInDuration = 75.milliseconds
+internal val RadiusDuration = 225.milliseconds
+internal val FadeOutDuration = 150.milliseconds
+internal val FadeOutMinStartDelay = 225.milliseconds
 
 internal fun getRippleClipCallback(
     containedInkWell: Boolean,
@@ -115,6 +119,8 @@ object DefaultRippleEffectFactory : RippleEffectFactory() {
     }
 }
 
+private fun now(): Timestamp = System.currentTimeMillis().millisecondsToTimestamp()
+
 /**
  * A visual reaction on a piece of [RippleSurface] to user input.
  *
@@ -160,8 +166,7 @@ internal class DefaultRippleEffect(
         clippingBorderRadius ?: BorderRadius.Zero
     private val clipCallback: ((LayoutCoordinates) -> PxBounds)? =
         getRippleClipCallback(containedInkWell, boundsCallback)
-    private val startedTime: Duration =
-        Duration.create(milliseconds = System.currentTimeMillis())
+    private val startedTime: Timestamp = now()
 
     private val radius: ValueAnimator
     private val fadeIn: ValueAnimator
@@ -180,20 +185,20 @@ internal class DefaultRippleEffect(
 
         // Immediately begin fading-in the initial ripple.
         fadeIn = ValueAnimator.ofInt(0, color.alpha)
-        fadeIn.duration = FadeInDuration.inMilliseconds
+        fadeIn.duration = FadeInDuration.inMilliseconds()
         fadeIn.addUpdateListener(redrawListener)
         fadeIn.start()
 
         // Controls the ripple radius and its center.
         radius = ValueAnimator.ofFloat(startRadius.value, targetRadius.value)
-        radius.duration = RadiusDuration.inMilliseconds
+        radius.duration = RadiusDuration.inMilliseconds()
         radius.interpolator = FastOutSlowInInterpolator()
         radius.addUpdateListener(redrawListener)
         radius.start()
 
         // Controls the fading-out effects. Will be started in finish callback
         fadeOut = ValueAnimator.ofInt(color.alpha, 0)
-        fadeOut.duration = FadeOutDuration.inMilliseconds
+        fadeOut.duration = FadeOutDuration.inMilliseconds()
         fadeOut.addUpdateListener(redrawListener)
         fadeOut.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator?) {
@@ -209,12 +214,12 @@ internal class DefaultRippleEffect(
         if (fadeIn.isRunning) {
             fadeIn.end()
         }
-        val currentTime = Duration.create(milliseconds = System.currentTimeMillis())
+        val currentTime = now()
         // starting fading-out but not before [FadeOutMinStartDelay] after the ripple start.
         val difference = currentTime - startedTime
         val startDelay = if (difference < FadeOutMinStartDelay)
-            FadeOutMinStartDelay - difference else Duration.zero
-        fadeOut.startDelay = startDelay.inMilliseconds
+            FadeOutMinStartDelay - difference else Duration.Zero
+        fadeOut.startDelay = startDelay.inMilliseconds()
         fadeOut.start()
     }
 

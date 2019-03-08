@@ -16,7 +16,7 @@
 
 package androidx.ui.core.pointerinput
 
-import androidx.ui.core.Duration
+import androidx.ui.core.Timestamp
 import androidx.ui.engine.geometry.Offset
 
 /**
@@ -24,7 +24,7 @@ import androidx.ui.engine.geometry.Offset
  * PointerChangeEvent, if any.
  */
 internal data class PointerInputChangeEvent(
-    val timeStamp: Duration,
+    val timeStamp: Timestamp,
     val changes: List<PointerInputChange>
 )
 

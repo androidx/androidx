@@ -16,18 +16,15 @@
 
 package androidx.ui.core.pointerinput
 
-import androidx.ui.core.pointerinput.PointerEventPass.InitialDown
-import androidx.ui.core.pointerinput.PointerEventPass.PreUp
-
-import org.mockito.Mockito.mock
-
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Duration
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Owner
 import androidx.ui.core.PointerInputNode
+import androidx.ui.core.Timestamp
 import androidx.ui.core.ipx
 import androidx.ui.core.minus
+import androidx.ui.core.pointerinput.PointerEventPass.InitialDown
+import androidx.ui.core.pointerinput.PointerEventPass.PreUp
 import androidx.ui.engine.geometry.Offset
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -38,11 +35,11 @@ import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito.mock
 
 // TODO(shepshapard): Write the following PointerInputEvent to PointerInputChangeEvent tests
 // 2 down, 2 move, 2 up, converted correctly
@@ -109,9 +106,9 @@ class PointerInputEventProcessorTest {
         val offset2 = Offset(300f, 400f)
 
         val events = arrayOf(
-            PointerInputEvent(Duration(0), 8712, offset, true),
-            PointerInputEvent(Duration(0), 8712, offset2, true),
-            PointerInputEvent(Duration(0), 8712, offset2, false)
+            PointerInputEvent(Timestamp(0), 8712, offset, true),
+            PointerInputEvent(Timestamp(0), 8712, offset2, true),
+            PointerInputEvent(Timestamp(0), 8712, offset2, false)
         )
 
         val expectedChanges = arrayOf(
@@ -180,7 +177,7 @@ class PointerInputEventProcessorTest {
         )
 
         val events = Array(4) { index ->
-            PointerInputEvent(Duration(0), index, offsets[index], true)
+            PointerInputEvent(Timestamp(0), index, offsets[index], true)
         }
 
         val expectedChanges = Array(4) { index ->
@@ -239,7 +236,7 @@ class PointerInputEventProcessorTest {
         )
 
         val events = Array(8) { index ->
-            PointerInputEvent(Duration(0), index, offsets[index], true)
+            PointerInputEvent(Timestamp(0), index, offsets[index], true)
         }
 
         // Act
@@ -305,7 +302,7 @@ class PointerInputEventProcessorTest {
 
         val pointerInputEventProcessor = PointerInputEventProcessor(parentLayoutNode)
 
-        val event = PointerInputEvent(Duration(0), 0, offset, true)
+        val event = PointerInputEvent(Timestamp(0), 0, offset, true)
 
         // Act
 
@@ -364,13 +361,13 @@ class PointerInputEventProcessorTest {
         val pointerInputEventProcessor = PointerInputEventProcessor(layoutNode)
 
         val down = PointerInputEvent(
-            Duration(0),
+            Timestamp(0),
             0,
             Offset(0f, 0f),
             true
         )
         val move = PointerInputEvent(
-            Duration(0),
+            Timestamp(0),
             0,
             Offset(100f, 0f),
             true
@@ -467,7 +464,7 @@ class PointerInputEventProcessorTest {
 
         val offset = Offset(pointerX.toFloat(), pointerY.toFloat())
 
-        val down = PointerInputEvent(Duration(0), 0, offset, true)
+        val down = PointerInputEvent(Timestamp(0), 0, offset, true)
 
         val pointerInputNodes = arrayOf(
             parentPointerInputNode,
@@ -555,7 +552,7 @@ class PointerInputEventProcessorTest {
         val offset2 = Offset(75f, 75f)
 
         val down = PointerInputEvent(
-            Duration(0),
+            Timestamp(0),
             listOf(
                 PointerInputEventData(0, offset1, true),
                 PointerInputEventData(1, offset2, true)
@@ -615,8 +612,8 @@ class PointerInputEventProcessorTest {
 
         val offset = Offset(50f, 50f)
 
-        val down = PointerInputEvent(Duration(0), 0, offset, true)
-        val up = PointerInputEvent(Duration(1), 0, null, false)
+        val down = PointerInputEvent(Timestamp(0), 0, offset, true)
+        val up = PointerInputEvent(Timestamp(1), 0, null, false)
 
         val pointerInputEventProcessor = PointerInputEventProcessor(parentLayoutNode)
 
@@ -672,7 +669,7 @@ class PointerInputEventProcessorTest {
     }
 
     private fun PointerInputEvent(
-        timeStamp: Duration,
+        timeStamp: Timestamp,
         id: Int,
         position: Offset?,
         down: Boolean
