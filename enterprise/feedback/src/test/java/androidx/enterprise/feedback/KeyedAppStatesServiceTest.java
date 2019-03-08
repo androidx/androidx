@@ -240,9 +240,9 @@ public class KeyedAppStatesServiceTest {
 
     @Test
     @SmallTest
-    public void send_messageWithNullData_doesNotCallback() throws RemoteException {
+    public void send_messageWithIncorrectObj_doesNotCallback() throws RemoteException {
         Message message = createStateMessage(null);
-        message.setData(null);
+        message.obj = "";
 
         mMessenger.send(message);
 
@@ -325,7 +325,7 @@ public class KeyedAppStatesServiceTest {
     private static Message createStateMessage(Bundle appStatesBundle, boolean immediate) {
         Message message = Message.obtain();
         message.what = immediate ? WHAT_IMMEDIATE_STATE : WHAT_STATE;
-        message.setData(appStatesBundle);
+        message.obj = appStatesBundle;
         return message;
     }
 

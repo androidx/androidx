@@ -148,7 +148,7 @@ public class KeyedAppStatesReporterTest {
         reporter.set(singletonList(mState));
 
         Bundle appStatesBundle = buildStatesBundle(singleton(mState));
-        assertAppStateBundlesEqual(appStatesBundle, mTestHandler.latestMessage().getData());
+        assertAppStateBundlesEqual(appStatesBundle, (Bundle) mTestHandler.latestMessage().obj);
     }
 
     private static Bundle buildStatesBundle(Collection<KeyedAppState> keyedAppStates) {
