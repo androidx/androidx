@@ -2493,7 +2493,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void instantiateChildFragmentManager() {
         if (mHost == null) {
-            throw new IllegalStateException("Fragment has not been attached yet.");
+            throw new IllegalStateException("Fragment " + this + " has not been attached yet.");
         }
         mChildFragmentManager = new FragmentManagerImpl();
         mChildFragmentManager.attachController(mHost, new FragmentContainer() {
@@ -2501,7 +2501,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @Nullable
             public View onFindViewById(int id) {
                 if (mView == null) {
-                    throw new IllegalStateException("Fragment does not have a view");
+                    throw new IllegalStateException("Fragment " + this + " does not have a view");
                 }
                 return mView.findViewById(id);
             }
