@@ -16,6 +16,8 @@
 
 package androidx.ui.painting
 
+import androidx.ui.core.px
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
@@ -2314,7 +2316,8 @@ class TextStyleTest {
             background = bgColor,
             decoration = TextDecoration.underline,
             debugLabel = "foo",
-            fontFamily = FontFamily(genericFamily = "sans-serif")
+            fontFamily = FontFamily(genericFamily = "sans-serif"),
+            shadow = Shadow(Color(0xFF0000FF.toInt()), Offset(1f, 2f), 3.px)
         )
 
         assertThat(
@@ -2372,6 +2375,9 @@ class TextStyleTest {
         val color1 = Color(0xFF00FF00.toInt())
         val color2 = Color(0x00FFFF00)
 
+        val shadow1 = Shadow(Color(0xFF0000FF.toInt()), Offset(1f, 2f), 3.px)
+        val shadow2 = Shadow(Color(0xFF00FFFF.toInt()), Offset(1f, 2f), 3.px)
+
         val textStyle = TextStyle(
             inherit = false,
             color = color1,
@@ -2387,13 +2393,17 @@ class TextStyleTest {
             locale = Locale("en", "US"),
             decoration = TextDecoration.underline,
             debugLabel = "foo",
-            fontFamily = FontFamily(genericFamily = "sans-serif")
+            fontFamily = FontFamily(genericFamily = "sans-serif"),
+            shadow = shadow1
         )
 
         assertThat(textStyle.compareTo(textStyle.copy(color = color2)))
             .isEqualTo(RenderComparison.PAINT)
 
         assertThat(textStyle.compareTo(textStyle.copy(decoration = TextDecoration.lineThrough)))
+            .isEqualTo(RenderComparison.PAINT)
+
+        assertThat(textStyle.compareTo(textStyle.copy(shadow = shadow2)))
             .isEqualTo(RenderComparison.PAINT)
     }
 }

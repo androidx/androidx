@@ -65,6 +65,7 @@ private const val _defaultFontSize: Float = 14.0f
  * * `decoration`: The decorations to paint near the text (e.g., an underline).
  * * `debugLabel`: A human-readable description of this text style.
  * * `fontFamily`: The name of the font to use when painting the text (e.g., Roboto).
+ * * `shadow` The shadow effect applied on the text.
  * * It is combined with the `fontFamily` argument to set the [fontFamily] property.
  */
 // TODO(Migration/qqd): Implement immutable.
@@ -91,6 +92,7 @@ data class TextStyle(
     val decoration: TextDecoration? = null,
     var fontFamily: FontFamily? = null,
     val textIndent: TextIndent? = null,
+    val shadow: Shadow? = null,
     val debugLabel: String? = null
 ) /*: Diagnosticable*/ {
 
@@ -164,6 +166,7 @@ data class TextStyle(
             locale = locale,
             background = background,
             decoration = decoration ?: this.decoration,
+            shadow = shadow,
             debugLabel = modifiedDebugLabel
         )
     }
@@ -211,6 +214,7 @@ data class TextStyle(
             background = other.background ?: this.background,
             decoration = other.decoration ?: this.decoration,
             textIndent = other.textIndent ?: this.textIndent,
+            shadow = other.shadow ?: this.shadow,
             debugLabel = mergedDebugLabel
         )
     }
@@ -321,6 +325,11 @@ data class TextStyle(
                     b.textIndent ?: TextIndent.NONE,
                     t
                 ),
+                shadow = lerp(
+                    a.shadow ?: Shadow(),
+                    b.shadow ?: Shadow(),
+                    t
+                ),
                 debugLabel = lerpDebugLabel
             )
         }
@@ -344,7 +353,8 @@ data class TextStyle(
             textGeometricTransform = textGeometricTransform,
             height = height,
             locale = locale,
-            background = background
+            background = background,
+            shadow = shadow
         )
     }
 
@@ -411,7 +421,9 @@ data class TextStyle(
         ) {
             return RenderComparison.LAYOUT
         }
-        if (color != other.color || decoration != other.decoration) return RenderComparison.PAINT
+        if (color != other.color || decoration != other.decoration || shadow != other.shadow) {
+            return RenderComparison.PAINT
+        }
         return RenderComparison.IDENTICAL
     }
 

@@ -30,8 +30,10 @@ import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.engine.window.Locale
 import androidx.ui.matchers.equalToBitmap
+import androidx.ui.painting.Color
 import androidx.ui.painting.Path
 import androidx.ui.painting.PathOperation
+import androidx.ui.painting.Shadow
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.not
 import org.junit.Assert.assertThat
@@ -1234,6 +1236,27 @@ class ParagraphIntegrationTest {
         val expectedWidth = text.length * fontSize - 0.4f * fontSize
         assertThat(paragraphImpl.lineCount, equalTo(1))
         assertThat(paragraphImpl.getLineWidth(0), equalTo(expectedWidth))
+    }
+
+    @Test
+    fun testStyle_shadow() {
+        val text = "abcde"
+        val fontSize = 20f
+        val paragraphWidth = fontSize * text.length
+
+        val textStyle = TextStyle(shadow = Shadow(Color(0xFF00FF00.toInt()), Offset(1f, 2f), 3.px))
+        val paragraphShadow = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length)
+            )
+        )
+        paragraphShadow.layout(ParagraphConstraints(width = paragraphWidth))
+
+        val paragraph = simpleParagraph(text = text)
+        paragraph.layout(ParagraphConstraints(width = paragraphWidth))
+
+        assertThat(paragraphShadow.bitmap(), not(equalToBitmap(paragraph.bitmap())))
     }
 
     @Test

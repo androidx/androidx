@@ -17,10 +17,12 @@ import androidx.text.StaticLayoutCompat
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.FontFeatureSpan
 import androidx.text.style.LetterSpacingSpan
+import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.text.style.WordSpacingSpan
 import androidx.ui.core.px
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
@@ -43,6 +45,7 @@ import androidx.ui.matchers.equalToBitmap
 import androidx.ui.matchers.hasSpan
 import androidx.ui.matchers.hasSpanOnTop
 import androidx.ui.matchers.notHasSpan
+import androidx.ui.painting.Shadow
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -831,6 +834,79 @@ class ParagraphAndroidTest {
             paragraph.underlyingText,
             hasSpan(LeadingMarginSpan.Standard::class, 0, "abc\ndef".length) {
                 it.getLeadingMargin(true) == firstLine && it.getLeadingMargin(false) == restLine
+            }
+        )
+    }
+
+    @Test
+    fun textStyle_setShadow() {
+        val text = "abcde"
+        val color = Color(0xFF00FF00.toInt())
+        val offset = Offset(1f, 2f)
+        val radius = 3.px
+        val textStyle = TextStyle(shadow = Shadow(color, offset, radius))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, start = 0, end = text.length)
+            )
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(ShadowSpan::class, start = 0, end = text.length) {
+                return@hasSpan it.color == color.value &&
+                        it.offsetX == offset.dx &&
+                        it.offsetY == offset.dy &&
+                        it.radius == radius.value
+            }
+        )
+    }
+
+    @Test
+    fun textStyle_setShadowTwice_lastOnTop() {
+        val text = "abcde"
+        val color = Color(0xFF00FF00.toInt())
+        val offset = Offset(1f, 2f)
+        val radius = 3.px
+        val textStyle = TextStyle(shadow = Shadow(color, offset, radius))
+
+        val colorOverwrite = Color(0xFF0000FF.toInt())
+        val offsetOverwrite = Offset(3f, 2f)
+        val radiusOverwrite = 1.px
+        val textStyleOverwrite = TextStyle(
+            shadow = Shadow(colorOverwrite, offsetOverwrite, radiusOverwrite)
+        )
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, start = 0, end = text.length),
+                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, start = 0, end = "abc".length)
+            )
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(ShadowSpan::class, start = 0, end = text.length) {
+                return@hasSpan it.color == color.value &&
+                        it.offsetX == offset.dx &&
+                        it.offsetY == offset.dy &&
+                        it.radius == radius.value
+            }
+        )
+        assertThat(
+            paragraph.underlyingText,
+            hasSpanOnTop(ShadowSpan::class, start = 0, end = "abc".length) {
+                return@hasSpanOnTop it.color == colorOverwrite.value &&
+                        it.offsetX == offsetOverwrite.dx &&
+                        it.offsetY == offsetOverwrite.dy &&
+                        it.radius == radiusOverwrite.value
             }
         )
     }

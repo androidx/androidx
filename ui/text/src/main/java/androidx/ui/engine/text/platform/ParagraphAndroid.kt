@@ -47,6 +47,7 @@ import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.FontFeatureSpan
 import androidx.text.style.LetterSpacingSpan
 import androidx.text.style.SkewXSpan
+import androidx.text.style.ShadowSpan
 import androidx.text.style.TypefaceSpan
 import androidx.text.style.WordSpacingSpan
 import androidx.ui.core.px
@@ -462,6 +463,14 @@ internal class ParagraphAndroid constructor(
                 )
             }
             // TODO(Migration/haoyuchang): implement foreground or decide if we really need it
+            style.shadow?.let {
+                spannableString.setSpan(
+                    ShadowSpan(it.color.value, it.offset.dx, it.offset.dy, it.blurRadius.value),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
         }
         return spannableString
     }

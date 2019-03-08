@@ -19,6 +19,7 @@ import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
+import androidx.ui.painting.Shadow
 
 /**
  * An opaque object that determines the size, position, and rendering of text.
@@ -49,6 +50,7 @@ import androidx.ui.painting.Paint
  *                    style cannot be found in the provided custom font family.
  * * `textIndent`: The amount of indentation applied to the affected paragraph. A paragraph is affected
  *                 if any of its character is covered by the TextSpan.
+ * * `shadow`: The shadow effect applied on the text.
  */
 data class TextStyle constructor(
     val color: Color? = null,
@@ -69,7 +71,8 @@ data class TextStyle constructor(
     val background: Color? = null,
     val foreground: Paint? = null,
     val fontSynthesis: FontSynthesis? = null,
-    val textIndent: TextIndent? = null
+    val textIndent: TextIndent? = null,
+    val shadow: Shadow? = null
 ) {
     init {
         assert(color == null || foreground == null) {

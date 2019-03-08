@@ -10,9 +10,12 @@ import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
+import androidx.ui.core.px
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
 import androidx.ui.painting.Color
+import androidx.ui.painting.Shadow
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import androidx.ui.rendering.paragraph.TextOverflow
@@ -66,6 +69,8 @@ fun TextDemo() {
                 <TextDemoTextScaleFactor />
                 <TagLine tag="TextOverFlow: FADE" />
                 <TexDemoTextOverflowFade />
+                <TagLine tag="shadow" />
+                <TextDemoShadowEffect />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -576,5 +581,27 @@ fun TexDemoTextOverflowFade() {
             text=textSpan
             maxLines=3
             overflow=TextOverflow.FADE />
+    </CraneWrapper>
+}
+
+@Composable
+fun TextDemoShadowEffect() {
+    val shadow = Shadow(
+        Color(0xFFE0A0A0.toInt()),
+        Offset(5f, 5f),
+        blurRadius = 5.px
+    )
+    val textSpan = TextSpan(
+        text = "text with ",
+        style = TextStyle(fontSize = fontSize8),
+        children = listOf(
+            TextSpan(
+                text = "shadow!",
+                style = TextStyle(shadow = shadow)
+            )
+        )
+    )
+    <CraneWrapper>
+        <Text text = textSpan />
     </CraneWrapper>
 }
