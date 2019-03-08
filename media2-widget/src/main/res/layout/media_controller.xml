@@ -19,8 +19,13 @@
         android:id="@+id/center_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/center_view_background"
         android:layoutDirection="ltr">
+
+        <View
+            android:id="@+id/center_view_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/center_view_background" />
 
         <include
             android:id="@+id/embedded_transport_controls"
