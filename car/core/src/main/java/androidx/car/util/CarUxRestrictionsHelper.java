@@ -24,6 +24,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -54,7 +55,7 @@ public class CarUxRestrictionsHelper {
         }
         mListener = listener;
         mCar = Car.createCar(context, mServiceConnection);
-    };
+    }
 
     /**
      * Starts monitoring any changes in {@link CarUxRestrictions}.
@@ -101,6 +102,29 @@ public class CarUxRestrictionsHelper {
             // Do nothing.
             Log.w(TAG, "stop(); cannot disconnect from Car.");
         }
+    }
+
+    /**
+     * Gets the current UX restrictions {@link CarUxRestrictions} in place.
+     *
+     * @return current UX restrictions that is in effect. If the current UX restrictions cannot
+     * be obtained, the default of no active restrictions is returned.
+     */
+    @NonNull
+    public CarUxRestrictions getCurrentCarUxRestrictions() {
+        try {
+            if (mCarUxRestrictionsManager != null) {
+                return new CarUxRestrictions(
+                        mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
+            }
+        } catch (CarNotConnectedException e) {
+            // Do nothing.
+            Log.w(TAG, "getCurrentCarUxRestrictions(); cannot get current UX restrictions.");
+        }
+
+        return new CarUxRestrictions.Builder(false,
+                CarUxRestrictions.UX_RESTRICTIONS_BASELINE, SystemClock.elapsedRealtimeNanos())
+                .build();
     }
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
