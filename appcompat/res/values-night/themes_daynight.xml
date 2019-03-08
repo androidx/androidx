@@ -47,4 +47,7 @@
          {@candroidx.appcompat.app.app.AlertDialog} class. -->
     <style name="Theme.AppCompat.DayNight.Dialog.Alert" parent="Theme.AppCompat.Dialog.Alert" />
 
+    <!-- Variant of ThemeOverlay.AppCompat which switches to light/dark based on the night mode -->
+    <style name="ThemeOverlay.AppCompat.DayNight" parent="ThemeOverlay.AppCompat.Dark" />
+
 </resources>
