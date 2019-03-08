@@ -6,8 +6,8 @@ plugins {
     id("SupportAndroidLibraryPlugin")
 }
 dependencies {
-    api("androidx.core:core:1.0.0")
-    implementation(AUTO_VALUE_ANNOTATIONS)
+    api(project(":annotation"))
+    api(AUTO_VALUE_ANNOTATIONS)
     annotationProcessor(AUTO_VALUE)
     testImplementation(TEST_CORE)
     testImplementation(JUNIT)
