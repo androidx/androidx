@@ -26,7 +26,7 @@ import java.util.List;
  * Provides statistics such as mean, median, min, max, and percentiles, given a list of input
  * values.
  */
-public class Stats {
+final class Stats {
     private long mMedian, mMin, mMax, mPercentile90, mPercentile95;
     private double mMean, mStandardDeviation;
 
