@@ -51,16 +51,11 @@ class QueryVisitor(
 
     private fun findQueryType(statement: ParseTree): QueryType {
         return when (statement) {
-            is SQLiteParser.Factored_select_stmtContext,
-            is SQLiteParser.Compound_select_stmtContext,
-            is SQLiteParser.Select_stmtContext,
-            is SQLiteParser.Simple_select_stmtContext ->
+            is SQLiteParser.Select_stmtContext ->
                 QueryType.SELECT
-
             is SQLiteParser.Delete_stmt_limitedContext,
             is SQLiteParser.Delete_stmtContext ->
                 QueryType.DELETE
-
             is SQLiteParser.Insert_stmtContext ->
                 QueryType.INSERT
             is SQLiteParser.Update_stmtContext,
