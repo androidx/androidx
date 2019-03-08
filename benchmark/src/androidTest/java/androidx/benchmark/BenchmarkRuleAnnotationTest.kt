@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,25 @@
 
 package androidx.benchmark
 
-import androidx.test.filters.LargeTest
-import org.junit.Rule
+import androidx.test.filters.SmallTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@LargeTest
+@SmallTest
 @RunWith(JUnit4::class)
-class TrivialBenchmark {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+class BenchmarkRuleAnnotationTest {
+    @Suppress("MemberVisibilityCanBePrivate") // intentionally public
+    // NOTE: not annotated, so will throw when state is accessed
+    val unannotatedRule = BenchmarkRule()
 
-    @Test
-    fun nothing() = benchmarkRule.measure { }
+    @Test(expected = IllegalStateException::class)
+    fun throwsIfNotAnnotated() {
+        unannotatedRule.state
+    }
 
-    @Test
-    fun increment() {
-        var i = 0
-        benchmarkRule.measure {
-            i++
-        }
+    @Test(expected = IllegalStateException::class)
+    fun throwsIfNotAnnotatedMeasure() {
+        unannotatedRule.measure { }
     }
 }

@@ -97,6 +97,9 @@ public final class BenchmarkState {
     // Individual duration in nano seconds.
     private ArrayList<Long> mResults = new ArrayList<>();
 
+    // not for external construction
+    BenchmarkState() {}
+
     /**
      * Stops the benchmark timer.
      * <p>
@@ -216,7 +219,7 @@ public final class BenchmarkState {
      * @return Stats from run.
      */
     @NonNull
-    public Stats getStats() {
+    Stats getStats() {
         if (mState != FINISHED) {
             throw new IllegalStateException("The benchmark hasn't finished");
         }
