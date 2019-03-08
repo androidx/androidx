@@ -374,7 +374,7 @@ public class KeyedAppStatesReporter {
     private static Message createStateMessage(Bundle appStatesBundle, boolean immediate) {
         Message message = Message.obtain();
         message.what = immediate ? WHAT_IMMEDIATE_STATE : WHAT_STATE;
-        message.setData(appStatesBundle);
+        message.obj = appStatesBundle;
         return message;
     }
 }
