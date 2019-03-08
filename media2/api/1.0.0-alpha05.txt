@@ -339,11 +339,11 @@ package androidx.media2 {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> selectTrack(int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setAudioAttributes(androidx.media.AudioAttributesCompat);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setAudioSessionId(int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setAuxEffectSendLevel(float);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setAuxEffectSendLevel(@FloatRange(from=0, to=1) float);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setMediaItem(androidx.media2.MediaItem);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setPlaybackParams(androidx.media2.PlaybackParams);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setPlaybackSpeed(float);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setPlayerVolume(float);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setPlaybackSpeed(@FloatRange(from=0, to=1) float);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setPlayerVolume(@FloatRange(from=0, to=1) float);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setPlaylist(java.util.List<androidx.media2.MediaItem>, androidx.media2.MediaMetadata?);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setRepeatMode(int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setShuffleMode(int);
@@ -624,7 +624,7 @@ package androidx.media2 {
     field public static final int SHUFFLE_MODE_ALL = 1; // 0x1
     field public static final int SHUFFLE_MODE_GROUP = 2; // 0x2
     field public static final int SHUFFLE_MODE_NONE = 0; // 0x0
-    field public static final long UNKNOWN_TIME = -1L; // 0xffffffffffffffffL
+    field public static final long UNKNOWN_TIME = -9223372036854775808L; // 0x8000000000000000L
   }
 
   public abstract static class SessionPlayer.PlayerCallback {
