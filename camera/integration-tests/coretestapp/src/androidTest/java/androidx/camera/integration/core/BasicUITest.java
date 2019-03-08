@@ -26,6 +26,7 @@ import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,6 +43,16 @@ public class BasicUITest {
     public ActivityTestRule<CameraXActivity> mActivityRule =
             new ActivityTestRule<>(CameraXActivity.class);
 
+    @Rule
+    public GrantPermissionRule cameraPermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
+    @Rule
+    public GrantPermissionRule storagePermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    @Rule
+    public GrantPermissionRule audioPermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
+
     @Before
     public void setup() {
         checkViewReady();
@@ -51,38 +62,43 @@ public class BasicUITest {
     @Test
     public void testAnalysisButton() {
 
+        IdlingRegistry.getInstance().register(
+                mActivityRule.getActivity().mAnalysisIdlingResource);
         for (int i = 0; i < TEST_COUNT; i++) {
             // Click to disable the use case.
             onView(withId(R.id.AnalysisToggle)).perform(click());
 
             // Click to enable use case and check use case if ready.
-            IdlingRegistry.getInstance().register(
-                    mActivityRule.getActivity().mAnalysisIdlingResource);
             onView(withId(R.id.AnalysisToggle)).perform(click());
-            IdlingRegistry.getInstance().unregister(
-                    mActivityRule.getActivity().mAnalysisIdlingResource);
-
         }
+
+        IdlingRegistry.getInstance().unregister(
+                mActivityRule.getActivity().mAnalysisIdlingResource);
+
     }
 
     // Test the Preview (view finder) button.
     @Test
     public void testPreviewButton() {
 
+        IdlingRegistry.getInstance().register(mActivityRule.getActivity().mViewIdlingResource);
         // Click once to disable, then once to re-enable and check view is ready.
         for (int i = 0; i < TEST_COUNT; i++) {
             // Disable Preview.
             onView(withId(R.id.PreviewToggle)).perform(click());
             // Enable Preview.
             onView(withId(R.id.PreviewToggle)).perform(click());
-            checkViewReady();
+            onView(withId(R.id.textureView)).perform(click()).check(matches(isDisplayed()));
         }
+
+        IdlingRegistry.getInstance().unregister(mActivityRule.getActivity().mViewIdlingResource);
+
     }
 
     private void checkViewReady() {
-        IdlingRegistry.getInstance().register(mActivityRule.getActivity().mIdlingResource);
+        IdlingRegistry.getInstance().register(mActivityRule.getActivity().mViewIdlingResource);
         onView(withId(R.id.textureView)).perform(click()).check(matches(isDisplayed()));
-        IdlingRegistry.getInstance().unregister(mActivityRule.getActivity().mIdlingResource);
+        IdlingRegistry.getInstance().unregister(mActivityRule.getActivity().mViewIdlingResource);
     }
 
 }

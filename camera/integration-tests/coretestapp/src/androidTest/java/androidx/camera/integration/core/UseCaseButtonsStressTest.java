@@ -26,6 +26,7 @@ import androidx.test.espresso.IdlingRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,6 +43,18 @@ public class UseCaseButtonsStressTest {
     @Rule
     public ActivityTestRule<CameraXActivity> mActivityRule =
             new ActivityTestRule<>(CameraXActivity.class);
+
+    @Rule
+    public GrantPermissionRule cameraPermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
+
+    @Rule
+    public GrantPermissionRule storagePermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    @Rule
+    public GrantPermissionRule audioPermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
+
 
     @Before
     public void setup() {
@@ -83,9 +96,9 @@ public class UseCaseButtonsStressTest {
     }
 
     private void checkViewReady() {
-        IdlingRegistry.getInstance().register(mActivityRule.getActivity().mIdlingResource);
+        IdlingRegistry.getInstance().register(mActivityRule.getActivity().mViewIdlingResource);
         onView(withId(R.id.textureView)).perform(click()).check(matches(isDisplayed()));
-        IdlingRegistry.getInstance().unregister(mActivityRule.getActivity().mIdlingResource);
+        IdlingRegistry.getInstance().unregister(mActivityRule.getActivity().mViewIdlingResource);
     }
 
 }
