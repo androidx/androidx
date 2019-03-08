@@ -79,6 +79,27 @@ public final class SpringAnimation extends DynamicAnimation<SpringAnimation> {
     }
 
     /**
+     * <p>This creates a SpringAnimation that animates a {@link FloatValueHolder} instance. During
+     * the animation, the {@link FloatValueHolder} instance will be updated via
+     * {@link FloatValueHolder#setValue(float)} each frame. The caller can obtain the up-to-date
+     * animation value via {@link FloatValueHolder#getValue()}.
+     *
+     * A Spring will be created with the given final position and default stiffness and damping
+     * ratio. This spring can be accessed and reconfigured through {@link #setSpring(SpringForce)}.
+     *
+     * <p><strong>Note:</strong> changing the value in the {@link FloatValueHolder} via
+     * {@link FloatValueHolder#setValue(float)} outside of the animation during an
+     * animation run will not have any effect on the on-going animation.
+     *
+     * @param floatValueHolder the property to be animated
+     * @param finalPosition the final position of the spring to be created.
+     */
+    public SpringAnimation(FloatValueHolder floatValueHolder, float finalPosition) {
+        super(floatValueHolder);
+        mSpring = new SpringForce(finalPosition);
+    }
+
+    /**
      * This creates a SpringAnimation that animates the property of the given object.
      * Note, a spring will need to setup through {@link #setSpring(SpringForce)} before
      * the animation starts.
