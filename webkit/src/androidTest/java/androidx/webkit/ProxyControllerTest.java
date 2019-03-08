@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.mockwebserver.MockWebServer;
@@ -103,7 +104,7 @@ public class ProxyControllerTest {
         // Localhost should use proxy with loopback rule
         setProxyOverrideSync(new ProxyConfig.Builder()
                 .addProxyRule(proxyUrl)
-                .doProxyLoopbackRequests()
+                .subtractImplicitRules()
                 .build());
         mWebViewOnUiThread.loadUrl(contentUrl);
         assertNotNull(mProxyServer.takeRequest(WebkitUtils.TEST_TIMEOUT_MS,
@@ -223,19 +224,20 @@ public class ProxyControllerTest {
 
     private void setProxyOverrideSync(final ProxyConfig proxyRules) {
         final ResolvableFuture<Void> future = ResolvableFuture.create();
-        ProxyController.getInstance().setProxyOverride(proxyRules, new Runnable() {
-            @Override
-            public void run() {
-                future.set(null);
-            }
-        });
+        ProxyController.getInstance().setProxyOverride(proxyRules, new SynchronousExecutor(),
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        future.set(null);
+                    }
+                });
         // This future is used to ensure that setProxyOverride's callback was called
         WebkitUtils.waitForFuture(future);
     }
 
     private void clearProxyOverrideSync() {
         final ResolvableFuture<Void> future = ResolvableFuture.create();
-        ProxyController.getInstance().clearProxyOverride(new Runnable() {
+        ProxyController.getInstance().clearProxyOverride(new SynchronousExecutor(), new Runnable() {
             @Override
             public void run() {
                 future.set(null);
@@ -243,5 +245,12 @@ public class ProxyControllerTest {
         });
         // This future is used to ensure that clearProxyOverride's callback was called
         WebkitUtils.waitForFuture(future);
+    }
+
+    static class SynchronousExecutor implements Executor {
+        @Override
+        public void execute(Runnable r) {
+            r.run();
+        }
     }
 }
