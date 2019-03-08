@@ -178,28 +178,31 @@ class MediaSessionImplBase implements MediaSessionImpl {
                             MediaSessionService.SERVICE_INTERFACE);
                 }
                 sComponentNamesInitialized = true;
-                mbrComponent = sServiceComponentName;
             }
+            mbrComponent = sServiceComponentName;
         }
         if (mbrComponent == null) {
             // No service to revive playback after it's dead.
             // Create a PendingIntent that points to the runtime broadcast receiver.
-            mbrComponent = new ComponentName(context, context.getClass());
-            Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+            Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, mSessionUri);
             intent.setPackage(context.getPackageName());
             mMediaButtonIntent = PendingIntent.getBroadcast(
                     context, 0 /* requestCode */, intent, 0 /* flags */);
+
+            // Creates a dummy ComponentName for MediaSessionCompat in pre-L.
+            // TODO: Replace this with the MediaButtonReceiver class.
+            mbrComponent = new ComponentName(context, context.getClass());
 
             // Create and register a BroadcastReceiver for receiving PendingIntent.
             // TODO: Introduce MediaButtonReceiver in AndroidManifest instead of this,
             //       or register only one receiver for all sessions.
             mBroadcastReceiver = new MediaButtonReceiver();
-            context.registerReceiver(mBroadcastReceiver,
-                    new IntentFilter(Intent.ACTION_MEDIA_BUTTON));
+            IntentFilter filter = new IntentFilter(Intent.ACTION_MEDIA_BUTTON);
+            filter.addDataScheme(mSessionUri.getScheme());
+            context.registerReceiver(mBroadcastReceiver, filter);
         } else {
             // Has MediaSessionService to revive playback after it's dead.
-            Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-            intent.setData(mSessionUri);
+            Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, mSessionUri);
             intent.setComponent(mbrComponent);
             if (Build.VERSION.SDK_INT >= 26) {
                 mMediaButtonIntent = PendingIntent.getForegroundService(mContext, 0, intent, 0);
