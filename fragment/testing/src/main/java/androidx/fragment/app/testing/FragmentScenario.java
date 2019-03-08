@@ -26,9 +26,11 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.StyleRes;
 import androidx.core.util.Preconditions;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -192,7 +194,7 @@ public final class FragmentScenario<F extends Fragment> {
     @NonNull
     public static <F extends Fragment> FragmentScenario<F> launch(
             @NonNull Class<F> fragmentClass, @Nullable Bundle fragmentArgs,
-            int themeResId, @Nullable FragmentFactory factory) {
+            @StyleRes int themeResId, @Nullable FragmentFactory factory) {
         return internalLaunch(fragmentClass, fragmentArgs, themeResId, factory,
                 /*containerViewId=*/ 0);
     }
@@ -242,9 +244,8 @@ public final class FragmentScenario<F extends Fragment> {
     public static <F extends Fragment> FragmentScenario<F> launchInContainer(
             @NonNull Class<F> fragmentClass, @Nullable Bundle fragmentArgs,
             @Nullable FragmentFactory factory) {
-        return launchInContainer(
-                fragmentClass, fragmentArgs, R.style.FragmentScenarioEmptyFragmentActivityTheme,
-                factory);
+        return launchInContainer(fragmentClass, fragmentArgs,
+                R.style.FragmentScenarioEmptyFragmentActivityTheme, factory);
     }
 
     /**
@@ -262,18 +263,17 @@ public final class FragmentScenario<F extends Fragment> {
     @NonNull
     public static <F extends Fragment> FragmentScenario<F> launchInContainer(
             @NonNull Class<F> fragmentClass, @Nullable Bundle fragmentArgs,
-            int themeResId, @Nullable FragmentFactory factory) {
+            @StyleRes int themeResId, @Nullable FragmentFactory factory) {
         return internalLaunch(
-                fragmentClass, fragmentArgs, themeResId, factory,
-                /*containerViewId=*/ android.R.id.content);
+                fragmentClass, fragmentArgs, themeResId, factory, android.R.id.content);
     }
 
     @NonNull
     @SuppressLint("RestrictedApi")
     private static <F extends Fragment> FragmentScenario<F> internalLaunch(
             @NonNull final Class<F> fragmentClass, final @Nullable Bundle fragmentArgs,
-            final int themeResId, @Nullable final FragmentFactory factory,
-            final int containerViewId) {
+            @StyleRes int themeResId, @Nullable final FragmentFactory factory,
+            @IdRes final int containerViewId) {
         Intent startActivityIntent =
                 Intent.makeMainActivity(
                         new ComponentName(getApplicationContext(),
