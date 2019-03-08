@@ -63,7 +63,7 @@ package androidx.dynamicanimation.animation {
     method public abstract void setValue(T!, float);
   }
 
-  public final class FloatValueHolder {
+  public class FloatValueHolder {
     ctor public FloatValueHolder();
     ctor public FloatValueHolder(float);
     method public float getValue();
@@ -72,6 +72,7 @@ package androidx.dynamicanimation.animation {
 
   public final class SpringAnimation extends androidx.dynamicanimation.animation.DynamicAnimation<androidx.dynamicanimation.animation.SpringAnimation> {
     ctor public SpringAnimation(androidx.dynamicanimation.animation.FloatValueHolder!);
+    ctor public SpringAnimation(androidx.dynamicanimation.animation.FloatValueHolder!, float);
     ctor public SpringAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K>!);
     ctor public SpringAnimation(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K>!, float);
     method public void animateToFinalPosition(float);
