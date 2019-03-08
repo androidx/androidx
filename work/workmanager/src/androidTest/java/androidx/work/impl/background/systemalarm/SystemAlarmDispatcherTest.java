@@ -650,6 +650,12 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         assertThat(numExecutionCompleted, is(2));
     }
 
+    @Test
+    public void tearDownTest() {
+        mDispatcher.onDestroy();
+        assertThat(mDispatcher.getWorkTimer().getExecutorService().isShutdown(), is(true));
+    }
+
     // Marking it public for mocking
     public static class CommandInterceptingSystemDispatcher extends SystemAlarmDispatcher {
         private final List<Intent> mCommands;
