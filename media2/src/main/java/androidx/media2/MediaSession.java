@@ -401,8 +401,9 @@ public class MediaSession implements AutoCloseable {
          * receives {@link MediaController.ControllerCallback#onDisconnected(MediaController)} and
          * cannot be used.
          * <p>
-         * The controller hasn't connected yet, so sending commands in this method to the controller
-         * will fail. For initial setup for the controller, use {@link #onPostConnect}.
+         * The controller hasn't connected yet in this method, so calls to the controller
+         * (e.g. {@link #sendCustomCommand}, {@link #setCustomLayout}) would be ignored. Override
+         * {@link #onPostConnect} for the custom initialization for the controller instead.
          *
          * @param session the session for this event
          * @param controller controller information.
@@ -420,6 +421,10 @@ public class MediaSession implements AutoCloseable {
         /**
          * Called immediately after a controller is connected. This is a convenient method to add
          * custom initialization between the session and a controller.
+         * <p>
+         * Note that calls to the controller (e.g. {@link #sendCustomCommand},
+         * {@link #setCustomLayout}) work here but don't work in {@link #onConnect} because the
+         * controller hasn't connected yet in {@link #onConnect}.
          *
          * @param session the session for this event
          * @param controller controller information.
