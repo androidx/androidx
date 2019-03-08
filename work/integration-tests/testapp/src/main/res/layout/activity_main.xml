@@ -191,5 +191,13 @@
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"/>
 
+        <Button android:text="@string/run_recursive_worker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/run_recursive_worker"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
     </LinearLayout>
 </ScrollView>
