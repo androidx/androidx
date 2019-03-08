@@ -28,7 +28,8 @@
         android:layout_height="@dimen/car_app_bar_height"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" >
+        app:layout_constraintEnd_toEndOf="parent"
+        style="@style/Widget.Car.TabLayout" >
 
       <com.google.android.material.tabs.TabItem
           android:icon="@drawable/ic_home"

@@ -83,7 +83,6 @@ limitations under the License.
         <item name="selectableItemBackground">@drawable/car_card_ripple_background_light</item>
         <item name="selectableItemBackgroundBorderless">@drawable/car_button_ripple_background_light</item>
         <item name="switchStyle">@style/Widget.Car.Switch</item>
-        <item name="tabStyle">@style/Widget.Car.TabLayout</item>
         <item name="checkboxStyle">@style/Widget.Car.CheckBox.Light</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation.Light</item>
         <item name="toolbarStyle">@style/Widget.Car.Toolbar.Light</item>
