@@ -22,6 +22,7 @@ import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.content.res.TypedArrayUtils.obtainAttributes;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
@@ -76,6 +77,7 @@ import java.util.Arrays;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
+@SuppressLint("RestrictedAPI") // Temporary until we have correct restriction scopes for 1.0
 class StateListDrawable extends DrawableContainer {
     private static final String TAG = "StateListDrawable";
     private static final boolean DEBUG = false;

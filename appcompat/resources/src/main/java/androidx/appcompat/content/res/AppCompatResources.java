@@ -16,6 +16,7 @@
 
 package androidx.appcompat.content.res;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
@@ -42,6 +43,7 @@ import java.util.WeakHashMap;
  * Class for accessing an application's resources through AppCompat, and thus any backward
  * compatible functionality.
  */
+@SuppressLint("RestrictedAPI") // Temporary until we have correct restriction scopes for 1.0
 public final class AppCompatResources {
 
     private static final String LOG_TAG = "AppCompatResources";

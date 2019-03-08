@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import static androidx.build.dependencies.DependenciesKt.*
+
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -24,9 +26,8 @@ plugins {
 dependencies {
     api(project(":annotation"))
 
-    api(project(":core"))
-    api(project(":collection"))
-    api("androidx.cursoradapter:cursoradapter:1.0.0")
+    api("androidx.core:core:1.0.1")
+    implementation("androidx.collection:collection:1.0.0")
     api("androidx.vectordrawable:vectordrawable:1.0.1")
     api("androidx.vectordrawable:vectordrawable-animated:1.0.0")
 
