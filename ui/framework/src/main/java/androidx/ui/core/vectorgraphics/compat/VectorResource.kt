@@ -23,21 +23,21 @@ import android.util.AttributeSet
 import android.util.Log
 import android.util.Xml
 import androidx.core.content.res.TypedArrayUtils
-import androidx.ui.core.vectorgraphics.parsePathNodes
+import androidx.ui.core.vectorgraphics.addPathNodes
 import androidx.ui.core.vectorgraphics.group
 import androidx.ui.core.vectorgraphics.path
 import androidx.ui.core.vectorgraphics.vector
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
-import androidx.ui.vectorgraphics.DEFAULT_PIVOT_X
-import androidx.ui.vectorgraphics.DEFAULT_PIVOT_Y
-import androidx.ui.vectorgraphics.DEFAULT_ROTATE
-import androidx.ui.vectorgraphics.DEFAULT_SCALE_X
-import androidx.ui.vectorgraphics.DEFAULT_SCALE_Y
-import androidx.ui.vectorgraphics.DEFAULT_TRANSLATE_X
-import androidx.ui.vectorgraphics.DEFAULT_TRANSLATE_Y
-import androidx.ui.vectorgraphics.EMPTY_PATH
-import androidx.ui.vectorgraphics.PathNode
+import androidx.ui.core.vectorgraphics.DefaultPivotX
+import androidx.ui.core.vectorgraphics.DefaultPivotY
+import androidx.ui.core.vectorgraphics.DefaultRotate
+import androidx.ui.core.vectorgraphics.DefaultScaleX
+import androidx.ui.core.vectorgraphics.DefaultScaleY
+import androidx.ui.core.vectorgraphics.DefaultTranslateX
+import androidx.ui.core.vectorgraphics.DefaultTranslateY
+import androidx.ui.core.vectorgraphics.EmptyPath
+import androidx.ui.core.vectorgraphics.PathNode
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -95,41 +95,41 @@ private fun inflateGroup(
     val rotate = TypedArrayUtils.getNamedFloat(
         a, parser, "rotation",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_GROUP_ROTATION,
-        DEFAULT_ROTATE
+        DefaultRotate
     )
 
     val pivotX = a.getFloat(
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_GROUP_PIVOT_X,
-        DEFAULT_PIVOT_X
+        DefaultPivotX
     )
     val pivotY = a.getFloat(
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_GROUP_PIVOT_Y,
-        DEFAULT_PIVOT_Y
+        DefaultPivotY
     )
 
     // This is added in API 11
     val scaleX = TypedArrayUtils.getNamedFloat(
         a, parser, "scaleX",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_GROUP_SCALE_X,
-        DEFAULT_SCALE_X
+        DefaultScaleX
     )
 
     // This is added in API 11
     val scaleY = TypedArrayUtils.getNamedFloat(
         a, parser, "scaleY",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_GROUP_SCALE_Y,
-        DEFAULT_SCALE_Y
+        DefaultScaleY
     )
 
     val translateX = TypedArrayUtils.getNamedFloat(
         a, parser, "translateX",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_GROUP_TRANSLATE_X,
-        DEFAULT_TRANSLATE_X
+        DefaultTranslateX
     )
     val translateY = TypedArrayUtils.getNamedFloat(
         a, parser, "translateY",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_GROUP_TRANSLATE_Y,
-        DEFAULT_TRANSLATE_Y
+        DefaultTranslateY
     )
 
     val name: String =
@@ -138,7 +138,7 @@ private fun inflateGroup(
     parser.next()
 
     // TODO parse clip path
-    val clipPathData = EMPTY_PATH
+    val clipPathData = EmptyPath
     <group
         name
         rotate
@@ -185,7 +185,7 @@ private fun inflatePath(a: TypedArray, parser: XmlPullParser, theme: Resources.T
 
     val pathStr = a.getString(AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_PATH_DATA)
 
-    val pathData: Array<PathNode> = parsePathNodes(pathStr)
+    val pathData: Array<PathNode> = addPathNodes(pathStr)
 
     val fillColor = TypedArrayUtils.getNamedComplexColor(
         a, parser, theme, "fillColor",

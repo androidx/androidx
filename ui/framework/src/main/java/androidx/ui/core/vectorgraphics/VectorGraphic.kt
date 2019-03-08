@@ -1,4 +1,20 @@
-package androidx.ui.vectorgraphics
+/*
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.ui.core.vectorgraphics
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
@@ -11,22 +27,22 @@ import androidx.ui.painting.Path
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
 
-const val DEFAULT_GROUP_NAME = ""
-const val DEFAULT_ROTATE = 0.0f
-const val DEFAULT_PIVOT_X = 0.0f
-const val DEFAULT_PIVOT_Y = 0.0f
-const val DEFAULT_SCALE_X = 1.0f
-const val DEFAULT_SCALE_Y = 1.0f
-const val DEFAULT_TRANSLATE_X = 0.0f
-const val DEFAULT_TRANSLATE_Y = 0.0f
+const val DefaultGroupName = ""
+const val DefaultRotate = 0.0f
+const val DefaultPivotX = 0.0f
+const val DefaultPivotY = 0.0f
+const val DefaultScaleX = 1.0f
+const val DefaultScaleY = 1.0f
+const val DefaultTranslateX = 0.0f
+const val DefaultTranslateY = 0.0f
 
-val EMPTY_PATH = emptyArray<PathNode>()
+val EmptyPath = emptyArray<PathNode>()
 
 /**
  * paint used to draw the cached vector graphic to the provided canvas
  * TODO (njawad) Can we update the Crane Canvas API to make this paint optional?
  */
-internal val EMPTY_PAINT = Paint()
+internal val EmptyPaint = Paint()
 
 // TODO (njawad) merge VNode into R4A equivalent once IR metadata issues are resolved
 sealed class VNode {
@@ -80,7 +96,7 @@ class VectorGraphic(
             cachedImage = targetImage
             root.draw(Canvas(android.graphics.Canvas(bitmap)))
         }
-        canvas.drawImage(targetImage, Offset.zero, EMPTY_PAINT)
+        canvas.drawImage(targetImage, Offset.zero, EmptyPaint)
     }
 
     override fun toString(): String {
@@ -96,13 +112,13 @@ class VectorGraphic(
 }
 
 // TODO (njawad) merge VGroup into R4A equivalent once IR metadata issues are resolved
-class VGroup(val name: String = DEFAULT_GROUP_NAME) : VNode() {
+class VGroup(val name: String = DefaultGroupName) : VNode() {
 
     private var groupMatrix: Matrix? = null
 
     private val children = mutableListOf<VNode>()
 
-    var clipPathNodes: Array<PathNode> = EMPTY_PATH
+    var clipPathNodes: Array<PathNode> = EmptyPath
         set(value) {
             field = value
             isClipPathDirty = true
@@ -134,47 +150,47 @@ class VGroup(val name: String = DEFAULT_GROUP_NAME) : VNode() {
                 targetClip.reset()
             }
 
-            targetParser.parsePathNodes(clipPathNodes).toPath(targetClip)
+            targetParser.addPathNodes(clipPathNodes).toPath(targetClip)
         }
     }
 
-    var rotate: Float = DEFAULT_ROTATE
+    var rotate: Float = DefaultRotate
         set(value) {
             field = value
             isMatrixDirty = true
         }
 
-    var pivotX: Float = DEFAULT_PIVOT_X
+    var pivotX: Float = DefaultPivotX
         set(value) {
             field = value
             isMatrixDirty = true
         }
 
-    var pivotY: Float = DEFAULT_PIVOT_Y
+    var pivotY: Float = DefaultPivotY
         set(value) {
             field = value
             isMatrixDirty = true
         }
 
-    var scaleX: Float = DEFAULT_SCALE_X
+    var scaleX: Float = DefaultScaleX
         set(value) {
             field = value
             isMatrixDirty = true
         }
 
-    var scaleY: Float = DEFAULT_SCALE_Y
+    var scaleY: Float = DefaultScaleY
         set(value) {
             field = value
             isMatrixDirty = true
         }
 
-    var translateX: Float = DEFAULT_TRANSLATE_X
+    var translateX: Float = DefaultTranslateX
         set(value) {
             field = value
             isMatrixDirty = true
         }
 
-    var translateY: Float = DEFAULT_TRANSLATE_Y
+    var translateY: Float = DefaultTranslateY
         set(value) {
             field = value
             isMatrixDirty = true
@@ -286,16 +302,16 @@ typealias PathData = /*@UnionType(String::class, PathDelegate::class)*/ Any
 // TODO (njawad) change to color int
 typealias BrushType = /*@UnionType(Int::class, Brush::class)*/ Any
 
-const val DEFAULT_PATH_NAME = ""
-const val DEFAULT_ALPHA = 1.0f
-const val DEFAULT_STROKE_LINE_WIDTH = 0.0f
-const val DEFAULT_STROKE_LINE_MITER = 4.0f
+const val DefaultPathName = ""
+const val DefaultAlpha = 1.0f
+const val DefaultStrokeLineWidth = 0.0f
+const val DefaultStrokeLineMiter = 4.0f
 
-val DEFAULT_STROKE_LINE_CAP = StrokeCap.butt
-val DEFAULT_STROKE_LINE_JOIN = StrokeJoin.miter
+val DefaultStrokeLineCap = StrokeCap.butt
+val DefaultStrokeLineJoin = StrokeJoin.miter
 
 // TODO (njawad) merge VPath into R4A equivalent once IR metadata issues are resolved
-class VPath(val name: String = DEFAULT_PATH_NAME) : VNode() {
+class VPath(val name: String = DefaultPathName) : VNode() {
 
     var fill: Brush? = null
         set(value) {
@@ -305,7 +321,7 @@ class VPath(val name: String = DEFAULT_PATH_NAME) : VNode() {
             }
         }
 
-    var fillAlpha: Float = DEFAULT_ALPHA
+    var fillAlpha: Float = DefaultAlpha
         set(value) {
             field = value
             updateFillPaint {
@@ -319,7 +335,7 @@ class VPath(val name: String = DEFAULT_PATH_NAME) : VNode() {
             isPathDirty = true
         }
 
-    var strokeAlpha: Float = DEFAULT_ALPHA
+    var strokeAlpha: Float = DefaultAlpha
         set(value) {
             field = value
             updateStrokePaint {
@@ -327,7 +343,7 @@ class VPath(val name: String = DEFAULT_PATH_NAME) : VNode() {
             }
         }
 
-    var strokeLineWidth: Float = DEFAULT_STROKE_LINE_WIDTH
+    var strokeLineWidth: Float = DefaultStrokeLineWidth
         set(value) {
             field = value
             updateStrokePaint {
@@ -343,7 +359,7 @@ class VPath(val name: String = DEFAULT_PATH_NAME) : VNode() {
             }
         }
 
-    var strokeLineCap: StrokeCap = DEFAULT_STROKE_LINE_CAP
+    var strokeLineCap: StrokeCap = DefaultStrokeLineCap
         set(value) {
             field = value
             updateStrokePaint {
@@ -351,7 +367,7 @@ class VPath(val name: String = DEFAULT_PATH_NAME) : VNode() {
             }
         }
 
-    var strokeLineJoin: StrokeJoin = DEFAULT_STROKE_LINE_JOIN
+    var strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin
         set(value) {
             field = value
             updateStrokePaint {
@@ -359,7 +375,7 @@ class VPath(val name: String = DEFAULT_PATH_NAME) : VNode() {
             }
         }
 
-    var strokeLineMiter: Float = DEFAULT_STROKE_LINE_MITER
+    var strokeLineMiter: Float = DefaultStrokeLineMiter
         set(value) {
             field = value
             updateStrokePaint {
@@ -419,7 +435,7 @@ class VPath(val name: String = DEFAULT_PATH_NAME) : VNode() {
     private fun updatePath() {
         parser.clear()
         path.reset()
-        parser.parsePathNodes(pathNodes).toPath(path)
+        parser.addPathNodes(pathNodes).toPath(path)
     }
 
     override fun draw(canvas: Canvas) {
