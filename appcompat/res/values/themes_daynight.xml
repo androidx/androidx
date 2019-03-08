@@ -47,4 +47,13 @@
          {@candroidx.appcompat.app.app.AlertDialog} class. -->
     <style name="Theme.AppCompat.DayNight.Dialog.Alert" parent="Theme.AppCompat.Light.Dialog.Alert" />
 
+    <!-- Variant of ThemeOverlay.AppCompat which switches to light/dark based on the night mode. -->
+    <style name="ThemeOverlay.AppCompat.DayNight" parent="ThemeOverlay.AppCompat.Light" />
+
+    <!-- Variant of ThemeOverlay.AppCompat.ActionBar which switches to light/dark based on the night mode. -->
+    <style name="ThemeOverlay.AppCompat.DayNight.ActionBar">
+        <item name="colorControlNormal">?android:attr/textColorPrimary</item>
+        <item name="searchViewStyle">@style/Widget.AppCompat.SearchView.ActionBar</item>
+    </style>
+
 </resources>
