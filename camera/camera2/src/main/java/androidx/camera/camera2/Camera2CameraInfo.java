@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
+import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.Nullable;
@@ -34,6 +35,7 @@ import androidx.core.util.Preconditions;
 final class Camera2CameraInfo implements CameraInfo {
 
     private final CameraCharacteristics mCameraCharacteristics;
+    private static final String TAG = "Camera2CameraInfo";
 
     Camera2CameraInfo(CameraManager cameraManager, String cameraId)
             throws CameraInfoUnavailableException {
@@ -47,6 +49,9 @@ final class Camera2CameraInfo implements CameraInfo {
         checkCharacteristicAvailable(
                 CameraCharacteristics.SENSOR_ORIENTATION, "Sensor orientation");
         checkCharacteristicAvailable(CameraCharacteristics.LENS_FACING, "Lens facing direction");
+        checkCharacteristicAvailable(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, "Supported hardware level");
+        logDeviceInfo();
     }
 
     @SuppressLint("RestrictedApi") // TODO(b/124323692): Remove after aosp/900913 is merged
@@ -83,6 +88,14 @@ final class Camera2CameraInfo implements CameraInfo {
                 isOppositeFacingScreen);
     }
 
+    @SuppressLint("RestrictedApi") // TODO(b/124323692): Remove after aosp/900913 is merged
+    private int getSupportedHardwareLevel() {
+        Integer deviceLevel =
+                mCameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+        Preconditions.checkNotNull(deviceLevel);
+        return deviceLevel;
+    }
+
     private void checkCharacteristicAvailable(CameraCharacteristics.Key<?> key, String readableName)
             throws CameraInfoUnavailableException {
         if (mCameraCharacteristics.get(key) == null) {
@@ -95,5 +108,37 @@ final class Camera2CameraInfo implements CameraInfo {
     @Override
     public int getSensorRotationDegrees() {
         return getSensorRotationDegrees(Surface.ROTATION_0);
+    }
+
+    private void logDeviceInfo() {
+        // Extend by adding logging here as needed.
+        logDeviceLevel();
+    }
+
+    private void logDeviceLevel() {
+        String levelString;
+
+        int deviceLevel = getSupportedHardwareLevel();
+        switch (deviceLevel) {
+            case CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY:
+                levelString = "INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY";
+                break;
+            case CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL:
+                levelString = "INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL";
+                break;
+            case CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED:
+                levelString = "INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED";
+                break;
+            case CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL:
+                levelString = "INFO_SUPPORTED_HARDWARE_LEVEL_FULL";
+                break;
+            case CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3:
+                levelString = "INFO_SUPPORTED_HARDWARE_LEVEL_3";
+                break;
+            default:
+                levelString = "Unknown value: " + deviceLevel;
+                break;
+        }
+        Log.i(TAG, "Device Level: " + levelString);
     }
 }
