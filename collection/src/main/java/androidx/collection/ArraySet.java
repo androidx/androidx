@@ -16,11 +16,8 @@
 
 package androidx.collection;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
@@ -403,35 +400,6 @@ public final class ArraySet<E> implements Collection<E>, Set<E> {
         mArray[index] = value;
         mSize++;
         return true;
-    }
-
-    /**
-     * Special fast path for appending items to the end of the array without validation.
-     * The array must already be large enough to contain the item.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public void append(E value) {
-        final int index = mSize;
-        final int hash = value == null ? 0 : value.hashCode();
-        if (index >= mHashes.length) {
-            throw new IllegalStateException("Array is full");
-        }
-        if (index > 0 && mHashes[index - 1] > hash) {
-            // Cannot optimize since it would break the sorted order - fallback to add()
-            if (DEBUG) {
-                RuntimeException e = new RuntimeException("here");
-                System.err.println(TAG + " New hash " + hash
-                        + " is before end of array hash " + mHashes[index - 1]
-                        + " at index " + index);
-                e.printStackTrace();
-            }
-            add(value);
-            return;
-        }
-        mSize = index + 1;
-        mHashes[index] = hash;
-        mArray[index] = value;
     }
 
     /**
