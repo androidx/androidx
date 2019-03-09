@@ -2088,7 +2088,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param transition The Transition to use to move Views out of the Scene when the Fragment
      *         is preparing to close. <code>transition</code> must be an
      *         {@link android.transition.Transition android.transition.Transition} or
-     *         {@link androidx.transition.Transition androidx.transition.Transition}.
+     *         {@link androidx.transition.Transition}.
      */
     public void setReturnTransition(@Nullable Object transition) {
         ensureAnimationInfo().mReturnTransition = transition;

@@ -41,7 +41,7 @@ import java.util.concurrent.Executor;
  * <p>
  * A PagedList is a {@link List} which loads its data in chunks (pages) from a {@link DataSource}.
  * Items can be accessed with {@link #get(int)}, and further loading can be triggered with
- * {@link #loadAround(int)}. To display a PagedList, see {@link PagedListAdapter}, which enables the
+ * {@link #loadAround(int)}. To display a PagedList, see {@link androidx.paging.PagedListAdapter}, which enables the
  * binding of a PagedList to a {@link androidx.recyclerview.widget.RecyclerView}.
  * <h4>Loading Data</h4>
  * <p>
@@ -60,8 +60,8 @@ import java.util.concurrent.Executor;
  * PagedList can present data for an unbounded, infinite scrolling list, or a very large but
  * countable list. Use {@link Config} to control how many items a PagedList loads, and when.
  * <p>
- * If you use {@link LivePagedListBuilder} to get a
- * {@link androidx.lifecycle.LiveData}&lt;PagedList>, it will initialize PagedLists on a
+ * If you use {@link androidx.paging.LivePagedListBuilder} to get a
+ * {@link androidx.lifecycle.LiveData}, it will initialize PagedLists on a
  * background thread for you.
  * <h4>Placeholders</h4>
  * <p>
@@ -79,7 +79,7 @@ import java.util.concurrent.Executor;
  * Placeholders have several benefits:
  * <ul>
  *     <li>They express the full sized list to the presentation layer (often a
- *     {@link PagedListAdapter}), and so can support scrollbars (without jumping as pages are
+ *     {@link androidx.paging.PagedListAdapter}), and so can support scrollbars (without jumping as pages are
  *     loaded or dropped) and fast-scrolling to any position, loaded or not.
  *     <li>They avoid the need for a loading spinner at the end of the loaded list, since the list
  *     is always full sized.
@@ -101,13 +101,13 @@ import java.util.concurrent.Executor;
  * <h4>Mutability and Snapshots</h4>
  * A PagedList is <em>mutable</em> while loading, or ready to load from its DataSource.
  * As loads succeed, a mutable PagedList will be updated via Runnables on the main thread. You can
- * listen to these updates with a {@link Callback}. (Note that {@link PagedListAdapter} will listen
+ * listen to these updates with a {@link Callback}. (Note that {@link androidx.paging.PagedListAdapter} will listen
  * to these to signal RecyclerView about the updates/changes).
  * <p>
  * If a PagedList attempts to load from an invalid DataSource, it will {@link #detach()}
  * from the DataSource, meaning that it will no longer attempt to load data. It will return true
  * from {@link #isImmutable()}, and a new DataSource / PagedList pair must be created to load
- * further data. See {@link DataSource} and {@link LivePagedListBuilder} for how new PagedLists are
+ * further data. See {@link DataSource} and {@link androidx.paging.LivePagedListBuilder} for how new PagedLists are
  * created to represent changed data.
  * <p>
  * A PagedList snapshot is simply an immutable shallow copy of the current state of the PagedList as
@@ -299,8 +299,8 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * {@code onError()} to signify the error as retryable.
      * <p>
      * You can observe loading state via {@link #addWeakLoadStateListener(LoadStateListener)},
-     * though generally this is done through the {@link PagedListAdapter} or
-     * {@link AsyncPagedListDiffer}.
+     * though generally this is done through the {@link androidx.paging.PagedListAdapter} or
+     * {@link androidx.paging.AsyncPagedListDiffer}.
      *
      * @see #addWeakLoadStateListener(LoadStateListener)
      * @see #removeWeakLoadStateListener(LoadStateListener)
@@ -443,7 +443,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * so that the UI doesn't show an empty list, or placeholders for a few frames, just before
      * showing initial content.
      * <p>
-     * {@link LivePagedListBuilder} does this creation on a background thread automatically, if you
+     * {@link androidx.paging.LivePagedListBuilder} does this creation on a background thread automatically, if you
      * want to receive a {@code LiveData<PagedList<...>>}.
      *
      * @param <Key> Type of key used to load data from the DataSource.
@@ -552,14 +552,14 @@ public abstract class PagedList<T> extends AbstractList<T> {
         /**
          * Creates a {@link PagedList} with the given parameters.
          * <p>
-         * This call will dispatch the {@link DataSource}'s loadInitial method immediately on the
+         * This call will dispatch the {@link androidx.paging.DataSource}'s loadInitial method immediately on the
          * current thread, and block the current on the result. This method should always be called
          * on a worker thread to prevent blocking the main thread.
          * <p>
          * It's fine to create a PagedList with an async DataSource on the main thread, such as in
          * the constructor of a ViewModel. An async network load won't block the initialLoad
          * function. For a synchronous DataSource such as one created from a Room database, a
-         * {@code LiveData<PagedList>} can be safely constructed with {@link LivePagedListBuilder}
+         * {@code LiveData<PagedList>} can be safely constructed with {@link androidx.paging.LivePagedListBuilder}
          * on the main thread, since actual construction work is deferred, and done on a background
          * thread.
          * <p>
@@ -869,7 +869,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * <p>
      * When a PagedList is invalidated, you can pass the key returned by this function to initialize
      * the next PagedList. This ensures (depending on load times) that the next PagedList that
-     * arrives will have data that overlaps. If you use {@link LivePagedListBuilder}, it will do
+     * arrives will have data that overlaps. If you use androidx.paging.LivePagedListBuilder, it will do
      * this for you.
      *
      * @return Key of position most recently passed to {@link #loadAround(int)}.
@@ -962,7 +962,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * version, including any changes that may have been made.
      * <p>
      * The callback is internally held as weak reference, so PagedList doesn't hold a strong
-     * reference to its observer, such as a {@link PagedListAdapter}. If an adapter were held with a
+     * reference to its observer, such as a {@link androidx.paging.PagedListAdapter}. If an adapter were held with a
      * strong reference, it would be necessary to clear its PagedList observer before it could be
      * GC'd.
      *
@@ -1242,13 +1242,13 @@ public abstract class PagedList<T> extends AbstractList<T> {
              * 2) placeholders are not disabled on the Config.
              * <p>
              * Call {@code setEnablePlaceholders(false)} to ensure the receiver of the PagedList
-             * (often a {@link PagedListAdapter}) doesn't need to account for null items.
+             * (often a {@link androidx.paging.PagedListAdapter}) doesn't need to account for null items.
              * <p>
              * If placeholders are disabled, not-yet-loaded content will not be present in the list.
              * Paging will still occur, but as items are loaded or removed, they will be signaled
              * as inserts to the {@link PagedList.Callback}.
              * {@link PagedList.Callback#onChanged(int, int)} will not be issued as part of loading,
-             * though a {@link PagedListAdapter} may still receive change events as a result of
+             * though a {@link androidx.paging.PagedListAdapter} may still receive change events as a result of
              * PagedList diffing.
              *
              * @param enablePlaceholders False if null placeholders should be disabled.
@@ -1370,7 +1370,7 @@ public abstract class PagedList<T> extends AbstractList<T> {
      * account for the new items.
      * <p>
      * Note that a BoundaryCallback instance shared across multiple PagedLists (e.g. when passed to
-     * {@link LivePagedListBuilder#setBoundaryCallback}), the callbacks may be issued multiple
+     * {@link androidx.paging.LivePagedListBuilder#setBoundaryCallback}, the callbacks may be issued multiple
      * times. If for example {@link #onItemAtEndLoaded(Object)} triggers a network load, it should
      * avoid triggering it again while the load is ongoing.
      * <p>

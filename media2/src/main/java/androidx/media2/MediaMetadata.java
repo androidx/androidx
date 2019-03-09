@@ -52,7 +52,7 @@ import java.util.Set;
  * {@link androidx.media2.widget.MediaControlView} will show title from the metadata.
  * <p>
  * The {@link MediaLibrarySession} would require some metadata values when it provides
- * {@link MediaItem}s to {@link MediaBrowser}.
+ * {@link androidx.media2.MediaItem}s to {@link MediaBrowser}.
  * <p>
  * Topics covered here:
  * <ol>

@@ -434,7 +434,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * @see TextView#setImeOptions(int)
      * @param imeOptions the options to set on the query text field
      *
-     * {@link androidx.appcompat.R.attr#android_imeOptions}
+     * {@link android.R.attr#imeOptions}
      */
     public void setImeOptions(int imeOptions) {
         mSearchSrcTextView.setImeOptions(imeOptions);
@@ -445,7 +445,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * @return the ime options
      * @see TextView#setImeOptions(int)
      *
-     * {@link androidx.appcompat.R.attr#android_imeOptions}
+     * {@link android.R.attr#imeOptions}
      */
     public int getImeOptions() {
         return mSearchSrcTextView.getImeOptions();
@@ -457,7 +457,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * @see TextView#setInputType(int)
      * @param inputType the input type to set on the query text field
      *
-     * {@link androidx.appcompat.R.attr#android_inputType}
+     * {@link android.R.attr#inputType}
      */
     public void setInputType(int inputType) {
         mSearchSrcTextView.setInputType(inputType);
@@ -467,7 +467,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * Returns the input type set on the query text field.
      * @return the input type
      *
-     * {@link androidx.appcompat.R.attr#android_inputType}
+     * {@link android.R.attr#inputType}
      */
     public int getInputType() {
         return mSearchSrcTextView.getInputType();
@@ -757,7 +757,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     /**
      * Makes the view at most this many pixels wide
      *
-     * {@link androidx.appcompat.R.attr#android_maxWidth}
+     * {@link android.R.attr#maxWidth}
      */
     public void setMaxWidth(int maxpixels) {
         mMaxWidth = maxpixels;
@@ -770,7 +770,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
      * no maximum width was specified.
      * @return the maximum width of the view
      *
-     * {@link androidx.appcompat.R.attr#android_maxWidth}
+     * {@link android.R.attr#maxWidth}
      */
     public int getMaxWidth() {
         return mMaxWidth;

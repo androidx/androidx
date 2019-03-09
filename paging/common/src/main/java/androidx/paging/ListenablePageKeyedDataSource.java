@@ -129,11 +129,11 @@ public abstract class ListenablePageKeyedDataSource<Key, Value> extends DataSour
      * This method is called first to initialize a PagedList with data. If it's possible to count
      * the items that can be loaded by the DataSource, it's recommended to pass the position and
      * count to the
-     * {@link InitialResult#InitialResult(List, int, int, Key, Key) InitialResult constructor}. This
+     * {@link InitialResult InitialResult constructor}. This
      * enables PagedLists presenting data from this source to display placeholders to represent
      * unloaded items.
      * <p>
-     * {@link PageKeyedDataSource.LoadInitialParams#requestedLoadSize} is a hint, not a requirement,
+     * {@link LoadInitialParams#requestedLoadSize} is a hint, not a requirement,
      * so it may be may be altered or ignored.
      *
      * @param params Parameters for initial load, including requested load size.

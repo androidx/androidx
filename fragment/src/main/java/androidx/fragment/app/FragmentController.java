@@ -312,13 +312,13 @@ public class FragmentController {
      * Moves Fragments managed by the controller's FragmentManager
      * into the destroy state.
      * <p>
-     * If the {@link FragmentHostCallback} is an instance of {@link ViewModelStoreOwner},
+     * If the {@link androidx.fragment.app.FragmentHostCallback} is an instance of {@link ViewModelStoreOwner},
      * then retained Fragments and any other non configuration state such as any
      * {@link androidx.lifecycle.ViewModel} attached to Fragments will only be destroyed if
      * {@link androidx.lifecycle.ViewModelStore#clear()} is called prior to this method.
      * <p>
      * Otherwise, the FragmentManager will look to see if the
-     * {@link FragmentHostCallback#getContext() host's Context} is an {@link Activity}
+     * {@link FragmentHostCallback host's} Context is an {@link Activity}
      * and if {@link Activity#isChangingConfigurations()} returns true. In only that case
      * will non configuration state be retained.
      * <p>Call when Fragments should be destroyed.
