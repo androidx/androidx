@@ -867,7 +867,7 @@ public class MediaPlayer extends SessionPlayer {
     @Override
     public long getCurrentPosition() {
         try {
-            long pos = mPlayer.getCurrentPosition();
+            final long pos = mPlayer.getCurrentPosition();
             if (pos >= 0) {
                 return pos;
             }
@@ -881,7 +881,7 @@ public class MediaPlayer extends SessionPlayer {
     @SuppressLint("RestrictedApi")
     public long getDuration() {
         try {
-            long duration = mPlayer.getDuration();
+            final long duration = mPlayer.getDuration();
             if (duration >= 0) {
                 return duration;
             }
@@ -895,7 +895,7 @@ public class MediaPlayer extends SessionPlayer {
     @SuppressLint("RestrictedApi")
     public long getBufferedPosition() {
         try {
-            long pos = mPlayer.getBufferedPosition();
+            final long pos = mPlayer.getBufferedPosition();
             if (pos >= 0) {
                 return pos;
             }
