@@ -62,6 +62,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -425,6 +426,13 @@ public class MediaPlayer extends SessionPlayer {
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface SeekMode {}
+
+    /**
+     * The return value of {@link #getSelectedTrack} when there is no selected track for the given
+     * type.
+     * @see #getSelectedTrack(int)
+     */
+    public static final int NO_TRACK_SELECTED = Integer.MIN_VALUE;
 
     private static final int CALL_COMPLETE_PLAYLIST_BASE = -1000;
     private static final int END_OF_PLAYLIST = -1;
@@ -805,7 +813,8 @@ public class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> setPlaybackSpeed(
-            @FloatRange(from = 0, to = 1) final float playbackSpeed) {
+            @FloatRange(from = 0.0f, to = Float.MAX_VALUE, fromInclusive = false)
+            final float playbackSpeed) {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1887,8 +1896,9 @@ public class MediaPlayer extends SessionPlayer {
      * @see #selectTrack(int)
      * @see #deselectTrack(int)
      */
-    public int getSelectedTrack(int trackType) {
-        return mPlayer.getSelectedTrack(trackType);
+    public int getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
+        final int ret = mPlayer.getSelectedTrack(trackType);
+        return (ret < 0) ? NO_TRACK_SELECTED : ret;
     }
 
     /**
@@ -1971,6 +1981,29 @@ public class MediaPlayer extends SessionPlayer {
         };
         addPendingFuture(pendingFuture);
         return pendingFuture;
+    }
+
+    /**
+     * Register {@link PlayerCallback} to listen changes.
+     *
+     * @param executor a callback Executor
+     * @param callback a PlayerCallback
+     * @throws IllegalArgumentException if executor or callback is {@code null}.
+     */
+    public void registerPlayerCallback(
+            @NonNull /*@CallbackExecutor*/ Executor executor,
+            @NonNull PlayerCallback callback) {
+        super.registerPlayerCallback(executor, callback);
+    }
+
+    /**
+     * Unregister the previously registered {@link PlayerCallback}.
+     *
+     * @param callback the callback to be removed
+     * @throws IllegalArgumentException if the callback is {@code null}.
+     */
+    public void unregisterPlayerCallback(@NonNull PlayerCallback callback) {
+        super.unregisterPlayerCallback(callback);
     }
 
     /**
@@ -2793,6 +2826,20 @@ public class MediaPlayer extends SessionPlayer {
         public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
         public static final int MEDIA_TRACK_TYPE_METADATA = 5;
 
+        /**
+         * @hide
+         */
+        @IntDef(flag = false, /*prefix = "PLAYER_ERROR",*/ value = {
+                MEDIA_TRACK_TYPE_UNKNOWN,
+                MEDIA_TRACK_TYPE_VIDEO,
+                MEDIA_TRACK_TYPE_AUDIO,
+                MEDIA_TRACK_TYPE_SUBTITLE,
+                MEDIA_TRACK_TYPE_METADATA,
+        })
+        @Retention(RetentionPolicy.SOURCE)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        public @interface MediaTrackType {}
+
         private final int mTrackType;
         private final MediaFormat mFormat;
 
@@ -2800,20 +2847,21 @@ public class MediaPlayer extends SessionPlayer {
          * Gets the track type.
          * @return TrackType which indicates if the track is video, audio, timed text.
          */
-        public int getTrackType() {
+        public @MediaTrackType int getTrackType() {
             return mTrackType;
         }
 
         /**
          * Gets the language code of the track.
-         * @return a language code in either way of ISO-639-1 or ISO-639-2.
-         * When the language is unknown or could not be determined,
-         * ISO-639-2 language code, "und", is returned.
+         * @return {@link Locale} which includes the language information.
          */
         @NonNull
-        public String getLanguage() {
-            String language = mFormat.getString(MediaFormat.KEY_LANGUAGE);
-            return language == null ? "und" : language;
+        public Locale getLanguage() {
+            String language = mFormat != null ? mFormat.getString(MediaFormat.KEY_LANGUAGE) : null;
+            if (language == null) {
+                language = "und";
+            }
+            return new Locale(language);
         }
 
         /**

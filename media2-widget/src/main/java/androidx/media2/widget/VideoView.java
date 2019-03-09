@@ -773,9 +773,7 @@ public class VideoView extends SelectiveLayout {
                 SubtitleTrack track = mSubtitleController.addTrack(trackInfos.get(i).getFormat());
                 if (track != null) {
                     mSubtitleTracks.put(i, track);
-                    String language =
-                            (trackInfos.get(i).getLanguage().equals(SUBTITLE_TRACK_LANG_UNDEFINED))
-                                    ? "" : trackInfos.get(i).getLanguage();
+                    String language = trackInfos.get(i).getLanguage().getISO3Language();
                     subtitleTracksLanguageList.add(language);
                 }
             }
