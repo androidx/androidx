@@ -259,7 +259,7 @@ public class BiometricPrompt implements BiometricConstants {
              * This method only applies to Q and above.
              */
             @NonNull
-            public Builder setRequireConfirmation(boolean requireConfirmation) {
+            public Builder setConfirmationRequired(boolean requireConfirmation) {
                 mBundle.putBoolean(KEY_REQUIRE_CONFIRMATION, requireConfirmation);
                 return this;
             }
@@ -281,7 +281,7 @@ public class BiometricPrompt implements BiometricConstants {
              */
             @RequiresApi(29)
             @NonNull
-            public Builder setAllowDeviceCredential(boolean enable) {
+            public Builder setDeviceCredentialAllowed(boolean enable) {
                 mBundle.putBoolean(KEY_ALLOW_DEVICE_CREDENTIAL, enable);
                 return this;
             }
@@ -354,18 +354,18 @@ public class BiometricPrompt implements BiometricConstants {
         }
 
         /**
-         * @return See {@link Builder#setRequireConfirmation(boolean)}.
+         * @return See {@link Builder#setConfirmationRequired(boolean)}.
          */
         @Nullable
-        public boolean getRequireConfirmation() {
+        public boolean isConfirmationRequired() {
             return mBundle.getBoolean(KEY_REQUIRE_CONFIRMATION);
         }
 
         /**
-         * @return See {@link Builder#setAllowDeviceCredential(boolean)}.
+         * @return See {@link Builder#setDeviceCredentialAllowed(boolean)}.
          */
         @Nullable
-        public boolean getAllowDeviceCredential() {
+        public boolean isDeviceCredentialAllowed() {
             return mBundle.getBoolean(KEY_ALLOW_DEVICE_CREDENTIAL);
         }
     }

@@ -42,21 +42,21 @@ package androidx.biometric {
   }
 
   public static class BiometricPrompt.PromptInfo {
-    method public boolean getAllowDeviceCredential();
     method public CharSequence? getDescription();
     method public CharSequence getNegativeButtonText();
-    method public boolean getRequireConfirmation();
     method public CharSequence? getSubtitle();
     method public CharSequence getTitle();
+    method public boolean isConfirmationRequired();
+    method public boolean isDeviceCredentialAllowed();
   }
 
   public static class BiometricPrompt.PromptInfo.Builder {
     ctor public BiometricPrompt.PromptInfo.Builder();
     method public androidx.biometric.BiometricPrompt.PromptInfo build();
-    method @RequiresApi(29) public androidx.biometric.BiometricPrompt.PromptInfo.Builder setAllowDeviceCredential(boolean);
+    method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setConfirmationRequired(boolean);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setDescription(CharSequence?);
+    method @RequiresApi(29) public androidx.biometric.BiometricPrompt.PromptInfo.Builder setDeviceCredentialAllowed(boolean);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setNegativeButtonText(CharSequence);
-    method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setRequireConfirmation(boolean);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setSubtitle(CharSequence?);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setTitle(CharSequence);
   }
