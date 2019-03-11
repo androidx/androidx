@@ -66,11 +66,9 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
         }
         db.invalidationTracker.addObserver(observer)
 
-        benchmarkRule.state.pauseTiming()
         val users = List(sampleSize) { User(it, "name$it") }
-        benchmarkRule.state.resumeTiming()
 
-        while (benchmarkRule.state.keepRunning()) {
+        benchmarkRule.measure {
             runMeasured(pauseTiming = mode == Mode.MEASURE_DELETE) {
                 // Insert the sample size
                 db.runInTransaction {
