@@ -49,7 +49,6 @@ import androidx.media2.FileMediaItem;
 import androidx.media2.MediaItem;
 import androidx.media2.MediaMetadata;
 import androidx.media2.MediaPlayer;
-import androidx.media2.MediaPlayer2;
 import androidx.media2.MediaSession;
 import androidx.media2.RemoteSessionPlayer;
 import androidx.media2.SessionCommand;
@@ -524,7 +523,7 @@ public class VideoView extends SelectiveLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        // Note: MediaPlayer2 and MediaSession instances are created in onAttachedToWindow()
+        // Note: MediaPlayer and MediaSession instances are created in onAttachedToWindow()
         // and closed in onDetachedFromWindow().
         if (mMediaPlayer == null) {
             mMediaPlayer = new VideoViewPlayer(getContext());
@@ -766,11 +765,11 @@ public class VideoView extends SelectiveLayout {
         mSubtitleController.reset();
         for (int i = 0; i < trackInfos.size(); ++i) {
             int trackType = trackInfos.get(i).getTrackType();
-            if (trackType == MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_VIDEO) {
+            if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO) {
                 mVideoTrackIndices.add(i);
-            } else if (trackType == MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
+            } else if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
                 mAudioTrackIndices.add(i);
-            } else if (trackType == MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
+            } else if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
                 SubtitleTrack track = mSubtitleController.addTrack(trackInfos.get(i).getFormat());
                 if (track != null) {
                     mSubtitleTracks.put(i, track);
@@ -852,7 +851,7 @@ public class VideoView extends SelectiveLayout {
                         }
                         return;
                     }
-                    if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
+                    if (what == MediaPlayer.MEDIA_INFO_METADATA_UPDATE) {
                         Bundle data = extractTrackInfoData();
                         if (data != null) {
                             mMediaSession.broadcastCustomCommand(
@@ -941,6 +940,15 @@ public class VideoView extends SelectiveLayout {
                     }
                 }
 
+                @Override
+                public void onPlaybackCompleted(SessionPlayer player) {
+                    if (player != mMediaPlayer) {
+                        Log.d(TAG, "onPlaybackCompleted() is ignored. player is already gone.");
+                    }
+                    mCurrentState = STATE_PLAYBACK_COMPLETED;
+                    mTargetState = STATE_PLAYBACK_COMPLETED;
+                }
+
                 private void onPrepared(SessionPlayer player) {
                     if (DEBUG) {
                         Log.d(TAG, "OnPreparedListener(): "
@@ -981,11 +989,6 @@ public class VideoView extends SelectiveLayout {
                             mMediaSession.getPlayer().play();
                         }
                     }
-                }
-
-                private void onCompletion(MediaPlayer mp, MediaItem dsd) {
-                    mCurrentState = STATE_PLAYBACK_COMPLETED;
-                    mTargetState = STATE_PLAYBACK_COMPLETED;
                 }
             };
 
