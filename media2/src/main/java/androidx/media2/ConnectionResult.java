@@ -16,7 +16,6 @@
 
 package androidx.media2;
 
-import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -39,7 +38,6 @@ import java.util.List;
  * All fields here are effectively final. Do not modify.
  */
 @VersionedParcelize(isCustom = true)
-@SuppressLint("RestrictedApi")
 class ConnectionResult extends CustomVersionedParcelable {
     @ParcelField(0)
     int mVersion;

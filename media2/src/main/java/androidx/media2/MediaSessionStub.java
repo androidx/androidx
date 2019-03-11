@@ -24,7 +24,6 @@ import static androidx.media2.SessionResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media2.SessionResult.RESULT_ERROR_INVALID_STATE;
 import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Binder;
@@ -77,7 +76,6 @@ class MediaSessionStub extends IMediaSession.Stub {
             new SparseArray<>();
 
     static {
-        @SuppressLint("RestrictedApi")
         SessionCommandGroup group = new SessionCommandGroup.Builder()
                 .addAllPlayerCommands(COMMAND_VERSION_CURRENT)
                 .addAllVolumeCommands(COMMAND_VERSION_CURRENT)

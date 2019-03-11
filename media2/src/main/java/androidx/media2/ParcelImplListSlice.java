@@ -185,14 +185,8 @@ public class ParcelImplListSlice implements Parcelable {
     }
 
     @Override
-    @SuppressLint("RestrictedApi")
     public int describeContents() {
-        int contents = 0;
-        final List<ParcelImpl> list = getList();
-        for (int i = 0; i < list.size(); i++) {
-            contents |= list.get(i).describeContents();
-        }
-        return contents;
+        return 0;
     }
 
     public static final Parcelable.Creator<ParcelImplListSlice> CREATOR =
