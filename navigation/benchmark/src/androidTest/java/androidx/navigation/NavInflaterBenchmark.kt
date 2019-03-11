@@ -38,16 +38,14 @@ class NavInflaterBenchmark {
 
     @Test
     fun inflateSimple() {
-        val state = benchmarkRule.state
-        while (state.keepRunning()) {
+        benchmarkRule.measure {
             navInflater.inflate(androidx.navigation.benchmark.test.R.navigation.nav_simple)
         }
     }
 
     @Test
     fun inflateDeepLink() {
-        val state = benchmarkRule.state
-        while (state.keepRunning()) {
+        benchmarkRule.measure {
             navInflater.inflate(androidx.navigation.benchmark.test.R.navigation.nav_deep_link)
         }
     }
