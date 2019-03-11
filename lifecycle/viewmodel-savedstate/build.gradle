@@ -31,7 +31,7 @@ android {
 }
 
 dependencies {
-    api(project(":annotation"))
+    api("androidx.annotation:annotation:1.0.0")
     api(project(":savedstate"))
     api(project(":lifecycle:lifecycle-livedata-core"))
     api(project(":lifecycle:lifecycle-viewmodel"))
@@ -51,7 +51,7 @@ dependencies {
 
 supportLibrary {
     name = "Android Lifecycle ViewModel with SavedState"
-    publish = false
+    publish = true
     mavenVersion = LibraryVersions.LIFECYCLES_SAVEDSTATE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"

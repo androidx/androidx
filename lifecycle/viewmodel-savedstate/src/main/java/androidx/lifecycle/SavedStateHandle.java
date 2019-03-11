@@ -37,7 +37,19 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A handle to saved state passed down to {@link ViewModel}
+ * A handle to saved state passed down to {@link ViewModel}. You should use
+ * {@link SavedStateVMFactory} if you want to receive this object in {@code ViewModel}'s
+ * constructor.
+ * <p>
+ * This is a key-value map that will let you write and retrieve objects to and from the saved state.
+ * These values will persist after the process is killed by the system
+ * and remain available via the same object.
+ * <p>
+ * You can read a value from it via {@link #get(String)} or observe it via {@link LiveData} returned
+ * by {@link #getLiveData(String)}.
+ * <p>
+ * You can write a value to it via {@link #set(String, Object)} or setting a value to
+ * {@link MutableLiveData} returned by {@link #getLiveData(String)}.
  */
 public final class SavedStateHandle {
     final Map<String, Object> mRegular;
@@ -76,7 +88,7 @@ public final class SavedStateHandle {
     }
 
     /**
-     *
+     * Creates a handle with the empty state.
      */
     public SavedStateHandle() {
         mRegular = new HashMap<>();
@@ -196,7 +208,7 @@ public final class SavedStateHandle {
     /**
      * Removes a value associated with the given key. If there is a {@link LiveData} associated
      * with the given key, it will be removed as well.
-     *
+     * <p>
      * All changes to {@link LiveData} previously
      * returned by {@link SavedStateHandle#getLiveData(String)} won't be reflected in
      * the saved state. Also that {@code LiveData} won't receive any updates about new values

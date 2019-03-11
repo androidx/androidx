@@ -31,7 +31,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 /**
- * {@link ViewModelProvider.KeyedFactory} that can create ViewModels accessing and contributing
+ * {@link ViewModelProvider.Factory} that can create ViewModels accessing and contributing
  * to a saved state via {@link SavedStateHandle} received in a constructor. If {@code defaultArgs}
  * bundle was passed in {@link #SavedStateVMFactory(Fragment, Bundle)}
  * or {@link #SavedStateVMFactory(FragmentActivity, Bundle)}, it will provide default values in
