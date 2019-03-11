@@ -43,6 +43,7 @@ public final class CaptureStage implements androidx.camera.core.CaptureStage {
      * @param id The identifier for the {@link CaptureStage}.
      * */
     public CaptureStage(int id) {
+        mCaptureRequestConfigurationBuilder.setTag(id);
         mId = id;
     }
 

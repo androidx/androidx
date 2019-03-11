@@ -34,4 +34,26 @@ public interface CaptureStage {
      * Returns the configuration for the capture.
      */
     CaptureRequestConfiguration getCaptureRequestConfiguration();
+
+    /**
+     * A capture stage which contains no additional implementation options
+     */
+    final class DefaultCaptureStage implements CaptureStage {
+        private final CaptureRequestConfiguration mCaptureRequestConfiguration;
+
+        DefaultCaptureStage() {
+            CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+            mCaptureRequestConfiguration = builder.build();
+        }
+
+        @Override
+        public int getId() {
+            return 0;
+        }
+
+        @Override
+        public CaptureRequestConfiguration getCaptureRequestConfiguration() {
+            return mCaptureRequestConfiguration;
+        }
+    }
 }
