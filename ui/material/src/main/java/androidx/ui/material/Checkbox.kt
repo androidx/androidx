@@ -42,7 +42,7 @@ class Checkbox : Component() {
 
     // TODO(clara): remove this default
     var color: Color? = null
-    var value: ToggleableState = ToggleableState.CHECKED
+    var value: ToggleableState = ToggleableState.UNCHECKED
     var onToggle: (() -> Unit)? = null
     var testTag: String? = null
 

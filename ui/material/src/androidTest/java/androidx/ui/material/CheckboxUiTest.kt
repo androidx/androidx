@@ -30,7 +30,6 @@ import androidx.ui.painting.Color
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import androidx.ui.core.semantics.SemanticsProperties
 import androidx.ui.core.times
 import androidx.ui.material.RadioButtonWrapper
 import androidx.ui.material.SwitchWrapper
@@ -39,6 +38,8 @@ import androidx.ui.test.assertIsChecked
 import androidx.ui.test.assertIsNotChecked
 import androidx.ui.test.assertIsVisible
 import androidx.ui.test.assertSemanticsIsEqualTo
+import androidx.ui.test.copyWith
+import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import com.google.r4a.Children
@@ -63,6 +64,11 @@ class CheckboxUiTest : AndroidUiTestRunner() {
     private val state = CheckboxState(value=CHECKED)
     private var state0 = CheckboxState(value=CHECKED)
     private val state1 = CheckboxState(value=CHECKED)
+    // TODO(b/126881459): this should be the default semantic for checkbox
+    private val defaultCheckboxSemantics = createFullSemantics(
+        enabled = false,
+        checked = false
+    )
 
     @Test
     @Ignore("Check this after recomposition problems are solved")
@@ -105,11 +111,26 @@ class CheckboxUiTest : AndroidUiTestRunner() {
         // property. So because of that we are introducing the assertion below where all fields will
         // be mandatory in the future. That will enforce each widget owner to make assumptions
         // about what their widgets need to provide.
-        // TODO(pavlis): This is just a stub that needs implementation.
         findByTag("myCheckbox")
-            .assertSemanticsIsEqualTo(SemanticsProperties(
-                // List all properties here
-            ))
+            .assertSemanticsIsEqualTo(
+                defaultCheckboxSemantics.copyWith { checked = false }
+            )
+    }
+
+    @Test
+    fun checkBoxTest_defaultSemantics() {
+        setContent {
+            <CraneWrapper>
+                <MaterialTheme>
+                    <Checkbox testTag="myCheckbox" />
+                </MaterialTheme>
+            </CraneWrapper>
+        }
+
+        findByTag("myCheckbox")
+            .assertSemanticsIsEqualTo(
+                defaultCheckboxSemantics
+            )
     }
 
     // TODO: Crashes on java.lang.IllegalStateException: Current layout is not an ancestor of the

@@ -65,13 +65,16 @@ fun SemanticsTreeQuery.assertIsNotChecked() =
         it.checked != true
     }
 
-fun SemanticsTreeQuery.assertSemanticsIsEqualTo(expectedProperties: SemanticsProperties) {
-    // TODO(b/123701912): Implement
-    // We want to compare each individual field and create an error message containing every field
-    // that was not equal. We can get some inspiration from Truth.
-    // Example of possible error:
-    // - Expected semantics is not equal to the current one:
-    // - - expected 'checked' = 'true' but was 'false'
+fun SemanticsTreeQuery.assertSemanticsIsEqualTo(
+    expectedProperties: SemanticsProperties
+): SemanticsTreeQuery {
+    val foundNodes = findAllMatching()
+    if (foundNodes.size != 1) {
+        throw AssertionError("Found '${foundNodes.size}' nodes but 1 was expected!")
+    }
+    val nodeSemanticProperties = foundNodes.first().data
+    nodeSemanticProperties.assertEquals(expectedProperties)
+    return this
 }
 
 internal fun SemanticsTreeQuery.verifyAssertOnExactlyOne(
