@@ -17,9 +17,14 @@
 <resources>
     <array name="exifbyteorderii_jpg">
         <item>true</item>
+        <item>3500</item>
+        <item>6265</item>
         <item>512</item>
         <item>288</item>
+        <item>true</item>
         <item>false</item>
+        <item>0</item>
+        <item>0</item>
         <item>0.0</item>
         <item>0.0</item>
         <item>0.0</item>
@@ -49,7 +54,12 @@
         <item>false</item>
         <item>0</item>
         <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>false</item>
         <item>true</item>
+        <item>572</item>
+        <item>24</item>
         <item>0.0</item>
         <item>0.0</item>
         <item>0.0</item>
@@ -77,9 +87,14 @@
     </array>
     <array name="lg_g4_iso_800_dng">
         <item>true</item>
+        <item>0</item>
+        <item>15179</item>
         <item>256</item>
         <item>144</item>
         <item>true</item>
+        <item>true</item>
+        <item>12486</item>
+        <item>24</item>
         <item>53.834507</item>
         <item>10.69585</item>
         <item>0.0</item>
