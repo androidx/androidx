@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryOwner;
 
@@ -53,6 +54,11 @@ public abstract class AbstractSavedStateVMFactory extends ViewModelProvider.Keye
         mDefaultArgs = defaultArgs;
     }
 
+    // TODO: make KeyedFactory#create(String, Class) package private
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     @Override
     public final <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass) {
@@ -68,7 +74,7 @@ public abstract class AbstractSavedStateVMFactory extends ViewModelProvider.Keye
 
     @NonNull
     @Override
-    public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+    public final <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         // ViewModelProvider calls correct create that support same modelClass with different keys
         // If a developer manually calls this method, there is no "key" in picture, so factory
         // simply uses classname internally as as key.
