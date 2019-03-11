@@ -174,7 +174,7 @@ public class VideoView extends SelectiveLayout {
     VideoTextureView mTextureView;
     VideoSurfaceView mSurfaceView;
 
-    VideoViewPlayer mMediaPlayer;
+    MediaPlayer mMediaPlayer;
     MediaItem mMediaItem;
     MediaControlView mMediaControlView;
     MediaSession mMediaSession;
@@ -527,7 +527,7 @@ public class VideoView extends SelectiveLayout {
         // Note: MediaPlayer2 and MediaSession instances are created in onAttachedToWindow()
         // and closed in onDetachedFromWindow().
         if (mMediaPlayer == null) {
-            mMediaPlayer = new VideoViewPlayer(getContext());
+            mMediaPlayer = new MediaPlayer(getContext());
 
             mSurfaceView.setMediaPlayer(mMediaPlayer);
             mTextureView.setMediaPlayer(mMediaPlayer);
@@ -673,7 +673,7 @@ public class VideoView extends SelectiveLayout {
 
         try {
             if (mMediaPlayer == null) {
-                mMediaPlayer = new VideoViewPlayer(getContext());
+                mMediaPlayer = new MediaPlayer(getContext());
             }
             mSurfaceView.setMediaPlayer(mMediaPlayer);
             mTextureView.setMediaPlayer(mMediaPlayer);
@@ -976,7 +976,7 @@ public class VideoView extends SelectiveLayout {
                         }
                     }
 
-                    if (player instanceof VideoViewPlayer) {
+                    if (player instanceof MediaPlayer) {
                         if (needToStart()) {
                             mMediaSession.getPlayer().play();
                         }
