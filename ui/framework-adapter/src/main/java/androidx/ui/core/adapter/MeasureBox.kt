@@ -17,20 +17,19 @@
 package androidx.ui.core.adapter
 
 import androidx.ui.core.ComplexMeasureBox
+import androidx.ui.core.ComplexMeasureBoxComposable
 import androidx.ui.core.ComplexMeasureOperations
 import androidx.ui.core.Constraints
-import androidx.ui.core.Dp
-import androidx.ui.core.IntrinsicMeasureOperations
-import androidx.ui.core.MeasureBoxComposable
-import androidx.ui.core.ComplexMeasureBoxComposable
+import androidx.ui.core.DensityReceiver
 import androidx.ui.core.IntPx
+import androidx.ui.core.IntrinsicMeasureOperations
 import androidx.ui.core.Measurable
+import androidx.ui.core.MeasureBoxComposable
 import androidx.ui.core.MeasureOperations
 import androidx.ui.core.Placeable
 import androidx.ui.core.PositioningBlockReceiver
 import androidx.ui.core.Px
 import androidx.ui.core.round
-import androidx.ui.core.toPx
 import com.google.r4a.Children
 import com.google.r4a.Composable
 
@@ -81,7 +80,9 @@ fun ComplexMeasureBox(
 @LayoutDsl
 class ComplexMeasureBoxReceiver internal constructor(
     private val complexMeasureOperations: ComplexMeasureOperations
-) {
+) : DensityReceiver {
+    override val density = complexMeasureOperations.density
+
     fun collect(@Children children: () -> Unit) = complexMeasureOperations.collect(children)
     fun layout(block: LayoutBlockReceiver.(Constraints) -> Unit) {
         complexMeasureOperations.layout { constraints, measure, intrinsics, layoutResult ->
@@ -148,9 +149,6 @@ class ComplexMeasureBoxReceiver internal constructor(
             }
         }
     }
-
-    fun Dp.toPx(): Px = toPx(complexMeasureOperations.density)
-    fun Dp.toIntPx(): IntPx = toPx().round()
 }
 
 /**
@@ -199,7 +197,8 @@ class LayoutBlockReceiver internal constructor(
  */
 class MeasureBoxReceiver internal constructor(
     private val measureOperations: MeasureOperations
-) {
+) : DensityReceiver {
+    override val density = measureOperations.density
     fun collect(@Children children: () -> Unit) = measureOperations.collect(children)
     fun Measurable.measure(constraints: Constraints) =
             measureOperations.measure(this, constraints)
@@ -211,7 +210,4 @@ class MeasureBoxReceiver internal constructor(
     fun layout(width: Px, height: Px, block: PositioningBlockReceiver.() -> Unit) {
         layout(width.round(), height.round(), block)
     }
-
-    fun Dp.toPx(): Px = toPx(measureOperations.density)
-    fun Dp.toIntPx(): IntPx = toPx().round()
 }

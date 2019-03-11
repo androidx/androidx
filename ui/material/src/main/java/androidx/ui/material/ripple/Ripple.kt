@@ -22,7 +22,7 @@ import androidx.ui.core.OnPositioned
 import androidx.ui.core.Px
 import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
-import androidx.ui.core.adapter.DensityConsumer
+import androidx.ui.core.ambientDensity
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BoxShape
@@ -119,36 +119,35 @@ fun Ripple(
     boundsCallback: ((LayoutCoordinates) -> PxBounds)? = null,
     @Children children: () -> Unit
 ) {
-    <DensityConsumer> density ->
-        val rippleSurface = +ambientRippleSurface()
-        val state = +memo { RippleState() }
+    val density = +ambientDensity()
+    val rippleSurface = +ambientRippleSurface()
+    val state = +memo { RippleState() }
 
-        val theme = +ambient(CurrentRippleTheme)
-        state.currentEffect?.color = theme.colorCallback.invoke(
-            rippleSurface.backgroundColor
-        )
+    val theme = +ambient(CurrentRippleTheme)
+    state.currentEffect?.color = theme.colorCallback.invoke(
+        rippleSurface.backgroundColor
+    )
 
-        <OnPositioned> coordinates ->
-            state.coordinates = coordinates
-        </OnPositioned>
-        <PressIndicatorGestureDetector
-            onStart={ position ->
-                state.handleStart(
-                    position, rippleSurface, theme, density, bounded, boundsCallback,
-                    clippingBorderRadius, shape, finalRadius
-                )
-            }
-            onStop={ state.handleFinish(false, onHighlightChanged) }
-            onCancel={ state.handleFinish(true, onHighlightChanged) }>
-            <children />
-        </PressIndicatorGestureDetector>
-
-        +onDispose {
-            state.effects.forEach { it.dispose() }
-            state.effects.clear()
-            state.currentEffect = null
+    <OnPositioned> coordinates ->
+        state.coordinates = coordinates
+    </OnPositioned>
+    <PressIndicatorGestureDetector
+        onStart={ position ->
+            state.handleStart(
+                position, rippleSurface, theme, density, bounded, boundsCallback,
+                clippingBorderRadius, shape, finalRadius
+            )
         }
-    </DensityConsumer>
+        onStop={ state.handleFinish(false, onHighlightChanged) }
+        onCancel={ state.handleFinish(true, onHighlightChanged) }>
+        <children />
+    </PressIndicatorGestureDetector>
+
+    +onDispose {
+        state.effects.forEach { it.dispose() }
+        state.effects.clear()
+        state.currentEffect = null
+    }
 }
 
 internal class RippleState {

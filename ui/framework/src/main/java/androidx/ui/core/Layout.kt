@@ -15,12 +15,13 @@
  */
 package androidx.ui.core
 
+import androidx.ui.core.MeasuredPlaceable.Companion.place
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
-import com.google.r4a.composer
 import com.google.r4a.R4a
+import com.google.r4a.composer
 
 /**
  * A part of the composition that can be measured. This represents a [ComplexMeasureBox] somewhere
@@ -164,9 +165,7 @@ class ComplexMeasureBox(
     override fun compose() {
         <Ambient.Portal> reference ->
             ambients = reference
-            <DensityConsumer> density ->
-                this.density = density
-            </DensityConsumer>
+            density = reference.getAmbient(DensityAmbient)
             <LayoutNode ref measureBox=this />
         </Ambient.Portal>
         if (recomposeComplexMeasureBox == null) {

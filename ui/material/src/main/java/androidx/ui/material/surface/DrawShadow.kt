@@ -17,7 +17,6 @@
 package androidx.ui.material.surface
 
 import androidx.ui.core.Dp
-import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.dp
 import androidx.ui.material.clip.CustomClipper
@@ -43,16 +42,14 @@ fun DrawShadow(
     shadowColor: Color
 ) {
     if (elevation != 0.dp) {
-        <DensityConsumer> density ->
-            <Draw> canvas, parentSize ->
-                TODO("Migration|Andrey: Needs canvas.drawShadow. b/123215187")
-//                canvas.drawShadow(
-//                    clipper.getClip(parentSize, density),
-//                    shadowColor,
-//                    elevation,
-//                    color.alpha != 0xFF
-//                )
-            </Draw>
-        </DensityConsumer>
+        <Draw> canvas, parentSize ->
+            // TODO("Migration|Andrey: Needs canvas.drawShadow. b/123215187")
+//            canvas.drawShadow(
+//                clipper.getClip(parentSize, density),
+//                shadowColor,
+//                elevation,
+//                color.alpha != 0xFF
+//            )
+        </Draw>
     }
 }

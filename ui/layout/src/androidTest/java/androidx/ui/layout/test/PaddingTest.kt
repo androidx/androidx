@@ -28,9 +28,9 @@ import androidx.ui.core.minus
 import androidx.ui.core.plus
 import androidx.ui.core.px
 import androidx.ui.core.times
-import androidx.ui.core.toIntPx
 import androidx.ui.core.toPx
 import androidx.ui.core.unaryMinus
+import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
@@ -49,10 +49,10 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class PaddingTest : LayoutTest() {
     @Test
-    fun testPaddingIsApplied() {
-        val size = 50.dp.toIntPx(density)
+    fun testPaddingIsApplied() = withDensity(density) {
+        val size = 50.dp.toIntPx()
         val padding = 10.dp
-        val paddingPx = padding.toIntPx(density)
+        val paddingPx = padding.toIntPx()
 
         val drawLatch = CountDownLatch(1)
         var childSize = PxSize(-1.px, -1.px)
@@ -96,8 +96,8 @@ class PaddingTest : LayoutTest() {
     }
 
     @Test
-    fun testPaddingIsApplied_withDifferentInsets() {
-        val size = 50.dp.toIntPx(density)
+    fun testPaddingIsApplied_withDifferentInsets() = withDensity(density) {
+        val size = 50.dp.toIntPx()
         val padding = EdgeInsets(10.dp, 15.dp, 20.dp, 30.dp)
 
         val drawLatch = CountDownLatch(1)
@@ -131,10 +131,10 @@ class PaddingTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val paddingLeft = padding.left.toIntPx(density)
-        val paddingRight = padding.right.toIntPx(density)
-        val paddingTop = padding.top.toIntPx(density)
-        val paddingBottom = padding.bottom.toIntPx(density)
+        val paddingLeft = padding.left.toIntPx()
+        val paddingRight = padding.right.toIntPx()
+        val paddingTop = padding.top.toIntPx()
+        val paddingBottom = padding.bottom.toIntPx()
         assertEquals(
             PxSize(
                 size - paddingLeft - paddingRight,
@@ -151,10 +151,10 @@ class PaddingTest : LayoutTest() {
     }
 
     @Test
-    fun testPadding_withInsufficientSpace() {
-        val size = 50.dp.toIntPx(density)
+    fun testPadding_withInsufficientSpace() = withDensity(density) {
+        val size = 50.dp.toIntPx()
         val padding = 30.dp
-        val paddingPx = padding.toIntPx(density)
+        val paddingPx = padding.toIntPx()
 
         val drawLatch = CountDownLatch(1)
         var childSize = PxSize(-1.px, -1.px)

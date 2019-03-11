@@ -16,7 +16,6 @@
 
 package androidx.ui.material.surface
 
-import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.toRect
 import androidx.ui.material.borders.ShapeBorder
@@ -30,12 +29,12 @@ import com.google.r4a.composer
  */
 @Composable
 fun DrawBorder(shape: ShapeBorder) {
-    <DensityConsumer> density ->
-        <Draw> canvas, parentSize ->
-            shape.paint(canvas,
-                density,
-                parentSize.toRect(),
-                null)
-        </Draw>
-    </DensityConsumer>
+    <Draw> canvas, parentSize ->
+        shape.paint(
+            canvas,
+            density,
+            parentSize.toRect(),
+            null
+        )
+    </Draw>
 }

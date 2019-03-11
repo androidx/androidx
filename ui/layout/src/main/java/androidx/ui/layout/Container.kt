@@ -19,9 +19,8 @@ package androidx.ui.layout
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
-import androidx.ui.core.adapter.DensityConsumer
-import androidx.ui.core.toIntPx
 import androidx.ui.core.toRect
+import androidx.ui.core.withDensity
 import androidx.ui.core.withTight
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -29,6 +28,7 @@ import androidx.ui.painting.PaintingStyle
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
+import com.google.r4a.unaryPlus
 
 /**
  * A convenience widget that combines common layout and painting widgets for one child:
@@ -95,19 +95,18 @@ fun Container(
     }
 
     if (constraints != null || width != null || height != null) {
-        <DensityConsumer> density ->
-            val additionalConstraints =
-                (constraints ?: Constraints()).withTight(
-                    width?.toIntPx(density),
-                    height?.toIntPx(density)
-                )
-            val childContainer = container
-            container = @Composable {
-                <ConstrainedBox additionalConstraints>
-                    <childContainer />
-                </ConstrainedBox>
-            }
-        </DensityConsumer>
+        val additionalConstraints = +withDensity {
+            (constraints ?: Constraints()).withTight(
+                width?.toIntPx(),
+                height?.toIntPx()
+            )
+        }
+        val childContainer = container
+        container = @Composable {
+            <ConstrainedBox additionalConstraints>
+                <childContainer />
+            </ConstrainedBox>
+        }
     }
 
     if (margin != null) {

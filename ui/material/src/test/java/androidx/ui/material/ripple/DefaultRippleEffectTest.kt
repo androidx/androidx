@@ -22,7 +22,7 @@ import androidx.ui.core.PxSize
 import androidx.ui.core.dp
 import androidx.ui.core.px
 import androidx.ui.core.toBounds
-import androidx.ui.core.toPx
+import androidx.ui.core.withDensity
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
@@ -73,11 +73,11 @@ class DefaultRippleEffectTest {
         val height = 160f
         val size = PxSize(width.px, height.px)
         val density = Density(2f)
-        // 10 is an extra offset from spec
-        val expectedRadius = halfDistance(width, height) + 10.dp.toPx(density).value
-
-        // Top-level functions are not resolved properly in IR modules
-        val result = getRippleTargetRadius(size, density)
+        val expectedRadius = withDensity(density) {
+            // 10 is an extra offset from spec
+            halfDistance(width, height) + 10.dp.toPx().value
+        }
+        val result = withDensity(density) { getRippleTargetRadius(size) }
         assertThat(result).isEqualTo(expectedRadius.px)
     }
 
