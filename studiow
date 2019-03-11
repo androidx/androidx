@@ -6,9 +6,10 @@ set -e
 
 
 function getStudioUrl() {
-  version="3.4.0.12"
-  ideaMajorVersion="183"
-  buildNumber="5256591"
+  propertiesFile="${scriptDir}/buildSrc/studio_versions.properties"
+  version="$(grep "studio_version=" ${propertiesFile} | sed 's/[^=]*=//')"
+  ideaMajorVersion="$(grep "idea_major_version=" ${propertiesFile} | sed 's/[^=]*=//')"
+  buildNumber="$(grep "studio_build_number=" ${propertiesFile} | sed 's/[^=]*=//')"
   osName="$1"
   studioUrl="https://dl.google.com/dl/android/studio/ide-zips/${version}/android-studio-ide-${ideaMajorVersion}.${buildNumber}-${osName}.zip"
   echo "${studioUrl}"
