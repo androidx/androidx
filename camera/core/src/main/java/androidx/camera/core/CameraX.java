@@ -288,6 +288,7 @@ public final class CameraX {
      * the user-provided configuration used to create a use case.
      *
      * @param configType the configuration type
+     * @param lensFacing The {@link LensFacing} that the default configuration will target to.
      * @return the default configuration for the given configuration type
      * @throws IllegalStateException if Camerax has not yet been initialized.
      * @hide
@@ -295,8 +296,8 @@ public final class CameraX {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public static <C extends UseCaseConfiguration<?>> C getDefaultUseCaseConfiguration(
-            Class<C> configType) {
-        return INSTANCE.getDefaultConfigFactory().getConfiguration(configType);
+            Class<C> configType, LensFacing lensFacing) {
+        return INSTANCE.getDefaultConfigFactory().getConfiguration(configType, lensFacing);
     }
 
     /**

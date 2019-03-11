@@ -28,10 +28,12 @@ import android.media.CamcorderProfile;
 import android.os.Build;
 import android.util.Rational;
 import android.util.Size;
+import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceConfiguration;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageFormatConstants;
 import androidx.camera.core.ImageOutputConfiguration;
@@ -336,19 +338,36 @@ final class SupportedSurfaceCombination {
                             + imageFormat);
         }
 
-        // Rearrange the supported size to put the ones with the same aspect ratio in the front of
-        // the
-        // list and put others in the end from large to small. Some low end devices may not able to
-        // get
-        // an supported resolution that match the preferred aspect ratio.
+        // Rearrange the supported size to put the ones with the same aspect ratio in the front
+        // of the list and put others in the end from large to small. Some low end devices may
+        // not able to get an supported resolution that match the preferred aspect ratio.
         List<Size> sizesMatchAspectRatio = new ArrayList<>();
         List<Size> sizesNotMatchAspectRatio = new ArrayList<>();
-        Rational aspectRatio = configuration.getTargetAspectRatio();
+
+        // Get target rotation value to calibrate the target resolution and aspect ratio
+        int sensorRotationDegrees = 0;
+
+        try {
+            int targetRotation = configuration.getTargetRotation(Surface.ROTATION_0);
+            sensorRotationDegrees = CameraX.getCameraInfo(
+                    mCameraId).getSensorRotationDegrees(targetRotation);
+        } catch (CameraInfoUnavailableException e) {
+            throw new IllegalArgumentException("Unable to retrieve camera sensor orientation.", e);
+        }
+
+        Rational aspectRatio = configuration.getTargetAspectRatio(null);
+
+        // Calibrates the target aspect ratio with the display and sensor rotation degrees values
+        // . Otherwise, retrieves default aspect ratio for the target use case.
+        if (aspectRatio != null && (sensorRotationDegrees == 90 || sensorRotationDegrees == 270)) {
+            aspectRatio = new Rational(aspectRatio.getDenominator(),
+                    aspectRatio.getNumerator());
+        }
 
         for (Size outputSize : outputSizeCandidates) {
-            if (aspectRatio.equals(new Rational(outputSize.getWidth(), outputSize.getHeight()))
-                    || aspectRatio.equals(
-                    new Rational(outputSize.getHeight(), outputSize.getWidth()))) {
+            // If target aspect ratio is set, moves the matched results to the front of the list.
+            if (aspectRatio != null && aspectRatio.equals(
+                    new Rational(outputSize.getWidth(), outputSize.getHeight()))) {
                 sizesMatchAspectRatio.add(outputSize);
             } else {
                 sizesNotMatchAspectRatio.add(outputSize);

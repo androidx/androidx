@@ -73,9 +73,9 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     }
 
     @Override
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
+    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
         return new FakeUseCaseConfiguration.Builder()
-                .setLensFacing(LensFacing.BACK)
+                .setLensFacing(lensFacing)
                 .setOptionUnpacker(
                         new SessionConfiguration.OptionUnpacker() {
                             @Override

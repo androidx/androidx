@@ -78,7 +78,7 @@ public final class VideoCaptureUseCaseTest {
 
     @Before
     public void setUp() {
-        mDefaultConfiguration = VideoCaptureUseCase.DEFAULT_CONFIG.getConfiguration();
+        mDefaultConfiguration = VideoCaptureUseCase.DEFAULT_CONFIG.getConfiguration(null);
         Context context = ApplicationProvider.getApplicationContext();
         AppConfiguration appConfiguration = Camera2AppConfiguration.create(context);
         CameraFactory cameraFactory = appConfiguration.getCameraFactory(/*valueIfMissing=*/ null);

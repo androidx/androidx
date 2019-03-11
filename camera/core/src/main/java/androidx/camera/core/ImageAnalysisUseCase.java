@@ -20,7 +20,6 @@ import android.media.ImageReader;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -203,9 +202,9 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
-        ImageAnalysisUseCaseConfiguration defaults =
-                CameraX.getDefaultUseCaseConfiguration(ImageAnalysisUseCaseConfiguration.class);
+    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+        ImageAnalysisUseCaseConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
+                ImageAnalysisUseCaseConfiguration.class, lensFacing);
         if (defaults != null) {
             return ImageAnalysisUseCaseConfiguration.Builder.fromConfig(defaults);
         }
@@ -352,7 +351,6 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
         private static final ImageReaderMode DEFAULT_IMAGE_READER_MODE =
                 ImageReaderMode.ACQUIRE_NEXT_IMAGE;
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
-        private static final Rational DEFAULT_ASPECT_RATIO = new Rational(4, 3);
         private static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
         private static final Size DEFAULT_TARGET_RESOLUTION = new Size(640, 480);
         private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
@@ -365,7 +363,6 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
                     new ImageAnalysisUseCaseConfiguration.Builder()
                             .setImageReaderMode(DEFAULT_IMAGE_READER_MODE)
                             .setCallbackHandler(DEFAULT_HANDLER)
-                            .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                             .setImageQueueDepth(DEFAULT_IMAGE_QUEUE_DEPTH)
                             .setTargetResolution(DEFAULT_TARGET_RESOLUTION)
                             .setMaxResolution(DEFAULT_MAX_RESOLUTION)
@@ -375,7 +372,7 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
         }
 
         @Override
-        public ImageAnalysisUseCaseConfiguration getConfiguration() {
+        public ImageAnalysisUseCaseConfiguration getConfiguration(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
         }
     }

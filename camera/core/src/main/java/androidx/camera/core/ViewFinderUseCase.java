@@ -21,7 +21,6 @@ import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -250,9 +249,9 @@ public class ViewFinderUseCase extends BaseUseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
-        ViewFinderUseCaseConfiguration defaults =
-                CameraX.getDefaultUseCaseConfiguration(ViewFinderUseCaseConfiguration.class);
+    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+        ViewFinderUseCaseConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
+                ViewFinderUseCaseConfiguration.class, lensFacing);
         if (defaults != null) {
             return ViewFinderUseCaseConfiguration.Builder.fromConfig(defaults);
         }
@@ -412,7 +411,6 @@ public class ViewFinderUseCase extends BaseUseCase {
     public static final class Defaults
             implements ConfigurationProvider<ViewFinderUseCaseConfiguration> {
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
-        private static final Rational DEFAULT_ASPECT_RATIO = new Rational(16, 9);
         private static final Size DEFAULT_MAX_RESOLUTION =
                 CameraX.getSurfaceManager().getPreviewSize();
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 2;
@@ -423,14 +421,13 @@ public class ViewFinderUseCase extends BaseUseCase {
             ViewFinderUseCaseConfiguration.Builder builder =
                     new ViewFinderUseCaseConfiguration.Builder()
                             .setCallbackHandler(DEFAULT_HANDLER)
-                            .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                             .setMaxResolution(DEFAULT_MAX_RESOLUTION)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
             DEFAULT_CONFIG = builder.build();
         }
 
         @Override
-        public ViewFinderUseCaseConfiguration getConfiguration() {
+        public ViewFinderUseCaseConfiguration getConfiguration(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
         }
     }

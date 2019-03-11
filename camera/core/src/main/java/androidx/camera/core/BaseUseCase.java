@@ -23,6 +23,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.Configuration.Option;
 import androidx.camera.core.UseCaseConfiguration.Builder;
 import androidx.lifecycle.LifecycleOwner;
@@ -101,12 +102,14 @@ public abstract class BaseUseCase {
      * the pre-populated builder. If <code>null</code> is returned, then the user-supplied
      * configuration will be used directly.
      *
+     * @param lensFacing The {@link LensFacing} that the default builder will target to.
      * @return A builder pre-populated with use case default options.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
+    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(
+            CameraX.LensFacing lensFacing) {
         return null;
     }
 
@@ -114,7 +117,7 @@ public abstract class BaseUseCase {
      * Updates the stored use case configuration.
      *
      * <p>This configuration will be combined with the default configuration that is contained in
-     * the pre-populated builder supplied by {@link #getDefaultBuilder()}, if it exists and the
+     * the pre-populated builder supplied by {@link #getDefaultBuilder}, if it exists and the
      * behavior of {@link #applyDefaults(UseCaseConfiguration, Builder)} is not overridden. Once
      * this method returns, the combined use case configuration can be retrieved with {@link
      * #getUseCaseConfiguration()}.
@@ -123,12 +126,15 @@ public abstract class BaseUseCase {
      * to the use case to decide when to modify the session configuration.
      *
      * @param useCaseConfiguration Configuration which will be applied on top of use case defaults,
-     *                             if a default builder is provided by {@link #getDefaultBuilder()}.
+     *                             if a default builder is provided by {@link #getDefaultBuilder}.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected void updateUseCaseConfiguration(UseCaseConfiguration<?> useCaseConfiguration) {
-        UseCaseConfiguration.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder();
+        CameraX.LensFacing lensFacing =
+                ((CameraDeviceConfiguration) useCaseConfiguration).getLensFacing(null);
+
+        UseCaseConfiguration.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder(lensFacing);
         if (defaultBuilder == null) {
             Log.w(
                     TAG,

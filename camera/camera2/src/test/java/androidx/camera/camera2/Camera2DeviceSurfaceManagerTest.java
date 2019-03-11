@@ -82,6 +82,7 @@ public final class Camera2DeviceSurfaceManagerTest {
     private static final String LIMITED_CAMERA_ID = "1";
     private static final String FULL_CAMERA_ID = "2";
     private static final String LEVEL3_CAMERA_ID = "3";
+    private static final int DEFAULT_SENSOR_ORIENTATION = 90;
     private final Size mDisplaySize = new Size(1280, 720);
     private final Size mAnalysisSize = new Size(640, 480);
     private final Size mPreviewSize = mDisplaySize;
@@ -518,6 +519,9 @@ public final class Camera2DeviceSurfaceManagerTest {
         shadowCharacteristics.set(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, hardwareLevel);
 
+        shadowCharacteristics.set(
+                CameraCharacteristics.SENSOR_ORIENTATION, DEFAULT_SENSOR_ORIENTATION);
+
         if (capabilities != null) {
             shadowCharacteristics.set(
                     CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES, capabilities);
@@ -553,16 +557,16 @@ public final class Camera2DeviceSurfaceManagerTest {
         ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
         configFactory.installDefaultProvider(
                 ImageAnalysisUseCaseConfiguration.class,
-                new DefaultImageAnalysisConfigurationProvider(cameraFactory));
+                new DefaultImageAnalysisConfigurationProvider(cameraFactory, mContext));
         configFactory.installDefaultProvider(
                 ImageCaptureUseCaseConfiguration.class,
-                new DefaultImageCaptureConfigurationProvider(cameraFactory));
+                new DefaultImageCaptureConfigurationProvider(cameraFactory, mContext));
         configFactory.installDefaultProvider(
                 VideoCaptureUseCaseConfiguration.class,
-                new DefaultVideoCaptureConfigurationProvider(cameraFactory));
+                new DefaultVideoCaptureConfigurationProvider(cameraFactory, mContext));
         configFactory.installDefaultProvider(
                 ViewFinderUseCaseConfiguration.class,
-                new DefaultViewFinderConfigurationProvider(cameraFactory));
+                new DefaultViewFinderConfigurationProvider(cameraFactory, mContext));
 
         AppConfiguration.Builder appConfigBuilder =
                 new AppConfiguration.Builder()

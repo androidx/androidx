@@ -62,7 +62,7 @@ import java.util.concurrent.TimeUnit;
 public final class ImageAnalysisUseCaseTest {
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
     private final ImageAnalysisUseCaseConfiguration mDefaultConfiguration =
-            ImageAnalysisUseCase.DEFAULT_CONFIG.getConfiguration();
+            ImageAnalysisUseCase.DEFAULT_CONFIG.getConfiguration(null);
     private final StateChangeListener mMockListener = Mockito.mock(StateChangeListener.class);
     private final Analyzer mMockAnalyzer = Mockito.mock(Analyzer.class);
     private Set<ImageProperties> mAnalysisResults;
@@ -230,7 +230,7 @@ public final class ImageAnalysisUseCaseTest {
     @Test
     public void defaultsIncludeImageReaderMode() {
         ImageAnalysisUseCaseConfiguration defaultConfig =
-                ImageAnalysisUseCase.DEFAULT_CONFIG.getConfiguration();
+                ImageAnalysisUseCase.DEFAULT_CONFIG.getConfiguration(null);
 
         // Will throw if mode does not exist
         ImageReaderMode mode = defaultConfig.getImageReaderMode();
@@ -242,7 +242,7 @@ public final class ImageAnalysisUseCaseTest {
     @Test
     public void defaultsIncludeImageQueueDepth() {
         ImageAnalysisUseCaseConfiguration defaultConfig =
-                ImageAnalysisUseCase.DEFAULT_CONFIG.getConfiguration();
+                ImageAnalysisUseCase.DEFAULT_CONFIG.getConfiguration(null);
 
         // Will throw if depth does not exist
         int depth = defaultConfig.getImageQueueDepth();

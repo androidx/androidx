@@ -94,7 +94,7 @@ public final class ViewFinderUseCaseTest {
         CameraX.init(context, appConfig);
 
         // init CameraX before creating ViewFinderUseCase to get preview size with CameraX's context
-        mDefaultConfiguration = ViewFinderUseCase.DEFAULT_CONFIG.getConfiguration();
+        mDefaultConfiguration = ViewFinderUseCase.DEFAULT_CONFIG.getConfiguration(null);
     }
 
     @Test

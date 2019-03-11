@@ -89,7 +89,8 @@ public final class CameraXTest {
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfiguration.class,
                 new ConfigurationProvider<FakeUseCaseConfiguration>() {
                     @Override
-                    public FakeUseCaseConfiguration getConfiguration() {
+                    public FakeUseCaseConfiguration getConfiguration(
+                            CameraX.LensFacing lensFacing) {
                         return new FakeUseCaseConfiguration.Builder().build();
                     }
                 });
@@ -198,8 +199,8 @@ public final class CameraXTest {
     @Test
     public void requestingDefaultConfiguration_returnsDefaultConfiguration() {
         // Requesting a default configuration will throw if CameraX is not initialized.
-        FakeUseCaseConfiguration config =
-                CameraX.getDefaultUseCaseConfiguration(FakeUseCaseConfiguration.class);
+        FakeUseCaseConfiguration config = CameraX.getDefaultUseCaseConfiguration(
+                FakeUseCaseConfiguration.class, LensFacing.BACK);
         assertThat(config).isNotNull();
         assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
     }

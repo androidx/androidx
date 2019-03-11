@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import android.util.Size;
 
-import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.testing.fakes.FakeUseCase;
 
 import java.util.Map;
@@ -49,8 +48,10 @@ class FakeOtherUseCase extends BaseUseCase {
     }
 
     @Override
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
-        return new FakeOtherUseCaseConfiguration.Builder().setLensFacing(LensFacing.BACK);
+    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(
+            CameraX.LensFacing lensFacing) {
+        return new FakeOtherUseCaseConfiguration.Builder().setLensFacing(
+                lensFacing == null ? CameraX.LensFacing.BACK : lensFacing);
     }
 
     @Override

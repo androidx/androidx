@@ -79,6 +79,7 @@ public final class SupportedSurfaceCombinationTest {
     private static final String LIMITED_CAMERA_ID = "1";
     private static final String FULL_CAMERA_ID = "2";
     private static final String LEVEL3_CAMERA_ID = "3";
+    private static final int DEFAULT_SENSOR_ORIENTATION = 90;
     private final Size mDisplaySize = new Size(1280, 720);
     private final Size mAnalysisSize = new Size(640, 480);
     private final Size mPreviewSize = mDisplaySize;
@@ -601,6 +602,9 @@ public final class SupportedSurfaceCombinationTest {
 
         shadowCharacteristics.set(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, hardwareLevel);
+
+        shadowCharacteristics.set(
+                CameraCharacteristics.SENSOR_ORIENTATION, DEFAULT_SENSOR_ORIENTATION);
 
         if (capabilities != null) {
             shadowCharacteristics.set(

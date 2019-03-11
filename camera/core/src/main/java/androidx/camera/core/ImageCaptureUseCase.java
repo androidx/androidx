@@ -168,9 +168,9 @@ public class ImageCaptureUseCase extends BaseUseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
-        ImageCaptureUseCaseConfiguration defaults =
-                CameraX.getDefaultUseCaseConfiguration(ImageCaptureUseCaseConfiguration.class);
+    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+        ImageCaptureUseCaseConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
+                ImageCaptureUseCaseConfiguration.class, lensFacing);
         if (defaults != null) {
             return ImageCaptureUseCaseConfiguration.Builder.fromConfig(defaults);
         }
@@ -403,7 +403,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
             Log.e(TAG, "Unable to retrieve camera sensor orientation.", e);
         }
 
-        Rational targetRatio = mConfiguration.getTargetAspectRatio();
+        Rational targetRatio = mConfiguration.getTargetAspectRatio(null);
         targetRatio = ImageUtil.rotate(targetRatio, relativeRotation);
 
         mImageCaptureRequests.offer(
@@ -885,7 +885,6 @@ public class ImageCaptureUseCase extends BaseUseCase {
         private static final CaptureMode DEFAULT_CAPTURE_MODE = CaptureMode.MIN_LATENCY;
         private static final FlashMode DEFAULT_FLASH_MODE = FlashMode.OFF;
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
-        private static final Rational DEFAULT_ASPECT_RATIO = new Rational(4, 3);
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
 
         private static final ImageCaptureUseCaseConfiguration DEFAULT_CONFIG;
@@ -896,14 +895,13 @@ public class ImageCaptureUseCase extends BaseUseCase {
                             .setCaptureMode(DEFAULT_CAPTURE_MODE)
                             .setFlashMode(DEFAULT_FLASH_MODE)
                             .setCallbackHandler(DEFAULT_HANDLER)
-                            .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
 
             DEFAULT_CONFIG = builder.build();
         }
 
         @Override
-        public ImageCaptureUseCaseConfiguration getConfiguration() {
+        public ImageCaptureUseCaseConfiguration getConfiguration(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
         }
     }

@@ -54,6 +54,7 @@ public class FakeUseCaseConfiguration
         public Builder() {
             mOptionsBundle = MutableOptionsBundle.create();
             setTargetClass(FakeUseCase.class);
+            setLensFacing(CameraX.LensFacing.BACK);
         }
 
         @Override

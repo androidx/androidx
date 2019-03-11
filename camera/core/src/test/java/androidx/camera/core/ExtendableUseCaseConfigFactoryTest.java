@@ -49,7 +49,8 @@ public class ExtendableUseCaseConfigFactoryTest {
         mFactory.installDefaultProvider(
                 FakeUseCaseConfiguration.class, new FakeUseCaseConfigurationProvider());
 
-        FakeUseCaseConfiguration config = mFactory.getConfiguration(FakeUseCaseConfiguration.class);
+        FakeUseCaseConfiguration config = mFactory.getConfiguration(FakeUseCaseConfiguration.class,
+                null);
         assertThat(config).isNotNull();
         assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
     }
@@ -58,7 +59,7 @@ public class ExtendableUseCaseConfigFactoryTest {
             implements ConfigurationProvider<FakeUseCaseConfiguration> {
 
         @Override
-        public FakeUseCaseConfiguration getConfiguration() {
+        public FakeUseCaseConfiguration getConfiguration(CameraX.LensFacing lensFacing) {
             return new FakeUseCaseConfiguration.Builder().build();
         }
     }

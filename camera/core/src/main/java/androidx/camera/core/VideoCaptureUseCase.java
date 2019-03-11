@@ -31,7 +31,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
-import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -180,9 +179,9 @@ public class VideoCaptureUseCase extends BaseUseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
-        VideoCaptureUseCaseConfiguration defaults =
-                CameraX.getDefaultUseCaseConfiguration(VideoCaptureUseCaseConfiguration.class);
+    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+        VideoCaptureUseCaseConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
+                VideoCaptureUseCaseConfiguration.class, lensFacing);
         if (defaults != null) {
             return VideoCaptureUseCaseConfiguration.Builder.fromConfig(defaults);
         }
@@ -865,7 +864,6 @@ public class VideoCaptureUseCase extends BaseUseCase {
     public static final class Defaults
             implements ConfigurationProvider<VideoCaptureUseCaseConfiguration> {
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
-        private static final Rational DEFAULT_ASPECT_RATIO = new Rational(16, 9);
         private static final int DEFAULT_VIDEO_FRAME_RATE = 30;
         /** 8Mb/s the recommend rate for 30fps 1080p */
         private static final int DEFAULT_BIT_RATE = 8 * 1024 * 1024;
@@ -892,7 +890,6 @@ public class VideoCaptureUseCase extends BaseUseCase {
             VideoCaptureUseCaseConfiguration.Builder builder =
                     new VideoCaptureUseCaseConfiguration.Builder()
                             .setCallbackHandler(DEFAULT_HANDLER)
-                            .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                             .setVideoFrameRate(DEFAULT_VIDEO_FRAME_RATE)
                             .setBitRate(DEFAULT_BIT_RATE)
                             .setIFrameInterval(DEFAULT_INTRA_FRAME_INTERVAL)
@@ -908,7 +905,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
         }
 
         @Override
-        public VideoCaptureUseCaseConfiguration getConfiguration() {
+        public VideoCaptureUseCaseConfiguration getConfiguration(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
         }
     }
