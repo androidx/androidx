@@ -32,6 +32,10 @@
 
         <activity
                 android:name="androidx.appcompat.app.WindowDecorAppCompatActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.app.WindowDecorBeforeOnCreateAppCompatActivity"/>
+
         <activity
                 android:name="androidx.appcompat.app.ToolbarAppCompatActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar"/>
