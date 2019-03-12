@@ -176,7 +176,8 @@ class ComplexMeasureBox(
     }
 
     internal fun runBlock() {
-        complexMeasureBoxReceiver.apply { block() }
+        complexMeasureBoxReceiver.clear()
+        complexMeasureBoxReceiver.block()
     }
 
     internal fun measure(constraints: Constraints) {
@@ -296,6 +297,10 @@ class ComplexMeasureBoxReceiver internal constructor(
      */
     fun maxIntrinsicHeight(block: IntrinsicMeasurementsReceiver.(IntPx) -> IntPx) {
         measureBox.maxIntrinsicHeightBlock = block
+    }
+
+    internal fun clear() {
+        collectedComposables.clear()
     }
 }
 
