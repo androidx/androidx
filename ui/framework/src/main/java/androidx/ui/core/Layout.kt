@@ -219,7 +219,8 @@ internal var recomposeComplexMeasureBox: ComplexMeasureBox? = null
 class ComplexMeasureBoxReceiver internal constructor(
     private val measureBox: ComplexMeasureBox
 ) : DensityReceiver {
-    override val density = measureBox.density
+    override val density
+        get() = measureBox.density
 
     /**
      * We store previously provided composable children to allow multiple calls

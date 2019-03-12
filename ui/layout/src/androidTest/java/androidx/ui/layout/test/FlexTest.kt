@@ -667,9 +667,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withMaxMainAxisSize() {
+    fun testRow_withMaxMainAxisSize() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(1)
         lateinit var rowSize: PxSize
@@ -692,15 +692,15 @@ class FlexTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(
-            PxSize(root.width.px, (sizeDp * 2).toIntPx(density).toPx()),
+            PxSize(root.width.px, (sizeDp * 2).toIntPx().toPx()),
             rowSize
         )
     }
 
     @Test
-    fun testRow_withMinMainAxisSize() {
+    fun testRow_withMinMainAxisSize() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(1)
         lateinit var rowSize: PxSize
@@ -723,17 +723,17 @@ class FlexTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(
-            PxSize(size + (sizeDp * 2).toIntPx(density), (sizeDp * 2).toIntPx(density)),
+            PxSize(size + (sizeDp * 2).toIntPx(), (sizeDp * 2).toIntPx()),
             rowSize
         )
     }
 
     @Test
-    fun testRow_withMinMainAxisSize_respectsMinWidthConstraint() {
+    fun testRow_withMinMainAxisSize_respectsMinWidthConstraint() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
         val rowWidthDp = 250.dp
-        val rowWidth = rowWidthDp.toIntPx(density)
+        val rowWidth = rowWidthDp.toIntPx()
 
         val drawLatch = CountDownLatch(1)
         lateinit var rowSize: PxSize
@@ -759,17 +759,17 @@ class FlexTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(
-            PxSize(rowWidth, (sizeDp.toPx(density) * 2).round()),
+            PxSize(rowWidth, (sizeDp.toPx() * 2).round()),
             rowSize
         )
     }
 
     @Test
-    fun testFlexRow_withMinMainAxisSize() {
+    fun testFlexRow_withMinMainAxisSize() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
         val rowWidthDp = 250.dp
-        val rowWidth = rowWidthDp.toIntPx(density)
+        val rowWidth = rowWidthDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         lateinit var rowSize: PxSize
@@ -813,9 +813,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withMaxMainAxisSize() {
+    fun testColumn_withMaxMainAxisSize() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(1)
         lateinit var columnSize: PxSize
@@ -838,15 +838,15 @@ class FlexTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(
-            PxSize((sizeDp * 2).toIntPx(density).toPx(), root.height.px),
+            PxSize((sizeDp * 2).toIntPx().toPx(), root.height.px),
             columnSize
         )
     }
 
     @Test
-    fun testColumn_withMinMainAxisSize() {
+    fun testColumn_withMinMainAxisSize() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(1)
         lateinit var columnSize: PxSize
@@ -869,17 +869,17 @@ class FlexTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(
-            PxSize((sizeDp * 2).toIntPx(density), size + (sizeDp * 2).toIntPx(density)),
+            PxSize((sizeDp * 2).toIntPx(), size + (sizeDp * 2).toIntPx()),
             columnSize
         )
     }
 
     @Test
-    fun testFlexColumn_withMinMainAxisSize() {
+    fun testFlexColumn_withMinMainAxisSize() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
         val columnHeightDp = 250.dp
-        val columnHeight = columnHeightDp.toIntPx(density)
+        val columnHeight = columnHeightDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
         lateinit var columnSize: PxSize
@@ -923,11 +923,11 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withMinMainAxisSize_respectsMinHeightConstraint() {
+    fun testColumn_withMinMainAxisSize_respectsMinHeightConstraint() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
         val columnHeightDp = 250.dp
-        val columnHeight = columnHeightDp.toIntPx(density)
+        val columnHeight = columnHeightDp.toIntPx()
 
         val drawLatch = CountDownLatch(1)
         lateinit var columnSize: PxSize
@@ -953,15 +953,15 @@ class FlexTest : LayoutTest() {
         waitForDraw(root)
 
         assertEquals(
-            PxSize((sizeDp.toPx(density) * 2).round(), columnHeight),
+            PxSize((sizeDp.toPx() * 2).round(), columnHeight),
             columnSize
         )
     }
 
     @Test
-    fun testRow_withStartMainAxisAlignment() {
+    fun testRow_withStartMainAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
@@ -1001,9 +1001,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withEndMainAxisAlignment() {
+    fun testRow_withEndMainAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
@@ -1043,9 +1043,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withCenterMainAxisAlignment() {
+    fun testRow_withCenterMainAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
@@ -1086,9 +1086,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withSpaceEvenlyMainAxisAlignment() {
+    fun testRow_withSpaceEvenlyMainAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
@@ -1129,9 +1129,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withSpaceBetweenMainAxisAlignment() {
+    fun testRow_withSpaceBetweenMainAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
@@ -1172,9 +1172,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withSpaceAroundMainAxisAlignment() {
+    fun testRow_withSpaceAroundMainAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
@@ -1215,9 +1215,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withStartMainAxisAlignment() {
+    fun testColumn_withStartMainAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
@@ -1257,9 +1257,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withEndMainAxisAlignment() {
+    fun testColumn_withEndMainAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
@@ -1299,9 +1299,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withCenterMainAxisAlignment() {
+    fun testColumn_withCenterMainAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
@@ -1342,9 +1342,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withSpaceEvenlyMainAxisAlignment() {
+    fun testColumn_withSpaceEvenlyMainAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
@@ -1385,9 +1385,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withSpaceBetweenMainAxisAlignment() {
+    fun testColumn_withSpaceBetweenMainAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
@@ -1428,9 +1428,9 @@ class FlexTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withSpaceAroundMainAxisAlignment() {
+    fun testColumn_withSpaceAroundMainAxisAlignment() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx(density)
+        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(4)
         val childPosition = arrayOf(
