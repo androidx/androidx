@@ -26,7 +26,12 @@ You will use this command to sync your checkout in the future - it’s similar t
 
 
 ## Using Android Studio
-Open `path/to/checkout/frameworks/support/` in Android Studio. Now you're ready edit, run, and test!
+To open the project with the specific version of Android Studio recommended for developing:
+
+    cd path/to/checkout/frameworks/support/
+    ./studiow
+
+and accept the license agreement when prompted. Now you're ready edit, run, and test!
 
 If you get “Unregistered VCS root detected” click “Add root” to enable git integration for Android Studio.
 
