@@ -16,6 +16,7 @@
 
 package com.example.android.biometric;
 
+import android.hardware.biometrics.BiometricManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -71,6 +72,13 @@ public class BiometricPromptDemo extends FragmentActivity {
     private static final String KEY_COUNTER = "saved_counter";
 
     private static final String DEFAULT_KEY_NAME = "default_key";
+
+    private static final String BIOMETRIC_SUCCESS_MESSAGE = "BIOMETRIC_SUCCESS_MESSAGE";
+    private static final String BIOMETRIC_ERROR_HW_UNAVAILABLE_MESSAGE =
+            "BIOMETRIC_ERROR_HW_UNAVAILABLE";
+    private static final String BIOMETRIC_ERROR_NONE_ENROLLED_MESSAGE =
+            "BIOMETRIC_ERROR_NONE_ENROLLED";
+    private static final String BIOMETRIC_ERROR_UNKNOWN = "Error unknown return result";
 
     private static final int MODE_NONE = 0;
     private static final int MODE_PERSIST_ACROSS_CONFIGURATION_CHANGES = 1;
@@ -147,7 +155,9 @@ public class BiometricPromptDemo extends FragmentActivity {
         final Button buttonCreateKeys;
         buttonCreateKeys = findViewById(R.id.button_enable_biometric_with_crypto);
         final Button buttonAuthenticate;
+        final Button canAuthenticate;
         buttonAuthenticate = findViewById(R.id.button_authenticate);
+        canAuthenticate = findViewById(R.id.can_authenticate);
         mUseCryptoCheckbox = findViewById(R.id.checkbox_use_crypto);
         mRequireConfirmationCheckbox = findViewById(R.id.checkbox_require_confirmation);
         mAllowDeviceCredential = findViewById(R.id.checkbox_enable_fallback);
@@ -173,9 +183,31 @@ public class BiometricPromptDemo extends FragmentActivity {
             mRequireConfirmationCheckbox.setEnabled(false);
             mRequireConfirmationCheckbox.setChecked(false);
         }
-        if (!BuildCompat.isAtLeastQ()) {
+        if (BuildCompat.isAtLeastQ()) {
+            canAuthenticate.setOnClickListener(v -> {
+                BiometricManager bm = getApplicationContext().getSystemService(
+                        BiometricManager.class);
+                String message;
+                switch (bm.canAuthenticate()) {
+                    case BiometricManager.BIOMETRIC_SUCCESS:
+                        message = BIOMETRIC_SUCCESS_MESSAGE;
+                        break;
+                    case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+                        message = BIOMETRIC_ERROR_HW_UNAVAILABLE_MESSAGE;
+                        break;
+                    case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+                        message = BIOMETRIC_ERROR_NONE_ENROLLED_MESSAGE;
+                        break;
+                    default:
+                        message = BIOMETRIC_ERROR_UNKNOWN;
+                }
+                Toast.makeText(getApplicationContext(), "canAuthenticate : " + message,
+                        Toast.LENGTH_SHORT).show();
+            });
+        } else {
             mAllowDeviceCredential.setEnabled(false);
             mAllowDeviceCredential.setChecked(false);
+            canAuthenticate.setVisibility(View.GONE);
         }
 
     }

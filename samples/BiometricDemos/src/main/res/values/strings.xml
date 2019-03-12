@@ -20,6 +20,7 @@
 
     <string name="button_enable_biometric_with_crypto">Create keys (for crypto)</string>
     <string name="button_authenticate">Authenticate</string>
+    <string name="button_can_authenticate">Can Authenticate</string>
 
     <string name="checkbox_text_use_crypto">Use crypto</string>
     <string name="checkbox_text_require_confirmation">Require confirmation</string>

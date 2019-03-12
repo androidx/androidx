@@ -28,6 +28,12 @@
         android:text="@string/button_enable_biometric_with_crypto"/>
 
     <Button
+        android:id="@+id/can_authenticate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/button_can_authenticate"/>
+
+    <Button
         android:id="@+id/button_authenticate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
