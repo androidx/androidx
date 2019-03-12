@@ -18,12 +18,9 @@ package androidx.ui.material.borders
 
 import androidx.ui.core.Density
 import androidx.ui.core.Dp
-import androidx.ui.core.compareTo
 import androidx.ui.core.dp
 import androidx.ui.core.lerp
 import androidx.ui.core.max
-import androidx.ui.core.plus
-import androidx.ui.core.times
 import androidx.ui.core.withDensity
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint

@@ -31,6 +31,71 @@ import kotlin.math.roundToInt
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 data /*inline*/ class IntPx(val value: Int) {
+    /**
+     * Add two [IntPx]s together. Any operation on an
+     * [IntPx.Infinity] results in [IntPx.Infinity]
+     */
+    /*inline*/ operator fun plus(other: IntPx) =
+        keepInfinity(other, IntPx(value = this.value + other.value))
+
+    /**
+     * Subtract a IntPx from another one. Any operation on an
+     * [IntPx.Infinity] results in [IntPx.Infinity]
+     */
+    /*inline*/ operator fun minus(other: IntPx) =
+        keepInfinity(other, IntPx(value = this.value - other.value))
+
+    /**
+     * This is the same as multiplying the IntPx by -1. Any operation on an
+     * [IntPx.Infinity] results in [IntPx.Infinity]
+     */
+    /*inline*/ operator fun unaryMinus() = keepInfinity(IntPx(-value))
+
+    /**
+     * Divide a IntPx by a scalar and return the rounded result as an IntPx. Any operation on an
+     * [IntPx.Infinity] results in [IntPx.Infinity]
+     */
+    /*inline*/ operator fun div(other: Float): IntPx =
+        keepInfinity(IntPx(value = (value.toFloat() / other).roundToInt()))
+
+    /**
+     * Divide a IntPx by a scalar and return the rounded result as an IntPx. Any operation on an
+     * [IntPx.Infinity] results in [IntPx.Infinity]
+     */
+    /*inline*/ operator fun div(other: Double): IntPx =
+        keepInfinity(IntPx(value = (value.toDouble() / other).roundToInt()))
+
+    /**
+     * Divide a IntPx by a scalar and return the rounded result as an IntPx. Any operation on an
+     * [IntPx.Infinity] results in [IntPx.Infinity]
+     */
+    /*inline*/ operator fun div(other: Int): IntPx =
+        keepInfinity(IntPx(value = (value.toFloat() / other).roundToInt()))
+
+    /**
+     * Multiply a IntPx by a scalar and round the result to an IntPx. Any operation on an
+     * [IntPx.Infinity] results in [IntPx.Infinity]
+     */
+    /*inline*/ operator fun times(other: Float): IntPx =
+        keepInfinity(IntPx(value = (value.toFloat() * other).roundToInt()))
+
+    /**
+     * Multiply a IntPx by a scalar and round the result to an IntPx
+     */
+    /*inline*/ operator fun times(other: Double): IntPx =
+        keepInfinity(IntPx(value = (value.toDouble() * other).roundToInt()))
+
+    /**
+     * Multiply a IntPx by a scalar and result in an IntPx
+     */
+    /*inline*/ operator fun times(other: Int): IntPx =
+        keepInfinity(IntPx(value = value * other))
+
+    /**
+     * Support comparing Dimensions with comparison operators.
+     */
+    /*inline*/ operator fun compareTo(other: IntPx) = value.compareTo(other.value)
+
     companion object {
         /**
          * An IntPx that indicates that there is no bound in the dimension. This is
@@ -89,71 +154,6 @@ private inline fun IntPx.keepInfinity(noInfinityValue: IntPx): IntPx {
  */
 /*inline*/ operator fun Int.times(other: IntPx): IntPx =
     other.keepInfinity(IntPx(value = other.value * this))
-
-/**
- * Add two [IntPx]s together. Any operation on an
- * [IntPx.Infinity] results in [IntPx.Infinity]
- */
-/*inline*/ operator fun IntPx.plus(other: IntPx) =
-    keepInfinity(other, IntPx(value = this.value + other.value))
-
-/**
- * Subtract a IntPx from another one. Any operation on an
- * [IntPx.Infinity] results in [IntPx.Infinity]
- */
-/*inline*/ operator fun IntPx.minus(other: IntPx) =
-    keepInfinity(other, IntPx(value = this.value - other.value))
-
-/**
- * This is the same as multiplying the IntPx by -1. Any operation on an
- * [IntPx.Infinity] results in [IntPx.Infinity]
- */
-/*inline*/ operator fun IntPx.unaryMinus() = keepInfinity(IntPx(-value))
-
-/**
- * Divide a IntPx by a scalar and return the rounded result as an IntPx. Any operation on an
- * [IntPx.Infinity] results in [IntPx.Infinity]
- */
-/*inline*/ operator fun IntPx.div(other: Float): IntPx =
-    keepInfinity(IntPx(value = (value.toFloat() / other).roundToInt()))
-
-/**
- * Divide a IntPx by a scalar and return the rounded result as an IntPx. Any operation on an
- * [IntPx.Infinity] results in [IntPx.Infinity]
- */
-/*inline*/ operator fun IntPx.div(other: Double): IntPx =
-    keepInfinity(IntPx(value = (value.toDouble() / other).roundToInt()))
-
-/**
- * Divide a IntPx by a scalar and return the rounded result as an IntPx. Any operation on an
- * [IntPx.Infinity] results in [IntPx.Infinity]
- */
-/*inline*/ operator fun IntPx.div(other: Int): IntPx =
-    keepInfinity(IntPx(value = (value.toFloat() / other).roundToInt()))
-
-/**
- * Multiply a IntPx by a scalar and round the result to an IntPx. Any operation on an
- * [IntPx.Infinity] results in [IntPx.Infinity]
- */
-/*inline*/ operator fun IntPx.times(other: Float): IntPx =
-    keepInfinity(IntPx(value = (value.toFloat() * other).roundToInt()))
-
-/**
- * Multiply a IntPx by a scalar and round the result to an IntPx
- */
-/*inline*/ operator fun IntPx.times(other: Double): IntPx =
-    keepInfinity(IntPx(value = (value.toDouble() * other).roundToInt()))
-
-/**
- * Multiply a IntPx by a scalar and result in an IntPx
- */
-/*inline*/ operator fun IntPx.times(other: Int): IntPx =
-    keepInfinity(IntPx(value = value * other))
-
-/**
- * Support comparing Dimensions with comparison operators.
- */
-/*inline*/ operator fun IntPx.compareTo(other: IntPx) = value.compareTo(other.value)
 
 /**
  * Return the minimum of two [IntPx]s. Any value is considered less than [IntPx.Infinity].
@@ -240,7 +240,19 @@ fun IntPxSize.center(): IntPxPosition {
 /**
  * A two-dimensional position using [IntPx] for units
  */
-/*inline*/ data class IntPxPosition(val x: IntPx, val y: IntPx)
+/*inline*/ data class IntPxPosition(val x: IntPx, val y: IntPx) {
+    /**
+     * Subtract a [IntPxPosition] from another one.
+     */
+    /*inline*/ operator fun minus(other: IntPxPosition) =
+        IntPxPosition(x - other.x, y - other.y)
+
+    /**
+     * Add a [IntPxPosition] to another one.
+     */
+    /*inline*/ operator fun plus(other: IntPxPosition) =
+        IntPxPosition(x + other.x, y + other.y)
+}
 
 /**
  * Linearly interpolate between two [IntPxPosition]s.
@@ -255,18 +267,6 @@ fun IntPxSize.center(): IntPxPosition {
  */
 fun lerp(a: IntPxPosition, b: IntPxPosition, t: Float): IntPxPosition =
     IntPxPosition(lerp(a.x, b.x, t), lerp(a.y, b.y, t))
-
-/**
- * Subtract a [IntPxPosition] from another one.
- */
-/*inline*/ operator fun IntPxPosition.minus(other: IntPxPosition) =
-    IntPxPosition(x - other.x, y - other.y)
-
-/**
- * Add a [IntPxPosition] to another one.
- */
-/*inline*/ operator fun IntPxPosition.plus(other: IntPxPosition) =
-    IntPxPosition(x + other.x, y + other.y)
 
 /**
  * A four dimensional bounds using [IntPx] for units

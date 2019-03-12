@@ -22,12 +22,9 @@ import androidx.ui.core.DensityReceiver
 import androidx.ui.core.MeasureBox
 import androidx.ui.core.PxSize
 import androidx.ui.core.adapter.Draw
-import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.max
 import androidx.ui.core.min
-import androidx.ui.core.minus
-import androidx.ui.core.times
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color

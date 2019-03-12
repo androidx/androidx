@@ -23,8 +23,6 @@ import androidx.ui.core.MeasureBox
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.dp
 import androidx.ui.core.min
-import androidx.ui.core.minus
-import androidx.ui.core.plus
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer

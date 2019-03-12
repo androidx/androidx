@@ -25,7 +25,6 @@ import androidx.ui.core.adapter.Draw
 import androidx.ui.core.dp
 import androidx.ui.core.max
 import androidx.ui.core.min
-import androidx.ui.core.plus
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color

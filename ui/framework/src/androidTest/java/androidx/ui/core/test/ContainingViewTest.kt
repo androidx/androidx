@@ -35,9 +35,6 @@ import androidx.ui.core.MeasureBox
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.ipx
 import androidx.ui.core.max
-import androidx.ui.core.minus
-import androidx.ui.core.plus
-import androidx.ui.core.times
 import androidx.ui.core.toRect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.painting.Color

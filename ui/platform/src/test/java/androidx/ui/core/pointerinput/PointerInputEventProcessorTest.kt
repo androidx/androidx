@@ -22,7 +22,6 @@ import androidx.ui.core.Owner
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.Timestamp
 import androidx.ui.core.ipx
-import androidx.ui.core.minus
 import androidx.ui.core.pointerinput.PointerEventPass.InitialDown
 import androidx.ui.core.pointerinput.PointerEventPass.PreUp
 import androidx.ui.engine.geometry.Offset

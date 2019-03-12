@@ -25,8 +25,6 @@ import androidx.ui.core.Placeable
 import androidx.ui.core.div
 import androidx.ui.core.ipx
 import androidx.ui.core.max
-import androidx.ui.core.minus
-import androidx.ui.core.plus
 import androidx.ui.core.times
 import com.google.r4a.Children
 import com.google.r4a.Composable

@@ -22,8 +22,6 @@ import androidx.ui.core.IntPxSize
 import androidx.ui.core.MeasureBox
 import androidx.ui.core.center
 import androidx.ui.core.isFinite
-import androidx.ui.core.minus
-import androidx.ui.core.times
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer

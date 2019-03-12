@@ -36,6 +36,69 @@ import kotlin.math.sqrt
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
 data /*inline*/ class Px(val value: Float) {
+    /**
+     * Add two [Px]s together.
+     */
+    /*inline*/ operator fun plus(other: Px) =
+        Px(value = this.value + other.value)
+
+    /**
+     * Subtract a Px from another one.
+     */
+    /*inline*/ operator fun minus(other: Px) =
+        Px(value = this.value - other.value)
+
+    /**
+     * This is the same as multiplying the Px by -1.0.
+     */
+    /*inline*/ operator fun unaryMinus() = Px(-value)
+
+    /**
+     * Divide a Px by a scalar.
+     */
+    /*inline*/ operator fun div(other: Float): Px =
+        Px(value = value / other)
+
+        /*inline*/ operator fun div(other: Int): Px =
+        Px(value = value / other)
+
+    /**
+     * Divide by another Px to get a scalar.
+     */
+    /*inline*/ operator fun div(other: Px): Float = value / other.value
+
+    /**
+     * Divide by [PxSquared] to get a [PxInverse].
+     */
+    /*inline*/ operator fun div(other: PxSquared): PxInverse =
+        PxInverse(value = value / other.value)
+
+    /**
+     * Multiply a Px by a scalar.
+     */
+    /*inline*/ operator fun times(other: Float): Px =
+        Px(value = value * other)
+
+        /*inline*/ operator fun times(other: Int): Px =
+        Px(value = value * other)
+
+    /**
+     * Multiply by a Px to get a [PxSquared] result.
+     */
+    /*inline*/ operator fun times(other: Px): PxSquared =
+        PxSquared(value = value * other.value)
+
+    /**
+     * Multiply by a Px to get a [PxSquared] result.
+     */
+    /*inline*/ operator fun times(other: PxSquared): PxCubed =
+        PxCubed(value = value * other.value)
+
+    /**
+     * Support comparing Dimensions with comparison operators.
+     */
+    /*inline*/ operator fun compareTo(other: Px) = value.compareTo(other.value)
+
     companion object {
         /**
          * Infinite px dimension.
@@ -89,69 +152,6 @@ data /*inline*/ class Px(val value: Float) {
 
 /*inline*/ operator fun Int.times(other: Px) =
     Px(this * other.value)
-
-/**
- * Add two [Px]s together.
- */
-/*inline*/ operator fun Px.plus(other: Px) =
-    Px(value = this.value + other.value)
-
-/**
- * Subtract a Px from another one.
- */
-/*inline*/ operator fun Px.minus(other: Px) =
-    Px(value = this.value - other.value)
-
-/**
- * This is the same as multiplying the Px by -1.0.
- */
-/*inline*/ operator fun Px.unaryMinus() = Px(-value)
-
-/**
- * Divide a Px by a scalar.
- */
-/*inline*/ operator fun Px.div(other: Float): Px =
-    Px(value = value / other)
-
-/*inline*/ operator fun Px.div(other: Int): Px =
-    Px(value = value / other)
-
-/**
- * Divide by another Px to get a scalar.
- */
-/*inline*/ operator fun Px.div(other: Px): Float = value / other.value
-
-/**
- * Divide by [PxSquared] to get a [PxInverse].
- */
-/*inline*/ operator fun Px.div(other: PxSquared): PxInverse =
-    PxInverse(value = value / other.value)
-
-/**
- * Multiply a Px by a scalar.
- */
-/*inline*/ operator fun Px.times(other: Float): Px =
-    Px(value = value * other)
-
-/*inline*/ operator fun Px.times(other: Int): Px =
-    Px(value = value * other)
-
-/**
- * Multiply by a Px to get a [PxSquared] result.
- */
-/*inline*/ operator fun Px.times(other: Px): PxSquared =
-    PxSquared(value = value * other.value)
-
-/**
- * Multiply by a Px to get a [PxSquared] result.
- */
-/*inline*/ operator fun Px.times(other: PxSquared): PxCubed =
-    PxCubed(value = value * other.value)
-
-/**
- * Support comparing Dimensions with comparison operators.
- */
-/*inline*/ operator fun Px.compareTo(other: Px) = value.compareTo(other.value)
 
 /*inline*/ fun min(a: Px, b: Px): Px = Px(value = min(a.value, b.value))
 
@@ -209,60 +209,60 @@ fun lerp(a: Px, b: Px, t: Float): Px {
  *     val width = oldWidth * newTotalWidth / oldTotalWidth
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class PxSquared(val value: Float)
+inline class PxSquared(val value: Float) {
+    /**
+     * Add two DimensionSquares together.
+     */
+    /*inline*/ operator fun plus(other: PxSquared) =
+        PxSquared(value = value + other.value)
 
-/**
- * Add two DimensionSquares together.
- */
-/*inline*/ operator fun PxSquared.plus(other: PxSquared) =
-    PxSquared(value = value + other.value)
+    /**
+     * Subtract a DimensionSquare from another one.
+     */
+    /*inline*/ operator fun minus(other: PxSquared) =
+        PxSquared(value = value - other.value)
 
-/**
- * Subtract a DimensionSquare from another one.
- */
-/*inline*/ operator fun PxSquared.minus(other: PxSquared) =
-    PxSquared(value = value - other.value)
+    /**
+     * Divide a DimensionSquare by a scalar.
+     */
+    /*inline*/ operator fun div(other: Float): PxSquared =
+        PxSquared(value = value / other)
 
-/**
- * Divide a DimensionSquare by a scalar.
- */
-/*inline*/ operator fun PxSquared.div(other: Float): PxSquared =
-    PxSquared(value = value / other)
+    /**
+     * Divide by a [Px] to get a [Px] result.
+     */
+    /*inline*/ operator fun div(other: Px): Px =
+        Px(value = value / other.value)
 
-/**
- * Divide by a [Px] to get a [Px] result.
- */
-/*inline*/ operator fun PxSquared.div(other: Px): Px =
-    Px(value = value / other.value)
+    /**
+     * Divide by a PxSquared to get a scalar result.
+     */
+    /*inline*/ operator fun div(other: PxSquared): Float = value / other.value
 
-/**
- * Divide by a PxSquared to get a scalar result.
- */
-/*inline*/ operator fun PxSquared.div(other: PxSquared): Float = value / other.value
+    /**
+     * Divide by a [PxCubed] to get a [PxInverse] result.
+     */
+    /*inline*/ operator fun div(other: PxCubed): PxInverse =
+        PxInverse(value / other.value)
 
-/**
- * Divide by a [PxCubed] to get a [PxInverse] result.
- */
-/*inline*/ operator fun PxSquared.div(other: PxCubed): PxInverse =
-    PxInverse(value / other.value)
+    /**
+     * Multiply by a scalar to get a PxSquared result.
+     */
+    /*inline*/ operator fun times(other: Float): PxSquared =
+        PxSquared(value = value * other)
 
-/**
- * Multiply by a scalar to get a PxSquared result.
- */
-/*inline*/ operator fun PxSquared.times(other: Float): PxSquared =
-    PxSquared(value = value * other)
+    /**
+     * Multiply by a scalar to get a PxSquared result.
+     */
+    /*inline*/ operator fun times(other: Px): PxCubed =
+        PxCubed(value = value * other.value)
 
-/**
- * Multiply by a scalar to get a PxSquared result.
- */
-/*inline*/ operator fun PxSquared.times(other: Px): PxCubed =
-    PxCubed(value = value * other.value)
-
-/**
- * Support comparing PxSquared with comparison operators.
- */
-/*inline*/ operator fun PxSquared.compareTo(other: PxSquared) =
-    value.compareTo(other.value)
+    /**
+     * Support comparing PxSquared with comparison operators.
+     */
+    /*inline*/ operator fun compareTo(other: PxSquared) =
+        value.compareTo(other.value)
+}
 
 /**
  * Holds a unit of cubed dimensions, such as `1.value * 2.value * 3.px`. [PxSquared],
@@ -274,53 +274,53 @@ inline class PxSquared(val value: Float)
  *     val width = oldWidth * newTotalWidth / oldTotalWidth
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class PxCubed(val value: Float)
+inline class PxCubed(val value: Float) {
+    /**
+     * Add two PxCubed together.
+     */
+    /*inline*/ operator fun plus(dimension: PxCubed) =
+        PxCubed(value = value + dimension.value)
 
-/**
- * Add two PxCubed together.
- */
-/*inline*/ operator fun PxCubed.plus(dimension: PxCubed) =
-    PxCubed(value = value + dimension.value)
+    /**
+     * Subtract a PxCubed from another one.
+     */
+    /*inline*/ operator fun minus(dimension: PxCubed) =
+        PxCubed(value = value - dimension.value)
 
-/**
- * Subtract a PxCubed from another one.
- */
-/*inline*/ operator fun PxCubed.minus(dimension: PxCubed) =
-    PxCubed(value = value - dimension.value)
+    /**
+     * Divide a PxCubed by a scalar.
+     */
+    /*inline*/ operator fun div(other: Float): PxCubed =
+        PxCubed(value = value / other)
 
-/**
- * Divide a PxCubed by a scalar.
- */
-/*inline*/ operator fun PxCubed.div(other: Float): PxCubed =
-    PxCubed(value = value / other)
+    /**
+     * Divide by a [Px] to get a [PxSquared] result.
+     */
+    /*inline*/ operator fun div(other: Px): PxSquared =
+        PxSquared(value = value / other.value)
 
-/**
- * Divide by a [Px] to get a [PxSquared] result.
- */
-/*inline*/ operator fun PxCubed.div(other: Px): PxSquared =
-    PxSquared(value = value / other.value)
+    /**
+     * Divide by a [PxSquared] to get a [Px] result.
+     */
+    /*inline*/ operator fun div(other: PxSquared): Px =
+        Px(value = value / other.value)
 
-/**
- * Divide by a [PxSquared] to get a [Px] result.
- */
-/*inline*/ operator fun PxCubed.div(other: PxSquared): Px =
-    Px(value = value / other.value)
+    /**
+     * Divide by a PxCubed to get a scalar result.
+     */
+    /*inline*/ operator fun div(other: PxCubed): Float = value / other.value
 
-/**
- * Divide by a PxCubed to get a scalar result.
- */
-/*inline*/ operator fun PxCubed.div(other: PxCubed): Float = value / other.value
+    /**
+     * Multiply by a scalar to get a PxCubed result.
+     */
+    /*inline*/ operator fun times(other: Float): PxCubed =
+        PxCubed(value = value * other)
 
-/**
- * Multiply by a scalar to get a PxCubed result.
- */
-/*inline*/ operator fun PxCubed.times(other: Float): PxCubed =
-    PxCubed(value = value * other)
-
-/**
- * Support comparing PxCubed with comparison operators.
- */
-/*inline*/ operator fun PxCubed.compareTo(other: PxCubed) = value.compareTo(other.value)
+    /**
+     * Support comparing PxCubed with comparison operators.
+     */
+    /*inline*/ operator fun compareTo(other: PxCubed) = value.compareTo(other.value)
+}
 
 /**
  * Holds a unit of an inverse dimensions, such as `1.px / (2.value * 3.px)`. [PxSquared],
@@ -332,54 +332,54 @@ inline class PxCubed(val value: Float)
  *     val width = oldWidth * newTotalWidth / oldTotalWidth
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class PxInverse(val value: Float)
+inline class PxInverse(val value: Float) {
+    /**
+     * Add two PxInverse together.
+     */
+    /*inline*/ operator fun plus(dimension: PxInverse) =
+        PxInverse(value = value + dimension.value)
 
-/**
- * Add two PxInverse together.
- */
-/*inline*/ operator fun PxInverse.plus(dimension: PxInverse) =
-    PxInverse(value = value + dimension.value)
+    /**
+     * Subtract a PxInverse from another one.
+     */
+    /*inline*/ operator fun minus(dimension: PxInverse) =
+        PxInverse(value = value - dimension.value)
 
-/**
- * Subtract a PxInverse from another one.
- */
-/*inline*/ operator fun PxInverse.minus(dimension: PxInverse) =
-    PxInverse(value = value - dimension.value)
+    /**
+     * Divide a PxInverse by a scalar.
+     */
+    /*inline*/ operator fun div(other: Float): PxInverse =
+        PxInverse(value = value / other)
 
-/**
- * Divide a PxInverse by a scalar.
- */
-/*inline*/ operator fun PxInverse.div(other: Float): PxInverse =
-    PxInverse(value = value / other)
+    /**
+     * Multiply by a scalar to get a PxInverse result.
+     */
+    /*inline*/ operator fun times(other: Float): PxInverse =
+        PxInverse(value = value * other)
 
-/**
- * Multiply by a scalar to get a PxInverse result.
- */
-/*inline*/ operator fun PxInverse.times(other: Float): PxInverse =
-    PxInverse(value = value * other)
+    /**
+     * Multiply by a [Px] to get a scalar result.
+     */
+    /*inline*/ operator fun times(other: Px): Float = value * other.value
 
-/**
- * Multiply by a [Px] to get a scalar result.
- */
-/*inline*/ operator fun PxInverse.times(other: Px): Float = value * other.value
+    /**
+     * Multiply by a [PxSquared] to get a [Px] result.
+     */
+    /*inline*/ operator fun times(other: PxSquared): Px =
+        Px(value = value * other.value)
 
-/**
- * Multiply by a [PxSquared] to get a [Px] result.
- */
-/*inline*/ operator fun PxInverse.times(other: PxSquared): Px =
-    Px(value = value * other.value)
+    /**
+     * Multiply by a [PxCubed] to get a [PxSquared] result.
+     */
+    /*inline*/ operator fun times(other: PxCubed): PxSquared =
+        PxSquared(value = value * other.value)
 
-/**
- * Multiply by a [PxCubed] to get a [PxSquared] result.
- */
-/*inline*/ operator fun PxInverse.times(other: PxCubed): PxSquared =
-    PxSquared(value = value * other.value)
-
-/**
- * Support comparing PxInverse with comparison operators.
- */
-/*inline*/ operator fun PxInverse.compareTo(other: PxInverse) =
-    value.compareTo(other.value)
+    /**
+     * Support comparing PxInverse with comparison operators.
+     */
+    /*inline*/ operator fun compareTo(other: PxInverse) =
+        value.compareTo(other.value)
+}
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Structures using Px
@@ -401,7 +401,19 @@ fun PxSize.center(): PxPosition {
 /**
  * A two-dimensional position using [Px] for units
  */
-data class PxPosition(val x: Px, val y: Px)
+data class PxPosition(val x: Px, val y: Px) {
+    /**
+     * Subtract a [PxPosition] from another one.
+     */
+    /*inline*/ operator fun minus(other: PxPosition) =
+        PxPosition(x - other.x, y - other.y)
+
+    /**
+     * Add a [PxPosition] to another one.
+     */
+    /*inline*/ operator fun plus(other: PxPosition) =
+        PxPosition(x + other.x, y + other.y)
+}
 
 /**
  * The magnitude of the offset represented by this [PxPosition].
@@ -423,18 +435,6 @@ fun PxPosition.getDistance(): Px {
  */
 fun lerp(a: PxPosition, b: PxPosition, t: Float): PxPosition =
     PxPosition(lerp(a.x, b.x, t), lerp(a.y, b.y, t))
-
-/**
- * Subtract a [PxPosition] from another one.
- */
-/*inline*/ operator fun PxPosition.minus(other: PxPosition) =
-    PxPosition(x - other.x, y - other.y)
-
-/**
- * Add a [PxPosition] to another one.
- */
-/*inline*/ operator fun PxPosition.plus(other: PxPosition) =
-    PxPosition(x + other.x, y + other.y)
 
 /**
  * A four dimensional bounds using [Px] for units

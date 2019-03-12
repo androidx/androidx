@@ -22,15 +22,11 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
-import androidx.ui.core.div
 import androidx.ui.core.dp
-import androidx.ui.core.minus
-import androidx.ui.core.plus
 import androidx.ui.core.px
 import androidx.ui.core.round
 import androidx.ui.core.times
 import androidx.ui.core.toPx
-import androidx.ui.core.unaryMinus
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column

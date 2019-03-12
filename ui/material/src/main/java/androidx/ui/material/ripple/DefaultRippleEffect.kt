@@ -31,7 +31,6 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Timestamp
 import androidx.ui.core.center
-import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.getDistance
 import androidx.ui.core.inMilliseconds
@@ -39,8 +38,6 @@ import androidx.ui.core.lerp
 import androidx.ui.core.max
 import androidx.ui.core.milliseconds
 import androidx.ui.core.millisecondsToTimestamp
-import androidx.ui.core.plus
-import androidx.ui.core.times
 import androidx.ui.core.toBounds
 import androidx.ui.core.toRect
 import androidx.ui.core.toSize

@@ -39,12 +39,8 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
 import androidx.ui.core.MeasureBox
 import androidx.ui.core.adapter.Draw
-import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
-import androidx.ui.core.minus
-import androidx.ui.core.plus
-import androidx.ui.core.times
 import androidx.ui.core.toRect
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
