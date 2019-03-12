@@ -17,6 +17,8 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Constraints
+import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
@@ -32,10 +34,13 @@ import androidx.ui.core.unaryMinus
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
+import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
+import androidx.ui.layout.MainAxisAlignment
+import androidx.ui.layout.MainAxisSize
 import androidx.ui.layout.Row
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -659,5 +664,809 @@ class FlexTest : LayoutTest() {
         )
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
         assertEquals(PxPosition(0.px, size.toPx()), childPosition[1])
+    }
+
+    @Test
+    fun testRow_withMaxMainAxisSize() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(1)
+        lateinit var rowSize: PxSize
+        show @Composable {
+            <Center>
+                <Row mainAxisSize=MainAxisSize.Max>
+                    <Container width=sizeDp height=sizeDp/>
+                    <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
+
+                    <OnPositioned> coordinates ->
+                        rowSize = coordinates.size
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Row>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(
+            PxSize(root.width.px, (sizeDp * 2).toIntPx(density).toPx()),
+            rowSize
+        )
+    }
+
+    @Test
+    fun testRow_withMinMainAxisSize() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(1)
+        lateinit var rowSize: PxSize
+        show @Composable {
+            <Center>
+                <Row mainAxisSize=MainAxisSize.Min>
+                    <Container width=sizeDp height=sizeDp/>
+                    <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
+
+                    <OnPositioned> coordinates ->
+                        rowSize = coordinates.size
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Row>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(
+            PxSize(size + (sizeDp * 2).toIntPx(density), (sizeDp * 2).toIntPx(density)),
+            rowSize
+        )
+    }
+
+    @Test
+    fun testRow_withMinMainAxisSize_respectsMinWidthConstraint() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+        val rowWidthDp = 250.dp
+        val rowWidth = rowWidthDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(1)
+        lateinit var rowSize: PxSize
+        show @Composable {
+            <Center>
+                val additionalConstraints = Constraints(minWidth = rowWidth)
+                <ConstrainedBox additionalConstraints>
+                    <Row mainAxisSize=MainAxisSize.Min>
+                        <Container width=sizeDp height=sizeDp/>
+                        <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
+
+                        <OnPositioned> coordinates ->
+                            rowSize = coordinates.size
+                            drawLatch.countDown()
+                        </OnPositioned>
+                    </Row>
+                </ConstrainedBox>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(
+            PxSize(rowWidth, (sizeDp.toPx(density) * 2).round()),
+            rowSize
+        )
+    }
+
+    @Test
+    fun testFlexRow_withMinMainAxisSize() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+        val rowWidthDp = 250.dp
+        val rowWidth = rowWidthDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(2)
+        lateinit var rowSize: PxSize
+        lateinit var expandedChildSize: PxSize
+        show @Composable {
+            <Center>
+                val additionalConstraints = Constraints(minWidth = rowWidth)
+                <ConstrainedBox additionalConstraints>
+                    <FlexRow mainAxisSize=MainAxisSize.Min>
+                        expanded(flex=1f) {
+                            <Container width=sizeDp height=sizeDp>
+                                <OnPositioned> coordinates ->
+                                    expandedChildSize = coordinates.size
+                                    drawLatch.countDown()
+                                </OnPositioned>
+                            </Container>
+                        }
+                        inflexible {
+                            <OnPositioned> coordinates ->
+                                rowSize = coordinates.size
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        }
+                    </FlexRow>
+                </ConstrainedBox>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(
+            PxSize(rowWidth, size),
+            rowSize
+        )
+        assertEquals(
+            PxSize(rowWidth, size),
+            expandedChildSize
+        )
+    }
+
+    @Test
+    fun testColumn_withMaxMainAxisSize() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(1)
+        lateinit var columnSize: PxSize
+        show @Composable {
+            <Center>
+                <Column mainAxisSize=MainAxisSize.Max>
+                    <Container width=sizeDp height=sizeDp/>
+                    <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
+
+                    <OnPositioned> coordinates ->
+                        columnSize = coordinates.size
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Column>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(
+            PxSize((sizeDp * 2).toIntPx(density).toPx(), root.height.px),
+            columnSize
+        )
+    }
+
+    @Test
+    fun testColumn_withMinMainAxisSize() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(1)
+        lateinit var columnSize: PxSize
+        show @Composable {
+            <Center>
+                <Column mainAxisSize=MainAxisSize.Min>
+                    <Container width=sizeDp height=sizeDp/>
+                    <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
+
+                    <OnPositioned> coordinates ->
+                        columnSize = coordinates.size
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Column>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(
+            PxSize((sizeDp * 2).toIntPx(density), size + (sizeDp * 2).toIntPx(density)),
+            columnSize
+        )
+    }
+
+    @Test
+    fun testFlexColumn_withMinMainAxisSize() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+        val columnHeightDp = 250.dp
+        val columnHeight = columnHeightDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(2)
+        lateinit var columnSize: PxSize
+        lateinit var expandedChildSize: PxSize
+        show @Composable {
+            <Center>
+                val additionalConstraints = Constraints(minHeight = columnHeight)
+                <ConstrainedBox additionalConstraints>
+                    <FlexColumn mainAxisSize=MainAxisSize.Min>
+                        expanded(flex=1f) {
+                            <Container width=sizeDp height=sizeDp>
+                                <OnPositioned> coordinates ->
+                                    expandedChildSize = coordinates.size
+                                    drawLatch.countDown()
+                                </OnPositioned>
+                            </Container>
+                        }
+                        inflexible {
+                            <OnPositioned> coordinates ->
+                                columnSize = coordinates.size
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        }
+                    </FlexColumn>
+                </ConstrainedBox>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(
+            PxSize(size, columnHeight),
+            columnSize
+        )
+        assertEquals(
+            PxSize(size, columnHeight),
+            expandedChildSize
+        )
+    }
+
+    @Test
+    fun testColumn_withMinMainAxisSize_respectsMinHeightConstraint() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+        val columnHeightDp = 250.dp
+        val columnHeight = columnHeightDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(1)
+        lateinit var columnSize: PxSize
+        show @Composable {
+            <Center>
+                val additionalConstraints = Constraints(minHeight = columnHeight)
+                <ConstrainedBox additionalConstraints>
+                    <Column mainAxisSize=MainAxisSize.Min>
+                        <Container width=sizeDp height=sizeDp/>
+                        <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
+
+                        <OnPositioned> coordinates ->
+                            columnSize = coordinates.size
+                            drawLatch.countDown()
+                        </OnPositioned>
+                    </Column>
+                </ConstrainedBox>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(
+            PxSize((sizeDp.toPx(density) * 2).round(), columnHeight),
+            columnSize
+        )
+    }
+
+    @Test
+    fun testRow_withStartMainAxisAlignment() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(4)
+        val childPosition = arrayOf(
+            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+        )
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        show @Composable {
+            <Center>
+                <Row mainAxisAlignment=MainAxisAlignment.Start>
+                    // TODO(popam): replace with normal for loop when IR is fixed
+                    childPosition.forEachIndexed { i, _ ->
+                        <Container width=sizeDp height=sizeDp>
+                            <OnPositioned> coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        </Container>
+                    }
+                    <OnPositioned> coordinates ->
+                        childPosition.forEachIndexed { i, _ ->
+                            childPosition[i] = coordinates
+                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                        }
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Row>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(size.toPx(), 0.px), childPosition[1])
+        assertEquals(PxPosition(size.toPx() * 2, 0.px), childPosition[2])
+    }
+
+    @Test
+    fun testRow_withEndMainAxisAlignment() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(4)
+        val childPosition = arrayOf(
+            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+        )
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        show @Composable {
+            <Center>
+                <Row mainAxisAlignment=MainAxisAlignment.End>
+                // TODO(popam): replace with normal for loop when IR is fixed
+                    childPosition.forEachIndexed { i, _ ->
+                        <Container width=sizeDp height=sizeDp>
+                            <OnPositioned> coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        </Container>
+                    }
+                    <OnPositioned> coordinates ->
+                        childPosition.forEachIndexed { i, _ ->
+                            childPosition[i] = coordinates
+                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                        }
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Row>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(PxPosition(root.width.px - size.toPx() * 3, 0.px), childPosition[0])
+        assertEquals(PxPosition(root.width.px - size.toPx() * 2, 0.px), childPosition[1])
+        assertEquals(PxPosition(root.width.px - size.toPx(), 0.px), childPosition[2])
+    }
+
+    @Test
+    fun testRow_withCenterMainAxisAlignment() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(4)
+        val childPosition = arrayOf(
+            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+        )
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        show @Composable {
+            <Center>
+                <Row mainAxisAlignment=MainAxisAlignment.Center>
+                // TODO(popam): replace with normal for loop when IR is fixed
+                    childPosition.forEachIndexed { i, _ ->
+                        <Container width=sizeDp height=sizeDp>
+                            <OnPositioned> coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        </Container>
+                    }
+                    <OnPositioned> coordinates ->
+                        childPosition.forEachIndexed { i, _ ->
+                            childPosition[i] = coordinates
+                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                        }
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Row>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        val extraSpace = root.width.px.round() - 3 * size
+        assertEquals(PxPosition((extraSpace / 2).toPx(), 0.px), childPosition[0])
+        assertEquals(PxPosition((extraSpace / 2).toPx() + size.toPx(), 0.px), childPosition[1])
+        assertEquals(PxPosition((extraSpace / 2).toPx() + size.toPx() * 2, 0.px), childPosition[2])
+    }
+
+    @Test
+    fun testRow_withSpaceEvenlyMainAxisAlignment() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(4)
+        val childPosition = arrayOf(
+            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+        )
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        show @Composable {
+            <Center>
+                <Row mainAxisAlignment=MainAxisAlignment.SpaceEvenly>
+                // TODO(popam): replace with normal for loop when IR is fixed
+                    childPosition.forEachIndexed { i, _ ->
+                        <Container width=sizeDp height=sizeDp>
+                            <OnPositioned> coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        </Container>
+                    }
+                    <OnPositioned> coordinates ->
+                        childPosition.forEachIndexed { i, _ ->
+                            childPosition[i] = coordinates
+                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                        }
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Row>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        val gap = (root.width.px.round() - 3 * size) / 4
+        assertEquals(PxPosition(gap.toPx(), 0.px), childPosition[0])
+        assertEquals(PxPosition(size.toPx() + gap.toPx() * 2, 0.px), childPosition[1])
+        assertEquals(PxPosition(size.toPx() * 2 + gap.toPx() * 3, 0.px), childPosition[2])
+    }
+
+    @Test
+    fun testRow_withSpaceBetweenMainAxisAlignment() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(4)
+        val childPosition = arrayOf(
+            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+        )
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        show @Composable {
+            <Center>
+                <Row mainAxisAlignment=MainAxisAlignment.SpaceBetween>
+                // TODO(popam): replace with normal for loop when IR is fixed
+                    childPosition.forEachIndexed { i, _ ->
+                        <Container width=sizeDp height=sizeDp>
+                            <OnPositioned> coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        </Container>
+                    }
+                    <OnPositioned> coordinates ->
+                        childPosition.forEachIndexed { i, _ ->
+                            childPosition[i] = coordinates
+                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                        }
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Row>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        val gap = (root.width.px.round() - 3 * size) / 2
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(gap.toPx() + size.toPx(), 0.px), childPosition[1])
+        assertEquals(PxPosition(gap.toPx() * 2 + size.toPx() * 2, 0.px), childPosition[2])
+    }
+
+    @Test
+    fun testRow_withSpaceAroundMainAxisAlignment() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(4)
+        val childPosition = arrayOf(
+            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+        )
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        show @Composable {
+            <Center>
+                <Row mainAxisAlignment=MainAxisAlignment.SpaceAround>
+                // TODO(popam): replace with normal for loop when IR is fixed
+                    childPosition.forEachIndexed { i, _ ->
+                        <Container width=sizeDp height=sizeDp>
+                            <OnPositioned> coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        </Container>
+                    }
+                    <OnPositioned> coordinates ->
+                        childPosition.forEachIndexed { i, _ ->
+                            childPosition[i] = coordinates
+                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                        }
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Row>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        val gap = (root.width.px.round() - 3 * size) / 3
+        assertEquals(PxPosition((gap / 2).toPx(), 0.px), childPosition[0])
+        assertEquals(PxPosition((gap * 3 / 2).toPx() + size.toPx(), 0.px), childPosition[1])
+        assertEquals(PxPosition((gap * 5 / 2).toPx() + size.toPx() * 2, 0.px), childPosition[2])
+    }
+
+    @Test
+    fun testColumn_withStartMainAxisAlignment() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(4)
+        val childPosition = arrayOf(
+            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+        )
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        show @Composable {
+            <Center>
+                <Column mainAxisAlignment=MainAxisAlignment.Start>
+                // TODO(popam): replace with normal for loop when IR is fixed
+                    childPosition.forEachIndexed { i, _ ->
+                        <Container width=sizeDp height=sizeDp>
+                            <OnPositioned> coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        </Container>
+                    }
+                    <OnPositioned> coordinates ->
+                        childPosition.forEachIndexed { i, _ ->
+                            childPosition[i] = coordinates
+                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                        }
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Column>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0.px, size.toPx()), childPosition[1])
+        assertEquals(PxPosition(0.px, size.toPx() * 2), childPosition[2])
+    }
+
+    @Test
+    fun testColumn_withEndMainAxisAlignment() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(4)
+        val childPosition = arrayOf(
+            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+        )
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        show @Composable {
+            <Center>
+                <Column mainAxisAlignment=MainAxisAlignment.End>
+                // TODO(popam): replace with normal for loop when IR is fixed
+                    childPosition.forEachIndexed { i, _ ->
+                        <Container width=sizeDp height=sizeDp>
+                            <OnPositioned> coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        </Container>
+                    }
+                    <OnPositioned> coordinates ->
+                        childPosition.forEachIndexed { i, _ ->
+                            childPosition[i] = coordinates
+                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                        }
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Column>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(PxPosition(0.px, root.height.px - size.toPx() * 3), childPosition[0])
+        assertEquals(PxPosition(0.px, root.height.px - size.toPx() * 2), childPosition[1])
+        assertEquals(PxPosition(0.px, root.height.px - size.toPx()), childPosition[2])
+    }
+
+    @Test
+    fun testColumn_withCenterMainAxisAlignment() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(4)
+        val childPosition = arrayOf(
+            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+        )
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        show @Composable {
+            <Center>
+                <Column mainAxisAlignment=MainAxisAlignment.Center>
+                // TODO(popam): replace with normal for loop when IR is fixed
+                    childPosition.forEachIndexed { i, _ ->
+                        <Container width=sizeDp height=sizeDp>
+                            <OnPositioned> coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        </Container>
+                    }
+                    <OnPositioned> coordinates ->
+                        childPosition.forEachIndexed { i, _ ->
+                            childPosition[i] = coordinates
+                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                        }
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Column>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        val extraSpace = root.height.px.round() - 3 * size
+        assertEquals(PxPosition(0.px, (extraSpace / 2).toPx()), childPosition[0])
+        assertEquals(PxPosition(0.px, (extraSpace / 2).toPx() + size.toPx()), childPosition[1])
+        assertEquals(PxPosition(0.px, (extraSpace / 2).toPx() + size.toPx() * 2), childPosition[2])
+    }
+
+    @Test
+    fun testColumn_withSpaceEvenlyMainAxisAlignment() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(4)
+        val childPosition = arrayOf(
+            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+        )
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        show @Composable {
+            <Center>
+                <Column mainAxisAlignment=MainAxisAlignment.SpaceEvenly>
+                // TODO(popam): replace with normal for loop when IR is fixed
+                    childPosition.forEachIndexed { i, _ ->
+                        <Container width=sizeDp height=sizeDp>
+                            <OnPositioned> coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        </Container>
+                    }
+                    <OnPositioned> coordinates ->
+                        childPosition.forEachIndexed { i, _ ->
+                            childPosition[i] = coordinates
+                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                        }
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Column>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        val gap = (root.height.px.round() - 3 * size) / 4
+        assertEquals(PxPosition(0.px, gap.toPx()), childPosition[0])
+        assertEquals(PxPosition(0.px, size.toPx() + gap.toPx() * 2), childPosition[1])
+        assertEquals(PxPosition(0.px, size.toPx() * 2 + gap.toPx() * 3), childPosition[2])
+    }
+
+    @Test
+    fun testColumn_withSpaceBetweenMainAxisAlignment() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(4)
+        val childPosition = arrayOf(
+            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+        )
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        show @Composable {
+            <Center>
+                <Column mainAxisAlignment=MainAxisAlignment.SpaceBetween>
+                // TODO(popam): replace with normal for loop when IR is fixed
+                    childPosition.forEachIndexed { i, _ ->
+                        <Container width=sizeDp height=sizeDp>
+                            <OnPositioned> coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        </Container>
+                    }
+                    <OnPositioned> coordinates ->
+                        childPosition.forEachIndexed { i, _ ->
+                            childPosition[i] = coordinates
+                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                        }
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Column>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        val gap = (root.height.px.round() - 3 * size) / 2
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0])
+        assertEquals(PxPosition(0.px, gap.toPx() + size.toPx()), childPosition[1])
+        assertEquals(PxPosition(0.px, gap.toPx() * 2 + size.toPx() * 2), childPosition[2])
+    }
+
+    @Test
+    fun testColumn_withSpaceAroundMainAxisAlignment() {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx(density)
+
+        val drawLatch = CountDownLatch(4)
+        val childPosition = arrayOf(
+            PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
+        )
+        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
+        show @Composable {
+            <Center>
+                <Column mainAxisAlignment=MainAxisAlignment.SpaceAround>
+                // TODO(popam): replace with normal for loop when IR is fixed
+                    childPosition.forEachIndexed { i, _ ->
+                        <Container width=sizeDp height=sizeDp>
+                            <OnPositioned> coordinates ->
+                                childLayoutCoordinates[i] = coordinates
+                                drawLatch.countDown()
+                            </OnPositioned>
+                        </Container>
+                    }
+                    <OnPositioned> coordinates ->
+                        childPosition.forEachIndexed { i, _ ->
+                            childPosition[i] = coordinates
+                                .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
+                        }
+                        drawLatch.countDown()
+                    </OnPositioned>
+                </Column>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        val gap = (root.height.px.round() - 3 * size) / 3
+        assertEquals(PxPosition(0.px, (gap / 2).toPx()), childPosition[0])
+        assertEquals(PxPosition(0.px, (gap * 3 / 2).toPx() + size.toPx()), childPosition[1])
+        assertEquals(PxPosition(0.px, (gap * 5 / 2).toPx() + size.toPx() * 2), childPosition[2])
     }
 }

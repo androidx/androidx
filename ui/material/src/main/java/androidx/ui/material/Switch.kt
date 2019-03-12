@@ -19,9 +19,9 @@ package androidx.ui.material
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.DensityReceiver
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.PxSize
 import androidx.ui.core.adapter.Draw
-import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.max
 import androidx.ui.core.min
@@ -60,9 +60,7 @@ fun Switch(checked: Boolean, color: Color? = null) {
                 min(constraints.maxHeight, minHeight.toIntPx())
             )
             val width = max(constraints.minWidth, min(constraints.maxWidth, minWidth.toIntPx()))
-            layout(width, height) {
-                // no children to place
-            }
+            layout(width, height) { /* no children to place */ }
         </MeasureBox>
     </Toggleable>
 }

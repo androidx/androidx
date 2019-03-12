@@ -19,8 +19,8 @@ package androidx.ui.material
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.Dp
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.adapter.Draw
-import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.min
 import androidx.ui.engine.geometry.Offset

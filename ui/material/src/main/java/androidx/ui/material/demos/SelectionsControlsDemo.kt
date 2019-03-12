@@ -21,7 +21,7 @@ import androidx.ui.baseui.selection.ToggleableState.CHECKED
 import androidx.ui.baseui.selection.ToggleableState.INDETERMINATE
 import androidx.ui.baseui.selection.ToggleableState.UNCHECKED
 import androidx.ui.core.Constraints
-import androidx.ui.core.adapter.MeasureBox
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.div
 import androidx.ui.core.times
 import androidx.ui.material.Checkbox

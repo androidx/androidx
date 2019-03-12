@@ -19,7 +19,7 @@ package androidx.ui.layout
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
-import androidx.ui.core.adapter.MeasureBox
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.dp
 import androidx.ui.core.min

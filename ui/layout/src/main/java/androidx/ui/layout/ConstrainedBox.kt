@@ -18,7 +18,7 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
-import androidx.ui.core.adapter.MeasureBox
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.enforce
 import com.google.r4a.Children
 import com.google.r4a.Composable

@@ -90,10 +90,42 @@ package androidx.ui.layout {
 
   public final class FlexKt {
     ctor public FlexKt();
-    method public static void Column(int crossAxisAlignment = 0, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method public static void FlexColumn(int crossAxisAlignment = 0, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
-    method public static void FlexRow(int crossAxisAlignment = 0, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
-    method public static void Row(int crossAxisAlignment = 0, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void Column(int mainAxisAlignment = 1, int mainAxisSize = 1, int crossAxisAlignment = 0, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void FlexColumn(int mainAxisAlignment = 1, int mainAxisSize = 1, int crossAxisAlignment = 0, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
+    method public static void FlexRow(int mainAxisAlignment = 1, int mainAxisSize = 1, int crossAxisAlignment = 0, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
+    method public static void Row(int mainAxisAlignment = 1, int mainAxisSize = 1, int crossAxisAlignment = 0, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
+  public final class MainAxisAlignment {
+    ctor public MainAxisAlignment();
+    field public static final androidx.ui.layout.MainAxisAlignment.Companion! Companion;
+  }
+
+  public static final class MainAxisAlignment.Companion {
+    method public int getCenter();
+    method public int getEnd();
+    method public int getSpaceAround();
+    method public int getSpaceBetween();
+    method public int getSpaceEvenly();
+    method public int getStart();
+    property public final int Center;
+    property public final int End;
+    property public final int SpaceAround;
+    property public final int SpaceBetween;
+    property public final int SpaceEvenly;
+    property public final int Start;
+  }
+
+  public final class MainAxisSize {
+    ctor public MainAxisSize();
+    field public static final androidx.ui.layout.MainAxisSize.Companion! Companion;
+  }
+
+  public static final class MainAxisSize.Companion {
+    method public int getMax();
+    method public int getMin();
+    property public final int Max;
+    property public final int Min;
   }
 
   public final class PaddingKt {

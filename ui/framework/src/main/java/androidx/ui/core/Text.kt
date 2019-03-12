@@ -93,7 +93,7 @@ class Text() : Component() {
             val styledText = TextSpan(style = mergedStyle, children = listOf(text))
             <Semantics
                 label=text.toString()>
-                <MeasureBox> constraints, measureOperations ->
+                <MeasureBox> constraints ->
                     val renderParagraph = RenderParagraph(
                         text = styledText,
                         textAlign = textAlign,
@@ -126,13 +126,13 @@ class Text() : Component() {
                         selection = TextSelection(selectionStart, selectionEnd)
                     }
 
-                    measureOperations.collect {
+                    collect {
                         <Draw> canvas, parent ->
                             selection?.let{renderParagraph.paintSelection(canvas, it)}
                             renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
                         </Draw>
                     }
-                    measureOperations.layout(
+                    layout(
                         renderParagraph.width.px.round(),
                         renderParagraph.height.px.round()
                     ) {}

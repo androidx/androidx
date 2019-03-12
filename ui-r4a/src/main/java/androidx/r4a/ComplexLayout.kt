@@ -16,12 +16,12 @@
 
 package androidx.r4a
 
+import androidx.ui.core.ComplexMeasureBox
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
-import androidx.ui.core.adapter.ComplexMeasureBox
-import androidx.ui.core.adapter.MeasureBox
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.layout.Align
@@ -34,6 +34,8 @@ import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
+import androidx.ui.layout.MainAxisAlignment
+import androidx.ui.layout.MainAxisSize
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
@@ -278,12 +280,38 @@ fun RowWithCrossAxisAlignmentUsage() {
     </Center>
 }
 
+@Composable
+fun RowWithMainAxisAlignmentUsage() {
+    <Center>
+        <Row mainAxisAlignment=MainAxisAlignment.SpaceBetween>
+            <Container color=Color(0xFF00FF00.toInt()) width=50.dp height=50.dp/>
+            <Container color=Color(0xFF0000FF.toInt()) width=80.dp height=80.dp/>
+            <Container color=Color(0xFFFF0000.toInt()) width=70.dp height=70.dp/>
+            <Container color=Color(0xFF00FF00.toInt()) width=100.dp height=100.dp/>
+            <Container color=Color(0xFF0000FF.toInt()) width=20.dp height=20.dp/>
+        </Row>
+    </Center>
+}
+
+@Composable
+fun RowWithMainAxisSizeUsage() {
+    <Center>
+        <Row mainAxisSize=MainAxisSize.Min mainAxisAlignment=MainAxisAlignment.SpaceBetween>
+            <Container color=Color(0xFF00FF00.toInt()) width=50.dp height=50.dp/>
+            <Container color=Color(0xFF0000FF.toInt()) width=80.dp height=80.dp/>
+            <Container color=Color(0xFFFF0000.toInt()) width=70.dp height=70.dp/>
+            <Container color=Color(0xFF00FF00.toInt()) width=100.dp height=100.dp/>
+            <Container color=Color(0xFF0000FF.toInt()) width=20.dp height=20.dp/>
+        </Row>
+    </Center>
+}
+
 /**
  * Entry point for the activity.
  */
 @Composable
 fun ComplexLayout() {
     <CraneWrapper>
-        <RowWithCrossAxisAlignmentUsage />
+        <RowWithMainAxisSizeUsage />
     </CraneWrapper>
 }
