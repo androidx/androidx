@@ -26,9 +26,9 @@ import androidx.animation.TransitionAnimation
 import androidx.animation.TransitionDefinition
 import androidx.animation.transitionDefinition
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.PxPosition
 import androidx.ui.core.adapter.Draw
-import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.adapter.PressGestureDetector
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color

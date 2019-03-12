@@ -24,8 +24,8 @@ import androidx.animation.ColorPropKey
 import androidx.animation.FloatPropKey
 import androidx.animation.transitionDefinition
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.adapter.Draw
-import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
@@ -57,11 +57,6 @@ fun HelloAnimation() {
 
 private val background = ColorPropKey()
 private val y = FloatPropKey()
-
-enum class OverlayState {
-    Open,
-    Closed
-}
 
 val trans = transitionDefinition {
     state(OverlayState.Open) {

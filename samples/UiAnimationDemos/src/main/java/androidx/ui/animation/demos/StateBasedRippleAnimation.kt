@@ -26,8 +26,8 @@ import androidx.animation.TransitionDefinition
 import androidx.animation.transitionDefinition
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.IntPx
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.adapter.Draw
-import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.adapter.PressGestureDetector
 import androidx.ui.core.PxPosition
 import androidx.ui.engine.geometry.Offset
@@ -103,11 +103,6 @@ fun RippleRectFromState(state: TransitionModel<ButtonStatus>) {
     <Draw> canvas, pixelSize ->
         canvas.drawCircle(Offset(x, y), state[radius], paint)
     </Draw>
-}
-
-enum class ButtonStatus {
-    Pressed,
-    Released
 }
 
 private val down = PointF(0f, 0f)
