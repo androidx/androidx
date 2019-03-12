@@ -27,7 +27,9 @@ import org.junit.runners.model.Statement
 
 /**
  * JUnit rule for benchmarking code on an Android device.
-
+ *
+ * In Kotlin, benchmark with [measure]:
+ *
  * ```
  * @get:Rule
  * val benchmarkRule = BenchmarkRule();
@@ -35,8 +37,25 @@ import org.junit.runners.model.Statement
  * @Test
  * fun myBenchmark() {
  *     ...
- *     benchmarkRule.benchmark {
+ *     benchmarkRule.measure {
  *         doSomeWork()
+ *     }
+ *     ...
+ * }
+ * ```
+ *
+ * In Java, use `getState()`:
+ *
+ * ```
+ * @Rule
+ * public BenchmarkRule benchmarkRule = new BenchmarkRule();
+ *
+ * @Test
+ * public void myBenchmark() {
+ *     ...
+ *     BenchmarkState state = benchmarkRule.getState();
+ *     while (state.keepRunning()) {
+ *         doSomeWork();
  *     }
  *     ...
  * }
@@ -53,6 +72,24 @@ import org.junit.runners.model.Statement
 class BenchmarkRule : TestRule {
     private val internalState = BenchmarkState()
 
+    /**
+     * Object used for benchmarking in Java.
+     *
+     * ```
+     * @Rule
+     * public BenchmarkRule benchmarkRule = new BenchmarkRule();
+     *
+     * @Test
+     * public void myBenchmark() {
+     *     ...
+     *     BenchmarkState state = benchmarkRule.getBenchmarkState();
+     *     while (state.keepRunning()) {
+     *         doSomeWork();
+     *     }
+     *     ...
+     * }
+     * ```
+     */
     val state: BenchmarkState
     get() {
         if (!applied) {
@@ -122,7 +159,7 @@ class BenchmarkRule : TestRule {
         val localState = state
         val localContext = context
 
-        while (localState.keepRunning()) {
+        while (localState.keepRunningInline()) {
             block(localContext)
         }
     }
@@ -133,7 +170,7 @@ class BenchmarkRule : TestRule {
             override fun evaluate() {
                 applied = true
                 var invokeMethodName = description.methodName
-                Log.i(TAG, "Running " + description.className + "#" + invokeMethodName)
+                Log.i(TAG, "Running ${description.className}#$invokeMethodName")
 
                 // validate and simplify the function name.
                 // First, remove the "test" prefix which normally comes from CTS test.
@@ -162,7 +199,7 @@ class BenchmarkRule : TestRule {
 
                 InstrumentationRegistry.getInstrumentation().sendStatus(
                     Activity.RESULT_OK,
-                    state.getFullStatusReport(invokeMethodName)
+                    state.getFullStatusReport(WarningState.WARNING_PREFIX + invokeMethodName)
                 )
             }
         }

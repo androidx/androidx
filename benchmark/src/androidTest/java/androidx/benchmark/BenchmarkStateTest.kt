@@ -69,14 +69,13 @@ class BenchmarkStateTest {
                 // nothing, we're ignoring numbers
             }
         }.getFullStatusReport("foo")
-        val expectedLabel = WarningState.WARNING_PREFIX + "foo"
 
         assertTrue(
-            (bundle.get("android.studio.display.benchmark") as String).contains(expectedLabel))
+            (bundle.get("android.studio.display.benchmark") as String).contains("foo"))
 
         // check attribute presence and naming
-        assertNotNull(bundle.get(expectedLabel + "_min"))
-        assertNotNull(bundle.get(expectedLabel + "_mean"))
-        assertNotNull(bundle.get(expectedLabel + "_count"))
+        assertNotNull(bundle.get("foo_min"))
+        assertNotNull(bundle.get("foo_mean"))
+        assertNotNull(bundle.get("foo_count"))
     }
 }
