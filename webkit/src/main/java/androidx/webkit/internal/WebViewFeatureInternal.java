@@ -303,10 +303,10 @@ public enum WebViewFeatureInternal {
 
     /**
      * This feature covers
-     * {@link WebViewCompat#getWebViewRendererClient()},
-     * {@link WebViewCompat#setWebViewRendererClient(WebViewRendererClient)},
-     * {@link WebViewRendererClient#onRendererUnresponsive(WebView,WebViewRenderer)},
-     * {@link WebViewRendererClient#onRendererResponsive(WebView,WebViewRenderer)}
+     * {@link WebViewCompat#getWebViewRenderProcessClient()},
+     * {@link WebViewCompat#setWebViewRenderProcessClient(WebViewRenderProcessClient)},
+     * {@link WebViewRenderProcessClient#onRenderProcessUnresponsive(WebView,WebViewRenderProcess)},
+     * {@link WebViewRenderProcessClient#onRenderProcessResponsive(WebView,WebViewRenderProcess)}
      */
     WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             Features.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE),

@@ -24,14 +24,14 @@ import androidx.annotation.Nullable;
 /**
  * Used to receive callbacks on {@link WebView} renderer events.
  *
- * WebViewRendererClient instances may be set or retrieved via {@link
- * WebViewCompat#setWebViewRendererClient(WebView,Executor,WebViewRendererClient)} and {@link
- * WebViewCompat#getWebViewRendererClient(WebView)}.
+ * WebViewRenderProcessClient instances may be set or retrieved via {@link
+ * WebViewCompat#setWebViewRenderProcessClient(WebView,Executor,WebViewRenderProcessClient)}
+ * and {@link WebViewCompat#getWebViewRenderProcessClient(WebView)}.
  *
  * Instances may be attached to multiple WebViews, and thus a single renderer event may cause
  * a callback to be called multiple times with different WebView parameters.
  */
-public abstract class WebViewRendererClient {
+public abstract class WebViewRenderProcessClient {
     /**
      * Called when the renderer currently associated with {@code view} becomes unresponsive as a
      * result of a long running blocking task such as the execution of JavaScript.
@@ -42,8 +42,11 @@ public abstract class WebViewRendererClient {
      *
      * <p>This callback will continue to be called at regular intervals as long as the renderer
      * remains unresponsive. If the renderer becomes responsive again, {@link
-     * WebViewRendererClient#onRendererResponsive} will be called once, and this method will not
-     * subsequently be called unless another period of unresponsiveness is detected.
+     * WebViewRenderProcessClient#onRenderProcessResponsive} will be called once, and this method
+     * will not subsequently be called unless another period of unresponsiveness is detected.
+     *
+     * <p>The minimum interval between successive calls to {@code onRenderProcessUnresponsive} is 5
+     * seconds.
      *
      * <p>No action is taken by WebView as a result of this method call. Applications may
      * choose to terminate the associated renderer via the object that is passed to this callback,
@@ -53,28 +56,28 @@ public abstract class WebViewRendererClient {
      * termination.
      *
      * @param view The {@link android.webkit.WebView} for which unresponsiveness was detected.
-     * @param renderer The {@link WebViewRenderer} that has become unresponsive, or {@code null} if
-     * WebView is running in single process mode.
+     * @param renderer The {@link WebViewRenderProcess} that has become unresponsive, or
+     * {@code null} if WebView is running in single process mode.
      */
-    public abstract void onRendererUnresponsive(
-            @NonNull WebView view, @Nullable WebViewRenderer renderer);
+    public abstract void onRenderProcessUnresponsive(
+            @NonNull WebView view, @Nullable WebViewRenderProcess renderer);
 
     /**
      * Called once when an unresponsive renderer currently associated with {@code view} becomes
      * responsive.
      *
      * <p>After a WebView renderer becomes unresponsive, which is notified to the application by
-     * {@link WebViewRendererClient#onRendererUnresponsive}, it is possible for the blocking
-     * renderer task to complete, returning the renderer to a responsive state. In that case,
-     * this method is called once to indicate responsiveness.
+     * {@link WebViewRenderProcessClient#onRenderProcessUnresponsive}, it is possible for the
+     * blocking renderer task to complete, returning the renderer to a responsive state. In that
+     * case, this method is called once to indicate responsiveness.
      *
      * <p>No action is taken by WebView as a result of this method call.
      *
      * @param view The {@link android.webkit.WebView} for which responsiveness was detected.
      *
-     * @param renderer The {@link WebViewRenderer} that has become responsive, or {@code null} if
-     * WebView is running in single process mode.
+     * @param renderer The {@link WebViewRenderProcess} that has become responsive, or {@code null}
+     * if WebView is running in single process mode.
      */
-    public abstract void onRendererResponsive(
-            @NonNull WebView view, @Nullable WebViewRenderer renderer);
+    public abstract void onRenderProcessResponsive(
+            @NonNull WebView view, @Nullable WebViewRenderProcess renderer);
 }
