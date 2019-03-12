@@ -138,7 +138,9 @@ class DialogFragmentDismissTest(
             operation.run(fragment)
         }
 
-        countDownLatch.await(1, TimeUnit.SECONDS)
+        assertWithMessage("Timed out waiting for ON_DESTROY")
+            .that(countDownLatch.await(5, TimeUnit.SECONDS))
+            .isTrue()
 
         assertWithMessage("Dialog should be dismissed")
             .that(dismissCalled)
