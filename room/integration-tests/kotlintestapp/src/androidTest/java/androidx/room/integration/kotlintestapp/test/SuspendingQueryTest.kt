@@ -39,7 +39,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Test
@@ -433,20 +432,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
             assertThat(insertAttempted).isTrue() // make sure we attempted to insert
             assertThat(booksDao.getBooksSuspend())
                 .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_3))
-        }
-    }
-
-    @Test
-    fun withTransaction_cancelCoroutine_beforeThreadAcquire() {
-        runBlocking {
-            val job = launch {
-                database.withTransaction {
-                    fail("This coroutine should never run.")
-                }
-            }
-
-            yield()
-            job.cancelAndJoin()
         }
     }
 
