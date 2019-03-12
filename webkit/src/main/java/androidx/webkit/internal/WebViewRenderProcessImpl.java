@@ -18,7 +18,7 @@ package androidx.webkit.internal;
 
 import androidx.annotation.Nullable;
 import androidx.webkit.WebViewFeature;
-import androidx.webkit.WebViewRenderer;
+import androidx.webkit.WebViewRenderProcess;
 
 import org.chromium.support_lib_boundary.WebViewRendererBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -27,21 +27,21 @@ import java.lang.reflect.InvocationHandler;
 import java.util.concurrent.Callable;
 
 /**
- * Implementation of {@link WebViewRenderer}.
+ * Implementation of {@link WebViewRenderProcess}.
  * This class uses the WebView APK to implement
- * {@link WebViewRenderer} functionality.
+ * {@link WebViewRenderProcess} functionality.
  */
-public class WebViewRendererImpl extends WebViewRenderer {
+public class WebViewRenderProcessImpl extends WebViewRenderProcess {
     private WebViewRendererBoundaryInterface mBoundaryInterface;
 
-    public WebViewRendererImpl(WebViewRendererBoundaryInterface boundaryInterface) {
+    public WebViewRenderProcessImpl(WebViewRendererBoundaryInterface boundaryInterface) {
         mBoundaryInterface = boundaryInterface;
     }
 
     /**
-     * Get a support library WebViewRenderer object that is 1:1 with the webview object.
+     * Get a support library WebViewRenderProcess object that is 1:1 with the webview object.
      */
-    public static @Nullable WebViewRendererImpl forInvocationHandler(
+    public static @Nullable WebViewRenderProcessImpl forInvocationHandler(
             InvocationHandler invocationHandler) {
         // Make a possibly temporary proxy object in order to call into WebView.
         final WebViewRendererBoundaryInterface boundaryInterface =
@@ -51,11 +51,11 @@ public class WebViewRendererImpl extends WebViewRenderer {
 
         // Ask WebView to either call us back to create the wrapper object, or
         // to return a previously created wrapper object.
-        return (WebViewRendererImpl) boundaryInterface.getOrCreatePeer(
+        return (WebViewRenderProcessImpl) boundaryInterface.getOrCreatePeer(
                 new Callable<Object>() {
                     @Override
                     public Object call() {
-                        return new WebViewRendererImpl(boundaryInterface);
+                        return new WebViewRenderProcessImpl(boundaryInterface);
                     }
                 });
     }

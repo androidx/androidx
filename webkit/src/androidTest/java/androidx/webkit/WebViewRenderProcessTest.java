@@ -38,9 +38,9 @@ import java.util.concurrent.Callable;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class WebViewRendererTest {
-    private boolean terminateRendererOnUiThread(
-            final WebViewRenderer renderer) {
+public class WebViewRenderProcessTest {
+    private boolean terminateRenderProcessOnUiThread(
+            final WebViewRenderProcess renderer) {
         return WebkitUtils.onMainThreadSync(new Callable<Boolean>() {
             @Override
             public Boolean call() {
@@ -49,18 +49,18 @@ public class WebViewRendererTest {
         });
     }
 
-    WebViewRenderer getRendererOnUiThread(final WebView webView) {
-        return WebkitUtils.onMainThreadSync(new Callable<WebViewRenderer>() {
+    WebViewRenderProcess getRenderProcessOnUiThread(final WebView webView) {
+        return WebkitUtils.onMainThreadSync(new Callable<WebViewRenderProcess>() {
             @Override
-            public WebViewRenderer call() {
-                return WebViewCompat.getWebViewRenderer(webView);
+            public WebViewRenderProcess call() {
+                return WebViewCompat.getWebViewRenderProcess(webView);
             }
         });
     }
 
-    private ListenableFuture<WebViewRenderer> startAndGetRenderer(
+    private ListenableFuture<WebViewRenderProcess> startAndGetRenderProcess(
             final WebView webView) throws Throwable {
-        final ResolvableFuture<WebViewRenderer> future = ResolvableFuture.create();
+        final ResolvableFuture<WebViewRenderProcess> future = ResolvableFuture.create();
 
         WebkitUtils.onMainThread(new Runnable() {
             @Override
@@ -68,7 +68,8 @@ public class WebViewRendererTest {
                 webView.setWebViewClient(new WebViewClient() {
                     @Override
                     public void onPageFinished(WebView view, String url) {
-                        WebViewRenderer result = WebViewCompat.getWebViewRenderer(webView);
+                        WebViewRenderProcess result =
+                                WebViewCompat.getWebViewRenderProcess(webView);
                         future.set(result);
                     }
                 });
@@ -79,7 +80,7 @@ public class WebViewRendererTest {
         return future;
     }
 
-    ListenableFuture<Boolean> catchRendererTermination(final WebView webView) {
+    ListenableFuture<Boolean> catchRenderProcessTermination(final WebView webView) {
         final ResolvableFuture<Boolean> future = ResolvableFuture.create();
 
         WebkitUtils.onMainThread(new Runnable() {
@@ -103,12 +104,12 @@ public class WebViewRendererTest {
 
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
-    public void testGetWebViewRendererPreO() throws Throwable {
+    public void testGetWebViewRenderProcessPreO() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.GET_WEB_VIEW_RENDERER);
 
         // It should not be possible to get a renderer pre-O
         WebView webView = WebViewOnUiThread.createWebView();
-        final WebViewRenderer renderer = startAndGetRenderer(webView).get();
+        final WebViewRenderProcess renderer = startAndGetRenderProcess(webView).get();
         Assert.assertNull(renderer);
 
         WebViewOnUiThread.destroy(webView);
@@ -118,49 +119,49 @@ public class WebViewRendererTest {
     @Test
     @SuppressLint("NewApi")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    public void testGetWebViewRenderer() throws Throwable {
+    public void testGetWebViewRenderProcess() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.GET_WEB_VIEW_RENDERER);
         // TODO(tobiasjs) some O devices are not multiprocess, and multiprocess can also be disabled
         // manually. This test should handle those scenarios.
 
         final WebView webView = WebViewOnUiThread.createWebView();
 
-        final WebViewRenderer preStartRenderer = getRendererOnUiThread(webView);
+        final WebViewRenderProcess preStartRenderProcess = getRenderProcessOnUiThread(webView);
         Assert.assertNotNull(
                 "Should be possible to obtain a renderer handle before the renderer has started.",
-                preStartRenderer);
+                preStartRenderProcess);
         Assert.assertFalse(
                 "Should not be able to terminate an unstarted renderer.",
-                terminateRendererOnUiThread(preStartRenderer));
+                terminateRenderProcessOnUiThread(preStartRenderProcess));
 
-        final WebViewRenderer renderer = startAndGetRenderer(webView).get();
+        final WebViewRenderProcess renderer = startAndGetRenderProcess(webView).get();
         Assert.assertSame(
                 "The pre- and post-start renderer handles should be the same object.",
-                renderer, preStartRenderer);
+                renderer, preStartRenderProcess);
 
         Assert.assertSame(
                 "When getWebViewRender is called a second time, it should return the same object.",
-                renderer, startAndGetRenderer(webView).get());
+                renderer, startAndGetRenderProcess(webView).get());
 
-        ListenableFuture<Boolean> terminationFuture = catchRendererTermination(webView);
+        ListenableFuture<Boolean> terminationFuture = catchRenderProcessTermination(webView);
         Assert.assertTrue(
                 "A started renderer should be able to be terminated.",
-                terminateRendererOnUiThread(renderer));
+                terminateRenderProcessOnUiThread(renderer));
         Assert.assertTrue(
                 "Terminating a renderer should result in onRenderProcessGone being called.",
                 terminationFuture.get());
 
         Assert.assertFalse(
                 "It should not be possible to terminate a renderer that has already terminated.",
-                terminateRendererOnUiThread(renderer));
+                terminateRenderProcessOnUiThread(renderer));
 
         final WebView webView2 = WebViewOnUiThread.createWebView();
         Assert.assertNotSame(
                 "After a renderer restart, the new renderer handle object should be different.",
-                renderer, startAndGetRenderer(webView2).get());
+                renderer, startAndGetRenderProcess(webView2).get());
 
         // Ensure that we clean up webView2. webView has been destroyed by the WebViewClient
-        // installed by catchRendererTermination
+        // installed by catchRenderProcessTermination
         WebViewOnUiThread.destroy(webView2);
     }
 }
