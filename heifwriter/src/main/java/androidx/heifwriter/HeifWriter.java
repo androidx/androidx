@@ -117,6 +117,11 @@ public final class HeifWriter implements AutoCloseable {
      * The input mode where the client renders the images to an input Surface
      * created by the writer.
      *
+     * The input surface operates in single buffer mode. As a result, for use case
+     * where camera directly outputs to the input surface, this mode will not work
+     * because camera framework requires multiple buffers to operate in a pipeline
+     * fashion.
+     *
      * @see #getInputSurface()
      */
     public static final int INPUT_MODE_SURFACE = 1;
