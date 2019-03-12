@@ -16,6 +16,9 @@
 
 package androidx.recyclerview.selection;
 
+import static androidx.recyclerview.selection.Shared.DEBUG;
+
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 
@@ -36,6 +39,8 @@ import androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListene
  * uses a parameterized key type to permit other keys (such as Strings or URIs).
  */
 public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
+
+    private static final String TAG = "StableIdKeyProvider";
 
     private final SparseArray<Long> mPositionToKey = new SparseArray<>();
     private final LongSparseArray<Integer> mKeyToPosition = new LongSparseArray<>();
@@ -74,6 +79,12 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void onAttached(@NonNull View view) {
         RecyclerView.ViewHolder holder = mRecyclerView.findContainingViewHolder(view);
+        if (holder == null) {
+            if (DEBUG) {
+                Log.w(TAG, "Unable to find ViewHolder for View. Ignoring onAttached event.");
+            }
+            return;
+        }
         int position = holder.getAdapterPosition();
         long id = holder.getItemId();
         if (position != RecyclerView.NO_POSITION && id != RecyclerView.NO_ID) {
@@ -85,6 +96,12 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void onDetached(@NonNull View view) {
         RecyclerView.ViewHolder holder = mRecyclerView.findContainingViewHolder(view);
+        if (holder == null) {
+            if (DEBUG) {
+                Log.w(TAG, "Unable to find ViewHolder for View. Ignoring onDetached event.");
+            }
+            return;
+        }
         int position = holder.getAdapterPosition();
         long id = holder.getItemId();
         if (position != RecyclerView.NO_POSITION && id != RecyclerView.NO_ID) {
