@@ -33,7 +33,7 @@ class CraneWrapper(@Children var children: () -> Unit) : Component() {
     override fun compose() {
         <AndroidCraneView
             ref=androidCraneView
-            constraintsChanged={ composeChildren() }>
+            onMeasureRecompose={ composeChildren() }>
             <Ambient.Portal> reference ->
                 ambients = reference
             </Ambient.Portal>

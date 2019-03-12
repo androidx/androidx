@@ -25,6 +25,13 @@ import android.view.ViewGroup
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.toPointerInputEvent
 import androidx.ui.painting.Canvas
+import com.google.r4a.frames.FrameCommitObserver
+import com.google.r4a.frames.FrameReadObserver
+import com.google.r4a.frames.commit
+import com.google.r4a.frames.open
+import com.google.r4a.frames.registerCommitObserver
+import com.google.r4a.frames.restore
+import com.google.r4a.frames.suspend
 
 /**
  * [ComponentNode.ownerData] under [AndroidCraneView] control.
@@ -39,8 +46,10 @@ class AndroidCraneView constructor(context: Context)
 
     private val adjustedLayouts = mutableListOf<LayoutNode>()
     val root = LayoutNode()
+    private val modelToDrawNodes = mutableMapOf<Any, MutableSet<DrawNode>>()
+    private val drawNodeToModels = mutableMapOf<DrawNode, MutableSet<Any>>()
 
-    var constraintsChanged: () -> Unit = {}
+    var onMeasureRecompose: () -> Unit = {}
     var ref: Array<AndroidCraneView?>? = null
         set(value) {
             field = value
@@ -57,8 +66,39 @@ class AndroidCraneView constructor(context: Context)
 
     private val densityReceiver = DensityReceiverImpl(Density(context))
 
+    // Used for tracking which nodes a frame read is applied to
+    private var currentDrawNode: DrawNode? = null
+
+    private val frameReadObserver: FrameReadObserver = { read ->
+        val drawNode = currentDrawNode
+        if (drawNode != null) {
+            val models = drawNodeToModels.getOrElse(drawNode) {
+                val set = mutableSetOf<Any>()
+                drawNodeToModels[drawNode] = set
+                set
+            }
+            models += read
+            val nodes = modelToDrawNodes.getOrElse(read) {
+                val set = mutableSetOf<DrawNode>()
+                modelToDrawNodes[read] = set
+                set
+            }
+            nodes += drawNode
+        }
+    }
+
+    private val commitObserver: FrameCommitObserver = { committed ->
+        committed.forEach {
+            modelToDrawNodes[it]?.forEach { drawNode ->
+                drawNode.invalidate()
+            }
+        }
+    }
+
     init {
         setWillNotDraw(false)
+        // TODO(mount): How do I unregister?
+        registerCommitObserver(commitObserver)
     }
 
     /**
@@ -140,9 +180,12 @@ class AndroidCraneView constructor(context: Context)
             targetWidth.min, targetWidth.max,
             targetHeight.min, targetHeight.max
         )
-        if (constraints != this.constraints) {
+        val constraintsChagned = constraints != this.constraints
+        if (constraintsChagned) {
             this.constraints = constraints
-            constraintsChanged()
+        }
+        if (constraintsChagned || adjustedLayouts.isNotEmpty()) {
+            onMeasureRecompose()
         }
 
         setMeasuredDimension(root.width.value, root.height.value)
@@ -157,9 +200,17 @@ class AndroidCraneView constructor(context: Context)
     }
 
     override fun onDraw(canvas: android.graphics.Canvas) {
-        // Walk children to look for DrawNodes
-        val wrappedCanvas = Canvas(canvas)
-        callDrawOnChildren(root, wrappedCanvas)
+        // Start looking for model changes:
+        val current = suspend()
+        val frame = open(readObserver = frameReadObserver)
+        try {
+            // Walk children to look for DrawNodes
+            val wrappedCanvas = Canvas(canvas)
+            callDrawOnChildren(root, wrappedCanvas)
+        } finally {
+            commit(frame)
+            restore(current)
+        }
     }
 
     override fun onAttachedToWindow() {
@@ -200,27 +251,28 @@ class AndroidCraneView constructor(context: Context)
         }
     }
 
-    private fun callDrawOnChildren(node: ComponentNode, canvas: Canvas) {
+    internal fun callDrawOnChildren(node: ComponentNode, canvas: Canvas) {
         node.visitChildren { child ->
             if (child is DrawNode) {
-                child.onPaint(
-                    densityReceiver,
-                    canvas,
-                    PxSize(root.width, root.height)
-                )
+                val oldNode = currentDrawNode
+                currentDrawNode = child
+                // remove previously observed values
+                val oldModels = drawNodeToModels[child]
+                if (oldModels != null) {
+                    oldModels.forEach { modelToDrawNodes[it]?.remove(child) }
+                    oldModels.clear()
+                }
+                val ownerData = child.androidData
+                if (ownerData != null) {
+                    val size = PxSize(ownerData.view.width.ipx, ownerData.view.height.ipx)
+                    child.onPaint(densityReceiver, canvas, size)
+                }
                 child.needsPaint = false
+                currentDrawNode = oldNode
             } else if (child is LayoutNode) {
                 val view = (child.ownerData as AndroidData).view
                 val fwCanvas = canvas.toFrameworkCanvas()
-                var saveCount = -1
-                if (view.left != 0 || view.top != 0) {
-                    saveCount = fwCanvas.save()
-                    fwCanvas.translate(view.left.toFloat(), view.top.toFloat())
-                }
-                view.draw(fwCanvas)
-                if (saveCount != -1) {
-                    fwCanvas.restoreToCount(saveCount)
-                }
+                drawChild(fwCanvas, view, drawingTime)
             } else {
                 callDrawOnChildren(child, canvas)
             }
@@ -266,7 +318,8 @@ private class NodeView(container: ViewGroup, val node: LayoutNode) :
     override fun onDraw(canvas: android.graphics.Canvas) {
         // Walk children to look for DrawNodes
         val wrappedCanvas = Canvas(canvas)
-        callDrawOnChildren(node, wrappedCanvas)
+        val owner = node.owner as AndroidCraneView
+        owner.callDrawOnChildren(node, wrappedCanvas)
     }
 
     /**
@@ -274,24 +327,5 @@ private class NodeView(container: ViewGroup, val node: LayoutNode) :
      * [DrawNode]s and [LayoutNode]s.
      */
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
-    }
-
-    private fun callDrawOnChildren(node: ComponentNode, canvas: Canvas) {
-        node.visitChildren { child ->
-            if (child is DrawNode) {
-                child.onPaint(
-                    densityReceiver,
-                    canvas,
-                    PxSize(this.node.width, this.node.height)
-                )
-                child.needsPaint = false
-            } else if (child is LayoutNode) {
-                val view = (child.ownerData as AndroidData).view
-                val fwCanvas = canvas.toFrameworkCanvas()
-                drawChild(fwCanvas, view, drawingTime)
-            } else {
-                callDrawOnChildren(child, canvas)
-            }
-        }
     }
 }

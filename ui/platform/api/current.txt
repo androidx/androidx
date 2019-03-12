@@ -5,7 +5,7 @@ package androidx.ui.core {
     ctor public AndroidCraneView(android.content.Context context);
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
     method public androidx.ui.core.Constraints getConstraints();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getConstraintsChanged();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getOnMeasureRecompose();
     method public androidx.ui.core.AndroidCraneView[]? getRef();
     method public androidx.ui.core.LayoutNode getRoot();
     method public void onAttach(androidx.ui.core.ComponentNode node);
@@ -15,10 +15,10 @@ package androidx.ui.core {
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void sendEvent(android.view.MotionEvent event);
     method public void setConstraints(androidx.ui.core.Constraints p);
-    method public void setConstraintsChanged(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+    method public void setOnMeasureRecompose(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setRef(androidx.ui.core.AndroidCraneView[]? value);
     property public final androidx.ui.core.Constraints constraints;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit> constraintsChanged;
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit> onMeasureRecompose;
     property public final androidx.ui.core.AndroidCraneView[]? ref;
     property public final androidx.ui.core.LayoutNode root;
   }

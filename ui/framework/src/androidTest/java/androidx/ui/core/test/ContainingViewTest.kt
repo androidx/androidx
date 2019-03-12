@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2019 The Android Open Source Project
  *
@@ -43,6 +44,7 @@ import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.Model
 import com.google.r4a.composeInto
 import com.google.r4a.composer
 import org.junit.Assert.assertEquals
@@ -65,82 +67,157 @@ class ContainingViewTest {
     private lateinit var activity: TestActivity
     private lateinit var instrumentation: Instrumentation
     private lateinit var handler: Handler
+    private lateinit var drawLatch: CountDownLatch
 
     @Before
     fun setup() {
         activity = activityTestRule.activity
         activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
         instrumentation = InstrumentationRegistry.getInstrumentation()
-        // Kotlin IR compiler doesn't seem too happy with auto-conversion from
-        // lambda to Runnable, so separate it here
+        runOnUiThread { handler = Handler() }
+        drawLatch = CountDownLatch(1)
+    }
+
+    // Tests that simple drawing works with layered squares
+    @Test
+    fun simpleDrawTest() {
+        val yellow = Color(0xFFFFFF00.toInt())
+        val red = Color(0xFF800000.toInt())
+        val model = SquareModel(outerColor = yellow, innerColor = red, size = 10.ipx)
+        composeSquares(model)
+
+        validateSquareColors(outerColor = yellow, innerColor = red, size = 10)
+    }
+
+    // Tests that recomposition works with models used within Draw components
+    @Test
+    fun recomposeDrawTest() {
+        val white = Color(0xFFFFFFFF.toInt())
+        val blue = Color(0xFF000080.toInt())
+        val model = SquareModel(outerColor = blue, innerColor = white)
+        composeSquares(model)
+        validateSquareColors(outerColor = blue, innerColor = white, size = 10)
+
+        drawLatch = CountDownLatch(1)
+        val red = Color(0xFF800000.toInt())
+        val yellow = Color(0xFFFFFF00.toInt())
+        runOnUiThread {
+            model.outerColor = red
+            model.innerColor = yellow
+        }
+
+        validateSquareColors(outerColor = red, innerColor = yellow, size = 10)
+    }
+
+    // Tests that recomposition works with models used within Layout components
+    @Test
+    fun recomposeSizeTest() {
+        val white = Color(0xFFFFFFFF.toInt())
+        val blue = Color(0xFF000080.toInt())
+        val model = SquareModel(outerColor = blue, innerColor = white)
+        composeSquares(model)
+        validateSquareColors(outerColor = blue, innerColor = white, size = 10)
+
+        drawLatch = CountDownLatch(1)
+        runOnUiThread { model.size = 20.ipx }
+        validateSquareColors(outerColor = blue, innerColor = white, size = 20)
+    }
+
+    // The size and color are both changed in a simpler single-color square.
+    @Test
+    fun simpleSquareColorAndSizeTest() {
+        val green = Color(0xFF00FF00.toInt())
+        val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = green)
+
+        runOnUiThread {
+            activity.composeInto {
+                <CraneWrapper>
+                    <Padding size=(model.size * 3)>
+                        <Draw> canvas, parentSize ->
+                            val paint = Paint().apply {
+                                color = model.outerColor
+                            }
+                            canvas.drawRect(parentSize.toRect(), paint)
+                            drawLatch.countDown()
+                        </Draw>
+                    </Padding>
+                </CraneWrapper>
+            }
+        }
+        validateSquareColors(outerColor = green, innerColor = green, size = 20)
+
+        drawLatch = CountDownLatch(1)
+        runOnUiThread {
+            model.size = 30.ipx
+        }
+        validateSquareColors(outerColor = green, innerColor = green, size = 30)
+
+        drawLatch = CountDownLatch(1)
+        val blue = Color(0xFF0000FF.toInt())
+
+        runOnUiThread {
+            model.innerColor = blue
+            model.outerColor = blue
+        }
+        validateSquareColors(outerColor = blue, innerColor = blue, size = 30)
+    }
+
+    // We only need this because IR compiler doesn't like converting lambdas to Runnables
+    private fun runOnUiThread(block: () -> Unit) {
         val runnable: Runnable = object : Runnable {
             override fun run() {
-                handler = Handler()
+                block()
             }
         }
         activityTestRule.runOnUiThread(runnable)
     }
 
-    @Test
-    @Suppress("PLUGIN_ERROR")
-    fun simpleDrawTest() {
-        val drawLatch = CountDownLatch(1)
-        val runnable: Runnable = object : Runnable {
-            override fun run() {
-                activity.composeInto {
-                    <CraneWrapper>
-                        <Draw> canvas, parentSize ->
-                            val paint = Paint()
-                            paint.color = Color(0xFFFFFF00.toInt())
-                            canvas.drawRect(parentSize.toRect(), paint)
-                        </Draw>
-                        <Padding size=10.ipx>
-                            <AtLeastSize size=10.ipx>
-                                <Draw> canvas, parentSize ->
-                                    drawLatch.countDown()
-                                    val paint = Paint()
-                                    paint.color = Color(0xFF0000FF.toInt())
-                                    val width = parentSize.width
-                                    val height = parentSize.height
-                                    canvas.drawRect(parentSize.toRect(), paint)
-                                </Draw>
-                            </AtLeastSize>
-                        </Padding>
-                    </CraneWrapper>
-                }
+    private fun composeSquares(model: SquareModel) {
+        runOnUiThread {
+            activity.composeInto {
+                <CraneWrapper>
+                    <Draw> canvas, parentSize ->
+                        val paint = Paint()
+                        paint.color = model.outerColor
+                        canvas.drawRect(parentSize.toRect(), paint)
+                    </Draw>
+                    <Padding size=model.size>
+                        <AtLeastSize size=model.size>
+                            <Draw> canvas, parentSize ->
+                                drawLatch.countDown()
+                                val paint = Paint()
+                                paint.color = model.innerColor
+                                canvas.drawRect(parentSize.toRect(), paint)
+                            </Draw>
+                        </AtLeastSize>
+                    </Padding>
+                </CraneWrapper>
             }
         }
-        activityTestRule.runOnUiThread(runnable)
-        drawLatch.await(1, TimeUnit.SECONDS)
+    }
+
+    private fun validateSquareColors(
+        outerColor: Color,
+        innerColor: Color,
+        size: Int
+    ) {
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val bitmap = waitAndScreenShot()
-        val totalSize = 30
+        val totalSize = 3 * size
         assertEquals(totalSize, bitmap.width)
         assertEquals(totalSize, bitmap.height)
-
-        val offset = 10
-        val endRect = 20
+        val squareStart = size
+        val squareEnd = size * 2
         for (x in 0 until totalSize) {
             for (y in 0 until totalSize) {
                 val pixel = bitmap.getPixel(x, y)
-                val pixelString = (pixel.toLong() and 0xFFFFFFFF).toString(16)
-                if (x in offset + 1 until endRect - 1 && y in offset + 1 until endRect - 1) {
-                    // This is clearly in the blue rect area
-                    assertEquals(
-                        "Pixel within drawn rect[$x, $y] is blue, but was ($pixelString)",
-                        0xFF0000FF.toInt(),
-                        pixel
-                    )
-                } else if (x == offset - 1 || x == offset || x == endRect - 1 || x == endRect - 2 ||
-                    y == offset - 1 || y == offset || y == endRect - 1 || x == endRect - 2
-                ) {
-                    // This is likely to be antialiased. Don't bother checking it
+                val pixelString = Color(pixel).toString()
+                if (x < squareStart || x >= squareEnd || y < squareStart || y >= squareEnd) {
+                    assertEquals("Pixel within drawn rect[$x, $y] is $outerColor, " +
+                            "but was ($pixelString)", outerColor.value, pixel)
                 } else {
-                    // This is in the yellow area
-                    assertEquals(
-                        "Pixel outside drawn rect[$x, $y] is yellow, but was ($pixelString)",
-                        0xFFFFFF00.toInt(),
-                        pixel
-                    )
+                    assertEquals("Pixel within drawn rect[$x, $y] is $innerColor, " +
+                            "but was ($pixelString)", innerColor.value, pixel)
                 }
             }
         }
@@ -170,14 +247,11 @@ class ContainingViewTest {
         val view = findAndroidCraneView()
         val flushListener = DrawCounterListener(view)
         val offset = intArrayOf(0, 0)
-        val addPreDrawListener = object : Runnable {
-            override fun run() {
-                view.getLocationInWindow(offset)
-                view.viewTreeObserver.addOnPreDrawListener(flushListener)
-                view.invalidate()
-            }
+        runOnUiThread {
+            view.getLocationInWindow(offset)
+            view.viewTreeObserver.addOnPreDrawListener(flushListener)
+            view.invalidate()
         }
-        activityTestRule.runOnUiThread(addPreDrawListener)
 
         assertTrue(flushListener.latch.await(1, TimeUnit.SECONDS))
         val width = view.width
@@ -271,3 +345,10 @@ private class DrawCounterListener(private val view: View) :
         return true
     }
 }
+
+@Model
+class SquareModel(
+    var size: IntPx = 10.ipx,
+    var outerColor: Color = Color(0xFF000080.toInt()),
+    var innerColor: Color = Color(0xFFFFFFFF.toInt())
+)
