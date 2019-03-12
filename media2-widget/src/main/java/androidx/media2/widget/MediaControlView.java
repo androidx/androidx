@@ -189,8 +189,8 @@ public class MediaControlView extends ViewGroup {
     long mNextSeekPosition;
     boolean mDragging;
     boolean mIsFullScreen;
+    boolean mIsShowingReplayButton;
     boolean mOverflowIsShowing;
-    boolean mIsStopped;
     boolean mSeekAvailable;
     boolean mIsAdvertisement;
     boolean mNeedToHideBars;
@@ -919,7 +919,7 @@ public class MediaControlView extends ViewGroup {
             playPauseButton.setContentDescription(
                     mResources.getString(R.string.mcv2_play_button_desc));
         } else {
-            if (mIsStopped) {
+            if (mIsShowingReplayButton) {
                 mController.seekTo(0);
             }
             mController.play();
@@ -1034,8 +1034,8 @@ public class MediaControlView extends ViewGroup {
 
             // Check if playback is currently stopped. In this case, update the pause button to
             // show the play image instead of the replay image.
-            if (mIsStopped) {
-                updateForStoppedState(false);
+            if (mIsShowingReplayButton) {
+                updateReplayButton(false);
             }
 
             if (isCurrentMediaItemFromNetwork() && mController.isPlaying()) {
@@ -1101,14 +1101,13 @@ public class MediaControlView extends ViewGroup {
             resetHideCallbacks();
             removeCallbacks(mUpdateProgress);
 
-            // If the media is currently stopped, rewinding will start the media from the
-            // beginning. Instead, seek to 10 seconds before the end of the media.
-            boolean stoppedWithDuration = mIsStopped && mDuration != 0;
+            // If replay button is shown, seek to 10 seconds before the end of the media.
+            boolean stoppedWithDuration = mIsShowingReplayButton && mDuration != 0;
             long currentPosition = stoppedWithDuration ? mDuration : getLatestSeekPosition();
             long seekPosition = Math.max(currentPosition - REWIND_TIME_MS, 0);
             seekTo(seekPosition, /* shouldSeekNow= */ true);
             if (stoppedWithDuration) {
-                updateForStoppedState(/* isStopped= */ false);
+                updateReplayButton(/* toBeShown */ false);
             }
         }
     };
@@ -1121,11 +1120,12 @@ public class MediaControlView extends ViewGroup {
 
             long latestSeekPosition = getLatestSeekPosition();
             seekTo(Math.min(latestSeekPosition + FORWARD_TIME_MS, mDuration), true);
-            if (latestSeekPosition + FORWARD_TIME_MS >= mDuration) {
-                // If the media is currently paused, fast-forwarding beyond the duration value will
-                // not return a callback that updates the play/pause and ffwd buttons. Thus,
-                // update the buttons manually here.
-                updateForStoppedState(true);
+
+            // Note: In some edge cases, mDuration might be less than actual duration of
+            // the stream. If controller is in playing state, it should not show replay
+            // button even when the seekPosition >= mDuration.
+            if (latestSeekPosition + FORWARD_TIME_MS >= mDuration && !mController.isPlaying()) {
+                updateReplayButton(/* toBeShown */ true);
             }
         }
     };
@@ -1366,9 +1366,9 @@ public class MediaControlView extends ViewGroup {
                 break;
         }
 
-        // Update play/pause and ffwd buttons based on whether the media is currently stopped or
-        // not.
-        updateForStoppedState(mIsStopped);
+        // Update play/pause and ffwd buttons based on whether currently the replay button is shown
+        // or not.
+        updateReplayButton(mIsShowingReplayButton);
     }
 
     private View initTransportControls(int id) {
@@ -1624,11 +1624,11 @@ public class MediaControlView extends ViewGroup {
         mSubSettingsAdapter.setCheckPosition(mSelectedSpeedIndex);
     }
 
-    void updateForStoppedState(boolean isStopped) {
+    void updateReplayButton(boolean toBeShown) {
         ImageButton playPauseButton = findControlButton(mSizeType, R.id.pause);
         ImageButton ffwdButton = findControlButton(mSizeType, R.id.ffwd);
-        if (isStopped) {
-            mIsStopped = true;
+        if (toBeShown) {
+            mIsShowingReplayButton = true;
             if (playPauseButton != null) {
                 playPauseButton.setImageDrawable(
                         mResources.getDrawable(R.drawable.ic_replay_circle_filled));
@@ -1640,7 +1640,7 @@ public class MediaControlView extends ViewGroup {
                 ffwdButton.setEnabled(false);
             }
         } else {
-            mIsStopped = false;
+            mIsShowingReplayButton = false;
             if (playPauseButton != null) {
                 if (mController.isPlaying()) {
                     playPauseButton.setImageDrawable(
@@ -2009,7 +2009,7 @@ public class MediaControlView extends ViewGroup {
                             removeCallbacks(mUpdateProgress);
                             post(mUpdateProgress);
                             resetHideCallbacks();
-                            updateForStoppedState(false);
+                            updateReplayButton(false);
                             break;
                         case SessionPlayer.PLAYER_STATE_PAUSED:
                             playPauseButton.setImageDrawable(
@@ -2089,7 +2089,7 @@ public class MediaControlView extends ViewGroup {
                 if (DEBUG) {
                     Log.d(TAG, "onPlaybackCompleted()");
                 }
-                updateForStoppedState(true);
+                updateReplayButton(true);
                 // The progress bar and current time text may not have been updated.
                 mProgress.setProgress(MAX_PROGRESS);
                 mCurrentTime.setText(stringForTime(mDuration));
