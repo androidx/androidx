@@ -85,6 +85,10 @@ public final class Camera2ImplCameraRepositoryTest {
 
     @Test
     public void cameraDeviceCallsAreForwardedToCallback() throws InterruptedException {
+        mUseCase.addStateChangeListener(
+                mCameraRepository.getCamera(
+                        getCameraIdForLensFacingUnchecked(mConfiguration.getLensFacing())));
+        mUseCase.doNotifyActive();
         mCameraRepository.onGroupActive(mUseCaseGroup);
 
         // Wait for the CameraDevice.onOpened callback.
