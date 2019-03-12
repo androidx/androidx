@@ -492,18 +492,18 @@ public class WebViewCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#GET_WEB_VIEW_RENDERER}.
      *
-     * @return the {@link WebViewRenderer} renderer handle associated
+     * @return the {@link WebViewRenderProcess} renderer handle associated
      *         with this {@link android.webkit.WebView}, or {@code null} if
      *         WebView is not runing in multiprocess mode.
      */
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.GET_WEB_VIEW_RENDERER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static @Nullable WebViewRenderer getWebViewRenderer(@NonNull WebView webview) {
+    public static @Nullable WebViewRenderProcess getWebViewRenderProcess(@NonNull WebView webview) {
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.GET_WEB_VIEW_RENDERER);
         if (feature.isSupportedByWebView()) {
-            return getProvider(webview).getWebViewRenderer();
+            return getProvider(webview).getWebViewRenderProcess();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -513,20 +513,20 @@ public class WebViewCompat {
      * Sets the renderer client object associated with this WebView.
      *
      * <p>The renderer client encapsulates callbacks relevant to WebView renderer
-     * state. See {@link WebViewRendererClient} for details.
+     * state. See {@link WebViewRenderProcessClient} for details.
      *
      * <p>Although many WebView instances may share a single underlying renderer, and renderers may
      * live either in the application process, or in a sandboxed process that is isolated from
-     * the application process, instances of {@link WebViewRendererClient} are set per-WebView.
+     * the application process, instances of {@link WebViewRenderProcessClient} are set per-WebView.
      * Callbacks represent renderer events from the perspective of this WebView, and may or may
      * not be correlated with renderer events affecting other WebViews.
      *
      * <p>The renderer client encapsulates callbacks relevant to WebView renderer
-     * state. See {@link WebViewRendererClient} for details.
+     * state. See {@link WebViewRenderProcessClient} for details.
      *
      * <p>Although many WebView instances may share a single underlying renderer, and renderers may
      * live either in the application process, or in a sandboxed process that is isolated from
-     * the application process, instances of {@link WebViewRendererClient} are set per-WebView.
+     * the application process, instances of {@link WebViewRenderProcessClient} are set per-WebView.
      * Callbacks represent renderer events from the perspective of this WebView, and may or may
      * not be correlated with renderer events affecting other WebViews.
      *
@@ -536,18 +536,20 @@ public class WebViewCompat {
      *
      * @param webview the {@link WebView} on which to monitor responsiveness.
      * @param executor the {@link Executor} that will be used to execute callbacks.
-     * @param webViewRendererClient the {@link WebViewRendererClient} to set for callbacks.
+     * @param webViewRenderProcessClient the {@link WebViewRenderProcessClient} to set for
+     *                                   callbacks.
      */
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static void setWebViewRendererClient(
+    public static void setWebViewRenderProcessClient(
             @NonNull WebView webview,
             @NonNull /* @CallbackExecutor */ Executor executor,
-            @NonNull WebViewRendererClient webViewRendererClient) {
+            @NonNull WebViewRenderProcessClient webViewRenderProcessClient) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
                 WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
         if (feature.isSupportedByWebView()) {
-            getProvider(webview).setWebViewRendererClient(executor, webViewRendererClient);
+            getProvider(webview).setWebViewRenderProcessClient(
+                    executor, webViewRenderProcessClient);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -556,12 +558,12 @@ public class WebViewCompat {
     /**
      * Sets the renderer client object associated with this WebView.
      *
-     * <p>See {@link #setWebViewRendererClient(WebView,Executor,WebViewRendererClient} for details,
-     * with the following differences:
+     * <p>See {@link #setWebViewRenderProcessClient(WebView,Executor,WebViewRenderProcessClient} for
+     * details, with the following differences:
      *
      * <p>Callbacks will execute directly on the thread on which this WebView was instantiated.
      *
-     * <p>Passing {@code null} for {@code webViewRendererClien} will clear the renderer client
+     * <p>Passing {@code null} for {@code webViewRenderProcessClien} will clear the renderer client
      * object for this WebView.
      *
      * <p>This method should only be called if
@@ -569,16 +571,18 @@ public class WebViewCompat {
      * returns true for {@link WebViewFeature#WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE}.
      *
      * @param webview the {@link WebView} on which to monitor responsiveness.
-     * @param webViewRendererClient the {@link WebViewRendererClient} to set for callbacks.
+     * @param webViewRenderProcessClient the {@link WebViewRenderProcessClient} to set for
+     *                                   callbacks.
      */
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static void setWebViewRendererClient(
-            @NonNull WebView webview, @Nullable WebViewRendererClient webViewRendererClient) {
+    public static void setWebViewRenderProcessClient(
+            @NonNull WebView webview,
+            @Nullable WebViewRenderProcessClient webViewRenderProcessClient) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
                 WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
         if (feature.isSupportedByWebView()) {
-            getProvider(webview).setWebViewRendererClient(null, webViewRendererClient);
+            getProvider(webview).setWebViewRenderProcessClient(null, webViewRenderProcessClient);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -591,18 +595,19 @@ public class WebViewCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE}.
      *
-     * @return the {@link WebViewRendererClient} object associated with this WebView, if one has
-     * been set via {@link #setWebViewRendererClient(WebView,WebViewRendererClient)} or {@code null}
+     * @return the {@link WebViewRenderProcessClient} object associated with this WebView, if
+     * one has been set via
+     * {@link #setWebViewRenderProcessClient(WebView,WebViewRenderProcessClient)} or {@code null}
      * otherwise.
      */
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static @Nullable WebViewRendererClient getWebViewRendererClient(
+    public static @Nullable WebViewRenderProcessClient getWebViewRenderProcessClient(
             @NonNull WebView webview) {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
                 WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
         if (feature.isSupportedByWebView()) {
-            return getProvider(webview).getWebViewRendererClient();
+            return getProvider(webview).getWebViewRenderProcessClient();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

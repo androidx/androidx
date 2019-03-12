@@ -16,12 +16,10 @@
 
 package androidx.webkit;
 
-import androidx.annotation.RestrictTo;
-
 /**
- * WebViewRenderer provides an opaque handle to a WebView renderer.
+ * WebViewRenderProcess provides an opaque handle to a WebView renderer.
  */
-public abstract class WebViewRenderer {
+public abstract class WebViewRenderProcess {
     /**
      * Cause this renderer to terminate.
      *
@@ -30,7 +28,7 @@ public abstract class WebViewRenderer {
      * <p>Terminating a renderer process may have an effect on multiple
      * {@link android.webkit.WebView} instances.
      *
-     * <p>Renderer termination must be handled by properly overriding
+     * <p>RenderProcess termination must be handled by properly overriding
      * {@link android.webkit.WebViewClient#onRenderProcessGone} for every WebView that shares this
      * renderer. If termination is not handled by all associated WebViews, then the application
      * process will also be terminated.
@@ -43,11 +41,6 @@ public abstract class WebViewRenderer {
      */
     public abstract boolean terminate();
 
-    /**
-     * This class cannot be created by applications.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public WebViewRenderer() {
+    public WebViewRenderProcess() {
     }
 }
