@@ -19,7 +19,7 @@ package androidx.ui.layout
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.Layout
 import androidx.ui.core.center
 import androidx.ui.core.isFinite
 import com.google.r4a.Children
@@ -64,8 +64,8 @@ data class Alignment(val verticalBias: Float, val horizontalBias: Float) {
  */
 @Composable
 fun Align(alignment: Alignment, @Children children: () -> Unit) {
-    <MeasureBox> constraints ->
-        val measurable = collect(children).firstOrNull()
+    <Layout layoutBlock ={ measurables, constraints ->
+        val measurable = measurables.firstOrNull()
         if (measurable == null) {
             layout(constraints.minWidth, constraints.minHeight) {}
         } else {
@@ -96,7 +96,7 @@ fun Align(alignment: Alignment, @Children children: () -> Unit) {
                 placeable.place(position.x, position.y)
             }
         }
-    </MeasureBox>
+    } children />
 }
 
 /**

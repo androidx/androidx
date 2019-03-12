@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019 The Android Open Source Project
  *
@@ -20,9 +19,7 @@ import android.app.Instrumentation
 import android.graphics.Bitmap
 import android.os.Handler
 import android.view.PixelCopy
-import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -31,17 +28,19 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.Layout
+import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.PxPosition
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.ipx
 import androidx.ui.core.max
+import androidx.ui.core.px
 import androidx.ui.core.toRect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import com.google.r4a.Children
 import com.google.r4a.Composable
-import com.google.r4a.Model
 import com.google.r4a.composeInto
 import com.google.r4a.composer
 import org.junit.Assert.assertEquals
@@ -54,9 +53,14 @@ import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
+/**
+ * Corresponds to ContainingViewTest, but tests single composition measure, layout and draw.
+ * It also tests that layouts with both Layout and MeasureBox work.
+ * TODO(popam): remove this comment and ContainingViewTest when ComplexMeasureBox is removed
+ */
 @SmallTest
 @RunWith(JUnit4::class)
-class ContainingViewTest {
+class AndroidLayoutDrawTest {
     @get:Rule
     val activityTestRule = ActivityTestRule<TestActivity>(
         TestActivity::class.java
@@ -129,7 +133,7 @@ class ContainingViewTest {
         runOnUiThread {
             activity.composeInto {
                 <CraneWrapper>
-                    <Padding size=(model.size * 3)>
+                    <SingleCompositionPadding size=(model.size * 3)>
                         <Draw> canvas, parentSize ->
                             val paint = Paint().apply {
                                 color = model.outerColor
@@ -137,7 +141,7 @@ class ContainingViewTest {
                             canvas.drawRect(parentSize.toRect(), paint)
                             drawLatch.countDown()
                         </Draw>
-                    </Padding>
+                    </SingleCompositionPadding>
                 </CraneWrapper>
             }
         }
@@ -159,6 +163,37 @@ class ContainingViewTest {
         validateSquareColors(outerColor = blue, innerColor = blue, size = 30)
     }
 
+    // TODO(popam): remove this test when MeasureBox goes away
+    @Test
+    fun mixedMeasureBoxAndLayoutTest() {
+        val size = 20.ipx
+
+        val countDownLatch = CountDownLatch(1)
+        var position = PxPosition(-1.px, -1.px)
+        runOnUiThread {
+            activity.composeInto {
+                <CraneWrapper>
+                    <Padding size>
+                        <SingleCompositionPadding size>
+                            <Padding size>
+                                <OnChildPositioned onPositioned = { coordinates ->
+                                    position = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                                    countDownLatch.countDown()} >
+                                    <Layout layoutBlock = { _, constraints ->
+                                        layout(constraints.minWidth, constraints.minHeight) {}
+                                    } children = {} />
+                                </OnChildPositioned>
+                            </Padding>
+                        </SingleCompositionPadding>
+                    </Padding>
+                </CraneWrapper>
+            }
+        }
+        assertTrue(countDownLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(PxPosition(size * 3, size * 3), position)
+    }
+
     // We only need this because IR compiler doesn't like converting lambdas to Runnables
     private fun runOnUiThread(block: () -> Unit) {
         val runnable: Runnable = object : Runnable {
@@ -178,16 +213,16 @@ class ContainingViewTest {
                         paint.color = model.outerColor
                         canvas.drawRect(parentSize.toRect(), paint)
                     </Draw>
-                    <Padding size=model.size>
-                        <AtLeastSize size=model.size>
+                    <SingleCompositionPadding size=model.size>
+                        <SingleCompositionAtLeastSize size=model.size>
                             <Draw> canvas, parentSize ->
                                 drawLatch.countDown()
                                 val paint = Paint()
                                 paint.color = model.innerColor
                                 canvas.drawRect(parentSize.toRect(), paint)
                             </Draw>
-                        </AtLeastSize>
-                    </Padding>
+                        </SingleCompositionAtLeastSize>
+                    </SingleCompositionPadding>
                 </CraneWrapper>
             }
         }
@@ -256,7 +291,7 @@ class ContainingViewTest {
 
         val dest =
             Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val srcRect = android.graphics.Rect(0, 0, width, height)
+        val srcRect = android.graphics.Rect(0, 0, width, width)
         srcRect.offset(offset[0], offset[1])
         val latch = CountDownLatch(1)
         var copyResult = 0
@@ -274,9 +309,8 @@ class ContainingViewTest {
 }
 
 @Composable
-fun AtLeastSize(size: IntPx, @Children children: @Composable() () -> Unit) {
-    <MeasureBox> constraints ->
-        val measurables = collect(children)
+fun SingleCompositionAtLeastSize(size: IntPx, @Children children: @Composable() () -> Unit) {
+    <Layout layoutBlock = { measurables, constraints ->
         val newConstraints = Constraints(
             minWidth = max(size, constraints.minWidth),
             maxWidth = max(size, constraints.maxWidth),
@@ -297,13 +331,12 @@ fun AtLeastSize(size: IntPx, @Children children: @Composable() () -> Unit) {
                 child.place(0.ipx, 0.ipx)
             }
         }
-    </MeasureBox>
+    } children />
 }
 
 @Composable
-fun Padding(size: IntPx, @Children children: @Composable() () -> Unit) {
-    <MeasureBox> constraints ->
-        val measurables = collect(children)
+fun SingleCompositionPadding(size: IntPx, @Children children: @Composable() () -> Unit) {
+    <Layout layoutBlock = { measurables, constraints ->
         val totalDiff = size * 2
         val newConstraints = Constraints(
             minWidth = (constraints.minWidth - totalDiff).coerceAtLeast(0.ipx),
@@ -325,27 +358,5 @@ fun Padding(size: IntPx, @Children children: @Composable() () -> Unit) {
                 child.place(size, size)
             }
         }
-    </MeasureBox>
+    } children />
 }
-
-class DrawCounterListener(private val view: View) :
-    ViewTreeObserver.OnPreDrawListener {
-    val latch = CountDownLatch(5)
-
-    override fun onPreDraw(): Boolean {
-        latch.countDown()
-        if (latch.count > 0) {
-            view.postInvalidate()
-        } else {
-            view.getViewTreeObserver().removeOnPreDrawListener(this)
-        }
-        return true
-    }
-}
-
-@Model
-class SquareModel(
-    var size: IntPx = 10.ipx,
-    var outerColor: Color = Color(0xFF000080.toInt()),
-    var innerColor: Color = Color(0xFFFFFFFF.toInt())
-)

@@ -26,6 +26,16 @@ import com.google.r4a.composer
 import com.google.r4a.onCommit
 import com.google.r4a.unaryPlus
 
+// Temporary interface for MeasurableImpl and ComplexLayoutState, while we need to support
+// both MeasureBox and Layout. TODO(popam): remove this when MeasureBox goes away
+internal interface InternalMeasurable {
+    fun measure(constraints: Constraints): Placeable
+    fun minIntrinsicWidth(h: IntPx): IntPx
+    fun maxIntrinsicWidth(h: IntPx): IntPx
+    fun minIntrinsicHeight(w: IntPx): IntPx
+    fun maxIntrinsicHeight(w: IntPx): IntPx
+}
+
 /**
  * A part of the composition that can be measured. This represents a [ComplexMeasureBox] somewhere
  * down the hierarchy.
@@ -33,8 +43,8 @@ import com.google.r4a.unaryPlus
  * @return a [Placeable] that can be used within a [layoutResult] block
  */
 // TODO(mount): Make this an inline class when private constructors are possible
-internal class MeasurableImpl internal constructor(private val measureBox: ComplexMeasureBox) :
-    Measurable {
+internal class MeasurableImpl internal constructor(internal val measureBox: ComplexMeasureBox) :
+    Measurable, InternalMeasurable {
     private fun runBlock() {
         measureBox.minIntrinsicWidthBlock = ComplexMeasureBox.IntrinsicMeasurementStub
         measureBox.maxIntrinsicWidthBlock = ComplexMeasureBox.IntrinsicMeasurementStub
@@ -56,28 +66,28 @@ internal class MeasurableImpl internal constructor(private val measureBox: Compl
         }
     }
 
-    internal fun measure(constraints: Constraints): Placeable {
+    override fun measure(constraints: Constraints): Placeable {
         runBlock()
         measureBox.measure(constraints)
         return MeasuredPlaceable(measureBox)
     }
 
-    internal fun minIntrinsicWidth(h: IntPx): IntPx {
+    override fun minIntrinsicWidth(h: IntPx): IntPx {
         runBlock()
         return measureBox.minIntrinsicWidthBlock(measureBox.intrinsicMeasurementsReceiver, h)
     }
 
-    internal fun maxIntrinsicWidth(h: IntPx): IntPx {
+    override fun maxIntrinsicWidth(h: IntPx): IntPx {
         runBlock()
         return measureBox.maxIntrinsicWidthBlock(measureBox.intrinsicMeasurementsReceiver, h)
     }
 
-    internal fun minIntrinsicHeight(w: IntPx): IntPx {
+    override fun minIntrinsicHeight(w: IntPx): IntPx {
         runBlock()
         return measureBox.minIntrinsicHeightBlock(measureBox.intrinsicMeasurementsReceiver, w)
     }
 
-    internal fun maxIntrinsicHeight(w: IntPx): IntPx {
+    override fun maxIntrinsicHeight(w: IntPx): IntPx {
         runBlock()
         return measureBox.maxIntrinsicHeightBlock(measureBox.intrinsicMeasurementsReceiver, w)
     }
@@ -144,6 +154,10 @@ internal class DummyPlaceable(override val width: IntPx, override val height: In
  * of the child.
  * @see [MeasureBox]
  */
+@Deprecated(
+    message = "Please use androidx.ui.core.ComplexLayout instead when possible.",
+    replaceWith = ReplaceWith("androidx.ui.core.ComplexLayout")
+)
 class ComplexMeasureBox(
     @Children(composable = false) var block: ComplexMeasureBoxReceiver.() -> Unit
 ) : Component() {
@@ -201,8 +215,12 @@ class ComplexMeasureBox(
         // b) when the child of the MeasureBox is positioned - `onChildPositioned`
         // To create LayoutNodeCoordinates only once here we will call callbacks from
         // both `onPositioned` and our parent MeasureBox's `onChildPositioned`.
-        val parentMeasureBox = (layoutNode.parentLayoutNode?.measureBox as ComplexMeasureBox?)
-        val parentOnChildPositioned = parentMeasureBox?.onChildPositioned
+        val parentMeasureBox = layoutNode.parentLayoutNode?.measureBox
+        val parentOnChildPositioned = when (parentMeasureBox) {
+            is ComplexLayoutState -> parentMeasureBox.onChildPositioned
+            is ComplexMeasureBox -> parentMeasureBox.onChildPositioned
+            else -> null
+        }
         if (onPositioned.isNotEmpty() || !parentOnChildPositioned.isNullOrEmpty()) {
             val coordinates = LayoutNodeCoordinates(layoutNode)
             onPositioned.forEach { it.invoke(coordinates) }
@@ -272,9 +290,17 @@ class ComplexMeasureBoxReceiver internal constructor(
         return layoutNode.childrenMeasureBoxes()
             .drop(boxesSoFar)
             .map { measureBox ->
-                measureBox as ComplexMeasureBox
-                measureBox.layoutNode.visible = false
-                MeasurableImpl(measureBox)
+                when (measureBox) {
+                    is ComplexMeasureBox -> {
+                        measureBox.layoutNode.visible = false
+                        MeasurableImpl(measureBox) as Measurable
+                    }
+                    is ComplexLayoutState -> {
+                        measureBox.layoutNode.visible = false
+                        measureBox as Measurable
+                    }
+                    else -> error("Invalid ComplexMeasureBox child found")
+                }
             }
     }
 
@@ -329,13 +355,15 @@ class ComplexMeasureBoxReceiver internal constructor(
 @LayoutDsl
 class IntrinsicMeasurementsReceiver internal constructor(
     private val measureBox: ComplexMeasureBox
-) {
+) : DensityReceiver {
+    override val density: Density
+        get() = measureBox.density
     fun collect(@Children children: () -> Unit) =
         measureBox.complexMeasureBoxReceiver.collect(children)
-    fun Measurable.minIntrinsicWidth(h: IntPx) = (this as MeasurableImpl).minIntrinsicWidth(h)
-    fun Measurable.maxIntrinsicWidth(h: IntPx) = (this as MeasurableImpl).maxIntrinsicWidth(h)
-    fun Measurable.minIntrinsicHeight(w: IntPx) = (this as MeasurableImpl).minIntrinsicHeight(w)
-    fun Measurable.maxIntrinsicHeight(w: IntPx) = (this as MeasurableImpl).maxIntrinsicHeight(w)
+    fun Measurable.minIntrinsicWidth(h: IntPx) = (this as InternalMeasurable).minIntrinsicWidth(h)
+    fun Measurable.minIntrinsicHeight(w: IntPx) = (this as InternalMeasurable).minIntrinsicHeight(w)
+    fun Measurable.maxIntrinsicWidth(h: IntPx) = (this as InternalMeasurable).maxIntrinsicWidth(h)
+    fun Measurable.maxIntrinsicHeight(w: IntPx) = (this as InternalMeasurable).maxIntrinsicHeight(w)
 }
 
 /**
@@ -344,9 +372,12 @@ class IntrinsicMeasurementsReceiver internal constructor(
 @LayoutDsl
 class LayoutBlockReceiver internal constructor(
     private val complexMeasureBox: ComplexMeasureBox
-) {
+) : DensityReceiver {
+    override val density: Density
+        get() = complexMeasureBox.density
+
     fun Measurable.measure(constraints: Constraints): Placeable {
-        this as MeasurableImpl
+        this as InternalMeasurable
         return measure(constraints)
     }
     fun layoutResult(
@@ -359,10 +390,10 @@ class LayoutBlockReceiver internal constructor(
     }
     fun collect(@Children children: () -> Unit) =
         complexMeasureBox.complexMeasureBoxReceiver.collect(children)
-    fun Measurable.minIntrinsicWidth(h: IntPx) = (this as MeasurableImpl).minIntrinsicWidth(h)
-    fun Measurable.maxIntrinsicWidth(h: IntPx) = (this as MeasurableImpl).maxIntrinsicWidth(h)
-    fun Measurable.minIntrinsicHeight(w: IntPx) = (this as MeasurableImpl).minIntrinsicHeight(w)
-    fun Measurable.maxIntrinsicHeight(w: IntPx) = (this as MeasurableImpl).maxIntrinsicHeight(w)
+    fun Measurable.minIntrinsicWidth(h: IntPx) = (this as InternalMeasurable).minIntrinsicWidth(h)
+    fun Measurable.minIntrinsicHeight(w: IntPx) = (this as InternalMeasurable).minIntrinsicHeight(w)
+    fun Measurable.maxIntrinsicWidth(h: IntPx) = (this as InternalMeasurable).maxIntrinsicWidth(h)
+    fun Measurable.maxIntrinsicHeight(w: IntPx) = (this as InternalMeasurable).maxIntrinsicHeight(w)
 }
 
 /**
@@ -370,6 +401,10 @@ class LayoutBlockReceiver internal constructor(
  * If a layout of this [MeasureBox] queries the intrinsics, an exception will be thrown.
  * This [MeasureBox] is built using public API on top of [ComplexMeasureBox].
  */
+@Deprecated(
+    message = "Please use androidx.ui.core.Layout instead when possible.",
+    replaceWith = ReplaceWith("androidx.ui.core.Layout")
+)
 @Composable
 class MeasureBox(
     @Children(composable = false) var block: MeasureBoxReceiver.(constraints: Constraints) -> Unit

@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.ui.core
 
-package androidx.ui.core.adapter
-
-import com.google.r4a.Children
-import com.google.r4a.Composable
-
-// Ignore that the IDEA cannot resolve this.
-import androidx.ui.core.CraneWrapperComposable
-
-@Composable
-@Suppress("PLUGIN_ERROR")
-fun CraneWrapper(@Children children: () -> Unit) {
-    CraneWrapperComposable(children)
+/**
+ * A [Placeable] corresponds to a child which can be positioned by its parent container.
+ * Most [Placeable]s are the result of a [Measureable.measure] call.
+ */
+// TODO(popam): investigate if this interface is really needed, as it blocks making
+//              MeasuredPlaceable an inline class
+open class Placeable(internal var placeBlock: (IntPx, IntPx) -> Unit) {
+    open val width: IntPx get() = IntPx.Zero
+    open val height: IntPx get() = IntPx.Zero
 }

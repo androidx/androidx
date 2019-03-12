@@ -16,14 +16,20 @@
 
 package androidx.r4a
 
-import androidx.ui.core.ComplexMeasureBox
+import android.os.Handler
 import androidx.ui.core.Constraints
-import androidx.ui.core.CraneWrapper
+import androidx.ui.core.ComplexMeasureBox
 import androidx.ui.core.Dp
+import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.MeasureBox
+import androidx.ui.core.Layout
+import androidx.ui.core.ComplexLayout
+import androidx.ui.core.CraneWrapper
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
+import androidx.ui.core.max
+import androidx.ui.core.toRect
 import androidx.ui.layout.Align
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.Center
@@ -40,9 +46,15 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.painting.Color
+import androidx.ui.painting.Paint
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.Model
 import com.google.r4a.composer
+import com.google.r4a.effectOf
+import com.google.r4a.memo
+import com.google.r4a.onCommit
+import com.google.r4a.unaryPlus
 
 /**
  * Draws a rectangle of a specified dimension, or to its max incoming constraints if
@@ -306,12 +318,156 @@ fun RowWithMainAxisSizeUsage() {
     </Center>
 }
 
-/**
- * Entry point for the activity.
- */
 @Composable
-fun ComplexLayout() {
+fun SingleCompositionRow(@Children children: () -> Unit) {
+    <Layout layoutBlock = { measurables, constraints ->
+        val placeables = measurables.map {
+            it.measure(constraints.copy(minWidth = 0.ipx, maxWidth = IntPx.Infinity))
+        }
+        val width = placeables.fold(0.ipx) { sum, placeable -> sum + placeable.width }
+        val height = placeables.fold(0.ipx) { max, placeable -> max(max, placeable.height) }
+
+        layout(width, height) {
+            var left = 0.ipx
+            placeables.forEach { placeable ->
+                placeable.place(left, 0.ipx)
+                left += placeable.width
+            }
+        }
+    } children />
+}
+
+@Composable
+fun SingleCompositionColumn(@Children children: () -> Unit) {
+    <Layout layoutBlock = { measurables, constraints ->
+        val placeables = measurables.map {
+            it.measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))
+        }
+        val width = placeables.fold(0.ipx) { max, placeable -> max(max, placeable.width) }
+        val height = placeables.fold(0.ipx) { sum, placeable -> sum + placeable.height }
+
+        layout(width, height) {
+            var top = 0.ipx
+            placeables.forEach { placeable ->
+                placeable.place(0.ipx, top)
+                top += placeable.height
+            }
+        }
+    } children />
+}
+
+@Composable
+fun SingleCompositionRect() {
+    val Rectangle = @Composable {
+            <Draw> canvas, parentSize ->
+                val paint = Paint().apply { this.color = rectColorModel.color }
+                canvas.drawRect(parentSize.toRect(), paint)
+            </Draw>
+        }
+    <Layout layoutBlock = { measurables, constraints ->
+        layout(100.ipx, 100.ipx) {}
+    } children=Rectangle />
+}
+
+@Model
+class RectColor(var color: Color = Color(0xFF00FF00.toInt()), var cnt: Int = 4)
+val rectColorModel = RectColor()
+
+@Composable
+fun SingleCompositionRectWithIntrinsics() {
+    val Rectangle = @Composable {
+        <Draw> canvas, parentSize ->
+            val paint = Paint().apply { this.color = rectColorModel.color }
+            canvas.drawRect(parentSize.toRect(), paint)
+        </Draw>
+    }
+    <ComplexLayout
+        layoutBlock={ _, constraints ->
+            layoutResult(50.ipx, 50.ipx) {}
+        }
+        minIntrinsicWidthBlock={ _, _ -> 50.ipx }
+        maxIntrinsicWidthBlock={ _, _ -> 50.ipx }
+        minIntrinsicHeightBlock={ _, _ -> 50.ipx }
+        maxIntrinsicHeightBlock={ _, _ -> 50.ipx }
+        children=Rectangle />
+}
+
+@Composable
+fun SingleCompositionRowWithIntrinsics(@Children children: () -> Unit) {
+    <ComplexLayout
+        layoutBlock={ measurables, constraints ->
+            val placeables = measurables.map { measurable ->
+                val childWidth = measurable.maxIntrinsicWidth(constraints.maxHeight)
+                measurable.measure(Constraints(
+                    childWidth, childWidth, 0.ipx, constraints.maxHeight
+                ))
+            }
+            val width = placeables.map { it.width }.sum()
+            val height = placeables.map { it.height }.max()
+
+            layoutResult(width, height) {
+                var left = 0.ipx
+                placeables.forEach { placeable ->
+                    placeable.place(left, 0.ipx)
+                    left += placeable.width
+                }
+            }
+        }
+        minIntrinsicWidthBlock={ measurables, h ->
+            measurables.map { it.minIntrinsicWidth(h) }.sum()
+        }
+        maxIntrinsicWidthBlock={ measurables, h ->
+            measurables.map { it.maxIntrinsicWidth(h) }.sum()
+        }
+        minIntrinsicHeightBlock={ measurables, w ->
+            measurables.map { it.minIntrinsicHeight(w) }.max()
+        }
+        maxIntrinsicHeightBlock={ measurables, w ->
+            measurables.map { it.maxIntrinsicHeight(w) }.max()
+        }
+        children />
+}
+
+@Composable
+fun ComplexLayoutDemos() {
+    +runDelayed(3000) {
+        rectColorModel.color = Color(0xFF0000FF.toInt())
+        rectColorModel.cnt++
+    }
     <CraneWrapper>
-        <RowWithMainAxisSizeUsage />
+        <Padding padding=EdgeInsets(50.dp)>
+            <SingleCompositionRect />
+        </Padding>
     </CraneWrapper>
+}
+
+fun runDelayed(millis: Int, block: () -> Unit) = effectOf<Unit> {
+    val handler = +memo { Handler() }
+    +onCommit {
+        val runnable = object : Runnable {
+            override fun run() {
+                block()
+            }
+        }
+        handler.postDelayed(runnable, millis.toLong())
+        onDispose {
+            handler.removeCallbacks(runnable)
+        }
+    }
+}
+
+fun Collection<IntPx>.sum(): IntPx {
+    var result = 0.ipx
+    for (item in this) {
+        result += item
+    }
+    return result
+}
+
+fun Collection<IntPx>.max(): IntPx {
+    var result = 0.ipx
+    for (item in this) {
+        result = max(result, item)
+    }
+    return result
 }

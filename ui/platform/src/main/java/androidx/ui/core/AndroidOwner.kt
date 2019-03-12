@@ -49,15 +49,15 @@ class AndroidCraneView constructor(context: Context)
     private val modelToDrawNodes = mutableMapOf<Any, MutableSet<DrawNode>>()
     private val drawNodeToModels = mutableMapOf<DrawNode, MutableSet<Any>>()
 
-    var onMeasureRecompose: () -> Unit = {}
-    var ref: Array<AndroidCraneView?>? = null
+    var requestLayoutOnNodesLayoutChange = true
+    var onMeasureRecompose: (Constraints) -> Unit = {}
+    var ref: Ref<AndroidCraneView>? = null
         set(value) {
             field = value
             if (value != null) {
-                value[0] = this
+                value.value = this
             }
         }
-
     private val pointerInputEventProcessor = PointerInputEventProcessor(root)
 
     var constraints = Constraints.tightConstraints(width = IntPx.Zero, height = IntPx.Zero)
@@ -120,7 +120,7 @@ class AndroidCraneView constructor(context: Context)
     override fun onSizeChange(layoutNode: LayoutNode) {
         // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
 //        ownerScope.launch {
-        requestLayout()
+        if (requestLayoutOnNodesLayoutChange) requestLayout()
 //        }
 
         adjustedLayouts.add(layoutNode)
@@ -129,9 +129,14 @@ class AndroidCraneView constructor(context: Context)
     override fun onPositionChange(layoutNode: LayoutNode) {
         // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
 //        ownerScope.launch {
-        requestLayout()
+        if (requestLayoutOnNodesLayoutChange) requestLayout()
 //        }
         adjustedLayouts.add(layoutNode)
+    }
+
+    override fun onRequestLayout() {
+        requestLayout()
+        adjustedLayouts.add(root)
     }
 
     override fun onAttach(node: ComponentNode) {
@@ -185,7 +190,7 @@ class AndroidCraneView constructor(context: Context)
             this.constraints = constraints
         }
         if (constraintsChagned || adjustedLayouts.isNotEmpty()) {
-            onMeasureRecompose()
+            onMeasureRecompose(constraints)
         }
 
         setMeasuredDimension(root.width.value, root.height.value)
@@ -197,6 +202,17 @@ class AndroidCraneView constructor(context: Context)
             val height = View.MeasureSpec.makeMeasureSpec(layoutHeight, View.MeasureSpec.EXACTLY)
             layout.androidData?.view?.measure(width, height)
         }
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        adjustedLayouts.forEach { layout ->
+            val left = layout.x.value
+            val top = layout.y.value
+            val right = left + layout.width.value
+            val bottom = top + layout.height.value
+            layout.androidData?.view?.layout(left, top, right, bottom)
+        }
+        adjustedLayouts.clear()
     }
 
     override fun onDraw(canvas: android.graphics.Canvas) {
@@ -223,17 +239,6 @@ class AndroidCraneView constructor(context: Context)
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         root.detach()
-    }
-
-    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        adjustedLayouts.forEach { layout ->
-            val left = layout.x.value
-            val top = layout.y.value
-            val right = left + layout.width.value
-            val bottom = top + layout.height.value
-            layout.androidData?.view?.layout(left, top, right, bottom)
-        }
-        adjustedLayouts.clear()
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
