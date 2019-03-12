@@ -6,10 +6,13 @@ set -e
 
 
 function getStudioUrl() {
+  propertiesFile="${scriptDir}/buildSrc/studio_versions.properties"
+  version="$(grep "studio_version=" ${propertiesFile} | sed 's/[^=]*=//')"
+  ideaMajorVersion="$(grep "idea_major_version=" ${propertiesFile} | sed 's/[^=]*=//')"
+  buildNumber="$(grep "studio_build_number=" ${propertiesFile} | sed 's/[^=]*=//')"
   osName="$1"
-  buildVersion="20190226"
   # Trusted server maintained by the R4A team to host internal builds of r4a in a maven repository.
-  studioUrl="https://us-central1-kompose-219700.cloudfunctions.net/as-r4a/$buildVersion/android-studio-$buildVersion.$osName.zip"
+  studioUrl="https://us-central1-kompose-219700.cloudfunctions.net/as-r4a/$buildNumber/android-studio-$buildNumber.$osName.zip"
   echo "${studioUrl}"
 }
 
