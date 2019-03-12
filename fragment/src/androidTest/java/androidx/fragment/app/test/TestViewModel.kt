@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.fragment.app.test;
+package androidx.fragment.app.test
 
-import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModel
 
-public class TestViewModel extends ViewModel {
-    public boolean mCleared = false;
+class TestViewModel : ViewModel() {
+    var cleared = false
 
-    @Override
-    protected void onCleared() {
-        mCleared = true;
+    override fun onCleared() {
+        cleared = true
     }
 }
