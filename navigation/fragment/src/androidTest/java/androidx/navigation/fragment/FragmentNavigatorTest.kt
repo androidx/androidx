@@ -274,10 +274,9 @@ class FragmentNavigatorTest {
         assertWithMessage("Initial Fragment should be on top of back stack after pop")
             .that(fragmentManager.findFragmentById(R.id.container))
             .isSameAs(initialFragment)
-        // TODO enable after fixing b/124332597 and moving to depend on AndroidX
-        /*assertWithMessage("Initial Fragment should be the primary navigation Fragment")
+        assertWithMessage("Initial Fragment should be the primary navigation Fragment")
             .that(fragmentManager.primaryNavigationFragment)
-            .isSameAs(initialFragment)*/
+            .isSameAs(initialFragment)
     }
 
     @UiThreadTest
