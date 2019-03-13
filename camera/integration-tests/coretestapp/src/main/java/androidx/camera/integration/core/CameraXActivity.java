@@ -199,7 +199,7 @@ public class CameraXActivity extends AppCompatActivity
 
                     @Override
                     public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-                        return false;
+                        return true;
                     }
 
                     @Override
