@@ -200,13 +200,15 @@ class AndroidCraneView constructor(context: Context)
     }
 
     override fun onDraw(canvas: android.graphics.Canvas) {
+        // Nothing to draw internally
+    }
+
+    override fun dispatchDraw(canvas: android.graphics.Canvas) {
         // Start looking for model changes:
         val current = suspend()
         val frame = open(readObserver = frameReadObserver)
         try {
-            // Walk children to look for DrawNodes
-            val wrappedCanvas = Canvas(canvas)
-            callDrawOnChildren(root, wrappedCanvas)
+            super.dispatchDraw(canvas)
         } finally {
             commit(frame)
             restore(current)
