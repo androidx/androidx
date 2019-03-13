@@ -18,81 +18,17 @@ package androidx.media2.widget;
 
 import android.content.Context;
 
-import androidx.media2.MediaItem;
-import androidx.media2.MediaMetadata;
 import androidx.media2.MediaPlayer;
 
 import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.ArrayList;
-import java.util.List;
 
 class VideoViewPlayer extends MediaPlayer {
     VideoViewPlayer(Context context) {
         super(context);
     }
 
-    private MediaItem mMediaItem;
-
     @Override
     public ListenableFuture<PlayerResult> seekTo(long position) {
         return super.seekTo(position, SEEK_CLOSEST);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////////////////
-    // Workarounds for not throwing UnsupportedOperationException.
-    // TODO: Remove overrides below.
-    ///////////////////////////////////////////////////////////////////////////////////////
-    @Override
-    public List<MediaItem> getPlaylist() {
-        try {
-            return super.getPlaylist();
-        } catch (Exception e) {
-            ArrayList<MediaItem> list = new ArrayList<>();
-            list.add(getCurrentMediaItem());
-            return list;
-        }
-    }
-
-    @Override
-    public MediaMetadata getPlaylistMetadata() {
-        try {
-            return super.getPlaylistMetadata();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @Override
-    public int getRepeatMode() {
-        try {
-            return super.getRepeatMode();
-        } catch (Exception e) {
-            return REPEAT_MODE_NONE;
-        }
-    }
-
-    @Override
-    public int getShuffleMode() {
-        try {
-            return super.getShuffleMode();
-        } catch (Exception e) {
-            return SHUFFLE_MODE_NONE;
-        }
-    }
-
-    @Override
-    public ListenableFuture<PlayerResult> setMediaItem(MediaItem item) {
-        mMediaItem = item;
-        return super.setMediaItem(item);
-    }
-
-    @Override
-    public MediaItem getCurrentMediaItem() {
-        try {
-            return super.getCurrentMediaItem();
-        } catch (Exception e) {
-            return mMediaItem;
-        }
     }
 }
