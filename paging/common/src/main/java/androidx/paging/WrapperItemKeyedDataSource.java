@@ -86,11 +86,6 @@ class WrapperItemKeyedDataSource<K, A, B> extends ItemKeyedDataSource<K, B> {
             public void onError(@NonNull Throwable error) {
                 callback.onError(error);
             }
-
-            @Override
-            public void onRetryableError(@NonNull Throwable error) {
-                callback.onRetryableError(error);
-            }
         });
     }
 
@@ -107,11 +102,6 @@ class WrapperItemKeyedDataSource<K, A, B> extends ItemKeyedDataSource<K, B> {
             public void onError(@NonNull Throwable error) {
                 callback.onError(error);
             }
-
-            @Override
-            public void onRetryableError(@NonNull Throwable error) {
-                callback.onRetryableError(error);
-            }
         });
     }
 
@@ -127,11 +117,6 @@ class WrapperItemKeyedDataSource<K, A, B> extends ItemKeyedDataSource<K, B> {
             @Override
             public void onError(@NonNull Throwable error) {
                 callback.onError(error);
-            }
-
-            @Override
-            public void onRetryableError(@NonNull Throwable error) {
-                callback.onRetryableError(error);
             }
         });
     }

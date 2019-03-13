@@ -32,7 +32,6 @@ class ListDataSource<T> extends PositionalDataSource<T> {
     public void loadInitial(@NonNull LoadInitialParams params,
             @NonNull LoadInitialCallback<T> callback) {
         final int totalCount = mList.size();
-
         final int position = computeInitialLoadPosition(params, totalCount);
         final int loadSize = computeInitialLoadSize(params, position, totalCount);
 
@@ -46,6 +45,6 @@ class ListDataSource<T> extends PositionalDataSource<T> {
     public void loadRange(@NonNull LoadRangeParams params,
             @NonNull LoadRangeCallback<T> callback) {
         callback.onResult(mList.subList(params.startPosition,
-                params.startPosition + params.loadSize));
+                Math.min(mList.size(), params.startPosition + params.loadSize)));
     }
 }

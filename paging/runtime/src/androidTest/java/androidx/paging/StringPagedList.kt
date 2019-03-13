@@ -28,6 +28,7 @@ class StringPagedList constructor(
         PagedList.Config.Builder().setPageSize(1).build()
 ), PagedStorage.Callback {
     val list = items.toList()
+    var detached = false
     init {
         @Suppress("UNCHECKED_CAST")
         val keyedStorage = mStorage as PagedStorage<String>
@@ -46,11 +47,19 @@ class StringPagedList constructor(
         return null
     }
 
+    override fun isDetached(): Boolean = detached
+
+    override fun detach() {
+        detached = true
+    }
+
     override fun dispatchUpdatesSinceSnapshot(
         storageSnapshot: PagedList<String>,
         callback: PagedList.Callback
     ) {
     }
+
+    override fun dispatchCurrentLoadState(listener: LoadStateListener?) {}
 
     override fun loadAroundInternal(index: Int) {}
 
@@ -59,10 +68,6 @@ class StringPagedList constructor(
     override fun onPagePrepended(leadingNulls: Int, changed: Int, added: Int) {}
 
     override fun onPageAppended(endPosition: Int, changed: Int, added: Int) {}
-
-    override fun onEmptyPrepend() {}
-
-    override fun onEmptyAppend() {}
 
     override fun onPagePlaceholderInserted(pageIndex: Int) {}
 

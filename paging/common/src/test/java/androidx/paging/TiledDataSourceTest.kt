@@ -16,36 +16,24 @@
 
 package androidx.paging
 
+import androidx.paging.futures.DirectExecutor
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
 
 @Suppress("DEPRECATION")
 @RunWith(JUnit4::class)
 class TiledDataSourceTest {
 
     fun TiledDataSource<String>.loadInitial(
-            startPosition: Int, count: Int, pageSize: Int): List<String> {
-        @Suppress("UNCHECKED_CAST")
-        val receiver = mock(PageResult.Receiver::class.java) as PageResult.Receiver<String>
-
-        this.dispatchLoadInitial(true, startPosition, count, pageSize, FailExecutor(), receiver)
-
-        @Suppress("UNCHECKED_CAST")
-        val argument = ArgumentCaptor.forClass(PageResult::class.java)
-                as ArgumentCaptor<PageResult<String>>
-        verify(receiver).onPageResult(eq(PageResult.INIT), argument.capture())
-        verifyNoMoreInteractions(receiver)
-
-        val observed = argument.value
-
-        return observed.page
+        startPosition: Int,
+        count: Int,
+        pageSize: Int
+    ): List<String> {
+        initExecutor(DirectExecutor.INSTANCE)
+        return loadInitial(PositionalDataSource.LoadInitialParams(
+            startPosition, count, pageSize, true)).get().data
     }
 
     @Test

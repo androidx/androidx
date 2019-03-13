@@ -42,6 +42,9 @@ class SnapshotPagedList<T> extends PagedList<T> {
     }
 
     @Override
+    public void detach() {}
+
+    @Override
     public boolean isDetached() {
         return true;
     }
@@ -66,6 +69,10 @@ class SnapshotPagedList<T> extends PagedList<T> {
     @Override
     void dispatchUpdatesSinceSnapshot(@NonNull PagedList<T> storageSnapshot,
             @NonNull Callback callback) {
+    }
+
+    @Override
+    void dispatchCurrentLoadState(LoadStateListener listener) {
     }
 
     @Override

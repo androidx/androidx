@@ -16,15 +16,14 @@
 
 package androidx.paging
 
+import androidx.paging.futures.DirectExecutor
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
@@ -39,20 +38,10 @@ class ItemKeyedDataSourceTest {
         key: Key?,
         initialLoadSize: Int,
         enablePlaceholders: Boolean
-    ): PageResult<Item> {
-        @Suppress("UNCHECKED_CAST")
-        val receiver = mock(PageResult.Receiver::class.java) as PageResult.Receiver<Item>
-        @Suppress("UNCHECKED_CAST")
-        val captor = ArgumentCaptor.forClass(PageResult::class.java)
-                as ArgumentCaptor<PageResult<Item>>
-
-        dataSource.dispatchLoadInitial(key, initialLoadSize,
-                /* ignored pageSize */ 10, enablePlaceholders, FailExecutor(), receiver)
-
-        verify(receiver).onPageResult(anyInt(), captor.capture())
-        verifyNoMoreInteractions(receiver)
-        assertNotNull(captor.value)
-        return captor.value
+    ): DataSource.BaseResult<Item> {
+        dataSource.initExecutor(DirectExecutor.INSTANCE)
+        return dataSource.loadInitial(
+            ItemKeyedDataSource.LoadInitialParams(key, initialLoadSize, enablePlaceholders)).get()
     }
 
     @Test
@@ -61,7 +50,7 @@ class ItemKeyedDataSourceTest {
         val result = loadInitial(dataSource, dataSource.getKey(ITEMS_BY_NAME_ID[49]), 10, true)
 
         assertEquals(45, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.page)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
         assertEquals(45, result.trailingNulls)
     }
 
@@ -73,7 +62,7 @@ class ItemKeyedDataSourceTest {
         val result = loadInitial(dataSource, dataSource.getKey(ITEMS_BY_NAME_ID[0]), 20, true)
 
         assertEquals(0, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(0, 1), result.page)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 1), result.data)
         assertEquals(0, result.trailingNulls)
     }
 
@@ -86,7 +75,7 @@ class ItemKeyedDataSourceTest {
         val result = loadInitial(dataSource, key, 20, true)
 
         assertEquals(90, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(90, 100), result.page)
+        assertEquals(ITEMS_BY_NAME_ID.subList(90, 100), result.data)
         assertEquals(0, result.trailingNulls)
     }
 
@@ -98,7 +87,7 @@ class ItemKeyedDataSourceTest {
         val result = loadInitial(dataSource, null, 10, true)
 
         assertEquals(0, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.page)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.data)
         assertEquals(90, result.trailingNulls)
     }
 
@@ -114,7 +103,7 @@ class ItemKeyedDataSourceTest {
         // do: load after was empty, so pass full size to load before, since this can incur larger
         // loads than requested (see keyMatchesLastItem test)
         assertEquals(95, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(95, 100), result.page)
+        assertEquals(ITEMS_BY_NAME_ID.subList(95, 100), result.data)
         assertEquals(0, result.trailingNulls)
     }
 
@@ -129,7 +118,7 @@ class ItemKeyedDataSourceTest {
         val result = loadInitial(dataSource, key, 10, false)
 
         assertEquals(0, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.page)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
         assertEquals(0, result.trailingNulls)
     }
 
@@ -142,7 +131,7 @@ class ItemKeyedDataSourceTest {
         val result = loadInitial(dataSource, key, 10, true)
 
         assertEquals(0, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.page)
+        assertEquals(ITEMS_BY_NAME_ID.subList(45, 55), result.data)
         assertEquals(0, result.trailingNulls)
     }
 
@@ -154,7 +143,7 @@ class ItemKeyedDataSourceTest {
         val result = loadInitial(dataSource, null, 10, true)
 
         assertEquals(0, result.leadingNulls)
-        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.page)
+        assertEquals(ITEMS_BY_NAME_ID.subList(0, 10), result.data)
         assertEquals(0, result.trailingNulls)
     }
 
@@ -169,7 +158,7 @@ class ItemKeyedDataSourceTest {
         val result = loadInitial(dataSource, key, 10, true)
 
         assertEquals(0, result.leadingNulls)
-        assertTrue(result.page.isEmpty())
+        assertTrue(result.data.isEmpty())
         assertEquals(0, result.trailingNulls)
     }
 
@@ -179,7 +168,7 @@ class ItemKeyedDataSourceTest {
         val result = loadInitial(dataSource, null, 10, true)
 
         assertEquals(0, result.leadingNulls)
-        assertTrue(result.page.isEmpty())
+        assertTrue(result.data.isEmpty())
         assertEquals(0, result.trailingNulls)
     }
 
@@ -318,13 +307,14 @@ class ItemKeyedDataSourceTest {
             }
         }
 
-        ContiguousPagedList<String, String>(
-                dataSource, FailExecutor(), FailExecutor(), null,
-                PagedList.Config.Builder()
-                        .setPageSize(10)
-                        .build(),
-                "",
-                ContiguousPagedList.LAST_LOAD_UNSPECIFIED)
+        PagedList.create(dataSource, FailExecutor(),
+            DirectExecutor.INSTANCE,
+            DirectExecutor.INSTANCE,
+            null,
+            PagedList.Config.Builder()
+                .setPageSize(10)
+                .build(),
+            "").get()
     }
 
     @Test
@@ -364,12 +354,6 @@ class ItemKeyedDataSourceTest {
         it.onResult(emptyList(), 0, 2)
     }
 
-    @Test
-    fun initialLoadCallbackInvalidThreeArg() = performLoadInitial(invalidateDataSource = true) {
-        // LoadInitialCallback doesn't throw on invalid args if DataSource is invalid
-        it.onResult(emptyList(), 0, 1)
-    }
-
     private abstract class WrapperDataSource<K, A, B>(private val source: ItemKeyedDataSource<K, A>)
             : ItemKeyedDataSource<K, B>() {
         override fun addInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
@@ -401,10 +385,6 @@ class ItemKeyedDataSourceTest {
                 override fun onError(error: Throwable) {
                     callback.onError(error)
                 }
-
-                override fun onRetryableError(error: Throwable) {
-                    callback.onRetryableError(error)
-                }
             })
         }
 
@@ -417,10 +397,6 @@ class ItemKeyedDataSourceTest {
                 override fun onError(error: Throwable) {
                     callback.onError(error)
                 }
-
-                override fun onRetryableError(error: Throwable) {
-                    callback.onRetryableError(error)
-                }
             })
         }
 
@@ -432,10 +408,6 @@ class ItemKeyedDataSourceTest {
 
                 override fun onError(error: Throwable) {
                     callback.onError(error)
-                }
-
-                override fun onRetryableError(error: Throwable) {
-                    callback.onRetryableError(error)
                 }
             })
         }

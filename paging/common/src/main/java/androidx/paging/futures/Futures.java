@@ -33,8 +33,43 @@ import java.util.concurrent.Executor;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Futures {
     private Futures() {}
-
-    private static <V> void addCallback(@NonNull final ListenableFuture<V> future,
+  /**
+   * Registers separate success and failure callbacks to be run when the {@code Future}'s
+   * computation is complete or, if the computation is already complete, immediately.
+   *
+   * <p>The callback is run on {@code executor}. There is no guaranteed ordering of execution of
+   * callbacks, but any callback added through this method is guaranteed to be called once the
+   * computation is complete.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * ListenableFuture<QueryResult> future = ...;
+   * Executor e = ...
+   * addCallback(future,
+   *     new FutureCallback<QueryResult>() {
+   *       public void onSuccess(QueryResult result) {
+   *         storeInCache(result);
+   *       }
+   *       public void onFailure(Throwable t) {
+   *         reportError(t);
+   *       }
+   *     }, e);
+   * }</pre>
+   *
+   * <p>When selecting an executor, note that {@code directExecutor} is dangerous in some cases. See
+   * the discussion in the {@link ListenableFuture#addListener ListenableFuture.addListener}
+   * documentation. All its warnings about heavyweight listeners are also applicable to heavyweight
+   * callbacks passed to this method.
+   *
+   * <p>For a more general interface to attach a completion listener to a {@code Future}, see {@link
+   * ListenableFuture#addListener addListener}.
+   *
+   * @param future The future attach the callback to.
+   * @param callback The callback to invoke when {@code future} is completed.
+   * @param executor The executor to run {@code callback} when the future completes.
+   */
+    public static <V> void addCallback(@NonNull final ListenableFuture<V> future,
             @NonNull final FutureCallback<? super V> callback, @NonNull Executor executor) {
         future.addListener(new Runnable() {
             @Override

@@ -40,6 +40,9 @@ class PagedListItemAdapter extends PagedListAdapter<Item, RecyclerView.ViewHolde
         RecyclerView.ViewHolder holder = new RecyclerView.ViewHolder(
                 new TextView(parent.getContext())) {};
         holder.itemView.setMinimumHeight(400);
+        holder.itemView.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
         return holder;
     }
 
