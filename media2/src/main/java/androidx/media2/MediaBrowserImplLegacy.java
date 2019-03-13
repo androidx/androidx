@@ -25,7 +25,6 @@ import static androidx.media2.MediaMetadata.METADATA_KEY_BROWSABLE;
 import static androidx.media2.MediaMetadata.METADATA_KEY_MEDIA_ID;
 import static androidx.media2.MediaMetadata.METADATA_KEY_PLAYABLE;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
@@ -382,7 +381,6 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements MediaB
         }
 
         @Override
-        @SuppressLint("RestrictedApi")
         public void onChildrenLoaded(final String parentId,
                 List<MediaBrowserCompat.MediaItem> children, final Bundle options) {
             if (TextUtils.isEmpty(parentId)) {
