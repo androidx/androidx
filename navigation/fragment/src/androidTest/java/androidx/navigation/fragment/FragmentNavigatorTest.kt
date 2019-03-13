@@ -17,7 +17,9 @@
 package androidx.navigation.fragment
 
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavOptions
@@ -83,6 +85,31 @@ class FragmentNavigatorTest {
                 EmptyFragment::class.java, fragment!!::class.java)
         assertEquals("Fragment should be the primary navigation Fragment",
                 fragment, fragmentManager.primaryNavigationFragment)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithFragmentFactory() {
+        fragmentManager.fragmentFactory = NonEmptyFragmentFactory()
+        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
+        val destination = fragmentNavigator.createDestination().apply {
+            id = INITIAL_FRAGMENT
+            className = NonEmptyConstructorFragment::class.java.name
+        }
+
+        assertThat(fragmentNavigator.navigate(destination, null, null, null))
+            .isEqualTo(destination)
+        fragmentManager.executePendingTransactions()
+        val fragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+        assertWithMessage("Fragment should be the correct type")
+            .that(fragment)
+            .isInstanceOf(NonEmptyConstructorFragment::class.java)
+        assertWithMessage("Fragment should be the primary navigation Fragment")
+            .that(fragment)
+            .isSameAs(fragmentManager.primaryNavigationFragment)
     }
 
     @UiThreadTest
@@ -681,5 +708,19 @@ class EmptyActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.empty_activity)
+    }
+}
+
+class NonEmptyConstructorFragment(val test: String) : Fragment()
+
+class NonEmptyFragmentFactory : FragmentFactory() {
+    override fun instantiate(
+        classLoader: ClassLoader,
+        className: String,
+        args: Bundle?
+    ) = if (className == NonEmptyConstructorFragment::class.java.name) {
+        NonEmptyConstructorFragment("test")
+    } else {
+        super.instantiate(classLoader, className, args)
     }
 }
