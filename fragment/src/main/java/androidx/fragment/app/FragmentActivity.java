@@ -131,6 +131,7 @@ public class FragmentActivity extends ComponentActivity implements
      * Dispatch incoming result to the correct fragment.
      */
     @Override
+    @CallSuper
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         mFragments.noteStateNotSaved();
         int requestIndex = requestCode>>16;
