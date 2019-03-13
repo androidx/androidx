@@ -20,14 +20,17 @@ import static androidx.build.dependencies.DependenciesKt.*
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
+    id("kotlin-android")
+    id("kotlin-kapt")
 }
 
 dependencies {
     implementation(ARCH_CORE_RUNTIME)
-    implementation(project(":paging:paging-common"))
     implementation(ARCH_ROOM_RUNTIME)
     implementation(ARCH_ROOM_RXJAVA)
     implementation(ARCH_LIFECYCLE_EXTENSIONS)
+
+    implementation(project(":paging:paging-common-ktx"))
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
@@ -36,6 +39,7 @@ dependencies {
     implementation(MULTIDEX)
     implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
     implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
+    implementation(KOTLIN_STDLIB)
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])

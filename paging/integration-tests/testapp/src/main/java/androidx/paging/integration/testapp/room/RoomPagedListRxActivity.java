@@ -59,7 +59,7 @@ public class RoomPagedListRxActivity extends AppCompatActivity {
         super.onStart();
 
         mDisposable.add(mViewModel.getPagedListFlowable()
-                .subscribe(list -> mAdapter.submitList(list)));
+                .subscribe(mAdapter::submitList));
     }
 
     @Override

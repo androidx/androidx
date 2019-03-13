@@ -29,7 +29,7 @@ import java.util.List;
  * It has two modes of operation: contiguous and non-contiguous (tiled). This class only holds
  * data, and does not have any notion of the ideas of async loads, or prefetching.
  */
-final class PagedStorage<T> extends AbstractList<T> {
+final class PagedStorage<T> extends AbstractList<T> implements Pager.AdjacentProvider<T> {
     /**
      * Lists instances are compared (with instance equality) to PLACEHOLDER_LIST to check if an item
      * in that position is already loading. We use a singleton placeholder list that is distinct
@@ -38,7 +38,6 @@ final class PagedStorage<T> extends AbstractList<T> {
     @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private static final List PLACEHOLDER_LIST = new ArrayList();
 
-    // Always set
     private int mLeadingNullCount;
     /**
      * List of pages in storage.
@@ -217,8 +216,6 @@ final class PagedStorage<T> extends AbstractList<T> {
         void onPageInserted(int start, int count);
         void onPagesRemoved(int startOfDrops, int count);
         void onPagesSwappedToPlaceholder(int startOfDrops, int count);
-        void onEmptyPrepend();
-        void onEmptyAppend();
     }
 
     int getPositionOffset() {
@@ -344,24 +341,10 @@ final class PagedStorage<T> extends AbstractList<T> {
 
     // ---------------- Contiguous API -------------------
 
-    T getFirstLoadedItem() {
-        // safe to access first page's first item here:
-        // If contiguous, mPages can't be empty, can't hold null Pages, and items can't be empty
-        return mPages.get(0).get(0);
-    }
-
-    T getLastLoadedItem() {
-        // safe to access last page's last item here:
-        // If contiguous, mPages can't be empty, can't hold null Pages, and items can't be empty
-        List<T> page = mPages.get(mPages.size() - 1);
-        return page.get(page.size() - 1);
-    }
-
     void prependPage(@NonNull List<T> page, @NonNull Callback callback) {
         final int count = page.size();
         if (count == 0) {
-            // Nothing returned from source, stop loading in this direction
-            callback.onEmptyPrepend();
+            // Nothing returned from source, nothing to do
             return;
         }
         if (mPageSize > 0 && count != mPageSize) {
@@ -393,8 +376,7 @@ final class PagedStorage<T> extends AbstractList<T> {
     void appendPage(@NonNull List<T> page, @NonNull Callback callback) {
         final int count = page.size();
         if (count == 0) {
-            // Nothing returned from source, stop loading in this direction
-            callback.onEmptyAppend();
+            // Nothing returned from source, nothing to do
             return;
         }
 
@@ -420,6 +402,39 @@ final class PagedStorage<T> extends AbstractList<T> {
         mNumberAppended += count;
         callback.onPageAppended(mLeadingNullCount + mStorageCount - count,
                 changedCount, addedCount);
+    }
+
+    // ------------- Adjacent Provider interface (contiguous-only) ------------------
+
+    @Override
+    public T getFirstLoadedItem() {
+        // safe to access first page's first item here:
+        // If contiguous, mPages can't be empty, can't hold null Pages, and items can't be empty
+        return mPages.get(0).get(0);
+    }
+
+    @Override
+    public T getLastLoadedItem() {
+        // safe to access last page's last item here:
+        // If contiguous, mPages can't be empty, can't hold null Pages, and items can't be empty
+        List<T> page = mPages.get(mPages.size() - 1);
+        return page.get(page.size() - 1);
+    }
+
+    @Override
+    public int getFirstLoadedItemIndex() {
+        return getLeadingNullCount() + getPositionOffset();
+    }
+
+    @Override
+    public int getLastLoadedItemIndex() {
+        return getLeadingNullCount() + getStorageCount() - 1 + getPositionOffset();
+    }
+
+    @Override
+    public void onPageResultResolution(@NonNull PagedList.LoadType type,
+            @NonNull DataSource.BaseResult<T> pageResult) {
+        // ignored
     }
 
     // ------------------ Non-Contiguous API (tiling required) ----------------------
@@ -466,7 +481,6 @@ final class PagedStorage<T> extends AbstractList<T> {
 
     void initAndSplit(int leadingNulls, @NonNull List<T> multiPageList,
             int trailingNulls, int positionOffset, int pageSize, @NonNull Callback callback) {
-
         int pageCount = (multiPageList.size() + (pageSize - 1)) / pageSize;
         for (int i = 0; i < pageCount; i++) {
             int beginInclusive = i * pageSize;
