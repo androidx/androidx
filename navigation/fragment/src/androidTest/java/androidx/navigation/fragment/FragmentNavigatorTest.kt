@@ -200,6 +200,7 @@ class FragmentNavigatorTest {
         fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
         assertNotNull("Fragment should be added", fragment)
+        val lifecycle = fragment!!.lifecycle
 
         assertThat(fragmentNavigator.navigate(destination, null,
                 NavOptions.Builder().setLaunchSingleTop(true).build(), null))
@@ -214,7 +215,7 @@ class FragmentNavigatorTest {
         assertNotEquals("Replacement should be a new instance", fragment,
                 replacementFragment)
         assertEquals("Old instance should be destroyed", Lifecycle.State.DESTROYED,
-                fragment!!.lifecycle.currentState)
+                lifecycle.currentState)
     }
 
     @UiThreadTest
@@ -244,6 +245,7 @@ class FragmentNavigatorTest {
         assertWithMessage("Fragment should be added")
             .that(fragment)
             .isNotNull()
+        val lifecycle = fragment!!.lifecycle
 
         assertThat(fragmentNavigator.navigate(destination, null,
                 NavOptions.Builder().setLaunchSingleTop(true).build(), null))
@@ -263,7 +265,7 @@ class FragmentNavigatorTest {
             .that(replacementFragment)
             .isNotSameAs(fragment)
         assertWithMessage("Old instance should be destroyed")
-            .that(fragment!!.lifecycle.currentState)
+            .that(lifecycle.currentState)
             .isEqualTo(Lifecycle.State.DESTROYED)
 
         assertThat(fragmentNavigator.popBackStack())
