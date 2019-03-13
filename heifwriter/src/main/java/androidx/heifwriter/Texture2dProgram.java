@@ -346,7 +346,10 @@ public class Texture2dProgram {
      */
     public static void checkGlError(String op) {
         int error = GLES20.glGetError();
-        if (error != GLES20.GL_NO_ERROR) {
+        if (error == GLES20.GL_OUT_OF_MEMORY) {
+            Log.i(TAG, op + " GL_OUT_OF_MEMORY");
+        }
+        if (error != GLES20.GL_NO_ERROR && error != GLES20.GL_OUT_OF_MEMORY) {
             String msg = op + ": glError 0x" + Integer.toHexString(error);
             Log.e(TAG, msg);
             throw new RuntimeException(msg);
