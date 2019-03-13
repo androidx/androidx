@@ -18,8 +18,12 @@ package androidx.lifecycle
 
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -52,5 +56,22 @@ class ViewModelTest {
         vm.clear()
         val scope3 = vm.viewModelScope
         Truth.assertThat(scope3).isSameAs(scope2)
+    }
+
+    @Test fun testJobIsSuperVisor() {
+        val vm = object : ViewModel() {}
+        val scope = vm.viewModelScope
+        val delayingDeferred = scope.async { delay(Long.MAX_VALUE) }
+        val failingDeferred = scope.async { throw Error() }
+
+        runBlocking {
+            try {
+                failingDeferred.await()
+                Assert.fail()
+            } catch (e: Error) {
+            }
+            Truth.assertThat(delayingDeferred.isActive).isTrue()
+            delayingDeferred.cancelAndJoin()
+        }
     }
 }
