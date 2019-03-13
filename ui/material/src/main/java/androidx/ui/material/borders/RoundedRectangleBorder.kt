@@ -119,9 +119,9 @@ data class RoundedRectangleBorder(
         textDirection: TextDirection?
     ) = withDensity(density) {
         when (side.style) {
-            BorderStyle.NONE -> {
+            BorderStyle.None -> {
             }
-            BorderStyle.SOLID -> {
+            BorderStyle.Solid -> {
                 val width = side.width
                 if (width == 0.dp) {
                     canvas.drawRRect(
@@ -269,9 +269,9 @@ private data class RoundedRectangleToCircleBorder(
         textDirection: TextDirection?
     ) = withDensity(density) {
         when (side.style) {
-            BorderStyle.NONE -> {
+            BorderStyle.None -> {
             }
-            BorderStyle.SOLID -> {
+            BorderStyle.Solid -> {
                 val width = side.width
                 if (width == 0.dp) {
                     canvas.drawRRect(

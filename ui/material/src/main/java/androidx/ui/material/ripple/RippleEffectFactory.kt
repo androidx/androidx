@@ -47,7 +47,7 @@ abstract class RippleEffectFactory {
         // TODO("Andrey: Could we integrate shape and clippingBorderRadius into one concept API wise?
         // It is strange now that BoxShape can be a circle and there's a separate border
         // radius attribute")
-        shape: BoxShape = BoxShape.RECTANGLE,
+        shape: BoxShape = BoxShape.Rectangle,
         finalRadius: Px? = null,
         containedInkWell: Boolean = false,
         boundsCallback: ((LayoutCoordinates) -> PxBounds)? = null,

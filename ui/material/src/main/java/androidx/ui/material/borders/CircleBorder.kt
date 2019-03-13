@@ -94,9 +94,9 @@ data class CircleBorder(
         textDirection: TextDirection?
     ) = withDensity(density) {
         when (side.style) {
-            BorderStyle.NONE -> {
+            BorderStyle.None -> {
             }
-            BorderStyle.SOLID ->
+            BorderStyle.Solid ->
                 canvas.drawCircle(
                     rect.getCenter(),
                     (rect.getShortestSide() - side.width.toPx().value) / 2.0f,

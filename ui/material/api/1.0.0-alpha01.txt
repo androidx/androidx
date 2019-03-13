@@ -3,23 +3,18 @@ package androidx.ui.baseui.selection {
 
   public final class ToggleableKt {
     ctor public ToggleableKt();
-    method public static void Toggleable(androidx.ui.baseui.selection.ToggleableState value = androidx.ui.baseui.selection.ToggleableState.CHECKED, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, String? testTag = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Toggleable(androidx.ui.baseui.selection.ToggleableState value = androidx.ui.baseui.selection.ToggleableState.Checked, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, String? testTag = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public enum ToggleableState {
-    enum_constant public static final androidx.ui.baseui.selection.ToggleableState CHECKED;
-    enum_constant public static final androidx.ui.baseui.selection.ToggleableState INDETERMINATE;
-    enum_constant public static final androidx.ui.baseui.selection.ToggleableState UNCHECKED;
+    enum_constant public static final androidx.ui.baseui.selection.ToggleableState Checked;
+    enum_constant public static final androidx.ui.baseui.selection.ToggleableState Indeterminate;
+    enum_constant public static final androidx.ui.baseui.selection.ToggleableState Unchecked;
   }
 
 }
 
 package androidx.ui.material {
-
-  public enum Case {
-    enum_constant public static final androidx.ui.material.Case ALLCAPS;
-    enum_constant public static final androidx.ui.material.Case SENTENCE;
-  }
 
   public final class Checkbox extends com.google.r4a.Component {
     ctor public Checkbox();
@@ -269,13 +264,13 @@ package androidx.ui.material.borders {
   }
 
   public enum BorderStyle {
-    enum_constant public static final androidx.ui.material.borders.BorderStyle NONE;
-    enum_constant public static final androidx.ui.material.borders.BorderStyle SOLID;
+    enum_constant public static final androidx.ui.material.borders.BorderStyle None;
+    enum_constant public static final androidx.ui.material.borders.BorderStyle Solid;
   }
 
   public enum BoxShape {
-    enum_constant public static final androidx.ui.material.borders.BoxShape CIRCLE;
-    enum_constant public static final androidx.ui.material.borders.BoxShape RECTANGLE;
+    enum_constant public static final androidx.ui.material.borders.BoxShape Circle;
+    enum_constant public static final androidx.ui.material.borders.BoxShape Rectangle;
   }
 
   public final class CircleBorder extends androidx.ui.material.borders.ShapeBorder {
@@ -413,12 +408,12 @@ package androidx.ui.material.ripple {
 
   public abstract class RippleEffectFactory {
     ctor public RippleEffectFactory();
-    method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.painting.Color color, androidx.ui.core.Density density, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.RECTANGLE, androidx.ui.core.Px? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
+    method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.painting.Color color, androidx.ui.core.Density density, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.Rectangle, androidx.ui.core.Px? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
   }
 
   public final class RippleKt {
     ctor public RippleKt();
-    method public static void Ripple(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHighlightChanged = null, boolean bounded = false, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.CIRCLE, androidx.ui.core.Px? finalRadius = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Ripple(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHighlightChanged = null, boolean bounded = false, androidx.ui.material.borders.BoxShape shape = androidx.ui.material.borders.BoxShape.Circle, androidx.ui.core.Px? finalRadius = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class RippleSurfaceKt {

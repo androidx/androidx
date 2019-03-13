@@ -25,7 +25,7 @@ import com.google.r4a.composer
 
 @Composable
 fun Toggleable(
-    value: ToggleableState = ToggleableState.CHECKED,
+    value: ToggleableState = ToggleableState.Checked,
     onToggle: (() -> Unit)? = null,
     testTag: String? = null,
     @Children children: () -> Unit
@@ -36,7 +36,7 @@ fun Toggleable(
 
     <PressGestureDetector onPress>
         // TODO(pavlis): Semantics currently doesn't support 3 states (only checked / unchecked).
-        <Semantics checked=(value == ToggleableState.CHECKED) testTag>
+        <Semantics checked=(value == ToggleableState.Checked) testTag>
             <children />
         </Semantics>
     </PressGestureDetector>

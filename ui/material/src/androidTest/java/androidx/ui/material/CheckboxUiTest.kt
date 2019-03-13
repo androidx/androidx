@@ -17,9 +17,9 @@ package androidx.ui.material.test
 
 import androidx.test.filters.SmallTest
 import androidx.ui.baseui.selection.ToggleableState
-import androidx.ui.baseui.selection.ToggleableState.CHECKED
-import androidx.ui.baseui.selection.ToggleableState.INDETERMINATE
-import androidx.ui.baseui.selection.ToggleableState.UNCHECKED
+import androidx.ui.baseui.selection.ToggleableState.Checked
+import androidx.ui.baseui.selection.ToggleableState.Indeterminate
+import androidx.ui.baseui.selection.ToggleableState.Unchecked
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.MeasureBox
@@ -51,19 +51,19 @@ import org.junit.runners.JUnit4
 @Model
 class CheckboxState(
     var color: Color? = null,
-    var value: ToggleableState = CHECKED
+    var value: ToggleableState = Checked
 ) {
     fun toggle() {
-        value = if (value == CHECKED) UNCHECKED else CHECKED
+        value = if (value == Checked) Unchecked else Checked
     }
 }
 
 @SmallTest
 @RunWith(JUnit4::class)
 class CheckboxUiTest : AndroidUiTestRunner() {
-    private val state = CheckboxState(value=CHECKED)
-    private var state0 = CheckboxState(value=CHECKED)
-    private val state1 = CheckboxState(value=CHECKED)
+    private val state = CheckboxState(value=Checked)
+    private var state0 = CheckboxState(value=Checked)
+    private val state1 = CheckboxState(value=Checked)
     // TODO(b/126881459): this should be the default semantic for checkbox
     private val defaultCheckboxSemantics = createFullSemantics(
         enabled = false,
@@ -146,9 +146,9 @@ class CheckboxUiTest : AndroidUiTestRunner() {
                             value=state0.value
                             onToggle={ state0.toggle() }
                             testTag="myCheckbox"/>
-                        <Checkbox value=UNCHECKED />
+                        <Checkbox value=Unchecked />
                         <Checkbox />
-                        <Checkbox value=INDETERMINATE />
+                        <Checkbox value=Indeterminate />
                         <SwitchWrapper checked=true />
                         <SwitchWrapper checked=false />
                         <SwitchWrapper checked=true/>

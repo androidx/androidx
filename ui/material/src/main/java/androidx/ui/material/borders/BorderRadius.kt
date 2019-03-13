@@ -23,9 +23,9 @@ import androidx.ui.engine.geometry.lerp
 import androidx.ui.engine.text.TextDirection
 
 /**
- * An immutable set of radii for each corner of a RECTANGLE.
+ * An immutable set of radii for each corner of a Rectangle.
  *
- * Used by [BoxDecoration] when the shape is a [BoxShape.RECTANGLE].
+ * Used by [BoxDecoration] when the shape is a [BoxShape.Rectangle].
  *
  * The [BorderRadius] class specifies offsets in terms of visual corners, e.g.
  * [topLeft]. These values are not affected by the [TextDirection]. To support
@@ -156,7 +156,7 @@ class BorderRadius(
 
         /**
          * Creates a vertically symmetric border radius where the top and bottom
-         * sides of the RECTANGLE have the same radii.
+         * sides of the rectangle have the same radii.
          */
         fun vertical(
             top: Radius = Radius.zero,
@@ -170,7 +170,7 @@ class BorderRadius(
 
         /**
          * Creates a horizontally symmetrical border radius where the left and right
-         * sides of the RECTANGLE have the same radii.
+         * sides of the rectangle have the same radii.
          */
         fun horizontal(
             left: Radius = Radius.zero,
