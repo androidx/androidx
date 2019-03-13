@@ -23,4 +23,15 @@
             column="19"/>
     </issue>
 
+    <issue
+        id="AppCompatCustomView"
+        message="This custom view should extend `android.support.v7.widget.AppCompatImageButton` instead"
+        errorLine1="class MediaRouteExpandCollapseButton extends ImageButton {"
+        errorLine2="                                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/app/MediaRouteExpandCollapseButton.java"
+            line="34"
+            column="46"/>
+    </issue>
+
 </issues>

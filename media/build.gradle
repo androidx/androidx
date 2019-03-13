@@ -7,10 +7,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
     api(project(":core"))
-    implementation(project(":collection"))
-    api("androidx.versionedparcelable:versionedparcelable:1.1.0-alpha01")
+    implementation("androidx.collection:collection:1.0.0")
 
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
