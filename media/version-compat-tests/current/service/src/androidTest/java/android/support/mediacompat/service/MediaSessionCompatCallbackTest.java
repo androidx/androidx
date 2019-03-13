@@ -868,7 +868,9 @@ public class MediaSessionCompatCallbackTest {
         // 'Do Not Disturb' or 'Volume limit'.
         final int stream = AudioManager.STREAM_ALARM;
         final int maxVolume = mAudioManager.getStreamMaxVolume(stream);
-        final int minVolume = 1;
+        final int minVolume =
+                Build.VERSION.SDK_INT >= 28 ? mAudioManager.getStreamMinVolume(stream) : 0;
+        Log.d(TAG, "maxVolume=" + maxVolume + ", minVolume=" + minVolume);
         if (maxVolume <= minVolume) {
             return;
         }
@@ -878,6 +880,7 @@ public class MediaSessionCompatCallbackTest {
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int targetVolume = originalVolume == minVolume
                 ? originalVolume + 1 : originalVolume - 1;
+        Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
 
         callMediaControllerMethod(SET_VOLUME_TO, targetVolume, getApplicationContext(),
                 mSession.getSessionToken());
@@ -904,7 +907,9 @@ public class MediaSessionCompatCallbackTest {
         // 'Do Not Disturb' or 'Volume limit'.
         final int stream = AudioManager.STREAM_ALARM;
         final int maxVolume = mAudioManager.getStreamMaxVolume(stream);
-        final int minVolume = 1;
+        final int minVolume =
+                Build.VERSION.SDK_INT >= 28 ? mAudioManager.getStreamMinVolume(stream) : 0;
+        Log.d(TAG, "maxVolume=" + maxVolume + ", minVolume=" + minVolume);
         if (maxVolume <= minVolume) {
             return;
         }
@@ -915,6 +920,7 @@ public class MediaSessionCompatCallbackTest {
         final int direction = originalVolume == minVolume
                 ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
         final int targetVolume = originalVolume + direction;
+        Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
 
         callMediaControllerMethod(ADJUST_VOLUME, direction, getApplicationContext(),
                 mSession.getSessionToken());
