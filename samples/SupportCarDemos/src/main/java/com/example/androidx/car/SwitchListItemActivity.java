@@ -18,6 +18,7 @@ package com.example.androidx.car;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.widget.CompoundButton;
 import android.widget.Toast;
@@ -98,6 +99,24 @@ public class SwitchListItemActivity extends Activity {
 
             item = new SwitchListItem(mContext);
             item.setTitle("Long body text");
+            item.setBody(longText);
+            item.setSwitchOnCheckedChangeListener(mListener);
+            mItems.add(item);
+
+            item = new SwitchListItem(mContext);
+            item.setPrimaryActionIcon(
+                    Icon.createWithResource(mContext, android.R.drawable.sym_def_app_icon),
+                    SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+            item.setTitle("Switch with Icon");
+            item.setBody(longText);
+            item.setSwitchOnCheckedChangeListener(mListener);
+            mItems.add(item);
+
+            item = new SwitchListItem(mContext);
+            item.setTitle("Switch with Drawable");
+            item.setPrimaryActionIcon(
+                    mContext.getDrawable(android.R.drawable.sym_def_app_icon),
+                    SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
             item.setBody(longText);
             item.setSwitchOnCheckedChangeListener(mListener);
             mItems.add(item);

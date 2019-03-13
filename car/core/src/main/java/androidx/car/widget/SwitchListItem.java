@@ -20,6 +20,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Handler;
 import android.os.Looper;
@@ -114,6 +115,7 @@ public class SwitchListItem extends ListItem<SwitchListItem.ViewHolder> {
 
     @PrimaryActionType private int mPrimaryActionType = PRIMARY_ACTION_TYPE_NO_ICON;
     private Icon mPrimaryActionIcon;
+    private Drawable mPrimaryActionIconDrawable;
     @PrimaryActionIconSize private int mPrimaryActionIconSize = PRIMARY_ACTION_ICON_SIZE_SMALL;
 
     private CharSequence mTitle;
@@ -202,6 +204,9 @@ public class SwitchListItem extends ListItem<SwitchListItem.ViewHolder> {
     /**
      * Sets {@code Primary Action} to be represented by an icon.
      *
+     * <p>If both this method and {@link #setPrimaryActionIcon(Drawable,int)} are called, then
+     * this method will take precedence.
+     *
      * @param icon An icon to set as primary action.
      * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
      *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
@@ -210,6 +215,24 @@ public class SwitchListItem extends ListItem<SwitchListItem.ViewHolder> {
     public void setPrimaryActionIcon(@NonNull Icon icon, @PrimaryActionIconSize int size) {
         mPrimaryActionType = PRIMARY_ACTION_TYPE_ICON;
         mPrimaryActionIcon = icon;
+        mPrimaryActionIconSize = size;
+        markDirty();
+    }
+
+    /**
+     * Sets {@code Primary Action} to be represented by an icon.
+     *
+     * <p>If both this method and {@link #setPrimaryActionIcon(Icon,int)} are called, then
+     * the other method will take precedence.
+     *
+     * @param drawable the Drawable to set.
+     * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
+     */
+    public void setPrimaryActionIcon(@NonNull Drawable drawable, @PrimaryActionIconSize int size) {
+        mPrimaryActionType = PRIMARY_ACTION_TYPE_ICON;
+        mPrimaryActionIconDrawable = drawable;
         mPrimaryActionIconSize = size;
         markDirty();
     }
@@ -324,9 +347,13 @@ public class SwitchListItem extends ListItem<SwitchListItem.ViewHolder> {
             case PRIMARY_ACTION_TYPE_ICON:
                 mBinders.add(vh -> {
                     vh.getPrimaryIcon().setVisibility(View.VISIBLE);
-                    mPrimaryActionIcon.loadDrawableAsync(getContext(),
-                            drawable -> vh.getPrimaryIcon().setImageDrawable(drawable),
-                            new Handler(Looper.getMainLooper()));
+                    if (mPrimaryActionIcon != null) {
+                        mPrimaryActionIcon.loadDrawableAsync(getContext(),
+                                drawable -> vh.getPrimaryIcon().setImageDrawable(drawable),
+                                new Handler(Looper.getMainLooper()));
+                    } else {
+                        vh.getPrimaryIcon().setImageDrawable(mPrimaryActionIconDrawable);
+                    }
                 });
                 break;
             case PRIMARY_ACTION_TYPE_EMPTY_ICON:
