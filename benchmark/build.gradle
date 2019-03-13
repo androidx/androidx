@@ -24,8 +24,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
-
+    implementation(SUPPORT_ANNOTATIONS)
     implementation(TEST_RUNNER)
 
     androidTestImplementation(JUNIT)
