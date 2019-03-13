@@ -73,9 +73,11 @@ class RxPagedListTest {
                 params: LoadInitialParams,
                 callback: LoadInitialCallback<String>
             ) {
+                callback.onResult(listOf<String>(), 0, 0)
             }
 
             override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
+                // never completes...
             }
         }
 
