@@ -68,33 +68,33 @@ fun Ripple(
      * See also:
      *
      *  * [shape], which determines the shape of the ripple.
-     *  * [clippingBorderRadius], which controls the corners when the box is a RECTANGLE.
+     *  * [clippingBorderRadius], which controls the corners when the box is a rectangle.
      *  * [boundsCallback], which controls the size and position of the box when
-     *    it is a RECTANGLE.
+     *    it is a rectangle.
      */
     bounded: Boolean = false,
     /**
-     * The shape (e.g., CIRCLE, RECTANGLE) to use for the highlight drawn around
+     * The shape (e.g., circle, rectangle) to use for the highlight drawn around
      * this surface.
      *
-     * If the shape is [BoxShape.CIRCLE], then the highlight is centered on the
-     * [Ripple]. If the shape is [BoxShape.RECTANGLE], then the highlight
-     * fills the [Ripple], or the RECTANGLE provided by [boundsCallback] if
+     * If the shape is [BoxShape.Circle], then the highlight is centered on the
+     * [Ripple]. If the shape is [BoxShape.Rectangle], then the highlight
+     * fills the [Ripple], or the rectangle provided by [boundsCallback] if
      * the callback is specified.
      *
      * See also:
      *
      *  * [bounded], which controls clipping behavior.
-     *  * [clippingBorderRadius], which controls the corners when the box is a RECTANGLE.
+     *  * [clippingBorderRadius], which controls the corners when the box is a rectangle.
      *  * [boundsCallback], which controls the size and position of the box when
-     *    it is a RECTANGLE.
+     *    it is a rectangle.
      */
-    shape: BoxShape = BoxShape.CIRCLE,
+    shape: BoxShape = BoxShape.Circle,
     /**
      * The radius of the Ripple.
      *
      * Effects grow up to this size. By default, this size is determined from
-     * the size of the RECTANGLE provided by [boundsCallback], or the size of
+     * the size of the rectangle provided by [boundsCallback], or the size of
      * the [Ripple] itself.
      */
     finalRadius: Px? = null,

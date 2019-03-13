@@ -48,7 +48,7 @@ class SwitchWrapper : Component() {
 
 @Composable
 fun Switch(checked: Boolean, color: Color? = null) {
-    val value = if (checked) ToggleableState.CHECKED else ToggleableState.UNCHECKED
+    val value = if (checked) ToggleableState.Checked else ToggleableState.Unchecked
     <Toggleable value>
         <MeasureBox> constraints ->
             collect {
@@ -82,7 +82,7 @@ internal fun DensityReceiver.drawTrack(
     val paint = Paint()
 
     paint.isAntiAlias = true
-    paint.color = (if (state == ToggleableState.CHECKED) colors else uncheckedTrackColor)
+    paint.color = (if (state == ToggleableState.Checked) colors else uncheckedTrackColor)
         .withAlpha(trackAlpha)
     paint.strokeCap = StrokeCap.round
     paint.strokeWidth = trackHeight.toPx().value
@@ -99,7 +99,7 @@ internal fun DensityReceiver.drawTrack(
 
 // TODO(malkov): figure our animation of this value
 internal fun pointPosition(state: ToggleableState) =
-    if (state == ToggleableState.CHECKED) 1f else 0f
+    if (state == ToggleableState.Checked) 1f else 0f
 
 internal fun DensityReceiver.drawThumb(
     canvas: Canvas,
@@ -110,7 +110,7 @@ internal fun DensityReceiver.drawThumb(
     val paint = Paint()
 
     paint.isAntiAlias = true
-    paint.color = if (state == ToggleableState.CHECKED) colors else uncheckedThumbColor
+    paint.color = if (state == ToggleableState.Checked) colors else uncheckedThumbColor
 
     // currently I assume that layout gravity of Switch is always CENTER
     val centerHeight = parentSize.height.value / 2

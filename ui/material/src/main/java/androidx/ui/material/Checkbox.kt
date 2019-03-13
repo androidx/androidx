@@ -40,7 +40,7 @@ class Checkbox : Component() {
 
     // TODO(clara): remove this default
     var color: Color? = null
-    var value: ToggleableState = ToggleableState.UNCHECKED
+    var value: ToggleableState = ToggleableState.Unchecked
     var onToggle: (() -> Unit)? = null
     var testTag: String? = null
 
@@ -71,9 +71,9 @@ internal fun DrawCheckbox(value: ToggleableState, color: Color, strokeWidth: Dp)
         val radius = Radius.circular(radiusSize.toPx().value)
         val strokeWidthPx = strokeWidth.toPx().value
         val outer = RRect(0f, 0f, parentSize.width.value, parentSize.height.value, radius)
-        if (value == ToggleableState.CHECKED) {
+        if (value == ToggleableState.Checked) {
             drawChecked(canvas, outer, color, strokeWidthPx)
-        } else if (value == ToggleableState.UNCHECKED) {
+        } else if (value == ToggleableState.Unchecked) {
             // TODO(clara): Where does this color come from?
             drawUnchecked(canvas, outer, color, strokeWidthPx)
         } else { // Indeterminate

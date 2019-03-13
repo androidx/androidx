@@ -32,7 +32,7 @@ abstract class ShapeBorder {
     // TODO("Migration|Andrey: Needs EdgeInsetsGeometry")
 //    /// The widths of the sides of this border represented as an [EdgeInsets].
 //    ///
-//    /// Specifically, this is the amount by which a RECTANGLE should be inset so
+//    /// Specifically, this is the amount by which a rectangle should be inset so
 //    /// as to avoid painting over any important part of the border. It is the
 //    /// amount by which additional borders will be inset before they are drawn.
 //    ///

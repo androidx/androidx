@@ -27,27 +27,27 @@ package androidx.ui.material.borders;
 // TODO("Andrey: Migrate to Kotlin when enums will be supported by IR")
 public enum BoxShape {
     /**
-     * An axis-aligned, 2D RECTANGLE. May have rounded corners (described by a
-     * [BorderRadius]). The edges of the RECTANGLE will match the edges of the box
+     * An axis-aligned, 2D rectangle. May have rounded corners (described by a
+     * [BorderRadius]). The edges of the rectangle will match the edges of the box
      * into which the [Border] or [BoxDecoration] is painted.
      *
      * See also:
      *
      *  * [RoundedRectangleBorder], the equivalent [ShapeBorder].
      */
-    RECTANGLE,
+    Rectangle,
 
     /**
-     * A CIRCLE centered in the middle of the box into which the [Border] or
-     * [BoxDecoration] is painted. The diameter of the CIRCLE is the shortest
-     * dimension of the box, either the width or the height, such that the CIRCLE
+     * A circle centered in the middle of the box into which the [Border] or
+     * [BoxDecoration] is painted. The diameter of the circle is the shortest
+     * dimension of the box, either the width or the height, such that the circle
      * touches the edges of the box.
      *
      * See also:
      *
      *  * [CircleBorder], the equivalent [ShapeBorder].
      */
-    CIRCLE
+    Circle
 
     // Don't add more, instead create a new ShapeBorder.
 }

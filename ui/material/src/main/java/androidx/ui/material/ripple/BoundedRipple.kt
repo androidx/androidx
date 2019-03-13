@@ -43,7 +43,7 @@ fun BoundedRipple(
      * The radius of the ripple.
      *
      * [RippleEffect]s grow up to this size. By default, this size is determined from
-     * the size of the RECTANGLE provided by [boundsCallback], or the size of
+     * the size of the rectangle provided by [boundsCallback], or the size of
      * the [BoundedRipple] itself.
      */
     finalRadius: Px? = null,
@@ -77,7 +77,7 @@ fun BoundedRipple(
     @Children children: () -> Unit
 ) {
     <Ripple
-        shape=BoxShape.RECTANGLE
+        shape=BoxShape.Rectangle
         bounded=true
         onHighlightChanged
         finalRadius

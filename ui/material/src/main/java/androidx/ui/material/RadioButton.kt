@@ -50,7 +50,7 @@ class RadioButtonWrapper : Component() {
 
 @Composable
 fun RadioButton(checked: Boolean, color: Color? = null) {
-    val value = if (checked) ToggleableState.CHECKED else ToggleableState.UNCHECKED
+    val value = if (checked) ToggleableState.Checked else ToggleableState.Unchecked
     <Toggleable value>
         <MeasureBox> constraints ->
             collect {
@@ -82,7 +82,7 @@ internal fun DensityReceiver.drawRadio(
 ) {
     val p = Paint()
     p.isAntiAlias = true
-    p.color = if (state == ToggleableState.CHECKED) color else uncheckedRadioColor
+    p.color = if (state == ToggleableState.Checked) color else uncheckedRadioColor
     p.strokeWidth = radioStrokeWidth.toPx().value
     p.style = PaintingStyle.stroke
 
@@ -93,7 +93,7 @@ internal fun DensityReceiver.drawRadio(
 
     canvas.drawCircle(center, (radioRadius - strokeWidth / 2).toPx().value, p)
 
-    if (state == ToggleableState.CHECKED) {
+    if (state == ToggleableState.Checked) {
         p.style = PaintingStyle.fill
         p.strokeWidth = 0f
         canvas.drawCircle(center, innerCircleSize.toPx().value, p)

@@ -17,7 +17,7 @@
 package androidx.ui.baseui.selection;
 
 public enum ToggleableState {
-    CHECKED,
-    UNCHECKED,
-    INDETERMINATE
+    Checked,
+    Unchecked,
+    Indeterminate
 }

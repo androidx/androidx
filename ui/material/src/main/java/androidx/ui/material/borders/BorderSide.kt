@@ -63,7 +63,7 @@ import androidx.ui.painting.PaintingStyle
  *    ([TableBorder.horizontalInside] and [TableBorder.verticalInside]), both
  *    of which are also [BorderSide] objects.
  *
- * By default, the border is 1.0 logical pixels wide and SOLID black.
+ * By default, the border is 1.0 logical pixels wide and solid black.
  */
 data class BorderSide(
     /** The color of this side of the border. */
@@ -71,16 +71,16 @@ data class BorderSide(
     /**
      * The width of this side of the border, in logical pixels. A
      * zero-width border is a hairline border. To omit the border
-     * entirely, set the [style] to [BorderStyle.NONE].
+     * entirely, set the [style] to [BorderStyle.None].
      */
     val width: Dp = 1.dp,
     /**
      * The style of this side of the border.
      *
-     * To omit a side, set [style] to [BorderStyle.NONE]. This skips
+     * To omit a side, set [style] to [BorderStyle.None]. This skips
      * painting the border, but the border still has a [width].
      */
-    val style: BorderStyle = BorderStyle.SOLID
+    val style: BorderStyle = BorderStyle.Solid
 
 ) {
 
@@ -101,7 +101,7 @@ data class BorderSide(
      *
      * Since a zero width is normally painted as a hairline width rather than no
      * border at all, the zero factor is special-cased to instead change the
-     * style no [BorderStyle.NONE].
+     * style no [BorderStyle.None].
      *
      * Values for `t` are usually obtained from an [Animation<Float>], such as
      * an [AnimationController].
@@ -110,7 +110,7 @@ data class BorderSide(
         return BorderSide(
             color = color,
             width = max(0.dp, width * t),
-            style = if (t <= 0.0f) BorderStyle.NONE else style
+            style = if (t <= 0.0f) BorderStyle.None else style
         )
     }
 
@@ -124,12 +124,12 @@ data class BorderSide(
      */
     fun toPaint(density: Density): Paint = withDensity(density) {
         when (style) {
-            BorderStyle.SOLID -> Paint().apply {
+            BorderStyle.Solid -> Paint().apply {
                 color = color
                 strokeWidth = width.toPx().value
                 style = PaintingStyle.stroke
             }
-            BorderStyle.NONE -> Paint().apply {
+            BorderStyle.None -> Paint().apply {
                 color = Color(0x00000000)
                 strokeWidth = 0.0f
                 style = PaintingStyle.stroke
@@ -143,7 +143,7 @@ data class BorderSide(
         @JvmStatic
         val None = BorderSide(
             width = 0.dp,
-            style = BorderStyle.NONE
+            style = BorderStyle.None
         )
     }
 }
@@ -155,16 +155,16 @@ data class BorderSide(
  * It is only valid to call this if [canMerge] returns true for the two
  * sides.
  *
- * If one of the sides is zero-width with [BorderStyle.NONE], then the other
+ * If one of the sides is zero-width with [BorderStyle.None], then the other
  * side is return as-is. If both of the sides are zero-width with
- * [BorderStyle.NONE], then [BorderSide.zero] is returned.
+ * [BorderStyle.None], then [BorderSide.zero] is returned.
  *
  * The arguments must not be null.
  */
 fun merge(a: BorderSide, b: BorderSide): BorderSide {
     assert(canMerge(a, b))
-    val aIsNone = a.style == BorderStyle.NONE && a.width == 0.dp
-    val bIsNone = b.style == BorderStyle.NONE && b.width == 0.dp
+    val aIsNone = a.style == BorderStyle.None && a.width == 0.dp
+    val bIsNone = b.style == BorderStyle.None && b.width == 0.dp
     if (aIsNone && bIsNone)
         return BorderSide.None
     if (aIsNone)
@@ -185,11 +185,11 @@ fun merge(a: BorderSide, b: BorderSide): BorderSide {
  * BorderSide.merge].
  *
  * Two sides can be merged if one or both are zero-width with
- * [BorderStyle.NONE], or if they both have the same color and style.
+ * [BorderStyle.None], or if they both have the same color and style.
  */
 fun canMerge(a: BorderSide, b: BorderSide): Boolean {
-    if ((a.style == BorderStyle.NONE && a.width == 0.dp) ||
-        (b.style == BorderStyle.NONE && b.width == 0.dp)
+    if ((a.style == BorderStyle.None && a.width == 0.dp) ||
+        (b.style == BorderStyle.None && b.width == 0.dp)
     )
         return true
     return a.style == b.style &&
@@ -229,20 +229,20 @@ fun lerp(a: BorderSide, b: BorderSide, t: Float): BorderSide {
         )
     }
     val colorA: Color = when (a.style) {
-        BorderStyle.SOLID ->
+        BorderStyle.Solid ->
             a.color
-        BorderStyle.NONE ->
+        BorderStyle.None ->
             a.color.withAlpha(0x00)
     }
     val colorB: Color = when (b.style) {
-        BorderStyle.SOLID ->
+        BorderStyle.Solid ->
             b.color
-        BorderStyle.NONE ->
+        BorderStyle.None ->
             b.color.withAlpha(0x00)
     }
     return BorderSide(
         color = Color.lerp(colorA, colorB, t)!!,
         width = width,
-        style = BorderStyle.SOLID
+        style = BorderStyle.Solid
     )
 }

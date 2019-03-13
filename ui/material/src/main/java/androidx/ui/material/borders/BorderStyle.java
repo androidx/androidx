@@ -21,10 +21,10 @@ package androidx.ui.material.borders;
 // TODO("Andrey: Migrate to Kotlin when enums will be supported by IR")
 public enum BorderStyle {
     /** Skip the border. */
-    NONE,
+    None,
 
-    /** Draw the border as a SOLID line. */
-    SOLID
+    /** Draw the border as a solid line. */
+    Solid
 
     // if you add more, think about how they will lerp
 }
