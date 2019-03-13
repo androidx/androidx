@@ -170,8 +170,13 @@ final class CaptureSession {
                     throw new IllegalStateException(
                             "open() should not be possible in state: " + mState);
                 case INITIALIZED:
-                    mConfiguredDeferrableSurfaces = new ArrayList<>(
-                            sessionConfiguration.getSurfaces());
+                    List<DeferrableSurface> surfaces = sessionConfiguration.getSurfaces();
+
+                    // Before creating capture session, some surfaces may need to refresh.
+                    DeferrableSurfaces.refresh(surfaces);
+
+                    mConfiguredDeferrableSurfaces = new ArrayList<>(surfaces);
+
                     mConfiguredSurfaces =
                             new ArrayList<>(
                                     DeferrableSurfaces.surfaceSet(
@@ -304,7 +309,6 @@ final class CaptureSession {
                                     + mState);
                 case INITIALIZED:
                 case OPENING:
-                    Log.d(TAG, "issueSingleCaptureRequests() before capture session opened.");
                     this.mCaptureRequestConfigurations.addAll(captureRequestConfigurations);
                     break;
                 case OPENED:

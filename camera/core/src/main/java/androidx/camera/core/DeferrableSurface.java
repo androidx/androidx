@@ -60,6 +60,10 @@ public abstract class DeferrableSurface {
     @Nullable
     public abstract ListenableFuture<Surface> getSurface();
 
+    /** Refreshes the {@link DeferrableSurface} before attach if needed. */
+    public void refresh() {
+    }
+
     /** Notifies this surface is attached */
     public void notifySurfaceAttached() {
         synchronized (mLock) {
@@ -68,7 +72,7 @@ public abstract class DeferrableSurface {
     }
 
     /**
-     * Notifies this surface is detached. OnSurfaceDetachedLisener will be called if it is detached
+     * Notifies this surface is detached. OnSurfaceDetachedListener will be called if it is detached
      * totally
      */
     public void notifySurfaceDetached() {
