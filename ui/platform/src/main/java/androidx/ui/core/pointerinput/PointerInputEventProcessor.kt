@@ -20,7 +20,6 @@ import androidx.ui.core.ComponentNode
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.PxPosition
-import androidx.ui.core.PxSize
 import androidx.ui.core.isAttached
 import androidx.ui.core.localToGlobal
 import androidx.ui.core.px
@@ -73,10 +72,10 @@ private class PointerInputChangeOffsetManager() {
         // TODO(b/124960509): Make this more efficient.
         targetNodeSequences.flatten().forEach {
             if (!nodeGlobalOffsets.containsKey(it)) {
-                val parentLayoutNode = it.parentLayoutNode
+                val layoutNode = it.layoutNode
                 nodeGlobalOffsets[it] =
-                    parentLayoutNode?.run {
-                        val position = parentLayoutNode.localToGlobal(positionZero)
+                    layoutNode?.run {
+                        val position = layoutNode.localToGlobal(positionZero)
                         Offset(position.x.value, position.y.value)
                     } ?: Offset.zero
             }
@@ -124,8 +123,11 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
     private fun addReceiversDueToDownEvents(pointerInputChangeEvent: PointerInputChangeEvent) {
         pointerInputChangeEvent.changes.filter { it.changedToDownIgnoreConsumed() }.forEach {
             val hitResult: MutableList<PointerInputNode> = mutableListOf()
-            hitTestOnChildren(root, it.current.position!!,
-                PxSize(root.width, root.height), hitResult)
+            hitTestOnDescendants(
+                root,
+                it.current.position!!,
+                hitResult
+            )
             targetNodeSequences[it.id] = hitResult
         }
     }
@@ -184,48 +186,80 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         }
     }
 
-    // TODO(shepshapard): Should siblings both be able to receive input?  Right now, siblings
-    // do not even block each other if they are overlapping.
     /**
-     * Carries out hit testing among the [parent]'s children, and then recursively on the
-     * children's children, and so on.  Hit tests are only carried out on [PointerInputNode]s.
+     * Searches for [PointerInputNode]s among the descendants of [parent], determines if the
+     * [offset] is within their virtual bounds, and adds them to [hitPointerInputNodes] if they are.
      *
-     * When a [PointerInputNode] is hit, it's [PointerInputNode.pointerInputHandler] is added to
-     * [hitTestResult] where parents are added before children.
+     * This method actually just recursively searches for [PointerInputNode]s among its decedents
+     * in a DFS in reverse child order (so children that will be drawn on top of it's siblings will
+     * be checked first) and calls [hitTest], passing them in when found.  If that method returns
+     * true, it stops looking so [PointerInputNode]s that are under other [PointerInputNode]s won't
+     * receive [PointerInputChange]s.
      */
-    private fun hitTestOnChildren(
+    private fun hitTestOnDescendants(
         parent: ComponentNode,
         offset: Offset,
-        size: PxSize,
         hitPointerInputNodes: MutableList<PointerInputNode>
     ) {
-        parent.visitChildren { child ->
-            // If the child is a PointerInputNode, then hit test on that child.
-            if (child is PointerInputNode) {
-                if (offset.dx >= 0 &&
-                    offset.dx < size.width.value &&
-                    offset.dy >= 0 &&
-                    offset.dy < size.height.value
-                ) {
-                    hitPointerInputNodes.add(child)
+        var done = false
+        parent.visitChildren(true) { child ->
+            if (!done) {
+                when (child) {
+                    is PointerInputNode -> {
+                        if (hitTest(child, offset, hitPointerInputNodes)) {
+                            done = true
+                        }
+                    }
+                    is LayoutNode -> {
+                        val newOffset =
+                            Offset(offset.dx - child.x.value, offset.dy - child.y.value)
+                        hitTestOnDescendants(child, newOffset, hitPointerInputNodes)
+                    }
+                    else ->
+                        hitTestOnDescendants(child, offset, hitPointerInputNodes)
                 }
             }
-
-            // Keep going down the tree looking for PointerInputNodes to hit test.
-
-            // If this child is a LayoutNode, do 2 things:
-            // 1. Update the offset to be relative to that LayoutNode
-            val newOffset =
-                if (child is LayoutNode) {
-                    Offset(offset.dx - child.x.value, offset.dy - child.y.value)
-                } else offset
-            // 2. Update the size to be the size of the LayoutNode
-            val newSize =
-                if (child is LayoutNode) {
-                    PxSize(child.width, child.height)
-                } else size
-
-            hitTestOnChildren(child, newOffset, newSize, hitPointerInputNodes)
         }
+    }
+
+    /**
+     * Looks for the first descendant [LayoutNode] of [pointerInputNode], tracking other
+     * descendant [PointerInputNode]s as it looks, and adds all of the [PointerInputNode]s to
+     * [hitPointerInputNodes] if [offset] is in bounds of the eventually discovered [LayoutNode].
+     * Then continues hit testing on descendants of the discovered [LayoutNode].
+     *
+     * @return True if a [PointerInputNode] was added to [hitPointerInputNodes].
+     */
+    private fun hitTest(
+        pointerInputNode: PointerInputNode,
+        offset: Offset,
+        hitPointerInputNodes: MutableList<PointerInputNode>
+    ): Boolean {
+        val pointerInputNodes = mutableSetOf(pointerInputNode)
+        var child: ComponentNode? = pointerInputNode.child
+        var nodeHit = false
+        while (child != null) {
+            when (child) {
+                is PointerInputNode -> {
+                    pointerInputNodes.add(child)
+                    child = child.child
+                }
+                is LayoutNode -> {
+                    if (offset.dx >= child.x.value &&
+                        offset.dx < child.x.value + child.width.value &&
+                        offset.dy >= child.y.value &&
+                        offset.dy < child.y.value + child.height.value
+                    ) {
+                        nodeHit = true
+                        hitPointerInputNodes.addAll(pointerInputNodes)
+                    }
+                    val newOffset =
+                        Offset(offset.dx - child.x.value, offset.dy - child.y.value)
+                    hitTestOnDescendants(child, newOffset, hitPointerInputNodes)
+                    child = null
+                }
+            }
+        }
+        return nodeHit
     }
 }

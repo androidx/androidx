@@ -17,6 +17,7 @@
 package androidx.ui.material.demos
 
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
@@ -41,8 +42,9 @@ fun RippleDemo() {
                 )
                 <Card shape>
                     <BoundedRipple>
-                        <Container>
-                        </Container>
+                        <MeasureBox> constraints ->
+                            layout(constraints.maxWidth, constraints.maxHeight) {}
+                        </MeasureBox>
                     </BoundedRipple>
                 </Card>
             </Container>

@@ -39,7 +39,7 @@ package androidx.ui.core {
     method public final void setDepth(int p);
     method public final void setOwnerData(Object? p);
     method public void setParentLayoutNode(androidx.ui.core.LayoutNode? p);
-    method public abstract void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    method public abstract void visitChildren(boolean reverse = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
     property public abstract int count;
     property public final int depth;
     property public abstract androidx.ui.core.LayoutNode? layoutNode;
@@ -70,7 +70,7 @@ package androidx.ui.core {
     method public void invalidate();
     method public void setNeedsPaint(boolean p);
     method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> value);
-    method public void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    method public void visitChildren(boolean reverse, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
     property public int count;
     property public androidx.ui.core.LayoutNode? layoutNode;
     property public final boolean needsPaint;
@@ -98,7 +98,7 @@ package androidx.ui.core {
     method public void setMeasureBox(Object? p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
     method public void setVisible(boolean p);
-    method public void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    method public void visitChildren(boolean reverse, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
     property public final java.util.List<androidx.ui.core.ComponentNode> children;
     property public final androidx.ui.core.Constraints constraints;
     property public int count;
@@ -163,7 +163,7 @@ package androidx.ui.core {
     method public androidx.ui.core.LayoutNode? getLayoutNode();
     method public final void setChild(androidx.ui.core.ComponentNode? p);
     method public void setLayoutNode(androidx.ui.core.LayoutNode? p);
-    method public void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    method public void visitChildren(boolean reverse, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
     property public final androidx.ui.core.ComponentNode? child;
     property public int count;
     property public androidx.ui.core.LayoutNode? layoutNode;

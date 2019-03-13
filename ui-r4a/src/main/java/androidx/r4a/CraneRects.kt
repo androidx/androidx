@@ -155,11 +155,11 @@ fun CraneRects() {
             val padding = if (pressed) 36.dp else if (small) 48.dp else 96.dp
 
             <Padding padding=EdgeInsets(padding)>
-                <Padding padding=EdgeInsets(0.dp)>
-                    <PressGestureDetector onPress onRelease onCancel>
+                <PressGestureDetector onPress onRelease onCancel>
+                    <Padding padding=EdgeInsets(0.dp)>
                         <Rectangles />
-                    </PressGestureDetector>
-                </Padding>
+                    </Padding>
+                </PressGestureDetector>
             </Padding>
         </Recompose>
     </CraneWrapper>
