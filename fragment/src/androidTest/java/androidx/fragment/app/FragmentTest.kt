@@ -136,6 +136,20 @@ class FragmentTest {
         FragmentTestUtil.popBackStackImmediate(activityRule)
     }
 
+    @SmallTest
+    @Test
+    fun testChildFragmentManagerNotAttached() {
+        val fragment = Fragment()
+        try {
+            fragment.childFragmentManager
+            fail()
+        } catch (expected: IllegalStateException) {
+            assertThat(expected)
+                .hasMessageThat()
+                .contains("Fragment $fragment has not been attached yet.")
+        }
+    }
+
     @RequiresApi(16) // ViewTreeObserver.OnDrawListener was added in API 16
     private fun waitForHalfFadeIn(fragment: Fragment) {
         if (fragment.view == null) {
