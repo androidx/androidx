@@ -18,6 +18,8 @@ package androidx.camera.core;
 
 /** Metadata for an image. */
 public interface ImageInfo {
+    /** Returns the tag of the metadata. */
+    Object getTag();
     /** Returns the timestamp of the metadata. */
     long getTimestamp();
 }

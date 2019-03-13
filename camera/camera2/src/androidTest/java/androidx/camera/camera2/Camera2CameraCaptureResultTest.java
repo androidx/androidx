@@ -41,11 +41,12 @@ public final class Camera2CameraCaptureResultTest {
 
     private CaptureResult mCaptureResult;
     private Camera2CameraCaptureResult mCamera2CameraCaptureResult;
+    private Object mTag = null;
 
     @Before
     public void setUp() {
         mCaptureResult = Mockito.mock(CaptureResult.class);
-        mCamera2CameraCaptureResult = new Camera2CameraCaptureResult(mCaptureResult);
+        mCamera2CameraCaptureResult = new Camera2CameraCaptureResult(mTag, mCaptureResult);
     }
 
     @Test

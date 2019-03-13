@@ -26,6 +26,11 @@ final class CameraCaptureResultImageInfo implements ImageInfo {
     }
 
     @Override
+    public Object getTag() {
+        return mCameraCaptureResult.getTag();
+    }
+
+    @Override
     public long getTimestamp() {
         return mCameraCaptureResult.getTimestamp();
     }

@@ -20,6 +20,7 @@ import android.hardware.camera2.CaptureResult;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraCaptureMetaData.AeState;
 import androidx.camera.core.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.CameraCaptureMetaData.AfState;
@@ -31,10 +32,13 @@ import androidx.camera.core.CameraCaptureResult;
 final class Camera2CameraCaptureResult implements CameraCaptureResult {
     private static final String TAG = "C2CameraCaptureResult";
 
+    private final Object mTag;
+
     /** The actual camera2 {@link CaptureResult}. */
     private final CaptureResult mCaptureResult;
 
-    Camera2CameraCaptureResult(CaptureResult captureResult) {
+    Camera2CameraCaptureResult(@Nullable Object tag, CaptureResult captureResult) {
+        mTag = tag;
         mCaptureResult = captureResult;
     }
 
@@ -190,5 +194,10 @@ final class Camera2CameraCaptureResult implements CameraCaptureResult {
         }
 
         return timestamp;
+    }
+
+    @Override
+    public Object getTag() {
+        return mTag;
     }
 }

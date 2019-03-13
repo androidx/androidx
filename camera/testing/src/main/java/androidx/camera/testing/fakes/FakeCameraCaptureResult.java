@@ -35,6 +35,7 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
     private CameraCaptureMetaData.AwbState mAwbState = CameraCaptureMetaData.AwbState.UNKNOWN;
     private CameraCaptureMetaData.FlashState mFlashState = CameraCaptureMetaData.FlashState.UNKNOWN;
     private long mTimestamp = -1L;
+    private Object mTag = null;
 
     public void setAfMode(CameraCaptureMetaData.AfMode mode) {
         mAfMode = mode;
@@ -58,6 +59,10 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
 
     public void setTimestamp(long timestamp) {
         mTimestamp = timestamp;
+    }
+
+    public void setTag(Object tag) {
+        mTag = tag;
     }
 
     @NonNull
@@ -94,5 +99,10 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
     @Override
     public long getTimestamp() {
         return mTimestamp;
+    }
+
+    @Override
+    public Object getTag() {
+        return mTag;
     }
 }

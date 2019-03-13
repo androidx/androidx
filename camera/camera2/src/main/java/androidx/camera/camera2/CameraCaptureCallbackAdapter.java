@@ -47,7 +47,8 @@ final class CameraCaptureCallbackAdapter extends CameraCaptureSession.CaptureCal
             @NonNull TotalCaptureResult result) {
         super.onCaptureCompleted(session, request, result);
 
-        mCameraCaptureCallback.onCaptureCompleted(new Camera2CameraCaptureResult(result));
+        mCameraCaptureCallback.onCaptureCompleted(
+                new Camera2CameraCaptureResult(request.getTag(), result));
     }
 
     @Override

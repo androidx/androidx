@@ -60,6 +60,9 @@ public interface CameraCaptureResult {
      */
     long getTimestamp();
 
+    /** Returns the tag associated with the capture request. */
+    Object getTag();
+
     /** An implementation of CameraCaptureResult which always return default results. */
     final class EmptyCameraCaptureResult implements CameraCaptureResult {
 
@@ -100,6 +103,11 @@ public interface CameraCaptureResult {
         @Override
         public long getTimestamp() {
             return -1L;
+        }
+
+        @Override
+        public Object getTag() {
+            return null;
         }
     }
 }
