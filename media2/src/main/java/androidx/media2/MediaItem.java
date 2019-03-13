@@ -19,7 +19,6 @@ package androidx.media2;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.SuppressLint;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -320,7 +319,6 @@ public class MediaItem extends CustomVersionedParcelable {
      */
     @RestrictTo(LIBRARY)
     @Override
-    @SuppressLint("RestrictedApi")
     public void onPreParceling(boolean isStream) {
         if (getClass() != MediaItem.class) {
             throw new RuntimeException("MediaItem's subclasses shouldn't be parcelized.");

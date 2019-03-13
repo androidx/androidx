@@ -116,7 +116,8 @@ import java.util.Set;
 //   - Don't implement Parcelable for updatable support.
 //   - Also support MediaDescription features. MediaDescription is deprecated instead because
 //     it was insufficient for controller to display media contents. (e.g. duration is missing)
-@SuppressLint("ObsoleteSdkInt") // TODO: Remove once the minSdkVersion is lowered enough.
+// TODO: Remove once the minSdkVersion is lowered enough.
+@SuppressLint("ObsoleteSdkInt")
 @VersionedParcelize(isCustom = true)
 public final class MediaMetadata extends CustomVersionedParcelable {
     private static final String TAG = "MediaMetadata";

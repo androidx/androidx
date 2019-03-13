@@ -659,7 +659,6 @@ public class MediaPlayer extends SessionPlayer {
      *
      * @param context A {@link Context} that will be used to resolve {@link UriMediaItem}.
      */
-    @SuppressLint("RestrictedApi")
     public MediaPlayer(@NonNull Context context) {
         mState = PLAYER_STATE_IDLE;
         mPlayer = MediaPlayer2.create(context);
@@ -805,7 +804,6 @@ public class MediaPlayer extends SessionPlayer {
 
     @Override
     @NonNull
-    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> setPlaybackSpeed(
             @FloatRange(from = 0, to = 1) final float playbackSpeed) {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -897,7 +895,6 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     @Override
-    @SuppressLint("RestrictedApi")
     public @BuffState int getBufferingState() {
         Integer buffState;
         synchronized (mStateLock) {
@@ -1693,7 +1690,6 @@ public class MediaPlayer extends SessionPlayer {
      * {@link PlayerResult} will be delivered when the command completes.
      */
     @NonNull
-    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> seekTo(final long position, @SeekMode final int mode) {
         PendingFuture<PlayerResult> pendingFuture =
                 new PendingFuture<PlayerResult>(mExecutor, true) {
@@ -1839,7 +1835,6 @@ public class MediaPlayer extends SessionPlayer {
      * {@link PlayerResult} will be delivered when the command completes.
      */
     @NonNull
-    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> setAuxEffectSendLevel(
             @FloatRange(from = 0, to = 1) final float level) {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {

@@ -50,7 +50,7 @@ import java.util.List;
  * @hide
  */
 @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class MediaNotificationHandler extends
         MediaSession.SessionCallback.ForegroundServiceEventCallback {
     private static final int NOTIFICATION_ID = 1001;
