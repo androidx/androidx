@@ -49,7 +49,10 @@ import java.util.List;
  * <p>
  * <strong>Note:</strong> The constants below are public for the browser implementation's benefit.
  * You are strongly encouraged to use {@link BrowserActionsIntent.Builder}.
+ *
+ * @deprecated Browser Actions are deprecated as of release 1.2.0.
  */
+@Deprecated
 public class BrowserActionsIntent {
     private static final String TAG = "BrowserActions";
     // Used to verify that an URL intent handler exists.
