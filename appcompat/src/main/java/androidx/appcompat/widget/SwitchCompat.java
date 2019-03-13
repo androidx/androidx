@@ -219,6 +219,8 @@ public class SwitchCompat extends CompoundButton {
     public SwitchCompat(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
+        ThemeUtils.checkAppCompatTheme(this, getContext());
+
         mTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
 
         final Resources res = getResources();

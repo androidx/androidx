@@ -75,6 +75,8 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
             @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
+        ThemeUtils.checkAppCompatTheme(this, getContext());
+
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,
                 TINT_ATTRS, defStyleAttr, 0);
         if (a.hasValue(0)) {
