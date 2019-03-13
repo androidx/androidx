@@ -74,11 +74,6 @@ class WrapperPageKeyedDataSource<K, A, B> extends PageKeyedDataSource<K, B> {
             public void onError(@NonNull Throwable error) {
                 callback.onError(error);
             }
-
-            @Override
-            public void onRetryableError(@NonNull Throwable error) {
-                callback.onRetryableError(error);
-            }
         });
     }
 
@@ -95,11 +90,6 @@ class WrapperPageKeyedDataSource<K, A, B> extends PageKeyedDataSource<K, B> {
             public void onError(@NonNull Throwable error) {
                 callback.onError(error);
             }
-
-            @Override
-            public void onRetryableError(@NonNull Throwable error) {
-                callback.onRetryableError(error);
-            }
         });
     }
 
@@ -115,11 +105,6 @@ class WrapperPageKeyedDataSource<K, A, B> extends PageKeyedDataSource<K, B> {
             @Override
             public void onError(@NonNull Throwable error) {
                 callback.onError(error);
-            }
-
-            @Override
-            public void onRetryableError(@NonNull Throwable error) {
-                callback.onRetryableError(error);
             }
         });
     }

@@ -192,9 +192,11 @@ class AsyncPagedListDifferTest {
         differ.getItem(12)
         verifyNoMoreInteractions(callback)
         drain()
-        verify(callback).onChanged(10, 2, null)
-        verify(callback).onChanged(12, 2, null)
-        verify(callback).onChanged(14, 2, null)
+
+        // NOTE: tiling is currently disabled, so tiles at 6 and 8 are required to load around 12
+        for (pos in 6..14 step 2) {
+            verify(callback).onChanged(pos, 2, null)
+        }
         verifyNoMoreInteractions(callback)
 
         // finally, clear
@@ -346,12 +348,12 @@ class AsyncPagedListDifferTest {
         differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(10, 20), 0))
         differ.currentList!!.loadAround(0)
         drain()
-        assertEquals(differ.currentList!!.lastKey, 0)
+        assertEquals(0, differ.currentList!!.lastKey)
 
         // if 10 items are prepended, lastKey should be updated to point to same item
         differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(0, 20), 0))
         drain()
-        assertEquals(differ.currentList!!.lastKey, 10)
+        assertEquals(10, differ.currentList!!.lastKey)
     }
 
     @Test

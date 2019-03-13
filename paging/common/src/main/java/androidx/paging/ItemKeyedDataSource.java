@@ -19,16 +19,18 @@ package androidx.paging;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
+import androidx.concurrent.futures.ResolvableFuture;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 
 /**
  * Incremental data loader for paging keyed content, where loaded content uses previously loaded
  * items as input to future loads.
  * <p>
  * Implement a DataSource using ItemKeyedDataSource if you need to use data from item {@code N - 1}
- * to load item {@code N}. This is common, for example, in sorted database queries where
+ * to load item {@code N}. This is common, for example, in uniquely sorted database queries where
  * attributes of the item such just before the next query define how to execute it.
  * <p>
  * The {@code InMemoryByItemRepository} in the
@@ -37,10 +39,13 @@ import java.util.concurrent.Executor;
  * <a href="https://square.github.io/retrofit/">Retrofit</a>, while
  * handling swipe-to-refresh, network errors, and retry.
  *
+ * @see ListenableItemKeyedDataSource
+ *
  * @param <Key> Type of data used to query Value types out of the DataSource.
  * @param <Value> Type of items being loaded by the DataSource.
  */
-public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSource<Key, Value> {
+public abstract class ItemKeyedDataSource<Key, Value> extends
+        ListenableItemKeyedDataSource<Key, Value> {
 
     /**
      * Holder object for inputs to {@link #loadInitial(LoadInitialParams, LoadInitialCallback)}.
@@ -48,36 +53,11 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
      * @param <Key> Type of data used to query Value types out of the DataSource.
      */
     @SuppressWarnings("WeakerAccess")
-    public static class LoadInitialParams<Key> {
-        /**
-         * Load items around this key, or at the beginning of the data set if {@code null} is
-         * passed.
-         * <p>
-         * Note that this key is generally a hint, and may be ignored if you want to always load
-         * from the beginning.
-         */
-        @Nullable
-        public final Key requestedInitialKey;
-
-        /**
-         * Requested number of items to load.
-         * <p>
-         * Note that this may be larger than available data.
-         */
-        public final int requestedLoadSize;
-
-        /**
-         * Defines whether placeholders are enabled, and whether the total count passed to
-         * {@link LoadInitialCallback#onResult(List, int, int)} will be ignored.
-         */
-        public final boolean placeholdersEnabled;
-
-
+    public static class LoadInitialParams<Key> extends
+            ListenableItemKeyedDataSource.LoadInitialParams<Key> {
         public LoadInitialParams(@Nullable Key requestedInitialKey, int requestedLoadSize,
                 boolean placeholdersEnabled) {
-            this.requestedInitialKey = requestedInitialKey;
-            this.requestedLoadSize = requestedLoadSize;
-            this.placeholdersEnabled = placeholdersEnabled;
+            super(requestedInitialKey, requestedLoadSize, placeholdersEnabled);
         }
     }
 
@@ -88,25 +68,9 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
      * @param <Key> Type of data used to query Value types out of the DataSource.
      */
     @SuppressWarnings("WeakerAccess")
-    public static class LoadParams<Key> {
-        /**
-         * Load items before/after this key.
-         * <p>
-         * Returned data must begin directly adjacent to this position.
-         */
-        @NonNull
-        public final Key key;
-        /**
-         * Requested number of items to load.
-         * <p>
-         * Returned page can be of this size, but it may be altered if that is easier, e.g. a
-         * network data source where the backend defines page size.
-         */
-        public final int requestedLoadSize;
-
+    public static class LoadParams<Key> extends ListenableItemKeyedDataSource.LoadParams<Key> {
         public LoadParams(@NonNull Key key, int requestedLoadSize) {
-            this.key = key;
-            this.requestedLoadSize = requestedLoadSize;
+            super(key, requestedLoadSize);
         }
     }
 
@@ -184,9 +148,9 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
         public abstract void onResult(@NonNull List<Value> data);
 
         /**
-         * Called to report a non-retryable error from a DataSource.
+         * Called to report an error from a DataSource.
          * <p>
-         * Call this method to report a non-retryable error from
+         * Call this method to report an error from
          * {@link #loadInitial(LoadInitialParams, LoadInitialCallback)},
          * {@link #loadBefore(LoadParams, LoadCallback)}, or
          * {@link #loadAfter(LoadParams, LoadCallback)} methods.
@@ -198,132 +162,86 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
             throw new IllegalStateException(
                     "You must implement onError if implementing your own load callback");
         }
-
-        /**
-         * Called to report a retryable error from a DataSource.
-         * <p>
-         * Call this method to report a retryable error from
-         * {@link #loadInitial(LoadInitialParams, LoadInitialCallback)},
-         * {@link #loadBefore(LoadParams, LoadCallback)}, or
-         * {@link #loadAfter(LoadParams, LoadCallback)} methods.
-         *
-         * @param error The error that occurred during loading.
-         */
-        public void onRetryableError(@NonNull Throwable error) {
-            // TODO: remove default implementation in 3.0
-            throw new IllegalStateException(
-                    "You must implement onRetryableError if implementing your own load callback");
-        }
     }
 
-    static class LoadInitialCallbackImpl<Value> extends LoadInitialCallback<Value> {
-        final LoadCallbackHelper<Value> mCallbackHelper;
-        private final boolean mCountingEnabled;
-        LoadInitialCallbackImpl(@NonNull ItemKeyedDataSource dataSource, boolean countingEnabled,
-                @NonNull PageResult.Receiver<Value> receiver) {
-            mCallbackHelper = new LoadCallbackHelper<>(dataSource, PageResult.INIT, null, receiver);
-            mCountingEnabled = countingEnabled;
-        }
+    @NonNull
+    @Override
+    public final ListenableFuture<InitialResult<Value>> loadInitial(
+            final @NonNull ListenableItemKeyedDataSource.LoadInitialParams<Key> params) {
+        final ResolvableFuture<InitialResult<Value>> future = ResolvableFuture.create();
+        getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                LoadInitialCallback<Value> callback = new LoadInitialCallback<Value>() {
+                    @Override
+                    public void onResult(@NonNull List<Value> data, int position, int totalCount) {
+                        future.set(new InitialResult<>(data, position, totalCount));
+                    }
 
-        @Override
-        public void onResult(@NonNull List<Value> data, int position, int totalCount) {
-            if (!mCallbackHelper.dispatchInvalidResultIfInvalid()) {
-                LoadCallbackHelper.validateInitialLoadParams(data, position, totalCount);
+                    @Override
+                    public void onResult(@NonNull List<Value> data) {
+                        future.set(new InitialResult<>(data));
+                    }
 
-                int trailingUnloadedCount = totalCount - position - data.size();
-                if (mCountingEnabled) {
-                    mCallbackHelper.dispatchResultToReceiver(new PageResult<>(
-                            data, position, trailingUnloadedCount, 0));
-                } else {
-                    mCallbackHelper.dispatchResultToReceiver(new PageResult<>(data, position));
-                }
+                    @Override
+                    public void onError(@NonNull Throwable error) {
+                        future.setException(error);
+                    }
+                };
+                loadInitial(new LoadInitialParams<>(
+                                params.requestedInitialKey,
+                                params.requestedLoadSize,
+                                params.placeholdersEnabled),
+                        callback);
             }
-        }
+        });
+        return future;
+    }
 
-        @Override
-        public void onResult(@NonNull List<Value> data) {
-            if (!mCallbackHelper.dispatchInvalidResultIfInvalid()) {
-                mCallbackHelper.dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
+    @SuppressWarnings("WeakerAccess")
+    LoadCallback<Value> getFutureAsCallback(
+            final @NonNull ResolvableFuture<Result<Value>> future) {
+        return new LoadCallback<Value>() {
+            @Override
+            public void onResult(@NonNull List<Value> data) {
+                future.set(new Result<>(data));
             }
-        }
 
-        @Override
-        public void onError(@NonNull Throwable error) {
-            mCallbackHelper.dispatchErrorToReceiver(error, false);
-        }
-
-        @Override
-        public void onRetryableError(@NonNull Throwable error) {
-            mCallbackHelper.dispatchErrorToReceiver(error, true);
-        }
-    }
-
-    static class LoadCallbackImpl<Value> extends LoadCallback<Value> {
-        final LoadCallbackHelper<Value> mCallbackHelper;
-
-        LoadCallbackImpl(@NonNull ItemKeyedDataSource dataSource, @PageResult.ResultType int type,
-                @Nullable Executor mainThreadExecutor,
-                @NonNull PageResult.Receiver<Value> receiver) {
-            mCallbackHelper = new LoadCallbackHelper<>(
-                    dataSource, type, mainThreadExecutor, receiver);
-        }
-
-        @Override
-        public void onResult(@NonNull List<Value> data) {
-            if (!mCallbackHelper.dispatchInvalidResultIfInvalid()) {
-                mCallbackHelper.dispatchResultToReceiver(new PageResult<>(data, 0, 0, 0));
+            @Override
+            public void onError(@NonNull Throwable error) {
+                future.setException(error);
             }
-        }
-
-        @Override
-        public void onError(@NonNull Throwable error) {
-            mCallbackHelper.dispatchErrorToReceiver(error, false);
-        }
-
-        @Override
-        public void onRetryableError(@NonNull Throwable error) {
-            mCallbackHelper.dispatchErrorToReceiver(error, true);
-        }
+        };
     }
 
-    @Nullable
+    @NonNull
     @Override
-    final Key getKey(int position, Value item) {
-        if (item == null) {
-            return null;
-        }
-
-        return getKey(item);
+    public final ListenableFuture<Result<Value>> loadBefore(
+            final @NonNull ListenableItemKeyedDataSource.LoadParams<Key> params) {
+        final ResolvableFuture<Result<Value>> future = ResolvableFuture.create();
+        getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                loadBefore(new LoadParams<>(params.key, params.requestedLoadSize),
+                        getFutureAsCallback(future));
+            }
+        });
+        return future;
     }
 
+    @NonNull
     @Override
-    final void dispatchLoadInitial(@Nullable Key key, int initialLoadSize, int pageSize,
-            boolean enablePlaceholders, @NonNull Executor mainThreadExecutor,
-            @NonNull PageResult.Receiver<Value> receiver) {
-        LoadInitialCallbackImpl<Value> callback =
-                new LoadInitialCallbackImpl<>(this, enablePlaceholders, receiver);
-        loadInitial(new LoadInitialParams<>(key, initialLoadSize, enablePlaceholders), callback);
-
-        // If initialLoad's callback is not called within the body, we force any following calls
-        // to post to the UI thread. This constructor may be run on a background thread, but
-        // after constructor, mutation must happen on UI thread.
-        callback.mCallbackHelper.setPostExecutor(mainThreadExecutor);
-    }
-
-    @Override
-    final void dispatchLoadAfter(int currentEndIndex, @NonNull Value currentEndItem,
-            int pageSize, @NonNull Executor mainThreadExecutor,
-            @NonNull PageResult.Receiver<Value> receiver) {
-        loadAfter(new LoadParams<>(getKey(currentEndItem), pageSize),
-                new LoadCallbackImpl<>(this, PageResult.APPEND, mainThreadExecutor, receiver));
-    }
-
-    @Override
-    final void dispatchLoadBefore(int currentBeginIndex, @NonNull Value currentBeginItem,
-            int pageSize, @NonNull Executor mainThreadExecutor,
-            @NonNull PageResult.Receiver<Value> receiver) {
-        loadBefore(new LoadParams<>(getKey(currentBeginItem), pageSize),
-                new LoadCallbackImpl<>(this, PageResult.PREPEND, mainThreadExecutor, receiver));
+    public final ListenableFuture<Result<Value>> loadAfter(
+            final @NonNull ListenableItemKeyedDataSource.LoadParams<Key> params) {
+        final ResolvableFuture<Result<Value>> future = ResolvableFuture.create();
+        getExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                loadAfter(new LoadParams<>(params.key, params.requestedLoadSize),
+                        getFutureAsCallback(future));
+            }
+        });
+        return future;
     }
 
     /**
@@ -338,7 +256,7 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
      * {@link LoadInitialParams#requestedInitialKey} and {@link LoadInitialParams#requestedLoadSize}
      * are hints, not requirements, so they may be altered or ignored. Note that ignoring the
      * {@code requestedInitialKey} can prevent subsequent PagedList/DataSource pairs from
-     * initializing at the same location. If your data source never invalidates (for example,
+     * initializing at the same location. If your DataSource never invalidates (for example,
      * loading from the network without the network ever signalling that old data must be reloaded),
      * it's fine to ignore the {@code initialLoadKey} and always start from the beginning of the
      * data set.
@@ -346,20 +264,22 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
      * @param params Parameters for initial load, including initial key and requested size.
      * @param callback Callback that receives initial load data.
      */
-    public abstract void loadInitial(@NonNull LoadInitialParams<Key> params,
+    public abstract void loadInitial(
+            @NonNull LoadInitialParams<Key> params,
             @NonNull LoadInitialCallback<Value> callback);
 
     /**
      * Load list data after the key specified in {@link LoadParams#key LoadParams.key}.
      * <p>
      * It's valid to return a different list size than the page size if it's easier, e.g. if your
-     * backend defines page sizes. It is generally safer to increase the number loaded than reduce.
+     * backend defines page sizes. It is generally preferred to increase the number loaded than
+     * reduce.
      * <p>
      * Data may be passed synchronously during the loadAfter method, or deferred and called at a
      * later time. Further loads going down will be blocked until the callback is called.
      * <p>
      * If data cannot be loaded (for example, if the request is invalid, or the data would be stale
-     * and inconsistent, it is valid to call {@link #invalidate()} to invalidate the data source,
+     * and inconsistent), it is valid to call {@link #invalidate()} to invalidate the data source,
      * and prevent further loading.
      *
      * @param params Parameters for the load, including the key to load after, and requested size.
@@ -372,7 +292,8 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
      * Load list data before the key specified in {@link LoadParams#key LoadParams.key}.
      * <p>
      * It's valid to return a different list size than the page size if it's easier, e.g. if your
-     * backend defines page sizes. It is generally safer to increase the number loaded than reduce.
+     * backend defines page sizes. It is generally preferred to increase the number loaded than
+     * reduce.
      * <p>
      * <p class="note"><strong>Note:</strong> Data returned will be prepended just before the key
      * passed, so if you vary size, ensure that the last item is adjacent to the passed key.
@@ -381,7 +302,7 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
      * later time. Further loads going up will be blocked until the callback is called.
      * <p>
      * If data cannot be loaded (for example, if the request is invalid, or the data would be stale
-     * and inconsistent, it is valid to call {@link #invalidate()} to invalidate the data source,
+     * and inconsistent), it is valid to call {@link #invalidate()} to invalidate the data source,
      * and prevent further loading.
      *
      * @param params Parameters for the load, including the key to load before, and requested size.
@@ -408,6 +329,7 @@ public abstract class ItemKeyedDataSource<Key, Value> extends ContiguousDataSour
      * @return Key associated with given item.
      */
     @NonNull
+    @Override
     public abstract Key getKey(@NonNull Value item);
 
     @NonNull

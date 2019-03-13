@@ -619,8 +619,6 @@ class PagedStorageTest {
             override fun onPageInserted(start: Int, count: Int) {}
             override fun onPagesRemoved(startOfDrops: Int, count: Int) {}
             override fun onPagesSwappedToPlaceholder(startOfDrops: Int, count: Int) {}
-            override fun onEmptyPrepend() {}
-            override fun onEmptyAppend() {}
         }
     }
 }
