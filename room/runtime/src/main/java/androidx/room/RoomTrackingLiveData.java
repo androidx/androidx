@@ -27,6 +27,7 @@ import androidx.lifecycle.LiveData;
 
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -46,6 +47,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 class RoomTrackingLiveData<T> extends LiveData<T> {
     @SuppressWarnings("WeakerAccess")
     final RoomDatabase mDatabase;
+
+    @SuppressWarnings("WeakerAccess")
+    final boolean mInTransaction;
 
     @SuppressWarnings("WeakerAccess")
     final Callable<T> mComputeFunction;
@@ -116,7 +120,7 @@ class RoomTrackingLiveData<T> extends LiveData<T> {
             boolean isActive = hasActiveObservers();
             if (mInvalid.compareAndSet(false, true)) {
                 if (isActive) {
-                    mDatabase.getQueryExecutor().execute(mRefreshRunnable);
+                    getQueryExecutor().execute(mRefreshRunnable);
                 }
             }
         }
@@ -125,9 +129,11 @@ class RoomTrackingLiveData<T> extends LiveData<T> {
     RoomTrackingLiveData(
             RoomDatabase database,
             InvalidationLiveDataContainer container,
+            boolean inTransaction,
             Callable<T> computeFunction,
             String[] tableNames) {
         mDatabase = database;
+        mInTransaction = inTransaction;
         mComputeFunction = computeFunction;
         mContainer = container;
         mObserver = new InvalidationTracker.Observer(tableNames) {
@@ -142,12 +148,20 @@ class RoomTrackingLiveData<T> extends LiveData<T> {
     protected void onActive() {
         super.onActive();
         mContainer.onActive(this);
-        mDatabase.getQueryExecutor().execute(mRefreshRunnable);
+        getQueryExecutor().execute(mRefreshRunnable);
     }
 
     @Override
     protected void onInactive() {
         super.onInactive();
         mContainer.onInactive(this);
+    }
+
+    Executor getQueryExecutor() {
+        if (mInTransaction) {
+            return mDatabase.getTransactionExecutor();
+        } else {
+            return mDatabase.getQueryExecutor();
+        }
     }
 }

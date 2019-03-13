@@ -17,6 +17,7 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Callable
@@ -33,18 +34,42 @@ class CoroutinesRoom private constructor() {
     companion object {
 
         @JvmStatic
-        suspend fun <R> execute(db: RoomDatabase, callable: Callable<R>): R {
+        suspend fun <R> execute(
+            db: RoomDatabase,
+            inTransaction: Boolean,
+            callable: Callable<R>
+        ): R {
             if (db.isOpen && db.inTransaction()) {
                 return callable.call()
             }
 
             // Use the transaction dispatcher if we are on a transaction coroutine, otherwise
-            // use the query executor as dispatcher.
+            // use the database dispatchers.
             val context = coroutineContext[TransactionElement]?.transactionDispatcher
-                ?: db.queryExecutor.asCoroutineDispatcher()
+                ?: if (inTransaction) db.transactionDispatcher else db.queryDispatcher
             return withContext(context) {
                 callable.call()
             }
         }
     }
 }
+
+/**
+ * Gets the query coroutine dispatcher.
+ *
+ * @hide
+ */
+internal val RoomDatabase.queryDispatcher: CoroutineDispatcher
+    get() = backingFieldMap.getOrPut("QueryDispatcher") {
+        queryExecutor.asCoroutineDispatcher()
+    } as CoroutineDispatcher
+
+/**
+ * Gets the transaction coroutine dispatcher.
+ *
+ * @hide
+ */
+internal val RoomDatabase.transactionDispatcher: CoroutineDispatcher
+    get() = backingFieldMap.getOrPut("TransactionDispatcher") {
+        queryExecutor.asCoroutineDispatcher()
+    } as CoroutineDispatcher
