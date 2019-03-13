@@ -223,6 +223,67 @@ public class WebSettingsCompat {
         }
     }
 
+    /**
+     * Sets whether the WebView’s internal error page should be suppressed or displayed
+     * for bad navigations. True means suppressed (not shown), false means it will be
+     * displayed.
+     * The default value is false.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SUPPRESS_ERROR_PAGE}.
+     *
+     * @param suppressed whether the WebView should suppress its internal error page
+     *
+     * TODO(cricke): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setWillSuppressErrorPage(WebSettings webSettings, boolean suppressed) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.SUPPRESS_ERROR_PAGE);
+        if (webviewFeature.isSupportedByWebView()) {
+            getAdapter(webSettings).setWillSuppressErrorPage(suppressed);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+
+    /**
+     * Gets whether the WebView’s internal error page will be suppressed or displayed
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SUPPRESS_ERROR_PAGE}.
+     *
+     * @return true if the WebView will suppress its internal error page
+     * @see #setWillSuppressErrorPage
+     *
+     * TODO(cricke): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static boolean willSuppressErrorPage(WebSettings webSettings) {
+        WebViewFeatureInternal webviewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.SUPPRESS_ERROR_PAGE);
+        if (webviewFeature.isSupportedByWebView()) {
+            return getAdapter(webSettings).willSuppressErrorPage();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+
+
     private static WebSettingsAdapter getAdapter(WebSettings webSettings) {
         return WebViewGlueCommunicator.getCompatConverter().convertSettings(webSettings);
     }
