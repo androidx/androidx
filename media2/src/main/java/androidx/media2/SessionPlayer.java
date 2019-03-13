@@ -115,24 +115,26 @@ import java.util.concurrent.Executor;
  *         performed from an <a href="#InvalidStates">invalid state</a>. In these cases the player
  *         may transition to this state.
  * </ol>
+ * Subclasses may have extra methods to reset the player state to {@link #PLAYER_STATE_IDLE} from
+ * other states. Take a look at documentations of specific subclass that you're interested in.
  * <p>
  *
  * <h3 id="InvalidStates">Invalid method calls</h3>
  * The only method you safely call from the {@link #PLAYER_STATE_ERROR} is {@link #close()}.
- * Any other methods might throw an exception or return meaningless data.
+ * Any other methods might return meaningless data.
  * <p>
  * Subclasses of the SessionPlayer may have extra methods that are safe to be called in the error
  * state and/or provide a method to recover from the error state. Take a look at documentations of
- * specific class that you're interested in.
+ * specific subclass that you're interested in.
  * <p>
- * Most methods can be called from any non-Error state. They will either perform their work or
- * silently have no effect. The following table lists the methods that aren't guaranteed to
- * successfully running if they're called from the associated invalid states.
+ * Most methods can be called from any non-Error state. In case they're called in invalid state,
+ * the implementation should ignore and would return {@link PlayerResult} with
+ * {@link PlayerResult#RESULT_ERROR_INVALID_STATE}. The following table lists the methods that
+ * aren't guaranteed to successfully running if they're called from the associated invalid states.
  * <p>
  * <table>
  * <tr><th>Method Name</th> <th>Invalid States</th></tr>
- * <tr><td>setMediaItem</td> <td>{Paused, Playing}</td></tr>
- * <tr><td>setPlaylist</td> <td>{Paused, Playing}</td></tr>
+ * <tr><td>setAudioAttributes</td> <td>{Paused, Playing}</td></tr>
  * <tr><td>prepare</td> <td>{Paused, Playing}</td></tr>
  * <tr><td>play</td> <td>{Idle}</td></tr>
  * <tr><td>pause</td> <td>{Idle}</td></tr>
@@ -287,10 +289,11 @@ public abstract class SessionPlayer implements AutoCloseable {
     private final List<Pair<PlayerCallback, Executor>> mCallbacks = new ArrayList<>();
 
     /**
-     * Plays the playback.
+     * Starts or resumes playback.
      * <p>
      * This transfers the player state from {@link #PLAYER_STATE_PAUSED} to
-     * {@link #PLAYER_STATE_PLAYING}.
+     * {@link #PLAYER_STATE_PLAYING} on success. If it's called in {@link #PLAYER_STATE_IDLE},
+     * {@link PlayerResult} should be returned with {@link PlayerResult#RESULT_ERROR_INVALID_STATE}.
      */
     public abstract @NonNull ListenableFuture<PlayerResult> play();
 
@@ -298,34 +301,45 @@ public abstract class SessionPlayer implements AutoCloseable {
      * Pauses playback.
      * <p>
      * This transfers the player state from {@link #PLAYER_STATE_PLAYING} to
-     * {@link #PLAYER_STATE_PAUSED}.
+     * {@link #PLAYER_STATE_PAUSED} on success. If it's called in {@link #PLAYER_STATE_IDLE},
+     * it's ignored and {@link PlayerResult} should be returned with
+     * {@link PlayerResult#RESULT_ERROR_INVALID_STATE}.
      */
     public abstract @NonNull ListenableFuture<PlayerResult> pause();
 
     /**
      * Prepares the media items for playback. During this time, the player may allocate resources
-     * required to play, such as audio and video decoders.
+     * required to play, such as audio and video decoders. Before calling this API, sets media
+     * item(s) through either {@link #setMediaItem} or {@link #setPlaylist}.
      * <p>
      * This transfers the player state from {@link #PLAYER_STATE_IDLE} to
-     * {@link #PLAYER_STATE_PAUSED}.
+     * {@link #PLAYER_STATE_PAUSED} on success. If it's not called in {@link #PLAYER_STATE_IDLE},
+     * it's ignored and {@link PlayerResult} should be returned with
+     * {@link PlayerResult#RESULT_ERROR_INVALID_STATE}.
      */
     public abstract @NonNull ListenableFuture<PlayerResult> prepare();
 
     /**
      * Seeks to the specified position. Moves the playback head to the specified position.
-     *
+     * <p>
+     * If it's called in {@link #PLAYER_STATE_IDLE}, it's ignored and {@link PlayerResult} would be
+     * returned with {@link PlayerResult#RESULT_ERROR_INVALID_STATE}.
+     * *
      * @param position the new playback position in ms. The value should be in the range of start
      * and end positions defined in {@link MediaItem}.
      */
     public abstract @NonNull ListenableFuture<PlayerResult> seekTo(long position);
 
     /**
-     * Sets the playback speed. A value of {@code 1.0f} is the default playback value.
+     * Sets the playback speed. A value of {@code 1.0f} is the default playback value, and a
+     * negative value indicates reverse playback.
      * <p>
-     * After changing the playback speed, it is recommended to query the actual speed supported
-     * by the player, see {@link #getPlaybackSpeed()}.
+     * Supported playback speed range may differ per player. So it is recommended to query the
+     * actual speed supported by the player after changing the playback speed.
      *
      * @param playbackSpeed playback speed
+     * @see #getPlaybackSpeed()
+     * @see PlayerCallback#onPlaybackSpeedChanged(SessionPlayer, float)
      */
     public abstract @NonNull ListenableFuture<PlayerResult> setPlaybackSpeed(float playbackSpeed);
 
@@ -333,7 +347,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * Sets the {@link AudioAttributesCompat} to be used during the playback of the media.
      * <p>
      * You must call this method in {@link #PLAYER_STATE_IDLE} in order for the audio attributes to
-     * become effective thereafter.
+     * become effective thereafter. Otherwise, the call would be ignored and {@link PlayerResult}
+     * should be returned with {@link PlayerResult#RESULT_ERROR_INVALID_STATE}.
      *
      * @param attributes non-null <code>AudioAttributes</code>.
      */
@@ -367,13 +382,15 @@ public abstract class SessionPlayer implements AutoCloseable {
     public abstract long getDuration();
 
     /**
-     * Gets the buffered position of current playback, or {@link #UNKNOWN_TIME} if unknown.
+     * Gets the position for how much has been buffered, or {@link #UNKNOWN_TIME} if unknown.
+     *
      * @return the buffered position in ms, or {@link #UNKNOWN_TIME}.
      */
     public abstract long getBufferedPosition();
 
     /**
      * Returns the current buffering state of the player.
+     * <p>
      * During the buffering, see {@link #getBufferedPosition()} for the quantifying the amount
      * already buffered.
      *
@@ -383,7 +400,8 @@ public abstract class SessionPlayer implements AutoCloseable {
     public abstract @BuffState int getBufferingState();
 
     /**
-     * Gets the actual playback speed to be used by the player when playing.
+     * Gets the actual playback speed to be used by the player when playing. A value of {@code 1.0f}
+     * is the default playback value, and a negative value indicates reverse playback.
      * <p>
      * Note that it may differ from the speed set in {@link #setPlaybackSpeed(float)}.
      *
@@ -394,6 +412,9 @@ public abstract class SessionPlayer implements AutoCloseable {
     /**
      * Sets a list of {@link MediaItem} with metadata. Use this or {@link #setMediaItem} to specify
      * which items to play.
+     * <p>
+     * This can be called multiple times in any states other than {@link #PLAYER_STATE_ERROR}. This
+     * would override previous {@link #setMediaItem} or {@link #setPlaylist} calls.
      * <p>
      * Ensure uniqueness of each {@link MediaItem} in the playlist so the session can uniquely
      * identity individual items. All {@link MediaItem}s shouldn't be {@code null} as well.
@@ -431,6 +452,9 @@ public abstract class SessionPlayer implements AutoCloseable {
      * items to play. If you want to change current item in the playlist, use one of
      * {@link #skipToPlaylistItem}, {@link #skipToNextPlaylistItem}, or
      * {@link #skipToPreviousPlaylistItem} instead of this method.
+     * <p>
+     * This can be called multiple times in any states other than {@link #PLAYER_STATE_ERROR}. This
+     * would override previous {@link #setMediaItem} or {@link #setPlaylist} calls.
      * <p>
      * It's recommended to fill {@link MediaMetadata} in {@link MediaItem} especially for the
      * duration information with the key {@link MediaMetadata#METADATA_KEY_DURATION}. Without the
