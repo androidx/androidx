@@ -32,6 +32,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import androidx.annotation.ColorInt;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 
@@ -184,6 +185,10 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbSearchOrbView,
                 defStyleAttr, 0);
+        if (BuildCompat.isAtLeastQ()) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.lbSearchOrbView, attrs, a, defStyleAttr, 0);
+        }
 
         Drawable img = a.getDrawable(R.styleable.lbSearchOrbView_searchOrbIcon);
         if (img == null) {

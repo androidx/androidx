@@ -33,6 +33,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.core.os.BuildCompat;
 import androidx.wear.R;
 import androidx.wear.internal.widget.drawer.MultiPagePresenter;
 import androidx.wear.internal.widget.drawer.MultiPageUi;
@@ -142,6 +143,12 @@ public class WearableNavigationDrawerView extends WearableDrawerView {
                     R.styleable.WearableNavigationDrawerView,
                     defStyleAttr,
                     0 /* defStyleRes */);
+
+            if (BuildCompat.isAtLeastQ()) {
+                saveAttributeDataForStyleable(
+                        context, R.styleable.WearableNavigationDrawerView, attrs, typedArray,
+                        defStyleAttr, 0);
+            }
 
             //noinspection WrongConstant
             navStyle = typedArray.getInt(

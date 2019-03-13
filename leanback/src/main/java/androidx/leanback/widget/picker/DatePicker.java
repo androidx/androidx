@@ -21,6 +21,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
+import androidx.core.os.BuildCompat;
 import androidx.leanback.R;
 
 import java.text.DateFormat;
@@ -75,6 +76,10 @@ public class DatePicker extends Picker {
 
         final TypedArray attributesArray = context.obtainStyledAttributes(attrs,
                 R.styleable.lbDatePicker);
+        if (BuildCompat.isAtLeastQ()) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.lbDatePicker, attrs, attributesArray, 0, 0);
+        }
         String minDate;
         String maxDate;
         String datePickerFormat;

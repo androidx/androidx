@@ -24,6 +24,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.IntRange;
+import androidx.core.os.BuildCompat;
 import androidx.leanback.R;
 
 import java.text.SimpleDateFormat;
@@ -107,6 +108,10 @@ public class TimePicker extends Picker {
 
         final TypedArray attributesArray = context.obtainStyledAttributes(attrs,
                 R.styleable.lbTimePicker);
+        if (BuildCompat.isAtLeastQ()) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.lbTimePicker, attrs, attributesArray, 0, 0);
+        }
         boolean useCurrentTime;
 
         try {

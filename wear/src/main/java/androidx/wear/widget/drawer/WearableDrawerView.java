@@ -33,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StyleableRes;
+import androidx.core.os.BuildCompat;
 import androidx.customview.widget.ViewDragHelper;
 import androidx.wear.R;
 
@@ -466,6 +467,11 @@ public class WearableDrawerView extends FrameLayout {
                 context.obtainStyledAttributes(
                         attrs, R.styleable.WearableDrawerView, defStyleAttr,
                         R.style.Widget_Wear_WearableDrawerView);
+        if (BuildCompat.isAtLeastQ()) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.WearableDrawerView, attrs, typedArray, defStyleAttr,
+                    R.style.Widget_Wear_WearableDrawerView);
+        }
 
         Drawable background =
                 getDrawable(context, typedArray, R.styleable.WearableDrawerView_android_background);

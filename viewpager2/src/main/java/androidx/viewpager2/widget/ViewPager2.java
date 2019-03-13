@@ -43,6 +43,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand;
@@ -284,6 +285,9 @@ public final class ViewPager2 extends ViewGroup {
 
     private void setOrientation(Context context, AttributeSet attrs) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ViewPager2);
+        if (BuildCompat.isAtLeastQ()) {
+            saveAttributeDataForStyleable(context, R.styleable.ViewPager2, attrs, a, 0, 0);
+        }
         try {
             setOrientation(
                     a.getInt(R.styleable.ViewPager2_android_orientation, ORIENTATION_HORIZONTAL));

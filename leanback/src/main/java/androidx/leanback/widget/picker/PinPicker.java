@@ -21,6 +21,7 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 
+import androidx.core.os.BuildCompat;
 import androidx.leanback.R;
 
 import java.util.ArrayList;
@@ -44,6 +45,10 @@ public class PinPicker extends Picker {
         super(context, attrs, defStyleAttr);
         final TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.lbPinPicker, defStyleAttr, 0);
+        if (BuildCompat.isAtLeastQ()) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.lbPinPicker, attrs, a, defStyleAttr, 0);
+        }
         try {
             setSeparator(" ");
             setNumberOfColumns(a.getInt(R.styleable.lbPinPicker_columnCount, DEFAULT_COLUMN_COUNT));

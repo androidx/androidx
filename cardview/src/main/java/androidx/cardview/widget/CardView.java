@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.cardview.R;
+import androidx.core.os.BuildCompat;
 
 /**
  * A FrameLayout with a rounded corner background and shadow.
@@ -122,6 +123,10 @@ public class CardView extends FrameLayout {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CardView, defStyleAttr,
                 R.style.CardView);
+        if (BuildCompat.isAtLeastQ()) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.CardView, attrs, a, defStyleAttr, R.style.CardView);
+        }
         ColorStateList backgroundColor;
         if (a.hasValue(R.styleable.CardView_cardBackgroundColor)) {
             backgroundColor = a.getColorStateList(R.styleable.CardView_cardBackgroundColor);

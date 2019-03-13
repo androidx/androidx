@@ -42,6 +42,7 @@ import android.view.animation.DecelerateInterpolator;
 import androidx.annotation.ColorInt;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.os.BuildCompat;
 import androidx.leanback.R;
 
 /**
@@ -143,6 +144,10 @@ public class PagingIndicator extends View {
         Resources res = getResources();
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.PagingIndicator,
                 defStyle, 0);
+        if (BuildCompat.isAtLeastQ()) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.PagingIndicator, attrs, typedArray, defStyle, 0);
+        }
         mDotRadius = getDimensionFromTypedArray(typedArray, R.styleable.PagingIndicator_lbDotRadius,
                 R.dimen.lb_page_indicator_dot_radius);
         mDotDiameter = mDotRadius * 2;

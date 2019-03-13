@@ -37,6 +37,7 @@ import android.view.View;
 import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.core.os.BuildCompat;
 import androidx.wear.R;
 
 import java.util.Objects;
@@ -127,6 +128,9 @@ public class CircledImageView extends View {
         super(context, attrs, defStyle);
 
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.CircledImageView);
+        if (BuildCompat.isAtLeastQ()) {
+            saveAttributeDataForStyleable(context, R.styleable.CircledImageView, attrs, a, 0, 0);
+        }
         mDrawable = a.getDrawable(R.styleable.CircledImageView_android_src);
         if (mDrawable != null && mDrawable.getConstantState() != null) {
             // The provided Drawable may be used elsewhere, so make a mutable clone before setTint()

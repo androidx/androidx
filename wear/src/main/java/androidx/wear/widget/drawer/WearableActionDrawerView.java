@@ -37,6 +37,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.core.os.BuildCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.R;
@@ -118,6 +119,12 @@ public class WearableActionDrawerView extends WearableDrawerView {
         if (attrs != null) {
             TypedArray typedArray = context.obtainStyledAttributes(
                     attrs, R.styleable.WearableActionDrawerView, defStyleAttr, 0 /* defStyleRes */);
+
+            if (BuildCompat.isAtLeastQ()) {
+                saveAttributeDataForStyleable(
+                        context, R.styleable.WearableActionDrawerView, attrs, typedArray,
+                        defStyleAttr, 0);
+            }
 
             try {
                 mTitle = typedArray.getString(R.styleable.WearableActionDrawerView_drawerTitle);

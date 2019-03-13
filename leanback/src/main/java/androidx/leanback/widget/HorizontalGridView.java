@@ -28,6 +28,7 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 
+import androidx.core.os.BuildCompat;
 import androidx.leanback.R;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -81,6 +82,10 @@ public class HorizontalGridView extends BaseGridView {
     protected void initAttributes(Context context, AttributeSet attrs) {
         initBaseGridViewAttributes(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbHorizontalGridView);
+        if (BuildCompat.isAtLeastQ()) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.lbHorizontalGridView, attrs, a, 0, 0);
+        }
         setRowHeight(a);
         setNumRows(a.getInt(R.styleable.lbHorizontalGridView_numberOfRows, 1));
         a.recycle();

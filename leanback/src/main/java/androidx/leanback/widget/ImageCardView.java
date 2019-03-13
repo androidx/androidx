@@ -28,6 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
+import androidx.core.os.BuildCompat;
 import androidx.leanback.R;
 
 /**
@@ -170,6 +171,11 @@ public class ImageCardView extends BaseCardView {
         inflater.inflate(R.layout.lb_image_card_view, this);
         TypedArray cardAttrs = getContext().obtainStyledAttributes(attrs,
                 R.styleable.lbImageCardView, defStyleAttr, defStyle);
+        if (BuildCompat.isAtLeastQ()) {
+            saveAttributeDataForStyleable(
+                    getContext(), R.styleable.lbImageCardView, attrs, cardAttrs, defStyleAttr,
+                    defStyle);
+        }
         int cardType = cardAttrs
                 .getInt(R.styleable.lbImageCardView_lbImageCardViewType, CARD_TYPE_FLAG_IMAGE_ONLY);
 

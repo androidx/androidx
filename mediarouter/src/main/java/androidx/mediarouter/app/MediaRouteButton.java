@@ -38,6 +38,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.os.BuildCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -150,6 +151,10 @@ public class MediaRouteButton extends View {
         context = getContext();
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.MediaRouteButton, defStyleAttr, 0);
+        if (BuildCompat.isAtLeastQ()) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.MediaRouteButton, attrs, a, defStyleAttr, 0);
+        }
         if (isInEditMode()) {
             mRouter = null;
             mCallback = null;
