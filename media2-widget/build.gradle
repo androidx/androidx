@@ -25,9 +25,8 @@ plugins {
 dependencies {
     api(project(":media2"))
     api(project(":mediarouter"))
-    // TODO: change to 1.1.0-alpha03 after release
-    api(project(":appcompat"))
-    api("androidx.palette:palette:1.0.0")
+    implementation("androidx.appcompat:appcompat:1.0.2")
+    implementation("androidx.palette:palette:1.0.0")
     implementation(project(":concurrent:concurrent-futures"))
 
     androidTestImplementation(TEST_EXT_JUNIT)
