@@ -20,8 +20,8 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.webkit.WebViewRenderer;
-import androidx.webkit.WebViewRendererClient;
+import androidx.webkit.WebViewRenderProcess;
+import androidx.webkit.WebViewRenderProcessClient;
 
 import org.chromium.support_lib_boundary.WebViewRendererClientBoundaryInterface;
 import org.chromium.support_lib_boundary.util.Features;
@@ -29,21 +29,22 @@ import org.chromium.support_lib_boundary.util.Features;
 import java.lang.reflect.InvocationHandler;
 import java.util.concurrent.Executor;
 
-class WebViewRendererClientAdapter implements WebViewRendererClientBoundaryInterface {
+class WebViewRenderProcessClientAdapter implements WebViewRendererClientBoundaryInterface {
     private static final String[] sSupportedFeatures = new String[] {
             Features.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
     };
 
     private final Executor mExecutor;
-    private final WebViewRendererClient mWebViewRendererClient;
+    private final WebViewRenderProcessClient mWebViewRenderProcessClient;
 
-    WebViewRendererClientAdapter(Executor executor, WebViewRendererClient webViewRendererClient) {
+    WebViewRenderProcessClientAdapter(
+            Executor executor, WebViewRenderProcessClient webViewRenderProcessClient) {
         mExecutor = executor;
-        mWebViewRendererClient = webViewRendererClient;
+        mWebViewRenderProcessClient = webViewRenderProcessClient;
     }
 
-    WebViewRendererClient getWebViewRendererClient() {
-        return mWebViewRendererClient;
+    WebViewRenderProcessClient getWebViewRenderProcessClient() {
+        return mWebViewRenderProcessClient;
     }
 
     /**
@@ -69,15 +70,16 @@ class WebViewRendererClientAdapter implements WebViewRendererClientBoundaryInter
     public final void onRendererUnresponsive(
             @NonNull final WebView view,
             @NonNull /* WebViewRenderer */ final InvocationHandler renderer) {
-        final WebViewRenderer rendererObject = WebViewRendererImpl.forInvocationHandler(renderer);
-        final WebViewRendererClient client = mWebViewRendererClient;
+        final WebViewRenderProcess rendererObject =
+                WebViewRenderProcessImpl.forInvocationHandler(renderer);
+        final WebViewRenderProcessClient client = mWebViewRenderProcessClient;
         if (mExecutor == null) {
-            client.onRendererUnresponsive(view, rendererObject);
+            client.onRenderProcessUnresponsive(view, rendererObject);
         } else {
             mExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    client.onRendererUnresponsive(view, rendererObject);
+                    client.onRenderProcessUnresponsive(view, rendererObject);
                 }
             });
         }
@@ -94,15 +96,16 @@ class WebViewRendererClientAdapter implements WebViewRendererClientBoundaryInter
     public final void onRendererResponsive(
             @NonNull final WebView view,
             @NonNull /* WebViewRenderer */ InvocationHandler renderer) {
-        final WebViewRenderer rendererObject = WebViewRendererImpl.forInvocationHandler(renderer);
-        final WebViewRendererClient client = mWebViewRendererClient;
+        final WebViewRenderProcess rendererObject =
+                WebViewRenderProcessImpl.forInvocationHandler(renderer);
+        final WebViewRenderProcessClient client = mWebViewRenderProcessClient;
         if (mExecutor == null) {
-            client.onRendererResponsive(view, rendererObject);
+            client.onRenderProcessResponsive(view, rendererObject);
         } else {
             mExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    client.onRendererResponsive(view, rendererObject);
+                    client.onRenderProcessResponsive(view, rendererObject);
                 }
             });
         }

@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class WebViewRendererClientTest {
+public class WebViewRenderProcessClientTest {
     WebViewOnUiThread mWebViewOnUiThread;
 
     @Before
@@ -74,7 +74,7 @@ public class WebViewRendererClientTest {
         public void block() throws Exception {
             // This blocks indefinitely (until signalled) on a background thread.
             // The actual test timeout is not determined by this wait, but by other
-            // code waiting for the onRendererUnresponsive() call.
+            // code waiting for the onRenderProcessUnresponsive() call.
             mBecameBlocked.set(null);
             mLatch.await();
         }
@@ -84,7 +84,7 @@ public class WebViewRendererClientTest {
         }
     }
 
-    private void blockRenderer(final JSBlocker blocker) {
+    private void blockRenderProcess(final JSBlocker blocker) {
         WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
@@ -110,45 +110,45 @@ public class WebViewRendererClientTest {
         });
     }
 
-    private void testWebViewRendererClientOnExecutor(Executor executor) throws Throwable {
+    private void testWebViewRenderProcessClientOnExecutor(Executor executor) throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
         final JSBlocker blocker = new JSBlocker();
         final ResolvableFuture<Void> rendererUnblocked = ResolvableFuture.create();
 
-        WebViewRendererClient client = new WebViewRendererClient() {
+        WebViewRenderProcessClient client = new WebViewRenderProcessClient() {
             @Override
-            public void onRendererUnresponsive(WebView view, WebViewRenderer renderer) {
+            public void onRenderProcessUnresponsive(WebView view, WebViewRenderProcess renderer) {
                 // Let the renderer unblock.
                 blocker.releaseBlock();
             }
 
             @Override
-            public void onRendererResponsive(WebView view, WebViewRenderer renderer) {
+            public void onRenderProcessResponsive(WebView view, WebViewRenderProcess renderer) {
                 // Notify that the renderer has been unblocked.
                 rendererUnblocked.set(null);
             }
         };
         if (executor == null) {
-            mWebViewOnUiThread.setWebViewRendererClient(client);
+            mWebViewOnUiThread.setWebViewRenderProcessClient(client);
         } else {
-            mWebViewOnUiThread.setWebViewRendererClient(executor, client);
+            mWebViewOnUiThread.setWebViewRenderProcessClient(executor, client);
         }
 
         addJsBlockerInterface(blocker);
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
-        blockRenderer(blocker);
+        blockRenderProcess(blocker);
         WebkitUtils.waitForFuture(rendererUnblocked);
     }
 
     @Test
-    public void testWebViewRendererClientWithoutExecutor() throws Throwable {
-        testWebViewRendererClientOnExecutor(null);
+    public void testWebViewRenderProcessClientWithoutExecutor() throws Throwable {
+        testWebViewRenderProcessClientOnExecutor(null);
     }
 
     @Test
-    public void testWebViewRendererClientWithExecutor() throws Throwable {
+    public void testWebViewRenderProcessClientWithExecutor() throws Throwable {
         final AtomicInteger executorCount = new AtomicInteger();
-        testWebViewRendererClientOnExecutor(new Executor() {
+        testWebViewRenderProcessClientOnExecutor(new Executor() {
             @Override
             public void execute(Runnable r) {
                 executorCount.incrementAndGet();
@@ -159,23 +159,23 @@ public class WebViewRendererClientTest {
     }
 
     @Test
-    public void testSetWebViewRendererClient() throws Throwable {
+    public void testSetWebViewRenderProcessClient() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
 
         Assert.assertNull("Initially the renderer client should be null",
-                mWebViewOnUiThread.getWebViewRendererClient());
+                mWebViewOnUiThread.getWebViewRenderProcessClient());
 
-        final WebViewRendererClient webViewRendererClient = new WebViewRendererClient() {
+        final WebViewRenderProcessClient client = new WebViewRenderProcessClient() {
             @Override
-            public void onRendererUnresponsive(WebView view, WebViewRenderer renderer) {}
+            public void onRenderProcessUnresponsive(WebView view, WebViewRenderProcess renderer) {}
 
             @Override
-            public void onRendererResponsive(WebView view, WebViewRenderer renderer) {}
+            public void onRenderProcessResponsive(WebView view, WebViewRenderProcess renderer) {}
         };
-        mWebViewOnUiThread.setWebViewRendererClient(webViewRendererClient);
+        mWebViewOnUiThread.setWebViewRenderProcessClient(client);
 
         Assert.assertSame(
                 "After the renderer client is set, getting it should return the same object",
-                webViewRendererClient, mWebViewOnUiThread.getWebViewRendererClient());
+                client, mWebViewOnUiThread.getWebViewRenderProcessClient());
     }
 }
