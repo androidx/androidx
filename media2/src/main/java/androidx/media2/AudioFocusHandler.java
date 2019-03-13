@@ -45,7 +45,7 @@ import androidx.media.AudioAttributesCompat;
  * @hide
  */
 @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-@RestrictTo(Scope.LIBRARY)
+@RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
 public class AudioFocusHandler {
     private static final String TAG = "AudioFocusHandler";
     private static final boolean DEBUG = true;

@@ -18,7 +18,6 @@ package androidx.media2;
 
 import static android.app.Service.START_STICKY;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
@@ -60,7 +59,6 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
     }
 
     @Override
-    @SuppressLint("RestrictedApi")
     public void onCreate(MediaSessionService service) {
         synchronized (mLock) {
             mInstance = service;
@@ -107,7 +105,6 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
     }
 
     @Override
-    @SuppressLint("RestrictedApi")
     public void addSession(final MediaSession session) {
         final MediaSession old;
         synchronized (mLock) {
@@ -168,7 +165,6 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
     }
 
     @Override
-    @SuppressLint("RestrictedApi")
     public MediaNotification onUpdateNotification(MediaSession session) {
         final MediaNotificationHandler handler;
         synchronized (mLock) {
