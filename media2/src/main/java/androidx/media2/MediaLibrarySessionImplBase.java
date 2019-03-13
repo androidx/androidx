@@ -19,7 +19,6 @@ package androidx.media2;
 import static androidx.media2.LibraryResult.RESULT_ERROR_UNKNOWN;
 import static androidx.media2.LibraryResult.RESULT_SUCCESS;
 
-import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.os.RemoteException;
@@ -179,7 +178,6 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements MediaL
         return returnedResult;
     }
 
-    @SuppressLint("RestrictedApi")
     private boolean isValidItem(MediaItem item) {
         if (item == null) {
             throw new RuntimeException("Item shouldn't be null for the success");

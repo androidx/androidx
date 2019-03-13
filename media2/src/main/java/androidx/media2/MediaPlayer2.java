@@ -16,10 +16,8 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.DeniedByServerException;
@@ -226,8 +224,7 @@ import java.util.concurrent.Executor;
  *
  * @hide
  */
-@RestrictTo(LIBRARY)
-@SuppressLint("RestrictedApi")
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public abstract class MediaPlayer2 {
 
     /**
@@ -250,20 +247,14 @@ public abstract class MediaPlayer2 {
         }
     }
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public MediaPlayer2() { }
+    protected MediaPlayer2() { }
 
     /**
      * Cancels the asynchronous call previously submitted.
      *
      * @param token the token which is returned from the asynchronous call.
      * @return {@code false} if the task could not be cancelled; {@code true} otherwise.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public abstract boolean cancel(Object token);
 
     /**
@@ -333,7 +324,6 @@ public abstract class MediaPlayer2 {
      * @return a token which can be used to cancel the operation later with {@link #cancel}.
      */
     // This is an asynchronous call.
-    @SuppressLint("RestrictedApi")
     public Object seekTo(long msec) {
         return seekTo(msec, SEEK_PREVIOUS_SYNC /* mode */);
     }
@@ -633,7 +623,6 @@ public abstract class MediaPlayer2 {
             SEEK_CLOSEST,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface SeekMode {}
 
     /**
@@ -780,8 +769,6 @@ public abstract class MediaPlayer2 {
         public static final int MEDIA_TRACK_TYPE_VIDEO = 1;
         public static final int MEDIA_TRACK_TYPE_AUDIO = 2;
 
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public static final int MEDIA_TRACK_TYPE_TIMEDTEXT = 3;
 
         public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
@@ -1035,10 +1022,10 @@ public abstract class MediaPlayer2 {
             PLAYER_STATE_PLAYING,
             PLAYER_STATE_ERROR})
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface MediaPlayer2State {}
 
-    /** Unspecified media player error.
+    /**
+     * Unspecified media player error.
      * @see EventCallback#onError
      */
     public static final int MEDIA_ERROR_UNKNOWN = 1;
@@ -1066,12 +1053,11 @@ public abstract class MediaPlayer2 {
      */
     public static final int MEDIA_ERROR_TIMED_OUT = -110;
 
-    /** Unspecified low-level system error. This value originated from UNKNOWN_ERROR in
+    /**
+     * Unspecified low-level system error. This value originated from UNKNOWN_ERROR in
      * system/core/include/utils/Errors.h
      * @see EventCallback#onError
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int MEDIA_ERROR_SYSTEM = -2147483648;
 
     /**
@@ -1086,75 +1072,84 @@ public abstract class MediaPlayer2 {
             MEDIA_ERROR_SYSTEM
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface MediaError {}
 
-    /** Unspecified media player info.
+    /**
+     * Unspecified media player info.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_UNKNOWN = 1;
 
-    /** The player just started the playback of this media item.
+    /**
+     * The player just started the playback of this media item.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_DATA_SOURCE_START = 2;
 
-    /** The player just pushed the very first video frame for rendering.
+    /**
+     * The player just pushed the very first video frame for rendering.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_VIDEO_RENDERING_START = 3;
 
-    /** The player just rendered the very first audio sample.
+    /**
+     * The player just rendered the very first audio sample.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_AUDIO_RENDERING_START = 4;
 
-    /** The player just completed the playback of this media item.
+    /**
+     * The player just completed the playback of this media item.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_DATA_SOURCE_END = 5;
 
-    /** The player just completed the playback of all the media items set by {@link #setMediaItem}
-     *  , {@link #setNextMediaItem} and {@link #setNextMediaItems}.
+    /**
+     * The player just completed the playback of all the media items set by {@link #setMediaItem},
+     * {@link #setNextMediaItem} and {@link #setNextMediaItems}.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_DATA_SOURCE_LIST_END = 6;
 
-    /** The player just completed an iteration of playback loop. This event is sent only when
-     *  looping is enabled by {@link #loopCurrent}.
+    /**
+     * The player just completed an iteration of playback loop. This event is sent only when
+     * looping is enabled by {@link #loopCurrent}.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_DATA_SOURCE_REPEAT = 7;
 
-    /** The player just prepared a media item.
+    /**
+     * The player just prepared a media item.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_PREPARED = 100;
 
-    /** The video is too complex for the decoder: it can't decode frames fast
-     *  enough. Possibly only the audio plays fine at this stage.
+    /**
+     * The video is too complex for the decoder: it can't decode frames fast
+     * enough. Possibly only the audio plays fine at this stage.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_VIDEO_TRACK_LAGGING = 700;
 
-    /** MediaPlayer2 is temporarily pausing playback internally in order to
+    /**
+     * MediaPlayer2 is temporarily pausing playback internally in order to
      * buffer more data.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_BUFFERING_START = 701;
 
-    /** MediaPlayer2 is resuming playback after filling buffers.
+    /**
+     * MediaPlayer2 is resuming playback after filling buffers.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_BUFFERING_END = 702;
 
-    /** Estimated network bandwidth information (kbps) is available; currently this event fires
+    /**
+     * Estimated network bandwidth information (kbps) is available; currently this event fires
      * simultaneously as {@link #MEDIA_INFO_BUFFERING_START} and {@link #MEDIA_INFO_BUFFERING_END}
      * when playing network files.
      * @see EventCallback#onInfo
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int MEDIA_INFO_NETWORK_BANDWIDTH = 703;
 
     /**
@@ -1170,55 +1165,60 @@ public abstract class MediaPlayer2 {
      */
     public static final int MEDIA_INFO_BUFFERING_UPDATE = 704;
 
-    /** Bad interleaving means that a media has been improperly interleaved or
+    /**
+     * Bad interleaving means that a media has been improperly interleaved or
      * not interleaved at all, e.g has all the video samples first then all the
      * audio ones. Video is playing but a lot of disk seeks may be happening.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_BAD_INTERLEAVING = 800;
 
-    /** The media cannot be seeked (e.g live stream)
+    /**
+     * The media cannot be seeked (e.g live stream)
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_NOT_SEEKABLE = 801;
 
-    /** A new set of metadata is available.
+    /**
+     * A new set of metadata is available.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_METADATA_UPDATE = 802;
 
-    /** A new set of external-only metadata is available.  Used by
-     *  JAVA framework to avoid triggering track scanning.
-     * @hide
+    /**
+     * A new set of external-only metadata is available.  Used by
+     * JAVA framework to avoid triggering track scanning.
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int MEDIA_INFO_EXTERNAL_METADATA_UPDATE = 803;
 
-    /** Informs that audio is not playing. Note that playback of the video
+    /**
+     * Informs that audio is not playing. Note that playback of the video
      * is not interrupted.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_AUDIO_NOT_PLAYING = 804;
 
-    /** Informs that video is not playing. Note that playback of the audio
+    /**
+     * Informs that video is not playing. Note that playback of the audio
      * is not interrupted.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_VIDEO_NOT_PLAYING = 805;
 
-    /** Failed to handle timed text track properly.
+    /**
+     * Failed to handle timed text track properly.
      * @see EventCallback#onInfo
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int MEDIA_INFO_TIMED_TEXT_ERROR = 900;
 
-    /** Subtitle track was not supported by the media framework.
+    /**
+     * Subtitle track was not supported by the media framework.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_UNSUPPORTED_SUBTITLE = 901;
 
-    /** Reading the subtitle track takes too long.
+    /**
+     * Reading the subtitle track takes too long.
      * @see EventCallback#onInfo
      */
     public static final int MEDIA_INFO_SUBTITLE_TIMED_OUT = 902;
@@ -1251,121 +1251,133 @@ public abstract class MediaPlayer2 {
             MEDIA_INFO_SUBTITLE_TIMED_OUT
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface MediaInfo {}
 
     //--------------------------------------------------------------------------
-    /** The player just completed a call {@link #attachAuxEffect}.
+    /**
+     * The player just completed a call {@link #attachAuxEffect}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_ATTACH_AUX_EFFECT = 1;
 
-    /** The player just completed a call {@link #deselectTrack}.
+    /**
+     * The player just completed a call {@link #deselectTrack}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_DESELECT_TRACK = 2;
 
-    /** The player just completed a call {@link #loopCurrent}.
+    /**
+     * The player just completed a call {@link #loopCurrent}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_LOOP_CURRENT = 3;
 
-    /** The player just completed a call {@link #pause}.
+    /**
+     * The player just completed a call {@link #pause}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_PAUSE = 4;
 
-    /** The player just completed a call {@link #play}.
+    /**
+     * The player just completed a call {@link #play}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_PLAY = 5;
 
-    /** The player just completed a call {@link #prepare}.
+    /**
+     * The player just completed a call {@link #prepare}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_PREPARE = 6;
 
-    /** The player just completed a call {@link #seekTo}.
+    /**
+     * The player just completed a call {@link #seekTo}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SEEK_TO = 14;
 
-    /** The player just completed a call {@link #selectTrack}.
+    /**
+     * The player just completed a call {@link #selectTrack}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SELECT_TRACK = 15;
 
-    /** The player just completed a call {@link #setAudioAttributes}.
+    /**
+     * The player just completed a call {@link #setAudioAttributes}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_AUDIO_ATTRIBUTES = 16;
 
-    /** The player just completed a call {@link #setAudioSessionId}.
+    /**
+     * The player just completed a call {@link #setAudioSessionId}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_AUDIO_SESSION_ID = 17;
 
-    /** The player just completed a call {@link #setAuxEffectSendLevel}.
+    /**
+     * The player just completed a call {@link #setAuxEffectSendLevel}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_AUX_EFFECT_SEND_LEVEL = 18;
 
-    /** The player just completed a call {@link #setMediaItem}.
+    /**
+     * The player just completed a call {@link #setMediaItem}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_DATA_SOURCE = 19;
 
-    /** The player just completed a call {@link #setNextMediaItem}.
+    /**
+     * The player just completed a call {@link #setNextMediaItem}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_NEXT_DATA_SOURCE = 22;
 
-    /** The player just completed a call {@link #setNextMediaItems}.
+    /**
+     * The player just completed a call {@link #setNextMediaItems}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_NEXT_DATA_SOURCES = 23;
 
-    /** The player just completed a call {@link #setPlaybackParams}.
+    /**
+     * The player just completed a call {@link #setPlaybackParams}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_PLAYBACK_PARAMS = 24;
 
-    /** The player just completed a call {@link #setPlayerVolume}.
+    /**
+     * The player just completed a call {@link #setPlayerVolume}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_PLAYER_VOLUME = 26;
 
-    /** The player just completed a call {@link #setSurface}.
+    /**
+     * The player just completed a call {@link #setSurface}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SET_SURFACE = 27;
 
-    /** The player just completed a call {@link #skipToNext}.
+    /**
+     * The player just completed a call {@link #skipToNext}.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_COMPLETED_SKIP_TO_NEXT = 29;
 
     /**
      * The start of the methods which have separate call complete callback.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int SEPARATE_CALL_COMPLETE_CALLBACK_START = 1000;
 
-    /** The player just completed a call {@code notifyWhenCommandLabelReached}.
+    /**
+     * The player just completed a call {@code notifyWhenCommandLabelReached}.
      * @see EventCallback#onCommandLabelReached
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED =
             SEPARATE_CALL_COMPLETE_CALLBACK_START;
 
-    /** The player just completed a call {@link #prepareDrm}.
+    /**
+     * The player just completed a call {@link #prepareDrm}.
      * @see EventCallback#onCommandLabelReached
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int CALL_COMPLETED_PREPARE_DRM =
             SEPARATE_CALL_COMPLETE_CALLBACK_START + 1;
 
@@ -1395,40 +1407,46 @@ public abstract class MediaPlayer2 {
             CALL_COMPLETED_PREPARE_DRM,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface CallCompleted {}
 
-    /** Status code represents that call is completed without an error.
+    /**
+     * Status code represents that call is completed without an error.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_STATUS_NO_ERROR = 0;
 
-    /** Status code represents that call is ended with an unknown error.
+    /**
+     * Status code represents that call is ended with an unknown error.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_STATUS_ERROR_UNKNOWN = Integer.MIN_VALUE;
 
-    /** Status code represents that the player is not in valid state for the operation.
+    /**
+     * Status code represents that the player is not in valid state for the operation.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_STATUS_INVALID_OPERATION = 1;
 
-    /** Status code represents that the argument is illegal.
+    /**
+     * Status code represents that the argument is illegal.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_STATUS_BAD_VALUE = 2;
 
-    /** Status code represents that the operation is not allowed.
+    /**
+     * Status code represents that the operation is not allowed.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_STATUS_PERMISSION_DENIED = 3;
 
-    /** Status code represents a file or network related operation error.
+    /**
+     * Status code represents a file or network related operation error.
      * @see EventCallback#onCallCompleted
      */
     public static final int CALL_STATUS_ERROR_IO = 4;
 
-    /** Status code represents that the player skipped the call. For example, a {@link #seekTo}
+    /**
+     * Status code represents that the player skipped the call. For example, a {@link #seekTo}
      * request may be skipped if it is followed by another {@link #seekTo} request.
      * @see EventCallback#onCallCompleted
      */
@@ -1446,7 +1464,6 @@ public abstract class MediaPlayer2 {
             CALL_STATUS_ERROR_IO,
             CALL_STATUS_SKIPPED})
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface CallStatus {}
 
     // Modular DRM begin
@@ -1568,7 +1585,6 @@ public abstract class MediaPlayer2 {
             PREPARE_DRM_STATUS_RESOURCE_BUSY,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface PrepareDrmStatusCode {}
 
     /**

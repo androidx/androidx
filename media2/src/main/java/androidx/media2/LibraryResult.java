@@ -19,7 +19,6 @@ package androidx.media2;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.os.SystemClock;
 
 import androidx.annotation.IntDef;
@@ -42,7 +41,6 @@ import java.util.List;
  * {@link androidx.media2.MediaLibraryService.MediaLibrarySession} and {@link MediaBrowser}.
  */
 @VersionedParcelize(isCustom = true)
-@SuppressLint("RestrictedApi")
 public class LibraryResult extends CustomVersionedParcelable implements RemoteResult {
     /**
      * @hide

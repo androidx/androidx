@@ -16,7 +16,6 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.net.Uri;
@@ -63,7 +62,7 @@ public final class SessionCommand implements VersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int COMMAND_VERSION_CURRENT = COMMAND_VERSION_1;
 
     /**
