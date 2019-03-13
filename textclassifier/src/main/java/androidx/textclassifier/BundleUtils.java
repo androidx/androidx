@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.app.RemoteActionCompat;
 import androidx.core.os.LocaleListCompat;
+import androidx.versionedparcelable.ParcelUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,30 +81,13 @@ import java.util.Map;
     /** Serializes a list of actions to a bundle, or clears it if null is passed. */
     static void putRemoteActionList(
             @NonNull Bundle bundle, @NonNull String key,
-            @Nullable List<RemoteActionCompat> actions) {
-        if (actions == null) {
-            bundle.remove(key);
-            return;
-        }
-        final ArrayList<Bundle> actionBundles = new ArrayList<>(actions.size());
-        for (RemoteActionCompat action : actions) {
-            actionBundles.add(action.toBundle());
-        }
-        bundle.putParcelableArrayList(key, actionBundles);
+            @NonNull List<RemoteActionCompat> actions) {
+        ParcelUtils.putVersionedParcelableList(bundle, key, actions);
     }
 
-    /** @throws IllegalArgumentException if key can't be found in the bundle */
     static List<RemoteActionCompat> getRemoteActionListOrThrow(
             @NonNull Bundle bundle, @NonNull String key) {
-        final List<Bundle> actionBundles = bundle.getParcelableArrayList(key);
-        if (actionBundles == null) {
-            throw new IllegalArgumentException("Missing " + key);
-        }
-        final List<RemoteActionCompat> actions = new ArrayList<>(actionBundles.size());
-        for (Bundle actionBundle : actionBundles) {
-            actions.add(RemoteActionCompat.createFromBundle(actionBundle));
-        }
-        return actions;
+        return ParcelUtils.getVersionedParcelableList(bundle, key);
     }
 
     /** Serializes a list of TextLinks to a bundle, or clears it if null is passed. */
