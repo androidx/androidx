@@ -538,10 +538,7 @@ import java.util.Map;
                 maybeNotifyReadyEvents();
                 break;
             case Player.STATE_ENDED:
-                if (playWhenReady) {
-                    mMediaItemQueue.onPlayerEnded();
-                    mPlayer.setPlayWhenReady(false);
-                }
+                maybeNotifyEndedEvents();
                 break;
             case Player.STATE_IDLE:
                 // Do nothing.
@@ -669,6 +666,18 @@ import java.util.Map;
                         getCurrentMediaItem(), (int) (mBandwidthMeter.getBitrateEstimate() / 1000));
             }
             mListener.onBufferingEnded(getCurrentMediaItem());
+        }
+    }
+
+    private void maybeNotifyEndedEvents() {
+        if (mPendingSeek) {
+            // The seek operation resulted in transitioning to the ended state.
+            mPendingSeek = false;
+            mListener.onSeekCompleted();
+        }
+        if (mPlayer.getPlayWhenReady()) {
+            mMediaItemQueue.onPlayerEnded();
+            mPlayer.setPlayWhenReady(false);
         }
     }
 
