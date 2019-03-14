@@ -256,7 +256,7 @@ class ContainingViewTest {
 
         val dest =
             Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val srcRect = android.graphics.Rect(0, 0, width, width)
+        val srcRect = android.graphics.Rect(0, 0, width, height)
         srcRect.offset(offset[0], offset[1])
         val latch = CountDownLatch(1)
         var copyResult = 0
