@@ -25,7 +25,7 @@ import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryOwner;
 
 /**
- * Skeleton of {@link androidx.lifecycle.ViewModelProvider.KeyedFactory}
+ * Skeleton of androidx.lifecycle.ViewModelProvider.KeyedFactory
  * that creates {@link SavedStateHandle} for every requested {@link ViewModel}. The subclasses
  * implement {@link #create(String, Class, SavedStateHandle)} to actually instantiate
  * {@code ViewModels}.
