@@ -67,7 +67,7 @@ public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
                 if (pfd == null) {
                     continue;  // keep adding succeeded fonts.
                 }
-                final Font platformFont = new Font.Builder(pfd.getFileDescriptor())
+                final Font platformFont = new Font.Builder(pfd)
                         .setWeight(font.getWeight())
                         .setSlant(font.isItalic() ? FontStyle.FONT_SLANT_ITALIC
                                 : FontStyle.FONT_SLANT_UPRIGHT)
