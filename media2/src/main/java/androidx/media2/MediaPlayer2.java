@@ -283,8 +283,7 @@ public abstract class MediaPlayer2 {
      * Starts or resumes playback. If playback had previously been paused,
      * playback will continue from where it was paused. If playback had
      * reached end of stream and been paused, or never started before,
-     * playback will start at the beginning. If the source had not been
-     * prepared, the player will prepare the source and play.
+     * playback will start at the beginning.
      *
      * @return a token which can be used to cancel the operation later with {@link #cancel}.
      */
