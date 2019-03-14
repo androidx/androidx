@@ -179,9 +179,10 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
      */
     @NonNull
     public Fragment instantiateFragment(@NonNull Context context,
-            @SuppressWarnings("unused") @NonNull FragmentManager fragmentManager,
+            @NonNull FragmentManager fragmentManager,
             @NonNull String className, @Nullable Bundle args) {
-        return Fragment.instantiate(context, className, args);
+        return fragmentManager.getFragmentFactory().instantiate(
+                context.getClassLoader(), className, args);
     }
 
     /**
