@@ -1605,8 +1605,8 @@ public class MediaPlayer extends SessionPlayer {
     /**
      * Returns the size of the video.
      *
-     * @return the size of the video. The width and height of size could be 0 if there is no video,
-     * no display surface was set, or the size has not been determined yet.
+     * @return the size of the video. The width and height of size could be 0 if there is no video
+     * or the size has not been determined yet.
      * The {@link PlayerCallback} can be registered via {@link #registerPlayerCallback} to
      * receive a notification {@link PlayerCallback#onVideoSizeChanged} when the size
      * is available.
