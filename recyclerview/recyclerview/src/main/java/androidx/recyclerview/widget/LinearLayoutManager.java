@@ -170,7 +170,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * Constructor used when layout manager is set in XML by RecyclerView attribute
      * "layoutManager". Defaults to vertical orientation.
      *
-     * {@link androidx.recyclerview.R.attr#android_orientation}
+     * {@link android.R.attr#orientation}
      * {@link androidx.recyclerview.R.attr#reverseLayout}
      * {@link androidx.recyclerview.R.attr#stackFromEnd}
      */

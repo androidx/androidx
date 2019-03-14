@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation that can be attached to a component such as an
- * {@link androidx.activity.ComponentActivity} or {@link androidx.fragment.app.Fragment}
+ * androidx.activity.ComponentActivity or {@link androidx.fragment.app.Fragment}
  * to denote what layout the component intends to inflate and set as its content.
  * <p>
  * This annotation is marked as {@link Inherited} and will therefore apply to subclasses

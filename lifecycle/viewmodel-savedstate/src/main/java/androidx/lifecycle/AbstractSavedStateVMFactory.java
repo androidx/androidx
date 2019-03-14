@@ -26,9 +26,9 @@ import androidx.savedstate.SavedStateRegistryOwner;
 
 /**
  * Skeleton of androidx.lifecycle.ViewModelProvider.KeyedFactory
- * that creates {@link SavedStateHandle} for every requested {@link ViewModel}. The subclasses
+ * that creates {@link SavedStateHandle} for every requested {@link androidx.lifecycle.ViewModel}. The subclasses
  * implement {@link #create(String, Class, SavedStateHandle)} to actually instantiate
- * {@code ViewModels}.
+ * {@code androidx.lifecycle.ViewModel}s.
  */
 public abstract class AbstractSavedStateVMFactory extends ViewModelProvider.KeyedFactory {
     static final String TAG_SAVED_STATE_HANDLE_CONTROLLER = "androidx.lifecycle.savedstate.vm.tag";
@@ -41,7 +41,7 @@ public abstract class AbstractSavedStateVMFactory extends ViewModelProvider.Keye
      * Constructs this factory.
      *
      * @param owner {@link SavedStateRegistryOwner} that will provide restored state for created
-     * {@link ViewModel ViewModels}
+     * {@link androidx.lifecycle.ViewModel ViewModels}
      * @param defaultArgs values from this {@code Bundle} will be used as defaults by
      *                    {@link SavedStateHandle} passed in {@link ViewModel ViewModels}
      *                    if there is no previously saved state

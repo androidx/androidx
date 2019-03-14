@@ -31,7 +31,7 @@ import java.util.List;
  * positions, and provide a fixed item count. If your data source can't support loading arbitrary
  * requested page sizes (e.g. when network page size constraints are only known at runtime), either
  * use {@link PageKeyedDataSource} or {@link ItemKeyedDataSource}, or pass the initial result with
- *  the two parameter {@link InitialResult#InitialResult(List, int)} InitialResult constructor}.
+ *  the two parameter {@link InitialResult InitialResult constructor}.
  *
  * @see PositionalDataSource
  *

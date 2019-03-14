@@ -498,7 +498,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     /**
-     * @param orientation @{link {@link ViewPager2.Orientation}}
+     * @param orientation {@link ViewPager2.Orientation}
      */
     public void setOrientation(@Orientation int orientation) {
         mLayoutManager.setOrientation(orientation);
