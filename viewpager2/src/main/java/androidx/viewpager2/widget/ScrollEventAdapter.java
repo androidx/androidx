@@ -227,14 +227,14 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         boolean isHorizontal = mLayoutManager.getOrientation() == ORIENTATION_HORIZONTAL;
         int start, sizePx;
         if (isHorizontal) {
-            sizePx = firstVisibleView.getWidth();
+            sizePx = firstVisibleView.getWidth() + margin.leftMargin + margin.rightMargin;
             if (!isLayoutRTL()) {
                 start = firstVisibleView.getLeft() - margin.leftMargin;
             } else {
-                start = sizePx - firstVisibleView.getRight() + margin.rightMargin;
+                start = sizePx - firstVisibleView.getRight() - margin.rightMargin;
             }
         } else {
-            sizePx = firstVisibleView.getHeight();
+            sizePx = firstVisibleView.getHeight() + margin.topMargin + margin.bottomMargin;
             start = firstVisibleView.getTop() - margin.topMargin;
         }
 
