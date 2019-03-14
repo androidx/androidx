@@ -17,7 +17,7 @@
 /**
  * Navigation is a framework for navigating between 'destinations' within an Android
  * application that provides a consistent API whether destinations are implemented as
- * {@link android.support.v4.app.Fragment Fragments}, {@link android.app.Activity Activities}, or
+ * {@link androidx.fragment.app.Fragment Fragments}, {@link android.app.Activity Activities}, or
  * other components.
  * <p>
  * There are 3 major components in Navigation.
