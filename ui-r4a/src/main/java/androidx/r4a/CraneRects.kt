@@ -156,9 +156,7 @@ fun CraneRects() {
 
             <Padding padding=EdgeInsets(padding)>
                 <PressGestureDetector onPress onRelease onCancel>
-                    <Padding padding=EdgeInsets(0.dp)>
-                        <Rectangles />
-                    </Padding>
+                    <Rectangles />
                 </PressGestureDetector>
             </Padding>
         </Recompose>
