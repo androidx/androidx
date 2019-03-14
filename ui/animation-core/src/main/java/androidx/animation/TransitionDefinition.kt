@@ -73,36 +73,19 @@ class TransitionSpec {
      */
     var interruptionHandling: InterruptionHandling = InterruptionHandling.PHYSICS
 
-    private val propAnimation: MutableMap<PropKey<out Any>, Animation<Any>> = mutableMapOf()
-    internal fun <T : Any> getAnimationForProp(prop: PropKey<T>): Animation<Any> {
-        return propAnimation.getOrPut(prop) { Physics() }
+    private val propAnimation: MutableMap<PropKey<*>, Animation<*>> = mutableMapOf()
+    internal fun <T> getAnimationForProp(prop: PropKey<T>): Animation<T> {
+        @Suppress("UNCHECKED_CAST")
+        return (propAnimation.getOrPut(prop) { Physics<T>() }) as Animation<T>
     }
 
     /**
-     * Associates a property with a [Tween] animation
+     * Associates a property with a [AnimationBuilder]
      *
-     * @param anim: Tween animation for animating [this] property value changes
+     * @param builder: [AnimationBuilder] for animating [this] property value changes
      */
-    infix fun PropKey<*>.using(anim: Tween) {
-        addAnimation(this, anim)
-    }
-
-    /**
-     * Associates a property with a [Physics] animation
-     *
-     * @param anim: Physics animation for animating [this] property value changes
-     */
-    infix fun PropKey<*>.using(anim: Physics) {
-        addAnimation(this, anim)
-    }
-
-    /**
-     * Associates a property with a [Keyframes] animation
-     *
-     * @param anim: Keyframes animation for animating [this] property value changes
-     */
-    infix fun <T : Any> PropKey<T>.using(anim: Keyframes<T>) {
-        addAnimation(this, anim as Animation<Any>)
+    infix fun <T> PropKey<T>.using(builder: AnimationBuilder<T>) {
+        propAnimation[this] = builder.build()
     }
 
     /**
@@ -110,39 +93,33 @@ class TransitionSpec {
      *
      * @param init Initialization function for the [Tween] animation
      */
-    fun tween(init: Tween.() -> Unit) = Tween().apply(init)
+    fun <T> tween(init: TweenBuilder<T>.() -> Unit): AnimationBuilder<T> =
+        TweenBuilder<T>().apply(init)
 
     /**
      * Creates a [Physics] animation, initialized with [init]
      *
      * @param init Initialization function for the [Physics] animation
      */
-    fun physics(init: Physics.() -> Unit) = Physics().apply(init)
+    fun <T> physics(init: PhysicsBuilder<T>.() -> Unit): AnimationBuilder<T> =
+        PhysicsBuilder<T>().apply(init)
 
     /**
      * Creates a [Keyframes] animation, initialized with [init]
      *
      * @param init Initialization function for the [Keyframes] animation
      */
-    inline fun <reified T : Any> keyframes(init: Keyframes<T>.() -> Unit): Keyframes<T> {
-        if (T::class == Float::class) {
-            return (FloatKeyframes() as Keyframes<T>).apply(init)
-        }
-        return Keyframes<T>().apply(init)
-    }
-
-    private fun addAnimation(prop: PropKey<*>, anim: Animation<Any>) {
-        propAnimation[prop] = anim
-    }
+    fun <T> keyframes(init: KeyframesBuilder<T>.() -> Unit): AnimationBuilder<T> =
+        KeyframesBuilder<T>().apply(init)
 }
 
 /**
  * Static definitions of states and transitions.
  *
  */
-class TransitionDefinition<T : Any> {
-    internal val states: MutableMap<T, StateImpl> = mutableMapOf()
-    internal lateinit var defaultState: StateImpl
+class TransitionDefinition<T> {
+    internal val states: MutableMap<T, StateImpl<T>> = mutableMapOf()
+    internal lateinit var defaultState: StateImpl<T>
     private val transitionSpecs: MutableList<TransitionSpec> = mutableListOf()
 
     // TODO: Consider also having the initial defined at call site for cases where many components
@@ -204,7 +181,7 @@ class TransitionDefinition<T : Any> {
         transitionSpecs.add(newSpec)
     }
 
-    internal fun getSpec(fromState: Any, toState: Any): TransitionSpec {
+    internal fun getSpec(fromState: T, toState: T): TransitionSpec {
         return transitionSpecs.firstOrNull { it.fromState == fromState && it.toState == toState }
             ?: transitionSpecs.firstOrNull { it.fromState == fromState && it.toState == null }
             ?: transitionSpecs.firstOrNull { it.fromState == null && it.toState == toState }
@@ -224,7 +201,7 @@ class TransitionDefinition<T : Any> {
  * @param init Initialization function for the [TransitionDefinition]
  */
 @UseExperimental(ExperimentalTypeInference::class)
-fun <T : Any> transitionDefinition(@BuilderInference init: TransitionDefinition<T>.() -> Unit) =
+fun <T> transitionDefinition(@BuilderInference init: TransitionDefinition<T>.() -> Unit) =
     TransitionDefinition<T>().apply(init)
 
 enum class InterruptionHandling {
@@ -278,7 +255,7 @@ private val example = transitionDefinition {
     }
 
     transition(fromState = ButtonState.Released, toState = ButtonState.Pressed) {
-        radius using tween {
+        background using tween {
             interpolator = LinearInterpolator()
             duration = 75 // TODO: support time unit
         }
@@ -289,7 +266,7 @@ private val example = transitionDefinition {
             0.4f at 225 // ms
             0f at 375 // ms  // Optional
         }
-        background using physics {
+        radius using physics {
             dampingRatio = 1.0f
         }
         interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE

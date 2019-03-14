@@ -17,9 +17,8 @@
 package androidx.animation
 
 import android.animation.TimeInterpolator
-import android.view.animation.AccelerateDecelerateInterpolator
-import androidx.ui.lerp
-import java.lang.IllegalArgumentException
+import androidx.animation.Physics.Companion.DampingRatioNoBouncy
+import androidx.animation.Physics.Companion.StiffnessVeryLow
 
 const val DEBUG = false
 
@@ -35,100 +34,102 @@ const val DEBUG = false
  * animation to createAnimation all properties.
  */
 // TODO: Use Duration or TimeStamp for playtime once they are inlined.
-sealed class Animation<T> {
-    internal abstract fun isFinished(
+internal interface Animation<T> {
+    fun isFinished(
         playTime: Long,
         start: T,
         end: T,
-        startVelocity: Float = 0f
+        startVelocity: Float
     ): Boolean
 
-    internal abstract fun getVelocity(
+    fun getValue(
         playTime: Long,
         start: T,
         end: T,
-        startVelocity: Float = 0f
-    ): Float
-
-    internal abstract fun getValue(
-        playTime: Long,
-        start: T,
-        end: T,
-        startVelocity: Float = 0f,
-        valueInterpolator: (T, T, Float) -> T
+        startVelocity: Float,
+        interpolator: (T, T, Float) -> T
     ): T
+
+    fun getVelocity(
+        playTime: Long,
+        start: T,
+        end: T,
+        startVelocity: Float,
+        interpolator: (T, T, Float) -> T
+    ): Float
+}
+
+/**
+ * Used by [Tween] and [Keyframes].
+ * Base interface for the animations where velocity is calculated by difference between the
+ * current value and the value 1 ms ago.
+ */
+private interface DiffBasedVelocityAnimation<T> : Animation<T> {
+
+    override fun getVelocity(
+        playTime: Long,
+        start: T,
+        end: T,
+        startVelocity: Float,
+        interpolator: (T, T, Float) -> T
+    ): Float {
+        if (start is Number && end is Number) {
+            if (playTime <= 0) {
+                return 0f
+            }
+            val startNum = getValue(playTime - 1, start, end, startVelocity, interpolator) as Number
+            val endNum = getValue(playTime, start, end, startVelocity, interpolator) as Number
+            return (endNum.toFloat() - startNum.toFloat()) * 1000f
+        }
+        return 0f
+    }
 }
 
 /**
  * [Keyframes] class manages the animation based on the values defined at different timestamps in
- * the duration of the animation (i.e. different keyframes). Each keyframe can be defined using
- * [at]. [Keyframes] allows very specific animation definitions with a precision to millisecond.
+ * the duration of the animation (i.e. different keyframes). Each keyframe can be provided via
+ * [keyframes] parameter. [Keyframes] allows very specific animation definitions with a
+ * precision to millisecond.
  *
- * The following sample creates a [Keyframes] animation for a float property.
- * `
- * keyframes {
- *      duration = 375
- *      0f at 0 // ms  // Optional
- *      0.4f at 75 // ms
- *      0.4f at 225 // ms
- *      0f at 375 // ms  // Optional
- * }
- * `
+ * Use [KeyframesBuilder] to create a [Keyframes] animation.
  * // TODO: support different easing for each keyframe interval
  */
-open class Keyframes<T : Any> : Animation<T>() {
-    /**
-     * Duration of Keyframes animation in milliseconds. Defaults to 300
-     */
-    var duration = 300
-        set(value) {
-            if (value >= 0) {
-                field = value
-            }
-        }
-    private val keyframes = mutableMapOf<Int, T>()
+internal class Keyframes<T>(
+    private val duration: Long,
+    private val keyframes: Map<Long, T>
+) : DiffBasedVelocityAnimation<T> {
 
-    /**
-     * Adds a keyframe so that animation value will be [this] at time: [timeStamp]
-     *
-     * @param timeStamp The time in the during when animation should reach value: [this]
-     */
-    infix fun T.at(timeStamp: Int) {
-        if (timeStamp >= 0) {
-            keyframes[timeStamp] = this
-        } else {
-            // TODO: adding a timestamp < 0 should cause a compile time error
-            throw IllegalArgumentException("Time cannot be negative.")
+    init {
+        if (duration < 0) {
+            throw IllegalArgumentException("Duration should be non-negative")
         }
     }
 
-    /****** Below are internal functions. ****/
-
-    override fun isFinished(playTime: Long, start: T, end: T, startVelocity: Float): Boolean {
-        return playTime >= duration
-    }
-
-    override fun getVelocity(playTime: Long, start: T, end: T, startVelocity: Float): Float {
-        return 0f
-    }
+    override fun isFinished(
+        playTime: Long,
+        start: T,
+        end: T,
+        startVelocity: Float
+    ) = playTime >= duration
 
     override fun getValue(
         playTime: Long,
         start: T,
         end: T,
         startVelocity: Float,
-        valueInterpolator: (T, T, Float) -> T
+        interpolator: (T, T, Float) -> T
     ): T {
         // Find the range where playtime fits
-        val playTime: Int = playTime.toInt().coerceIn(0, duration)
+        val playTime: Long = playTime.coerceIn(0, duration)
+
         if (keyframes.containsKey(playTime)) {
-            return keyframes[playTime]!!
+            return keyframes.getValue(playTime)
         }
 
-        var startTime = 0
+        var startTime = 0L
         var startVal = start
         var endVal = end
-        var endTime: Int = duration
+        var endTime: Long = duration
         for ((timestamp, value) in keyframes) {
             if (playTime > timestamp && timestamp > startTime) {
                 startTime = timestamp
@@ -141,76 +142,47 @@ open class Keyframes<T : Any> : Animation<T>() {
 
         // Now interpolate
         val fraction = (playTime - startTime) / (endTime - startTime).toFloat()
-        return valueInterpolator(startVal, endVal, fraction)
-    }
-}
-
-// TODO: Come up with a better way to separate the float value special handling from the generic
-// types, and not expose this as a public class
-class FloatKeyframes : Keyframes<Float>() {
-    override fun getVelocity(
-        playTime: Long,
-        start: Float,
-        end: Float,
-        startVelocity: Float
-    ): Float {
-        val currentValue = getValue(playTime, start, end, startVelocity, ::lerp)
-        val previousValue = getValue(playTime - 1, start, end, startVelocity, ::lerp)
-        return (currentValue - previousValue) / 1000f
+        return interpolator(startVal, endVal, fraction)
     }
 }
 
 /**
- * [Tween] is responsible for animating from one value to another using a provided easing curve,
- * or the default [AccelerateDecelerateInterpolator] when none is specified. The duration for such
- * an animation can be adjusted via [duration] from its default value of 300 milliseconds.
+ * [Tween] is responsible for animating from one value to another using a provided easing curve.
+ * The duration for such an animation can be adjusted via [duration]. The animation can be
+ * delayed via [delay].
  */
-class Tween : Animation<Any>() {
+internal class Tween<T>(
+    private val duration: Long,
+    private val delay: Long = 0,
+    private val timeInterpolator: TimeInterpolator
+) : DiffBasedVelocityAnimation<T> {
 
-    /**
-     * Duration of [Tween] animations in milliseconds. Defaults to 300
-     */
-    var duration = 300
-    /**
-     * Interpolator (a.k.a easing curve) for the [Tween] animation.
-     * Default: [AccelerateDecelerateInterpolator]
-     */
-    var interpolator: TimeInterpolator = AccelerateDecelerateInterpolator()
-    /**
-     * The amount of time that the animation should be delayed.
-     */
-    var delay: Long = 0
-        set(value) {
-            if (value >= 0) {
-                field = value
-            }
+    init {
+        if (duration < 0) {
+            throw IllegalArgumentException("Duration should be non-negative")
         }
-
-    private fun getInterpolation(playTime: Long): Float {
-        if (playTime < delay) {
-            return 0f
+        if (delay < 0) {
+            throw IllegalArgumentException("Delay should be non-negative")
         }
-        return interpolator.getInterpolation((playTime - delay) / duration.toFloat())
     }
 
-    override fun isFinished(playTime: Long, start: Any, end: Any, startVelocity: Float): Boolean {
-        return playTime >= (duration + delay)
-    }
-
-    // Velocity, unit: /s
-    override fun getVelocity(playTime: Long, start: Any, end: Any, startVelocity: Float): Float {
-        var playTime = playTime - delay
-        return (getInterpolation(playTime) - getInterpolation(playTime - 1)) * 1000
-    }
+    override fun isFinished(
+        playTime: Long,
+        start: T,
+        end: T,
+        startVelocity: Float
+    ): Boolean = playTime >= delay + duration
 
     override fun getValue(
         playTime: Long,
-        start: Any,
-        end: Any,
+        start: T,
+        end: T,
         startVelocity: Float,
-        valueInterpolator: (Any, Any, Float) -> Any
-    ): Any {
-        return valueInterpolator.invoke(start, end, getInterpolation(playTime))
+        interpolator: (T, T, Float) -> T
+    ): T {
+        val rawFraction = if (duration == 0L) 1f else (playTime - delay) / duration.toFloat()
+        val fraction = timeInterpolator.getInterpolation(rawFraction)
+        return interpolator(start, end, fraction)
     }
 }
 
@@ -221,7 +193,16 @@ class Tween : Animation<Any>() {
  * namely [dampingRatio] and [stiffness]. By default, [Physics] animation uses a spring with
  * [dampingRatio] = [DampingRatioNoBouncy]  and [stiffness] = [StiffnessVeryLow].
  */
-class Physics : Animation<Any>() {
+internal class Physics<T>(
+    /**
+     * Damping ratio of the spring. Defaults to [DampingRatioNoBouncy]
+     */
+    dampingRatio: Float = DampingRatioNoBouncy,
+    /**
+     * Stiffness of the spring. Defaults to [StiffnessVeryLow]
+     */
+    stiffness: Float = StiffnessVeryLow
+) : Animation<T> {
 
     companion object {
         /**
@@ -265,60 +246,79 @@ class Physics : Animation<Any>() {
         const val DampingRatioNoBouncy = 1f
     }
 
-    /**
-     * Damping ratio of the spring. Defaults to [DampingRatioNoBouncy]
-     */
-    var dampingRatio = DampingRatioNoBouncy
-        set(value) {
-            field = value
-            spring.dampingRatio = value
+    private val spring = SpringSimulation(1f).also {
+        it.dampingRatio = dampingRatio
+        it.stiffness = stiffness
+    }
+
+    override fun isFinished(
+        playTime: Long,
+        start: T,
+        end: T,
+        startVelocity: Float
+    ): Boolean {
+        var startFloat = 0f
+        var endFloat = 1f
+        if (start is Number && end is Number) {
+            startFloat = start.toFloat()
+            endFloat = end.toFloat()
         }
-    /**
-     * Stiffness of the spring. Defaults to [StiffnessVeryLow]
-     */
-    var stiffness = StiffnessVeryLow
-        set(value) {
-            field = value
-            spring.stiffness = value
-        }
-    private val spring = SpringSimulation(1f)
+        spring.finalPosition = endFloat
+        return spring.isAtEquilibrium(startFloat, startVelocity, playTime)
+    }
 
     override fun getValue(
         playTime: Long,
-        start: Any,
-        end: Any,
+        start: T,
+        end: T,
         startVelocity: Float,
-        valueInterpolator: (Any, Any, Float) -> Any
-    ): Any {
-        if (start is Float && end is Float) {
-            spring.finalPosition = end
-            val (value, _) = spring.updateValues(start, startVelocity, playTime)
-            return value
+        interpolator: (T, T, Float) -> T
+    ): T {
+        var startFloat = 0f
+        var endFloat = 1f
+        if (start is Number && end is Number) {
+            startFloat = start.toFloat()
+            endFloat = end.toFloat()
+        }
+        spring.finalPosition = endFloat
+        val (value, _) = spring.updateValues(startFloat, startVelocity, playTime)
+        if (startFloat == endFloat) {
+            // Can't use interpolation when the range is empty. It is possible only for
+            // Numbers so we can just cast the float value to the required type.
+            return value.castToNumberTypeOf(start)
         } else {
-            spring.finalPosition = 1f
-            val (fraction, _) = spring.updateValues(0f, 0f, playTime)
-            return valueInterpolator.invoke(start, end, fraction)
+            val fraction = (value - startFloat) / (endFloat - startFloat)
+            return interpolator(start, end, fraction)
         }
     }
 
-    override fun isFinished(playTime: Long, start: Any, end: Any, startVelocity: Float): Boolean {
-        if (start is Float && end is Float) {
-            spring.finalPosition = end
-            return spring.isAtEquilibrium(start, startVelocity, playTime)
-        } else {
-            spring.finalPosition = 1f
-            return spring.isAtEquilibrium(0f, startVelocity, playTime)
-        }
-    }
-
-    override fun getVelocity(playTime: Long, start: Any, end: Any, startVelocity: Float): Float {
-        if (start is Float && end is Float) {
-            spring.finalPosition = end
-            val (_, velocity) = spring.updateValues(start, startVelocity, playTime)
+    override fun getVelocity(
+        playTime: Long,
+        start: T,
+        end: T,
+        startVelocity: Float,
+        interpolator: (T, T, Float) -> T
+    ): Float {
+        if (start is Number && end is Number) {
+            spring.finalPosition = end.toFloat()
+            val (_, velocity) = spring.updateValues(start.toFloat(), startVelocity, playTime)
             return velocity
         } else {
-            // If the values are not floats, the float velocity makes very little sense
             return 0f
         }
+    }
+
+    private fun <T> Float.castToNumberTypeOf(type: T): T {
+        val result: Number = when (type) {
+            is Float -> this
+            is Int -> toInt()
+            is Long -> toLong()
+            is Double -> toDouble()
+            is Short -> toShort()
+            is Byte -> toByte()
+            else -> throw IllegalStateException("Should never happen as $type is always Number")
+        }
+        @Suppress("UNCHECKED_CAST")
+        return result as T
     }
 }

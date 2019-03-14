@@ -34,18 +34,18 @@ import android.view.Choreographer
  * [TransitionDefinition.createAnimation].
  */
 // TODO: refactor out dependency on choreographer
-class TransitionAnimation<T : Any> : Choreographer.FrameCallback {
+class TransitionAnimation<T> : Choreographer.FrameCallback {
 
     var onUpdate: (() -> Unit)? = null
     var onStateChangeFinished: ((T) -> Unit)? = null
     private val UNSET = -1L
     private var def: TransitionDefinition<T>
-    private var fromState: StateImpl
-    private var toState: StateImpl
-    private var currentState: AnimationState
+    private var fromState: StateImpl<T>
+    private var toState: StateImpl<T>
+    private val currentState: AnimationState<T>
     private var startTime: Long = UNSET
     private var lastFrameTime: Long = UNSET
-    private var pendingState: StateImpl? = null
+    private var pendingState: StateImpl<T>? = null
     private var currentAnimations: MutableMap<PropKey<Any>, Animation<Any>> = mutableMapOf()
     private var startVelocityMap: MutableMap<PropKey<Any>, Float> = mutableMapOf()
 
@@ -53,14 +53,14 @@ class TransitionAnimation<T : Any> : Choreographer.FrameCallback {
 
     internal constructor(def: TransitionDefinition<T>) {
         this.def = def
-        currentState = AnimationState(def.defaultState)
+        currentState = AnimationState(def.defaultState, def.defaultState.name)
         // Need to come up with a better plan to avoid the foot gun of accidentally modifying state
         fromState = def.defaultState
         toState = def.defaultState
     }
 
     // Interpolate current state and the new state
-    private fun setState(newState: StateImpl) {
+    private fun setState(newState: StateImpl<T>) {
         if (isRunning()) {
             val currentSpec = def.getSpec(fromState.name, toState.name)
             if (currentSpec.interruptionHandling == InterruptionHandling.UNINTERRUPTIBLE) {
@@ -77,20 +77,12 @@ class TransitionAnimation<T : Any> : Choreographer.FrameCallback {
         // TODO: Support different interruption types
         // For now assume continuing with the same value,  and for floats the same velocity
         for ((prop, _) in newState.props) {
-            prop as PropKey<Any>
-            val propVal = currentState.get(prop)
-            // TODO: support velocity in more default types than Floats
-            if (propVal is Float) {
-                // map velocity to new target range space
-                val startVal = fromState.get(prop) as Float
-                val endVal = toState.get(prop) as Float
-                val startVelocity = startVelocityMap[prop] ?: 0f
-
-                val velocity = currentAnimations[prop]?.getVelocity(
-                    playTime, startVal, endVal, startVelocity
-                ) ?: 0f
-                startVelocityMap[prop] = velocity
-            }
+            val startVelocity = startVelocityMap[prop] ?: 0f
+            val currentVelocity = currentAnimations[prop]?.getVelocity(
+                playTime, fromState[prop], toState[prop], startVelocity,
+                prop::interpolate
+            ) ?: 0f
+            startVelocityMap[prop] = currentVelocity
             currentAnimations[prop] = transitionSpec.getAnimationForProp(prop)
             // TODO: Will need to track a few timelines if we support partially defined list of
             // props in each state.
@@ -134,8 +126,8 @@ class TransitionAnimation<T : Any> : Choreographer.FrameCallback {
      *
      * @param propKey Property key (defined in [TransitionDefinition]) for a specific property
      */
-    operator fun <T : Any> get(propKey: PropKey<T>): T {
-        return currentState.get(propKey)
+    operator fun <T> get(propKey: PropKey<T>): T {
+        return currentState[propKey]
     }
 
     // TODO: Make this internal
@@ -189,7 +181,7 @@ class TransitionAnimation<T : Any> : Choreographer.FrameCallback {
             startVelocityMap.clear()
 
             fromState = toState
-            onStateChangeFinished?.invoke(toState.name as T)
+            onStateChangeFinished?.invoke(toState.name)
             if (pendingState == null) {
                 endAnimation()
             } else {
@@ -209,17 +201,19 @@ class TransitionAnimation<T : Any> : Choreographer.FrameCallback {
 /**
  * Private class allows mutation on the prop values.
  */
-private class AnimationState(state: StateImpl, name: Any = "") : StateImpl(name) {
+private class AnimationState<T>(state: StateImpl<T>, name: T) : StateImpl<T>(name) {
 
     init {
         for ((prop, value) in state.props) {
             // Make a copy of the new values
-            val newValue = (prop as PropKey<Any>).interpolate(value, value, 0f)
+            val newValue = prop.interpolate(value, value, 0f)
             props[prop] = newValue
         }
     }
 
-    override operator fun set(name: PropKey<out Any>, prop: Any) {
-        props[name] = prop
+    override operator fun <T> set(propKey: PropKey<T>, prop: T) {
+        @Suppress("UNCHECKED_CAST")
+        propKey as PropKey<Any>
+        props[propKey] = prop as Any
     }
 }

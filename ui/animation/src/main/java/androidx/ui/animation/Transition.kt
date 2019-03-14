@@ -43,7 +43,7 @@ import com.google.r4a.unaryPlus
  *     }
  */
 @Composable
-fun <T : Any> Transition(
+fun <T> Transition(
     definition: TransitionDefinition<T>,
     toState: T,
     @Children children: (state: TransitionState) -> Unit
@@ -55,7 +55,7 @@ fun <T : Any> Transition(
 
 // TODO(Doris): Use Clock idea instead of TransitionModel with pulse
 @Model
-private class TransitionModel<T : Any>(
+private class TransitionModel<T>(
     transitionDef: TransitionDefinition<T>
 ) : TransitionState {
 
@@ -67,9 +67,9 @@ private class TransitionModel<T : Any>(
             }
         }
 
-    override fun <T : Any> get(prop: PropKey<T>): T {
+    override fun <T> get(propKey: PropKey<T>): T {
         // we need to access the animationPulse so Compose will record this @Model values usage.
         val pulse = animationPulse
-        return anim[prop]
+        return anim[propKey]
     }
 }
