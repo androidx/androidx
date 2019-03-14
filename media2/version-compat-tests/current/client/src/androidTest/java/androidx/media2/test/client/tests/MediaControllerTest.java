@@ -34,6 +34,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaController;
@@ -64,6 +65,7 @@ import java.util.List;
 @LargeTest
 public class MediaControllerTest extends MediaSessionTestBase {
 
+    static final String TAG = "MediaControllerTest";
     final List<RemoteMediaSession> mRemoteSessionList = new ArrayList<>();
 
     AudioManager mAudioManager;
@@ -139,7 +141,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
         // 'Do Not Disturb' or 'Volume limit'.
         final int stream = AudioManager.STREAM_ALARM;
         final int maxVolume = mAudioManager.getStreamMaxVolume(stream);
-        final int minVolume = 1;
+        final int minVolume =
+                Build.VERSION.SDK_INT >= 28 ? mAudioManager.getStreamMinVolume(stream) : 0;
+        Log.d(TAG, "maxVolume=" + maxVolume + ", minVolume=" + minVolume);
         if (maxVolume <= minVolume) {
             return;
         }
@@ -154,6 +158,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int targetVolume = originalVolume == minVolume
                 ? originalVolume + 1 : originalVolume - 1;
+        Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
 
         controller.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
         new PollingCheck(TIMEOUT_MS) {
@@ -181,7 +186,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
         // 'Do Not Disturb' or 'Volume limit'.
         final int stream = AudioManager.STREAM_ALARM;
         final int maxVolume = mAudioManager.getStreamMaxVolume(stream);
-        final int minVolume = 1;
+        final int minVolume =
+                Build.VERSION.SDK_INT >= 28 ? mAudioManager.getStreamMinVolume(stream) : 0;
+        Log.d(TAG, "maxVolume=" + maxVolume + ", minVolume=" + minVolume);
         if (maxVolume <= minVolume) {
             return;
         }
@@ -197,6 +204,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final int direction = originalVolume == minVolume
                 ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
         final int targetVolume = originalVolume + direction;
+        Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
 
         controller.adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
         new PollingCheck(TIMEOUT_MS) {
