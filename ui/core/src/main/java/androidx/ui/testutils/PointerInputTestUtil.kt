@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.gesture
+package androidx.ui.testutils
 
-import androidx.ui.core.pointerinput.ConsumedData
-import androidx.ui.core.pointerinput.PointerEventPass
-import androidx.ui.core.pointerinput.PointerInputChange
-import androidx.ui.core.pointerinput.PointerInputData
+import androidx.ui.core.ConsumedData
+import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PointerInputData
+import androidx.ui.core.PointerInputHandler
 import androidx.ui.engine.geometry.Offset
 
-fun down(id: Int = 0, x: Float = 0f, y: Float = 0f): PointerInputChange = PointerInputChange(
-    id,
-    PointerInputData(Offset(x, y), true),
-    PointerInputData(null, false),
-    ConsumedData(Offset(0f, 0f), false)
-)
+fun down(id: Int = 0, x: Float = 0f, y: Float = 0f): PointerInputChange =
+    PointerInputChange(
+        id,
+        PointerInputData(Offset(x, y), true),
+        PointerInputData(null, false),
+        ConsumedData(Offset(0f, 0f), false)
+    )
 
 fun PointerInputChange.moveTo(x: Float = 0f, y: Float = 0f) =
     copy(previous = current, current = PointerInputData(Offset(x, y), true))
@@ -45,7 +47,7 @@ fun PointerInputChange.consume(dx: Float = 0f, dy: Float = 0f, downChange: Boole
         )
     )
 
-internal fun ((PointerInputChange, PointerEventPass) -> PointerInputChange).invokeOverPasses(
+fun PointerInputHandler.invokeOverPasses(
     pointerInputChange: PointerInputChange,
     vararg pointerEventPasses: PointerEventPass
 ): PointerInputChange {
@@ -56,7 +58,7 @@ internal fun ((PointerInputChange, PointerEventPass) -> PointerInputChange).invo
     return localPointerInputChange
 }
 
-internal fun ((PointerInputChange, PointerEventPass) -> PointerInputChange).invokeOverAllPasses(
+fun PointerInputHandler.invokeOverAllPasses(
     pointerInputChange: PointerInputChange
 ): PointerInputChange {
     return invokeOverPasses(

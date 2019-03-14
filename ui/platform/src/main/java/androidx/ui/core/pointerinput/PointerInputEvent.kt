@@ -17,6 +17,7 @@
 package androidx.ui.core.pointerinput
 
 import androidx.ui.core.Timestamp
+import androidx.ui.core.PointerInputData
 
 /**
  * The normalized data structure for pointer input event information that is taken in processed by

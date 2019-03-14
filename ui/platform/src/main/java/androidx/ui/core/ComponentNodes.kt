@@ -15,8 +15,6 @@
  */
 package androidx.ui.core
 
-import androidx.ui.core.pointerinput.PointerEventPass
-import androidx.ui.core.pointerinput.PointerInputChange
 import androidx.ui.core.semantics.SemanticsProperties
 import androidx.ui.painting.Canvas
 import com.google.r4a.Emittable
@@ -257,8 +255,7 @@ open class SingleChildComponentNode() : ComponentNode() {
  * Backing node for handling pointer events.
  */
 class PointerInputNode() : SingleChildComponentNode() {
-    var pointerInputHandler: (PointerInputChange, PointerEventPass) -> PointerInputChange =
-        { event, _ -> event }
+    var pointerInputHandler: PointerInputHandler = { event, _ -> event }
 }
 
 /**

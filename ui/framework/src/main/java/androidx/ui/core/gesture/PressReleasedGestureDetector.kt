@@ -17,14 +17,14 @@
 package androidx.ui.core.gesture
 
 import androidx.ui.core.PointerInput
-import androidx.ui.core.pointerinput.PointerEventPass
-import androidx.ui.core.pointerinput.PointerInputChange
-import androidx.ui.core.pointerinput.anyPositionChangeConsumed
-import androidx.ui.core.pointerinput.changedToDown
-import androidx.ui.core.pointerinput.changedToDownIgnoreConsumed
-import androidx.ui.core.pointerinput.changedToUp
-import androidx.ui.core.pointerinput.changedToUpIgnoreConsumed
-import androidx.ui.core.pointerinput.consumeDownChange
+import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerInputChange
+import androidx.ui.core.anyPositionChangeConsumed
+import androidx.ui.core.changedToDown
+import androidx.ui.core.changedToDownIgnoreConsumed
+import androidx.ui.core.changedToUp
+import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.consumeDownChange
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.composer
