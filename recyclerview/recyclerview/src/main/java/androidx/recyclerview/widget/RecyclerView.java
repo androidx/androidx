@@ -10491,7 +10491,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         /**
          * Parse the xml attributes to get the most common properties used by layout managers.
          *
-         * {@link androidx.recyclerview.R.attr#android_orientation}
+         * {@link android.R.attr#orientation}
          * {@link androidx.recyclerview.R.attr#spanCount}
          * {@link androidx.recyclerview.R.attr#reverseLayout}
          * {@link androidx.recyclerview.R.attr#stackFromEnd}
@@ -10550,7 +10550,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * Some general properties that a LayoutManager may want to use.
          */
         public static class Properties {
-            /** {@link androidx.recyclerview.R.attr#android_orientation} */
+            /** {@link android.R.attr#orientation} */
             public int orientation;
             /** {@link androidx.recyclerview.R.attr#spanCount} */
             public int spanCount;

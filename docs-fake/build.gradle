@@ -26,11 +26,11 @@ plugins {
 def reentrance = false
 project.tasks.whenTaskAdded { task ->
     if (task instanceof org.gradle.api.tasks.testing.Test
-	|| task.name.startsWith("assemble")
-        || task.name == "transformDexArchiveWithExternalLibsDexMergerForPublicDebug"
-        || task.name == "transformResourcesWithMergeJavaResForPublicDebug"
-        || task.name == "checkPublicDebugDuplicateClasses") {
-	if (!reentrance) {
+            || task.name.startsWith("assemble")
+            || task.name == "transformDexArchiveWithExternalLibsDexMergerForPublicDebug"
+            || task.name == "transformResourcesWithMergeJavaResForPublicDebug"
+            || task.name == "checkPublicDebugDuplicateClasses") {
+        if (!reentrance) {
             reentrance = true
             project.tasks.replace(task.name)
             reentrance = false

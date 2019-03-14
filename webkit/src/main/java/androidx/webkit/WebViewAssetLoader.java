@@ -61,7 +61,7 @@ import java.net.URLConnection;
  *     WebViewAssetLoader.Builder assetLoaderBuilder = new WebViewAssetLoader.Builder(this);
  *     final WebViewAssetLoader assetLoader = assetLoaderBuilder.build();
  *     webView.setWebViewClient(new WebViewClient() {
- *         @Override
+ *         {@literal @}Override
  *         public WebResourceResponse shouldInterceptRequest(WebView view,
  *                                          WebResourceRequest request) {
  *             return assetLoader.shouldInterceptRequest(request);

@@ -118,7 +118,7 @@ public class RoundedDrawable extends Drawable {
      * Sets the drawable to be rendered.
      *
      * @param drawable {@link Drawable} to be rendered
-     * {@link androidx.wear.R.attr#android_src}
+     * {@link android.R.attr#src}
      */
     public void setDrawable(@Nullable Drawable drawable) {
         if (Objects.equals(mDrawable, drawable)) {

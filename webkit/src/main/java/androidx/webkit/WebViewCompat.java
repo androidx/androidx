@@ -558,12 +558,12 @@ public class WebViewCompat {
     /**
      * Sets the renderer client object associated with this WebView.
      *
-     * <p>See {@link #setWebViewRenderProcessClient(WebView,Executor,WebViewRenderProcessClient} for
+     * <p>See {@link WebViewCompat#setWebViewRenderProcessClient(WebView,Executor,WebViewRenderProcessClient)} for
      * details, with the following differences:
      *
      * <p>Callbacks will execute directly on the thread on which this WebView was instantiated.
      *
-     * <p>Passing {@code null} for {@code webViewRenderProcessClien} will clear the renderer client
+     * <p>Passing {@code null} for {@code webViewRenderProcessClient} will clear the renderer client
      * object for this WebView.
      *
      * <p>This method should only be called if
