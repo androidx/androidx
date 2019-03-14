@@ -31,7 +31,6 @@ android {
 }
 
 dependencies {
-    api(NAV_SUPPORT_CORE_UTILS)
     api(project(":navigation:navigation-common"))
 
     testImplementation(JUNIT)
