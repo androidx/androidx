@@ -320,6 +320,13 @@ public enum WebViewFeatureInternal {
      */
     PROXY_OVERRIDE(WebViewFeature.PROXY_OVERRIDE, Features.PROXY_OVERRIDE),
 
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#willSuppressErrorPage(WebSettings)} and
+     * {@link androidx.webkit.WebSettingsCompat#setWillSuppressErrorPage(WebSettings, boolean)}.
+     */
+    SUPPRESS_ERROR_PAGE(WebViewFeature.SUPPRESS_ERROR_PAGE, Features.SUPPRESS_ERROR_PAGE),
+
     ;  // This semicolon ends the enum. Add new features with a trailing comma above this line.
 
     private static final int NOT_SUPPORTED_BY_FRAMEWORK = -1;
