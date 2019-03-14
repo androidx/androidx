@@ -73,12 +73,12 @@ import androidx.core.widget.TextViewCompat;
  * <p>See the <a href="{@docRoot}guide/topics/ui/controls/togglebutton.html">Toggle Buttons</a>
  * guide.</p>
  *
- * {@link androidx.appcompat.R.attr#android_textOn}
- * {@link androidx.appcompat.R.attr#android_textOff}
+ * {@link android.R.attr#textOn}
+ * {@link android.R.attr#textOff}
  * {@link androidx.appcompat.R.attr#switchMinWidth}
  * {@link androidx.appcompat.R.attr#switchPadding}
  * {@link androidx.appcompat.R.attr#switchTextAppearance}
- * {@link androidx.appcompat.R.attr#android_thumb}
+ * {@link android.R.attr#thumb}
  * {@link androidx.appcompat.R.attr#thumbTextPadding}
  * {@link androidx.appcompat.R.attr#track}
  */
@@ -597,7 +597,7 @@ public class SwitchCompat extends CompoundButton {
      *
      * @param thumb Thumb drawable
      *
-     * {@link androidx.appcompat.R.attr#android_thumb}
+     * {@link android.R.attr#thumb}
      */
     public void setThumbDrawable(Drawable thumb) {
         if (mThumbDrawable != null) {
@@ -616,7 +616,7 @@ public class SwitchCompat extends CompoundButton {
      *
      * @param resId Resource ID of a thumb drawable
      *
-     * {@link androidx.appcompat.R.attr#android_thumb}
+     * {@link android.R.attr#thumb}
      */
     public void setThumbResource(int resId) {
         setThumbDrawable(AppCompatResources.getDrawable(getContext(), resId));
@@ -628,7 +628,7 @@ public class SwitchCompat extends CompoundButton {
      *
      * @return Thumb drawable
      *
-     * {@link androidx.appcompat.R.attr#android_thumb}
+     * {@link android.R.attr#thumb}
      */
     public Drawable getThumbDrawable() {
         return mThumbDrawable;
@@ -740,7 +740,7 @@ public class SwitchCompat extends CompoundButton {
     /**
      * Returns the text displayed when the button is in the checked state.
      *
-     * {@link androidx.appcompat.R.attr#android_textOn}
+     * {@link android.R.attr#textOn}
      */
     public CharSequence getTextOn() {
         return mTextOn;
@@ -749,7 +749,7 @@ public class SwitchCompat extends CompoundButton {
     /**
      * Sets the text displayed when the button is in the checked state.
      *
-     * {@link androidx.appcompat.R.attr#android_textOn}
+     * {@link android.R.attr#textOn}
      */
     public void setTextOn(CharSequence textOn) {
         mTextOn = textOn;
@@ -759,7 +759,7 @@ public class SwitchCompat extends CompoundButton {
     /**
      * Returns the text displayed when the button is not in the checked state.
      *
-     * {@link androidx.appcompat.R.attr#android_textOff}
+     * {@link android.R.attr#textOff}
      */
     public CharSequence getTextOff() {
         return mTextOff;
@@ -768,7 +768,7 @@ public class SwitchCompat extends CompoundButton {
     /**
      * Sets the text displayed when the button is not in the checked state.
      *
-     * {@link androidx.appcompat.R.attr#android_textOff}
+     * {@link android.R.attr#textOff}
      */
     public void setTextOff(CharSequence textOff) {
         mTextOff = textOff;

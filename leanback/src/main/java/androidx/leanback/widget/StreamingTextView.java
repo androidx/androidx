@@ -301,7 +301,7 @@ class StreamingTextView extends EditText {
 
     /**
      * See
-     * {@link TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
+     * {@link androidx.core.widget.TextViewCompat#setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)}
      */
     @Override
     public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {

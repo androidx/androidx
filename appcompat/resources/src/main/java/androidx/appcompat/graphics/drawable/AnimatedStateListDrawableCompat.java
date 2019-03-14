@@ -85,7 +85,6 @@ import java.io.IOException;
  * {@link android.R.attr#state_middle}
  * {@link android.R.attr#state_last}
  * {@link android.R.attr#state_pressed}
- * @see ResourceManagerInternal#getDrawable(Context, int)
  */
 @SuppressLint("RestrictedAPI") // Temporary until we have correct restriction scopes for 1.0
 public class AnimatedStateListDrawableCompat extends StateListDrawable
@@ -129,7 +128,6 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
      * @param resId the resource ID for AnimatedStateListDrawable object.
      * @param theme the theme to apply, may be null.
      * @return a new AnimatedStateListDrawableCompat or null if parsing error is found.
-     * @see ResourceManagerInternal#getDrawable(Context, int)
      */
     @Nullable
     public static AnimatedStateListDrawableCompat create(

@@ -204,7 +204,7 @@ public final class MediaSessionManager {
          * met:
          * <ol>
          * <li>UID and package name are the same</li>
-         * <li>One of the RemoteUserInfo's PID is {@link #UNKNOWN_PID} or both of RemoteUserInfo's
+         * <li>One of the RemoteUserInfo's PID is UNKNOWN_PID or both of RemoteUserInfo's
          *     PID are the same</li>
          * </ol>
          *
