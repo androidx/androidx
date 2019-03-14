@@ -122,7 +122,7 @@ import java.util.List;
  * {@link androidx.appcompat.R.attr#contentInsetStart}
  * {@link androidx.appcompat.R.attr#contentInsetStartWithNavigation}
  * {@link androidx.appcompat.R.attr#contentInsetEndWithActions}
- * {@link androidx.appcompat.R.attr#android_gravity}
+ * {@link android.R.attr#gravity}
  * {@link androidx.appcompat.R.attr#logo}
  * {@link androidx.appcompat.R.attr#logoDescription}
  * {@link androidx.appcompat.R.attr#maxButtonHeight}

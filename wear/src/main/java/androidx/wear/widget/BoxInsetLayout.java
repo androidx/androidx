@@ -389,7 +389,7 @@ public class BoxInsetLayout extends ViewGroup {
      * See {@link R.styleable#BoxInsetLayout_Layout BoxInsetLayout Layout Attributes} for a list
      * of all child view attributes that this class supports.
      *
-     * {@link R.attr#Layout_boxedEdges}
+     * {@link androidx.wear.R.attr#boxedEdges}
      */
     public static class LayoutParams extends FrameLayout.LayoutParams {
 

@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * it loads more data, but the data loaded cannot be updated. If the underlying data set is
  * modified, a new PagedList / DataSource pair must be created to represent the new data.
  * <h4>Loading Pages</h4>
- * PagedList queries data from its DataSource in response to loading hints. {@link PagedListAdapter}
+ * PagedList queries data from its DataSource in response to loading hints. PagedListAdapter
  * calls {@link PagedList#loadAround(int)} to load content as the user scrolls in a RecyclerView.
  * <p>
  * To control how and when a PagedList queries data from its DataSource, see
@@ -127,7 +127,7 @@ public abstract class DataSource<Key, Value> {
          * DataSource becomes invalid, the only way to query more data is to create a new DataSource
          * from the Factory.
          * <p>
-         * {@link LivePagedListBuilder} for example will construct a new PagedList and DataSource
+         * {@link androidx.paging.LivePagedListBuilder} for example will construct a new PagedList and DataSource
          * when the current DataSource is invalidated, and pass the new PagedList through the
          * {@code LiveData<PagedList>} to observers.
          *

@@ -755,7 +755,7 @@ public class MediaPlayer extends SessionPlayer {
      * and video decoders.
      *
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link PlayerResult} will be delivered when the command completes.
+     * {@link androidx.media2.SessionPlayer.PlayerResult} will be delivered when the command completes.
      */
     @Override
     @NonNull
@@ -1534,7 +1534,7 @@ public class MediaPlayer extends SessionPlayer {
      * @param surface The {@link Surface} to be used for the video portion of
      * the media.
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link PlayerResult} will be delivered when the command completes.
+     * {@link androidx.media2.SessionPlayer.PlayerResult} will be delivered when the command completes.
      */
     @NonNull
     public ListenableFuture<PlayerResult> setSurface(@Nullable final Surface surface) {
@@ -1569,7 +1569,7 @@ public class MediaPlayer extends SessionPlayer {
      *
      * @param volume a value between 0.0f and {@link #getMaxPlayerVolume()}.
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link PlayerResult} will be delivered when the command completes.
+     * {@link androidx.media2.SessionPlayer.PlayerResult} will be delivered when the command completes.
      */
     @NonNull
     public ListenableFuture<PlayerResult> setPlayerVolume(
@@ -1640,7 +1640,7 @@ public class MediaPlayer extends SessionPlayer {
      *
      * @param params the playback params.
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link PlayerResult} will be delivered when the command completes.
+     * {@link androidx.media2.SessionPlayer.PlayerResult} will be delivered when the command completes.
      */
     @NonNull
     public ListenableFuture<PlayerResult> setPlaybackParams(@NonNull final PlaybackParams params) {
@@ -1687,7 +1687,7 @@ public class MediaPlayer extends SessionPlayer {
      * The value should be in the range of start and end positions defined in {@link MediaItem}.
      * @param mode the mode indicating where exactly to seek to.
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link PlayerResult} will be delivered when the command completes.
+     * {@link androidx.media2.SessionPlayer.PlayerResult} will be delivered when the command completes.
      */
     @NonNull
     public ListenableFuture<PlayerResult> seekTo(final long position, @SeekMode final int mode) {
@@ -1749,7 +1749,7 @@ public class MediaPlayer extends SessionPlayer {
      * by calling this method.
      * <p>This method must be called before {@link #setMediaItem} and {@link #setPlaylist} methods.
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link PlayerResult} will be delivered when the command completes.
+     * {@link androidx.media2.SessionPlayer.PlayerResult} will be delivered when the command completes.
      *
      * @see AudioManager#generateAudioSessionId
      */
@@ -1797,7 +1797,7 @@ public class MediaPlayer extends SessionPlayer {
      * <p>This method must be called before {@link #setMediaItem} and {@link #setPlaylist} methods.
      * @param effectId system wide unique id of the effect to attach
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link PlayerResult} will be delivered when the command completes.
+     * {@link androidx.media2.SessionPlayer.PlayerResult} will be delivered when the command completes.
      */
     @NonNull
     public ListenableFuture<PlayerResult> attachAuxEffect(final int effectId) {
@@ -1832,7 +1832,7 @@ public class MediaPlayer extends SessionPlayer {
      * 0 < x <= R -> level = 10^(72*(x-R)/20/R)
      * @param level send level scalar
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link PlayerResult} will be delivered when the command completes.
+     * {@link androidx.media2.SessionPlayer.PlayerResult} will be delivered when the command completes.
      */
     @NonNull
     public ListenableFuture<PlayerResult> setAuxEffectSendLevel(
@@ -1894,8 +1894,8 @@ public class MediaPlayer extends SessionPlayer {
     /**
      * Selects a track.
      * <p>
-     * If the player is in invalid state, {@link PlayerResult#RESULT_ERROR_INVALID_STATE} will be
-     * reported with {@link PlayerResult}.
+     * If the player is in invalid state, {@link androidx.media2.SessionPlayer.PlayerResult#RESULT_ERROR_INVALID_STATE} will be
+     * reported with {@link androidx.media2.SessionPlayer.PlayerResult}.
      * If a player is in <em>Playing</em> state, the selected track is presented immediately.
      * If a player is not in Playing state, it just marks the track to be played.
      * </p>
@@ -1917,7 +1917,7 @@ public class MediaPlayer extends SessionPlayer {
      *
      * @see #getTrackInfo
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link PlayerResult} will be delivered when the command completes.
+     * {@link androidx.media2.SessionPlayer.PlayerResult} will be delivered when the command completes.
      */
     @NonNull
     public ListenableFuture<PlayerResult> selectTrack(final int index) {
@@ -1951,7 +1951,7 @@ public class MediaPlayer extends SessionPlayer {
      *
      * @see #getTrackInfo
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link PlayerResult} will be delivered when the command completes.
+     * {@link androidx.media2.SessionPlayer.PlayerResult} will be delivered when the command completes.
      */
     @NonNull
     public ListenableFuture<PlayerResult> deselectTrack(final int index) {
