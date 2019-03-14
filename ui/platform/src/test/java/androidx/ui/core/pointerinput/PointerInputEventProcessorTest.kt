@@ -18,6 +18,7 @@ package androidx.ui.core.pointerinput
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.ConsumedData
+import androidx.ui.core.DrawNode
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Owner
 import androidx.ui.core.PointerEventPass
@@ -26,8 +27,10 @@ import androidx.ui.core.PointerEventPass.PreUp
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
+import androidx.ui.core.SemanticsR4ANode
 import androidx.ui.core.Timestamp
 import androidx.ui.core.ipx
+import androidx.ui.core.semantics.SemanticsProperties
 import androidx.ui.engine.geometry.Offset
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -1027,6 +1030,98 @@ class PointerInputEventProcessorTest {
         // Assert
         verify(childPointerInputNode2.pointerInputHandler, times(5)).invoke(any(), any())
         verify(childPointerInputNode1.pointerInputHandler, never()).invoke(any(), any())
+    }
+
+    @Test
+    fun process_downOnPointerInputNodeWrappingSemanticsNodeWrappingLayoutNode_downReceived() {
+        val semanticsR4ANode: SemanticsR4ANode =
+            SemanticsR4ANode(false, false, SemanticsProperties()).apply {
+                emitInsertAt(0, LayoutNode(0, 0, 100, 100))
+            }
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, semanticsR4ANode)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        root.apply {
+            emitInsertAt(0, pointerInputNode)
+        }
+
+        val down = PointerInputEvent(
+            Timestamp(0), 1, Offset(50f, 50f), true
+        )
+
+        // Act
+
+        pointerInputEventProcessor.process(down)
+
+        // Assert
+        verify(pointerInputNode.pointerInputHandler, times(5)).invoke(any(), any())
+    }
+
+    @Test
+    fun process_downOnPointerInputNodeWrappingDrawNode_downNotReceived() {
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, DrawNode())
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        root.apply {
+            emitInsertAt(0, pointerInputNode)
+        }
+
+        val down = PointerInputEvent(
+            Timestamp(0), 1, Offset(50f, 50f), true
+        )
+
+        // Act
+
+        pointerInputEventProcessor.process(down)
+
+        // Assert
+        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any())
+    }
+
+    @Test
+    fun process_downOnPointerInputNodeWrappingSemanticsNode_downNotReceived() {
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, SemanticsR4ANode(false, false, SemanticsProperties()))
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        root.apply {
+            emitInsertAt(0, pointerInputNode)
+        }
+
+        val down = PointerInputEvent(
+            Timestamp(0), 1, Offset(50f, 50f), true
+        )
+
+        // Act
+
+        pointerInputEventProcessor.process(down)
+
+        // Assert
+        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any())
+    }
+
+    @Test
+    fun process_downOnPointerInputNodeWrappingPointerInputNodeNode_downNotReceived() {
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, PointerInputNode())
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        root.apply {
+            emitInsertAt(0, pointerInputNode)
+        }
+
+        val down = PointerInputEvent(
+            Timestamp(0), 1, Offset(50f, 50f), true
+        )
+
+        // Act
+
+        pointerInputEventProcessor.process(down)
+
+        // Assert
+        verify(pointerInputNode.pointerInputHandler, never()).invoke(any(), any())
     }
 
     @Test

@@ -18,12 +18,14 @@ package androidx.ui.core.pointerinput
 
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.ConsumedData
+import androidx.ui.core.DrawNode
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.PxPosition
+import androidx.ui.core.SemanticsR4ANode
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.isAttached
@@ -244,10 +246,10 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         var child: ComponentNode? = pointerInputNode.child
         var nodeHit = false
         while (child != null) {
-            when (child) {
+            child = when (child) {
                 is PointerInputNode -> {
                     pointerInputNodes.add(child)
-                    child = child.child
+                    child.child
                 }
                 is LayoutNode -> {
                     if (offset.dx >= child.x.value &&
@@ -261,11 +263,13 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                     val newOffset =
                         Offset(offset.dx - child.x.value, offset.dy - child.y.value)
                     hitTestOnDescendants(child, newOffset, hitPointerInputNodes)
-                    child = null
+                    null
                 }
-                else -> {
-                    // other nodes like DrawNode has no descendants. stopping the while loop.
-                    child = null
+                is SemanticsR4ANode -> {
+                    child.child
+                }
+                is DrawNode -> {
+                    null
                 }
             }
         }
