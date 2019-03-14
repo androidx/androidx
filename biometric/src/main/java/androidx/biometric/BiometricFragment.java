@@ -214,7 +214,7 @@ public class BiometricFragment extends Fragment {
             builder.setTitle(mBundle.getCharSequence(BiometricPrompt.KEY_TITLE))
                     .setSubtitle(mBundle.getCharSequence(BiometricPrompt.KEY_SUBTITLE))
                     .setDescription(mBundle.getCharSequence(BiometricPrompt.KEY_DESCRIPTION));
-            // The negative text could be empty if setAllowDeviceCredential is true.
+            // The negative text could be empty if setDeviceCredentialAllowed is true.
             if (!TextUtils.isEmpty(mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT))) {
                 builder.setNegativeButton(
                         mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT),
@@ -222,9 +222,9 @@ public class BiometricFragment extends Fragment {
             }
 
             if (BuildCompat.isAtLeastQ()) {
-                builder.setRequireConfirmation(
+                builder.setConfirmationRequired(
                         mBundle.getBoolean((BiometricPrompt.KEY_REQUIRE_CONFIRMATION), true));
-                builder.setAllowDeviceCredential(
+                builder.setDeviceCredentialAllowed(
                         mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL));
             }
             mBiometricPrompt = builder.build();

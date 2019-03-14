@@ -90,8 +90,8 @@ public class BiometricPromptDemo extends FragmentActivity {
     private BiometricPrompt mBiometricPrompt;
 
     private CheckBox mUseCryptoCheckbox;
-    private CheckBox mRequireConfirmationCheckbox;
-    private CheckBox mAllowDeviceCredential;
+    private CheckBox mConfirmationRequiredCheckbox;
+    private CheckBox mDeviceCredentialAllowedCheckbox;
 
     private int mCounter;
     private int mNumberFailedAttempts;
@@ -159,8 +159,8 @@ public class BiometricPromptDemo extends FragmentActivity {
         buttonAuthenticate = findViewById(R.id.button_authenticate);
         canAuthenticate = findViewById(R.id.can_authenticate);
         mUseCryptoCheckbox = findViewById(R.id.checkbox_use_crypto);
-        mRequireConfirmationCheckbox = findViewById(R.id.checkbox_require_confirmation);
-        mAllowDeviceCredential = findViewById(R.id.checkbox_enable_fallback);
+        mConfirmationRequiredCheckbox = findViewById(R.id.checkbox_require_confirmation);
+        mDeviceCredentialAllowedCheckbox = findViewById(R.id.checkbox_enable_fallback);
 
         try {
             mKeyStore = KeyStore.getInstance("AndroidKeyStore");
@@ -180,8 +180,8 @@ public class BiometricPromptDemo extends FragmentActivity {
         buttonAuthenticate.setOnClickListener(v -> startAuthentication());
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            mRequireConfirmationCheckbox.setEnabled(false);
-            mRequireConfirmationCheckbox.setChecked(false);
+            mConfirmationRequiredCheckbox.setEnabled(false);
+            mConfirmationRequiredCheckbox.setChecked(false);
         }
         if (BuildCompat.isAtLeastQ()) {
             canAuthenticate.setOnClickListener(v -> {
@@ -205,8 +205,8 @@ public class BiometricPromptDemo extends FragmentActivity {
                         Toast.LENGTH_SHORT).show();
             });
         } else {
-            mAllowDeviceCredential.setEnabled(false);
-            mAllowDeviceCredential.setChecked(false);
+            mDeviceCredentialAllowedCheckbox.setEnabled(false);
+            mDeviceCredentialAllowedCheckbox.setChecked(false);
             canAuthenticate.setVisibility(View.GONE);
         }
 
@@ -263,11 +263,11 @@ public class BiometricPromptDemo extends FragmentActivity {
                 .setDescription(
                         "Lorem ipsum dolor sit amet, consecte etur adipisicing elit. "
                                 + mCounter)
-                .setRequireConfirmation(mRequireConfirmationCheckbox.isChecked());
+                .setConfirmationRequired(mConfirmationRequiredCheckbox.isChecked());
 
         if (BuildCompat.isAtLeastQ()) {
-            if (mAllowDeviceCredential.isChecked()) {
-                builder.setAllowDeviceCredential(true);
+            if (mDeviceCredentialAllowedCheckbox.isChecked()) {
+                builder.setDeviceCredentialAllowed(true);
             } else {
                 builder.setNegativeButtonText("Negative Button " + mCounter);
             }
