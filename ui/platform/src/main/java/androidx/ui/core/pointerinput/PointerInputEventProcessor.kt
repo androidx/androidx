@@ -258,6 +258,10 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                     hitTestOnDescendants(child, newOffset, hitPointerInputNodes)
                     child = null
                 }
+                else -> {
+                    // other nodes like DrawNode has no descendants. stopping the while loop.
+                    child = null
+                }
             }
         }
         return nodeHit
