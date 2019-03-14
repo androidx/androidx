@@ -30,7 +30,10 @@ import androidx.annotation.RestrictTo;
 /**
  * A wrapper class holding custom item of Browser Actions menu.
  * The Bitmap is optional for a BrowserActionItem.
+ *
+ * @deprecated Browser Actions are deprecated as of release 1.2.0.
  */
+@Deprecated
 public class BrowserActionItem {
     private final String mTitle;
     private final PendingIntent mAction;
