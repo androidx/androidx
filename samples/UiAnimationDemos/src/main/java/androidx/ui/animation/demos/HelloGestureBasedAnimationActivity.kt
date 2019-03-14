@@ -21,15 +21,15 @@ import android.os.Bundle
 import androidx.animation.ColorPropKey
 import androidx.animation.FloatPropKey
 import androidx.animation.PropKey
-import androidx.animation.TransitionState
 import androidx.animation.TransitionAnimation
 import androidx.animation.TransitionDefinition
+import androidx.animation.TransitionState
 import androidx.animation.transitionDefinition
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.MeasureBox
 import androidx.ui.core.PxPosition
 import androidx.ui.core.adapter.Draw
-import androidx.ui.core.adapter.PressGestureDetector
+import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -37,8 +37,8 @@ import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.Model
-import com.google.r4a.composer
 import com.google.r4a.Recompose
+import com.google.r4a.composer
 import com.google.r4a.setContent
 
 class HelloGestureBasedAnimationActivity : Activity() {
@@ -52,12 +52,7 @@ class HelloGestureBasedAnimationActivity : Activity() {
 @Composable
 fun HelloGesture() {
     <CraneWrapper>
-        <MeasureBox> constraints ->
-            collect {
-                <TransitionExample />
-            }
-            layout(constraints.maxWidth, constraints.maxHeight) {}
-        </MeasureBox>
+        <TransitionExample />
     </CraneWrapper>
 }
 
@@ -121,10 +116,15 @@ fun TransitionExample() {
             recompose()
         }
         <PressGestureDetector onPress onRelease onCancel=onRelease>
+            <MeasureBox> constraints ->
+                collect {
+                    <Transition transitionDef=transDef toState> state ->
+                        <DrawScaledRect scale=state[scale] color=state[color] />
+                    </Transition>
+                }
+                layout(constraints.maxWidth, constraints.maxHeight) {}
+            </MeasureBox>
         </PressGestureDetector>
-        <Transition transitionDef=transDef toState> state ->
-            <DrawScaledRect scale=state[scale] color=state[color] />
-        </Transition>
     </Recompose>
 }
 

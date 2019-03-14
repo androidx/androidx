@@ -25,11 +25,12 @@ import androidx.animation.InterruptionHandling
 import androidx.animation.TransitionDefinition
 import androidx.animation.transitionDefinition
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.MeasureBox
-import androidx.ui.core.adapter.Draw
-import androidx.ui.core.adapter.PressGestureDetector
 import androidx.ui.core.PxPosition
+import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.ipx
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -50,10 +51,12 @@ class StateBasedRippleAnimation : Activity() {
 fun StateBasedRippleDemo() {
     <CraneWrapper>
         <MeasureBox> constraints ->
-            collect {
+            val placeable = collect {
                 <RippleRect width=constraints.maxWidth height=constraints.maxHeight />
+            }.firstOrNull()?.measure(constraints)
+            layout(constraints.maxWidth, constraints.maxHeight) {
+                placeable?.place(0.ipx, 0.ipx)
             }
-            layout(constraints.maxWidth, constraints.maxHeight) {}
         </MeasureBox>
     </CraneWrapper>
 }
@@ -82,9 +85,14 @@ fun RippleRect(width: IntPx, height: IntPx) {
             recompose()
         }
         <PressGestureDetector onPress onRelease>
-            <Transition transitionDef=rippleTransDef toState> state ->
-                <RippleRectFromState state />
-            </Transition>
+            <MeasureBox> constraints ->
+                collect {
+                    <Transition transitionDef=rippleTransDef toState> state ->
+                        <RippleRectFromState state />
+                    </Transition>
+                }
+                layout(constraints.maxWidth, constraints.maxHeight) {}
+            </MeasureBox>
         </PressGestureDetector>
     </Recompose>
 }
@@ -100,8 +108,10 @@ fun RippleRectFromState(state: TransitionModel<ButtonStatus>) {
         Paint().apply { color = Color.fromARGB(
             (state[androidx.ui.animation.demos.alpha] * 255).toInt(), 0, 235, 224) }
 
+    val radius = state[radius]
+
     <Draw> canvas, pixelSize ->
-        canvas.drawCircle(Offset(x, y), state[radius], paint)
+        canvas.drawCircle(Offset(x, y), radius, paint)
     </Draw>
 }
 
