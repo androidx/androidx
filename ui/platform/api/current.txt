@@ -154,8 +154,7 @@ package androidx.ui.core {
     ctor public SemanticsTreeNodeImplKt();
   }
 
-  public class SingleChildComponentNode extends androidx.ui.core.ComponentNode {
-    ctor public SingleChildComponentNode();
+  public abstract sealed class SingleChildComponentNode extends androidx.ui.core.ComponentNode {
     method public void emitMove(int from, int to, int count);
     method public androidx.ui.core.ComponentNode get(int index);
     method public final androidx.ui.core.ComponentNode? getChild();

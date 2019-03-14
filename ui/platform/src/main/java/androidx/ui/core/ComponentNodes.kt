@@ -198,7 +198,7 @@ fun ComponentNode.isAttached() = owner != null
 /**
  * Base class for [ComponentNode]s that have zero or one child
  */
-open class SingleChildComponentNode() : ComponentNode() {
+sealed class SingleChildComponentNode() : ComponentNode() {
     /**
      * The child that this ComponentNode has. This will be `null` if it has no child.
      */
