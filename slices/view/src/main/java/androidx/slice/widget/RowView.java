@@ -846,6 +846,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 try {
                     mShowActionSpinner =
                             mRowAction.getActionItem().fireActionInternal(getContext(), null);
+                    if (mObserver != null) {
+                        EventInfo info = new EventInfo(getMode(), EventInfo.ACTION_TYPE_CONTENT,
+                                EventInfo.ROW_TYPE_LIST, mRowIndex);
+                        mObserver.onSliceAction(info, mRowAction.getSliceItem());
+                    }
                     if (mShowActionSpinner && mLoadingListener != null) {
                         mLoadingListener.onSliceActionLoading(mRowAction.getSliceItem(), mRowIndex);
                         mLoadingActions.add(mRowAction.getSliceItem());
