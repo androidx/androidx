@@ -301,6 +301,7 @@ includeProject(":dumb-tests", "dumb-tests")
 
 if (!startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
     // we don't need it in ide, so we don't configure it there
+    includeProject(":docs-fake", "docs-fake")
     includeProject(":docs-runner", "docs-runner")
 }
 
