@@ -47,6 +47,7 @@ import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.DefaultLoadControl;
 import androidx.media2.exoplayer.external.ExoPlaybackException;
 import androidx.media2.exoplayer.external.ExoPlayerFactory;
+import androidx.media2.exoplayer.external.Format;
 import androidx.media2.exoplayer.external.Player;
 import androidx.media2.exoplayer.external.SimpleExoPlayer;
 import androidx.media2.exoplayer.external.analytics.AnalyticsCollector;
@@ -56,6 +57,7 @@ import androidx.media2.exoplayer.external.audio.AudioListener;
 import androidx.media2.exoplayer.external.audio.AudioProcessor;
 import androidx.media2.exoplayer.external.audio.AuxEffectInfo;
 import androidx.media2.exoplayer.external.audio.DefaultAudioSink;
+import androidx.media2.exoplayer.external.decoder.DecoderCounters;
 import androidx.media2.exoplayer.external.metadata.Metadata;
 import androidx.media2.exoplayer.external.metadata.MetadataOutput;
 import androidx.media2.exoplayer.external.source.ClippingMediaSource;
@@ -69,7 +71,7 @@ import androidx.media2.exoplayer.external.upstream.DefaultBandwidthMeter;
 import androidx.media2.exoplayer.external.upstream.DefaultDataSourceFactory;
 import androidx.media2.exoplayer.external.util.MimeTypes;
 import androidx.media2.exoplayer.external.util.Util;
-import androidx.media2.exoplayer.external.video.VideoListener;
+import androidx.media2.exoplayer.external.video.VideoRendererEventListener;
 
 import java.io.FileDescriptor;
 import java.io.IOException;
@@ -465,7 +467,8 @@ import java.util.Map;
                 mLooper);
         mMediaItemQueue = new MediaItemQueue(mContext, mPlayer, mListener);
         mPlayer.addListener(listener);
-        mPlayer.addVideoListener(listener);
+        // TODO(b/80232248): Switch to AnalyticsListener once default methods work.
+        mPlayer.setVideoDebugListener(listener);
         mPlayer.addMetadataOutput(listener);
         mVideoWidth = 0;
         mVideoHeight = 0;
@@ -683,7 +686,8 @@ import java.util.Map;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final class ComponentListener extends Player.DefaultEventListener
-            implements VideoListener, AudioListener, TextRenderer.Output, MetadataOutput {
+            implements VideoRendererEventListener, AudioListener,
+            TextRenderer.Output, MetadataOutput {
 
         // DefaultEventListener implementation.
 
@@ -713,7 +717,7 @@ import java.util.Map;
             handlePlayerError(error);
         }
 
-        // VideoListener implementation.
+        // VideoRendererEventListener implementation.
 
         @Override
         public void onVideoSizeChanged(
@@ -725,12 +729,29 @@ import java.util.Map;
         }
 
         @Override
-        public void onRenderedFirstFrame() {
+        public void onVideoInputFormatChanged(Format format) {
+            if (MimeTypes.isVideo(format.sampleMimeType)) {
+                handleVideoSizeChanged(format.width, format.height, format.pixelWidthHeightRatio);
+            }
+        }
+
+        @Override
+        public void onRenderedFirstFrame(@Nullable Surface surface) {
             handleRenderedFirstFrame();
         }
 
         @Override
-        public void onSurfaceSizeChanged(int width, int height) {}
+        public void onVideoEnabled(DecoderCounters counters) {}
+
+        @Override
+        public void onVideoDecoderInitialized(String decoderName, long initializedTimestampMs,
+                long initializationDurationMs) {}
+
+        @Override
+        public void onDroppedFrames(int count, long elapsedMs) {}
+
+        @Override
+        public void onVideoDisabled(DecoderCounters counters) {}
 
         // AudioListener implementation.
 
