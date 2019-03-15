@@ -36,8 +36,9 @@ import java.util.Set;
 /**
  * The use case which all other use cases are built on top of.
  *
- * <p>A BaseUseCase provides functionality to map a {@link BaseCamera} to a {@link
- * SessionConfiguration} and the communication of the active/inactive state to the Camera.
+ * <p>A BaseUseCase provides functionality to map the set of arguments in a use case to arguments
+ * that are usable by a camera. BaseUseCase also will communicate of the active/inactive state to
+ * the Camera.
  */
 public abstract class BaseUseCase {
     private static final String TAG = "BaseUseCase";
@@ -92,7 +93,7 @@ public abstract class BaseUseCase {
     }
 
     /**
-     * Returns a {@link UseCaseConfiguration.Builder} pre-populated with default configuration
+     * Returns a use case configuration pre-populated with default configuration
      * options.
      *
      * <p>This is used to generate a final configuration by combining the user-supplied
@@ -123,7 +124,9 @@ public abstract class BaseUseCase {
      *
      * @param useCaseConfiguration Configuration which will be applied on top of use case defaults,
      *                             if a default builder is provided by {@link #getDefaultBuilder()}.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected void updateUseCaseConfiguration(UseCaseConfiguration<?> useCaseConfiguration) {
         UseCaseConfiguration.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder();
         if (defaultBuilder == null) {
@@ -257,7 +260,9 @@ public abstract class BaseUseCase {
     /**
      * Notify all {@link StateChangeListener} that are listening to this BaseUseCase that it has
      * transitioned to an active state.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void notifyActive() {
         mState = State.ACTIVE;
         notifyState();
@@ -266,7 +271,9 @@ public abstract class BaseUseCase {
     /**
      * Notify all {@link StateChangeListener} that are listening to this BaseUseCase that it has
      * transitioned to an inactive state.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void notifyInactive() {
         mState = State.INACTIVE;
         notifyState();
@@ -275,7 +282,9 @@ public abstract class BaseUseCase {
     /**
      * Notify all {@link StateChangeListener} that are listening to this BaseUseCase that the
      * settings have been updated.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void notifyUpdated() {
         for (StateChangeListener listener : mListeners) {
             listener.onUseCaseUpdated(this);
@@ -285,7 +294,9 @@ public abstract class BaseUseCase {
     /**
      * Notify all {@link StateChangeListener} that are listening to this BaseUseCase that the use
      * case needs to be completely reset.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void notifyReset() {
         for (StateChangeListener listener : mListeners) {
             listener.onUseCaseReset(this);
@@ -295,7 +306,9 @@ public abstract class BaseUseCase {
     /**
      * Notify all {@link StateChangeListener} that are listening to this BaseUseCase of its current
      * state.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void notifyState() {
         switch (mState) {
             case INACTIVE:
@@ -311,7 +324,7 @@ public abstract class BaseUseCase {
         }
     }
 
-    /** Clear out all {@link StateChangeListener} from listening to this BaseUseCase. */
+    /** Clears internal state of this use case. */
     @CallSuper
     protected void clear() {
         mListeners.clear();
@@ -365,8 +378,8 @@ public abstract class BaseUseCase {
 
     /**
      * Called when binding new use cases via {@link CameraX#bindToLifecycle(LifecycleOwner,
-     * BaseUseCase...)}. Need to override this function to create {@link SessionConfiguration} or
-     * other necessary objects like {@link android.media.ImageReader} depending on the resolution.
+     * BaseUseCase...)}. Override to create necessary objects like {@link android.media.ImageReader}
+     * depending on the resolution.
      *
      * @param suggestedResolutionMap A map of the names of the {@link
      *                               android.hardware.camera2.CameraDevice} to the suggested

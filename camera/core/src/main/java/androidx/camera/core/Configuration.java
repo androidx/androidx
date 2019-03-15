@@ -26,7 +26,7 @@ import com.google.auto.value.extension.memoized.Memoized;
 import java.util.Set;
 
 /**
- * A Configuration is a collection of {@link Option}s and values.
+ * A Configuration is a collection of options and values.
  *
  * <p>Configuration object hold pairs of Options/Values and offer methods for querying whether
  * Options are contained in the configuration along with methods for retrieving the associated

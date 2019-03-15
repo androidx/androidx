@@ -807,7 +807,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
      * Describes the error that occurred during video capture operations.
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
-     * VideoCaptureUseCase.OnVideoSavedListener.onError}.
+     * VideoCaptureUseCase.OnVideoSavedListener#onError(UseCaseError, String, Throwable)}.
      *
      * <p>See message parameter in onError callback or log for more details.
      */

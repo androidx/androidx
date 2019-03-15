@@ -24,6 +24,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Main interface for accessing CameraX library.
  *
- * <p>This is a singleton class that is responsible for managing the set of {@link BaseCamera}
+ * <p>This is a singleton class that is responsible for managing the set of camera
  * instances and {@link BaseUseCase} instances that exist. A {@link BaseUseCase} is bound to {@link
  * LifecycleOwner} so that the lifecycle is used to control the use case. There are 3 distinct sets
  * lifecycle states to be aware of.
@@ -102,11 +103,11 @@ public final class CameraX {
     /**
      * Binds the collection of {@link BaseUseCase} to a {@link LifecycleOwner}.
      *
-     * <p>If the lifecycleOwner contains a {@link android.arch.lifecycle.Lifecycle} that is already
+     * <p>If the lifecycleOwner contains a {@link Lifecycle} that is already
      * in the STARTED state or greater than the created use cases will attach to the cameras and
      * trigger the appropriate notifications. This will generally cause a temporary glitch in the
      * camera as part of the reset process. This will also help to calculate suggested resolutions
-     * depending on the use cases bound to the {@link android.arch.lifecycle.Lifecycle}. If the use
+     * depending on the use cases bound to the {@link Lifecycle}. If the use
      * cases are bound separately, it will find the supported resolution with the priority depending
      * on the binding sequence. If the use cases are bound with a single call, it will find the
      * supported resolution with the priority in sequence of ImageCaptureUseCase,

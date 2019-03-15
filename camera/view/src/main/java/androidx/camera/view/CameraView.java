@@ -168,16 +168,16 @@ public final class CameraView extends ViewGroup {
      *
      * <p>This links opening/closing the camera to the given lifecycle. The camera will not operate
      * unless this method is called with a valid {@link LifecycleOwner} that is not in the {@link
-     * android.arch.lifecycle.Lifecycle.State#DESTROYED} state. Call this method only once camera
+     * androidx.lifecycle.Lifecycle.State#DESTROYED} state. Call this method only once camera
      * permissions have been obtained.
      *
      * <p>Once the provided lifecycle has transitioned to a {@link
-     * android.arch.lifecycle.Lifecycle.State#DESTROYED} state, CameraView must be bound to a new
+     * androidx.lifecycle.Lifecycle.State#DESTROYED} state, CameraView must be bound to a new
      * lifecycle through this method in order to operate the camera.
      *
      * @param lifecycleOwner The lifecycle that will control this view's camera
      * @throws IllegalArgumentException if provided lifecycle is in a {@link
-     *                                  android.arch.lifecycle.Lifecycle.State#DESTROYED} state.
+     *                                  androidx.lifecycle.Lifecycle.State#DESTROYED} state.
      * @throws IllegalStateException    if camera permissions are not granted.
      */
     @RequiresPermission(permission.CAMERA)
