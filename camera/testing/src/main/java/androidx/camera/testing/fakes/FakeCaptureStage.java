@@ -16,10 +16,17 @@
 
 package androidx.camera.testing.fakes;
 
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CaptureRequestConfiguration;
 import androidx.camera.core.CaptureStage;
 
-/** A fake {@link CaptureStage} where the values can be set. */
+/**
+ * A fake {@link CaptureStage} where the values can be set.
+ *
+ * @hide
+ */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public class FakeCaptureStage implements CaptureStage {
 
     private final int mId;

@@ -25,15 +25,15 @@ public interface ImageProxyBundle {
     /**
      * Get a {@link ListenableFuture} for a {@link ImageProxy}.
      *
-     * <p> The future will be satisfied when the {@link ImageProxy} for the {@link CaptureStage}
-     * with the given identifier has been generated.
+     * <p> The future will be satisfied when the {@link ImageProxy} for the given identifier has
+     * been generated.
      *
-     * @param captureId The id for the {@link CaptureStage} that generated the {@link ImageProxy}.
+     * @param captureId The id for the captures that generated the {@link ImageProxy}.
      */
     ListenableFuture<ImageProxy> getImageProxy(int captureId);
 
     /**
-     * Returns the list of identifiers of for the {@link CaptureStage} that produced the data in
+     * Returns the list of identifiers for the capture that produced the data in
      * this bundle.
      */
     List<Integer> getCaptureIds();

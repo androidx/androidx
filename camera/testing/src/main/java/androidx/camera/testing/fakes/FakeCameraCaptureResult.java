@@ -17,12 +17,17 @@
 package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraCaptureMetaData;
 import androidx.camera.core.CameraCaptureResult;
 
 /**
  * A fake implementation of {@link CameraCaptureResult} where the values are settable.
+ *
+ * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeCameraCaptureResult implements CameraCaptureResult {
     private CameraCaptureMetaData.AfMode mAfMode = CameraCaptureMetaData.AfMode.UNKNOWN;
     private CameraCaptureMetaData.AfState mAfState = CameraCaptureMetaData.AfState.UNKNOWN;
