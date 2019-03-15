@@ -519,9 +519,8 @@ public abstract class MediaPlayer2 {
     /**
      * Returns the width of the video.
      *
-     * @return the width of the video, or 0 if there is no video,
-     * no display surface was set, or the width has not been determined
-     * yet. The {@link EventCallback} can be registered via
+     * @return the width of the video, or 0 if there is no video or the width has not been
+     * determined yet. The {@link EventCallback} can be registered via
      * {@link #setEventCallback(Executor, EventCallback)} to provide a
      * notification {@link EventCallback#onVideoSizeChanged} when the width
      * is available.
@@ -531,9 +530,8 @@ public abstract class MediaPlayer2 {
     /**
      * Returns the height of the video.
      *
-     * @return the height of the video, or 0 if there is no video,
-     * no display surface was set, or the height has not been determined
-     * yet. The {@link EventCallback} can be registered via
+     * @return the height of the video, or 0 if there is no video or the height has not been
+     * determined yet. The {@link EventCallback} can be registered via
      * {@link #setEventCallback(Executor, EventCallback)} to provide a
      * notification {@link EventCallback#onVideoSizeChanged} when the height is
      * available.
