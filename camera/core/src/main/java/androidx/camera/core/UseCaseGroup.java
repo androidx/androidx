@@ -123,6 +123,7 @@ public final class UseCaseGroup {
             useCasesToClear.addAll(mUseCases);
             mUseCases.clear();
         }
+
         for (BaseUseCase useCase : useCasesToClear) {
             Log.d(TAG, "Clearing use case: " + useCase.getName());
             useCase.clear();

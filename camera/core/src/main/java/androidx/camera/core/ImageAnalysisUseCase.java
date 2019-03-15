@@ -60,7 +60,10 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
     private final Handler mHandler;
     private final ImageAnalysisUseCaseConfiguration.Builder mUseCaseConfigBuilder;
     @Nullable
-    private ImageReaderProxy mImageReader;
+    ImageReaderProxy mImageReader;
+    @Nullable
+    private DeferrableSurface mDeferrableSurface;
+
     /**
      * Creates a new image analysis use case from the given configuration.
      *
@@ -176,9 +179,18 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
-        if (mImageReader != null) {
-            mImageReader.close();
-            mImageReader = null;
+        if (mDeferrableSurface != null) {
+            mDeferrableSurface.setOnSurfaceDetachedListener(
+                    MainThreadExecutor.getInstance(),
+                    new DeferrableSurface.OnSurfaceDetachedListener() {
+                        @Override
+                        public void onSurfaceDetached() {
+                            if (mImageReader != null) {
+                                mImageReader.close();
+                                mImageReader = null;
+                            }
+                        }
+                    });
         }
         super.clear();
     }
@@ -268,7 +280,10 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
 
         SessionConfiguration.Builder sessionConfigBuilder =
                 SessionConfiguration.Builder.createFrom(configuration);
-        sessionConfigBuilder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
+
+        mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
+
+        sessionConfigBuilder.addSurface(mDeferrableSurface);
 
         attachToCamera(cameraId, sessionConfigBuilder.build());
 

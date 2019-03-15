@@ -108,7 +108,8 @@ public class ImageCaptureUseCase extends BaseUseCase {
     private final CaptureMode mCaptureMode;
     private final ImageCaptureUseCaseConfiguration.Builder mUseCaseConfigBuilder;
     private ImageCaptureUseCaseConfiguration mConfiguration;
-    private ImageReaderProxy mImageReader;
+    ImageReaderProxy mImageReader;
+    private DeferrableSurface mDeferrableSurface;
     /**
      * A flag to check 3A converged or not.
      *
@@ -476,9 +477,18 @@ public class ImageCaptureUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
-        if (mImageReader != null) {
-            mImageReader.close();
-            mImageReader = null;
+        if (mDeferrableSurface != null) {
+            mDeferrableSurface.setOnSurfaceDetachedListener(
+                    MainThreadExecutor.getInstance(),
+                    new DeferrableSurface.OnSurfaceDetachedListener() {
+                        @Override
+                        public void onSurfaceDetached() {
+                            if (mImageReader != null) {
+                                mImageReader.close();
+                                mImageReader = null;
+                            }
+                        }
+                    });
         }
         mExecutor.shutdown();
         super.clear();
@@ -559,8 +569,9 @@ public class ImageCaptureUseCase extends BaseUseCase {
                 mMainHandler);
 
         mSessionConfigBuilder.clearSurfaces();
-        mSessionConfigBuilder.addNonRepeatingSurface(
-                new ImmediateSurface(mImageReader.getSurface()));
+
+        mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
+        mSessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
 
         attachToCamera(cameraId, mSessionConfigBuilder.build());
 

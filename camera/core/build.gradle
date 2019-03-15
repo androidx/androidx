@@ -26,6 +26,7 @@ plugins {
 dependencies {
     api("androidx.lifecycle:lifecycle-common:2.0.0", libs.exclude_annotations_transitive)
     implementation("androidx.annotation:annotation:1.0.0")
+    implementation("androidx.core:core:1.0.0")
     implementation("androidx.exifinterface:exifinterface:1.0.0")
 
     implementation(AUTO_VALUE_ANNOTATIONS)
@@ -40,6 +41,7 @@ dependencies {
     testImplementation(TEST_RUNNER)
     testImplementation(TRUTH)
     testImplementation(ROBOLECTRIC)
+    testImplementation(MOCKITO_CORE)
     testImplementation project(":camera:camera-testing"), {
         exclude group: "androidx.camera", module: "camera-core"
     }

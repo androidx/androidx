@@ -35,7 +35,7 @@ import java.nio.IntBuffer;
  * A {@link DeferrableSurface} which verifies the {@link SurfaceTexture} that backs the {@link
  * Surface} is unreleased before returning the Surface.
  */
-final class CheckedSurfaceTexture implements DeferrableSurface {
+final class CheckedSurfaceTexture extends DeferrableSurface {
     private final OnTextureChangedListener mOutputChangedListener;
     private final Handler mMainThreadHandler;
     @Nullable

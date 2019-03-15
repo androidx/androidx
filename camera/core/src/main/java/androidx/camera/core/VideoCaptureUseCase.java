@@ -108,7 +108,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
     private final AtomicBoolean mIsFirstAudioSampleWrite = new AtomicBoolean(false);
     private final VideoCaptureUseCaseConfiguration.Builder mUseCaseConfigBuilder;
     @NonNull
-    private MediaCodec mVideoEncoder;
+    MediaCodec mVideoEncoder;
     @NonNull
     private MediaCodec mAudioEncoder;
     /** The muxer that writes the encoding data to file. */
@@ -120,7 +120,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
     /** The index of the audio track used by the muxer. */
     private int mAudioTrackIndex;
     /** Surface the camera writes to, which the videoEncoder uses as input. */
-    private Surface mCameraSurface;
+    Surface mCameraSurface;
     /** audio raw data */
     @NonNull
     private AudioRecord mAudioRecorder;
@@ -129,6 +129,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
     private int mAudioChannelCount;
     private int mAudioSampleRate;
     private int mAudioBitRate;
+    private DeferrableSurface mDeferrableSurface;
 
     /**
      * Creates a new video capture use case from the given configuration.
@@ -373,10 +374,22 @@ public class VideoCaptureUseCase extends BaseUseCase {
     public void clear() {
         mVideoHandlerThread.quitSafely();
 
-        if (mVideoEncoder != null) {
-            mVideoEncoder.release();
-            mVideoEncoder = null;
-        }
+        mDeferrableSurface.setOnSurfaceDetachedListener(
+                MainThreadExecutor.getInstance(),
+                new DeferrableSurface.OnSurfaceDetachedListener() {
+                    @Override
+                    public void onSurfaceDetached() {
+                        if (mVideoEncoder != null) {
+                            mVideoEncoder.release();
+                            mVideoEncoder = null;
+                        }
+
+                        if (mCameraSurface != null) {
+                            mCameraSurface.release();
+                            mCameraSurface = null;
+                        }
+                    }
+                });
 
         // audio encoder release
         mAudioHandlerThread.quitSafely();
@@ -390,10 +403,6 @@ public class VideoCaptureUseCase extends BaseUseCase {
             mAudioRecorder = null;
         }
 
-        if (mCameraSurface != null) {
-            mCameraSurface.release();
-            mCameraSurface = null;
-        }
         super.clear();
     }
 
@@ -438,7 +447,10 @@ public class VideoCaptureUseCase extends BaseUseCase {
 
         SessionConfiguration.Builder builder =
                 SessionConfiguration.Builder.createFrom(configuration);
-        builder.addSurface(new ImmediateSurface(mCameraSurface));
+
+        mDeferrableSurface = new ImmediateSurface(mCameraSurface);
+
+        builder.addSurface(mDeferrableSurface);
 
         String cameraId = getCameraIdUnchecked(configuration.getLensFacing());
         attachToCamera(cameraId, builder.build());

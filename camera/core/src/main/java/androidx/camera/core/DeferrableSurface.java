@@ -16,22 +16,140 @@
 
 package androidx.camera.core;
 
+import android.annotation.SuppressLint;
 import android.view.Surface;
 
+import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
+import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.concurrent.Executor;
 
 /**
  * A reference to a {@link Surface} whose creation can be deferred to a later time.
  *
+ * <p>A {@link OnSurfaceDetachedListener} can also be set to be notified of surface detach event. It
+ * can be used to safely close the surface.
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public interface DeferrableSurface {
+public abstract class DeferrableSurface {
+    // The count of attachment.
+    @GuardedBy("mLock")
+    private int mAttachedCount = 0;
+
+    // Listener to be called when surface is detached totally.
+    @Nullable
+    @GuardedBy("mLock")
+    private OnSurfaceDetachedListener mOnSurfaceDetachedListener = null;
+
+    @Nullable
+    @GuardedBy("mLock")
+    private Executor mListenerExecutor = null;
+
+    // Lock used for accessing states.
+    private final Object mLock = new Object();
+
     /** Returns a {@link Surface} that is wrapped in a {@link ListenableFuture}. */
     @Nullable
-    ListenableFuture<Surface> getSurface();
+    public abstract ListenableFuture<Surface> getSurface();
+
+    /** Notifies this surface is attached */
+    public void notifySurfaceAttached() {
+        synchronized (mLock) {
+            mAttachedCount++;
+        }
+    }
+
+    /**
+     * Notifies this surface is detached. OnSurfaceDetachedLisener will be called if it is detached
+     * totally
+     */
+    public void notifySurfaceDetached() {
+        OnSurfaceDetachedListener listener = null;
+        Executor listenerExecutor = null;
+
+        synchronized (mLock) {
+            if (mAttachedCount == 0) {
+                throw new IllegalStateException("Detaching occurs more times than attaching");
+            }
+
+            mAttachedCount--;
+            if (mAttachedCount == 0) {
+                listener = mOnSurfaceDetachedListener;
+                listenerExecutor = mListenerExecutor;
+            }
+        }
+
+        if (listener != null && listenerExecutor != null) {
+            callOnSurfaceDetachedListener(listener, listenerExecutor);
+        }
+    }
+
+    /**
+     * Sets the listener to be called when surface is detached totally.
+     *
+     * <p>If the surface is currently not attached, the listener will be called immediately. When
+     * clearing resource like ImageReader, to close it safely you can call this method and close the
+     * resources in the listener. This can ensure the surface is closed after it is no longer held
+     * in camera.
+     */
+    @SuppressLint("RestrictedApi") // TODO(b/124323692): Remove after aosp/900913 is merged
+    public void setOnSurfaceDetachedListener(@NonNull Executor executor,
+            @NonNull OnSurfaceDetachedListener listener) {
+        Preconditions.checkNotNull(executor);
+        Preconditions.checkNotNull(listener);
+        boolean shouldCallListenerNow = false;
+        synchronized (mLock) {
+            mOnSurfaceDetachedListener = listener;
+            mListenerExecutor = executor;
+            // Calls the listener immediately if the surface is not attached right now.
+            if (mAttachedCount == 0) {
+                shouldCallListenerNow = true;
+            }
+        }
+
+        if (shouldCallListenerNow) {
+            callOnSurfaceDetachedListener(listener, executor);
+        }
+    }
+
+    @SuppressLint("RestrictedApi") // TODO(b/124323692): Remove after aosp/900913 is merged
+    private static void callOnSurfaceDetachedListener(
+            @NonNull final OnSurfaceDetachedListener listener, @NonNull Executor executor) {
+        Preconditions.checkNotNull(executor);
+        Preconditions.checkNotNull(listener);
+
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                listener.onSurfaceDetached();
+            }
+        });
+    }
+
+    @VisibleForTesting
+    int getAttachedCount() {
+        synchronized (mLock) {
+            return mAttachedCount;
+        }
+    }
+
+    /**
+     * The listener to be called when surface is detached totally.
+     */
+    public interface OnSurfaceDetachedListener {
+        /**
+         * Called when surface is totally detached.
+         */
+        void onSurfaceDetached();
+    }
+
 }

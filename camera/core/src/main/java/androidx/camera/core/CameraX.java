@@ -29,7 +29,6 @@ import androidx.lifecycle.LifecycleOwner;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -191,17 +190,31 @@ public final class CameraX {
         Collection<UseCaseGroupLifecycleController> useCaseGroups =
                 INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
 
+        Map<String, List<BaseUseCase>> detachingUseCaseMap = new HashMap<>();
+
         for (BaseUseCase useCase : useCases) {
             for (UseCaseGroupLifecycleController useCaseGroupLifecycleController : useCaseGroups) {
                 UseCaseGroup useCaseGroup = useCaseGroupLifecycleController.getUseCaseGroup();
                 if (useCaseGroup.removeUseCase(useCase)) {
+                    // Saves all detaching use cases and detach them at once.
                     for (String cameraId : useCase.getAttachedCameraIds()) {
-                        detach(cameraId, useCase);
+                        List<BaseUseCase> useCasesOnCameraId = detachingUseCaseMap.get(cameraId);
+                        if (useCasesOnCameraId == null) {
+                            useCasesOnCameraId = new ArrayList<>();
+                            detachingUseCaseMap.put(cameraId, useCasesOnCameraId);
+                        }
+                        useCasesOnCameraId.add(useCase);
                     }
-
-                    useCase.clear();
                 }
             }
+        }
+
+        for (String cameraId : detachingUseCaseMap.keySet()) {
+            detach(cameraId, detachingUseCaseMap.get(cameraId));
+        }
+
+        for (BaseUseCase useCase : useCases) {
+            useCase.clear();
         }
     }
 
@@ -342,6 +355,7 @@ public final class CameraX {
      *
      * <p>Any previous call to {@link #init(Context, AppConfiguration)} would have initialized
      * CameraX.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -359,28 +373,30 @@ public final class CameraX {
         BaseCamera camera = INSTANCE.getCameraRepository().getCamera(cameraId);
         if (camera == null) {
             throw new IllegalArgumentException("Invalid camera: " + cameraId);
-        } else {
-            useCase.addStateChangeListener(camera);
-            useCase.attachCameraControl(cameraId, camera.getCameraControl());
         }
+
+        useCase.addStateChangeListener(camera);
+        useCase.attachCameraControl(cameraId, camera.getCameraControl());
+
     }
 
     /**
      * Removes the callbacks registered by the {@link BaseCamera} to the {@link BaseUseCase}.
      *
      * @param cameraId the id for the {@link BaseCamera}
-     * @param useCase  the use case to remove the callback from
+     * @param useCases the list of use case to remove the callback from.
      */
-    private static void detach(String cameraId, BaseUseCase useCase) {
+    private static void detach(String cameraId, List<BaseUseCase> useCases) {
         BaseCamera camera = INSTANCE.getCameraRepository().getCamera(cameraId);
         if (camera == null) {
             throw new IllegalArgumentException("Invalid camera: " + cameraId);
-        } else {
-            useCase.notifyInactive();
+        }
+
+        for (BaseUseCase useCase : useCases) {
             useCase.removeStateChangeListener(camera);
-            camera.removeOnlineUseCase(Collections.singletonList(useCase));
             useCase.detachCameraControl(cameraId);
         }
+        camera.removeOnlineUseCase(useCases);
     }
 
     private static void calculateSuggestedResolutions(BaseUseCase... useCases) {
