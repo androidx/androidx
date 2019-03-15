@@ -24,6 +24,7 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.test.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.Density
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.test.UiTestRunner
@@ -49,6 +50,8 @@ open class AndroidUiTestRunner : UiTestRunner {
     private lateinit var activity: DefaultTestActivity
     private lateinit var instrumentation: Instrumentation
     private lateinit var rootProvider: SemanticsTreeProvider
+
+    val density: Density get() = Density(activity)
 
     @Before
     // TODO(pavlis): This is not great, if super forgets to call this (if redefining @before).

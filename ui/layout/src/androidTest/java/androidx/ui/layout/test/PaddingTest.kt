@@ -64,12 +64,12 @@ class PaddingTest : LayoutTest() {
                             constraints=null
                             width=null
                             height=null>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childSize = coordinates.size
                                 childPosition =
                                     coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     </Padding>
                 </ConstrainedBox>
@@ -110,12 +110,12 @@ class PaddingTest : LayoutTest() {
                             constraints=null
                             width=null
                             height=null>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childSize = coordinates.size
                                 childPosition =
                                     coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     </Padding>
                 </ConstrainedBox>
@@ -166,11 +166,11 @@ class PaddingTest : LayoutTest() {
                             constraints=null
                             width=null
                             height=null>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childSize = coordinates.size
                                 childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     </Padding>
                 </ConstrainedBox>

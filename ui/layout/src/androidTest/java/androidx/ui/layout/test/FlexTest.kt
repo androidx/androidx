@@ -25,7 +25,6 @@ import androidx.ui.core.PxSize
 import androidx.ui.core.dp
 import androidx.ui.core.px
 import androidx.ui.core.round
-import androidx.ui.core.times
 import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
@@ -62,19 +61,19 @@ class FlexTest : LayoutTest() {
             <Center>
                 <Row>
                     <Container width=sizeDp height=sizeDp>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
 
                     <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
                 </Row>
             </Center>
@@ -114,21 +113,21 @@ class FlexTest : LayoutTest() {
 
                     expanded(flex=1f) {
                         <Container width=widthDp height=heightDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childSize[0] = coordinates.size
                                 childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
 
                     expanded(flex=2f) {
                         <Container width=widthDp height=(heightDp * 2)>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childSize[1] = coordinates.size
                                 childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
                 </FlexRow>
@@ -141,7 +140,7 @@ class FlexTest : LayoutTest() {
 
         assertEquals(PxSize(root.width.px / 3, childrenHeight.toPx()), childSize[0])
         assertEquals(
-            PxSize(2 * root.width.px / 3, (heightDp.toPx() * 2).round().toPx()),
+            PxSize(root.width.px * 2 / 3, (heightDp.toPx() * 2).round().toPx()),
             childSize[1]
         )
         assertEquals(
@@ -171,21 +170,21 @@ class FlexTest : LayoutTest() {
                 <FlexRow>
                     flexible(flex=1f) {
                         <Container width=childrenWidthDp height=childrenHeightDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childSize[0] = coordinates.size
                                 childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
 
                     flexible(flex=2f) {
                         <Container width=childrenWidthDp height=(childrenHeightDp * 2)>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childSize[1] = coordinates.size
                                 childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
                 </FlexRow>
@@ -224,18 +223,18 @@ class FlexTest : LayoutTest() {
             <Center>
                 <Column>
                     <Container width=sizeDp height=sizeDp>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
                     <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
                 </Column>
             </Center>
@@ -275,21 +274,21 @@ class FlexTest : LayoutTest() {
 
                     expanded(flex=1f) {
                         <Container width=widthDp height=heightDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childSize[0] = coordinates.size
                                 childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
 
                     expanded(flex=2f) {
                         <Container width=(widthDp * 2) height=heightDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childSize[1] = coordinates.size
                                 childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
                 </FlexColumn>
@@ -305,7 +304,7 @@ class FlexTest : LayoutTest() {
             childSize[0]
         )
         assertEquals(
-            PxSize((widthDp.toPx() * 2).round(), (2 * root.height.px / 3).round()),
+            PxSize((widthDp.toPx() * 2).round(), (root.height.px * 2 / 3).round()),
             childSize[1]
         )
         assertEquals(
@@ -334,21 +333,21 @@ class FlexTest : LayoutTest() {
                 <FlexColumn>
                     flexible(flex=1f) {
                         <Container width=childrenWidthDp height=childrenHeightDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childSize[0] = coordinates.size
                                 childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
 
                     flexible(flex=2f) {
                         <Container width=(childrenWidthDp * 2) height=childrenHeightDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childSize[1] = coordinates.size
                                 childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
                 </FlexColumn>
@@ -387,19 +386,19 @@ class FlexTest : LayoutTest() {
             <Center>
                 <Row crossAxisAlignment=CrossAxisAlignment.Start>
                     <Container width=sizeDp height=sizeDp>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
 
                     <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
                 </Row>
             </Center>
@@ -436,19 +435,19 @@ class FlexTest : LayoutTest() {
             <Center>
                 <Row crossAxisAlignment=CrossAxisAlignment.End>
                     <Container width=sizeDp height=sizeDp>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
 
                     <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
                 </Row>
             </Center>
@@ -464,7 +463,7 @@ class FlexTest : LayoutTest() {
             childSize[1]
         )
         assertEquals(
-            PxPosition(0.px, ((root.height.px + (2 * sizeDp.toPx())
+            PxPosition(0.px, ((root.height.px + (sizeDp.toPx() * 2)
                 .round().toPx()) / 2 - size.toPx()).round().toPx()),
             childPosition[0]
         )
@@ -486,19 +485,19 @@ class FlexTest : LayoutTest() {
             <Center>
                 <Row crossAxisAlignment=CrossAxisAlignment.Stretch>
                     <Container width=sizeDp height=sizeDp>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
 
                     <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
                 </Row>
             </Center>
@@ -529,19 +528,19 @@ class FlexTest : LayoutTest() {
             <Center>
                 <Column crossAxisAlignment=CrossAxisAlignment.Start>
                     <Container width=sizeDp height=sizeDp>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
 
                     <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
                 </Column>
             </Center>
@@ -578,19 +577,19 @@ class FlexTest : LayoutTest() {
             <Center>
                 <Column crossAxisAlignment=CrossAxisAlignment.End>
                     <Container width=sizeDp height=sizeDp>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
 
                     <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
                 </Column>
             </Center>
@@ -607,7 +606,7 @@ class FlexTest : LayoutTest() {
         )
         assertEquals(
             PxPosition(
-                (((root.width.px + (2 * sizeDp.toPx())
+                (((root.width.px + (sizeDp.toPx() * 2)
                     .round().toPx()) / 2).round() - size).toPx(),
                 0.px
             ),
@@ -631,19 +630,19 @@ class FlexTest : LayoutTest() {
             <Center>
                 <Column crossAxisAlignment=CrossAxisAlignment.Stretch>
                     <Container width=sizeDp height=sizeDp>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
 
                     <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Container>
                 </Column>
             </Center>
@@ -675,10 +674,10 @@ class FlexTest : LayoutTest() {
                     <Container width=sizeDp height=sizeDp/>
                     <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
 
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         rowSize = coordinates.size
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Row>
             </Center>
         }
@@ -706,10 +705,10 @@ class FlexTest : LayoutTest() {
                     <Container width=sizeDp height=sizeDp/>
                     <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
 
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         rowSize = coordinates.size
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Row>
             </Center>
         }
@@ -741,10 +740,10 @@ class FlexTest : LayoutTest() {
                         <Container width=sizeDp height=sizeDp/>
                         <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
 
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             rowSize = coordinates.size
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Row>
                 </ConstrainedBox>
             </Center>
@@ -777,17 +776,17 @@ class FlexTest : LayoutTest() {
                     <FlexRow mainAxisSize=MainAxisSize.Min>
                         expanded(flex=1f) {
                             <Container width=sizeDp height=sizeDp>
-                                <OnPositioned> coordinates ->
+                                <OnPositioned onPositioned={ coordinates ->
                                     expandedChildSize = coordinates.size
                                     drawLatch.countDown()
-                                </OnPositioned>
+                                } />
                             </Container>
                         }
                         inflexible {
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 rowSize = coordinates.size
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         }
                     </FlexRow>
                 </ConstrainedBox>
@@ -821,10 +820,10 @@ class FlexTest : LayoutTest() {
                     <Container width=sizeDp height=sizeDp/>
                     <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
 
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         columnSize = coordinates.size
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Column>
             </Center>
         }
@@ -852,10 +851,10 @@ class FlexTest : LayoutTest() {
                     <Container width=sizeDp height=sizeDp/>
                     <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
 
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         columnSize = coordinates.size
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Column>
             </Center>
         }
@@ -887,17 +886,17 @@ class FlexTest : LayoutTest() {
                     <FlexColumn mainAxisSize=MainAxisSize.Min>
                         expanded(flex=1f) {
                             <Container width=sizeDp height=sizeDp>
-                                <OnPositioned> coordinates ->
+                                <OnPositioned onPositioned={ coordinates ->
                                     expandedChildSize = coordinates.size
                                     drawLatch.countDown()
-                                </OnPositioned>
+                                } />
                             </Container>
                         }
                         inflexible {
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 columnSize = coordinates.size
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         }
                     </FlexColumn>
                 </ConstrainedBox>
@@ -935,10 +934,10 @@ class FlexTest : LayoutTest() {
                         <Container width=sizeDp height=sizeDp/>
                         <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
 
-                        <OnPositioned> coordinates ->
+                        <OnPositioned onPositioned={ coordinates ->
                             columnSize = coordinates.size
                             drawLatch.countDown()
-                        </OnPositioned>
+                        } />
                     </Column>
                 </ConstrainedBox>
             </Center>
@@ -970,19 +969,19 @@ class FlexTest : LayoutTest() {
                     // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
                         <Container width=sizeDp height=sizeDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Row>
             </Center>
         }
@@ -1012,19 +1011,19 @@ class FlexTest : LayoutTest() {
                 // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
                         <Container width=sizeDp height=sizeDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Row>
             </Center>
         }
@@ -1054,19 +1053,19 @@ class FlexTest : LayoutTest() {
                 // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
                         <Container width=sizeDp height=sizeDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Row>
             </Center>
         }
@@ -1075,7 +1074,7 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val extraSpace = root.width.px.round() - 3 * size
+        val extraSpace = root.width.px.round() - size * 3
         assertEquals(PxPosition((extraSpace / 2).toPx(), 0.px), childPosition[0])
         assertEquals(PxPosition((extraSpace / 2).toPx() + size.toPx(), 0.px), childPosition[1])
         assertEquals(PxPosition((extraSpace / 2).toPx() + size.toPx() * 2, 0.px), childPosition[2])
@@ -1097,19 +1096,19 @@ class FlexTest : LayoutTest() {
                 // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
                         <Container width=sizeDp height=sizeDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Row>
             </Center>
         }
@@ -1118,7 +1117,7 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val gap = (root.width.px.round() - 3 * size) / 4
+        val gap = (root.width.px.round() - size * 3) / 4
         assertEquals(PxPosition(gap.toPx(), 0.px), childPosition[0])
         assertEquals(PxPosition(size.toPx() + gap.toPx() * 2, 0.px), childPosition[1])
         assertEquals(PxPosition(size.toPx() * 2 + gap.toPx() * 3, 0.px), childPosition[2])
@@ -1140,19 +1139,19 @@ class FlexTest : LayoutTest() {
                 // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
                         <Container width=sizeDp height=sizeDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Row>
             </Center>
         }
@@ -1161,7 +1160,7 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val gap = (root.width.px.round() - 3 * size) / 2
+        val gap = (root.width.px.round() - size * 3) / 2
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
         assertEquals(PxPosition(gap.toPx() + size.toPx(), 0.px), childPosition[1])
         assertEquals(PxPosition(gap.toPx() * 2 + size.toPx() * 2, 0.px), childPosition[2])
@@ -1183,19 +1182,19 @@ class FlexTest : LayoutTest() {
                 // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
                         <Container width=sizeDp height=sizeDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Row>
             </Center>
         }
@@ -1204,7 +1203,7 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val gap = (root.width.px.round() - 3 * size) / 3
+        val gap = (root.width.px.round() - size * 3) / 3
         assertEquals(PxPosition((gap / 2).toPx(), 0.px), childPosition[0])
         assertEquals(PxPosition((gap * 3 / 2).toPx() + size.toPx(), 0.px), childPosition[1])
         assertEquals(PxPosition((gap * 5 / 2).toPx() + size.toPx() * 2, 0.px), childPosition[2])
@@ -1226,19 +1225,19 @@ class FlexTest : LayoutTest() {
                 // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
                         <Container width=sizeDp height=sizeDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Column>
             </Center>
         }
@@ -1268,19 +1267,19 @@ class FlexTest : LayoutTest() {
                 // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
                         <Container width=sizeDp height=sizeDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Column>
             </Center>
         }
@@ -1310,19 +1309,19 @@ class FlexTest : LayoutTest() {
                 // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
                         <Container width=sizeDp height=sizeDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Column>
             </Center>
         }
@@ -1331,7 +1330,7 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val extraSpace = root.height.px.round() - 3 * size
+        val extraSpace = root.height.px.round() - size * 3
         assertEquals(PxPosition(0.px, (extraSpace / 2).toPx()), childPosition[0])
         assertEquals(PxPosition(0.px, (extraSpace / 2).toPx() + size.toPx()), childPosition[1])
         assertEquals(PxPosition(0.px, (extraSpace / 2).toPx() + size.toPx() * 2), childPosition[2])
@@ -1353,19 +1352,19 @@ class FlexTest : LayoutTest() {
                 // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
                         <Container width=sizeDp height=sizeDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Column>
             </Center>
         }
@@ -1374,7 +1373,7 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val gap = (root.height.px.round() - 3 * size) / 4
+        val gap = (root.height.px.round() - size * 3) / 4
         assertEquals(PxPosition(0.px, gap.toPx()), childPosition[0])
         assertEquals(PxPosition(0.px, size.toPx() + gap.toPx() * 2), childPosition[1])
         assertEquals(PxPosition(0.px, size.toPx() * 2 + gap.toPx() * 3), childPosition[2])
@@ -1396,19 +1395,19 @@ class FlexTest : LayoutTest() {
                 // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
                         <Container width=sizeDp height=sizeDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Column>
             </Center>
         }
@@ -1417,7 +1416,7 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val gap = (root.height.px.round() - 3 * size) / 2
+        val gap = (root.height.px.round() - size * 3) / 2
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
         assertEquals(PxPosition(0.px, gap.toPx() + size.toPx()), childPosition[1])
         assertEquals(PxPosition(0.px, gap.toPx() * 2 + size.toPx() * 2), childPosition[2])
@@ -1439,19 +1438,19 @@ class FlexTest : LayoutTest() {
                 // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
                         <Container width=sizeDp height=sizeDp>
-                            <OnPositioned> coordinates ->
+                            <OnPositioned onPositioned={ coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            </OnPositioned>
+                            } />
                         </Container>
                     }
-                    <OnPositioned> coordinates ->
+                    <OnPositioned onPositioned={ coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    </OnPositioned>
+                    } />
                 </Column>
             </Center>
         }
@@ -1460,7 +1459,7 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val gap = (root.height.px.round() - 3 * size) / 3
+        val gap = (root.height.px.round() - size * 3) / 3
         assertEquals(PxPosition(0.px, (gap / 2).toPx()), childPosition[0])
         assertEquals(PxPosition(0.px, (gap * 3 / 2).toPx() + size.toPx()), childPosition[1])
         assertEquals(PxPosition(0.px, (gap * 5 / 2).toPx() + size.toPx() * 2), childPosition[2])

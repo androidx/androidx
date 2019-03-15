@@ -15,6 +15,7 @@
  */
 package androidx.ui.test
 
+import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.semantics.SemanticsProperties
 
@@ -22,4 +23,5 @@ class SemanticsTreeNodeStub(override val data: SemanticsProperties) : SemanticsT
     override val parent: SemanticsTreeNode?
         get() = null
     override val children: Set<SemanticsTreeNode> = setOf()
+    override val globalPosition: PxPosition? = null
 }

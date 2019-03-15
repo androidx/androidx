@@ -90,7 +90,8 @@ package androidx.ui.core {
 
   public final class LayoutKt {
     ctor public LayoutKt();
-    method public static void OnPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> callback);
+    method public static void OnChildPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void OnPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned);
   }
 
   public final class MeasureBox extends com.google.r4a.Component {
