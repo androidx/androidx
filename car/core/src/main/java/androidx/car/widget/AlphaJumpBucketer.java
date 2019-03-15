@@ -24,6 +24,9 @@ import java.util.function.Predicate;
 
 /**
  * A helper class for building the list of buckets for alpha jump.
+ *
+ * <p>Alpha-Jump buckets only support characters from the {@code en} language. Characters from other
+ *  languages are not supported and bucketing behavior is undefined.
  */
 public class AlphaJumpBucketer {
     private static final Character[] DEFAULT_INITIAL_CHARS = {
@@ -40,7 +43,7 @@ public class AlphaJumpBucketer {
             if (ch == '0') {
                 mBuckets.add(new Bucket("123", (String s) -> s.matches("^[0-9]")));
             } else {
-                String prefix = new String(new char[] {ch});
+                String prefix = new String(new char[]{ch});
                 mBuckets.add(new Bucket(prefix, (String s) -> s.startsWith(prefix.toLowerCase())));
             }
         }
@@ -60,7 +63,7 @@ public class AlphaJumpBucketer {
     /**
      * Creates a list of {@link AlphaJumpBucket}s from the given iterable collection
      * of strings.
-    */
+     */
     public List<AlphaJumpBucket> createBuckets(Iterable<String> values) {
         return createBuckets(values.iterator());
     }
@@ -91,7 +94,7 @@ public class AlphaJumpBucketer {
      *
      * @param s The string to pre-process.
      * @return The input string with whitespace trimmed, and also words like "the", "a" and so on
-     *    removed.
+     * removed.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static String preprocess(String s) {

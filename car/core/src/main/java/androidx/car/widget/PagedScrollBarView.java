@@ -55,6 +55,10 @@ public class PagedScrollBarView extends ViewGroup {
          * Called when the 'alpha jump' button is clicked and the linked view should switch into
          * alpha jump mode, where we display a list of buttons to allow the user to quickly scroll
          * to a certain point in the list, bypassing a lot of manual scrolling.
+         *
+         * <p>AlphaJump buckets only support characters from the {@code en} language. Characters
+         * from other languages not supported and bucketing behavior is undefined. AlphaJump overlay
+         * is still displayed if all buckets are empty.
          */
         void onAlphaJump();
     }
