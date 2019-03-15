@@ -45,14 +45,12 @@ dependencies {
         implementation(ARCH_ROOM_RUNTIME)
     }
 
-    implementation(CONSTRAINT_LAYOUT)
+    implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation project(':work:work-runtime-ktx')
     implementation(ARCH_CORE_RUNTIME)
     implementation(ARCH_LIFECYCLE_EXTENSIONS)
     implementation(ANDROIDX_RECYCLERVIEW)
-    implementation(SUPPORT_APPCOMPAT)
-    // SUPPORT_DESIGN has a @aar. So it needs { transitive = true }
-    implementation(SUPPORT_DESIGN) { transitive = true }
+    implementation(MATERIAL)
 }
 
 tasks['check'].dependsOn(tasks['connectedCheck'])
