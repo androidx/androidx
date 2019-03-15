@@ -38,7 +38,7 @@ android {
 
 dependencies {
     api(project(":navigation:navigation-common"))
-    implementation(NAV_SUPPORT_COLLECTIONS)
+    implementation(ANDROIDX_COLLECTION)
 
     api(KOTLIN_STDLIB)
     testImplementation(JUNIT)
