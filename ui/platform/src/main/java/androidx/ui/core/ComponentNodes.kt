@@ -437,7 +437,7 @@ class SemanticsR4ANode(
      * [SemanticsNode] introduced by this configuration is controlled by
      * [explicitChildNodes].
      */
-    val container: Boolean = false,
+    var container: Boolean = false,
     /**
      * Whether descendants of this widget are allowed to add semantic information
      * to the [SemanticsNode] annotated by this widget.
@@ -456,12 +456,12 @@ class SemanticsR4ANode(
      * This setting is often used in combination with [SemanticsConfiguration.isSemanticBoundary]
      * to create semantic boundaries that are either writable or not for children.
      */
-    val explicitChildNodes: Boolean = false,
+    var explicitChildNodes: Boolean = false,
     /**
      * Contains properties used by assistive technologies to make the application
      * more accessible.
      */
-    val properties: SemanticsProperties
+    var properties: SemanticsProperties
 ) : SingleChildComponentNode()
 
 /**

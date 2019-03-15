@@ -139,6 +139,9 @@ package androidx.ui.core {
     method public boolean getContainer();
     method public boolean getExplicitChildNodes();
     method public androidx.ui.core.semantics.SemanticsProperties getProperties();
+    method public void setContainer(boolean p);
+    method public void setExplicitChildNodes(boolean p);
+    method public void setProperties(androidx.ui.core.semantics.SemanticsProperties p);
   }
 
   public final class SemanticsTreeNodeImpl implements androidx.ui.core.SemanticsTreeNode {
