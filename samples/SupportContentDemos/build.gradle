@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.SUPPORT_DESIGN
+import static androidx.build.dependencies.DependenciesKt.MATERIAL
 
 plugins {
     id("AndroidXPlugin")
@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    implementation(SUPPORT_DESIGN, libs.exclude_for_material)
+    implementation(MATERIAL)
     implementation(project(":transition"))
     implementation(project(":recyclerview"))
     implementation(project(":appcompat"))
