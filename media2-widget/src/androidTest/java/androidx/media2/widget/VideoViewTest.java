@@ -24,7 +24,7 @@ import static androidx.media2.widget.MediaControlView.EVENT_UPDATE_SUBTITLE_DESE
 import static androidx.media2.widget.MediaControlView.EVENT_UPDATE_SUBTITLE_SELECTED;
 import static androidx.media2.widget.MediaControlView.EVENT_UPDATE_TRACK_STATUS;
 import static androidx.media2.widget.MediaControlView.KEY_SELECTED_SUBTITLE_INDEX;
-import static androidx.media2.widget.MediaControlView.KEY_SUBTITLE_TRACK_COUNT;
+import static androidx.media2.widget.MediaControlView.KEY_SUBTITLE_TRACK_LANGUAGE_LIST;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -74,6 +74,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -287,7 +288,7 @@ public class VideoViewTest {
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
                 any(MediaController.class),
                 argThat(new CommandMatcher(EVENT_UPDATE_TRACK_STATUS)),
-                argThat(new CommandArgumentMatcher(KEY_SUBTITLE_TRACK_COUNT, 2)));
+                argThat(new CommandArgumentListMatcher(KEY_SUBTITLE_TRACK_LANGUAGE_LIST, 2)));
 
         // Select the first subtitle track
         Bundle extra = new Bundle();
@@ -342,6 +343,23 @@ public class VideoViewTest {
         @Override
         public boolean matches(Bundle argument) {
             return argument.getInt(mKey, -1) == mExpectedValue;
+        }
+    }
+
+    class CommandArgumentListMatcher implements ArgumentMatcher<Bundle> {
+        final String mKey;
+        final int mExpectedSize;
+
+        CommandArgumentListMatcher(String key, int expectedSize) {
+            mKey = key;
+            mExpectedSize = expectedSize;
+        }
+
+        @Override
+        public boolean matches(Bundle argument) {
+            List<String> list = argument.getStringArrayList(mKey);
+            return (list == null && mExpectedSize == 0)
+                    || (list != null && list.size() == mExpectedSize);
         }
     }
 

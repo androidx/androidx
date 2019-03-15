@@ -105,7 +105,6 @@ import java.util.concurrent.Executor;
  * assign the custom media control widget using {@link #setMediaControlView}.
  * <li> {@link VideoView} is integrated with {@link androidx.media2.MediaSession} and so
  * it responses with media key events.
- * </p>
  * </ul>
  *
  * <p>
@@ -324,10 +323,10 @@ public class VideoView extends SelectiveLayout {
 
     public VideoView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initialize(context, attrs, defStyleAttr);
+        initialize(context, attrs);
     }
 
-    private void initialize(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    private void initialize(Context context, @Nullable AttributeSet attrs) {
         mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
 
         mAudioAttributes = new AudioAttributesCompat.Builder()
@@ -558,6 +557,7 @@ public class VideoView extends SelectiveLayout {
         try {
             mMediaPlayer.close();
         } catch (Exception e) {
+            Log.e(TAG, "Encountered an exception while performing MediaPlayer.close()", e);
         }
         mMediaSession.close();
         mMediaPlayer = null;
@@ -788,7 +788,6 @@ public class VideoView extends SelectiveLayout {
         Bundle data = new Bundle();
         data.putInt(MediaControlView.KEY_VIDEO_TRACK_COUNT, mVideoTrackIndices.size());
         data.putInt(MediaControlView.KEY_AUDIO_TRACK_COUNT, mAudioTrackIndices.size());
-        data.putInt(MediaControlView.KEY_SUBTITLE_TRACK_COUNT, mSubtitleTracks.size());
         data.putStringArrayList(MediaControlView.KEY_SUBTITLE_TRACK_LANGUAGE_LIST,
                 subtitleTracksLanguageList);
         return data;
@@ -811,7 +810,7 @@ public class VideoView extends SelectiveLayout {
             new MediaPlayer.PlayerCallback() {
                 @Override
                 public void onVideoSizeChanged(
-                        MediaPlayer mp, MediaItem dsd, VideoSize size) {
+                        @NonNull MediaPlayer mp, @NonNull MediaItem dsd, @NonNull VideoSize size) {
                     if (DEBUG) {
                         Log.d(TAG, "onVideoSizeChanged(): size: " + size.getWidth() + "/"
                                 + size.getHeight());
@@ -835,7 +834,7 @@ public class VideoView extends SelectiveLayout {
 
                 @Override
                 public void onInfo(
-                        MediaPlayer mp, MediaItem dsd, int what, int extra) {
+                        @NonNull MediaPlayer mp, @NonNull MediaItem dsd, int what, int extra) {
                     if (DEBUG) {
                         Log.d(TAG, "onInfo()");
                     }
@@ -863,7 +862,8 @@ public class VideoView extends SelectiveLayout {
 
                 @Override
                 public void onError(
-                        MediaPlayer mp, MediaItem dsd, int frameworkErr, int implErr) {
+                        @NonNull MediaPlayer mp, @NonNull MediaItem dsd, int frameworkErr,
+                        int implErr) {
                     if (DEBUG) {
                         Log.d(TAG, "Error: " + frameworkErr + "," + implErr);
                     }
@@ -887,7 +887,8 @@ public class VideoView extends SelectiveLayout {
 
                 @Override
                 public void onSubtitleData(
-                        MediaPlayer mp, MediaItem dsd, SubtitleData data) {
+                        @NonNull MediaPlayer mp, @NonNull MediaItem dsd,
+                        @NonNull SubtitleData data) {
                     if (DEBUG) {
                         Log.d(TAG, "onSubtitleData(): getTrackIndex: " + data.getTrackIndex()
                                 + ", getCurrentPosition: " + mp.getCurrentPosition()
@@ -941,7 +942,7 @@ public class VideoView extends SelectiveLayout {
                 }
 
                 @Override
-                public void onPlaybackCompleted(SessionPlayer player) {
+                public void onPlaybackCompleted(@NonNull SessionPlayer player) {
                     if (player != mMediaPlayer) {
                         Log.d(TAG, "onPlaybackCompleted() is ignored. player is already gone.");
                     }
@@ -1043,6 +1044,7 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
+        @NonNull
         public SessionResult onCustomCommand(@NonNull MediaSession session,
                 @NonNull MediaSession.ControllerInfo controller,
                 @NonNull SessionCommand customCommand, @Nullable Bundle args) {
