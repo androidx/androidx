@@ -254,9 +254,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * listener is responsible for calling {@link Image#close()} on the returned image.
      *
      * @param listener for the newly captured image
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public void takePicture(final OnImageCapturedListener listener) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             mMainHandler.post(
@@ -845,10 +843,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
 
     /**
      * Listener called when an image capture has completed.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public abstract static class OnImageCapturedListener {
         /**
          * Callback for when the image has been captured.
