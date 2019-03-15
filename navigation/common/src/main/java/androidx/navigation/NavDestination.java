@@ -478,14 +478,14 @@ public class NavDestination {
      */
     @Nullable
     Bundle addInDefaultArgs(@Nullable Bundle args) {
+        if (args == null && (mArguments == null || mArguments.isEmpty())) {
+            return null;
+        }
         Bundle defaultArgs = new Bundle();
         if (mArguments != null) {
             for (Map.Entry<String, NavArgument> argument : mArguments.entrySet()) {
                 argument.getValue().putDefaultValue(argument.getKey(), defaultArgs);
             }
-        }
-        if (args == null && defaultArgs.isEmpty()) {
-            return null;
         }
         if (args != null) {
             defaultArgs.putAll(args);
