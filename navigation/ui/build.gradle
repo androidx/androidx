@@ -36,7 +36,7 @@ android {
 
 dependencies {
     api(project(":navigation:navigation-runtime"))
-    api(NAV_SUPPORT_DESIGN)
+    api(MATERIAL)
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
