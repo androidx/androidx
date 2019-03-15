@@ -280,6 +280,7 @@ includeProject(":camera:integration-tests:camera-testapp-core", "camera/integrat
 includeProject(":camera:integration-tests:camera-testapp-extensions", "camera/integration-tests/extensionstestapp")
 includeProject(":camera:integration-tests:camera-testapp-view", "camera/integration-tests/viewtestapp")
 includeProject(":camera:integration-tests:camera-testapp-timing", "camera/integration-tests/timingtestapp")
+includeProject(":camera:integration-tests:camera-testlib-extensions", "camera/integration-tests/extensionstestlib")
 
 ///// CAMERA END
 
