@@ -21,7 +21,6 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.util.Log;
-import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -30,7 +29,6 @@ import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CaptureBundle;
 import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.ImageCaptureUseCaseConfiguration;
-import androidx.camera.core.ImageProxyBundle;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -115,7 +113,7 @@ public abstract class ImageCaptureUseCaseExtender {
      * Sets necessary {@link CaptureStage} lists for the extension effect mode.
      *
      * <p>Sets one or more {@link CaptureStage} objects that depends on the requirement for the
-     * feature. If more than one {@link CaptureStage} is set, then, {@link CaptureProcessor} must
+     * feature. If more than one {@link CaptureStage} is set, then the processing step must
      * be set to process the multiple results into one final result.
      *
      * @param captureStages The necessary {@link CaptureStage} lists.
@@ -135,16 +133,14 @@ public abstract class ImageCaptureUseCaseExtender {
     }
 
     /**
-     * Sets {@link CaptureProcessor} if post processing is needed for the extension effect mode.
+     * Sets the post processing step needed for the extension effect mode.
      *
      * <p>If there is more than one {@link CaptureStage} set by {@link #setCaptureStages(List)},
-     * {@link CaptureProcessor} must be set. Otherwise, this will be optional that depends on post
-     * processing requirement. If {@link CaptureProcessor} is set, YUV format data will be
-     * retrieved when {@link CaptureProcessor#process(ImageProxyBundle)} gets called. The
-     * processed result should be passed to {@link CaptureProcessor#onOutputSurface(Surface, int)}.
+     * then this must be set. Otherwise, this will be optional that depends on post
+     * processing requirement. The post processing will receive YUV_420_888 formatted image data.
+     * The post processing should also write out YUV_420_888 image data.
      *
-     * @param captureProcessor The implemented {@link CaptureProcessor} object to do post
-     *                         processing.
+     * @param captureProcessor The post processing implementation
      */
     protected void setCaptureProcessor(@NonNull CaptureProcessor captureProcessor) {
         mBuilder.setCaptureProcessor(captureProcessor);
