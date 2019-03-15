@@ -300,6 +300,22 @@ class BenchmarkState internal constructor() {
 
     private fun count(): Long = maxIterations.toLong()
 
+    internal data class Report(
+        val nanos: Long,
+        val data: List<Long>,
+        val repeatIterations: Int,
+        val warmupIterations: Int
+    )
+
+    internal fun getReport(): Report {
+        return Report(
+            nanos = min(),
+            data = results,
+            repeatIterations = maxIterations,
+            warmupIterations = warmupIteration
+        )
+    }
+
     private fun summaryLine() = "Summary: " +
             "median=${median()}ns, " +
             "mean=${mean()}ns, " +
