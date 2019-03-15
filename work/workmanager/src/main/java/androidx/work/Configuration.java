@@ -210,12 +210,18 @@ public final class Configuration {
         /**
          * Specifies the maximum number of system requests made by {@link WorkManager}
          * when using {@link android.app.job.JobScheduler} or {@link android.app.AlarmManager}.
-         * When the application exceeds this limit, {@link WorkManager} maintains an internal queue
-         * of {@link WorkRequest}s, and schedules them when slots become free.
          * <p>
-         * {@link WorkManager} requires a minimum of {@link Configuration#MIN_SCHEDULER_LIMIT}
-         * slots; this is also the default value. The total number of slots also cannot exceed
-         * {@code 50}.
+         * By default, WorkManager might schedule a large number of alarms or JobScheduler
+         * jobs.  If your app uses JobScheduler or AlarmManager directly, this might exhaust the
+         * OS-enforced limit on the number of jobs or alarms an app is allowed to schedule.  To help
+         * manage this situation, you can use this method to reduce the number of underlying jobs
+         * and alarms that WorkManager might schedule.
+         * <p>
+         * When the application exceeds this limit, WorkManager maintains an internal queue of
+         * {@link WorkRequest}s, and schedules them when slots become free.
+         * <p>
+         * WorkManager requires a minimum of {@link Configuration#MIN_SCHEDULER_LIMIT} slots; this
+         * is also the default value. The total number of slots also cannot exceed {@code 50}.
          *
          * @param maxSchedulerLimit The total number of jobs which can be enqueued by
          *                          {@link WorkManager} when using
