@@ -24,13 +24,16 @@ class SemanticsTreeQuery internal constructor(
     private val selector: (SemanticsTreeNode) -> Boolean
 ) {
 
-    private var cachedNodes: List<SemanticsTreeNode>? = null
+// TODO(pavlis): Caching needs to be done only between operations that do not mutate the  tree.
+// Disabling it for now.
+//    private var cachedNodes: List<SemanticsTreeNode>? = null
 
     internal fun findAllMatching(): List<SemanticsTreeNode> {
-        if (cachedNodes == null) {
-            cachedNodes = uiTestRunner.findSemantics(selector)
-        }
-        return cachedNodes!!
+//        if (cachedNodes == null) {
+//            cachedNodes = uiTestRunner.findSemantics(selector)
+//        }
+//        return cachedNodes!!
+        return uiTestRunner.findSemantics(selector)
     }
 
     internal fun sendEvent(event: MotionEvent) {
