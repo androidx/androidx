@@ -96,6 +96,7 @@ public final class CameraX {
     private CameraFactory mCameraFactory;
     private CameraDeviceSurfaceManager mSurfaceManager;
     private UseCaseConfigurationFactory mDefaultConfigFactory;
+    private Context mContext;
     /** Prevents construction. */
     private CameraX() {
     }
@@ -327,6 +328,16 @@ public final class CameraX {
     }
 
     /**
+     * Returns the context used for CameraX.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static Context getContext() {
+        return INSTANCE.mContext;
+    }
+
+    /**
      * Returns true if CameraX is initialized.
      *
      * <p>Any previous call to {@link #init(Context, AppConfiguration)} would have initialized
@@ -467,12 +478,12 @@ public final class CameraX {
         return mDefaultConfigFactory;
     }
 
-    @SuppressWarnings("unused") // Context will be used in a future change
     private void initInternal(Context context, AppConfiguration appConfiguration) {
         if (mInitialized.getAndSet(true)) {
             return;
         }
 
+        mContext = context.getApplicationContext();
         mCameraFactory = appConfiguration.getCameraFactory(null);
         if (mCameraFactory == null) {
             throw new IllegalStateException(

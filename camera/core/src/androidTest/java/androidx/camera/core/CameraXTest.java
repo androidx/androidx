@@ -250,6 +250,12 @@ public final class CameraXTest {
         assertThat(cameraInfo).isNotNull();
     }
 
+    @Test
+    public void canGetCameraXContext() {
+        Context context = CameraX.getContext();
+        assertThat(context).isNotNull();
+    }
+
     private static class CountingErrorListener implements ErrorListener {
         CountDownLatch mLatch;
         AtomicInteger mCount = new AtomicInteger(0);

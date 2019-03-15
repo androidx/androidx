@@ -281,8 +281,12 @@ public final class Camera2Configuration implements Configuration.Reader {
      * <p>Use {@link Builder} for creating {@link Configuration} which contains camera2 options
      * only. And use {@link Extender} to add Camera2 options on existing other {@link
      * Configuration.Builder}.
+     *
+     * @hide
      */
-    static final class Builder implements Configuration.Builder<Camera2Configuration, Builder> {
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final class Builder implements
+            Configuration.Builder<Camera2Configuration, Builder> {
 
         private final MutableOptionsBundle mMutableOptionsBundle = MutableOptionsBundle.create();
 
@@ -296,6 +300,9 @@ public final class Camera2Configuration implements Configuration.Reader {
             return this;
         }
 
+        /**
+         * Inserts new capture request option with specific {@link CaptureRequest.Key} setting.
+         */
         public <ValueT> Builder setCaptureRequestOption(
                 CaptureRequest.Key<ValueT> key, ValueT value) {
             Option<Object> opt = Camera2Configuration.createCaptureRequestOption(key);
@@ -303,6 +310,7 @@ public final class Camera2Configuration implements Configuration.Reader {
             return this;
         }
 
+        /** Inserts options from other {@link Configuration} object. */
         public Builder insertAllOptions(Configuration configuration) {
             for (Option<?> option : configuration.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
