@@ -374,23 +374,6 @@ public class VideoCaptureUseCase extends BaseUseCase {
     public void clear() {
         mVideoHandlerThread.quitSafely();
 
-        mDeferrableSurface.setOnSurfaceDetachedListener(
-                MainThreadExecutor.getInstance(),
-                new DeferrableSurface.OnSurfaceDetachedListener() {
-                    @Override
-                    public void onSurfaceDetached() {
-                        if (mVideoEncoder != null) {
-                            mVideoEncoder.release();
-                            mVideoEncoder = null;
-                        }
-
-                        if (mCameraSurface != null) {
-                            mCameraSurface.release();
-                            mCameraSurface = null;
-                        }
-                    }
-                });
-
         // audio encoder release
         mAudioHandlerThread.quitSafely();
         if (mAudioEncoder != null) {
@@ -449,6 +432,24 @@ public class VideoCaptureUseCase extends BaseUseCase {
                 SessionConfiguration.Builder.createFrom(configuration);
 
         mDeferrableSurface = new ImmediateSurface(mCameraSurface);
+        final MediaCodec videoEncoder = mVideoEncoder;
+        final Surface cameraSurface = mCameraSurface;
+        mDeferrableSurface.setOnSurfaceDetachedListener(
+                MainThreadExecutor.getInstance(),
+                new DeferrableSurface.OnSurfaceDetachedListener() {
+                    @Override
+                    public void onSurfaceDetached() {
+                        videoEncoder.release();
+                        if (videoEncoder == mVideoEncoder) {
+                            mVideoEncoder = null;
+                        }
+
+                        cameraSurface.release();
+                        if (cameraSurface == mCameraSurface) {
+                            mCameraSurface = null;
+                        }
+                    }
+                });
 
         builder.addSurface(mDeferrableSurface);
 
