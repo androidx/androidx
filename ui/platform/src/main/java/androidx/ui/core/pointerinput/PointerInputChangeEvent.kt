@@ -19,11 +19,13 @@ package androidx.ui.core.pointerinput
 import androidx.ui.core.Timestamp
 import androidx.ui.core.PointerInputChange
 
+// TODO(shepshapard): Probably does't need Timestamp but going to wait to refactor it out till after
+// things like API review to avoid thrashing.
 /**
  * Describes a set of pointers and the change that has occurred between each pointer since the last
  * PointerChangeEvent, if any.
  */
 internal data class PointerInputChangeEvent(
-    val timeStamp: Timestamp,
+    val timestamp: Timestamp,
     val changes: List<PointerInputChange>
 )

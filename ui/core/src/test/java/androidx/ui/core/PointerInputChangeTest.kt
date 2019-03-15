@@ -462,8 +462,16 @@ class PointerInputChangeTest {
     ): PointerInputChange {
         return PointerInputChange(
             0,
-            PointerInputData(Offset(currentX, currentY), currentDown),
-            PointerInputData(Offset(previousX, previousY), previousDown),
+            PointerInputData(
+                100L.millisecondsToTimestamp(),
+                Offset(currentX, currentY),
+                currentDown
+            ),
+            PointerInputData(
+                0L.millisecondsToTimestamp(),
+                Offset(previousX, previousY),
+                previousDown
+            ),
             ConsumedData(Offset(consumedX, consumedY), consumedDown)
         )
     }

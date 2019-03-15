@@ -39,9 +39,9 @@ class MotionEventAdapterTest {
             arrayOf(PointerCoords(2967f, 5928f))
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(1))
         assertPointerInputEventData(pointers[0], 8290, true, 2967f, 5928f)
     }
@@ -58,10 +58,10 @@ class MotionEventAdapterTest {
         )
 
         val actual = motionEvent.toPointerInputEvent()
-        val timeStamp = actual.timeStamp
+        val timestamp = actual.timestamp
         val pointers = actual.pointers
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(1))
         assertPointerInputEventData(pointers[0], 8290, true, 2967f, 5928f)
     }
@@ -77,9 +77,9 @@ class MotionEventAdapterTest {
             arrayOf(PointerCoords(2967f, 5928f))
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(1))
         assertPointerInputEventData(pointers[0], 8290, true, 2967f, 5928f)
     }
@@ -95,9 +95,9 @@ class MotionEventAdapterTest {
             arrayOf(PointerCoords(2967f, 5928f))
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(1))
         assertPointerInputEventData(pointers[0], 8290, false, 2967f, 5928f)
     }
@@ -119,9 +119,9 @@ class MotionEventAdapterTest {
             )
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(2))
         assertPointerInputEventData(pointers[0], 8290, true, 2967f, 5928f)
         assertPointerInputEventData(pointers[1], 1516, true, 1942f, 6729f)
@@ -144,9 +144,9 @@ class MotionEventAdapterTest {
             )
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(2))
         assertPointerInputEventData(pointers[0], 8290, true, 2967f, 5928f)
         assertPointerInputEventData(pointers[1], 1516, true, 1942f, 6729f)
@@ -171,9 +171,9 @@ class MotionEventAdapterTest {
             )
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(3))
         assertPointerInputEventData(pointers[0], 8290, true, 2967f, 5928f)
         assertPointerInputEventData(pointers[1], 1516, true, 1942f, 6729f)
@@ -199,9 +199,9 @@ class MotionEventAdapterTest {
             )
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(3))
         assertPointerInputEventData(pointers[0], 8290, true, 2967f, 5928f)
         assertPointerInputEventData(pointers[1], 1516, true, 1942f, 6729f)
@@ -227,9 +227,9 @@ class MotionEventAdapterTest {
             )
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(3))
         assertPointerInputEventData(pointers[0], 8290, true, 2967f, 5928f)
         assertPointerInputEventData(pointers[1], 1516, true, 1942f, 6729f)
@@ -253,9 +253,9 @@ class MotionEventAdapterTest {
             )
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(2))
         assertPointerInputEventData(pointers[0], 8290, true, 2967f, 5928f)
         assertPointerInputEventData(pointers[1], 1516, true, 1942f, 6729f)
@@ -279,9 +279,9 @@ class MotionEventAdapterTest {
             )
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(2))
         assertPointerInputEventData(pointers[0], 8290, false, 2967f, 5928f)
         assertPointerInputEventData(pointers[1], 1516, true, 1942f, 6729f)
@@ -304,9 +304,9 @@ class MotionEventAdapterTest {
             )
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(2))
         assertPointerInputEventData(pointers[0], 8290, true, 2967f, 5928f)
         assertPointerInputEventData(pointers[1], 1516, false, 1942f, 6729f)
@@ -331,9 +331,9 @@ class MotionEventAdapterTest {
             )
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(3))
         assertPointerInputEventData(pointers[0], 8290, false, 2967f, 5928f)
         assertPointerInputEventData(pointers[1], 1516, true, 1942f, 6729f)
@@ -359,9 +359,9 @@ class MotionEventAdapterTest {
             )
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(3))
         assertPointerInputEventData(pointers[0], 8290, true, 2967f, 5928f)
         assertPointerInputEventData(pointers[1], 1516, false, 1942f, 6729f)
@@ -387,9 +387,9 @@ class MotionEventAdapterTest {
             )
         )
 
-        val (timeStamp, pointers) = motionEvent.toPointerInputEvent()
+        val (timestamp, pointers) = motionEvent.toPointerInputEvent()
 
-        assertThat(timeStamp.nanoseconds, `is`(2_894_000_000L))
+        assertThat(timestamp.nanoseconds, `is`(2_894_000_000L))
         assertThat(pointers.size, `is`(3))
         assertPointerInputEventData(pointers[0], 8290, true, 2967f, 5928f)
         assertPointerInputEventData(pointers[1], 1516, true, 1942f, 6729f)

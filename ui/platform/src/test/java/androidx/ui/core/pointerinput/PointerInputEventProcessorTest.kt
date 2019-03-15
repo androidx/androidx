@@ -31,6 +31,7 @@ import androidx.ui.core.SemanticsR4ANode
 import androidx.ui.core.Timestamp
 import androidx.ui.core.ipx
 import androidx.ui.core.semantics.SemanticsProperties
+import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.engine.geometry.Offset
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -103,28 +104,28 @@ class PointerInputEventProcessorTest {
         val offset2 = Offset(300f, 400f)
 
         val events = arrayOf(
-            PointerInputEvent(Timestamp(0), 8712, offset, true),
-            PointerInputEvent(Timestamp(0), 8712, offset2, true),
-            PointerInputEvent(Timestamp(0), 8712, offset2, false)
+            PointerInputEvent(8712, 3L.millisecondsToTimestamp(), offset, true),
+            PointerInputEvent(8712, 11L.millisecondsToTimestamp(), offset2, true),
+            PointerInputEvent(8712, 13L.millisecondsToTimestamp(), offset2, false)
         )
 
         val expectedChanges = arrayOf(
             PointerInputChange(
                 id = 8712,
-                current = PointerInputData(offset, true),
-                previous = PointerInputData(null, false),
+                current = PointerInputData(3L.millisecondsToTimestamp(), offset, true),
+                previous = PointerInputData(null, null, false),
                 consumed = ConsumedData()
             ),
             PointerInputChange(
                 id = 8712,
-                current = PointerInputData(offset2, true),
-                previous = PointerInputData(offset, true),
+                current = PointerInputData(11L.millisecondsToTimestamp(), offset2, true),
+                previous = PointerInputData(3L.millisecondsToTimestamp(), offset, true),
                 consumed = ConsumedData()
             ),
             PointerInputChange(
                 id = 8712,
-                current = PointerInputData(offset2, false),
-                previous = PointerInputData(offset2, true),
+                current = PointerInputData(13L.millisecondsToTimestamp(), offset2, false),
+                previous = PointerInputData(11L.millisecondsToTimestamp(), offset2, true),
                 consumed = ConsumedData()
             )
         )
@@ -164,14 +165,18 @@ class PointerInputEventProcessorTest {
         )
 
         val events = Array(4) { index ->
-            PointerInputEvent(Timestamp(0), index, offsets[index], true)
+            PointerInputEvent(index, 5L.millisecondsToTimestamp(), offsets[index], true)
         }
 
         val expectedChanges = Array(4) { index ->
             PointerInputChange(
                 id = index,
-                current = PointerInputData(offsets[index] - childOffset, true),
-                previous = PointerInputData(null, false),
+                current = PointerInputData(
+                    5L.millisecondsToTimestamp(),
+                    offsets[index] - childOffset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
                 consumed = ConsumedData()
             )
         }
@@ -213,7 +218,7 @@ class PointerInputEventProcessorTest {
         )
 
         val events = Array(8) { index ->
-            PointerInputEvent(Timestamp(0), index, offsets[index], true)
+            PointerInputEvent(index, 0L.millisecondsToTimestamp(), offsets[index], true)
         }
 
         // Act
@@ -273,7 +278,7 @@ class PointerInputEventProcessorTest {
             else -> throw IllegalStateException()
         }
 
-        val event = PointerInputEvent(Timestamp(0), 0, offset, true)
+        val event = PointerInputEvent(0, 5L.millisecondsToTimestamp(), offset, true)
 
         // Act
 
@@ -308,14 +313,14 @@ class PointerInputEventProcessorTest {
 
         val input = PointerInputChange(
             id = 0,
-            current = PointerInputData(Offset(100f, 0f), true),
-            previous = PointerInputData(Offset(0f, 0f), true),
+            current = PointerInputData(5L.millisecondsToTimestamp(), Offset(100f, 0f), true),
+            previous = PointerInputData(3L.millisecondsToTimestamp(), Offset(0f, 0f), true),
             consumed = ConsumedData(positionChange = Offset(0f, 0f))
         )
         val output = PointerInputChange(
             id = 0,
-            current = PointerInputData(Offset(100f, 0f), true),
-            previous = PointerInputData(Offset(0f, 0f), true),
+            current = PointerInputData(5L.millisecondsToTimestamp(), Offset(100f, 0f), true),
+            previous = PointerInputData(3L.millisecondsToTimestamp(), Offset(0f, 0f), true),
             consumed = ConsumedData(positionChange = Offset(13f, 0f))
         )
 
@@ -327,14 +332,14 @@ class PointerInputEventProcessorTest {
         root.emitInsertAt(0, pointerInputNode)
 
         val down = PointerInputEvent(
-            Timestamp(0),
             0,
+            3L.millisecondsToTimestamp(),
             Offset(0f, 0f),
             true
         )
         val move = PointerInputEvent(
-            Timestamp(0),
             0,
+            5L.millisecondsToTimestamp(),
             Offset(100f, 0f),
             true
         )
@@ -424,7 +429,7 @@ class PointerInputEventProcessorTest {
 
         val offset = Offset(pointerX.toFloat(), pointerY.toFloat())
 
-        val down = PointerInputEvent(Timestamp(0), 0, offset, true)
+        val down = PointerInputEvent(0, 7L.millisecondsToTimestamp(), offset, true)
 
         val pointerInputNodes = arrayOf(
             parentPointerInputNode,
@@ -435,23 +440,28 @@ class PointerInputEventProcessorTest {
         val expectedPointerInputChanges = arrayOf(
             PointerInputChange(
                 id = 0,
-                current = PointerInputData(offset, true),
-                previous = PointerInputData(null, false),
-                consumed = ConsumedData()
-            ),
-            PointerInputChange(
-                id = 0,
-                current = PointerInputData(offset - middleOffset, true),
-                previous = PointerInputData(null, false),
+                current = PointerInputData(7L.millisecondsToTimestamp(), offset, true),
+                previous = PointerInputData(null, null, false),
                 consumed = ConsumedData()
             ),
             PointerInputChange(
                 id = 0,
                 current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    offset - middleOffset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            ),
+            PointerInputChange(
+                id = 0,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
                     offset - middleOffset - childOffset,
                     true
                 ),
-                previous = PointerInputData(null, false),
+                previous = PointerInputData(null, null, false),
                 consumed = ConsumedData()
             )
         )
@@ -512,23 +522,27 @@ class PointerInputEventProcessorTest {
         val offset2 = Offset(75f, 75f)
 
         val down = PointerInputEvent(
-            Timestamp(0),
+            5L.millisecondsToTimestamp(),
             listOf(
-                PointerInputEventData(0, offset1, true),
-                PointerInputEventData(1, offset2, true)
+                PointerInputEventData(0, 5L.millisecondsToTimestamp(), offset1, true),
+                PointerInputEventData(1, 5L.millisecondsToTimestamp(), offset2, true)
             )
         )
 
         val expectedChange1 = PointerInputChange(
             id = 0,
-            current = PointerInputData(offset1, true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(5L.millisecondsToTimestamp(), offset1, true),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
         val expectedChange2 = PointerInputChange(
             id = 1,
-            current = PointerInputData(offset2 - Offset(50f, 50f), true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(
+                5L.millisecondsToTimestamp(),
+                offset2 - Offset(50f, 50f),
+                true
+            ),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
 
@@ -593,30 +607,38 @@ class PointerInputEventProcessorTest {
         val offset3 = Offset(125f, 125f)
 
         val down = PointerInputEvent(
-            Timestamp(0),
+            5L.millisecondsToTimestamp(),
             listOf(
-                PointerInputEventData(0, offset1, true),
-                PointerInputEventData(1, offset2, true),
-                PointerInputEventData(2, offset3, true)
+                PointerInputEventData(0, 5L.millisecondsToTimestamp(), offset1, true),
+                PointerInputEventData(1, 5L.millisecondsToTimestamp(), offset2, true),
+                PointerInputEventData(2, 5L.millisecondsToTimestamp(), offset3, true)
             )
         )
 
         val expectedChange1 = PointerInputChange(
             id = 0,
-            current = PointerInputData(offset1, true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(5L.millisecondsToTimestamp(), offset1, true),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
         val expectedChange2 = PointerInputChange(
             id = 1,
-            current = PointerInputData(offset2 - Offset(50f, 50f), true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(
+                5L.millisecondsToTimestamp(),
+                offset2 - Offset(50f, 50f),
+                true
+            ),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
         val expectedChange3 = PointerInputChange(
             id = 2,
-            current = PointerInputData(offset3 - Offset(100f, 100f), true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(
+                5L.millisecondsToTimestamp(),
+                offset3 - Offset(100f, 100f),
+                true
+            ),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
 
@@ -682,30 +704,34 @@ class PointerInputEventProcessorTest {
         val offset3 = Offset(50f, 125f)
 
         val down = PointerInputEvent(
-            Timestamp(0),
+            7L.millisecondsToTimestamp(),
             listOf(
-                PointerInputEventData(0, offset1, true),
-                PointerInputEventData(1, offset2, true),
-                PointerInputEventData(2, offset3, true)
+                PointerInputEventData(0, 7L.millisecondsToTimestamp(), offset1, true),
+                PointerInputEventData(1, 7L.millisecondsToTimestamp(), offset2, true),
+                PointerInputEventData(2, 7L.millisecondsToTimestamp(), offset3, true)
             )
         )
 
         val expectedChange1 = PointerInputChange(
             id = 0,
-            current = PointerInputData(offset1, true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(7L.millisecondsToTimestamp(), offset1, true),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
         val expectedChange2 = PointerInputChange(
             id = 1,
-            current = PointerInputData(offset2 - Offset(25f, 50f), true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(
+                7L.millisecondsToTimestamp(),
+                offset2 - Offset(25f, 50f),
+                true
+            ),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
         val expectedChange3 = PointerInputChange(
             id = 2,
-            current = PointerInputData(offset3, true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(7L.millisecondsToTimestamp(), offset3, true),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
 
@@ -766,30 +792,34 @@ class PointerInputEventProcessorTest {
         val offset3 = Offset(125f, 50f)
 
         val down = PointerInputEvent(
-            Timestamp(0),
+            11L.millisecondsToTimestamp(),
             listOf(
-                PointerInputEventData(0, offset1, true),
-                PointerInputEventData(1, offset2, true),
-                PointerInputEventData(2, offset3, true)
+                PointerInputEventData(0, 11L.millisecondsToTimestamp(), offset1, true),
+                PointerInputEventData(1, 11L.millisecondsToTimestamp(), offset2, true),
+                PointerInputEventData(2, 11L.millisecondsToTimestamp(), offset3, true)
             )
         )
 
         val expectedChange1 = PointerInputChange(
             id = 0,
-            current = PointerInputData(offset1, true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(11L.millisecondsToTimestamp(), offset1, true),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
         val expectedChange2 = PointerInputChange(
             id = 1,
-            current = PointerInputData(offset2 - Offset(50f, 25f), true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(
+                11L.millisecondsToTimestamp(),
+                offset2 - Offset(50f, 25f),
+                true
+            ),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
         val expectedChange3 = PointerInputChange(
             id = 2,
-            current = PointerInputData(offset3, true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(11L.millisecondsToTimestamp(), offset3, true),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
 
@@ -834,16 +864,20 @@ class PointerInputEventProcessorTest {
         val offset1 = Offset(50f, 75f)
 
         val down = PointerInputEvent(
-            Timestamp(0),
+            7L.millisecondsToTimestamp(),
             listOf(
-                PointerInputEventData(0, offset1, true)
+                PointerInputEventData(0, 7L.millisecondsToTimestamp(), offset1, true)
             )
         )
 
         val expectedChange = PointerInputChange(
             id = 0,
-            current = PointerInputData(offset1 - Offset(25f, 50f), true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(
+                7L.millisecondsToTimestamp(),
+                offset1 - Offset(25f, 50f),
+                true
+            ),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
 
@@ -889,19 +923,20 @@ class PointerInputEventProcessorTest {
         val offset1 = Offset(499f, 499f)
 
         val downEvent = PointerInputEvent(
-            Timestamp(0),
+            7L.millisecondsToTimestamp(),
             listOf(
-                PointerInputEventData(0, offset1, true)
+                PointerInputEventData(0, 7L.millisecondsToTimestamp(), offset1, true)
             )
         )
 
         val expectedChange = PointerInputChange(
             id = 0,
             current = PointerInputData(
+                7L.millisecondsToTimestamp(),
                 offset1 - Offset(1f + 2f + 3f + 4f, 5f + 6f + 7f + 8f),
                 true
             ),
-            previous = PointerInputData(null, false),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
 
@@ -956,29 +991,31 @@ class PointerInputEventProcessorTest {
         val offset1 = Offset(499f, 499f)
 
         val downEvent = PointerInputEvent(
-            Timestamp(0),
+            3L.millisecondsToTimestamp(),
             listOf(
-                PointerInputEventData(0, offset1, true)
+                PointerInputEventData(0, 3L.millisecondsToTimestamp(), offset1, true)
             )
         )
 
         val expectedChange1 = PointerInputChange(
             id = 0,
             current = PointerInputData(
+                3L.millisecondsToTimestamp(),
                 offset1 - Offset(1f + 2f + 3f + 4f + 5f, 6f + 7f + 8f + 9f + 10f),
                 true
             ),
-            previous = PointerInputData(null, false),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
 
         val expectedChange2 = PointerInputChange(
             id = 0,
             current = PointerInputData(
+                3L.millisecondsToTimestamp(),
                 offset1 - Offset(3f + 4f + 5f, 8f + 9f + 10f),
                 true
             ),
-            previous = PointerInputData(null, false),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
 
@@ -1020,7 +1057,7 @@ class PointerInputEventProcessorTest {
         }
 
         val down = PointerInputEvent(
-            Timestamp(0), 1, Offset(50f, 50f), true
+            1, 0L.millisecondsToTimestamp(), Offset(50f, 50f), true
         )
 
         // Act
@@ -1047,7 +1084,7 @@ class PointerInputEventProcessorTest {
         }
 
         val down = PointerInputEvent(
-            Timestamp(0), 1, Offset(50f, 50f), true
+            1, 0L.millisecondsToTimestamp(), Offset(50f, 50f), true
         )
 
         // Act
@@ -1069,7 +1106,7 @@ class PointerInputEventProcessorTest {
         }
 
         val down = PointerInputEvent(
-            Timestamp(0), 1, Offset(50f, 50f), true
+            1, 0L.millisecondsToTimestamp(), Offset(50f, 50f), true
         )
 
         // Act
@@ -1091,7 +1128,7 @@ class PointerInputEventProcessorTest {
         }
 
         val down = PointerInputEvent(
-            Timestamp(0), 1, Offset(50f, 50f), true
+            1, 0L.millisecondsToTimestamp(), Offset(50f, 50f), true
         )
 
         // Act
@@ -1113,7 +1150,7 @@ class PointerInputEventProcessorTest {
         }
 
         val down = PointerInputEvent(
-            Timestamp(0), 1, Offset(50f, 50f), true
+            1, 0L.millisecondsToTimestamp(), Offset(50f, 50f), true
         )
 
         // Act
@@ -1145,20 +1182,20 @@ class PointerInputEventProcessorTest {
 
         val offset = Offset(50f, 50f)
 
-        val down = PointerInputEvent(Timestamp(0), 0, offset, true)
-        val up = PointerInputEvent(Timestamp(1), 0, null, false)
+        val down = PointerInputEvent(0, 7L.millisecondsToTimestamp(), offset, true)
+        val up = PointerInputEvent(0, 11L.millisecondsToTimestamp(), null, false)
 
         val expectedDownChange = PointerInputChange(
             id = 0,
-            current = PointerInputData(offset, true),
-            previous = PointerInputData(null, false),
+            current = PointerInputData(7L.millisecondsToTimestamp(), offset, true),
+            previous = PointerInputData(null, null, false),
             consumed = ConsumedData()
         )
 
         val expectedUpChange = PointerInputChange(
             id = 0,
-            current = PointerInputData(null, false),
-            previous = PointerInputData(offset, true),
+            current = PointerInputData(11L.millisecondsToTimestamp(), null, false),
+            previous = PointerInputData(7L.millisecondsToTimestamp(), offset, true),
             consumed = ConsumedData()
         )
 
@@ -1192,20 +1229,24 @@ class PointerInputEventProcessorTest {
 
     private fun PointerInputEventData(
         id: Int,
+        timestamp: Timestamp,
         position: Offset?,
         down: Boolean
     ): PointerInputEventData {
-        val pointerInputData = PointerInputData(position, down)
+        val pointerInputData = PointerInputData(timestamp, position, down)
         return PointerInputEventData(id, pointerInputData)
     }
 
     private fun PointerInputEvent(
-        timeStamp: Timestamp,
         id: Int,
+        timestamp: Timestamp,
         position: Offset?,
         down: Boolean
     ): PointerInputEvent {
-        return PointerInputEvent(timeStamp, listOf(PointerInputEventData(id, position, down)))
+        return PointerInputEvent(
+            timestamp,
+            listOf(PointerInputEventData(id, timestamp, position, down))
+        )
     }
 
     private open inner class MyPointerInputHandler() :

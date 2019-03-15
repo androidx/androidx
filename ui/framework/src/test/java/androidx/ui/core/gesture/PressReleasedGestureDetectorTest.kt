@@ -18,6 +18,7 @@ package androidx.ui.core.gesture
 
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
@@ -38,13 +39,13 @@ import org.junit.runners.JUnit4
 class PressReleasedGestureDetectorTest {
 
     private lateinit var recognizer: PressReleaseGestureRecognizer
-    private val down = down(0, 0f)
+    private val down = down(0)
     private val downConsumed = down.consumeDownChange()
-    private val move = down.moveTo(100f)
+    private val move = down.moveTo(timestamp = 100L.millisecondsToTimestamp(), x = 100f)
     private val moveConsumed = move.consume(dx = 1f)
-    private val up = move.up()
+    private val up = down.up(100L.millisecondsToTimestamp())
     private val upConsumed = up.consumeDownChange()
-    private val upAfterMove = move.up()
+    private val upAfterMove = move.up(200L.millisecondsToTimestamp())
 
     @Before
     fun setup() {

@@ -33,6 +33,7 @@ data class PointerInputChange(
  * Data associated with a pointer
  */
 data class PointerInputData(
+    val timestamp: Timestamp? = null,
     val position: Offset? = null,
     val down: Boolean = false
 )

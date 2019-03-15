@@ -21,21 +21,28 @@ import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
+import androidx.ui.core.Timestamp
+import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.engine.geometry.Offset
 
-fun down(id: Int = 0, x: Float = 0f, y: Float = 0f): PointerInputChange =
+fun down(
+    id: Int = 0,
+    timestamp: Timestamp = 0L.millisecondsToTimestamp(),
+    x: Float = 0f,
+    y: Float = 0f
+): PointerInputChange =
     PointerInputChange(
         id,
-        PointerInputData(Offset(x, y), true),
-        PointerInputData(null, false),
+        PointerInputData(timestamp, Offset(x, y), true),
+        PointerInputData(null, null, false),
         ConsumedData(Offset(0f, 0f), false)
     )
 
-fun PointerInputChange.moveTo(x: Float = 0f, y: Float = 0f) =
-    copy(previous = current, current = PointerInputData(Offset(x, y), true))
+fun PointerInputChange.moveTo(timestamp: Timestamp, x: Float = 0f, y: Float = 0f) =
+    copy(previous = current, current = PointerInputData(timestamp, Offset(x, y), true))
 
-fun PointerInputChange.up() =
-    copy(previous = current, current = PointerInputData(null, false))
+fun PointerInputChange.up(timestamp: Timestamp) =
+    copy(previous = current, current = PointerInputData(timestamp, null, false))
 
 fun PointerInputChange.consume(dx: Float = 0f, dy: Float = 0f, downChange: Boolean = false) =
     copy(
