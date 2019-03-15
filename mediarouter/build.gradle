@@ -28,6 +28,10 @@ android {
                 'api24'
         ]
     }
+
+    buildTypes.all {
+        consumerProguardFiles 'proguard-rules.pro'
+    }
 }
 
 supportLibrary {
