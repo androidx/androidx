@@ -18,6 +18,7 @@ package androidx.ui.core
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -28,6 +29,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
+import java.lang.IllegalArgumentException
 
 @RunWith(JUnit4::class)
 class ComponentNodeTest {
@@ -548,6 +550,126 @@ class ComponentNodeTest {
         val result = node.childToLocal(node, position)
 
         assertEquals(position, result)
+    }
+
+    // SingleChildComponentNode shouldn't allow adding more than two children during composition
+    @Test
+    fun testAddTwoMax() {
+        val pointerInputNode = PointerInputNode()
+        pointerInputNode.emitInsertAt(0, DrawNode())
+        pointerInputNode.emitInsertAt(0, DrawNode())
+        thrown.expect(IllegalStateException::class.java)
+        pointerInputNode.emitInsertAt(0, DrawNode())
+    }
+
+    // SingleChildComponentNode shouldn't allow adding beyond the current child
+    @Test
+    fun testAddBeyondCurrent() {
+        val pointerInputNode = PointerInputNode()
+        thrown.expect(IllegalArgumentException::class.java)
+        pointerInputNode.emitInsertAt(1, DrawNode())
+    }
+
+    // SingleChildComponentNode shouldn't allow adding below 0
+    @Test
+    fun testAddBelowZero() {
+        val pointerInputNode = PointerInputNode()
+        thrown.expect(IllegalArgumentException::class.java)
+        pointerInputNode.emitInsertAt(-1, DrawNode())
+    }
+
+    // SingleChildComponentNode should allow adding at 1, but cannot use it
+    @Test
+    fun testAddAtOne() {
+        val pointerInputNode = PointerInputNode()
+        pointerInputNode.emitInsertAt(0, DrawNode())
+        pointerInputNode.emitInsertAt(1, DrawNode())
+        thrown.expect(IllegalStateException::class.java)
+        pointerInputNode.count
+    }
+
+    // SingleChildComponentNode should allow two temporarily, removing one
+    @Test
+    fun testOnlyOne() {
+        val pointerInputNode = PointerInputNode()
+        val owner = mock(Owner::class.java)
+        pointerInputNode.attach(owner)
+        val d1 = DrawNode()
+        val d2 = DrawNode()
+        pointerInputNode.emitInsertAt(0, d1)
+        pointerInputNode.emitInsertAt(1, d2)
+        pointerInputNode.emitRemoveAt(1, 1)
+        assertTrue(d1.isAttached())
+        assertFalse(d2.isAttached())
+        assertSame(d1, pointerInputNode[0])
+        pointerInputNode.emitInsertAt(1, d2)
+        pointerInputNode.emitRemoveAt(0, 1)
+        assertSame(d2, pointerInputNode[0])
+        assertFalse(d1.isAttached())
+        assertTrue(d2.isAttached())
+    }
+
+    // SingleChildComponentNode should error when removing at index < 0
+    @Test
+    fun testRemoveNegativeIndex() {
+        val pointerInputNode = PointerInputNode()
+        pointerInputNode.emitInsertAt(0, DrawNode())
+        thrown.expect(IllegalArgumentException::class.java)
+        pointerInputNode.emitRemoveAt(-1, 1)
+    }
+
+    // SingleChildComponentNode should error when removing at index < 0
+    @Test
+    fun testRemoveBeyondIndex() {
+        val pointerInputNode = PointerInputNode()
+        pointerInputNode.emitInsertAt(0, DrawNode())
+        thrown.expect(IllegalArgumentException::class.java)
+        pointerInputNode.emitRemoveAt(1, 1)
+    }
+
+    // SingleChildComponentNode should error when removing at count < 0
+    @Test
+    fun testRemoveNegativeCount() {
+        val pointerInputNode = PointerInputNode()
+        pointerInputNode.emitInsertAt(0, DrawNode())
+        thrown.expect(IllegalArgumentException::class.java)
+        pointerInputNode.emitRemoveAt(0, -1)
+    }
+
+    // SingleChildComponentNode should error when removing at count > entry count
+    @Test
+    fun testRemoveTooMany() {
+        val pointerInputNode = PointerInputNode()
+        pointerInputNode.emitInsertAt(0, DrawNode())
+        thrown.expect(IllegalArgumentException::class.java)
+        pointerInputNode.emitRemoveAt(0, 2)
+    }
+
+    // SingleChildComponentNode should error when there aren't enough items
+    @Test
+    fun testRemoveTooMany2() {
+        val pointerInputNode = PointerInputNode()
+        thrown.expect(IllegalArgumentException::class.java)
+        pointerInputNode.emitRemoveAt(0, 1)
+    }
+
+    // SingleChildComponentNode should error when removing at count == 0
+    @Test
+    fun testRemoveTooFew() {
+        val pointerInputNode = PointerInputNode()
+        pointerInputNode.emitInsertAt(0, DrawNode())
+        thrown.expect(IllegalArgumentException::class.java)
+        pointerInputNode.emitRemoveAt(0, 0)
+    }
+
+    // SingleChildComponentNode should allow removing two items
+    @Test
+    fun testRemoveTwoItems() {
+        val pointerInputNode = PointerInputNode()
+        pointerInputNode.emitInsertAt(0, DrawNode())
+        pointerInputNode.emitInsertAt(0, DrawNode())
+        pointerInputNode.emitRemoveAt(0, 2)
+        assertEquals(0, pointerInputNode.count)
     }
 
     private fun createSimpleLayout(): Triple<LayoutNode, ComponentNode, ComponentNode> {
