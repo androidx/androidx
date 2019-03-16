@@ -16,6 +16,8 @@
 
 package androidx.ui.engine.geometry
 
+import androidx.ui.core.PxPosition
+import androidx.ui.core.px
 import androidx.ui.lerp
 import androidx.ui.toStringAsFixed
 import kotlin.math.atan2
@@ -300,3 +302,5 @@ data class Offset(override val dx: Float, override val dy: Float) : OffsetBase {
         return result
     }
 }
+
+fun Offset.toPxPosition() = PxPosition(dx.px, dy.px)

@@ -413,6 +413,15 @@ data class PxPosition(val x: Px, val y: Px) {
      */
     /*inline*/ operator fun plus(other: PxPosition) =
         PxPosition(x + other.x, y + other.y)
+
+    /**
+     * Returns a new PxPosition representing the negation of this point.
+     */
+    /*inline*/ operator fun unaryMinus() = PxPosition(-x, -y)
+
+    companion object {
+        val Origin = PxPosition(0.px, 0.px)
+    }
 }
 
 /**
