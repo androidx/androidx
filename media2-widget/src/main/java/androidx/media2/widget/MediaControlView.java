@@ -2064,11 +2064,14 @@ public class MediaControlView extends ViewGroup {
                 } else {
                     mCurrentSeekPosition = SEEK_POSITION_NOT_SET;
 
-                    // If the next seek position is not set, start to update progress.
-                    removeCallbacks(mUpdateProgress);
-                    removeCallbacks(mHideMainBars);
-                    post(mUpdateProgress);
-                    postDelayedRunnable(mHideMainBars, mDelayedAnimationIntervalMs);
+                    // If the next seek position is not set and the progress bar thumb is not being
+                    // dragged, start to update progress.
+                    if (!mDragging) {
+                        removeCallbacks(mUpdateProgress);
+                        removeCallbacks(mHideMainBars);
+                        post(mUpdateProgress);
+                        postDelayedRunnable(mHideMainBars, mDelayedAnimationIntervalMs);
+                    }
                 }
             }
 
