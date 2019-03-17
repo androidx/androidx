@@ -784,6 +784,10 @@ public class VideoView extends SelectiveLayout {
         if (mAudioTrackIndices.size() > 0) {
             mSelectedAudioTrackIndex = 0;
         }
+        // Re-select originally selected subtitle track since SubtitleController has been reset.
+        if (mSelectedSubtitleTrackIndex != INVALID_TRACK_INDEX) {
+            selectSubtitleTrack(mSelectedSubtitleTrackIndex);
+        }
 
         Bundle data = new Bundle();
         data.putInt(MediaControlView.KEY_VIDEO_TRACK_COUNT, mVideoTrackIndices.size());
