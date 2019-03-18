@@ -18,17 +18,24 @@ package androidx.recyclerview.widget;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -44,7 +51,7 @@ public class RecyclerViewOnItemTouchListenerTest {
 
     private FrameLayout mParent;
     private RecyclerView mRecyclerView;
-    private View mChildView;
+    private MyView mChildView;
     private MyOnItemTouchListener mOnItemTouchListener;
     private MotionEvent mActionDown;
     private MotionEvent mActionMove1;
@@ -56,7 +63,7 @@ public class RecyclerViewOnItemTouchListenerTest {
     public void setup() {
         Context context = ApplicationProvider.getApplicationContext();
 
-        mChildView = new View(context);
+        mChildView = spy(new MyView(context));
         mChildView.setMinimumWidth(1000);
         mChildView.setMinimumHeight(1000);
 
@@ -165,6 +172,48 @@ public class RecyclerViewOnItemTouchListenerTest {
     }
 
     @Test
+    public void listenerInterceptsDown_childOnTouchNotCalled() {
+        mChildView.setClickable(true);
+        when(mOnItemTouchListener
+                .onInterceptTouchEvent(mRecyclerView, mActionDown))
+                .thenReturn(true);
+
+        mParent.dispatchTouchEvent(mActionDown);
+        mParent.dispatchTouchEvent(mActionUp);
+
+        verify(mChildView, never()).onTouchEvent(any(MotionEvent.class));
+    }
+
+    @Test
+    public void listenerInterceptsMove_childOnTouchCalledWithCorrectEvents() {
+        mChildView.setClickable(true);
+        when(mOnItemTouchListener
+                .onInterceptTouchEvent(mRecyclerView, mActionMove1))
+                .thenReturn(true);
+
+        mParent.dispatchTouchEvent(mActionDown);
+        mParent.dispatchTouchEvent(mActionMove1);
+
+        verify(mChildView).onTouchEvent(mActionDown);
+        assertThat(mChildView.mLastAction, is(MotionEvent.ACTION_CANCEL));
+    }
+
+    @Test
+    public void listenerInterceptsUp_childOnTouchCalledWithCorrectEvents() {
+        mChildView.setClickable(true);
+        when(mOnItemTouchListener
+                .onInterceptTouchEvent(mRecyclerView, mActionUp))
+                .thenReturn(true);
+
+        mParent.dispatchTouchEvent(mActionDown);
+        mParent.dispatchTouchEvent(mActionUp);
+
+        verify(mChildView, times(2)).onTouchEvent(any(MotionEvent.class));
+        verify(mChildView).onTouchEvent(mActionDown);
+        assertThat(mChildView.mLastAction, is(MotionEvent.ACTION_CANCEL));
+    }
+
+    @Test
     public void listenerInterceptsThenParentIntercepts_correctListenerCalls() {
         when(mOnItemTouchListener
                 .onInterceptTouchEvent(mRecyclerView, mActionMove1))
@@ -202,13 +251,14 @@ public class RecyclerViewOnItemTouchListenerTest {
         }
 
         @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup parent,
+        @NonNull
+        public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                 int viewType) {
             return new MyViewHolder(mView);
         }
 
         @Override
-        public void onBindViewHolder(MyViewHolder holder,
+        public void onBindViewHolder(@NonNull MyViewHolder holder,
                 int position) {
         }
 
@@ -229,18 +279,41 @@ public class RecyclerViewOnItemTouchListenerTest {
         int mLastAction = -1;
 
         @Override
-        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+        public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
             return false;
         }
 
         @Override
-        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+        public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
             mLastAction = e.getAction();
         }
 
         @Override
         public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
 
+        }
+    }
+
+    public class MyView extends View {
+
+        public int mLastAction = -1;
+
+        public MyView(Context context) {
+            super(context);
+        }
+
+        public MyView(Context context, @Nullable AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        public MyView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+            super(context, attrs, defStyleAttr);
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            mLastAction = event.getAction();
+            return super.onTouchEvent(event);
         }
     }
 }
