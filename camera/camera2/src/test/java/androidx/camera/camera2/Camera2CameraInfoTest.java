@@ -55,6 +55,9 @@ public class Camera2CameraInfoTest {
     private static final int CAMERA1_SENSOR_ORIENTATION = 0;
     private static final int CAMERA1_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_FRONT;
 
+    private static final int FAKE_SUPPORTED_HARDWARE_LEVEL =
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3;
+
     private CameraManager mCameraManager;
 
     @Before
@@ -122,6 +125,9 @@ public class Camera2CameraInfoTest {
 
         ShadowCameraCharacteristics shadowCharacteristics0 = Shadow.extract(characteristics0);
 
+        shadowCharacteristics0.set(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
+                FAKE_SUPPORTED_HARDWARE_LEVEL);
+
         // Add a lens facing to the camera
         shadowCharacteristics0.set(CameraCharacteristics.LENS_FACING, CAMERA0_LENS_FACING_INT);
 
@@ -141,6 +147,9 @@ public class Camera2CameraInfoTest {
                 ShadowCameraCharacteristics.newCameraCharacteristics();
 
         ShadowCameraCharacteristics shadowCharacteristics1 = Shadow.extract(characteristics1);
+
+        shadowCharacteristics1.set(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
+                FAKE_SUPPORTED_HARDWARE_LEVEL);
 
         // Add a lens facing to the camera
         shadowCharacteristics1.set(CameraCharacteristics.LENS_FACING, CAMERA1_LENS_FACING_INT);
