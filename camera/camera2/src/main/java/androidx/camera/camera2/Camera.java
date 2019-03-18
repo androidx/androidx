@@ -166,6 +166,7 @@ final class Camera implements BaseCamera {
         switch (mState.get()) {
             case OPENED:
                 mState.set(State.CLOSING);
+                mCaptureSession.close();
                 mCameraDevice.close();
                 mCaptureSession.notifyCameraDeviceClose();
                 resetCaptureSession();
@@ -455,11 +456,13 @@ final class Camera implements BaseCamera {
      */
     void resetCaptureSession() {
         Log.d(TAG, "Closing Capture Session");
-        mCaptureSession.close();
 
         // Recreate an initialized (but not opened) capture session from the previous configuration
         SessionConfiguration previousSessionConfiguration =
                 mCaptureSession.getSessionConfiguration();
+
+        mCaptureSession.close();
+
         List<CaptureRequestConfiguration> unissuedCaptureRequestConfigurations =
                 mCaptureSession.getCaptureRequestConfigurations();
         mCaptureSession = new CaptureSession(mHandler);

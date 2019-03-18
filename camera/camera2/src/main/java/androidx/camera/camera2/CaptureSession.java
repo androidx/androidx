@@ -72,8 +72,8 @@ final class CaptureSession {
     @Nullable
     CameraCaptureSession mCameraCaptureSession;
     /** The configuration for the currently issued capture requests. */
-    private volatile SessionConfiguration mSessionConfiguration =
-            SessionConfiguration.defaultEmptySessionConfiguration();
+    @Nullable
+    private volatile SessionConfiguration mSessionConfiguration;
     /** The list of surfaces used to configure the current capture session. */
     private List<Surface> mConfiguredSurfaces = Collections.emptyList();
     /** The list of DeferrableSurface used to notify surface detach events */
@@ -96,7 +96,11 @@ final class CaptureSession {
         mState = State.INITIALIZED;
     }
 
-    /** Returns the configurations of the capture session. */
+    /**
+     * Returns the configurations of the capture session, or null if it has not yet been set
+     * or if the capture session has been closed.
+     */
+    @Nullable
     SessionConfiguration getSessionConfiguration() {
         synchronized (mStateLock) {
             return mSessionConfiguration;
@@ -213,6 +217,7 @@ final class CaptureSession {
                 case OPENING:
                 case OPENED:
                     mState = State.CLOSED;
+                    mSessionConfiguration = null;
                     break;
                 case CLOSED:
                 case RELEASING:
@@ -335,6 +340,11 @@ final class CaptureSession {
      * <p>Will skip setting requests if there are no surfaces since it is illegal to do so.
      */
     void issueRepeatingCaptureRequests() {
+        if (mSessionConfiguration == null) {
+            Log.d(TAG, "Skipping issueRepeatingCaptureRequests for no configuration case.");
+            return;
+        }
+
         CaptureRequestConfiguration captureRequestConfiguration =
                 mSessionConfiguration.getCaptureRequestConfiguration();
 
