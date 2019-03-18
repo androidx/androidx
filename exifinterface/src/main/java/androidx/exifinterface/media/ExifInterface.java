@@ -2102,6 +2102,12 @@ public class ExifInterface {
      * http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/PanasonicRaw.html
      */
     public static final String TAG_RW2_JPG_FROM_RAW = "JpgFromRaw";
+    /**
+     * Type is byte[]. See <a href=
+     * "https://en.wikipedia.org/wiki/Extensible_Metadata_Platform">Extensible
+     * Metadata Platform (XMP)</a> for details on contents.
+     */
+    public static final String TAG_XMP = "Xmp";
     /** Type is int. See JEITA CP-3451C Spec Section 3: Bilevel Images. */
     public static final String TAG_NEW_SUBFILE_TYPE = "NewSubfileType";
     /** Type is int. See JEITA CP-3451C Spec Section 3: Bilevel Images. */
@@ -3424,7 +3430,8 @@ public class ExifInterface {
             new ExifTag(TAG_RW2_SENSOR_BOTTOM_BORDER, 6, IFD_FORMAT_ULONG),
             new ExifTag(TAG_RW2_SENSOR_RIGHT_BORDER, 7, IFD_FORMAT_ULONG),
             new ExifTag(TAG_RW2_ISO, 23, IFD_FORMAT_USHORT),
-            new ExifTag(TAG_RW2_JPG_FROM_RAW, 46, IFD_FORMAT_UNDEFINED)
+            new ExifTag(TAG_RW2_JPG_FROM_RAW, 46, IFD_FORMAT_UNDEFINED),
+            new ExifTag(TAG_XMP, 700, IFD_FORMAT_BYTE),
     };
 
     // Primary image IFD Exif Private tags (See JEITA CP-3451C Section 4.6.8 Tag Support Levels)
@@ -3661,6 +3668,9 @@ public class ExifInterface {
     static final Charset ASCII = Charset.forName("US-ASCII");
     // Identifier for EXIF APP1 segment in JPEG
     static final byte[] IDENTIFIER_EXIF_APP1 = "Exif\0\0".getBytes(ASCII);
+    // Identifier for XMP APP1 segment in JPEG
+    private static final byte[] IDENTIFIER_XMP_APP1 =
+            "http://ns.adobe.com/xap/1.0/\0".getBytes(ASCII);
     // JPEG segment markers, that each marker consumes two bytes beginning with 0xff and ending with
     // the indicator. There is no SOF4, SOF8, SOF16 markers in JPEG and SOFx markers indicates start
     // of frame(baseline DCT) and the image size info exists in its beginning part.
@@ -5183,41 +5193,32 @@ public class ExifInterface {
             }
             switch (marker) {
                 case MARKER_APP1: {
-                    if (DEBUG) {
-                        Log.d(TAG, "MARKER_APP1");
-                    }
-                    if (length < 6) {
-                        // Skip if it's not an EXIF APP1 segment.
-                        break;
-                    }
-                    byte[] identifier = new byte[6];
-                    if (in.read(identifier) != 6) {
-                        throw new IOException("Invalid exif");
-                    }
-                    bytesRead += 6;
-                    length -= 6;
-                    if (!Arrays.equals(identifier, IDENTIFIER_EXIF_APP1)) {
-                        // Skip if it's not an EXIF APP1 segment.
-                        break;
-                    }
-                    if (length <= 0) {
-                        throw new IOException("Invalid exif");
-                    }
-                    if (DEBUG) {
-                        Log.d(TAG, "readExifSegment with a byte array (length: " + length + ")");
-                    }
-                    // Save offset values for createJpegThumbnailBitmap() function
-                    mExifOffset = bytesRead;
-
-                    byte[] bytes = new byte[length];
-                    if (in.read(bytes) != length) {
-                        throw new IOException("Invalid exif");
-                    }
+                    final int start = bytesRead;
+                    final byte[] bytes = new byte[length];
+                    in.readFully(bytes);
                     bytesRead += length;
                     length = 0;
 
-                    readExifSegment(bytes, imageType);
-                    break;
+                    if (startsWith(bytes, IDENTIFIER_EXIF_APP1)) {
+                        final long offset = start + IDENTIFIER_EXIF_APP1.length;
+                        final byte[] value = Arrays.copyOfRange(bytes, IDENTIFIER_EXIF_APP1.length,
+                                bytes.length);
+
+                        readExifSegment(value, imageType);
+
+                        // Save offset values for createJpegThumbnailBitmap() function
+                        mExifOffset = (int) offset;
+                    } else if (startsWith(bytes, IDENTIFIER_XMP_APP1)) {
+                        // See XMP Specification Part 3: Storage in Files, 1.1.3 JPEG, Table 6
+                        final long offset = start + IDENTIFIER_XMP_APP1.length;
+                        final byte[] value = Arrays.copyOfRange(bytes,
+                                IDENTIFIER_XMP_APP1.length, bytes.length);
+
+                        if (getAttribute(TAG_XMP) == null) {
+                            mAttributes[IFD_TYPE_PRIMARY].put(TAG_XMP, new ExifAttribute(
+                                    IFD_FORMAT_BYTE, value.length, offset, value));
+                        }
+                    }
                 }
 
                 case MARKER_COM: {
@@ -7026,5 +7027,20 @@ public class ExifInterface {
             return (long[]) inputObj;
         }
         return null;
+    }
+
+    private static boolean startsWith(byte[] cur, byte[] val) {
+        if (cur == null || val == null) {
+            return false;
+        }
+        if (cur.length < val.length) {
+            return false;
+        }
+        for (int i = 0; i < val.length; i++) {
+            if (cur[i] != val[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 }

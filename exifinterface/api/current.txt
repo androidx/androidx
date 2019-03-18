@@ -322,6 +322,7 @@ package androidx.exifinterface.media {
     field public static final String TAG_USER_COMMENT = "UserComment";
     field public static final String TAG_WHITE_BALANCE = "WhiteBalance";
     field public static final String TAG_WHITE_POINT = "WhitePoint";
+    field public static final String TAG_XMP = "Xmp";
     field public static final String TAG_X_RESOLUTION = "XResolution";
     field public static final String TAG_Y_CB_CR_COEFFICIENTS = "YCbCrCoefficients";
     field public static final String TAG_Y_CB_CR_POSITIONING = "YCbCrPositioning";
