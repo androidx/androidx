@@ -31,7 +31,7 @@ android {
 }
 
 dependencies {
-    api(project(":fragment"))
+    api("androidx.fragment:fragment:1.1.0-alpha05")
     api(project(":navigation:navigation-runtime"))
 
     testImplementation(JUNIT)
