@@ -276,6 +276,9 @@ public abstract class SessionPlayer implements AutoCloseable {
      */
     public static final int SHUFFLE_MODE_GROUP = 2;
 
+    /**
+     * Value indicating the time is unknown
+     */
     public static final long UNKNOWN_TIME = Long.MIN_VALUE;
 
     /**
