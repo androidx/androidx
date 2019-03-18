@@ -30,7 +30,6 @@ import androidx.annotation.WorkerThread;
 import androidx.arch.core.internal.SafeIterableMap;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
-import androidx.collection.SparseArrayCompat;
 import androidx.lifecycle.LiveData;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -89,9 +88,6 @@ public class InvalidationTracker {
     @VisibleForTesting
     final ArrayMap<String, Integer> mTableIdLookup;
     final String[] mTableNames;
-    @NonNull
-    @VisibleForTesting
-    final SparseArrayCompat<String> mShadowTableLookup;
 
     @NonNull
     private Map<String, Set<String>> mViewTables;
@@ -145,7 +141,6 @@ public class InvalidationTracker {
         mDatabase = database;
         mObservedTableTracker = new ObservedTableTracker(tableNames.length);
         mTableIdLookup = new ArrayMap<>();
-        mShadowTableLookup = new SparseArrayCompat<>(shadowTablesMap.size());
         mViewTables = viewTables;
         mInvalidationLiveDataContainer = new InvalidationLiveDataContainer(mDatabase);
         final int size = tableNames.length;
@@ -153,10 +148,20 @@ public class InvalidationTracker {
         for (int id = 0; id < size; id++) {
             final String tableName = tableNames[id].toLowerCase(Locale.US);
             mTableIdLookup.put(tableName, id);
-            mTableNames[id] = tableName;
             String shadowTableName = shadowTablesMap.get(tableNames[id]);
             if (shadowTableName != null) {
-                mShadowTableLookup.append(id, shadowTableName.toLowerCase(Locale.US));
+                mTableNames[id] = shadowTableName.toLowerCase(Locale.US);
+            } else {
+                mTableNames[id] = tableName;
+            }
+        }
+        // Adjust table id lookup for those tables whose shadow table is another already mapped
+        // table (e.g. external content fts tables).
+        for (Map.Entry<String, String> shadowTableEntry : shadowTablesMap.entrySet()) {
+            String shadowTableName = shadowTableEntry.getValue().toLowerCase(Locale.US);
+            if (mTableIdLookup.containsKey(shadowTableName)) {
+                String tableName = shadowTableEntry.getKey().toLowerCase(Locale.US);
+                mTableIdLookup.put(tableName, mTableIdLookup.get(shadowTableName));
             }
         }
         mTableInvalidStatus = new BitSet(tableNames.length);
@@ -212,7 +217,7 @@ public class InvalidationTracker {
     }
 
     private void stopTrackingTable(SupportSQLiteDatabase writableDb, int tableId) {
-        final String tableName = mShadowTableLookup.get(tableId, mTableNames[tableId]);
+        final String tableName = mTableNames[tableId];
         StringBuilder stringBuilder = new StringBuilder();
         for (String trigger : TRIGGERS) {
             stringBuilder.setLength(0);
@@ -225,7 +230,7 @@ public class InvalidationTracker {
     private void startTrackingTable(SupportSQLiteDatabase writableDb, int tableId) {
         writableDb.execSQL(
                 "INSERT OR IGNORE INTO " + UPDATE_TABLE_NAME + " VALUES(" + tableId + ", 0)");
-        final String tableName = mShadowTableLookup.get(tableId, mTableNames[tableId]);
+        final String tableName = mTableNames[tableId];
         StringBuilder stringBuilder = new StringBuilder();
         for (String trigger : TRIGGERS) {
             stringBuilder.setLength(0);
@@ -410,7 +415,7 @@ public class InvalidationTracker {
             if (hasUpdatedTable) {
                 synchronized (mObserverMap) {
                     for (Map.Entry<Observer, ObserverWrapper> entry : mObserverMap) {
-                        entry.getValue().notifyByTableVersions(mTableInvalidStatus);
+                        entry.getValue().notifyByTableInvalidStatus(mTableInvalidStatus);
                     }
                 }
                 // Reset invalidated status flags.
@@ -594,12 +599,12 @@ public class InvalidationTracker {
         }
 
         /**
-         * Updates the table versions and notifies the underlying {@link #mObserver} if any of the
-         * observed tables are invalidated.
+         * Notifies the underlying {@link #mObserver} if any of the observed tables are invalidated
+         * based on the given invalid status set.
          *
          * @param tableInvalidStatus The table invalid statuses.
          */
-        void notifyByTableVersions(BitSet tableInvalidStatus) {
+        void notifyByTableInvalidStatus(BitSet tableInvalidStatus) {
             Set<String> invalidatedTables = null;
             final int size = mTableIds.length;
             for (int index = 0; index < size; index++) {

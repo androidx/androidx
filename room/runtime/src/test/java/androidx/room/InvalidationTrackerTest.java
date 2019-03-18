@@ -97,13 +97,14 @@ public class InvalidationTrackerTest {
         //noinspection ResultOfMethodCallIgnored
         doReturn(mOpenHelper).when(mRoomDatabase).getOpenHelper();
         HashMap<String, String> shadowTables = new HashMap<>();
-        shadowTables.put("C", "D");
+        shadowTables.put("C", "C_content");
+        shadowTables.put("d", "a");
         HashMap<String, Set<String>> viewTables = new HashMap<>();
         HashSet<String> tableSet = new HashSet<>();
         tableSet.add("a");
         viewTables.put("e", tableSet);
         mTracker = new InvalidationTracker(mRoomDatabase, shadowTables, viewTables,
-                "a", "B", "i", "C");
+                "a", "B", "i", "C", "d");
         mTracker.internalInit(mSqliteDb);
         reset(mSqliteDb);
     }
@@ -120,10 +121,22 @@ public class InvalidationTrackerTest {
 
     @Test
     public void tableIds() {
+        assertThat(mTracker.mTableIdLookup.size(), is(5));
         assertThat(mTracker.mTableIdLookup.get("a"), is(0));
         assertThat(mTracker.mTableIdLookup.get("b"), is(1));
         assertThat(mTracker.mTableIdLookup.get("i"), is(2));
-        assertThat(mTracker.mTableIdLookup.get("c"), is(3));
+        assertThat(mTracker.mTableIdLookup.get("c"), is(3)); // fts
+        assertThat(mTracker.mTableIdLookup.get("d"), is(0)); // external content fts
+    }
+
+    @Test
+    public void tableNames() {
+        assertThat(mTracker.mTableNames.length, is(5));
+        assertThat(mTracker.mTableNames[0], is("a"));
+        assertThat(mTracker.mTableNames[1], is("b"));
+        assertThat(mTracker.mTableNames[2], is("i"));
+        assertThat(mTracker.mTableNames[3], is("c_content")); // fts
+        assertThat(mTracker.mTableNames[4], is("a")); // external content fts
     }
 
     @Test
@@ -266,9 +279,10 @@ public class InvalidationTrackerTest {
         for (int i = 0; i < triggers.length; i++) {
             assertThat(sqlCaptorValues.get(i + 1),
                     is("CREATE TEMP TRIGGER IF NOT EXISTS "
-                            + "`room_table_modification_trigger_d_" + triggers[i] + "` AFTER "
-                            + triggers[i] + " ON `d` BEGIN UPDATE room_table_modification_log "
-                            + "SET invalidated = 1 WHERE table_id = 3 AND invalidated = 0; END"
+                            + "`room_table_modification_trigger_c_content_" + triggers[i]
+                            + "` AFTER " + triggers[i] + " ON `c_content` BEGIN UPDATE "
+                            + "room_table_modification_log SET invalidated = 1 WHERE table_id = 3 "
+                            + "AND invalidated = 0; END"
                     ));
         }
 
@@ -280,9 +294,107 @@ public class InvalidationTrackerTest {
         sqlCaptorValues = sqlArgCaptor.getAllValues();
         for (int i = 0; i < triggers.length; i++) {
             assertThat(sqlCaptorValues.get(i),
-                    is("DROP TRIGGER IF EXISTS `room_table_modification_trigger_d_"
+                    is("DROP TRIGGER IF EXISTS `room_table_modification_trigger_c_content_"
                             + triggers[i] + "`"));
         }
+    }
+
+    @Test
+    public void observeFtsTable() throws InterruptedException {
+        LatchObserver observer = new LatchObserver(1, "C");
+        mTracker.addObserver(observer);
+        setInvalidatedTables(3);
+        refreshSync();
+        assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("C"));
+
+        setInvalidatedTables(1);
+        observer.reset(1);
+        refreshSync();
+        assertThat(observer.await(), is(false));
+
+        setInvalidatedTables(0, 3);
+        refreshSync();
+        assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("C"));
+    }
+
+    @Test
+    public void observeExternalContentFtsTable() throws InterruptedException {
+        LatchObserver observer = new LatchObserver(1, "d");
+        mTracker.addObserver(observer);
+        setInvalidatedTables(0);
+        refreshSync();
+        assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("d"));
+
+        setInvalidatedTables(2, 3);
+        observer.reset(1);
+        refreshSync();
+        assertThat(observer.await(), is(false));
+
+        setInvalidatedTables(0, 1);
+        refreshSync();
+        assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(1));
+        assertThat(observer.getInvalidatedTables(), hasItem("d"));
+    }
+
+    @Test
+    public void observeExternalContentFtsTableAndContentTable() throws InterruptedException {
+        LatchObserver observer = new LatchObserver(1, "d", "a");
+        mTracker.addObserver(observer);
+        setInvalidatedTables(0);
+        refreshSync();
+        assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(2));
+        assertThat(observer.getInvalidatedTables(), hasItems("d", "a"));
+
+        setInvalidatedTables(2, 3);
+        observer.reset(1);
+        refreshSync();
+        assertThat(observer.await(), is(false));
+
+        setInvalidatedTables(0, 1);
+        refreshSync();
+        assertThat(observer.await(), is(true));
+        assertThat(observer.getInvalidatedTables().size(), is(2));
+        assertThat(observer.getInvalidatedTables(), hasItems("d", "a"));
+    }
+
+    @Test
+    public void observeExternalContentFatsTableAndContentTableSeparately()
+            throws InterruptedException {
+        LatchObserver observerA = new LatchObserver(1, "a");
+        LatchObserver observerD = new LatchObserver(1, "d");
+        mTracker.addObserver(observerA);
+        mTracker.addObserver(observerD);
+
+        setInvalidatedTables(0);
+        refreshSync();
+
+        assertThat(observerA.await(), is(true));
+        assertThat(observerD.await(), is(true));
+        assertThat(observerA.getInvalidatedTables().size(), is(1));
+        assertThat(observerD.getInvalidatedTables().size(), is(1));
+        assertThat(observerA.getInvalidatedTables(), hasItem("a"));
+        assertThat(observerD.getInvalidatedTables(), hasItem("d"));
+
+        // Remove observer 'd' which is backed by 'a', observers to 'a' should still work.
+        mTracker.removeObserver(observerD);
+
+        setInvalidatedTables(0);
+        observerA.reset(1);
+        observerD.reset(1);
+        refreshSync();
+
+        assertThat(observerA.await(), is(true));
+        assertThat(observerD.await(), is(false));
+        assertThat(observerA.getInvalidatedTables().size(), is(1));
+        assertThat(observerA.getInvalidatedTables(), hasItem("a"));
     }
 
     @Test
@@ -337,7 +449,7 @@ public class InvalidationTrackerTest {
     }
 
     /**
-     * Key value pairs of VERSION, TABLE_ID
+     * Setup Cursor result to return INVALIDATED for given tableIds
      */
     private void setInvalidatedTables(int... tableIds) throws InterruptedException {
         // mockito does not like multi-threaded access so before setting versions, make sure we
@@ -367,8 +479,9 @@ public class InvalidationTrackerTest {
         Answer<Integer> intAnswer = new Answer<Integer>() {
             @Override
             public Integer answer(InvocationOnMock invocation) throws Throwable {
-                return tableIds[index.intValue()
-                        + (Integer) invocation.getArguments()[0]];
+                // checkUpdatedTable only checks for column 0 (invalidated table id)
+                assert ((Integer) invocation.getArguments()[0]) == 0;
+                return tableIds[index.intValue()];
             }
         };
         when(cursor.getInt(anyInt())).thenAnswer(intAnswer);
