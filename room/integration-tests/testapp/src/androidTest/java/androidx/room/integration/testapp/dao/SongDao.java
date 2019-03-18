@@ -16,6 +16,7 @@
 
 package androidx.room.integration.testapp.dao;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -40,4 +41,10 @@ public interface SongDao {
             + "Song as s JOIN SongDescription as fts ON (docid = mSongId) "
             + "WHERE fts.mTitle MATCH :searchQuery")
     List<Song> getSongs(String searchQuery);
+
+    @Query("SELECT * FROM Song")
+    LiveData<List<Song>> getLiveDataSong();
+
+    @Query("SELECT * FROM SongDescription")
+    LiveData<List<SongDescription>> getLiveDataSongDescription();
 }
