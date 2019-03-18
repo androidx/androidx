@@ -25,12 +25,12 @@ import androidx.ui.core.SemanticsTreeNode
  * @throws AssertionError if exactly one component not found
  */
 fun UiTestRunner.findByTag(testTag: String): SemanticsTreeQuery {
-    return findByCondition {
-            node -> node.data.testTag == testTag
+    return findByCondition { node ->
+        node.data.testTag == testTag
     }
 }
 
-internal fun UiTestRunner.findByCondition(
+fun UiTestRunner.findByCondition(
     selector: (SemanticsTreeNode) -> Boolean
 ): SemanticsTreeQuery {
     return SemanticsTreeQuery(this, selector)
