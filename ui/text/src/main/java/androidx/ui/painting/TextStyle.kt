@@ -25,7 +25,9 @@ import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
+import androidx.ui.engine.text.TextGeometricTransform
 import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.engine.text.lerp
 import androidx.ui.engine.window.Locale
 /*import androidx.ui.foundation.diagnostics.DiagnosticLevel
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
@@ -61,6 +63,7 @@ private const val _defaultFontSize: Float = 14.0f
  * * `wordSpacing`: The amount of space (in logical pixels) to add at each sequence of white-space (i.e. between each word). Only works on Android Q and above.
  * * `textBaseline`: The common baseline that should be aligned between this text span and its parent text span, or, for the root text spans, with the line box.
  * * `baselineShift`: This parameter specifies how much the baseline is shifted from the current position.
+ * * `textGeometricTransform`: The geometric transformation applied the text.
  * * `height`: The height of this text span, as a multiple of the font size.
  * * `locale`: The locale used to select region-specific glyphs.
  * * `background`: The background color for the text.
@@ -82,6 +85,7 @@ data class TextStyle(
     val wordSpacing: Float? = null,
     val textBaseline: TextBaseline? = null,
     val baselineShift: BaselineShift? = null,
+    val textGeometricTransform: TextGeometricTransform? = null,
     val height: Float? = null,
     val locale: Locale? = null,
     // TODO(Migration/haoyuchang): Changed from Paint to Color.
@@ -202,6 +206,7 @@ data class TextStyle(
             wordSpacing = other.wordSpacing ?: this.wordSpacing,
             textBaseline = other.textBaseline ?: this.textBaseline,
             baselineShift = other.baselineShift ?: this.baselineShift,
+            textGeometricTransform = other.textGeometricTransform ?: this.textGeometricTransform,
             height = other.height ?: this.height,
             locale = other.locale ?: this.locale,
             background = other.background ?: this.background,
@@ -234,7 +239,7 @@ data class TextStyle(
             assert(aIsNull || bIsNull || inheritEqual)
             if (aIsNull && bIsNull) return null
             // TODO(siyamed) remove debug labels
-            var lerpDebugLabel = "lerp(${a?.debugLabel
+            val lerpDebugLabel = "lerp(${a?.debugLabel
                 ?: _kDefaultDebugLabel} ⎯${t.toStringAsFixed(1)}→ ${b?.debugLabel
                 ?: _kDefaultDebugLabel})"
 
@@ -297,6 +302,11 @@ data class TextStyle(
                 ),
                 textBaseline = if (t < 0.5) a.textBaseline else b.textBaseline,
                 baselineShift = BaselineShift.lerp(a.baselineShift, b.baselineShift, t),
+                textGeometricTransform = lerp(
+                    a.textGeometricTransform ?: TextGeometricTransform.None,
+                    b.textGeometricTransform ?: TextGeometricTransform.None,
+                    t
+                ),
                 height = lerp(a.height ?: b.height!!, b.height ?: a.height!!, t),
                 locale = if (t < 0.5) a.locale else b.locale,
                 background = if (t < 0.5) a.background else b.background,
@@ -320,6 +330,7 @@ data class TextStyle(
             wordSpacing = wordSpacing,
             textBaseline = textBaseline,
             baselineShift = baselineShift,
+            textGeometricTransform = textGeometricTransform,
             height = height,
             locale = locale,
             background = background
@@ -381,6 +392,7 @@ data class TextStyle(
             wordSpacing != other.wordSpacing ||
             textBaseline != other.textBaseline ||
             baselineShift != other.baselineShift ||
+            textGeometricTransform != other.textGeometricTransform ||
             height != other.height ||
             locale != other.locale ||
             background != other.background

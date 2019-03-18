@@ -24,6 +24,7 @@ import android.text.style.AbsoluteSizeSpan
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.LocaleSpan
+import android.text.style.ScaleXSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import androidx.annotation.VisibleForTesting
@@ -43,6 +44,7 @@ import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.TextLayout
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.LetterSpacingSpan
+import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.text.style.WordSpacingSpan
 import androidx.ui.engine.geometry.Offset
@@ -313,6 +315,24 @@ internal class ParagraphAndroid constructor(
             }
 
             // TODO(Migration/haoyuchang): implement textBaseLine
+            style.textGeometricTransform?.scaleX?.let {
+                spannableString.setSpan(
+                    ScaleXSpan(it),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+
+            style.textGeometricTransform?.skewX?.let {
+                spannableString.setSpan(
+                    SkewXSpan(it),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+
             if (Build.VERSION.SDK_INT >= 28) {
                 style.wordSpacing?.let {
                     spannableString.setSpan(

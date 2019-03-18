@@ -25,7 +25,9 @@ import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
+import androidx.ui.engine.text.TextGeometricTransform
 import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.engine.text.lerp
 import androidx.ui.engine.window.Locale
 import androidx.ui.painting.basictypes.RenderComparison
 import com.google.common.truth.Truth.assertThat
@@ -1505,6 +1507,76 @@ class TextStyleTest {
     }
 
     @Test
+    fun `lerp textGeometricTransform with a is Null and t is smaller than half`() {
+        val textTransform = TextGeometricTransform(scaleX = 1.5f)
+        val t = 0.3f
+        val textStyle = TextStyle(textGeometricTransform = textTransform)
+
+        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
+
+        assertThat(newTextStyle?.textGeometricTransform).isNull()
+    }
+
+    @Test
+    fun `lerp textGeometricTransform with a is Null and t is larger than half`() {
+        val textTransform = TextGeometricTransform(scaleX = 1.5f)
+        val t = 0.7f
+        val textStyle = TextStyle(textGeometricTransform = textTransform)
+
+        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
+
+        assertThat(newTextStyle?.textGeometricTransform).isEqualTo(textTransform)
+    }
+
+    @Test
+    fun `lerp textGeometricTransform with b is Null and t is smaller than half`() {
+        val textTransform = TextGeometricTransform(scaleX = 1.5f)
+        val t = 0.3f
+        val textStyle = TextStyle(textGeometricTransform = textTransform)
+
+        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
+
+        assertThat(newTextStyle?.textGeometricTransform).isEqualTo(textTransform)
+    }
+
+    @Test
+    fun `lerp textGeometricTransform with b is Null and t is larger than half`() {
+        val textTransform = TextGeometricTransform(scaleX = 1.5f)
+        val t = 0.7f
+        val textStyle = TextStyle(textGeometricTransform = textTransform)
+
+        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
+
+        assertThat(newTextStyle?.textGeometricTransform).isNull()
+    }
+
+    @Test
+    fun `lerp textGeometricTransform with a and b are not Null`() {
+        val textTransform1 = TextGeometricTransform(scaleX = 1.5f, skewX = 0.1f)
+        val textTransform2 = TextGeometricTransform(scaleX = 1.0f, skewX = 0.3f)
+        val t = 0.3f
+        val textStyle1 = TextStyle(
+            textGeometricTransform = textTransform1,
+            fontSize = 4.0f,
+            wordSpacing = 1.0f,
+            letterSpacing = 2.0f,
+            height = 123.0f
+        )
+        val textStyle2 = TextStyle(
+            textGeometricTransform = textTransform2,
+            fontSize = 7.0f,
+            wordSpacing = 2.0f,
+            letterSpacing = 4.0f,
+            height = 20.0f
+        )
+
+        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
+
+        assertThat(newTextStyle?.textGeometricTransform)
+            .isEqualTo(lerp(textTransform1, textTransform2, t))
+    }
+
+    @Test
     fun `lerp height with a is Null and t is smaller than half`() {
         val height = 88.0f
         val t = 0.2f
@@ -2108,6 +2180,7 @@ class TextStyleTest {
             wordSpacing = 2.0f,
             textBaseline = TextBaseline.alphabetic,
             baselineShift = BaselineShift.SUBSCRIPT,
+            textGeometricTransform = TextGeometricTransform(scaleX = 1.0f),
             height = height,
             locale = Locale("en", "US"),
             background = bgColor,
@@ -2150,6 +2223,10 @@ class TextStyleTest {
         assertThat(textStyle.compareTo(textStyle.copy(baselineShift = BaselineShift.SUPERSCRIPT)))
             .isEqualTo(RenderComparison.LAYOUT)
 
+        assertThat(textStyle.compareTo(textStyle
+            .copy(textGeometricTransform = TextGeometricTransform())))
+            .isEqualTo(RenderComparison.LAYOUT)
+
         assertThat(textStyle.compareTo(textStyle.copy(height = 20.0f)))
             .isEqualTo(RenderComparison.LAYOUT)
 
@@ -2174,6 +2251,7 @@ class TextStyleTest {
             wordSpacing = 2.0f,
             textBaseline = TextBaseline.alphabetic,
             baselineShift = BaselineShift.SUPERSCRIPT,
+            textGeometricTransform = TextGeometricTransform(null, null),
             height = height,
             locale = Locale("en", "US"),
             decoration = TextDecoration.underline,

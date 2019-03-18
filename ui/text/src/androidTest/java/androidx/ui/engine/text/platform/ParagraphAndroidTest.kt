@@ -6,6 +6,7 @@ import android.text.style.AbsoluteSizeSpan
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.LocaleSpan
+import android.text.style.ScaleXSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import androidx.test.filters.SdkSuppress
@@ -14,6 +15,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.text.StaticLayoutCompat
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.LetterSpacingSpan
+import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.text.style.WordSpacingSpan
 import androidx.ui.engine.text.BaselineShift
@@ -32,6 +34,7 @@ import androidx.ui.engine.text.platform.TypefaceAdapter
 import androidx.ui.engine.window.Locale
 import androidx.ui.painting.Color
 import androidx.ui.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
+import androidx.ui.engine.text.TextGeometricTransform
 import androidx.ui.matchers.equalToBitmap
 import androidx.ui.matchers.hasSpan
 import androidx.ui.matchers.hasSpanOnTop
@@ -605,6 +608,62 @@ class ParagraphAndroidTest {
             paragraph.underlyingText,
             hasSpanOnTop(BaselineShiftSpan::class, 0, "abc".length)
         )
+    }
+
+    @Test
+    fun textStyle_setTextGeometricTransformWithNull_noSpanSet() {
+        val text = "abcde"
+        val textStyle = TextStyle(textGeometricTransform = TextGeometricTransform(null, null))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(paragraph.underlyingText, not(hasSpan(ScaleXSpan::class, 0, text.length)))
+        assertThat(paragraph.underlyingText, not(hasSpan(SkewXSpan::class, 0, text.length)))
+    }
+
+    @Test
+    fun textStyle_setTextGeometricTransformWithScaleX() {
+        val text = "abcde"
+        val scaleX = 0.5f
+        val textStyle = TextStyle(textGeometricTransform = TextGeometricTransform(scaleX, null))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(ScaleXSpan::class, 0, text.length) { it.scaleX == scaleX }
+        )
+        assertThat(paragraph.underlyingText, not(hasSpan(SkewXSpan::class, 0, text.length)))
+    }
+
+    @Test
+    fun textStyle_setTextGeometricTransformWithSkewX() {
+        val text = "aa"
+        val skewX = 1f
+        val textStyle = TextStyle(textGeometricTransform = TextGeometricTransform(null, skewX))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(SkewXSpan::class, 0, text.length) { it.skewX == skewX }
+        )
+        assertThat(paragraph.underlyingText, not(hasSpan(ScaleXSpan::class, 0, text.length)))
     }
 
     @Test
