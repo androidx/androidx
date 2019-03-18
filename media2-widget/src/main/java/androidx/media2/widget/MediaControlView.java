@@ -110,7 +110,6 @@ public class MediaControlView extends ViewGroup {
 
     static final String KEY_VIDEO_TRACK_COUNT = "VideoTrackCount";
     static final String KEY_AUDIO_TRACK_COUNT = "AudioTrackCount";
-    static final String KEY_SUBTITLE_TRACK_COUNT = "SubtitleTrackCount";
     static final String KEY_SUBTITLE_TRACK_LANGUAGE_LIST = "SubtitleTrackLanguageList";
     static final String KEY_SELECTED_AUDIO_INDEX = "SelectedAudioIndex";
     static final String KEY_SELECTED_SUBTITLE_INDEX = "SelectedSubtitleIndex";
@@ -175,7 +174,6 @@ public class MediaControlView extends ViewGroup {
     private int mSettingsWindowMargin;
     int mVideoTrackCount;
     int mAudioTrackCount;
-    int mSubtitleTrackCount;
     int mSettingsMode;
     int mSelectedSubtitleTrackIndex;
     int mSelectedAudioTrackIndex;
@@ -233,7 +231,6 @@ public class MediaControlView extends ViewGroup {
     // Relating to Bottom Bar Right View
     ViewGroup mBasicControls;
     ViewGroup mExtraControls;
-    ViewGroup mCustomButtons;
     ImageButton mSubtitleButton;
     ImageButton mFullScreenButton;
     private TextView mAdRemainingView;
@@ -592,7 +589,6 @@ public class MediaControlView extends ViewGroup {
         // Relating to Bottom Bar Right View
         mBasicControls = findViewById(R.id.basic_controls);
         mExtraControls = findViewById(R.id.extra_controls);
-        mCustomButtons = findViewById(R.id.custom_buttons);
         mSubtitleButton = findViewById(R.id.subtitle);
         mSubtitleButton.setOnClickListener(mSubtitleListener);
         mFullScreenButton = findViewById(R.id.fullscreen);
@@ -1650,20 +1646,6 @@ public class MediaControlView extends ViewGroup {
             mIconIds = iconIds;
         }
 
-        public void updateSubTexts(List<String> subTexts) {
-            mSubTexts = subTexts;
-            notifyDataSetChanged();
-        }
-
-        public String getMainText(int position) {
-            if (mMainTexts != null) {
-                if (position < mMainTexts.size()) {
-                    return mMainTexts.get(position);
-                }
-            }
-            return RESOURCE_EMPTY;
-        }
-
         @Override
         public int getCount() {
             return (mMainTexts == null) ? 0 : mMainTexts.size();
@@ -2016,7 +1998,7 @@ public class MediaControlView extends ViewGroup {
             }
 
             @Override
-            public void onSeekCompleted(MediaController controller, long position) {
+            public void onSeekCompleted(@NonNull MediaController controller, long position) {
                 if (DEBUG) {
                     Log.d(TAG, "onSeekCompleted(): " + position);
                 }
@@ -2059,7 +2041,7 @@ public class MediaControlView extends ViewGroup {
             }
 
             @Override
-            public void onPlaybackCompleted(MediaController controller) {
+            public void onPlaybackCompleted(@NonNull MediaController controller) {
                 if (DEBUG) {
                     Log.d(TAG, "onPlaybackCompleted()");
                 }
@@ -2092,7 +2074,7 @@ public class MediaControlView extends ViewGroup {
 
             @Override
             public void onPlaylistChanged(@NonNull MediaController controller,
-                    @NonNull List<MediaItem> list,
+                    @Nullable List<MediaItem> list,
                     @Nullable MediaMetadata metadata) {
                 if (DEBUG) {
                     Log.d(TAG, "onPlaylistChanged(): list: " + list);
@@ -2143,6 +2125,7 @@ public class MediaControlView extends ViewGroup {
             }
 
             @Override
+            @NonNull
             public SessionResult onCustomCommand(
                     @NonNull MediaController controller, @NonNull SessionCommand command,
                     @Nullable Bundle args) {
@@ -2174,31 +2157,29 @@ public class MediaControlView extends ViewGroup {
                         if (mVideoTrackCount == 0 && mAudioTrackCount > 0) {
                             mMediaType = MEDIA_TYPE_MUSIC;
                         }
-                        mSubtitleTrackCount = (args != null)
-                                ? args.getInt(KEY_SUBTITLE_TRACK_COUNT) : 0;
-                        List<String> subtitleTracksLanguageList = (args != null)
+                        List<String> subtitleTracksList = (args != null)
                                 ? args.getStringArrayList(KEY_SUBTITLE_TRACK_LANGUAGE_LIST) : null;
-                        mSubtitleDescriptionsList = new ArrayList<String>();
-                        if (mSubtitleTrackCount > 0) {
-                            mSubtitleButton.setAlpha(1.0f);
-                            mSubtitleButton.setEnabled(true);
+                        if (subtitleTracksList != null) {
+                            mSubtitleDescriptionsList = new ArrayList<String>();
                             mSubtitleDescriptionsList.add(mResources.getString(
                                     R.string.MediaControlView_subtitle_off_text));
-                            for (int i = 0; i < mSubtitleTrackCount; i++) {
-                                String lang = subtitleTracksLanguageList.get(i);
-                                String track;
+                            for (int i = 0; i < subtitleTracksList.size(); i++) {
+                                String lang = subtitleTracksList.get(i);
+                                String trackDescription;
                                 if (lang.equals("")) {
-                                    track = mResources.getString(
+                                    trackDescription = mResources.getString(
                                             R.string.MediaControlView_subtitle_track_number_text,
                                             i + 1);
                                 } else {
-                                    track = mResources.getString(
+                                    trackDescription = mResources.getString(
                                             R.string
                                             .MediaControlView_subtitle_track_number_and_lang_text,
                                             i + 1, lang);
                                 }
-                                mSubtitleDescriptionsList.add(track);
+                                mSubtitleDescriptionsList.add(trackDescription);
                             }
+                            mSubtitleButton.setAlpha(1.0f);
+                            mSubtitleButton.setEnabled(true);
                         } else {
                             if (mMediaType == MEDIA_TYPE_MUSIC) {
                                 mSubtitleButton.setVisibility(View.GONE);
@@ -2220,7 +2201,8 @@ public class MediaControlView extends ViewGroup {
                         int selectedTrackIndex = args != null
                                 ? args.getInt(KEY_SELECTED_SUBTITLE_INDEX, -1)
                                 : -1;
-                        if (selectedTrackIndex < 0 || selectedTrackIndex >= mSubtitleTrackCount) {
+                        if (selectedTrackIndex < 0
+                                || selectedTrackIndex >= mSubtitleDescriptionsList.size()) {
                             Log.w(TAG, "Selected subtitle track index (" + selectedTrackIndex
                                     + ") is out of range.");
                             break;
