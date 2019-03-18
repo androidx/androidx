@@ -30,6 +30,9 @@ if (JavaVersion.current().isJava8Compatible()) {
         if (options.doclet == null) {
             options.addBooleanOption('Xdoclint:none', true)
         }
+        // We set the group to null so it doesn't show if a user runs `./gradlew tasks`
+        // because this task is specific to this project
+        group = null
     }
 }
 
