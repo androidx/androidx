@@ -93,6 +93,7 @@ package androidx.navigation {
   public final class Navigation {
     method public static android.view.View.OnClickListener createNavigateOnClickListener(@IdRes int);
     method public static android.view.View.OnClickListener createNavigateOnClickListener(@IdRes int, android.os.Bundle?);
+    method public static android.view.View.OnClickListener createNavigateOnClickListener(androidx.navigation.NavDirections);
     method public static androidx.navigation.NavController findNavController(android.app.Activity, @IdRes int);
     method public static androidx.navigation.NavController findNavController(android.view.View);
     method public static void setViewNavController(android.view.View, androidx.navigation.NavController?);
