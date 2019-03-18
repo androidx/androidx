@@ -73,18 +73,18 @@ public @interface InspectableProperty {
      *
      * Note that {@code #enumMapping()} cannot be used simultaneously with {@link #flagMapping()}.
      *
-     * @return An array of {@link EnumMap}, empty if not applicable
+     * @return An array of {@link EnumEntry}, empty if not applicable
      */
-    EnumMap[] enumMapping() default {};
+    EnumEntry[] enumMapping() default {};
 
     /**
      * For flags packed into primitive {int} properties, model the string names of the flags.
      *
      * Note that {@code #flagMapping()} cannot be used simultaneously with {@link #enumMapping()}.
      *
-     * @return An array of {@link FlagMap}, empty if not applicable
+     * @return An array of {@link FlagEntry}, empty if not applicable
      */
-    FlagMap[] flagMapping() default {};
+    FlagEntry[] flagMapping() default {};
 
 
     /**
@@ -92,7 +92,7 @@ public @interface InspectableProperty {
      */
     @Target({TYPE})
     @Retention(SOURCE)
-    @interface EnumMap {
+    @interface EnumEntry {
         /**
          * The string name of this enumeration value.
          *
@@ -113,7 +113,7 @@ public @interface InspectableProperty {
      */
     @Target({TYPE})
     @Retention(SOURCE)
-    @interface FlagMap {
+    @interface FlagEntry {
         /**
          * The string name of this flag.
          *
@@ -161,7 +161,7 @@ public @interface InspectableProperty {
          *
          * This is inferred if {@link #enumMapping()} is specified.
          *
-         * @see EnumMap
+         * @see EnumEntry
          */
         INT_ENUM,
 
@@ -170,7 +170,7 @@ public @interface InspectableProperty {
          *
          * This is inferred if {@link #flagMapping()} is specified.
          *
-         * @see FlagMap
+         * @see FlagEntry
          */
         INT_FLAG,
 
@@ -184,8 +184,16 @@ public @interface InspectableProperty {
         /**
          * Value packs gravity information.
          *
-         * This type is not inferred and is non-trivial to represent using {@link FlagMap}.
+         * This type is not inferred and is non-trivial to represent using {@link FlagEntry}.
          */
-        GRAVITY
+        GRAVITY,
+
+        /**
+         * Value is a resource ID
+         *
+         * This type is inferred from the presence of a resource ID annotation such as
+         * {@link AnyRes}.
+         */
+        RESOURCE_ID
     }
 }
