@@ -206,12 +206,6 @@
         android:visibility="gone"
         android:layoutDirection="ltr">
 
-        <LinearLayout
-            android:id="@+id/custom_buttons"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" />
-
         <ImageButton
             android:id="@+id/settings"
             style="@style/BottomBarButton.Settings" />
