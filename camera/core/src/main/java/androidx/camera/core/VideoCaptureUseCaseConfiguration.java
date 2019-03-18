@@ -27,7 +27,11 @@ import androidx.annotation.RestrictTo.Scope;
 import java.util.Set;
 import java.util.UUID;
 
-/** Configuration for a video capture use case. */
+/** Configuration for a video capture use case.
+ *
+ * @hide In the earlier stage, the VideoCaptureUseCase is deprioritized.
+ */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public final class VideoCaptureUseCaseConfiguration
         implements UseCaseConfiguration<VideoCaptureUseCase>,
         ImageOutputConfiguration,
