@@ -4,7 +4,7 @@ package androidx.navigation.fragment {
   @androidx.navigation.Navigator.Name("fragment") public class FragmentNavigator extends androidx.navigation.Navigator<androidx.navigation.fragment.FragmentNavigator.Destination> {
     ctor public FragmentNavigator(android.content.Context, androidx.fragment.app.FragmentManager, int);
     method public androidx.navigation.fragment.FragmentNavigator.Destination createDestination();
-    method public androidx.fragment.app.Fragment instantiateFragment(android.content.Context, androidx.fragment.app.FragmentManager, String, android.os.Bundle?);
+    method @Deprecated public androidx.fragment.app.Fragment instantiateFragment(android.content.Context, androidx.fragment.app.FragmentManager, String, android.os.Bundle?);
     method public androidx.navigation.NavDestination? navigate(androidx.navigation.fragment.FragmentNavigator.Destination, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
     method public boolean popBackStack();
   }
