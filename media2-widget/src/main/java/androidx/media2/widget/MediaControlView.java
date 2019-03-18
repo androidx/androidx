@@ -204,6 +204,7 @@ public class MediaControlView extends ViewGroup {
 
     // Relating to Center View
     ViewGroup mCenterView;
+    private View mCenterViewBackground;
     private View mEmbeddedTransportControls;
     private View mMinimalTransportControls;
 
@@ -450,6 +451,8 @@ public class MediaControlView extends ViewGroup {
 
         mTitleBar.setVisibility(
                 sizeType != SIZE_TYPE_MINIMAL ? View.VISIBLE : View.INVISIBLE);
+        mCenterViewBackground.setVisibility(
+                sizeType != SIZE_TYPE_FULL ? View.VISIBLE : View.INVISIBLE);
         mEmbeddedTransportControls.setVisibility(
                 sizeType == SIZE_TYPE_EMBEDDED ? View.VISIBLE : View.INVISIBLE);
         mMinimalTransportControls.setVisibility(
@@ -464,8 +467,6 @@ public class MediaControlView extends ViewGroup {
                 sizeType != SIZE_TYPE_MINIMAL ? View.VISIBLE : View.INVISIBLE);
         mMinimalFullScreenButton.setVisibility(
                 sizeType == SIZE_TYPE_MINIMAL ? View.VISIBLE : View.INVISIBLE);
-        mCenterView.setVisibility(
-                sizeType != SIZE_TYPE_FULL ? View.VISIBLE : View.INVISIBLE);
 
         final int childLeft = getPaddingLeft();
         final int childRight = childLeft + width;
@@ -557,6 +558,7 @@ public class MediaControlView extends ViewGroup {
 
         // Relating to Center View
         mCenterView = findViewById(R.id.center_view);
+        mCenterViewBackground = findViewById(R.id.center_view_background);
         mEmbeddedTransportControls = initTransportControls(R.id.embedded_transport_controls);
         mMinimalTransportControls = initTransportControls(R.id.minimal_transport_controls);
 
@@ -672,9 +674,7 @@ public class MediaControlView extends ViewGroup {
         fadeInAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                if (mSizeType != SIZE_TYPE_FULL) {
-                    mCenterView.setVisibility(View.VISIBLE);
-                }
+                mCenterView.setVisibility(View.VISIBLE);
                 mMinimalFullScreenView.setVisibility(View.VISIBLE);
             }
         });
