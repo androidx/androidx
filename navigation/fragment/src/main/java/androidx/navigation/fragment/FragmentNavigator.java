@@ -28,6 +28,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
@@ -166,7 +167,8 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     }
 
     /**
-     * Instantiates the Fragment.
+     * Instantiates the Fragment via the FragmentManager's
+     * {@link androidx.fragment.app.FragmentFactory}.
      *
      * Note that this method is <strong>not</strong> responsible for calling
      * {@link Fragment#setArguments(Bundle)} on the returned Fragment instance.
@@ -176,7 +178,12 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
      * @param className The Fragment to instantiate
      * @param args The Fragment's arguments, if any
      * @return A new fragment instance.
+     * @deprecated Set a custom {@link androidx.fragment.app.FragmentFactory} via
+     * {@link FragmentManager#setFragmentFactory(FragmentFactory)} to control
+     * instantiation of Fragments.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed") // needed to maintain forward compatibility
+    @Deprecated
     @NonNull
     public Fragment instantiateFragment(@NonNull Context context,
             @NonNull FragmentManager fragmentManager,
@@ -210,6 +217,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         if (className.charAt(0) == '.') {
             className = mContext.getPackageName() + className;
         }
+        //noinspection deprecation needed to maintain forward compatibility
         final Fragment frag = instantiateFragment(mContext, mFragmentManager,
                 className, args);
         frag.setArguments(args);
@@ -411,7 +419,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
          * @param className The class name of the Fragment to show when you navigate to this
          *                  destination
          * @return this {@link Destination}
-         * @see #instantiateFragment(Context, FragmentManager, String, Bundle)
          */
         @NonNull
         public final Destination setClassName(@NonNull String className) {
@@ -423,7 +430,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
          * Gets the Fragment's class name associated with this destination
          *
          * @throws IllegalStateException when no Fragment class was set.
-         * @see #instantiateFragment(Context, FragmentManager, String, Bundle)
          */
         @NonNull
         public final String getClassName() {
