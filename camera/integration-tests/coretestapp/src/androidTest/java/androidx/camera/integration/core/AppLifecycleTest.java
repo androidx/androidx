@@ -31,13 +31,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.Until;
 
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,9 +48,13 @@ public final class AppLifecycleTest {
     private static final String BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.core";
     private static final int LAUNCH_TIMEOUT_MS = 5000;
 
-    @Rule
-    public ActivityTestRule<CameraXActivity> activityRule =
-            new ActivityTestRule<>(CameraXActivity.class);
+    private final UiDevice mDevice =
+            UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+    private final String mLauncherPackageName = mDevice.getLauncherPackageName();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+    private final Intent mIntent = mContext.getPackageManager()
+            .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
+
     @Rule
     public GrantPermissionRule cameraPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
@@ -62,60 +65,72 @@ public final class AppLifecycleTest {
     public GrantPermissionRule audioPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
 
+    @Before
+    public void setup() {
+        assertThat(mLauncherPackageName, notNullValue());
+        returnHomeScreen();
+    }
+
+
     // Test that the application starts and reaches displaying a TextureView.
     @Test
     public void startupAndDisplayTextureView() {
-        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+        mContext.startActivity(mIntent);
+        waitUntilTextureViewIsReady();
     }
 
-    // Run the app, press home, then restart the app, without clearing the previous task.
+    // Run the app, press home, then restart the app, always creating new instance.
     @Test
-    public void startCoreTestTwiceWithoutClearingPreviousInstance() {
-        UiDevice device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+    public void startCoreTestTwiceAlwaysNewInstance() {
+        mContext.startActivity(mIntent);
+        waitUntilTextureViewIsReady();
 
-        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+        returnHomeScreen();
 
-        device.pressHome();
-
-        final String launcherPackage = device.getLauncherPackageName();
-        assertThat(launcherPackage, notNullValue());
-        device.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), LAUNCH_TIMEOUT_MS);
-        Context context = ApplicationProvider.getApplicationContext();
-        final Intent intent = context.getPackageManager()
-                .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
-
-        // Do not clear out any previous instances.
-        context.startActivity(intent);
-        device.wait(Until.hasObject(By.pkg(BASIC_SAMPLE_PACKAGE).depth(0)), LAUNCH_TIMEOUT_MS);
-
-        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
+        Intent newIntent = new Intent(Intent.ACTION_MAIN);
+        newIntent.setClass(mContext, CameraXActivity.class);
+        newIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivity(newIntent);
+        waitUntilTextureViewIsReady();
     }
 
     // Run the app, press home, then restart the app, clearing the previous task when restarting.
+    // The behavior is the same to simulate press back key.
     @Test
     public void startCoreTestTwiceClearingPreviousInstance() {
-        UiDevice mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        mContext.startActivity(mIntent);
+        waitUntilTextureViewIsReady();
 
-        onView(withId(R.id.textureView)).check(matches(isDisplayed()));
-
-        mDevice.pressHome();
-
-        final String launcherPackage = mDevice.getLauncherPackageName();
-        assertThat(launcherPackage, notNullValue());
-        mDevice.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), LAUNCH_TIMEOUT_MS);
-        Context context = ApplicationProvider.getApplicationContext();
-        final Intent intent = context.getPackageManager()
-                .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
+        returnHomeScreen();
 
         // Clear out any previous instances.
-        try {
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        } catch (NullPointerException exception) {
-            Assert.fail("Could not set intent flag to clear activity.  Cannot properly test.");
-        }
-        context.startActivity(intent);
-        mDevice.wait(Until.hasObject(By.pkg(BASIC_SAMPLE_PACKAGE).depth(0)), LAUNCH_TIMEOUT_MS);
+        mIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        mContext.startActivity(mIntent);
+        waitUntilTextureViewIsReady();
+    }
 
+
+    // Run the app, press home, then restart the app, and in practically simulate app lifecycle
+    // state when pressing home key.
+    @Test
+    public void startCoreTestTwiceToSimulatePauseResume() {
+        mContext.startActivity(mIntent);
+        waitUntilTextureViewIsReady();
+
+        returnHomeScreen();
+
+        mContext.startActivity(mIntent);
+        waitUntilTextureViewIsReady();
+    }
+
+    private void waitUntilTextureViewIsReady() {
+        mDevice.wait(Until.hasObject(By.pkg(BASIC_SAMPLE_PACKAGE).depth(0)), LAUNCH_TIMEOUT_MS);
         onView(withId(R.id.textureView)).check(matches(isDisplayed()));
     }
+
+    private void returnHomeScreen() {
+        mDevice.pressHome();
+        mDevice.wait(Until.hasObject(By.pkg(mLauncherPackageName).depth(0)), LAUNCH_TIMEOUT_MS);
+    }
+
 }
