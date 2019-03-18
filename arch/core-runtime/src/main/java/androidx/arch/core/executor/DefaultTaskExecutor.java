@@ -38,7 +38,7 @@ public class DefaultTaskExecutor extends TaskExecutor {
 
     private final Object mLock = new Object();
 
-    private final ExecutorService mDiskIO = Executors.newFixedThreadPool(2, new ThreadFactory() {
+    private final ExecutorService mDiskIO = Executors.newFixedThreadPool(4, new ThreadFactory() {
         private static final String THREAD_NAME_STEM = "arch_disk_io_%d";
 
         private final AtomicInteger mThreadId = new AtomicInteger(0);
