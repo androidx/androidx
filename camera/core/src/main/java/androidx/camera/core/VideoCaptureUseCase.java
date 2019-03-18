@@ -205,7 +205,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
             mVideoEncoder.release();
             mAudioEncoder.stop();
             mAudioEncoder.release();
-            mCameraSurface.release();
+            releaseCameraSurface();
         }
 
         try {
@@ -373,6 +373,11 @@ public class VideoCaptureUseCase extends BaseUseCase {
     public void clear() {
         mVideoHandlerThread.quitSafely();
 
+        if (mVideoEncoder != null) {
+            mVideoEncoder.release();
+            mVideoEncoder = null;
+        }
+
         // audio encoder release
         mAudioHandlerThread.quitSafely();
         if (mAudioEncoder != null) {
@@ -385,8 +390,34 @@ public class VideoCaptureUseCase extends BaseUseCase {
             mAudioRecorder = null;
         }
 
+        if (mCameraSurface != null) {
+            releaseCameraSurface();
+        }
+
         super.clear();
     }
+
+    private void releaseCameraSurface() {
+        if (mDeferrableSurface == null) {
+            return;
+        }
+
+        final Surface surface = mCameraSurface;
+        mDeferrableSurface.setOnSurfaceDetachedListener(
+                MainThreadExecutor.getInstance(),
+                new DeferrableSurface.OnSurfaceDetachedListener() {
+                    @Override
+                    public void onSurfaceDetached() {
+                        if (surface != null) {
+                            surface.release();
+                        }
+                    }
+                });
+
+        mCameraSurface = null;
+        mDeferrableSurface = null;
+    }
+
 
     /**
      * Sets the desired rotation of the output video.
@@ -423,7 +454,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
                 null,
                 MediaCodec.CONFIGURE_FLAG_ENCODE);
         if (mCameraSurface != null) {
-            mCameraSurface.release();
+            releaseCameraSurface();
         }
         mCameraSurface = mVideoEncoder.createInputSurface();
 
@@ -431,24 +462,6 @@ public class VideoCaptureUseCase extends BaseUseCase {
                 SessionConfiguration.Builder.createFrom(configuration);
 
         mDeferrableSurface = new ImmediateSurface(mCameraSurface);
-        final MediaCodec videoEncoder = mVideoEncoder;
-        final Surface cameraSurface = mCameraSurface;
-        mDeferrableSurface.setOnSurfaceDetachedListener(
-                MainThreadExecutor.getInstance(),
-                new DeferrableSurface.OnSurfaceDetachedListener() {
-                    @Override
-                    public void onSurfaceDetached() {
-                        videoEncoder.release();
-                        if (videoEncoder == mVideoEncoder) {
-                            mVideoEncoder = null;
-                        }
-
-                        cameraSurface.release();
-                        if (cameraSurface == mCameraSurface) {
-                            mCameraSurface = null;
-                        }
-                    }
-                });
 
         builder.addSurface(mDeferrableSurface);
 
