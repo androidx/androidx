@@ -83,19 +83,19 @@ package androidx.annotation {
 
   @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public @interface InspectableProperty {
     method public abstract int attributeId() default 0;
-    method public abstract androidx.annotation.InspectableProperty.EnumMap[] enumMapping() default {};
-    method public abstract androidx.annotation.InspectableProperty.FlagMap[] flagMapping() default {};
+    method public abstract androidx.annotation.InspectableProperty.EnumEntry[] enumMapping() default {};
+    method public abstract androidx.annotation.InspectableProperty.FlagEntry[] flagMapping() default {};
     method public abstract boolean hasAttributeId() default true;
     method public abstract String name() default "";
     method public abstract androidx.annotation.InspectableProperty.ValueType valueType() default androidx.annotation.InspectableProperty.ValueType.INFERRED;
   }
 
-  @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface InspectableProperty.EnumMap {
+  @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface InspectableProperty.EnumEntry {
     method public abstract String name();
     method public abstract int value();
   }
 
-  @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface InspectableProperty.FlagMap {
+  @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface InspectableProperty.FlagEntry {
     method public abstract int mask() default 0;
     method public abstract String name();
     method public abstract int target();
@@ -108,6 +108,7 @@ package androidx.annotation {
     enum_constant public static final androidx.annotation.InspectableProperty.ValueType INT_ENUM;
     enum_constant public static final androidx.annotation.InspectableProperty.ValueType INT_FLAG;
     enum_constant public static final androidx.annotation.InspectableProperty.ValueType NONE;
+    enum_constant public static final androidx.annotation.InspectableProperty.ValueType RESOURCE_ID;
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE}) public @interface IntDef {
