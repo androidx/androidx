@@ -56,6 +56,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -71,11 +72,13 @@ public class ExifInterfaceTest {
 
     private static final String EXIF_BYTE_ORDER_II_JPEG = "image_exif_byte_order_ii.jpg";
     private static final String EXIF_BYTE_ORDER_MM_JPEG = "image_exif_byte_order_mm.jpg";
-    private static final String LG_G4_ISO_800_DNG = "lg_g4_iso_800.dng";
+    private static final String LG_G4_ISO_800_DNG = "lg_g4_iso_800_dng.dng";
+    private static final String LG_G4_ISO_800_JPG = "lg_g4_iso_800_jpg.jpg";
     private static final int[] IMAGE_RESOURCES = new int[] {
-            R.raw.image_exif_byte_order_ii, R.raw.image_exif_byte_order_mm, R.raw.lg_g4_iso_800};
+            R.raw.image_exif_byte_order_ii, R.raw.image_exif_byte_order_mm, R.raw.lg_g4_iso_800_dng,
+            R.raw.lg_g4_iso_800_jpg};
     private static final String[] IMAGE_FILENAMES = new String[] {
-            EXIF_BYTE_ORDER_II_JPEG, EXIF_BYTE_ORDER_MM_JPEG, LG_G4_ISO_800_DNG};
+            EXIF_BYTE_ORDER_II_JPEG, EXIF_BYTE_ORDER_MM_JPEG, LG_G4_ISO_800_DNG, LG_G4_ISO_800_JPG};
 
     private static final int USER_READ_WRITE = 0600;
     private static final String TEST_TEMP_FILE_NAME = "testImage";
@@ -265,6 +268,11 @@ public class ExifInterfaceTest {
         public final int orientation;
         public final int whiteBalance;
 
+        // XMP information.
+        public final boolean hasXmp;
+        public final int xmpOffset;
+        public final int xmpLength;
+
         private static String getString(TypedArray typedArray, int index) {
             String stringValue = typedArray.getString(index);
             if (stringValue == null || stringValue.equals("")) {
@@ -314,6 +322,11 @@ public class ExifInterfaceTest {
             iso = getString(typedArray, index++);
             orientation = typedArray.getInt(index++, 0);
             whiteBalance = typedArray.getInt(index++, 0);
+
+            // Reads XMP information.
+            hasXmp = typedArray.getBoolean(index++, false);
+            xmpOffset = typedArray.getInt(index++, 0);
+            xmpLength = typedArray.getInt(index++, 0);
 
             typedArray.recycle();
         }
@@ -369,6 +382,12 @@ public class ExifInterfaceTest {
     @LargeTest
     public void testReadExifDataFromLgG4Iso800Dng() throws Throwable {
         testExifInterfaceForRaw(LG_G4_ISO_800_DNG, R.array.lg_g4_iso_800_dng);
+    }
+
+    @Test
+    @LargeTest
+    public void testReadExifDataFromLgG4Iso800Jpg() throws Throwable {
+        testExifInterfaceForJpeg(LG_G4_ISO_800_JPG, R.array.lg_g4_iso_800_jpg);
     }
 
     @Test
@@ -740,6 +759,7 @@ public class ExifInterfaceTest {
         // Checks a thumbnail image.
         assertEquals(expectedValue.hasThumbnail, exifInterface.hasThumbnail());
         if (expectedValue.hasThumbnail) {
+            assertNotNull(exifInterface.getThumbnailRange());
             if (assertRanges) {
                 final long[] thumbnailRange = exifInterface.getThumbnailRange();
                 assertEquals(expectedValue.thumbnailOffset, thumbnailRange[0]);
@@ -754,6 +774,7 @@ public class ExifInterfaceTest {
             assertEquals(expectedValue.isThumbnailCompressed,
                     exifInterface.isThumbnailCompressed());
         } else {
+            assertNull(exifInterface.getThumbnailRange());
             assertNull(exifInterface.getThumbnail());
         }
 
@@ -761,6 +782,7 @@ public class ExifInterfaceTest {
         double[] latLong = exifInterface.getLatLong();
         assertEquals(expectedValue.hasLatLong, latLong != null);
         if (expectedValue.hasLatLong) {
+            assertNotNull(exifInterface.getAttributeRange(ExifInterface.TAG_GPS_LATITUDE));
             if (assertRanges) {
                 final long[] latitudeRange = exifInterface
                         .getAttributeRange(ExifInterface.TAG_GPS_LATITUDE);
@@ -772,6 +794,7 @@ public class ExifInterfaceTest {
             assertTrue(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE));
             assertTrue(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LONGITUDE));
         } else {
+            assertNull(exifInterface.getAttributeRange(ExifInterface.TAG_GPS_LATITUDE));
             assertFalse(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE));
             assertFalse(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LONGITUDE));
         }
@@ -805,6 +828,27 @@ public class ExifInterfaceTest {
                 expectedValue.iso);
         assertIntTag(exifInterface, ExifInterface.TAG_ORIENTATION, expectedValue.orientation);
         assertIntTag(exifInterface, ExifInterface.TAG_WHITE_BALANCE, expectedValue.whiteBalance);
+
+        if (expectedValue.hasXmp) {
+            assertNotNull(exifInterface.getAttributeRange(ExifInterface.TAG_XMP));
+            if (assertRanges) {
+                final long[] xmpRange = exifInterface.getAttributeRange(ExifInterface.TAG_XMP);
+                assertEquals(expectedValue.xmpOffset, xmpRange[0]);
+                assertEquals(expectedValue.xmpLength, xmpRange[1]);
+            }
+            final String xmp = new String(exifInterface.getAttributeBytes(ExifInterface.TAG_XMP),
+                    Charset.forName("UTF-8"));
+            // We're only interested in confirming that we were able to extract
+            // valid XMP data, which must always include this XML tag; a full
+            // XMP parser is beyond the scope of ExifInterface. See XMP
+            // Specification Part 1, Section C.2.2 for additional details.
+            if (!xmp.contains("<rdf:RDF")) {
+                fail("Invalid XMP: " + xmp);
+            }
+        } else {
+            assertNull(exifInterface.getAttributeRange(ExifInterface.TAG_XMP));
+        }
+
     }
 
     private void testExifInterfaceCommon(String fileName, ExpectedValue expectedValue)
