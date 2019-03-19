@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.media.AudioTrack;
 import android.os.Build;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,8 +37,19 @@ import java.lang.annotation.RetentionPolicy;
  * Used by {@link MediaPlayer} {@link MediaPlayer#getPlaybackParams()} and
  * {@link MediaPlayer#setPlaybackParams(PlaybackParams)}
  * to control playback behavior.
- * <p> <strong>audio fallback mode:</strong>
- * select out-of-range parameter handling.
+ * <p>
+ * PlaybackParams returned by {@link MediaPlayer#getPlaybackParams()} will always have values.
+ * In case of {@link MediaPlayer#setPlaybackParams}, the player will not update the param if the
+ * value is not set. For example, if pitch is set while speed is not set, only pitch will be
+ * updated.
+ * <p>
+ * Note that the speed value does not change the player state. For example, if
+ * {@link MediaPlayer#getPlaybackParams()} is called with the speed of 2.0f in
+ * {@link MediaPlayer#PLAYER_STATE_PAUSED}, the player will just update internal property and stay
+ * paused. Once {@link MediaPlayer#play()} is called afterwards, the player will start
+ * playback with the given speed. Calling this with zero speed is not allowed.
+ * <p>
+ * <strong>audio fallback mode:</strong> select out-of-range parameter handling.
  * <ul>
  * <li> {@link PlaybackParams#AUDIO_FALLBACK_MODE_DEFAULT}:
  *   System will determine best handling. </li>
@@ -219,7 +231,8 @@ public final class PlaybackParams {
          * @return this <code>Builder</code> instance.
          * @throws IllegalArgumentException if the pitch is negative.
          */
-        public @NonNull Builder setPitch(float pitch) {
+        public @NonNull Builder setPitch(
+                @FloatRange(from = 0.0f, to = Float.MAX_VALUE) float pitch) {
             if (pitch < 0.f) {
                 throw new IllegalArgumentException("pitch must not be negative");
             }
@@ -236,7 +249,14 @@ public final class PlaybackParams {
          *
          * @return this <code>Builder</code> instance.
          */
-        public @NonNull Builder setSpeed(float speed) {
+        public @NonNull Builder setSpeed(
+                @FloatRange(from = 0.0f, to = Float.MAX_VALUE, fromInclusive = false) float speed) {
+            if (speed == 0.f) {
+                throw new IllegalArgumentException("0 speed is not allowed.");
+            }
+            if (speed < 0.f) {
+                throw new IllegalArgumentException("negative speed is not supported.");
+            }
             if (Build.VERSION.SDK_INT >= 23) {
                 mPlaybackParams.setSpeed(speed);
             } else {
