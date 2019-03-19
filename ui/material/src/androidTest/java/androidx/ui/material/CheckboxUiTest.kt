@@ -30,7 +30,6 @@ import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import com.google.r4a.Model
 import com.google.r4a.composer
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -92,7 +91,6 @@ class CheckboxUiTest : AndroidUiTestRunner() {
     }
 
     @Test
-    @Ignore("This test still fails. Needs to be investigated.")
     fun checkBoxTest_toggle_twice() {
         val state = CheckboxState(value=Unchecked)
 

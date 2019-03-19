@@ -16,8 +16,10 @@
 
 package androidx.ui.test
 
+import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_UP
 
 fun SemanticsTreeQuery.doClick(): SemanticsTreeQuery {
     val foundNodes = findAllMatching()
@@ -25,12 +27,19 @@ fun SemanticsTreeQuery.doClick(): SemanticsTreeQuery {
         throw AssertionError("Found '${foundNodes.size}' nodes but 1 was expected!")
     }
 
+    // TODO(catalintudor): get real coordonates after Semantics API is ready (b/125702443)
     val globalCoordinates = foundNodes[0].globalPosition
         ?: throw AssertionError("Semantic Node has no child layout to perform click on!")
     val x = globalCoordinates.x.value + 1f
     val y = globalCoordinates.y.value + 1f
-    val event = MotionEvent.obtain(10, 10, ACTION_DOWN, x, y, 0)
-    sendEvent(event)
+
+    val eventDown = MotionEvent.obtain(SystemClock.uptimeMillis(), 10, ACTION_DOWN, x, y, 0)
+    sendEvent(eventDown)
+    eventDown.recycle()
+
+    val eventUp = MotionEvent.obtain(SystemClock.uptimeMillis(), 10, ACTION_UP, x, y, 0)
+    sendEvent(eventUp)
+    eventUp.recycle()
 
     return this
 }

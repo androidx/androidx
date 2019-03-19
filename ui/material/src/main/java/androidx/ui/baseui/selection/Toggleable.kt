@@ -16,7 +16,6 @@
 
 package androidx.ui.baseui.selection
 
-import androidx.ui.core.PxPosition
 import androidx.ui.core.adapter.PressGestureDetector
 import androidx.ui.core.adapter.Semantics
 import com.google.r4a.Children
@@ -30,11 +29,8 @@ fun Toggleable(
     testTag: String? = null,
     @Children children: () -> Unit
 ) {
-    val onPress: (PxPosition) -> Unit = {
-        onToggle?.invoke()
-    }
-
-    <PressGestureDetector onPress>
+    // TODO should we use PressReleasedGestureDetector?
+    <PressGestureDetector onRelease=onToggle>
         // TODO(pavlis): Semantics currently doesn't support 3 states (only checked / unchecked).
         <Semantics checked=(value == ToggleableState.Checked) testTag>
             <children />
