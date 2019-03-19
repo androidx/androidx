@@ -15,7 +15,7 @@
 -->
 
 <resources>
-    <style name="TestActivityTheme" parent="android:Theme">
+    <style name="TestActivityTheme" parent="Theme.AppCompat">
         <item name="android:windowAnimationStyle">@empty</item>
     </style>
 </resources>
