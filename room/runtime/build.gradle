@@ -32,6 +32,10 @@ android {
 
 dependencies {
     api(project(":room:room-common"))
+    implementation fileTree(
+            dir: "${new File(project(":room:room-common-java8").buildDir, "libs")}",
+            include : "*.jar"
+    )
     api(ANDROIDX_SQLITE_FRAMEWORK)
     api(ANDROIDX_SQLITE)
     implementation(ARCH_CORE_RUNTIME)
@@ -56,14 +60,20 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 }
 
-// Used by testCompile in room-compiler
 android.libraryVariants.all { variant ->
     def name = variant.name
     def suffix = name.capitalize()
+
+    // Create jar<variant> task for testCompile in room-compiler.
     project.tasks.create(name: "jar${suffix}", type: Jar){
         dependsOn variant.javaCompileProvider.get()
         from variant.javaCompileProvider.get().destinationDir
         destinationDir new File(project.buildDir, "libJar")
+    }
+
+    // Make javaCompile task depend on room-common-java8 jar task.
+    variant.javaCompileProvider.configure { task ->
+        task.dependsOn(":room:room-common-java8:jar")
     }
 }
 
