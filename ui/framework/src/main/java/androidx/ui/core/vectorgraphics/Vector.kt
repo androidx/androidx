@@ -16,19 +16,60 @@
 
 package androidx.ui.core.vectorgraphics
 
+import android.graphics.Bitmap
 import android.graphics.ColorFilter
+import android.graphics.Matrix
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Canvas
+import androidx.ui.painting.Image
+import androidx.ui.painting.Paint
+import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.Emittable
 import com.google.r4a.composer
+
+const val DefaultGroupName = ""
+const val DefaultRotate = 0.0f
+const val DefaultPivotX = 0.0f
+const val DefaultPivotY = 0.0f
+const val DefaultScaleX = 1.0f
+const val DefaultScaleY = 1.0f
+const val DefaultTranslateX = 0.0f
+const val DefaultTranslateY = 0.0f
+
+val EmptyPath = emptyArray<PathNode>()
+
+/**
+ * paint used to draw the cached vector graphic to the provided canvas
+ * TODO (njawad) Can we update the Crane Canvas API to make this paint optional?
+ */
+internal val EmptyPaint = Paint()
+
+class PathDelegate(val delegate: PathBuilder.() -> Unit)
+
+// TODO figure out how to use UNIONTYPE with a Lambda receiver. Cannot cast to KClass which is what
+// UnionType is expecting
+// TODO uncomment usage of UnionType when R4A can be accessed across modules
+typealias PathData = /*@UnionType(String::class, PathDelegate::class, Array<PathNode>::class)*/ Any?
+
+// TODO (njawad) change to color int
+typealias BrushType = /*@UnionType(Int::class, Brush::class)*/ Any
+
+const val DefaultPathName = ""
+const val DefaultAlpha = 1.0f
+const val DefaultStrokeLineWidth = 0.0f
+const val DefaultStrokeLineMiter = 4.0f
+
+val DefaultStrokeLineCap = StrokeCap.butt
+val DefaultStrokeLineJoin = StrokeJoin.miter
 
 fun addPathNodes(pathStr: String?): Array<PathNode> =
     if (pathStr == null) {
@@ -84,9 +125,9 @@ fun group(
 fun path(
     pathData: PathData,
     name: String = DefaultPathName,
-    fill: BrushType? = null,
+    fill: BrushType = EmptyBrush,
     fillAlpha: Float = DefaultAlpha,
-    stroke: BrushType? = null,
+    stroke: BrushType = EmptyBrush,
     strokeAlpha: Float = DefaultAlpha,
     strokeLineWidth: Float = DefaultStrokeLineWidth,
     strokeLineCap: StrokeCap = DefaultStrokeLineCap,
@@ -95,15 +136,15 @@ fun path(
 ) {
 
     val pathNodes = createPath(pathData)
-    val fillBrush: Brush? = (obtainBrush(fill) as? Brush)
-    val strokeBrush: Brush? = (obtainBrush(stroke) as? Brush)
+    val fill: Brush = obtainBrush(fill)
+    val stroke: Brush = obtainBrush(stroke)
 
     <Path
         name
         pathNodes
-        fillBrush
+        fill
         fillAlpha
-        strokeBrush
+        stroke
         strokeAlpha
         strokeLineWidth
         strokeLineCap
@@ -111,124 +152,223 @@ fun path(
         strokeLineMiter />
 }
 
-private sealed class VectorGraphicComponent {
-    abstract val node: VNode
+private sealed class VNode {
     abstract fun draw(canvas: Canvas)
 }
 
 private class Vector(
-    name: String = "",
-    viewportWidth: Float,
-    viewportHeight: Float,
-    defaultWidth: Float = viewportWidth,
-    defaultHeight: Float = viewportHeight
-) : VectorGraphicComponent(), Emittable {
+    val name: String = "",
+    val viewportWidth: Float,
+    val viewportHeight: Float,
+    val defaultWidth: Float = viewportWidth,
+    val defaultHeight: Float = viewportHeight
+) : VNode(), Emittable {
 
-    private val vectorGraphic = VectorGraphic(
-        name,
-        defaultWidth,
-        defaultHeight,
-        viewportWidth,
-        viewportHeight
-    )
-
-    val name: String = vectorGraphic.name
-
-    val defaultWidth: Float = vectorGraphic.width
-    val defaultHeight: Float = vectorGraphic.height
-
-    val viewportWidth: Float = vectorGraphic.viewportWidth
-    val viewportHeight: Float = vectorGraphic.viewportHeight
-
-    override val node: VNode = vectorGraphic
-
-    override fun emitInsertAt(index: Int, instance: Emittable) {
-        if (instance is VectorGraphicComponent) {
-            vectorGraphic.insert(index, instance.node)
-        }
+    private val root = Group(this@Vector.name).apply {
+        pivotX = 0.0f
+        pivotY = 0.0f
+        scaleX = defaultWidth / viewportWidth
+        scaleY = defaultHeight / viewportHeight
     }
 
-    override fun emitMove(from: Int, to: Int, count: Int) {
-        vectorGraphic.move(from, to, count)
-    }
+    /**
+     * Cached Image of the Vector Graphic to be re-used across draw calls
+     * if the Vector graphic is not dirty
+     */
+    // TODO (njawad) add invalidation logic to re-draw into the offscreen bitmap
+    private var cachedImage: Image? = null
 
-    override fun emitRemoveAt(index: Int, count: Int) {
-        vectorGraphic.removeAt(index, count)
-    }
+    val size: Int
+        get() = root.size
 
     override fun draw(canvas: Canvas) {
-        vectorGraphic.draw(canvas)
+        var targetImage = cachedImage
+        if (targetImage == null) {
+            val bitmap = Bitmap.createBitmap(kotlin.math.ceil(defaultWidth).toInt(),
+                kotlin.math.ceil(defaultHeight).toInt(), Bitmap.Config.ARGB_8888)
+            targetImage = Image(bitmap)
+            cachedImage = targetImage
+            root.draw(Canvas(android.graphics.Canvas(bitmap)))
+        }
+        canvas.drawImage(targetImage, Offset.zero, EmptyPaint)
     }
 
     override fun toString(): String {
-        return vectorGraphic.toString()
+        return buildString {
+            append("Params: ")
+            append("\tname: ").append(name).append("\n")
+            append("\twidth: ").append(defaultWidth).append("\n")
+            append("\theight: ").append(defaultHeight).append("\n")
+            append("\tviewportWidth: ").append(viewportWidth).append("\n")
+            append("\tviewportHeight: ").append(viewportHeight).append("\n")
+        }
+    }
+
+    override fun emitInsertAt(index: Int, instance: Emittable) {
+        root.emitInsertAt(index, instance)
+    }
+
+    override fun emitMove(from: Int, to: Int, count: Int) {
+        root.emitMove(from, to, count)
+    }
+
+    override fun emitRemoveAt(index: Int, count: Int) {
+        root.emitRemoveAt(index, count)
     }
 }
 
-private class Path(name: String) : VectorGraphicComponent(), Emittable {
+private class Path(val name: String) : VNode(), Emittable {
 
-    private var path = VPath(name)
-
-    val name: String = path.name
-
-    var pathNodes: Array<PathNode>
-        get() = path.pathNodes
+    var fill: Brush = EmptyBrush
         set(value) {
-            path.pathNodes = value
+            field = value
+            updateFillPaint {
+                field?.applyBrush(this)
+            }
         }
 
-    var fillBrush: Brush?
-        get() = path.fill
+    var fillAlpha: Float = DefaultAlpha
         set(value) {
-            path.fill = value
+            field = value
+            updateFillPaint {
+                alpha = field
+            }
         }
 
-    var fillAlpha: Float
-        get() = path.fillAlpha
+    var pathNodes: Array<PathNode> = emptyArray()
         set(value) {
-            path.fillAlpha = value
+            field = value
+            isPathDirty = true
         }
 
-    var strokeAlpha: Float
-        get() = path.strokeAlpha
+    var strokeAlpha: Float = DefaultAlpha
         set(value) {
-            path.strokeAlpha = value
+            field = value
+            updateStrokePaint {
+                alpha = field
+            }
         }
 
-    var strokeLineWidth: Float
-        get() = path.strokeLineWidth
+    var strokeLineWidth: Float = DefaultStrokeLineWidth
         set(value) {
-            path.strokeLineWidth = value
+            field = value
+            updateStrokePaint {
+                strokeWidth = field
+            }
         }
 
-    var strokeBrush: Brush?
-        get() = path.stroke
+    var stroke: Brush = EmptyBrush
         set(value) {
-            path.stroke = value
+            field = value
+            updateStrokePaint {
+                field?.applyBrush(this)
+            }
         }
 
-    var strokeLineCap: StrokeCap
-        get() = path.strokeLineCap
+    var strokeLineCap: StrokeCap = DefaultStrokeLineCap
         set(value) {
-            path.strokeLineCap = value
+            field = value
+            updateStrokePaint {
+                strokeCap = field
+            }
         }
 
-    var strokeLineJoin: StrokeJoin
-        get() = path.strokeLineJoin
+    var strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin
         set(value) {
-            path.strokeLineJoin = value
+            field = value
+            updateStrokePaint {
+                strokeJoin = field
+            }
         }
 
-    var strokeLineMiter: Float
-        get() = path.strokeLineMiter
+    var strokeLineMiter: Float = DefaultStrokeLineMiter
         set(value) {
-            path.strokeLineMiter = value
+            field = value
+            updateStrokePaint {
+                strokeMiterLimit = field
+            }
         }
 
-    override val node: VNode = path
+    private var isPathDirty = true
+
+    private val path = androidx.ui.painting.Path()
+
+    private var fillPaint: Paint? = null
+    private var strokePaint: Paint? = null
+
+    private val parser = PathParser()
+
+    private fun updateStrokePaint(strokePaintUpdater: Paint.() -> Unit) {
+        val targetStroke = stroke
+        if (targetStroke != null) {
+            if (strokePaint == null) {
+                strokePaint = createStrokePaint()
+            } else {
+                strokePaint?.strokePaintUpdater()
+            }
+        }
+    }
+
+    private fun createStrokePaint(): Paint = Paint().apply {
+        isAntiAlias = true
+        style = PaintingStyle.stroke
+        alpha = strokeAlpha
+        strokeWidth = strokeLineWidth
+        strokeCap = strokeLineCap
+        strokeJoin = strokeLineJoin
+        strokeMiterLimit = strokeLineMiter
+        stroke?.applyBrush(this)
+    }
+
+    private fun updateFillPaint(fillPaintUpdater: Paint.() -> Unit) {
+        val targetFill = fill
+        if (targetFill != null) {
+            if (fillPaint == null) {
+                fillPaint = createFillPaint()
+            } else {
+                fillPaint?.fillPaintUpdater()
+            }
+        }
+    }
+
+    private fun createFillPaint(): Paint = Paint().apply {
+        isAntiAlias = true
+        alpha = fillAlpha
+        style = PaintingStyle.fill
+        fill?.applyBrush(this)
+    }
+
+    private fun updatePath() {
+        parser.clear()
+        path.reset()
+        parser.addPathNodes(pathNodes).toPath(path)
+    }
 
     override fun draw(canvas: Canvas) {
-        path.draw(canvas)
+        if (isPathDirty) {
+            updatePath()
+            isPathDirty = false
+        }
+
+        val fillBrush = fill
+        if (fillBrush !== EmptyBrush) {
+            var targetFillPaint = fillPaint
+            if (targetFillPaint == null) {
+                targetFillPaint = createFillPaint()
+                fillPaint = targetFillPaint
+            }
+            canvas.drawPath(path, targetFillPaint)
+        }
+
+        val strokeBrush = stroke
+        if (strokeBrush !== EmptyBrush) {
+            var targetStrokePaint = strokePaint
+            if (targetStrokePaint == null) {
+                targetStrokePaint = createStrokePaint()
+                strokePaint = targetStrokePaint
+            }
+            canvas.drawPath(path, targetStrokePaint)
+        }
     }
 
     override fun emitInsertAt(index: Int, instance: Emittable) {
@@ -248,85 +388,184 @@ private class Path(name: String) : VectorGraphicComponent(), Emittable {
     }
 }
 
-private class Group(name: String = DefaultGroupName) : VectorGraphicComponent(), Emittable {
+private class Group(val name: String = DefaultGroupName) : VNode(), Emittable {
 
-    private val group = VGroup(name)
+    private var groupMatrix: Matrix? = null
 
-    var clipPathNodes: Array<PathNode>
-        get() = group.clipPathNodes
+    private val children = mutableListOf<VNode>()
+
+    var clipPathNodes: Array<PathNode> = EmptyPath
         set(value) {
-            group.clipPathNodes = value
+            field = value
+            isClipPathDirty = true
         }
 
-    val name: String
-        get() = group.name
+    private val willClipPath: Boolean
+        get() = clipPathNodes.isNotEmpty()
 
-    var rotate: Float
-        get() = group.rotate
+    private var isClipPathDirty = true
+
+    private var clipPath: androidx.ui.painting.Path? = null
+    private var parser: PathParser? = null
+
+    private fun updateClipPath() {
+        if (willClipPath) {
+            var targetParser = parser
+            if (targetParser == null) {
+                targetParser = PathParser()
+                parser = targetParser
+            } else {
+                targetParser.clear()
+            }
+
+            var targetClip = clipPath
+            if (targetClip == null) {
+                targetClip = androidx.ui.painting.Path()
+                clipPath = targetClip
+            } else {
+                targetClip.reset()
+            }
+
+            targetParser.addPathNodes(clipPathNodes).toPath(targetClip)
+        }
+    }
+
+    var rotate: Float = DefaultRotate
         set(value) {
-            group.rotate = value
+            field = value
+            isMatrixDirty = true
         }
 
-    var pivotX: Float
-        get() = group.pivotX
+    var pivotX: Float = DefaultPivotX
         set(value) {
-            group.pivotX = value
+            field = value
+            isMatrixDirty = true
         }
 
-    var pivotY: Float
-        get() = group.pivotY
+    var pivotY: Float = DefaultPivotY
         set(value) {
-            group.pivotY = value
+            field = value
+            isMatrixDirty = true
         }
 
-    var scaleX: Float
-        get() = group.scaleX
+    var scaleX: Float = DefaultScaleX
         set(value) {
-            group.scaleX = value
+            field = value
+            isMatrixDirty = true
         }
 
-    var scaleY: Float
-        get() = group.scaleY
+    var scaleY: Float = DefaultScaleY
         set(value) {
-            group.scaleY = value
+            field = value
+            isMatrixDirty = true
         }
 
-    var translateX: Float
-        get() = group.translateX
+    var translateX: Float = DefaultTranslateX
         set(value) {
-            group.translateX = value
+            field = value
+            isMatrixDirty = true
         }
 
-    var translateY: Float
-        get() = group.translateY
+    var translateY: Float = DefaultTranslateY
         set(value) {
-            group.translateY = value
+            field = value
+            isMatrixDirty = true
         }
 
-    override val node: VNode = group
+    private var isMatrixDirty = true
+
+    private fun updateMatrix() {
+        val matrix: Matrix
+        val target = groupMatrix
+        if (target == null) {
+            matrix = Matrix()
+            groupMatrix = matrix
+        } else {
+            matrix = target
+        }
+        with(matrix) {
+            reset()
+            postTranslate(-pivotX, -pivotY)
+            postScale(scaleX, scaleY)
+            postRotate(rotate, 0f, 0f)
+            postTranslate(translateX + pivotX,
+                translateY + pivotY)
+        }
+    }
 
     override fun emitInsertAt(index: Int, instance: Emittable) {
-        if (instance is VectorGraphicComponent) {
-            group.insertAt(index, instance.node)
-        } else {
-            throw IllegalArgumentException("Emittable instance must be VNode")
+        if (instance is VNode) {
+            if (index < size) {
+                children[index] = instance
+            } else {
+                children.add(instance)
+            }
         }
     }
 
     override fun emitMove(from: Int, to: Int, count: Int) {
-        group.move(from, to, count)
+        if (from > to) {
+            var current = to
+            repeat(count) {
+                val node = children[from]
+                children.removeAt(from)
+                children.add(current, node)
+                current++
+            }
+        } else {
+            repeat(count) {
+                val node = children[from]
+                children.removeAt(from)
+                children.add(to - 1, node)
+            }
+        }
     }
 
     override fun emitRemoveAt(index: Int, count: Int) {
-        group.removeAt(index, count)
+        repeat(count) {
+            children.removeAt(index)
+        }
     }
 
     override fun draw(canvas: Canvas) {
-        group.draw(canvas)
+        if (isMatrixDirty) {
+            updateMatrix()
+            isMatrixDirty = false
+        }
+
+        if (isClipPathDirty) {
+            updateClipPath()
+            isClipPathDirty = false
+        }
+
+        canvas.save()
+
+        val targetClip = clipPath
+        if (willClipPath && targetClip != null) {
+            canvas.clipPath(targetClip)
+        }
+
+        val matrix = groupMatrix
+        if (matrix != null) {
+            canvas.toFrameworkCanvas().concat(matrix)
+        }
+
+        for (node in children) {
+            node.draw(canvas)
+        }
+
+        canvas.restore()
     }
 
+    val size: Int
+        get() = children.size
+
     override fun toString(): String {
-        return group.toString()
+        val sb = StringBuilder().append("VGroup: ").append(name)
+        for (node in children) {
+            sb.append("\t").append(node.toString()).append("\n")
+        }
+        return sb.toString()
     }
 }
 

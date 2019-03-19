@@ -104,7 +104,7 @@ class VectorGraphicsActivity : Activity() {
             stripe(vectorWidth, vectorHeight, 10)
         }
 
-        <path fill=Color.BLUE pathData=stripeDelegate />
+        <path stroke=Color.BLUE pathData=stripeDelegate />
     }
 
     private fun PathBuilder.stripe(vectorWidth: Float, vectorHeight: Float, numLines: Int) {

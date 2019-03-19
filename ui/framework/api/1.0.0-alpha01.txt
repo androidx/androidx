@@ -320,8 +320,8 @@ package androidx.ui.core.vectorgraphics {
 
   public final class BrushKt {
     ctor public BrushKt();
-    method public static androidx.ui.core.vectorgraphics.Brush getEMPTY_BRUSH();
-    method public static Object? obtainBrush(Object? brush);
+    method public static androidx.ui.core.vectorgraphics.Brush getEmptyBrush();
+    method public static androidx.ui.core.vectorgraphics.Brush obtainBrush(Object? brush);
   }
 
   public final class LinearGradient implements androidx.ui.core.vectorgraphics.Brush {
@@ -425,100 +425,16 @@ package androidx.ui.core.vectorgraphics {
     method public void applyBrush(androidx.ui.painting.Paint p);
   }
 
-  public final class VGroup extends androidx.ui.core.vectorgraphics.VNode {
-    ctor public VGroup(String name);
-    ctor public VGroup();
-    method public void draw(androidx.ui.painting.Canvas canvas);
-    method public androidx.ui.core.vectorgraphics.PathNode[] getClipPathNodes();
-    method public String getName();
-    method public float getPivotX();
-    method public float getPivotY();
-    method public float getRotate();
-    method public float getScaleX();
-    method public float getScaleY();
-    method public int getSize();
-    method public float getTranslateX();
-    method public float getTranslateY();
-    method public void insertAt(int index, androidx.ui.core.vectorgraphics.VNode instance);
-    method public void move(int from, int to, int count);
-    method public void removeAt(int index, int count);
-    method public void setClipPathNodes(androidx.ui.core.vectorgraphics.PathNode[] value);
-    method public void setPivotX(float value);
-    method public void setPivotY(float value);
-    method public void setRotate(float value);
-    method public void setScaleX(float value);
-    method public void setScaleY(float value);
-    method public void setTranslateX(float value);
-    method public void setTranslateY(float value);
-    property public final androidx.ui.core.vectorgraphics.PathNode[] clipPathNodes;
-    property public final float pivotX;
-    property public final float pivotY;
-    property public final float rotate;
-    property public final float scaleX;
-    property public final float scaleY;
-    property public final int size;
-    property public final float translateX;
-    property public final float translateY;
-  }
-
-  public abstract sealed class VNode {
-    method public abstract void draw(androidx.ui.painting.Canvas canvas);
-  }
-
-  public final class VPath extends androidx.ui.core.vectorgraphics.VNode {
-    ctor public VPath(String name);
-    ctor public VPath();
-    method public void draw(androidx.ui.painting.Canvas canvas);
-    method public androidx.ui.core.vectorgraphics.Brush? getFill();
-    method public float getFillAlpha();
-    method public String getName();
-    method public androidx.ui.core.vectorgraphics.PathNode[] getPathNodes();
-    method public androidx.ui.core.vectorgraphics.Brush? getStroke();
-    method public float getStrokeAlpha();
-    method public androidx.ui.painting.StrokeCap getStrokeLineCap();
-    method public androidx.ui.painting.StrokeJoin getStrokeLineJoin();
-    method public float getStrokeLineMiter();
-    method public float getStrokeLineWidth();
-    method public void setFill(androidx.ui.core.vectorgraphics.Brush? value);
-    method public void setFillAlpha(float value);
-    method public void setPathNodes(androidx.ui.core.vectorgraphics.PathNode[] value);
-    method public void setStroke(androidx.ui.core.vectorgraphics.Brush? value);
-    method public void setStrokeAlpha(float value);
-    method public void setStrokeLineCap(androidx.ui.painting.StrokeCap value);
-    method public void setStrokeLineJoin(androidx.ui.painting.StrokeJoin value);
-    method public void setStrokeLineMiter(float value);
-    method public void setStrokeLineWidth(float value);
-    property public final androidx.ui.core.vectorgraphics.Brush? fill;
-    property public final float fillAlpha;
-    property public final androidx.ui.core.vectorgraphics.PathNode[] pathNodes;
-    property public final androidx.ui.core.vectorgraphics.Brush? stroke;
-    property public final float strokeAlpha;
-    property public final androidx.ui.painting.StrokeCap strokeLineCap;
-    property public final androidx.ui.painting.StrokeJoin strokeLineJoin;
-    property public final float strokeLineMiter;
-    property public final float strokeLineWidth;
-  }
-
-  public final class VectorGraphic extends androidx.ui.core.vectorgraphics.VNode {
-    ctor public VectorGraphic(String name, float width, float height, float viewportWidth, float viewportHeight);
-    method public void draw(androidx.ui.painting.Canvas canvas);
-    method public float getHeight();
-    method public String getName();
-    method public int getSize();
-    method public float getViewportHeight();
-    method public float getViewportWidth();
-    method public float getWidth();
-    method public void insert(int index, androidx.ui.core.vectorgraphics.VNode node);
-    method public void move(int from, int to, int count);
-    method public void removeAt(int index, int count);
-    property public final int size;
-  }
-
-  public final class VectorGraphicKt {
-    ctor public VectorGraphicKt();
+  public final class VectorKt {
+    ctor public VectorKt();
+    method public static androidx.ui.core.vectorgraphics.PathNode[] addPathNodes(String? pathStr);
+    method public static android.view.View? adoptVectorGraphic(Object? parent, Object? child);
     method public static androidx.ui.painting.StrokeCap getDefaultStrokeLineCap();
     method public static androidx.ui.painting.StrokeJoin getDefaultStrokeLineJoin();
     method public static androidx.ui.core.vectorgraphics.PathNode[] getEmptyPath();
+    method public static void group(String name = "", float rotate = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translateX = 0.0f, float translateY = 0.0f, Object? clipPathData = EmptyPath, kotlin.jvm.functions.Function0<kotlin.Unit> childNodes);
+    method public static void path(Object? pathData, String name = "", Object fill = EmptyBrush, float fillAlpha = 1.0f, Object stroke = EmptyBrush, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.painting.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.painting.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
+    method public static void vector(String name = "", float viewportWidth, float viewportHeight, float defaultWidth = viewportWidth, float defaultHeight = viewportHeight, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     field public static final float DefaultAlpha = 1.0f;
     field public static final String DefaultGroupName = "";
     field public static final String DefaultPathName = "";
@@ -531,15 +447,6 @@ package androidx.ui.core.vectorgraphics {
     field public static final float DefaultStrokeLineWidth = 0.0f;
     field public static final float DefaultTranslateX = 0.0f;
     field public static final float DefaultTranslateY = 0.0f;
-  }
-
-  public final class VectorKt {
-    ctor public VectorKt();
-    method public static androidx.ui.core.vectorgraphics.PathNode[] addPathNodes(String? pathStr);
-    method public static android.view.View? adoptVectorGraphic(Object? parent, Object? child);
-    method public static void group(String name = "", float rotate = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translateX = 0.0f, float translateY = 0.0f, Object clipPathData = EmptyPath, kotlin.jvm.functions.Function0<kotlin.Unit> childNodes);
-    method public static void path(Object pathData, String name = "", Object? fill = null, float fillAlpha = 1.0f, Object? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.painting.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.painting.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
-    method public static void vector(String name = "", float viewportWidth, float viewportHeight, float defaultWidth = viewportWidth, float defaultHeight = viewportHeight, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }

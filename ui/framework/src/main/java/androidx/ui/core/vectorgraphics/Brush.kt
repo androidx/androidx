@@ -23,7 +23,7 @@ import androidx.ui.painting.Paint
 import androidx.ui.painting.TileMode
 import androidx.ui.vectormath64.Matrix4
 
-val EMPTY_BRUSH = object : Brush {
+val EmptyBrush = object : Brush {
     override fun applyBrush(p: Paint) {
         // NO-OP
     }
@@ -41,12 +41,12 @@ interface Brush {
 
 typealias ColorStop = Pair<Color, Float>
 
-fun obtainBrush(brush: Any?): Any? {
+fun obtainBrush(brush: Any?): Brush {
     return when (brush) {
         is Int -> SolidColor(Color(brush))
         is Color -> SolidColor(brush)
         is Brush -> brush
-        null -> null
+        null -> EmptyBrush
         else -> throw IllegalArgumentException(brush.javaClass.simpleName +
                 "Brush must be either a Color long, LinearGradient or RadialGradient")
     }

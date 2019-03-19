@@ -36,6 +36,7 @@ import androidx.ui.core.vectorgraphics.DefaultScaleX
 import androidx.ui.core.vectorgraphics.DefaultScaleY
 import androidx.ui.core.vectorgraphics.DefaultTranslateX
 import androidx.ui.core.vectorgraphics.DefaultTranslateY
+import androidx.ui.core.vectorgraphics.EmptyBrush
 import androidx.ui.core.vectorgraphics.EmptyPath
 import androidx.ui.core.vectorgraphics.PathNode
 import com.google.r4a.Children
@@ -247,10 +248,10 @@ private fun inflatePath(a: TypedArray, parser: XmlPullParser, theme: Resources.T
     // TODO update path with additional params
     <path
         name
-        fill=if (fillColor.willDraw()) fillColor.color else null
+        fill= if (fillColor.willDraw()) fillColor.color else EmptyBrush
         strokeAlpha
         strokeLineWidth
-        stroke=if (strokeColor.willDraw()) strokeColor.color else null
+        stroke= if (strokeColor.willDraw()) strokeColor.color else EmptyBrush
         pathData />
 }
 
