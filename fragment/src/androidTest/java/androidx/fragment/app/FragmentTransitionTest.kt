@@ -113,8 +113,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val fragment1 = setupInitialFragment()
 
         // Now do a transition to scene2
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene2)
+        val fragment2 = TransitionFragment(R.layout.scene2)
 
         verifyTransition(fragment1, fragment2, "blueSquare")
 
@@ -127,13 +126,11 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     fun intermediateFragment() {
         val fragment1 = setupInitialFragment()
 
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene3)
+        val fragment2 = TransitionFragment(R.layout.scene3)
 
         verifyTransition(fragment1, fragment2, "shared")
 
-        val fragment3 = TransitionFragment()
-        fragment3.setLayoutId(R.layout.scene2)
+        val fragment3 = TransitionFragment(R.layout.scene2)
 
         verifyTransition(fragment2, fragment3, "blueSquare")
 
@@ -149,8 +146,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val startBlue = findBlue()
         val startGreen = findGreen()
 
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene2)
+        val fragment2 = TransitionFragment(R.layout.scene2)
 
         instrumentation.runOnMainSync {
             fragmentManager.beginTransaction()
@@ -190,10 +186,8 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     @Test
     fun crossContainer() {
         FragmentTestUtil.setContentView(activityRule, R.layout.double_container)
-        val fragment1 = TransitionFragment()
-        fragment1.setLayoutId(R.layout.scene1)
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene1)
+        val fragment1 = TransitionFragment(R.layout.scene1)
+        val fragment2 = TransitionFragment(R.layout.scene1)
         fragmentManager.beginTransaction()
             .setReorderingAllowed(reorderingAllowed)
             .add(R.id.fragmentContainer1, fragment1)
@@ -229,8 +223,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val fragment1 = setupInitialFragment()
 
         // Now do a transition to scene2
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene2)
+        val fragment2 = TransitionFragment(R.layout.scene2)
 
         val enterCallback = mock(SharedElementCallback::class.java)
         fragment2.setEnterSharedElementCallback(enterCallback)
@@ -297,8 +290,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val fragment1 = setupInitialFragment()
 
         // Now do a transition to scene2
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene2)
+        val fragment2 = TransitionFragment(R.layout.scene2)
 
         val startBlue = findBlue()
         val startGreen = findGreen()
@@ -372,8 +364,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val fragment1 = setupInitialFragment()
 
         // Now do a transition to scene2
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene2)
+        val fragment2 = TransitionFragment(R.layout.scene2)
 
         val startBlue = findBlue()
         val startBlueBounds = getBoundsOnScreen(startBlue)
@@ -506,8 +497,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val fragment1 = setupInitialFragment()
 
         // Now do a transition to scene2
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene2)
+        val fragment2 = TransitionFragment(R.layout.scene2)
 
         verifyTransition(fragment1, fragment2, "blueSquare")
         assertThat(fragment1.exitTransition.getTargets().size).isEqualTo(0)
@@ -532,8 +522,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     @Test
     fun showHideTransition() {
         val fragment1 = setupInitialFragment()
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene2)
+        val fragment2 = TransitionFragment(R.layout.scene2)
 
         val startBlue = findBlue()
         val startGreen = findGreen()
@@ -583,8 +572,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     @Test
     fun attachDetachTransition() {
         val fragment1 = setupInitialFragment()
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene2)
+        val fragment2 = TransitionFragment(R.layout.scene2)
 
         val startBlue = findBlue()
         val startGreen = findGreen()
@@ -627,8 +615,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val fragment1 = setupInitialFragment()
 
         // Now do a transition to scene2
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene2)
+        val fragment2 = TransitionFragment(R.layout.scene2)
 
         val startBlue = findBlue()
         val startGreen = findGreen()
@@ -737,8 +724,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val startGreen = findGreen()
         val startBlueBounds = getBoundsOnScreen(startBlue)
 
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene2)
+        val fragment2 = TransitionFragment(R.layout.scene2)
 
         fragmentManager.beginTransaction()
             .setReorderingAllowed(reorderingAllowed)
@@ -758,8 +744,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         verifyNoOtherTransitions(fragment1)
         verifyNoOtherTransitions(fragment2)
 
-        val fragment3 = TransitionFragment()
-        fragment3.setLayoutId(R.layout.scene3)
+        val fragment3 = TransitionFragment(R.layout.scene3)
 
         activityRule.runOnUiThread {
             val fm = activityRule.activity.supportFragmentManager
@@ -801,8 +786,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val startGreen = findGreen()
         val startGreenBounds = getBoundsOnScreen(startGreen)
 
-        val fragment2 = TransitionFragment()
-        fragment2.setLayoutId(R.layout.scene3)
+        val fragment2 = TransitionFragment(R.layout.scene3)
 
         fragmentManager.beginTransaction()
             .setReorderingAllowed(reorderingAllowed)
@@ -843,8 +827,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     }
 
     private fun setupInitialFragment(): TransitionFragment {
-        val fragment1 = TransitionFragment()
-        fragment1.setLayoutId(R.layout.scene1)
+        val fragment1 = TransitionFragment(R.layout.scene1)
         fragmentManager.beginTransaction()
             .setReorderingAllowed(reorderingAllowed)
             .add(R.id.fragmentContainer, fragment1)
@@ -983,10 +966,8 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val startNumOnBackStackChanged = onBackStackChangedTimes
         val changesPerOperation = if (reorderingAllowed) 1 else 2
 
-        val to1 = TransitionFragment()
-        to1.setLayoutId(R.layout.scene2)
-        val to2 = TransitionFragment()
-        to2.setLayoutId(R.layout.scene2)
+        val to1 = TransitionFragment(R.layout.scene2)
+        val to2 = TransitionFragment(R.layout.scene2)
 
         val fromExit1 = findViewById(from1, R.id.greenSquare)
         val fromShared1 = findViewById(from1, R.id.blueSquare)
