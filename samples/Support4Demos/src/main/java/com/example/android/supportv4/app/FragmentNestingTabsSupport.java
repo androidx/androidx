@@ -16,33 +16,4 @@
 package com.example.android.supportv4.app;
 
 //BEGIN_INCLUDE(complete)
-
-import android.os.Bundle;
-
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTabHost;
-
-import com.example.android.supportv4.R;
-
-public class FragmentNestingTabsSupport extends FragmentActivity {
-    private FragmentTabHost mTabHost;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mTabHost = new FragmentTabHost(this);
-        setContentView(mTabHost);
-        mTabHost.setup(this, getSupportFragmentManager(), R.id.fragment1);
-
-        mTabHost.addTab(mTabHost.newTabSpec("menus").setIndicator("Menus"),
-                FragmentMenuFragmentSupport.class, null);
-        mTabHost.addTab(mTabHost.newTabSpec("contacts").setIndicator("Contacts"),
-                LoaderCursorSupport.CursorLoaderListFragment.class, null);
-        mTabHost.addTab(mTabHost.newTabSpec("stack").setIndicator("Stack"),
-                FragmentStackFragmentSupport.class, null);
-        mTabHost.addTab(mTabHost.newTabSpec("tabs").setIndicator("Tabs"),
-                FragmentTabsFragmentSupport.class, null);
-    }
-}
 //END_INCLUDE(complete)

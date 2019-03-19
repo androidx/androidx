@@ -16,42 +16,4 @@
 package com.example.android.supportv4.app;
 
 //BEGIN_INCLUDE(complete)
-
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTabHost;
-
-import com.example.android.supportv4.R;
-
-public class FragmentTabsFragmentSupport extends Fragment {
-    private FragmentTabHost mTabHost;
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        mTabHost = new FragmentTabHost(getActivity());
-        mTabHost.setup(getActivity(), getChildFragmentManager(), R.id.fragment1);
-
-        mTabHost.addTab(mTabHost.newTabSpec("simple").setIndicator("Simple"),
-                FragmentStackSupport.CountingFragment.class, null);
-        mTabHost.addTab(mTabHost.newTabSpec("contacts").setIndicator("Contacts"),
-                LoaderCursorSupport.CursorLoaderListFragment.class, null);
-        mTabHost.addTab(mTabHost.newTabSpec("custom").setIndicator("Custom"),
-                LoaderCustomSupport.AppListFragment.class, null);
-        mTabHost.addTab(mTabHost.newTabSpec("throttle").setIndicator("Throttle"),
-                LoaderThrottleSupport.ThrottledLoaderListFragment.class, null);
-
-        return mTabHost;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mTabHost = null;
-    }
-}
 //END_INCLUDE(complete)
