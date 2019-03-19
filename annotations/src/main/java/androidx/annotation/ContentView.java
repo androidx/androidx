@@ -16,31 +16,31 @@
 
 package androidx.annotation;
 
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that can be attached to a component such as an
- * androidx.activity.ComponentActivity or {@link androidx.fragment.app.Fragment}
+ * Annotation that can be attached to a constructor with a single {@link LayoutRes} parameter
  * to denote what layout the component intends to inflate and set as its content.
- * <p>
- * This annotation is marked as {@link Inherited} and will therefore apply to subclasses
- * automatically.
  * <p>
  * It is strongly recommended that components that support this annotation specifically call
  * it out in their documentation.
+ * <pre>
+ * public class MainFragment extends Fragment {
+ *     public MainFragment() {
+ *         // This constructor is annotated with @ContentView
+ *         super(R.layout.main);
+ *     }
+ * }
+ * </pre>
  *
- * @see androidx.activity.ComponentActivity#onCreate(android.os.Bundle)
- * @see androidx.fragment.app.Fragment#onCreateView
+ * @see androidx.activity.ComponentActivity#ComponentActivity(int)
+ * @see androidx.fragment.app.Fragment#Fragment(int)
  */
-@Retention(RUNTIME)
-@Target({TYPE})
-@Inherited
+@Retention(CLASS)
+@Target({CONSTRUCTOR})
 public @interface ContentView {
-    @LayoutRes
-    int value();
 }

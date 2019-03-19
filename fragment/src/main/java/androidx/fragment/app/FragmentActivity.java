@@ -37,6 +37,8 @@ import android.view.Window;
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.CallSuper;
+import androidx.annotation.ContentView;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -107,8 +109,33 @@ public class FragmentActivity extends ComponentActivity implements
     // for startActivityForResult calls where a result has not yet been delivered.
     SparseArrayCompat<String> mPendingFragmentActivityResults;
 
+    /**
+     * Default constructor for FragmentActivity. All Activities must have a default constructor
+     * for API 27 and lower devices or when using the default
+     * {@link android.app.AppComponentFactory}.
+     */
     public FragmentActivity() {
         super();
+        init();
+    }
+
+    /**
+     * Alternate constructor that can be used to provide a default layout
+     * that will be inflated as part of <code>super.onCreate(savedInstanceState)</code>.
+     *
+     * <p>This should generally be called from your constructor that takes no parameters,
+     * as is required for API 27 and lower or when using the default
+     * {@link android.app.AppComponentFactory}.
+     *
+     * @see #FragmentActivity()
+     */
+    @ContentView
+    public FragmentActivity(@LayoutRes int contentLayoutId) {
+        super(contentLayoutId);
+        init();
+    }
+
+    private void init() {
         // Route onBackPressed() callbacks to the FragmentManager
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback() {
             @Override

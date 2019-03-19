@@ -25,7 +25,6 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.ContentView
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
 import androidx.fragment.app.FragmentTestUtil.HostCallbacks
@@ -868,11 +867,10 @@ class FragmentLifecycleTest {
         }
     }
 
-    @ContentView(R.layout.nested_retained_inflated_fragment_parent)
-    class RetainedInflatedParentFragment : Fragment()
+    class RetainedInflatedParentFragment :
+        Fragment(R.layout.nested_retained_inflated_fragment_parent)
 
-    @ContentView(R.layout.nested_inflated_fragment_child)
-    class RetainedInflatedChildFragment : Fragment() {
+    class RetainedInflatedChildFragment : Fragment(R.layout.nested_inflated_fragment_child) {
         internal var mOnInflateCount = 0
 
         override fun onCreate(savedInstanceState: Bundle?) {
