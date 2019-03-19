@@ -54,7 +54,7 @@ private class PointerInputChangeEventProducer {
             )
             previousPointerInputData[it.id] = it.pointerInputData
         }
-        return PointerInputChangeEvent(pointerEvent.timeStamp, changes)
+        return PointerInputChangeEvent(pointerEvent.timestamp, changes)
     }
 }
 

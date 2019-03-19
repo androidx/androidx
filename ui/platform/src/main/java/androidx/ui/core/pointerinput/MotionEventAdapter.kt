@@ -21,6 +21,7 @@ import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.PointerInputData
+import androidx.ui.core.Timestamp
 import androidx.ui.engine.geometry.Offset
 
 /**
@@ -55,7 +56,12 @@ private fun PointerInputEventData(
 ): PointerInputEventData {
     return PointerInputEventData(
         motionEvent.getPointerId(index),
-        PointerInputData(motionEvent, index, upIndex)
+        PointerInputData(
+            motionEvent.eventTime.millisecondsToTimestamp(),
+            motionEvent,
+            index,
+            upIndex
+        )
     )
 }
 
@@ -64,6 +70,7 @@ private fun PointerInputEventData(
  */
 @Suppress("FunctionName")
 private fun PointerInputData(
+    timestamp: Timestamp,
     motionEvent: MotionEvent,
     index: Int,
     upIndex: Int?
@@ -73,6 +80,7 @@ private fun PointerInputData(
     val offset = Offset(pointerCoords.x, pointerCoords.y)
 
     return PointerInputData(
+        timestamp,
         offset,
         index != upIndex
     )

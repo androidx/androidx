@@ -19,12 +19,15 @@ package androidx.ui.core.pointerinput
 import androidx.ui.core.Timestamp
 import androidx.ui.core.PointerInputData
 
+// TODO(shepshapard): PointerInputEvent probably doesn't need it's own Timestamp because each
+// PointerInputData has a timestamp associated with it.  Going to wait to refactor sometime later
+// after more things are set (and after things like API review) to avoid thrashing.
 /**
  * The normalized data structure for pointer input event information that is taken in processed by
  * Crane (via the [PointerEventProcessor]).
  */
 internal data class PointerInputEvent(
-    val timeStamp: Timestamp,
+    val timestamp: Timestamp,
     val pointers: List<PointerInputEventData>
 )
 

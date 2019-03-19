@@ -1,7 +1,7 @@
 /*
  * Copyright 2019 The Android Open Source Project
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -18,6 +18,7 @@ package androidx.ui.core.gesture
 
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.consumeDownChange
+import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
@@ -40,13 +41,13 @@ import org.junit.runners.JUnit4
 class PressIndicatorGestureDetectorTest {
 
     private lateinit var recognizer: PressIndicatorGestureRecognizer
-    private val down = down(0, 0f)
+    private val down = down(0)
     private val downConsumed = down.consumeDownChange()
-    private val move = down.moveTo(100f)
+    private val move = down.moveTo(100L.millisecondsToTimestamp(), x = 100f)
     private val moveConsumed = move.consume(dx = 1f)
-    private val up = move.up()
+    private val up = down.up(100L.millisecondsToTimestamp())
     private val upConsumed = up.consumeDownChange()
-    private val upAfterMove = move.up()
+    private val upAfterMove = move.up(200L.millisecondsToTimestamp())
 
     @Before
     fun setup() {
@@ -75,7 +76,7 @@ class PressIndicatorGestureDetectorTest {
     fun pointerInputHandler_downDownUpDown_onStartCalledOnce() {
         val down0 = down(0)
         val down1 = down(1)
-        val up0 = down1.up()
+        val up0 = down1.up(100L.millisecondsToTimestamp())
         recognizer.pointerInputHandler.invokeOverAllPasses(down0)
         recognizer.pointerInputHandler.invokeOverAllPasses(down1)
         recognizer.pointerInputHandler.invokeOverAllPasses(up0)
@@ -106,6 +107,13 @@ class PressIndicatorGestureDetectorTest {
     }
 
     @Test
+    fun pointerInputHandler_downUp_onStopCalledOnce() {
+        recognizer.pointerInputHandler.invokeOverAllPasses(down)
+        recognizer.pointerInputHandler.invokeOverAllPasses(up)
+        verify(recognizer.onStop!!).invoke()
+    }
+
+    @Test
     fun pointerInputHandler_downUpConsumed_onStopCalledOnce() {
         recognizer.pointerInputHandler.invokeOverAllPasses(down)
         recognizer.pointerInputHandler.invokeOverAllPasses(upConsumed)
@@ -124,8 +132,8 @@ class PressIndicatorGestureDetectorTest {
     fun pointerInputHandler_downDownUpUp_onStopCalledOnce() {
         val down0 = down(0)
         val down1 = down(1)
-        val up0 = down0.up()
-        val up1 = down1.up()
+        val up0 = down0.up(100L.millisecondsToTimestamp())
+        val up1 = down1.up(100L.millisecondsToTimestamp())
         recognizer.pointerInputHandler.invokeOverAllPasses(down0)
         recognizer.pointerInputHandler.invokeOverAllPasses(down1)
         recognizer.pointerInputHandler.invokeOverAllPasses(up0)
@@ -159,7 +167,7 @@ class PressIndicatorGestureDetectorTest {
     fun pointerInputHandler_downDownUp_onStopNotCalled() {
         val down0 = down(0)
         val down1 = down(1)
-        val up0 = down0.up()
+        val up0 = down0.up(100L.millisecondsToTimestamp())
         recognizer.pointerInputHandler.invokeOverAllPasses(down0)
         recognizer.pointerInputHandler.invokeOverAllPasses(down1)
         recognizer.pointerInputHandler.invokeOverAllPasses(up0)
@@ -176,8 +184,8 @@ class PressIndicatorGestureDetectorTest {
     @Test
     fun pointerInputHandler_downMoveConsumedMoveConsumed_onCancelCalledOnce() {
         val down = down(x = 0f)
-        val move1 = down.moveTo(x = 5f)
-        val move2 = move1.moveTo(x = 10f)
+        val move1 = down.moveTo(timestamp = 100L.millisecondsToTimestamp(), x = 5f)
+        val move2 = move1.moveTo(timestamp = 200L.millisecondsToTimestamp(), x = 10f)
         recognizer.pointerInputHandler.invokeOverAllPasses(down)
         recognizer.pointerInputHandler.invokeOverAllPasses(move1.consume(dx=1f))
         recognizer.pointerInputHandler.invokeOverAllPasses(move2.consume(dx=1f))
@@ -188,8 +196,8 @@ class PressIndicatorGestureDetectorTest {
     fun pointerInputHandler_downDownMoveConsumedMoveConsumed_onCancelCalledOnce() {
         val down1 = down(x = 0f)
         val down2 = down(x = 100f)
-        val move1 = down1.moveTo(x = 5f)
-        val move2 = down2.moveTo(x = 105f)
+        val move1 = down1.moveTo(timestamp = 100L.millisecondsToTimestamp(), x = 5f)
+        val move2 = down2.moveTo(timestamp = 100L.millisecondsToTimestamp(), x = 105f)
         recognizer.pointerInputHandler.invokeOverAllPasses(down1)
         recognizer.pointerInputHandler.invokeOverAllPasses(down2)
         recognizer.pointerInputHandler.invokeOverAllPasses(move1.consume(dx=1f))
@@ -201,12 +209,12 @@ class PressIndicatorGestureDetectorTest {
     fun pointerInputHandler_downDownMoveMoveConsumed_onCancelCalledOnce() {
         val down1 = down(x = 0f)
         val down2 = down(x = 100f)
-        val move1 = down1.moveTo(x = 5f)
-        val move2 = down2.moveTo(x = 105f)
+        val move1 = down1.moveTo(timestamp = 100L.millisecondsToTimestamp(), x = 5f)
+        val move2 = down2.moveTo(timestamp = 100L.millisecondsToTimestamp(), x = 105f)
         recognizer.pointerInputHandler.invokeOverAllPasses(down1)
         recognizer.pointerInputHandler.invokeOverAllPasses(down2)
         recognizer.pointerInputHandler.invokeOverAllPasses(move1)
-        recognizer.pointerInputHandler.invokeOverAllPasses(move2.consume(dx=1f))
+        recognizer.pointerInputHandler.invokeOverAllPasses(move2.consume(dx = 1f))
         verify(recognizer.onCancel!!).invoke()
     }
 
