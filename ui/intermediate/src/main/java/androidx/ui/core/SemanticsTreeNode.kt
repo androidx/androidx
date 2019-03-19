@@ -28,6 +28,7 @@ interface SemanticsTreeNode {
     val parent: SemanticsTreeNode?
     val data: SemanticsProperties
     val children: Set<SemanticsTreeNode>
+    val globalPosition: PxPosition?
 }
 
 /**

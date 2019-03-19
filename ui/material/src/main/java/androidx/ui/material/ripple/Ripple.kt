@@ -18,7 +18,7 @@ package androidx.ui.material.ripple
 
 import androidx.ui.core.Density
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnPositioned
+import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.Px
 import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
@@ -128,20 +128,19 @@ fun Ripple(
         rippleSurface.backgroundColor
     )
 
-    <OnPositioned> coordinates ->
-        state.coordinates = coordinates
-    </OnPositioned>
-    <PressIndicatorGestureDetector
-        onStart={ position ->
-            state.handleStart(
-                position, rippleSurface, theme, density, bounded, boundsCallback,
-                clippingBorderRadius, shape, finalRadius
-            )
-        }
-        onStop={ state.handleFinish(false, onHighlightChanged) }
-        onCancel={ state.handleFinish(true, onHighlightChanged) }>
-        <children />
-    </PressIndicatorGestureDetector>
+    <OnChildPositioned onPositioned={ state.coordinates = it }>
+        <PressIndicatorGestureDetector
+            onStart={ position ->
+                state.handleStart(
+                    position, rippleSurface, theme, density, bounded, boundsCallback,
+                    clippingBorderRadius, shape, finalRadius
+                )
+            }
+            onStop={ state.handleFinish(false, onHighlightChanged) }
+            onCancel={ state.handleFinish(true, onHighlightChanged) }>
+            <children />
+        </PressIndicatorGestureDetector>
+    </OnChildPositioned>
 
     +onDispose {
         state.effects.forEach { it.dispose() }

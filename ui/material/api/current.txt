@@ -397,7 +397,7 @@ package androidx.ui.material.ripple {
     ctor public RippleEffect(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.painting.Color color, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
     method @CallSuper public void dispose();
     method protected abstract void drawEffect(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform);
-    method public abstract void finish(boolean canceled);
+    method public void finish(boolean canceled);
     method public final androidx.ui.painting.Color getColor();
     method public final androidx.ui.core.LayoutCoordinates getCoordinates();
     method public final kotlin.jvm.functions.Function0<kotlin.Unit>? getOnRemoved();
@@ -425,9 +425,11 @@ package androidx.ui.material.ripple {
   public interface RippleSurfaceOwner {
     method public void addEffect(androidx.ui.material.ripple.RippleEffect feature);
     method public androidx.ui.painting.Color? getBackgroundColor();
+    method public androidx.ui.core.LayoutCoordinates getLayoutCoordinates();
     method public void markNeedsRedraw();
     method public void removeEffect(androidx.ui.material.ripple.RippleEffect feature);
     property public abstract androidx.ui.painting.Color? backgroundColor;
+    property public abstract androidx.ui.core.LayoutCoordinates layoutCoordinates;
   }
 
   public final class RippleTheme {

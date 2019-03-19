@@ -17,10 +17,11 @@
 package androidx.ui.material.demos
 
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.material.H1
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BorderSide
@@ -28,6 +29,7 @@ import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.ripple.BoundedRipple
 import androidx.ui.material.surface.Card
 import androidx.ui.painting.Color
+import androidx.ui.painting.TextSpan
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
@@ -42,9 +44,15 @@ fun RippleDemo() {
                 )
                 <Card shape>
                     <BoundedRipple>
-                        <MeasureBox> constraints ->
-                            layout(constraints.maxWidth, constraints.maxHeight) {}
-                        </MeasureBox>
+                        <Container>
+                            <BoundedRipple>
+                                <Container width=100.dp height=50.dp>
+                                    <H1>
+                                        <Text text=TextSpan(text = "inner") />
+                                    </H1>
+                                </Container>
+                            </BoundedRipple>
+                        </Container>
                     </BoundedRipple>
                 </Card>
             </Container>

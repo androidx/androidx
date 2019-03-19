@@ -21,7 +21,10 @@ import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.R4a
+import com.google.r4a.ambient
 import com.google.r4a.composer
+import com.google.r4a.onCommit
+import com.google.r4a.unaryPlus
 
 /**
  * A part of the composition that can be measured. This represents a [ComplexMeasureBox] somewhere
@@ -157,7 +160,8 @@ class ComplexMeasureBox(
     private val ref = Ref<LayoutNode>()
     internal val layoutNode: LayoutNode get() = ref.value!!
     internal var ambients: Ambient.Reference? = null
-    internal val coordinatesCallbacks = mutableListOf<(LayoutCoordinates) -> Unit>()
+    internal val onPositioned = mutableListOf<(LayoutCoordinates) -> Unit>()
+    internal val onChildPositioned = mutableListOf<(LayoutCoordinates) -> Unit>()
     internal var density: Density = Density(0f)
 
     override fun compose() {
@@ -188,9 +192,21 @@ class ComplexMeasureBox(
     internal fun placeChildren() {
         layoutNode.visible = true
         positioningBlockReceiver.apply { positioningBlock() }
-        if (coordinatesCallbacks.isNotEmpty()) {
+        dispatchOnPositionedCallbacks()
+    }
+
+    private fun dispatchOnPositionedCallbacks() {
+        // There are two types of callbacks:
+        // a) when the MeasureBox is positioned - `onPositioned`
+        // b) when the child of the MeasureBox is positioned - `onChildPositioned`
+        // To create LayoutNodeCoordinates only once here we will call callbacks from
+        // both `onPositioned` and our parent MeasureBox's `onChildPositioned`.
+        val parentMeasureBox = (layoutNode.parentLayoutNode?.measureBox as ComplexMeasureBox?)
+        val parentOnChildPositioned = parentMeasureBox?.onChildPositioned
+        if (onPositioned.isNotEmpty() || !parentOnChildPositioned.isNullOrEmpty()) {
             val coordinates = LayoutNodeCoordinates(layoutNode)
-            coordinatesCallbacks.forEach { it.invoke(coordinates) }
+            onPositioned.forEach { it.invoke(coordinates) }
+            parentOnChildPositioned?.forEach { it.invoke(coordinates) }
         }
     }
 
@@ -246,9 +262,11 @@ class ComplexMeasureBoxReceiver internal constructor(
 
         val ambients = measureBox.ambients!!
         R4a.composeInto(layoutNode, ambients.getAmbient(ContextAmbient), ambients) {
-            <CoordinatesCallbacksAmbient.Provider value=measureBox.coordinatesCallbacks>
-                collectedComposables.forEach { children -> <children /> }
-            </CoordinatesCallbacksAmbient.Provider>
+            <OnChildPositionedAmbient.Provider value=measureBox.onChildPositioned>
+                <OnPositionedAmbient.Provider value=measureBox.onPositioned>
+                    collectedComposables.forEach { children -> <children /> }
+                </OnPositionedAmbient.Provider>
+            </OnChildPositionedAmbient.Provider>
         }
 
         return layoutNode.childrenMeasureBoxes()
@@ -447,44 +465,65 @@ class MeasureBoxReceiver internal constructor(
     }
 }
 
-internal val CoordinatesCallbacksAmbient =
+internal val OnPositionedAmbient =
+    Ambient.of<MutableList<(LayoutCoordinates) -> Unit>>()
+
+internal val OnChildPositionedAmbient =
     Ambient.of<MutableList<(LayoutCoordinates) -> Unit>>()
 
 /**
- * The children callback will be called with the final LayoutCoordinates of the current MeasureBox
- * after measuring.
+ * [onPositioned] callback will be called with the final LayoutCoordinates of the parent
+ * MeasureBox after measuring.
  * Note that it will be called after a composition when the coordinates are finalized.
  *
  * Usage example:
- * <Column>
- *     <Item1/>
- *     <Item2/>
- *     <OnPositioned> coordinates ->
- *         // This coordinates contain bounds of the Column within it's parent Layout.
- *         // Store it if you want to use it later f.e. when a touch happens.
- *     </OnPositioned>
- * </Column>
+ *     <Column>
+ *         <Item1/>
+ *         <Item2/>
+ *         <OnPositioned onPositioned={ coordinates ->
+ *             // This coordinates contain bounds of the Column within it's parent Layout.
+ *             // Store it if you want to use it later f.e. when a touch happens.
+ *         } />
+ *     </Column>
  */
-private class OnPositionedComponent(
-    @Children(composable = false) /*private*/ var callback: (coordinates: LayoutCoordinates) -> Unit
-) : Component() {
-
-    private var firstCompose = true
-
-    override fun compose() {
-        <CoordinatesCallbacksAmbient.Consumer> callbacks ->
-            // TODO(Andrey): replace with didCommit effect to execute only once
-            if (firstCompose) {
-                firstCompose = false
-                callbacks.add(callback)
-                // TODO(Andrey): remove the callback from the list in onDispose effect
-            }
-        </CoordinatesCallbacksAmbient.Consumer>
+@Composable
+fun OnPositioned(
+    onPositioned: (coordinates: LayoutCoordinates) -> Unit
+) {
+    val coordinatesCallbacks = +ambient(OnPositionedAmbient)
+    +onCommit(onPositioned) {
+        coordinatesCallbacks.add(onPositioned)
+        onDispose {
+            coordinatesCallbacks.remove(onPositioned)
+        }
     }
 }
 
-/* TODO(popam): remove this when callback can be private in OnPositionedComponent */
+/**
+ * [onPositioned] callback will be called with the final LayoutCoordinates of the children
+ * MeasureBox(es) after measuring.
+ * Note that it will be called after a composition when the coordinates are finalized.
+ *
+ * Usage example:
+ *     <OnChildPositioned onPositioned={ coordinates ->
+ *         // This coordinates contain bounds of the Item within it's parent Layout.
+ *         // Store it if you want to use it later f.e. when a touch happens.
+ *     } >
+ *         <Item/>
+ *     </OnChildPositioned>
+ * </Column>
+ */
 @Composable
-fun OnPositioned(@Children(composable = false) callback: (coordinates: LayoutCoordinates) -> Unit) {
-    <OnPositionedComponent callback />
+fun OnChildPositioned(
+    onPositioned: (coordinates: LayoutCoordinates) -> Unit,
+    @Children children: () -> Unit
+) {
+    val coordinatesCallbacks = +ambient(OnChildPositionedAmbient)
+    +onCommit(onPositioned) {
+        coordinatesCallbacks.add(onPositioned)
+        onDispose {
+            coordinatesCallbacks.remove(onPositioned)
+        }
+    }
+    <children/>
 }

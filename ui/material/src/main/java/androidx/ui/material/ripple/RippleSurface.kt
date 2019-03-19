@@ -17,6 +17,8 @@
 package androidx.ui.material.ripple
 
 import androidx.annotation.CheckResult
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.OnPositioned
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.toRect
 import androidx.ui.painting.Color
@@ -40,6 +42,11 @@ interface RippleSurfaceOwner {
     val backgroundColor: Color?
 
     /**
+     * The surface layout coordinates.
+     */
+    val layoutCoordinates: LayoutCoordinates
+
+    /**
      * Add an [RippleEffect].
      *
      * The effect will be drawns as part of this [RippleSurface].
@@ -58,7 +65,7 @@ interface RippleSurfaceOwner {
 /**
  * An ambient to provide the current [RippleSurface].
  *
- * Use [RippleSurfaceConsumer] to receive the value.
+ * Use [ambientRippleSurface] to receive the value.
  */
 internal val CurrentRippleSurface = Ambient.of<RippleSurfaceOwner> {
     throw IllegalStateException("No RippleSurface ancestor found.")
@@ -84,6 +91,7 @@ fun RippleSurface(
     owner.backgroundColor = color
     owner.recompose = +invalidate
 
+    <OnPositioned onPositioned={ owner._layoutCoordinates = it } />
     <Draw> canvas, size ->
         if (owner.effects.isNotEmpty()) {
             canvas.save()
@@ -100,8 +108,12 @@ fun RippleSurface(
 private class RippleSurfaceOwnerImpl : RippleSurfaceOwner {
 
     override var backgroundColor: Color? = null
+    override val layoutCoordinates
+        get() = _layoutCoordinates
+            ?: throw IllegalStateException("The surface wasn't yet positioned!")
     internal var recompose: () -> Unit = {}
 
+    internal var _layoutCoordinates: LayoutCoordinates? = null
     internal var effects = mutableListOf<RippleEffect>()
 
     override fun markNeedsRedraw() = recompose()

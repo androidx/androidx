@@ -18,16 +18,19 @@ package androidx.ui.material.ripple
 
 import androidx.annotation.CallSuper
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.PxPosition
+import androidx.ui.core.px
 import androidx.ui.material.surface.Surface
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.Vector3
 
 /**
  * A visual reaction on a [RippleSurface].
  *
  * To add an [RippleEffect] to a piece of [Surface], obtain the [RippleSurfaceOwner] via
- * [RippleSurfaceConsumer] and call [RippleSurfaceOwner.addEffect].
+ * [ambientRippleSurface] and call [RippleSurfaceOwner.addEffect].
  */
 abstract class RippleEffect(
     /**
@@ -57,22 +60,13 @@ abstract class RippleEffect(
 
     internal fun draw(canvas: Canvas) {
         assert(!debugDisposed)
-        // TODO("Migration|Andrey: Calculate transformation matrix using parents")
-        // TODO("Migration|Andrey: Currently we don't have such a logic")
-//        // find the chain of renderers from us to the feature's target layout
-//        val descendants = mutableListOf(referenceBox)
-//        var node = referenceBox
-//        while (node != _controller) {
-//            node = node.parent as RenderBox
-//            descendants.add(node)
-//        }
-//         determine the transform that gets our coordinate system to be like theirs
-        val transform = Matrix4.identity()
-//        assert(descendants.size >= 2)
-//
-//        for (index in descendants.size - 1 downTo 1) {
-//            descendants[index].applyPaintTransform(descendants[index - 1], transform)
-//        }
+        val offset = rippleSurface.layoutCoordinates
+            .childToLocal(coordinates, PxPosition(0.px, 0.px))
+        val transform = Matrix4.translation(Vector3(
+            offset.x.value,
+            offset.y.value,
+            0f
+        ))
         drawEffect(canvas, transform)
     }
 
@@ -89,7 +83,7 @@ abstract class RippleEffect(
      *
      * Typically causes the ripple to start disappearance animation.
      */
-    abstract fun finish(canceled: Boolean)
+    open fun finish(canceled: Boolean) {}
 
     /** The ripple's color. */
     var color: Color = color

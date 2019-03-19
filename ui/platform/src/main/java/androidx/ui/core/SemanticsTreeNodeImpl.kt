@@ -26,7 +26,8 @@ import androidx.ui.core.semantics.SemanticsProperties
  */
 class SemanticsTreeNodeImpl(
     override val parent: SemanticsTreeNode?,
-    override val data: SemanticsProperties
+    override val data: SemanticsProperties,
+    private val layoutNode: LayoutNode?
 ) : SemanticsTreeNode {
     private val _children = mutableSetOf<SemanticsTreeNode>()
     override val children: Set<SemanticsTreeNode>
@@ -35,6 +36,8 @@ class SemanticsTreeNodeImpl(
     fun addChild(child: SemanticsTreeNode) {
         _children.add(child)
     }
+    override val globalPosition: PxPosition?
+        get() = layoutNode?.localToGlobal(PxPosition(0.px, 0.px))
 }
 
 /**
@@ -54,7 +57,11 @@ private fun findAllSemanticNodesInternal(
 ) {
     var currentParent = parent
     if (currentNode is SemanticsR4ANode) {
-        val wrapper = SemanticsTreeNodeImpl(parent = parent, data = currentNode.properties)
+        val wrapper = SemanticsTreeNodeImpl(
+            parent = parent,
+            data = currentNode.properties,
+            layoutNode = currentNode.layoutNode
+        )
         parent?.addChild(wrapper)
         nodes.add(wrapper)
         currentParent = parent

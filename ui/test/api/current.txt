@@ -59,10 +59,12 @@ package androidx.ui.test.android {
     ctor public AndroidUiTestRunner();
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> findSemantics(kotlin.jvm.functions.Function1<? super androidx.ui.core.SemanticsTreeNode,java.lang.Boolean> selector);
     method public final androidx.test.rule.ActivityTestRule<androidx.ui.test.android.DefaultTestActivity> getActivityTestRule();
+    method public final androidx.ui.core.Density getDensity();
     method public void sendEvent(android.view.MotionEvent event);
     method public final void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public final void setup();
     property public final androidx.test.rule.ActivityTestRule<androidx.ui.test.android.DefaultTestActivity> activityTestRule;
+    property public final androidx.ui.core.Density density;
   }
 
   public final class AndroidUiTestRunnerKt {
