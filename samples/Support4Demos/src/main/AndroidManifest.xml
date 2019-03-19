@@ -136,14 +136,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.FragmentNestingTabsSupport"
-                android:label="@string/fragment_nesting_tabs_support">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".app.FragmentRetainInstanceSupport"
                 android:label="@string/fragment_retain_instance_support">
             <intent-filter>
@@ -162,22 +154,6 @@
 
         <activity android:name=".app.FragmentStackSupport"
                 android:label="@string/fragment_stack_support">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".app.FragmentTabs"
-                android:label="@string/fragment_tabs">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".app.FragmentTabsPager"
-                android:label="@string/fragment_tabs_pager">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv4.SUPPORT4_SAMPLE_CODE" />
