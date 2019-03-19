@@ -2122,16 +2122,28 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
-     * Gets the node bounds in parent coordinates.
+     * Gets the node bounds in the viewParent's coordinates.
+     * {@link #getParent()} does not represent the source's viewParent.
+     * Instead it represents the result of {@link View#getParentForAccessibility()},
+     * which returns the closest ancestor where {@link View#isImportantForAccessibility()} is true.
+     * So this method is not reliable.
      *
      * @param outBounds The output node bounds.
+     *
+     * @deprecated Use {@link #getBoundsInScreen(Rect)} instead.
      */
+    @Deprecated
     public void getBoundsInParent(Rect outBounds) {
         mInfo.getBoundsInParent(outBounds);
     }
 
     /**
-     * Sets the node bounds in parent coordinates.
+     * Sets the node bounds in the viewParent's coordinates.
+     * {@link #getParent()} does not represent the source's viewParent.
+     * Instead it represents the result of {@link View#getParentForAccessibility()},
+     * which returns the closest ancestor where {@link View#isImportantForAccessibility()} is true.
+     * So this method is not reliable.
+     *
      * <p>
      * <strong>Note:</strong> Cannot be called from an
      * {@link android.accessibilityservice.AccessibilityService}. This class is
@@ -2140,7 +2152,10 @@ public class AccessibilityNodeInfoCompat {
      *
      * @param bounds The node bounds.
      * @throws IllegalStateException If called from an AccessibilityService.
+     *
+     * @deprecated Accessibility services should not care about these bounds.
      */
+    @Deprecated
     public void setBoundsInParent(Rect bounds) {
         mInfo.setBoundsInParent(bounds);
     }
