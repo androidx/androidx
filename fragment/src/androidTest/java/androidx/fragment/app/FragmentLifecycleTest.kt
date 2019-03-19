@@ -379,8 +379,8 @@ class FragmentLifecycleTest {
         val fc = startupFragmentController(activityRule.activity, null, viewModelStore)
         val fm = fc.supportFragmentManager
 
-        val fragmentA = StrictViewFragment.create(R.layout.fragment_a)
-        val fragmentB = StrictViewFragment.create(R.layout.fragment_b)
+        val fragmentA = StrictViewFragment(R.layout.fragment_a)
+        val fragmentB = StrictViewFragment(R.layout.fragment_b)
         fm.beginTransaction()
             .add(android.R.id.content, fragmentA)
             .commit()

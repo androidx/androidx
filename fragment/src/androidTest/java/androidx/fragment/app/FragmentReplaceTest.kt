@@ -52,7 +52,7 @@ class FragmentReplaceTest {
         val fm = activity.supportFragmentManager
 
         fm.beginTransaction()
-            .add(R.id.content, StrictViewFragment.create(R.layout.fragment_a))
+            .add(R.id.content, StrictViewFragment(R.layout.fragment_a))
             .addToBackStack(null)
             .commit()
         executePendingTransactions(fm)
@@ -61,7 +61,7 @@ class FragmentReplaceTest {
         assertThat(activity.findViewById<View>(R.id.textC)).isNull()
 
         fm.beginTransaction()
-            .add(R.id.content, StrictViewFragment.create(R.layout.fragment_b))
+            .add(R.id.content, StrictViewFragment(R.layout.fragment_b))
             .addToBackStack(null)
             .commit()
         executePendingTransactions(fm)
@@ -70,7 +70,7 @@ class FragmentReplaceTest {
         assertThat(activity.findViewById<View>(R.id.textC)).isNull()
 
         activity.supportFragmentManager.beginTransaction()
-            .replace(R.id.content, StrictViewFragment.create(R.layout.fragment_c))
+            .replace(R.id.content, StrictViewFragment(R.layout.fragment_c))
             .addToBackStack(null)
             .commit()
         executePendingTransactions(fm)
