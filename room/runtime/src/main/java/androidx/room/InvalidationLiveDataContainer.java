@@ -43,8 +43,10 @@ class InvalidationLiveDataContainer {
         mDatabase = database;
     }
 
-    <T> LiveData<T> create(String[] tableNames, Callable<T> computeFunction) {
-        return new RoomTrackingLiveData<>(mDatabase, this, computeFunction, tableNames);
+    <T> LiveData<T> create(String[] tableNames, boolean inTransaction,
+            Callable<T> computeFunction) {
+        return new RoomTrackingLiveData<>(mDatabase, this, inTransaction, computeFunction,
+                tableNames);
     }
 
     void onActive(LiveData liveData) {

@@ -99,6 +99,7 @@ class InvalidationLiveDataContainerTest {
     private fun createLiveData(): LiveData<Any> {
         return container.create(
             arrayOf("a", "b"),
+            false,
             createComputeFunction<Any>()
         ) as LiveData
     }

@@ -1,6 +1,10 @@
 // Signature format: 3.0
 package androidx.room {
 
+  public final class CoroutinesRoomKt {
+    ctor public CoroutinesRoomKt();
+  }
+
   public final class RoomDatabaseKt {
     ctor public RoomDatabaseKt();
     method public static suspend Object? acquireTransactionThread(java.util.concurrent.Executor, kotlinx.coroutines.Job controlJob, kotlin.coroutines.experimental.Continuation<? super kotlin.coroutines.ContinuationInterceptor> p);

@@ -58,9 +58,14 @@ class RxQueryResultBinder(
         }.build()
         scope.builder().apply {
             val tableNamesList = queryTableNames.joinToString(",") { "\"$it\"" }
-            addStatement("return $T.$N($N, new $T{$L}, $L)",
-                    RoomRxJava2TypeNames.RX_ROOM, rxType.methodName, dbField,
-                    String::class.arrayTypeName(), tableNamesList, callableImpl)
+            addStatement("return $T.$N($N, $L, new $T{$L}, $L)",
+                RoomRxJava2TypeNames.RX_ROOM,
+                rxType.methodName,
+                dbField,
+                if (inTransaction) "true" else "false",
+                String::class.arrayTypeName(),
+                tableNamesList,
+                callableImpl)
         }
     }
 
