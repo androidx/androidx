@@ -164,6 +164,7 @@ import java.util.Map;
     private final Runnable mPollBufferRunnable;
 
     private SimpleExoPlayer mPlayer;
+    private Handler mPlayerHandler;
     private DefaultAudioSink mAudioSink;
     private TrackSelector mTrackSelector;
     private MediaItemQueue mMediaItemQueue;
@@ -323,9 +324,10 @@ import java.util.Map;
     public void setAudioAttributes(AudioAttributesCompat audioAttributes) {
         mHasAudioAttributes = true;
         mPlayer.setAudioAttributes(ExoPlayerUtils.getAudioAttributes(audioAttributes));
+
         // Reset the audio session ID, as it gets cleared by setting audio attributes.
         if (mAudioSessionId != C.AUDIO_SESSION_ID_UNSET) {
-            mAudioSink.setAudioSessionId(mAudioSessionId);
+            updatePlayerAudioSessionId(mPlayerHandler, mAudioSink, mAudioSessionId);
         }
     }
 
@@ -336,7 +338,9 @@ import java.util.Map;
 
     public void setAudioSessionId(int audioSessionId) {
         mAudioSessionId = audioSessionId;
-        mAudioSink.setAudioSessionId(mAudioSessionId);
+        if (mPlayer != null) {
+            updatePlayerAudioSessionId(mPlayerHandler, mAudioSink, mAudioSessionId);
+        }
     }
 
     public int getAudioSessionId() {
@@ -465,6 +469,7 @@ import java.util.Map;
                 mBandwidthMeter,
                 new AnalyticsCollector.Factory(),
                 mLooper);
+        mPlayerHandler = new Handler(mPlayer.getPlaybackLooper());
         mMediaItemQueue = new MediaItemQueue(mContext, mPlayer, mListener);
         mPlayer.addListener(listener);
         // TODO(b/80232248): Switch to AnalyticsListener once default methods work.
@@ -793,6 +798,19 @@ import java.util.Map;
         public void run() {
             updateBufferingAndScheduleNextPollBuffer();
         }
+    }
+
+    private static void updatePlayerAudioSessionId(
+            Handler playerHandler,
+            final DefaultAudioSink audioSink,
+            final int audioSessionId) {
+        // DefaultAudioSink is not thread-safe, so post the update to the playback thread.
+        playerHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                audioSink.setAudioSessionId(audioSessionId);
+            }
+        });
     }
 
     private static final class MediaItemInfo {
