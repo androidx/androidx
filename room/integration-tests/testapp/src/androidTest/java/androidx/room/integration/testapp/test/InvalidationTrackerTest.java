@@ -125,7 +125,7 @@ public class InvalidationTrackerTest {
     public void createLiveData() throws ExecutionException, InterruptedException, TimeoutException {
         final LiveData<Item> liveData = mDb
                 .getInvalidationTracker()
-                .createLiveData(new String[]{"Item"}, () -> mDb.getItemDao().itemById(1));
+                .createLiveData(new String[]{"Item"}, false, () -> mDb.getItemDao().itemById(1));
 
         mDb.getItemDao().insert(new Item(1, "v1"));
 
@@ -147,7 +147,7 @@ public class InvalidationTrackerTest {
             throws ExecutionException, InterruptedException, TimeoutException {
         LiveData<Item> liveData = mDb
                 .getInvalidationTracker()
-                .createLiveData(new String[]{"Item"}, () -> mDb.getItemDao().itemById(1));
+                .createLiveData(new String[]{"Item"}, false, () -> mDb.getItemDao().itemById(1));
 
         mDb.getItemDao().insert(new Item(1, "v1"));
 

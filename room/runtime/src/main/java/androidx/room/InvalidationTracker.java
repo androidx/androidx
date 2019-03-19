@@ -559,6 +559,8 @@ public class InvalidationTracker {
      * <p>
      * Holds a strong reference to the created LiveData as long as it is active.
      *
+     * @deprecated Use {@link #createLiveData(String[], boolean, Callable)}
+     *
      * @param computeFunction The function that calculates the value
      * @param tableNames      The list of tables to observe
      * @param <T>             The return type
@@ -566,10 +568,32 @@ public class InvalidationTracker {
      * invalidates.
      * @hide
      */
+    @Deprecated
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public <T> LiveData<T> createLiveData(String[] tableNames, Callable<T> computeFunction) {
+        return createLiveData(tableNames, false, computeFunction);
+    }
+
+    /**
+     * Creates a LiveData that computes the given function once and for every other invalidation
+     * of the database.
+     * <p>
+     * Holds a strong reference to the created LiveData as long as it is active.
+     *
+     * @param tableNames      The list of tables to observe
+     * @param inTransaction   True if the computeFunction will be done in a transaction, false
+     *                        otherwise.
+     * @param computeFunction The function that calculates the value
+     * @param <T>             The return type
+     * @return A new LiveData that computes the given function when the given list of tables
+     * invalidates.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public <T> LiveData<T> createLiveData(String[] tableNames, boolean inTransaction,
+            Callable<T> computeFunction) {
         return mInvalidationLiveDataContainer.create(
-                validateAndResolveTableNames(tableNames), computeFunction);
+                validateAndResolveTableNames(tableNames), inTransaction, computeFunction);
     }
 
     /**

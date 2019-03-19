@@ -52,9 +52,10 @@ class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Contex
             adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query)
         ) { callableImpl, dbField ->
             addStatement(
-                "return $T.createListenableFuture($N, $L)",
+                "return $T.createListenableFuture($N, $L, $L)",
                 RoomGuavaTypeNames.GUAVA_ROOM,
                 dbField,
+                "true", // inTransaction
                 callableImpl
             )
         }

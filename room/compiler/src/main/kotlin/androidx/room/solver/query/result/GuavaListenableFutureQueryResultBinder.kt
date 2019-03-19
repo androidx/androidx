@@ -56,9 +56,10 @@ class GuavaListenableFutureQueryResultBinder(
 
         scope.builder().apply {
             addStatement(
-                "return $T.createListenableFuture($N, $L, $L, $L)",
+                "return $T.createListenableFuture($N, $L, $L, $L, $L)",
                 RoomGuavaTypeNames.GUAVA_ROOM,
                 dbField,
+                if (inTransaction) "true" else "false",
                 callableImpl,
                 roomSQLiteQueryVar,
                 canReleaseQuery

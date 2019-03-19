@@ -45,8 +45,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -77,6 +79,7 @@ public abstract class RoomDatabase {
     @Deprecated
     protected volatile SupportSQLiteDatabase mDatabase;
     private Executor mQueryExecutor;
+    private Executor mTransactionExecutor;
     private SupportSQLiteOpenHelper mOpenHelper;
     private final InvalidationTracker mInvalidationTracker;
     private boolean mAllowMainThreadQueries;
@@ -121,6 +124,19 @@ public abstract class RoomDatabase {
         return mSuspendingTransactionId;
     }
 
+
+    private final Map<String, Object> mBackingFieldMap = new ConcurrentHashMap<>();
+
+    /**
+     * Gets the map for storing extension properties of Kotlin type.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    Map<String, Object> getBackingFieldMap() {
+        return mBackingFieldMap;
+    }
+
     /**
      * Creates a RoomDatabase.
      * <p>
@@ -147,6 +163,7 @@ public abstract class RoomDatabase {
         }
         mCallbacks = configuration.callbacks;
         mQueryExecutor = configuration.queryExecutor;
+        mTransactionExecutor = new TransactionExecutor(configuration.transactionExecutor);
         mAllowMainThreadQueries = configuration.allowMainThreadQueries;
         mWriteAheadLoggingEnabled = wal;
         if (configuration.multiInstanceInvalidation) {
@@ -336,6 +353,14 @@ public abstract class RoomDatabase {
     }
 
     /**
+     * @return The Executor in use by this database for async transactions.
+     */
+    @NonNull
+    public Executor getTransactionExecutor() {
+        return mTransactionExecutor;
+    }
+
+    /**
      * Wrapper for {@link SupportSQLiteDatabase#setTransactionSuccessful()}.
      *
      * @deprecated Use {@link #runInTransaction(Runnable)}
@@ -481,6 +506,8 @@ public abstract class RoomDatabase {
 
         /** The Executor used to run database queries. This should be background-threaded. */
         private Executor mQueryExecutor;
+        /** The Executor used to run database transactions. This should be background-threaded. */
+        private Executor mTransactionExecutor;
         private SupportSQLiteOpenHelper.Factory mFactory;
         private boolean mAllowMainThreadQueries;
         private JournalMode mJournalMode;
@@ -598,16 +625,49 @@ public abstract class RoomDatabase {
          * queries and tasks, including {@code LiveData} invalidation, {@code Flowable} scheduling
          * and {@code ListenableFuture} tasks.
          * <p>
-         * When unset, a default {@code Executor} will be used. The default {@code Executor}
-         * allocates and shares threads amongst Architecture Components libraries.
+         * When both the query executor and transaction executor are unset, then a default
+         * {@code Executor} will be used. The default {@code Executor} allocates and shares threads
+         * amongst Architecture Components libraries. If the query executor is unset but a
+         * transaction executor was set, then the same {@code Executor} will be used for queries.
+         * <p>
+         * For best performance the given {@code Executor} should be bounded (max number of threads
+         * is limited).
          * <p>
          * The input {@code Executor} cannot run tasks on the UI thread.
-         *
+         **
          * @return this
+         *
+         * @see #setTransactionExecutor(Executor)
          */
         @NonNull
         public Builder<T> setQueryExecutor(@NonNull Executor executor) {
             mQueryExecutor = executor;
+            return this;
+        }
+
+        /**
+         * Sets the {@link Executor} that will be used to execute all non-blocking asynchronous
+         * transaction queries and tasks, including {@code LiveData} invalidation, {@code Flowable}
+         * scheduling and {@code ListenableFuture} tasks.
+         * <p>
+         * When both the transaction executor and query executor are unset, then a default
+         * {@code Executor} will be used. The default {@code Executor} allocates and shares threads
+         * amongst Architecture Components libraries. If the transaction executor is unset but a
+         * query executor was set, then the same {@code Executor} will be used for transactions.
+         * <p>
+         * If the given {@code Executor} is shared then it should be unbounded to avoid the
+         * possibility of a deadlock. Room will not use more than one thread at a time from this
+         * executor.
+         * <p>
+         * The input {@code Executor} cannot run tasks on the UI thread.
+         *
+         * @return this
+         *
+         * @see #setQueryExecutor(Executor)
+         */
+        @NonNull
+        public Builder<T> setTransactionExecutor(@NonNull Executor executor) {
+            mTransactionExecutor = executor;
             return this;
         }
 
@@ -741,8 +801,12 @@ public abstract class RoomDatabase {
                 throw new IllegalArgumentException("Must provide an abstract class that"
                         + " extends RoomDatabase");
             }
-            if (mQueryExecutor == null) {
-                mQueryExecutor = ArchTaskExecutor.getIOThreadExecutor();
+            if (mQueryExecutor == null && mTransactionExecutor == null) {
+                mQueryExecutor = mTransactionExecutor = ArchTaskExecutor.getIOThreadExecutor();
+            } else if (mQueryExecutor != null && mTransactionExecutor == null) {
+                mTransactionExecutor = mQueryExecutor;
+            } else if (mQueryExecutor == null && mTransactionExecutor != null) {
+                mQueryExecutor = mTransactionExecutor;
             }
 
             if (mMigrationStartAndEndVersions != null && mMigrationsNotRequiredFrom != null) {
@@ -763,12 +827,20 @@ public abstract class RoomDatabase {
                 mFactory = new FrameworkSQLiteOpenHelperFactory();
             }
             DatabaseConfiguration configuration =
-                    new DatabaseConfiguration(mContext, mName, mFactory, mMigrationContainer,
-                            mCallbacks, mAllowMainThreadQueries, mJournalMode.resolve(mContext),
+                    new DatabaseConfiguration(
+                            mContext,
+                            mName,
+                            mFactory,
+                            mMigrationContainer,
+                            mCallbacks,
+                            mAllowMainThreadQueries,
+                            mJournalMode.resolve(mContext),
                             mQueryExecutor,
+                            mTransactionExecutor,
                             mMultiInstanceInvalidation,
                             mRequireMigration,
-                            mAllowDestructiveMigrationOnDowngrade, mMigrationsNotRequiredFrom);
+                            mAllowDestructiveMigrationOnDowngrade,
+                            mMigrationsNotRequiredFrom);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;

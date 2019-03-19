@@ -74,6 +74,12 @@ public class DatabaseConfiguration {
     public final Executor queryExecutor;
 
     /**
+     * The Executor used to execute asynchronous transactions.
+     */
+    @NonNull
+    public final Executor transactionExecutor;
+
+    /**
      * If true, table invalidation in an instance of {@link RoomDatabase} is broadcast and
      * synchronized with other instances of the same {@link RoomDatabase} file, including those
      * in a separate process.
@@ -124,6 +130,7 @@ public class DatabaseConfiguration {
             boolean allowMainThreadQueries,
             RoomDatabase.JournalMode journalMode,
             @NonNull Executor queryExecutor,
+            @NonNull Executor transactionExecutor,
             boolean multiInstanceInvalidation,
             boolean requireMigration,
             boolean allowDestructiveMigrationOnDowngrade,
@@ -136,6 +143,7 @@ public class DatabaseConfiguration {
         this.allowMainThreadQueries = allowMainThreadQueries;
         this.journalMode = journalMode;
         this.queryExecutor = queryExecutor;
+        this.transactionExecutor = transactionExecutor;
         this.multiInstanceInvalidation = multiInstanceInvalidation;
         this.requireMigration = requireMigration;
         this.allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade;
