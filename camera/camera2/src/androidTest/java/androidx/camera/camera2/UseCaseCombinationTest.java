@@ -169,6 +169,51 @@ public final class UseCaseCombinationTest {
         assertThat(CameraX.isBound(mImageAnalysisUseCase)).isTrue();
     }
 
+    /**
+     * Test Combination: ViewFinder + ImageAnalysis + ImageCaptureUseCase
+     */
+    @Test
+    public void viewFinderCombinesImageAnalysisAndImageCapture() throws InterruptedException {
+        initViewFinderUseCase();
+        initImageAnalysisUseCase();
+        initImageCaptureUseCase();
+
+        mUseCaseGroup.addUseCase(mImageCaptureUseCase);
+        mUseCaseGroup.addUseCase(mImageAnalysisUseCase);
+        mUseCaseGroup.addUseCase(mViewFinderUseCase);
+
+        mImageCaptureUseCase.doNotifyActive();
+        mCameraRepository.onGroupActive(mUseCaseGroup);
+
+        mMainThreadHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mImageAnalysisUseCase.setAnalyzer(mImageAnalyzer);
+
+                mAnalysisResult.observe(mLifecycle,
+                        createCountIncrementingObserver());
+            }
+        });
+
+        CameraX.bindToLifecycle(mLifecycle, mViewFinderUseCase, mImageAnalysisUseCase,
+                mImageCaptureUseCase);
+        mLifecycle.startAndResume();
+
+        // Wait for 10 frames to be analyzed.
+        mSemaphore.acquire(10);
+
+        // Wait for the CameraCaptureSession.onConfigured callback.
+        try {
+            mImageCaptureUseCase.mSessionStateCallback.waitForOnConfigured(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        assertThat(CameraX.isBound(mViewFinderUseCase)).isTrue();
+        assertThat(CameraX.isBound(mImageAnalysisUseCase)).isTrue();
+        assertThat(CameraX.isBound(mImageCaptureUseCase)).isTrue();
+    }
+
     private void initImageAnalysisUseCase() {
         ImageAnalysisUseCaseConfiguration imageAnalysisUseCaseConfiguration =
                 new ImageAnalysisUseCaseConfiguration.Builder()
