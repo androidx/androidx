@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.fragment.app.test;
+package androidx.fragment.app.test
 
-import android.os.Bundle;
+import android.os.Bundle
+import androidx.fragment.test.R
+import androidx.testutils.RecreatedActivity
 
-import androidx.annotation.Nullable;
-import androidx.fragment.test.R;
-import androidx.testutils.RecreatedActivity;
+class HangingFragmentActivity : RecreatedActivity() {
 
-public class HangingFragmentActivity extends RecreatedActivity {
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(savedInstanceState == null ? R.layout.activity_inflated_fragment
-                : R.layout.activity_content);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(
+            if (savedInstanceState == null)
+                R.layout.activity_inflated_fragment
+            else
+                R.layout.activity_content
+        )
     }
 }

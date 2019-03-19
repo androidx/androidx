@@ -90,8 +90,8 @@ public class FragmentActivityUtils {
             ActivityTestRule<? extends RecreatedActivity> rule, final T activity)
             throws InterruptedException {
         // Now switch the orientation
-        RecreatedActivity.sResumed = new CountDownLatch(1);
-        RecreatedActivity.sDestroyed = new CountDownLatch(1);
+        RecreatedActivity.setResumedLatch(new CountDownLatch(1));
+        RecreatedActivity.setDestroyedLatch(new CountDownLatch(1));
 
         runOnUiThreadRethrow(rule, new Runnable() {
             @Override
@@ -99,9 +99,9 @@ public class FragmentActivityUtils {
                 activity.recreate();
             }
         });
-        assertTrue(RecreatedActivity.sResumed.await(1, TimeUnit.SECONDS));
-        assertTrue(RecreatedActivity.sDestroyed.await(1, TimeUnit.SECONDS));
-        T newActivity = (T) RecreatedActivity.sActivity;
+        assertTrue(RecreatedActivity.getResumedLatch().await(1, TimeUnit.SECONDS));
+        assertTrue(RecreatedActivity.getDestroyedLatch().await(1, TimeUnit.SECONDS));
+        T newActivity = (T) RecreatedActivity.getActivity();
 
         waitForExecution(rule);
 
