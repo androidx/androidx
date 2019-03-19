@@ -44,7 +44,7 @@ public class StrictViewFragment extends StrictFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         checkGetActivity();
-        checkState("onCreateView", CREATED);
+        checkState("onCreateView", StrictFragment.CREATED);
         View result = super.onCreateView(inflater, container, savedInstanceState);
         if (result == null) {
             result = inflater.inflate(mLayoutId, container, false);
@@ -59,7 +59,7 @@ public class StrictViewFragment extends StrictFragment {
             throw new IllegalArgumentException("onViewCreated view argument should not be null");
         }
         checkGetActivity();
-        checkState("onViewCreated", CREATED);
+        checkState("onViewCreated", StrictFragment.CREATED);
         mOnViewCreatedCalled = true;
     }
 
@@ -70,7 +70,7 @@ public class StrictViewFragment extends StrictFragment {
             throw new IllegalStateException("getView returned null in onDestroyView");
         }
         checkGetActivity();
-        checkState("onDestroyView", CREATED);
+        checkState("onDestroyView", StrictFragment.CREATED);
         mOnDestroyViewCalled = true;
     }
 }

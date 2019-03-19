@@ -63,7 +63,7 @@ public class TransitionFragment extends StrictViewFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         checkGetActivity();
-        checkState("onCreateView", CREATED);
+        checkState("onCreateView", StrictFragment.CREATED);
         mOnCreateViewCalled = true;
         return super.onCreateView(inflater, container, savedInstanceState);
     }
