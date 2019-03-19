@@ -54,9 +54,10 @@ class GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(
         val adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(typeArg)
         return createDeleteOrUpdateBinder(typeArg, adapter) { callableImpl, dbField ->
             addStatement(
-                "return $T.createListenableFuture($N, $L)",
+                "return $T.createListenableFuture($N, $L, $L)",
                 RoomGuavaTypeNames.GUAVA_ROOM,
                 dbField,
+                "true", // inTransaction
                 callableImpl
             )
         }

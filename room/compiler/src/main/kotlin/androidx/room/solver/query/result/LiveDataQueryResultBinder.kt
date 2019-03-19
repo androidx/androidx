@@ -67,8 +67,12 @@ class LiveDataQueryResultBinder(
         scope.builder().apply {
             val tableNamesList = tableNames.joinToString(",") { "\"$it\"" }
             addStatement(
-                "return $N.getInvalidationTracker().createLiveData(new $T{$L}, $L)",
-                dbField, String::class.arrayTypeName(), tableNamesList, callableImpl
+                "return $N.getInvalidationTracker().createLiveData(new $T{$L}, $L, $L)",
+                dbField,
+                String::class.arrayTypeName(),
+                tableNamesList,
+                if (inTransaction) "true" else "false",
+                callableImpl
             )
         }
     }

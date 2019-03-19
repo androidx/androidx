@@ -39,6 +39,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
 @RunWith(JUnit4.class)
@@ -64,6 +65,41 @@ public class BuilderTest {
     @Test(expected = IllegalArgumentException.class)
     public void emptyName() {
         Room.databaseBuilder(mock(Context.class), RoomDatabase.class, "  ").build();
+    }
+
+    public void executors_setQueryExecutor() {
+        Executor executor = mock(Executor.class);
+
+        TestDatabase db = Room.databaseBuilder(mock(Context.class), TestDatabase.class, "foo")
+                .setQueryExecutor(executor)
+                .build();
+
+        assertThat(db.mDatabaseConfiguration.queryExecutor, is(executor));
+        assertThat(db.mDatabaseConfiguration.transactionExecutor, is(executor));
+    }
+
+    public void executors_setTransactionExecutor() {
+        Executor executor = mock(Executor.class);
+
+        TestDatabase db = Room.databaseBuilder(mock(Context.class), TestDatabase.class, "foo")
+                .setTransactionExecutor(executor)
+                .build();
+
+        assertThat(db.mDatabaseConfiguration.queryExecutor, is(executor));
+        assertThat(db.mDatabaseConfiguration.transactionExecutor, is(executor));
+    }
+
+    public void executors_setBothExecutors() {
+        Executor executor1 = mock(Executor.class);
+        Executor executor2 = mock(Executor.class);
+
+        TestDatabase db = Room.databaseBuilder(mock(Context.class), TestDatabase.class, "foo")
+                .setQueryExecutor(executor1)
+                .setTransactionExecutor(executor2)
+                .build();
+
+        assertThat(db.mDatabaseConfiguration.queryExecutor, is(executor1));
+        assertThat(db.mDatabaseConfiguration.transactionExecutor, is(executor2));
     }
 
     @Test
@@ -387,6 +423,14 @@ public class BuilderTest {
     }
 
     abstract static class TestDatabase extends RoomDatabase {
+
+        DatabaseConfiguration mDatabaseConfiguration;
+
+        @Override
+        public void init(@NonNull DatabaseConfiguration configuration) {
+            super.init(configuration);
+            mDatabaseConfiguration = configuration;
+        }
     }
 
     static class EmptyMigration extends Migration {

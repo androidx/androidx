@@ -57,9 +57,10 @@ class CoroutineResultBinder(
 
         scope.builder().apply {
             addStatement(
-                "return $T.execute($N, $L, $N)",
+                "return $T.execute($N, $L, $L, $N)",
                 RoomCoroutinesTypeNames.COROUTINES_ROOM,
                 dbField,
+                if (inTransaction) "true" else "false",
                 callableImpl,
                 continuationParamName)
         }

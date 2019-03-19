@@ -167,7 +167,7 @@ public class RxRoomTest {
         final AtomicReference<String> value = new AtomicReference<>(null);
         String[] tables = {"a", "b"};
         Set<String> tableSet = new HashSet<>(Arrays.asList(tables));
-        final Flowable<String> flowable = RxRoom.createFlowable(mDatabase, tables,
+        final Flowable<String> flowable = RxRoom.createFlowable(mDatabase, false, tables,
                 new Callable<String>() {
                     @Override
                     public String call() throws Exception {
@@ -201,7 +201,7 @@ public class RxRoomTest {
         final AtomicReference<String> value = new AtomicReference<>(null);
         String[] tables = {"a", "b"};
         Set<String> tableSet = new HashSet<>(Arrays.asList(tables));
-        final Observable<String> flowable = RxRoom.createObservable(mDatabase, tables,
+        final Observable<String> flowable = RxRoom.createObservable(mDatabase, false, tables,
                 new Callable<String>() {
                     @Override
                     public String call() throws Exception {
@@ -232,7 +232,7 @@ public class RxRoomTest {
 
     @Test
     public void exception_Flowable() throws Exception {
-        final Flowable<String> flowable = RxRoom.createFlowable(mDatabase, new String[]{"a"},
+        final Flowable<String> flowable = RxRoom.createFlowable(mDatabase, false, new String[]{"a"},
                 new Callable<String>() {
                     @Override
                     public String call() throws Exception {
@@ -248,7 +248,8 @@ public class RxRoomTest {
 
     @Test
     public void exception_Observable() throws Exception {
-        final Observable<String> flowable = RxRoom.createObservable(mDatabase, new String[]{"a"},
+        final Observable<String> flowable = RxRoom.createObservable(mDatabase, false,
+                new String[]{"a"},
                 new Callable<String>() {
                     @Override
                     public String call() throws Exception {

@@ -15,6 +15,7 @@ package androidx.room {
     field public final java.util.concurrent.Executor queryExecutor;
     field public final boolean requireMigration;
     field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory;
+    field public final java.util.concurrent.Executor transactionExecutor;
   }
 
   public class InvalidationTracker {
@@ -48,6 +49,7 @@ package androidx.room {
     method public androidx.room.InvalidationTracker getInvalidationTracker();
     method public androidx.sqlite.db.SupportSQLiteOpenHelper getOpenHelper();
     method public java.util.concurrent.Executor getQueryExecutor();
+    method public java.util.concurrent.Executor getTransactionExecutor();
     method public boolean inTransaction();
     method @CallSuper public void init(androidx.room.DatabaseConfiguration);
     method protected void internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase);
@@ -73,6 +75,7 @@ package androidx.room {
     method public androidx.room.RoomDatabase.Builder<T> openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory?);
     method public androidx.room.RoomDatabase.Builder<T> setJournalMode(androidx.room.RoomDatabase.JournalMode);
     method public androidx.room.RoomDatabase.Builder<T> setQueryExecutor(java.util.concurrent.Executor);
+    method public androidx.room.RoomDatabase.Builder<T> setTransactionExecutor(java.util.concurrent.Executor);
   }
 
   public abstract static class RoomDatabase.Callback {
