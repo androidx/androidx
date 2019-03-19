@@ -17,11 +17,11 @@
 package androidx.viewpager2.widget.swipe
 
 import android.os.Bundle
-import androidx.testutils.RecreatedActivity
+import androidx.testutils.RecreatedAppCompatActivity
 import androidx.viewpager2.LocaleTestUtils
 import androidx.viewpager2.test.R
 
-class TestActivity : RecreatedActivity() {
+class TestActivity : RecreatedAppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (intent?.hasExtra(EXTRA_LANGUAGE) == true) {
