@@ -18,7 +18,6 @@ package androidx.webkit;
 
 import android.content.ContextWrapper;
 import android.net.Uri;
-import android.util.Log;
 import android.webkit.WebResourceResponse;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -95,9 +94,8 @@ public class WebViewAssetLoaderTest {
                 try {
                     return new ByteArrayInputStream(contents.getBytes(encoding));
                 } catch (UnsupportedEncodingException e) {
-                    Log.e(TAG, "exception when creating response", e);
+                    throw new RuntimeException(e);
                 }
-                return null;
             }
         };
 
@@ -126,8 +124,7 @@ public class WebViewAssetLoaderTest {
                     try {
                         return new ByteArrayInputStream(testHtmlContents.getBytes("utf-8"));
                     } catch (IOException e) {
-                        Log.e(TAG, "Unable to open asset URL: " + url);
-                        return null;
+                        throw new RuntimeException(e);
                     }
                 }
                 return null;
@@ -156,12 +153,12 @@ public class WebViewAssetLoaderTest {
         WebViewAssetLoader assetLoader = builder.buildForTest(new MockAssetHelper() {
             @Override
             public InputStream openResource(Uri uri) {
-                try {
-                    if (uri.getPath().equals("raw/test.html")) {
+                if (uri.getPath().equals("raw/test.html")) {
+                    try {
                         return new ByteArrayInputStream(testHtmlContents.getBytes("utf-8"));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
-                } catch (IOException e) {
-                    Log.e(TAG, "exception when creating response", e);
                 }
                 return null;
             }
@@ -196,8 +193,7 @@ public class WebViewAssetLoaderTest {
                     try {
                         return new ByteArrayInputStream(testHtmlContents.getBytes("utf-8"));
                     } catch (IOException e) {
-                        Log.e(TAG, "Unable to open asset URL: " + url);
-                        return null;
+                        throw new RuntimeException(e);
                     }
                 }
                 return null;
@@ -229,12 +225,12 @@ public class WebViewAssetLoaderTest {
         WebViewAssetLoader assetLoader = builder.buildForTest(new MockAssetHelper() {
             @Override
             public InputStream openResource(Uri uri) {
-                try {
-                    if (uri.getPath().equals("raw/test.html")) {
+                if (uri.getPath().equals("raw/test.html")) {
+                    try {
                         return new ByteArrayInputStream(testHtmlContents.getBytes("utf-8"));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
-                } catch (IOException e) {
-                    Log.e(TAG, "exception when creating response", e);
                 }
                 return null;
             }
