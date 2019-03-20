@@ -415,8 +415,7 @@ class FragmentAnimatorTest {
 
         val fm1 = fc1.supportFragmentManager
 
-        val fragment1 = StrictViewFragment()
-        fragment1.setLayoutId(R.layout.scene1)
+        val fragment1 = StrictViewFragment(R.layout.scene1)
         fm1.beginTransaction()
             .add(R.id.fragmentContainer, fragment1, "1")
             .setReorderingAllowed(true)
@@ -509,7 +508,7 @@ class FragmentAnimatorTest {
     }
 
     private fun assertPostponed(fragment: AnimatorFragment, expectedAnimators: Int) {
-        assertThat(fragment.mOnCreateViewCalled).isTrue()
+        assertThat(fragment.onCreateViewCalled).isTrue()
         assertThat(fragment.requireView().visibility).isEqualTo(View.VISIBLE)
         assertThat(fragment.requireView().alpha).isWithin(0f).of(0f)
         assertThat(fragment.numAnimators).isEqualTo(expectedAnimators)

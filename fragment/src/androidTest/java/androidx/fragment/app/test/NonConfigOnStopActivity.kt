@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.fragment.app.test;
+package androidx.fragment.app.test
 
-import androidx.fragment.app.Fragment;
-import androidx.testutils.RecreatedActivity;
+import androidx.fragment.app.Fragment
+import androidx.testutils.RecreatedActivity
 
-public class NonConfigOnStopActivity extends RecreatedActivity {
-    @Override
-    protected void onStop() {
-        super.onStop();
+class NonConfigOnStopActivity : RecreatedActivity() {
+    override fun onStop() {
+        super.onStop()
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(new RetainedFragment(), "1")
-                .commitNowAllowingStateLoss();
+        supportFragmentManager
+            .beginTransaction()
+            .add(RetainedFragment(), "1")
+            .commitNowAllowingStateLoss()
     }
 
-    public static class RetainedFragment extends Fragment {
-        public RetainedFragment() {
-            setRetainInstance(true);
+    class RetainedFragment : Fragment() {
+        init {
+            retainInstance = true
         }
     }
 }

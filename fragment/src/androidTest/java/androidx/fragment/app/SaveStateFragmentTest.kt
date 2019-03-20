@@ -204,7 +204,7 @@ class SaveStateFragmentTest {
         val restoredRemovedFragment = fm2.findFragmentByTag("tag:removed") as StateSaveFragment?
         assertThat(restoredRemovedFragment).isNull()
         assertWithMessage("Removed Fragment should be destroyed")
-            .that(removedFragment.mCalledOnDestroy).isTrue()
+            .that(removedFragment.calledOnDestroy).isTrue()
 
         val restoredDetachedFragment = fm2.findFragmentByTag("tag:detached") as StateSaveFragment
         assertThat(restoredDetachedFragment).isNotNull()
@@ -256,9 +256,9 @@ class SaveStateFragmentTest {
         shutdownFragmentController(fc2, viewModelStore)
 
         assertWithMessage("grandparent not destroyed")
-            .that(restoredGrandparent.mCalledOnDestroy).isTrue()
-        assertWithMessage("parent not destroyed").that(restoredParent.mCalledOnDestroy).isTrue()
-        assertWithMessage("child not destroyed").that(restoredChild.mCalledOnDestroy).isTrue()
+            .that(restoredGrandparent.calledOnDestroy).isTrue()
+        assertWithMessage("parent not destroyed").that(restoredParent.calledOnDestroy).isTrue()
+        assertWithMessage("child not destroyed").that(restoredChild.calledOnDestroy).isTrue()
     }
 
     @Test
@@ -358,9 +358,9 @@ class SaveStateFragmentTest {
 
         // Confirm the initial state
         assertWithMessage("Initial parent saved instance state should be null")
-            .that(parentFragment.mSavedInstanceState).isNull()
+            .that(parentFragment.lastSavedInstanceState).isNull()
         assertWithMessage("Initial child saved instance state should be null")
-            .that(childFragment.mSavedInstanceState).isNull()
+            .that(childFragment.lastSavedInstanceState).isNull()
 
         // Bring the state back down to destroyed, simulating an activity restart
         fc1.dispatchPause()
@@ -384,9 +384,9 @@ class SaveStateFragmentTest {
         assertWithMessage("Child fragment was not restored").that(restoredChildFragment).isNotNull()
 
         assertWithMessage("Parent fragment saved instance state should still be null since it is " +
-                "a retained Fragment").that(restoredParentFragment.mSavedInstanceState).isNull()
+                "a retained Fragment").that(restoredParentFragment.lastSavedInstanceState).isNull()
         assertWithMessage("Child fragment saved instance state should be non-null")
-            .that(restoredChildFragment.mSavedInstanceState).isNotNull()
+            .that(restoredChildFragment.lastSavedInstanceState).isNotNull()
 
         // Bring the state back down to destroyed before we finish the test
         shutdownFragmentController(fc2, viewModelStore)
@@ -520,12 +520,12 @@ class SaveStateFragmentTest {
 
         val fragment1 = fm.findFragmentByTag("1") as StrictFragment
         assertWithMessage("Fragment should be resumed after restart")
-            .that(fragment1.mCalledOnResume).isTrue()
-        fragment1.mCalledOnResume = false
+            .that(fragment1.calledOnResume).isTrue()
+        fragment1.calledOnResume = false
         fc.dispatchResume()
 
         assertWithMessage("Fragment should not get onResume() after second dispatchResume()")
-            .that(fragment1.mCalledOnResume).isFalse()
+            .that(fragment1.calledOnResume).isFalse()
     }
 
     @Test
