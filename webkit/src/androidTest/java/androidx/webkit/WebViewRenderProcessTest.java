@@ -31,6 +31,7 @@ import androidx.test.filters.SdkSuppress;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -102,11 +103,24 @@ public class WebViewRenderProcessTest {
         return future;
     }
 
+    @Before
+    public void setUp() {
+        WebkitUtils.checkFeature(WebViewFeature.GET_WEB_VIEW_RENDERER);
+
+        // Ensure that any existing renderer still alive after a previous test is terminated.
+        // TODO(tobiasjs): This assumes that WebView uses at most one renderer, which is true
+        // for now but may not remain so in future.
+        final WebView webView = WebViewOnUiThread.createWebView();
+        final WebViewRenderProcess renderProcess = getRenderProcessOnUiThread(webView);
+        WebViewOnUiThread.destroy(webView);
+        if (renderProcess != null) {
+            terminateRenderProcessOnUiThread(renderProcess);
+        }
+    }
+
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.N_MR1)
     public void testGetWebViewRenderProcessPreO() throws Throwable {
-        WebkitUtils.checkFeature(WebViewFeature.GET_WEB_VIEW_RENDERER);
-
         // It should not be possible to get a renderer pre-O
         WebView webView = WebViewOnUiThread.createWebView();
         final WebViewRenderProcess renderer = startAndGetRenderProcess(webView).get();
@@ -120,7 +134,6 @@ public class WebViewRenderProcessTest {
     @SuppressLint("NewApi")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     public void testGetWebViewRenderProcess() throws Throwable {
-        WebkitUtils.checkFeature(WebViewFeature.GET_WEB_VIEW_RENDERER);
         // TODO(tobiasjs) some O devices are not multiprocess, and multiprocess can also be disabled
         // manually. This test should handle those scenarios.
 
