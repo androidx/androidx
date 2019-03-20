@@ -54,7 +54,7 @@ interface Owner {
 
     /**
      * Called by [ComponentNode] when it is detached from the view system, such as during
-     * [ComponentNode.dropChild]. This will only be called for [node]s that are already
+     * [ComponentNode.emitRemoveAt]. This will only be called for [node]s that are already
      * [ComponentNode.attach]ed.
      */
     fun onDetach(node: ComponentNode)
@@ -118,7 +118,7 @@ sealed class ComponentNode : Emittable {
 
     /**
      * Inserts a child [ComponentNode] at a particular index. If this ComponentNode [isAttached]
-     * then [child] will become [attach]ed also. [child] must have a `null` [parent].
+     * then [instance] will become [attach]ed also. [instance] must have a `null` [parent].
      */
     override fun emitInsertAt(index: Int, instance: Emittable) {
         if (instance !is ComponentNode) {
@@ -190,24 +190,34 @@ sealed class ComponentNode : Emittable {
 }
 
 /**
- * Returns true if this [ComponentNode] currently has an [owner].  Semantically, this means that
- * the ComponentNode is currently a part of a component tree.
+ * Returns true if this [ComponentNode] currently has an [ComponentNode.owner].  Semantically,
+ * this means that the ComponentNode is currently a part of a component tree.
  */
 fun ComponentNode.isAttached() = owner != null
 
 /**
  * Base class for [ComponentNode]s that have zero or one child
  */
-sealed class SingleChildComponentNode() : ComponentNode() {
+sealed class SingleChildComponentNode : ComponentNode() {
     /**
      * The child that this ComponentNode has. This will be `null` if it has no child.
      */
     var child: ComponentNode? = null
 
+    /**
+     * Second child. This may seem weird, but R4A doesn't guarantee that a child will
+     * be removed before a new child will be added. This allows the execution order to
+     * be independent.
+     */
+    private var secondChild: ComponentNode? = null
+
     override var layoutNode: LayoutNode? = null
 
     override val count: Int
-        get() = if (child == null) 0 else 1
+        get() {
+            ErrorMessages.SingleChildOnlyOneNode.validateState(secondChild == null)
+            return if (child != null) 1 else 0
+        }
 
     override var parentLayoutNode: LayoutNode?
         get() = super.parentLayoutNode
@@ -217,26 +227,52 @@ sealed class SingleChildComponentNode() : ComponentNode() {
         }
 
     override fun emitInsertAt(index: Int, instance: Emittable) {
-        ErrorMessages.IndexOutOfRange.validateArg(index == 0 && child == null, index)
+        ErrorMessages.IndexOutOfRange.validateArg(index == 0 || index == 1, index)
+        ErrorMessages.SingleChildOnlyOneNode.validateState(secondChild == null)
         super.emitInsertAt(index, instance)
         val child = instance as ComponentNode
-        this.child = child
+        if (index == 0) {
+            secondChild = this.child
+            this.child = child
+        } else { // index == 1
+            ErrorMessages.IndexOutOfRange.validateArg(this.child != null, index)
+            this.secondChild = child
+        }
         child.parentLayoutNode = parentLayoutNode
         layoutNode = child.layoutNode
     }
 
     override fun emitRemoveAt(index: Int, count: Int) {
-        ErrorMessages.SingleChildOnlyOneNode.validateArg(count == 1, count)
-        ErrorMessages.IndexOutOfRange.validateArg(index == 0 && child != null, index)
-        super.emitRemoveAt(index, count)
-        child?.parentLayoutNode = null
-        this.child = null
-        this.layoutNode = null
+        ErrorMessages.IndexOutOfRange.validateArg(index in 0..1, index)
+        ErrorMessages.CountOutOfRange.validateArg(count in 1..2, count)
+        if (count == 2 || index == 1) {
+            ErrorMessages.IndexOutOfRange.validateArg(secondChild != null, index)
+            // Change the state so that there is only one child so that super.emitRemoveAt()
+            // does not barf when it calls count or get(). We don't want anyone to be able
+            // to use the state of multiple children, so we throw exceptions when developers
+            // try to use it.
+            val temp = child
+            child = secondChild
+            secondChild = null
+            super.emitRemoveAt(0, 1)
+            child!!.parentLayoutNode = null
+            child = temp
+        }
+        if (index == 0) {
+            ErrorMessages.IndexOutOfRange.validateArg(child != null, index)
+            val child2 = secondChild
+            secondChild = null
+            super.emitRemoveAt(0, 1)
+            child!!.parentLayoutNode = null
+            child = child2
+        }
+        this.layoutNode = child?.layoutNode
     }
 
     override fun get(index: Int): ComponentNode {
-        ErrorMessages.IndexOutOfRange.validateArg(index == 0, index)
-        return child ?: ErrorMessages.NoChild.arg()
+        ErrorMessages.SingleChildOnlyOneNode.validateState(secondChild == null)
+        ErrorMessages.IndexOutOfRange.validateArg(index >= 0 && index < this.count, index)
+        return child!!
     }
 
     override fun emitMove(from: Int, to: Int, count: Int) {
@@ -244,6 +280,7 @@ sealed class SingleChildComponentNode() : ComponentNode() {
     }
 
     override fun visitChildren(reverse: Boolean, block: (ComponentNode) -> Unit) {
+        ErrorMessages.SingleChildOnlyOneNode.validateState(secondChild == null)
         val child = this.child
         if (child != null) {
             block(child)
@@ -254,14 +291,14 @@ sealed class SingleChildComponentNode() : ComponentNode() {
 /**
  * Backing node for handling pointer events.
  */
-class PointerInputNode() : SingleChildComponentNode() {
+class PointerInputNode : SingleChildComponentNode() {
     var pointerInputHandler: PointerInputHandler = { event, _ -> event }
 }
 
 /**
- * Backing node for the [Draw] component.
+ * Backing node for the Draw component.
  */
-class DrawNode() : ComponentNode() {
+class DrawNode : ComponentNode() {
     var onPaint: DensityReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit = { _, _ -> }
         set(value) {
             field = value
@@ -311,7 +348,7 @@ class DrawNode() : ComponentNode() {
 }
 
 /**
- * Backing node for [Layout] component.
+ * Backing node for MeasureBox component.
  */
 class LayoutNode : ComponentNode() {
     /**
@@ -368,7 +405,7 @@ class LayoutNode : ComponentNode() {
     override val count: Int
         get() = children.size
 
-    override fun get(index: Int): ComponentNode = children.get(index)
+    override fun get(index: Int): ComponentNode = children[index]
 
     override fun emitInsertAt(index: Int, instance: Emittable) {
         // TODO(mount): Allow inserting Views
@@ -473,13 +510,13 @@ fun LayoutNode.childrenMeasureBoxes(): List<Any> {
 
 /**
  * Inserts a child [ComponentNode] at a last index. If this ComponentNode [isAttached]
- * then [child] will become [attach]ed also. [child] must have a `null` [parent].
+ * then [child] will become [isAttached]ed also. [child] must have a `null` [ComponentNode.parent].
  */
 fun ComponentNode.add(child: ComponentNode) {
     emitInsertAt(count, child)
 }
 
-class Ref<T>() {
+class Ref<T> {
     var value: T? = null
 }
 

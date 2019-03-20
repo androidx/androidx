@@ -25,34 +25,39 @@ internal enum class ErrorMessages(val message: String) {
     OnlyComponents("Don't know how to add a non-composable element to the hierarchy"),
     NoMovingSingleElements("Cannot move elements that contain a maximum of one child"),
     NoChild("There is no child in this node"),
-    IndexOutOfRange("index %1 is out of range"),
-    SingleChildOnlyOneNode("Only one node may be removed. Trying to remove %1 nodes"),
+    IndexOutOfRange("index %1\$d is out of range"),
+    CountOutOfRange("count %1\$d is out of range"),
+    SingleChildOnlyOneNode("Only one child node is allowed"),
     OwnerAlreadyAttached("Attaching to an owner when it is already attached"),
     ParentOwnerMustMatchChild("Attaching to a different owner than parent"),
     OwnerAlreadyDetached("Detaching a node that is already detached"),
-    IllegalMoveOperation("Moving %1 items from %2 to %3 is not legal"),
+    IllegalMoveOperation("Moving %1\$d items from %2\$d to %3\$d is not legal"),
     CannotFindLayoutInParent("Parent layout does not contain this layout as a child"),
     ChildrenUnsupported("Draw does not have children");
 
     /*inline */fun validateState(check: Boolean) {
-        if (!check) state(message)
+        if (!check) state()
     }
 
     /*inline */fun state(): Nothing = throw IllegalStateException(message)
-    /*inline */fun state(vararg args: Any?): Nothing =
-        throw IllegalStateException(message.format(args))
+    /*inline */fun state(vararg args: Int): Nothing =
+        throw IllegalStateException(message.format(*toAnyArray(args)))
 
-    /*inline */fun validateArg(check: Boolean, value: Any?) {
+    /*inline */fun validateArg(check: Boolean, value: Int) {
         if (!check) arg(value)
     }
 
-    /*inline */fun validateArgs(check: Boolean, vararg values: Any?) {
-        if (!check) arg(values)
+    /*inline */fun validateArgs(check: Boolean, vararg values: Int) {
+        if (!check) arg(*values)
     }
 
     /*inline */fun arg(): Nothing = throw IllegalArgumentException(message)
-    /*inline */fun arg(vararg args: Any?): Nothing =
-        throw IllegalArgumentException(message.format(args))
+    /*inline */fun arg(vararg args: Int): Nothing =
+        throw IllegalArgumentException(message.format(*toAnyArray(args)))
 
     /*inline */fun unsupported(): Nothing = throw UnsupportedOperationException(message)
+
+    private fun toAnyArray(array: IntArray): Array<Any> {
+        return array.map { it as Any }.toTypedArray()
+    }
 }
