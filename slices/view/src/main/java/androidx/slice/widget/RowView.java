@@ -144,10 +144,15 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     Handler mHandler;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     long mLastSentRangeUpdate;
+    // TODO: mRangeValue is in 0..(mRangeMaxValue-mRangeMinValue) at initialization, and in
+    //       mRangeMinValue..mRangeMaxValue after user interaction. As far as I know, this doesn't
+    //       cause any incorrect behavior, but it is confusing and error-prone.
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mRangeValue;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mRangeMinValue;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    int mRangeMaxValue;
     private SliceItem mRangeItem;
 
     private int mImageSize;
@@ -427,12 +432,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             if (mRowAction != null) {
                 setViewClickable(mRootView, true);
             }
+            mRangeItem = range;
             if (!skipSliderUpdate) {
-                determineRangeValues(range);
-                addRange(range);
-            } else {
-                // Even if we're skipping the update, we should still update the range item
-                mRangeItem = range;
+                setRangeBounds();
+                addRange();
             }
             return;
         }
@@ -602,14 +605,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
     }
 
-    private void determineRangeValues(SliceItem rangeItem) {
-        if (rangeItem == null) {
-            mRangeMinValue = 0;
-            mRangeValue = 0;
-            return;
-        }
-        mRangeItem = rangeItem;
-
+    private void setRangeBounds() {
         SliceItem min = SliceQuery.findSubtype(mRangeItem, FORMAT_INT, SUBTYPE_MIN);
         int minValue = 0;
         if (min != null) {
@@ -617,18 +613,27 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         }
         mRangeMinValue = minValue;
 
-        SliceItem progress = SliceQuery.findSubtype(mRangeItem, FORMAT_INT, SUBTYPE_VALUE);
-        if (progress != null) {
-            mRangeValue = progress.getInt() - minValue;
+        SliceItem max = SliceQuery.findSubtype(mRangeItem, FORMAT_INT, SUBTYPE_MAX);
+        int maxValue = 100;  // TODO: This default shouldn't be hardcoded here.
+        if (max != null) {
+            maxValue = max.getInt();
         }
+        mRangeMaxValue = maxValue;
+
+        SliceItem progress = SliceQuery.findSubtype(mRangeItem, FORMAT_INT, SUBTYPE_VALUE);
+        int progressValue = 0;
+        if (progress != null) {
+            progressValue = progress.getInt() - minValue;
+        }
+        mRangeValue = progressValue;
     }
 
-    private void addRange(final SliceItem range) {
+    private void addRange() {
         if (mHandler == null) {
             mHandler = new Handler();
         }
 
-        final boolean isSeekBar = FORMAT_ACTION.equals(range.getFormat());
+        final boolean isSeekBar = FORMAT_ACTION.equals(mRangeItem.getFormat());
         final ProgressBar progressBar = isSeekBar
                 ? new SeekBar(getContext())
                 : new ProgressBar(getContext(), null, android.R.attr.progressBarStyleHorizontal);
@@ -637,10 +642,9 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             DrawableCompat.setTint(progressDrawable, mTintColor);
             progressBar.setProgressDrawable(progressDrawable);
         }
-        SliceItem max = SliceQuery.findSubtype(range, FORMAT_INT, SUBTYPE_MAX);
-        if (max != null) {
-            progressBar.setMax(max.getInt() - mRangeMinValue);
-        }
+        // N.B. We don't use progressBar.setMin because it doesn't work properly in backcompat
+        //      and/or sliders.
+        progressBar.setMax(mRangeMaxValue - mRangeMinValue);
         progressBar.setProgress(mRangeValue);
         progressBar.setVisibility(View.VISIBLE);
         addView(progressBar);
@@ -664,21 +668,23 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     }
 
     void sendSliderValue() {
-        if (mRangeItem != null) {
-            try {
-                mLastSentRangeUpdate = System.currentTimeMillis();
-                mRangeItem.fireAction(getContext(),
-                        new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-                                .putExtra(EXTRA_RANGE_VALUE, mRangeValue));
-                if (mObserver != null) {
-                    EventInfo info = new EventInfo(getMode(), ACTION_TYPE_SLIDER, ROW_TYPE_SLIDER,
-                            mRowIndex);
-                    info.state = mRangeValue;
-                    mObserver.onSliceAction(info, mRangeItem);
-                }
-            } catch (CanceledException e) {
-                Log.e(TAG, "PendingIntent for slice cannot be sent", e);
+        if (mRangeItem == null) {
+            return;
+        }
+
+        try {
+            mLastSentRangeUpdate = System.currentTimeMillis();
+            mRangeItem.fireAction(getContext(),
+                    new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+                            .putExtra(EXTRA_RANGE_VALUE, mRangeValue));
+            if (mObserver != null) {
+                EventInfo info = new EventInfo(getMode(), ACTION_TYPE_SLIDER, ROW_TYPE_SLIDER,
+                        mRowIndex);
+                info.state = mRangeValue;
+                mObserver.onSliceAction(info, mRangeItem);
             }
+        } catch (CanceledException e) {
+            Log.e(TAG, "PendingIntent for slice cannot be sent", e);
         }
     }
 
@@ -904,6 +910,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mRangeHasPendingUpdate = false;
         mRangeItem = null;
         mRangeMinValue = 0;
+        mRangeMaxValue = 0;
         mRangeValue = 0;
         mLastSentRangeUpdate = 0;
         mHandler = null;
