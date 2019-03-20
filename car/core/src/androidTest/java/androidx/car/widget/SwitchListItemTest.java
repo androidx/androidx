@@ -474,10 +474,23 @@ public class SwitchListItemTest {
     }
 
     @Test
-    public void testSetPrimaryActionIcon() {
+    public void testSetPrimaryActionIcon_withIcon() {
         SwitchListItem item = new SwitchListItem(mActivity);
         item.setPrimaryActionIcon(
                 Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
+                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+
+        List<SwitchListItem> items = Arrays.asList(item);
+        setupPagedListView(items);
+
+        assertThat(getViewHolderAtPosition(0).getPrimaryIcon().getDrawable(), is(notNullValue()));
+    }
+
+    @Test
+    public void testSetPrimaryActionIcon_withDrawable() {
+        SwitchListItem item = new SwitchListItem(mActivity);
+        item.setPrimaryActionIcon(
+                mActivity.getDrawable(android.R.drawable.sym_def_app_icon),
                 SwitchListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
         List<SwitchListItem> items = Arrays.asList(item);
