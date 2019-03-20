@@ -2004,7 +2004,7 @@ package androidx.core.view {
     method @Deprecated public static float getScaleX(android.view.View!);
     method @Deprecated public static float getScaleY(android.view.View!);
     method public static int getScrollIndicators(android.view.View);
-    method public java.util.List<android.graphics.Rect> getSystemGestureExclusionRects(android.view.View);
+    method public static java.util.List<android.graphics.Rect> getSystemGestureExclusionRects(android.view.View);
     method public static String? getTransitionName(android.view.View);
     method @Deprecated public static float getTranslationX(android.view.View!);
     method @Deprecated public static float getTranslationY(android.view.View!);
