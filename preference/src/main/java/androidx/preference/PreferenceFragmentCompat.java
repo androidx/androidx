@@ -604,8 +604,11 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         } else if (preference instanceof MultiSelectListPreference) {
             f = MultiSelectListPreferenceDialogFragmentCompat.newInstance(preference.getKey());
         } else {
-            throw new IllegalArgumentException("Tried to display dialog for unknown " +
-                    "preference type. Did you forget to override onDisplayPreferenceDialog()?");
+            throw new IllegalArgumentException(
+                    "Cannot display dialog for an unknown Preference type: "
+                            + preference.getClass().getSimpleName()
+                            + ". Make sure to implement onPreferenceDisplayDialog() to handle "
+                            + "displaying a custom dialog for this Preference.");
         }
         f.setTargetFragment(this, 0);
         f.show(getFragmentManager(), DIALOG_FRAGMENT_TAG);
