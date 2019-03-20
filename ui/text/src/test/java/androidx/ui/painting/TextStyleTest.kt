@@ -473,6 +473,30 @@ class TextStyleTest {
     }
 
     @Test
+    fun `merge with other's fontFeature is null should use this' fontSynthesis`() {
+        val fontFeatureSettings = "\"kern\" 0"
+        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
+        val otherTextStyle = TextStyle()
+
+        val newTextStyle = textStyle.merge(otherTextStyle)
+
+        assertThat(newTextStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings)
+    }
+
+    @Test
+    fun `merge with other's fontFeature is set should use other's fontSynthesis`() {
+        val fontFeatureSettings = "\"kern\" 0"
+        val otherFontFeatureSettings = "\"kern\" 1"
+
+        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
+        val otherTextStyle = TextStyle(fontFeatureSettings = otherFontFeatureSettings)
+
+        val newTextStyle = textStyle.merge(otherTextStyle)
+
+        assertThat(newTextStyle.fontFeatureSettings).isEqualTo(otherFontFeatureSettings)
+    }
+
+    @Test
     fun `merge with other's letterSpacing is null should use this' letterSpacing`() {
         val letterSpacing = 1.2f
         val textStyle = TextStyle(letterSpacing = letterSpacing)
@@ -1204,6 +1228,104 @@ class TextStyleTest {
         val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
 
         assertThat(newTextStyle?.fontSynthesis).isEqualTo(fontSynthesis2)
+    }
+
+    @Test
+    fun `lerp fontFeatureSettings with a is Null and t is smaller than half`() {
+        val fontFeatureSettings = "\"kern\" 0"
+        val t = 0.3f
+        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
+
+        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
+
+        assertThat(newTextStyle?.fontFeatureSettings).isNull()
+    }
+
+    @Test
+    fun `lerp fontFeatureSettings with a is Null and t is larger than half`() {
+        val fontFeatureSettings = "\"kern\" 0"
+        val t = 0.8f
+        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
+
+        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
+
+        assertThat(newTextStyle?.fontFeatureSettings).isEqualTo(fontFeatureSettings)
+    }
+
+    @Test
+    fun `lerp fontFeatureSettings with b is Null and t is smaller than half`() {
+        val fontFeatureSettings = "\"kern\" 0"
+        val t = 0.3f
+        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
+
+        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
+
+        assertThat(newTextStyle?.fontFeatureSettings).isEqualTo(fontFeatureSettings)
+    }
+
+    @Test
+    fun `lerp fontFeatureSettings with b is Null and t is larger than half`() {
+        val fontFeatureSettings = "\"kern\" 0"
+        val t = 0.8f
+        val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
+
+        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
+
+        assertThat(newTextStyle?.fontFeatureSettings).isNull()
+    }
+
+    @Test
+    fun `lerp fontFeatureSettings with a and b are not Null and t is smaller than half`() {
+        val fontFeatureSettings1 = "\"kern\" 0"
+        val fontFeatureSettings2 = "\"kern\" 1"
+
+        val t = 0.3f
+        // attributes other than fontSynthesis are required for lerp not to throw an exception
+        val textStyle1 = TextStyle(
+            fontFeatureSettings = fontFeatureSettings1,
+            fontSize = 1.0f,
+            wordSpacing = 1.0f,
+            letterSpacing = 1.0f,
+            height = 1.0f
+        )
+        val textStyle2 = TextStyle(
+            fontFeatureSettings = fontFeatureSettings2,
+            fontSize = 1.0f,
+            wordSpacing = 1.0f,
+            letterSpacing = 1.0f,
+            height = 1.0f
+        )
+
+        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
+
+        assertThat(newTextStyle?.fontFeatureSettings).isEqualTo(fontFeatureSettings1)
+    }
+
+    @Test
+    fun `lerp fontFeatureSettings with a and b are not Null and t is larger than half`() {
+        val fontFeatureSettings1 = "\"kern\" 0"
+        val fontFeatureSettings2 = "\"kern\" 1"
+
+        val t = 0.8f
+        // attributes other than fontSynthesis are required for lerp not to throw an exception
+        val textStyle1 = TextStyle(
+            fontFeatureSettings = fontFeatureSettings1,
+            fontSize = 1.0f,
+            wordSpacing = 1.0f,
+            letterSpacing = 1.0f,
+            height = 1.0f
+        )
+        val textStyle2 = TextStyle(
+            fontFeatureSettings = fontFeatureSettings2,
+            fontSize = 1.0f,
+            wordSpacing = 1.0f,
+            letterSpacing = 1.0f,
+            height = 1.0f
+        )
+
+        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
+
+        assertThat(newTextStyle?.fontFeatureSettings).isEqualTo(fontFeatureSettings2)
     }
 
     @Test
@@ -2044,6 +2166,7 @@ class TextStyleTest {
         val height = 123.0f
         val color = Color(0xFF00FF00.toInt())
         val fontSynthesis = FontSynthesis.style
+        val fontFeatureSettings = "\"kern\" 0"
         val baselineShift = BaselineShift.SUPERSCRIPT
         val textStyle = TextStyle(
             fontSize = fontSize,
@@ -2051,6 +2174,7 @@ class TextStyleTest {
             color = color,
             height = height,
             fontSynthesis = fontSynthesis,
+            fontFeatureSettings = fontFeatureSettings,
             baselineShift = baselineShift
         )
 
@@ -2059,6 +2183,7 @@ class TextStyleTest {
         assertThat(textStyle.fontWeight).isEqualTo(FontWeight.w800)
         assertThat(textStyle.height).isEqualTo(height)
         assertThat(textStyle.color).isEqualTo(color)
+        assertThat(textStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings)
 
         val newTextStyle = textStyle.getTextStyle()
 
@@ -2069,6 +2194,7 @@ class TextStyleTest {
                 fontSize = fontSize,
                 height = height,
                 fontSynthesis = fontSynthesis,
+                fontFeatureSettings = fontFeatureSettings,
                 baselineShift = baselineShift
             )
         )
@@ -2169,6 +2295,7 @@ class TextStyleTest {
         val fontSize = 10.0f
         val height = 123.0f
         val bgColor = Color(0xFFFFFF00.toInt())
+        val fontFeatureSettings = "\"kern\" 0"
 
         val textStyle = TextStyle(
             inherit = false,
@@ -2176,6 +2303,7 @@ class TextStyleTest {
             fontSize = fontSize,
             fontWeight = FontWeight.w800,
             fontStyle = FontStyle.italic,
+            fontFeatureSettings = fontFeatureSettings,
             letterSpacing = 1.0f,
             wordSpacing = 2.0f,
             textBaseline = TextBaseline.alphabetic,
@@ -2209,6 +2337,9 @@ class TextStyleTest {
             .isEqualTo(RenderComparison.LAYOUT)
 
         assertThat(textStyle.compareTo(textStyle.copy(fontSynthesis = FontSynthesis.style)))
+            .isEqualTo(RenderComparison.LAYOUT)
+
+        assertThat(textStyle.compareTo(textStyle.copy(fontFeatureSettings = null)))
             .isEqualTo(RenderComparison.LAYOUT)
 
         assertThat(textStyle.compareTo(textStyle.copy(letterSpacing = 2.0f)))

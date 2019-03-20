@@ -11,6 +11,7 @@ package androidx.text {
 
 
 
+
   @RestrictTo({RestrictTo.Scope.LIBRARY}) public final class TextLayout {
     ctor public TextLayout(CharSequence charSequence, float width, android.text.TextPaint textPaint, @androidx.text.LayoutCompat.TextLayoutAlignment int alignment, android.text.TextUtils.TruncateAt? ellipsize, @androidx.text.LayoutCompat.TextDirection int textDirectionHeuristic, float lineSpacingMultiplier, float lineSpacingExtra, boolean includePadding, int maxLines, @androidx.text.LayoutCompat.BreakStrategy int breakStrategy, @androidx.text.LayoutCompat.HyphenationFrequency int hyphenationFrequency, @androidx.text.LayoutCompat.JustificationMode int justificationMode, int[]? leftIndents, int[]? rightIndents);
     method public boolean getDidExceedMaxLines();
@@ -34,6 +35,7 @@ package androidx.text {
 }
 
 package androidx.text.style {
+
 
 
 

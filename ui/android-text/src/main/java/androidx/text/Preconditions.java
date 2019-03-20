@@ -31,7 +31,7 @@ import java.util.Locale;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class Preconditions {
+public class Preconditions {
 
     /**
      * Ensures that an object reference passed as a parameter to the calling

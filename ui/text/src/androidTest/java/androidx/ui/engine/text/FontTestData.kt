@@ -26,6 +26,12 @@ class FontTestData {
             style = FontStyle.normal
         )
 
+        val BASIC_KERN_FONT = Font(
+            name = "kern_font.ttf",
+            weight = FontWeight.normal,
+            style = FontStyle.normal
+        )
+
         val FONT_100_REGULAR = Font(
             name = "test_100_regular.ttf",
             weight = FontWeight.w100,

@@ -59,6 +59,10 @@ private const val _defaultFontSize: Float = 14.0f
  * * `fontSize`: The size of glyphs (in logical pixels) to use when painting the text.
  * * `fontWeight`: The typeface thickness to use when painting the text (e.g., bold).
  * * `fontStyle`: The typeface variant to use when drawing the letters (e.g., italics).
+ * * `fontSynthesis`: Whether to synthesize font weight and/or style when the requested weight or
+ * *                  style cannot be found in the provided custom font family.
+ * * `fontFeatureSettings`: The advanced typography settings provided by font. The format is the same as the CSS font-feature-settings attribute:
+ * *                        https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
  * * `letterSpacing`: The amount of space (in logical pixels) to add between each letter.
  * * `wordSpacing`: The amount of space (in logical pixels) to add at each sequence of white-space (i.e. between each word). Only works on Android Q and above.
  * * `textBaseline`: The common baseline that should be aligned between this text span and its parent text span, or, for the root text spans, with the line box.
@@ -81,6 +85,7 @@ data class TextStyle(
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
     val fontSynthesis: FontSynthesis? = null,
+    val fontFeatureSettings: String? = null,
     val letterSpacing: Float? = null,
     val wordSpacing: Float? = null,
     val textBaseline: TextBaseline? = null,
@@ -160,6 +165,7 @@ data class TextStyle(
             fontSynthesis = fontSynthesis,
             letterSpacing = letterSpacing?.let { it * letterSpacingFactor + letterSpacingDelta },
             wordSpacing = wordSpacing?.let { it * wordSpacingFactor + wordSpacingDelta },
+            fontFeatureSettings = fontFeatureSettings,
             textBaseline = textBaseline,
             baselineShift = baselineShift,
             height = height?.let { it * heightFactor + heightDelta},
@@ -202,6 +208,7 @@ data class TextStyle(
             fontWeight = other.fontWeight ?: this.fontWeight,
             fontStyle = other.fontStyle ?: this.fontStyle,
             fontSynthesis = other.fontSynthesis ?: this.fontSynthesis,
+            fontFeatureSettings = other.fontFeatureSettings ?: this.fontFeatureSettings,
             letterSpacing = other.letterSpacing ?: this.letterSpacing,
             wordSpacing = other.wordSpacing ?: this.wordSpacing,
             textBaseline = other.textBaseline ?: this.textBaseline,
@@ -290,6 +297,11 @@ data class TextStyle(
                 fontWeight = FontWeight.lerp(a.fontWeight, b.fontWeight, t),
                 fontStyle = if (t < 0.5) a.fontStyle else b.fontStyle,
                 fontSynthesis = if (t < 0.5) a.fontSynthesis else b.fontSynthesis,
+                fontFeatureSettings = if (t < 0.5) {
+                    a.fontFeatureSettings
+                } else {
+                    b.fontFeatureSettings
+                },
                 letterSpacing = lerp(
                     a.letterSpacing ?: b.letterSpacing!!,
                     b.letterSpacing ?: a.letterSpacing!!,
@@ -324,6 +336,7 @@ data class TextStyle(
             fontWeight = fontWeight,
             fontStyle = fontStyle,
             fontSynthesis = fontSynthesis,
+            fontFeatureSettings = fontFeatureSettings,
             fontFamily = fontFamily,
             fontSize = if (fontSize == null) null else (fontSize * textScaleFactor),
             letterSpacing = letterSpacing,
@@ -388,6 +401,7 @@ data class TextStyle(
             fontWeight != other.fontWeight ||
             fontStyle != other.fontStyle ||
             fontSynthesis != other.fontSynthesis ||
+            fontFeatureSettings != other.fontFeatureSettings ||
             letterSpacing != other.letterSpacing ||
             wordSpacing != other.wordSpacing ||
             textBaseline != other.textBaseline ||

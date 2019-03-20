@@ -21,6 +21,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.engine.text.FontTestData.Companion.BASIC_KERN_FONT
 import androidx.ui.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.engine.text.FontTestData.Companion.FONT_100_REGULAR
 import androidx.ui.engine.text.FontTestData.Companion.FONT_200_REGULAR
@@ -44,6 +45,7 @@ class ParagraphIntegrationTest {
     // TODO(Migration/haoyuchang): These native calls should be removed after the
     // counterparts are implemented in crane.
     private lateinit var fontFamilyMeasureFont: FontFamily
+    private lateinit var fontFamilyKernFont: FontFamily
     private lateinit var fontFamilyCustom100: FontFamily
     private lateinit var fontFamilyCustom200: FontFamily
 
@@ -55,6 +57,12 @@ class ParagraphIntegrationTest {
         // 3. The fontMetrics passed to TextPaint has descend - ascend equal to 1.2 * fontSize.
         fontFamilyMeasureFont = BASIC_MEASURE_FONT.asFontFamily()
         fontFamilyMeasureFont.context = InstrumentationRegistry.getInstrumentation().context
+        // The kern_font provides the following features:
+        // 1. Characters from A to Z are rendered as ▲ while a to z are rendered as ▼.
+        // 2. When kerning is off, the width of each character is equal to font size.
+        // 3. When kerning is on, it will reduce the space between two characters by 0.4 * width.
+        fontFamilyKernFont = BASIC_KERN_FONT.asFontFamily()
+        fontFamilyKernFont.context = InstrumentationRegistry.getInstrumentation().context
         fontFamilyCustom100 = FONT_100_REGULAR.asFontFamily()
         fontFamilyCustom200 = FONT_200_REGULAR.asFontFamily()
         fontFamilyCustom100.context = fontFamilyMeasureFont.context
@@ -1102,6 +1110,30 @@ class ParagraphIntegrationTest {
         paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
         val paragraphImpl = paragraph.paragraphImpl
 
+        assertThat(paragraphImpl.lineCount, equalTo(1))
+        assertThat(paragraphImpl.getLineWidth(0), equalTo(expectedWidth))
+    }
+
+    @Test
+    fun textStyle_fontFeature_turnOffKern() {
+        val text = "AaAa"
+        val fontSize = 20.0f
+        // This fontFeatureSetting turns off the kerning
+        val textStyle = TextStyle(fontFeatureSettings = "\"kern\" 0")
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, "aA".length)
+            ),
+            fontSize = fontSize,
+            fontFamily = fontFamilyKernFont
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        // Two characters are kerning, so minus 0.4 * fontSize
+        val expectedWidth = text.length * fontSize - 0.4f * fontSize
         assertThat(paragraphImpl.lineCount, equalTo(1))
         assertThat(paragraphImpl.getLineWidth(0), equalTo(expectedWidth))
     }
