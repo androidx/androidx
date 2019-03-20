@@ -30,6 +30,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
@@ -520,6 +521,7 @@ class WebViewOnUiThread {
         }
 
         @Override
+        @CallSuper
         public void onProgressChanged(WebView view, int newProgress) {
             super.onProgressChanged(view, newProgress);
             mOnUiThread.onProgressChanged(newProgress);
@@ -541,12 +543,14 @@ class WebViewOnUiThread {
         }
 
         @Override
+        @CallSuper
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
             mOnUiThread.onPageFinished();
         }
 
         @Override
+        @CallSuper
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
             mOnUiThread.onPageStarted();
