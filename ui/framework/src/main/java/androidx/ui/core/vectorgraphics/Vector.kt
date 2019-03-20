@@ -25,43 +25,16 @@ import android.widget.ImageView
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
-import androidx.ui.vectorgraphics.Brush
-import androidx.ui.vectorgraphics.BrushType
-import androidx.ui.vectorgraphics.DEFAULT_ALPHA
-import androidx.ui.vectorgraphics.DEFAULT_GROUP_NAME
-import androidx.ui.vectorgraphics.DEFAULT_PATH_NAME
-import androidx.ui.vectorgraphics.DEFAULT_PIVOT_X
-import androidx.ui.vectorgraphics.DEFAULT_PIVOT_Y
-import androidx.ui.vectorgraphics.DEFAULT_ROTATE
-import androidx.ui.vectorgraphics.DEFAULT_SCALE_X
-import androidx.ui.vectorgraphics.DEFAULT_SCALE_Y
-import androidx.ui.vectorgraphics.DEFAULT_STROKE_LINE_CAP
-import androidx.ui.vectorgraphics.DEFAULT_STROKE_LINE_JOIN
-import androidx.ui.vectorgraphics.DEFAULT_STROKE_LINE_MITER
-import androidx.ui.vectorgraphics.DEFAULT_STROKE_LINE_WIDTH
-import androidx.ui.vectorgraphics.DEFAULT_TRANSLATE_X
-import androidx.ui.vectorgraphics.DEFAULT_TRANSLATE_Y
-import androidx.ui.vectorgraphics.EMPTY_PATH
-import androidx.ui.vectorgraphics.PathBuilder
-import androidx.ui.vectorgraphics.PathData
-import androidx.ui.vectorgraphics.PathDelegate
-import androidx.ui.vectorgraphics.PathNode
-import androidx.ui.vectorgraphics.PathParser
-import androidx.ui.vectorgraphics.VGroup
-import androidx.ui.vectorgraphics.VNode
-import androidx.ui.vectorgraphics.VPath
-import androidx.ui.vectorgraphics.VectorGraphic
-import androidx.ui.vectorgraphics.obtainBrush
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.Emittable
 import com.google.r4a.composer
 
-fun parsePathNodes(pathStr: String?): Array<PathNode> =
+fun addPathNodes(pathStr: String?): Array<PathNode> =
     if (pathStr == null) {
-        EMPTY_PATH
+        EmptyPath
     } else {
-        PathParser().parsePathString(pathStr).getNodes()
+        PathParser().parsePathString(pathStr).toNodes()
     }
 
 @Composable
@@ -80,15 +53,15 @@ fun vector(
 
 @Composable
 fun group(
-    name: String = DEFAULT_GROUP_NAME,
-    rotate: Float = DEFAULT_ROTATE,
-    pivotX: Float = DEFAULT_PIVOT_X,
-    pivotY: Float = DEFAULT_PIVOT_Y,
-    scaleX: Float = DEFAULT_SCALE_X,
-    scaleY: Float = DEFAULT_SCALE_Y,
-    translateX: Float = DEFAULT_TRANSLATE_X,
-    translateY: Float = DEFAULT_TRANSLATE_Y,
-    clipPathData: PathData = EMPTY_PATH,
+    name: String = DefaultGroupName,
+    rotate: Float = DefaultRotate,
+    pivotX: Float = DefaultPivotX,
+    pivotY: Float = DefaultPivotY,
+    scaleX: Float = DefaultScaleX,
+    scaleY: Float = DefaultScaleY,
+    translateX: Float = DefaultTranslateX,
+    translateY: Float = DefaultTranslateY,
+    clipPathData: PathData = EmptyPath,
     @Children childNodes: () -> Unit
 ) {
 
@@ -110,15 +83,15 @@ fun group(
 @Composable
 fun path(
     pathData: PathData,
-    name: String = DEFAULT_PATH_NAME,
+    name: String = DefaultPathName,
     fill: BrushType? = null,
-    fillAlpha: Float = DEFAULT_ALPHA,
+    fillAlpha: Float = DefaultAlpha,
     stroke: BrushType? = null,
-    strokeAlpha: Float = DEFAULT_ALPHA,
-    strokeLineWidth: Float = DEFAULT_STROKE_LINE_WIDTH,
-    strokeLineCap: StrokeCap = DEFAULT_STROKE_LINE_CAP,
-    strokeLineJoin: StrokeJoin = DEFAULT_STROKE_LINE_JOIN,
-    strokeLineMiter: Float = DEFAULT_STROKE_LINE_MITER
+    strokeAlpha: Float = DefaultAlpha,
+    strokeLineWidth: Float = DefaultStrokeLineWidth,
+    strokeLineCap: StrokeCap = DefaultStrokeLineCap,
+    strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
+    strokeLineMiter: Float = DefaultStrokeLineMiter
 ) {
 
     val pathNodes = createPath(pathData)
@@ -275,7 +248,7 @@ private class Path(name: String) : VectorGraphicComponent(), Emittable {
     }
 }
 
-private class Group(name: String = DEFAULT_GROUP_NAME) : VectorGraphicComponent(), Emittable {
+private class Group(name: String = DefaultGroupName) : VectorGraphicComponent(), Emittable {
 
     private val group = VGroup(name)
 

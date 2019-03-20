@@ -214,12 +214,231 @@ package androidx.ui.core.gesture {
 
 package androidx.ui.core.vectorgraphics {
 
+  public interface Brush {
+    method public void applyBrush(androidx.ui.painting.Paint p);
+  }
+
+  public final class BrushKt {
+    ctor public BrushKt();
+    method public static androidx.ui.core.vectorgraphics.Brush getEMPTY_BRUSH();
+    method public static Object? obtainBrush(Object? brush);
+  }
+
+  public final class LinearGradient implements androidx.ui.core.vectorgraphics.Brush {
+    ctor public LinearGradient(kotlin.Pair<androidx.ui.painting.Color,java.lang.Float>[] colorStops, float startX, float startY, float endX, float endY, androidx.ui.painting.TileMode tileMode);
+    method public void applyBrush(androidx.ui.painting.Paint p);
+    method public float getEndX();
+    method public float getEndY();
+    method public float getStartX();
+    method public float getStartY();
+    method public androidx.ui.painting.TileMode getTileMode();
+  }
+
+  public final class PathBuilder {
+    ctor public PathBuilder();
+    method public androidx.ui.core.vectorgraphics.PathBuilder arcTo(float horizontalEllipseRadius, float verticalEllipseRadius, float theta, float largeArcFlag, float sweepFlag, float x1, float y1);
+    method public androidx.ui.core.vectorgraphics.PathBuilder arcToRelative(float a, float b, float theta, float largeArcFlag, float sweepFlag, float x1, float y1);
+    method public androidx.ui.core.vectorgraphics.PathBuilder close();
+    method public androidx.ui.core.vectorgraphics.PathBuilder curveTo(float x1, float y1, float x2, float y2, float x3, float y3);
+    method public androidx.ui.core.vectorgraphics.PathBuilder curveToRelative(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
+    method public androidx.ui.core.vectorgraphics.PathNode[] getNodes();
+    method public androidx.ui.core.vectorgraphics.PathBuilder horizontalLineTo(float x);
+    method public androidx.ui.core.vectorgraphics.PathBuilder horizontalLineToRelative(float x);
+    method public androidx.ui.core.vectorgraphics.PathBuilder lineTo(float x, float y);
+    method public androidx.ui.core.vectorgraphics.PathBuilder lineToRelative(float x, float y);
+    method public androidx.ui.core.vectorgraphics.PathBuilder moveTo(float x, float y);
+    method public androidx.ui.core.vectorgraphics.PathBuilder moveToRelative(float x, float y);
+    method public androidx.ui.core.vectorgraphics.PathBuilder quadTo(float x1, float y1, float x2, float y2);
+    method public androidx.ui.core.vectorgraphics.PathBuilder quadToRelative(float x1, float y1, float x2, float y2);
+    method public androidx.ui.core.vectorgraphics.PathBuilder reflectiveCurveTo(float x1, float y1, float x2, float y2);
+    method public androidx.ui.core.vectorgraphics.PathBuilder reflectiveCurveToRelative(float x1, float y1, float x2, float y2);
+    method public androidx.ui.core.vectorgraphics.PathBuilder reflectiveQuadTo(float x1, float y1);
+    method public androidx.ui.core.vectorgraphics.PathBuilder reflectiveQuadToRelative(float x1, float y1);
+    method public androidx.ui.core.vectorgraphics.PathBuilder verticalLineTo(float y);
+    method public androidx.ui.core.vectorgraphics.PathBuilder verticalLineToRelative(float y);
+  }
+
+  public enum PathCommand {
+    method public static androidx.ui.core.vectorgraphics.PathCommand! pathCommandFromKey(char) throws java.lang.IllegalArgumentException;
+    method public char toKey();
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand ArcTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand Close;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand CurveTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand HorizontalLineTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand LineTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand MoveTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand QuadTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand ReflectiveCurveTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand ReflectiveQuadTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand RelativeArcTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand RelativeClose;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand RelativeCurveTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand RelativeHorizontalTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand RelativeLineTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand RelativeMoveTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand RelativeQuadTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand RelativeReflectiveCurveTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand RelativeReflectiveQuadTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand RelativeVerticalTo;
+    enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand VerticalLineTo;
+  }
+
+  public final class PathDelegate {
+    ctor public PathDelegate(kotlin.jvm.functions.Function1<? super androidx.ui.core.vectorgraphics.PathBuilder,kotlin.Unit> delegate);
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.vectorgraphics.PathBuilder,kotlin.Unit> getDelegate();
+  }
+
+  public final class PathNode {
+    ctor public PathNode(androidx.ui.core.vectorgraphics.PathCommand command, float[] args);
+    method public androidx.ui.core.vectorgraphics.PathCommand component1();
+    method public float[] component2();
+    method public androidx.ui.core.vectorgraphics.PathNode copy(androidx.ui.core.vectorgraphics.PathCommand command, float[] args);
+    method public float[] getArgs();
+    method public androidx.ui.core.vectorgraphics.PathCommand getCommand();
+  }
+
+  public final class PathNodeKt {
+    ctor public PathNodeKt();
+    method public static operator StringBuilder plus(StringBuilder, androidx.ui.core.vectorgraphics.PathNode node);
+  }
+
+  public final class PathParser {
+    ctor public PathParser();
+    method public androidx.ui.core.vectorgraphics.PathParser addPathNodes(androidx.ui.core.vectorgraphics.PathNode[] nodes);
+    method public void clear();
+    method public androidx.ui.core.vectorgraphics.PathParser parsePathString(String pathData) throws java.lang.IllegalArgumentException, java.lang.NumberFormatException;
+    method public androidx.ui.core.vectorgraphics.PathNode[] toNodes();
+    method public androidx.ui.painting.Path toPath(androidx.ui.painting.Path target = Path());
+  }
+
+  public final class PathParserKt {
+    ctor public PathParserKt();
+  }
+
+  public final class RadialGradient implements androidx.ui.core.vectorgraphics.Brush {
+    ctor public RadialGradient(kotlin.Pair<androidx.ui.painting.Color,java.lang.Float>[] colorStops, float centerX, float centerY, float radius, androidx.ui.painting.TileMode tileMode);
+    method public void applyBrush(androidx.ui.painting.Paint p);
+  }
+
+  public final class SolidColor implements androidx.ui.core.vectorgraphics.Brush {
+    ctor public SolidColor(androidx.ui.painting.Color value);
+    method public void applyBrush(androidx.ui.painting.Paint p);
+  }
+
+  public final class VGroup extends androidx.ui.core.vectorgraphics.VNode {
+    ctor public VGroup(String name);
+    ctor public VGroup();
+    method public void draw(androidx.ui.painting.Canvas canvas);
+    method public androidx.ui.core.vectorgraphics.PathNode[] getClipPathNodes();
+    method public String getName();
+    method public float getPivotX();
+    method public float getPivotY();
+    method public float getRotate();
+    method public float getScaleX();
+    method public float getScaleY();
+    method public int getSize();
+    method public float getTranslateX();
+    method public float getTranslateY();
+    method public void insertAt(int index, androidx.ui.core.vectorgraphics.VNode instance);
+    method public void move(int from, int to, int count);
+    method public void removeAt(int index, int count);
+    method public void setClipPathNodes(androidx.ui.core.vectorgraphics.PathNode[] value);
+    method public void setPivotX(float value);
+    method public void setPivotY(float value);
+    method public void setRotate(float value);
+    method public void setScaleX(float value);
+    method public void setScaleY(float value);
+    method public void setTranslateX(float value);
+    method public void setTranslateY(float value);
+    property public final androidx.ui.core.vectorgraphics.PathNode[] clipPathNodes;
+    property public final float pivotX;
+    property public final float pivotY;
+    property public final float rotate;
+    property public final float scaleX;
+    property public final float scaleY;
+    property public final int size;
+    property public final float translateX;
+    property public final float translateY;
+  }
+
+  public abstract sealed class VNode {
+    method public abstract void draw(androidx.ui.painting.Canvas canvas);
+  }
+
+  public final class VPath extends androidx.ui.core.vectorgraphics.VNode {
+    ctor public VPath(String name);
+    ctor public VPath();
+    method public void draw(androidx.ui.painting.Canvas canvas);
+    method public androidx.ui.core.vectorgraphics.Brush? getFill();
+    method public float getFillAlpha();
+    method public String getName();
+    method public androidx.ui.core.vectorgraphics.PathNode[] getPathNodes();
+    method public androidx.ui.core.vectorgraphics.Brush? getStroke();
+    method public float getStrokeAlpha();
+    method public androidx.ui.painting.StrokeCap getStrokeLineCap();
+    method public androidx.ui.painting.StrokeJoin getStrokeLineJoin();
+    method public float getStrokeLineMiter();
+    method public float getStrokeLineWidth();
+    method public void setFill(androidx.ui.core.vectorgraphics.Brush? value);
+    method public void setFillAlpha(float value);
+    method public void setPathNodes(androidx.ui.core.vectorgraphics.PathNode[] value);
+    method public void setStroke(androidx.ui.core.vectorgraphics.Brush? value);
+    method public void setStrokeAlpha(float value);
+    method public void setStrokeLineCap(androidx.ui.painting.StrokeCap value);
+    method public void setStrokeLineJoin(androidx.ui.painting.StrokeJoin value);
+    method public void setStrokeLineMiter(float value);
+    method public void setStrokeLineWidth(float value);
+    property public final androidx.ui.core.vectorgraphics.Brush? fill;
+    property public final float fillAlpha;
+    property public final androidx.ui.core.vectorgraphics.PathNode[] pathNodes;
+    property public final androidx.ui.core.vectorgraphics.Brush? stroke;
+    property public final float strokeAlpha;
+    property public final androidx.ui.painting.StrokeCap strokeLineCap;
+    property public final androidx.ui.painting.StrokeJoin strokeLineJoin;
+    property public final float strokeLineMiter;
+    property public final float strokeLineWidth;
+  }
+
+  public final class VectorGraphic extends androidx.ui.core.vectorgraphics.VNode {
+    ctor public VectorGraphic(String name, float width, float height, float viewportWidth, float viewportHeight);
+    method public void draw(androidx.ui.painting.Canvas canvas);
+    method public float getHeight();
+    method public String getName();
+    method public int getSize();
+    method public float getViewportHeight();
+    method public float getViewportWidth();
+    method public float getWidth();
+    method public void insert(int index, androidx.ui.core.vectorgraphics.VNode node);
+    method public void move(int from, int to, int count);
+    method public void removeAt(int index, int count);
+    property public final int size;
+  }
+
+  public final class VectorGraphicKt {
+    ctor public VectorGraphicKt();
+    method public static androidx.ui.painting.StrokeCap getDefaultStrokeLineCap();
+    method public static androidx.ui.painting.StrokeJoin getDefaultStrokeLineJoin();
+    method public static androidx.ui.core.vectorgraphics.PathNode[] getEmptyPath();
+    field public static final float DefaultAlpha = 1.0f;
+    field public static final String DefaultGroupName = "";
+    field public static final String DefaultPathName = "";
+    field public static final float DefaultPivotX = 0.0f;
+    field public static final float DefaultPivotY = 0.0f;
+    field public static final float DefaultRotate = 0.0f;
+    field public static final float DefaultScaleX = 1.0f;
+    field public static final float DefaultScaleY = 1.0f;
+    field public static final float DefaultStrokeLineMiter = 4.0f;
+    field public static final float DefaultStrokeLineWidth = 0.0f;
+    field public static final float DefaultTranslateX = 0.0f;
+    field public static final float DefaultTranslateY = 0.0f;
+  }
+
   public final class VectorKt {
     ctor public VectorKt();
+    method public static androidx.ui.core.vectorgraphics.PathNode[] addPathNodes(String? pathStr);
     method public static android.view.View? adoptVectorGraphic(Object? parent, Object? child);
-    method public static void group(String name = "", float rotate = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translateX = 0.0f, float translateY = 0.0f, Object clipPathData = EMPTY_PATH, kotlin.jvm.functions.Function0<kotlin.Unit> childNodes);
-    method public static androidx.ui.vectorgraphics.PathNode[] parsePathNodes(String? pathStr);
-    method public static void path(Object pathData, String name = "", Object? fill = null, float fillAlpha = 1.0f, Object? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.painting.StrokeCap strokeLineCap = DEFAULT_STROKE_LINE_CAP, androidx.ui.painting.StrokeJoin strokeLineJoin = DEFAULT_STROKE_LINE_JOIN, float strokeLineMiter = 4.0f);
+    method public static void group(String name = "", float rotate = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translateX = 0.0f, float translateY = 0.0f, Object clipPathData = EmptyPath, kotlin.jvm.functions.Function0<kotlin.Unit> childNodes);
+    method public static void path(Object pathData, String name = "", Object? fill = null, float fillAlpha = 1.0f, Object? stroke = null, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.painting.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.painting.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
     method public static void vector(String name = "", float viewportWidth, float viewportHeight, float defaultWidth = viewportWidth, float defaultHeight = viewportHeight, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 

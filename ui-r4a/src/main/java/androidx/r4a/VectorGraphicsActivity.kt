@@ -25,8 +25,8 @@ import androidx.ui.core.vectorgraphics.compat.vectorResource
 import androidx.ui.core.vectorgraphics.group
 import androidx.ui.core.vectorgraphics.path
 import androidx.ui.core.vectorgraphics.vector
-import androidx.ui.vectorgraphics.PathBuilder
-import androidx.ui.vectorgraphics.PathDelegate
+import androidx.ui.core.vectorgraphics.PathBuilder
+import androidx.ui.core.vectorgraphics.PathDelegate
 import com.google.r4a.Composable
 import com.google.r4a.composer
 import com.google.r4a.registerAdapter
