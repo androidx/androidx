@@ -60,9 +60,14 @@ public class TypefaceCompatUtil {
      */
     @Nullable
     public static File getTempFile(Context context) {
+        File cacheDir = context.getCacheDir();
+        if (cacheDir == null) {
+            return null;
+        }
+
         final String prefix = CACHE_FILE_PREFIX + Process.myPid() + "-" + Process.myTid() + "-";
         for (int i = 0; i < 100; ++i) {
-            final File file = new File(context.getCacheDir(), prefix + i);
+            final File file = new File(cacheDir, prefix + i);
             try {
                 if (file.createNewFile()) {
                     return file;
