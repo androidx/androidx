@@ -17,6 +17,7 @@
 package androidx.camera.testing.fakes;
 
 import android.graphics.Rect;
+import android.media.Image;
 
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
@@ -32,6 +33,7 @@ public final class FakeImageProxy implements ImageProxy {
     private Long mTimestamp = -1L;
     private PlaneProxy[] mPlaneProxy = new PlaneProxy[0];
     private ImageInfo mImageInfo;
+    private Image mImage;
 
     @Override
     public void close() {
@@ -81,6 +83,11 @@ public final class FakeImageProxy implements ImageProxy {
     @Override
     public ImageInfo getImageInfo() {
         return mImageInfo;
+    }
+
+    @Override
+    public Image getImage() {
+        return mImage;
     }
 
     public void setImageInfo(ImageInfo imageInfo) {

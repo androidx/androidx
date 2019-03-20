@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.graphics.Rect;
+import android.media.Image;
 
 import androidx.annotation.GuardedBy;
 
@@ -98,6 +99,11 @@ abstract class ForwardingImageProxy implements ImageProxy {
     @Override
     public synchronized ImageInfo getImageInfo() {
         return mImage.getImageInfo();
+    }
+
+    @Override
+    public synchronized Image getImage() {
+        return mImage.getImage();
     }
 
     /**

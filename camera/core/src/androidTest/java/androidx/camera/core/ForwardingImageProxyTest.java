@@ -138,6 +138,11 @@ public final class ForwardingImageProxyTest {
         assertThat(planes[2]).isEqualTo(mVPlane);
     }
 
+    @Test
+    public void getImage_returnsImageForWrappedImage() {
+        assertThat(mImageProxy.getImage()).isEqualTo(mBaseImageProxy.getImage());
+    }
+
     private static final class ConcreteImageProxy extends ForwardingImageProxy {
         private ConcreteImageProxy(ImageProxy baseImageProxy) {
             super(baseImageProxy);

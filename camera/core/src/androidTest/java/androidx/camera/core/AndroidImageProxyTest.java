@@ -129,4 +129,9 @@ public final class AndroidImageProxyTest {
             assertThat(wrappedPlanes[i].getBuffer()).isEqualTo(originalPlanes[i].getBuffer());
         }
     }
+
+    @Test
+    public void getImage_returnsWrappedImage() {
+        assertThat(mImageProxy.getImage()).isEqualTo(mImage);
+    }
 }

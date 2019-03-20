@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.graphics.Rect;
+import android.media.Image;
 
 import java.nio.ByteBuffer;
 
@@ -121,4 +122,19 @@ public interface ImageProxy extends AutoCloseable {
      */
     @Nullable
     ImageInfo getImageInfo();
+
+    /**
+     * Returns the android {@link Image}.
+     *
+     * <p>If the ImageProxy is a wrapper for an android {@link Image}, it will return the
+     * {@link Image}. It is possible for an ImageProxy to wrap something that isn't an
+     * {@link Image}. If that's the case then it will return null.
+     *
+     * <p>The returned image should not be closed by the application on finishing using it,
+     * instead it should be closed by the ImageProxy.
+     *
+     * @return the android image.
+     */
+    @Nullable
+    Image getImage();
 }

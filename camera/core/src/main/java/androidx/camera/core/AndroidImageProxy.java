@@ -150,4 +150,9 @@ final class AndroidImageProxy implements ImageProxy {
     public ImageInfo getImageInfo() {
         return null;
     }
+
+    @Override
+    public synchronized Image getImage() {
+        return mImage;
+    }
 }
