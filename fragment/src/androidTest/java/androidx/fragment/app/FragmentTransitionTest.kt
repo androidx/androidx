@@ -438,7 +438,6 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         // Now do a transition to scene2
         val fragment2 = ComplexTransitionFragment()
-        fragment2.setLayoutId(R.layout.scene2)
 
         val startBlue = findBlue()
         val startGreen = findGreen()
@@ -684,7 +683,6 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         }
         // enter transition
         val fragment = InvisibleFragment()
-        fragment.setLayoutId(R.layout.scene1)
         fragmentManager.beginTransaction()
             .setReorderingAllowed(reorderingAllowed)
             .add(R.id.fragmentContainer, fragment)
@@ -1103,7 +1101,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         }
     }
 
-    class ComplexTransitionFragment : TransitionFragment() {
+    class ComplexTransitionFragment : TransitionFragment(R.layout.scene2) {
         val sharedElementEnterTransition1 = TrackingTransition()
         val sharedElementEnterTransition2 = TrackingTransition()
         val sharedElementReturnTransition1 = TrackingTransition()
@@ -1126,7 +1124,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         }
     }
 
-    class InvisibleFragment : TransitionFragment() {
+    class InvisibleFragment : TransitionFragment(R.layout.scene1) {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             view.visibility = View.INVISIBLE
             super.onViewCreated(view, savedInstanceState)

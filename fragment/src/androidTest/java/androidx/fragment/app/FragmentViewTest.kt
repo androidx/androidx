@@ -918,7 +918,6 @@ class FragmentViewTest {
         val fm = activityRule.activity.supportFragmentManager
 
         val fragment1 = ParentFragment()
-        fragment1.setLayoutId(R.layout.double_container)
 
         fm.beginTransaction()
             .add(R.id.fragmentContainer, fragment1)
