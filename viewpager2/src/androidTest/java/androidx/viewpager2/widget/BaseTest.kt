@@ -44,7 +44,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
-import androidx.testutils.FragmentActivityUtils
+import androidx.testutils.AppCompatActivityUtils
 import androidx.testutils.FragmentActivityUtils.waitForActivityDrawn
 import androidx.viewpager2.LocaleTestUtils
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -122,7 +122,7 @@ open class BaseTest {
                 viewPager.adapter = adapterProvider(activity)
                 onCreateCallback(viewPager)
             }
-            activity = FragmentActivityUtils.recreateActivity(activityTestRule, activity)
+            activity = AppCompatActivityUtils.recreateActivity(activityTestRule, activity)
             TestActivity.onCreateCallback = { }
             waitForActivityDrawn(activity)
         }
