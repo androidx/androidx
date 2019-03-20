@@ -317,7 +317,7 @@ class FragmentLifecycleTest {
 
         // Confirm that the parent fragment received onAttachFragment
         assertWithMessage("parent fragment did not receive onAttachFragment")
-            .that(fragment.mCalledOnAttachFragment).isTrue()
+            .that(fragment.calledOnAttachFragment).isTrue()
 
         fc.dispatchStop()
 
@@ -364,7 +364,7 @@ class FragmentLifecycleTest {
 
         // Confirm that the parent fragment received onAttachFragment
         assertWithMessage("parent fragment did not receive onAttachFragment")
-            .that(fragment.mCalledOnAttachFragment).isTrue()
+            .that(fragment.calledOnAttachFragment).isTrue()
 
         shutdownFragmentController(fc, viewModelStore)
     }
@@ -379,8 +379,8 @@ class FragmentLifecycleTest {
         val fc = startupFragmentController(activityRule.activity, null, viewModelStore)
         val fm = fc.supportFragmentManager
 
-        val fragmentA = StrictViewFragment.create(R.layout.fragment_a)
-        val fragmentB = StrictViewFragment.create(R.layout.fragment_b)
+        val fragmentA = StrictViewFragment(R.layout.fragment_a)
+        val fragmentB = StrictViewFragment(R.layout.fragment_b)
         fm.beginTransaction()
             .add(android.R.id.content, fragmentA)
             .commit()
@@ -391,8 +391,8 @@ class FragmentLifecycleTest {
             .commit()
         fm.executePendingTransactions()
         shutdownFragmentController(fc, viewModelStore)
-        assertThat(fragmentB.mCalledOnDestroy).isTrue()
-        assertThat(fragmentA.mCalledOnDestroy).isTrue()
+        assertThat(fragmentB.calledOnDestroy).isTrue()
+        assertThat(fragmentA.calledOnDestroy).isTrue()
     }
 
     // Make sure that executing transactions during activity lifecycle events

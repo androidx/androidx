@@ -56,8 +56,7 @@ class FragmentViewLifecycleTest {
         val activity = activityRule.activity
         val fm = activity.supportFragmentManager
 
-        val fragment = StrictViewFragment()
-        fragment.setLayoutId(R.layout.fragment_a)
+        val fragment = StrictViewFragment(R.layout.fragment_a)
         fm.beginTransaction().add(R.id.content, fragment).commitNow()
         assertThat(fragment.viewLifecycleOwner.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.RESUMED)
@@ -108,8 +107,7 @@ class FragmentViewLifecycleTest {
         val fm = activity.supportFragmentManager
 
         val countDownLatch = CountDownLatch(1)
-        val fragment = StrictViewFragment()
-        fragment.setLayoutId(R.layout.fragment_a)
+        val fragment = StrictViewFragment(R.layout.fragment_a)
         fm.beginTransaction().add(R.id.content, fragment).runOnCommit {
             assertThat(fragment.viewLifecycleOwner.lifecycle.currentState)
                 .isEqualTo(Lifecycle.State.RESUMED)
@@ -124,21 +122,20 @@ class FragmentViewLifecycleTest {
         val fm = activity.supportFragmentManager
 
         val countDownLatch = CountDownLatch(2)
-        val fragment = StrictViewFragment()
-        fragment.setLayoutId(R.layout.fragment_a)
+        val fragment = StrictViewFragment(R.layout.fragment_a)
         activityRule.runOnUiThread {
             fragment.viewLifecycleOwnerLiveData.observe(activity,
                 Observer { lifecycleOwner ->
                     if (lifecycleOwner != null) {
                         assertWithMessage("Fragment View LifecycleOwner should be only be set" +
                                 "after onCreateView()")
-                            .that(fragment.mOnCreateViewCalled)
+                            .that(fragment.onCreateViewCalled)
                             .isTrue()
                         countDownLatch.countDown()
                     } else {
                         assertWithMessage("Fragment View LifecycleOwner should be set to null" +
                                 " after onDestroyView()")
-                            .that(fragment.mOnDestroyViewCalled)
+                            .that(fragment.onDestroyViewCalled)
                             .isTrue()
                         countDownLatch.countDown()
                     }
@@ -155,8 +152,7 @@ class FragmentViewLifecycleTest {
         val activity = activityRule.activity
         val fm = activity.supportFragmentManager
 
-        val fragment = StrictViewFragment()
-        fragment.setLayoutId(R.layout.fragment_a)
+        val fragment = StrictViewFragment(R.layout.fragment_a)
         val lifecycleObserver = mock(LifecycleEventObserver::class.java)
         lateinit var viewLifecycleOwner: LifecycleOwner
         activityRule.runOnUiThread {
