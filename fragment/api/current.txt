@@ -332,14 +332,13 @@ package androidx.fragment.app {
     method public boolean isViewFromObject(android.view.View, Object);
   }
 
-  public class FragmentTabHost extends android.widget.TabHost implements android.widget.TabHost.OnTabChangeListener {
-    ctor public FragmentTabHost(android.content.Context);
-    ctor public FragmentTabHost(android.content.Context, android.util.AttributeSet?);
-    method public void addTab(android.widget.TabHost.TabSpec, Class<?>, android.os.Bundle?);
-    method public void onTabChanged(String?);
-    method @Deprecated public void setup();
-    method public void setup(android.content.Context, androidx.fragment.app.FragmentManager);
-    method public void setup(android.content.Context, androidx.fragment.app.FragmentManager, int);
+  @Deprecated public class FragmentTabHost extends android.widget.TabHost implements android.widget.TabHost.OnTabChangeListener {
+    ctor @Deprecated public FragmentTabHost(android.content.Context);
+    ctor @Deprecated public FragmentTabHost(android.content.Context, android.util.AttributeSet?);
+    method @Deprecated public void addTab(android.widget.TabHost.TabSpec, Class<?>, android.os.Bundle?);
+    method @Deprecated public void onTabChanged(String?);
+    method @Deprecated public void setup(android.content.Context, androidx.fragment.app.FragmentManager);
+    method @Deprecated public void setup(android.content.Context, androidx.fragment.app.FragmentManager, int);
   }
 
   public abstract class FragmentTransaction {

@@ -39,7 +39,8 @@ import java.util.ArrayList;
  * used with the platform {@link android.app.Fragment} APIs.  You will not
  * normally use this, instead using action bar tabs.
  *
- * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+ * @deprecated Use <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+ *     TabLayout and ViewPager</a> instead.
  */
 @Deprecated
 public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListener {
@@ -121,7 +122,9 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+     * @deprecated Use
+     * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+     *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
     public FragmentTabHost(Context context) {
@@ -132,7 +135,9 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+     * @deprecated Use
+     * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+     *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
     public FragmentTabHost(Context context, AttributeSet attrs) {
@@ -178,7 +183,9 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+     * @deprecated Use
+     * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+     *  TabLayout and ViewPager</a> instead.
      */
     @Override
     @Deprecated
@@ -188,7 +195,9 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+     * @deprecated Use
+     * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+     *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
     public void setup(Context context, FragmentManager manager) {
@@ -200,7 +209,9 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+     * @deprecated Use
+     * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+     *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
     public void setup(Context context, FragmentManager manager, int containerId) {
@@ -230,7 +241,9 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+     * @deprecated Use
+     * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+     *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
     @Override
@@ -239,7 +252,9 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+     * @deprecated Use
+     * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+     *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
     public void addTab(TabHost.TabSpec tabSpec, Class<?> clss, Bundle args) {
@@ -265,7 +280,9 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+     * @deprecated Use
+     * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+     *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
     @Override
@@ -308,7 +325,9 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+     * @deprecated Use
+     * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+     *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
     @Override
@@ -318,7 +337,9 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+     * @deprecated Use
+     * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+     *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
     @Override
@@ -330,7 +351,9 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+     * @deprecated Use
+     * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+     *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
     @Override
@@ -345,7 +368,9 @@ public class FragmentTabHost extends TabHost implements TabHost.OnTabChangeListe
     }
 
     /**
-     * @deprecated Use {@link androidx.fragment.app.FragmentTabHost} instead.
+     * @deprecated Use
+     * <a href="https://developer.android.com/guide/navigation/navigation-swipe-view ">
+     *  TabLayout and ViewPager</a> instead.
      */
     @Deprecated
     @Override
