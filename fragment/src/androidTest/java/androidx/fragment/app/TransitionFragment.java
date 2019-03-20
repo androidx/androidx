@@ -21,15 +21,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
-import android.os.Bundle;
 import android.os.SystemClock;
 import android.transition.Transition;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * A fragment that has transitions that can be tracked.
@@ -57,15 +50,6 @@ public class TransitionFragment extends StrictViewFragment {
         exitTransition.addListener(mListener);
         returnTransition.addListener(mListener);
         sharedElementReturn.addListener(mListener);
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
-        checkGetActivity();
-        checkState("onCreateView", CREATED);
-        mOnCreateViewCalled = true;
-        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     void waitForTransition() throws InterruptedException {

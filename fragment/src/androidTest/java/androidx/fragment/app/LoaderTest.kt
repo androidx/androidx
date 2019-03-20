@@ -64,7 +64,7 @@ class LoaderTest {
 
         FragmentTestUtil.executePendingTransactions(activityRule, fm)
 
-        val weakActivity = WeakReference(LoaderActivity.sActivity)
+        val weakActivity = WeakReference(LoaderActivity.activity)
 
         // Wait for everything to settle. We have to make sure that the old Activity
         // is ready to be collected.

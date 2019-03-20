@@ -614,8 +614,7 @@ class FragmentReorderingTest {
 
         assertThat(firstEditText.isFocused).isTrue()
         val fragment1 = CountCallsFragment()
-        val fragment2 = CountCallsFragment()
-        fragment2.setLayoutId(R.layout.with_edit_text)
+        val fragment2 = CountCallsFragment(R.layout.with_edit_text)
         fm.beginTransaction()
             .add(R.id.fragmentContainer2, fragment1)
             .addToBackStack(null)

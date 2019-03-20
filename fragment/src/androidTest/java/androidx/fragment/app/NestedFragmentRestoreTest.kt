@@ -41,7 +41,7 @@ class NestedFragmentRestoreTest {
         val activity = activityRule.activity
         activityRule.runOnUiThread {
             val parent = ParentFragment()
-            parent.setRetainChildInstance(true)
+            parent.retainChildInstance = true
 
             activity.supportFragmentManager.beginTransaction()
                 .add(parent, "parent")
@@ -54,7 +54,7 @@ class NestedFragmentRestoreTest {
 
         var attachedTo: Context? = null
         val latch = CountDownLatch(1)
-        child.setOnAttachListener { context, _ ->
+        child.onAttachListener = { context ->
             attachedTo = context
             latch.countDown()
         }
