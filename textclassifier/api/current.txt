@@ -1,6 +1,10 @@
 // Signature format: 3.0
 package androidx.textclassifier {
 
+  public final class ExtrasUtils {
+    method public static java.util.Locale? getTopLanguage(android.content.Intent?);
+  }
+
   public final class TextClassification {
     method public static androidx.textclassifier.TextClassification createFromBundle(android.os.Bundle);
     method public java.util.List<androidx.core.app.RemoteActionCompat> getActions();
