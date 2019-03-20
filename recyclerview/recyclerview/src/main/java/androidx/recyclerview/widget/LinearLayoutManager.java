@@ -1314,20 +1314,20 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
 
         ensureLayoutState();
         final int layoutDirection = delta > 0 ? LayoutState.LAYOUT_END : LayoutState.LAYOUT_START;
-        final int absDy = Math.abs(delta);
-        updateLayoutState(layoutDirection, absDy, true, state);
+        final int absDelta = Math.abs(delta);
+        updateLayoutState(layoutDirection, absDelta, true, state);
         collectPrefetchPositionsForLayoutState(state, mLayoutState, layoutPrefetchRegistry);
     }
 
-    int scrollBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
-        if (getChildCount() == 0 || dy == 0) {
+    int scrollBy(int delta, RecyclerView.Recycler recycler, RecyclerView.State state) {
+        if (getChildCount() == 0 || delta == 0) {
             return 0;
         }
         ensureLayoutState();
         mLayoutState.mRecycle = true;
-        final int layoutDirection = dy > 0 ? LayoutState.LAYOUT_END : LayoutState.LAYOUT_START;
-        final int absDy = Math.abs(dy);
-        updateLayoutState(layoutDirection, absDy, true, state);
+        final int layoutDirection = delta > 0 ? LayoutState.LAYOUT_END : LayoutState.LAYOUT_START;
+        final int absDelta = Math.abs(delta);
+        updateLayoutState(layoutDirection, absDelta, true, state);
         final int consumed = mLayoutState.mScrollingOffset
                 + fill(recycler, mLayoutState, state, false);
         if (consumed < 0) {
@@ -1336,10 +1336,10 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
             }
             return 0;
         }
-        final int scrolled = absDy > consumed ? layoutDirection * consumed : dy;
+        final int scrolled = absDelta > consumed ? layoutDirection * consumed : delta;
         mOrientationHelper.offsetChildren(-scrolled);
         if (DEBUG) {
-            Log.d(TAG, "scroll req: " + dy + " scrolled: " + scrolled);
+            Log.d(TAG, "scroll req: " + delta + " scrolled: " + scrolled);
         }
         mLayoutState.mLastScrollDelta = scrolled;
         return scrolled;
@@ -1978,7 +1978,6 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         if (layoutDir == LayoutState.INVALID_LAYOUT) {
             return null;
         }
-        ensureLayoutState();
         ensureLayoutState();
         final int maxScroll = (int) (MAX_SCROLL_FACTOR * mOrientationHelper.getTotalSpace());
         updateLayoutState(layoutDir, maxScroll, false, state);
