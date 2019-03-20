@@ -37,7 +37,7 @@ public class ReentrantFragment extends StrictFragment {
     public void onStateChanged(int fromState) {
         super.onStateChanged(fromState);
         // We execute the transaction when shutting down or after restoring
-        if (fromState == mFromState && mState == mToState
+        if (fromState == mFromState && getCurrentState() == mToState
                 && (mToState < mFromState || mIsRestored)) {
             executeTransaction();
         }

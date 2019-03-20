@@ -783,8 +783,7 @@ class FragmentViewTest {
     fun testReplaceFragment() {
         FragmentTestUtil.setContentView(activityRule, R.layout.simple_container)
         val fm = activityRule.activity.supportFragmentManager
-        val fragmentA = StrictViewFragment()
-        fragmentA.setLayoutId(R.layout.text_a)
+        val fragmentA = StrictViewFragment(R.layout.text_a)
 
         fm.beginTransaction()
             .add(R.id.fragmentContainer, fragmentA)
@@ -796,8 +795,7 @@ class FragmentViewTest {
         assertThat(findViewById(R.id.textB)).isNull()
         assertThat(findViewById(R.id.textC)).isNull()
 
-        val fragmentB = StrictViewFragment()
-        fragmentB.setLayoutId(R.layout.text_b)
+        val fragmentB = StrictViewFragment(R.layout.text_b)
         fm.beginTransaction()
             .add(R.id.fragmentContainer, fragmentB)
             .addToBackStack(null)
@@ -807,8 +805,7 @@ class FragmentViewTest {
         assertThat(findViewById(R.id.textB)).isNotNull()
         assertThat(findViewById(R.id.textC)).isNull()
 
-        val fragmentC = StrictViewFragment()
-        fragmentC.setLayoutId(R.layout.text_c)
+        val fragmentC = StrictViewFragment(R.layout.text_c)
         fm.beginTransaction()
             .replace(R.id.fragmentContainer, fragmentC)
             .addToBackStack(null)
@@ -891,10 +888,8 @@ class FragmentViewTest {
             activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
         val fm = activityRule.activity.supportFragmentManager
 
-        val fragment1 = StrictViewFragment()
-        fragment1.setLayoutId(R.layout.scene1)
-        val fragment2 = StrictViewFragment()
-        fragment2.setLayoutId(R.layout.fragment_a)
+        val fragment1 = StrictViewFragment(R.layout.scene1)
+        val fragment2 = StrictViewFragment(R.layout.fragment_a)
 
         activityRule.runOnUiThread {
             fm.beginTransaction()
@@ -1017,18 +1012,14 @@ class FragmentViewTest {
         }
     }
 
-    class ParentFragment : StrictViewFragment() {
-        init {
-            setLayoutId(R.layout.double_container)
-        }
+    class ParentFragment : StrictViewFragment(R.layout.double_container) {
 
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
         ): View? {
-            val fragment2 = StrictViewFragment()
-            fragment2.setLayoutId(R.layout.fragment_a)
+            val fragment2 = StrictViewFragment(R.layout.fragment_a)
 
             childFragmentManager.beginTransaction()
                 .add(R.id.fragmentContainer1, fragment2, "inner")
