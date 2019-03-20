@@ -128,6 +128,10 @@ import java.util.concurrent.Executors;
  *     <td>This is to handle error</td></tr>
  * </table>
  * <p>
+ * If an {@link AudioAttributesCompat} is not specified by {@link #setAudioAttributes},
+ * {@link #getAudioAttributes} will return {@code null} and the default audio focus behavior will
+ * follow the {@code null} case on the table above.
+ * <p>
  * For more information about the audio focus, take a look at
  * <a href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a>
  * <p>
@@ -858,7 +862,8 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     @Override
-    public @PlayerState int getPlayerState() {
+    @PlayerState
+    public int getPlayerState() {
         synchronized (mStateLock) {
             return mState;
         }
@@ -904,7 +909,8 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     @Override
-    public @BuffState int getBufferingState() {
+    @BuffState
+    public int getBufferingState() {
         Integer buffState;
         synchronized (mStateLock) {
             buffState = mMediaItemToBuffState.get(mPlayer.getCurrentMediaItem());
@@ -913,6 +919,7 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     @Override
+    @FloatRange(from = 0.0f, to = Float.MAX_VALUE, fromInclusive = false)
     public float getPlaybackSpeed() {
         try {
             return mPlayer.getPlaybackParams().getSpeed();
@@ -1620,7 +1627,8 @@ public class MediaPlayer extends SessionPlayer {
      * receive a notification {@link PlayerCallback#onVideoSizeChanged} when the size
      * is available.
      */
-    public @NonNull VideoSize getVideoSize() {
+    @NonNull
+    public VideoSize getVideoSize() {
         return new VideoSize(mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
     }
 
@@ -1639,13 +1647,7 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     /**
-     * Sets playback rate using {@link PlaybackParams}.
-     * <p>
-     * The player sets its internal PlaybackParams to the given input. This does not change the
-     * player state. For example, if this is called with the speed of 2.0f in
-     * {@link #PLAYER_STATE_PAUSED}, the player will just update internal property and stay paused.
-     * Once the client calls {@link #play()} afterwards, the player will start playback with the
-     * given speed. Calling this with zero speed is not allowed.
+     * Sets playback params using {@link PlaybackParams}.
      *
      * @param params the playback params.
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
