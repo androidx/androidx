@@ -106,10 +106,11 @@ public class WebViewAssetLoaderTest {
 
         WebResourceResponse response =
                 assetLoader.shouldInterceptRequest("http://appassets.androidplatform.net/test/");
-        Assert.assertNotNull(response);
+        Assert.assertNotNull("didn't match the exact registered URL", response);
 
         Assert.assertEquals(contents, readAsString(response.getData(), encoding));
-        Assert.assertNull(assetLoader.shouldInterceptRequest("http://foo.bar/"));
+        Assert.assertNull("opened a non-registered URL - should return null",
+                            assetLoader.shouldInterceptRequest("http://foo.bar/"));
     }
 
     @Test
@@ -133,13 +134,16 @@ public class WebViewAssetLoaderTest {
             }
         });
 
-        Assert.assertNull(assetLoader.getAssetsHttpPrefix());
+        Assert.assertNull("HTTP is not allowed - getAssetsHttpPrefix should return null",
+                                assetLoader.getAssetsHttpPrefix());
         Assert.assertEquals(assetLoader.getAssetsHttpsPrefix(),
                                     Uri.parse("https://appassets.androidplatform.net/assets/"));
 
         WebResourceResponse response =
                 assetLoader.shouldInterceptRequest("https://appassets.androidplatform.net/assets/www/test.html");
-        Assert.assertNotNull(response);
+        Assert.assertNotNull("failed to match the URL and returned null response", response);
+        Assert.assertNotNull("matched the URL but not the file and returned a null InputStream",
+                                    response.getData());
         Assert.assertEquals(testHtmlContents, readAsString(response.getData(), "utf-8"));
     }
 
@@ -163,12 +167,16 @@ public class WebViewAssetLoaderTest {
             }
         });
 
-        Assert.assertNull(assetLoader.getResourcesHttpPrefix());
-        Assert.assertEquals(assetLoader.getResourcesHttpsPrefix(), Uri.parse("https://appassets.androidplatform.net/res/"));
+        Assert.assertNull("HTTP is not allowed - getResourcesHttpPrefix should return null",
+                                assetLoader.getResourcesHttpPrefix());
+        Assert.assertEquals(assetLoader.getResourcesHttpsPrefix(),
+                                    Uri.parse("https://appassets.androidplatform.net/res/"));
 
         WebResourceResponse response =
                  assetLoader.shouldInterceptRequest("https://appassets.androidplatform.net/res/raw/test.html");
-        Assert.assertNotNull(response);
+        Assert.assertNotNull("failed to match the URL and returned null response", response);
+        Assert.assertNotNull("matched the prefix URL but not the file",
+                                    response.getData());
         Assert.assertEquals(testHtmlContents, readAsString(response.getData(), "utf-8"));
     }
 
@@ -203,7 +211,9 @@ public class WebViewAssetLoaderTest {
 
         WebResourceResponse response =
                 assetLoader.shouldInterceptRequest("http://example.com/android_assets/www/test.html");
-        Assert.assertNotNull(response);
+        Assert.assertNotNull("failed to match the URL and returned null response", response);
+        Assert.assertNotNull("matched the prefix URL but not the file",
+                                    response.getData());
         Assert.assertEquals(testHtmlContents, readAsString(response.getData(), "utf-8"));
     }
 
@@ -237,7 +247,9 @@ public class WebViewAssetLoaderTest {
 
         WebResourceResponse response =
                 assetLoader.shouldInterceptRequest("http://example.com/android_res/raw/test.html");
-        Assert.assertNotNull(response);
+        Assert.assertNotNull("failed to match the URL and returned null response", response);
+        Assert.assertNotNull("matched the prefix URL but not the file",
+                                    response.getData());
         Assert.assertEquals(testHtmlContents, readAsString(response.getData(), "utf-8"));
     }
 }
