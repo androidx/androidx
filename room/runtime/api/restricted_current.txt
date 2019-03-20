@@ -2,7 +2,7 @@
 package androidx.room {
 
   public class DatabaseConfiguration {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>?, boolean, androidx.room.RoomDatabase.JournalMode!, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>?);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>?, boolean, androidx.room.RoomDatabase.JournalMode!, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>?);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityDeletionOrUpdateAdapter<T> extends androidx.room.SharedSQLiteStatement {
@@ -32,7 +32,8 @@ package androidx.room {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase!, java.lang.String...!);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase!, java.util.Map<java.lang.String,java.lang.String>!, java.util.Map<java.lang.String,java.util.Set<java.lang.String>>!, java.lang.String...!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addWeakObserver(androidx.room.InvalidationTracker.Observer!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T>! createLiveData(String[]!, java.util.concurrent.Callable<T>!);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T>! createLiveData(String[]!, java.util.concurrent.Callable<T>!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T>! createLiveData(String[]!, boolean, java.util.concurrent.Callable<T>!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @WorkerThread public void refreshVersionsSync();
   }
 

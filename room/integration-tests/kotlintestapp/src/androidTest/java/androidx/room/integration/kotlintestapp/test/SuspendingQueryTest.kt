@@ -17,6 +17,7 @@
 package androidx.room.integration.kotlintestapp.test
 
 import android.os.Build
+import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.integration.kotlintestapp.NewThreadDispatcher
@@ -45,8 +46,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -633,6 +636,52 @@ class SuspendingQueryTest : TestDatabaseTest() {
 
     @Test
     @Suppress("DeferredResultUnused")
+    fun withTransaction_multipleTransactions_verifyThreadUsage() {
+        val busyThreadsCount = AtomicInteger()
+        // Executor wrapper that counts threads that are busy executing commands.
+        class WrappedService(val delegate: ExecutorService) : ExecutorService by delegate {
+            override fun execute(command: Runnable) {
+                delegate.execute {
+                    busyThreadsCount.incrementAndGet()
+                    try {
+                        command.run()
+                    } finally {
+                        busyThreadsCount.decrementAndGet()
+                    }
+                }
+            }
+        }
+        val wrappedExecutor = WrappedService(Executors.newCachedThreadPool())
+        val localDatabase = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(), TestDatabase::class.java)
+            .setQueryExecutor(ArchTaskExecutor.getIOThreadExecutor())
+            .setTransactionExecutor(wrappedExecutor)
+            .build()
+
+        // Run two parallel transactions but verify that only 1 thread is busy when the transactions
+        // execute, indicating that threads are not busy waiting on sql connections but are instead
+        // suspended.
+        runBlocking(Dispatchers.IO) {
+            async {
+                localDatabase.withTransaction {
+                    delay(200) // delay a bit to let the other transaction proceed
+                    assertThat(busyThreadsCount.get()).isEqualTo(1)
+                }
+            }
+
+            async {
+                localDatabase.withTransaction {
+                    delay(200) // delay a bit to let the other transaction proceed
+                    assertThat(busyThreadsCount.get()).isEqualTo(1)
+                }
+            }
+        }
+
+        wrappedExecutor.awaitTermination(1, TimeUnit.SECONDS)
+    }
+
+    @Test
+    @Suppress("DeferredResultUnused")
     fun withTransaction_leakTransactionContext_async() {
         runBlocking {
             val leakedContext = database.withTransaction {
@@ -700,7 +749,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
             val executorService = Executors.newSingleThreadExecutor()
             val localDatabase = Room.inMemoryDatabaseBuilder(
                 ApplicationProvider.getApplicationContext(), TestDatabase::class.java)
-                .setQueryExecutor(executorService)
+                .setTransactionExecutor(executorService)
                 .build()
 
             // Simulate a busy executor, no thread to acquire for transaction.
@@ -735,7 +784,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
             val executorService = Executors.newCachedThreadPool()
             val localDatabase = Room.inMemoryDatabaseBuilder(
                 ApplicationProvider.getApplicationContext(), TestDatabase::class.java)
-                .setQueryExecutor(executorService)
+                .setTransactionExecutor(executorService)
                 .build()
 
             executorService.shutdownNow()

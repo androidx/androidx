@@ -281,7 +281,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
         _statement.bindLong(_argIndex, id);
-        return __db.getInvalidationTracker().createLiveData(new String[]{"user"}, new Callable<User>() {
+        return __db.getInvalidationTracker().createLiveData(new String[]{"user"}, false, new Callable<User>() {
             @Override
             public User call() throws Exception {
                 final Cursor _cursor = DBUtil.query(__db, _statement, false);
@@ -330,7 +330,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _statement.bindLong(_argIndex, _item);
             _argIndex ++;
         }
-        return __db.getInvalidationTracker().createLiveData(new String[]{"user"}, new Callable<List<User>>() {
+        return __db.getInvalidationTracker().createLiveData(new String[]{"user"}, false, new Callable<List<User>>() {
             @Override
             public List<User> call() throws Exception {
                 final Cursor _cursor = DBUtil.query(__db, _statement, false);

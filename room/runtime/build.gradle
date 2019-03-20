@@ -46,6 +46,7 @@ dependencies {
     testImplementation(MOCKITO_CORE)
     testImplementation(ARCH_LIFECYCLE_EXTENSIONS)
     testImplementation(KOTLIN_STDLIB)
+    testImplementation(TRUTH)
 
     androidTestImplementation(JUNIT)
     androidTestImplementation(TEST_EXT_JUNIT)

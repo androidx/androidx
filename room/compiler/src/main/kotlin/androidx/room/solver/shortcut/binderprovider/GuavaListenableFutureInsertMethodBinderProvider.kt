@@ -58,9 +58,10 @@ class GuavaListenableFutureInsertMethodBinderProvider(
         val adapter = context.typeAdapterStore.findInsertAdapter(typeArg, params)
         return createInsertBinder(typeArg, adapter) { callableImpl, dbField ->
             addStatement(
-                "return $T.createListenableFuture($N, $L)",
+                "return $T.createListenableFuture($N, $L, $L)",
                 RoomGuavaTypeNames.GUAVA_ROOM,
                 dbField,
+                "true", // inTransaction
                 callableImpl
             )
         }
