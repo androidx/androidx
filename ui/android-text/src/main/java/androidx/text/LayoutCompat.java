@@ -32,127 +32,127 @@ import java.lang.annotation.RetentionPolicy;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LayoutCompat {
     private LayoutCompat() { }
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ALIGN_NORMAL = 0;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ALIGN_OPPOSITE = 1;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ALIGN_CENTER = 2;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ALIGN_LEFT = 3;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ALIGN_RIGHT = 4;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int JUSTIFICATION_MODE_NONE = Layout.JUSTIFICATION_MODE_NONE;
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int JUSTIFICATION_MODE_INTER_WORD = Layout.JUSTIFICATION_MODE_INTER_WORD;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int HYPHENATION_FREQUENCY_NORMAL = Layout.HYPHENATION_FREQUENCY_NORMAL;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int HYPHENATION_FREQUENCY_FULL = Layout.HYPHENATION_FREQUENCY_FULL;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int HYPHENATION_FREQUENCY_NONE = Layout.HYPHENATION_FREQUENCY_NONE;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int BREAK_STRATEGY_SIMPLE = Layout.BREAK_STRATEGY_SIMPLE;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int BREAK_STRATEGY_HIGH_QUALITY = Layout.BREAK_STRATEGY_HIGH_QUALITY;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int BREAK_STRATEGY_BALANCED = Layout.BREAK_STRATEGY_BALANCED;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int TEXT_DIRECTION_LTR = 0;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int TEXT_DIRECTION_RTL = 1;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int TEXT_DIRECTION_FIRST_STRONG_LTR = 2;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int TEXT_DIRECTION_FIRST_STRONG_RTL = 3;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int TEXT_DIRECTION_ANY_RTL_LTR = 4;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int TEXT_DIRECTION_LOCALE = 5;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             ALIGN_NORMAL,
@@ -167,7 +167,7 @@ public class LayoutCompat {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             JUSTIFICATION_MODE_NONE,
@@ -178,7 +178,7 @@ public class LayoutCompat {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             BREAK_STRATEGY_SIMPLE,
@@ -190,7 +190,7 @@ public class LayoutCompat {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             HYPHENATION_FREQUENCY_NORMAL,
@@ -202,7 +202,7 @@ public class LayoutCompat {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             TEXT_DIRECTION_LTR,
@@ -217,79 +217,79 @@ public class LayoutCompat {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int DEFAULT_ALIGNMENT = ALIGN_NORMAL;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     static final Layout.Alignment DEFAULT_LAYOUT_ALIGNMENT = Layout.Alignment.ALIGN_NORMAL;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int DEFAULT_TEXT_DIRECTION = TEXT_DIRECTION_FIRST_STRONG_LTR;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     static final TextDirectionHeuristic DEFAULT_TEXT_DIRECTION_HEURISTIC =
             TextDirectionHeuristics.FIRSTSTRONG_LTR;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final float DEFAULT_LINESPACING_MULTIPLIER = 1.0f;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final float DEFAULT_LINESPACING_EXTRA = 0.0f;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final boolean DEFAULT_INCLUDE_PADDING = true;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final boolean DEFAULT_FALLBACK_LINE_SPACING = true;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int DEFAULT_MAX_LINES = Integer.MAX_VALUE;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int DEFAULT_BREAK_STRATEGY = BREAK_STRATEGY_SIMPLE;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int DEFAULT_HYPHENATION_FREQUENCY = HYPHENATION_FREQUENCY_NONE;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int DEFAULT_JUSTIFICATION_MODE = JUSTIFICATION_MODE_NONE;
 
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final boolean DEFAULT_ADD_LAST_LINE_LINE_SPCAING = false;
 }

@@ -30,7 +30,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TypefaceSpan extends MetricAffectingSpan {
 
     @NonNull
