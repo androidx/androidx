@@ -43,6 +43,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.media.MediaDescription;
 import android.media.browse.MediaBrowser;
 import android.media.browse.MediaBrowser.MediaItem;
@@ -291,6 +292,54 @@ public class MediaBrowserTest {
         assertEquals(0, mConnectionCallback.mConnectedCount);
         assertEquals(0, mConnectionCallback.mConnectionFailedCount);
         assertEquals(0, mConnectionCallback.mConnectionSuspendedCount);
+    }
+
+    @Test
+    @MediumTest
+    public void testMultipleConnections() throws Exception {
+        final Context context = getInstrumentation().getTargetContext();
+        final StubConnectionCallback callback1 = new StubConnectionCallback();
+        final StubConnectionCallback callback2 = new StubConnectionCallback();
+        final StubConnectionCallback callback3 = new StubConnectionCallback();
+        final List<MediaBrowser> browserList = new ArrayList<>();
+
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                MediaBrowser browser1 = new MediaBrowser(context, TEST_BROWSER_SERVICE,
+                        callback1, new Bundle());
+                MediaBrowser browser2 = new MediaBrowser(context, TEST_BROWSER_SERVICE,
+                        callback2, new Bundle());
+                MediaBrowser browser3 = new MediaBrowser(context, TEST_BROWSER_SERVICE,
+                        callback3, new Bundle());
+
+                browserList.add(browser1);
+                browserList.add(browser2);
+                browserList.add(browser3);
+
+                browser1.connect();
+                browser2.connect();
+                browser3.connect();
+            }
+        });
+
+        try {
+            new PollingCheck(TIME_OUT_MS) {
+                @Override
+                protected boolean check() {
+                    return callback1.mConnectedCount == 1
+                            && callback2.mConnectedCount == 1
+                            && callback3.mConnectedCount == 1;
+                }
+            }.run();
+        } finally {
+            for (int i = 0; i < browserList.size(); i++) {
+                MediaBrowser browser = browserList.get(i);
+                if (browser.isConnected()) {
+                    browser.disconnect();
+                }
+            }
+        }
     }
 
     @Test
