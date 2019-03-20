@@ -66,6 +66,17 @@ class SqlParserTest {
     }
 
     @Test
+    fun upsertQuery() {
+        val parsed = SqlParser.parse(
+            "INSERT INTO notes (id, content) VALUES (:id, :content) " +
+                "ON CONFLICT (id) DO UPDATE SET content = excluded.content, " +
+                "revision = revision + 1, modifiedTime = strftime('%s','now')"
+        )
+        assertThat(parsed.errors, `is`(emptyList()))
+        assertThat(parsed.type, `is`(QueryType.INSERT))
+    }
+
+    @Test
     fun explain() {
         assertErrors("EXPLAIN QUERY PLAN SELECT * FROM users",
                 ParserErrors.invalidQueryType(QueryType.EXPLAIN))
@@ -137,6 +148,19 @@ class SqlParserTest {
         assertThat(query.errors, `is`(emptyList()))
         assertThat(query.tables, `is`(setOf(Table("user", "a"),
                 Table("book", "b"))))
+    }
+
+    @Test
+    fun unicodeInIdentifiers() {
+        val query = SqlParser.parse("SELECT 名, 色 FROM 猫")
+        assertThat(query.errors, `is`(emptyList()))
+        assertThat(query.tables, `is`(setOf(Table("猫", "猫"))))
+    }
+
+    @Test
+    fun rowValue_where() {
+        val query = SqlParser.parse("SELECT * FROM notes WHERE (id, content) > (:id, :content)")
+        assertThat(query.errors, `is`(emptyList()))
     }
 
     @Test
