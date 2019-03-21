@@ -243,7 +243,7 @@ public abstract class MediaPlayer2 {
         if (Build.VERSION.SDK_INT <= 27 || DEBUG_USE_EXOPLAYER) {
             return new ExoPlayerMediaPlayer2Impl(context);
         } else {
-            return new MediaPlayer2Impl();
+            return new MediaPlayer2Impl(context);
         }
     }
 

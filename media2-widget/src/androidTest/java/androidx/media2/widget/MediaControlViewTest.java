@@ -462,7 +462,7 @@ public class MediaControlViewTest {
     }
 
     private MediaItem createTestMediaItem2(Uri uri) {
-        return new UriMediaItem.Builder(mVideoView.getContext(), uri).build();
+        return new UriMediaItem.Builder(uri).build();
     }
 
     private MediaController createController(MediaController.ControllerCallback callback) {

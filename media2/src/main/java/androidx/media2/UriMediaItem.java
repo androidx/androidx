@@ -16,7 +16,6 @@
 
 package androidx.media2;
 
-import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
@@ -55,9 +54,6 @@ public class UriMediaItem extends MediaItem {
     @NonParcelField
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     List<HttpCookie> mUriCookies;
-    @NonParcelField
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Context mUriContext;
 
     /**
      * Used for VersionedParcelable
@@ -71,7 +67,6 @@ public class UriMediaItem extends MediaItem {
         mUri = builder.mUri;
         mUriHeader = builder.mUriHeader;
         mUriCookies = builder.mUriCookies;
-        mUriContext = builder.mUriContext;
     }
 
     /**
@@ -105,14 +100,6 @@ public class UriMediaItem extends MediaItem {
     }
 
     /**
-     * Return the Context used for resolving the Uri of this media item.
-     * @return the Context used for resolving the Uri of this media item
-     */
-    public @NonNull Context getUriContext() {
-        return mUriContext;
-    }
-
-    /**
      * This Builder class simplifies the creation of a {@link UriMediaItem} object.
      */
     public static final class Builder extends MediaItem.Builder {
@@ -123,17 +110,14 @@ public class UriMediaItem extends MediaItem {
         Map<String, String> mUriHeader;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         List<HttpCookie> mUriCookies;
-        @SuppressWarnings("WeakerAccess") /* synthetic access */
-        Context mUriContext;
 
         /**
          * Creates a new Builder object with a content Uri.
          *
-         * @param context the Context to use when resolving the Uri
          * @param uri the Content URI of the data you want to play
          */
-        public Builder(@NonNull Context context, @NonNull Uri uri) {
-            this(context, uri, null, null);
+        public Builder(@NonNull Uri uri) {
+            this(uri, null, null);
         }
 
         /**
@@ -147,7 +131,6 @@ public class UriMediaItem extends MediaItem {
          * "android-allow-cross-domain-redirect" as the key and "0" or "1" as the value to
          * disallow or allow cross domain redirection.
          *
-         * @param context the Context to use when resolving the Uri
          * @param uri the Content URI of the data you want to play
          * @param headers the headers to be sent together with the request for the data
          *                The headers must not include cookies. Instead, use the cookies param.
@@ -155,12 +138,10 @@ public class UriMediaItem extends MediaItem {
          * @throws IllegalArgumentException if the cookie handler is not of CookieManager type
          *                                  when cookies are provided.
          */
-        public Builder(@NonNull Context context, @NonNull Uri uri,
-                @Nullable Map<String, String> headers, @Nullable List<HttpCookie> cookies) {
-            Preconditions.checkNotNull(context, "context cannot be null");
+        public Builder(@NonNull Uri uri, @Nullable Map<String, String> headers,
+                @Nullable List<HttpCookie> cookies) {
             Preconditions.checkNotNull(uri, "uri cannot be null");
             mUri = uri;
-            mUriContext = context;
             if (cookies != null) {
                 CookieHandler cookieHandler = CookieHandler.getDefault();
                 if (cookieHandler != null && !(cookieHandler instanceof CookieManager)) {
@@ -177,7 +158,6 @@ public class UriMediaItem extends MediaItem {
             if (cookies != null) {
                 mUriCookies = new ArrayList<HttpCookie>(cookies);
             }
-            mUriContext = context;
         }
 
         // Override just to change return type.

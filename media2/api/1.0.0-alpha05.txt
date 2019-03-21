@@ -727,14 +727,13 @@ package androidx.media2 {
 
   public class UriMediaItem extends androidx.media2.MediaItem {
     method public android.net.Uri getUri();
-    method public android.content.Context getUriContext();
     method public java.util.List<java.net.HttpCookie>? getUriCookies();
     method public java.util.Map<java.lang.String,java.lang.String>? getUriHeaders();
   }
 
   public static final class UriMediaItem.Builder extends androidx.media2.MediaItem.Builder {
-    ctor public UriMediaItem.Builder(android.content.Context, android.net.Uri);
-    ctor public UriMediaItem.Builder(android.content.Context, android.net.Uri, java.util.Map<java.lang.String,java.lang.String>?, java.util.List<java.net.HttpCookie>?);
+    ctor public UriMediaItem.Builder(android.net.Uri);
+    ctor public UriMediaItem.Builder(android.net.Uri, java.util.Map<java.lang.String,java.lang.String>?, java.util.List<java.net.HttpCookie>?);
     method public androidx.media2.UriMediaItem build();
     method public androidx.media2.UriMediaItem.Builder setEndPosition(long);
     method public androidx.media2.UriMediaItem.Builder setMetadata(androidx.media2.MediaMetadata?);
