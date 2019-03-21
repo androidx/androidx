@@ -28,7 +28,7 @@ import java.util.ArrayList;
  * Visibility transition that tracks which targets are applied to it.
  * This transition does no animation.
  */
-class TrackingVisibility extends Visibility implements TargetTracking {
+public class TrackingVisibility extends Visibility implements TargetTracking {
     public final ArrayList<View> targets = new ArrayList<>();
     private final Rect[] mEpicenter = new Rect[1];
 

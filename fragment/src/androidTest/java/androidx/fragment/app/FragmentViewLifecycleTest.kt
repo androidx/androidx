@@ -193,7 +193,6 @@ class FragmentViewLifecycleTest {
         val fm = activity.supportFragmentManager
 
         val fragment = ObservingFragment()
-        fragment.setLayoutId(R.layout.fragment_a)
         fm.beginTransaction().add(R.id.content, fragment).commitNow()
         val viewLifecycleOwner = fragment.viewLifecycleOwner
         assertThat(viewLifecycleOwner.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
@@ -221,7 +220,6 @@ class FragmentViewLifecycleTest {
         val fm = activity.supportFragmentManager
 
         val fragment = ObservingFragment()
-        fragment.setLayoutId(R.layout.fragment_a)
         fm.beginTransaction().add(R.id.content, fragment).commitNow()
         val viewLifecycleOwner = fragment.viewLifecycleOwner
         assertThat(viewLifecycleOwner.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
@@ -260,7 +258,7 @@ class FragmentViewLifecycleTest {
         }
     }
 
-    class ObservingFragment : StrictViewFragment() {
+    class ObservingFragment : StrictViewFragment(R.layout.fragment_a) {
         val liveData = MutableLiveData<Boolean>()
         private val onCreateViewObserver = Observer<Boolean> { }
         private val onViewCreatedObserver = Observer<Boolean> { }

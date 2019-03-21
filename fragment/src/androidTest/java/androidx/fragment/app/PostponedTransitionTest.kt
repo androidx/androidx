@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.ContentView
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -116,7 +115,7 @@ class PostponedTransitionTest {
         val fm = activityRule.activity.supportFragmentManager
         var startBlue = activityRule.activity.findViewById<View>(R.id.blueSquare)
 
-        val fragment1 = TransitionFragment2()
+        val fragment1 = TransitionFragment(R.layout.scene2)
         fm.beginTransaction()
             .addSharedElement(startBlue, "blueSquare")
             .replace(R.id.fragmentContainer, fragment1)
@@ -140,7 +139,7 @@ class PostponedTransitionTest {
 
         startBlue = activityRule.activity.findViewById(R.id.blueSquare)
 
-        val fragment2 = TransitionFragment2()
+        val fragment2 = TransitionFragment(R.layout.scene2)
         fm.beginTransaction()
             .addSharedElement(startBlue, "blueSquare")
             .replace(R.id.fragmentContainer, fragment2)
@@ -906,8 +905,7 @@ class PostponedTransitionTest {
         assertThat(fragment.sharedElementReturn.getTargets().isEmpty()).isTrue()
     }
 
-    @ContentView(R.layout.scene1)
-    open class PostponedFragment1 : TransitionFragment() {
+    open class PostponedFragment1 : TransitionFragment(R.layout.scene1) {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -917,8 +915,7 @@ class PostponedTransitionTest {
         }
     }
 
-    @ContentView(R.layout.scene2)
-    class PostponedFragment2 : TransitionFragment() {
+    class PostponedFragment2 : TransitionFragment(R.layout.scene2) {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -937,7 +934,4 @@ class PostponedTransitionTest {
                 .commitNow()
         }
     }
-
-    @ContentView(R.layout.scene2)
-    class TransitionFragment2 : TransitionFragment()
 }
