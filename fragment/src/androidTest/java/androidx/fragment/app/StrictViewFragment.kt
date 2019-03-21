@@ -25,16 +25,12 @@ import androidx.fragment.test.R
 import com.google.common.truth.Truth.assertWithMessage
 
 open class StrictViewFragment(
-    @LayoutRes var contentLayoutId: Int = R.layout.strict_view_fragment
+    @LayoutRes val contentLayoutId: Int = R.layout.strict_view_fragment
 ) : StrictFragment() {
 
     internal var onCreateViewCalled: Boolean = false
     internal var onViewCreatedCalled: Boolean = false
     internal var onDestroyViewCalled: Boolean = false
-
-    fun setLayoutId(layoutId: Int) {
-        contentLayoutId = layoutId
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
