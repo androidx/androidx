@@ -32,7 +32,6 @@ import android.view.MenuItem;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtils;
-import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -155,17 +154,8 @@ public class ToolbarTest {
     }
 
     @Test
-    public void testToolbarOverflowIconWithThemedCSL() throws Throwable {
+    public void testToolbarOverflowIconWithThemedCSL() {
         final Toolbar toolbar = mActivity.findViewById(R.id.toolbar_themedcsl_colorcontrolnormal);
-
-        // Inflate a menu so that the overflow is displayed
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                toolbar.inflateMenu(R.menu.popup_menu);
-            }
-        });
-        Espresso.onIdle();
 
         // Assert that the overflow icon is tinted magenta, as per the theme
         final Drawable icon = toolbar.getOverflowIcon();
