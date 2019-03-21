@@ -686,8 +686,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         } else if (mFragmentManager != null && fragment.mFragmentManager != null) {
             // Just save the reference to the Fragment
             mTargetWho = fragment.mWho;
+            mTarget = null;
         } else {
             // Save the Fragment itself, waiting until we're attached
+            mTargetWho = null;
             mTarget = fragment;
         }
         mTargetRequestCode = requestCode;
