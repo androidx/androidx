@@ -72,7 +72,7 @@ limitations under the License.
     </style>
 
     <style name="TextAppearance.Car.Body1.Medium.Dark">
-        <item name="android:textColor">@color/car_body1_light</item>
+        <item name="android:textColor">@color/car_body1_dark</item>
     </style>
 
     <!-- An alternate styling for body text that is both a different color and size than
