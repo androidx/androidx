@@ -182,6 +182,41 @@ class TargetFragmentLifeCycleTest {
         FragmentTestUtil.shutdownFragmentController(fc, viewModelStore)
     }
 
+    @Test
+    @UiThreadTest
+    fun targetFragment_replacement() {
+        val viewModelStore = ViewModelStore()
+        val fc =
+            FragmentTestUtil.startupFragmentController(activityRule.activity, null, viewModelStore)
+
+        val fm = fc.supportFragmentManager
+
+        val referrer = ReferrerFragment()
+        val target = TargetFragment()
+        referrer.setTargetFragment(target, 0)
+
+        assertWithMessage("Target Fragment should be accessible before being added")
+            .that(referrer.targetFragment).isSameAs(target)
+
+        fm.beginTransaction().add(referrer, "referrer").add(target, "target").commitNow()
+
+        assertWithMessage("Target Fragment should be accessible after being added")
+            .that(referrer.targetFragment).isSameAs(target)
+
+        val newTarget = TargetFragment()
+        referrer.setTargetFragment(newTarget, 0)
+
+        assertWithMessage("New Target Fragment should returned despite not being added")
+            .that(referrer.targetFragment).isSameAs(newTarget)
+
+        referrer.setTargetFragment(target, 0)
+
+        assertWithMessage("Replacement Target Fragment should override previous target")
+            .that(referrer.targetFragment).isSameAs(target)
+
+        FragmentTestUtil.shutdownFragmentController(fc, viewModelStore)
+    }
+
     /**
      * Test the availability of getTargetFragment() when the target Fragment is already
      * attached to a FragmentManager, but the referrer Fragment is not attached.
