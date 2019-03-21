@@ -8,7 +8,7 @@ plugins {
 
 dependencies {
     api(project(":vectordrawable"))
-    implementation(project(":interpolator"))
+    implementation("androidx.interpolator:interpolator:1.0.0")
     implementation(project(":collection"))
 
     androidTestImplementation(TEST_EXT_JUNIT)
