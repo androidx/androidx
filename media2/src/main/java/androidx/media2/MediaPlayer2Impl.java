@@ -17,6 +17,7 @@ package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.DeniedByServerException;
 import android.media.MediaDataSource;
@@ -138,6 +139,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     MediaPlayerSourceQueue mPlayer;
 
     private HandlerThread mHandlerThread;
+    private final Context mContext;
     private final Handler mEndPositionHandler;
     private final Handler mTaskHandler;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -174,7 +176,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * to free the resources. If not released, too many MediaPlayer2Impl instances may
      * result in an exception.</p>
      */
-    public MediaPlayer2Impl() {
+    public MediaPlayer2Impl(Context context) {
+        mContext = context;
         mHandlerThread = new HandlerThread("MediaPlayer2TaskThread");
         mHandlerThread.start();
         Looper looper = mHandlerThread.getLooper();
@@ -451,7 +454,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static void handleDataSource(MediaPlayerSource src)
+    void handleDataSource(MediaPlayerSource src)
             throws IOException {
         final MediaItem item = src.getDSD();
         Preconditions.checkArgument(item != null, "the MediaItem cannot be null");
@@ -488,7 +491,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         } else if (item instanceof UriMediaItem) {
             UriMediaItem uitem = (UriMediaItem) item;
             player.setDataSource(
-                    uitem.getUriContext(),
+                    mContext,
                     uitem.getUri(),
                     uitem.getUriHeaders(),
                     uitem.getUriCookies());

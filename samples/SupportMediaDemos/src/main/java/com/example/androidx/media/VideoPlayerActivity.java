@@ -128,7 +128,7 @@ public class VideoPlayerActivity extends FragmentActivity {
         if (intent == null || (videoUri = intent.getData()) == null || !videoUri.isAbsolute()) {
             errorString = "Invalid intent";
         } else {
-            UriMediaItem mediaItem = new UriMediaItem.Builder(this, videoUri).build();
+            UriMediaItem mediaItem = new UriMediaItem.Builder(videoUri).build();
             mVideoView.setMediaItem(mediaItem);
 
             mMediaControlView = new MediaControlView(this);
