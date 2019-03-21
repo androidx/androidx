@@ -26,7 +26,7 @@ import androidx.annotation.RestrictTo;
  * where y is the distant above baseline.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SkewXSpan extends MetricAffectingSpan {
     private float mSkewX;
 

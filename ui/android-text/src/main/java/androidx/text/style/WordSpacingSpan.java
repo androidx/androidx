@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
  */
 
 @RequiresApi(26)
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WordSpacingSpan extends MetricAffectingSpan {
     private static final String TAG = "WordSpacingSpan";
     private static boolean sInitialized = false;
