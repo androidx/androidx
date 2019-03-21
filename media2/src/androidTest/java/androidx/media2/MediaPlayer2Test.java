@@ -219,7 +219,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             // test stop and restart
             mp.reset();
             mp.setEventCallback(mExecutor, ecb);
-            mp.setMediaItem(new UriMediaItem.Builder(mContext, uri).build());
+            mp.setMediaItem(new UriMediaItem.Builder(uri).build());
             onPrepareCalled.reset();
             mp.prepare();
             onPrepareCalled.waitForSignal();
@@ -2335,7 +2335,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             Uri uri = Uri.parse(outputFileLocation);
             MediaPlayer2 mp = MediaPlayer2.create(mActivity);
             try {
-                mp.setMediaItem(new UriMediaItem.Builder(mContext, uri).build());
+                mp.setMediaItem(new UriMediaItem.Builder(uri).build());
                 mp.prepare();
                 Thread.sleep(SLEEP_TIME);
                 playAndStop(mp);

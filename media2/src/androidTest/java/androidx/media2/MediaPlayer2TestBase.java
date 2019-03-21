@@ -121,7 +121,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                     new AudioAttributesCompat.Builder().build();
             mp.setAudioAttributes(aa);
             mp.setAudioSessionId(audioSessionId);
-            mp.setMediaItem(new UriMediaItem.Builder(context, uri).build());
+            mp.setMediaItem(new UriMediaItem.Builder(uri).build());
             if (holder != null) {
                 mp.setSurface(holder.getSurface());
             }
@@ -417,7 +417,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         final Uri uri = Uri.parse(path);
         for (int i = 0; i < STREAM_RETRIES; i++) {
             try {
-                mPlayer.setMediaItem(new UriMediaItem.Builder(mContext, uri).build());
+                mPlayer.setMediaItem(new UriMediaItem.Builder(uri).build());
                 playLoadedVideo(width, height, playTime);
                 playedSuccessfully = true;
                 break;
@@ -449,8 +449,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         boolean playedSuccessfully = false;
         for (int i = 0; i < STREAM_RETRIES; i++) {
             try {
-                mPlayer.setMediaItem(new UriMediaItem.Builder(
-                        mContext, uri, headers, cookies).build());
+                mPlayer.setMediaItem(new UriMediaItem.Builder(uri, headers, cookies).build());
                 playLoadedVideo(width, height, playTime);
                 playedSuccessfully = true;
                 break;

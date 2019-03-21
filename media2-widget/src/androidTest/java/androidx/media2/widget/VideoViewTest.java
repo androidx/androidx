@@ -398,7 +398,6 @@ public class VideoViewTest {
         Uri testVideoUri = Uri.parse(
                 "android.resource://" + mContext.getPackageName() + "/"
                         + R.raw.testvideo_with_2_subtitle_tracks);
-        return new UriMediaItem.Builder(mVideoView.getContext(), testVideoUri)
-                .build();
+        return new UriMediaItem.Builder(testVideoUri).build();
     }
 }
