@@ -633,10 +633,9 @@ package androidx.core.app {
     method public androidx.core.app.Person.Builder setUri(String?);
   }
 
-  public final class RemoteActionCompat {
+  public final class RemoteActionCompat implements androidx.versionedparcelable.VersionedParcelable {
     ctor public RemoteActionCompat(androidx.core.graphics.drawable.IconCompat, CharSequence, CharSequence, android.app.PendingIntent);
     ctor public RemoteActionCompat(androidx.core.app.RemoteActionCompat);
-    method public static androidx.core.app.RemoteActionCompat createFromBundle(android.os.Bundle);
     method @RequiresApi(26) public static androidx.core.app.RemoteActionCompat createFromRemoteAction(android.app.RemoteAction);
     method public android.app.PendingIntent getActionIntent();
     method public CharSequence getContentDescription();
@@ -646,7 +645,6 @@ package androidx.core.app {
     method public void setEnabled(boolean);
     method public void setShouldShowIcon(boolean);
     method public boolean shouldShowIcon();
-    method public android.os.Bundle toBundle();
     method @RequiresApi(26) public android.app.RemoteAction toRemoteAction();
   }
 
