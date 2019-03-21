@@ -19,8 +19,10 @@ import static androidx.appcompat.testutils.TestUtilsMatchers.hasChild;
 import static androidx.appcompat.testutils.TestUtilsMatchers.isCombinedBackground;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -32,6 +34,7 @@ import static org.junit.Assert.assertThat;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.os.SystemClock;
+import android.view.View;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
@@ -40,6 +43,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.action.CoordinatesProvider;
+import androidx.test.espresso.action.GeneralSwipeAction;
+import androidx.test.espresso.action.Press;
+import androidx.test.espresso.action.Swipe;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 
@@ -185,5 +193,75 @@ public class AppCompatSpinnerTest
         onView(withId(spinnerId)).perform(click());
         mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         onView(withText(EARTH)).check(matches(isDisplayed()));
+    }
+
+    @LargeTest
+    @Test
+    public void testSlowScroll() {
+        onView(withId(R.id.spinner_dropdown_popup_with_scroll)).perform(click());
+
+        final AppCompatSpinner spinner = mContainer
+                .findViewById(R.id.spinner_dropdown_popup_with_scroll);
+        String secondItem = (String) spinner.getAdapter().getItem(1);
+
+        onView(isAssignableFrom(DropDownListView.class)).perform(slowScrollPopup());
+
+        // when we scroll slowly a second time the popup list might jump back to the first element
+        onView(isAssignableFrom(DropDownListView.class)).perform(slowScrollPopup());
+
+        // because we scroll twice with one element height each,
+        // the second item should not be visible
+        onView(withText(secondItem))
+                .check(doesNotExist());
+    }
+
+    private ViewAction slowScrollPopup() {
+        return new GeneralSwipeAction(Swipe.SLOW,
+                new CoordinatesProvider() {
+                    @Override
+                    public float[] calculateCoordinates(View view) {
+                        final float[] middleLocation = getViewMiddleLocation(view);
+                        return new float[] {
+                                middleLocation[0],
+                                middleLocation[1]
+                        };
+                    }
+                },
+                new CoordinatesProvider() {
+                    @Override
+                    public float[] calculateCoordinates(View view) {
+                        final float[] middleLocation = getViewMiddleLocation(view);
+                        return new float[] {
+                                middleLocation[0],
+                                middleLocation[1] - getElementSize(view)
+                        };
+                    }
+                },
+                Press.PINPOINT
+        );
+    }
+
+    private float[] getViewMiddleLocation(View view) {
+        final DropDownListView list = (DropDownListView) view;
+
+        final int[] location = new int[2];
+        list.getLocationOnScreen(location);
+
+        final float x = location[0] + list.getWidth() / 2f;
+        final float y = location[1] + list.getHeight() / 2f;
+
+        return new float[] {x, y};
+    }
+
+    private int getElementSize(View view) {
+        final DropDownListView list = (DropDownListView) view;
+
+        final View child = list.getChildAt(0);
+        final int[] location = new int[2];
+        child.getLocationOnScreen(location);
+
+        // espresso doesn't actually scroll for the full amount specified
+        // so we add a little bit more to be safe
+        return child.getHeight() * 2;
     }
 }
