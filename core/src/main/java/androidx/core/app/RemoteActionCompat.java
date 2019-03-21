@@ -19,12 +19,14 @@ package androidx.core.app;
 import android.app.PendingIntent;
 import android.app.RemoteAction;
 import android.os.Build;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Preconditions;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * Represents a remote action that can be called from another process.  The action can have an
@@ -32,21 +34,20 @@ import androidx.core.util.Preconditions;
  * <p>
  * This is a backward-compatible version of {@link RemoteAction}.
  */
-public final class RemoteActionCompat {
-
-    private static final String EXTRA_ICON = "icon";
-    private static final String EXTRA_TITLE = "title";
-    private static final String EXTRA_CONTENT_DESCRIPTION = "desc";
-    private static final String EXTRA_ACTION_INTENT = "action";
-    private static final String EXTRA_ENABLED = "enabled";
-    private static final String EXTRA_SHOULD_SHOW_ICON = "showicon";
-
-    private final IconCompat mIcon;
-    private final CharSequence mTitle;
-    private final CharSequence mContentDescription;
-    private final PendingIntent mActionIntent;
-    private boolean mEnabled;
-    private boolean mShouldShowIcon;
+@VersionedParcelize(jetifyAs = "android.support.v4.app.RemoteActionCompat")
+public final class RemoteActionCompat implements VersionedParcelable {
+    @ParcelField(1)
+    IconCompat mIcon;
+    @ParcelField(2)
+    CharSequence mTitle;
+    @ParcelField(3)
+    CharSequence mContentDescription;
+    @ParcelField(4)
+    PendingIntent mActionIntent;
+    @ParcelField(5)
+    boolean mEnabled;
+    @ParcelField(6)
+    boolean mShouldShowIcon;
 
     public RemoteActionCompat(@NonNull IconCompat icon, @NonNull CharSequence title,
             @NonNull CharSequence contentDescription, @NonNull PendingIntent intent) {
@@ -57,6 +58,11 @@ public final class RemoteActionCompat {
         mEnabled = true;
         mShouldShowIcon = true;
     }
+
+    /**
+     * Used for VersionedParcelable.
+     */
+    RemoteActionCompat() {}
 
     /**
      * Constructs a {@link RemoteActionCompat} using data from {@code other}.
@@ -158,37 +164,6 @@ public final class RemoteActionCompat {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             action.setShouldShowIcon(shouldShowIcon());
         }
-        return action;
-    }
-
-    /**
-     * Converts this into a Bundle that can be converted back to a {@link RemoteActionCompat}
-     * by calling {@link #createFromBundle(Bundle)}.
-     */
-    @NonNull
-    public Bundle toBundle() {
-        Bundle bundle = new Bundle();
-        bundle.putBundle(EXTRA_ICON, mIcon.toBundle());
-        bundle.putCharSequence(EXTRA_TITLE, mTitle);
-        bundle.putCharSequence(EXTRA_CONTENT_DESCRIPTION, mContentDescription);
-        bundle.putParcelable(EXTRA_ACTION_INTENT, mActionIntent);
-        bundle.putBoolean(EXTRA_ENABLED, mEnabled);
-        bundle.putBoolean(EXTRA_SHOULD_SHOW_ICON, mShouldShowIcon);
-        return bundle;
-    }
-
-    /**
-     * Converts the bundle created by {@link #toBundle()} back to {@link RemoteActionCompat}.
-     */
-    @NonNull
-    public static RemoteActionCompat createFromBundle(@NonNull Bundle bundle) {
-        RemoteActionCompat action = new RemoteActionCompat(
-                IconCompat.createFromBundle(bundle.getBundle(EXTRA_ICON)),
-                bundle.getCharSequence(EXTRA_TITLE),
-                bundle.getCharSequence(EXTRA_CONTENT_DESCRIPTION),
-                bundle.<PendingIntent>getParcelable(EXTRA_ACTION_INTENT));
-        action.setEnabled(bundle.getBoolean(EXTRA_ENABLED));
-        action.setShouldShowIcon(bundle.getBoolean(EXTRA_SHOULD_SHOW_ICON));
         return action;
     }
 }

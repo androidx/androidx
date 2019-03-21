@@ -21,65 +21,65 @@ import static org.junit.Assert.assertFalse;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.os.Parcel;
 import android.support.v4.BaseInstrumentationTestCase;
 
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.test.core.app.ApplicationProvider;
+import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+import androidx.versionedparcelable.ParcelUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class RemoteActionCompatTest extends BaseInstrumentationTestCase<TestActivity> {
+    private static final IconCompat ICON = IconCompat.createWithContentUri("content://test");
+    private static final String TITLE = "title";
+    private static final String DESCRIPTION = "description";
+    private static final PendingIntent ACTION = PendingIntent.getBroadcast(
+            InstrumentationRegistry.getContext(), 0, new Intent("TESTACTION"), 0);
 
     public RemoteActionCompatTest() {
         super(TestActivity.class);
     }
 
     @Test
-    public void testRemoteAction_bundle() throws Throwable {
-        IconCompat icon = IconCompat.createWithContentUri("content://test");
-        String title = "title";
-        String description = "description";
-        PendingIntent action = PendingIntent.getBroadcast(
-                ApplicationProvider.getApplicationContext(), 0,
-                new Intent("TESTACTION"), 0);
-        RemoteActionCompat reference = new RemoteActionCompat(icon, title, description, action);
-        reference.setEnabled(false);
-        reference.setShouldShowIcon(false);
-
-        RemoteActionCompat result = RemoteActionCompat.createFromBundle(reference.toBundle());
-
-        assertEquals(icon.getUri(), result.getIcon().getUri());
-        assertEquals(title, result.getTitle());
-        assertEquals(description, result.getContentDescription());
-        assertEquals(action.getTargetPackage(), result.getActionIntent().getTargetPackage());
-        assertFalse(result.isEnabled());
-        assertFalse(result.shouldShowIcon());
+    public void testRemoteAction_shallowCopy() throws Throwable {
+        RemoteActionCompat reference = createTestRemoteActionCompat();
+        RemoteActionCompat result = new RemoteActionCompat(reference);
+        assertEqualsToTestRemoteActionCompat(result);
     }
 
     @Test
-    public void testRemoteAction_shallowCopy() throws Throwable {
-        IconCompat icon = IconCompat.createWithContentUri("content://test");
-        String title = "title";
-        String description = "description";
-        PendingIntent action = PendingIntent.getBroadcast(
-                ApplicationProvider.getApplicationContext(), 0,
-                new Intent("TESTACTION"), 0);
-        RemoteActionCompat reference = new RemoteActionCompat(icon, title, description, action);
+    public void testRemoteAction_parcel() {
+        RemoteActionCompat reference = createTestRemoteActionCompat();
+
+        Parcel p = Parcel.obtain();
+        p.writeParcelable(ParcelUtils.toParcelable(reference), 0);
+        p.setDataPosition(0);
+        RemoteActionCompat result = ParcelUtils.fromParcelable(
+                p.readParcelable(getClass().getClassLoader()));
+
+        assertEqualsToTestRemoteActionCompat(result);
+    }
+
+    private RemoteActionCompat createTestRemoteActionCompat() {
+        RemoteActionCompat reference = new RemoteActionCompat(ICON, TITLE, DESCRIPTION, ACTION);
         reference.setEnabled(false);
         reference.setShouldShowIcon(false);
+        return reference;
+    }
 
-        RemoteActionCompat result = new RemoteActionCompat(reference);
-
-        assertEquals(icon.getUri(), result.getIcon().getUri());
-        assertEquals(title, result.getTitle());
-        assertEquals(description, result.getContentDescription());
-        assertEquals(action.getTargetPackage(), result.getActionIntent().getTargetPackage());
-        assertFalse(result.isEnabled());
-        assertFalse(result.shouldShowIcon());
+    private void assertEqualsToTestRemoteActionCompat(RemoteActionCompat remoteAction) {
+        assertEquals(ICON.getUri(), remoteAction.getIcon().getUri());
+        assertEquals(TITLE, remoteAction.getTitle());
+        assertEquals(DESCRIPTION, remoteAction.getContentDescription());
+        assertEquals(ACTION.getTargetPackage(), remoteAction.getActionIntent().getTargetPackage());
+        assertFalse(remoteAction.isEnabled());
+        assertFalse(remoteAction.shouldShowIcon());
     }
 }
