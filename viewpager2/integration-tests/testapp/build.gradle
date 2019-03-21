@@ -33,6 +33,7 @@ dependencies {
     implementation(project(":viewpager2"))
     implementation(ARCH_LIFECYCLE_EXTENSIONS)
     implementation(MATERIAL)
+    implementation(project(":coordinatorlayout"))
     implementation(project(":cardview"))
 
     androidTestImplementation(TEST_RULES)

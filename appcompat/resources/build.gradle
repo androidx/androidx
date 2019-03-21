@@ -25,11 +25,10 @@ plugins {
 
 dependencies {
     api(project(":annotation"))
-
     api("androidx.core:core:1.0.1")
     implementation("androidx.collection:collection:1.0.0")
-    api("androidx.vectordrawable:vectordrawable:1.0.1")
-    api("androidx.vectordrawable:vectordrawable-animated:1.0.0")
+    api(project(":vectordrawable"))
+    api(project(":vectordrawable-animated"))
 
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
