@@ -46,7 +46,7 @@ dependencies {
 
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation project(':work:work-runtime-ktx')
-    implementation(ARCH_CORE_RUNTIME)
+    implementation(WORK_ARCH_CORE_RUNTIME)
     implementation(ARCH_LIFECYCLE_EXTENSIONS)
     implementation(ANDROIDX_RECYCLERVIEW)
     implementation(MATERIAL)
