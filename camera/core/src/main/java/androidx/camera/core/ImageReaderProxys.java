@@ -140,11 +140,10 @@ public final class ImageReaderProxys {
         if (sSharedReaderWhitelist == null) {
             sSharedReaderWhitelist = new HashSet<>();
             for (int sdkVersion = 21; sdkVersion <= 27; ++sdkVersion) {
-                sSharedReaderWhitelist.add(DeviceProperties.create("Google", "Pixel", sdkVersion));
-                sSharedReaderWhitelist.add(
-                        DeviceProperties.create("Google", "Pixel XL", sdkVersion));
-                sSharedReaderWhitelist.add(
-                        DeviceProperties.create("HMD Global", "Nokia 8.1", sdkVersion));
+                // TODO(b/128944206)
+                // The image reader sharing was for 4-use-case scenario (image capture, image
+                // analysis, video capture, viewfinder). Since 4-use-case scenario is currently
+                // deprioritized and video capture is deprioritized. Just make this empty list.
             }
         }
         return sSharedReaderWhitelist.contains(device);
