@@ -296,9 +296,6 @@ public class VideoView extends SelectiveLayout {
             if (DEBUG) {
                 Log.d(TAG, "onSurfaceTakeOverDone(). Now current view is: " + view);
             }
-            if (mCurrentState != STATE_PLAYING && mMediaSession != null) {
-                mMediaSession.getPlayer().seekTo(mMediaSession.getPlayer().getCurrentPosition());
-            }
             if (view != mCurrentView) {
                 ((View) mCurrentView).setVisibility(View.GONE);
                 mCurrentView = view;
@@ -467,7 +464,14 @@ public class VideoView extends SelectiveLayout {
 
     /**
      * Selects which view will be used to render video between SurfaceView and TextureView.
-     *
+     * <p>
+     * Note: There are two known issues on API level 28+ devices.
+     * <ul>
+     * <li> When changing view type to SurfaceView from TextureView in "paused" playback state,
+     * a blank screen can be shown.
+     * <li> When changing view type to TextureView from SurfaceView repeatedly in "paused" playback
+     * state, the lastly rendered frame on TextureView can be shown.
+     * </ul>
      * @param viewType the view type to render video
      * <ul>
      * <li>{@link #VIEW_TYPE_SURFACEVIEW}
