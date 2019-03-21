@@ -65,9 +65,14 @@ public class FingerprintDialogFragment extends DialogFragment {
     // Show an error in the help area, and dismiss the dialog afterwards
     protected static final int MSG_SHOW_ERROR = 2;
     // Dismisses the authentication dialog
-    protected static final int MSG_DISMISS_DIALOG = 3;
+    protected static final int MSG_DISMISS_DIALOG_ERROR = 3;
     // Resets the help message
     protected static final int MSG_RESET_MESSAGE = 4;
+    // Dismisses the authentication dialog after success.
+    protected static final int MSG_DISMISS_DIALOG_AUTHENTICATED = 5;
+    // The amount of time required that this fragment be displayed for in order that
+    // we show an error message on top of the UI.
+    protected static final int DISPLAYED_FOR_500_MS = 6;
 
     // States for icon animation
     private static final int STATE_NONE = 0;
@@ -93,11 +98,17 @@ public class FingerprintDialogFragment extends DialogFragment {
                 case MSG_SHOW_ERROR:
                     handleShowError(msg.arg1, (CharSequence) msg.obj);
                     break;
-                case MSG_DISMISS_DIALOG:
-                    handleDismissDialog();
+                case MSG_DISMISS_DIALOG_ERROR:
+                    handleDismissDialogError();
+                    break;
+                case MSG_DISMISS_DIALOG_AUTHENTICATED:
+                    dismiss();
                     break;
                 case MSG_RESET_MESSAGE:
                     handleResetMessage();
+                    break;
+                case DISPLAYED_FOR_500_MS:
+                    mDismissInstantly = false;
                     break;
             }
         }
@@ -113,6 +124,13 @@ public class FingerprintDialogFragment extends DialogFragment {
 
     private Context mContext;
     private Dialog mDialog;
+    /**
+     * This flag is used to control the instant dismissal of the dialog fragment. In the case where
+     * the user is already locked out this dialog will not appear. In the case where the user is
+     * being locked out for the first time an error message will be displayed on the UI before
+     * dismissing.
+     */
+    protected boolean mDismissInstantly = true;
 
     // This should be re-set by the BiometricPromptCompat each time the lifecycle changes.
     DialogInterface.OnClickListener mNegativeButtonListener;
@@ -328,11 +346,31 @@ public class FingerprintDialogFragment extends DialogFragment {
         mErrorText.setText(msg);
 
         // Dismiss the dialog after a delay
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_DISMISS_DIALOG), HIDE_DIALOG_DELAY);
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_DISMISS_DIALOG_ERROR),
+                HIDE_DIALOG_DELAY);
     }
 
-    void handleDismissDialog() {
-        dismiss();
+    void dismissAfterDelay() {
+        mErrorText.setTextColor(mErrorColor);
+        mErrorText.setText(
+                R.string.fingerprint_error_lockout);
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                dismiss();
+            }
+        }, HIDE_DIALOG_DELAY);
+    }
+
+    void handleDismissDialogError() {
+        if (mDismissInstantly) {
+            dismiss();
+        } else {
+            dismissAfterDelay();
+        }
+        // Always set this to true. In case the user tries to authenticate again the UI will not be
+        // shown.
+        mDismissInstantly = true;
     }
 
     void handleResetMessage() {

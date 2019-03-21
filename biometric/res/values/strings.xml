@@ -32,6 +32,8 @@
     <string name="fingerprint_error_hw_not_present">This device does not have a fingerprint sensor</string>
     <!-- Generic error message shown when the fingerprint authentication operation is canceled due to user input. Generally not shown to the user. [CHAR LIMIT=NONE] -->
     <string name="fingerprint_error_user_canceled">Fingerprint operation canceled by user.</string>
+    <!-- Error message shown after too many failed authentication attempts. [CHAR LIMIT=NONE] -->
+    <string name="fingerprint_error_lockout">Too many attempts. Please try again later.</string>
     <!-- Generic error message shown when an unknown error has occurred. [CHAR LIMIT=NONE] -->
     <string name="default_error_msg">Unknown error</string>
 </resources>
