@@ -34,6 +34,7 @@ import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.room.migration.Migration;
+import androidx.room.util.SneakyThrow;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
@@ -405,7 +406,8 @@ public abstract class RoomDatabase {
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Exception in transaction", e);
+            SneakyThrow.reThrow(e);
+            return null; // Unreachable code, but compiler doesn't know it.
         } finally {
             endTransaction();
         }
