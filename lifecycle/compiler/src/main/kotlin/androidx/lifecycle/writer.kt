@@ -120,6 +120,7 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
             .addMethod(constructor)
             .addMethod(dispatchMethod)
             .addMethods(syntheticMethods)
+            .addOriginatingElement(adapter.type)
 
     addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder, processingEnv)
 
@@ -129,8 +130,10 @@ private fun writeAdapter(adapter: AdapterClass, processingEnv: ProcessingEnviron
     generateKeepRule(adapter.type, processingEnv)
 }
 
-private fun addGeneratedAnnotationIfAvailable(adapterTypeSpecBuilder: TypeSpec.Builder,
-                                              processingEnv: ProcessingEnvironment) {
+private fun addGeneratedAnnotationIfAvailable(
+    adapterTypeSpecBuilder: TypeSpec.Builder,
+    processingEnv: ProcessingEnvironment
+) {
     val generatedAnnotationAvailable = processingEnv
             .elementUtils
             .getTypeElement(GENERATED_PACKAGE + "." + GENERATED_NAME) != null
@@ -160,12 +163,14 @@ private fun generateKeepRule(type: TypeElement, processingEnv: ProcessingEnviron
     // contains the fully qualified observer name so that file names are unique. This will allow any
     // jar file merging to not overwrite keep rule files.
     val path = "META-INF/proguard/$observerClass.pro"
-    val out = processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", path)
+    val out = processingEnv.filer.createResource(StandardLocation.CLASS_OUTPUT, "", path, type)
     out.openWriter().use { it.write(keepRule) }
 }
 
-private fun MethodSpec.Builder.writeMethodCalls(calls: List<EventMethodCall>,
-                                                receiverField: FieldSpec) {
+private fun MethodSpec.Builder.writeMethodCalls(
+    calls: List<EventMethodCall>,
+    receiverField: FieldSpec
+) {
     calls.forEach { (method, syntheticAccess) ->
         val count = method.method.parameters.size
         val callType = 1 shl count
