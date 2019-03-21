@@ -277,6 +277,7 @@ includeProject(":camera:camera-view", "camera/view")
 includeProject(":camera:camera-extensions", "camera/extensions")
 includeProject(":camera:camera-testing", "camera/testing")
 includeProject(":camera:integration-tests:camera-testapp-core", "camera/integration-tests/coretestapp")
+includeProject(":camera:integration-tests:camera-testapp-extensions", "camera/integration-tests/extensionstestapp")
 includeProject(":camera:integration-tests:camera-testapp-view", "camera/integration-tests/viewtestapp")
 includeProject(":camera:integration-tests:camera-testapp-timing", "camera/integration-tests/timingtestapp")
 
