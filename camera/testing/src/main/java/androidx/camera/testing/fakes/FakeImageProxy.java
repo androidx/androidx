@@ -82,4 +82,8 @@ public final class FakeImageProxy implements ImageProxy {
     public ImageInfo getImageInfo() {
         return mImageInfo;
     }
+
+    public void setImageInfo(ImageInfo imageInfo) {
+        mImageInfo = imageInfo;
+    }
 }

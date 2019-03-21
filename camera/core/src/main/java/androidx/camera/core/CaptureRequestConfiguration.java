@@ -67,6 +67,9 @@ public final class CaptureRequestConfiguration {
     /** True if this capture request needs a repeating surface */
     private final boolean mUseRepeatingSurface;
 
+    /** The tag for associating capture result with capture request. */
+    private final Object mTag;
+
     /**
      * Private constructor for a CaptureRequestConfiguration.
      *
@@ -88,13 +91,15 @@ public final class CaptureRequestConfiguration {
             Configuration implementationOptions,
             int templateType,
             CameraCaptureCallback cameraCaptureCallback,
-            boolean useRepeatingSurface) {
+            boolean useRepeatingSurface,
+            Object tag) {
         mSurfaces = surfaces;
         mCaptureRequestParameters = captureRequestParameters;
         mImplementationOptions = implementationOptions;
         mTemplateType = templateType;
         mCameraCaptureCallback = cameraCaptureCallback;
         mUseRepeatingSurface = useRepeatingSurface;
+        mTag = tag;
     }
 
     /** Get all the surfaces that the request will write data to. */
@@ -120,6 +125,10 @@ public final class CaptureRequestConfiguration {
 
     public CameraCaptureCallback getCameraCaptureCallback() {
         return mCameraCaptureCallback;
+    }
+
+    public Object getTag() {
+        return mTag;
     }
 
     /**
@@ -150,6 +159,8 @@ public final class CaptureRequestConfiguration {
             builder.addTarget(surface);
         }
 
+        builder.setTag(mTag);
+
         return builder;
     }
 
@@ -168,6 +179,7 @@ public final class CaptureRequestConfiguration {
         private CameraCaptureCallback mCameraCaptureCallback =
                 CameraCaptureCallbacks.createNoOpCallback();
         private boolean mUseRepeatingSurface = false;
+        private Object mTag = null;
 
         public Builder() {
         }
@@ -179,6 +191,7 @@ public final class CaptureRequestConfiguration {
             mTemplateType = base.mTemplateType;
             mCameraCaptureCallback = base.mCameraCaptureCallback;
             mUseRepeatingSurface = base.isUseRepeatingSurface();
+            mTag = base.getTag();
         }
 
         /** Create a {@link Builder} from a {@link CaptureRequestConfiguration} */
@@ -262,6 +275,10 @@ public final class CaptureRequestConfiguration {
             mUseRepeatingSurface = useRepeatingSurface;
         }
 
+        public void setTag(Object tag) {
+            mTag = tag;
+        }
+
         /**
          * Builds an instance of a CaptureRequestConfiguration that has all the combined parameters
          * of the CaptureRequestConfiguration that have been added to the Builder.
@@ -273,7 +290,8 @@ public final class CaptureRequestConfiguration {
                     OptionsBundle.from(mImplementationOptions),
                     mTemplateType,
                     mCameraCaptureCallback,
-                    mUseRepeatingSurface);
+                    mUseRepeatingSurface,
+                    mTag);
         }
     }
 }

@@ -24,8 +24,6 @@ import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;
 import androidx.test.filters.SmallTest;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,89 +42,73 @@ import java.util.concurrent.TimeoutException;
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class SettableImageProxyBundleTest {
-
-    private ImageProxy mImageProxy0;
-    private ImageProxy mImageProxy1;
     private static final int CAPTURE_ID_0 = 0;
     private static final int CAPTURE_ID_1 = 1;
     private static final int CAPTURE_ID_NONEXISTANT = 5;
-    private ImageInfo mImageInfo0;
-    private ImageInfo mImageInfo1;
     private static final long TIMESTAMP_0 = 10L;
     private static final long TIMESTAMP_1 = 20L;
+    private final ImageInfo mImageInfo0 = new FakeImageInfo();
+    private final ImageInfo mImageInfo1 = new FakeImageInfo();
+    private final ImageProxy mImageProxy0 = new FakeImageProxy();
+    private final ImageProxy mImageProxy1 = new FakeImageProxy();
     private List<Integer> mCaptureIdList;
+    private SettableImageProxyBundle mImageProxyBundle;
 
     @Before
     public void setup() {
-        mImageProxy0 = new FakeImageProxy();
-        mImageProxy0.setTimestamp(TIMESTAMP_0);
-        mImageInfo0 = new FakeImageInfo();
         ((FakeImageInfo) mImageInfo0).setTimestamp(TIMESTAMP_0);
-
-        mImageProxy1 = new FakeImageProxy();
-        mImageProxy1.setTimestamp(TIMESTAMP_1);
-        mImageInfo1 = new FakeImageInfo();
         ((FakeImageInfo) mImageInfo1).setTimestamp(TIMESTAMP_1);
+        ((FakeImageInfo) mImageInfo0).setTag(CAPTURE_ID_0);
+        ((FakeImageInfo) mImageInfo1).setTag(CAPTURE_ID_1);
+        mImageProxy0.setTimestamp(TIMESTAMP_0);
+        mImageProxy1.setTimestamp(TIMESTAMP_1);
+        ((FakeImageProxy) mImageProxy0).setImageInfo(mImageInfo0);
+        ((FakeImageProxy) mImageProxy1).setImageInfo(mImageInfo1);
 
         mCaptureIdList = new ArrayList<>();
         mCaptureIdList.add(CAPTURE_ID_0);
         mCaptureIdList.add(CAPTURE_ID_1);
+
+        mImageProxyBundle = new SettableImageProxyBundle(mCaptureIdList);
     }
 
     @Test
-    public void synchronizeSuccess() throws InterruptedException,
+    public void canInvokeMatchedImageProxyFuture() throws InterruptedException,
             ExecutionException, TimeoutException {
-        SettableImageProxyBundle bundle = new SettableImageProxyBundle(mCaptureIdList);
-        bundle.addImage(mImageProxy0);
-        bundle.addImageInfo(CAPTURE_ID_0, mImageInfo0);
 
-        ListenableFuture<ImageProxy> captureResultListenableFuture =
-                bundle.getImageProxy(CAPTURE_ID_0);
+        // Inputs two ImageProxy to SettableImageProxyBundle.
+        mImageProxyBundle.addImageProxy(mImageProxy0);
+        mImageProxyBundle.addImageProxy(mImageProxy1);
 
-        ImageProxy result = captureResultListenableFuture.get(0, TimeUnit.SECONDS);
+        // Tries to get the Images for the ListenableFutures got from SettableImageProxyBundle.
+        ImageProxy result0 = mImageProxyBundle.getImageProxy(CAPTURE_ID_0).get(0, TimeUnit.SECONDS);
+        ImageProxy result1 = mImageProxyBundle.getImageProxy(CAPTURE_ID_1).get(0, TimeUnit.SECONDS);
 
-        assertThat(result.getImageInfo()).isSameAs(mImageInfo0);
-        assertThat(result.getTimestamp()).isSameAs(mImageProxy0.getTimestamp());
-    }
-
-    @Test(expected = TimeoutException.class)
-    public void noneToSynchronize()
-            throws InterruptedException, ExecutionException, TimeoutException {
-        SettableImageProxyBundle bundle = new SettableImageProxyBundle(mCaptureIdList);
-        bundle.addImage(mImageProxy0);
-        bundle.addImageInfo(CAPTURE_ID_1, mImageInfo1);
-
-        ListenableFuture<ImageProxy> captureResultListenableFuture =
-                bundle.getImageProxy(CAPTURE_ID_0);
-
-        // Expect this to timeout since there is no matching result
-        captureResultListenableFuture.get(0, TimeUnit.SECONDS);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void noneSynchronizedWhenClosed() {
-        SettableImageProxyBundle bundle = new SettableImageProxyBundle(mCaptureIdList);
-        bundle.addImage(mImageProxy0);
-        bundle.addImageInfo(CAPTURE_ID_0, mImageInfo0);
-
-        bundle.close();
-
-        bundle.getImageProxy(CAPTURE_ID_0);
+        // Checks if the results match what was input.
+        assertThat(result0.getImageInfo()).isSameAs(mImageInfo0);
+        assertThat(result0.getTimestamp()).isSameAs(mImageProxy0.getTimestamp());
+        assertThat(result1.getImageInfo()).isSameAs(mImageInfo1);
+        assertThat(result1.getTimestamp()).isSameAs(mImageProxy1.getTimestamp());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void exceptionWhenRetrievingImageWithInvalidCaptureId() {
-        SettableImageProxyBundle bundle = new SettableImageProxyBundle(mCaptureIdList);
+    public void exceptionWhenAddingImageWithInvalidCaptureId() {
+        ImageInfo imageInfo = new FakeImageInfo();
+        ImageProxy imageProxy = new FakeImageProxy();
 
-        // Should throw exception
-        bundle.getImageProxy(CAPTURE_ID_NONEXISTANT);
+        // Adds an ImageProxy with a capture id which doesn't exist in the initial list.
+        ((FakeImageInfo) imageInfo).setTag(CAPTURE_ID_NONEXISTANT);
+        ((FakeImageProxy) imageProxy).setImageInfo(imageInfo);
+
+        // Expects to throw exception while adding ImageProxy.
+        mImageProxyBundle.addImageProxy(imageProxy);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void exceptionWhenAddingResultWithInvalidCaptureId() {
-        SettableImageProxyBundle bundle = new SettableImageProxyBundle(mCaptureIdList);
-
-        // Should throw exception
-        bundle.addImageInfo(CAPTURE_ID_NONEXISTANT, mImageInfo0);
+    public void exceptionWhenRetrievingImageWithInvalidCaptureId() throws InterruptedException,
+            ExecutionException, TimeoutException {
+        // Tries to get a ImageProxy with non-existed capture id. Expects to throw exception
+        // while getting ImageProxy.
+        mImageProxyBundle.getImageProxy(CAPTURE_ID_NONEXISTANT).get(0, TimeUnit.SECONDS);
     }
 }

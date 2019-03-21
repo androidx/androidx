@@ -22,12 +22,20 @@ import androidx.camera.core.ImageInfo;
  * A fake implementation of {@link ImageInfo} where the values are settable.
  */
 public final class FakeImageInfo implements ImageInfo {
+    private Object mTag;
     private long mTimestamp;
 
+    public void setTag(Object tag) {
+        mTag = tag;
+    }
     public void setTimestamp(long timestamp) {
         mTimestamp = timestamp;
     }
 
+    @Override
+    public Object getTag() {
+        return mTag;
+    }
     @Override
     public long getTimestamp() {
         return mTimestamp;
