@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.location.Location;
@@ -55,9 +56,13 @@ import com.google.common.util.concurrent.SettableFuture;
 
 import java.io.File;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -106,6 +111,19 @@ public class ImageCaptureUseCase extends BaseUseCase {
                     });
     private final CaptureCallbackChecker mSessionCallbackChecker = new CaptureCallbackChecker();
     private final CaptureMode mCaptureMode;
+
+    /** The set of requests that will be sent to the camera for the final captured image. */
+    private final CaptureBundle mCaptureBundle;
+
+    /**
+     * Processing that gets done to the mCaptureBundle to produce the final image that is produced
+     * by {@link #takePicture(OnImageCapturedListener)}
+     */
+    private final CaptureProcessor mCaptureProcessor;
+
+    /** Callback used to match the {@link ImageProxy} with the {@link ImageInfo}. */
+    private CameraCaptureCallback mMetadataMatchingCaptureCallback;
+
     private final ImageCaptureUseCaseConfiguration.Builder mUseCaseConfigBuilder;
     private ImageCaptureUseCaseConfiguration mConfiguration;
     ImageReaderProxy mImageReader;
@@ -130,11 +148,27 @@ public class ImageCaptureUseCase extends BaseUseCase {
         super(userConfiguration);
         mUseCaseConfigBuilder =
                 ImageCaptureUseCaseConfiguration.Builder.fromConfig(userConfiguration);
-        setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageCaptureFormat());
         // Ensure we're using the combined configuration (user config + defaults)
         mConfiguration = (ImageCaptureUseCaseConfiguration) getUseCaseConfiguration();
         mCaptureMode = mConfiguration.getCaptureMode();
         mFlashMode = mConfiguration.getFlashMode();
+
+        mCaptureProcessor = mConfiguration.getCaptureProcessor(null);
+
+        if (mCaptureProcessor != null) {
+            setImageFormat(ImageFormat.YUV_420_888);
+        } else {
+            setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageCaptureFormat());
+        }
+
+        mCaptureBundle = mConfiguration.getCaptureBundle(
+                CaptureBundles.singleDefaultCaptureBundle());
+
+        if (mCaptureBundle.getCaptureStages().size() > 1 && mCaptureProcessor == null) {
+            throw new IllegalArgumentException(
+                    "ImageCaptureUseCaseConfiguration has no CaptureProcess set with "
+                            + "CaptureBundle size > 1.");
+        }
 
         if (mCaptureMode == CaptureMode.MAX_QUALITY) {
             mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
@@ -519,14 +553,22 @@ public class ImageCaptureUseCase extends BaseUseCase {
             mImageReader.close();
         }
 
-        mImageReader =
-                ImageReaderProxys.createCompatibleReader(
-                        cameraId,
-                        resolution.getWidth(),
-                        resolution.getHeight(),
-                        getImageFormat(),
-                        MAX_IMAGES,
-                        mHandler);
+        // Setup the ImageReader to do processing
+        if (mCaptureProcessor != null) {
+            ProcessingImageReader processingImageReader =
+                    new ProcessingImageReader(
+                            resolution.getWidth(),
+                            resolution.getHeight(),
+                            getImageFormat(), MAX_IMAGES,
+                            mHandler, mCaptureBundle, mCaptureProcessor);
+            mMetadataMatchingCaptureCallback = processingImageReader.getCameraCaptureCallback();
+            mImageReader = processingImageReader;
+        } else {
+            MetadataImageReader metadataImageReader = new MetadataImageReader(resolution.getWidth(),
+                    resolution.getHeight(), getImageFormat(), MAX_IMAGES, mHandler);
+            mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
+            mImageReader = metadataImageReader;
+        }
 
         mImageReader.setOnImageAvailableListener(
                 new ImageReaderProxy.OnImageAvailableListener() {
@@ -575,9 +617,8 @@ public class ImageCaptureUseCase extends BaseUseCase {
 
         attachToCamera(cameraId, mSessionConfigBuilder.build());
 
-        // In order to speed up the take picture process, notifyActive at an early stage to attach
-        // the
-        // session capture callback to repeating and get capture result all the time.
+        // In order to speed up the take picture process, notifyActive at an early stage to
+        // attach the session capture callback to repeating and get capture result all the time.
         notifyActive();
 
         return suggestedResolutionMap;
@@ -774,31 +815,54 @@ public class ImageCaptureUseCase extends BaseUseCase {
 
     /** Issues a take picture request. */
     ListenableFuture<Void> issueTakePicture() {
-        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
-        builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
-        builder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
+        List<SettableFuture<Void>> futureList = new ArrayList<>();
 
-        applyPixelHdrPlusChangeForCaptureMode(mCaptureMode, builder);
+        for (CaptureStage captureStage : mCaptureBundle.getCaptureStages()) {
+            CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+            builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
+            builder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
 
-        final SettableFuture<Void> future = SettableFuture.create();
-        builder.setCameraCaptureCallback(
-                new CameraCaptureCallback() {
+            applyPixelHdrPlusChangeForCaptureMode(mCaptureMode, builder);
+
+            builder.addImplementationOptions(
+                    captureStage.getCaptureRequestConfiguration().getImplementationOptions());
+
+            builder.setTag(captureStage.getCaptureRequestConfiguration().getTag());
+
+            final SettableFuture<Void> future = SettableFuture.create();
+            builder.setCameraCaptureCallback(new CameraCaptureCallbacks.ComboCameraCaptureCallback(
+                    Arrays.asList(
+                            new CameraCaptureCallback() {
+                                @Override
+                                public void onCaptureCompleted(
+                                        @NonNull CameraCaptureResult result) {
+                                    future.set(null);
+                                }
+
+                                @Override
+                                public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
+                                    Log.e(TAG,
+                                            "capture picture get onCaptureFailed with reason "
+                                                    + failure.getReason());
+                                    future.set(null);
+                                }
+                            },
+                            mMetadataMatchingCaptureCallback
+                    ))
+            );
+
+            futureList.add(future);
+            getCurrentCameraControl().submitSingleRequest(builder.build());
+        }
+
+        return Futures.whenAllSucceed(futureList).call(
+                new Callable<Void>() {
                     @Override
-                    public void onCaptureCompleted(@NonNull CameraCaptureResult result) {
-                        future.set(null);
+                    public Void call() {
+                        return null;
                     }
-
-                    @Override
-                    public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
-                        Log.e(
-                                TAG,
-                                "capture picture get onCaptureFailed with reason "
-                                        + failure.getReason());
-                        future.set(null);
-                    }
-                });
-        getCurrentCameraControl().submitSingleRequest(builder.build());
-        return future;
+                },
+                mExecutor);
     }
 
     /**
