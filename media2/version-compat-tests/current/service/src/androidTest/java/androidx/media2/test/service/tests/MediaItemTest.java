@@ -83,7 +83,7 @@ public class MediaItemTest {
         public MediaItem create(Context context) {
             final MediaMetadata testMetadata = new MediaMetadata.Builder()
                     .putString("MediaItemTest", "MediaItemTest").build();
-            return new UriMediaItem.Builder(context, Uri.parse("test://test"))
+            return new UriMediaItem.Builder(Uri.parse("test://test"))
                     .setMetadata(testMetadata)
                     .setStartPosition(1)
                     .setEndPosition(1000)
