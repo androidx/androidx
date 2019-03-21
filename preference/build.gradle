@@ -30,7 +30,7 @@ dependencies {
     // TODO: change to alpha05 after release
     api(project(":core"))
     implementation("androidx.collection:collection:1.0.0")
-    api("androidx.fragment:fragment:1.1.0-alpha04")
+    api(project(":fragment"))
     api("androidx.recyclerview:recyclerview:1.0.0")
 
     androidTestImplementation(TEST_EXT_JUNIT)

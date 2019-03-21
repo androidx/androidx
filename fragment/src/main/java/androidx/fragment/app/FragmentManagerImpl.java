@@ -2776,8 +2776,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 @NonNull
                 @Override
                 public Fragment instantiate(@NonNull ClassLoader classLoader,
-                        @NonNull String className, @Nullable Bundle args) {
-                    return mHost.instantiate(mHost.getContext(), className, args);
+                        @NonNull String className) {
+                    return mHost.instantiate(mHost.getContext(), className, null);
                 }
             });
         }
@@ -3103,7 +3103,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 + Integer.toHexString(id) + " fname=" + fname
                 + " existing=" + fragment);
         if (fragment == null) {
-            fragment = getFragmentFactory().instantiate(context.getClassLoader(), fname, null);
+            fragment = getFragmentFactory().instantiate(context.getClassLoader(), fname);
             fragment.mFromLayout = true;
             fragment.mFragmentId = id != 0 ? id : containerId;
             fragment.mContainerId = containerId;
