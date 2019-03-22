@@ -27,7 +27,7 @@ import androidx.text.Preconditions;
  * Span that change font feature settings for font.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FontFeatureSpan extends MetricAffectingSpan {
     private String mFontFeatureSettings;
     public FontFeatureSpan(@NonNull String fontFeatureSettings) {
