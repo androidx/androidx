@@ -779,6 +779,29 @@ public final class ViewPager2 extends ViewGroup {
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         super.onInitializeAccessibilityNodeInfo(info);
+        addCollectionInfo(info);
+        addScrollActions(info);
+    }
+
+    private void addCollectionInfo(AccessibilityNodeInfo info) {
+        int rowCount = 0;
+        int colCount = 0;
+        if (getAdapter() != null) {
+            if (getOrientation() == ORIENTATION_VERTICAL) {
+                rowCount = getAdapter().getItemCount();
+            } else {
+                colCount = getAdapter().getItemCount();
+            }
+        }
+        AccessibilityNodeInfoCompat nodeInfoCompat = AccessibilityNodeInfoCompat.wrap(info);
+        AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo =
+                AccessibilityNodeInfoCompat.CollectionInfoCompat.obtain(rowCount, colCount,
+                        /* hierarchical= */false,
+                        AccessibilityNodeInfoCompat.CollectionInfoCompat.SELECTION_MODE_NONE);
+        nodeInfoCompat.setCollectionInfo(collectionInfo);
+    }
+
+    private void addScrollActions(AccessibilityNodeInfo info) {
         if (Build.VERSION.SDK_INT < 21) {
             if (getAdapter() == null) {
                 return;
@@ -787,11 +810,9 @@ public final class ViewPager2 extends ViewGroup {
             if (itemCount == 0 || !mUserInputEnabled) {
                 return;
             }
-
             if (mCurrentItem > 0) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
             }
-
             if (mCurrentItem < itemCount - 1) {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
             }

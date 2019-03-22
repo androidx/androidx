@@ -17,6 +17,7 @@
 package androidx.viewpager2.widget
 
 import android.os.Build
+import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_DOWN
@@ -27,6 +28,8 @@ import androidx.test.filters.LargeTest
 import androidx.viewpager2.LocaleTestUtils
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import org.hamcrest.CoreMatchers.equalTo
+import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -34,7 +37,7 @@ import java.util.concurrent.TimeUnit
 
 @RunWith(Parameterized::class)
 @LargeTest
-class PageAccessibilityActionsTest(private val config: TestConfig) : BaseTest() {
+class AccessibilityTest(private val config: TestConfig) : BaseTest() {
     data class TestConfig(
         @ViewPager2.Orientation val orientation: Int,
         val rtl: Boolean
@@ -80,6 +83,32 @@ class PageAccessibilityActionsTest(private val config: TestConfig) : BaseTest() 
     }
 
     @Test
+    fun test_collectionInfo() {
+        setUpTest(config.orientation).apply {
+            setAdapterSync(viewAdapterProvider(stringSequence(6)))
+
+            val initialPage = viewPager.currentItem
+            assertBasicState(initialPage)
+
+            var node = AccessibilityNodeInfo.obtain()
+            activityTestRule.runOnUiThread { viewPager.onInitializeAccessibilityNodeInfo(node) }
+            var collectionInfo = node.collectionInfo
+
+            if (config.orientation == ORIENTATION_VERTICAL) {
+                assertThat(collectionInfo.rowCount, equalTo(6))
+                assertThat(collectionInfo.columnCount, equalTo(0))
+            } else {
+                assertThat(collectionInfo.columnCount, equalTo(6))
+                assertThat(collectionInfo.rowCount, equalTo(0))
+            }
+            assertThat(collectionInfo.isHierarchical, equalTo(false))
+            if (Build.VERSION.SDK_INT >= 21) {
+                assertThat(collectionInfo.selectionMode, equalTo(0))
+            }
+        }
+    }
+
+    @Test
     fun test_onOrientationChange() {
         setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(2)))
@@ -96,7 +125,6 @@ class PageAccessibilityActionsTest(private val config: TestConfig) : BaseTest() 
 
     private fun getNextPageAction(orientation: Int, isRtl: Boolean): Int {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-
             if (orientation == ViewPager2.ORIENTATION_HORIZONTAL) {
                 if (isRtl) {
                     return ACTION_PAGE_LEFT.id
@@ -134,10 +162,10 @@ class PageAccessibilityActionsTest(private val config: TestConfig) : BaseTest() 
 
 // region Test Suite creation
 
-private fun createTestSet(): List<PageAccessibilityActionsTest.TestConfig> {
+private fun createTestSet(): List<AccessibilityTest.TestConfig> {
     return listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).flatMap { orientation ->
         listOf(true, false).map { rtl ->
-            PageAccessibilityActionsTest.TestConfig(orientation, rtl)
+            AccessibilityTest.TestConfig(orientation, rtl)
         }
     }
 }
