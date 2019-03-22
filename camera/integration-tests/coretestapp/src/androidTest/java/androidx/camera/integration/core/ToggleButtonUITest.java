@@ -35,7 +35,12 @@ import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
+import androidx.test.rule.GrantPermissionRule;
+import androidx.test.uiautomator.By;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.Until;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,11 +49,28 @@ import org.junit.runner.RunWith;
 /** Test toggle buttons in CoreTestApp. */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class ToggleButtonUITest {
+public final class ToggleButtonUITest {
+
+    private static final int LAUNCH_TIMEOUT_MS = 5000;
+    private static final int IDLE_TIMEOUT_MS = 1000;
+
+    private final UiDevice mDevice =
+            UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+    private final String mLauncherPackageName = mDevice.getLauncherPackageName();
 
     @Rule
     public ActivityTestRule<CameraXActivity> mActivityRule =
             new ActivityTestRule<>(CameraXActivity.class);
+
+    @Rule
+    public GrantPermissionRule mCameraPermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
+    @Rule
+    public GrantPermissionRule mStoragePermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    @Rule
+    public GrantPermissionRule mAudioPermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO);
 
     public static void waitFor(IdlingResource idlingResource) {
         IdlingRegistry.getInstance().register(idlingResource);
@@ -56,7 +78,6 @@ public class ToggleButtonUITest {
         IdlingRegistry.getInstance().unregister(idlingResource);
     }
 
-    // Test switch flash mode toggle button.
     @Test
     public void testFlashToggleButton() {
         waitFor(new WaitForViewToShow(R.id.flash_toggle));
@@ -79,10 +100,10 @@ public class ToggleButtonUITest {
         // The mode3 should be different from first and second time.
         assertNotEquals(mode3, mode2);
         assertNotEquals(mode3, mode1);
+
+        waitForIdlingRegistryAndPressBackAndHomeButton();
     }
 
-    // Test torch toggle button.
-    // To press the torch toggle button to switch torch between ON/OFF state.
     @Test
     public void testTorchToggleButton() {
         waitFor(new WaitForViewToShow(R.id.torch_toggle));
@@ -97,9 +118,10 @@ public class ToggleButtonUITest {
         // By pressing the torch toggle button two times, it should switch back to original state.
         onView(withId(R.id.torch_toggle)).perform(click());
         assertEquals(useCase.isTorchOn(), isTorchOn);
+
+        waitForIdlingRegistryAndPressBackAndHomeButton();
     }
 
-    // Test camera switch toggle button.
     @Test
     public void testSwitchCameraToggleButton() {
         waitFor(new WaitForViewToShow(R.id.direction_toggle));
@@ -126,6 +148,19 @@ public class ToggleButtonUITest {
                 assertNotNull(mActivityRule.getActivity().getViewFinderUseCase());
             }
         }
+
+        waitForIdlingRegistryAndPressBackAndHomeButton();
+    }
+
+    private void waitForIdlingRegistryAndPressBackAndHomeButton() {
+        // Idles Espresso thread and make activity complete each action.
+        waitFor(new ElapsedTimeIdlingResource(IDLE_TIMEOUT_MS));
+
+        mDevice.pressBack();
+
+        // Returns to Home to restart next test.
+        mDevice.pressHome();
+        mDevice.wait(Until.hasObject(By.pkg(mLauncherPackageName).depth(0)), LAUNCH_TIMEOUT_MS);
     }
 
 }
