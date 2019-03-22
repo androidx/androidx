@@ -151,7 +151,7 @@ public class FragmentTabsPager extends FragmentActivity {
         public Fragment getItem(int position) {
             TabInfo info = mTabs.get(position);
             Fragment fragment = mFragmentFactory.instantiate(mContext.getClassLoader(),
-                    info.clss.getName(), info.args);
+                    info.clss.getName());
             fragment.setArguments(info.args);
             return fragment;
         }
