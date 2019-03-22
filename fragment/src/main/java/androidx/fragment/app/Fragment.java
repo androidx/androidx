@@ -403,7 +403,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Thrown by {@link FragmentFactory#instantiate(ClassLoader, String, Bundle)} when
+     * Thrown by {@link FragmentFactory#instantiate(ClassLoader, String)} when
      * there is an instantiation failure.
      */
     @SuppressWarnings("JavaLangClash")
@@ -453,7 +453,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Like {@link #instantiate(Context, String, Bundle)} but with a null
      * argument Bundle.
      * @deprecated Use {@link FragmentManager#getFragmentFactory()} and
-     * {@link FragmentFactory#instantiate(ClassLoader, String, Bundle)}
+     * {@link FragmentFactory#instantiate(ClassLoader, String)}
      */
     @SuppressWarnings("deprecation")
     @Deprecated
@@ -477,7 +477,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * the given fragment class.  This is a runtime exception; it is not
      * normally expected to happen.
      * @deprecated Use {@link FragmentManager#getFragmentFactory()} and
-     * {@link FragmentFactory#instantiate(ClassLoader, String, Bundle)}, manually calling
+     * {@link FragmentFactory#instantiate(ClassLoader, String)}, manually calling
      * {@link #setArguments(Bundle)} on the returned Fragment.
      */
     @Deprecated

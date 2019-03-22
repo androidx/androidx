@@ -41,11 +41,10 @@ import org.junit.runner.RunWith
 private class NoDefaultConstructorFragmentFactory(val arg: String) : FragmentFactory() {
     override fun instantiate(
         classLoader: ClassLoader,
-        className: String,
-        args: Bundle?
+        className: String
     ) = when (className) {
         NoDefaultConstructorFragment::class.java.name -> NoDefaultConstructorFragment(arg)
-        else -> super.instantiate(classLoader, className, args)
+        else -> super.instantiate(classLoader, className)
     }
 }
 

@@ -231,7 +231,8 @@ package androidx.fragment.app {
 
   public class FragmentFactory {
     ctor public FragmentFactory();
-    method public androidx.fragment.app.Fragment instantiate(ClassLoader, String, android.os.Bundle?);
+    method @Deprecated public androidx.fragment.app.Fragment instantiate(ClassLoader, String, android.os.Bundle?);
+    method public androidx.fragment.app.Fragment instantiate(ClassLoader, String);
     method public static Class<? extends androidx.fragment.app.Fragment> loadFragmentClass(ClassLoader, String);
   }
 
