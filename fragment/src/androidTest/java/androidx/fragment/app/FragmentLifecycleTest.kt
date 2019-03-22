@@ -17,8 +17,6 @@
 package androidx.fragment.app
 
 import android.content.Context
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
@@ -34,15 +32,12 @@ import androidx.fragment.app.FragmentTestUtil.HostCallbacks
 import androidx.fragment.app.FragmentTestUtil.shutdownFragmentController
 import androidx.fragment.app.FragmentTestUtil.startupFragmentController
 import androidx.fragment.app.test.EmptyFragmentTestActivity
-import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -53,7 +48,6 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -510,22 +504,6 @@ class FragmentLifecycleTest {
 
         // Fully destroyed, so fragments have been removed.
         f.arguments = Bundle()
-    }
-
-    /**
-     * FragmentActivity should not raise the state of a Fragment while it is being destroyed.
-     */
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
-    @Test
-    fun fragmentActivityFinishEarly() {
-        val intent = Intent(activityRule.activity, FragmentTestActivity::class.java)
-        intent.putExtra("finishEarly", true)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-
-        val activity = InstrumentationRegistry.getInstrumentation()
-            .startActivitySync(intent) as FragmentTestActivity
-
-        assertThat(activity.onDestroyLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
 
     /**
