@@ -715,11 +715,10 @@ class NonEmptyConstructorFragment(val test: String) : Fragment()
 class NonEmptyFragmentFactory : FragmentFactory() {
     override fun instantiate(
         classLoader: ClassLoader,
-        className: String,
-        args: Bundle?
+        className: String
     ) = if (className == NonEmptyConstructorFragment::class.java.name) {
         NonEmptyConstructorFragment("test")
     } else {
-        super.instantiate(classLoader, className, args)
+        super.instantiate(classLoader, className)
     }
 }

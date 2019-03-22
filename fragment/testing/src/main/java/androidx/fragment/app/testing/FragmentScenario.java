@@ -298,8 +298,7 @@ public final class FragmentScenario<F extends Fragment> {
                         Fragment fragment = activity.getSupportFragmentManager()
                                 .getFragmentFactory().instantiate(
                                         Preconditions.checkNotNull(fragmentClass.getClassLoader()),
-                                        fragmentClass.getName(),
-                                        fragmentArgs);
+                                        fragmentClass.getName());
                         fragment.setArguments(fragmentArgs);
                         activity.getSupportFragmentManager()
                                 .beginTransaction()
