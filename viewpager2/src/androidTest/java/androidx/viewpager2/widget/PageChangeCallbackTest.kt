@@ -25,6 +25,7 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.PollingCheck
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.LocaleTestUtils
+import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
 import androidx.viewpager2.widget.PageChangeCallbackTest.Event.MarkerEvent
 import androidx.viewpager2.widget.PageChangeCallbackTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.PageChangeCallbackTest.Event.OnPageScrolledEvent
@@ -46,6 +47,7 @@ import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.util.concurrent.Executors.newSingleThreadExecutor
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.TimeUnit.SECONDS
 import java.util.concurrent.atomic.AtomicBoolean
@@ -728,6 +730,52 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 equalTo(RecyclerView.SCROLL_STATE_DRAGGING)))
         assertThat(ViewPager2.SCROLL_STATE_SETTLING, allOf(equalTo(ViewPager.SCROLL_STATE_SETTLING),
                 equalTo(RecyclerView.SCROLL_STATE_SETTLING)))
+    }
+
+    @Test
+    fun test_getScrollState() {
+        val test = setUpTest(config.orientation)
+        test.setAdapterSync(viewAdapterProvider(stringSequence(5)))
+
+        // Test SCROLL_STATE_SETTLING
+        test_getScrollState(test, SCROLL_STATE_SETTLING, 1) {
+            test.runOnUiThread { test.viewPager.setCurrentItem(1, true) }
+        }
+
+        // Test SCROLL_STATE_DRAGGING (real drag)
+        test_getScrollState(test, SCROLL_STATE_DRAGGING, 2, true) {
+            // Perform manual swipe in separate thread, because the SwipeMethod.MANUAL blocks while
+            // injecting events, and we need to check getScrollState() during the swipe.
+            newSingleThreadExecutor().execute { test.swipeForward(SwipeMethod.MANUAL) }
+        }
+
+        // Test SCROLL_STATE_DRAGGING (fake drag)
+        test_getScrollState(test, SCROLL_STATE_DRAGGING, 3, true) {
+            test.swipeForward(SwipeMethod.FAKE_DRAG)
+        }
+    }
+
+    private fun test_getScrollState(
+        test: Context,
+        @ViewPager2.ScrollState state: Int,
+        expectedTargetPage: Int,
+        checkSettling: Boolean = false,
+        viewPagerAction: () -> Unit
+    ) {
+        val stateLatch = test.viewPager.addWaitForStateLatch(state)
+        val settlingLatch = test.viewPager.addWaitForStateLatch(SCROLL_STATE_SETTLING)
+        val idleLatch = test.viewPager.addWaitForIdleLatch()
+        viewPagerAction()
+        // Wait for onScrollStateChanged
+        assertThat(stateLatch.await(1, SECONDS), equalTo(true))
+        // Check scrollState
+        assertThat(test.viewPager.scrollState, equalTo(state))
+        if (checkSettling) {
+            assertThat(settlingLatch.await(2, SECONDS), equalTo(true))
+        }
+        // Let the animation finish
+        assertThat(idleLatch.await(2, SECONDS), equalTo(true))
+        test.assertBasicState(expectedTargetPage)
     }
 
     @Test

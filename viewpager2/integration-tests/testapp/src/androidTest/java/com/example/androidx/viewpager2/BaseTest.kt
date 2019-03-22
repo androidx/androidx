@@ -19,17 +19,24 @@ package com.example.androidx.viewpager2
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.FragmentActivity
+import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onIdle
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
 import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import com.example.androidx.viewpager2.test.ViewPagerIdleWatcher
 import com.example.androidx.viewpager2.test.onCurrentPage
 import com.example.androidx.viewpager2.test.onViewPager
 import com.example.androidx.viewpager2.test.swipeNext
 import com.example.androidx.viewpager2.test.swipePrevious
+import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matcher
 import org.junit.After
 import org.junit.Before
@@ -63,6 +70,17 @@ abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
     @After
     open fun tearDown() {
         idleWatcher.unregister()
+    }
+
+    fun selectOrientation(@ViewPager2.Orientation orientation: Int) {
+        onView(withId(R.id.orientation_spinner)).perform(click())
+        onData(equalTo(
+            when (orientation) {
+                ORIENTATION_HORIZONTAL -> "horizontal"
+                ORIENTATION_VERTICAL -> "vertical"
+                else -> throw IllegalArgumentException("Orientation $orientation doesn't exist")
+            }
+        )).perform(click())
     }
 
     fun swipeToNextPage() {

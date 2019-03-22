@@ -54,7 +54,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
 
     @Retention(SOURCE)
     @IntDef({STATE_IDLE, STATE_IN_PROGRESS_MANUAL_DRAG, STATE_IN_PROGRESS_SMOOTH_SCROLL,
-            STATE_IN_PROGRESS_IMMEDIATE_SCROLL})
+            STATE_IN_PROGRESS_IMMEDIATE_SCROLL, STATE_IN_PROGRESS_FAKE_DRAG})
     private @interface AdapterState {
     }
 
@@ -62,6 +62,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private static final int STATE_IN_PROGRESS_MANUAL_DRAG = 1;
     private static final int STATE_IN_PROGRESS_SMOOTH_SCROLL = 2;
     private static final int STATE_IN_PROGRESS_IMMEDIATE_SCROLL = 3;
+    private static final int STATE_IN_PROGRESS_FAKE_DRAG = 4;
 
     private static final int NO_POSITION = -1;
 
@@ -76,6 +77,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private int mTarget;
     private boolean mDispatchSelected;
     private boolean mScrollHappened;
+    private boolean mFakeDragging;
 
     ScrollEventAdapter(@NonNull LinearLayoutManager layoutManager) {
         mLayoutManager = layoutManager;
@@ -91,6 +93,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         mTarget = NO_POSITION;
         mDispatchSelected = false;
         mScrollHappened = false;
+        mFakeDragging = false;
     }
 
     /**
@@ -102,26 +105,13 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         // User started a drag (not dragging -> dragging)
         if (mAdapterState != STATE_IN_PROGRESS_MANUAL_DRAG
                 && newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-            // Remember we're performing a drag
-            mAdapterState = STATE_IN_PROGRESS_MANUAL_DRAG;
-            if (mTarget != NO_POSITION) {
-                // Target was set means programmatic scroll was in progress
-                // Update "drag start page" to reflect the page that ViewPager2 thinks it is at
-                mDragStartPosition = mTarget;
-                // Reset target because drags have no target until released
-                mTarget = NO_POSITION;
-            } else {
-                // ViewPager2 was at rest, set "drag start page" to current page
-                mDragStartPosition = getPosition();
-            }
-            dispatchStateChanged(SCROLL_STATE_DRAGGING);
+            startDrag(false);
             return;
         }
 
         // Drag is released, RecyclerView is snapping to page (dragging -> settling)
         // Note that mAdapterState is not updated, to remember we were dragging when settling
-        if (mAdapterState == STATE_IN_PROGRESS_MANUAL_DRAG
-                && newState == RecyclerView.SCROLL_STATE_SETTLING) {
+        if (isInAnyDraggingState() && newState == RecyclerView.SCROLL_STATE_SETTLING) {
             // Only go through the settling phase if the drag actually moved the page
             if (mScrollHappened) {
                 dispatchStateChanged(SCROLL_STATE_SETTLING);
@@ -132,8 +122,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         }
 
         // Drag is finished (dragging || settling -> idle)
-        if (mAdapterState == STATE_IN_PROGRESS_MANUAL_DRAG
-                && newState == RecyclerView.SCROLL_STATE_IDLE) {
+        if (isInAnyDraggingState() && newState == RecyclerView.SCROLL_STATE_IDLE) {
             boolean dispatchIdle = false;
             updateScrollEventValues();
             if (!mScrollHappened) {
@@ -169,7 +158,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     @Override
     public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
         mScrollHappened = true;
-        ScrollEventValues values = updateScrollEventValues();
+        updateScrollEventValues();
 
         if (mDispatchSelected) {
             // Drag started settling, need to calculate target page and dispatch onPageSelected now
@@ -178,19 +167,19 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
 
             // "&& values.mOffsetPx != 0": filters special case where we're scrolling forward and
             // the first scroll event after settling already got us at the target
-            mTarget = scrollingForward && values.mOffsetPx != 0
-                    ? values.mPosition + 1 : values.mPosition;
+            mTarget = scrollingForward && mScrollValues.mOffsetPx != 0
+                    ? mScrollValues.mPosition + 1 : mScrollValues.mPosition;
             if (mDragStartPosition != mTarget) {
                 dispatchSelected(mTarget);
             }
         }
 
-        dispatchScrolled(values.mPosition, values.mOffset, values.mOffsetPx);
+        dispatchScrolled(mScrollValues.mPosition, mScrollValues.mOffset, mScrollValues.mOffsetPx);
 
         // Dispatch idle in onScrolled instead of in onScrollStateChanged because RecyclerView
         // doesn't send IDLE event when using setCurrentItem(x, false)
-        if ((values.mPosition == mTarget || mTarget == NO_POSITION) && values.mOffsetPx == 0
-                && mScrollState != SCROLL_STATE_DRAGGING) {
+        if ((mScrollValues.mPosition == mTarget || mTarget == NO_POSITION)
+                && mScrollValues.mOffsetPx == 0 && !(mScrollState == SCROLL_STATE_DRAGGING)) {
             // When the target page is reached and the user is not dragging anymore, we're settled,
             // so go to idle.
             // Special case and a bit of a hack when mTarget == NO_POSITION: RecyclerView is being
@@ -206,16 +195,18 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
      * Calculates the current position and the offset (as a percentage and in pixels) of that
      * position from the center.
      */
-    private ScrollEventValues updateScrollEventValues() {
+    private void updateScrollEventValues() {
         ScrollEventValues values = mScrollValues;
 
         values.mPosition = mLayoutManager.findFirstVisibleItemPosition();
         if (values.mPosition == RecyclerView.NO_POSITION) {
-            return values.reset();
+            values.reset();
+            return;
         }
         View firstVisibleView = mLayoutManager.findViewByPosition(values.mPosition);
         if (firstVisibleView == null) {
-            return values.reset();
+            values.reset();
+            return;
         }
 
         // TODO(123350297): automated test for this
@@ -244,7 +235,22 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
                     + "positive amount, not by %d", values.mOffsetPx));
         }
         values.mOffset = sizePx == 0 ? 0 : (float) values.mOffsetPx / sizePx;
-        return values;
+    }
+
+    private void startDrag(boolean isFakeDrag) {
+        mFakeDragging = isFakeDrag;
+        mAdapterState = isFakeDrag ? STATE_IN_PROGRESS_FAKE_DRAG : STATE_IN_PROGRESS_MANUAL_DRAG;
+        if (mTarget != NO_POSITION) {
+            // Target was set means programmatic scroll was in progress
+            // Update "drag start page" to reflect the page that ViewPager2 thinks it is at
+            mDragStartPosition = mTarget;
+            // Reset target because drags have no target until released
+            mTarget = NO_POSITION;
+        } else {
+            // ViewPager2 was at rest, set "drag start page" to current page
+            mDragStartPosition = getPosition();
+        }
+        dispatchStateChanged(SCROLL_STATE_DRAGGING);
     }
 
     /**
@@ -263,10 +269,41 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     }
 
     /**
-     * Let the adapter know that mCurrentItem was restored in onRestoreInstanceState
+     * Let the adapter know that mCurrentItem was restored in onRestoreInstanceState.
      */
     void notifyRestoreCurrentItem(int currentItem) {
         dispatchSelected(currentItem);
+    }
+
+    /**
+     * Let the adapter know that a fake drag has started.
+     */
+    void notifyBeginFakeDrag() {
+        mAdapterState = STATE_IN_PROGRESS_FAKE_DRAG;
+        startDrag(true);
+    }
+
+    /**
+     * Let the adapter know that a fake drag has ended.
+     */
+    void notifyEndFakeDrag() {
+        if (isDragging() && !mFakeDragging) {
+            // Real drag has already taken over, no need to post process the fake drag
+            return;
+        }
+        mFakeDragging = false;
+        updateScrollEventValues();
+        if (mScrollValues.mOffsetPx == 0) {
+            // We're snapped, so dispatch an IDLE event
+            if (mScrollValues.mPosition != mDragStartPosition) {
+                dispatchSelected(mScrollValues.mPosition);
+            }
+            dispatchStateChanged(SCROLL_STATE_IDLE);
+            resetState();
+        } else {
+            // We're not snapped, so dispatch a SETTLING event
+            dispatchStateChanged(SCROLL_STATE_SETTLING);
+        }
     }
 
     private boolean isLayoutRTL() {
@@ -277,11 +314,41 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         mCallback = callback;
     }
 
+    int getScrollState() {
+        return mScrollState;
+    }
+
     /**
-     * @return true if there is no known scroll in progress
+     * @return {@code true} if there is no known scroll in progress
      */
     boolean isIdle() {
-        return mAdapterState == STATE_IDLE;
+        return mScrollState == SCROLL_STATE_IDLE;
+    }
+
+    /**
+     * @return {@code true} if the ViewPager2 is being dragged. Returns {@code false} from the
+     *         moment the ViewPager2 starts settling or goes idle.
+     */
+    boolean isDragging() {
+        return mScrollState == SCROLL_STATE_DRAGGING;
+    }
+
+    /**
+     * @return {@code true} if a fake drag is ongoing. Returns {@code false} from the moment the
+     *         {@link ViewPager2#endFakeDrag()} is called.
+     */
+    boolean isFakeDragging() {
+        return mFakeDragging;
+    }
+
+    /**
+     * Checks if the adapter state (not the scroll state) is in the manual or fake dragging state.
+     * @return {@code true} if {@link #mAdapterState} is either {@link
+     *         #STATE_IN_PROGRESS_MANUAL_DRAG} or {@link #STATE_IN_PROGRESS_FAKE_DRAG}
+     */
+    private boolean isInAnyDraggingState() {
+        return mAdapterState == STATE_IN_PROGRESS_MANUAL_DRAG
+                || mAdapterState == STATE_IN_PROGRESS_FAKE_DRAG;
     }
 
     /**
@@ -343,11 +410,10 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         ScrollEventValues() {
         }
 
-        ScrollEventValues reset() {
+        void reset() {
             mPosition = RecyclerView.NO_POSITION;
             mOffset = 0f;
             mOffsetPx = 0;
-            return this;
         }
     }
 }
