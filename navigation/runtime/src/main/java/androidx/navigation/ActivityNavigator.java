@@ -238,8 +238,10 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
             setTargetPackage(targetPackage);
             String className = a.getString(R.styleable.ActivityNavigator_android_name);
             if (className != null) {
-                setComponentName(new ComponentName(context,
-                        parseClassFromName(context, className, Activity.class)));
+                if (className.charAt(0) == '.') {
+                    className = context.getPackageName() + className;
+                }
+                setComponentName(new ComponentName(context, className));
             }
             setAction(a.getString(R.styleable.ActivityNavigator_action));
             String data = a.getString(R.styleable.ActivityNavigator_data);
