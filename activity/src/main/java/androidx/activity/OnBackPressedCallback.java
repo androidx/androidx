@@ -16,20 +16,17 @@
 
 package androidx.activity;
 
-import androidx.lifecycle.LifecycleOwner;
-
 /**
- * Interface for handling {@link ComponentActivity#onBackPressed()} callbacks without
+ * Interface for handling {@link OnBackPressedDispatcher#onBackPressed()} callbacks without
  * strongly coupling that implementation to a subclass of {@link ComponentActivity}.
  *
- * @see ComponentActivity#addOnBackPressedCallback(LifecycleOwner, OnBackPressedCallback)
- * @see ComponentActivity#removeOnBackPressedCallback(OnBackPressedCallback)
+ * @see ComponentActivity#getOnBackPressedDispatcher()
  */
 public interface OnBackPressedCallback {
     /**
-     * Callback for handling the {@link ComponentActivity#onBackPressed()} event.
+     * Callback for handling the {@link OnBackPressedDispatcher#onBackPressed()} event.
      *
-     * @return True if you handled the {@link ComponentActivity#onBackPressed()} event. No
+     * @return True if you handled the {@link OnBackPressedDispatcher#onBackPressed()} event. No
      * further {@link OnBackPressedCallback} instances will be called if you return true.
      */
     boolean handleOnBackPressed();
