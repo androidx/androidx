@@ -45,6 +45,8 @@ class ActivityNavigatorDestinationBuilder(
 ) : NavDestinationBuilder<ActivityNavigator.Destination>(navigator, id) {
     private val context = navigator.context
 
+    var targetPackage: String? = null
+
     var activityClass: KClass<out Activity>? = null
 
     var action: String? = null
@@ -55,6 +57,7 @@ class ActivityNavigatorDestinationBuilder(
 
     override fun build(): ActivityNavigator.Destination =
             super.build().also { destination ->
+                destination.targetPackage = targetPackage
                 activityClass?.let { clazz ->
                     destination.setComponentName(ComponentName(context, clazz.java))
                 }

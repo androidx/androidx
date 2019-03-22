@@ -18,14 +18,17 @@ package androidx.navigation {
     method public kotlin.reflect.KClass<? extends android.app.Activity>? getActivityClass();
     method public android.net.Uri? getData();
     method public String? getDataPattern();
+    method public String? getTargetPackage();
     method public void setAction(String? p);
     method public void setActivityClass(kotlin.reflect.KClass<? extends android.app.Activity>? p);
     method public void setData(android.net.Uri? p);
     method public void setDataPattern(String? p);
+    method public void setTargetPackage(String? p);
     property public final String? action;
     property public final kotlin.reflect.KClass<? extends android.app.Activity>? activityClass;
     property public final android.net.Uri? data;
     property public final String? dataPattern;
+    property public final String? targetPackage;
   }
 
   public final class ActivityNavigatorDestinationBuilderKt {

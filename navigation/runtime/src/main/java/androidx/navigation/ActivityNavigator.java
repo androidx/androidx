@@ -230,6 +230,12 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
             super.onInflate(context, attrs);
             TypedArray a = context.getResources().obtainAttributes(attrs,
                     R.styleable.ActivityNavigator);
+            String targetPackage = a.getString(R.styleable.ActivityNavigator_targetPackage);
+            if (targetPackage != null) {
+                targetPackage = targetPackage.replace(NavInflater.APPLICATION_ID_PLACEHOLDER,
+                        context.getPackageName());
+            }
+            setTargetPackage(targetPackage);
             String className = a.getString(R.styleable.ActivityNavigator_android_name);
             if (className != null) {
                 setComponentName(new ComponentName(context,
@@ -262,6 +268,36 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         @Nullable
         public final Intent getIntent() {
             return mIntent;
+        }
+
+        /**
+         * Set an explicit application package name that limits
+         * the components this destination will navigate to.
+         * <p>
+         * When inflated from XML, you can use <code>${applicationId}</code> as the
+         * package name to automatically use {@link Context#getPackageName()}.
+         *
+         * @param packageName packageName to set
+         * @return this {@link Destination}
+         */
+        @NonNull
+        public final Destination setTargetPackage(@Nullable String packageName) {
+            if (mIntent == null) {
+                mIntent = new Intent();
+            }
+            mIntent.setPackage(packageName);
+            return this;
+        }
+
+        /**
+         * Get the explicit application package name associated with this destination, if any
+         */
+        @Nullable
+        public final String getTargetPackage() {
+            if (mIntent == null) {
+                return null;
+            }
+            return mIntent.getPackage();
         }
 
         /**
