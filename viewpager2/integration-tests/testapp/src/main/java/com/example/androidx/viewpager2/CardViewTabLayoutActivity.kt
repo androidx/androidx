@@ -17,6 +17,7 @@
 package com.example.androidx.viewpager2
 
 import android.os.Bundle
+import com.example.androidx.viewpager2.cards.Card
 import com.google.android.material.tabs.TabLayout
 
 class CardViewTabLayoutActivity : CardViewActivity() {
@@ -30,7 +31,7 @@ class CardViewTabLayoutActivity : CardViewActivity() {
 
         tabLayout = findViewById(R.id.tabs)
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = cards[position].toString()
+            tab.text = Card.DECK[position].toString()
         }.attach()
     }
 }
