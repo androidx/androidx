@@ -17,37 +17,17 @@ package androidx.fragment.app.test
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import androidx.annotation.ContentView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.test.R
-import org.junit.Assert.assertFalse
-import java.util.concurrent.CountDownLatch
 
 /**
  * A simple activity used for Fragment Transitions and lifecycle event ordering
  */
 @ContentView(R.layout.activity_content)
 class FragmentTestActivity : FragmentActivity() {
-    val onDestroyLatch = CountDownLatch(1)
-
-    public override fun onCreate(icicle: Bundle?) {
-        super.onCreate(icicle)
-        if (intent?.getBooleanExtra("finishEarly", false) == true) {
-            finish()
-            supportFragmentManager.beginTransaction()
-                .add(AssertNotDestroyed(), "not destroyed")
-                .commit()
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        onDestroyLatch.countDown()
-    }
 
     class ParentFragment : Fragment() {
         var wasAttachedInTime: Boolean = false
@@ -95,15 +75,6 @@ class FragmentTestActivity : FragmentActivity() {
             onActivityResultCalled = true
             onActivityResultRequestCode = requestCode
             onActivityResultResultCode = resultCode
-        }
-    }
-
-    class AssertNotDestroyed : Fragment() {
-        override fun onActivityCreated(savedInstanceState: Bundle?) {
-            super.onActivityCreated(savedInstanceState)
-            if (VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {
-                assertFalse(requireActivity().isDestroyed)
-            }
         }
     }
 }
