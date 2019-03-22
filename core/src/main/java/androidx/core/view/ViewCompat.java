@@ -75,6 +75,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -2495,6 +2496,40 @@ public class ViewCompat {
             return WindowInsetsCompat.wrap(unwrapped);
         }
         return insets;
+    }
+
+    /**
+     * Sets a list of areas within this view's post-layout coordinate space where the system
+     * should not intercept touch or other pointing device gestures. <em>This method should
+     * be called by {@link View#onLayout(boolean, int, int, int, int)} or
+     * {@link View#onDraw(Canvas)}.</em>
+     * <p>
+     * On devices running API 28 and below, this method has no effect.
+     *
+     * @param rects A list of precision gesture regions that this view needs to function correctly
+     * @see View#setSystemGestureExclusionRects
+     */
+    public static void setSystemGestureExclusionRects(@NonNull View view,
+            @NonNull List<Rect> rects) {
+        if (BuildCompat.isAtLeastQ()) {
+            view.setSystemGestureExclusionRects(rects);
+        }
+    }
+
+    /**
+     * Retrieve the list of areas within this view's post-layout coordinate space where the system
+     * should not intercept touch or other pointing device gestures.
+     * <p>
+     * On devices running API 28 and below, this method always returns an empty list.
+     *
+     * @see View#getSystemGestureExclusionRects
+     */
+    @NonNull
+    public List<Rect> getSystemGestureExclusionRects(@NonNull View view) {
+        if (BuildCompat.isAtLeastQ()) {
+            return view.getSystemGestureExclusionRects();
+        }
+        return Collections.emptyList();
     }
 
     /**
