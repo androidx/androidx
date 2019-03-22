@@ -36,6 +36,9 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -176,6 +179,76 @@ public final class PagedListViewTest {
     public void testScrollBarIsInvisibleIfItemsDoNotFillOnePage() {
         setUpPagedListView(1 /* itemCount */);
         onView(withId(R.id.paged_scroll_view)).check(matches(not(isDisplayed())));
+    }
+
+    @Test
+    public void testScrollButtonCallback() {
+        int itemCount = ITEMS_PER_PAGE * 3;
+        setUpPagedListView(itemCount);
+
+        PagedListView.Callback mockedCallbackOne = mock(PagedListView.Callback.class);
+        PagedListView.Callback mockedCallbackTwo = mock(PagedListView.Callback.class);
+        PagedListView.Callback mockedCallbackThree = mock(PagedListView.Callback.class);
+
+        mPagedListView.registerCallback(mockedCallbackOne);
+        mPagedListView.registerCallback(mockedCallbackTwo);
+        mPagedListView.registerCallback(mockedCallbackThree);
+
+        // Move one page down.
+        onView(withId(R.id.page_down)).perform(click());
+        verify(mockedCallbackOne, times(1)).onScrollDownButtonClicked();
+        verify(mockedCallbackTwo, times(1)).onScrollDownButtonClicked();
+        verify(mockedCallbackThree, times(1)).onScrollDownButtonClicked();
+
+        // Move one page up.
+        onView(withId(R.id.page_up)).perform(click());
+        verify(mockedCallbackOne, times(1)).onScrollUpButtonClicked();
+        verify(mockedCallbackTwo, times(1)).onScrollUpButtonClicked();
+        verify(mockedCallbackThree, times(1)).onScrollUpButtonClicked();
+
+        mPagedListView.unregisterCallback(mockedCallbackOne);
+        onView(withId(R.id.page_down)).perform(click());
+        verify(mockedCallbackOne, times(1)).onScrollDownButtonClicked();
+        verify(mockedCallbackTwo, times(2)).onScrollDownButtonClicked();
+        verify(mockedCallbackThree, times(2)).onScrollDownButtonClicked();
+    }
+
+    @Test
+    public void testMultipleScrollButtonCallback() {
+        int itemCount = ITEMS_PER_PAGE * 4;
+        setUpPagedListView(itemCount);
+
+        PagedListView.Callback mockedCallback = mock(PagedListView.Callback.class);
+        mPagedListView.registerCallback(mockedCallback);
+
+        // Move one page down.
+        onView(withId(R.id.page_down)).perform(click());
+        onView(withId(R.id.page_down)).perform(click());
+        onView(withId(R.id.page_down)).perform(click());
+        verify(mockedCallback, times(3)).onScrollDownButtonClicked();
+    }
+
+    @Test
+    public void testReachBottomCallback() {
+        int itemCount = ITEMS_PER_PAGE * 2;
+        setUpPagedListView(itemCount);
+
+        PagedListView.Callback mockedCallback = mock(PagedListView.Callback.class);
+        mPagedListView.registerCallback(mockedCallback);
+
+        // Moving down to bottom of list.
+        onView(withId(R.id.page_down)).perform(click());
+        onView(withId(R.id.page_down)).perform(click());
+
+        verify(mockedCallback, times(1)).onReachBottom();
+
+        // Moving up should not cause a onReachBottom event.
+        onView(withId(R.id.page_up)).perform(click());
+        verify(mockedCallback, times(1)).onReachBottom();
+
+        // Move to bottom of list again.
+        onView(withId(R.id.page_down)).perform(click());
+        verify(mockedCallback, times(2)).onReachBottom();
     }
 
     @Test
