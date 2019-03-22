@@ -29,9 +29,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Performs a swipe on a view from the center of that view to on of its edges.
+ * Performs a swipe on a view from the center of that view to on of its edges. Mostly the same as
+ * Espresso's swipe ViewActions, but since this is not a ViewAction, it is not performed on the UI
+ * thread. It is still synchronous though, with sleeps between the injection of each MotionEvent. If
+ * you need asynchronous injection, run it in a separate thread. Another difference is that this
+ * injector swipes from the center of the targeted View to the center of an edge, instead of from
+ * the center of one edge to the center of another edge.
  *
- * Obtain a new instance of this class for each swipe you want to perform, with one of the {@link
+ * <p>Obtain a new instance of this class for each swipe you want to perform, with one of the {@link
  * #swipeLeft() swipe methods}. Inject the motion events by calling {@link #perform(Instrumentation,
  * View)}.
  */
