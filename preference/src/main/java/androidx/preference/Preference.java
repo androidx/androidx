@@ -498,8 +498,21 @@ public class Preference implements Comparable<Preference> {
      *               returns.
      */
     public void onBindViewHolder(PreferenceViewHolder holder) {
+        Integer summaryTextColor = null;
         holder.itemView.setOnClickListener(mClickListener);
         holder.itemView.setId(mViewId);
+
+        final TextView summaryView = (TextView) holder.findViewById(android.R.id.summary);
+        if (summaryView != null) {
+            final CharSequence summary = getSummary();
+            if (!TextUtils.isEmpty(summary)) {
+                summaryView.setText(summary);
+                summaryView.setVisibility(View.VISIBLE);
+                summaryTextColor = summaryView.getCurrentTextColor();
+            } else {
+                summaryView.setVisibility(View.GONE);
+            }
+        }
 
         final TextView titleView = (TextView) holder.findViewById(android.R.id.title);
         if (titleView != null) {
@@ -510,19 +523,13 @@ public class Preference implements Comparable<Preference> {
                 if (mHasSingleLineTitleAttr) {
                     titleView.setSingleLine(mSingleLineTitle);
                 }
+                // If this Preference is not selectable, but still enabled, we should set the
+                // title text colour to the same colour used for the summary text
+                if (!isSelectable() && isEnabled() && summaryTextColor != null) {
+                    titleView.setTextColor(summaryTextColor);
+                }
             } else {
                 titleView.setVisibility(View.GONE);
-            }
-        }
-
-        final TextView summaryView = (TextView) holder.findViewById(android.R.id.summary);
-        if (summaryView != null) {
-            final CharSequence summary = getSummary();
-            if (!TextUtils.isEmpty(summary)) {
-                summaryView.setText(summary);
-                summaryView.setVisibility(View.VISIBLE);
-            } else {
-                summaryView.setVisibility(View.GONE);
             }
         }
 
@@ -835,7 +842,7 @@ public class Preference implements Comparable<Preference> {
      * the group is visible.
      *
      * @param visible Set false if this preference should be hidden from the user
-     * {@link androidx.preference.R.attr#isPreferenceVisible}
+     *                {@link androidx.preference.R.attr#isPreferenceVisible}
      * @see #isShown()
      */
     public final void setVisible(boolean visible) {
@@ -997,7 +1004,7 @@ public class Preference implements Comparable<Preference> {
      * letting it wrap onto multiple lines.
      *
      * @param singleLineTitle Set {@code true} if the title should be constrained to one line
-     * {@link android.R.attr#singleLineTitle}
+     *                        {@link android.R.attr#singleLineTitle}
      */
     public void setSingleLineTitle(boolean singleLineTitle) {
         mHasSingleLineTitleAttr = true;
@@ -1021,7 +1028,7 @@ public class Preference implements Comparable<Preference> {
      * other preferences having icons.
      *
      * @param iconSpaceReserved Set {@code true} if the space for the icon view should be reserved
-     * {@link android.R.attr#iconSpaceReserved}
+     *                          {@link android.R.attr#iconSpaceReserved}
      */
     public void setIconSpaceReserved(boolean iconSpaceReserved) {
         if (mIconSpaceReserved != iconSpaceReserved) {
@@ -1069,7 +1076,7 @@ public class Preference implements Comparable<Preference> {
      * is requested. Set {@code null} to remove the existing SummaryProvider.
      *
      * @param summaryProvider The {@link SummaryProvider} that will be invoked whenever the
-     *                         summary of this preference is requested
+     *                        summary of this preference is requested
      * @see SummaryProvider
      */
     public final void setSummaryProvider(@Nullable SummaryProvider summaryProvider) {
