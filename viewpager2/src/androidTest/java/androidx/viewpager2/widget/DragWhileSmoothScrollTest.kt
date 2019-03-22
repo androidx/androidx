@@ -95,8 +95,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
                 // and check the result
                 callback.apply {
                     assertThat(
-                        "Unexpected sequence of state changes (0=IDLE, 1=DRAGGING, 2=SETTLING)" +
-                                dumpEvents(),
+                        "Unexpected sequence of state changes:" + dumpEvents(),
                         stateEvents.map { it.state },
                         equalTo(
                             if (expectIdleAfterDrag()) {
@@ -207,7 +206,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         }
 
         fun dumpEvents(): String {
-            return events.joinToString("\n- ", "\n- ")
+            return events.joinToString("\n- ", "\n(${scrollStateGlossary()})\n- ")
         }
     }
 }

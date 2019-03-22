@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,14 @@
 
 package com.example.androidx.viewpager2
 
-import android.os.Bundle
+import android.widget.CheckBox
 import androidx.viewpager2.widget.ViewPager2
-import com.example.androidx.viewpager2.cards.CardViewAdapter
 
-/**
- * Shows how to use [ViewPager2.setAdapter] with Views.
- *
- * @see CardFragmentActivity for an example of using {@link ViewPager2} with Fragments.
- */
-open class CardViewActivity : BaseCardActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewPager.adapter = CardViewAdapter()
+class UserInputController(private val viewPager: ViewPager2, private val disableBox: CheckBox) {
+    fun setup() {
+        disableBox.isChecked = !viewPager.isUserInputEnabled
+        disableBox.setOnCheckedChangeListener { _, isDisabled ->
+            viewPager.isUserInputEnabled = !isDisabled
+        }
     }
 }

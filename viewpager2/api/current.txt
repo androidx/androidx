@@ -32,9 +32,14 @@ package androidx.viewpager2.widget {
     ctor public ViewPager2(android.content.Context, android.util.AttributeSet?);
     ctor public ViewPager2(android.content.Context, android.util.AttributeSet?, int);
     ctor @RequiresApi(21) public ViewPager2(android.content.Context, android.util.AttributeSet?, int, int);
+    method public boolean beginFakeDrag();
+    method public boolean endFakeDrag();
+    method public boolean fakeDragBy(float);
     method public androidx.recyclerview.widget.RecyclerView.Adapter? getAdapter();
     method public int getCurrentItem();
     method @androidx.viewpager2.widget.ViewPager2.Orientation public int getOrientation();
+    method @androidx.viewpager2.widget.ViewPager2.ScrollState public int getScrollState();
+    method public boolean isFakeDragging();
     method public boolean isUserInputEnabled();
     method public void registerOnPageChangeCallback(androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback);
     method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter?);
