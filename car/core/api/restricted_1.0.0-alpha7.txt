@@ -44,7 +44,7 @@ package androidx.car.util {
     method public static void apply(android.content.Context!, androidx.car.uxrestrictions.CarUxRestrictions!, android.widget.TextView!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DropShadowScrollListener extends androidx.car.widget.PagedListView.OnScrollListener {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DropShadowScrollListener extends androidx.recyclerview.widget.RecyclerView.OnScrollListener {
     ctor public DropShadowScrollListener(android.view.View!);
   }
 
