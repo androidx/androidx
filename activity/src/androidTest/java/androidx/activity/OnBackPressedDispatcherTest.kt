@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,57 +16,64 @@
 
 package androidx.activity
 
-import androidx.lifecycle.GenericLifecycleObserver
+import androidx.arch.core.util.Cancellable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Rule
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import java.util.concurrent.CountDownLatch
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class ComponentActivityOnBackPressedTest {
+class OnBackPressedHandlerTest {
 
-    @get:Rule
-    val activityRule = ActivityTestRule(OnBackPressedComponentActivity::class.java)
+    lateinit var dispatcher: OnBackPressedDispatcher
+
+    @Before
+    fun setup() {
+        dispatcher = OnBackPressedDispatcher()
+    }
 
     @UiThreadTest
     @Test
-    fun testAddOnBackPressedListener() {
-        val activity = activityRule.activity
-
+    fun testAddCallback() {
         val onBackPressedCallback = CountingOnBackPressedCallback()
 
-        activity.addOnBackPressedCallback(onBackPressedCallback)
-        activity.onBackPressed()
-        assertWithMessage("Count should be incremented after handleOnBackPressed")
+        dispatcher.addCallback(onBackPressedCallback)
+        assertWithMessage("Handler should return true when handling onBackPressed")
+            .that(dispatcher.onBackPressed())
+            .isTrue()
+        assertWithMessage("Count should be incremented after onBackPressed")
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
     }
 
     @UiThreadTest
     @Test
-    fun testRemoveOnBackPressedListener() {
-        val activity = activityRule.activity
-
+    fun testCancelSubscription() {
         val onBackPressedCallback = CountingOnBackPressedCallback()
 
-        activity.addOnBackPressedCallback(onBackPressedCallback)
-        activity.onBackPressed()
-        assertWithMessage("Count should be incremented after handleOnBackPressed")
+        val subscription = dispatcher.addCallback(onBackPressedCallback)
+        assertWithMessage("Handler should return true when handling onBackPressed")
+            .that(dispatcher.onBackPressed())
+            .isTrue()
+        assertWithMessage("Count should be incremented after onBackPressed")
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
 
-        activity.removeOnBackPressedCallback(onBackPressedCallback)
-        activity.onBackPressed()
+        subscription.cancel()
+        assertWithMessage("Cancellable should be cancelled after cancel()")
+            .that(subscription.isCancelled)
+            .isTrue()
+        assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
+                "are registered")
+            .that(dispatcher.onBackPressed())
+            .isFalse()
         // Check that the count still equals 1
         assertWithMessage("Count shouldn't be incremented after removal")
             .that(onBackPressedCallback.count)
@@ -76,14 +83,16 @@ class ComponentActivityOnBackPressedTest {
     @UiThreadTest
     @Test
     fun testMultipleCalls() {
-        val activity = activityRule.activity
-
         val onBackPressedCallback = CountingOnBackPressedCallback()
 
-        activity.addOnBackPressedCallback(onBackPressedCallback)
-        activity.onBackPressed()
-        activity.onBackPressed()
-        assertWithMessage("Count should be incremented after each handleOnBackPressed")
+        dispatcher.addCallback(onBackPressedCallback)
+        assertWithMessage("Handler should return true when handling onBackPressed")
+            .that(dispatcher.onBackPressed())
+            .isTrue()
+        assertWithMessage("Handler should return true when handling onBackPressed")
+            .that(dispatcher.onBackPressed())
+            .isTrue()
+        assertWithMessage("Count should be incremented after each onBackPressed")
             .that(onBackPressedCallback.count)
             .isEqualTo(2)
     }
@@ -91,14 +100,14 @@ class ComponentActivityOnBackPressedTest {
     @UiThreadTest
     @Test
     fun testMostRecentGetsPriority() {
-        val activity = activityRule.activity
-
         val onBackPressedCallback = CountingOnBackPressedCallback()
         val mostRecentOnBackPressedCallback = CountingOnBackPressedCallback()
 
-        activity.addOnBackPressedCallback(onBackPressedCallback)
-        activity.addOnBackPressedCallback(mostRecentOnBackPressedCallback)
-        activity.onBackPressed()
+        dispatcher.addCallback(onBackPressedCallback)
+        dispatcher.addCallback(mostRecentOnBackPressedCallback)
+        assertWithMessage("Handler should return true when handling onBackPressed")
+            .that(dispatcher.onBackPressed())
+            .isTrue()
         assertWithMessage("Most recent callback should be incremented")
             .that(mostRecentOnBackPressedCallback.count)
             .isEqualTo(1)
@@ -110,14 +119,14 @@ class ComponentActivityOnBackPressedTest {
     @UiThreadTest
     @Test
     fun testPassthroughListener() {
-        val activity = activityRule.activity
-
         val onBackPressedCallback = CountingOnBackPressedCallback()
         val passThroughOnBackPressedCallback = CountingOnBackPressedCallback(returnValue = false)
 
-        activity.addOnBackPressedCallback(onBackPressedCallback)
-        activity.addOnBackPressedCallback(passThroughOnBackPressedCallback)
-        activity.onBackPressed()
+        dispatcher.addCallback(onBackPressedCallback)
+        dispatcher.addCallback(passThroughOnBackPressedCallback)
+        assertWithMessage("Handler should return true when handling onBackPressed")
+            .that(dispatcher.onBackPressed())
+            .isTrue()
         assertWithMessage("Most recent callback should be incremented")
             .that(passThroughOnBackPressedCallback.count)
             .isEqualTo(1)
@@ -130,8 +139,6 @@ class ComponentActivityOnBackPressedTest {
     @UiThreadTest
     @Test
     fun testLifecycleCallback() {
-        val activity = activityRule.activity
-
         val onBackPressedCallback = CountingOnBackPressedCallback()
         val lifecycleOnBackPressedCallback = CountingOnBackPressedCallback()
         val lifecycleOwner = object : LifecycleOwner {
@@ -140,9 +147,12 @@ class ComponentActivityOnBackPressedTest {
             override fun getLifecycle() = lifecycleRegistry
         }
 
-        activity.addOnBackPressedCallback(onBackPressedCallback)
-        activity.addOnBackPressedCallback(lifecycleOwner, lifecycleOnBackPressedCallback)
-        activity.onBackPressed()
+        dispatcher.addCallback(onBackPressedCallback)
+        val observeSubscription = dispatcher.addCallback(lifecycleOwner,
+            lifecycleOnBackPressedCallback)
+        assertWithMessage("Handler should return true when handling onBackPressed")
+            .that(dispatcher.onBackPressed())
+            .isTrue()
         assertWithMessage("Non-started callbacks shouldn't have their count incremented")
             .that(lifecycleOnBackPressedCallback.count)
             .isEqualTo(0)
@@ -153,7 +163,9 @@ class ComponentActivityOnBackPressedTest {
 
         // Now start the Lifecycle
         lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
-        activity.onBackPressed()
+        assertWithMessage("Handler should return true when handling onBackPressed")
+            .that(dispatcher.onBackPressed())
+            .isTrue()
         assertWithMessage("Once the callbacks is started, the count should increment")
             .that(lifecycleOnBackPressedCallback.count)
             .isEqualTo(1)
@@ -163,7 +175,9 @@ class ComponentActivityOnBackPressedTest {
 
         // Now stop the Lifecycle
         lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
-        activity.onBackPressed()
+        assertWithMessage("Handler should return true when handling onBackPressed")
+            .that(dispatcher.onBackPressed())
+            .isTrue()
         assertWithMessage("Non-started callbacks shouldn't have their count incremented")
             .that(lifecycleOnBackPressedCallback.count)
             .isEqualTo(1)
@@ -176,9 +190,11 @@ class ComponentActivityOnBackPressedTest {
         lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         @Suppress("INACCESSIBLE_TYPE")
         assertWithMessage("onDestroy should trigger the removal of any associated callbacks")
-            .that(activity.mOnBackPressedCallbacks)
-            .hasSize(1)
-        activity.onBackPressed()
+            .that(observeSubscription.isCancelled)
+            .isTrue()
+        assertWithMessage("Handler should return true when handling onBackPressed")
+            .that(dispatcher.onBackPressed())
+            .isTrue()
         assertWithMessage("Non-started callbacks shouldn't have their count incremented")
             .that(lifecycleOnBackPressedCallback.count)
             .isEqualTo(1)
@@ -186,6 +202,37 @@ class ComponentActivityOnBackPressedTest {
                 "aren't started")
             .that(onBackPressedCallback.count)
             .isEqualTo(3)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testLifecycleCallback_whenDestroyed() {
+        val lifecycleOnBackPressedCallback = CountingOnBackPressedCallback()
+        val lifecycleOwner = object : LifecycleOwner {
+            val lifecycleRegistry = LifecycleRegistry(this)
+
+            override fun getLifecycle() = lifecycleRegistry
+        }
+        // Start the Lifecycle as DESTROYED
+        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+
+        val subscription = dispatcher.addCallback(lifecycleOwner,
+            lifecycleOnBackPressedCallback)
+        assertWithMessage("Dispatcher should return Cancellable.CANCELLED if the Lifecycle is " +
+                "DESTROYED")
+            .that(subscription)
+            .isSameAs(Cancellable.CANCELLED)
+        assertWithMessage("Cancellable should be immediately cancelled if the Lifecycle is " +
+                "DESTROYED")
+            .that(subscription.isCancelled)
+            .isTrue()
+        assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
+                "are registered")
+            .that(dispatcher.onBackPressed())
+            .isFalse()
+        assertWithMessage("Count shouldn't be incremented when the Cancellable is cancelled")
+            .that(lifecycleOnBackPressedCallback.count)
+            .isEqualTo(0)
     }
 }
 
@@ -196,22 +243,5 @@ class CountingOnBackPressedCallback(val returnValue: Boolean = true) :
     override fun handleOnBackPressed(): Boolean {
         count++
         return returnValue
-    }
-}
-
-class OnBackPressedComponentActivity : ComponentActivity() {
-    val activityCallbackLifecycleOwner: LifecycleOwner = mock(LifecycleOwner::class.java)
-    val lifecycleObserver: GenericLifecycleObserver = mock(GenericLifecycleObserver::class.java)
-    val destroyCountDownLatch = CountDownLatch(1)
-
-    init {
-        lifecycle.addObserver(lifecycleObserver)
-    }
-
-    override fun onDestroy() {
-        lifecycleObserver.onStateChanged(activityCallbackLifecycleOwner,
-            Lifecycle.Event.ON_DESTROY)
-        super.onDestroy()
-        destroyCountDownLatch.countDown()
     }
 }

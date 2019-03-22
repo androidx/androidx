@@ -110,14 +110,10 @@ public class FragmentActivity extends ComponentActivity implements
     public FragmentActivity() {
         super();
         // Route onBackPressed() callbacks to the FragmentManager
-        addOnBackPressedCallback(new OnBackPressedCallback() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback() {
             @Override
             public boolean handleOnBackPressed() {
                 FragmentManager fragmentManager = mFragments.getSupportFragmentManager();
-                if (fragmentManager.isStateSaved()) {
-                    // Cannot pop after state is saved
-                    return false;
-                }
                 return fragmentManager.popBackStackImmediate();
             }
         });
