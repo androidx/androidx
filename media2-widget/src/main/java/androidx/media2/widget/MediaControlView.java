@@ -1243,16 +1243,8 @@ public class MediaControlView extends ViewGroup {
                     if (position != mSelectedSubtitleTrackIndex) {
                         if (position > 0) {
                             mController.showSubtitle(position - 1);
-                            mSubtitleButton.setImageDrawable(
-                                    mResources.getDrawable(R.drawable.ic_subtitle_on));
-                            mSubtitleButton.setContentDescription(
-                                    mResources.getString(R.string.mcv2_cc_is_on));
                         } else {
                             mController.hideSubtitle();
-                            mSubtitleButton.setImageDrawable(
-                                    mResources.getDrawable(R.drawable.ic_subtitle_off));
-                            mSubtitleButton.setContentDescription(
-                                    mResources.getString(R.string.mcv2_cc_is_off));
                         }
                     }
                     dismissSettingsWindow();
@@ -2211,12 +2203,20 @@ public class MediaControlView extends ViewGroup {
                         if (mSettingsMode == SETTINGS_MODE_SUBTITLE_TRACK) {
                             mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex);
                         }
+                        mSubtitleButton.setImageDrawable(
+                                mResources.getDrawable(R.drawable.ic_subtitle_on));
+                        mSubtitleButton.setContentDescription(
+                                mResources.getString(R.string.mcv2_cc_is_on));
                         break;
                     case EVENT_UPDATE_SUBTITLE_DESELECTED:
                         mSelectedSubtitleTrackIndex = 0;
                         if (mSettingsMode == SETTINGS_MODE_SUBTITLE_TRACK) {
                             mSubSettingsAdapter.setCheckPosition(mSelectedSubtitleTrackIndex);
                         }
+                        mSubtitleButton.setImageDrawable(
+                                mResources.getDrawable(R.drawable.ic_subtitle_off));
+                        mSubtitleButton.setContentDescription(
+                                mResources.getString(R.string.mcv2_cc_is_off));
                         break;
                     default:
                         return new SessionResult(

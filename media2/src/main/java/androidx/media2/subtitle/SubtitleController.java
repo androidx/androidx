@@ -523,7 +523,10 @@ public class SubtitleController {
         }
     }
 
-    interface Listener {
+    /**
+     * Listener for when subtitle track has been selected.
+     */
+    public interface Listener {
         /**
          * Called when a subtitle track has been selected.
          *
