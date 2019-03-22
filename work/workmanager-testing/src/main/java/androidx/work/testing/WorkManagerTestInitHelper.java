@@ -20,12 +20,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.work.Configuration;
-import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Helps initialize {@link androidx.work.WorkManager} for testing.
@@ -54,32 +50,7 @@ public final class WorkManagerTestInitHelper {
     public static void initializeTestWorkManager(
             @NonNull Context context,
             @NonNull Configuration configuration) {
-
-        final TestScheduler scheduler = new TestScheduler();
-        WorkManagerImpl workManager = new TestWorkManagerImpl(context, configuration) {
-
-            @Override
-            public @NonNull List<Scheduler> createSchedulers(Context context) {
-                return Collections.singletonList((Scheduler) scheduler);
-            }
-
-            @Override
-            public void setAllConstraintsMet(@NonNull UUID workSpecId) {
-                scheduler.setAllConstraintsMet(workSpecId);
-            }
-
-            @Override
-            public void setInitialDelayMet(@NonNull UUID workSpecId) {
-                scheduler.setInitialDelayMet(workSpecId);
-            }
-
-            @Override
-            public void setPeriodDelayMet(@NonNull UUID workSpecId) {
-                scheduler.setPeriodDelayMet(workSpecId);
-            }
-        };
-        workManager.getProcessor().addExecutionListener(scheduler);
-        WorkManagerImpl.setDelegate(workManager);
+        WorkManagerImpl.setDelegate(new TestWorkManagerImpl(context, configuration));
     }
 
     /**
