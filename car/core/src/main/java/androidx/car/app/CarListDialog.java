@@ -164,7 +164,7 @@ public class CarListDialog extends Dialog {
             return;
         }
 
-        mList.setOnScrollListener(new DropShadowScrollListener(mTitleView));
+        mList.addOnScrollListener(new DropShadowScrollListener(mTitleView));
     }
 
     @Override
