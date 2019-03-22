@@ -17,11 +17,13 @@ package androidx.navigation {
     method public final android.net.Uri? getData();
     method public final String? getDataPattern();
     method public final android.content.Intent? getIntent();
+    method public final String? getTargetPackage();
     method public final androidx.navigation.ActivityNavigator.Destination setAction(String?);
     method public final androidx.navigation.ActivityNavigator.Destination setComponentName(android.content.ComponentName?);
     method public final androidx.navigation.ActivityNavigator.Destination setData(android.net.Uri?);
     method public final androidx.navigation.ActivityNavigator.Destination setDataPattern(String?);
     method public final androidx.navigation.ActivityNavigator.Destination setIntent(android.content.Intent?);
+    method public final androidx.navigation.ActivityNavigator.Destination setTargetPackage(String?);
   }
 
   public static final class ActivityNavigator.Extras implements androidx.navigation.Navigator.Extras {
