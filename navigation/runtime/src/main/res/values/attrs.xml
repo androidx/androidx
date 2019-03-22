@@ -17,6 +17,7 @@
         <attr name="action" format="string" />
         <attr name="data" format="string" />
         <attr name="dataPattern" format="string" />
+        <attr name="targetPackage" format="string" />
     </declare-styleable>
 
     <declare-styleable name="NavInclude">

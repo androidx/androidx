@@ -43,7 +43,7 @@ public final class NavInflater {
     private static final String TAG_DEEP_LINK = "deepLink";
     private static final String TAG_ACTION = "action";
     private static final String TAG_INCLUDE = "include";
-    private static final String APPLICATION_ID_PLACEHOLDER = "${applicationId}";
+    static final String APPLICATION_ID_PLACEHOLDER = "${applicationId}";
 
     private static final ThreadLocal<TypedValue> sTmpValue = new ThreadLocal<>();
 
