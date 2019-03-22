@@ -102,8 +102,8 @@ class ParentFragment : Fragment() {
 class TestFragmentFactory : FragmentFactory() {
     var instantiateCount = 0
 
-    override fun instantiate(classLoader: ClassLoader, className: String, args: Bundle?): Fragment {
+    override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
         instantiateCount++
-        return super.instantiate(classLoader, className, args)
+        return super.instantiate(classLoader, className)
     }
 }

@@ -75,7 +75,7 @@ final class FragmentState implements Parcelable {
                 mArguments.setClassLoader(classLoader);
             }
 
-            mInstance = factory.instantiate(classLoader, mClassName, mArguments);
+            mInstance = factory.instantiate(classLoader, mClassName);
             mInstance.setArguments(mArguments);
 
             if (mSavedFragmentState != null) {
