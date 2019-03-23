@@ -19,9 +19,7 @@ package androidx.car.widget;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.content.Context;
-import android.graphics.drawable.Icon;
-import android.os.Handler;
-import android.os.Looper;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +29,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.DimenRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -79,7 +78,7 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
     private final Context mContext;
     private boolean mIsEnabled = true;
 
-    @Nullable private Icon mPrimaryActionIcon;
+    private Drawable mPrimaryActionIconDrawable;
     @PrimaryActionIconSize private int mPrimaryActionIconSize = PRIMARY_ACTION_ICON_SIZE_SMALL;
 
     private int mTextStartMargin;
@@ -148,17 +147,40 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
      * Sets {@code Primary Action} to be represented by an icon. The size of icon automatically
      * adjusts the start of {@code Text}.
      *
-     * @param icon the icon to set as primary action. Setting {@code null} clears the icon and
-     *             aligns text to the start of list item; {@code size} will be ignored.
+     * <p>Call {@link #setPrimaryActionNoIcon()} to clear the content and aligns text to the start
+     * of list item
+     *
+     * @param drawable the Drawable to set as primary action.
      * @param size constant that represents the size of icon. See
      *             {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
      *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM}, and
      *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
-     *             If {@code null} is passed in for icon, size will be ignored.
      */
-    public void setPrimaryActionIcon(@NonNull Icon icon, @PrimaryActionIconSize int size) {
-        mPrimaryActionIcon = icon;
+    public void setPrimaryActionIcon(@NonNull Drawable drawable, @PrimaryActionIconSize int size) {
+        mPrimaryActionIconDrawable = drawable;
         mPrimaryActionIconSize = size;
+        markDirty();
+    }
+
+    /**
+     * Sets {@code Primary Action} to be represented by an icon. The size of icon automatically
+     * adjusts the start of {@code Text}.
+     *
+     * @param iconResId the resource identifier of the drawable.
+     * @param size constant that represents the size of icon. See
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM}, and
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
+     */
+    public void setPrimaryActionIcon(@DrawableRes int iconResId, @PrimaryActionIconSize int size) {
+        setPrimaryActionIcon(getContext().getDrawable(iconResId), size);
+    }
+
+    /**
+     * Sets {@code Primary Action} to have no icon. Text would align to the start of list item.
+     */
+    public void setPrimaryActionNoIcon() {
+        mPrimaryActionIconDrawable = null;
         markDirty();
     }
 
@@ -242,13 +264,11 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
 
     private void setPrimaryIconContent() {
         mBinders.add(vh -> {
-            if (mPrimaryActionIcon == null) {
+            if (mPrimaryActionIconDrawable == null) {
                 vh.getPrimaryIcon().setVisibility(View.GONE);
             } else {
                 vh.getPrimaryIcon().setVisibility(View.VISIBLE);
-                mPrimaryActionIcon.loadDrawableAsync(getContext(),
-                        drawable -> vh.getPrimaryIcon().setImageDrawable(drawable),
-                        new Handler(Looper.getMainLooper()));
+                vh.getPrimaryIcon().setImageDrawable(mPrimaryActionIconDrawable);
             }
         });
     }
@@ -262,7 +282,7 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
      * at the same position in list item regardless of item height.
      */
     private void setPrimaryIconLayout() {
-        if (mPrimaryActionIcon == null) {
+        if (mPrimaryActionIconDrawable == null) {
             return;
         }
 
@@ -322,7 +342,7 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
      */
     private void setTextStartMargin() {
         int offset = 0;
-        if (mPrimaryActionIcon != null) {
+        if (mPrimaryActionIconDrawable != null) {
             // If there is an icon, offset text to accommodate it.
             @DimenRes int startMarginResId =
                     mPrimaryActionIconSize == PRIMARY_ACTION_ICON_SIZE_LARGE

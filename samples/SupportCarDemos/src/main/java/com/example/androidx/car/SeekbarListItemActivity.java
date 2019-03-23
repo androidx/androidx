@@ -18,7 +18,6 @@ package com.example.androidx.car;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -109,29 +108,25 @@ public class SeekbarListItemActivity extends Activity {
             // Only slider. No text.
             item = initSeekbarListItem();
             item.setText(null);
-            item.setPrimaryActionIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon));
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             mItems.add(item);
 
             // One line text.
             item = initSeekbarListItem();
             item.setText("one line text");
-            item.setPrimaryActionIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon));
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             mItems.add(item);
 
             // Long text.
             item = initSeekbarListItem();
             item.setText(longText);
-            item.setPrimaryActionIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon));
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             mItems.add(item);
 
             // Clickable PrimaryActionIcon.
             item = initSeekbarListItem();
             item.setText("with clickable Primary icon");
-            item.setPrimaryActionIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon));
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             item.setPrimaryActionIconListener(v -> Toast.makeText(mContext,
                     "Primary icon clicked!", Toast.LENGTH_SHORT).show());
             mItems.add(item);
@@ -139,12 +134,11 @@ public class SeekbarListItemActivity extends Activity {
             // Clickable PrimaryActionIcon and end icon.
             item = initSeekbarListItem();
             item.setText("with clickable Primary icon and end icon");
-            item.setPrimaryActionIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon));
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon);
             item.setPrimaryActionIconListener(v -> Toast.makeText(mContext,
                     "Primary icon clicked!", Toast.LENGTH_SHORT).show());
-            item.setSupplementalIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon), true);
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon,
+                    true);
             mItems.add(item);
 
             // End icon with divider.
@@ -153,26 +147,26 @@ public class SeekbarListItemActivity extends Activity {
 
             item = initSeekbarListItem();
             item.setText(null);
-            item.setSupplementalIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon), true);
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon,
+                    true);
             mItems.add(item);
 
             item = initSeekbarListItem();
             item.setText("one line text");
-            item.setSupplementalIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon), true);
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon,
+                    true);
             mItems.add(item);
 
             item = initSeekbarListItem();
             item.setText(longText);
-            item.setSupplementalIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon), true);
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon,
+                    true);
             mItems.add(item);
 
             item = initSeekbarListItem();
             item.setText("with clickable icon");
-            item.setSupplementalIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon), true);
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon,
+                    true);
             item.setSupplementalIconListener(v -> Toast.makeText(mContext,
                     "Supplemental icon clicked!", Toast.LENGTH_SHORT).show());
             mItems.add(item);
@@ -202,20 +196,20 @@ public class SeekbarListItemActivity extends Activity {
 
             item = initSeekbarListItem();
             item.setText(null);
-            item.setSupplementalIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon), false);
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon,
+                    false);
             mItems.add(item);
 
             item = initSeekbarListItem();
             item.setText("one line text");
-            item.setSupplementalIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon), false);
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon,
+                    false);
             mItems.add(item);
 
             item = initSeekbarListItem();
             item.setText(longText);
-            item.setSupplementalIcon(
-                    Icon.createWithResource(context, android.R.drawable.sym_def_app_icon), false);
+            item.setSupplementalIcon(android.R.drawable.sym_def_app_icon,
+                    false);
             mItems.add(item);
 
             // Empty end icon without divider.
