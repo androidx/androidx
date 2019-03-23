@@ -268,8 +268,6 @@ public class FragmentActivity extends ComponentActivity implements
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         mFragments.attachHost(null /*parent*/);
 
-        super.onCreate(savedInstanceState);
-
         if (savedInstanceState != null) {
             Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
             mFragments.restoreSaveState(p);
@@ -296,6 +294,8 @@ public class FragmentActivity extends ComponentActivity implements
             mPendingFragmentActivityResults = new SparseArrayCompat<>();
             mNextCandidateRequestIndex = 0;
         }
+
+        super.onCreate(savedInstanceState);
 
         mFragments.dispatchCreate();
     }
