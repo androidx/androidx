@@ -18,7 +18,6 @@ package com.example.androidx.car;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.Icon;
 import android.os.Bundle;
 
 import androidx.car.app.CarListDialog;
@@ -79,24 +78,21 @@ public class RadioButtonListItemActivity extends Activity {
         items.add(item);
 
         item = new RadioButtonListItem(this);
-        item.setPrimaryActionIcon(
-                Icon.createWithResource(this, android.R.drawable.sym_def_app_icon),
+        item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
                 RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item.setText("Small icon - with action divider");
         item.setShowRadioButtonDivider(true);
         items.add(item);
 
         item = new RadioButtonListItem(this);
-        item.setPrimaryActionIcon(
-                Icon.createWithResource(this, android.R.drawable.sym_def_app_icon),
+        item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
                 RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
         item.setText("Avatar sized icon - with action divider");
         item.setShowRadioButtonDivider(true);
         items.add(item);
 
         item = new RadioButtonListItem(this);
-        item.setPrimaryActionIcon(
-                Icon.createWithResource(this, android.R.drawable.sym_def_app_icon),
+        item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
                 RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
         item.setText("Large icon");
         items.add(item);

@@ -29,7 +29,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Icon;
 import android.view.View;
 
 import androidx.car.test.R;
@@ -87,9 +86,9 @@ public class RadioButtonListItemTest {
     }
 
     @Test
-    public void testSetPrimaryActionIcon_NullIconTextNoOffset() {
+    public void testSetPrimaryActionIcon_NoIconTextNoOffset() {
         RadioButtonListItem item = new RadioButtonListItem(mActivity);
-        item.setPrimaryActionIcon(null, RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+        item.setPrimaryActionNoIcon();
         item.setText("text");
 
         setupPagedListView(Arrays.asList(item));
@@ -101,7 +100,7 @@ public class RadioButtonListItemTest {
     public void testSetPrimaryActionIcon_SmallIconTextOffset() {
         RadioButtonListItem item = new RadioButtonListItem(mActivity);
         item.setPrimaryActionIcon(
-                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
+                android.R.drawable.sym_def_app_icon,
                 RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item.setText("text");
 
@@ -116,7 +115,7 @@ public class RadioButtonListItemTest {
     public void testSetPrimaryActionIcon_MediumIconTextOffset() {
         RadioButtonListItem item = new RadioButtonListItem(mActivity);
         item.setPrimaryActionIcon(
-                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
+                android.R.drawable.sym_def_app_icon,
                 RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
         item.setText("text");
 
@@ -131,7 +130,7 @@ public class RadioButtonListItemTest {
     public void testSetPrimaryActionIcon_LargeIconTextOffset() {
         RadioButtonListItem item = new RadioButtonListItem(mActivity);
         item.setPrimaryActionIcon(
-                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
+                android.R.drawable.sym_def_app_icon,
                 RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
         item.setText("text");
 
@@ -155,7 +154,7 @@ public class RadioButtonListItemTest {
     @Test
     public void testSetTextStartMargin_NoIcon() {
         RadioButtonListItem item = new RadioButtonListItem(mActivity);
-        item.setPrimaryActionIcon(null, RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+        item.setPrimaryActionNoIcon();
         item.setText("text");
         item.setTextStartMargin(R.dimen.car_keyline_1);
 
@@ -170,7 +169,7 @@ public class RadioButtonListItemTest {
     public void testSetTextStartMargin_MarginPlusOffsetByIcon() {
         RadioButtonListItem item = new RadioButtonListItem(mActivity);
         item.setPrimaryActionIcon(
-                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon),
+                android.R.drawable.sym_def_app_icon,
                 RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item.setText("text");
         item.setTextStartMargin(R.dimen.car_keyline_1);

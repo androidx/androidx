@@ -21,9 +21,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +35,6 @@ import androidx.annotation.Dimension;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsUtils;
 import androidx.car.uxrestrictions.CarUxRestrictions;
@@ -131,7 +127,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private View.OnClickListener mOnClickListener;
 
     @PrimaryActionType private int mPrimaryActionType = PRIMARY_ACTION_TYPE_NO_ICON;
-    private Icon mPrimaryActionIcon;
     private Drawable mPrimaryActionIconDrawable;
     @PrimaryActionIconSize private int mPrimaryActionIconSize = PRIMARY_ACTION_ICON_SIZE_SMALL;
 
@@ -142,7 +137,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private final int mSupplementalGuidelineBegin;
 
     @SupplementalActionType private int mSupplementalActionType = SUPPLEMENTAL_ACTION_NO_ACTION;
-    private Icon mSupplementalIcon;
     private Drawable mSupplementalIconDrawable;
     private View.OnClickListener mSupplementalIconOnClickListener;
     private boolean mShowSupplementalIconDivider;
@@ -250,13 +244,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             case PRIMARY_ACTION_TYPE_ICON:
                 mBinders.add(vh -> {
                     vh.getPrimaryIcon().setVisibility(View.VISIBLE);
-                    if (mPrimaryActionIcon != null) {
-                        mPrimaryActionIcon.loadDrawableAsync(getContext(),
-                                drawable -> vh.getPrimaryIcon().setImageDrawable(drawable),
-                                new Handler(Looper.getMainLooper()));
-                    } else {
-                        vh.getPrimaryIcon().setImageDrawable(mPrimaryActionIconDrawable);
-                    }
+                    vh.getPrimaryIcon().setImageDrawable(mPrimaryActionIconDrawable);
                 });
                 break;
             case PRIMARY_ACTION_TYPE_EMPTY_ICON:
@@ -483,13 +471,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
                         vh.getSupplementalIconDivider().setVisibility(View.VISIBLE);
                     }
 
-                    if (mSupplementalIcon != null) {
-                        mSupplementalIcon.loadDrawableAsync(getContext(),
-                                drawable -> vh.getSupplementalIcon().setImageDrawable(drawable),
-                                new Handler(Looper.getMainLooper()));
-                    } else {
-                        vh.getSupplementalIcon().setImageDrawable(mSupplementalIconDrawable);
-                    }
+                    vh.getSupplementalIcon().setImageDrawable(mSupplementalIconDrawable);
                     vh.getSupplementalIcon().setOnClickListener(
                             mSupplementalIconOnClickListener);
 
@@ -547,45 +529,27 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     /**
      * Sets {@code Primary Action} to be represented by an icon.
      *
-     * @param icon An icon to set as primary action.
-     * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
-     *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
-     *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
-     */
-    public void setPrimaryActionIcon(@NonNull Icon icon, @PrimaryActionIconSize int size) {
-        mPrimaryActionType = PRIMARY_ACTION_TYPE_ICON;
-        mPrimaryActionIcon = icon;
-        mPrimaryActionIconSize = size;
-        markDirty();
-    }
-
-    /**
-     * Sets {@code Primary Action} to be represented by an icon.
-     *
      * @param iconResId the resource identifier of the drawable.
      * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
      *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
      *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
-     *
-     * @deprecated Use {@link #setPrimaryActionIcon(Icon, int)}.
      */
-    @Deprecated
     public void setPrimaryActionIcon(@DrawableRes int iconResId, @PrimaryActionIconSize int size) {
-        setPrimaryActionIcon(Icon.createWithResource(getContext(), iconResId), size);
+        setPrimaryActionIcon(getContext().getDrawable(iconResId), size);
     }
 
     /**
      * Sets {@code Primary Action} to be represented by an icon.
      *
-     * @param drawable the Drawable to set, or null to clear the content.
+     * <p>Call {@link #setPrimaryActionEmptyIcon()} or {@link #setPrimaryActionNoIcon()} to clear
+     * content.
+     *
+     * @param drawable the Drawable to set.
      * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
      *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
      *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
-     *
-     * @deprecated Use {@link #setPrimaryActionIcon(Icon, int)}.
      */
-    @Deprecated
-    public void setPrimaryActionIcon(@Nullable Drawable drawable, @PrimaryActionIconSize int size) {
+    public void setPrimaryActionIcon(@NonNull Drawable drawable, @PrimaryActionIconSize int size) {
         mPrimaryActionType = PRIMARY_ACTION_TYPE_ICON;
         mPrimaryActionIconDrawable = drawable;
         mPrimaryActionIconSize = size;
@@ -639,21 +603,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     }
 
     /**
-     * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
-     *
-     * @param icon An icon to set as supplemental action.
-     * @param showDivider whether to display a vertical bar that separates {@code text} and
-     *                    {@code Supplemental Icon}.
-     */
-    public void setSupplementalIcon(@NonNull Icon icon, boolean showDivider) {
-        mSupplementalActionType = SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON;
-
-        mSupplementalIcon = icon;
-        mShowSupplementalIconDivider = showDivider;
-        markDirty();
-    }
-
-    /**
      * Sets an {@code OnClickListener} for the icon representing the {@code Supplemental Action}.
      *
      * @param listener the callback that will run when icon is clicked.
@@ -669,25 +618,19 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param iconResId drawable resource id.
      * @param showDivider whether to display a vertical bar that separates {@code text} and
      *                    {@code Supplemental Icon}.
-     *
-     * @deprecated Use {@link #setSupplementalIcon(Icon, boolean)}.
      */
-    @Deprecated
-    public void setSupplementalIcon(int iconResId, boolean showDivider) {
-        setSupplementalIcon(Icon.createWithResource(getContext(), iconResId), showDivider);
+    public void setSupplementalIcon(@DrawableRes int iconResId, boolean showDivider) {
+        setSupplementalIcon(getContext().getDrawable(iconResId), showDivider);
     }
 
     /**
      * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
      *
-     * @param drawable the Drawable to set, or null to clear the content.
+     * @param drawable the Drawable to set.
      * @param showDivider whether to display a vertical bar that separates {@code text} and
      *                    {@code Supplemental Icon}.
-     *
-     * @deprecated Use {@link #setSupplementalIcon(Icon, boolean)}.
      */
-    @Deprecated
-    public void setSupplementalIcon(Drawable drawable, boolean showDivider) {
+    public void setSupplementalIcon(@NonNull Drawable drawable, boolean showDivider) {
         setSupplementalIcon(drawable, showDivider, null);
     }
 
@@ -698,14 +641,10 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param showDivider whether to display a vertical bar that separates {@code text} and
      *                    {@code Supplemental Icon}.
      * @param listener the callback that will run when icon is clicked.
-     *
-     * @deprecated Use {@link #setSupplementalIcon(Icon, boolean)} and
-     *             {@link #setSupplementalIconOnClickListener(View.OnClickListener)}.
      */
-    @Deprecated
-    public void setSupplementalIcon(int iconResId, boolean showDivider,
+    public void setSupplementalIcon(@DrawableRes int iconResId, boolean showDivider,
             View.OnClickListener listener) {
-        setSupplementalIcon(Icon.createWithResource(getContext(), iconResId), showDivider);
+        setSupplementalIcon(getContext().getDrawable(iconResId), showDivider);
         setSupplementalIconOnClickListener(listener);
     }
 
@@ -716,11 +655,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param showDivider whether to display a vertical bar that separates {@code text} and
      *                    {@code Supplemental Icon}.
      * @param listener the callback that will run when icon is clicked.
-     *
-     * @deprecated Use {@link #setSupplementalIcon(Icon, boolean)} and
-     *             {@link #setSupplementalIconOnClickListener(View.OnClickListener)}.
      */
-    @Deprecated
     public void setSupplementalIcon(Drawable drawable, boolean showDivider,
             View.OnClickListener listener) {
         mSupplementalActionType = SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON;
