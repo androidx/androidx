@@ -18,7 +18,6 @@ package com.example.androidx.car;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.widget.CompoundButton;
 import android.widget.Toast;
@@ -104,8 +103,7 @@ public class SwitchListItemActivity extends Activity {
             mItems.add(item);
 
             item = new SwitchListItem(mContext);
-            item.setPrimaryActionIcon(
-                    Icon.createWithResource(mContext, android.R.drawable.sym_def_app_icon),
+            item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
                     SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
             item.setTitle("Switch with Icon");
             item.setBody(longText);
