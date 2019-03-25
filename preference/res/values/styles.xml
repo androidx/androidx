@@ -22,8 +22,8 @@
 
     <style name="PreferenceFragment">
         <item name="android:paddingLeft">0dp</item>
-        <item name="android:paddingRight">0dp</item>
         <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingRight">0dp</item>
         <item name="android:paddingEnd">0dp</item>
         <item name="android:divider">?android:attr/listDivider</item>
     </style>
@@ -72,8 +72,8 @@
 
     <style name="PreferenceFragmentList">
         <item name="android:paddingLeft">16dp</item>
-        <item name="android:paddingRight">16dp</item>
         <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingRight">16dp</item>
         <item name="android:paddingEnd">16dp</item>
     </style>
 
@@ -175,8 +175,8 @@
 
     <style name="PreferenceFragmentList.Material">
         <item name="android:paddingLeft">0dp</item>
-        <item name="android:paddingRight">0dp</item>
         <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingRight">0dp</item>
         <item name="android:paddingEnd">0dp</item>
     </style>
 
