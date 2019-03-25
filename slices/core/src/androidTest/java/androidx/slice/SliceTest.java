@@ -19,6 +19,7 @@ package androidx.slice;
 import static android.app.slice.Slice.HINT_LARGE;
 import static android.app.slice.Slice.HINT_LIST;
 import static android.app.slice.Slice.HINT_NO_TINT;
+import static android.app.slice.Slice.HINT_PERMISSION_REQUEST;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_IMAGE;
@@ -45,6 +46,7 @@ import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.slice.core.SliceQuery;
 import androidx.slice.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -262,5 +264,37 @@ public class SliceTest {
         assertEquals(Arrays.asList(HINT_TITLE), s.getItems().get(0).getHints());
         assertEquals(Arrays.asList(HINT_NO_TINT, HINT_LARGE),
                 s.getItems().get(1).getHints());
+    }
+
+    @Test
+    public void testOnCreatePermissionRequest() {
+        sFlag = false;
+        final CountDownLatch latch = new CountDownLatch(1);
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                sFlag = true;
+                latch.countDown();
+            }
+        };
+        mContext.registerReceiver(receiver,
+                new IntentFilter(mContext.getPackageName() + ".permission"));
+        Uri uri = BASE_URI.buildUpon().appendPath("permission").build();
+        Slice s = Slice.bindSlice(mContext, uri, Collections.<SliceSpec>emptySet());
+        assertEquals(uri, s.getUri());
+        assertEquals(1, s.getItems().size());
+        assertTrue(s.getHints().contains(HINT_PERMISSION_REQUEST));
+
+        try {
+            SliceQuery.find(s, FORMAT_ACTION).getAction().send();
+        } catch (CanceledException e) {
+        }
+        try {
+            latch.await(100, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertTrue(sFlag);
+        mContext.unregisterReceiver(receiver);
     }
 }

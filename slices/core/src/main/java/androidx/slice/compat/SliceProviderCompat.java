@@ -269,7 +269,7 @@ public class SliceProviderCompat {
                 : getContext().getPackageManager().getNameForUid(Binder.getCallingUid());
         if (mPermissionManager.checkSlicePermission(sliceUri, Binder.getCallingPid(),
                 Binder.getCallingUid()) != PERMISSION_GRANTED) {
-            return mProvider.createPermissionSlice(getContext(), sliceUri, pkg);
+            return mProvider.createPermissionSlice(sliceUri, pkg);
         }
         return onBindSliceStrict(sliceUri, specs);
     }
