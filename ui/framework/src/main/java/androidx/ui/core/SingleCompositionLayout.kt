@@ -38,6 +38,9 @@ internal class ComplexLayoutState(
     internal var maxIntrinsicHeightBlock: IntrinsicMeasurementBlock = IntrinsicMeasurementBlockStub,
     internal val density: Density
 ) : Measurable, Placeable({ _, _ -> }), InternalMeasurable {
+    override val parentData: Any?
+        get() = layoutNode.parentData
+
     init {
         // TODO(popam): redefine API of Placeable when ComplexMeasureBox is gone
         placeBlock = { x: IntPx, y: IntPx ->
@@ -160,13 +163,17 @@ fun ComplexLayout(
         complexMeasureBox.layoutNode.requestLayout()
     }
 
-    <LayoutNode ref=complexMeasureBox.layoutNodeRef measureBox=complexMeasureBox>
-        <OnChildPositionedAmbient.Provider value=complexMeasureBox.onChildPositioned>
-            <OnPositionedAmbient.Provider value=complexMeasureBox.onPositioned>
-                <children />
-            </OnPositionedAmbient.Provider>
-        </OnChildPositionedAmbient.Provider>
-    </LayoutNode>
+    <ParentDataAmbient.Consumer> parentData ->
+        <LayoutNode ref=complexMeasureBox.layoutNodeRef measureBox=complexMeasureBox parentData>
+            <OnChildPositionedAmbient.Provider value=complexMeasureBox.onChildPositioned>
+                <OnPositionedAmbient.Provider value=complexMeasureBox.onPositioned>
+                    <ParentDataAmbient.Provider value=null>
+                        <children />
+                    </ParentDataAmbient.Provider>
+                </OnPositionedAmbient.Provider>
+            </OnChildPositionedAmbient.Provider>
+        </LayoutNode>
+    </ParentDataAmbient.Consumer>
 }
 
 /**

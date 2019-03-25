@@ -92,6 +92,8 @@ package androidx.ui.core {
   }
 
   public interface Measurable {
+    method public Object? getParentData();
+    property public abstract Object? parentData;
   }
 
   @Deprecated public final class MeasureBox extends com.google.r4a.Component {
@@ -106,6 +108,11 @@ package androidx.ui.core {
     method public androidx.ui.core.Density getDensity();
     method public void layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.jvm.functions.Function1<? super androidx.ui.core.PositioningBlockReceiver,kotlin.Unit> block);
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Measurable, androidx.ui.core.Constraints constraints);
+  }
+
+  public final class ParentDataKt {
+    ctor public ParentDataKt();
+    method public static void ParentData(Object data, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public class Placeable {
