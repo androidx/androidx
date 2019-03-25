@@ -442,15 +442,11 @@ public class MediaRouteButton extends View {
 
     @Override
     public void jumpDrawablesToCurrentState() {
-        // We can't call super to handle the background so we do it ourselves.
-        //super.jumpDrawablesToCurrentState();
-        if (getBackground() != null) {
-            DrawableCompat.jumpToCurrentState(getBackground());
-        }
+        super.jumpDrawablesToCurrentState();
 
         // Handle our own remote indicator.
         if (mRemoteIndicator != null) {
-            DrawableCompat.jumpToCurrentState(mRemoteIndicator);
+            mRemoteIndicator.jumpToCurrentState();
         }
     }
 

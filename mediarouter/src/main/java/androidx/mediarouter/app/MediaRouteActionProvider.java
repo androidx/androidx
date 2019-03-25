@@ -129,7 +129,7 @@ import java.lang.ref.WeakReference;
  * @see #setRouteSelector
  */
 public class MediaRouteActionProvider extends ActionProvider {
-    private static final String TAG = "MediaRouteActionProvider";
+    private static final String TAG = "MRActionProvider";
 
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
