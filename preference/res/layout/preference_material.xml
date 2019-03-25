@@ -22,8 +22,8 @@
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:gravity="center_vertical"
     android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
-    android:paddingRight="?android:attr/listPreferredItemPaddingRight"
     android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+    android:paddingRight="?android:attr/listPreferredItemPaddingRight"
     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
     android:background="?android:attr/selectableItemBackground"
     android:clipToPadding="false"
@@ -69,6 +69,8 @@
         android:gravity="end|center_vertical"
         android:paddingLeft="16dp"
         android:paddingStart="16dp"
+        android:paddingRight="0dp"
+        android:paddingEnd="0dp"
         android:orientation="vertical"/>
 
 </LinearLayout>
