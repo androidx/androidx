@@ -2197,6 +2197,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             final boolean allowRecreation) {
         boolean handled = false;
 
+        final int applicationNightMode = mContext.getApplicationContext()
+                .getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
         int newNightMode;
         switch (mode) {
             case MODE_NIGHT_YES:
@@ -2209,16 +2212,14 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             case MODE_NIGHT_FOLLOW_SYSTEM:
                 // If we're following the system, we just use the system default from the
                 // application context
-                newNightMode = mContext.getApplicationContext()
-                        .getResources()
-                        .getConfiguration()
-                        .uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                newNightMode = applicationNightMode;
                 break;
         }
 
         final boolean activityHandlingUiMode = isActivityManifestHandlingUiMode();
 
-        if (!activityHandlingUiMode && Build.VERSION.SDK_INT >= 17 && !mBaseContextAttached
+        if (newNightMode != applicationNightMode && !activityHandlingUiMode
+                && Build.VERSION.SDK_INT >= 17 && !mBaseContextAttached
                 && mHost instanceof android.view.ContextThemeWrapper) {
             // If we're here then we can try and apply an override configuration on the Context.
             final Configuration conf = new Configuration();
