@@ -16,6 +16,8 @@
   -->
 
 <resources>
+    <!-- Theme for the main activity that shows all fragments, change PreferenceTheme in
+         values/styles.xml for the theme for the actual fragment hosting Preferences -->
     <style name="AppTheme" parent="android:Theme.Material.Light.DarkActionBar">
         <item name="android:colorPrimary">#3F51B5</item>
         <item name="android:colorPrimaryDark">#303F9F</item>
