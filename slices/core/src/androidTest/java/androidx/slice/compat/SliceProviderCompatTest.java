@@ -67,6 +67,7 @@ public class SliceProviderCompatTest {
                 .build();
 
         SliceProvider provider = spy(new SliceProviderImpl());
+        provider.attachInfo(mContext, null);
         CompatPermissionManager permissions = mock(CompatPermissionManager.class);
         when(permissions.checkSlicePermission(any(Uri.class), anyInt(), anyInt()))
                 .thenReturn(PERMISSION_GRANTED);
@@ -100,6 +101,7 @@ public class SliceProviderCompatTest {
                 .build();
 
         SliceProvider provider = spy(new SliceProviderImpl());
+        provider.attachInfo(mContext, null);
         CompatPermissionManager permissions = mock(CompatPermissionManager.class);
         when(permissions.checkSlicePermission(any(Uri.class), anyInt(), anyInt()))
                 .thenReturn(PERMISSION_DENIED);
