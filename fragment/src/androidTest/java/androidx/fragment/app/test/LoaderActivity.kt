@@ -20,8 +20,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-
-import androidx.annotation.ContentView
 import androidx.fragment.app.Fragment
 import androidx.fragment.test.R
 import androidx.loader.app.LoaderManager
@@ -29,8 +27,8 @@ import androidx.loader.content.AsyncTaskLoader
 import androidx.loader.content.Loader
 import androidx.testutils.RecreatedActivity
 
-@ContentView(R.layout.activity_loader)
-class LoaderActivity : RecreatedActivity(), LoaderManager.LoaderCallbacks<String> {
+class LoaderActivity : RecreatedActivity(R.layout.activity_loader),
+    LoaderManager.LoaderCallbacks<String> {
 
     lateinit var textView: TextView
     lateinit var textViewB: TextView
@@ -75,8 +73,8 @@ class LoaderActivity : RecreatedActivity(), LoaderManager.LoaderCallbacks<String
         }
     }
 
-    @ContentView(R.layout.fragment_c)
-    class TextLoaderFragment : Fragment(), LoaderManager.LoaderCallbacks<String> {
+    class TextLoaderFragment : Fragment(R.layout.fragment_c),
+        LoaderManager.LoaderCallbacks<String> {
         lateinit var textView: TextView
 
         override fun onCreate(savedInstanceState: Bundle?) {

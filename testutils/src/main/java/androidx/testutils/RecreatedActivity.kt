@@ -17,6 +17,7 @@
 package androidx.testutils
 
 import android.os.Bundle
+import androidx.annotation.LayoutRes
 import androidx.fragment.app.FragmentActivity
 import java.util.concurrent.CountDownLatch
 
@@ -25,7 +26,9 @@ import java.util.concurrent.CountDownLatch
  * In order to use this class, have your activity extend it and call
  * [FragmentActivityUtils.recreateActivity] API.
  */
-open class RecreatedActivity : FragmentActivity() {
+open class RecreatedActivity(
+    @LayoutRes contentLayoutId: Int = 0
+) : FragmentActivity(contentLayoutId) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
