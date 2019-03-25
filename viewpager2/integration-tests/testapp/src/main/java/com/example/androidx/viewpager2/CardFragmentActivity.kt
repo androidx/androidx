@@ -38,7 +38,7 @@ class CardFragmentActivity : BaseCardActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewPager.adapter = object : FragmentStateAdapter(supportFragmentManager) {
+        viewPager.adapter = object : FragmentStateAdapter(this) {
             override fun getItem(position: Int): Fragment {
                 return CardFragment.create(Card.DECK[position])
             }
