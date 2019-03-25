@@ -1023,19 +1023,24 @@ public class VideoView extends SelectiveLayout {
                 }
             }
             SessionCommandGroup.Builder commandsBuilder = new SessionCommandGroup.Builder()
-                    .addCommand(SessionCommand.COMMAND_CODE_PLAYER_PAUSE)
-                    .addCommand(SessionCommand.COMMAND_CODE_PLAYER_PLAY)
-                    .addCommand(SessionCommand.COMMAND_CODE_PLAYER_PREPARE)
-                    .addCommand(SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED)
-                    .addCommand(SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD)
-                    .addCommand(SessionCommand.COMMAND_CODE_SESSION_REWIND)
-                    .addCommand(SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO)
-                    .addCommand(SessionCommand.COMMAND_CODE_VOLUME_SET_VOLUME)
-                    .addCommand(SessionCommand.COMMAND_CODE_VOLUME_ADJUST_VOLUME)
-                    .addCommand(SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_URI)
-                    .addCommand(SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI)
-                    .addCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST)
-                    .addCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)
+                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_PAUSE))
+                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_PLAY))
+                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_PREPARE))
+                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED))
+                    .addCommand(new SessionCommand(
+                            SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD))
+                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_SESSION_REWIND))
+                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO))
+                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_VOLUME_SET_VOLUME))
+                    .addCommand(new SessionCommand(
+                            SessionCommand.COMMAND_CODE_VOLUME_ADJUST_VOLUME))
+                    .addCommand(new SessionCommand(
+                            SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_URI))
+                    .addCommand(new SessionCommand(
+                            SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI))
+                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST))
+                    .addCommand(new SessionCommand(
+                            SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA))
                     .addCommand(new SessionCommand(
                             MediaControlView.COMMAND_SELECT_AUDIO_TRACK, null))
                     .addCommand(new SessionCommand(

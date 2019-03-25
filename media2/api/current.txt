@@ -568,10 +568,8 @@ package androidx.media2 {
     ctor public SessionCommandGroup.Builder(androidx.media2.SessionCommandGroup);
     method public androidx.media2.SessionCommandGroup.Builder addAllPredefinedCommands(int);
     method public androidx.media2.SessionCommandGroup.Builder addCommand(androidx.media2.SessionCommand);
-    method public androidx.media2.SessionCommandGroup.Builder addCommand(int);
     method public androidx.media2.SessionCommandGroup build();
     method public androidx.media2.SessionCommandGroup.Builder removeCommand(androidx.media2.SessionCommand);
-    method public androidx.media2.SessionCommandGroup.Builder removeCommand(int);
   }
 
   public abstract class SessionPlayer implements java.lang.AutoCloseable {
