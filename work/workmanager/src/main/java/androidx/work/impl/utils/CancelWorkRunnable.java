@@ -34,6 +34,7 @@ import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkSpecDao;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,7 +68,7 @@ public abstract class CancelWorkRunnable implements Runnable {
     abstract void runInternal();
 
     void cancel(WorkManagerImpl workManagerImpl, String workSpecId) {
-        recursivelyCancelWorkAndDependents(workManagerImpl.getWorkDatabase(), workSpecId);
+        iterativelyCancelWorkAndDependents(workManagerImpl.getWorkDatabase(), workSpecId);
 
         Processor processor = workManagerImpl.getProcessor();
         processor.stopAndCancelWork(workSpecId);
@@ -84,18 +85,20 @@ public abstract class CancelWorkRunnable implements Runnable {
                 workManagerImpl.getSchedulers());
     }
 
-    private void recursivelyCancelWorkAndDependents(WorkDatabase workDatabase, String workSpecId) {
+    private void iterativelyCancelWorkAndDependents(WorkDatabase workDatabase, String workSpecId) {
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
         DependencyDao dependencyDao = workDatabase.dependencyDao();
 
-        List<String> dependentIds = dependencyDao.getDependentWorkIds(workSpecId);
-        for (String id : dependentIds) {
-            recursivelyCancelWorkAndDependents(workDatabase, id);
-        }
-
-        WorkInfo.State state = workSpecDao.getState(workSpecId);
-        if (state != SUCCEEDED && state != FAILED) {
-            workSpecDao.setState(CANCELLED, workSpecId);
+        LinkedList<String> idsToProcess = new LinkedList<>();
+        idsToProcess.add(workSpecId);
+        while (!idsToProcess.isEmpty()) {
+            String id = idsToProcess.remove();
+            // Don't fail already cancelled work.
+            WorkInfo.State state = workSpecDao.getState(id);
+            if (state != SUCCEEDED && state != FAILED) {
+                workSpecDao.setState(CANCELLED, id);
+            }
+            idsToProcess.addAll(dependencyDao.getDependentWorkIds(id));
         }
     }
 
