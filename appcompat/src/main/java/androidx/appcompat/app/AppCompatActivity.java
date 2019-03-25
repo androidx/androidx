@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.ContentView;
 import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -66,6 +67,30 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     private AppCompatDelegate mDelegate;
     private Resources mResources;
+
+    /**
+     * Default constructor for AppCompatActivity. All Activities must have a default constructor
+     * for API 27 and lower devices or when using the default
+     * {@link android.app.AppComponentFactory}.
+     */
+    public AppCompatActivity() {
+        super();
+    }
+
+    /**
+     * Alternate constructor that can be used to provide a default layout
+     * that will be inflated as part of <code>super.onCreate(savedInstanceState)</code>.
+     *
+     * <p>This should generally be called from your constructor that takes no parameters,
+     * as is required for API 27 and lower or when using the default
+     * {@link android.app.AppComponentFactory}.
+     *
+     * @see #AppCompatActivity()
+     */
+    @ContentView
+    public AppCompatActivity(@LayoutRes int contentLayoutId) {
+        super(contentLayoutId);
+    }
 
     @Override
     protected void attachBaseContext(Context newBase) {

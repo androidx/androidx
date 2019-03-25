@@ -18,7 +18,6 @@ package androidx.activity
 
 import android.widget.TextView
 import androidx.activity.test.R
-import androidx.annotation.ContentView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
@@ -43,5 +42,4 @@ class ContentViewTest {
     }
 }
 
-@ContentView(R.layout.activity_inflates_res)
-class ContentViewActivity : ComponentActivity()
+class ContentViewActivity : ComponentActivity(R.layout.activity_inflates_res)

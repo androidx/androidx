@@ -3,6 +3,7 @@ package androidx.activity {
 
   public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
+    ctor @ContentView public ComponentActivity(@LayoutRes int);
     method @Deprecated public void addOnBackPressedCallback(androidx.activity.OnBackPressedCallback);
     method @Deprecated public void addOnBackPressedCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
     method @Deprecated public Object? getLastCustomNonConfigurationInstance();

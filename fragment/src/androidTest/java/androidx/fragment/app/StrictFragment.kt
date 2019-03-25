@@ -18,13 +18,14 @@ package androidx.fragment.app
 
 import android.content.Context
 import android.os.Bundle
+import androidx.annotation.LayoutRes
 import com.google.common.truth.Truth.assertWithMessage
 
 /**
  * This fragment watches its primary lifecycle events and throws IllegalStateException
  * if any of them are called out of order or from a bad/unexpected state.
  */
-open class StrictFragment : Fragment() {
+open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(contentLayoutId) {
     var currentState: Int = 0
 
     var calledOnAttach: Boolean = false

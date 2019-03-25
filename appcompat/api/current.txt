@@ -218,6 +218,7 @@ package androidx.appcompat.app {
 
   public class AppCompatActivity extends androidx.fragment.app.FragmentActivity implements androidx.appcompat.app.ActionBarDrawerToggle.DelegateProvider androidx.appcompat.app.AppCompatCallback androidx.core.app.TaskStackBuilder.SupportParentable {
     ctor public AppCompatActivity();
+    ctor @ContentView public AppCompatActivity(@LayoutRes int);
     method public androidx.appcompat.app.AppCompatDelegate getDelegate();
     method public androidx.appcompat.app.ActionBarDrawerToggle.Delegate? getDrawerToggleDelegate();
     method public androidx.appcompat.app.ActionBar? getSupportActionBar();

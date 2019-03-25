@@ -15,14 +15,10 @@
  */
 package androidx.fragment.app.test
 
-import org.junit.Assert.fail
-
 import android.content.Intent
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.LayoutInflater
-
-import androidx.annotation.ContentView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTestUtil
@@ -34,8 +30,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-
 import org.junit.After
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -407,8 +403,7 @@ class FragmentTransactionTest {
 
     private inner class NonStaticFragment : Fragment()
 
-    @ContentView(R.layout.fragment_a)
-    class OnGetLayoutInflaterFragment : Fragment() {
+    class OnGetLayoutInflaterFragment : Fragment(R.layout.fragment_a) {
         var onGetLayoutInflaterCalls = 0
         lateinit var baseLayoutInflater: LayoutInflater
 

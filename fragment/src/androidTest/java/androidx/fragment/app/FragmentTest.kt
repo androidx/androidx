@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import androidx.annotation.ContentView
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
@@ -309,12 +308,9 @@ class FragmentTest {
         }
     }
 
-    @ContentView(R.layout.fragment_a)
-    class FragmentA : Fragment()
+    class FragmentA : Fragment(R.layout.fragment_a)
 
-    @ContentView(R.layout.fragment_b)
-    class FragmentB : Fragment()
+    class FragmentB : Fragment(R.layout.fragment_b)
 
-    @ContentView(R.layout.fragment_c)
-    class FragmentC : Fragment()
+    class FragmentC : Fragment(R.layout.fragment_c)
 }
