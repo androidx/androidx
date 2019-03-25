@@ -200,12 +200,6 @@ public class NightModeTestCase {
         // Assert that the Activity received a new value
         assertEquals(AppCompatDelegate.MODE_NIGHT_YES,
                 mActivityTestRule.getActivity().getLastNightModeAndReset());
-
-        // Set local night mode to NO
-        setLocalNightModeAndWait(mActivityTestRule, AppCompatDelegate.MODE_NIGHT_NO);
-        // Assert that the Activity received a new value
-        assertEquals(AppCompatDelegate.MODE_NIGHT_NO,
-                mActivityTestRule.getActivity().getLastNightModeAndReset());
     }
 
     @Test
