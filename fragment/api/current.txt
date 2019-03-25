@@ -27,6 +27,7 @@ package androidx.fragment.app {
 
   public class Fragment implements android.content.ComponentCallbacks androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner android.view.View.OnCreateContextMenuListener androidx.lifecycle.ViewModelStoreOwner {
     ctor public Fragment();
+    ctor @ContentView public Fragment(@LayoutRes int);
     method public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String[]?);
     method public final boolean equals(Object?);
     method public final androidx.fragment.app.FragmentActivity? getActivity();
@@ -157,6 +158,7 @@ package androidx.fragment.app {
 
   public class FragmentActivity extends androidx.activity.ComponentActivity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator {
     ctor public FragmentActivity();
+    ctor @ContentView public FragmentActivity(@LayoutRes int);
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();
     method @Deprecated public androidx.loader.app.LoaderManager getSupportLoaderManager();
     method public android.content.Context getThemedContext();

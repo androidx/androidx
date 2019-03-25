@@ -20,7 +20,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.annotation.ContentView
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.annotation.UiThreadTest
@@ -83,8 +82,7 @@ class NestedInflatedFragmentTest {
         fm.executePendingTransactions()
     }
 
-    @ContentView(R.layout.nested_inflated_fragment_parent)
-    open class ParentFragment : Fragment()
+    open class ParentFragment : Fragment(R.layout.nested_inflated_fragment_parent)
 
     class UserVisibleHintParentFragment : ParentFragment() {
         override fun setUserVisibleHint(isVisibleToUser: Boolean) {
@@ -102,8 +100,7 @@ class NestedInflatedFragmentTest {
         }
     }
 
-    @ContentView(R.layout.nested_inflated_fragment_child)
-    class InflatedChildFragment : Fragment()
+    class InflatedChildFragment : Fragment(R.layout.nested_inflated_fragment_child)
 
     class SimpleFragment : Fragment() {
         override fun onCreateView(

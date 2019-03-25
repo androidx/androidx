@@ -18,7 +18,6 @@ package androidx.fragment.app.test
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.annotation.ContentView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.test.R
@@ -26,8 +25,7 @@ import androidx.fragment.test.R
 /**
  * A simple activity used for Fragment Transitions and lifecycle event ordering
  */
-@ContentView(R.layout.activity_content)
-class FragmentTestActivity : FragmentActivity() {
+class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
 
     class ParentFragment : Fragment() {
         var wasAttachedInTime: Boolean = false

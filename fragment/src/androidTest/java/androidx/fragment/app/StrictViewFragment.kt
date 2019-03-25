@@ -25,8 +25,8 @@ import androidx.fragment.test.R
 import com.google.common.truth.Truth.assertWithMessage
 
 open class StrictViewFragment(
-    @LayoutRes val contentLayoutId: Int = R.layout.strict_view_fragment
-) : StrictFragment() {
+    @LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment
+) : StrictFragment(contentLayoutId) {
 
     internal var onCreateViewCalled: Boolean = false
     internal var onViewCreatedCalled: Boolean = false
@@ -39,12 +39,9 @@ open class StrictViewFragment(
     ): View? {
         checkGetActivity()
         checkState("onCreateView", StrictFragment.CREATED)
-        var result = super.onCreateView(inflater, container, savedInstanceState)
-        if (result == null) {
-            result = inflater.inflate(contentLayoutId, container, false)
+        return super.onCreateView(inflater, container, savedInstanceState).also {
+            onCreateViewCalled = true
         }
-        onCreateViewCalled = true
-        return result
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

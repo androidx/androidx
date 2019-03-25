@@ -15,14 +15,10 @@
  */
 package androidx.fragment.app
 
-import org.junit.Assert.fail
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
-import androidx.annotation.ContentView
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -31,7 +27,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-
+import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1029,8 +1025,7 @@ class FragmentViewTest {
         }
     }
 
-    @ContentView(R.layout.fragment_a)
-    class SimpleViewFragment : Fragment() {
+    class SimpleViewFragment : Fragment(R.layout.fragment_a) {
         var onCreateViewCount: Int = 0
 
         override fun onCreateView(

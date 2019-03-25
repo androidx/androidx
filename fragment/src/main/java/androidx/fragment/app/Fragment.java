@@ -48,6 +48,7 @@ import android.widget.AdapterView;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -72,7 +73,6 @@ import androidx.savedstate.SavedStateRegistryOwner;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -250,8 +250,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     SavedStateRegistryController mSavedStateRegistryController;
 
-    // Cache the ContentView layoutIds for Fragments.
-    private static final HashMap<Class, Integer> sAnnotationIds = new HashMap<>();
+    @LayoutRes
+    private int mContentLayoutId;
 
     /**
      * {@inheritDoc}
@@ -414,13 +414,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
-     * Default constructor.  <strong>Every</strong> fragment must have an
-     * empty constructor, so it can be instantiated when restoring its
-     * activity's state.  It is strongly recommended that subclasses do not
-     * have other constructors with parameters, since these constructors
-     * will not be called when the fragment is re-instantiated; instead,
-     * arguments can be supplied by the caller with {@link #setArguments}
-     * and later retrieved by the Fragment with {@link #getArguments}.
+     * Constructor used by the default {@link FragmentFactory}. You must
+     * {@link FragmentManager#setFragmentFactory(FragmentFactory) set a custom FragmentFactory}
+     * if you want to use a non-default constructor to ensure that your constructor
+     * is called when the fragment is re-instantiated.
+     *
+     * <p>It is strongly recommended to supply arguments with {@link #setArguments}
+     * and later retrieved by the Fragment with {@link #getArguments}. These arguments
+     * are automatically saved and restored alongside the Fragment.
      *
      * <p>Applications should generally not implement a constructor. Prefer
      * {@link #onAttach(Context)} instead. It is the first place application code can run where
@@ -430,6 +431,19 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     public Fragment() {
         initLifecycle();
+    }
+
+    /**
+     * Alternate constructor that can be used to provide a default layout
+     * that will be inflated by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     *
+     * @see #Fragment()
+     * @see #onCreateView(LayoutInflater, ViewGroup, Bundle)
+     */
+    @ContentView
+    public Fragment(@LayoutRes int contentLayoutId) {
+        this();
+        mContentLayoutId = contentLayoutId;
     }
 
     private void initLifecycle() {
@@ -1616,9 +1630,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Called to have the fragment instantiate its user interface view.
      * This is optional, and non-graphical fragments can return null. This will be called between
      * {@link #onCreate(Bundle)} and {@link #onActivityCreated(Bundle)}.
-     * <p>The default implementation looks for an {@link ContentView} annotation, inflating
-     * and returning that layout. If the annotation is not found or has an invalid layout resource
-     * id, this method returns null.
+     * <p>A default View can be returned by calling {@link #Fragment(int)} in your
+     * constructor. Otherwise, this method returns null.
      *
      * <p>It is recommended to <strong>only</strong> inflate the layout in this method and move
      * logic that operates on the returned View to {@link #onViewCreated(View, Bundle)}.
@@ -1639,18 +1652,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        Class<? extends Fragment> clazz = getClass();
-        if (!sAnnotationIds.containsKey(clazz)) {
-            ContentView annotation = clazz.getAnnotation(ContentView.class);
-            if (annotation != null) {
-                sAnnotationIds.put(clazz, annotation.value());
-            } else {
-                sAnnotationIds.put(clazz, null);
-            }
-        }
-        Integer layoutId = sAnnotationIds.get(clazz);
-        if (layoutId != null && layoutId != 0) {
-            return inflater.inflate(layoutId, container, false);
+        if (mContentLayoutId != 0) {
+            return inflater.inflate(mContentLayoutId, container, false);
         }
         return null;
     }
