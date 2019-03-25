@@ -338,11 +338,13 @@ class BenchmarkState internal constructor() {
         Log.i(TAG, key + summaryLine())
         Log.i(CSV_TAG, results.joinToString(prefix = "$key, ", separator = ", "))
         val status = Bundle()
-        status.putLong("${key}_median", median())
-        status.putLong("${key}_mean", mean())
-        status.putLong("${key}_min", min())
-        status.putLong("${key}_standardDeviation", standardDeviation())
-        status.putLong("${key}_count", count())
+
+        val prefix = WarningState.WARNING_PREFIX
+        status.putLong("${prefix}median", median())
+        status.putLong("${prefix}mean", mean())
+        status.putLong("${prefix}min", min())
+        status.putLong("${prefix}standardDeviation", standardDeviation())
+        status.putLong("${prefix}count", count())
         status.putString(
             STUDIO_OUTPUT_KEY_PREFIX + STUDIO_OUTPUT_KEY_ID,
             ideSummaryLineWrapped(key)

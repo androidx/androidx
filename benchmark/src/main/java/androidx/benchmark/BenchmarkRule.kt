@@ -197,9 +197,11 @@ class BenchmarkRule : TestRule {
 
                 base.evaluate()
 
+                val fullTestName = WarningState.WARNING_PREFIX +
+                        description.testClass.simpleName + "." + invokeMethodName
                 InstrumentationRegistry.getInstrumentation().sendStatus(
                     Activity.RESULT_OK,
-                    state.getFullStatusReport(WarningState.WARNING_PREFIX + invokeMethodName)
+                    state.getFullStatusReport(fullTestName)
                 )
             }
         }
