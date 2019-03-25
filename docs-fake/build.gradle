@@ -15,6 +15,7 @@
  */
 
 import androidx.build.SupportConfig
+import static androidx.build.dependencies.DependenciesKt.CHECKER_FRAMEWORK
 
 plugins {
     id("AndroidXPlugin")
@@ -51,3 +52,13 @@ android {
     }
     flavorDimensions "library-group"
 }
+
+dependencies {
+    /*
+    * This is needed to build Public Docs for media2:1.0.0-alpha04 and higher
+    * Our current guess is that Doclava isn't checking which dependencies are unique to
+    * the compileOnly configuration, since they're not supposed to be needed at runtime.
+    */
+    compileOnly(CHECKER_FRAMEWORK)
+}
+
