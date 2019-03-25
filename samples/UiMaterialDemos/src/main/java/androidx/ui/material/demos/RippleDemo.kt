@@ -21,7 +21,7 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.material.H1
+import androidx.ui.material.Body1TextStyle
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BorderSide
@@ -47,9 +47,9 @@ fun RippleDemo() {
                         <Container>
                             <BoundedRipple>
                                 <Container width=100.dp height=50.dp>
-                                    <H1>
+                                    <Body1TextStyle>
                                         <Text text=TextSpan(text = "inner") />
-                                    </H1>
+                                    </Body1TextStyle>
                                 </Container>
                             </BoundedRipple>
                         </Container>

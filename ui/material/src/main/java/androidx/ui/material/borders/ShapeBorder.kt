@@ -235,6 +235,9 @@ abstract class ShapeBorder {
         rect: Rect,
         textDirection: TextDirection? = null
     )
+
+    // TODO(Andrey) Investigate how to make it better. b/129278276
+    abstract val borderStyle: BorderStyle
 }
 
 /**

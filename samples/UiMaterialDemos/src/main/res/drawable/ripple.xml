@@ -16,7 +16,7 @@
   -->
 
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="#3003DAC6">
+    android:color="#306200EE">
     <item android:drawable="@drawable/ripple_shape" />
     <item android:id="@android:id/mask"
         android:drawable="@drawable/ripple_shape" />

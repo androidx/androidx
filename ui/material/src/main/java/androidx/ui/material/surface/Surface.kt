@@ -17,11 +17,9 @@
 package androidx.ui.material.surface
 
 import androidx.ui.core.Dp
-import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.dp
-import androidx.ui.core.hasBoundedHeight
-import androidx.ui.core.hasBoundedWidth
+import androidx.ui.core.ipx
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.clip.ClipPath
@@ -107,27 +105,24 @@ fun Surface(
 
 /**
  * A simple MeasureBox which just reserves a space for a [Surface].
- * It position the children in the left top corner and takes all the available space.
+ * It position the only child in the left top corner.
  *
  * TODO("Andrey: Should be replaced with some basic layout implementation when we have it")
  */
 @Composable
-internal fun SurfaceMeasureBox(@Children children: () -> Unit) {
-    <Layout layoutBlock = { measurables, constraints ->
-        val width = if (constraints.hasBoundedWidth) {
-            constraints.maxWidth
+private fun SurfaceMeasureBox(@Children children: () -> Unit) {
+    <Layout children layoutBlock={ measurables, constraints ->
+        if (measurables.size > 1) {
+            throw IllegalStateException("Surface can have only one direct measurable child!")
+        }
+        val measurable = measurables.firstOrNull()
+        if (measurable == null) {
+            layout(constraints.minWidth, constraints.minHeight) {}
         } else {
-            constraints.minWidth
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                placeable.place(0.ipx, 0.ipx)
+            }
         }
-
-        val height = if (constraints.hasBoundedHeight) {
-            constraints.maxHeight
-        } else {
-            constraints.minHeight
-        }
-
-        layout(width, height) {
-            measurables.forEach { it.measure(constraints).place(IntPx.Zero, IntPx.Zero) }
-        }
-    } children />
+    } />
 }

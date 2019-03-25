@@ -29,7 +29,9 @@ import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
+import com.google.r4a.ambient
 import com.google.r4a.composer
+import com.google.r4a.effectOf
 
 /** The default selection color if none is specified. */
 private val DEFAULT_SELECTION_COLOR = Color(0x6633B5E5)
@@ -170,31 +172,18 @@ fun TextComposable(
  * components included in this component's children will be styled with this style unless
  * styled explicitly.
  */
-// TODO(clara): Make this a function instead of a class when cross module is solved
-class CurrentTextStyleProvider(@Children var children: () -> Unit) : Component() {
-    var value: TextStyle? = null
-
-    override fun compose() {
-        <CurrentTextStyleAmbient.Consumer> style ->
-            val mergedStyle = style.merge(value)
-            <CurrentTextStyleAmbient.Provider value=mergedStyle>
-                <children />
-            </CurrentTextStyleAmbient.Provider>
-        </CurrentTextStyleAmbient.Consumer>
-    }
+fun CurrentTextStyleProvider(value: TextStyle, @Children children: () -> Unit) {
+    <CurrentTextStyleAmbient.Consumer> style ->
+        val mergedStyle = style.merge(value)
+        <CurrentTextStyleAmbient.Provider value=mergedStyle>
+            <children />
+        </CurrentTextStyleAmbient.Provider>
+    </CurrentTextStyleAmbient.Consumer>
 }
 
 /**
- * This component is used to read the current value of the Text style ambient. Any [Text]
+ * This effect is used to read the current value of the Text style ambient. Any [Text]
  * components included in this component's children will be styled with this style unless
  * styled explicitly.
  */
-// TODO(clara): Make this a function instead of a class when cross module is solved
-class CurrentTextStyle(@Children var children: (style: TextStyle) -> Unit) : Component() {
-
-    override fun compose() {
-        <CurrentTextStyleAmbient.Consumer> style ->
-            <children style />
-        </CurrentTextStyleAmbient.Consumer>
-    }
-}
+fun currentTextStyle() = effectOf<TextStyle> { +ambient(CurrentTextStyleAmbient) }

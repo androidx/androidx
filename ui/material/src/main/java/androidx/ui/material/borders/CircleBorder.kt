@@ -44,6 +44,9 @@ data class CircleBorder(
     val side: BorderSide = BorderSide.None
 ) : ShapeBorder() {
 
+    override val borderStyle: BorderStyle
+        get() = side.style
+
     // TODO("Migration|Andrey: Needs EdgeInsetsGeometry")
 //    @override
 //    EdgeInsetsGeometry get dimensions {

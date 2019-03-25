@@ -54,8 +54,8 @@ fun Semantics(
 //    hint: String? = null,
 //    textDirection: TextDirection? = null,
 //    sortKey: SemanticsSortKey? = null,
-    testTag: String? = null
-//    onTap: (() -> Unit)? = null,
+    testTag: String? = null,
+    onTap: (() -> Unit)? = null
 //    onLongPress: (() -> Unit)? = null,
 //    onScrollLeft: (() -> Unit)? = null,
 //    onScrollRight: (() -> Unit)? = null,
@@ -96,7 +96,7 @@ fun Semantics(
         null, // textDirection,
         null, // sortKey,
         testTag, // testTag,
-        null, // onTap,
+        onTap, // onTap,
         null, // onLongPress,
         null, // onScrollLeft,
         null, // onScrollRight,

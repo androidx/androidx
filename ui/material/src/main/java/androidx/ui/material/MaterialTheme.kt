@@ -16,9 +16,15 @@
 
 package androidx.ui.material
 
+import androidx.annotation.CheckResult
 import androidx.ui.core.CurrentTextStyleProvider
+import androidx.ui.core.dp
+import androidx.ui.core.withDensity
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.material.borders.BorderRadius
+import androidx.ui.material.borders.RoundedRectangleBorder
+import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.ripple.CurrentRippleTheme
 import androidx.ui.material.ripple.DefaultRippleEffectFactory
 import androidx.ui.material.ripple.RippleTheme
@@ -27,9 +33,12 @@ import androidx.ui.painting.TextStyle
 import androidx.ui.painting.withAlphaPercent
 import com.google.r4a.Ambient
 import com.google.r4a.Children
-import com.google.r4a.Component
 import com.google.r4a.Composable
+import com.google.r4a.Effect
+import com.google.r4a.ambient
 import com.google.r4a.composer
+import com.google.r4a.effectOf
+import com.google.r4a.unaryPlus
 
 /**
  * This Component defines the styling principles from the Material design specification. It must be
@@ -44,25 +53,23 @@ import com.google.r4a.composer
  * All values may be overriden by providing this component with the [colors] and [typography]
  * attributes. Use this to configure the overall theme of your application.
  */
-class MaterialTheme(
+fun MaterialTheme(
+    colors: MaterialColors = MaterialColors(),
+    typography: MaterialTypography = MaterialTypography(),
     @Children
-    var children: () -> Unit
-) : Component() {
-
-    var colors: MaterialColors = MaterialColors()
-    var typography: MaterialTypography = MaterialTypography()
-
-    override fun compose() {
-        <Colors.Provider value=colors>
-            <Typography.Provider value=typography>
-                <CurrentTextStyleProvider value=typography.body1>
-                    <MaterialRippleTheme>
+    children: () -> Unit
+) {
+    <Colors.Provider value=colors>
+        <Typography.Provider value=typography>
+            <CurrentTextStyleProvider value=typography.body1>
+                <MaterialRippleTheme>
+                    <MaterialButtonShapeTheme>
                         <children />
-                    </MaterialRippleTheme>
-                </CurrentTextStyleProvider>
-            </Typography.Provider>
-        </Colors.Provider>
-    }
+                    </MaterialButtonShapeTheme>
+                </MaterialRippleTheme>
+            </CurrentTextStyleProvider>
+        </Typography.Provider>
+    </Colors.Provider>
 }
 
 /**
@@ -77,8 +84,8 @@ val Colors = Ambient<MaterialColors>("colors") { error("No colors found!") }
  * This Ambient holds on to the current definiton of typography for this application as described
  * by the Material spec.  You can read the values in it when creating custom components that want
  * to use Material types, as well as override the values when you want to re-style a part of your
- * hierarchy. Material components related to text such as [H1] will refer to this Ambient to obtain
- * the values with which to style text.
+ * hierarchy. Material components related to text such as [H1TextStyle] will refer to this Ambient
+ * to obtain the values with which to style text.
  */
 val Typography = Ambient<MaterialTypography>("typography") { error("No typography found!") }
 
@@ -221,10 +228,11 @@ fun MaterialRippleTheme(@Children children: () -> Unit) {
         val defaultTheme = RippleTheme(
             factory = DefaultRippleEffectFactory,
             colorCallback = { background ->
-                if (background == null || background.computeLuminance() >= 0.5) { // light bg
-                    materialColors.secondary.withAlphaPercent(16f) // 12 %
+                if (background == null || background.alpha == 0 ||
+                    background.computeLuminance() >= 0.5) { // light bg
+                    materialColors.primary.withAlphaPercent(12f)
                 } else { // dark bg
-                    Color(0xFFFFFFFF.toInt()).withAlphaPercent(24f) // 24 % of white
+                    Color(0xFFFFFFFF.toInt()).withAlphaPercent(24f)
                 }
             }
         )
@@ -232,4 +240,103 @@ fun MaterialRippleTheme(@Children children: () -> Unit) {
             <children />
         </CurrentRippleTheme.Provider>
     </Colors.Consumer>
+}
+
+/**
+ * Helps to resolve the [TextStyle] by applying [choosingBlock] for the current [Typography].
+ *
+ * If you specify [background] text color will try to match the correlated color. For example,
+ * on [MaterialColors.primary] background [MaterialColors.onPrimary] will be used.
+ * If matching is failed [fallbackTextColor] will be used.
+ */
+@CheckResult(suggest = "+")
+fun themeTextStyle(
+    choosingBlock: MaterialTypography.() -> TextStyle
+) = effectOf<TextStyle> {
+    var style = (+ambient(Typography)).choosingBlock()
+
+    // TODO Text is working with pixels, but we define our theme in dps, let's convert here for now.
+    // b/127345041
+    if (style.fontSize != null) {
+        style = style.copy(fontSize = +withDensity { style.fontSize!!.dp.toPx().value })
+    }
+
+    style
+}
+
+/**
+ * Helps to resolve the [Color]. It will take the current value of the value from
+ * [Colors] by applying the [choosingBlock] block on it.
+ *
+ * Example:
+ *     val finalColor = +color.orFromTheme { primary }
+ */
+fun Color?.orFromTheme(choosingBlock: MaterialColors.() -> Color): Effect<Color> {
+    val color = this
+    return effectOf {
+        if (color == null) {
+            (+ambient(Colors)).choosingBlock()
+        } else {
+            color
+        }
+    }
+}
+
+// Shapes
+
+/**
+ * Data class holding current shapes for common surfaces like Button or Card.
+ */
+// TODO(Andrey): should have small, medium, large components categories. b/129278276
+// See https://material.io/design/shape/applying-shape-to-ui.html#baseline-shape-values
+data class Shapes(
+    /**
+     * Shape used for [Button]
+     */
+    val button: ShapeBorder
+    // TODO(Andrey): Add shapes for Card, other surfaces? will see what we need.
+)
+
+/**
+ * Ambient used to specify the default shapes for the surfaces.
+ *
+ * @see [MaterialButtonShapeTheme] for the default Material Design value
+ */
+val CurrentShapeAmbient = Ambient.of<Shapes> {
+    throw IllegalStateException("No default shapes provided.")
+}
+
+/**
+ * Applies the default [ShapeBorder]s for all the surfaces.
+ */
+@Composable
+fun MaterialButtonShapeTheme(@Children children: () -> Unit) {
+    val value = +withDensity {
+        Shapes(
+            button = RoundedRectangleBorder(
+                borderRadius = BorderRadius.circular(4.dp.toPx().value)
+            )
+        )
+    }
+    <CurrentShapeAmbient.Provider value>
+        <children />
+    </CurrentShapeAmbient.Provider>
+}
+
+/**
+ * Helps to resolve the [ShapeBorder]. It will take the current value of the value from
+ * [CurrentShapeAmbient] if null was used.
+ *
+ * Example:
+ *     val surfaceShape = +shape.orFromTheme{ button }
+ */
+fun ShapeBorder?.orFromTheme(choosingBlock: Shapes.() -> ShapeBorder): Effect<ShapeBorder> {
+    val shape = this
+    return effectOf {
+        if (shape == null) {
+            (+ambient(CurrentShapeAmbient)).choosingBlock()
+        } else {
+            shape
+        }
+    }
 }

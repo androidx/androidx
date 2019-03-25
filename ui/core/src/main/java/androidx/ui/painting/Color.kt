@@ -243,6 +243,11 @@ class Color(colorValue: Int) {
                 )
             }
         }
+
+        /**
+         * Fully transparent color.
+         */
+        val Transparent = Color(0)
     }
 
     /**
