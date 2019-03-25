@@ -528,6 +528,15 @@ public class FontsContractCompat {
     public static void requestFont(final @NonNull Context context,
             final @NonNull FontRequest request, final @NonNull FontRequestCallback callback,
             final @NonNull Handler handler) {
+        requestFontInternal(context.getApplicationContext(), request, callback, handler);
+    }
+
+    /**
+     * Internal method of requestFont for avoiding holding strong refernece of Context.
+     */
+    private static void requestFontInternal(final @NonNull Context appContext,
+            final @NonNull FontRequest request, final @NonNull FontRequestCallback callback,
+            final @NonNull Handler handler) {
         final Handler callerThreadHandler = new Handler();
         handler.post(new Runnable() {
             @Override
@@ -535,7 +544,7 @@ public class FontsContractCompat {
                 // TODO: Cache the result.
                 FontFamilyResult result;
                 try {
-                    result = fetchFonts(context, null /* cancellation signal */, request);
+                    result = fetchFonts(appContext, null /* cancellation signal */, request);
                 } catch (PackageManager.NameNotFoundException e) {
                     callerThreadHandler.post(new Runnable() {
                         @Override
@@ -618,7 +627,7 @@ public class FontsContractCompat {
                     }
                 }
 
-                final Typeface typeface = buildTypeface(context, null /* cancellation signal */,
+                final Typeface typeface = buildTypeface(appContext, null /* cancellation signal */,
                         fonts);
                 if (typeface == null) {
                     // Something went wrong during reading font files. This happens if the given
