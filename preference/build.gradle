@@ -51,6 +51,10 @@ android {
         ]
     }
 
+    defaultConfig {
+        vectorDrawables.useSupportLibrary = true
+    }
+
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }
