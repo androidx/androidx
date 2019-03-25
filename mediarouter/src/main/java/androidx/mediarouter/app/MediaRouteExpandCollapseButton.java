@@ -23,15 +23,15 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.AnimationDrawable;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageButton;
 
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.content.ContextCompat;
 import androidx.mediarouter.R;
 
 /**
  * Chevron/Caret button to expand/collapse group volume list with animation.
  */
-class MediaRouteExpandCollapseButton extends ImageButton {
+class MediaRouteExpandCollapseButton extends AppCompatImageButton {
     final AnimationDrawable mExpandAnimationDrawable;
     final AnimationDrawable mCollapseAnimationDrawable;
     final String mExpandGroupDescription;
