@@ -45,6 +45,9 @@ internal interface InternalMeasurable {
 // TODO(mount): Make this an inline class when private constructors are possible
 internal class MeasurableImpl internal constructor(internal val measureBox: ComplexMeasureBox) :
     Measurable, InternalMeasurable {
+    override val parentData: Any?
+        get() = measureBox.layoutNode.parentData
+
     private fun runBlock() {
         measureBox.minIntrinsicWidthBlock = ComplexMeasureBox.IntrinsicMeasurementStub
         measureBox.maxIntrinsicWidthBlock = ComplexMeasureBox.IntrinsicMeasurementStub
@@ -182,7 +185,8 @@ class ComplexMeasureBox(
         <Ambient.Portal> reference ->
             ambients = reference
             density = reference.getAmbient(DensityAmbient)
-            <LayoutNode ref measureBox=this />
+            val parentData = reference.getAmbient(ParentDataAmbient)
+            <LayoutNode ref measureBox=this parentData/>
         </Ambient.Portal>
         if (recomposeComplexMeasureBox == null) {
             recomposeComplexMeasureBox = this
@@ -282,7 +286,9 @@ class ComplexMeasureBoxReceiver internal constructor(
         R4a.composeInto(layoutNode, ambients.getAmbient(ContextAmbient), ambients) {
             <OnChildPositionedAmbient.Provider value=measureBox.onChildPositioned>
                 <OnPositionedAmbient.Provider value=measureBox.onPositioned>
-                    collectedComposables.forEach { children -> <children /> }
+                    <ParentDataAmbient.Provider value=null>
+                        collectedComposables.forEach { children -> <children /> }
+                    </ParentDataAmbient.Provider>
                 </OnPositionedAmbient.Provider>
             </OnChildPositionedAmbient.Provider>
         }

@@ -405,6 +405,11 @@ class LayoutNode : ComponentNode() {
      */
     var visible = true
 
+    /**
+     * Opaque data provided by the layout parent
+     */
+    var parentData: Any? = null
+
     override val layoutNode: LayoutNode get() = this
 
     override val count: Int

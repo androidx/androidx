@@ -21,4 +21,9 @@ package androidx.ui.core
  *
  * @return a [Placeable] that can be used within a [layoutResult] block
  */
-interface Measurable
+interface Measurable {
+    /**
+     * Data provided by the [ParentData].
+     */
+    val parentData: Any?
+}
