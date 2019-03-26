@@ -28,8 +28,6 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
  * {@link FragmentStateAdapter}.
  */
 public final class FragmentViewHolder extends ViewHolder {
-    Fragment mFragment;
-
     private FragmentViewHolder(FrameLayout container) {
         super(container);
     }

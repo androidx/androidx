@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -29,7 +30,6 @@ import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -56,6 +56,9 @@ public abstract class FragmentStateAdapter extends
     private final LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
     private final LongSparseArray<Fragment.SavedState> mSavedStates = new LongSparseArray<>();
 
+    // Keeps track what ViewHolder was last bound to an item.
+    private final LongSparseArray<Integer> mItemViewHolderMap =  new LongSparseArray<>();
+
     private final FragmentManager mFragmentManager;
 
     public FragmentStateAdapter(@NonNull FragmentManager fragmentManager) {
@@ -76,13 +79,16 @@ public abstract class FragmentStateAdapter extends
 
     @Override
     public final void onBindViewHolder(final @NonNull FragmentViewHolder holder, int position) {
-        Fragment fragment = getFragment(position);
-        if (holder.mFragment != fragment) {
-            /** There is no guarantee that {@link #onViewRecycled} happened since the last
-             *  {@link #onBindViewHolder}, so performing a clean-up here. */
-            removeFragment(holder);
+        final long itemId = holder.getItemId();
+        final int viewHolderId = holder.getContainer().getId();
+        final Long boundItemId = itemForViewHolder(viewHolderId); // item currently bound to the VH
+        if (boundItemId != null && boundItemId != itemId) {
+            removeFragment(boundItemId);
+            mItemViewHolderMap.remove(boundItemId);
         }
-        holder.mFragment = fragment;
+
+        mItemViewHolderMap.put(itemId, viewHolderId); // this might overwrite an existing entry
+        ensureFragment(position);
 
         /** Special case when {@link RecyclerView} decides to keep the {@link container}
          * attached to the window, but not to the view hierarchy (i.e. parent is null) */
@@ -104,22 +110,35 @@ public abstract class FragmentStateAdapter extends
         }
     }
 
-    private Fragment getFragment(int position) {
-        long itemId = getItemId(position);
-        Fragment activeFragment = mFragments.get(itemId);
-        if (activeFragment != null) {
-            return activeFragment;
+    private Long itemForViewHolder(int viewHolderId) {
+        Long boundItemId = null;
+        for (int ix = 0; ix < mItemViewHolderMap.size(); ix++) {
+            if (mItemViewHolderMap.valueAt(ix) == viewHolderId) {
+                if (boundItemId != null) {
+                    throw new IllegalStateException("Design assumption violated: "
+                            + "a ViewHolder can only be bound to one item at a time.");
+                }
+                boundItemId = mItemViewHolderMap.keyAt(ix);
+            }
         }
+        return boundItemId;
+    }
 
-        Fragment newFragment = getItem(position);
-        newFragment.setInitialSavedState(mSavedStates.get(itemId));
-        mFragments.put(itemId, newFragment);
-        return newFragment;
+    private void ensureFragment(int position) {
+        long itemId = getItemId(position);
+        if (!mFragments.containsKey(itemId)) {
+            Fragment newFragment = getItem(position);
+            newFragment.setInitialSavedState(mSavedStates.get(itemId));
+            mFragments.put(itemId, newFragment);
+        }
     }
 
     @Override
     public final void onViewAttachedToWindow(@NonNull FragmentViewHolder holder) {
-        Fragment fragment = holder.mFragment;
+        Fragment fragment = mFragments.get(holder.getItemId());
+        if (fragment == null) {
+            throw new IllegalStateException("Design assumption violated.");
+        }
         FrameLayout container = holder.getContainer();
         View view = fragment.getView();
 
@@ -214,7 +233,12 @@ public abstract class FragmentStateAdapter extends
 
     @Override
     public final void onViewRecycled(@NonNull FragmentViewHolder holder) {
-        removeFragment(holder);
+        final int viewHolderId = holder.getContainer().getId();
+        final Long boundItemId = itemForViewHolder(viewHolderId); // item currently bound to the VH
+        if (boundItemId != null) {
+            removeFragment(boundItemId);
+            mItemViewHolderMap.remove(boundItemId);
+        }
     }
 
     @Override
@@ -223,33 +247,22 @@ public abstract class FragmentStateAdapter extends
         // animation). We don't have sufficient information on how to clear up what lead to
         // the transient state, so we are throwing away the ViewHolder to stay on the
         // conservative side.
-        removeFragment(holder);
+        onViewRecycled(holder); // the same clean-up steps as when recycling a ViewHolder
         return false; // don't recycle the view
     }
 
-    private void removeFragment(@NonNull FragmentViewHolder holder) {
-        removeFragment(holder.mFragment, holder.getItemId());
-        holder.getContainer().removeAllViews();
-        holder.mFragment = null;
-    }
+    private void removeFragment(long itemId) {
+        Fragment fragment = mFragments.get(itemId);
 
-    /**
-     * Removes a Fragment and commits the operation.
-     */
-    private void removeFragment(Fragment fragment, long itemId) {
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        removeFragment(fragment, itemId, fragmentTransaction);
-        // TODO(b/122669030): this call might fail, so address with recovery steps
-        fragmentTransaction.commitNow();
-    }
-
-    /**
-     * Adds a remove operation to the transaction, but does not commit.
-     */
-    private void removeFragment(Fragment fragment, long itemId,
-            @NonNull FragmentTransaction fragmentTransaction) {
         if (fragment == null) {
             return;
+        }
+
+        if (fragment.getView() != null) {
+            ViewParent viewParent = fragment.getView().getParent();
+            if (viewParent != null) {
+                ((FrameLayout) viewParent).removeAllViews();
+            }
         }
 
         if (fragment.isAdded() && containsItem(itemId)) {
@@ -257,7 +270,7 @@ public abstract class FragmentStateAdapter extends
         }
 
         mFragments.remove(itemId);
-        fragmentTransaction.remove(fragment);
+        mFragmentManager.beginTransaction().remove(fragment).commitNow();
     }
 
     /**
