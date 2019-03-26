@@ -19,7 +19,7 @@ package androidx.ui.layout
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.Layout
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.dp
 import androidx.ui.core.min
@@ -60,8 +60,8 @@ fun Padding(
     padding: EdgeInsets,
     @Children children: () -> Unit
 ) {
-    <MeasureBox> constraints ->
-        val measurable = collect(children).firstOrNull()
+    <Layout layoutBlock = { measurables, constraints ->
+        val measurable = measurables.firstOrNull()
         if (measurable == null) {
             layout(constraints.minWidth, constraints.minHeight) {}
         } else {
@@ -88,5 +88,5 @@ fun Padding(
                 placeable.place(paddingLeft, paddingTop)
             }
         }
-    </MeasureBox>
+    } children />
 }

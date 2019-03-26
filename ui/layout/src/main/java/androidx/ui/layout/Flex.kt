@@ -22,10 +22,8 @@ import androidx.ui.core.IntPxSize
 import androidx.ui.core.Measurable
 import androidx.ui.core.MeasureBox
 import androidx.ui.core.Placeable
-import androidx.ui.core.div
 import androidx.ui.core.ipx
 import androidx.ui.core.max
-import androidx.ui.core.times
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer

@@ -18,7 +18,7 @@ package androidx.ui.material.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.ui.core.adapter.CraneWrapper
+import androidx.ui.core.CraneWrapper
 import androidx.ui.material.MaterialTheme
 import com.google.r4a.composer
 import com.google.r4a.setContent

@@ -19,54 +19,58 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import com.google.r4a.Ambient
 import com.google.r4a.Children
-import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.R4a
 import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.effectOf
+import com.google.r4a.memo
+import com.google.r4a.unaryPlus
 
-class CraneWrapper(@Children var children: () -> Unit) : Component() {
-    private val androidCraneView = arrayOfNulls<AndroidCraneView>(1)
-    private var ambients: Ambient.Reference? = null
+@Composable
+fun CraneWrapper(@Children children: () -> Unit) {
+    val rootRef = +memo { Ref<AndroidCraneView>() }
+    var ambientsRef: Ambient.Reference? = null
 
-    override fun compose() {
-        <AndroidCraneView
-            ref=androidCraneView
-            onMeasureRecompose={ composeChildren() }>
-            <Ambient.Portal> reference ->
-                ambients = reference
-            </Ambient.Portal>
-        </AndroidCraneView>
-        composeChildren()
-    }
-
-    private fun composeChildren() {
-        val craneView = androidCraneView[0]
-        if (craneView != null) {
-            val context = craneView.context ?: composer.composer.context
-            val layoutNode = craneView.root
-
-            R4a.composeInto(container = layoutNode, context = context, parent = ambients!!) {
-                <ContextAmbient.Provider value=context>
-                    <DensityAmbient.Provider value=Density(context)>
-                        <children />
-                    </DensityAmbient.Provider>
-                </ContextAmbient.Provider>
-            }
-            var width = IntPx.Zero
-            var height = IntPx.Zero
-            layoutNode.childrenMeasureBoxes().forEach { measureBox ->
-                measureBox as ComplexMeasureBox
-                measureBox.runBlock()
-                measureBox.measure(craneView.constraints)
-                measureBox.placeChildren()
-                width = max(width, measureBox.layoutNode.width)
-                height = max(height, measureBox.layoutNode.height)
-            }
-            layoutNode.resize(width, height)
+    val measure = { constraints: Constraints ->
+        val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
+        val context = rootRef.value?.context ?: composer.composer.context
+        R4a.composeInto(container = rootLayoutNode, context = context, parent = ambientsRef!!) {
+            <ContextAmbient.Provider value=context>
+                <DensityAmbient.Provider value=Density(context)>
+                    <children />
+                </DensityAmbient.Provider>
+            </ContextAmbient.Provider>
         }
+        var width = IntPx.Zero
+        var height = IntPx.Zero
+        rootLayoutNode.childrenMeasureBoxes().forEach { measureBox ->
+            val layoutNode: LayoutNode
+            when (measureBox) {
+                is ComplexMeasureBox -> {
+                    measureBox.runBlock()
+                    measureBox.measure(constraints)
+                    measureBox.placeChildren()
+                    layoutNode = measureBox.layoutNode
+                }
+                is ComplexLayoutState -> {
+                    measureBox.measure(constraints)
+                    measureBox.placeChildren()
+                    layoutNode = measureBox.layoutNode
+                }
+                else -> error("Invalid CraneWrapper child found.")
+            }
+            width = max(width, layoutNode.width)
+            height = max(height, layoutNode.height)
+        }
+        rootLayoutNode.resize(width, height)
     }
+    // TODO(popam): make requestLayoutOnNodesLayoutChange=false when old measure boxes disappear
+    <AndroidCraneView ref=rootRef requestLayoutOnNodesLayoutChange=true onMeasureRecompose=measure>
+        <Ambient.Portal> reference ->
+            ambientsRef = reference
+        </Ambient.Portal>
+    </AndroidCraneView>
 }
 
 val ContextAmbient = Ambient.of<Context>()
@@ -100,14 +104,4 @@ fun ambientDensity() = effectOf<Density> { +ambient(DensityAmbient) }
 // can't make this inline as tests are failing with "DensityKt.$jacocoInit()' is inaccessible"
 /*inline*/ fun <R> withDensity(/*crossinline*/ block: DensityReceiver.() -> R) = effectOf<R> {
     withDensity(+ambientDensity(), block)
-}
-
-/**
- * Temporary needed to be able to use the component from the adapter module. b/120971484
- */
-@Composable
-fun CraneWrapperComposable(@Children children: () -> Unit) {
-    <CraneWrapper>
-        <children />
-    </CraneWrapper>
 }

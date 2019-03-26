@@ -45,6 +45,11 @@ interface Owner {
     fun onPositionChange(layoutNode: LayoutNode)
 
     /**
+     * Called by [LayoutNode] to request the Owner a new measurement+layout.
+     */
+    fun onRequestLayout()
+
+    /**
      * Called by [ComponentNode] when it is attached to the view system and now has an owner.
      * This is used by [Owner] to update [ComponentNode.ownerData] and track which nodes are
      * associated with it. It will only be called when [node] is not already attached to an
@@ -462,6 +467,11 @@ class LayoutNode : ComponentNode() {
             owner?.onSizeChange(this)
         }
     }
+
+    /**
+     * Used by [ComplexLayoutState] to request a new measurement + layout pass from the owner.
+     */
+    fun requestLayout() = owner?.onRequestLayout()
 }
 
 class SemanticsR4ANode(

@@ -18,7 +18,7 @@ package androidx.ui.material.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.ui.core.adapter.CraneWrapper
+import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Text
 import androidx.ui.material.H1
 import androidx.ui.material.MaterialTheme
