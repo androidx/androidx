@@ -20,6 +20,7 @@ import androidx.test.filters.LargeTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -77,5 +78,30 @@ class BenchmarkStateTest {
         assertNotNull(bundle.get("foo_min"))
         assertNotNull(bundle.get("foo_mean"))
         assertNotNull(bundle.get("foo_count"))
+    }
+
+    @Test
+    fun notStarted() {
+        try {
+            BenchmarkState().stats
+            fail("expected exception")
+        } catch (e: IllegalStateException) {
+            assertTrue(e.message!!.contains("wasn't started"))
+            assertTrue(e.message!!.contains("benchmarkRule.keepRunning {}"))
+        }
+    }
+
+    @Test
+    fun notFinished() {
+        try {
+            BenchmarkState().run {
+                keepRunning()
+                stats
+            }
+            fail("expected exception")
+        } catch (e: IllegalStateException) {
+            assertTrue(e.message!!.contains("hasn't finished"))
+            assertTrue(e.message!!.contains("benchmarkRule.keepRunning {}"))
+        }
     }
 }
