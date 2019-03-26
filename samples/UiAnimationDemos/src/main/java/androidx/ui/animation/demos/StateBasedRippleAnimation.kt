@@ -23,7 +23,9 @@ import android.view.animation.PathInterpolator
 import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
 import androidx.animation.TransitionDefinition
+import androidx.animation.TransitionState
 import androidx.animation.transitionDefinition
+import androidx.ui.animation.Transition
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
@@ -37,7 +39,9 @@ import androidx.ui.painting.Paint
 import com.google.r4a.Composable
 import com.google.r4a.Recompose
 import com.google.r4a.composer
+import com.google.r4a.memo
 import com.google.r4a.setContent
+import com.google.r4a.unaryPlus
 
 class StateBasedRippleAnimation : Activity() {
 
@@ -71,7 +75,7 @@ fun RippleRect(width: IntPx, height: IntPx) {
                 width.value * width.value + height.value * height.value).toDouble()
     ).toFloat() / 2f
     var toState = ButtonStatus.Released
-    val rippleTransDef = createTransDef(targetRadius)
+    val rippleTransDef = +memo(targetRadius) { createTransDef(targetRadius) }
     <Recompose> recompose ->
         val onPress: (PxPosition) -> Unit = { position ->
             toState = ButtonStatus.Pressed
@@ -87,7 +91,7 @@ fun RippleRect(width: IntPx, height: IntPx) {
         <PressGestureDetector onPress onRelease>
             <MeasureBox> constraints ->
                 collect {
-                    <Transition transitionDef=rippleTransDef toState> state ->
+                    <Transition definition=rippleTransDef toState> state ->
                         <RippleRectFromState state />
                     </Transition>
                 }
@@ -98,7 +102,7 @@ fun RippleRect(width: IntPx, height: IntPx) {
 }
 
 @Composable
-fun RippleRectFromState(state: TransitionModel<ButtonStatus>) {
+fun RippleRectFromState(state: TransitionState) {
 
     // TODO: file bug for when "down" is not a file level val, it's not memoized correctly
     val x = down.x
