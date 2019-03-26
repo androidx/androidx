@@ -19,6 +19,7 @@ package androidx.concurrent.futures;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
@@ -81,9 +82,9 @@ public class CallbackToFutureAdapterTest {
         assertThat(t).isEqualTo(t);
     }
 
-    // Temporarily disabled due to b/120236209.
+    @Test
     public void testGcedCallback() throws Exception {
-        AtomicBoolean wasCalled = new AtomicBoolean();
+        CountDownLatch wasCalled = new CountDownLatch(1);
         ListenableFuture<String> future = exampleLeakyCallbackAdapter(wasCalled);
         final long deadline = System.nanoTime() + TIMEOUT_NANOS;
         while (!future.isDone() && (deadline - System.nanoTime() > 0)) {
@@ -93,7 +94,7 @@ public class CallbackToFutureAdapterTest {
             System.runFinalization();
             latch.await(GC_AWAIT_TIME_MS, TimeUnit.MILLISECONDS);
         }
-        assertThat(wasCalled.get()).isTrue();
+        assertThat(wasCalled.await(TIMEOUT_NANOS, NANOSECONDS)).isTrue();
         try {
             future.get();
             Assert.fail("Future was expected to fail");
@@ -117,7 +118,7 @@ public class CallbackToFutureAdapterTest {
         };
     }
 
-    private ListenableFuture<String> exampleLeakyCallbackAdapter(final AtomicBoolean wasCalled) {
+    private ListenableFuture<String> exampleLeakyCallbackAdapter(final CountDownLatch wasCalled) {
         return CallbackToFutureAdapter.getFuture(
                 new CallbackToFutureAdapter.Resolver<String>() {
                     @Override
@@ -132,7 +133,7 @@ public class CallbackToFutureAdapterTest {
                         completer.addCancellationListener(new Runnable() {
                             @Override
                             public void run() {
-                                wasCalled.set(true);
+                                wasCalled.countDown();
                             }
                         }, directExecutor());
                         // Whoops! Forgot to actually call the callback!
