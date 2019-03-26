@@ -16,11 +16,13 @@
 
 package androidx.ui.layout
 
+import androidx.annotation.FloatRange
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
+import androidx.ui.core.Layout
 import androidx.ui.core.Measurable
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
 import androidx.ui.core.ipx
 import androidx.ui.core.max
@@ -29,43 +31,39 @@ import com.google.r4a.Composable
 import com.google.r4a.composer
 
 /**
+ * Parent data associated with children to assign flex and fit values for them.
+ */
+private data class FlexInfo(val flex: Float, val fit: Int)
+
+/**
  * Collects information about the children of a [FlexColumn] or [FlexColumn]
  * when its body is executed with a [FlexChildren] instance as argument.
- * TODO(popam): make this the receiver scope of the Flex lambda
  */
-class FlexChildren internal constructor(private val collect: (() -> Unit) -> List<Measurable>) {
-    internal var flexSum = 0f
-    private val _flexChildren = mutableListOf<FlexChild>()
-    internal val flexChildren: List<FlexChild>
-        get() = _flexChildren
-
-    fun expanded(flex: Float, children: @Composable() () -> Unit) {
-        addChildren(flex, FlexFit.Tight, children)
+class FlexChildren internal constructor() {
+    internal val childrenList = mutableListOf<() -> Unit>()
+    fun expanded(@FloatRange(from = 0.0) flex: Float, children: @Composable() () -> Unit) {
+        if (flex < 0) {
+            throw IllegalArgumentException("flex must be >= 0")
+        }
+        childrenList += {
+            <ParentData data=FlexInfo(flex = flex, fit = FlexFit.Tight) children/>
+        }
     }
 
-    fun flexible(flex: Float, children: @Composable() () -> Unit) {
-        addChildren(flex, FlexFit.Loose, children)
+    fun flexible(@FloatRange(from = 0.0) flex: Float, children: @Composable() () -> Unit) {
+        if (flex < 0) {
+            throw IllegalArgumentException("flex must be >= 0")
+        }
+        childrenList += {
+            <ParentData data=FlexInfo(flex = flex, fit = FlexFit.Loose) children/>
+        }
     }
 
     fun inflexible(children: @Composable() () -> Unit) {
-        addChildren(0f, FlexFit.Loose, children)
-    }
-
-    private fun addChildren(flex: Float, fit: Int /*FlexFit*/, children: @Composable() () -> Unit) {
-        flexSum += flex
-        val measurables = collect(children)
-        measurables.forEach { measurable ->
-            _flexChildren.add(FlexChild(measurable, flex / measurables.size, fit))
+        childrenList += {
+            <ParentData data=FlexInfo(flex = 0f, fit = FlexFit.Loose) children/>
         }
     }
-}
-
-internal data class FlexChild(
-    val measurable: Measurable,
-    val flex: Float,
-    val fit: Int
-) {
-    lateinit var placeable: Placeable
 }
 
 /**
@@ -454,6 +452,9 @@ private data class OrientationIndependentConstraints(
     }
 }
 
+private val Measurable.flex: Float get() = (parentData as FlexInfo).flex
+private val Measurable.fit: Int get() = (parentData as FlexInfo).fit
+
 /**
  * Layout model that places its children in a horizontal or vertical sequence, according to the
  * specified orientation, while also looking at the flex weights of the children.
@@ -469,20 +470,18 @@ private fun Flex(
     fun Placeable.mainAxisSize() = if (orientation == FlexOrientation.Horizontal) width else height
     fun Placeable.crossAxisSize() = if (orientation == FlexOrientation.Horizontal) height else width
 
-    <MeasureBox> constraints ->
+    val flexChildren = FlexChildren()
+    flexChildren.block()
+    <Layout layoutBlock={ children, constraints ->
+
         val constraints = OrientationIndependentConstraints(constraints, orientation)
 
-        var totalFlex: Float /* TODO(popam): make these val when compiler bug is fixed */
-        var children: List<FlexChild>
-        with(FlexChildren(::collect)) {
-            block(this)
-            totalFlex = this.flexSum
-            children = this.flexChildren
-        }
+        val totalFlex = children.sumByDouble { it.flex.toDouble() }.toFloat()
 
+        val placeables = mutableMapOf<Measurable, Placeable>()
         // First measure children with zero flex.
         children.filter { it.flex == 0f }.forEach { child ->
-            child.placeable = child.measurable.measure(
+            placeables[child] = child.measure(
                 // Ask for preferred main axis size.
                 constraints.looseMainAxis().let {
                     if (crossAxisAlignment == CrossAxisAlignment.Stretch) {
@@ -497,7 +496,7 @@ private fun Flex(
         // Then measure the rest according to their flexes in the remaining main axis space.
 
         val inflexibleSpace = children.filter { it.flex == 0f }
-            .fold(IntPx.Zero) { sum, c -> sum + c.placeable.mainAxisSize() }
+            .fold(IntPx.Zero) { sum, c -> sum + placeables[c]!!.mainAxisSize() }
         val targetSpace = if (mainAxisSize == MainAxisSize.Max) {
             constraints.mainAxisMax
         } else {
@@ -508,7 +507,7 @@ private fun Flex(
                 IntPx.Zero,
                 (targetSpace - inflexibleSpace) * child.flex / totalFlex
             )
-            child.placeable = child.measurable.measure(
+            placeables[child] = child.measure(
                 OrientationIndependentConstraints(
                     if (child.fit == FlexFit.Tight) childMainAxisSize else IntPx.Zero,
                     childMainAxisSize,
@@ -528,12 +527,12 @@ private fun Flex(
             constraints.mainAxisMax
         } else {
             max(
-                children.fold(IntPx.Zero) { a, b -> a + b.placeable.mainAxisSize() },
+                children.fold(IntPx.Zero) { a, b -> a + placeables[b]!!.mainAxisSize() },
                 constraints.mainAxisMin
             )
         }
         val crossAxisLayoutSize = max(
-            children.fold(IntPx.Zero) { a, b -> max(a, b.placeable.crossAxisSize()) },
+            children.fold(IntPx.Zero) { a, b -> max(a, placeables[b]!!.crossAxisSize()) },
             constraints.crossAxisMin
         )
         val layoutWidth = if (orientation == FlexOrientation.Horizontal) {
@@ -547,30 +546,33 @@ private fun Flex(
             mainAxisLayoutSize
         }
         layout(layoutWidth, layoutHeight) {
-            val childrenMainAxisSize = children.map { it.placeable.mainAxisSize() }
+            val childrenMainAxisSize = children.map { placeables[it]!!.mainAxisSize() }
             val mainAxisPositions = MainAxisAlignment.values[mainAxisAlignment]
                 .align(mainAxisLayoutSize, childrenMainAxisSize)
             children.forEachIndexed { index, child ->
+                val placeable = placeables[child]!!
                 val crossAxis = when (crossAxisAlignment) {
                     CrossAxisAlignment.Start -> IntPx.Zero
                     CrossAxisAlignment.Stretch -> IntPx.Zero
                     CrossAxisAlignment.End -> {
-                        crossAxisLayoutSize - child.placeable.crossAxisSize()
+                        crossAxisLayoutSize - placeable.crossAxisSize()
                     }
                     CrossAxisAlignment.Center -> {
                         Alignment.Center.align(
-                            IntPxSize(mainAxisLayoutSize - child.placeable.mainAxisSize(),
-                            crossAxisLayoutSize - child.placeable.crossAxisSize())
+                            IntPxSize(mainAxisLayoutSize - placeable.mainAxisSize(),
+                            crossAxisLayoutSize - placeable.crossAxisSize())
                         ).y
                     }
                     else -> { IntPx.Zero /* TODO(popam): support baseline and use enum */}
                 }
                 if (orientation == FlexOrientation.Horizontal) {
-                    child.placeable.place(mainAxisPositions[index], crossAxis)
+                    placeable.place(mainAxisPositions[index], crossAxis)
                 } else {
-                    child.placeable.place(crossAxis, mainAxisPositions[index])
+                    placeable.place(crossAxis, mainAxisPositions[index])
                 }
             }
         }
-    </MeasureBox>
+    }>
+        flexChildren.childrenList.forEach { <it/> }
+    </Layout>
 }
