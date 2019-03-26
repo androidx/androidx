@@ -37,14 +37,14 @@ class SynchronizedBenchmark {
 
     @Test
     fun atomicIncrementBenchmark() {
-        benchmarkRule.measure {
+        benchmarkRule.keepRunning {
             atomicInt.getAndIncrement()
         }
     }
 
     @Test
     fun synchronizedIncrementBenchmark() {
-        benchmarkRule.measure {
+        benchmarkRule.keepRunning {
             synchronized(volatileInt) {
                 volatileInt++
             }

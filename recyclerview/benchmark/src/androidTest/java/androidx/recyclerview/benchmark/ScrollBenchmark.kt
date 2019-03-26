@@ -65,7 +65,7 @@ class ScrollBenchmark {
     fun offset() {
         val rv = activityRule.activity.recyclerView
         var offset = 10
-        benchmarkRule.measure {
+        benchmarkRule.keepRunning {
             // keep scrolling up and down - no new item should be revealed
             rv.scrollBy(0, offset)
             offset *= -1
@@ -76,7 +76,7 @@ class ScrollBenchmark {
     @Test
     fun bindOffset() {
         val rv = activityRule.activity.recyclerView
-        benchmarkRule.measure {
+        benchmarkRule.keepRunning {
             // each scroll should reveal a new item
             rv.scrollBy(0, 100)
         }
@@ -93,7 +93,7 @@ class ScrollBenchmark {
         }
 
         val rv = activityRule.activity.recyclerView
-        benchmarkRule.measure {
+        benchmarkRule.keepRunning {
             // each scroll should reveal a new item that must be inflated
             rv.scrollBy(0, 100)
         }
@@ -105,7 +105,7 @@ class ScrollBenchmark {
         trivialAdapter.disableReuse = true
 
         val rv = activityRule.activity.recyclerView
-        benchmarkRule.measure {
+        benchmarkRule.keepRunning {
             // each scroll should reveal a new item that must be inflated
             rv.scrollBy(0, 100)
         }
