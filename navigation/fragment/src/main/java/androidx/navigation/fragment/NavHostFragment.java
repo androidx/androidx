@@ -204,6 +204,7 @@ public class NavHostFragment extends Fragment implements NavHost {
         final Context context = requireContext();
 
         mNavController = new NavController(context);
+        mNavController.setViewModelStore(getViewModelStore());
         mNavController.getNavigatorProvider().addNavigator(createFragmentNavigator());
 
         Bundle navState = null;
