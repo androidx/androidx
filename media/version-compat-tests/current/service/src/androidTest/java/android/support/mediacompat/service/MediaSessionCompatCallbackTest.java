@@ -132,6 +132,7 @@ public class MediaSessionCompatCallbackTest {
 
     // The maximum time to wait for an operation.
     private static final long TIME_OUT_MS = 3000L;
+    private static final long VOLUME_CHANGE_TIMEOUT_MS = 5000L;
     private static final long WAIT_TIME_FOR_NO_RESPONSE_MS = 300L;
 
     private static final long TEST_POSITION = 1000000L;
@@ -884,7 +885,7 @@ public class MediaSessionCompatCallbackTest {
 
         callMediaControllerMethod(SET_VOLUME_TO, targetVolume, getApplicationContext(),
                 mSession.getSessionToken());
-        new PollingCheck(TIME_OUT_MS) {
+        new PollingCheck(VOLUME_CHANGE_TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);
@@ -924,7 +925,7 @@ public class MediaSessionCompatCallbackTest {
 
         callMediaControllerMethod(ADJUST_VOLUME, direction, getApplicationContext(),
                 mSession.getSessionToken());
-        new PollingCheck(TIME_OUT_MS) {
+        new PollingCheck(VOLUME_CHANGE_TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);
