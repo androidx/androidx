@@ -5,7 +5,7 @@ package androidx.benchmark {
     ctor public BenchmarkRule();
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
     method public androidx.benchmark.BenchmarkState getState();
-    method public inline void measure(kotlin.jvm.functions.Function1<? super androidx.benchmark.BenchmarkRule.Context,kotlin.Unit> block);
+    method public inline void keepRunning(kotlin.jvm.functions.Function1<? super androidx.benchmark.BenchmarkRule.Context,kotlin.Unit> block);
     property public final androidx.benchmark.BenchmarkState state;
   }
 
