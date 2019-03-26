@@ -272,6 +272,25 @@ public class WorkerWrapperTest extends DatabaseTest {
     }
 
     @Test
+    @SmallTest
+    public void testFailedOnDeepHierarchy() {
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(FailureWorker.class).build();
+        insertWork(work);
+        String previousId = work.getStringId();
+        String firstWorkId = previousId;
+        for (int i = 0; i < 500; ++i) {
+            work = new OneTimeWorkRequest.Builder(FailureWorker.class).build();
+            insertWork(work);
+            mDependencyDao.insertDependency(new Dependency(work.getStringId(), previousId));
+            previousId = work.getStringId();
+        }
+        WorkerWrapper workerWrapper = createBuilder(firstWorkId).build();
+        workerWrapper.setFailedAndResolve();
+        assertThat(mWorkSpecDao.getState(firstWorkId), is(FAILED));
+        assertThat(mWorkSpecDao.getState(previousId), is(FAILED));
+    }
+
+    @Test
     @LargeTest
     public void testRunning() throws InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(SleepTestWorker.class).build();
