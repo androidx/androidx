@@ -103,7 +103,7 @@ class Archive(
         }
 
         // Create directories if they don't exist yet
-        if (outputPath.parent != null) {
+        if (outputPath.parent == null) {
             Files.createDirectories(outputPath.parent)
         }
 
