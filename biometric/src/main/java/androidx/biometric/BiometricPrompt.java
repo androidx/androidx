@@ -29,6 +29,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.os.BuildCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -386,6 +387,11 @@ public class BiometricPrompt implements BiometricConstants {
     // Created internally for devices P and above.
     BiometricFragment mBiometricFragment;
 
+    // In Q, we must ignore the first onPause if setDeviceCredentialAllowed is true, since
+    // the Q implementation launches ConfirmDeviceCredentialActivity which is an activity and
+    // puts the client app onPause.
+    boolean mPausedOnce;
+
     /**
      *  A shim to interface with the framework API and simplify the support library's API.
      *  The support library sends onAuthenticationError when the negative button is pressed.
@@ -429,11 +435,7 @@ public class BiometricPrompt implements BiometricConstants {
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         void onPause() {
             if (!mFragmentActivity.isChangingConfigurations()) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    if (mBiometricFragment != null) {
-                        mBiometricFragment.cancel();
-                    }
-                } else {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
                     // May be null if no authentication is occurring.
                     if (mFingerprintDialogFragment != null) {
                         mFingerprintDialogFragment.dismiss();
@@ -441,6 +443,26 @@ public class BiometricPrompt implements BiometricConstants {
                     if (mFingerprintHelperFragment != null) {
                         mFingerprintHelperFragment.cancel(
                                 FingerprintHelperFragment.USER_CANCELED_FROM_NONE);
+                    }
+                } else if (BuildCompat.isAtLeastQ()) { // TODO: Change to == Q
+                    // TODO(b/123378871): Change == to >= if this bug is not resolved in R.
+                    // Ignore the first onPause if setDeviceCredentialAllowed is true, since
+                    // the Q implementation launches ConfirmDeviceCredentialActivity which is an
+                    // activity and puts the client app onPause.
+                    if (mBiometricFragment != null) {
+                        if (mBiometricFragment.isDeviceCredentialAllowed()) {
+                            if (!mPausedOnce) {
+                                mPausedOnce = true;
+                            } else {
+                                mBiometricFragment.cancel();
+                            }
+                        } else {
+                            mBiometricFragment.cancel();
+                        }
+                    }
+                } else {
+                    if (mBiometricFragment != null) {
+                        mBiometricFragment.cancel();
                     }
                 }
             }
@@ -543,6 +565,8 @@ public class BiometricPrompt implements BiometricConstants {
         final FragmentManager fragmentManager = mFragmentActivity.getSupportFragmentManager();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            mPausedOnce = false;
+
             // Create the fragment that wraps BiometricPrompt once.
             if (mBiometricFragment == null) {
                 mBiometricFragment = BiometricFragment.newInstance();
