@@ -71,7 +71,7 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
 
         val users = List(sampleSize) { User(it, "name$it") }
 
-        benchmarkRule.measure {
+        benchmarkRule.keepRunning {
             runMeasured(pauseTiming = mode == Mode.MEASURE_DELETE) {
                 // Insert the sample size
                 db.runInTransaction {

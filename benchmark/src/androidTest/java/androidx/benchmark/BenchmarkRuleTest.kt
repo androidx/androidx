@@ -32,7 +32,7 @@ class BenchmarkRuleTest {
 
     @Test
     fun runWithTimingDisabled() {
-        benchmarkRule.measure {
+        benchmarkRule.keepRunning {
             runWithTimingDisabled {
                 Thread.sleep(5)
             }

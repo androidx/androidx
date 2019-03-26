@@ -213,7 +213,7 @@ class BenchmarkState internal constructor() {
     /**
      * Inline fast-path function for inner benchmark loop.
      *
-     * Kotlin users should use [BenchmarkRule.measure]
+     * Kotlin users should use [BenchmarkRule.keepRunning]
      *
      * This codepath uses exclusively @JvmField/const members, so there are no method calls at all
      * in the inlined loop. On recent Android Platform versions, ART inlines these accessors anyway,
