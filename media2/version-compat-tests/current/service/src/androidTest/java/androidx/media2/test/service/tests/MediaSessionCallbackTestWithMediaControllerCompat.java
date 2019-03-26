@@ -82,6 +82,7 @@ import java.util.concurrent.TimeUnit;
 @LargeTest
 public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSessionTestBase {
     private static final String TAG = "MediaSessionCallbackTestWithMediaControllerCompat";
+    private static final long VOLUME_CHANGE_TIMEOUT_MS = 5000L;
 
     private static final String EXPECTED_CONTROLLER_PACKAGE_NAME =
             (Build.VERSION.SDK_INT < 21 || Build.VERSION.SDK_INT >= 24)
@@ -427,7 +428,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
         Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
 
         mController.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
-        new PollingCheck(TIMEOUT_MS) {
+        new PollingCheck(VOLUME_CHANGE_TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);
@@ -471,7 +472,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
         Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
 
         mController.adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
-        new PollingCheck(TIMEOUT_MS) {
+        new PollingCheck(VOLUME_CHANGE_TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);
