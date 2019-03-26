@@ -20,6 +20,7 @@ import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.baseui.selection.ToggleableState.Checked
 import androidx.ui.baseui.selection.ToggleableState.Unchecked
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.TestTag
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
 import androidx.ui.test.android.AndroidUiTestRunner
@@ -55,7 +56,9 @@ class CheckboxUiTest : AndroidUiTestRunner() {
         setContent {
             <CraneWrapper>
                 <MaterialTheme>
-                    <Checkbox testTag="myCheckbox" />
+                    <TestTag tag="myCheckbox">
+                        <Checkbox />
+                    </TestTag>
                 </MaterialTheme>
             </CraneWrapper>
         }
@@ -73,12 +76,13 @@ class CheckboxUiTest : AndroidUiTestRunner() {
         setContent {
             <CraneWrapper>
                 <MaterialTheme>
-                    <Checkbox
-                        testTag="myCheckbox"
-                        value=state.value
-                        onToggle={
-                            state.toggle()
-                        } />
+                    <TestTag tag="myCheckbox">
+                        <Checkbox
+                            value=state.value
+                            onToggle={
+                                state.toggle()
+                            } />
+                    </TestTag>
                 </MaterialTheme>
             </CraneWrapper>
         }
@@ -97,12 +101,13 @@ class CheckboxUiTest : AndroidUiTestRunner() {
         setContent {
             <CraneWrapper>
                 <MaterialTheme>
-                    <Checkbox
-                        testTag="myCheckbox"
-                        value=state.value
-                        onToggle={
-                            state.toggle()
-                        } />
+                    <TestTag tag="myCheckbox">
+                        <Checkbox
+                            value=state.value
+                            onToggle={
+                                state.toggle()
+                            } />
+                    </TestTag>
                 </MaterialTheme>
             </CraneWrapper>
         }

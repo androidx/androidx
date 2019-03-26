@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.ui.baseui.selection
+package androidx.ui.core
 
-import androidx.ui.core.adapter.PressGestureDetector
-import androidx.ui.core.adapter.Semantics
+import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
+val DefaultTestTag = "DEFAULT_TEST_TAG"
+val TestTagAmbient = Ambient.of { DefaultTestTag }
+
+// Implementation with ambients now for only one semantics inside.
+// replace with mergeable semantics later
 @Composable
-fun Toggleable(
-    value: ToggleableState = ToggleableState.Checked,
-    onToggle: (() -> Unit)? = null,
-    @Children children: () -> Unit
-) {
-    // TODO should we use PressReleasedGestureDetector?
-    <PressGestureDetector onRelease=onToggle>
-    // TODO(pavlis): Semantics currently doesn't support 3 states (only checked / unchecked).
-        <Semantics checked=(value == ToggleableState.Checked)>
-            <children />
-        </Semantics>
-    </PressGestureDetector>
+fun TestTag(tag: String, @Children children: () -> Unit) {
+    <TestTagAmbient.Provider value=tag children />
 }
