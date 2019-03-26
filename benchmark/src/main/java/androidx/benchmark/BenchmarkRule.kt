@@ -28,7 +28,7 @@ import org.junit.runners.model.Statement
 /**
  * JUnit rule for benchmarking code on an Android device.
  *
- * In Kotlin, benchmark with [measure]:
+ * In Kotlin, benchmark with [keepRunning]:
  *
  * ```
  * @get:Rule
@@ -37,7 +37,7 @@ import org.junit.runners.model.Statement
  * @Test
  * fun myBenchmark() {
  *     ...
- *     benchmarkRule.measure {
+ *     benchmarkRule.keepRunning {
  *         doSomeWork()
  *     }
  *     ...
@@ -108,7 +108,7 @@ class BenchmarkRule : TestRule {
     val context = Context()
 
     /**
-     * Handle used for controlling timing during [measure].
+     * Handle used for controlling timing during [keepRunning].
      */
     inner class Context internal constructor() {
         /**
@@ -121,7 +121,7 @@ class BenchmarkRule : TestRule {
          *
          * ```
          * @Test
-         * fun bitmapProcessing() = benchmarkRule.measure {
+         * fun bitmapProcessing() = benchmarkRule.keepRunning {
          *     val input: Bitmap = runWithTimingDisabled { constructTestBitmap() }
          *     processBitmap(input)
          * }
@@ -145,7 +145,7 @@ class BenchmarkRule : TestRule {
      * @Test
      * fun myBenchmark() {
      *     ...
-     *     benchmarkRule.benchmark {
+     *     benchmarkRule.keepRunning {
      *         doSomeWork()
      *     }
      *     ...
@@ -154,7 +154,7 @@ class BenchmarkRule : TestRule {
      *
      * @param block The block of code to benchmark.
      */
-    inline fun measure(crossinline block: Context.() -> Unit) {
+    inline fun keepRunning(crossinline block: Context.() -> Unit) {
         // Extract members to locals, to ensure we check #applied, and we don't hit accessors
         val localState = state
         val localContext = context
