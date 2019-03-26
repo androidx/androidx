@@ -152,7 +152,7 @@ public abstract class FragmentStateAdapter extends
                         int oldLeft, int oldTop, int oldRight, int oldBottom) {
                     if (container.getParent() != null) {
                         container.removeOnLayoutChangeListener(this);
-                        onViewAttachedToWindow(holder);
+                        placeFragmentInViewHolder(holder);
                     }
                 }
             });
@@ -218,7 +218,15 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
-    public final void onViewAttachedToWindow(@NonNull FragmentViewHolder holder) {
+    public final void onViewAttachedToWindow(@NonNull final FragmentViewHolder holder) {
+        placeFragmentInViewHolder(holder);
+    }
+
+    /**
+     * @param holder that has been bound to a Fragment in the {@link #onBindViewHolder} stage.
+     */
+    @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
+    void placeFragmentInViewHolder(@NonNull final FragmentViewHolder holder) {
         Fragment fragment = mFragments.get(holder.getItemId());
         if (fragment == null) {
             throw new IllegalStateException("Design assumption violated.");
@@ -270,9 +278,27 @@ public abstract class FragmentStateAdapter extends
         }
 
         // { f:notAdded, v:notCreated, v:notAttached } -> add, create, attach
-        scheduleViewAttach(fragment, container);
-        // TODO(b/122669030): this call might fail, so address with recovery steps
-        mFragmentManager.beginTransaction().add(fragment, "f" + holder.getItemId()).commitNow();
+        if (!shouldDelayFragmentTransactions()) {
+            scheduleViewAttach(fragment, container);
+            mFragmentManager.beginTransaction().add(fragment, "f" + holder.getItemId()).commitNow();
+        } else {
+            if (mFragmentManager.isDestroyed()) {
+                return; // nothing we can do
+            }
+            mLifecycle.addObserver(new LifecycleEventObserver() {
+                @Override
+                public void onStateChanged(@NonNull LifecycleOwner source,
+                        @NonNull Lifecycle.Event event) {
+                    if (shouldDelayFragmentTransactions()) {
+                        return;
+                    }
+                    source.getLifecycle().removeObserver(this);
+                    if (ViewCompat.isAttachedToWindow(holder.getContainer())) {
+                        placeFragmentInViewHolder(holder);
+                    }
+                }
+            });
+        }
 
         gcFragments();
     }
@@ -372,7 +398,8 @@ public abstract class FragmentStateAdapter extends
         mFragments.remove(itemId);
     }
 
-    private boolean shouldDelayFragmentTransactions() {
+    @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
+    boolean shouldDelayFragmentTransactions() {
         return mFragmentManager.isStateSaved();
     }
 
