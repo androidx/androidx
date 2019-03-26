@@ -24,8 +24,10 @@ plugins {
 }
 
 dependencies {
-    api project(':ui-animation-core')
-    api(KOTLIN_R4A_STDLIB)
+    api "androidx.annotation:annotation:1.0.0"
+    api "androidx.dynamicanimation:dynamicanimation:1.0.0"
+    implementation project(':ui-core')
+
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
@@ -47,16 +49,10 @@ dependencies {
 }
 
 supportLibrary {
-    name = "Composables for Animation Lib"
+    name = "Animation Lib"
     publish = true
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
-    description = "Composables for Declarative Animation library"
-}
-
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-    kotlinOptions {
-        useIR = true
-    }
+    description = "Declarative Animation library core classes"
 }

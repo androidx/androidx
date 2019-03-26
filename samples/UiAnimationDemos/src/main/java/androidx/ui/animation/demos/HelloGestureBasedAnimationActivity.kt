@@ -20,11 +20,8 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.animation.ColorPropKey
 import androidx.animation.FloatPropKey
-import androidx.animation.PropKey
-import androidx.animation.TransitionAnimation
-import androidx.animation.TransitionDefinition
-import androidx.animation.TransitionState
 import androidx.animation.transitionDefinition
+import androidx.ui.animation.Transition
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.MeasureBox
 import androidx.ui.core.PxPosition
@@ -33,10 +30,7 @@ import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import com.google.r4a.Children
-import com.google.r4a.Component
 import com.google.r4a.Composable
-import com.google.r4a.Model
 import com.google.r4a.Recompose
 import com.google.r4a.composer
 import com.google.r4a.setContent
@@ -56,42 +50,10 @@ fun HelloGesture() {
     </CraneWrapper>
 }
 
-@Model
-class TransitionModel<T : Any> : TransitionState {
-
-    val anim: TransitionAnimation<T>
-    var animationPulse = 0L
-
-    constructor(transitionDef: TransitionDefinition<T>) {
-        anim = transitionDef.createAnimation()
-        anim.onUpdate = {
-            animationPulse++
-        }
-    }
-
-    override fun <T : Any> get(prop: PropKey<T>): T {
-        val pulse = animationPulse
-        return anim[prop]
-    }
-}
-
-class Transition<T : Any>(
-    transitionDef: TransitionDefinition<T>,
-    var toState: T,
-    @Children var children: (state: TransitionModel<T>) -> Unit
-) : Component() {
-    private val model: TransitionModel<T> = TransitionModel(transitionDef)
-
-    override fun compose() {
-        model.anim.toState(toState)
-        <children state=model />
-    }
-}
-
 private val scale = FloatPropKey()
 private val color = ColorPropKey()
 
-val transDef = transitionDefinition<String> {
+private val definition = transitionDefinition<String> {
     state("released") {
         this[scale] = 1f
         this[color] = Color.fromARGB(255, 0, 200, 0)
@@ -118,7 +80,7 @@ fun TransitionExample() {
         <PressGestureDetector onPress onRelease onCancel=onRelease>
             <MeasureBox> constraints ->
                 collect {
-                    <Transition transitionDef=transDef toState> state ->
+                    <Transition definition toState> state ->
                         <DrawScaledRect scale=state[scale] color=state[color] />
                     </Transition>
                 }

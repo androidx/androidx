@@ -291,6 +291,7 @@ includeProject(":ui-layout-adapter", "ui/layout-adapter")
 includeProject(":ui-demos", new File(samplesRoot, "UiDemos"))
 includeProject(":ui-material-demos", new File(samplesRoot, "UiMaterialDemos"))
 includeProject(":ui-r4a", "ui-r4a")
+includeProject(":ui-animation-core", "ui/animation-core")
 includeProject(":ui-animation", "ui/animation")
 includeProject(":ui-animation-demos", new File(samplesRoot, "UiAnimationDemos"))
 

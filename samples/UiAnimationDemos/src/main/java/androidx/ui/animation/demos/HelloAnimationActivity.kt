@@ -22,7 +22,9 @@ import android.os.Handler
 import android.os.Looper
 import androidx.animation.ColorPropKey
 import androidx.animation.FloatPropKey
+import androidx.animation.TransitionState
 import androidx.animation.transitionDefinition
+import androidx.ui.animation.Transition
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.MeasureBox
 import androidx.ui.core.adapter.Draw
@@ -58,7 +60,7 @@ fun HelloAnimation() {
 private val background = ColorPropKey()
 private val y = FloatPropKey()
 
-val trans = transitionDefinition {
+private val definition = transitionDefinition {
     state(OverlayState.Open) {
         this[background] = Color.fromARGB(255, 128, 128, 128)
         this[y] = 1f // percentage
@@ -85,14 +87,14 @@ fun ColorRect() {
                 recompose()
             }
         }, (200..800).random().toLong())
-        <Transition transitionDef=trans toState> state ->
+        <Transition definition toState> state ->
             <DrawColorRectState state />
         </Transition>
     </Recompose>
 }
 
 @Composable
-fun DrawColorRectState(state: TransitionModel<OverlayState>) {
+fun DrawColorRectState(state: TransitionState) {
 
     val color = state[background]
     val scaleY = state[y]
