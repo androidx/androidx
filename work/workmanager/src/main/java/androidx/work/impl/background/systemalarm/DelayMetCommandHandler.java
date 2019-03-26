@@ -225,6 +225,8 @@ public class DelayMetCommandHandler implements
         // * It could also happen on the onExecutionCompleted() pass of the bgProcessor.
         // To avoid calling mWakeLock.release() twice, we are synchronizing here.
         synchronized (mLock) {
+            // clean up constraint trackers
+            mWorkConstraintsTracker.reset();
             // stop timers
             mDispatcher.getWorkTimer().stopTimer(mWorkSpecId);
 
