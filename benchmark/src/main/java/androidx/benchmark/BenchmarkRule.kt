@@ -201,6 +201,8 @@ class BenchmarkRule : TestRule {
                     Activity.RESULT_OK,
                     state.getFullStatusReport(WarningState.WARNING_PREFIX + invokeMethodName)
                 )
+
+                ResultWriter.appendStats(invokeMethodName, description.className, state.getReport())
             }
         }
     }
