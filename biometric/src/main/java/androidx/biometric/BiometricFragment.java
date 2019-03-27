@@ -174,7 +174,8 @@ public class BiometricFragment extends Fragment {
      * Cancel the authentication.
      */
     protected void cancel() {
-        if (BuildCompat.isAtLeastQ()) { // TODO(b/128747871): Change to == Q
+        // TODO(b/128747871): Change to == Q
+        if (BuildCompat.isAtLeastQ() && isDeviceCredentialAllowed()) {
             if (!mStartRespectingCancel) {
                 Log.w(TAG, "Ignoring fast cancel signal");
                 return;
