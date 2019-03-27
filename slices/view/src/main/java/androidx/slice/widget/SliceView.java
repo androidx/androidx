@@ -632,7 +632,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      * Whether this view should show title items on the first row of the slice.
      * Title items appear at the start of the row.
      */
-    public void showTitleItems(boolean enabled) {
+    public void setShowTitleItems(boolean enabled) {
         mShowTitleItems = enabled;
         if (mListContent != null) {
             mListContent.showTitleItems(enabled);
@@ -640,9 +640,18 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
+     * @deprecated TO BE REMOVED
+     * @removed
+     */
+    @Deprecated
+    public void showTitleItems(boolean enabled) {
+        setShowTitleItems(enabled);
+    }
+
+    /**
      * Whether this view should show the header divider.
      */
-    public void showHeaderDivider(boolean enabled) {
+    public void setShowHeaderDivider(boolean enabled) {
         mShowHeaderDivider = enabled;
         if (mListContent != null) {
             mListContent.showHeaderDivider(enabled);
@@ -650,13 +659,31 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
+     * @deprecated TO BE REMOVED
+     * @removed
+     */
+    @Deprecated
+    public void showHeaderDivider(boolean enabled) {
+        setShowHeaderDivider(enabled);
+    }
+
+    /**
      * Whether this view should show action dividers for rows.
      */
-    public void showActionDividers(boolean enabled) {
+    public void setShowActionDividers(boolean enabled) {
         mShowActionDividers = enabled;
         if (mListContent != null) {
             mListContent.showActionDividers(enabled);
         }
+    }
+
+    /**
+     * @deprecated TO BE REMOVED
+     * @removed
+     */
+    @Deprecated
+    public void showActionDividers(boolean enabled) {
+        setShowActionDividers(enabled);
     }
 
     /**
