@@ -38,7 +38,7 @@ open class StrictViewFragment(
         savedInstanceState: Bundle?
     ): View? {
         checkGetActivity()
-        checkState("onCreateView", StrictFragment.CREATED)
+        checkState("onCreateView", State.CREATED)
         return super.onCreateView(inflater, container, savedInstanceState).also {
             onCreateViewCalled = true
         }
@@ -46,7 +46,7 @@ open class StrictViewFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         checkGetActivity()
-        checkState("onViewCreated", StrictFragment.CREATED)
+        checkState("onViewCreated", State.CREATED)
         onViewCreatedCalled = true
     }
 
@@ -56,7 +56,7 @@ open class StrictViewFragment(
             .that(view)
             .isNotNull()
         checkGetActivity()
-        checkState("onDestroyView", StrictFragment.CREATED)
+        checkState("onDestroyView", State.CREATED)
         onDestroyViewCalled = true
     }
 }
