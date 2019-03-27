@@ -178,7 +178,8 @@ public abstract class KeyedAppState {
          * <p>Severity will default to {@link #SEVERITY_INFO} if not set.
          *
          * <p>Assumes the key is set, key length is at most 100 characters, message length is as
-         * most 1000 characters, and data length is at most 1000 characters.
+         * most 1000 characters, data length is at most 1000 characters, and severity is set to
+         * either {@link #SEVERITY_INFO} or {@link #SEVERITY_ERROR}.
          */
         @NonNull
         public KeyedAppState build() {
@@ -197,6 +198,11 @@ public abstract class KeyedAppState {
             if (keyedAppState.data() != null && keyedAppState.data().length() > MAX_DATA_LENGTH) {
                 throw new IllegalStateException(
                         String.format("Data length can be at most %s", MAX_DATA_LENGTH));
+            }
+
+            if (keyedAppState.severity() != SEVERITY_ERROR
+                    && keyedAppState.severity() != SEVERITY_INFO) {
+                throw new IllegalStateException("Severity must be SEVERITY_ERROR or SEVERITY_INFO");
             }
 
             return keyedAppState;
