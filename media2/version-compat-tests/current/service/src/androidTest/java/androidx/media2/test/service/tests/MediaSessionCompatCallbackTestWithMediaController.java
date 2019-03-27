@@ -77,6 +77,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
 
     // The maximum time to wait for an operation.
     private static final long TIME_OUT_MS = 3000L;
+    private static final long VOLUME_CHANGE_TIMEOUT_MS = 5000L;
 
     PendingIntent mIntent;
     MediaSessionCompat mSession;
@@ -388,7 +389,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
         Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
 
         controller.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
-        new PollingCheck(TIMEOUT_MS) {
+        new PollingCheck(VOLUME_CHANGE_TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);
@@ -428,7 +429,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
         Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
 
         controller.adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
-        new PollingCheck(TIMEOUT_MS) {
+        new PollingCheck(VOLUME_CHANGE_TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);

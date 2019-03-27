@@ -78,6 +78,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @FlakyTest
 public class MediaControllerTest extends MediaSessionTestBase {
     private static final String TAG = "MediaControllerTest";
+    private static final long VOLUME_CHANGE_TIMEOUT_MS = 5000L;
 
     PendingIntent mIntent;
     MediaSession mSession;
@@ -937,7 +938,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
 
         mController.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
-        new PollingCheck(TIMEOUT_MS) {
+        new PollingCheck(VOLUME_CHANGE_TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);
@@ -981,7 +982,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
 
         mController.adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
-        new PollingCheck(TIMEOUT_MS) {
+        new PollingCheck(VOLUME_CHANGE_TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);

@@ -66,6 +66,8 @@ import java.util.List;
 public class MediaControllerTest extends MediaSessionTestBase {
 
     static final String TAG = "MediaControllerTest";
+    private static final long VOLUME_CHANGE_TIMEOUT_MS = 5000L;
+
     final List<RemoteMediaSession> mRemoteSessionList = new ArrayList<>();
 
     AudioManager mAudioManager;
@@ -161,7 +163,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
 
         controller.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
-        new PollingCheck(TIMEOUT_MS) {
+        new PollingCheck(VOLUME_CHANGE_TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);
@@ -207,7 +209,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         Log.d(TAG, "originalVolume=" + originalVolume + ", targetVolume=" + targetVolume);
 
         controller.adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
-        new PollingCheck(TIMEOUT_MS) {
+        new PollingCheck(VOLUME_CHANGE_TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);
