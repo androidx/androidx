@@ -722,7 +722,7 @@ class NavControllerTest {
     @Test
     fun testGetViewModelStore() {
         val navController = createNavController()
-        navController.setViewModelStore(ViewModelStore())
+        navController.setHostViewModelStore(ViewModelStore())
         val navGraph = navController.navigatorProvider.navigation(
             id = 1,
             startDestination = R.id.start_test
@@ -738,7 +738,7 @@ class NavControllerTest {
     @Test
     fun testGetViewModelStoreNoGraph() {
         val navController = createNavController()
-        navController.setViewModelStore(ViewModelStore())
+        navController.setHostViewModelStore(ViewModelStore())
         val navGraphId = 1
 
         try {
@@ -758,7 +758,7 @@ class NavControllerTest {
     @Test
     fun testGetViewModelStoreSameGraph() {
         val navController = createNavController()
-        navController.setViewModelStore(ViewModelStore())
+        navController.setHostViewModelStore(ViewModelStore())
         val provider = navController.navigatorProvider
         val graph = provider.navigation(1, startDestination = 1) {
             navigation(1, startDestination = 2) {
