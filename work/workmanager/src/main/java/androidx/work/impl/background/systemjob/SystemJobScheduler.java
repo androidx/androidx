@@ -35,6 +35,7 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.IdGenerator;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A class that schedules work using {@link android.app.job.JobScheduler}.
@@ -158,7 +159,35 @@ public class SystemJobScheduler implements Scheduler {
         Logger.get().debug(
                 TAG,
                 String.format("Scheduling work ID %s Job ID %s", workSpec.id, jobId));
-        mJobScheduler.schedule(jobInfo);
+        try {
+            mJobScheduler.schedule(jobInfo);
+        } catch (IllegalStateException e) {
+            // This only gets thrown if we exceed 100 jobs.  Let's figure out if WorkManager is
+            // responsible for all these jobs.
+            int numWorkManagerJobs = 0;
+            List<JobInfo> allJobInfos = mJobScheduler.getAllPendingJobs();
+            if (allJobInfos != null) {  // Apparently this CAN be null on API 23?
+                for (JobInfo currentJobInfo : allJobInfos) {
+                    if (currentJobInfo.getExtras().getString(
+                            SystemJobInfoConverter.EXTRA_WORK_SPEC_ID) != null) {
+                        ++numWorkManagerJobs;
+                    }
+                }
+            }
+
+            String message = String.format(Locale.getDefault(),
+                    "JobScheduler 100 job limit exceeded.  We count %d WorkManager "
+                            + "jobs in JobScheduler; we have %d tracked jobs in our DB; "
+                            + "our Configuration limit is %d.",
+                    numWorkManagerJobs,
+                    mWorkManager.getWorkDatabase().workSpecDao().getScheduledWork().size(),
+                    mWorkManager.getConfiguration().getMaxSchedulerLimit());
+
+            Logger.get().error(TAG, message);
+
+            // Rethrow a more verbose exception.
+            throw new IllegalStateException(message, e);
+        }
     }
 
     @Override
