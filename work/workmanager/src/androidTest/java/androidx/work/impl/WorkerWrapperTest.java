@@ -46,7 +46,6 @@ import android.util.Log;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 import androidx.work.ArrayCreatingInputMerger;
 import androidx.work.Configuration;
@@ -273,7 +272,7 @@ public class WorkerWrapperTest extends DatabaseTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testFailedOnDeepHierarchy() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(FailureWorker.class).build();
         insertWork(work);
