@@ -40,7 +40,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -386,83 +385,6 @@ class FragmentLifecycleTest {
         shutdownFragmentController(fc, viewModelStore)
         assertThat(fragmentB.calledOnDestroy).isTrue()
         assertThat(fragmentA.calledOnDestroy).isTrue()
-    }
-
-    // Make sure that executing transactions during activity lifecycle events
-    // is properly prevented.
-    @Test
-    fun preventReentrantCalls() {
-        testLifecycleTransitionFailure(StrictFragment.ATTACHED, StrictFragment.CREATED)
-        testLifecycleTransitionFailure(StrictFragment.CREATED, StrictFragment.ACTIVITY_CREATED)
-        testLifecycleTransitionFailure(StrictFragment.ACTIVITY_CREATED, StrictFragment.STARTED)
-        testLifecycleTransitionFailure(StrictFragment.STARTED, StrictFragment.RESUMED)
-
-        testLifecycleTransitionFailure(StrictFragment.RESUMED, StrictFragment.STARTED)
-        testLifecycleTransitionFailure(StrictFragment.STARTED, StrictFragment.CREATED)
-        testLifecycleTransitionFailure(StrictFragment.CREATED, StrictFragment.ATTACHED)
-        testLifecycleTransitionFailure(StrictFragment.ATTACHED, StrictFragment.DETACHED)
-    }
-
-    private fun testLifecycleTransitionFailure(fromState: Int, toState: Int) {
-        activityRule.runOnUiThread(Runnable {
-            val viewModelStore = ViewModelStore()
-            val fc1 = startupFragmentController(activityRule.activity, null, viewModelStore)
-
-            val fm1 = fc1.supportFragmentManager
-
-            val reentrantFragment = ReentrantFragment.create(fromState, toState)
-
-            fm1.beginTransaction().add(reentrantFragment, "reentrant").commit()
-            try {
-                fm1.executePendingTransactions()
-            } catch (e: IllegalStateException) {
-                fail("An exception shouldn't happen when initially adding the fragment")
-            }
-
-            // Now shut down the fragment controller. When fromState > toState, this should
-            // result in an exception
-            val savedState: Parcelable?
-            try {
-                fc1.dispatchPause()
-                savedState = fc1.saveAllState()
-                fc1.dispatchStop()
-                fc1.dispatchDestroy()
-                if (fromState > toState) {
-                    fail(
-                        "Expected IllegalStateException when moving from " +
-                                StrictFragment.stateToString(fromState) + " to " +
-                                StrictFragment.stateToString(toState)
-                    )
-                }
-            } catch (e: IllegalStateException) {
-                if (fromState < toState) {
-                    fail(
-                        "Unexpected IllegalStateException when moving from " +
-                                StrictFragment.stateToString(fromState) + " to " +
-                                StrictFragment.stateToString(toState)
-                    )
-                }
-                assertThat(e)
-                    .hasMessageThat().contains("FragmentManager is already executing transactions")
-                return@Runnable // test passed!
-            }
-
-            // now restore from saved state. This will be reached when
-            // fromState < toState. We want to catch the fragment while it
-            // is being restored as the fragment controller state is being brought up.
-
-            try {
-                startupFragmentController(activityRule.activity, savedState, viewModelStore)
-                fail(
-                    "Expected IllegalStateException when moving from " +
-                            StrictFragment.stateToString(fromState) + " to " +
-                            StrictFragment.stateToString(toState)
-                )
-            } catch (e: IllegalStateException) {
-                assertThat(e)
-                    .hasMessageThat().contains("FragmentManager is already executing transactions")
-            }
-        })
     }
 
     @Test
