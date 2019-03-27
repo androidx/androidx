@@ -163,7 +163,7 @@ public class SimpleArrayMap<K, V> {
     @SuppressWarnings("ArrayToString")
     private void allocArrays(final int size) {
         if (size == (BASE_SIZE*2)) {
-            synchronized (ArrayMap.class) {
+            synchronized (SimpleArrayMap.class) {
                 if (mTwiceBaseCache != null) {
                     final Object[] array = mTwiceBaseCache;
                     mArray = array;
@@ -177,7 +177,7 @@ public class SimpleArrayMap<K, V> {
                 }
             }
         } else if (size == BASE_SIZE) {
-            synchronized (ArrayMap.class) {
+            synchronized (SimpleArrayMap.class) {
                 if (mBaseCache != null) {
                     final Object[] array = mBaseCache;
                     mArray = array;
@@ -199,7 +199,7 @@ public class SimpleArrayMap<K, V> {
     @SuppressWarnings("ArrayToString")
     private static void freeArrays(final int[] hashes, final Object[] array, final int size) {
         if (hashes.length == (BASE_SIZE*2)) {
-            synchronized (ArrayMap.class) {
+            synchronized (SimpleArrayMap.class) {
                 if (mTwiceBaseCacheSize < CACHE_SIZE) {
                     array[0] = mTwiceBaseCache;
                     array[1] = hashes;
@@ -213,7 +213,7 @@ public class SimpleArrayMap<K, V> {
                 }
             }
         } else if (hashes.length == BASE_SIZE) {
-            synchronized (ArrayMap.class) {
+            synchronized (SimpleArrayMap.class) {
                 if (mBaseCacheSize < CACHE_SIZE) {
                     array[0] = mBaseCache;
                     array[1] = hashes;
