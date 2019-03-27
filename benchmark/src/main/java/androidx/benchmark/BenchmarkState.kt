@@ -92,8 +92,17 @@ class BenchmarkState internal constructor() {
      */
     internal val stats: Stats
         get() {
+            if (state == NOT_STARTED) {
+                throw IllegalStateException("The benchmark wasn't started! Every test in a class " +
+                        "with a BenchmarkRule must contain a benchmark. In Kotlin, call " +
+                        "benchmarkRule.keepRunning {}, or in Java, call " +
+                        "benchmarkRule.getState().keepRunning() to run your benchmark.")
+            }
             if (state != FINISHED) {
-                throw IllegalStateException("The benchmark hasn't finished")
+                throw IllegalStateException("The benchmark hasn't finished! In Java, use " +
+                        "while(BenchmarkState.keepRunning()) to ensure keepRunning() returns " +
+                        "false before ending your test. In Kotlin, just use " +
+                        "benchmarkRule.keepRunning {} to avoid the problem.")
             }
             return internalStats!!
         }
