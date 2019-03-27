@@ -16,12 +16,15 @@
 
 package androidx.core.app;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.app.PendingIntent;
 import android.app.RemoteAction;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Preconditions;
 import androidx.versionedparcelable.ParcelField;
@@ -36,18 +39,42 @@ import androidx.versionedparcelable.VersionedParcelize;
  */
 @VersionedParcelize(jetifyAs = "android.support.v4.app.RemoteActionCompat")
 public final class RemoteActionCompat implements VersionedParcelable {
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(1)
-    IconCompat mIcon;
+    public IconCompat mIcon;
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(2)
-    CharSequence mTitle;
+    public CharSequence mTitle;
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(3)
-    CharSequence mContentDescription;
+    public CharSequence mContentDescription;
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(4)
-    PendingIntent mActionIntent;
+    public PendingIntent mActionIntent;
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(5)
-    boolean mEnabled;
+    public boolean mEnabled;
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
     @ParcelField(6)
-    boolean mShouldShowIcon;
+    public boolean mShouldShowIcon;
 
     public RemoteActionCompat(@NonNull IconCompat icon, @NonNull CharSequence title,
             @NonNull CharSequence contentDescription, @NonNull PendingIntent intent) {
