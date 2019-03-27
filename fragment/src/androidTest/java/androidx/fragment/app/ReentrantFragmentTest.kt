@@ -32,21 +32,21 @@ import org.junit.runners.Parameterized
 @SmallTest
 @RunWith(Parameterized::class)
 class ReentrantFragmentTest(
-    private val fromState: Int,
-    private val toState: Int
+    private val fromState: StrictFragment.State,
+    private val toState: StrictFragment.State
 ) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "fromState={0}, toState={1}")
         fun data() = mutableListOf<Array<Any?>>().apply {
-            add(arrayOf(StrictFragment.ATTACHED, StrictFragment.CREATED))
-            add(arrayOf(StrictFragment.CREATED, StrictFragment.ACTIVITY_CREATED))
-            add(arrayOf(StrictFragment.ACTIVITY_CREATED, StrictFragment.STARTED))
-            add(arrayOf(StrictFragment.STARTED, StrictFragment.RESUMED))
-            add(arrayOf(StrictFragment.RESUMED, StrictFragment.STARTED))
-            add(arrayOf(StrictFragment.STARTED, StrictFragment.CREATED))
-            add(arrayOf(StrictFragment.CREATED, StrictFragment.ATTACHED))
-            add(arrayOf(StrictFragment.ATTACHED, StrictFragment.DETACHED))
+            add(arrayOf(StrictFragment.State.ATTACHED, StrictFragment.State.CREATED))
+            add(arrayOf(StrictFragment.State.CREATED, StrictFragment.State.ACTIVITY_CREATED))
+            add(arrayOf(StrictFragment.State.ACTIVITY_CREATED, StrictFragment.State.STARTED))
+            add(arrayOf(StrictFragment.State.STARTED, StrictFragment.State.RESUMED))
+            add(arrayOf(StrictFragment.State.RESUMED, StrictFragment.State.STARTED))
+            add(arrayOf(StrictFragment.State.STARTED, StrictFragment.State.CREATED))
+            add(arrayOf(StrictFragment.State.CREATED, StrictFragment.State.ATTACHED))
+            add(arrayOf(StrictFragment.State.ATTACHED, StrictFragment.State.DETACHED))
         }
     }
 
@@ -85,19 +85,13 @@ class ReentrantFragmentTest(
                 fc1.dispatchStop()
                 fc1.dispatchDestroy()
                 if (fromState > toState) {
-                    fail(
-                        "Expected IllegalStateException when moving from " +
-                                StrictFragment.stateToString(fromState) + " to " +
-                                StrictFragment.stateToString(toState)
-                    )
+                    fail("Expected IllegalStateException when moving from " +
+                            "$fromState to $toState")
                 }
             } catch (e: IllegalStateException) {
                 if (fromState < toState) {
-                    fail(
-                        "Unexpected IllegalStateException when moving from " +
-                                StrictFragment.stateToString(fromState) + " to " +
-                                StrictFragment.stateToString(toState)
-                    )
+                    fail("Unexpected IllegalStateException when moving from " +
+                            "$fromState to $toState")
                 }
                 assertThat(e)
                     .hasMessageThat().contains("FragmentManager is already executing transactions")
@@ -114,11 +108,8 @@ class ReentrantFragmentTest(
                     savedState,
                     viewModelStore
                 )
-                fail(
-                    "Expected IllegalStateException when moving from " +
-                            StrictFragment.stateToString(fromState) + " to " +
-                            StrictFragment.stateToString(toState)
-                )
+                fail("Expected IllegalStateException when moving from " +
+                        "$fromState to $toState")
             } catch (e: IllegalStateException) {
                 assertThat(e)
                     .hasMessageThat()
@@ -133,7 +124,7 @@ class ReentrantFragment : StrictFragment() {
         private const val FROM_STATE = "fromState"
         private const val TO_STATE = "toState"
 
-        fun create(fromState: Int, toState: Int): ReentrantFragment {
+        fun create(fromState: State, toState: State): ReentrantFragment {
             val fragment = ReentrantFragment()
             fragment.fromState = fromState
             fragment.toState = toState
@@ -142,14 +133,14 @@ class ReentrantFragment : StrictFragment() {
         }
     }
 
-    private var fromState = 0
-    private var toState = 0
+    private var fromState = State.DETACHED
+    private var toState = State.DETACHED
     private var isRestored: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (savedInstanceState != null) {
-            fromState = savedInstanceState.getInt(FROM_STATE)
-            toState = savedInstanceState.getInt(TO_STATE)
+            fromState = savedInstanceState.getSerializable(FROM_STATE) as State
+            toState = savedInstanceState.getSerializable(TO_STATE) as State
             isRestored = true
         }
         super.onCreate(savedInstanceState)
@@ -157,11 +148,11 @@ class ReentrantFragment : StrictFragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt(FROM_STATE, fromState)
-        outState.putInt(TO_STATE, toState)
+        outState.putSerializable(FROM_STATE, fromState)
+        outState.putSerializable(TO_STATE, toState)
     }
 
-    override fun onStateChanged(fromState: Int) {
+    override fun onStateChanged(fromState: State) {
         super.onStateChanged(fromState)
         // We execute the transaction when shutting down or after restoring
         if (fromState == this.fromState && currentState == toState &&
