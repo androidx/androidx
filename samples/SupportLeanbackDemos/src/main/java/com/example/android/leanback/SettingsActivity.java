@@ -16,11 +16,12 @@
 
 package com.example.android.leanback;
 
-import android.app.Activity;
 import android.os.Bundle;
 
+import androidx.fragment.app.FragmentActivity;
 
-public class SettingsActivity extends Activity {
+
+public class SettingsActivity extends FragmentActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
