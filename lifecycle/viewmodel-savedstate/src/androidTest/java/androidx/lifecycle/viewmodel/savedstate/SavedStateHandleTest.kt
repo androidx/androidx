@@ -42,6 +42,20 @@ class SavedStateHandleTest {
 
     @Test
     @UiThreadTest
+    fun testSetNullGet() {
+        val handle = SavedStateHandle()
+        handle.set("foo", null)
+        assertThat(handle.get<String?>("foo")).isEqualTo(null)
+        val fooLd = handle.getLiveData<String>("foo")
+        assertThat(fooLd.value).isEqualTo(null)
+        fooLd.value = "another"
+        assertThat(handle.get<String?>("foo")).isEqualTo("another")
+        fooLd.value = null
+        assertThat(handle.get<String?>("foo")).isEqualTo(null)
+    }
+
+    @Test
+    @UiThreadTest
     fun testSetObserve() {
         val handle = SavedStateHandle()
         val liveData = handle.getLiveData<Int>("a")

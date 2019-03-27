@@ -196,6 +196,9 @@ public final class SavedStateHandle {
     }
 
     private static void validateValue(Object value) {
+        if (value == null) {
+            return;
+        }
         for (Class<?> cl : ACCEPTABLE_CLASSES) {
             if (cl.isInstance(value)) {
                 return;
