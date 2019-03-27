@@ -178,7 +178,7 @@ public class SessionResult implements RemoteResult, VersionedParcelable {
 
     /**
      * Gets the completion time of the command. Being more specific, it's the same as
-     * {@link SystemClock#elapsedRealtime()} when the command is completed.
+     * {@link SystemClock#elapsedRealtime()} when the command completed.
      *
      * @return completion time of the command
      */
@@ -189,7 +189,7 @@ public class SessionResult implements RemoteResult, VersionedParcelable {
 
     /**
      * Gets the {@link MediaItem} for which the command was executed. In other words, this is
-     * the current media item when the command was completed.
+     * the current media item when the command completed.
      * <p>
      * Can be {@code null} for many reasons. For examples,
      * <ul>
@@ -198,7 +198,7 @@ public class SessionResult implements RemoteResult, VersionedParcelable {
      * <li>Command is irrelevant with the media item (e.g. custom command).
      * </ul>
      *
-     * @return media item when the command is completed. Can be {@code null} for an error, the
+     * @return media item when the command completed. Can be {@code null} for an error, the
      *         current media item was {@code null}, or any other reason.
      */
     @Override
