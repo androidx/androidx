@@ -46,6 +46,7 @@ package androidx.navigation {
     method public androidx.navigation.NavGraph getGraph();
     method public androidx.navigation.NavInflater getNavInflater();
     method public androidx.navigation.NavigatorProvider getNavigatorProvider();
+    method public androidx.lifecycle.ViewModelStore getViewModelStore(@IdRes int);
     method public boolean handleDeepLink(android.content.Intent?);
     method public void navigate(@IdRes int);
     method public void navigate(@IdRes int, android.os.Bundle?);
@@ -64,6 +65,7 @@ package androidx.navigation {
     method @CallSuper public void setGraph(@NavigationRes int, android.os.Bundle?);
     method @CallSuper public void setGraph(androidx.navigation.NavGraph);
     method @CallSuper public void setGraph(androidx.navigation.NavGraph, android.os.Bundle?);
+    method public void setViewModelStore(androidx.lifecycle.ViewModelStore);
     field public static final String KEY_DEEP_LINK_INTENT = "android-support-nav:controller:deepLinkIntent";
   }
 

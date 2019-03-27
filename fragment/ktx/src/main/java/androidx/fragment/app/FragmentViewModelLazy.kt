@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelLazy
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import androidx.lifecycle.ViewModelProvider.Factory
+import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import kotlin.reflect.KClass
 
@@ -55,7 +56,7 @@ import kotlin.reflect.KClass
 inline fun <reified VM : ViewModel> Fragment.viewModels(
     noinline ownerProducer: () -> ViewModelStoreOwner = { this },
     noinline factoryProducer: (() -> Factory)? = null
-) = createViewModelLazy(VM::class, ownerProducer, factoryProducer)
+) = createViewModelLazy(VM::class, { ownerProducer().viewModelStore }, factoryProducer)
 
 /**
  * Returns a property delegate to access parent activity's [ViewModel],
@@ -74,7 +75,7 @@ inline fun <reified VM : ViewModel> Fragment.viewModels(
 @MainThread
 inline fun <reified VM : ViewModel> Fragment.activityViewModels(
     noinline factoryProducer: (() -> Factory)? = null
-) = createViewModelLazy(VM::class, ::requireActivity, factoryProducer)
+) = createViewModelLazy(VM::class, { requireActivity().viewModelStore }, factoryProducer)
 
 /**
  * Helper method for creation of [ViewModelLazy], that resolves `null` passed as [factoryProducer]
@@ -83,7 +84,7 @@ inline fun <reified VM : ViewModel> Fragment.activityViewModels(
 @MainThread
 fun <VM : ViewModel> Fragment.createViewModelLazy(
     viewModelClass: KClass<VM>,
-    ownerProducer: () -> ViewModelStoreOwner,
+    storeProducer: () -> ViewModelStore,
     factoryProducer: (() -> Factory)? = null
 ): Lazy<VM> {
     val factoryPromise = factoryProducer ?: {
@@ -92,5 +93,5 @@ fun <VM : ViewModel> Fragment.createViewModelLazy(
         )
         AndroidViewModelFactory.getInstance(application)
     }
-    return ViewModelLazy(viewModelClass, ownerProducer, factoryPromise)
+    return ViewModelLazy(viewModelClass, storeProducer, factoryPromise)
 }

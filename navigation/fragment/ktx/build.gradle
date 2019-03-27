@@ -36,7 +36,11 @@ dependencies {
     api(project(":navigation:navigation-fragment"))
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
     api(project(":navigation:navigation-runtime-ktx"))
+    api(project(":fragment-ktx"))
+    api(project(":lifecycle:lifecycle-viewmodel-ktx"))
     api(KOTLIN_STDLIB)
+    androidTestImplementation(project(":fragment-testing"))
+    androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
