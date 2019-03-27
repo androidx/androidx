@@ -52,7 +52,7 @@ class NavGraphViewModelLazyTest {
     @Test
     fun vmInitialization() {
         val scenario = launchFragmentInContainer<TestVMFragment>()
-        navController.setViewModelStore(ViewModelStore())
+        navController.setHostViewModelStore(ViewModelStore())
         scenario.onFragment { fragment ->
             Navigation.setViewNavController(fragment.requireView(), navController)
         }
