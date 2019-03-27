@@ -30,6 +30,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageCaptureUseCase;
@@ -45,7 +46,9 @@ import androidx.core.content.ContextCompat;
 import java.io.File;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
@@ -101,8 +104,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
 
         mViewFinderUseCase = new ViewFinderUseCase(builder.build());
-
-        CameraX.bindToLifecycle(this, mViewFinderUseCase);
 
         TextureView textureView = findViewById(R.id.textureView);
 
@@ -161,6 +162,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                 enableViewFinderUseCase();
                                 break;
                         }
+                        bindUseCases();
                     }
                 });
 
@@ -198,8 +200,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
         }
 
         mImageCaptureUseCase = new ImageCaptureUseCase(builder.build());
-
-        CameraX.bindToLifecycle(this, mImageCaptureUseCase);
 
         Button captureButton = findViewById(R.id.Picture);
 
@@ -256,6 +256,17 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private void createUseCases() {
         createImageCaptureUseCase();
         createViewFinderUseCase();
+        bindUseCases();
+    }
+
+    private void bindUseCases() {
+        List<BaseUseCase> useCases = new ArrayList();
+        // When it is not IMAGE_CAPTURE_TYPE_NONE, mImageCaptureUseCase won't be null.
+        if (mImageCaptureUseCase != null) {
+            useCases.add(mImageCaptureUseCase);
+        }
+        useCases.add(mViewFinderUseCase);
+        CameraX.bindToLifecycle(this, useCases.toArray(new BaseUseCase[useCases.size()]));
     }
 
     @Override
