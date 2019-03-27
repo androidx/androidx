@@ -172,7 +172,7 @@ public final class ImageCaptureUseCaseTest {
     @After
     public void tearDown() {
         mHandlerThread.quitSafely();
-        mCamera.release();
+        mCamera.close();
         if (mCapturedImage != null) {
             mCapturedImage.close();
         }
