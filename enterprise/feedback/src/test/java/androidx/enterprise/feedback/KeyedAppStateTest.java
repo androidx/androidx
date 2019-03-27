@@ -273,6 +273,17 @@ public class KeyedAppStateTest {
     }
 
     @Test
+    public void buildWithInvalidSeverity_throwsIllegalStateException() {
+        KeyedAppStateBuilder builder =
+                createDefaultKeyedAppStateBuilder().setSeverity(INVALID_SEVERITY);
+
+        try {
+            builder.build();
+            fail();
+        } catch (IllegalStateException expected) { }
+    }
+
+    @Test
     @SmallTest
     public void keyIsRequired() {
         KeyedAppStateBuilder builder =
