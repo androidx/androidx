@@ -164,7 +164,7 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
 
     /**
      * Gets the completion time of the command. Being more specific, it's the same as
-     * {@link android.os.SystemClock#elapsedRealtime()} when the command is completed.
+     * {@link android.os.SystemClock#elapsedRealtime()} when the command completed.
      *
      * @return completion time of the command
      */
