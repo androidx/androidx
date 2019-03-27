@@ -2170,7 +2170,7 @@ public class MediaControlView extends ViewGroup {
                             for (int i = 0; i < subtitleTracksList.size(); i++) {
                                 String lang = subtitleTracksList.get(i);
                                 String trackDescription;
-                                if (lang.equals("")) {
+                                if (lang.equals("und")) {
                                     trackDescription = mResources.getString(
                                             R.string.MediaControlView_subtitle_track_number_text,
                                             i + 1);
