@@ -20,6 +20,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.lifecycle.ViewModelStore
 import androidx.navigation.test.R
 import androidx.navigation.testing.TestNavigator
 import androidx.navigation.testing.test
@@ -716,6 +717,60 @@ class NavControllerTest {
             .isFalse()
 
         verifyNoMoreInteractions(onDestinationChangedListener)
+    }
+
+    @Test
+    fun testGetViewModelStore() {
+        val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.start_test
+        ) {
+            test(R.id.start_test)
+        }
+        navController.setGraph(navGraph, null)
+
+        val store = navController.getViewModelStore(navGraph.id)
+        assertThat(store).isNotNull()
+    }
+
+    @Test
+    fun testGetViewModelStoreNoGraph() {
+        val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
+        val navGraphId = 1
+
+        try {
+            navController.getViewModelStore(navGraphId)
+            fail(
+                "Attempting to get ViewModelStore for navGraph not on back stack should throw " +
+                        "IllegalArgumentException"
+            )
+        } catch (e: IllegalArgumentException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "No NavGraph with ID $navGraphId is on the NavController's back stack"
+                )
+        }
+    }
+
+    @Test
+    fun testGetViewModelStoreSameGraph() {
+        val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
+        val provider = navController.navigatorProvider
+        val graph = provider.navigation(1, startDestination = 1) {
+            navigation(1, startDestination = 2) {
+                test(2)
+            }
+        }
+
+        navController.setGraph(graph, null)
+        val viewStore = navController.getViewModelStore(graph.id)
+
+        assertThat(viewStore).isNotNull()
+        assertThat(navController.getViewModelStore(graph.id)).isSameAs(viewStore)
     }
 
     private fun createNavController(): NavController {
