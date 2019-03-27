@@ -26,7 +26,7 @@ import com.google.common.truth.Truth.assertWithMessage
  * if any of them are called out of order or from a bad/unexpected state.
  */
 open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(contentLayoutId) {
-    var currentState: Int = 0
+    var currentState: State = State.DETACHED
 
     var calledOnAttach: Boolean = false
     var calledOnCreate: Boolean = false
@@ -41,7 +41,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
     var calledOnAttachFragment: Boolean = false
     var lastSavedInstanceState: Bundle? = null
 
-    open fun onStateChanged(fromState: Int) {
+    open fun onStateChanged(fromState: State) {
         checkGetActivity()
     }
 
@@ -51,7 +51,7 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
             .isNotNull()
     }
 
-    fun checkState(caller: String, vararg expected: Int) {
+    fun checkState(caller: String, vararg expected: State) {
         if (expected.isEmpty()) {
             throw IllegalArgumentException("must supply at least one expected state")
         }
@@ -60,21 +60,21 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
                 return
             }
         }
-        val expectString = StringBuilder(stateToString(expected[0]))
+        val expectString = StringBuilder(expected[0].toString())
         for (i in 1 until expected.size) {
-            expectString.append(" or ").append(stateToString(expected[i]))
+            expectString.append(" or ").append(expected[i])
         }
         throw IllegalStateException(
-            "$caller called while fragment was ${stateToString(currentState)}; " +
+            "$caller called while fragment was $currentState; " +
                     "expected $expectString"
         )
     }
 
-    fun checkStateAtLeast(caller: String, minState: Int) {
+    fun checkStateAtLeast(caller: String, minState: State) {
         if (currentState < minState) {
             throw IllegalStateException(
-                "$caller called while fragment was ${stateToString(currentState)}; " +
-                        "expected at least ${stateToString(minState)}"
+                "$caller called while fragment was $currentState; " +
+                        "expected at least $minState"
             )
         }
     }
@@ -86,9 +86,9 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
     override fun onAttach(context: Context) {
         super.onAttach(context)
         calledOnAttach = true
-        checkState("onAttach", DETACHED)
-        currentState = ATTACHED
-        onStateChanged(DETACHED)
+        checkState("onAttach", State.DETACHED)
+        currentState = State.ATTACHED
+        onStateChanged(State.DETACHED)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,34 +98,34 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         }
         calledOnCreate = true
         lastSavedInstanceState = savedInstanceState
-        checkState("onCreate", ATTACHED)
-        currentState = CREATED
-        onStateChanged(ATTACHED)
+        checkState("onCreate", State.ATTACHED)
+        currentState = State.CREATED
+        onStateChanged(State.ATTACHED)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         calledOnActivityCreated = true
-        checkState("onActivityCreated", ATTACHED, CREATED)
+        checkState("onActivityCreated", State.ATTACHED, State.CREATED)
         val fromState = currentState
-        currentState = ACTIVITY_CREATED
+        currentState = State.ACTIVITY_CREATED
         onStateChanged(fromState)
     }
 
     override fun onStart() {
         super.onStart()
         calledOnStart = true
-        checkState("onStart", CREATED, ACTIVITY_CREATED)
-        currentState = STARTED
-        onStateChanged(ACTIVITY_CREATED)
+        checkState("onStart", State.CREATED, State.ACTIVITY_CREATED)
+        currentState = State.STARTED
+        onStateChanged(State.ACTIVITY_CREATED)
     }
 
     override fun onResume() {
         super.onResume()
         calledOnResume = true
-        checkState("onResume", STARTED)
-        currentState = RESUMED
-        onStateChanged(STARTED)
+        checkState("onResume", State.STARTED)
+        currentState = State.RESUMED
+        onStateChanged(State.STARTED)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -135,60 +135,48 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         // FIXME: We should not allow onSaveInstanceState except when STARTED or greater.
         // But FragmentManager currently does it in saveAllState for fragments on the
         // back stack, so fragments may be in the CREATED state.
-        checkStateAtLeast("onSaveInstanceState", CREATED)
+        checkStateAtLeast("onSaveInstanceState", State.CREATED)
     }
 
     override fun onPause() {
         super.onPause()
         calledOnPause = true
-        checkState("onPause", RESUMED)
-        currentState = STARTED
-        onStateChanged(RESUMED)
+        checkState("onPause", State.RESUMED)
+        currentState = State.STARTED
+        onStateChanged(State.RESUMED)
     }
 
     override fun onStop() {
         super.onStop()
         calledOnStop = true
-        checkState("onStop", STARTED)
-        currentState = CREATED
-        onStateChanged(STARTED)
+        checkState("onStop", State.STARTED)
+        currentState = State.CREATED
+        onStateChanged(State.STARTED)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         calledOnDestroy = true
-        checkState("onDestroy", CREATED)
-        currentState = ATTACHED
-        onStateChanged(CREATED)
+        checkState("onDestroy", State.CREATED)
+        currentState = State.ATTACHED
+        onStateChanged(State.CREATED)
     }
 
     override fun onDetach() {
         super.onDetach()
         calledOnDetach = true
-        checkState("onDestroy", CREATED, ATTACHED)
+        checkState("onDestroy", State.CREATED, State.ATTACHED)
         val fromState = currentState
-        currentState = DETACHED
+        currentState = State.DETACHED
         onStateChanged(fromState)
     }
 
-    companion object {
-        const val DETACHED = 0
-        const val ATTACHED = 1
-        const val CREATED = 2
-        const val ACTIVITY_CREATED = 3
-        const val STARTED = 4
-        const val RESUMED = 5
-
-        internal fun stateToString(state: Int): String {
-            when (state) {
-                DETACHED -> return "DETACHED"
-                ATTACHED -> return "ATTACHED"
-                CREATED -> return "CREATED"
-                ACTIVITY_CREATED -> return "ACTIVITY_CREATED"
-                STARTED -> return "STARTED"
-                RESUMED -> return "RESUMED"
-            }
-            return "(unknown $state)"
-        }
+    enum class State {
+        DETACHED,
+        ATTACHED,
+        CREATED,
+        ACTIVITY_CREATED,
+        STARTED,
+        RESUMED
     }
 }
