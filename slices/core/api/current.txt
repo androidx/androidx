@@ -49,6 +49,7 @@ package androidx.slice {
     method public final android.net.Uri? insert(android.net.Uri, android.content.ContentValues?);
     method @RequiresApi(19) public abstract androidx.slice.Slice! onBindSlice(android.net.Uri!);
     method public final boolean onCreate();
+    method public android.app.PendingIntent? onCreatePermissionRequest(android.net.Uri, String);
     method @RequiresApi(19) public abstract boolean onCreateSliceProvider();
     method @RequiresApi(19) public java.util.Collection<android.net.Uri>! onGetSliceDescendants(android.net.Uri!);
     method @RequiresApi(19) public android.net.Uri onMapIntentToUri(android.content.Intent!);

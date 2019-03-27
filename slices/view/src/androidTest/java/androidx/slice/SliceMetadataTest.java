@@ -792,8 +792,10 @@ public class SliceMetadataTest {
     @Test
     public void testIsPermissionSlice() {
         Uri uri = Uri.parse("content://pkg/slice");
-        Slice permissionSlice =
-                SliceProvider.createPermissionSlice(mContext, uri, mContext.getPackageName());
+        SliceProvider provider = new SliceViewManagerTest.TestSliceProvider();
+        provider.attachInfo(mContext, null);
+        Slice permissionSlice = provider.createPermissionSlice(
+                uri, mContext.getPackageName());
 
         SliceMetadata metadata = SliceMetadata.from(mContext, permissionSlice);
         assertEquals(true, metadata.isPermissionSlice());
