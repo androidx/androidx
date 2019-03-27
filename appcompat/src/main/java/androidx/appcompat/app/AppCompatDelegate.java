@@ -40,11 +40,14 @@ import androidx.annotation.StyleRes;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.VectorEnabledTintResources;
+import androidx.collection.ArraySet;
 import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
+import java.util.Iterator;
 
 /**
  * This class represents a delegate which you can use to extend AppCompat's support to any
@@ -158,6 +161,10 @@ public abstract class AppCompatDelegate {
 
     @NightMode
     private static int sDefaultNightMode = MODE_NIGHT_UNSPECIFIED;
+
+    private static final ArraySet<WeakReference<AppCompatDelegate>> sActiveDelegates =
+            new ArraySet<>();
+    private static final Object sActiveDelegatesLock = new Object();
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -464,22 +471,12 @@ public abstract class AppCompatDelegate {
     public abstract void onSaveInstanceState(Bundle outState);
 
     /**
-     * Allow AppCompat to apply the {@code night} and {@code notnight} resource qualifiers.
+     * Applies the currently selected night mode to this delegate's host component.
      *
-     * <p>Doing this enables the
+     * <p>This enables the
      * {@link
      * androidx.appcompat.R.style#Theme_AppCompat_DayNight Theme.AppCompat.DayNight}
-     * family of themes to work, using the computed twilight to automatically select a dark or
-     * light theme.</p>
-     *
-     * <p>You can override the night mode using {@link #setLocalNightMode(int)}.</p>
-     *
-     * <p>This only works on devices running
-     * {@link android.os.Build.VERSION_CODES#ICE_CREAM_SANDWICH ICE_CREAM_SANDWICH} and above.</p>
-     *
-     * <p>If this is called after the host component has been created, the component will either be
-     * automatically recreated or its {@link Configuration} updated. Which one depends on how
-     * the component is setup (via {@code android:configChanges} or similar).</p>
+     * family of themes to work, using the specified mode.</p>
      *
      * <p>You can be notified when the night changes by overriding the
      * {@link AppCompatActivity#onNightModeChanged(int)} method.</p>
@@ -492,15 +489,20 @@ public abstract class AppCompatDelegate {
     public abstract boolean applyDayNight();
 
     /**
-     * Override the night mode used for this delegate's host component. This method only takes
-     * effect for those situations where {@link #applyDayNight()} works.
+     * Override the night mode used for this delegate's host component.
      *
-     * <p>As this will call {@link #applyDayNight()}, the host component might be
-     * recreated automatically.</p>
+     * <p>When setting an mode to be used across an entire app, the
+     * {@link #setDefaultNightMode(int)} method is preferred.</p>
+     *
+     * <p>If this is called after the host component has been created, a {@code uiMode}
+     * configuration change will occur, which may result in the component being recreated.</p>
      *
      * <p>It is not recommended to use this method on a delegate attached to a {@link Dialog}.
      * Dialogs use the host Activity as their context, resulting in the dialog's night mode
      * overriding the Activity's night mode.
+     *
+     * @see #getLocalNightMode()
+     * @see #setDefaultNightMode(int)
      */
     public abstract void setLocalNightMode(@NightMode int mode);
 
@@ -513,14 +515,18 @@ public abstract class AppCompatDelegate {
     }
 
     /**
-     * Sets the default night mode. This is used across all activities/dialogs but can be overridden
-     * locally via {@link #setLocalNightMode(int)}.
+     * Sets the default night mode. This is the default value used for all components, but can
+     * be overridden locally via {@link #setLocalNightMode(int)}.
      *
-     * <p>This method only takes effect for those situations where {@link #applyDayNight()} works.
-     * Defaults to {@link #MODE_NIGHT_FOLLOW_SYSTEM}.</p>
+     * <p>This is the primary method to control the DayNight functionality, since it allows
+     * the delegates to avoid unnecessary recreations when possible.</p>
      *
-     * <p>This only takes effect for components which are created after the call. Any components
-     * which are already open will not be updated.</p>
+     * <p>If this method is called after any host components with attached
+     * {@link AppCompatDelegate}s have been 'started', a {@code uiMode} configuration change
+     * will occur in each. This may result in those components being recreated, depending
+     * on their manifest configuration.</p>
+     *
+     * <p>Defaults to {@link #MODE_NIGHT_FOLLOW_SYSTEM}.</p>
      *
      * @see #setLocalNightMode(int)
      * @see #getDefaultNightMode()
@@ -532,7 +538,10 @@ public abstract class AppCompatDelegate {
             case MODE_NIGHT_FOLLOW_SYSTEM:
             case MODE_NIGHT_AUTO_TIME:
             case MODE_NIGHT_AUTO_BATTERY:
-                sDefaultNightMode = mode;
+                if (sDefaultNightMode != mode) {
+                    sDefaultNightMode = mode;
+                    applyDayNightToActiveDelegates();
+                }
                 break;
             default:
                 Log.d(TAG, "setDefaultNightMode() called with an unknown mode");
@@ -595,5 +604,47 @@ public abstract class AppCompatDelegate {
      */
     public static boolean isCompatVectorFromResourcesEnabled() {
         return VectorEnabledTintResources.isCompatVectorFromResourcesEnabled();
+    }
+
+    static void markStarted(@NonNull AppCompatDelegate delegate) {
+        synchronized (sActiveDelegatesLock) {
+            // Remove any existing records pointing to the delegate.
+            // There should not be any, but we'll make sure
+            removeDelegateFromActives(delegate);
+            // Add a new record to the set
+            sActiveDelegates.add(new WeakReference<>(delegate));
+        }
+    }
+
+    static void markStopped(@NonNull AppCompatDelegate delegate) {
+        synchronized (sActiveDelegatesLock) {
+            // Remove any WeakRef records pointing to the delegate in the set
+            removeDelegateFromActives(delegate);
+        }
+    }
+
+    private static void removeDelegateFromActives(@NonNull AppCompatDelegate toRemove) {
+        synchronized (sActiveDelegatesLock) {
+            final Iterator<WeakReference<AppCompatDelegate>> i = sActiveDelegates.iterator();
+            while (i.hasNext()) {
+                final AppCompatDelegate delegate = i.next().get();
+                if (delegate == toRemove || delegate == null) {
+                    // If the delegate is the one to remove, or it is null (because of the WeakRef),
+                    // remove it from the set
+                    i.remove();
+                }
+            }
+        }
+    }
+
+    private static void applyDayNightToActiveDelegates() {
+        synchronized (sActiveDelegatesLock) {
+            for (WeakReference<AppCompatDelegate> activeDelegate : sActiveDelegates) {
+                final AppCompatDelegate delegate = activeDelegate.get();
+                if (delegate != null) {
+                    delegate.applyDayNight();
+                }
+            }
+        }
     }
 }

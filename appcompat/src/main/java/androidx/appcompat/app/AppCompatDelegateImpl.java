@@ -494,10 +494,14 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // This will apply day/night if the time has changed, it will also call through to
         // setupAutoNightModeIfNeeded()
         applyDayNight();
+
+        markStarted(this);
     }
 
     @Override
     public void onStop() {
+        markStopped(this);
+
         ActionBar ab = getSupportActionBar();
         if (ab != null) {
             ab.setShowHideAnimationEnabled(false);
@@ -565,6 +569,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void onDestroy() {
+        // There are cases where onStop is not called on all API levels. We make sure here.
+        markStopped(this);
+
         if (mInvalidatePanelMenuPosted) {
             mWindow.getDecorView().removeCallbacks(mInvalidatePanelMenuRunnable);
         }
@@ -2124,15 +2131,26 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     private boolean applyDayNight(final boolean recreateIfNeeded) {
+        if (mIsDestroyed) {
+            // If we're destroyed, ignore the call
+            return false;
+        }
+
         @NightMode final int nightMode = calculateNightMode();
         @ApplyableNightMode final int modeToApply = mapNightMode(nightMode);
         final boolean applied = updateForNightMode(modeToApply, recreateIfNeeded);
 
         if (nightMode == MODE_NIGHT_AUTO_TIME) {
-            // If we're already been started, we may need to setup auto mode again
             getAutoTimeNightModeManager().setup();
-        } else if (nightMode == MODE_NIGHT_AUTO_BATTERY) {
+        } else if (mAutoTimeNightModeManager != null) {
+            // Make sure we clean up the existing manager
+            mAutoTimeNightModeManager.cleanup();
+        }
+        if (nightMode == MODE_NIGHT_AUTO_BATTERY) {
             getAutoBatteryNightModeManager().setup();
+        } else if (mAutoBatteryNightModeManager != null) {
+            // Make sure we clean up the existing manager
+            mAutoBatteryNightModeManager.cleanup();
         }
 
         return applied;
