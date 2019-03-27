@@ -18,10 +18,14 @@ package androidx.leanback.preference;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.widget.VerticalGridView;
@@ -34,6 +38,40 @@ import androidx.recyclerview.widget.RecyclerView;
  * embedding into broader UI elements.
  */
 public abstract class BaseLeanbackPreferenceFragmentCompat extends PreferenceFragmentCompat {
+
+    private Context mThemedContext;
+
+    @Nullable
+    @Override
+    public Context getContext() {
+        if (mThemedContext == null) {
+            return super.getContext();
+        }
+        return mThemedContext;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        final TypedValue tv = new TypedValue();
+        getActivity().getTheme().resolveAttribute(androidx.preference.R.attr.preferenceTheme, tv,
+                true);
+        int theme = tv.resourceId;
+        if (theme == 0) {
+            // Fallback to default theme.
+            theme = R.style.PreferenceThemeOverlayLeanback;
+        }
+        // aosp/821989 has forced PreferenceFragment to use the theme of activity and only
+        // override theme attribute value when it's not defined in activity theme.
+        // However, a side panel preference fragment can use different values than main content.
+        // So a ContextThemeWrapper is required, overrides getContext() before
+        // super.onCreate() call to use the ContextThemeWrapper in creating PreferenceManager
+        // and onCreateView().
+        mThemedContext = new ContextThemeWrapper(super.getContext(), theme);
+        // super.onCreate() will apply() the theme to activity in non-force way, which shouldn't
+        // affect activity as the theme attributes of PreferenceThemeOverlayLeanback is already
+        // in the activity's theme (in framework)
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
