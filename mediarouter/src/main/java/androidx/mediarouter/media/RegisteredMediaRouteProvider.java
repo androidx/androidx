@@ -276,7 +276,11 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
             mBound = false;
             disconnect();
-            getContext().unbindService(this);
+            try {
+                getContext().unbindService(this);
+            } catch (IllegalArgumentException ex) {
+                Log.e(TAG, this + ": unbindService failed", ex);
+            }
         }
     }
 
