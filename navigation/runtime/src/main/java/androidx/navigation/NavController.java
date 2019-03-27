@@ -969,13 +969,13 @@ public class NavController {
     }
 
     /**
-     * Sets the parent ViewModelStore used by the NavController to store ViewModels at the
+     * Sets the host's ViewModelStore used by the NavController to store ViewModels at the
      * navigation graph level. This is required to call {@link #getViewModelStore} and
      * should generally be called for you by your {@link NavHost}.
      *
      * @param viewModelStore ViewModelStore used to store ViewModels at the navigation graph level
      */
-    public void setViewModelStore(@NonNull ViewModelStore viewModelStore) {
+    public void setHostViewModelStore(@NonNull ViewModelStore viewModelStore) {
         mViewModel = NavControllerViewModel.getInstance(viewModelStore);
     }
 
@@ -984,7 +984,7 @@ public class NavController {
      * store one.
      *
      * @param navGraphId ID of a NavGraph that exists on the back stack
-     * @throws IllegalStateException if called before {@link #setViewModelStore}.
+     * @throws IllegalStateException if called before {@link #setHostViewModelStore}.
      * @throws IllegalArgumentException if the NavGraph is not on the back stack
      */
     @NonNull
