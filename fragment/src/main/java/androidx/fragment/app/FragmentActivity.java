@@ -280,14 +280,6 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     /**
-     * Returns the context to be used for inflating any fragment view hierarchies.
-     */
-    @NonNull
-    public Context getThemedContext() {
-        return this;
-    }
-
-    /**
      * Perform initialization of all fragments.
      */
     @SuppressWarnings("deprecation")

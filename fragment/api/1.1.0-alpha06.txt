@@ -161,7 +161,6 @@ package androidx.fragment.app {
     ctor @ContentView public FragmentActivity(@LayoutRes int);
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();
     method @Deprecated public androidx.loader.app.LoaderManager getSupportLoaderManager();
-    method public android.content.Context getThemedContext();
     method public void onAttachFragment(androidx.fragment.app.Fragment);
     method @CallSuper public void onMultiWindowModeChanged(boolean);
     method @CallSuper public void onPictureInPictureModeChanged(boolean);
