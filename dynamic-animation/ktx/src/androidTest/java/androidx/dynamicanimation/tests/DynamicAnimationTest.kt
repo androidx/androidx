@@ -25,7 +25,7 @@ import androidx.dynamicanimation.animation.springAnimationOf
 import androidx.dynamicanimation.animation.withSpringForceProperties
 import androidx.dynamicanimation.ktx.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 
@@ -41,7 +41,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
 import org.mockito.Mockito.verify
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class DynamicAnimationTest {
 
