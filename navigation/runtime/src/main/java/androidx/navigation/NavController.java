@@ -30,6 +30,7 @@ import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.TaskStackBuilder;
+import androidx.lifecycle.ViewModelStore;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -80,6 +81,8 @@ public class NavController {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Deque<NavBackStackEntry> mBackStack = new ArrayDeque<>();
+
+    private NavControllerViewModel mViewModel;
 
     private final NavigatorProvider mNavigatorProvider = new NavigatorProvider() {
         @Nullable
@@ -306,7 +309,10 @@ public class NavController {
         boolean popped = false;
         for (Navigator navigator : popOperations) {
             if (navigator.popBackStack()) {
-                mBackStack.removeLast();
+                NavBackStackEntry entry = mBackStack.removeLast();
+                if (mViewModel != null) {
+                    mViewModel.clear(entry.mId);
+                }
                 popped = true;
             } else {
                 // The pop did not complete successfully, so stop immediately
@@ -960,5 +966,47 @@ public class NavController {
         mNavigatorStateToRestore = navState.getBundle(KEY_NAVIGATOR_STATE);
         mBackStackIdsToRestore = navState.getIntArray(KEY_BACK_STACK_IDS);
         mBackStackArgsToRestore = navState.getParcelableArray(KEY_BACK_STACK_ARGS);
+    }
+
+    /**
+     * Sets the parent ViewModelStore used by the NavController to store ViewModels at the
+     * navigation graph level. This is required to call {@link #getViewModelStore} and
+     * should generally be called for you by your {@link NavHost}.
+     *
+     * @param viewModelStore ViewModelStore used to store ViewModels at the navigation graph level
+     */
+    public void setViewModelStore(@NonNull ViewModelStore viewModelStore) {
+        mViewModel = NavControllerViewModel.getInstance(viewModelStore);
+    }
+
+    /**
+     * Gets the view model for a NavGraph. If a view model does not exist it will create and
+     * store one.
+     *
+     * @param navGraphId ID of a NavGraph that exists on the back stack
+     * @throws IllegalStateException if called before {@link #setViewModelStore}.
+     * @throws IllegalArgumentException if the NavGraph is not on the back stack
+     */
+    @NonNull
+    public ViewModelStore getViewModelStore(@IdRes int navGraphId) {
+        if (mViewModel == null) {
+            throw new IllegalStateException("You must call setViewModelStore() before calling "
+                    + "getViewModelStore().");
+        }
+        NavBackStackEntry lastFromBackStack = null;
+        Iterator<NavBackStackEntry> iterator = mBackStack.descendingIterator();
+        while (iterator.hasNext()) {
+            NavBackStackEntry entry = iterator.next();
+            NavDestination destination = entry.getDestination();
+            if (destination instanceof NavGraph && destination.getId() == navGraphId) {
+                lastFromBackStack = entry;
+                break;
+            }
+        }
+        if (lastFromBackStack == null) {
+            throw new IllegalArgumentException("No NavGraph with ID " + navGraphId + " is on the "
+                    + "NavController's back stack");
+        }
+        return mViewModel.getViewModelStore(lastFromBackStack.mId);
     }
 }

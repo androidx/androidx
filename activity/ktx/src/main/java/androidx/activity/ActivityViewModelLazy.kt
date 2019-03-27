@@ -48,5 +48,5 @@ inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
         AndroidViewModelFactory.getInstance(application)
     }
 
-    return ViewModelLazy(VM::class, { this }, factoryPromise)
+    return ViewModelLazy(VM::class, { viewModelStore }, factoryPromise)
 }

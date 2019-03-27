@@ -29,20 +29,15 @@ class ViewModelLazyTest {
     @Test
     fun test() {
         val factoryProducer = { TestFactory() }
-        val owner = TestOwner()
-        val vm by ViewModelLazy(TestVM::class, { owner }, factoryProducer)
+        val store = ViewModelStore()
+        val vm by ViewModelLazy(TestVM::class, { store }, factoryProducer)
         assertThat(vm.prop).isEqualTo("spb")
-        assertThat(owner.store.keys()).isNotEmpty()
+        assertThat(store.keys()).isNotEmpty()
     }
 
     class TestVM(val prop: String) : ViewModel()
 
     class TestFactory : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T = TestVM("spb") as T
-    }
-
-    class TestOwner : ViewModelStoreOwner {
-        val store = ViewModelStore()
-        override fun getViewModelStore() = store
     }
 }
