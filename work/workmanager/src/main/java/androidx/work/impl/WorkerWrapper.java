@@ -53,6 +53,7 @@ import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
@@ -482,10 +483,11 @@ public class WorkerWrapper implements Runnable {
         return setToRunning;
     }
 
-    private void setFailedAndResolve() {
+    @VisibleForTesting
+    void setFailedAndResolve() {
         mWorkDatabase.beginTransaction();
         try {
-            recursivelyFailWorkAndDependents(mWorkSpecId);
+            iterativelyFailWorkAndDependents(mWorkSpecId);
             ListenableWorker.Result.Failure failure = (ListenableWorker.Result.Failure) mResult;
             // Update Data as necessary.
             Data output = failure.getOutputData();
@@ -497,15 +499,16 @@ public class WorkerWrapper implements Runnable {
         }
     }
 
-    private void recursivelyFailWorkAndDependents(String workSpecId) {
-        List<String> dependentIds = mDependencyDao.getDependentWorkIds(workSpecId);
-        for (String id : dependentIds) {
-            recursivelyFailWorkAndDependents(id);
-        }
-
-        // Don't fail already cancelled work.
-        if (mWorkSpecDao.getState(workSpecId) != CANCELLED) {
-            mWorkSpecDao.setState(FAILED, workSpecId);
+    private void iterativelyFailWorkAndDependents(String workSpecId) {
+        LinkedList<String> idsToProcess = new LinkedList<>();
+        idsToProcess.add(workSpecId);
+        while (!idsToProcess.isEmpty()) {
+            String id = idsToProcess.remove();
+            // Don't fail already cancelled work.
+            if (mWorkSpecDao.getState(id) != CANCELLED) {
+                mWorkSpecDao.setState(FAILED, id);
+            }
+            idsToProcess.addAll(mDependencyDao.getDependentWorkIds(id));
         }
     }
 

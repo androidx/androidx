@@ -70,6 +70,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 import androidx.work.BackoffPolicy;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
@@ -792,7 +793,6 @@ public class WorkManagerImplTest {
                 containsInAnyOrder(appendWork1.getStringId()));
     }
 
-
     @Test
     @MediumTest
     public void testEnqueueUniqueWork_appendsExistingWorkOnAppend()
@@ -1171,7 +1171,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @MediumTest
+    @SmallTest
     public void testCancelWorkById_cancelsDependentWork()
             throws ExecutionException, InterruptedException {
 
