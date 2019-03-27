@@ -667,7 +667,7 @@ public final class CameraView extends ViewGroup {
     }
 
     /**
-     * Takes a video and calls {@link OnVideoSavedListener#onVideoSaved(File)} when done.
+     * Takes a video and calls the OnVideoSavedListener when done.
      *
      * @param file The destination.
      */

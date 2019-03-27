@@ -54,7 +54,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * <p>This class is designed for simple video capturing. It gives basic configuration of the
  * recorded video such as resolution and file format.
+ *
+ * @hide In the earlier stage, the VideoCaptureUseCase is deprioritized.
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public class VideoCaptureUseCase extends BaseUseCase {
 
     /**

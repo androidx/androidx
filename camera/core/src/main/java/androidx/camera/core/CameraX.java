@@ -116,6 +116,9 @@ public final class CameraX {
      * guaranteed resolutions listed in {@link
      * android.hardware.camera2.CameraDevice#createCaptureSession}.
      *
+     * <p> Currently up to 3 use cases may be bound at any time.  Exceeding this will throw an
+     * IllegalArgumentException.
+     *
      * @param lifecycleOwner The lifecycleOwner which controls the lifecycle transitions of the use
      *                       cases.
      * @param useCases       The use cases to bind to a lifecycle.

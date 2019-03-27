@@ -179,7 +179,7 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
                 || !supportedSurfaceCombination.checkSupported(surfaceConfigurations)) {
             throw new IllegalArgumentException(
                     "No supported surface combination is found for camera device - Id : "
-                            + cameraId);
+                            + cameraId + ".  May be attempting to bind too many use cases.");
         }
 
         return supportedSurfaceCombination.getSuggestedResolutions(originalUseCases, newUseCases);
