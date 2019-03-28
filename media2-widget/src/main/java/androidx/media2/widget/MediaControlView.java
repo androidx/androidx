@@ -192,6 +192,7 @@ public class MediaControlView extends ViewGroup {
     boolean mSeekAvailable;
     boolean mIsAdvertisement;
     boolean mNeedToHideBars;
+    boolean mNeedToShowBars;
     boolean mWasPlaying;
 
     private SparseArray<View> mTransportControlsMap = new SparseArray<>();
@@ -693,6 +694,10 @@ public class MediaControlView extends ViewGroup {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mUxState = UX_STATE_ONLY_PROGRESS_VISIBLE;
+                if (mNeedToShowBars) {
+                    post(mShowAllBars);
+                    mNeedToShowBars = false;
+                }
             }
         });
 
@@ -708,6 +713,10 @@ public class MediaControlView extends ViewGroup {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mUxState = UX_STATE_NONE_VISIBLE;
+                if (mNeedToShowBars) {
+                    post(mShowAllBars);
+                    mNeedToShowBars = false;
+                }
             }
         });
 
@@ -726,6 +735,10 @@ public class MediaControlView extends ViewGroup {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mUxState = UX_STATE_NONE_VISIBLE;
+                if (mNeedToShowBars) {
+                    post(mShowAllBars);
+                    mNeedToShowBars = false;
+                }
             }
         });
 
@@ -924,12 +937,7 @@ public class MediaControlView extends ViewGroup {
         }
         removeCallbacks(mHideMainBars);
         removeCallbacks(mHideProgressBar);
-
-        if (mUxState == UX_STATE_NONE_VISIBLE) {
-            post(mShowAllBars);
-        } else if (mUxState == UX_STATE_ONLY_PROGRESS_VISIBLE) {
-            post(mShowMainBars);
-        }
+        post(mShowAllBars);
     }
 
     private void hideMediaControlView() {
@@ -938,25 +946,26 @@ public class MediaControlView extends ViewGroup {
         }
         removeCallbacks(mHideMainBars);
         removeCallbacks(mHideProgressBar);
-
         post(mHideAllBars);
     }
 
-    private final Runnable mShowAllBars = new Runnable() {
+    final Runnable mShowAllBars = new Runnable() {
         @Override
         public void run() {
-            mShowAllBarsAnimator.start();
+            switch (mUxState) {
+                case UX_STATE_NONE_VISIBLE:
+                    mShowAllBarsAnimator.start();
+                    break;
+                case UX_STATE_ONLY_PROGRESS_VISIBLE:
+                    mShowMainBarsAnimator.start();
+                    break;
+                case UX_STATE_ANIMATING:
+                    mNeedToShowBars = true;
+            }
+
             if (mController.isPlaying()) {
                 postDelayedRunnable(mHideMainBars, mDelayedAnimationIntervalMs);
             }
-        }
-    };
-
-    private final Runnable mShowMainBars = new Runnable() {
-        @Override
-        public void run() {
-            mShowMainBarsAnimator.start();
-            postDelayedRunnable(mHideMainBars, mDelayedAnimationIntervalMs);
         }
     };
 
@@ -1962,6 +1971,9 @@ public class MediaControlView extends ViewGroup {
                             playPauseButton.setContentDescription(
                                     mResources.getString(R.string.mcv2_play_button_desc));
                             removeCallbacks(mUpdateProgress);
+                            removeCallbacks(mHideMainBars);
+                            removeCallbacks(mHideProgressBar);
+                            post(mShowAllBars);
                             break;
                         case SessionPlayer.PLAYER_STATE_ERROR:
                             playPauseButton.setImageDrawable(
