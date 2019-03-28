@@ -57,7 +57,7 @@ class CheckboxUiTest : AndroidUiTestRunner() {
             <CraneWrapper>
                 <MaterialTheme>
                     <TestTag tag="myCheckbox">
-                        <Checkbox />
+                        <Checkbox value=Unchecked />
                     </TestTag>
                 </MaterialTheme>
             </CraneWrapper>
