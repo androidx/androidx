@@ -51,6 +51,9 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(KOTLIN_COROUTINES_TEST)
 
+    // have to use lintChecks because, lintPublish does nothing: b/123377555
+    lintChecks(project(':lifecycle:lifecycle-runtime-eap-lint'))
+    lintPublish(project(':lifecycle:lifecycle-runtime-eap-lint'))
 }
 
 supportLibrary {
