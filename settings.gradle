@@ -102,6 +102,7 @@ includeProject(":lifecycle:lifecycle-reactivestreams", "lifecycle/reactivestream
 includeProject(":lifecycle:lifecycle-reactivestreams-ktx", "lifecycle/reactivestreams/ktx")
 includeProject(":lifecycle:lifecycle-runtime", "lifecycle/runtime")
 includeProject(":lifecycle:lifecycle-runtime-eap", "lifecycle/runtime/eap") // temporary
+includeProject(":lifecycle:lifecycle-runtime-eap-lint", "lifecycle/runtime/eap/lint")
 includeProject(":lifecycle:lifecycle-service", "lifecycle/service")
 includeProject(":lifecycle:lifecycle-viewmodel", "lifecycle/viewmodel")
 includeProject(":lifecycle:lifecycle-viewmodel-ktx", "lifecycle/viewmodel/ktx")
