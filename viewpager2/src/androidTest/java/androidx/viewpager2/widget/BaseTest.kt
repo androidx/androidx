@@ -428,7 +428,7 @@ typealias AdapterProvider = (TestActivity) -> RecyclerView.Adapter<out RecyclerV
 typealias AdapterProviderForItems = (items: List<String>) -> AdapterProvider
 
 val fragmentAdapterProvider: AdapterProviderForItems = { items ->
-    { activity: TestActivity -> FragmentAdapter(activity.supportFragmentManager, items) }
+    { activity: TestActivity -> FragmentAdapter(activity, items) }
 }
 
 /**

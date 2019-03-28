@@ -22,7 +22,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.greaterThanOrEqualTo
@@ -33,9 +33,9 @@ import java.util.concurrent.atomic.AtomicInteger
 private const val ARG_KEY = "key"
 
 class FragmentAdapter(
-    fragmentManager: FragmentManager,
+    fragmentActivity: FragmentActivity,
     private val items: List<String>
-) : FragmentStateAdapter(fragmentManager), SelfChecking {
+) : FragmentStateAdapter(fragmentActivity), SelfChecking {
     private val attachCount = AtomicInteger(0)
     private val destroyCount = AtomicInteger(0)
 
