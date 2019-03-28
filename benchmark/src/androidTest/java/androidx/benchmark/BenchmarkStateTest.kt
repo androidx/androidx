@@ -88,7 +88,7 @@ class BenchmarkStateTest {
             fail("expected exception")
         } catch (e: IllegalStateException) {
             assertTrue(e.message!!.contains("wasn't started"))
-            assertTrue(e.message!!.contains("benchmarkRule.keepRunning {}"))
+            assertTrue(e.message!!.contains("benchmarkRule.measureRepeated {}"))
         }
     }
 
@@ -102,7 +102,7 @@ class BenchmarkStateTest {
             fail("expected exception")
         } catch (e: IllegalStateException) {
             assertTrue(e.message!!.contains("hasn't finished"))
-            assertTrue(e.message!!.contains("benchmarkRule.keepRunning {}"))
+            assertTrue(e.message!!.contains("benchmarkRule.measureRepeated {}"))
         }
     }
 }

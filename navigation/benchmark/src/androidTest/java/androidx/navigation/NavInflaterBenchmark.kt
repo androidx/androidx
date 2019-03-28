@@ -17,6 +17,7 @@
 package androidx.navigation
 
 import androidx.benchmark.BenchmarkRule
+import androidx.benchmark.measureRepeated
 import androidx.navigation.testing.TestNavigatorProvider
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -38,14 +39,14 @@ class NavInflaterBenchmark {
 
     @Test
     fun inflateSimple() {
-        benchmarkRule.keepRunning {
+        benchmarkRule.measureRepeated {
             navInflater.inflate(androidx.navigation.benchmark.test.R.navigation.nav_simple)
         }
     }
 
     @Test
     fun inflateDeepLink() {
-        benchmarkRule.keepRunning {
+        benchmarkRule.measureRepeated {
             navInflater.inflate(androidx.navigation.benchmark.test.R.navigation.nav_deep_link)
         }
     }

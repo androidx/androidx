@@ -29,12 +29,12 @@ class TrivialBenchmark {
     val benchmarkRule = BenchmarkRule()
 
     @Test
-    fun nothing() = benchmarkRule.keepRunning { }
+    fun nothing() = benchmarkRule.measureRepeated { }
 
     @Test
     fun increment() {
         var i = 0
-        benchmarkRule.keepRunning {
+        benchmarkRule.measureRepeated {
             i++
         }
     }
