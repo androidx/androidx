@@ -29,16 +29,16 @@ import android.util.Size;
 
 import androidx.camera.core.AppConfiguration;
 import androidx.camera.core.BaseCamera;
-import androidx.camera.core.BaseUseCase.StateChangeListener;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ImageAnalysisUseCase;
-import androidx.camera.core.ImageAnalysisUseCase.Analyzer;
-import androidx.camera.core.ImageAnalysisUseCase.ImageReaderMode;
-import androidx.camera.core.ImageAnalysisUseCaseConfiguration;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageAnalysis.Analyzer;
+import androidx.camera.core.ImageAnalysis.ImageReaderMode;
+import androidx.camera.core.ImageAnalysisConfiguration;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.UseCase.StateChangeListener;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -59,10 +59,10 @@ import java.util.concurrent.TimeUnit;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public final class ImageAnalysisUseCaseTest {
+public final class ImageAnalysisTest {
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
-    private final ImageAnalysisUseCaseConfiguration mDefaultConfiguration =
-            ImageAnalysisUseCase.DEFAULT_CONFIG.getConfiguration(null);
+    private final ImageAnalysisConfiguration mDefaultConfiguration =
+            ImageAnalysis.DEFAULT_CONFIG.getConfiguration(null);
     private final StateChangeListener mMockListener = Mockito.mock(StateChangeListener.class);
     private final Analyzer mMockAnalyzer = Mockito.mock(Analyzer.class);
     private Set<ImageProperties> mAnalysisResults;
@@ -111,7 +111,7 @@ public final class ImageAnalysisUseCaseTest {
 
     @Test
     public void analyzerCanBeSetAndRetrieved() {
-        ImageAnalysisUseCase useCase = new ImageAnalysisUseCase(mDefaultConfiguration);
+        ImageAnalysis useCase = new ImageAnalysis(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -129,7 +129,7 @@ public final class ImageAnalysisUseCaseTest {
 
     @Test
     public void becomesActive_whenHasAnalyzer() {
-        ImageAnalysisUseCase useCase = new ImageAnalysisUseCase(mDefaultConfiguration);
+        ImageAnalysis useCase = new ImageAnalysis(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -142,7 +142,7 @@ public final class ImageAnalysisUseCaseTest {
 
     @Test
     public void becomesInactive_whenNoAnalyzer() {
-        ImageAnalysisUseCase useCase = new ImageAnalysisUseCase(mDefaultConfiguration);
+        ImageAnalysis useCase = new ImageAnalysis(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -157,10 +157,10 @@ public final class ImageAnalysisUseCaseTest {
     public void analyzerAnalyzesImages_whenCameraIsOpen()
             throws InterruptedException, CameraInfoUnavailableException {
         final int imageFormat = ImageFormat.YUV_420_888;
-        ImageAnalysisUseCaseConfiguration configuration =
-                new ImageAnalysisUseCaseConfiguration.Builder().setCallbackHandler(
+        ImageAnalysisConfiguration configuration =
+                new ImageAnalysisConfiguration.Builder().setCallbackHandler(
                         mHandler).build();
-        ImageAnalysisUseCase useCase = new ImageAnalysisUseCase(configuration);
+        ImageAnalysis useCase = new ImageAnalysis(configuration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -178,10 +178,10 @@ public final class ImageAnalysisUseCaseTest {
 
     @Test
     public void analyzerDoesNotAnalyzeImages_whenCameraIsNotOpen() throws InterruptedException {
-        ImageAnalysisUseCaseConfiguration configuration =
-                new ImageAnalysisUseCaseConfiguration.Builder().setCallbackHandler(
+        ImageAnalysisConfiguration configuration =
+                new ImageAnalysisConfiguration.Builder().setCallbackHandler(
                         mHandler).build();
-        ImageAnalysisUseCase useCase = new ImageAnalysisUseCase(configuration);
+        ImageAnalysis useCase = new ImageAnalysis(configuration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -199,10 +199,10 @@ public final class ImageAnalysisUseCaseTest {
         final int imageFormat = ImageFormat.YUV_420_888;
         final Size[] sizes = {new Size(1280, 720), new Size(640, 480)};
 
-        ImageAnalysisUseCaseConfiguration configuration =
-                new ImageAnalysisUseCaseConfiguration.Builder().setCallbackHandler(
+        ImageAnalysisConfiguration configuration =
+                new ImageAnalysisConfiguration.Builder().setCallbackHandler(
                         mHandler).build();
-        ImageAnalysisUseCase useCase = new ImageAnalysisUseCase(configuration);
+        ImageAnalysis useCase = new ImageAnalysis(configuration);
         useCase.setAnalyzer(mAnalyzer);
 
         for (Size size : sizes) {
@@ -229,8 +229,8 @@ public final class ImageAnalysisUseCaseTest {
 
     @Test
     public void defaultsIncludeImageReaderMode() {
-        ImageAnalysisUseCaseConfiguration defaultConfig =
-                ImageAnalysisUseCase.DEFAULT_CONFIG.getConfiguration(null);
+        ImageAnalysisConfiguration defaultConfig =
+                ImageAnalysis.DEFAULT_CONFIG.getConfiguration(null);
 
         // Will throw if mode does not exist
         ImageReaderMode mode = defaultConfig.getImageReaderMode();
@@ -241,8 +241,8 @@ public final class ImageAnalysisUseCaseTest {
 
     @Test
     public void defaultsIncludeImageQueueDepth() {
-        ImageAnalysisUseCaseConfiguration defaultConfig =
-                ImageAnalysisUseCase.DEFAULT_CONFIG.getConfiguration(null);
+        ImageAnalysisConfiguration defaultConfig =
+                ImageAnalysis.DEFAULT_CONFIG.getConfiguration(null);
 
         // Will throw if depth does not exist
         int depth = defaultConfig.getImageQueueDepth();

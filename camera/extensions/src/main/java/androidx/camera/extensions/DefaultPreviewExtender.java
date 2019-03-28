@@ -18,13 +18,13 @@ package androidx.camera.extensions;
 
 import android.hardware.camera2.CameraCharacteristics;
 
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.core.PreviewConfiguration;
 
 /**
- * Default implementation for ViewFinderUseCaseExtender.
+ * Default implementation for PreviewExtender.
  */
-public final class DefaultViewFinderUseCaseExtender extends ViewFinderUseCaseExtender {
-    DefaultViewFinderUseCaseExtender(ViewFinderUseCaseConfiguration.Builder builder) {
+public final class DefaultPreviewExtender extends PreviewExtender {
+    DefaultPreviewExtender(PreviewConfiguration.Builder builder) {
         super(builder);
     }
 

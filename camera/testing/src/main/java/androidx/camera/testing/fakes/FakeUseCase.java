@@ -18,17 +18,17 @@ package androidx.camera.testing.fakes;
 
 import android.util.Size;
 
-import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.SessionConfiguration;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfiguration;
 
 import java.util.Map;
 
 /**
- * A fake {@link BaseUseCase}.
+ * A fake {@link UseCase}.
  */
-public class FakeUseCase extends BaseUseCase {
+public class FakeUseCase extends UseCase {
     private volatile boolean mIsCleared = false;
 
     /**

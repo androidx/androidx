@@ -16,14 +16,14 @@
 
 package androidx.camera.extensions;
 
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.core.PreviewConfiguration;
 
 /**
- * Load the OEM extension ViewFinder implementation for bokeh effect type.
+ * Load the OEM extension Preview implementation for bokeh effect type.
  */
-public class BokehViewFinderExtender extends ViewFinderUseCaseExtender {
-    public BokehViewFinderExtender(ViewFinderUseCaseConfiguration.Builder builder) {
+public class BokehPreviewExtender extends PreviewExtender {
+    public BokehPreviewExtender(PreviewConfiguration.Builder builder) {
         super(builder);
-        loadImplementation("androidx.camera.extensions.impl.BokehViewFinderExtender");
+        loadImplementation("androidx.camera.extensions.impl.BokehPreviewExtender");
     }
 }

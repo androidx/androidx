@@ -16,7 +16,7 @@
 
 package androidx.camera.core;
 
-/** The flash mode options when taking a picture using ImageCaptureUseCase. */
+/** The flash mode options when taking a picture using ImageCapture. */
 public enum FlashMode {
     /**
      * Auto flash. The flash will be used according to the camera system's determination when taking

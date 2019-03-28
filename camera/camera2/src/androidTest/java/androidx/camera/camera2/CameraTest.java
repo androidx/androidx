@@ -30,12 +30,12 @@ import android.os.HandlerThread;
 import android.util.Size;
 
 import androidx.camera.core.BaseCamera;
-import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceConfiguration;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfiguration;
+import androidx.camera.core.UseCase;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
 import androidx.test.core.app.ApplicationProvider;
@@ -61,7 +61,7 @@ public final class CameraTest {
 
     BaseCamera mCamera;
 
-    UseCase mFakeUseCase;
+    TestUseCase mFakeUseCase;
     OnImageAvailableListener mMockOnImageAvailableListener;
     String mCameraId;
 
@@ -88,7 +88,7 @@ public final class CameraTest {
                         .setLensFacing(DEFAULT_LENS_FACING)
                         .build();
         mCameraId = getCameraIdForLensFacingUnchecked(DEFAULT_LENS_FACING);
-        mFakeUseCase = new UseCase(configuration, mMockOnImageAvailableListener);
+        mFakeUseCase = new TestUseCase(configuration, mMockOnImageAvailableListener);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, new Size(640, 480));
         mFakeUseCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -122,7 +122,7 @@ public final class CameraTest {
     public void onlineUseCase() {
         mCamera.open();
 
-        mCamera.addOnlineUseCase(Collections.<BaseUseCase>singletonList(mFakeUseCase));
+        mCamera.addOnlineUseCase(Collections.<UseCase>singletonList(mFakeUseCase));
 
         verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
 
@@ -144,7 +144,7 @@ public final class CameraTest {
     public void onlineAndActiveUseCase() throws InterruptedException {
         mCamera.open();
 
-        mCamera.addOnlineUseCase(Collections.<BaseUseCase>singletonList(mFakeUseCase));
+        mCamera.addOnlineUseCase(Collections.<UseCase>singletonList(mFakeUseCase));
         mCamera.onUseCaseActive(mFakeUseCase);
 
         verify(mMockOnImageAvailableListener, timeout(4000).atLeastOnce())
@@ -155,8 +155,8 @@ public final class CameraTest {
     public void removeOnlineUseCase() {
         mCamera.open();
 
-        mCamera.addOnlineUseCase(Collections.<BaseUseCase>singletonList(mFakeUseCase));
-        mCamera.removeOnlineUseCase(Collections.<BaseUseCase>singletonList(mFakeUseCase));
+        mCamera.addOnlineUseCase(Collections.<UseCase>singletonList(mFakeUseCase));
+        mCamera.removeOnlineUseCase(Collections.<UseCase>singletonList(mFakeUseCase));
         mCamera.onUseCaseActive(mFakeUseCase);
 
         verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
@@ -164,8 +164,8 @@ public final class CameraTest {
 
     @Test
     public void unopenedCamera() {
-        mCamera.addOnlineUseCase(Collections.<BaseUseCase>singletonList(mFakeUseCase));
-        mCamera.removeOnlineUseCase(Collections.<BaseUseCase>singletonList(mFakeUseCase));
+        mCamera.addOnlineUseCase(Collections.<UseCase>singletonList(mFakeUseCase));
+        mCamera.removeOnlineUseCase(Collections.<UseCase>singletonList(mFakeUseCase));
 
         verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
     }
@@ -175,8 +175,8 @@ public final class CameraTest {
         mCamera.open();
 
         mCamera.close();
-        mCamera.addOnlineUseCase(Collections.<BaseUseCase>singletonList(mFakeUseCase));
-        mCamera.removeOnlineUseCase(Collections.<BaseUseCase>singletonList(mFakeUseCase));
+        mCamera.addOnlineUseCase(Collections.<UseCase>singletonList(mFakeUseCase));
+        mCamera.removeOnlineUseCase(Collections.<UseCase>singletonList(mFakeUseCase));
 
         verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
     }
@@ -186,7 +186,7 @@ public final class CameraTest {
         mCamera.release();
         mCamera.open();
 
-        mCamera.addOnlineUseCase(Collections.<BaseUseCase>singletonList(mFakeUseCase));
+        mCamera.addOnlineUseCase(Collections.<UseCase>singletonList(mFakeUseCase));
         mCamera.onUseCaseActive(mFakeUseCase);
 
         verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
@@ -197,19 +197,19 @@ public final class CameraTest {
         mCamera.release();
         mCamera.open();
 
-        mCamera.addOnlineUseCase(Collections.<BaseUseCase>singletonList(mFakeUseCase));
+        mCamera.addOnlineUseCase(Collections.<UseCase>singletonList(mFakeUseCase));
         mCamera.onUseCaseActive(mFakeUseCase);
 
         verify(mMockOnImageAvailableListener, never()).onImageAvailable(any(ImageReader.class));
     }
 
-    private static class UseCase extends FakeUseCase {
+    private static class TestUseCase extends FakeUseCase {
         private final ImageReader.OnImageAvailableListener mImageAvailableListener;
         HandlerThread mHandlerThread = new HandlerThread("HandlerThread");
         Handler mHandler;
         ImageReader mImageReader;
 
-        UseCase(
+        TestUseCase(
                 FakeUseCaseConfiguration configuration,
                 ImageReader.OnImageAvailableListener listener) {
             super(configuration);

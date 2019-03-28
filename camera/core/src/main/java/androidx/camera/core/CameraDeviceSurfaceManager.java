@@ -71,8 +71,8 @@ public interface CameraDeviceSurfaceManager {
      * @param newUseCases      list of new use cases
      * @return map of suggested resolutions for given use cases
      */
-    Map<BaseUseCase, Size> getSuggestedResolutions(
-            String cameraId, List<BaseUseCase> originalUseCases, List<BaseUseCase> newUseCases);
+    Map<UseCase, Size> getSuggestedResolutions(
+            String cameraId, List<UseCase> originalUseCases, List<UseCase> newUseCases);
 
     /**
      * Retrieves the preview size, choosing the smaller of the display size and 1080P.

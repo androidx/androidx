@@ -17,7 +17,7 @@ limitations under the License.
 
     <string name="app_name">CameraView Demo</string>
 
-    <string name="view_finder">Viewfinder</string>
+    <string name="preview">Preview</string>
     <string name="btn_capture">Capture</string>
     <string name="btn_confirm">Confirm</string>
     <string name="btn_cancel">Cancel</string>

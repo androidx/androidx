@@ -23,12 +23,12 @@ import androidx.camera.testing.fakes.FakeUseCase;
 import java.util.Map;
 
 /**
- * A second fake {@link BaseUseCase}.
+ * A second fake {@link UseCase}.
  *
  * <p>This is used to complement the {@link FakeUseCase} for testing instances where a use case of
  * different type is created.
  */
-class FakeOtherUseCase extends BaseUseCase {
+class FakeOtherUseCase extends UseCase {
     private volatile boolean mIsCleared = false;
 
     /** Creates a new instance of a {@link FakeOtherUseCase} with a given configuration. */

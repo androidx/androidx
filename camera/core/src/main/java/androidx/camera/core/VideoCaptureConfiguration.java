@@ -23,33 +23,42 @@ import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.ImageCaptureUseCase.CaptureMode;
 
 import java.util.Set;
 import java.util.UUID;
 
-/** Configuration for an image capture use case. */
-public final class ImageCaptureUseCaseConfiguration
-        implements UseCaseConfiguration<ImageCaptureUseCase>,
+/** Configuration for a video capture use case.
+ *
+ * @hide In the earlier stage, the VideoCapture is deprioritized.
+ */
+@RestrictTo(Scope.LIBRARY_GROUP)
+public final class VideoCaptureConfiguration
+        implements UseCaseConfiguration<VideoCapture>,
         ImageOutputConfiguration,
         CameraDeviceConfiguration,
         ThreadConfiguration {
 
     // Option Declarations:
     // *********************************************************************************************
-    static final Option<ImageCaptureUseCase.CaptureMode> OPTION_IMAGE_CAPTURE_MODE =
-            Option.create(
-                    "camerax.core.imageCapture.captureMode", ImageCaptureUseCase.CaptureMode.class);
-    static final Option<FlashMode> OPTION_FLASH_MODE =
-            Option.create("camerax.core.imageCapture.flashMode", FlashMode.class);
-    static final Option<CaptureBundle> OPTION_CAPTURE_BUNDLE =
-            Option.create("camerax.core.imageCapture.captureBundle", CaptureBundle.class);
-    static final Option<CaptureProcessor> OPTION_CAPTURE_PROCESSOR =
-            Option.create("camerax.core.imageCapture.captureProcessor", CaptureProcessor.class);
+    static final Option<Integer> OPTION_VIDEO_FRAME_RATE =
+            Option.create("camerax.core.videoCapture.recordingFrameRate", int.class);
+    static final Option<Integer> OPTION_BIT_RATE =
+            Option.create("camerax.core.videoCapture.bitRate", int.class);
+    static final Option<Integer> OPTION_INTRA_FRAME_INTERVAL =
+            Option.create("camerax.core.videoCapture.intraFrameInterval", int.class);
+    static final Option<Integer> OPTION_AUDIO_BIT_RATE =
+            Option.create("camerax.core.videoCapture.audioBitRate", int.class);
+    static final Option<Integer> OPTION_AUDIO_SAMPLE_RATE =
+            Option.create("camerax.core.videoCapture.audioSampleRate", int.class);
+    static final Option<Integer> OPTION_AUDIO_CHANNEL_COUNT =
+            Option.create("camerax.core.videoCapture.audioChannelCount", int.class);
+    static final Option<Integer> OPTION_AUDIO_RECORD_SOURCE =
+            Option.create("camerax.core.videoCapture.audioRecordSource", int.class);
+    static final Option<Integer> OPTION_AUDIO_MIN_BUFFER_SIZE =
+            Option.create("camerax.core.videoCapture.audioMinBufferSize", int.class);
     private final OptionsBundle mConfig;
 
-    /** Creates a new configuration instance. */
-    ImageCaptureUseCaseConfiguration(OptionsBundle config) {
+    VideoCaptureConfiguration(OptionsBundle config) {
         mConfig = config;
     }
 
@@ -65,78 +74,70 @@ public final class ImageCaptureUseCaseConfiguration
     }
 
     /**
-     * Returns the {@link ImageCaptureUseCase.CaptureMode}.
+     * Returns the recording frames per second.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
      */
-    @Nullable
-    public ImageCaptureUseCase.CaptureMode getCaptureMode(
-            @Nullable ImageCaptureUseCase.CaptureMode valueIfMissing) {
-        return getConfiguration().retrieveOption(OPTION_IMAGE_CAPTURE_MODE, valueIfMissing);
+    public int getVideoFrameRate(int valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_VIDEO_FRAME_RATE, valueIfMissing);
     }
 
     /**
-     * Returns the {@link ImageCaptureUseCase.CaptureMode}.
+     * Returns the recording frames per second.
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    public ImageCaptureUseCase.CaptureMode getCaptureMode() {
-        return getConfiguration().retrieveOption(OPTION_IMAGE_CAPTURE_MODE);
+    public int getVideoFrameRate() {
+        return getConfiguration().retrieveOption(OPTION_VIDEO_FRAME_RATE);
     }
 
     /**
-     * Returns the {@link FlashMode}.
+     * Returns the encoding bit rate.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
      */
-    @Nullable
-    public FlashMode getFlashMode(@Nullable FlashMode valueIfMissing) {
-        return getConfiguration().retrieveOption(OPTION_FLASH_MODE, valueIfMissing);
+    public int getBitRate(int valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_BIT_RATE, valueIfMissing);
     }
 
     /**
-     * Returns the {@link FlashMode}.
+     * Returns the encoding bit rate.
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    public FlashMode getFlashMode() {
-        return getConfiguration().retrieveOption(OPTION_FLASH_MODE);
+    public int getBitRate() {
+        return getConfiguration().retrieveOption(OPTION_BIT_RATE);
     }
 
     /**
-     * Returns the {@link CaptureBundle}.
+     * Returns the number of seconds between each key frame.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public CaptureBundle getCaptureBundle(@Nullable CaptureBundle valueIfMissing) {
-        return getConfiguration().retrieveOption(OPTION_CAPTURE_BUNDLE, valueIfMissing);
+    public int getIFrameInterval(int valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_INTRA_FRAME_INTERVAL, valueIfMissing);
     }
 
     /**
-     * Returns the {@link CaptureBundle}.
+     * Returns the number of seconds between each key frame.
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public CaptureBundle getCaptureBundle() {
-        return getConfiguration().retrieveOption(OPTION_CAPTURE_BUNDLE);
+    public int getIFrameInterval() {
+        return getConfiguration().retrieveOption(OPTION_INTRA_FRAME_INTERVAL);
     }
 
     /**
-     * Returns the {@link CaptureProcessor}.
+     * Returns the audio encoding bit rate.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
@@ -144,30 +145,128 @@ public final class ImageCaptureUseCaseConfiguration
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public CaptureProcessor getCaptureProcessor(@Nullable CaptureProcessor valueIfMissing) {
-        return getConfiguration().retrieveOption(OPTION_CAPTURE_PROCESSOR, valueIfMissing);
+    public int getAudioBitRate(int valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_AUDIO_BIT_RATE, valueIfMissing);
     }
 
     /**
-     * Returns the {@link CaptureProcessor}.
+     * Returns the audio encoding bit rate.
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public CaptureProcessor getCaptureProcessor() {
-        return getConfiguration().retrieveOption(OPTION_CAPTURE_PROCESSOR);
+    public int getAudioBitRate() {
+        return getConfiguration().retrieveOption(OPTION_AUDIO_BIT_RATE);
     }
 
-    /** Builder for a {@link ImageCaptureUseCaseConfiguration}. */
-    public static final class Builder
-            implements UseCaseConfiguration.Builder<
-            ImageCaptureUseCase, ImageCaptureUseCaseConfiguration, Builder>,
-            ImageOutputConfiguration.Builder<ImageCaptureUseCaseConfiguration, Builder>,
-            CameraDeviceConfiguration.Builder<ImageCaptureUseCaseConfiguration, Builder>,
-            ThreadConfiguration.Builder<ImageCaptureUseCaseConfiguration, Builder> {
+    /**
+     * Returns the audio sample rate.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public int getAudioSampleRate(int valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_AUDIO_SAMPLE_RATE, valueIfMissing);
+    }
+
+    /**
+     * Returns the audio sample rate.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public int getAudioSampleRate() {
+        return getConfiguration().retrieveOption(OPTION_AUDIO_SAMPLE_RATE);
+    }
+
+    /**
+     * Returns the audio channel count.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public int getAudioChannelCount(int valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_AUDIO_CHANNEL_COUNT, valueIfMissing);
+    }
+
+    /**
+     * Returns the audio channel count.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public int getAudioChannelCount() {
+        return getConfiguration().retrieveOption(OPTION_AUDIO_CHANNEL_COUNT);
+    }
+
+    /**
+     * Returns the audio recording source.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public int getAudioRecordSource(int valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_AUDIO_RECORD_SOURCE, valueIfMissing);
+    }
+
+    /**
+     * Returns the audio recording source.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public int getAudioRecordSource() {
+        return getConfiguration().retrieveOption(OPTION_AUDIO_RECORD_SOURCE);
+    }
+
+    /**
+     * Returns the audio minimum buffer size, in bytes.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public int getAudioMinBufferSize(int valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_AUDIO_MIN_BUFFER_SIZE, valueIfMissing);
+    }
+
+    /**
+     * Returns the audio minimum buffer size, in bytes.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public int getAudioMinBufferSize() {
+        return getConfiguration().retrieveOption(OPTION_AUDIO_MIN_BUFFER_SIZE);
+    }
+
+    /** Builder for a {@link VideoCaptureConfiguration}. */
+    public static final class Builder implements
+            UseCaseConfiguration.Builder<VideoCapture, VideoCaptureConfiguration, Builder>,
+            ImageOutputConfiguration.Builder<VideoCaptureConfiguration, Builder>,
+            CameraDeviceConfiguration.Builder<VideoCaptureConfiguration, Builder>,
+            ThreadConfiguration.Builder<VideoCaptureConfiguration, Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
 
@@ -181,7 +280,7 @@ public final class ImageCaptureUseCaseConfiguration
 
             Class<?> oldConfigClass =
                     mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
-            if (oldConfigClass != null && !oldConfigClass.equals(ImageCaptureUseCase.class)) {
+            if (oldConfigClass != null && !oldConfigClass.equals(VideoCapture.class)) {
                 throw new IllegalArgumentException(
                         "Invalid target class configuration for "
                                 + Builder.this
@@ -189,7 +288,7 @@ public final class ImageCaptureUseCaseConfiguration
                                 + oldConfigClass);
             }
 
-            setTargetClass(ImageCaptureUseCase.class);
+            setTargetClass(VideoCapture.class);
         }
 
         /**
@@ -198,7 +297,7 @@ public final class ImageCaptureUseCaseConfiguration
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
          */
-        public static Builder fromConfig(ImageCaptureUseCaseConfiguration configuration) {
+        public static Builder fromConfig(VideoCaptureConfiguration configuration) {
             return new Builder(MutableOptionsBundle.from(configuration));
         }
 
@@ -213,71 +312,112 @@ public final class ImageCaptureUseCaseConfiguration
             return mMutableConfig;
         }
 
-        /**
-         * {@inheritDoc}
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        /** The solution for the unchecked cast warning. */
         @Override
         public Builder builder() {
             return this;
         }
 
         @Override
-        public ImageCaptureUseCaseConfiguration build() {
-            return new ImageCaptureUseCaseConfiguration(OptionsBundle.from(mMutableConfig));
+        public VideoCaptureConfiguration build() {
+            return new VideoCaptureConfiguration(OptionsBundle.from(mMutableConfig));
         }
 
         /**
-         * Sets the image capture mode.
+         * Sets the recording frames per second.
          *
-         * <p>Valid capture modes are {@link CaptureMode#MIN_LATENCY}, which prioritizes latency
-         * over image quality, or {@link CaptureMode#MAX_QUALITY}, which prioritizes image quality
-         * over latency.
-         *
-         * @param captureMode The requested image capture mode.
+         * @param videoFrameRate The requested interval in seconds.
          * @return The current Builder.
          */
-        public Builder setCaptureMode(ImageCaptureUseCase.CaptureMode captureMode) {
-            getMutableConfiguration().insertOption(OPTION_IMAGE_CAPTURE_MODE, captureMode);
+        public Builder setVideoFrameRate(int videoFrameRate) {
+            getMutableConfiguration().insertOption(OPTION_VIDEO_FRAME_RATE, videoFrameRate);
             return builder();
         }
 
         /**
-         * Sets the {@link FlashMode}.
+         * Sets the encoding bit rate.
          *
-         * @param flashMode The requested flash mode.
+         * @param bitRate The requested bit rate in bits per second.
          * @return The current Builder.
          */
-        public Builder setFlashMode(FlashMode flashMode) {
-            getMutableConfiguration().insertOption(OPTION_FLASH_MODE, flashMode);
+        public Builder setBitRate(int bitRate) {
+            getMutableConfiguration().insertOption(OPTION_BIT_RATE, bitRate);
             return builder();
         }
 
         /**
-         * Sets the {@link CaptureBundle}.
+         * Sets number of seconds between each key frame in seconds.
          *
-         * @param captureBundle The requested capture bundle for extension.
+         * @param interval The requested interval in seconds.
+         * @return The current Builder.
+         */
+        public Builder setIFrameInterval(int interval) {
+            getMutableConfiguration().insertOption(OPTION_INTRA_FRAME_INTERVAL, interval);
+            return builder();
+        }
+
+        /**
+         * Sets the bit rate of the audio stream.
+         *
+         * @param bitRate The requested bit rate in bits/s.
          * @return The current Builder.
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        public Builder setCaptureBundle(CaptureBundle captureBundle) {
-            getMutableConfiguration().insertOption(OPTION_CAPTURE_BUNDLE, captureBundle);
+        public Builder setAudioBitRate(int bitRate) {
+            getMutableConfiguration().insertOption(OPTION_AUDIO_BIT_RATE, bitRate);
             return builder();
         }
 
         /**
-         * Sets the {@link CaptureProcessor}.
+         * Sets the sample rate of the audio stream.
          *
-         * @param captureProcessor The requested capture processor for extension.
+         * @param sampleRate The requested sample rate in bits/s.
          * @return The current Builder.
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        public Builder setCaptureProcessor(CaptureProcessor captureProcessor) {
-            getMutableConfiguration().insertOption(OPTION_CAPTURE_PROCESSOR, captureProcessor);
+        public Builder setAudioSampleRate(int sampleRate) {
+            getMutableConfiguration().insertOption(OPTION_AUDIO_SAMPLE_RATE, sampleRate);
+            return builder();
+        }
+
+        /**
+         * Sets the number of audio channels.
+         *
+         * @param channelCount The requested number of audio channels.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setAudioChannelCount(int channelCount) {
+            getMutableConfiguration().insertOption(OPTION_AUDIO_CHANNEL_COUNT, channelCount);
+            return builder();
+        }
+
+        /**
+         * Sets the audio source.
+         *
+         * @param source The audio source. Currently only AudioSource.MIC is supported.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setAudioRecordSource(int source) {
+            getMutableConfiguration().insertOption(OPTION_AUDIO_RECORD_SOURCE, source);
+            return builder();
+        }
+
+        /**
+         * Sets the audio min buffer size.
+         *
+         * @param minBufferSize The requested audio minimum buffer size, in bytes.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setAudioMinBufferSize(int minBufferSize) {
+            getMutableConfiguration().insertOption(OPTION_AUDIO_MIN_BUFFER_SIZE, minBufferSize);
             return builder();
         }
 
@@ -308,7 +448,7 @@ public final class ImageCaptureUseCaseConfiguration
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setTargetClass(Class<ImageCaptureUseCase> targetClass) {
+        public Builder setTargetClass(Class<VideoCapture> targetClass) {
             getMutableConfiguration().insertOption(OPTION_TARGET_CLASS, targetClass);
 
             // If no name is set yet, then generate a unique name
@@ -348,18 +488,8 @@ public final class ImageCaptureUseCaseConfiguration
             return builder();
         }
 
-        /**
-         * Sets the intended output target resolution.
-         *
-         * <p>The target resolution attempts to establish a minimum bound for the image resolution.
-         * The actual image resolution will be the closest available resolution in size that is not
-         * smaller than the target resolution, as determined by the Camera implementation. However,
-         * if no resolution exists that is equal to or larger than the target resolution, the
-         * nearest available resolution smaller than the target resolution will be chosen.
-         *
-         * @param resolution The target resolution to choose from supported output sizes list.
-         * @return The current Builder.
-         */
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public Builder setTargetResolution(Size resolution) {
             getMutableConfiguration().insertOption(OPTION_TARGET_RESOLUTION, resolution);
@@ -458,21 +588,20 @@ public final class ImageCaptureUseCaseConfiguration
 
     @Override
     @Nullable
-    public Class<ImageCaptureUseCase> getTargetClass(
-            @Nullable Class<ImageCaptureUseCase> valueIfMissing) {
+    public Class<VideoCapture> getTargetClass(@Nullable Class<VideoCapture> valueIfMissing) {
         @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<ImageCaptureUseCase> storedClass =
-                (Class<ImageCaptureUseCase>) retrieveOption(
+                Class<VideoCapture> storedClass =
+                (Class<VideoCapture>) retrieveOption(
                         OPTION_TARGET_CLASS,
                         valueIfMissing);
         return storedClass;
     }
 
     @Override
-    public Class<ImageCaptureUseCase> getTargetClass() {
+    public Class<VideoCapture> getTargetClass() {
         @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<ImageCaptureUseCase> storedClass =
-                (Class<ImageCaptureUseCase>) retrieveOption(
+                Class<VideoCapture> storedClass =
+                (Class<VideoCapture>) retrieveOption(
                         OPTION_TARGET_CLASS);
         return storedClass;
     }
@@ -526,24 +655,15 @@ public final class ImageCaptureUseCaseConfiguration
         return retrieveOption(OPTION_TARGET_ROTATION);
     }
 
-    /**
-     * Retrieves the resolution of the target intending to use from this configuration.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Size getTargetResolution(Size valueIfMissing) {
         return retrieveOption(OPTION_TARGET_RESOLUTION, valueIfMissing);
     }
 
-    /**
-     * Retrieves the resolution of the target intending to use from this configuration.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Size getTargetResolution() {
         return retrieveOption(OPTION_TARGET_RESOLUTION);

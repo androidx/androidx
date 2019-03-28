@@ -37,12 +37,12 @@ import java.util.Set;
 /**
  * The use case which all other use cases are built on top of.
  *
- * <p>A BaseUseCase provides functionality to map the set of arguments in a use case to arguments
- * that are usable by a camera. BaseUseCase also will communicate of the active/inactive state to
+ * <p>A UseCase provides functionality to map the set of arguments in a use case to arguments
+ * that are usable by a camera. UseCase also will communicate of the active/inactive state to
  * the Camera.
  */
-public abstract class BaseUseCase {
-    private static final String TAG = "BaseUseCase";
+public abstract class UseCase {
+    private static final String TAG = "UseCase";
 
     /**
      * The set of {@link StateChangeListener} that are currently listening state transitions of this
@@ -59,14 +59,14 @@ public abstract class BaseUseCase {
 
     /**
      * A map of the names of the {@link android.hardware.camera2.CameraDevice} to the {@link
-     * SessionConfiguration} that have been attached to this BaseUseCase
+     * SessionConfiguration} that have been attached to this UseCase
      */
     private final Map<String, SessionConfiguration> mAttachedCameraIdToSessionConfigurationMap =
             new HashMap<>();
 
     /**
      * A map of the names of the {@link android.hardware.camera2.CameraDevice} to the surface
-     * resolution that have been attached to this BaseUseCase
+     * resolution that have been attached to this UseCase
      */
     private final Map<String, Size> mAttachedSurfaceResolutionMap = new HashMap<>();
 
@@ -89,7 +89,7 @@ public abstract class BaseUseCase {
      *
      * @param useCaseConfiguration the configuration object used for this use case
      */
-    protected BaseUseCase(UseCaseConfiguration<?> useCaseConfiguration) {
+    protected UseCase(UseCaseConfiguration<?> useCaseConfiguration) {
         updateUseCaseConfiguration(useCaseConfiguration);
     }
 
@@ -192,7 +192,7 @@ public abstract class BaseUseCase {
     }
 
     /**
-     * Attaches the BaseUseCase to a {@link android.hardware.camera2.CameraDevice} with the
+     * Attaches the UseCase to a {@link android.hardware.camera2.CameraDevice} with the
      * corresponding name.
      *
      * @param cameraId The name of the camera as defined by {@link
@@ -205,7 +205,7 @@ public abstract class BaseUseCase {
     }
 
     /**
-     * Add a {@link StateChangeListener}, which listens to this BaseUseCase's active and inactive
+     * Add a {@link StateChangeListener}, which listens to this UseCase's active and inactive
      * transition events.
      *
      * @hide
@@ -232,10 +232,10 @@ public abstract class BaseUseCase {
     }
 
     /**
-     * Remove a {@link StateChangeListener} from listening to this BaseUseCase's active and inactive
+     * Remove a {@link StateChangeListener} from listening to this UseCase's active and inactive
      * transition events.
      *
-     * <p>If the listener isn't currently listening to the BaseUseCase then this call does nothing.
+     * <p>If the listener isn't currently listening to the UseCase then this call does nothing.
      *
      * @hide
      */
@@ -264,7 +264,7 @@ public abstract class BaseUseCase {
     }
 
     /**
-     * Notify all {@link StateChangeListener} that are listening to this BaseUseCase that it has
+     * Notify all {@link StateChangeListener} that are listening to this UseCase that it has
      * transitioned to an active state.
      * @hide
      */
@@ -275,7 +275,7 @@ public abstract class BaseUseCase {
     }
 
     /**
-     * Notify all {@link StateChangeListener} that are listening to this BaseUseCase that it has
+     * Notify all {@link StateChangeListener} that are listening to this UseCase that it has
      * transitioned to an inactive state.
      * @hide
      */
@@ -286,7 +286,7 @@ public abstract class BaseUseCase {
     }
 
     /**
-     * Notify all {@link StateChangeListener} that are listening to this BaseUseCase that the
+     * Notify all {@link StateChangeListener} that are listening to this UseCase that the
      * settings have been updated.
      * @hide
      */
@@ -298,7 +298,7 @@ public abstract class BaseUseCase {
     }
 
     /**
-     * Notify all {@link StateChangeListener} that are listening to this BaseUseCase that the use
+     * Notify all {@link StateChangeListener} that are listening to this UseCase that the use
      * case needs to be completely reset.
      * @hide
      */
@@ -310,7 +310,7 @@ public abstract class BaseUseCase {
     }
 
     /**
-     * Notify all {@link StateChangeListener} that are listening to this BaseUseCase of its current
+     * Notify all {@link StateChangeListener} that are listening to this UseCase of its current
      * state.
      * @hide
      */
@@ -384,7 +384,7 @@ public abstract class BaseUseCase {
 
     /**
      * Called when binding new use cases via {@link CameraX#bindToLifecycle(LifecycleOwner,
-     * BaseUseCase...)}. Override to create necessary objects like {@link android.media.ImageReader}
+     * UseCase...)}. Override to create necessary objects like {@link android.media.ImageReader}
      * depending on the resolution.
      *
      * @param suggestedResolutionMap A map of the names of the {@link
@@ -446,45 +446,45 @@ public abstract class BaseUseCase {
     }
 
     /**
-     * Listener called when a {@link BaseUseCase} transitions between active/inactive states.
+     * Listener called when a {@link UseCase} transitions between active/inactive states.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public interface StateChangeListener {
         /**
-         * Called when a {@link BaseUseCase} becomes active.
+         * Called when a {@link UseCase} becomes active.
          *
-         * <p>When a BaseUseCase is active it expects that all data producers attached to itself
-         * should start producing data for it to consume. In addition the BaseUseCase will start
+         * <p>When a UseCase is active it expects that all data producers attached to itself
+         * should start producing data for it to consume. In addition the UseCase will start
          * producing data that other classes can be consumed.
          */
-        void onUseCaseActive(BaseUseCase useCase);
+        void onUseCaseActive(UseCase useCase);
 
         /**
-         * Called when a {@link BaseUseCase} becomes inactive.
+         * Called when a {@link UseCase} becomes inactive.
          *
-         * <p>When a BaseUseCase is inactive it no longer expects data to be produced for it. In
-         * addition the BaseUseCase will stop producing data for other classes to consume.
+         * <p>When a UseCase is inactive it no longer expects data to be produced for it. In
+         * addition the UseCase will stop producing data for other classes to consume.
          */
-        void onUseCaseInactive(BaseUseCase useCase);
+        void onUseCaseInactive(UseCase useCase);
 
         /**
-         * Called when a {@link BaseUseCase} has updated settings.
+         * Called when a {@link UseCase} has updated settings.
          *
-         * <p>When a {@link BaseUseCase} has updated settings, it is expected that the listener will
+         * <p>When a {@link UseCase} has updated settings, it is expected that the listener will
          * use these updated settings to reconfigure the listener's own state. A settings update is
          * orthogonal to the active/inactive state change.
          */
-        void onUseCaseUpdated(BaseUseCase useCase);
+        void onUseCaseUpdated(UseCase useCase);
 
         /**
-         * Called when a {@link BaseUseCase} has updated settings that require complete reset of the
+         * Called when a {@link UseCase} has updated settings that require complete reset of the
          * camera.
          *
          * <p>Updating certain parameters of the use case require a full reset of the camera. This
          * includes updating the {@link android.view.Surface} used by the use case.
          */
-        void onUseCaseReset(BaseUseCase useCase);
+        void onUseCaseReset(UseCase useCase);
     }
 }

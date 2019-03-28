@@ -16,10 +16,10 @@
 package androidx.camera.extensions;
 
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ImageCaptureUseCase;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
-import androidx.camera.core.ViewFinderUseCase;
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.Preview;
+import androidx.camera.core.PreviewConfiguration;
 
 /**
  * Provides interfaces for third party app developers to get capabilities info of extension
@@ -49,16 +49,14 @@ public final class ExtensionsManager {
      */
     public static boolean isExtensionAvailable(EffectMode effectMode, LensFacing lensFacing) {
         return checkImageCaptureExtensionCapability(effectMode, lensFacing)
-                || checkViewFinderExtensionCapability(effectMode, lensFacing);
+                || checkPreviewExtensionCapability(effectMode, lensFacing);
     }
 
     /**
      * Indicates whether the camera device with the {@link LensFacing} can support the specific
      * extension function for specific use case.
      *
-     * @param klass      The {@link androidx.camera.core.ImageCaptureUseCase} or
-     *                   {@link androidx.camera.core.ViewFinderUseCase} class
-     *                   to be checked.
+     * @param klass      The {@link ImageCapture} or {@link Preview} class to be checked.
      * @param effectMode The extension function to be checked.
      * @param lensFacing The {@link LensFacing} of the camera device to be checked.
      * @return True if the specific extension function is supported for the camera device.
@@ -67,10 +65,10 @@ public final class ExtensionsManager {
             Class<?> klass, EffectMode effectMode, LensFacing lensFacing) {
         boolean isAvailable = false;
 
-        if (klass == ImageCaptureUseCase.class) {
+        if (klass == ImageCapture.class) {
             isAvailable = checkImageCaptureExtensionCapability(effectMode, lensFacing);
-        } else if (klass.equals(ViewFinderUseCase.class)) {
-            isAvailable = checkViewFinderExtensionCapability(effectMode, lensFacing);
+        } else if (klass.equals(Preview.class)) {
+            isAvailable = checkPreviewExtensionCapability(effectMode, lensFacing);
         }
 
         return isAvailable;
@@ -78,10 +76,9 @@ public final class ExtensionsManager {
 
     private static boolean checkImageCaptureExtensionCapability(EffectMode effectMode,
             LensFacing lensFacing) {
-        ImageCaptureUseCaseConfiguration.Builder builder =
-                new ImageCaptureUseCaseConfiguration.Builder();
+        ImageCaptureConfiguration.Builder builder = new ImageCaptureConfiguration.Builder();
         builder.setLensFacing(lensFacing);
-        ImageCaptureUseCaseExtender extender;
+        ImageCaptureExtender extender;
 
         switch (effectMode) {
             case BOKEH:
@@ -91,29 +88,28 @@ public final class ExtensionsManager {
                 extender = new HdrImageCaptureExtender(builder);
                 break;
             default:
-                extender = new DefaultImageCaptureUseCaseExtender(builder);
+                extender = new DefaultImageCaptureExtender(builder);
                 break;
         }
 
         return extender.isExtensionAvailable();
     }
 
-    private static boolean checkViewFinderExtensionCapability(EffectMode effectMode,
+    private static boolean checkPreviewExtensionCapability(EffectMode effectMode,
             LensFacing lensFacing) {
-        ViewFinderUseCaseConfiguration.Builder builder =
-                new ViewFinderUseCaseConfiguration.Builder();
+        PreviewConfiguration.Builder builder = new PreviewConfiguration.Builder();
         builder.setLensFacing(lensFacing);
-        ViewFinderUseCaseExtender extender;
+        PreviewExtender extender;
 
         switch (effectMode) {
             case BOKEH:
-                extender = new BokehViewFinderExtender(builder);
+                extender = new BokehPreviewExtender(builder);
                 break;
             case HDR:
-                extender = new HdrViewFinderExtender(builder);
+                extender = new HdrPreviewExtender(builder);
                 break;
             default:
-                extender = new DefaultViewFinderUseCaseExtender(builder);
+                extender = new DefaultPreviewExtender(builder);
                 break;
         }
 

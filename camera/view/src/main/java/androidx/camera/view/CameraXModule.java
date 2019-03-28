@@ -39,15 +39,15 @@ import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.FlashMode;
-import androidx.camera.core.ImageCaptureUseCase;
-import androidx.camera.core.ImageCaptureUseCase.OnImageCapturedListener;
-import androidx.camera.core.ImageCaptureUseCase.OnImageSavedListener;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
-import androidx.camera.core.VideoCaptureUseCase;
-import androidx.camera.core.VideoCaptureUseCase.OnVideoSavedListener;
-import androidx.camera.core.VideoCaptureUseCaseConfiguration;
-import androidx.camera.core.ViewFinderUseCase;
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.OnImageCapturedListener;
+import androidx.camera.core.ImageCapture.OnImageSavedListener;
+import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.Preview;
+import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.VideoCapture;
+import androidx.camera.core.VideoCapture.OnVideoSavedListener;
+import androidx.camera.core.VideoCaptureConfiguration;
 import androidx.camera.view.CameraView.CaptureMode;
 import androidx.camera.view.CameraView.Quality;
 import androidx.lifecycle.Lifecycle;
@@ -74,9 +74,9 @@ final class CameraXModule {
     private static final Rational ASPECT_RATIO_3_4 = new Rational(3, 4);
 
     private final CameraManager mCameraManager;
-    private final ViewFinderUseCaseConfiguration.Builder mViewFinderConfigBuilder;
-    private final VideoCaptureUseCaseConfiguration.Builder mVideoCaptureConfigBuilder;
-    private final ImageCaptureUseCaseConfiguration.Builder mImageCaptureConfigBuilder;
+    private final PreviewConfiguration.Builder mPreviewConfigBuilder;
+    private final VideoCaptureConfiguration.Builder mVideoCaptureConfigBuilder;
+    private final ImageCaptureConfiguration.Builder mImageCaptureConfigBuilder;
     private final CameraView mCameraView;
     final AtomicBoolean mVideoIsRecording = new AtomicBoolean(false);
     private CameraView.Quality mQuality = CameraView.Quality.HIGH;
@@ -85,11 +85,11 @@ final class CameraXModule {
     private long mMaxVideoSize = CameraView.INDEFINITE_VIDEO_SIZE;
     private FlashMode mFlash = FlashMode.OFF;
     @Nullable
-    private ImageCaptureUseCase mImageCaptureUseCase;
+    private ImageCapture mImageCapture;
     @Nullable
-    private VideoCaptureUseCase mVideoCaptureUseCase;
+    private VideoCapture mVideoCapture;
     @Nullable
-    ViewFinderUseCase mViewFinderUseCase;
+    Preview mPreview;
     @Nullable
     LifecycleOwner mCurrentLifecycle;
     private final LifecycleObserver mCurrentLifecycleObserver =
@@ -98,7 +98,7 @@ final class CameraXModule {
                 public void onDestroy(LifecycleOwner owner) {
                     if (owner == mCurrentLifecycle) {
                         clearCurrentLifecycle();
-                        mViewFinderUseCase.removeViewFinderOutputListener();
+                        mPreview.removePreviewOutputListener();
                     }
                 }
             };
@@ -115,14 +115,13 @@ final class CameraXModule {
 
         mCameraManager = (CameraManager) view.getContext().getSystemService(Context.CAMERA_SERVICE);
 
-        mViewFinderConfigBuilder =
-                new ViewFinderUseCaseConfiguration.Builder().setTargetName("ViewFinder");
+        mPreviewConfigBuilder = new PreviewConfiguration.Builder().setTargetName("Preview");
 
         mImageCaptureConfigBuilder =
-                new ImageCaptureUseCaseConfiguration.Builder().setTargetName("ImageCapture");
+                new ImageCaptureConfiguration.Builder().setTargetName("ImageCapture");
 
         mVideoCaptureConfigBuilder =
-                new VideoCaptureUseCaseConfiguration.Builder().setTargetName("VideoCapture");
+                new VideoCaptureConfiguration.Builder().setTargetName("VideoCapture");
     }
 
     /**
@@ -230,39 +229,39 @@ final class CameraXModule {
         if (getCaptureMode() == CaptureMode.IMAGE) {
             mImageCaptureConfigBuilder.setTargetAspectRatio(
                     isDisplayPortrait ? ASPECT_RATIO_3_4 : ASPECT_RATIO_4_3);
-            mViewFinderConfigBuilder.setTargetAspectRatio(
+            mPreviewConfigBuilder.setTargetAspectRatio(
                     isDisplayPortrait ? ASPECT_RATIO_3_4 : ASPECT_RATIO_4_3);
         } else {
             mImageCaptureConfigBuilder.setTargetAspectRatio(
                     isDisplayPortrait ? ASPECT_RATIO_9_16 : ASPECT_RATIO_16_9);
-            mViewFinderConfigBuilder.setTargetAspectRatio(
+            mPreviewConfigBuilder.setTargetAspectRatio(
                     isDisplayPortrait ? ASPECT_RATIO_9_16 : ASPECT_RATIO_16_9);
         }
 
         mImageCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
         mImageCaptureConfigBuilder.setLensFacing(mCameraLensFacing);
-        mImageCaptureUseCase = new ImageCaptureUseCase(mImageCaptureConfigBuilder.build());
+        mImageCapture = new ImageCapture(mImageCaptureConfigBuilder.build());
 
         mVideoCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
         mVideoCaptureConfigBuilder.setLensFacing(mCameraLensFacing);
-        mVideoCaptureUseCase = new VideoCaptureUseCase(mVideoCaptureConfigBuilder.build());
-        mViewFinderConfigBuilder.setLensFacing(mCameraLensFacing);
+        mVideoCapture = new VideoCapture(mVideoCaptureConfigBuilder.build());
+        mPreviewConfigBuilder.setLensFacing(mCameraLensFacing);
 
         int relativeCameraOrientation = getRelativeCameraOrientation(false);
 
         if (relativeCameraOrientation == 90 || relativeCameraOrientation == 270) {
-            mViewFinderConfigBuilder.setTargetResolution(
+            mPreviewConfigBuilder.setTargetResolution(
                     new Size(getMeasuredHeight(), getMeasuredWidth()));
         } else {
-            mViewFinderConfigBuilder.setTargetResolution(
+            mPreviewConfigBuilder.setTargetResolution(
                     new Size(getMeasuredWidth(), getMeasuredHeight()));
         }
 
-        mViewFinderUseCase = new ViewFinderUseCase(mViewFinderConfigBuilder.build());
-        mViewFinderUseCase.setOnViewFinderOutputUpdateListener(
-                new ViewFinderUseCase.OnViewFinderOutputUpdateListener() {
+        mPreview = new Preview(mPreviewConfigBuilder.build());
+        mPreview.setOnPreviewOutputUpdateListener(
+                new Preview.OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(ViewFinderUseCase.ViewFinderOutput output) {
+                    public void onUpdated(Preview.PreviewOutput output) {
                         boolean needReverse = cameraOrientation != 0 && cameraOrientation != 180;
                         int textureWidth =
                                 needReverse
@@ -272,24 +271,22 @@ final class CameraXModule {
                                 needReverse
                                         ? output.getTextureSize().getWidth()
                                         : output.getTextureSize().getHeight();
-                        CameraXModule.this.onViewfinderSourceDimensUpdated(textureWidth,
+                        CameraXModule.this.onPreviewSourceDimensUpdated(textureWidth,
                                 textureHeight);
                         CameraXModule.this.setSurfaceTexture(output.getSurfaceTexture());
                     }
                 });
 
         if (getCaptureMode() == CaptureMode.IMAGE) {
-            CameraX.bindToLifecycle(mCurrentLifecycle, mImageCaptureUseCase, mViewFinderUseCase);
+            CameraX.bindToLifecycle(mCurrentLifecycle, mImageCapture, mPreview);
         } else if (getCaptureMode() == CaptureMode.VIDEO) {
-            CameraX.bindToLifecycle(mCurrentLifecycle, mVideoCaptureUseCase, mViewFinderUseCase);
+            CameraX.bindToLifecycle(mCurrentLifecycle, mVideoCapture, mPreview);
         } else {
-            CameraX.bindToLifecycle(
-                    mCurrentLifecycle, mImageCaptureUseCase, mVideoCaptureUseCase,
-                    mViewFinderUseCase);
+            CameraX.bindToLifecycle(mCurrentLifecycle, mImageCapture, mVideoCapture, mPreview);
         }
         setZoomLevel(mZoomLevel);
         mCurrentLifecycle.getLifecycle().addObserver(mCurrentLifecycleObserver);
-        // Enable flash setting in ImageCaptureUseCase after use cases are created and binded.
+        // Enable flash setting in ImageCapture after use cases are created and binded.
         setFlash(getFlash());
     }
 
@@ -304,7 +301,7 @@ final class CameraXModule {
     }
 
     public void takePicture(OnImageCapturedListener listener) {
-        if (mImageCaptureUseCase == null) {
+        if (mImageCapture == null) {
             return;
         }
 
@@ -316,11 +313,11 @@ final class CameraXModule {
             throw new IllegalArgumentException("OnImageCapturedListener should not be empty");
         }
 
-        mImageCaptureUseCase.takePicture(listener);
+        mImageCapture.takePicture(listener);
     }
 
     public void takePicture(File saveLocation, OnImageSavedListener listener) {
-        if (mImageCaptureUseCase == null) {
+        if (mImageCapture == null) {
             return;
         }
 
@@ -332,13 +329,13 @@ final class CameraXModule {
             throw new IllegalArgumentException("OnImageSavedListener should not be empty");
         }
 
-        ImageCaptureUseCase.Metadata metadata = new ImageCaptureUseCase.Metadata();
+        ImageCapture.Metadata metadata = new ImageCapture.Metadata();
         metadata.isReversedHorizontal = mCameraLensFacing == LensFacing.FRONT;
-        mImageCaptureUseCase.takePicture(saveLocation, listener, metadata);
+        mImageCapture.takePicture(saveLocation, listener, metadata);
     }
 
     public void startRecording(File file, final OnVideoSavedListener listener) {
-        if (mVideoCaptureUseCase == null) {
+        if (mVideoCapture == null) {
             return;
         }
 
@@ -351,9 +348,9 @@ final class CameraXModule {
         }
 
         mVideoIsRecording.set(true);
-        mVideoCaptureUseCase.startRecording(
+        mVideoCapture.startRecording(
                 file,
-                new VideoCaptureUseCase.OnVideoSavedListener() {
+                new VideoCapture.OnVideoSavedListener() {
                     @Override
                     public void onVideoSaved(File savedFile) {
                         mVideoIsRecording.set(false);
@@ -362,7 +359,7 @@ final class CameraXModule {
 
                     @Override
                     public void onError(
-                            VideoCaptureUseCase.UseCaseError useCaseError,
+                            VideoCapture.UseCaseError useCaseError,
                             String message,
                             @Nullable Throwable cause) {
                         mVideoIsRecording.set(false);
@@ -373,11 +370,11 @@ final class CameraXModule {
     }
 
     public void stopRecording() {
-        if (mVideoCaptureUseCase == null) {
+        if (mVideoCapture == null) {
             return;
         }
 
-        mVideoCaptureUseCase.stopRecording();
+        mVideoCapture.stopRecording();
     }
 
     public boolean isRecording() {
@@ -445,8 +442,8 @@ final class CameraXModule {
     }
 
     public void focus(Rect focus, Rect metering) {
-        if (mViewFinderUseCase == null) {
-            // Nothing to focus on since we don't yet have a viewfinder
+        if (mPreview == null) {
+            // Nothing to focus on since we don't yet have a preview
             return;
         }
 
@@ -466,7 +463,7 @@ final class CameraXModule {
             return;
         }
 
-        mViewFinderUseCase.focus(rescaledFocus, rescaledMetering);
+        mPreview.focus(rescaledFocus, rescaledMetering);
     }
 
     public float getZoomLevel() {
@@ -477,8 +474,8 @@ final class CameraXModule {
         // Set the zoom level in case it is set before binding to a lifecycle
         this.mZoomLevel = zoomLevel;
 
-        if (mViewFinderUseCase == null) {
-            // Nothing to zoom on yet since we don't have a viewfinder. Defer calculating crop
+        if (mPreview == null) {
+            // Nothing to zoom on yet since we don't have a preview. Defer calculating crop
             // region.
             return;
         }
@@ -528,7 +525,7 @@ final class CameraXModule {
         }
         this.mCropRegion = cropRegion;
 
-        mViewFinderUseCase.zoom(cropRegion);
+        mPreview.zoom(cropRegion);
     }
 
     public float getMinZoomLevel() {
@@ -602,7 +599,7 @@ final class CameraXModule {
     void clearCurrentLifecycle() {
         if (mCurrentLifecycle != null) {
             // Remove previous use cases
-            CameraX.unbind(mImageCaptureUseCase, mVideoCaptureUseCase, mViewFinderUseCase);
+            CameraX.unbind(mImageCapture, mVideoCapture, mPreview);
         }
 
         mCurrentLifecycle = null;
@@ -619,8 +616,8 @@ final class CameraXModule {
 
     @UiThread
     private void transformPreview() {
-        int viewfinderWidth = getViewFinderWidth();
-        int viewfinderHeight = getViewFinderHeight();
+        int previewWidth = getPreviewWidth();
+        int previewHeight = getPreviewHeight();
         int displayOrientation = getDisplayRotationDegrees();
 
         Matrix matrix = new Matrix();
@@ -628,15 +625,15 @@ final class CameraXModule {
         // Apply rotation of the display
         int rotation = -displayOrientation;
 
-        int px = (int) Math.round(viewfinderWidth / 2d);
-        int py = (int) Math.round(viewfinderHeight / 2d);
+        int px = (int) Math.round(previewWidth / 2d);
+        int py = (int) Math.round(previewHeight / 2d);
 
         matrix.postRotate(rotation, px, py);
 
         if (displayOrientation == 90 || displayOrientation == 270) {
             // Swap width and height
-            float xScale = viewfinderWidth / (float) viewfinderHeight;
-            float yScale = viewfinderHeight / (float) viewfinderWidth;
+            float xScale = previewWidth / (float) previewHeight;
+            float yScale = previewHeight / (float) previewWidth;
 
             matrix.postScale(xScale, yScale, px, py);
         }
@@ -646,13 +643,13 @@ final class CameraXModule {
 
     // Update view related information used in use cases
     private void updateViewInfo() {
-        if (mImageCaptureUseCase != null) {
-            mImageCaptureUseCase.setTargetAspectRatio(new Rational(getWidth(), getHeight()));
-            mImageCaptureUseCase.setTargetRotation(getDisplaySurfaceRotation());
+        if (mImageCapture != null) {
+            mImageCapture.setTargetAspectRatio(new Rational(getWidth(), getHeight()));
+            mImageCapture.setTargetRotation(getDisplaySurfaceRotation());
         }
 
-        if (mVideoCaptureUseCase != null) {
-            mVideoCaptureUseCase.setTargetRotation(getDisplaySurfaceRotation());
+        if (mVideoCapture != null) {
+            mVideoCapture.setTargetRotation(getDisplaySurfaceRotation());
         }
     }
 
@@ -682,26 +679,26 @@ final class CameraXModule {
     public void setFlash(FlashMode flash) {
         this.mFlash = flash;
 
-        if (mImageCaptureUseCase == null) {
-            // Do nothing if there is no imageCaptureUseCase
+        if (mImageCapture == null) {
+            // Do nothing if there is no imageCapture
             return;
         }
 
-        mImageCaptureUseCase.setFlashMode(flash);
+        mImageCapture.setFlashMode(flash);
     }
 
     public void enableTorch(boolean torch) {
-        if (mViewFinderUseCase == null) {
+        if (mPreview == null) {
             return;
         }
-        mViewFinderUseCase.enableTorch(torch);
+        mPreview.enableTorch(torch);
     }
 
     public boolean isTorchOn() {
-        if (mViewFinderUseCase == null) {
+        if (mPreview == null) {
             return false;
         }
-        return mViewFinderUseCase.isTorchOn();
+        return mPreview.isTorchOn();
     }
 
     public Context getContext() {
@@ -728,12 +725,12 @@ final class CameraXModule {
         mCameraView.setSurfaceTexture(st);
     }
 
-    private int getViewFinderWidth() {
-        return mCameraView.getViewFinderWidth();
+    private int getPreviewWidth() {
+        return mCameraView.getPreviewWidth();
     }
 
-    private int getViewFinderHeight() {
-        return mCameraView.getViewFinderHeight();
+    private int getPreviewHeight() {
+        return mCameraView.getPreviewHeight();
     }
 
     private int getMeasuredWidth() {
@@ -761,13 +758,13 @@ final class CameraXModule {
     /**
      * Notify the view that the source dimensions have changed.
      *
-     * <p>This will allow the view to layout the viewfinder to display the correct aspect ratio.
+     * <p>This will allow the view to layout the preview to display the correct aspect ratio.
      *
      * @param width  width of camera source buffers.
      * @param height height of camera source buffers.
      */
-    void onViewfinderSourceDimensUpdated(int width, int height) {
-        mCameraView.onViewfinderSourceDimensUpdated(width, height);
+    void onPreviewSourceDimensUpdated(int width, int height) {
+        mCameraView.onPreviewSourceDimensUpdated(width, height);
     }
 
     public CameraView.CaptureMode getCaptureMode() {

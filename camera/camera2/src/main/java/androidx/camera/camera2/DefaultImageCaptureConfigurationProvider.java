@@ -26,16 +26,16 @@ import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ConfigurationProvider;
-import androidx.camera.core.ImageCaptureUseCase;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureConfiguration;
 import androidx.camera.core.SessionConfiguration;
 
 import java.util.Arrays;
 import java.util.List;
 
-/** Provides defaults for {@link ImageCaptureUseCaseConfiguration} in the Camera2 implementation. */
+/** Provides defaults for {@link ImageCaptureConfiguration} in the Camera2 implementation. */
 final class DefaultImageCaptureConfigurationProvider
-        implements ConfigurationProvider<ImageCaptureUseCaseConfiguration> {
+        implements ConfigurationProvider<ImageCaptureConfiguration> {
     private static final String TAG = "DefImgCapProvider";
     private static final Rational DEFAULT_ASPECT_RATIO_4_3 = new Rational(4, 3);
     private static final Rational DEFAULT_ASPECT_RATIO_3_4 = new Rational(3, 4);
@@ -49,12 +49,12 @@ final class DefaultImageCaptureConfigurationProvider
     }
 
     @Override
-    public ImageCaptureUseCaseConfiguration getConfiguration(LensFacing lensFacing) {
-        ImageCaptureUseCaseConfiguration.Builder builder =
-                ImageCaptureUseCaseConfiguration.Builder.fromConfig(
-                        ImageCaptureUseCase.DEFAULT_CONFIG.getConfiguration(lensFacing));
+    public ImageCaptureConfiguration getConfiguration(LensFacing lensFacing) {
+        ImageCaptureConfiguration.Builder builder =
+                ImageCaptureConfiguration.Builder.fromConfig(
+                        ImageCapture.DEFAULT_CONFIG.getConfiguration(lensFacing));
 
-        // SessionConfiguration containing all intrinsic properties needed for ImageCaptureUseCase
+        // SessionConfiguration containing all intrinsic properties needed for ImageCapture
         SessionConfiguration.Builder sessionBuilder = new SessionConfiguration.Builder();
         // TODO(b/114762170): Must set to preview here until we allow for multiple template types
         sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -91,7 +91,7 @@ final class DefaultImageCaptureConfigurationProvider
             builder.setTargetAspectRatio(
                     isRotateNeeded ? DEFAULT_ASPECT_RATIO_3_4 : DEFAULT_ASPECT_RATIO_4_3);
         } catch (Exception e) {
-            Log.w(TAG, "Unable to determine default lens facing for ImageCaptureUseCase.", e);
+            Log.w(TAG, "Unable to determine default lens facing for ImageCapture.", e);
         }
 
         return builder.build();

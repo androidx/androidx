@@ -24,11 +24,11 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.camera.core.CaptureProcessor;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
+import androidx.camera.core.ImageCaptureConfiguration;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageProxyBundle;
 import androidx.camera.extensions.CaptureStage;
-import androidx.camera.extensions.ImageCaptureUseCaseExtender;
+import androidx.camera.extensions.ImageCaptureExtender;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -44,11 +44,11 @@ import java.util.concurrent.TimeoutException;
  * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
  * don't need to implement this, unless this is used for related testing usage.
  */
-public class BokehImageCaptureExtender extends ImageCaptureUseCaseExtender {
+public class BokehImageCaptureExtender extends ImageCaptureExtender {
     private static final String TAG = "BokehICExtender";
     private static final int DEFAULT_STAGE_ID = 0;
 
-    public BokehImageCaptureExtender(ImageCaptureUseCaseConfiguration.Builder builder) {
+    public BokehImageCaptureExtender(ImageCaptureConfiguration.Builder builder) {
         super(builder);
     }
 

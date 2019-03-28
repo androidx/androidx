@@ -24,10 +24,10 @@ import androidx.camera.core.AppConfiguration;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.ImageAnalysisUseCaseConfiguration;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
-import androidx.camera.core.VideoCaptureUseCaseConfiguration;
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.core.ImageAnalysisConfiguration;
+import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.VideoCaptureConfiguration;
 
 /**
  * Convenience class for generating a pre-populated Camera2 {@link AppConfiguration}.
@@ -54,17 +54,17 @@ public final class Camera2AppConfiguration {
         // Create default configuration factory
         ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
         configFactory.installDefaultProvider(
-                ImageAnalysisUseCaseConfiguration.class,
+                ImageAnalysisConfiguration.class,
                 new DefaultImageAnalysisConfigurationProvider(cameraFactory, context));
         configFactory.installDefaultProvider(
-                ImageCaptureUseCaseConfiguration.class,
+                ImageCaptureConfiguration.class,
                 new DefaultImageCaptureConfigurationProvider(cameraFactory, context));
         configFactory.installDefaultProvider(
-                VideoCaptureUseCaseConfiguration.class,
+                VideoCaptureConfiguration.class,
                 new DefaultVideoCaptureConfigurationProvider(cameraFactory, context));
         configFactory.installDefaultProvider(
-                ViewFinderUseCaseConfiguration.class,
-                new DefaultViewFinderConfigurationProvider(cameraFactory, context));
+                PreviewConfiguration.class,
+                new DefaultPreviewConfigurationProvider(cameraFactory, context));
 
         AppConfiguration.Builder appConfigBuilder =
                 new AppConfiguration.Builder()

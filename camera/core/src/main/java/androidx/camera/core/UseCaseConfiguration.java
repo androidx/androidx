@@ -26,7 +26,7 @@ import androidx.camera.core.SessionConfiguration.OptionUnpacker;
  *
  * @param <T> The use case being configured.
  */
-public interface UseCaseConfiguration<T extends BaseUseCase> extends TargetConfiguration<T> {
+public interface UseCaseConfiguration<T extends UseCase> extends TargetConfiguration<T> {
 
     /**
      * Option: camerax.core.useCase.defaultSessionConfig

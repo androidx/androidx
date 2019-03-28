@@ -32,17 +32,17 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ImageCaptureUseCase;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
-import androidx.camera.core.ViewFinderUseCase;
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.Preview;
+import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.UseCase;
 import androidx.camera.extensions.BokehImageCaptureExtender;
-import androidx.camera.extensions.BokehViewFinderExtender;
+import androidx.camera.extensions.BokehPreviewExtender;
 import androidx.camera.extensions.HdrImageCaptureExtender;
-import androidx.camera.extensions.HdrViewFinderExtender;
+import androidx.camera.extensions.HdrPreviewExtender;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -71,8 +71,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     private String mCurrentCameraFacing = "BACK";
 
-    private ViewFinderUseCase mViewFinderUseCase;
-    private ImageCaptureUseCase mImageCaptureUseCase;
+    private Preview mPreview;
+    private ImageCapture mImageCapture;
     private ImageCaptureType mCurrentImageCaptureType = ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR;
 
     /**
@@ -81,46 +81,46 @@ public class CameraExtensionsActivity extends AppCompatActivity
      * <p>This use case observes a {@link SurfaceTexture}. The texture is connected to a {@link
      * TextureView} to display a camera preview.
      */
-    private void createViewFinderUseCase() {
-        enableViewFinderUseCase();
-        Log.i(TAG, "Got UseCase: " + mViewFinderUseCase);
+    private void createPreview() {
+        enablePreview();
+        Log.i(TAG, "Got UseCase: " + mPreview);
     }
 
-    void enableViewFinderUseCase() {
-        if (mViewFinderUseCase != null) {
-            CameraX.unbind(mViewFinderUseCase);
+    void enablePreview() {
+        if (mPreview != null) {
+            CameraX.unbind(mPreview);
         }
 
-        ViewFinderUseCaseConfiguration.Builder builder =
-                new ViewFinderUseCaseConfiguration.Builder()
+        PreviewConfiguration.Builder builder =
+                new PreviewConfiguration.Builder()
                         .setLensFacing(LensFacing.BACK)
-                        .setTargetName("ViewFinder");
+                        .setTargetName("Preview");
 
         Log.d(TAG, "Enabling the extended view finder");
         if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_BOKEH) {
             Log.d(TAG, "Enabling the extended view finder in bokeh mode.");
 
-            BokehViewFinderExtender extender = new BokehViewFinderExtender(builder);
+            BokehPreviewExtender extender = new BokehPreviewExtender(builder);
             if (extender.isExtensionAvailable()) {
                 extender.enableExtension();
             }
         } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR) {
             Log.d(TAG, "Enabling the extended view finder in HDR mode.");
 
-            HdrViewFinderExtender extender = new HdrViewFinderExtender(builder);
+            HdrPreviewExtender extender = new HdrPreviewExtender(builder);
             if (extender.isExtensionAvailable()) {
                 extender.enableExtension();
             }
         }
 
-        mViewFinderUseCase = new ViewFinderUseCase(builder.build());
+        mPreview = new Preview(builder.build());
 
         TextureView textureView = findViewById(R.id.textureView);
 
-        mViewFinderUseCase.setOnViewFinderOutputUpdateListener(
-                new ViewFinderUseCase.OnViewFinderOutputUpdateListener() {
+        mPreview.setOnPreviewOutputUpdateListener(
+                new Preview.OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(ViewFinderUseCase.ViewFinderOutput output) {
+                    public void onUpdated(Preview.PreviewOutput output) {
                         // If TextureView was already created, need to re-add it to change the
                         // SurfaceTexture.
                         ViewGroup viewGroup = (ViewGroup) textureView.getParent();
@@ -143,46 +143,44 @@ public class CameraExtensionsActivity extends AppCompatActivity
      *
      * <p>This use case takes a picture and saves it to a file, whenever the user clicks a button.
      */
-    private void createImageCaptureUseCase() {
+    private void createImageCapture() {
         Button button = findViewById(R.id.PhotoToggle);
-        enableImageCaptureUseCase(mCurrentImageCaptureType);
+        enableImageCapture(mCurrentImageCaptureType);
         button.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        disableImageCaptureUseCase();
+                        disableImageCapture();
                         // Toggle to next capture type and enable it and set it as current
                         switch (mCurrentImageCaptureType) {
                             case IMAGE_CAPTURE_TYPE_HDR:
-                                enableImageCaptureUseCase(
-                                        ImageCaptureType.IMAGE_CAPTURE_TYPE_BOKEH);
-                                enableViewFinderUseCase();
+                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_BOKEH);
+                                enablePreview();
                                 break;
                             case IMAGE_CAPTURE_TYPE_BOKEH:
-                                enableImageCaptureUseCase(
-                                        ImageCaptureType.IMAGE_CAPTURE_TYPE_DEFAULT);
-                                enableViewFinderUseCase();
+                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_DEFAULT);
+                                enablePreview();
                                 break;
                             case IMAGE_CAPTURE_TYPE_DEFAULT:
-                                enableImageCaptureUseCase(ImageCaptureType.IMAGE_CAPTURE_TYPE_NONE);
-                                enableViewFinderUseCase();
+                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_NONE);
+                                enablePreview();
                                 break;
                             case IMAGE_CAPTURE_TYPE_NONE:
-                                enableImageCaptureUseCase(ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR);
-                                enableViewFinderUseCase();
+                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR);
+                                enablePreview();
                                 break;
                         }
                         bindUseCases();
                     }
                 });
 
-        Log.i(TAG, "Got UseCase: " + mImageCaptureUseCase);
+        Log.i(TAG, "Got UseCase: " + mImageCapture);
     }
 
-    void enableImageCaptureUseCase(ImageCaptureType imageCaptureType) {
+    void enableImageCapture(ImageCaptureType imageCaptureType) {
         mCurrentImageCaptureType = imageCaptureType;
-        ImageCaptureUseCaseConfiguration.Builder builder =
-                new ImageCaptureUseCaseConfiguration.Builder()
+        ImageCaptureConfiguration.Builder builder =
+                new ImageCaptureConfiguration.Builder()
                         .setLensFacing(LensFacing.BACK)
                         .setTargetName("ImageCapture");
         Button toggleButton = findViewById(R.id.PhotoToggle);
@@ -209,7 +207,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 return;
         }
 
-        mImageCaptureUseCase = new ImageCaptureUseCase(builder.build());
+        mImageCapture = new ImageCapture(builder.build());
 
         Button captureButton = findViewById(R.id.Picture);
 
@@ -225,13 +223,13 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mImageCaptureUseCase.takePicture(
+                        mImageCapture.takePicture(
                                 new File(
                                         dir,
                                         formatter.format(Calendar.getInstance().getTime())
                                                 + mCurrentImageCaptureType.name()
                                                 + ".jpg"),
-                                new ImageCaptureUseCase.OnImageSavedListener() {
+                                new ImageCapture.OnImageSavedListener() {
                                     @Override
                                     public void onImageSaved(File file) {
                                         Log.d(TAG, "Saved image to " + file);
@@ -249,7 +247,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
                                     @Override
                                     public void onError(
-                                            ImageCaptureUseCase.UseCaseError useCaseError,
+                                            ImageCapture.UseCaseError useCaseError,
                                             String message,
                                             Throwable cause) {
                                         Log.e(TAG, "Failed to save image - " + message, cause);
@@ -259,10 +257,10 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 });
     }
 
-    void disableImageCaptureUseCase() {
-        if (mImageCaptureUseCase != null) {
-            CameraX.unbind(mImageCaptureUseCase);
-            mImageCaptureUseCase = null;
+    void disableImageCapture() {
+        if (mImageCapture != null) {
+            CameraX.unbind(mImageCapture);
+            mImageCapture = null;
         }
 
         Button button = findViewById(R.id.Picture);
@@ -271,19 +269,19 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     /** Creates all the use cases. */
     private void createUseCases() {
-        createImageCaptureUseCase();
-        createViewFinderUseCase();
+        createImageCapture();
+        createPreview();
         bindUseCases();
     }
 
     private void bindUseCases() {
-        List<BaseUseCase> useCases = new ArrayList();
-        // When it is not IMAGE_CAPTURE_TYPE_NONE, mImageCaptureUseCase won't be null.
-        if (mImageCaptureUseCase != null) {
-            useCases.add(mImageCaptureUseCase);
+        List<UseCase> useCases = new ArrayList();
+        // When it is not IMAGE_CAPTURE_TYPE_NONE, mImageCapture won't be null.
+        if (mImageCapture != null) {
+            useCases.add(mImageCapture);
         }
-        useCases.add(mViewFinderUseCase);
-        CameraX.bindToLifecycle(this, useCases.toArray(new BaseUseCase[useCases.size()]));
+        useCases.add(mPreview);
+        CameraX.bindToLifecycle(this, useCases.toArray(new UseCase[useCases.size()]));
     }
 
     @Override

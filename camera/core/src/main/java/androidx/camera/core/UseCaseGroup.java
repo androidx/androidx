@@ -32,9 +32,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A collection of {@link BaseUseCase}.
+ * A collection of {@link UseCase}.
  *
- * <p>The group of {@link BaseUseCase} instances have synchronized interactions with the {@link
+ * <p>The group of {@link UseCase} instances have synchronized interactions with the {@link
  * BaseCamera}.
  *
  * @hide
@@ -58,7 +58,7 @@ public final class UseCaseGroup {
      */
     private final Object mUseCasesLock = new Object();
     @GuardedBy("mUseCasesLock")
-    private final Set<BaseUseCase> mUseCases = new HashSet<>();
+    private final Set<UseCase> mUseCases = new HashSet<>();
     @GuardedBy("mListenerLock")
     private StateChangeListener mListener;
 
@@ -87,30 +87,30 @@ public final class UseCaseGroup {
     }
 
     /**
-     * Adds the {@link BaseUseCase} to the group.
+     * Adds the {@link UseCase} to the group.
      *
      * @return true if the use case is added, or false if the use case already exists in the group.
      */
-    public boolean addUseCase(BaseUseCase useCase) {
+    public boolean addUseCase(UseCase useCase) {
         synchronized (mUseCasesLock) {
             return mUseCases.add(useCase);
         }
     }
 
-    /** Returns true if the {@link BaseUseCase} is contained in the group. */
-    boolean contains(BaseUseCase useCase) {
+    /** Returns true if the {@link UseCase} is contained in the group. */
+    boolean contains(UseCase useCase) {
         synchronized (mUseCasesLock) {
             return mUseCases.contains(useCase);
         }
     }
 
     /**
-     * Removes the {@link BaseUseCase} from the group.
+     * Removes the {@link UseCase} from the group.
      *
      * @return Returns true if the use case is removed. Otherwise returns false (if the use case did
      * not exist in the group).
      */
-    boolean removeUseCase(BaseUseCase useCase) {
+    boolean removeUseCase(UseCase useCase) {
         synchronized (mUseCasesLock) {
             return mUseCases.remove(useCase);
         }
@@ -118,31 +118,31 @@ public final class UseCaseGroup {
 
     /** Clears all use cases from this group. */
     public void clear() {
-        List<BaseUseCase> useCasesToClear = new ArrayList<>();
+        List<UseCase> useCasesToClear = new ArrayList<>();
         synchronized (mUseCasesLock) {
             useCasesToClear.addAll(mUseCases);
             mUseCases.clear();
         }
 
-        for (BaseUseCase useCase : useCasesToClear) {
+        for (UseCase useCase : useCasesToClear) {
             Log.d(TAG, "Clearing use case: " + useCase.getName());
             useCase.clear();
         }
     }
 
     /** Returns the collection of all the use cases currently contained by the UseCaseGroup. */
-    Collection<BaseUseCase> getUseCases() {
+    Collection<UseCase> getUseCases() {
         synchronized (mUseCasesLock) {
             return Collections.unmodifiableCollection(mUseCases);
         }
     }
 
-    Map<String, Set<BaseUseCase>> getCameraIdToUseCaseMap() {
-        Map<String, Set<BaseUseCase>> cameraIdToUseCases = new HashMap<>();
+    Map<String, Set<UseCase>> getCameraIdToUseCaseMap() {
+        Map<String, Set<UseCase>> cameraIdToUseCases = new HashMap<>();
         synchronized (mUseCasesLock) {
-            for (BaseUseCase useCase : mUseCases) {
+            for (UseCase useCase : mUseCases) {
                 for (String cameraId : useCase.getAttachedCameraIds()) {
-                    Set<BaseUseCase> useCaseSet = cameraIdToUseCases.get(cameraId);
+                    Set<UseCase> useCaseSet = cameraIdToUseCases.get(cameraId);
                     if (useCaseSet == null) {
                         useCaseSet = new HashSet<>();
                     }
@@ -159,7 +159,7 @@ public final class UseCaseGroup {
         /**
          * Called when a {@link UseCaseGroup} becomes active.
          *
-         * <p>When a UseCaseGroup is active then all the contained {@link BaseUseCase} become
+         * <p>When a UseCaseGroup is active then all the contained {@link UseCase} become
          * online. This means that the {@link BaseCamera} should transition to a state as close as
          * possible to producing, but prior to actually producing data for the use case.
          */
@@ -168,7 +168,7 @@ public final class UseCaseGroup {
         /**
          * Called when a {@link UseCaseGroup} becomes inactive.
          *
-         * <p>When a UseCaseGroup is active then all the contained {@link BaseUseCase} become
+         * <p>When a UseCaseGroup is active then all the contained {@link UseCase} become
          * offline.
          */
         void onGroupInactive(UseCaseGroup useCaseGroup);

@@ -20,8 +20,9 @@ import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
-import androidx.camera.core.VideoCaptureUseCase.OnVideoSavedListener;
-import androidx.camera.core.VideoCaptureUseCase.UseCaseError;
+import androidx.camera.core.VideoCapture;
+import androidx.camera.core.VideoCapture.OnVideoSavedListener;
+import androidx.camera.core.VideoCapture.UseCaseError;
 
 import java.io.File;
 import java.text.Format;
@@ -31,8 +32,7 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Basic functionality required for interfacing the {@link
- * androidx.camera.core.VideoCaptureUseCase}.
+ * Basic functionality required for interfacing the {@link VideoCapture}.
  */
 public class VideoFileSaver implements OnVideoSavedListener {
     private static final String TAG = "VideoFileSaver";

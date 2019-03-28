@@ -53,10 +53,10 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.FlashMode;
-import androidx.camera.core.ImageCaptureUseCase.OnImageCapturedListener;
-import androidx.camera.core.ImageCaptureUseCase.OnImageSavedListener;
+import androidx.camera.core.ImageCapture.OnImageCapturedListener;
+import androidx.camera.core.ImageCapture.OnImageSavedListener;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.VideoCaptureUseCase.OnVideoSavedListener;
+import androidx.camera.core.VideoCapture.OnVideoSavedListener;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.io.File;
@@ -118,7 +118,7 @@ public final class CameraView extends ViewGroup {
                 }
             };
     private TextureView mCameraTextureView;
-    private Size mViewFinderSrcSize = new Size(0, 0);
+    private Size mPreviewSrcSize = new Size(0, 0);
     private ScaleType mScaleType = ScaleType.CENTER_CROP;
     // For accessibility event
     private MotionEvent mUpEvent;
@@ -191,7 +191,7 @@ public final class CameraView extends ViewGroup {
         mCameraModule = new CameraXModule(this);
 
         if (isInEditMode()) {
-            onViewfinderSourceDimensUpdated(640, 480);
+            onPreviewSourceDimensUpdated(640, 480);
         }
 
         if (attrs != null) {
@@ -305,11 +305,11 @@ public final class CameraView extends ViewGroup {
     }
 
     /**
-     * Sets the paint on the viewfinder.
+     * Sets the paint on the preview.
      *
-     * <p>This only affects the viewfinder, and does not affect captured images/video.
+     * <p>This only affects the preview, and does not affect captured images/video.
      *
-     * @param paint The paint object to apply to the viewfinder.
+     * @param paint The paint object to apply to the preview.
      * @hide This may not work once {@link android.view.SurfaceView} is supported along with {@link
      * TextureView}.
      */
@@ -346,13 +346,13 @@ public final class CameraView extends ViewGroup {
 
         int displayRotation = getDisplay().getRotation();
 
-        if (mViewFinderSrcSize.getHeight() == 0 || mViewFinderSrcSize.getWidth() == 0) {
+        if (mPreviewSrcSize.getHeight() == 0 || mPreviewSrcSize.getWidth() == 0) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             mCameraTextureView.measure(viewWidth, viewHeight);
         } else {
             Size scaled =
-                    calculateViewfinderViewDimens(
-                            mViewFinderSrcSize, viewWidth, viewHeight, displayRotation, mScaleType);
+                    calculatePreviewViewDimens(
+                            mPreviewSrcSize, viewWidth, viewHeight, displayRotation, mScaleType);
             super.setMeasuredDimension(
                     Math.min(scaled.getWidth(), viewWidth),
                     Math.min(scaled.getHeight(), viewHeight));
@@ -374,25 +374,25 @@ public final class CameraView extends ViewGroup {
         // binding to lifecycle
         mCameraModule.bindToLifecycleAfterViewMeasured();
 
-        // If we don't know the src buffer size yet, set the viewfinder to be the parent size
-        if (mViewFinderSrcSize.getWidth() == 0 || mViewFinderSrcSize.getHeight() == 0) {
+        // If we don't know the src buffer size yet, set the preview to be the parent size
+        if (mPreviewSrcSize.getWidth() == 0 || mPreviewSrcSize.getHeight() == 0) {
             mCameraTextureView.layout(left, top, right, bottom);
             return;
         }
 
-        // Compute the viewfinder ui size based on the available width, height, and ui orientation.
+        // Compute the preview ui size based on the available width, height, and ui orientation.
         int viewWidth = (right - left);
         int viewHeight = (bottom - top);
         int displayRotation = getDisplay().getRotation();
         Size scaled =
-                calculateViewfinderViewDimens(
-                        mViewFinderSrcSize, viewWidth, viewHeight, displayRotation, mScaleType);
+                calculatePreviewViewDimens(
+                        mPreviewSrcSize, viewWidth, viewHeight, displayRotation, mScaleType);
 
         // Compute the center of the view.
         int centerX = viewWidth / 2;
         int centerY = viewHeight / 2;
 
-        // Compute the left / top / right / bottom values such that viewfinder is centered.
+        // Compute the left / top / right / bottom values such that preview is centered.
         int layoutL = centerX - (scaled.getWidth() / 2);
         int layoutT = centerY - (scaled.getHeight() / 2);
         int layoutR = layoutL + scaled.getWidth();
@@ -402,11 +402,11 @@ public final class CameraView extends ViewGroup {
         log("layout: viewWidth:  " + viewWidth);
         log("layout: viewHeight: " + viewHeight);
         log("layout: viewRatio:  " + (viewWidth / (float) viewHeight));
-        log("layout: sizeWidth:  " + mViewFinderSrcSize.getWidth());
-        log("layout: sizeHeight: " + mViewFinderSrcSize.getHeight());
+        log("layout: sizeWidth:  " + mPreviewSrcSize.getWidth());
+        log("layout: sizeHeight: " + mPreviewSrcSize.getHeight());
         log(
                 "layout: sizeRatio:  "
-                        + (mViewFinderSrcSize.getWidth() / (float) mViewFinderSrcSize.getHeight()));
+                        + (mPreviewSrcSize.getWidth() / (float) mPreviewSrcSize.getHeight()));
         log("layout: scaledWidth:  " + scaled.getWidth());
         log("layout: scaledHeight: " + scaled.getHeight());
         log("layout: scaledRatio:  " + (scaled.getWidth() / (float) scaled.getHeight()));
@@ -427,17 +427,17 @@ public final class CameraView extends ViewGroup {
         mCameraModule.invalidateView();
     }
 
-    /** Records the size of the viewfinder's buffers. */
+    /** Records the size of the preview's buffers. */
     @UiThread
-    void onViewfinderSourceDimensUpdated(int srcWidth, int srcHeight) {
-        if (srcWidth != mViewFinderSrcSize.getWidth()
-                || srcHeight != mViewFinderSrcSize.getHeight()) {
-            mViewFinderSrcSize = new Size(srcWidth, srcHeight);
+    void onPreviewSourceDimensUpdated(int srcWidth, int srcHeight) {
+        if (srcWidth != mPreviewSrcSize.getWidth()
+                || srcHeight != mPreviewSrcSize.getHeight()) {
+            mPreviewSrcSize = new Size(srcWidth, srcHeight);
             requestLayout();
         }
     }
 
-    private Size calculateViewfinderViewDimens(
+    private Size calculatePreviewViewDimens(
             Size srcSize,
             int parentWidth,
             int parentHeight,
@@ -532,12 +532,12 @@ public final class CameraView extends ViewGroup {
     }
 
     @UiThread
-    int getViewFinderWidth() {
+    int getPreviewWidth() {
         return mCameraTextureView.getWidth();
     }
 
     @UiThread
-    int getViewFinderHeight() {
+    int getPreviewHeight() {
         return mCameraTextureView.getHeight();
     }
 
@@ -549,7 +549,7 @@ public final class CameraView extends ViewGroup {
     }
 
     /**
-     * Returns the scale type used to scale the viewfinder.
+     * Returns the scale type used to scale the preview.
      *
      * @return The current {@link ScaleType}.
      */
@@ -592,7 +592,7 @@ public final class CameraView extends ViewGroup {
     }
 
     /**
-     * Returns the scale type used to scale the viewfinder.
+     * Returns the scale type used to scale the preview.
      *
      * @return The current {@link CaptureMode}.
      */
@@ -797,7 +797,7 @@ public final class CameraView extends ViewGroup {
     }
 
     /**
-     * Focus the position of the touch event, or focus the center of the viewfinder for
+     * Focus the position of the touch event, or focus the center of the preview for
      * accessibility events
      */
     @Override

@@ -28,30 +28,29 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.Configuration;
 import androidx.camera.core.Configuration.Option;
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.core.PreviewConfiguration;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Provides interfaces that OEM need to implement to enable extension function in ViewFinder.
+ * Provides interfaces that OEM need to implement to enable extension function in Preview.
  */
-public abstract class ViewFinderUseCaseExtender {
-    private static final String TAG = "ViewFinderExtender";
-    private final ViewFinderUseCaseConfiguration.Builder mBuilder;
-    protected ViewFinderUseCaseExtender mImpl;
+public abstract class PreviewExtender {
+    private static final String TAG = "PreviewExtender";
+    private final PreviewConfiguration.Builder mBuilder;
+    protected PreviewExtender mImpl;
 
-    public ViewFinderUseCaseExtender(ViewFinderUseCaseConfiguration.Builder builder) {
+    public PreviewExtender(PreviewConfiguration.Builder builder) {
         mBuilder = builder;
     }
 
     boolean loadImplementation(String className) {
         try {
-            final Class<?> ViewFinderClass = Class.forName(className);
-            Constructor<?> ViewFinderConstructor =
-                    ViewFinderClass.getDeclaredConstructor(
-                            ViewFinderUseCaseConfiguration.Builder.class);
-            mImpl = (ViewFinderUseCaseExtender) ViewFinderConstructor.newInstance(mBuilder);
+            final Class<?> previewClass = Class.forName(className);
+            Constructor<?> previewConstructor =
+                    previewClass.getDeclaredConstructor(PreviewConfiguration.Builder.class);
+            mImpl = (PreviewExtender) previewConstructor.newInstance(mBuilder);
         } catch (ClassNotFoundException
                 | NoSuchMethodException
                 | InstantiationException
@@ -61,7 +60,7 @@ public abstract class ViewFinderUseCaseExtender {
         }
 
         if (mImpl == null) {
-            mImpl = new DefaultViewFinderUseCaseExtender(mBuilder);
+            mImpl = new DefaultPreviewExtender(mBuilder);
             return false;
         }
 
@@ -70,7 +69,7 @@ public abstract class ViewFinderUseCaseExtender {
 
     /**
      * Indicates whether extension function can support with
-     * {@link ViewFinderUseCaseConfiguration.Builder}
+     * {@link PreviewConfiguration.Builder}
      *
      * @return True if the specific extension function is supported for the camera device.
      */

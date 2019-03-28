@@ -45,7 +45,7 @@ import java.util.Objects;
  * <p>The preview stream is connected to an underlying {@link SurfaceTexture}. The caller is still
  * responsible for deciding how this texture is shown.
  */
-public class ViewFinderUseCase extends BaseUseCase {
+public class Preview extends UseCase {
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
@@ -53,22 +53,22 @@ public class ViewFinderUseCase extends BaseUseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
-    private static final String TAG = "ViewFinderUseCase";
+    private static final String TAG = "Preview";
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final CheckedSurfaceTexture.OnTextureChangedListener mSurfaceTextureListener =
             new CheckedSurfaceTexture.OnTextureChangedListener() {
                 @Override
                 public void onTextureChanged(SurfaceTexture newSurfaceTexture, Size newResolution) {
-                    ViewFinderUseCase.this.updateOutput(newSurfaceTexture, newResolution);
+                    Preview.this.updateOutput(newSurfaceTexture, newResolution);
                 }
             };
     final CheckedSurfaceTexture mCheckedSurfaceTexture =
             new CheckedSurfaceTexture(mSurfaceTextureListener);
-    private final ViewFinderUseCaseConfiguration.Builder mUseCaseConfigBuilder;
+    private final PreviewConfiguration.Builder mUseCaseConfigBuilder;
     @Nullable
-    private OnViewFinderOutputUpdateListener mSubscribedViewFinderOutputListener;
+    private OnPreviewOutputUpdateListener mSubscribedPreviewOutputListener;
     @Nullable
-    private ViewFinderOutput mLatestViewFinderOutput;
+    private PreviewOutput mLatestPreviewOutput;
     private boolean mSurfaceDispatched = false;
 
     /**
@@ -77,13 +77,13 @@ public class ViewFinderUseCase extends BaseUseCase {
      * @param configuration for this use case instance
      */
     @MainThread
-    public ViewFinderUseCase(ViewFinderUseCaseConfiguration configuration) {
+    public Preview(PreviewConfiguration configuration) {
         super(configuration);
-        mUseCaseConfigBuilder = ViewFinderUseCaseConfiguration.Builder.fromConfig(configuration);
+        mUseCaseConfigBuilder = PreviewConfiguration.Builder.fromConfig(configuration);
     }
 
     private static SessionConfiguration.Builder createFrom(
-            ViewFinderUseCaseConfiguration configuration, DeferrableSurface surface) {
+            PreviewConfiguration configuration, DeferrableSurface surface) {
         SessionConfiguration.Builder sessionConfigBuilder =
                 SessionConfiguration.Builder.createFrom(configuration);
         sessionConfigBuilder.addSurface(surface);
@@ -100,66 +100,66 @@ public class ViewFinderUseCase extends BaseUseCase {
     }
 
     /**
-     * Removes previously ViewFinderOutput listener.
+     * Removes previously PreviewOutput listener.
      *
-     * <p>This is equivalent to calling {@code setOnViewFinderOutputUpdateListener(null)}.
+     * <p>This is equivalent to calling {@code setOnPreviewOutputUpdateListener(null)}.
      */
     @UiThread
-    public void removeViewFinderOutputListener() {
-        setOnViewFinderOutputUpdateListener(null);
+    public void removePreviewOutputListener() {
+        setOnPreviewOutputUpdateListener(null);
     }
 
     /**
-     * Gets {@link OnViewFinderOutputUpdateListener}
+     * Gets {@link OnPreviewOutputUpdateListener}
      *
      * @return the last set listener or {@code null} if no listener is set
      */
     @UiThread
     @Nullable
-    public OnViewFinderOutputUpdateListener getOnViewFinderOutputUpdateListener() {
-        return mSubscribedViewFinderOutputListener;
+    public OnPreviewOutputUpdateListener getOnPreviewOutputUpdateListener() {
+        return mSubscribedPreviewOutputListener;
     }
 
     /**
-     * Sets a listener to get the {@link ViewFinderOutput} updates.
+     * Sets a listener to get the {@link PreviewOutput} updates.
      *
      * <p>Setting this listener will signal to the camera that the use case is ready to receive
      * data. Setting the listener to {@code null} will signal to the camera that the camera should
-     * no longer stream data to the last {@link ViewFinderOutput}.
+     * no longer stream data to the last {@link PreviewOutput}.
      *
-     * <p>Once {@link OnViewFinderOutputUpdateListener#onUpdated(ViewFinderOutput)} is called,
-     * ownership of the {@link ViewFinderOutput} and its contents is transferred to the user. It is
+     * <p>Once {@link OnPreviewOutputUpdateListener#onUpdated(PreviewOutput)} is called,
+     * ownership of the {@link PreviewOutput} and its contents is transferred to the user. It is
      * the user's responsibility to release the last {@link SurfaceTexture} returned by {@link
-     * ViewFinderOutput#getSurfaceTexture()} when a new SurfaceTexture is provided via an update or
+     * PreviewOutput#getSurfaceTexture()} when a new SurfaceTexture is provided via an update or
      * when the user is finished with the use case.
      *
-     * @param newListener The listener which will receive {@link ViewFinderOutput} updates.
+     * @param newListener The listener which will receive {@link PreviewOutput} updates.
      */
     @UiThread
-    public void setOnViewFinderOutputUpdateListener(
-            @Nullable OnViewFinderOutputUpdateListener newListener) {
-        OnViewFinderOutputUpdateListener oldListener = mSubscribedViewFinderOutputListener;
-        mSubscribedViewFinderOutputListener = newListener;
+    public void setOnPreviewOutputUpdateListener(
+            @Nullable OnPreviewOutputUpdateListener newListener) {
+        OnPreviewOutputUpdateListener oldListener = mSubscribedPreviewOutputListener;
+        mSubscribedPreviewOutputListener = newListener;
         if (oldListener == null && newListener != null) {
             notifyActive();
-            if (mLatestViewFinderOutput != null) {
+            if (mLatestPreviewOutput != null) {
                 mSurfaceDispatched = true;
-                newListener.onUpdated(mLatestViewFinderOutput);
+                newListener.onUpdated(mLatestPreviewOutput);
             }
         } else if (oldListener != null && newListener == null) {
             notifyInactive();
         } else if (oldListener != null && oldListener != newListener) {
-            if (mLatestViewFinderOutput != null) {
+            if (mLatestPreviewOutput != null) {
                 mCheckedSurfaceTexture.resetSurfaceTexture();
             }
         }
     }
 
-    // TODO: Timeout may be exposed as a ViewFinderUseCaseConfiguration(moved to CameraControl)
+    // TODO: Timeout may be exposed as a PreviewConfiguration(moved to CameraControl)
 
     private CameraControl getCurrentCameraControl() {
-        ViewFinderUseCaseConfiguration configuration =
-                (ViewFinderUseCaseConfiguration) getUseCaseConfiguration();
+        PreviewConfiguration configuration =
+                (PreviewConfiguration) getUseCaseConfiguration();
         String cameraId = getCameraIdUnchecked(configuration.getLensFacing());
         return getCameraControl(cameraId);
     }
@@ -219,8 +219,8 @@ public class ViewFinderUseCase extends BaseUseCase {
      * Sets the rotation of the surface texture consumer.
      *
      * <p>In most cases this should be set to the current rotation returned by {@link
-     * Display#getRotation()}. This will update the rotation value in {@link ViewFinderOutput} to
-     * reflect the angle the ViewFinderOutput should be rotated to match the supplied rotation.
+     * Display#getRotation()}. This will update the rotation value in {@link PreviewOutput} to
+     * reflect the angle the PreviewOutput should be rotated to match the supplied rotation.
      *
      * @param rotation Rotation of the surface texture consumer.
      */
@@ -251,10 +251,10 @@ public class ViewFinderUseCase extends BaseUseCase {
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        ViewFinderUseCaseConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
-                ViewFinderUseCaseConfiguration.class, lensFacing);
+        PreviewConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
+                PreviewConfiguration.class, lensFacing);
         if (defaults != null) {
-            return ViewFinderUseCaseConfiguration.Builder.fromConfig(defaults);
+            return PreviewConfiguration.Builder.fromConfig(defaults);
         }
 
         return null;
@@ -276,13 +276,13 @@ public class ViewFinderUseCase extends BaseUseCase {
                         mCheckedSurfaceTexture.release();
                     }
                 });
-        removeViewFinderOutputListener();
+        removePreviewOutputListener();
         notifyInactive();
 
         SurfaceTexture oldTexture =
-                (mLatestViewFinderOutput == null)
+                (mLatestPreviewOutput == null)
                         ? null
-                        : mLatestViewFinderOutput.getSurfaceTexture();
+                        : mLatestPreviewOutput.getSurfaceTexture();
         if (oldTexture != null && !mSurfaceDispatched) {
             oldTexture.release();
         }
@@ -299,8 +299,7 @@ public class ViewFinderUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
-        ViewFinderUseCaseConfiguration configuration =
-                (ViewFinderUseCaseConfiguration) getUseCaseConfiguration();
+        PreviewConfiguration configuration = (PreviewConfiguration) getUseCaseConfiguration();
         String cameraId = getCameraIdUnchecked(configuration.getLensFacing());
         Size resolution = suggestedResolutionMap.get(cameraId);
         if (resolution == null) {
@@ -320,23 +319,22 @@ public class ViewFinderUseCase extends BaseUseCase {
 
     @UiThread
     private void invalidateMetadata() {
-        if (mLatestViewFinderOutput != null) {
+        if (mLatestPreviewOutput != null) {
             // Only update the output if we have a SurfaceTexture. Otherwise we'll wait until a
             // SurfaceTexture is ready.
             updateOutput(
-                    mLatestViewFinderOutput.getSurfaceTexture(),
-                    mLatestViewFinderOutput.getTextureSize());
+                    mLatestPreviewOutput.getSurfaceTexture(),
+                    mLatestPreviewOutput.getTextureSize());
         }
     }
 
     @UiThread
     void updateOutput(SurfaceTexture surfaceTexture, Size resolution) {
-        ViewFinderUseCaseConfiguration useCaseConfig =
-                (ViewFinderUseCaseConfiguration) getUseCaseConfiguration();
+        PreviewConfiguration useCaseConfig = (PreviewConfiguration) getUseCaseConfiguration();
 
         int relativeRotation =
-                (mLatestViewFinderOutput == null) ? 0
-                        : mLatestViewFinderOutput.getRotationDegrees();
+                (mLatestPreviewOutput == null) ? 0
+                        : mLatestPreviewOutput.getRotationDegrees();
         try {
             // Attempt to get the camera ID. If this fails, we probably don't have permission, so we
             // will rely on the updated UseCaseConfiguration to set the correct rotation in
@@ -350,18 +348,18 @@ public class ViewFinderUseCase extends BaseUseCase {
             Log.e(TAG, "Unable to update output metadata: " + e);
         }
 
-        ViewFinderOutput newOutput =
-                ViewFinderOutput.create(surfaceTexture, resolution, relativeRotation);
+        PreviewOutput newOutput =
+                PreviewOutput.create(surfaceTexture, resolution, relativeRotation);
 
         // Only update the output if something has changed
-        if (!Objects.equals(mLatestViewFinderOutput, newOutput)) {
+        if (!Objects.equals(mLatestPreviewOutput, newOutput)) {
             SurfaceTexture oldTexture =
-                    (mLatestViewFinderOutput == null)
+                    (mLatestPreviewOutput == null)
                             ? null
-                            : mLatestViewFinderOutput.getSurfaceTexture();
-            OnViewFinderOutputUpdateListener outputListener = getOnViewFinderOutputUpdateListener();
+                            : mLatestPreviewOutput.getSurfaceTexture();
+            OnPreviewOutputUpdateListener outputListener = getOnPreviewOutputUpdateListener();
 
-            mLatestViewFinderOutput = newOutput;
+            mLatestPreviewOutput = newOutput;
 
             boolean textureChanged = oldTexture != surfaceTexture;
             if (textureChanged) {
@@ -388,20 +386,20 @@ public class ViewFinderUseCase extends BaseUseCase {
         }
     }
 
-    /** Describes the error that occurred during viewfinder operation. */
+    /** Describes the error that occurred during preview operation. */
     public enum UseCaseError {
         /** Unknown error occurred. See message or log for more details. */
         UNKNOWN_ERROR
     }
 
-    /** A listener of {@link ViewFinderOutput}. */
-    public interface OnViewFinderOutputUpdateListener {
-        /** Callback when ViewFinderOutput has been updated. */
-        void onUpdated(ViewFinderOutput output);
+    /** A listener of {@link PreviewOutput}. */
+    public interface OnPreviewOutputUpdateListener {
+        /** Callback when PreviewOutput has been updated. */
+        void onUpdated(PreviewOutput output);
     }
 
     /**
-     * Provides a base static default configuration for the ViewFinderUseCase
+     * Provides a base static default configuration for the Preview
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
@@ -410,17 +408,17 @@ public class ViewFinderUseCase extends BaseUseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
-            implements ConfigurationProvider<ViewFinderUseCaseConfiguration> {
+            implements ConfigurationProvider<PreviewConfiguration> {
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final Size DEFAULT_MAX_RESOLUTION =
                 CameraX.getSurfaceManager().getPreviewSize();
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 2;
 
-        private static final ViewFinderUseCaseConfiguration DEFAULT_CONFIG;
+        private static final PreviewConfiguration DEFAULT_CONFIG;
 
         static {
-            ViewFinderUseCaseConfiguration.Builder builder =
-                    new ViewFinderUseCaseConfiguration.Builder()
+            PreviewConfiguration.Builder builder =
+                    new PreviewConfiguration.Builder()
                             .setCallbackHandler(DEFAULT_HANDLER)
                             .setMaxResolution(DEFAULT_MAX_RESOLUTION)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
@@ -428,38 +426,38 @@ public class ViewFinderUseCase extends BaseUseCase {
         }
 
         @Override
-        public ViewFinderUseCaseConfiguration getConfiguration(LensFacing lensFacing) {
+        public PreviewConfiguration getConfiguration(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
         }
     }
 
     /**
-     * A bundle containing a {@link SurfaceTexture} and properties needed to display a ViewFinder.
+     * A bundle containing a {@link SurfaceTexture} and properties needed to display a Preview.
      */
     @AutoValue
-    public abstract static class ViewFinderOutput {
+    public abstract static class PreviewOutput {
 
-        ViewFinderOutput() {
+        PreviewOutput() {
         }
 
-        static ViewFinderOutput create(
+        static PreviewOutput create(
                 SurfaceTexture surfaceTexture, Size textureSize, int rotationDegrees) {
-            return new AutoValue_ViewFinderUseCase_ViewFinderOutput(
+            return new AutoValue_Preview_PreviewOutput(
                     surfaceTexture, textureSize, rotationDegrees);
         }
 
-        /** Returns the ViewFinderOutput that receives image data. */
+        /** Returns the PreviewOutput that receives image data. */
         public abstract SurfaceTexture getSurfaceTexture();
 
-        /** Returns the dimensions of the ViewFinderOutput. */
+        /** Returns the dimensions of the PreviewOutput. */
         public abstract Size getTextureSize();
 
         /**
-         * Returns the rotation required, in degrees, to transform the ViewFinderOutput to match the
+         * Returns the rotation required, in degrees, to transform the PreviewOutput to match the
          * orientation given by ImageOutputConfiguration#getTargetRotation(int).
          *
          * <p>This number is independent of any rotation value that can be derived from the
-         * ViewFinderOutput's {@link SurfaceTexture#getTransformMatrix(float[])}.
+         * PreviewOutput's {@link SurfaceTexture#getTransformMatrix(float[])}.
          */
         public abstract int getRotationDegrees();
     }

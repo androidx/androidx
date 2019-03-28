@@ -31,7 +31,7 @@ import java.util.concurrent.TimeoutException;
  * Primary logic is copy from concurrent-futures package in Guava to AndroidX namespace since we
  * would need ListenableFuture related implementation but not want to include whole Guava library.
  *
- * TODO: b/130187641 Update ImageCaptureUseCase and remove FluentFuture.
+ * TODO: b/130187641 Update ImageCapture and remove FluentFuture.
  *
  *  A {@link ListenableFuture} that supports fluent chains of operations. For example:
  *
@@ -45,7 +45,7 @@ import java.util.concurrent.TimeoutException;
  *  @hide
  *  @param <V>
  *  @deprecated Temporarily to use this class to keep code in the same behavior, will remove after
- *  ImageCaptureUseCase update.
+ *  ImageCapture update.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Deprecated

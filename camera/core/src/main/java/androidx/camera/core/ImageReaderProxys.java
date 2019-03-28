@@ -142,7 +142,7 @@ public final class ImageReaderProxys {
             for (int sdkVersion = 21; sdkVersion <= 27; ++sdkVersion) {
                 // TODO(b/128944206)
                 // The image reader sharing was for 4-use-case scenario (image capture, image
-                // analysis, video capture, viewfinder). Since 4-use-case scenario is currently
+                // analysis, video capture, preview). Since 4-use-case scenario is currently
                 // deprioritized and video capture is deprioritized. Just make this empty list.
             }
         }

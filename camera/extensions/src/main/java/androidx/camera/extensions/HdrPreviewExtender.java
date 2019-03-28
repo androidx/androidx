@@ -17,14 +17,14 @@
 package androidx.camera.extensions;
 
 
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.core.PreviewConfiguration;
 
 /**
- * Load the OEM extension ViewFinder implementation for HDR effect type.
+ * Load the OEM extension Preview implementation for HDR effect type.
  */
-public class HdrViewFinderExtender extends ViewFinderUseCaseExtender {
-    public HdrViewFinderExtender(ViewFinderUseCaseConfiguration.Builder builder) {
+public class HdrPreviewExtender extends PreviewExtender {
+    public HdrPreviewExtender(PreviewConfiguration.Builder builder) {
         super(builder);
-        loadImplementation("androidx.camera.extensions.impl.HdrViewFinderExtender");
+        loadImplementation("androidx.camera.extensions.impl.HdrPreviewExtender");
     }
 }

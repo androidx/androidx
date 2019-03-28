@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  * Cloned from concurrent-futures package in Guava to AndroidX namespace since we would need
  * ListenableFuture related implementation but not want to include whole Guava library.
  *
- * TODO: b/130187641 Update ImageCaptureUseCase and remove AbstractFuture.
+ * TODO: b/130187641 Update ImageCapture and remove AbstractFuture.
  *
  * <p>This class implements all methods in {@code ListenableFuture}. Subclasses should provide a way
  * to set the result of the computation through the protected methods {@link #set(Object)}, {@link
@@ -60,7 +60,7 @@ import java.util.logging.Logger;
  * @since 1.0
  * @param <V>
  * @deprecated Temporarily to use this class to keep code in the same behavior, will remove after
- * ImageCaptureUseCase update.
+ * ImageCapture update.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Deprecated

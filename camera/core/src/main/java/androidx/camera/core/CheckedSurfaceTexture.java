@@ -83,10 +83,10 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
         if (26 <= android.os.Build.VERSION.SDK_INT) {
             released = surfaceTexture.isReleased();
         } else {
-            // WARNING: This relies on some implementation details of the ViewFinderOutput native
-            // code. If the ViewFinderOutput is released, we should get a RuntimeException. If not,
-            // we should get an IllegalStateException since we are not in the same EGL context as
-            // the consumer.
+            // WARNING: This relies on some implementation details of the PreviewOutput native code.
+            // If the PreviewOutput is released, we should get a RuntimeException. If not, we
+            // should get an IllegalStateException since we are not in the same EGL context as the
+            // consumer.
             Exception exception = null;
             try {
                 // TODO(b/121198329) Make sure updateTexImage() isn't called on consumer EGL context
@@ -100,7 +100,7 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
             }
 
             if (!released && exception == null) {
-                throw new RuntimeException("Unable to determine if ViewFinderOutput is released");
+                throw new RuntimeException("Unable to determine if PreviewOutput is released");
             }
         }
 

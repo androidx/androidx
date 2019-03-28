@@ -28,7 +28,7 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CaptureBundle;
 import androidx.camera.core.CaptureProcessor;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
+import androidx.camera.core.ImageCaptureConfiguration;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -37,12 +37,12 @@ import java.util.List;
 /**
  * Provides interfaces that OEM need to implement to enable extension function.
  */
-public abstract class ImageCaptureUseCaseExtender {
+public abstract class ImageCaptureExtender {
     private static final String TAG = "ImageCaptureExtender";
-    private final ImageCaptureUseCaseConfiguration.Builder mBuilder;
-    protected ImageCaptureUseCaseExtender mImpl;
+    private final ImageCaptureConfiguration.Builder mBuilder;
+    protected ImageCaptureExtender mImpl;
 
-    public ImageCaptureUseCaseExtender(ImageCaptureUseCaseConfiguration.Builder builder) {
+    public ImageCaptureExtender(ImageCaptureConfiguration.Builder builder) {
         mBuilder = builder;
     }
 
@@ -51,8 +51,8 @@ public abstract class ImageCaptureUseCaseExtender {
             final Class<?> imageCaptureClass = Class.forName(className);
             Constructor<?> imageCaptureConstructor =
                     imageCaptureClass.getDeclaredConstructor(
-                            ImageCaptureUseCaseConfiguration.Builder.class);
-            mImpl = (ImageCaptureUseCaseExtender) imageCaptureConstructor.newInstance(mBuilder);
+                            ImageCaptureConfiguration.Builder.class);
+            mImpl = (ImageCaptureExtender) imageCaptureConstructor.newInstance(mBuilder);
         } catch (ClassNotFoundException
                 | NoSuchMethodException
                 | InstantiationException
@@ -62,7 +62,7 @@ public abstract class ImageCaptureUseCaseExtender {
         }
 
         if (mImpl == null) {
-            mImpl = new DefaultImageCaptureUseCaseExtender(mBuilder);
+            mImpl = new DefaultImageCaptureExtender(mBuilder);
             return false;
         }
 
@@ -71,7 +71,7 @@ public abstract class ImageCaptureUseCaseExtender {
 
     /**
      * Indicates whether extension function can support with
-     * {@link ImageCaptureUseCaseConfiguration.Builder}
+     * {@link ImageCaptureConfiguration.Builder}
      *
      * @return True if the specific extension function is supported for the camera device.
      */
