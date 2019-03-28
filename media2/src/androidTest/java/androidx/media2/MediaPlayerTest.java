@@ -36,6 +36,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.MediaPlayer.TrackInfo;
 import androidx.media2.SessionPlayer.PlayerResult;
 import androidx.media2.TestUtils.Monitor;
 import androidx.media2.test.R;
@@ -565,14 +566,16 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     private void selectSubtitleTrack(int index) throws Exception {
         int trackIndex = mSubtitleTrackIndex.get(index);
-        ListenableFuture<PlayerResult> future = mPlayer.selectTrack(trackIndex);
+        List<TrackInfo> tracks = mPlayer.getTrackInfo();
+        ListenableFuture<PlayerResult> future = mPlayer.selectTrack(tracks.get(trackIndex));
         assertEquals(RESULT_SUCCESS, future.get().getResultCode());
         mSelectedSubtitleIndex = index;
     }
 
     private int deselectSubtitleTrack(int index) throws Exception {
         int trackIndex = mSubtitleTrackIndex.get(index);
-        ListenableFuture<PlayerResult> future = mPlayer.deselectTrack(trackIndex);
+        List<TrackInfo> tracks = mPlayer.getTrackInfo();
+        ListenableFuture<PlayerResult> future = mPlayer.deselectTrack(tracks.get(trackIndex));
         if (mSelectedSubtitleIndex == index) {
             mSelectedSubtitleIndex = -1;
         }
