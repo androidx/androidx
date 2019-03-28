@@ -19,7 +19,6 @@ package androidx.ui.animation.demos
 import android.app.Activity
 import android.graphics.PointF
 import android.os.Bundle
-import android.view.animation.PathInterpolator
 import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
 import androidx.animation.TransitionDefinition
@@ -146,7 +145,6 @@ private fun createTransDef(targetRadius: Float): TransitionDefinition<ButtonStat
 
             radius using tween {
                 duration = 225
-                interpolator = PathInterpolator(0.4f, 0f, 0.2f, 1f)
             }
             interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE
         }

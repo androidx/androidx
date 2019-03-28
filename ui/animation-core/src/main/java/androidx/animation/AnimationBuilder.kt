@@ -16,8 +16,6 @@
 
 package androidx.animation
 
-import android.animation.TimeInterpolator
-import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.animation.Physics.Companion.DampingRatioNoBouncy
 import androidx.animation.Physics.Companion.StiffnessVeryLow
 
@@ -106,13 +104,13 @@ class TweenBuilder<T> : AnimationBuilder<T>() {
         }
 
     /**
-     * Interpolator (a.k.a easing curve) for the Tween animation.
-     * Default: [AccelerateDecelerateInterpolator]
+     * Easing (a.k.a interpolator) for the Tween animation.
+     * Default: [FastOutSlowInEasing]
      */
-    var interpolator: TimeInterpolator = AccelerateDecelerateInterpolator()
+    var easing: Easing = FastOutSlowInEasing
 
     override fun build(): Animation<T> =
-        Tween(duration.toLong(), delay, interpolator)
+        Tween(duration.toLong(), delay, easing)
 }
 
 open class PhysicsBuilder<T> : AnimationBuilder<T>() {

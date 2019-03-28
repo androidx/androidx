@@ -16,7 +16,6 @@
 
 package androidx.animation
 
-import android.view.animation.Interpolator
 import androidx.ui.lerp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -35,8 +34,8 @@ class TweenAnimationTest {
 
         val animation = TweenBuilder<Float>().run {
             delay = 100L
-            interpolator = Interpolator { input -> input }
             duration = testDuration
+            easing = LinearEasing
             build()
         }
 
@@ -47,5 +46,37 @@ class TweenAnimationTest {
         assertThat(atPlaytime(testDelay / 2)).isZero()
         assertThat(atPlaytime(testDelay)).isZero()
         assertThat(atPlaytime(testDelay + 1)).isNonZero()
+    }
+
+    @Test
+    fun easingIsApplied() {
+        val totalDuration = 300
+        val accelerateEasing: Easing = { fraction -> fraction * 2f }
+        val animation = TweenBuilder<Float>().run {
+            duration = totalDuration
+            easing = accelerateEasing
+            build()
+        }
+
+        val fraction = 0.3f
+        val playTime = (totalDuration * fraction).toLong()
+        val value = animation.getValue(playTime, 0f, 1f, 0f, ::lerp)
+        val expectedValue = accelerateEasing(fraction)
+        assertThat(value).isEqualTo(expectedValue)
+    }
+
+    @Test
+    fun endValueCalculatedForPlaytimeOverDuration() {
+        val testDuration = 200
+        val start = 0f
+        val end = 100f
+
+        val animation = TweenBuilder<Float>().run {
+            duration = testDuration
+            build()
+        }
+
+        val value = animation.getValue(testDuration + 10L, start, end, 0f, ::lerp)
+        assertThat(value).isEqualTo(end)
     }
 }
