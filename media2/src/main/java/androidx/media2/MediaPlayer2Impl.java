@@ -1100,8 +1100,13 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(EventCallback cb) {
-                        cb.onSubtitleData(
-                                MediaPlayer2Impl.this, src.getDSD(), new SubtitleData(data));
+                        final int idx = data.getTrackIndex();
+                        final long startTimeUs = data.getStartTimeUs();
+                        final long durationUs = data.getDurationUs();
+                        final byte[] bytes = data.getData();
+                        androidx.media2.MediaPlayer.TrackInfo info = getTrackInfo(idx);
+                        SubtitleData sub = new SubtitleData(info, startTimeUs, durationUs, bytes);
+                        cb.onSubtitleData(MediaPlayer2Impl.this, src.getDSD(), sub);
                     }
                 });
             }
