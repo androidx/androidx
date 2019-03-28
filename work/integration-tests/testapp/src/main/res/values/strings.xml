@@ -24,5 +24,6 @@
     <string name="replace_completed_work">Test Replacing Completed Work</string>
     <string name="run_retry_worker">Run Retry Worker</string>
     <string name="run_recursive_worker">Run Recursive Worker</string>
+    <string name="create_hundred_job_exception">Create 100 Job Exception</string>
     <string name="keep">Use KEEP</string>
 </resources>
