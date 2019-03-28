@@ -19,12 +19,16 @@ package androidx.work.integration.testapp;
 import static androidx.work.ExistingWorkPolicy.KEEP;
 import static androidx.work.ExistingWorkPolicy.REPLACE;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
@@ -40,6 +44,7 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+import androidx.work.impl.background.systemjob.SystemJobService;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
 
@@ -317,6 +322,36 @@ public class MainActivity extends AppCompatActivity {
                 WorkManager.getInstance().enqueue(request);
             }
         });
+
+        Button hundredJobExceptionButton = findViewById(R.id.create_hundred_job_exception);
+        // 100 Job limits are only enforced on API 24+.
+        if (Build.VERSION.SDK_INT >= 24) {
+            hundredJobExceptionButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    JobScheduler jobScheduler =
+                            (JobScheduler) v.getContext().getSystemService(JOB_SCHEDULER_SERVICE);
+                    WorkManager.getInstance().cancelAllWork();
+                    jobScheduler.cancelAll();
+                    for (int i = 0; i < 101; ++i) {
+                        jobScheduler.schedule(
+                                new JobInfo.Builder(
+                                        100000 + i,
+                                        new ComponentName(v.getContext(), SystemJobService.class))
+                                        .setMinimumLatency(10 * 60 * 1000)
+                                        .build());
+                    }
+                    for (int i = 0; i < 100; ++i) {
+                        WorkManager.getInstance().enqueue(
+                                new OneTimeWorkRequest.Builder(TestWorker.class)
+                                        .setInitialDelay(10L, TimeUnit.MINUTES)
+                                        .build());
+                    }
+                }
+            });
+        } else {
+            hundredJobExceptionButton.setVisibility(View.GONE);
+        }
 
     }
 }
