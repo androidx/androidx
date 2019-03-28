@@ -1907,8 +1907,8 @@ public class MediaPlayer extends SessionPlayer {
     public List<TrackInfo> getTrackInfo() {
         List<MediaPlayer2.TrackInfo> list = mPlayer.getTrackInfo();
         List<TrackInfo> trackList = new ArrayList<>();
-        for (MediaPlayer2.TrackInfo info : list) {
-            trackList.add(new TrackInfo(info.getTrackType(), info.getFormat()));
+        for (int i = 0; i < list.size(); i++) {
+            trackList.add(mPlayer.getTrackInfo(i));
         }
         return trackList;
     }
@@ -1916,23 +1916,24 @@ public class MediaPlayer extends SessionPlayer {
     /**
      * Returns the index of the audio, video, or subtitle track currently selected for playback,
      * The return value is an index into the array returned by {@link #getTrackInfo()}, and can
-     * be used in calls to {@link #selectTrack(int)} or {@link #deselectTrack(int)}.
+     * be used in calls to {@link #selectTrack(TrackInfo)} or {@link #deselectTrack(TrackInfo)}.
      *
      * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO},
      * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}, or
      * {@link TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE}
-     * @return index of the audio, video, or subtitle track currently selected for playback;
-     * a negative integer is returned when there is no selected track for {@code trackType} or
+     * @return metadata corresponding to the audio, video, or subtitle track currently selected for
+     * playback; {@code null} is returned when there is no selected track for {@code trackType} or
      * when {@code trackType} is not one of audio, video, or subtitle.
      * @throws IllegalStateException if called after {@link #close()}
      *
      * @see #getTrackInfo()
-     * @see #selectTrack(int)
-     * @see #deselectTrack(int)
+     * @see #selectTrack(TrackInfo)
+     * @see #deselectTrack(TrackInfo)
      */
-    public int getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
+    @Nullable
+    public TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
         final int ret = mPlayer.getSelectedTrack(trackType);
-        return (ret < 0) ? NO_TRACK_SELECTED : ret;
+        return ret < 0 ? null : mPlayer.getTrackInfo(ret);
     }
 
     /**
@@ -1955,9 +1956,8 @@ public class MediaPlayer extends SessionPlayer {
      * <p>
      * Currently, only timed text tracks or audio tracks can be selected via this method.
      * </p>
-     * @param index the index of the track to be selected. The valid range of the index
-     * is 0..total number of track - 1. The total number of tracks as well as the type of
-     * each individual track can be found by calling {@link #getTrackInfo()} method.
+     * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
+     * object can be obtained from {@link #getTrackInfo()}.
      * <p>
      * On success, a {@link androidx.media2.SessionPlayer.PlayerResult} is returned with
      * the current media item when the command completed.
@@ -1968,14 +1968,15 @@ public class MediaPlayer extends SessionPlayer {
      * completed.
      */
     @NonNull
-    public ListenableFuture<PlayerResult> selectTrack(final int index) {
+    public ListenableFuture<PlayerResult> selectTrack(@NonNull final TrackInfo trackInfo) {
+        final int trackId = trackInfo.mId;
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
                 synchronized (mPendingCommands) {
-                    Object token = mPlayer.selectTrack(index);
+                    Object token = mPlayer.selectTrack(trackId);
                     addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_SELECT_TRACK,
                             future, token);
                 }
@@ -1993,9 +1994,8 @@ public class MediaPlayer extends SessionPlayer {
      * Currently, the track must be a timed text track and no audio or video tracks can be
      * deselected.
      * </p>
-     * @param index the index of the track to be deselected. The valid range of the index
-     * is 0..total number of tracks - 1. The total number of tracks as well as the type of
-     * each individual track can be found by calling {@link #getTrackInfo()} method.
+     * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
+     * object can be obtained from {@link #getTrackInfo()}.
      * <p>
      * On success, a {@link androidx.media2.SessionPlayer.PlayerResult} is returned with
      * the current media item when the command completed.
@@ -2006,14 +2006,15 @@ public class MediaPlayer extends SessionPlayer {
      * completed.
      */
     @NonNull
-    public ListenableFuture<PlayerResult> deselectTrack(final int index) {
+    public ListenableFuture<PlayerResult> deselectTrack(@NonNull final TrackInfo trackInfo) {
+        final int trackId = trackInfo.mId;
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
                 synchronized (mPendingCommands) {
-                    Object token = mPlayer.deselectTrack(index);
+                    Object token = mPlayer.deselectTrack(trackId);
                     addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK,
                             future, token);
                 }
@@ -2882,6 +2883,8 @@ public class MediaPlayer extends SessionPlayer {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public @interface MediaTrackType {}
 
+        final int mId;
+        private final MediaItem mItem;
         private final int mTrackType;
         private final MediaFormat mFormat;
 
@@ -2919,7 +2922,11 @@ public class MediaPlayer extends SessionPlayer {
             return null;
         }
 
-        TrackInfo(int type, MediaFormat format) {
+        /** @hide */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        public TrackInfo(int id, MediaItem item, int type, MediaFormat format) {
+            mId = id;
+            mItem = item;
             mTrackType = type;
             mFormat = format;
         }
@@ -2928,6 +2935,7 @@ public class MediaPlayer extends SessionPlayer {
         public String toString() {
             StringBuilder out = new StringBuilder(128);
             out.append(getClass().getName());
+            out.append('#').append(mId);
             out.append('{');
             switch (mTrackType) {
                 case MEDIA_TRACK_TYPE_VIDEO:
@@ -2949,6 +2957,38 @@ public class MediaPlayer extends SessionPlayer {
             out.append(", " + mFormat.toString());
             out.append("}");
             return out.toString();
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + mId;
+            result = prime * result + ((mItem == null) ? 0 : mItem.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            TrackInfo other = (TrackInfo) obj;
+            if (mId != other.mId) {
+                return false;
+            }
+            if (mItem == null) {
+                if (other.mItem != null) {
+                    return false;
+                }
+            } else if (!mItem.equals(other.mItem)) {
+                return false;
+            }
+            return true;
         }
     }
 

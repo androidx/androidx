@@ -304,7 +304,7 @@ package androidx.media2 {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> addPlaylistItem(int, androidx.media2.MediaItem);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> attachAuxEffect(int);
     method public void close() throws java.lang.Exception;
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> deselectTrack(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> deselectTrack(androidx.media2.MediaPlayer.TrackInfo);
     method public androidx.media.AudioAttributesCompat? getAudioAttributes();
     method public int getAudioSessionId();
     method public long getBufferedPosition();
@@ -323,7 +323,7 @@ package androidx.media2 {
     method public androidx.media2.MediaMetadata? getPlaylistMetadata();
     method public int getPreviousMediaItemIndex();
     method public int getRepeatMode();
-    method public int getSelectedTrack(int);
+    method public androidx.media2.MediaPlayer.TrackInfo? getSelectedTrack(int);
     method public int getShuffleMode();
     method public androidx.media2.MediaTimestamp? getTimestamp();
     method public java.util.List<androidx.media2.MediaPlayer.TrackInfo> getTrackInfo();
@@ -337,7 +337,7 @@ package androidx.media2 {
     method public void reset();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> seekTo(long);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> seekTo(long, int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> selectTrack(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> selectTrack(androidx.media2.MediaPlayer.TrackInfo);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setAudioAttributes(androidx.media.AudioAttributesCompat);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setAudioSessionId(int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> setAuxEffectSendLevel(@FloatRange(from=0, to=1) float);
@@ -707,7 +707,7 @@ package androidx.media2 {
     method public byte[] getData();
     method public long getDurationUs();
     method public long getStartTimeUs();
-    method public int getTrackIndex();
+    method public androidx.media2.MediaPlayer.TrackInfo getTrackInfo();
     field public static final String MIMETYPE_TEXT_CEA_608 = "text/cea-608";
     field public static final String MIMETYPE_TEXT_CEA_708 = "text/cea-708";
     field public static final String MIMETYPE_TEXT_VTT = "text/vtt";

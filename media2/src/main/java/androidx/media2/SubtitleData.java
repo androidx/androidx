@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.media2.MediaPlayer.TrackInfo;
 
 import java.util.concurrent.Executor;
 
@@ -84,36 +85,28 @@ public final class SubtitleData {
      */
     public static final String MIMETYPE_TEXT_VTT = "text/vtt";
 
-    private int mTrackIndex;
+    private TrackInfo mTrackInfo;
     private long mStartTimeUs;
     private long mDurationUs;
     private byte[] mData;
 
     /** @hide */
-    @RequiresApi(28)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public SubtitleData(android.media.SubtitleData subtitleData) {
-        mTrackIndex = subtitleData.getTrackIndex();
-        mStartTimeUs = subtitleData.getStartTimeUs();
-        mDurationUs = subtitleData.getDurationUs();
-        mData = subtitleData.getData();
-    }
-
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public SubtitleData(int trackIndex, long startTimeUs, long durationUs, byte[] data) {
-        mTrackIndex = trackIndex;
+    public SubtitleData(@NonNull TrackInfo trackInfo,
+            long startTimeUs, long durationUs, byte[] data) {
+        mTrackInfo = trackInfo;
         mStartTimeUs = startTimeUs;
         mDurationUs = durationUs;
         mData = data;
     }
 
     /**
-     * Returns the index of the MediaPlayer track which contains this subtitle data.
-     * @return an index in the array returned by {@link MediaPlayer#getTrackInfo()}.
+     * Returns metadata of the {@link MediaPlayer} track which contains this subtitle data.
+     * @return metadata of the {@link MediaPlayer} track which contains this subtitle data.
      */
-    public int getTrackIndex() {
-        return mTrackIndex;
+    @NonNull
+    public TrackInfo getTrackInfo() {
+        return mTrackInfo;
     }
 
     /**

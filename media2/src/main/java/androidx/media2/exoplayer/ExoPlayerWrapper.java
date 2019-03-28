@@ -37,7 +37,9 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media2.CallbackMediaItem;
 import androidx.media2.FileMediaItem;
 import androidx.media2.MediaItem;
+import androidx.media2.MediaPlayer;
 import androidx.media2.MediaPlayer2;
+import androidx.media2.MediaPlayer2.TrackInfo;
 import androidx.media2.MediaTimestamp;
 import androidx.media2.PlaybackParams;
 import androidx.media2.SubtitleData;
@@ -606,8 +608,12 @@ import java.util.Map;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleSubtitleData(byte[] data, long timeUs) {
         int trackIndex = mTrackSelector.getSelectedTrack(MEDIA_TRACK_TYPE_SUBTITLE);
-        mListener.onSubtitleData(getCurrentMediaItem(),
-                new SubtitleData(trackIndex, timeUs, /* durationUs= */ 0L, data));
+        TrackInfo info2 = mTrackSelector.getTrackInfos().get(trackIndex);
+        final MediaItem currentMediaItem = getCurrentMediaItem();
+        MediaPlayer.TrackInfo info = new MediaPlayer.TrackInfo(trackIndex,
+                currentMediaItem, info2.getTrackType(), info2.getFormat());
+        mListener.onSubtitleData(currentMediaItem,
+                new SubtitleData(info, timeUs, /* durationUs= */ 0L, data));
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
