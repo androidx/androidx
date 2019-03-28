@@ -137,18 +137,7 @@ package androidx.ui.material {
 
   public final class SwitchKt {
     ctor public SwitchKt();
-    method public static void Switch(boolean checked, androidx.ui.painting.Color? color = null);
-  }
-
-  public final class SwitchWrapper extends com.google.r4a.Component {
-    ctor public SwitchWrapper();
-    method public void compose();
-    method public boolean getChecked();
-    method public androidx.ui.painting.Color? getColor();
-    method public void setChecked(boolean p);
-    method public void setColor(androidx.ui.painting.Color? p);
-    property public final boolean checked;
-    property public final androidx.ui.painting.Color? color;
+    method public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onChecked = null, androidx.ui.painting.Color? color = null);
   }
 
   public final class TextKt {

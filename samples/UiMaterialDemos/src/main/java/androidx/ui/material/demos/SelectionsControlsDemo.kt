@@ -87,6 +87,9 @@ fun SelectionsControlsDemo(
     val customColor = +memo {
         Color(0xffff0000.toInt())
     }
+    val customColor2 = Color(0xFFE91E63.toInt())
+    val customColor3 = Color(0xFF607D8B.toInt())
+    val customColor4 = Color(0xFFFF5722.toInt())
     val typography = +ambient(Typography)
 
     <Column mainAxisAlignment=MainAxisAlignment.Start>
@@ -127,15 +130,15 @@ fun SelectionsControlsDemo(
             options=radioOptions2
             selectedOption
             onOptionSelected> key, isSelected ->
-            <Padding padding=EdgeInsets(5.dp)>
+            <Padding padding=EdgeInsets(2.5.dp)>
                 <Container
                     color=(if (isSelected) Color(0xFF00ff0f.toInt()) else Color(0xffff002a.toInt()))
                     width=100.dp
-                    height=30.dp
+                    height=25.dp
                 >
                     val initials = radioOptions[key]!!.take(1)
                     <Text text=TextSpan(
-                        style = TextStyle(fontSize = 60f),
+                        style = TextStyle(fontSize = 40f),
                         text = initials
                     ) />
                 </Container>
@@ -148,10 +151,14 @@ fun SelectionsControlsDemo(
             <Checkbox value=ToggleableState.Indeterminate />
         </Row>
         <Row mainAxisAlignment=MainAxisAlignment.SpaceAround>
-            <Switch checked=true />
-            <Switch checked=false />
-            <Switch checked=true color=customColor />
-            <Switch checked=false color=customColor />
+            val (c, onC) = +state { true }
+            val (c2, onC2) = +state { false }
+            val (c3, onC3) = +state { true }
+            val (c4, onC4) = +state { false }
+            <Switch checked=c onChecked=onC />
+            <Switch checked=c2 onChecked=onC2 color=customColor2 />
+            <Switch checked=c3 onChecked=onC3 color=customColor3 />
+            <Switch checked=c4 onChecked=onC4 color=customColor4 />
         </Row>
         <Row mainAxisAlignment=MainAxisAlignment.SpaceAround>
             <RadioButton selected=true />
