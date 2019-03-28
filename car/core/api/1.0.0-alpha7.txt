@@ -223,7 +223,7 @@ package androidx.car.widget {
 
   public final class CarMenuItem {
     method public androidx.car.widget.CarMenuItem.DisplayBehavior getDisplayBehavior();
-    method public android.graphics.drawable.Icon? getIcon();
+    method public android.graphics.drawable.Drawable? getIcon();
     method @StyleRes public int getStyleResId();
     method public CharSequence? getTitle();
     method public boolean isCheckable();
@@ -241,7 +241,9 @@ package androidx.car.widget {
     method public androidx.car.widget.CarMenuItem.Builder setChecked(boolean);
     method public androidx.car.widget.CarMenuItem.Builder setDisplayBehavior(androidx.car.widget.CarMenuItem.DisplayBehavior);
     method public androidx.car.widget.CarMenuItem.Builder setEnabled(boolean);
-    method public androidx.car.widget.CarMenuItem.Builder setIcon(android.graphics.drawable.Icon);
+    method @Deprecated public androidx.car.widget.CarMenuItem.Builder setIcon(android.graphics.drawable.Icon);
+    method public androidx.car.widget.CarMenuItem.Builder setIcon(android.graphics.drawable.Drawable);
+    method public androidx.car.widget.CarMenuItem.Builder setIcon(android.content.Context, @DrawableRes int);
     method public androidx.car.widget.CarMenuItem.Builder setOnClickListener(androidx.car.widget.CarMenuItem.OnClickListener);
     method public androidx.car.widget.CarMenuItem.Builder setStyle(@StyleRes int);
     method public androidx.car.widget.CarMenuItem.Builder setTitle(CharSequence);
