@@ -1023,6 +1023,16 @@ package androidx.core.graphics {
     method @ColorInt public static int setAlphaComponent(@ColorInt int, @IntRange(from=0, to=255) int);
   }
 
+  public final class Insets {
+    method public static androidx.core.graphics.Insets of(int, int, int, int);
+    method public static androidx.core.graphics.Insets of(android.graphics.Rect);
+    field public static final androidx.core.graphics.Insets NONE;
+    field public final int bottom;
+    field public final int left;
+    field public final int right;
+    field public final int top;
+  }
+
   public final class PaintCompat {
     method public static boolean hasGlyph(android.graphics.Paint, String);
     method public static void setBlendMode(android.graphics.Paint, androidx.core.graphics.BlendModeCompat?);
@@ -1994,6 +2004,7 @@ package androidx.core.view {
     method @Deprecated public static float getScaleX(android.view.View!);
     method @Deprecated public static float getScaleY(android.view.View!);
     method public static int getScrollIndicators(android.view.View);
+    method public java.util.List<android.graphics.Rect> getSystemGestureExclusionRects(android.view.View);
     method public static String? getTransitionName(android.view.View);
     method @Deprecated public static float getTranslationX(android.view.View!);
     method @Deprecated public static float getTranslationY(android.view.View!);
@@ -2082,6 +2093,7 @@ package androidx.core.view {
     method @UiThread public static void setScreenReaderFocusable(android.view.View!, boolean);
     method public static void setScrollIndicators(android.view.View, int);
     method public static void setScrollIndicators(android.view.View, int, int);
+    method public static void setSystemGestureExclusionRects(android.view.View, java.util.List<android.graphics.Rect>);
     method public static void setTooltipText(android.view.View, CharSequence?);
     method public static void setTransitionName(android.view.View, String!);
     method @Deprecated public static void setTranslationX(android.view.View!, float);
@@ -2243,14 +2255,19 @@ package androidx.core.view {
     method public androidx.core.view.WindowInsetsCompat! consumeStableInsets();
     method public androidx.core.view.WindowInsetsCompat! consumeSystemWindowInsets();
     method public androidx.core.view.DisplayCutoutCompat? getDisplayCutout();
+    method public androidx.core.graphics.Insets getMandatorySystemGestureInsets();
     method public int getStableInsetBottom();
     method public int getStableInsetLeft();
     method public int getStableInsetRight();
     method public int getStableInsetTop();
+    method public androidx.core.graphics.Insets getStableInsets();
+    method public androidx.core.graphics.Insets getSystemGestureInsets();
     method public int getSystemWindowInsetBottom();
     method public int getSystemWindowInsetLeft();
     method public int getSystemWindowInsetRight();
     method public int getSystemWindowInsetTop();
+    method public androidx.core.graphics.Insets getSystemWindowInsets();
+    method public androidx.core.graphics.Insets getTappableElementInsets();
     method public boolean hasInsets();
     method public boolean hasStableInsets();
     method public boolean hasSystemWindowInsets();

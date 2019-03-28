@@ -228,6 +228,10 @@ package androidx.core.content.res {
 
 package androidx.core.graphics {
 
+  public final class Insets {
+    method @RequiresApi(api=29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.Insets wrap(android.graphics.Insets);
+  }
+
   public class TypefaceCompat {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? createFromFontInfo(android.content.Context, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo[], int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? createFromResourcesFamilyXml(android.content.Context, androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry, android.content.res.Resources, int, int, androidx.core.content.res.ResourcesCompat.FontCallback?, android.os.Handler?, boolean);
