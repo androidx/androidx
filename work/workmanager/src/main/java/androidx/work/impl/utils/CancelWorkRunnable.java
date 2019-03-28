@@ -116,7 +116,14 @@ public abstract class CancelWorkRunnable implements Runnable {
             @WorkerThread
             @Override
             void runInternal() {
-                cancel(workManagerImpl, id.toString());
+                WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
+                workDatabase.beginTransaction();
+                try {
+                    cancel(workManagerImpl, id.toString());
+                    workDatabase.setTransactionSuccessful();
+                } finally {
+                    workDatabase.endTransaction();
+                }
                 reschedulePendingWorkers(workManagerImpl);
             }
         };
