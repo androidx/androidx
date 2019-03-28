@@ -42,9 +42,9 @@ data class Alignment(val verticalBias: Float, val horizontalBias: Float) {
         val CenterLeft = Alignment(0f, -1f)
         val Center = Alignment(0f, 0f)
         val CenterRight = Alignment(0f, 1f)
-        val BottomLeft = Alignment(-1f, -1f)
-        val BottomCenter = Alignment(-1f, 0f)
-        val BottomRight = Alignment(-1f, 1f)
+        val BottomLeft = Alignment(1f, -1f)
+        val BottomCenter = Alignment(1f, 0f)
+        val BottomRight = Alignment(1f, 1f)
     }
 
     /**

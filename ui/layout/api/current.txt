@@ -141,7 +141,7 @@ package androidx.ui.layout {
 
   public final class StackKt {
     ctor public StackKt();
-    method public static void Stack(androidx.ui.layout.Alignment defaultAlignment, kotlin.jvm.functions.Function1<? super androidx.ui.layout.StackChildren,kotlin.Unit> block);
+    method public static void Stack(androidx.ui.layout.Alignment defaultAlignment = Alignment.Center, kotlin.jvm.functions.Function1<? super androidx.ui.layout.StackChildren,kotlin.Unit> block);
   }
 
 }

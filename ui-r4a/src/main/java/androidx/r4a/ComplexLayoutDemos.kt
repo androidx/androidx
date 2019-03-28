@@ -214,25 +214,25 @@ fun AlignUsage() {
 
 @Composable
 fun StackUsage() {
-    <Stack defaultAlignment=Alignment.BottomRight> children ->
-        children.aligned(Alignment.Center) {
+    <Stack defaultAlignment=Alignment.BottomRight>
+        aligned(Alignment.Center) {
             <SizedRectangle color=Color(0xFF0000FF.toInt()) width=300.dp height=300.dp />
         }
-        children.aligned(Alignment.TopLeft) {
+        aligned(Alignment.TopLeft) {
             <SizedRectangle color=Color(0xFF00FF00.toInt()) width=150.dp height=150.dp />
         }
-        children.aligned(Alignment.BottomRight) {
+        aligned(Alignment.BottomRight) {
             <SizedRectangle color=Color(0xFFFF0000.toInt()) width=150.dp height=150.dp />
         }
         // TODO(popam): insets should be named arguments
-        children.positioned(null, 20.dp, null, 20.dp) {
+        positioned(null, 20.dp, null, 20.dp) {
             <SizedRectangle color=Color(0xFFFFA500.toInt()) width=80.dp />
             <SizedRectangle color=Color(0xFFA52A2A.toInt()) width=20.dp />
         }
-        children.positioned(40.dp, null, null, null) {
+        positioned(40.dp, null, null, null) {
             <SizedRectangle color=Color(0xFFB22222.toInt()) width=20.dp />
         }
-        children.positioned(null, null, 40.dp, null) {
+        positioned(null, null, 40.dp, null) {
             <SizedRectangle color=Color(0xFFFFFF00) width=40.dp />
         }
     </Stack>
