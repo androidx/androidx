@@ -15,10 +15,12 @@
  */
 package androidx.camera.integration.extensions;
 
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.SurfaceTexture;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
@@ -40,6 +42,7 @@ import androidx.camera.core.ViewFinderUseCaseConfiguration;
 import androidx.camera.extensions.BokehImageCaptureExtender;
 import androidx.camera.extensions.BokehViewFinderExtender;
 import androidx.camera.extensions.HdrImageCaptureExtender;
+import androidx.camera.extensions.HdrViewFinderExtender;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -98,6 +101,13 @@ public class CameraExtensionsActivity extends AppCompatActivity
             Log.d(TAG, "Enabling the extended view finder in bokeh mode.");
 
             BokehViewFinderExtender extender = new BokehViewFinderExtender(builder);
+            if (extender.isExtensionAvailable()) {
+                extender.enableExtension();
+            }
+        } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR) {
+            Log.d(TAG, "Enabling the extended view finder in HDR mode.");
+
+            HdrViewFinderExtender extender = new HdrViewFinderExtender(builder);
             if (extender.isExtensionAvailable()) {
                 extender.enableExtension();
             }
@@ -225,6 +235,13 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                     @Override
                                     public void onImageSaved(File file) {
                                         Log.d(TAG, "Saved image to " + file);
+
+                                        // Trigger MediaScanner to scan the file
+                                        Intent intent = new Intent(
+                                                Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                                        intent.setData(Uri.fromFile(file));
+                                        sendBroadcast(intent);
+
                                         Toast.makeText(getApplicationContext(),
                                                 "Saved image to " + file,
                                                 Toast.LENGTH_SHORT).show();
