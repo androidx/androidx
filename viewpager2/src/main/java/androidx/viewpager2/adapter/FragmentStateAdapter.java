@@ -220,6 +220,7 @@ public abstract class FragmentStateAdapter extends
     @Override
     public final void onViewAttachedToWindow(@NonNull final FragmentViewHolder holder) {
         placeFragmentInViewHolder(holder);
+        gcFragments();
     }
 
     /**
@@ -299,8 +300,6 @@ public abstract class FragmentStateAdapter extends
                 }
             });
         }
-
-        gcFragments();
     }
 
     private void scheduleViewAttach(final Fragment fragment, final FrameLayout container) {
