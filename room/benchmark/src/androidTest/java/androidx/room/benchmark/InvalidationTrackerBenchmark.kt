@@ -18,6 +18,7 @@ package androidx.room.benchmark
 
 import android.os.Build
 import androidx.benchmark.BenchmarkRule
+import androidx.benchmark.measureRepeated
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -71,8 +72,8 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
 
         val users = List(sampleSize) { User(it, "name$it") }
 
-        benchmarkRule.keepRunning {
-            runMeasured(pauseTiming = mode == Mode.MEASURE_DELETE) {
+        benchmarkRule.measureRepeated {
+            runWithTimingConditional(pauseTiming = mode == Mode.MEASURE_DELETE) {
                 // Insert the sample size
                 db.runInTransaction {
                     for (user in users) {
@@ -81,7 +82,7 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
                 }
             }
 
-            runMeasured(pauseTiming = mode == Mode.MEASURE_INSERT) {
+            runWithTimingConditional(pauseTiming = mode == Mode.MEASURE_INSERT) {
                 // Delete sample size (causing a large transaction)
                 assertEquals(db.getUserDao().deleteAll(), sampleSize)
             }
@@ -90,18 +91,16 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
         db.close()
     }
 
-    inline fun runMeasured(pauseTiming: Boolean = false, block: () -> Unit) {
-        if (pauseTiming) {
-            benchmarkRule.state.pauseTiming()
-        }
+    private inline fun runWithTimingConditional(
+        pauseTiming: Boolean = false,
+        block: () -> Unit
+    ) {
+        if (pauseTiming) benchmarkRule.getState().pauseTiming()
         block()
-        if (pauseTiming) {
-            benchmarkRule.state.resumeTiming()
-        }
+        if (pauseTiming) benchmarkRule.getState().resumeTiming()
     }
 
     companion object {
-
         @JvmStatic
         @Parameterized.Parameters(name = "sampleSize={0}, mode={1}")
         fun data(): List<Array<Any>> {
