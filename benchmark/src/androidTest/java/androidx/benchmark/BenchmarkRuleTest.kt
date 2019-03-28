@@ -32,12 +32,12 @@ class BenchmarkRuleTest {
 
     @Test
     fun runWithTimingDisabled() {
-        benchmarkRule.keepRunning {
+        benchmarkRule.measureRepeated {
             runWithTimingDisabled {
                 Thread.sleep(5)
             }
         }
-        val min = benchmarkRule.state.stats.min
+        val min = benchmarkRule.getState().stats.min
         assertTrue("minimum $min should be less than 1ms",
             min < TimeUnit.MILLISECONDS.toNanos(1))
     }

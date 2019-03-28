@@ -21,6 +21,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.benchmark.BenchmarkRule
+import androidx.benchmark.measureRepeated
 import androidx.recyclerview.benchmark.test.R
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.annotation.UiThreadTest
@@ -65,7 +66,7 @@ class ScrollBenchmark {
     fun offset() {
         val rv = activityRule.activity.recyclerView
         var offset = 10
-        benchmarkRule.keepRunning {
+        benchmarkRule.measureRepeated {
             // keep scrolling up and down - no new item should be revealed
             rv.scrollBy(0, offset)
             offset *= -1
@@ -76,7 +77,7 @@ class ScrollBenchmark {
     @Test
     fun bindOffset() {
         val rv = activityRule.activity.recyclerView
-        benchmarkRule.keepRunning {
+        benchmarkRule.measureRepeated {
             // each scroll should reveal a new item
             rv.scrollBy(0, 100)
         }
@@ -93,7 +94,7 @@ class ScrollBenchmark {
         }
 
         val rv = activityRule.activity.recyclerView
-        benchmarkRule.keepRunning {
+        benchmarkRule.measureRepeated {
             // each scroll should reveal a new item that must be inflated
             rv.scrollBy(0, 100)
         }
@@ -105,7 +106,7 @@ class ScrollBenchmark {
         trivialAdapter.disableReuse = true
 
         val rv = activityRule.activity.recyclerView
-        benchmarkRule.keepRunning {
+        benchmarkRule.measureRepeated {
             // each scroll should reveal a new item that must be inflated
             rv.scrollBy(0, 100)
         }

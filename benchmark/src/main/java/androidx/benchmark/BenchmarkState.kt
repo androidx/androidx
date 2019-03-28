@@ -95,14 +95,14 @@ class BenchmarkState internal constructor() {
             if (state == NOT_STARTED) {
                 throw IllegalStateException("The benchmark wasn't started! Every test in a class " +
                         "with a BenchmarkRule must contain a benchmark. In Kotlin, call " +
-                        "benchmarkRule.keepRunning {}, or in Java, call " +
+                        "benchmarkRule.measureRepeated {}, or in Java, call " +
                         "benchmarkRule.getState().keepRunning() to run your benchmark.")
             }
             if (state != FINISHED) {
                 throw IllegalStateException("The benchmark hasn't finished! In Java, use " +
                         "while(BenchmarkState.keepRunning()) to ensure keepRunning() returns " +
                         "false before ending your test. In Kotlin, just use " +
-                        "benchmarkRule.keepRunning {} to avoid the problem.")
+                        "benchmarkRule.measureRepeated {} to avoid the problem.")
             }
             return internalStats!!
         }
@@ -222,7 +222,7 @@ class BenchmarkState internal constructor() {
     /**
      * Inline fast-path function for inner benchmark loop.
      *
-     * Kotlin users should use [BenchmarkRule.keepRunning]
+     * Kotlin users should use [BenchmarkRule.measureRepeated]
      *
      * This codepath uses exclusively @JvmField/const members, so there are no method calls at all
      * in the inlined loop. On recent Android Platform versions, ART inlines these accessors anyway,

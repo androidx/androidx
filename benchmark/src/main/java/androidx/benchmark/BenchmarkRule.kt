@@ -28,7 +28,7 @@ import org.junit.runners.model.Statement
 /**
  * JUnit rule for benchmarking code on an Android device.
  *
- * In Kotlin, benchmark with [keepRunning]:
+ * In Kotlin, benchmark with [measureRepeated]:
  *
  * ```
  * @get:Rule
@@ -37,7 +37,7 @@ import org.junit.runners.model.Statement
  * @Test
  * fun myBenchmark() {
  *     ...
- *     benchmarkRule.keepRunning {
+ *     benchmarkRule.measureRepeated {
  *         doSomeWork()
  *     }
  *     ...
@@ -70,7 +70,8 @@ import org.junit.runners.model.Statement
  * Every test in the Class using this @Rule must contain a single benchmark.
  */
 class BenchmarkRule : TestRule {
-    private val internalState = BenchmarkState()
+    internal // synthetic access
+    val internalState = BenchmarkState()
 
     /**
      * Object used for benchmarking in Java.
@@ -90,8 +91,9 @@ class BenchmarkRule : TestRule {
      * }
      * ```
      */
-    val state: BenchmarkState
-    get() {
+    fun getState(): BenchmarkState {
+        // Note: this is an explicit method instead of an accessor to help convey it's only for Java
+        // Kotlin users should call the [measureRepeated] method.
         if (!applied) {
             throw IllegalStateException(
                 "Cannot get state before BenchmarkRule is applied to a test. Check that your " +
@@ -105,12 +107,12 @@ class BenchmarkRule : TestRule {
     var applied = false
 
     /** @hide */
-    val context = Context()
+    val scope = Scope()
 
     /**
-     * Handle used for controlling timing during [keepRunning].
+     * Handle used for controlling timing during [measureRepeated].
      */
-    inner class Context internal constructor() {
+    inner class Scope internal constructor() {
         /**
          * Disable timing for a block of code.
          *
@@ -121,46 +123,17 @@ class BenchmarkRule : TestRule {
          *
          * ```
          * @Test
-         * fun bitmapProcessing() = benchmarkRule.keepRunning {
+         * fun bitmapProcessing() = benchmarkRule.measureRepeated {
          *     val input: Bitmap = runWithTimingDisabled { constructTestBitmap() }
          *     processBitmap(input)
          * }
          * ```
          */
         inline fun <T> runWithTimingDisabled(block: () -> T): T {
-            state.pauseTiming()
+            getState().pauseTiming()
             val ret = block()
-            state.resumeTiming()
+            getState().resumeTiming()
             return ret
-        }
-    }
-
-    /**
-     * Benchmark a block of code.
-     *
-     * ```
-     * @get:Rule
-     * val benchmarkRule = BenchmarkRule();
-     *
-     * @Test
-     * fun myBenchmark() {
-     *     ...
-     *     benchmarkRule.keepRunning {
-     *         doSomeWork()
-     *     }
-     *     ...
-     * }
-     * ```
-     *
-     * @param block The block of code to benchmark.
-     */
-    inline fun keepRunning(crossinline block: Context.() -> Unit) {
-        // Extract members to locals, to ensure we check #applied, and we don't hit accessors
-        val localState = state
-        val localContext = context
-
-        while (localState.keepRunningInline()) {
-            block(localContext)
         }
     }
 
@@ -201,10 +174,11 @@ class BenchmarkRule : TestRule {
                         description.testClass.simpleName + "." + invokeMethodName
                 InstrumentationRegistry.getInstrumentation().sendStatus(
                     Activity.RESULT_OK,
-                    state.getFullStatusReport(fullTestName)
+                    internalState.getFullStatusReport(fullTestName)
                 )
 
-                ResultWriter.appendStats(invokeMethodName, description.className, state.getReport())
+                ResultWriter.appendStats(
+                    invokeMethodName, description.className, internalState.getReport())
             }
         }
     }
@@ -214,5 +188,36 @@ class BenchmarkRule : TestRule {
      */
     companion object {
         private const val TAG = "BenchmarkRule"
+    }
+}
+
+/**
+ * Benchmark a block of code.
+ *
+ * ```
+ * @get:Rule
+ * val benchmarkRule = BenchmarkRule();
+ *
+ * @Test
+ * fun myBenchmark() {
+ *     ...
+ *     benchmarkRule.measureRepeated {
+ *         doSomeWork()
+ *     }
+ *     ...
+ * }
+ * ```
+ *
+ * @param block The block of code to benchmark.
+ */
+inline fun BenchmarkRule.measureRepeated(crossinline block: BenchmarkRule.Scope.() -> Unit) {
+    // Note: this is an extension function to discourage calling from Java.
+
+    // Extract members to locals, to ensure we check #applied, and we don't hit accessors
+    val localState = getState()
+    val localScope = scope
+
+    while (localState.keepRunningInline()) {
+        block(localScope)
     }
 }
