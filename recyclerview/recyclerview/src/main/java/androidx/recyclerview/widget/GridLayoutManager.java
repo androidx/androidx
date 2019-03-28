@@ -1253,14 +1253,14 @@ public class GridLayoutManager extends LinearLayoutManager {
      * {@link SpanSizeLookup#setSpanIndexCacheEnabled(boolean)}}.
      */
     public void setUsingSpansToEstimateScrollbarDimensions(
-            boolean useSpansToEstimateScrollBarDimentsions) {
-        mUsingSpansToEstimateScrollBarDimensions = useSpansToEstimateScrollBarDimentsions;
+            boolean useSpansToEstimateScrollBarDimensions) {
+        mUsingSpansToEstimateScrollBarDimensions = useSpansToEstimateScrollBarDimensions;
     }
 
     /**
      * Returns true if the scroll offset and scroll range calculations take account of span
      * information. See {@link #setUsingSpansToEstimateScrollbarDimensions(boolean)} for more
-     * information on this topic.
+     * information on this topic. Defaults to {@code false}.
      *
      * @return true if the scroll offset and scroll range calculations take account of span
      * information.
