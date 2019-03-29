@@ -115,20 +115,30 @@ public class DataTest {
     @Test
     public void testPutAll() {
         Map<String, Object> map = new HashMap<>();
+        map.put("byte", (byte) 1);
         map.put("int", 1);
         map.put("float", 99f);
         map.put("String", "two");
+        map.put("byte array", new byte[] { 1, 2, 3 });
         map.put("long array", new long[] { 1L, 2L, 3L });
         map.put("null", null);
         Data.Builder dataBuilder = new Data.Builder();
         dataBuilder.putAll(map);
         Data data = dataBuilder.build();
+        assertThat(data.getByte("byte", (byte) 0), is((byte) 1));
         assertThat(data.getInt("int", 0), is(1));
         assertThat(data.getFloat("float", 0f), is(99f));
         assertThat(data.getString("String"), is("two"));
+        byte[] byteArray = data.getByteArray("byte array");
         long[] longArray = data.getLongArray("long array");
+
+        assertThat(byteArray, is(notNullValue()));
+        assertThat(byteArray.length, is(3));
         assertThat(longArray, is(notNullValue()));
         assertThat(longArray.length, is(3));
+        assertThat(byteArray[0], is((byte) 1));
+        assertThat(byteArray[1], is((byte) 2));
+        assertThat(byteArray[2], is((byte) 3));
         assertThat(longArray[0], is(1L));
         assertThat(longArray[1], is(2L));
         assertThat(longArray[2], is(3L));
