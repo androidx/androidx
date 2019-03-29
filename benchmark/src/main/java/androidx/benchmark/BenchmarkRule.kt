@@ -130,10 +130,19 @@ class BenchmarkRule : TestRule {
          * ```
          */
         inline fun <T> runWithTimingDisabled(block: () -> T): T {
-            getState().pauseTiming()
+            getOuterState().pauseTiming()
             val ret = block()
-            getState().resumeTiming()
+            getOuterState().resumeTiming()
             return ret
+        }
+
+        /**
+         * Allows the inline function [runWithTimingDisabled] to be called outside of this scope.
+         *
+         * @hide
+         */
+        fun getOuterState(): BenchmarkState {
+            return getState()
         }
     }
 
