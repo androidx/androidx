@@ -23,6 +23,7 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
 import androidx.work.Logger;
@@ -46,6 +47,7 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Schedulers {
 
+    public static final String GCM_SCHEDULER = "androidx.work.impl.background.gcm.GcmScheduler";
     private static final String TAG = Logger.tagWithPrefix("Schedulers");
 
     /**
@@ -93,27 +95,41 @@ public class Schedulers {
         }
     }
 
+    @NonNull
     @SuppressLint("NewApi") // TODO https://issuetracker.google.com/issues/110576968
-    static @NonNull Scheduler createBestAvailableBackgroundScheduler(
+    static Scheduler createBestAvailableBackgroundScheduler(
             @NonNull Context context,
             @NonNull WorkManagerImpl workManager) {
 
         Scheduler scheduler;
-        boolean enableSystemAlarmService = false;
 
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
             scheduler = new SystemJobScheduler(context, workManager);
             setComponentEnabled(context, SystemJobService.class, true);
             Logger.get().debug(TAG, "Created SystemJobScheduler and enabled SystemJobService");
         } else {
-            scheduler = new SystemAlarmScheduler(context);
-            enableSystemAlarmService = true;
-            Logger.get().debug(TAG, "Created SystemAlarmScheduler");
+            scheduler = tryCreateGcmBasedScheduler(context);
+            if (scheduler == null) {
+                scheduler = new SystemAlarmScheduler(context);
+                setComponentEnabled(context, SystemAlarmService.class, true);
+                Logger.get().debug(TAG, "Created SystemAlarmScheduler");
+            }
         }
-
-        setComponentEnabled(context, SystemAlarmService.class, enableSystemAlarmService);
-
         return scheduler;
+    }
+
+    @Nullable
+    private static Scheduler tryCreateGcmBasedScheduler(@NonNull Context context) {
+        try {
+            Class<?> klass = Class.forName(GCM_SCHEDULER);
+            Scheduler scheduler =
+                    (Scheduler) klass.getConstructor(Context.class).newInstance(context);
+            Logger.get().debug(TAG, String.format("Created %s", GCM_SCHEDULER));
+            return scheduler;
+        } catch (Throwable throwable) {
+            Logger.get().debug(TAG, "Unable to create GCM Scheduler", throwable);
+            return null;
+        }
     }
 
     private Schedulers() {
