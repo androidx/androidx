@@ -17,6 +17,9 @@
 package androidx.lifecycle.lint
 
 import androidx.lifecycle.lint.LifecycleWhenChecks.Companion.ISSUE
+import androidx.lifecycle.lint.stubs.COROUTINES_STUB
+import androidx.lifecycle.lint.stubs.LIFECYCLE_STUB
+import androidx.lifecycle.lint.stubs.VIEW_STUB
 import com.android.tools.lint.checks.infrastructure.TestFiles.kt
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask
@@ -28,48 +31,12 @@ import org.junit.runners.JUnit4
 class LifecycleWhenChecksTest {
 
     private fun check(body: String): TestLintResult {
-        return TestLintTask.lint().files(viewStub, lifecycleStub, kt(template(body)))
+        return TestLintTask.lint()
+            .files(VIEW_STUB, LIFECYCLE_STUB, COROUTINES_STUB, kt(template(body)))
             .allowMissingSdk(true)
             .issues(ISSUE)
             .run()
     }
-
-    private val lifecycleStub = kt(
-        "androidx/lifecycle/PausingDispatcher.kt", """
-        package androidx.lifecycle;
-
-        import kotlinx.coroutines.CoroutineScope
-
-        abstract class Lifecycle {
-            enum class State { CREATED, STARTED }
-            fun isAtLeast(state: State): Boolean {
-                return true
-            }
-        }
-        interface CoroutineScope {}
-
-        suspend fun <T> Lifecycle.whenStarted(block: suspend CoroutineScope.() -> T): T {
-            throw Error()
-        }
-
-        object GlobalScope {
-            fun launch(block: suspend (b: Lifecycle) -> Unit) {}
-        }
-
-    """
-    ).indented().within("src")
-
-    private val viewStub = kt(
-        """
-        package android.view
-
-        class View {}
-
-        class FooView: View() {
-            fun foo() {}
-        }
-    """
-    ).indented()
 
     private val TEMPLATE = """
         package foo
@@ -77,9 +44,9 @@ class LifecycleWhenChecksTest {
         import androidx.lifecycle.Lifecycle
         import androidx.lifecycle.whenStarted
         import android.view.FooView
-        import androidx.lifecycle.GlobalScope
+        import kotlinx.coroutines.GlobalScope
 
-        fun foo(val lifecycle: Lifecycle, view: FooView) {
+        suspend fun foo(lifecycle: Lifecycle, view: FooView) {
             lifecycle.whenStarted {
                 %s
             }
@@ -132,8 +99,9 @@ class LifecycleWhenChecksTest {
 
         fun multiLine(s: String) = s.lines().joinToString("\n|")
 
+        val error = errorMessage("whenStarted").replace("`", "")
         val primary = """
-            src/foo/test.kt:$l: Error: $VIEW_ERROR_MESSAGE [${ISSUE.id}]
+            src/foo/test.kt:$l: Error: $error [${ISSUE.id}]
                 $customExpression
                 $highlight
         """.trimIndent()
