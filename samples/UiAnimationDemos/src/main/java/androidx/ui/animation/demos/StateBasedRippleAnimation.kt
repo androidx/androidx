@@ -29,6 +29,7 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
+import androidx.ui.core.Layout
 import androidx.ui.core.MeasureBox
 import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.PressGestureDetector
@@ -89,14 +90,13 @@ fun RippleRect(width: IntPx, height: IntPx) {
             recompose()
         }
         <PressGestureDetector onPress onRelease>
-            <MeasureBox> constraints ->
-                collect {
-                    <Transition definition=rippleTransDef toState> state ->
-                        <RippleRectFromState state />
-                    </Transition>
-                }
+            <Layout layoutBlock = { _, constraints ->
                 layout(constraints.maxWidth, constraints.maxHeight) {}
-            </MeasureBox>
+            }>
+                <Transition definition=rippleTransDef toState> state ->
+                    <RippleRectFromState state />
+                </Transition>
+            </Layout>
         </PressGestureDetector>
     </Recompose>
 }

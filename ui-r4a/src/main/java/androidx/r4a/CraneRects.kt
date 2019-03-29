@@ -21,11 +21,10 @@ import android.graphics.BitmapFactory
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.IntPx
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.Layout
 import androidx.ui.core.PxPosition
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.PressGestureDetector
-import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
@@ -47,14 +46,11 @@ import kotlin.math.min
 fun FourQuadrants() {
     val resources = composer.composer.context.resources
     val image = BitmapFactory.decodeResource(resources, androidx.ui.port.R.drawable.four_quadrants)
-    <MeasureBox> constraints ->
-        collect {
-            <DrawImage bitmap=image />
-        }
-
-        layout(constraints.maxWidth, constraints.maxHeight) {
-        }
-    </MeasureBox>
+    <Layout layoutBlock = { _, constraints ->
+        layout(constraints.maxWidth, constraints.maxHeight) {}
+    }>
+        <DrawImage bitmap=image />
+    </Layout>
 }
 
 @Composable
@@ -82,17 +78,16 @@ fun DrawRectangle(color: Color) {
 
 @Composable
 fun Rectangle(color: Color) {
-    <MeasureBox> constraints ->
-        collect {
-            <DrawRectangle color />
-        }
+    <Layout layoutBlock = { _, constraints ->
         layout(constraints.maxWidth, constraints.maxHeight) {}
-    </MeasureBox>
+    }>
+        <DrawRectangle color />
+    </Layout>
 }
 
 @Composable
 fun Rectangles() {
-    <MeasureBox> constraints ->
+    <Layout layoutBlock = { measurables, constraints ->
         val width = if (constraints.hasBoundedWidth) {
             constraints.maxWidth
         } else {
@@ -103,16 +98,6 @@ fun Rectangles() {
             constraints.maxHeight
         } else {
             constraints.minHeight
-        }
-
-        val measurables = collect {
-            val green = Color(0xFF00FF00.toInt())
-            <Rectangle color=green />
-            val red = Color(0xFFFF0000.toInt())
-            <Rectangle color=red />
-            val blue = Color(0xFF0000FF.toInt())
-            <Rectangle color=blue />
-            <FourQuadrants />
         }
 
         val size = min(width, height)
@@ -126,7 +111,15 @@ fun Rectangles() {
             placeables[2].place(IntPx.Zero, rectSize)
             placeables[3].place(rectSize, rectSize)
         }
-    </MeasureBox>
+    }>
+        val green = Color(0xFF00FF00.toInt())
+        <Rectangle color=green />
+        val red = Color(0xFFFF0000.toInt())
+        <Rectangle color=red />
+        val blue = Color(0xFF0000FF.toInt())
+        <Rectangle color=blue />
+        <FourQuadrants />
+    </Layout>
 }
 
 var small = false

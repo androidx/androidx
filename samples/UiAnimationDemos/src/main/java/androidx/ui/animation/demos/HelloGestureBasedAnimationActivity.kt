@@ -23,7 +23,7 @@ import androidx.animation.FloatPropKey
 import androidx.animation.transitionDefinition
 import androidx.ui.animation.Transition
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.Layout
 import androidx.ui.core.PxPosition
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.gesture.PressGestureDetector
@@ -78,14 +78,13 @@ fun TransitionExample() {
             recompose()
         }
         <PressGestureDetector onPress onRelease onCancel=onRelease>
-            <MeasureBox> constraints ->
-                collect {
-                    <Transition definition toState> state ->
-                        <DrawScaledRect scale=state[scale] color=state[color] />
-                    </Transition>
-                }
+            <Layout layoutBlock = { _, constraints ->
                 layout(constraints.maxWidth, constraints.maxHeight) {}
-            </MeasureBox>
+            }>
+                <Transition definition toState> state ->
+                    <DrawScaledRect scale=state[scale] color=state[color] />
+                </Transition>
+            </Layout>
         </PressGestureDetector>
     </Recompose>
 }

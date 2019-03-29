@@ -19,7 +19,7 @@ package androidx.ui.material
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.Dp
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.Layout
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.dp
 import androidx.ui.core.min
@@ -46,22 +46,21 @@ class Checkbox : Component() {
 
     override fun compose() {
         <Toggleable testTag value onToggle>
-            <MeasureBox> constraints ->
-                collect {
-                    <Colors.Consumer> colors ->
-                        <DrawCheckbox
-                            color=(color ?: colors.secondary)
-                            value
-                            strokeWidth=strokeWidth />
-                    </Colors.Consumer>
-                }
+            <Layout layoutBlock = { _, constraints ->
                 val checkboxSizePx = checkboxSize.toIntPx()
                 val calculatedWidth =
                     min(min(constraints.maxHeight, constraints.maxWidth), checkboxSizePx)
                 layout(calculatedWidth, calculatedWidth) {
                     // No mChildren to place
                 }
-            </MeasureBox>
+            }>
+                <Colors.Consumer> colors ->
+                    <DrawCheckbox
+                        color=(color ?: colors.secondary)
+                        value
+                        strokeWidth=strokeWidth />
+                </Colors.Consumer>
+            </Layout>
         </Toggleable>
     }
 }

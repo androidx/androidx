@@ -26,7 +26,7 @@ import androidx.animation.TransitionState
 import androidx.animation.transitionDefinition
 import androidx.ui.animation.Transition
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.Layout
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
@@ -48,12 +48,11 @@ class HelloAnimationActivity : Activity() {
 @Composable
 fun HelloAnimation() {
     <CraneWrapper>
-        <MeasureBox> constraints ->
-            collect {
-                <ColorRect />
-            }
+        <Layout layoutBlock = { _, constraints ->
             layout(constraints.maxWidth, constraints.maxHeight) {}
-        </MeasureBox>
+        }>
+            <ColorRect />
+        </Layout>
     </CraneWrapper>
 }
 

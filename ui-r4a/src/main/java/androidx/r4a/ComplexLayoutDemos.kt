@@ -22,7 +22,6 @@ import androidx.ui.core.ComplexMeasureBox
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
-import androidx.ui.core.MeasureBox
 import androidx.ui.core.Layout
 import androidx.ui.core.ComplexLayout
 import androidx.ui.core.CraneWrapper
@@ -62,14 +61,13 @@ import com.google.r4a.unaryPlus
  */
 @Composable
 fun SizedRectangle(color: Color, width: Dp? = null, height: Dp? = null) {
-    <MeasureBox> constraints ->
-        collect {
-            <DrawRectangle color />
-        }
+    <Layout layoutBlock = { _, constraints ->
         val widthPx = width?.toIntPx() ?: constraints.maxWidth
         val heightPx = height?.toIntPx() ?: constraints.maxHeight
         layout(widthPx, heightPx) {}
-    </MeasureBox>
+    }>
+        <DrawRectangle color />
+    </Layout>
 }
 
 /**
@@ -77,37 +75,34 @@ fun SizedRectangle(color: Color, width: Dp? = null, height: Dp? = null) {
  */
 @Composable
 fun IntrinsicWidth(@Children() children: () -> Unit) {
-    <ComplexMeasureBox>
-        val child = collect(children).first()
-
-        layout { constraints ->
+    <ComplexLayout
+        layoutBlock = { measurables, constraints ->
             // Force child be as wide as its min intrinsic width.
-            val width = child.minIntrinsicWidth(constraints.minHeight)
+            val width = measurables.first().minIntrinsicWidth(constraints.minHeight)
             val childConstraints = Constraints(
                 width,
                 width,
                 constraints.minHeight,
                 constraints.maxHeight
             )
-            val childPlaceable = child.measure(childConstraints)
+            val childPlaceable = measurables.first().measure(childConstraints)
             layoutResult(childPlaceable.width, childPlaceable.height) {
                 childPlaceable.place(IntPx.Zero, IntPx.Zero)
             }
         }
-
-        minIntrinsicWidth { h ->
-            child.minIntrinsicWidth(h)
+        minIntrinsicWidthBlock = { measurables, h ->
+            measurables.first().minIntrinsicWidth(h)
         }
-        maxIntrinsicWidth { h ->
-            child.minIntrinsicWidth(h)
+        maxIntrinsicWidthBlock = { measurables, h ->
+            measurables.first().minIntrinsicWidth(h)
         }
-        minIntrinsicHeight { w ->
-            child.minIntrinsicHeight(w)
+        minIntrinsicHeightBlock = { measurables, w ->
+            measurables.first().minIntrinsicHeight(w)
         }
-        maxIntrinsicHeight { w ->
-            child.maxIntrinsicHeight(w)
+        maxIntrinsicHeightBlock = { measurables, w ->
+            measurables.first().maxIntrinsicHeight(w)
         }
-    </ComplexMeasureBox>
+        children />
 }
 
 @Composable
@@ -134,17 +129,16 @@ fun Wrapper(@Children() children: () -> Unit) {
  */
 @Composable
 fun RectangleWithIntrinsics(color: Color) {
-    <ComplexMeasureBox> collect {
-        <DrawRectangle color />
-    }
-        layout {
+    <ComplexLayout
+        layoutBlock = { _, _ ->
             layoutResult(80.ipx, 80.ipx) {}
         }
-        minIntrinsicWidth { 30.ipx }
-        maxIntrinsicWidth { 150.ipx }
-        minIntrinsicHeight { 30.ipx }
-        maxIntrinsicHeight { 150.ipx }
-    </ComplexMeasureBox>
+        minIntrinsicWidthBlock = { _, _ -> 30.ipx }
+        maxIntrinsicWidthBlock = { _, _ -> 150.ipx }
+        minIntrinsicHeightBlock = { _, _ -> 30.ipx }
+        maxIntrinsicHeightBlock = { _, _ -> 150.ipx }>
+        <DrawRectangle color />
+    </ComplexLayout>
 }
 
 @Composable

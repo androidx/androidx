@@ -37,7 +37,7 @@ import android.os.Looper
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.Layout
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
@@ -52,17 +52,15 @@ import com.google.r4a.composer
 
 @Composable
 fun GrayRect() {
-    <MeasureBox> constraints ->
-        collect {
-            val paint = Paint()
-            paint.color = Color(android.graphics.Color.GRAY)
-            <Draw> canvas, parentSize ->
-                canvas.drawRect(parentSize.toRect(), paint)
-            </Draw>
-        }
-        layout(constraints.maxWidth, constraints.maxHeight) {
-        }
-    </MeasureBox>
+    <Layout layoutBlock = { _, constraints ->
+        layout(constraints.maxWidth, constraints.maxHeight) {}
+    }>
+        val paint = Paint()
+        paint.color = Color(android.graphics.Color.GRAY)
+        <Draw> canvas, parentSize ->
+            canvas.drawRect(parentSize.toRect(), paint)
+        </Draw>
+    </Layout>
 }
 
 @Composable
@@ -71,12 +69,7 @@ fun ListWithOffset(
     offset: Dp,
     @Children item: () -> Unit
 ) {
-    <MeasureBox> constraints ->
-        val measurables = collect {
-            repeat(itemsCount) {
-                <item />
-            }
-        }
+    <Layout layoutBlock = { measurables, constraints ->
         val offsetPx = offset.toIntPx()
         val itemHeight = (constraints.maxHeight - offsetPx * (itemsCount - 1)) / itemsCount
         val itemConstraint = Constraints.tightConstraints(constraints.maxWidth, itemHeight)
@@ -87,7 +80,11 @@ fun ListWithOffset(
                 top += itemHeight + offsetPx
             }
         }
-    </MeasureBox>
+    }>
+        repeat(itemsCount) {
+            <item />
+        }
+    </Layout>
 }
 
 class RecomposeTest : Component() {

@@ -19,7 +19,7 @@ package androidx.ui.material
 import androidx.ui.baseui.selection.MutuallyExclusiveSetItem
 import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Dp
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.Layout
 import androidx.ui.core.PxSize
 import androidx.ui.core.Text
 import androidx.ui.core.adapter.Draw
@@ -172,18 +172,17 @@ fun RadioButton(
     selected: Boolean,
     color: Color? = null
 ) {
-    <MeasureBox> constraints ->
-        collect {
-            val colors = +ambient(Colors)
-            <DrawRadioButton selected color=(color ?: colors.primary) />
-        }
+    <Layout layoutBlock = { _, constraints ->
         val size = RadioRadius.toIntPx() * 2
         val w = max(constraints.minWidth, min(constraints.maxWidth, size))
         val h = max(constraints.minHeight, min(constraints.maxHeight, size))
         layout(w, h) {
             // no children to place
         }
-    </MeasureBox>
+    }>
+        val colors = +ambient(Colors)
+        <DrawRadioButton selected color=(color ?: colors.primary) />
+    </Layout>
 }
 
 @Composable

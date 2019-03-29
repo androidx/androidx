@@ -65,7 +65,7 @@ fun Switch(
     val value = if (checked) ToggleableState.Checked else ToggleableState.Unchecked
     val onToggle = onChecked?.let { { it(!checked) } }
     <Toggleable value onToggle>
-        <Layout layoutBlock={ measurables, constraints ->
+        <Layout layoutBlock = { measurables, constraints ->
             val height =
                 MinHeight.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
             val width =
@@ -75,6 +75,7 @@ fun Switch(
             }
             layout(width, height) { ps.forEach { it.place(0.ipx, 0.ipx) } }
         }>
+            val colors = +ambient(Colors)
             <DrawSwitch checked color />
         </Layout>
     </Toggleable>
@@ -160,7 +161,7 @@ private val ThumbColorProp = ColorPropKey()
 private val SwitchAnimationDuration = 100
 
 private fun generateTransitionDefinition(activeColor: Color) = transitionDefinition {
-    fun TransitionSpec.switchTween() = tween {
+    fun <T> TransitionSpec.switchTween() = tween<T> {
         duration = SwitchAnimationDuration
     }
 
