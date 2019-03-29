@@ -51,12 +51,12 @@ import java.util.ArrayDeque
 
 private const val CONTINUATION = "kotlin.coroutines.experimental.Continuation<? super kotlin.Unit>"
 
-internal val VIEW_ERROR_MESSAGE =
-    "Unsafe View from finally/catch block inside of Lifecycle.when* scope"
+internal fun errorMessage(whenMethodName: String) =
+    "Unsafe View access from finally/catch block inside of `Lifecycle.$whenMethodName` scope"
 
 internal const val SECONDARY_ERROR_MESSAGE = "Internal View access"
 
-internal val APPLICABLE_METHOD_NAMES = listOf("whenStarted")
+internal val APPLICABLE_METHOD_NAMES = listOf("whenCreated", "whenStarted", "whenResumed")
 
 class LifecycleWhenChecks : Detector(), SourceCodeScanner {
 
@@ -67,7 +67,8 @@ class LifecycleWhenChecks : Detector(), SourceCodeScanner {
         if (valueArguments.size != 1 || !method.isLifecycleWhenExtension(context)) {
             return
         }
-        (valueArguments[0] as? ULambdaExpression)?.body?.accept(LifecycleWhenVisitor(context))
+        (valueArguments[0] as? ULambdaExpression)?.body
+            ?.accept(LifecycleWhenVisitor(context, method.name))
     }
 
     companion object {
@@ -93,7 +94,10 @@ class LifecycleWhenChecks : Detector(), SourceCodeScanner {
     }
 }
 
-internal class LifecycleWhenVisitor(private val context: JavaContext) : AbstractUastVisitor() {
+internal class LifecycleWhenVisitor(
+    private val context: JavaContext,
+    private val whenMethodName: String
+) : AbstractUastVisitor() {
     enum class SearchState { DONT_SEARCH, SEARCH, FOUND }
 
     data class State(val checkUIAccess: Boolean, val suspendCallSearch: SearchState)
@@ -151,7 +155,7 @@ internal class LifecycleWhenVisitor(private val context: JavaContext) : Abstract
         }
 
         if (currentState.checkUIAccess) {
-            checkUiAccess(context, node)
+            checkUiAccess(context, node, whenMethodName)
         }
         return super.visitCallExpression(node)
     }
@@ -216,7 +220,7 @@ private fun PsiMethod.isSuspend(): Boolean {
     return modifiers?.kotlinOrigin?.hasModifier(KtTokens.SUSPEND_KEYWORD) ?: false
 }
 
-fun checkUiAccess(context: JavaContext, node: UCallExpression) {
+fun checkUiAccess(context: JavaContext, node: UCallExpression, whenMethodName: String) {
     val checkVisitor = CheckAccessUiVisitor(context)
     node.accept(checkVisitor)
     checkVisitor.uiAccessNode?.let { accessNode ->
@@ -224,7 +228,7 @@ fun checkUiAccess(context: JavaContext, node: UCallExpression) {
         if (accessNode != node) {
             mainLocation.withSecondary(context.getLocation(accessNode), SECONDARY_ERROR_MESSAGE)
         }
-        context.report(ISSUE, mainLocation,  VIEW_ERROR_MESSAGE)
+        context.report(ISSUE, mainLocation, errorMessage(whenMethodName))
     }
 }
 
