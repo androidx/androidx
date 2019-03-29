@@ -40,7 +40,12 @@ class LifecycleWhenChecksTest {
 
         import kotlinx.coroutines.CoroutineScope
 
-        interface Lifecycle {}
+        abstract class Lifecycle {
+            enum class State { CREATED, STARTED }
+            fun isAtLeast(state: State): Boolean {
+                return true
+            }
+        }
         interface CoroutineScope {}
 
         suspend fun <T> Lifecycle.whenStarted(block: suspend CoroutineScope.() -> T): T {
@@ -54,7 +59,8 @@ class LifecycleWhenChecksTest {
     """
     ).indented().within("src")
 
-    private val viewStub = kt("""
+    private val viewStub = kt(
+        """
         package android.view
 
         class View {}
@@ -89,23 +95,62 @@ class LifecycleWhenChecksTest {
                 FooView().foo()
             }
         }
+
+        fun accessView(view: FooView) {
+            cycle()
+            view.foo()
+        }
+
+        fun cycle() {
+            accessView(FooView())
+        }
+
+        suspend fun suspendingWithCycle() {
+            try {
+                suspendingFun()
+                suspendingWithCycle()
+            } finally {
+                FooView().foo()
+            }
+        }
     """.trimIndent()
 
     private val TEMPLATE_SIZE_BEFOFE_BODY = TEMPLATE.substringBefore("%s").lines().size
 
     private fun template(body: String) = TEMPLATE.format(body)
 
-    fun error(lineNumber: Int, customExpression: String = "view.foo()"): String {
+    fun error(
+        lineNumber: Int,
+        customExpression: String = "view.foo()",
+        additionalMessage: String = ""
+    ): String {
         val l = TEMPLATE_SIZE_BEFOFE_BODY - 1 + lineNumber
 
         val trimmed = customExpression.trimStart().length
-        val highlight = " ".repeat(customExpression.length - trimmed) + "~".repeat(trimmed)
-        return """
+        val indent = " ".repeat(customExpression.length - trimmed)
+        val highlight = indent + "~".repeat(trimmed)
+
+        fun multiLine(s: String) = s.lines().joinToString("\n|")
+
+        val primary = """
             src/foo/test.kt:$l: Error: $VIEW_ERROR_MESSAGE [${ISSUE.id}]
                 $customExpression
                 $highlight
-            1 errors, 0 warnings
         """.trimIndent()
+
+        val message = if (additionalMessage.isEmpty()) {
+            primary
+        } else {
+            """
+                |${multiLine(primary)}
+                |    $additionalMessage
+            """.trimMargin()
+        }
+
+        return """
+            |${multiLine(message)}
+            |1 errors, 0 warnings
+            """.trimMargin()
     }
 
     @Test
@@ -119,6 +164,72 @@ class LifecycleWhenChecksTest {
         """.trimIndent()
 
         check(input.trimIndent()).expect(error(4))
+    }
+
+    @Test
+    fun accessViewInFinallyInLifecycleCheck() {
+        val input = """
+            try {
+                suspendingFun()
+            } finally {
+                if (lifecycle.isAtLeast(Lifecycle.State.STARTED)) {
+                    view.foo()
+                }
+            }
+        """.trimIndent()
+        check(input.trimIndent()).expectClean()
+    }
+
+    @Test
+    fun accessViewInFinallyAfterLifecycleCheck() {
+        val input = """
+            try {
+                suspendingFun()
+            } finally {
+                if (lifecycle.isAtLeast(Lifecycle.State.STARTED)) {
+                } else {
+                    view.foo()
+                }
+            }
+        """.trimIndent()
+        check(input.trimIndent()).expect(error(6, "    view.foo()"))
+    }
+
+    @Test
+    fun accessViewInFinallyWithLifecycleCheckInterrupted() {
+        // it is ok, because suspendingFun in if - check will throw if scope was cancelled,
+        // so view.foo() won't be executed
+        val input = """
+            try {
+                suspendingFun()
+            } finally {
+                if (lifecycle.isAtLeast(Lifecycle.State.STARTED)) {
+                    suspendingFun()
+                    view.foo()
+                }
+            }
+        """.trimIndent()
+        check(input.trimIndent()).expectClean()
+    }
+
+    @Test
+    fun tryInLifecycleCheck() {
+        val input = """
+            try {
+                suspendingFun()
+            } finally {
+                if (lifecycle.isAtLeast(Lifecycle.State.STARTED)) {
+                    try {
+                        suspendingFun()
+                    } finally {
+                        view.foo()
+                    }
+                    view.foo()
+                }
+            }
+        """.trimIndent()
+        check(input.trimIndent()).expect(error(8, "        view.foo()"))
+            .expectErrorCount(1)
     }
 
     @Test
@@ -184,6 +295,12 @@ class LifecycleWhenChecksTest {
     fun visitResolvedMethod() {
         val input = "suspendWithTryCatch()"
         check(input).expect(error(12, "    FooView().foo()"))
+    }
+
+    @Test
+    fun visitResolvedMethodWithCycle() {
+        val input = "suspendingWithCycle()"
+        check(input).expect(error(30, "    FooView().foo()"))
     }
 
     @Test
@@ -289,6 +406,21 @@ class LifecycleWhenChecksTest {
     }
 
     @Test
+    fun accessViewInTryInFinallySuspendInOuter() {
+        val input = """
+            try {
+                suspendingFun()
+            } finally {
+                try {
+                    view.foo()
+                } finally {
+                }
+            }
+        """.trimIndent()
+        check(input).expect(error(5, "    view.foo()")).expectErrorCount(1)
+    }
+
+    @Test
     fun failingTrySuspendFunOkTry() {
         val input = """
             try {
@@ -334,5 +466,22 @@ class LifecycleWhenChecksTest {
             }
         """.trimIndent()
         check(input).expectClean()
+    }
+
+    @Test
+    fun viewAccessInFunction() {
+        val input = """
+            try {
+                suspendingFun()
+            } finally {
+                accessView(view)
+            }
+        """.trimIndent()
+        check(input).expect(
+            error(
+                4, "accessView(view)",
+                "src/foo/test.kt:31: Internal View access"
+            )
+        )
     }
 }
