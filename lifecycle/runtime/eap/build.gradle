@@ -32,7 +32,6 @@ android {
 }
 
 dependencies {
-    api(project(":lifecycle:lifecycle-common-eap"))
     api(project(":lifecycle:lifecycle-common"))
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES)

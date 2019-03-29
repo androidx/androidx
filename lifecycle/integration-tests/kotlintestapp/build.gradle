@@ -26,7 +26,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":lifecycle:lifecycle-common-eap"))
+    implementation(project(":lifecycle:lifecycle-runtime-eap"))
     implementation(project(":activity"))
 
     testImplementation(JUNIT)

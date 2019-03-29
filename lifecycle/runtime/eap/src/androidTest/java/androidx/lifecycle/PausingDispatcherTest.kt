@@ -37,12 +37,14 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -236,7 +238,7 @@ class PausingDispatcherTest {
 
     @Test
     fun pause_thenResume() {
-        pause()
+        owner.pause()
         runBlocking {
             val job = testingScope.launch {
                 owner.whenResumed {
@@ -245,7 +247,7 @@ class PausingDispatcherTest {
             }
             drain()
             expectations.expectTotal(0)
-            resume()
+            owner.resume()
             job.join()
             expectations.expectTotal(1)
         }
@@ -253,7 +255,7 @@ class PausingDispatcherTest {
 
     @Test
     fun pause_thenFinish() {
-        pause()
+        owner.pause()
         runBlocking {
             val job = testingScope.launch {
                 owner.whenResumed {
@@ -266,7 +268,7 @@ class PausingDispatcherTest {
             }
             drain()
             expectations.expectTotal(0)
-            finish()
+            owner.destroy()
             job.join()
             // never started so shouldn't run finally either
             expectations.expectTotal(0)
@@ -290,7 +292,7 @@ class PausingDispatcherTest {
             }
             drain()
             expectations.expectTotal(1)
-            finish()
+            owner.destroy()
             job.join()
             expectations.expectTotal(2)
         }
@@ -320,7 +322,7 @@ class PausingDispatcherTest {
     @Test
     fun alreadyFinished() {
         runBlocking {
-            finish()
+            owner.destroy()
             launch {
                 owner.whenResumed {
                     expectations.expectUnreached()
@@ -350,7 +352,7 @@ class PausingDispatcherTest {
             }
             drain()
             expectations.expectTotal(1)
-            finish()
+            owner.destroy()
             job.join()
             expectations.expectTotal(4)
         }
@@ -363,7 +365,7 @@ class PausingDispatcherTest {
                 owner.whenResumed {
                     expectations.expect(1)
                     withContext(testingScope.coroutineContext) {
-                        pause()
+                        owner.pause()
                     }
                     expectations.expect(2)
                 }
@@ -372,7 +374,7 @@ class PausingDispatcherTest {
             drain()
             expectations.expectTotal(1)
             assertThat(owner.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
-            resume()
+            owner.resume()
             job.join()
             expectations.expectTotal(3)
         }
@@ -478,21 +480,65 @@ class PausingDispatcherTest {
         }
     }
 
-    private fun pause() {
-        runBlocking(Dispatchers.Main) {
-            owner.setState(Lifecycle.State.STARTED)
+    @Test
+    fun launchWhenCreated() {
+        val owner = FakeLifecycleOwner()
+        val latchStart = CountDownLatch(1)
+        val job = owner.lifecycleScope.launchWhenCreated {
+            latchStart.countDown()
+            delay(100000)
+            expectations.expectUnreached()
         }
+        assertThat(latchStart.count).isEqualTo(1)
+        owner.create()
+        assertThat(latchStart.await(10, TimeUnit.SECONDS)).isTrue()
+        owner.destroy()
+        assertJobCancelled(job)
+        drain()
     }
 
-    private fun finish() {
-        runBlocking(Dispatchers.Main) {
-            owner.setState(Lifecycle.State.DESTROYED)
+    @Test
+    fun launchWhenStarted() {
+        val owner = FakeLifecycleOwner(Lifecycle.State.CREATED)
+        val latchStart = CountDownLatch(1)
+        val job = owner.lifecycleScope.launchWhenStarted {
+            latchStart.countDown()
+            delay(100000)
+            expectations.expectUnreached()
         }
+        drain()
+        assertThat(latchStart.count).isEqualTo(1)
+        owner.start()
+        assertThat(latchStart.await(10, TimeUnit.SECONDS)).isTrue()
+        owner.destroy()
+        assertJobCancelled(job)
+        drain()
     }
 
-    private fun resume() {
-        runBlocking(Dispatchers.Main) {
-            owner.setState(Lifecycle.State.RESUMED)
+    @Test
+    fun launchWhenResumed() {
+        val owner = FakeLifecycleOwner(Lifecycle.State.STARTED)
+        val latchStart = CountDownLatch(1)
+        val job = owner.lifecycleScope.launchWhenResumed {
+            latchStart.countDown()
+            delay(100000)
+            expectations.expectUnreached()
+        }
+        drain()
+        assertThat(latchStart.count).isEqualTo(1)
+        owner.resume()
+        assertThat(latchStart.await(10, TimeUnit.SECONDS)).isTrue()
+        owner.destroy()
+        assertJobCancelled(job)
+        drain()
+    }
+
+    private fun assertJobCancelled(job: Job) {
+        runBlocking {
+            withTimeout(1000) {
+                job.join()
+            }
+            assertThat(job.isCancelled).isTrue()
         }
     }
 

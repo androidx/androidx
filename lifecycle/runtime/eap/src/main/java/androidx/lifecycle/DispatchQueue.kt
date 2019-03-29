@@ -30,7 +30,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  */
 internal class DispatchQueue {
     // handler thread
-    private var paused: Boolean = false
+    private var paused: Boolean = true
     // handler thread
     private var finished: Boolean = false
 
