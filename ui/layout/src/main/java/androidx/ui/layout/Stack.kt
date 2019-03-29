@@ -20,7 +20,9 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.Layout
+import androidx.ui.core.Measurable
+import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
 import androidx.ui.core.max
 import com.google.r4a.Children
@@ -30,11 +32,10 @@ import com.google.r4a.composer
 /**
  * Collects information about the children of a [Stack] when its body is executed
  * with a [StackChildren] instance as argument.
- * TODO(popam): make this the receiver scope of the Stack lambda
  */
-class StackChildren() {
-    internal val _stackChildren = mutableListOf<StackChild>()
-    internal val stackChildren: List<StackChild>
+class StackChildren {
+    internal val _stackChildren = mutableListOf<() -> Unit>()
+    internal val stackChildren: List<() -> Unit>
         get() = _stackChildren
 
     fun positioned(
@@ -48,16 +49,16 @@ class StackChildren() {
             leftInset != null || topInset != null || rightInset != null ||
                     bottomInset != null
         ) { "Please specify at least one inset for a positioned." }
-        _stackChildren.add(
-            StackChild(
-                leftInset = leftInset, topInset = topInset,
-                rightInset = rightInset, bottomInset = bottomInset, children = children
-            )
+        val data = StackChildData(
+            leftInset = leftInset, topInset = topInset,
+            rightInset = rightInset, bottomInset = bottomInset
         )
+        _stackChildren.add(@Composable { <ParentData data children /> })
     }
 
     fun aligned(alignment: Alignment, children: @Composable() () -> Unit) {
-        _stackChildren.add(StackChild(alignment = alignment, children = children))
+        val data = StackChildData(alignment = alignment)
+        _stackChildren.add(@Composable { <ParentData data children /> })
     }
 }
 
@@ -94,28 +95,19 @@ class StackChildren() {
  */
 @Composable
 fun Stack(
-    defaultAlignment: Alignment,
-    @Children(composable = false) block: (children: StackChildren) -> Unit
+    defaultAlignment: Alignment = Alignment.Center,
+    @Children(composable = false) block: StackChildren.() -> Unit
 ) {
-    <MeasureBox> constraints ->
-        val children = with(StackChildren()) {
-            apply(block)
-            stackChildren
-        }
-
-        val placeables = arrayOfNulls<List<Placeable>?>(children.size)
+    <Layout layoutBlock = { measurables, constraints ->
+        val placeables = arrayOfNulls<Placeable>(measurables.size)
         // First measure aligned children to get the size of the layout.
-        (0 until children.size).filter { i -> !children[i].positioned }.forEach { i ->
-            collect(children[i].children).map { measurable ->
-                measurable.measure(
-                    Constraints(IntPx.Zero, constraints.maxWidth, IntPx.Zero, constraints.maxHeight)
-                )
-            }.also {
-                placeables[i] = it
-            }
+        (0 until measurables.size).filter { i -> !measurables[i].positioned }.forEach { i ->
+            placeables[i] = measurables[i].measure(
+                Constraints(IntPx.Zero, constraints.maxWidth, IntPx.Zero, constraints.maxHeight)
+            )
         }
 
-        val (stackWidth, stackHeight) = with(placeables.filterNotNull().flatten()) {
+        val (stackWidth, stackHeight) = with(placeables.filterNotNull()) {
             Pair(
                 max(maxBy { it.width.value }?.width ?: IntPx.Zero, constraints.minWidth),
                 max(maxBy { it.height.value }?.height ?: IntPx.Zero, constraints.minHeight)
@@ -123,97 +115,103 @@ fun Stack(
         }
 
         // Now measure positioned children.
-        (0 until children.size).filter { i -> children[i].positioned }.forEach { i ->
-            val stackChild = children[i]
+        (0 until measurables.size).filter { i -> measurables[i].positioned }.forEach { i ->
+            val childData = measurables[i].stackChildData
             // Obtain width constraints.
             val childMaxWidth =
-                stackWidth - (stackChild.leftInset?.toIntPx() ?: IntPx.Zero) -
-                        (stackChild.rightInset?.toIntPx() ?: IntPx.Zero)
-            val childMinWidth = if (stackChild.leftInset != null && stackChild.rightInset != null) {
+                stackWidth - (childData.leftInset?.toIntPx() ?: IntPx.Zero) -
+                        (childData.rightInset?.toIntPx() ?: IntPx.Zero)
+            val childMinWidth = if (childData.leftInset != null && childData.rightInset != null) {
                 childMaxWidth
             } else {
                 IntPx.Zero
             }
             // Obtain height constraints.
             val childMaxHeight =
-                stackHeight - (stackChild.topInset?.toIntPx() ?: IntPx.Zero) -
-                        (stackChild.bottomInset?.toIntPx() ?: IntPx.Zero)
+                stackHeight - (childData.topInset?.toIntPx() ?: IntPx.Zero) -
+                        (childData.bottomInset?.toIntPx() ?: IntPx.Zero)
             val childMinHeight =
-                if (stackChild.topInset != null && stackChild.bottomInset != null) {
+                if (childData.topInset != null && childData.bottomInset != null) {
                     childMaxHeight
                 } else {
                     IntPx.Zero
                 }
-            collect(stackChild.children).map { measurable ->
-                measurable.measure(
-                    Constraints(
-                        childMinWidth, childMaxWidth, childMinHeight, childMaxHeight
-                    )
+            measurables[i].measure(
+                Constraints(
+                    childMinWidth, childMaxWidth, childMinHeight, childMaxHeight
                 )
-            }.also {
+            ).also {
                 placeables[i] = it
             }
         }
 
         // Position the children.
         layout(stackWidth, stackHeight) {
-            (0 until children.size).forEach { i ->
-                val stackChild = children[i]
-                if (!stackChild.positioned) {
-                    placeables[i]?.forEach { placeable ->
-                        val position = (stackChild.alignment ?: defaultAlignment).align(
+            (0 until measurables.size).forEach { i ->
+                val measurable = measurables[i]
+                val childData = measurable.stackChildData
+                val placeable = placeables[i]!!
+
+                if (!measurable.positioned) {
+                    val position = (childData.alignment ?: defaultAlignment).align(
+                        IntPxSize(
+                            stackWidth - placeable.width,
+                            stackHeight - placeable.height
+                        )
+                    )
+                    placeable.place(position.x, position.y)
+                } else {
+                    val x = if (childData.leftInset != null) {
+                        childData.leftInset.toIntPx()
+                    } else if (childData.rightInset != null) {
+                        stackWidth - childData.rightInset.toIntPx() - placeable.width
+                    } else {
+                        (childData.alignment ?: defaultAlignment).align(
                             IntPxSize(
                                 stackWidth - placeable.width,
                                 stackHeight - placeable.height
                             )
-                        )
-                        placeable.place(position.x, position.y)
+                        ).x
                     }
-                } else {
-                    placeables[i]?.forEach { placeable ->
-                        val x = if (stackChild.leftInset != null) {
-                            stackChild.leftInset.toIntPx()
-                        } else if (stackChild.rightInset != null) {
-                            stackWidth - stackChild.rightInset.toIntPx() - placeable.width
-                        } else {
-                            (stackChild.alignment ?: defaultAlignment).align(
-                                IntPxSize(
-                                    stackWidth - placeable.width,
-                                    stackHeight - placeable.height
-                                )
-                            ).x
-                        }
 
-                        val y = if (stackChild.topInset != null) {
-                            stackChild.topInset.toIntPx()
-                        } else if (stackChild.bottomInset != null) {
-                            stackHeight - stackChild.bottomInset.toIntPx() - placeable.height
-                        } else {
-                            (stackChild.alignment ?: defaultAlignment).align(
-                                IntPxSize(
-                                    stackWidth - placeable.width,
-                                    stackHeight - placeable.height
-                                )
-                            ).y
-                        }
-                        placeable.place(x, y)
+                    val y = if (childData.topInset != null) {
+                        childData.topInset.toIntPx()
+                    } else if (childData.bottomInset != null) {
+                        stackHeight - childData.bottomInset.toIntPx() - placeable.height
+                    } else {
+                        (childData.alignment ?: defaultAlignment).align(
+                            IntPxSize(
+                                stackWidth - placeable.width,
+                                stackHeight - placeable.height
+                            )
+                        ).y
                     }
+                    placeable.place(x, y)
                 }
             }
         }
-    </MeasureBox>
+    }>
+    val children = with(StackChildren()) {
+        apply(block)
+        stackChildren
+    }
+    children.forEach {
+        <it />
+    }
+    </Layout>
 }
 
-internal data class StackChild(
+internal data class StackChildData(
     val alignment: Alignment? = null,
     val leftInset: Dp? = null,
     val topInset: Dp? = null,
     val rightInset: Dp? = null,
     val bottomInset: Dp? = null,
     val width: Dp? = null,
-    val height: Dp? = null,
-    val children: @Composable() () -> Unit
-) {
-    val positioned =
-        leftInset != null || topInset != null || rightInset != null || bottomInset != null
+    val height: Dp? = null
+)
+
+internal val Measurable.stackChildData: StackChildData get() = this.parentData as StackChildData
+internal val Measurable.positioned: Boolean get() = with(stackChildData) {
+    leftInset != null || topInset != null || rightInset != null || bottomInset != null
 }
