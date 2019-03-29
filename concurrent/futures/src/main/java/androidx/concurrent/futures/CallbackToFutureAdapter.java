@@ -29,23 +29,46 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * A utility that provides safety checks as an alternative to {@link
- * androidx.concurrent.futures.ResolvableFuture}, failing the future if it will never complete.
- * Useful for adapting interfaces that take callbacks into interfaces that return {@link
+ * A utility useful for adapting interfaces that take callbacks into interfaces that return {@link
  * ListenableFuture}.
+ * <p>
+ * It also provides additional safety checks, failing the future if it will never complete.
  *
- * <p>Example:
- *
+ * <p>For example, you work with the following async api:
  * <pre>{@code
- * return CallbackToFutureAdapter.getFuture(
- *    completer -> {
- *      Callback myCallback = foo -> completer.set(foo);
- *      someObject.getFoo(myCallback);
- *      return myCallback;
- *    });
+ * class AsyncApi  {
+ *     interface OnResult {
+ *         void onSuccess(Foo foo);
+ *         void onError(Failure failure);
+ *     }
+ *
+ *     void load(OnResult onResult) {}
+ * }
  * }</pre>
  *
- * Try to avoid creating references from listeners on the returned {@code Future} to the {@link
+ * <p>Code that wraps it as {@code ListenableFuture} would look like:
+ * <pre>{@code
+ * ListenableFuture<Foo> asyncOperation() {
+ *     return CallbackToFutureAdapter.getFuture(completer -> {
+ *         asyncApi.load(new OnResult() {
+ *             @Override
+ *             public void onSuccess(Foo foo) {
+ *                 completer.set(foo);
+ *             }
+ *
+ *             @Override
+ *             public void onError(Failure failure) {
+ *                 completer.setException(failure.exception);
+ *             }
+ *         });
+ *         // This value is used only for debug purposes: it will be used in toString()
+ *         // of returned future or error cases.
+ *         return "AsyncApi.load operation";
+ *     });
+ * }
+ * }</pre>
+ *
+ * <p> Try to avoid creating references from listeners on the returned {@code Future} to the {@link
  * Completer} or the passed-in {@code tag} object, as this will defeat the best-effort early failure
  * detection based on garbage collection.
  */
