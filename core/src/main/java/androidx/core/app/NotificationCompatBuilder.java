@@ -32,6 +32,7 @@ import android.util.SparseArray;
 import android.widget.RemoteViews;
 
 import androidx.annotation.RestrictTo;
+import androidx.core.os.BuildCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -277,6 +278,10 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                     action.getSemanticAction());
             if (Build.VERSION.SDK_INT >= 28) {
                 actionBuilder.setSemanticAction(action.getSemanticAction());
+            }
+
+            if (BuildCompat.isAtLeastQ()) {
+                actionBuilder.setContextual(action.isContextual());
             }
 
             actionExtras.putBoolean(NotificationCompat.Action.EXTRA_SHOWS_USER_INTERFACE,

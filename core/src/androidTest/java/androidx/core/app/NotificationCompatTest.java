@@ -35,7 +35,9 @@ import static org.junit.Assert.fail;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioAttributes;
@@ -48,6 +50,7 @@ import android.support.v4.BaseInstrumentationTestCase;
 import androidx.core.R;
 import androidx.core.app.NotificationCompat.MessagingStyle.Message;
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -943,6 +946,57 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .build();
 
         assertEquals("example title", NotificationCompat.getContentTitle(notification));
+    }
+
+    @Test
+    public void action_builder_defaultNotContextual() {
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(0, "Test Title", null)
+                        .build();
+        assertFalse(action.isContextual());
+    }
+
+    @Test
+    public void action_builder_setContextual() {
+        // Without a PendingIntent the Action.Builder class throws an NPE when building a contextual
+        // action.
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(0, "Test Title", pendingIntent)
+                        .setContextual(true)
+                        .build();
+        assertTrue(action.isContextual());
+    }
+
+    @Test
+    public void action_builder_contextual_invalidIntentCausesNpe() {
+        NotificationCompat.Action.Builder builder =
+                new NotificationCompat.Action.Builder(0, "Test Title", null)
+                        .setContextual(true);
+        try {
+            builder.build();
+            fail("Creating a contextual Action with a null PendingIntent should cause a "
+                    + " NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28) // TODO(gsennton): this test only applies to Q+ devices.
+    public void action_contextual_toAndFromNotification() {
+        if (!BuildCompat.isAtLeastQ()) return;
+        // Without a PendingIntent the Action.Builder class throws an NPE when building a contextual
+        // action.
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(0, "Test Title", pendingIntent)
+                        .setContextual(true)
+                        .build();
+        Notification notification = newNotificationBuilder().addAction(action).build();
+        NotificationCompat.Action result = NotificationCompat.getAction(notification, 0);
+
+        assertTrue(result.isContextual());
     }
 
     // Add the @Test annotation to enable this test. This test is disabled by default as it's not a

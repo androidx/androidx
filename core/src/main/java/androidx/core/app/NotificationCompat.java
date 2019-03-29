@@ -56,6 +56,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
+import androidx.core.os.BuildCompat;
 import androidx.core.text.BidiFormatter;
 import androidx.core.view.GravityCompat;
 
@@ -3013,12 +3014,19 @@ public class NotificationCompat {
                     R.layout.notification_template_custom_big, false /* fitIn1U */);
             remoteViews.removeAllViews(R.id.actions);
             boolean actionsVisible = false;
-            if (showActions && mBuilder.mActions != null) {
-                int numActions = Math.min(mBuilder.mActions.size(), MAX_ACTION_BUTTONS);
+
+            // In the UI contextual actions appear separately from the standard actions, so we
+            // filter them out here.
+            List<NotificationCompat.Action> nonContextualActions =
+                    getNonContextualActions(mBuilder.mActions);
+
+            if (showActions && nonContextualActions != null) {
+                int numActions = Math.min(nonContextualActions.size(), MAX_ACTION_BUTTONS);
                 if (numActions > 0) {
                     actionsVisible = true;
                     for (int i = 0; i < numActions; i++) {
-                        final RemoteViews button = generateActionButton(mBuilder.mActions.get(i));
+                        final RemoteViews button =
+                                generateActionButton(nonContextualActions.get(i));
                         remoteViews.addView(R.id.actions, button);
                     }
                 }
@@ -3028,6 +3036,18 @@ public class NotificationCompat {
             remoteViews.setViewVisibility(R.id.action_divider, actionVisibility);
             buildIntoRemoteViews(remoteViews, innerView);
             return remoteViews;
+        }
+
+        private static List<NotificationCompat.Action> getNonContextualActions(
+                List<NotificationCompat.Action> actions) {
+            if (actions == null) return null;
+            List<NotificationCompat.Action> nonContextualActions = new ArrayList<>();
+            for (NotificationCompat.Action action : actions) {
+                if (!action.isContextual()) {
+                    nonContextualActions.add(action);
+                }
+            }
+            return nonContextualActions;
         }
 
         private RemoteViews generateActionButton(NotificationCompat.Action action) {
@@ -3143,6 +3163,7 @@ public class NotificationCompat {
         boolean mShowsUserInterface = true;
 
         private final @SemanticAction int mSemanticAction;
+        private final boolean mIsContextual;
 
         /**
          * Small icon representing the action.
@@ -3159,13 +3180,14 @@ public class NotificationCompat {
         public PendingIntent actionIntent;
 
         public Action(int icon, CharSequence title, PendingIntent intent) {
-            this(icon, title, intent, new Bundle(), null, null, true, SEMANTIC_ACTION_NONE, true);
+            this(icon, title, intent, new Bundle(), null, null, true, SEMANTIC_ACTION_NONE, true,
+                false /* isContextual */);
         }
 
         Action(int icon, CharSequence title, PendingIntent intent, Bundle extras,
                 RemoteInput[] remoteInputs, RemoteInput[] dataOnlyRemoteInputs,
                 boolean allowGeneratedReplies, @SemanticAction int semanticAction,
-                boolean showsUserInterface) {
+                boolean showsUserInterface, boolean isContextual) {
             this.icon = icon;
             this.title = NotificationCompat.Builder.limitCharSequenceLength(title);
             this.actionIntent = intent;
@@ -3175,6 +3197,7 @@ public class NotificationCompat {
             this.mAllowGeneratedReplies = allowGeneratedReplies;
             this.mSemanticAction = semanticAction;
             this.mShowsUserInterface = showsUserInterface;
+            this.mIsContextual = isContextual;
         }
 
         public int getIcon() {
@@ -3225,6 +3248,15 @@ public class NotificationCompat {
         }
 
         /**
+         * Returns whether this is a contextual Action, i.e. whether the action is dependent on the
+         * notification message body. An example of a contextual action could be an action opening a
+         * map application with an address shown in the notification.
+         */
+        public boolean isContextual() {
+            return mIsContextual;
+        }
+
+        /**
          * Get the list of inputs to be collected from the user that ONLY accept data when this
          * action is sent. These remote inputs are guaranteed to return true on a call to
          * {@link RemoteInput#isDataOnly}.
@@ -3258,6 +3290,7 @@ public class NotificationCompat {
             private ArrayList<RemoteInput> mRemoteInputs;
             private @SemanticAction int mSemanticAction;
             private boolean mShowsUserInterface = true;
+            private boolean mIsContextual;
 
             /**
              * Construct a new builder for {@link Action} object.
@@ -3266,7 +3299,8 @@ public class NotificationCompat {
              * @param intent the {@link PendingIntent} to fire when users trigger this action
              */
             public Builder(int icon, CharSequence title, PendingIntent intent) {
-                this(icon, title, intent, new Bundle(), null, true, SEMANTIC_ACTION_NONE, true);
+                this(icon, title, intent, new Bundle(), null, true, SEMANTIC_ACTION_NONE, true,
+                        false /* isContextual */);
             }
 
             /**
@@ -3277,12 +3311,14 @@ public class NotificationCompat {
             public Builder(Action action) {
                 this(action.icon, action.title, action.actionIntent, new Bundle(action.mExtras),
                         action.getRemoteInputs(), action.getAllowGeneratedReplies(),
-                        action.getSemanticAction(), action.mShowsUserInterface);
+                        action.getSemanticAction(), action.mShowsUserInterface,
+                        action.isContextual());
             }
 
             private Builder(int icon, CharSequence title, PendingIntent intent, Bundle extras,
                     RemoteInput[] remoteInputs, boolean allowGeneratedReplies,
-                    @SemanticAction int semanticAction, boolean showsUserInterface) {
+                    @SemanticAction int semanticAction, boolean showsUserInterface,
+                    boolean isContextual) {
                 mIcon = icon;
                 mTitle = NotificationCompat.Builder.limitCharSequenceLength(title);
                 mIntent = intent;
@@ -3292,6 +3328,7 @@ public class NotificationCompat {
                 mAllowGeneratedReplies = allowGeneratedReplies;
                 mSemanticAction = semanticAction;
                 mShowsUserInterface = showsUserInterface;
+                mIsContextual = isContextual;
             }
 
             /**
@@ -3360,6 +3397,17 @@ public class NotificationCompat {
             }
 
             /**
+             * Sets whether this {@link Action} is a contextual action, i.e. whether the action is
+             * dependent on the notification message body. An example of a contextual action could
+             * be an action opening a map application with an address shown in the notification.
+             */
+            @NonNull
+            public Builder setContextual(boolean isContextual) {
+                mIsContextual = isContextual;
+                return this;
+            }
+
+            /**
              * Set whether or not this {@link Action}'s {@link PendingIntent} will open a user
              * interface.
              * @param showsUserInterface {@code true} if this {@link Action}'s {@link PendingIntent}
@@ -3382,11 +3430,28 @@ public class NotificationCompat {
             }
 
             /**
+             * Throws an NPE if we are building a contextual action missing one of the fields
+             * necessary to display the action.
+             */
+            private void checkContextualActionNullFields() {
+                if (!mIsContextual) return;
+
+                if (mIntent == null) {
+                    throw new NullPointerException(
+                            "Contextual Actions must contain a valid PendingIntent");
+                }
+            }
+
+            /**
              * Combine all of the options that have been set and return a new {@link Action}
              * object.
              * @return the built action
+             * @throws {@ref NullPointerException} if this is a contextual Action and its Intent is
+             * null.
              */
             public Action build() {
+                checkContextualActionNullFields();
+
                 List<RemoteInput> dataOnlyInputs = new ArrayList<>();
                 List<RemoteInput> textInputs = new ArrayList<>();
                 if (mRemoteInputs != null) {
@@ -3404,7 +3469,7 @@ public class NotificationCompat {
                         ? null : textInputs.toArray(new RemoteInput[textInputs.size()]);
                 return new Action(mIcon, mTitle, mIntent, mExtras, textInputsArr,
                         dataOnlyInputsArr, mAllowGeneratedReplies, mSemanticAction,
-                        mShowsUserInterface);
+                        mShowsUserInterface, mIsContextual);
             }
         }
 
@@ -5211,9 +5276,11 @@ public class NotificationCompat {
                     Action.EXTRA_SEMANTIC_ACTION, Action.SEMANTIC_ACTION_NONE);
         }
 
+        final boolean isContextual = BuildCompat.isAtLeastQ() ? action.isContextual() : false;
+
         return new Action(action.icon, action.title, action.actionIntent,
                 action.getExtras(), remoteInputs, null, allowGeneratedReplies,
-                semanticAction, showsUserInterface);
+                semanticAction, showsUserInterface, isContextual);
     }
 
     /** Returns the invisible actions contained within the given notification. */
