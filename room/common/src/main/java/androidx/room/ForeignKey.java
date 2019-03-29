@@ -15,11 +15,10 @@
  */
 package androidx.room;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Declares a foreign key on another {@link Entity}.
@@ -46,6 +45,7 @@ import java.lang.annotation.Retention;
  * Please refer to the SQLite <a href="https://sqlite.org/foreignkeys.html">foreign keys</a>
  * documentation for details.
  */
+@Retention(RetentionPolicy.CLASS)
 public @interface ForeignKey {
     /**
      * The parent Entity to reference. It must be a class annotated with {@link Entity} and
@@ -164,7 +164,7 @@ public @interface ForeignKey {
      * {@link #onUpdate()}.
      */
     @IntDef({NO_ACTION, RESTRICT, SET_NULL, SET_DEFAULT, CASCADE})
-    @Retention(SOURCE)
+    @Retention(RetentionPolicy.CLASS)
     @interface Action {
     }
 }

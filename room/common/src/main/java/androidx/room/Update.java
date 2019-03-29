@@ -15,6 +15,9 @@
  */
 package androidx.room;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Marks a method in a {@link Dao} annotated class as an update method.
  * <p>
@@ -28,6 +31,7 @@ package androidx.room;
  * @see Insert
  * @see Delete
  */
+@Retention(RetentionPolicy.CLASS)
 public @interface Update {
     /**
      * What to do if a conflict happens.
