@@ -162,8 +162,9 @@ public class Transformations {
     }
 
     /**
-     * Creates a new {@link LiveData} object does not emit a value until the source LiveData value
-     * has been changed.  The value is considered changed if {@code equals()} yields {@code false}.
+     * Creates a new {@link LiveData} object that does not emit a value until the source LiveData
+     * value has been changed.  The value is considered changed if {@code equals()} yields
+     * {@code false}.
      *
      * @param source the input {@link LiveData}
      * @param <X>    the generic type parameter of {@code source}
