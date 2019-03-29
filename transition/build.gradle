@@ -12,6 +12,7 @@ dependencies {
     api("androidx.core:core:1.0.1")
     implementation("androidx.collection:collection:1.0.0")
     compileOnly("androidx.fragment:fragment:1.0.0")
+    compileOnly("androidx.appcompat:appcompat:1.0.1")
 
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
@@ -20,7 +21,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(project(":appcompat"))
+    androidTestImplementation("androidx.appcompat:appcompat:1.0.1")
 }
 
 android {
