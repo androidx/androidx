@@ -280,6 +280,7 @@ public class VideoViewTest {
                 mVideoView.setMediaItem(mMediaItem);
             }
         });
+
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
                 any(MediaController.class), any(SessionCommandGroup.class));
         mController.play();
