@@ -135,3 +135,11 @@ fun Constraints.withTight(width: IntPx? = null, height: IntPx? = null) = Constra
     minHeight = height ?: this.minHeight,
     maxHeight = height ?: this.maxHeight
 )
+
+/**
+ * Takes a size and returns the closest size to it that satisfies the constraints.
+ */
+fun Constraints.constrain(size: IntPxSize) = IntPxSize(
+    size.width.coerceIn(minWidth, maxWidth),
+    size.height.coerceIn(minHeight, maxHeight)
+)
