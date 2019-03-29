@@ -353,8 +353,7 @@ public class MediaControlViewTest {
 
         final int subtitleTrackCount = 2;
         final int selectedSubtitleTrackIndex = 0;
-        // TODO: change once aosp/932020 is merged.
-        final String subtitleTrack1Text = "Track 1 - und";
+        final String subtitleTrack1Text = "Track 1";
         final MediaItem mediaItem = createTestMediaItem2(uri);
 
         final CountDownLatch latchForTrackUpdate = new CountDownLatch(1);
