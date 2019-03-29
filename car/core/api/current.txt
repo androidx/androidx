@@ -221,7 +221,7 @@ package androidx.car.widget {
     method public void show();
   }
 
-  public class CarMenuItem {
+  public final class CarMenuItem {
     method public androidx.car.widget.CarMenuItem.DisplayBehavior getDisplayBehavior();
     method public android.graphics.drawable.Icon? getIcon();
     method public androidx.car.widget.CarMenuItem.OnClickListener? getOnClickListener();

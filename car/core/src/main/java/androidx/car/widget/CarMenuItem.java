@@ -42,7 +42,7 @@ import androidx.car.R;
  * after creation, and as such, have setters in the class and the builder.
  *
  */
-public class CarMenuItem {
+public final class CarMenuItem {
     /**
      * Interface definition for a callback to be invoked when a {@code CarMenuItem} is clicked.
      */
