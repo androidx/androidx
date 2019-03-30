@@ -65,6 +65,22 @@ fun SemanticsTreeQuery.assertIsNotChecked() =
         it.checked != true
     }
 
+fun SemanticsTreeQuery.assertIsSelected(excepted: Boolean) =
+    // TODO(pavlis): Throw exception if component is not selectable
+    verifyAssertOnExactlyOne(
+        "The component is expected to be selected = '$excepted', but it's not!"
+    ) {
+        it.selected == excepted
+    }
+
+fun SemanticsTreeQuery.assertIsInMutuallyExclusiveGroup() =
+    // TODO(pavlis): Throw exception if component is not selectable
+    verifyAssertOnExactlyOne(
+        "The component is expected to be mutually exclusive group, but it's not!"
+    ) {
+        it.inMutuallyExclusiveGroup == true
+    }
+
 fun SemanticsTreeQuery.assertSemanticsIsEqualTo(
     expectedProperties: SemanticsProperties
 ): SemanticsTreeQuery {

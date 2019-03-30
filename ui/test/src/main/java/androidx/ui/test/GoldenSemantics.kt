@@ -21,12 +21,16 @@ import androidx.ui.core.semantics.SemanticsProperties
 // TODO(catalintudor): add remaining properties
 class SemanticsPropertiesBuilder(
     var enabled: Boolean?,
-    var checked: Boolean?
+    var checked: Boolean?,
+    var inMutuallyExclusiveGroup: Boolean?,
+    var selected: Boolean?
 ) {
     fun build(): SemanticsProperties {
         return SemanticsProperties(
             enabled,
-            checked
+            checked,
+            inMutuallyExclusiveGroup = inMutuallyExclusiveGroup,
+            selected = selected
         )
     }
 }
@@ -39,19 +43,25 @@ class SemanticsPropertiesBuilder(
  */
 // TODO(catalintudor): add remaining properties
 fun createFullSemantics(
-    enabled: Boolean?,
-    checked: Boolean?
+    enabled: Boolean? = false,
+    checked: Boolean? = false,
+    selected: Boolean? = false,
+    inMutuallyExclusiveGroup: Boolean? = false
 ): SemanticsProperties {
     return SemanticsProperties(
         enabled = enabled,
-        checked = checked
+        checked = checked,
+        inMutuallyExclusiveGroup = inMutuallyExclusiveGroup,
+        selected = selected
     )
 }
 
 fun SemanticsProperties.toBuilder(): SemanticsPropertiesBuilder {
     return SemanticsPropertiesBuilder(
         enabled = enabled,
-        checked = checked
+        checked = checked,
+        inMutuallyExclusiveGroup = inMutuallyExclusiveGroup,
+        selected = selected
     )
 }
 
@@ -76,10 +86,20 @@ fun SemanticsProperties.assertEquals(expected: SemanticsProperties) {
     if (checked != expected.checked) {
         assertMessage.append("\n- expected 'checked' = ${expected.checked} but was $checked")
     }
+    if (inMutuallyExclusiveGroup != expected.inMutuallyExclusiveGroup) {
+        assertMessage.append(
+            "\n- expected 'inMutuallyExclusiveGroup' = ${expected.inMutuallyExclusiveGroup} " +
+                    "but was $inMutuallyExclusiveGroup"
+        )
+    }
+    if (selected != expected.selected) {
+        assertMessage.append("\n- expected 'selected' = ${expected.selected} but was $selected")
+    }
 
     if (assertMessage.isNotEmpty()) {
-        throw AssertionError("Expected semantics is not equal to the current one: " +
-                assertMessage.toString()
+        throw AssertionError(
+            "Expected semantics is not equal to the current one: " +
+                    assertMessage.toString()
         )
     }
 }

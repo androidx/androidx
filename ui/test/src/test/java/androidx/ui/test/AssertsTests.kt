@@ -24,10 +24,12 @@ class AssertsTests {
     @Test
     fun assertIsVisible_forVisibleElement_isOk() {
         FakeUiTestRunner()
-            .withProperties(SemanticsProperties(
-                testTag = "test",
-                hidden = false
-            ))
+            .withProperties(
+                SemanticsProperties(
+                    testTag = "test",
+                    hidden = false
+                )
+            )
             .findByTag("test")
             .assertIsVisible()
     }
@@ -35,10 +37,12 @@ class AssertsTests {
     @Test(expected = AssertionError::class)
     fun assertIsVisible_forNotVisibleElement_throwsError() {
         FakeUiTestRunner()
-            .withProperties(SemanticsProperties(
-                testTag = "test",
-                hidden = true
-            ))
+            .withProperties(
+                SemanticsProperties(
+                    testTag = "test",
+                    hidden = true
+                )
+            )
             .findByTag("test")
             .assertIsVisible()
     }
@@ -46,10 +50,12 @@ class AssertsTests {
     @Test
     fun assertIsHidden_forHiddenElement_isOk() {
         FakeUiTestRunner()
-            .withProperties(SemanticsProperties(
-                testTag = "test",
-                hidden = true
-            ))
+            .withProperties(
+                SemanticsProperties(
+                    testTag = "test",
+                    hidden = true
+                )
+            )
             .findByTag("test")
             .assertIsHidden()
     }
@@ -57,10 +63,12 @@ class AssertsTests {
     @Test(expected = AssertionError::class)
     fun assertIsHidden_forNotHiddenElement_throwsError() {
         FakeUiTestRunner()
-            .withProperties(SemanticsProperties(
-                testTag = "test",
-                hidden = false
-            ))
+            .withProperties(
+                SemanticsProperties(
+                    testTag = "test",
+                    hidden = false
+                )
+            )
             .findByTag("test")
             .assertIsHidden()
     }
@@ -68,10 +76,12 @@ class AssertsTests {
     @Test
     fun assertIsChecked_forCheckedElement_isOk() {
         FakeUiTestRunner()
-            .withProperties(SemanticsProperties(
-                testTag = "test",
-                checked = true
-            ))
+            .withProperties(
+                SemanticsProperties(
+                    testTag = "test",
+                    checked = true
+                )
+            )
             .findByTag("test")
             .assertIsChecked()
     }
@@ -79,11 +89,91 @@ class AssertsTests {
     @Test(expected = AssertionError::class)
     fun assertIsChecked_forNotCheckedElement_throwsError() {
         FakeUiTestRunner()
-            .withProperties(SemanticsProperties(
-                testTag = "test",
-                checked = false
-            ))
+            .withProperties(
+                SemanticsProperties(
+                    testTag = "test",
+                    checked = false
+                )
+            )
             .findByTag("test")
             .assertIsHidden()
+    }
+
+    @Test(expected = AssertionError::class)
+    fun assertIsSelected_forNotSelectedElement_throwsError() {
+        FakeUiTestRunner()
+            .withProperties(
+                SemanticsProperties(
+                    testTag = "test",
+                    selected = false
+                )
+            )
+            .findByTag("test")
+            .assertIsSelected(true)
+    }
+
+    @Test
+    fun assertIsSelected_forSelectedElement_isOk() {
+        FakeUiTestRunner()
+            .withProperties(
+                SemanticsProperties(
+                    testTag = "test",
+                    selected = true
+                )
+            )
+            .findByTag("test")
+            .assertIsSelected(true)
+    }
+
+    @Test(expected = AssertionError::class)
+    fun assertIsNotSelected_forSelectedElement_throwsError() {
+        FakeUiTestRunner()
+            .withProperties(
+                SemanticsProperties(
+                    testTag = "test",
+                    selected = true
+                )
+            )
+            .findByTag("test")
+            .assertIsSelected(false)
+    }
+
+    @Test
+    fun assertIsNotSelected_forNotSelectedElement_isOk() {
+        FakeUiTestRunner()
+            .withProperties(
+                SemanticsProperties(
+                    testTag = "test",
+                    selected = false
+                )
+            )
+            .findByTag("test")
+            .assertIsSelected(false)
+    }
+
+    @Test(expected = AssertionError::class)
+    fun assertItemInExclusiveGroup_forItemNotInGroup_throwsError() {
+        FakeUiTestRunner()
+            .withProperties(
+                SemanticsProperties(
+                    testTag = "test",
+                    inMutuallyExclusiveGroup = false
+                )
+            )
+            .findByTag("test")
+            .assertIsInMutuallyExclusiveGroup()
+    }
+
+    @Test
+    fun assertItemInExclusiveGroup_forItemInGroup_isOk() {
+        FakeUiTestRunner()
+            .withProperties(
+                SemanticsProperties(
+                    testTag = "test",
+                    inMutuallyExclusiveGroup = true
+                )
+            )
+            .findByTag("test")
+            .assertIsInMutuallyExclusiveGroup()
     }
 }

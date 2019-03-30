@@ -11,13 +11,16 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsTreeQuery assertDoesNotExist(androidx.ui.test.SemanticsTreeQuery);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsChecked(androidx.ui.test.SemanticsTreeQuery);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsHidden(androidx.ui.test.SemanticsTreeQuery);
+    method public static androidx.ui.test.SemanticsTreeQuery assertIsInMutuallyExclusiveGroup(androidx.ui.test.SemanticsTreeQuery);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsNotChecked(androidx.ui.test.SemanticsTreeQuery);
+    method public static androidx.ui.test.SemanticsTreeQuery assertIsSelected(androidx.ui.test.SemanticsTreeQuery, boolean excepted);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsVisible(androidx.ui.test.SemanticsTreeQuery);
     method public static androidx.ui.test.SemanticsTreeQuery assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeQuery, androidx.ui.core.semantics.SemanticsProperties expectedProperties);
   }
 
   public final class FindersKt {
     ctor public FindersKt();
+    method public static androidx.ui.test.SemanticsTreeQuery findByCondition(androidx.ui.test.UiTestRunner, kotlin.jvm.functions.Function1<? super androidx.ui.core.SemanticsTreeNode,java.lang.Boolean> selector);
     method public static androidx.ui.test.SemanticsTreeQuery findByTag(androidx.ui.test.UiTestRunner, String testTag);
   }
 
@@ -25,7 +28,7 @@ package androidx.ui.test {
     ctor public GoldenSemanticsKt();
     method public static void assertEquals(androidx.ui.core.semantics.SemanticsProperties, androidx.ui.core.semantics.SemanticsProperties expected);
     method public static androidx.ui.core.semantics.SemanticsProperties copyWith(androidx.ui.core.semantics.SemanticsProperties, kotlin.jvm.functions.Function1<? super androidx.ui.test.SemanticsPropertiesBuilder,kotlin.Unit> diff);
-    method public static androidx.ui.core.semantics.SemanticsProperties createFullSemantics(Boolean? enabled, Boolean? checked);
+    method public static androidx.ui.core.semantics.SemanticsProperties createFullSemantics(Boolean? enabled = false, Boolean? checked = false, Boolean? selected = false, Boolean? inMutuallyExclusiveGroup = false);
     method public static androidx.ui.test.SemanticsPropertiesBuilder toBuilder(androidx.ui.core.semantics.SemanticsProperties);
   }
 
@@ -35,12 +38,16 @@ package androidx.ui.test {
   }
 
   public final class SemanticsPropertiesBuilder {
-    ctor public SemanticsPropertiesBuilder(Boolean? enabled, Boolean? checked);
+    ctor public SemanticsPropertiesBuilder(Boolean? enabled, Boolean? checked, Boolean? inMutuallyExclusiveGroup, Boolean? selected);
     method public androidx.ui.core.semantics.SemanticsProperties build();
     method public Boolean? getChecked();
     method public Boolean? getEnabled();
+    method public Boolean? getInMutuallyExclusiveGroup();
+    method public Boolean? getSelected();
     method public void setChecked(Boolean? p);
     method public void setEnabled(Boolean? p);
+    method public void setInMutuallyExclusiveGroup(Boolean? p);
+    method public void setSelected(Boolean? p);
   }
 
   public final class SemanticsTreeQuery {

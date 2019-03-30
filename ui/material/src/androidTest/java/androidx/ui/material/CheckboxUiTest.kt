@@ -68,7 +68,7 @@ class CheckboxUiTest : AndroidUiTestRunner() {
 
     @Test
     fun checkBoxTest_toggle() {
-        val state = CheckboxState(value=Unchecked)
+        val state = CheckboxState(value = Unchecked)
 
         setContent {
             <CraneWrapper>
@@ -78,7 +78,7 @@ class CheckboxUiTest : AndroidUiTestRunner() {
                         value=state.value
                         onToggle={
                             state.toggle()
-                        }/>
+                        } />
                 </MaterialTheme>
             </CraneWrapper>
         }
@@ -92,7 +92,7 @@ class CheckboxUiTest : AndroidUiTestRunner() {
 
     @Test
     fun checkBoxTest_toggle_twice() {
-        val state = CheckboxState(value=Unchecked)
+        val state = CheckboxState(value = Unchecked)
 
         setContent {
             <CraneWrapper>
@@ -102,7 +102,7 @@ class CheckboxUiTest : AndroidUiTestRunner() {
                         value=state.value
                         onToggle={
                             state.toggle()
-                        }/>
+                        } />
                 </MaterialTheme>
             </CraneWrapper>
         }

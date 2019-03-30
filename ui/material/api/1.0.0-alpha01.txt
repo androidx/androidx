@@ -1,6 +1,11 @@
 // Signature format: 3.0
 package androidx.ui.baseui.selection {
 
+  public final class MutuallyExclusiveSetItemKt {
+    ctor public MutuallyExclusiveSetItemKt();
+    method public static <K> void MutuallyExclusiveSetItem(K! key, boolean selected, kotlin.jvm.functions.Function1<? super K,kotlin.Unit> onSelected, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
   public final class ToggleableKt {
     ctor public ToggleableKt();
     method public static void Toggleable(androidx.ui.baseui.selection.ToggleableState value = androidx.ui.baseui.selection.ToggleableState.Checked, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, String? testTag = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
@@ -121,18 +126,13 @@ package androidx.ui.material {
 
   public final class RadioButtonKt {
     ctor public RadioButtonKt();
-    method public static void RadioButton(boolean checked, androidx.ui.painting.Color? color = null);
+    method public static void RadioButton(boolean selected, androidx.ui.painting.Color? color = null);
+    method public static <K> void RadioGroup(java.util.List<? extends K> options, K! selectedOption, kotlin.jvm.functions.Function1<? super K,kotlin.Unit> onOptionSelected, kotlin.jvm.functions.Function3<? super androidx.ui.material.RadioGroupScope,? super K,? super java.lang.Boolean,kotlin.Unit> children);
+    method public static <K> void RadioGroup(java.util.Map<K,java.lang.String> options, K! selectedOption, kotlin.jvm.functions.Function1<? super K,kotlin.Unit> onOptionSelected, androidx.ui.core.Dp labelOffset = androidx.ui.material.RadioButtonKt.DefaultRadioLabelOffset, androidx.ui.painting.Color? radioColor = null, androidx.ui.painting.TextStyle? textStyle = null);
   }
 
-  public final class RadioButtonWrapper extends com.google.r4a.Component {
-    ctor public RadioButtonWrapper();
-    method public void compose();
-    method public boolean getChecked();
-    method public androidx.ui.painting.Color? getColor();
-    method public void setChecked(boolean p);
-    method public void setColor(androidx.ui.painting.Color? p);
-    property public final boolean checked;
-    property public final androidx.ui.painting.Color? color;
+  public final class RadioGroupScope {
+    method public void RadioTextItem(boolean isSelected, String text, androidx.ui.core.Dp labelOffset = androidx.ui.material.RadioButtonKt.DefaultRadioLabelOffset, androidx.ui.painting.Color? radioColor = null, androidx.ui.painting.TextStyle? textStyle = null);
   }
 
   public final class SwitchKt {
@@ -346,33 +346,6 @@ package androidx.ui.material.clip.cache {
   public final class CachingClipperKt {
     ctor public CachingClipperKt();
     method public static <T> void CachingClipper(androidx.ui.material.clip.CustomClipper<T> clipper, kotlin.jvm.functions.Function1<? super androidx.ui.material.clip.CustomClipper<T>,kotlin.Unit> children);
-  }
-
-}
-
-package androidx.ui.material.demos {
-
-  public final class CheckboxState {
-    ctor public CheckboxState(androidx.ui.painting.Color? color, androidx.ui.baseui.selection.ToggleableState value);
-    ctor public CheckboxState();
-    method public androidx.ui.painting.Color? getColor();
-    method public androidx.ui.baseui.selection.ToggleableState getValue();
-    method public void setColor(androidx.ui.painting.Color? p);
-    method public void setValue(androidx.ui.baseui.selection.ToggleableState p);
-    method public void toggle();
-  }
-
-  public final class SelectionsControlsDemo extends com.google.r4a.Component {
-    ctor public SelectionsControlsDemo();
-    method public void compose();
-    method public androidx.ui.material.demos.CheckboxState getState0();
-    method public void setState0(androidx.ui.material.demos.CheckboxState p);
-    property public final androidx.ui.material.demos.CheckboxState state0;
-  }
-
-  public final class SelectionsControlsDemoKt {
-    ctor public SelectionsControlsDemoKt();
-    method public static void FillGrid(int horizontalGridCount, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }
