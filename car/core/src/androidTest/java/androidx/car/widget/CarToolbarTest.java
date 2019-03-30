@@ -43,7 +43,6 @@ import static org.junit.Assert.assertEquals;
 
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -337,7 +336,7 @@ public class CarToolbarTest {
                 .Builder()
                 .setTitle(actionItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
-                .setIcon(Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon))
+                .setIcon(mActivity, android.R.drawable.sym_def_app_icon)
                 .build();
 
         mActivityRule.runOnUiThread(() ->

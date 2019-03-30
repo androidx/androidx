@@ -720,7 +720,7 @@ public class CarToolbar extends ViewGroup {
         button.setText(title);
 
         if (item.getIcon() != null) {
-            Drawable icon = item.getIcon().loadDrawable(context);
+            Drawable icon = item.getIcon();
             icon.setBounds(0, 0, mActionButtonIconBound, mActionButtonIconBound);
             // Set the Drawable on the left side.
             button.setCompoundDrawables(icon, null, null, null);
