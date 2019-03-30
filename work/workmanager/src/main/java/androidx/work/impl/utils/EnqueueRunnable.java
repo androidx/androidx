@@ -41,6 +41,7 @@ import androidx.work.Operation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
 import androidx.work.impl.OperationImpl;
+import androidx.work.impl.Scheduler;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkDatabase;
@@ -292,7 +293,11 @@ public class EnqueueRunnable implements Runnable {
                 }
             }
 
-            if (Build.VERSION.SDK_INT >= 23 && Build.VERSION.SDK_INT <= 25) {
+            if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL
+                    && Build.VERSION.SDK_INT <= 25) {
+                tryDelegateConstrainedWorkSpec(workSpec);
+            } else if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL
+                    && usesScheduler(workManagerImpl, Schedulers.GCM_SCHEDULER)) {
                 tryDelegateConstrainedWorkSpec(workSpec);
             }
 
@@ -333,6 +338,27 @@ public class EnqueueRunnable implements Runnable {
                     .putString(ARGUMENT_CLASS_NAME, workerClassName);
             workSpec.workerClassName = ConstraintTrackingWorker.class.getName();
             workSpec.input = builder.build();
+        }
+    }
+
+    /**
+     * @param className The fully qualified class name of the {@link Scheduler}
+     * @return {@code true} if the {@link Scheduler} class is being used by WorkManager.
+     */
+    private static boolean usesScheduler(
+            @NonNull WorkManagerImpl workManager,
+            @NonNull String className) {
+
+        try {
+            Class<?> klass = Class.forName(className);
+            for (Scheduler scheduler : workManager.getSchedulers()) {
+                if (klass.isAssignableFrom(scheduler.getClass())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException ignore) {
+            return false;
         }
     }
 }
