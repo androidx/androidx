@@ -32,9 +32,15 @@ final class NavBackStackEntry {
 
     // Internal unique name for this navBackStackEntry;
     @NonNull
-    UUID mId = UUID.randomUUID();
+    final UUID mId;
 
     NavBackStackEntry(@NonNull NavDestination destination, @Nullable Bundle args) {
+        this(UUID.randomUUID(), destination, args);
+    }
+
+    NavBackStackEntry(@NonNull UUID uuid, @NonNull NavDestination destination,
+            @Nullable Bundle args) {
+        mId = uuid;
         mDestination = destination;
         mArgs = args;
     }

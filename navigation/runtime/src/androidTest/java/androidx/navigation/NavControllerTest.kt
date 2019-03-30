@@ -736,6 +736,33 @@ class NavControllerTest {
     }
 
     @Test
+    fun testSaveRestoreGetViewModelStore() {
+        val hostStore = ViewModelStore()
+        val navController = createNavController()
+        navController.setHostViewModelStore(hostStore)
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.start_test
+        ) {
+            test(R.id.start_test)
+        }
+        navController.setGraph(navGraph, null)
+
+        val store = navController.getViewModelStore(navGraph.id)
+        assertThat(store).isNotNull()
+
+        val savedState = navController.saveState()
+        val restoredNavController = createNavController()
+        restoredNavController.setHostViewModelStore(hostStore)
+        restoredNavController.restoreState(savedState)
+        restoredNavController.graph = navGraph
+
+        assertWithMessage("Restored NavController should return the same ViewModelStore")
+            .that(restoredNavController.getViewModelStore(navGraph.id))
+            .isSameAs(store)
+    }
+
+    @Test
     fun testGetViewModelStoreNoGraph() {
         val navController = createNavController()
         navController.setHostViewModelStore(ViewModelStore())
