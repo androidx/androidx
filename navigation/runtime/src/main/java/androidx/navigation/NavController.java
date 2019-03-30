@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -58,6 +59,8 @@ public class NavController {
             "android-support-nav:controller:navigatorState";
     private static final String KEY_NAVIGATOR_STATE_NAMES =
             "android-support-nav:controller:navigatorState:names";
+    private static final String KEY_BACK_STACK_UUIDS =
+            "android-support-nav:controller:backStackUUIDs";
     private static final String KEY_BACK_STACK_IDS = "android-support-nav:controller:backStackIds";
     private static final String KEY_BACK_STACK_ARGS =
             "android-support-nav:controller:backStackArgs";
@@ -76,6 +79,7 @@ public class NavController {
     private NavInflater mInflater;
     private NavGraph mGraph;
     private Bundle mNavigatorStateToRestore;
+    private String[] mBackStackUUIDsToRestore;
     private int[] mBackStackIdsToRestore;
     private Parcelable[] mBackStackArgsToRestore;
 
@@ -502,8 +506,9 @@ public class NavController {
                 }
             }
         }
-        if (mBackStackIdsToRestore != null) {
-            for (int index = 0; index < mBackStackIdsToRestore.length; index++) {
+        if (mBackStackUUIDsToRestore != null) {
+            for (int index = 0; index < mBackStackUUIDsToRestore.length; index++) {
+                UUID uuid = UUID.fromString(mBackStackUUIDsToRestore[index]);
                 int destinationId = mBackStackIdsToRestore[index];
                 Bundle args = (Bundle) mBackStackArgsToRestore[index];
                 NavDestination node = findDestination(destinationId);
@@ -514,8 +519,9 @@ public class NavController {
                 if (args != null) {
                     args.setClassLoader(mContext.getClassLoader());
                 }
-                mBackStack.add(new NavBackStackEntry(node, args));
+                mBackStack.add(new NavBackStackEntry(uuid, node, args));
             }
+            mBackStackUUIDsToRestore = null;
             mBackStackIdsToRestore = null;
             mBackStackArgsToRestore = null;
         }
@@ -933,13 +939,16 @@ public class NavController {
             if (b == null) {
                 b = new Bundle();
             }
+            String[] backStackUUIDs = new String[mBackStack.size()];
             int[] backStackIds = new int[mBackStack.size()];
             Parcelable[] backStackArgs = new Parcelable[mBackStack.size()];
             int index = 0;
             for (NavBackStackEntry backStackEntry : mBackStack) {
+                backStackUUIDs[index] = backStackEntry.mId.toString();
                 backStackIds[index] = backStackEntry.getDestination().getId();
                 backStackArgs[index++] = backStackEntry.getArguments();
             }
+            b.putStringArray(KEY_BACK_STACK_UUIDS, backStackUUIDs);
             b.putIntArray(KEY_BACK_STACK_IDS, backStackIds);
             b.putParcelableArray(KEY_BACK_STACK_ARGS, backStackArgs);
         }
@@ -964,6 +973,7 @@ public class NavController {
         navState.setClassLoader(mContext.getClassLoader());
 
         mNavigatorStateToRestore = navState.getBundle(KEY_NAVIGATOR_STATE);
+        mBackStackUUIDsToRestore = navState.getStringArray(KEY_BACK_STACK_UUIDS);
         mBackStackIdsToRestore = navState.getIntArray(KEY_BACK_STACK_IDS);
         mBackStackArgsToRestore = navState.getParcelableArray(KEY_BACK_STACK_ARGS);
     }
