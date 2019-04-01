@@ -20,6 +20,8 @@ import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.detector.api.CURRENT_API
 
 class LifecycleRuntimeIssueRegistry : IssueRegistry() {
-    override val api = CURRENT_API
+    // tests are run with this version. We ensure that with ApiLintVersionsTest
+    override val api = 4
+    override val minApi = CURRENT_API
     override val issues get() = listOf(LifecycleWhenChecks.ISSUE)
 }
