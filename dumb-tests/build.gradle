@@ -32,7 +32,7 @@ tasks['check'].dependsOn(tasks['connectedCheck'])
 
 uploadArchives.enabled = false
 
-supportLibrary {
+androidx {
     name = "Dummy Project for test runner"
     publish = false
 }

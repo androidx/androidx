@@ -16,7 +16,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Support CardView v7"
     publish = true
     mavenVersion = LibraryVersions.CARDVIEW

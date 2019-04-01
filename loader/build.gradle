@@ -22,7 +22,7 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library loader"
     publish = true
     mavenVersion = LibraryVersions.LOADER

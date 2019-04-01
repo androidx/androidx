@@ -50,7 +50,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android AppCompat Library v7"
     publish = true
     mavenVersion = LibraryVersions.APPCOMPAT

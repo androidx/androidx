@@ -1,7 +1,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.SupportLibraryExtension
+import androidx.build.AndroidXExtension
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -32,13 +32,13 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
 }
 
-supportLibrary {
+androidx {
     name 'Android Lifecycle Runtime'
     publish true
     mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup LibraryGroups.LIFECYCLE
     inceptionYear '2017'
     description "Android Lifecycle Runtime"
-    url SupportLibraryExtension.ARCHITECTURE_URL
+    url AndroidXExtension.ARCHITECTURE_URL
     failOnDeprecationWarnings = false
 }

@@ -39,7 +39,7 @@ dependencies {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library fragment"
     publish = true
     mavenVersion = LibraryVersions.FRAGMENT

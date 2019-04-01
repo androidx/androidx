@@ -9,7 +9,7 @@ dependencies {
     api(project(":annotation"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library Local Broadcast Manager"
     publish = true
     mavenVersion = LibraryVersions.LOCALBROADCASTMANAGER

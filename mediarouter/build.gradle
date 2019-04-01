@@ -34,7 +34,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android MediaRouter Support Library"
     publish = true
     mavenVersion = LibraryVersions.MEDIAROUTER

@@ -37,7 +37,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Wear Support UI"
     publish = true
     mavenVersion = LibraryVersions.WEAR

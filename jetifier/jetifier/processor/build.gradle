@@ -33,7 +33,7 @@ dependencies {
     testCompile(TRUTH)
 }
 
-supportLibrary {
+androidx {
     name = "Android Jetifier Processor"
     publish = true
     mavenVersion = LibraryVersions.JETIFIER

@@ -20,7 +20,7 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 }
 
-supportLibrary {
+androidx {
     name = "Android Support DynamicAnimation"
     publish = true
     mavenVersion = LibraryVersions.DYNAMICANIMATION

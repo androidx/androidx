@@ -41,7 +41,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "VersionedParcelable and friends"
     publish = true
     mavenVersion = LibraryVersions.VERSIONED_PARCELABLE

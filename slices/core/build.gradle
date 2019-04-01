@@ -39,7 +39,7 @@ dependencies {
     annotationProcessor project(":versionedparcelable-annotation")
 }
 
-supportLibrary {
+androidx {
     name = "Common utilities for slices"
     publish = true
     mavenVersion = LibraryVersions.SLICE

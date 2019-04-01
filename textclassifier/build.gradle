@@ -29,7 +29,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android TextClassifier Support Library"
     publish = true
     mavenVersion = LibraryVersions.TEXTCLASSIFIER

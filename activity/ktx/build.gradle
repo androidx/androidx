@@ -43,7 +43,7 @@ dependencies {
     androidTestImplementation(TEST_RULES)
 }
 
-supportLibrary {
+androidx {
     name = "Activity Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.ACTIVITY

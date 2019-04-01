@@ -40,7 +40,7 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
 }
 
-supportLibrary {
+androidx {
     name = "Palette Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.PALETTE

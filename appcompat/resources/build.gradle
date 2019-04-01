@@ -55,7 +55,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Resources Library"
     publish = true
     mavenVersion = LibraryVersions.APPCOMPAT

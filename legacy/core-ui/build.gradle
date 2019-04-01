@@ -20,7 +20,7 @@ dependencies {
     api(project(":cursoradapter"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library core UI"
     publish = true
     mavenVersion = LibraryVersions.LEGACY

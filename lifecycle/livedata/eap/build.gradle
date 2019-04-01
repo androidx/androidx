@@ -48,7 +48,7 @@ dependencies {
     testImplementation(KOTLIN_COROUTINES_TEST)
 }
 
-supportLibrary {
+androidx {
     name = "LiveData Coroutine Extensions EAP"
     publish = false
     mavenVersion = LibraryVersions.LIFECYCLES_COROUTINES

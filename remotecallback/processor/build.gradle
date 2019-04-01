@@ -31,7 +31,7 @@ dependencies {
     compile(JAVAPOET)
 }
 
-supportLibrary {
+androidx {
     name = "Remote Callback Compiler"
     publish = true
     toolingProject = true

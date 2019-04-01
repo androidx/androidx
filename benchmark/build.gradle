@@ -31,7 +31,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 }
 
-supportLibrary {
+androidx {
     name = "Android Benchmark"
     publish = false
     mavenVersion = LibraryVersions.BENCHMARK

@@ -23,7 +23,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Support TV Provider"
     publish = true
     mavenVersion = LibraryVersions.TVPROVIDER
