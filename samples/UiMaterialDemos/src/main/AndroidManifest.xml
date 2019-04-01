@@ -45,5 +45,14 @@
                 <category android:name="androidx.ui.material.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity android:name="androidx.ui.material.demos.ButtonActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Button">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.material.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

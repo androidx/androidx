@@ -23,23 +23,6 @@ package androidx.ui.core {
     property public androidx.ui.core.Density density;
   }
 
-  public final class CurrentTextStyle extends com.google.r4a.Component {
-    ctor public CurrentTextStyle(kotlin.jvm.functions.Function1<? super androidx.ui.painting.TextStyle,kotlin.Unit> children);
-    method public void compose();
-    method public kotlin.jvm.functions.Function1<androidx.ui.painting.TextStyle,kotlin.Unit> getChildren();
-    method public void setChildren(kotlin.jvm.functions.Function1<? super androidx.ui.painting.TextStyle,kotlin.Unit> p);
-  }
-
-  public final class CurrentTextStyleProvider extends com.google.r4a.Component {
-    ctor public CurrentTextStyleProvider(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public androidx.ui.painting.TextStyle? getValue();
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setValue(androidx.ui.painting.TextStyle? p);
-    property public final androidx.ui.painting.TextStyle? value;
-  }
-
   public final class Draw extends com.google.r4a.Component {
     ctor public Draw(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> onPaint);
     method public void compose();
@@ -214,7 +197,9 @@ package androidx.ui.core {
 
   public final class TextKt {
     ctor public TextKt();
+    method public static void CurrentTextStyleProvider(androidx.ui.painting.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void TextComposable(androidx.ui.painting.TextSpan text, androidx.ui.engine.text.TextAlign textAlign = TextAlign.START, androidx.ui.engine.text.TextDirection textDirection = TextDirection.LTR, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = TextOverflow.CLIP, float textScaleFactor = 1.0f, Integer? maxLines = null, androidx.ui.services.text_editing.TextSelection? selection = null);
+    method public static com.google.r4a.Effect<androidx.ui.painting.TextStyle> currentTextStyle();
   }
 
   public final class WrapperKt {

@@ -49,6 +49,9 @@ data class RoundedRectangleBorder(
     val borderRadius: BorderRadius = BorderRadius.Zero
 ) : ShapeBorder() {
 
+    override val borderStyle: BorderStyle
+        get() = side.style
+
     // TODO("Migration|Andrey: Needs EdgeInsetsGeometry")
 //    @override
 //    EdgeInsetsGeometry get dimensions {
@@ -146,6 +149,9 @@ private data class RoundedRectangleToCircleBorder(
     val side: BorderSide = BorderSide.None,
     val borderRadius: BorderRadius = BorderRadius.Zero
 ) : ShapeBorder() {
+
+    override val borderStyle: BorderStyle
+        get() = side.style
 
     // TODO("Migration|Andrey: Needs EdgeInsetsGeometry")
 //    @override

@@ -16,10 +16,10 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.PointerInput
-import androidx.ui.core.PxPosition
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerInput
 import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PxPosition
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToDownIgnoreConsumed

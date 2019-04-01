@@ -1,4 +1,13 @@
 // Signature format: 3.0
+package androidx.ui.baseui {
+
+  public final class ClickableKt {
+    ctor public ClickableKt();
+    method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, boolean consumeDownOnStart = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+}
+
 package androidx.ui.baseui.selection {
 
   public final class MutuallyExclusiveSetItemKt {
@@ -20,6 +29,12 @@ package androidx.ui.baseui.selection {
 }
 
 package androidx.ui.material {
+
+  public final class ButtonKt {
+    ctor public ButtonKt();
+    method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Button(String text, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
+  }
 
   public final class Checkbox extends com.google.r4a.Component {
     ctor public Checkbox();
@@ -72,24 +87,17 @@ package androidx.ui.material {
     method public androidx.ui.painting.Color getSurface();
   }
 
-  public final class MaterialTheme extends com.google.r4a.Component {
-    ctor public MaterialTheme(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public androidx.ui.material.MaterialColors getColors();
-    method public androidx.ui.material.MaterialTypography getTypography();
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setColors(androidx.ui.material.MaterialColors p);
-    method public void setTypography(androidx.ui.material.MaterialTypography p);
-    property public final androidx.ui.material.MaterialColors colors;
-    property public final androidx.ui.material.MaterialTypography typography;
-  }
-
   public final class MaterialThemeKt {
     ctor public MaterialThemeKt();
+    method public static void MaterialButtonShapeTheme(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void MaterialRippleTheme(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void MaterialTheme(androidx.ui.material.MaterialColors colors = androidx.ui.material.MaterialColors(), androidx.ui.material.MaterialTypography typography = androidx.ui.material.MaterialTypography(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static com.google.r4a.Ambient<androidx.ui.material.MaterialColors> getColors();
+    method public static com.google.r4a.Ambient<androidx.ui.material.Shapes> getCurrentShapeAmbient();
     method public static com.google.r4a.Ambient<androidx.ui.material.MaterialTypography> getTypography();
+    method public static com.google.r4a.Effect<androidx.ui.painting.Color> orFromTheme(androidx.ui.painting.Color?, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color> choosingBlock);
+    method public static com.google.r4a.Effect<androidx.ui.material.borders.ShapeBorder> orFromTheme(androidx.ui.material.borders.ShapeBorder?, kotlin.jvm.functions.Function1<? super androidx.ui.material.Shapes,? extends androidx.ui.material.borders.ShapeBorder> choosingBlock);
+    method @CheckResult("+") public static com.google.r4a.Effect<androidx.ui.painting.TextStyle> themeTextStyle(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle> choosingBlock);
   }
 
   public final class MaterialTypography {
@@ -135,6 +143,13 @@ package androidx.ui.material {
     method public void RadioTextItem(boolean isSelected, String text, androidx.ui.core.Dp labelOffset = androidx.ui.material.RadioButtonKt.DefaultRadioLabelOffset, androidx.ui.painting.Color? radioColor = null, androidx.ui.painting.TextStyle? textStyle = null);
   }
 
+  public final class Shapes {
+    ctor public Shapes(androidx.ui.material.borders.ShapeBorder button);
+    method public androidx.ui.material.borders.ShapeBorder component1();
+    method public androidx.ui.material.Shapes copy(androidx.ui.material.borders.ShapeBorder button);
+    method public androidx.ui.material.borders.ShapeBorder getButton();
+  }
+
   public final class SwitchKt {
     ctor public SwitchKt();
     method public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onChecked = null, androidx.ui.painting.Color? color = null);
@@ -142,7 +157,12 @@ package androidx.ui.material {
 
   public final class TextKt {
     ctor public TextKt();
-    method public static void H1(kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static void Body1TextStyle(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void ButtonTextStyle(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void H1TextStyle(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void TextColor(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color> color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void TextColorForBackground(androidx.ui.painting.Color background, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static com.google.r4a.Effect<androidx.ui.painting.Color> textColorForBackground(androidx.ui.painting.Color background);
   }
 
 }
@@ -267,11 +287,13 @@ package androidx.ui.material.borders {
     ctor public CircleBorder();
     method public androidx.ui.material.borders.BorderSide component1();
     method public androidx.ui.material.borders.CircleBorder copy(androidx.ui.material.borders.BorderSide side);
+    method public androidx.ui.material.borders.BorderStyle getBorderStyle();
     method public androidx.ui.painting.Path getInnerPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.painting.Path getOuterPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.material.borders.BorderSide getSide();
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.core.Density density, androidx.ui.engine.geometry.Rect rect, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.material.borders.CircleBorder scale(float t);
+    property public androidx.ui.material.borders.BorderStyle borderStyle;
   }
 
   public final class RoundedRectangleBorder extends androidx.ui.material.borders.ShapeBorder {
@@ -281,16 +303,19 @@ package androidx.ui.material.borders {
     method public androidx.ui.material.borders.BorderRadius component2();
     method public androidx.ui.material.borders.RoundedRectangleBorder copy(androidx.ui.material.borders.BorderSide side, androidx.ui.material.borders.BorderRadius borderRadius);
     method public androidx.ui.material.borders.BorderRadius getBorderRadius();
+    method public androidx.ui.material.borders.BorderStyle getBorderStyle();
     method public androidx.ui.painting.Path getInnerPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.painting.Path getOuterPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.material.borders.BorderSide getSide();
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.core.Density density, androidx.ui.engine.geometry.Rect rect, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.material.borders.ShapeBorder scale(float t);
+    property public androidx.ui.material.borders.BorderStyle borderStyle;
   }
 
   public abstract class ShapeBorder {
     ctor public ShapeBorder();
     method protected androidx.ui.material.borders.ShapeBorder? add(androidx.ui.material.borders.ShapeBorder other, boolean reversed = false);
+    method public abstract androidx.ui.material.borders.BorderStyle getBorderStyle();
     method public abstract androidx.ui.painting.Path getInnerPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection = null);
     method public abstract androidx.ui.painting.Path getOuterPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection = null);
     method public androidx.ui.material.borders.ShapeBorder? lerpFrom(androidx.ui.material.borders.ShapeBorder? a, float t);
@@ -298,6 +323,7 @@ package androidx.ui.material.borders {
     method public abstract void paint(androidx.ui.painting.Canvas canvas, androidx.ui.core.Density density, androidx.ui.engine.geometry.Rect rect, androidx.ui.engine.text.TextDirection? textDirection = null);
     method public final operator androidx.ui.material.borders.ShapeBorder plus(androidx.ui.material.borders.ShapeBorder other);
     method public abstract androidx.ui.material.borders.ShapeBorder scale(float t);
+    property public abstract androidx.ui.material.borders.BorderStyle borderStyle;
   }
 
   public final class ShapeBorderKt {
