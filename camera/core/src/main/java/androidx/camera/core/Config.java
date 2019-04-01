@@ -26,13 +26,13 @@ import com.google.auto.value.extension.memoized.Memoized;
 import java.util.Set;
 
 /**
- * A Configuration is a collection of options and values.
+ * A Config is a collection of options and values.
  *
- * <p>Configuration object hold pairs of Options/Values and offer methods for querying whether
- * Options are contained in the configuration along with methods for retrieving the associated
- * values for options.
+ * <p>Config object hold pairs of Options/Values and offer methods for querying whether Options
+ * are contained in the configuration along with methods for retrieving the associated values for
+ * options.
  */
-public interface Configuration {
+public interface Config {
 
     /**
      * Returns whether this configuration contains the supplied option.
@@ -104,17 +104,17 @@ public interface Configuration {
     Set<Option<?>> listOptions();
 
     /**
-     * A callback for retrieving results of a {@link Configuration.Option} search.
+     * A callback for retrieving results of a {@link Config.Option} search.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface OptionMatcher {
         /**
-         * Receives results from {@link Configuration#findOptions(String, OptionMatcher)}.
+         * Receives results from {@link Config#findOptions(String, OptionMatcher)}.
          *
-         * <p>When searching for a specific option in a {@link Configuration}, {@link Option}s will
-         * be sent to {@link #onOptionMatched(Option)} in the order in which they are found.
+         * <p>When searching for a specific option in a {@link Config}, {@link Option}s will be
+         * sent to {@link #onOptionMatched(Option)} in the order in which they are found.
          *
          * @param option The matched option.
          * @return <code>false</code> if no further results are needed; <code>true</code> otherwise.
@@ -125,19 +125,19 @@ public interface Configuration {
     /**
      * The Reader interface can be extended to create APIs for reading specific options.
      *
-     * <p>Reader objects are also {@link Configuration} objects, so can be passed to any method that
-     * expects a {@link Configuration}.
+     * <p>Reader objects are also {@link Config} objects, so can be passed to any method that
+     * expects a {@link Config}.
      */
-    interface Reader extends Configuration {
+    interface Reader extends Config {
 
         /**
-         * Returns the underlying immutable {@link Configuration} object.
+         * Returns the underlying immutable {@link Config} object.
          *
-         * @return The underlying {@link Configuration} object.
+         * @return The underlying {@link Config} object.
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        Configuration getConfiguration();
+        Config getConfig();
 
         /**
          * {@inheritDoc}
@@ -189,21 +189,21 @@ public interface Configuration {
     }
 
     /**
-     * Builders are used to generate immutable {@link Configuration} objects.
+     * Builders are used to generate immutable {@link Config} objects.
      *
-     * @param <C> The top-level type of the {@link Configuration} being generated.
+     * @param <C> The top-level type of the {@link Config} being generated.
      * @param <T> The top-level {@link Builder} type for this Builder.
      */
-    interface Builder<C extends Configuration, T extends Builder<C, T>> {
+    interface Builder<C extends Config, T extends Builder<C, T>> {
 
         /**
-         * Returns the underlying {@link MutableConfiguration} being modified by this builder.
+         * Returns the underlying {@link MutableConfig} being modified by this builder.
          *
-         * @return The underlying {@link MutableConfiguration}.
+         * @return The underlying {@link MutableConfig}.
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        MutableConfiguration getMutableConfiguration();
+        MutableConfig getMutableConfig();
 
         /**
          * The solution for the unchecked cast warning.
@@ -240,20 +240,20 @@ public interface Configuration {
         <ValueT> T removeOption(Option<ValueT> opt);
 
         /**
-         * Creates an immutable {@link Configuration} object from the current state of this builder.
+         * Creates an immutable {@link Config} object from the current state of this builder.
          *
-         * @return The {@link Configuration} generated from the current state.
+         * @return The {@link Config} generated from the current state.
          */
         C build();
     }
 
     /**
      * An {@link Option} is used to set and retrieve values for settings defined in a {@link
-     * Configuration}.
+     * Config}.
      *
      * <p>{@link Option}s can be thought of as the key in a key/value pair that makes up a setting.
      * As the name suggests, {@link Option}s are optional, and may or may not exist inside a {@link
-     * Configuration}.
+     * Config}.
      *
      * @param <T> The type of the value for this option.
      * @hide
@@ -275,7 +275,7 @@ public interface Configuration {
          * @param valueClass The class of the value stored by this option.
          * @param <T>        The type of the value stored by this option.
          * @return An {@link Option} object which can be used to store/retrieve values from a {@link
-         * Configuration}.
+         * Config}.
          */
         public static <T> Option<T> create(String id, Class<T> valueClass) {
             TypeReference<T> valueType = TypeReference.createSpecializedTypeReference(valueClass);
@@ -295,7 +295,7 @@ public interface Configuration {
          *                   option. Generally this object should have static scope and be
          *                   immutable.
          * @return An {@link Option} object which can be used to store/retrieve values from a {@link
-         * Configuration}.
+         * Config}.
          */
         public static <T> Option<T> create(String id, Class<T> valueClass, @Nullable Object token) {
             TypeReference<T> valueType = TypeReference.createSpecializedTypeReference(valueClass);
@@ -312,7 +312,7 @@ public interface Configuration {
         @RestrictTo(Scope.LIBRARY_GROUP)
         public static <T> Option<T> create(
                 String name, TypeReference<T> valueType, @Nullable Object token) {
-            return new AutoValue_Configuration_Option<>(name, valueType, token);
+            return new AutoValue_Config_Option<>(name, valueType, token);
         }
 
         /**

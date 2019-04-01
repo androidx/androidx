@@ -23,25 +23,23 @@ import java.util.Set;
 import java.util.UUID;
 
 /** A fake configuration for {@link FakeOtherUseCase}. */
-public class FakeOtherUseCaseConfiguration
-        implements UseCaseConfiguration<FakeOtherUseCase>, CameraDeviceConfiguration {
+public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase>, CameraDeviceConfig {
 
-    private final Configuration mConfig;
+    private final Config mConfig;
 
-    private FakeOtherUseCaseConfiguration(Configuration config) {
+    private FakeOtherUseCaseConfig(Config config) {
         mConfig = config;
     }
 
     @Override
-    public Configuration getConfiguration() {
+    public Config getConfig() {
         return mConfig;
     }
 
-    /** Builder for an empty Configuration */
-    public static final class Builder
-            implements UseCaseConfiguration.Builder<
-            FakeOtherUseCase, FakeOtherUseCaseConfiguration, Builder>,
-            CameraDeviceConfiguration.Builder<FakeOtherUseCaseConfiguration, Builder> {
+    /** Builder for an empty Config */
+    public static final class Builder implements
+            UseCaseConfig.Builder<FakeOtherUseCase, FakeOtherUseCaseConfig, Builder>,
+            CameraDeviceConfig.Builder<FakeOtherUseCaseConfig, Builder> {
 
         private final MutableOptionsBundle mOptionsBundle;
 
@@ -51,7 +49,7 @@ public class FakeOtherUseCaseConfiguration
         }
 
         @Override
-        public MutableConfiguration getMutableConfiguration() {
+        public MutableConfig getMutableConfig() {
             return mOptionsBundle;
         }
 
@@ -61,20 +59,20 @@ public class FakeOtherUseCaseConfiguration
         }
 
         @Override
-        public FakeOtherUseCaseConfiguration build() {
-            return new FakeOtherUseCaseConfiguration(OptionsBundle.from(mOptionsBundle));
+        public FakeOtherUseCaseConfig build() {
+            return new FakeOtherUseCaseConfig(OptionsBundle.from(mOptionsBundle));
         }
 
-        // Start of the default implementation of Configuration.Builder
+        // Start of the default implementation of Config.Builder
         // *****************************************************************************************
 
-        // Implementations of Configuration.Builder default methods
+        // Implementations of Config.Builder default methods
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
         public <ValueT> Builder insertOption(Option<ValueT> opt, ValueT value) {
-            getMutableConfiguration().insertOption(opt, value);
+            getMutableConfig().insertOption(opt, value);
             return builder();
         }
 
@@ -83,20 +81,20 @@ public class FakeOtherUseCaseConfiguration
         @Override
         @Nullable
         public <ValueT> Builder removeOption(Option<ValueT> opt) {
-            getMutableConfiguration().removeOption(opt);
+            getMutableConfig().removeOption(opt);
             return builder();
         }
 
-        // Implementations of TargetConfiguration.Builder default methods
+        // Implementations of TargetConfig.Builder default methods
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
         public Builder setTargetClass(Class<FakeOtherUseCase> targetClass) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_CLASS, targetClass);
+            getMutableConfig().insertOption(OPTION_TARGET_CLASS, targetClass);
 
             // If no name is set yet, then generate a unique name
-            if (null == getMutableConfiguration().retrieveOption(OPTION_TARGET_NAME, null)) {
+            if (null == getMutableConfig().retrieveOption(OPTION_TARGET_NAME, null)) {
                 String targetName = targetClass.getCanonicalName() + "-" + UUID.randomUUID();
                 setTargetName(targetName);
             }
@@ -106,33 +104,33 @@ public class FakeOtherUseCaseConfiguration
 
         @Override
         public Builder setTargetName(String targetName) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_NAME, targetName);
+            getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
             return builder();
         }
 
-        // Implementations of CameraDeviceConfiguration.Builder default methods
+        // Implementations of CameraDeviceConfig.Builder default methods
 
         @Override
         public Builder setLensFacing(CameraX.LensFacing lensFacing) {
-            getMutableConfiguration().insertOption(OPTION_LENS_FACING, lensFacing);
+            getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return builder();
         }
 
-        // Implementations of UseCaseConfiguration.Builder default methods
+        // Implementations of UseCaseConfig.Builder default methods
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
-        public Builder setDefaultSessionConfiguration(SessionConfiguration sessionConfig) {
-            getMutableConfiguration().insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionConfig);
+        public Builder setDefaultSessionConfig(SessionConfig sessionConfig) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionConfig);
             return builder();
         }
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
-        public Builder setOptionUnpacker(SessionConfiguration.OptionUnpacker optionUnpacker) {
-            getMutableConfiguration().insertOption(OPTION_CONFIG_UNPACKER, optionUnpacker);
+        public Builder setOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_CONFIG_UNPACKER, optionUnpacker);
             return builder();
         }
 
@@ -140,24 +138,24 @@ public class FakeOtherUseCaseConfiguration
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
         public Builder setSurfaceOccupancyPriority(int priority) {
-            getMutableConfiguration().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
             return builder();
         }
 
-        // End of the default implementation of Configuration.Builder
+        // End of the default implementation of Config.Builder
         // *****************************************************************************************
     }
 
-    // Start of the default implementation of Configuration
+    // Start of the default implementation of Config
     // *********************************************************************************************
 
-    // Implementations of Configuration.Reader default methods
+    // Implementations of Config.Reader default methods
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     public boolean containsOption(Option<?> id) {
-        return getConfiguration().containsOption(id);
+        return getConfig().containsOption(id);
     }
 
     /** @hide */
@@ -165,7 +163,7 @@ public class FakeOtherUseCaseConfiguration
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
-        return getConfiguration().retrieveOption(id);
+        return getConfig().retrieveOption(id);
     }
 
     /** @hide */
@@ -173,24 +171,24 @@ public class FakeOtherUseCaseConfiguration
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
-        return getConfiguration().retrieveOption(id, valueIfMissing);
+        return getConfig().retrieveOption(id, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     public void findOptions(String idStem, OptionMatcher matcher) {
-        getConfiguration().findOptions(idStem, matcher);
+        getConfig().findOptions(idStem, matcher);
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     public Set<Option<?>> listOptions() {
-        return getConfiguration().listOptions();
+        return getConfig().listOptions();
     }
 
-    // Implementations of TargetConfiguration default methods
+    // Implementations of TargetConfig default methods
 
     @Override
     @Nullable
@@ -222,7 +220,7 @@ public class FakeOtherUseCaseConfiguration
         return retrieveOption(OPTION_TARGET_NAME);
     }
 
-    // Implementations of CameraDeviceConfiguration default methods
+    // Implementations of CameraDeviceConfig default methods
 
     @Override
     @Nullable
@@ -235,21 +233,20 @@ public class FakeOtherUseCaseConfiguration
         return retrieveOption(OPTION_LENS_FACING);
     }
 
-    // Implementations of UseCaseConfiguration default methods
+    // Implementations of UseCaseConfig default methods
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public SessionConfiguration getDefaultSessionConfiguration(
-            @Nullable SessionConfiguration valueIfMissing) {
+    public SessionConfig getDefaultSessionConfig(@Nullable SessionConfig valueIfMissing) {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
-    public SessionConfiguration getDefaultSessionConfiguration() {
+    public SessionConfig getDefaultSessionConfig() {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG);
     }
 
@@ -257,15 +254,15 @@ public class FakeOtherUseCaseConfiguration
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public SessionConfiguration.OptionUnpacker getOptionUnpacker(
-            @Nullable SessionConfiguration.OptionUnpacker valueIfMissing) {
+    public SessionConfig.OptionUnpacker getOptionUnpacker(
+            @Nullable SessionConfig.OptionUnpacker valueIfMissing) {
         return retrieveOption(OPTION_CONFIG_UNPACKER, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
-    public SessionConfiguration.OptionUnpacker getOptionUnpacker() {
+    public SessionConfig.OptionUnpacker getOptionUnpacker() {
         return retrieveOption(OPTION_CONFIG_UNPACKER);
     }
 
@@ -281,6 +278,6 @@ public class FakeOtherUseCaseConfiguration
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
     }
 
-    // End of the default implementation of Configuration
+    // End of the default implementation of Config
     // *********************************************************************************************
 }

@@ -18,13 +18,13 @@ package androidx.camera.extensions;
 
 import android.hardware.camera2.CameraCharacteristics;
 
-import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.PreviewConfig;
 
 /**
  * Default implementation for PreviewExtender.
  */
 public final class DefaultPreviewExtender extends PreviewExtender {
-    DefaultPreviewExtender(PreviewConfiguration.Builder builder) {
+    DefaultPreviewExtender(PreviewConfig.Builder builder) {
         super(builder);
     }
 

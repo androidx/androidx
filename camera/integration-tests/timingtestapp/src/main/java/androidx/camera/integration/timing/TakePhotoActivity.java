@@ -27,15 +27,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import androidx.camera.camera2.Camera2Configuration;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.PreviewConfig;
 
 /** This Activity is used to run image capture performance test in mobileharness. */
 public class TakePhotoActivity extends BaseActivity {
@@ -134,16 +134,16 @@ public class TakePhotoActivity extends BaseActivity {
     }
 
     void createPreview() {
-        PreviewConfiguration.Builder configurationBuilder =
-                new PreviewConfiguration.Builder()
+        PreviewConfig.Builder configBuilder =
+                new PreviewConfig.Builder()
                         .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("Preview");
 
-        new Camera2Configuration.Extender(configurationBuilder)
+        new Camera2Config.Extender(configBuilder)
                 .setDeviceStateCallback(mDeviceStateCallback)
                 .setSessionStateCallback(mCaptureSessionStateCallback);
 
-        mPreview = new Preview(configurationBuilder.build());
+        mPreview = new Preview(configBuilder.build());
         openCameraStartTime = System.currentTimeMillis();
 
         mPreview.setOnPreviewOutputUpdateListener(
@@ -205,14 +205,14 @@ public class TakePhotoActivity extends BaseActivity {
     }
 
     void createImageCapture() {
-        ImageCaptureConfiguration configuration =
-                new ImageCaptureConfiguration.Builder()
+        ImageCaptureConfig config =
+                new ImageCaptureConfig.Builder()
                         .setTargetName("ImageCapture")
                         .setLensFacing(mCurrentCameraLensFacing)
                         .setCaptureMode(mCaptureMode)
                         .build();
 
-        mImageCapture = new ImageCapture(configuration);
+        mImageCapture = new ImageCapture(config);
         CameraX.bindToLifecycle(mCustomLifecycle, mImageCapture);
 
         final Button button = this.findViewById(R.id.Picture);

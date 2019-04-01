@@ -21,7 +21,7 @@ import android.view.Surface;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.camera.core.ImageOutputConfig.RotationValue;
 
 /**
  * Contains utility methods related to camera orientation.

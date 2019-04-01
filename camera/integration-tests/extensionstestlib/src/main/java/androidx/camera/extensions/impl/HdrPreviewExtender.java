@@ -20,7 +20,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Log;
 
-import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.PreviewConfig;
 import androidx.camera.extensions.CaptureStage;
 import androidx.camera.extensions.PreviewExtender;
 
@@ -34,7 +34,7 @@ public final class HdrPreviewExtender extends PreviewExtender {
     private static final String TAG = "HdrPreviewExtender";
     private static final int DEFAULT_STAGE_ID = 0;
 
-    public HdrPreviewExtender(PreviewConfiguration.Builder builder) {
+    public HdrPreviewExtender(PreviewConfig.Builder builder) {
         super(builder);
     }
 

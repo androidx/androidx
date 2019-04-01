@@ -19,9 +19,9 @@ package androidx.camera.testing.fakes;
 import android.util.Size;
 
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.SessionConfiguration;
+import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.UseCaseConfiguration;
+import androidx.camera.core.UseCaseConfig;
 
 import java.util.Map;
 
@@ -34,25 +34,25 @@ public class FakeUseCase extends UseCase {
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration.
      */
-    public FakeUseCase(FakeUseCaseConfiguration configuration) {
-        super(configuration);
+    public FakeUseCase(FakeUseCaseConfig config) {
+        super(config);
     }
 
     /**
      * Creates a new instance of a {@link FakeUseCase} with a default configuration.
      */
     public FakeUseCase() {
-        this(new FakeUseCaseConfiguration.Builder().build());
+        this(new FakeUseCaseConfig.Builder().build());
     }
 
     @Override
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        return new FakeUseCaseConfiguration.Builder()
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+        return new FakeUseCaseConfig.Builder()
                 .setLensFacing(lensFacing)
-                .setOptionUnpacker(new SessionConfiguration.OptionUnpacker() {
+                .setOptionUnpacker(new SessionConfig.OptionUnpacker() {
                     @Override
-                    public void unpack(UseCaseConfiguration<?> useCaseConfig,
-                            SessionConfiguration.Builder sessionConfigBuilder) {
+                    public void unpack(UseCaseConfig<?> useCaseConfig,
+                            SessionConfig.Builder sessionConfigBuilder) {
                     }
                 });
     }

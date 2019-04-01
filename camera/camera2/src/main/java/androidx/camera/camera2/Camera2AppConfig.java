@@ -20,31 +20,31 @@ import android.content.Context;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.AppConfiguration;
+import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.ImageAnalysisConfiguration;
-import androidx.camera.core.ImageCaptureConfiguration;
-import androidx.camera.core.PreviewConfiguration;
-import androidx.camera.core.VideoCaptureConfiguration;
+import androidx.camera.core.ImageAnalysisConfig;
+import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.VideoCaptureConfig;
 
 /**
- * Convenience class for generating a pre-populated Camera2 {@link AppConfiguration}.
+ * Convenience class for generating a pre-populated Camera2 {@link AppConfig}.
  *
  * @hide Until CameraX.init() is made public
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class Camera2AppConfiguration {
+public final class Camera2AppConfig {
 
-    private Camera2AppConfiguration() {
+    private Camera2AppConfig() {
     }
 
     /**
-     * Creates the {@link AppConfiguration} containing the Camera2 implementation pieces for
+     * Creates the {@link AppConfig} containing the Camera2 implementation pieces for
      * CameraX.
      */
-    public static AppConfiguration create(Context context) {
+    public static AppConfig create(Context context) {
         // Create the camera factory for creating Camera2 camera objects
         CameraFactory cameraFactory = new Camera2CameraFactory(context);
 
@@ -54,20 +54,20 @@ public final class Camera2AppConfiguration {
         // Create default configuration factory
         ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
         configFactory.installDefaultProvider(
-                ImageAnalysisConfiguration.class,
-                new DefaultImageAnalysisConfigurationProvider(cameraFactory, context));
+                ImageAnalysisConfig.class,
+                new DefaultImageAnalysisConfigProvider(cameraFactory, context));
         configFactory.installDefaultProvider(
-                ImageCaptureConfiguration.class,
-                new DefaultImageCaptureConfigurationProvider(cameraFactory, context));
+                ImageCaptureConfig.class,
+                new DefaultImageCaptureConfigProvider(cameraFactory, context));
         configFactory.installDefaultProvider(
-                VideoCaptureConfiguration.class,
-                new DefaultVideoCaptureConfigurationProvider(cameraFactory, context));
+                VideoCaptureConfig.class,
+                new DefaultVideoCaptureConfigProvider(cameraFactory, context));
         configFactory.installDefaultProvider(
-                PreviewConfiguration.class,
-                new DefaultPreviewConfigurationProvider(cameraFactory, context));
+                PreviewConfig.class,
+                new DefaultPreviewConfigProvider(cameraFactory, context));
 
-        AppConfiguration.Builder appConfigBuilder =
-                new AppConfiguration.Builder()
+        AppConfig.Builder appConfigBuilder =
+                new AppConfig.Builder()
                         .setCameraFactory(cameraFactory)
                         .setDeviceSurfaceManager(surfaceManager)
                         .setUseCaseConfigFactory(configFactory);

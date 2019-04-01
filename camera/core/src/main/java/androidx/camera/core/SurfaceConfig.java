@@ -38,39 +38,38 @@ import java.util.List;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 @AutoValue
-public abstract class SurfaceConfiguration {
+public abstract class SurfaceConfig {
     /** Prevent subclassing */
-    SurfaceConfiguration() {
+    SurfaceConfig() {
     }
 
     /**
-     * Creates a new instance of SurfaceConfiguration with the given parameters.
+     * Creates a new instance of SurfaceConfig with the given parameters.
      */
-    public static SurfaceConfiguration create(ConfigurationType type, ConfigurationSize size) {
-        return new AutoValue_SurfaceConfiguration(type, size);
+    public static SurfaceConfig create(ConfigType type, ConfigSize size) {
+        return new AutoValue_SurfaceConfig(type, size);
     }
 
     /** Returns the configuration type. */
-    public abstract ConfigurationType getConfigurationType();
+    public abstract ConfigType getConfigType();
 
     /** Returns the configuration size. */
-    public abstract ConfigurationSize getConfigurationSize();
+    public abstract ConfigSize getConfigSize();
 
     /**
      * Check whether the input surface configuration has a smaller size than this object and can be
      * supported
      *
-     * @param surfaceConfiguration the surface configuration to be compared
+     * @param surfaceConfig the surface configuration to be compared
      * @return the check result that whether it could be supported
      */
-    public final boolean isSupported(SurfaceConfiguration surfaceConfiguration) {
+    public final boolean isSupported(SurfaceConfig surfaceConfig) {
         boolean isSupported = false;
-        ConfigurationType configurationType = surfaceConfiguration.getConfigurationType();
-        ConfigurationSize configurationSize = surfaceConfiguration.getConfigurationSize();
+        ConfigType configType = surfaceConfig.getConfigType();
+        ConfigSize configSize = surfaceConfig.getConfigSize();
 
         // Check size and type to make sure it could be supported
-        if (configurationSize.getId() <= getConfigurationSize().getId()
-                && configurationType == getConfigurationType()) {
+        if (configSize.getId() <= getConfigSize().getId() && configType == getConfigType()) {
             isSupported = true;
         }
         return isSupported;
@@ -82,7 +81,7 @@ public abstract class SurfaceConfiguration {
      * <p>These are the enumerations defined in {@link
      * android.hardware.camera2.CameraDevice#createCaptureSession(List, StateCallback, Handler)}.
      */
-    public enum ConfigurationType {
+    public enum ConfigType {
         PRIV,
         YUV,
         JPEG,
@@ -95,8 +94,8 @@ public abstract class SurfaceConfiguration {
      * <p>These are the enumerations defined in {@link
      * android.hardware.camera2.CameraDevice#createCaptureSession(List, StateCallback, Handler)}.
      */
-    public enum ConfigurationSize {
-        /** Default AYALYSIS size is 640x480. */
+    public enum ConfigSize {
+        /** Default ANALYSIS size is 640x480. */
         ANALYSIS(0),
         /**
          * PREVIEW refers to the best size match to the device's screen resolution, or to 1080p
@@ -118,7 +117,7 @@ public abstract class SurfaceConfiguration {
 
         final int mId;
 
-        ConfigurationSize(int id) {
+        ConfigSize(int id) {
             mId = id;
         }
 

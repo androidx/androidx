@@ -23,39 +23,38 @@ import android.view.WindowManager;
 
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ConfigurationProvider;
+import androidx.camera.core.ConfigProvider;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfiguration;
-import androidx.camera.core.SessionConfiguration;
+import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.SessionConfig;
 
 import java.util.Arrays;
 import java.util.List;
 
-/** Provides defaults for {@link PreviewConfiguration} in the Camera2 implementation. */
-final class DefaultPreviewConfigurationProvider
-        implements ConfigurationProvider<PreviewConfiguration> {
+/** Provides defaults for {@link PreviewConfig} in the Camera2 implementation. */
+final class DefaultPreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     private static final String TAG = "DefPreviewProvider";
 
     private final CameraFactory mCameraFactory;
     private final WindowManager mWindowManager;
 
-    DefaultPreviewConfigurationProvider(CameraFactory cameraFactory, Context context) {
+    DefaultPreviewConfigProvider(CameraFactory cameraFactory, Context context) {
         mCameraFactory = cameraFactory;
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     }
 
     @Override
-    public PreviewConfiguration getConfiguration(LensFacing lensFacing) {
-        PreviewConfiguration.Builder builder =
-                PreviewConfiguration.Builder.fromConfig(
-                        Preview.DEFAULT_CONFIG.getConfiguration(lensFacing));
+    public PreviewConfig getConfig(LensFacing lensFacing) {
+        PreviewConfig.Builder builder =
+                PreviewConfig.Builder.fromConfig(
+                        Preview.DEFAULT_CONFIG.getConfig(lensFacing));
 
-        // SessionConfiguration containing all intrinsic properties needed for Preview
-        SessionConfiguration.Builder sessionBuilder = new SessionConfiguration.Builder();
+        // SessionConfig containing all intrinsic properties needed for Preview
+        SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
         sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
 
-        // Add options to UseCaseConfiguration
-        builder.setDefaultSessionConfiguration(sessionBuilder.build());
+        // Add options to UseCaseConfig
+        builder.setDefaultSessionConfig(sessionBuilder.build());
         builder.setOptionUnpacker(Camera2OptionUnpacker.INSTANCE);
 
         List<LensFacing> lensFacingList;

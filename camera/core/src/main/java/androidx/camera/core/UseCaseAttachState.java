@@ -137,9 +137,9 @@ public final class UseCaseAttachState {
             return;
         }
 
-        // Rebuild the attach info from scratch to get the updated SessionConfiguration.
+        // Rebuild the attach info from scratch to get the updated SessionConfig.
         UseCaseAttachInfo newUseCaseAttachInfo =
-                new UseCaseAttachInfo(useCase.getSessionConfiguration(mCameraId));
+                new UseCaseAttachInfo(useCase.getSessionConfig(mCameraId));
 
         // Retain the online and active flags.
         UseCaseAttachInfo oldUseCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCase);
@@ -149,9 +149,8 @@ public final class UseCaseAttachState {
     }
 
     /** Returns a session configuration builder for use cases which are both active and online. */
-    public SessionConfiguration.ValidatingBuilder getActiveAndOnlineBuilder() {
-        SessionConfiguration.ValidatingBuilder validatingBuilder =
-                new SessionConfiguration.ValidatingBuilder();
+    public SessionConfig.ValidatingBuilder getActiveAndOnlineBuilder() {
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
 
         List<String> list = new ArrayList<>();
         for (Entry<UseCase, UseCaseAttachInfo> attachedUseCase :
@@ -159,7 +158,7 @@ public final class UseCaseAttachState {
             UseCaseAttachInfo useCaseAttachInfo = attachedUseCase.getValue();
             if (useCaseAttachInfo.getActive() && useCaseAttachInfo.getOnline()) {
                 UseCase useCase = attachedUseCase.getKey();
-                validatingBuilder.add(useCaseAttachInfo.getSessionConfiguration());
+                validatingBuilder.add(useCaseAttachInfo.getSessionConfig());
                 list.add(useCase.getName());
             }
         }
@@ -168,15 +167,14 @@ public final class UseCaseAttachState {
     }
 
     /** Returns a session configuration builder for use cases which are online. */
-    public SessionConfiguration.ValidatingBuilder getOnlineBuilder() {
-        SessionConfiguration.ValidatingBuilder validatingBuilder =
-                new SessionConfiguration.ValidatingBuilder();
+    public SessionConfig.ValidatingBuilder getOnlineBuilder() {
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         List<String> list = new ArrayList<>();
         for (Entry<UseCase, UseCaseAttachInfo> attachedUseCase :
                 mAttachedUseCasesToInfoMap.entrySet()) {
             UseCaseAttachInfo useCaseAttachInfo = attachedUseCase.getValue();
             if (useCaseAttachInfo.getOnline()) {
-                validatingBuilder.add(useCaseAttachInfo.getSessionConfiguration());
+                validatingBuilder.add(useCaseAttachInfo.getSessionConfig());
                 UseCase useCase = attachedUseCase.getKey();
                 list.add(useCase.getName());
             }
@@ -188,7 +186,7 @@ public final class UseCaseAttachState {
     private UseCaseAttachInfo getOrCreateUseCaseAttachInfo(UseCase useCase) {
         UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCase);
         if (useCaseAttachInfo == null) {
-            useCaseAttachInfo = new UseCaseAttachInfo(useCase.getSessionConfiguration(mCameraId));
+            useCaseAttachInfo = new UseCaseAttachInfo(useCase.getSessionConfig(mCameraId));
             mAttachedUseCasesToInfoMap.put(useCase, useCaseAttachInfo);
         }
         return useCaseAttachInfo;
@@ -212,7 +210,7 @@ public final class UseCaseAttachState {
     /** The set of state and configuration information for an attached use case. */
     private static final class UseCaseAttachInfo {
         /** The configurations required of the camera for the use case. */
-        private final SessionConfiguration mSessionConfiguration;
+        private final SessionConfig mSessionConfig;
         /**
          * True if the use case is currently online (i.e. camera should have a capture session
          * configured for it).
@@ -225,12 +223,12 @@ public final class UseCaseAttachState {
          */
         private boolean mActive = false;
 
-        UseCaseAttachInfo(SessionConfiguration sessionConfiguration) {
-            mSessionConfiguration = sessionConfiguration;
+        UseCaseAttachInfo(SessionConfig sessionConfig) {
+            mSessionConfig = sessionConfig;
         }
 
-        SessionConfiguration getSessionConfiguration() {
-            return mSessionConfiguration;
+        SessionConfig getSessionConfig() {
+            return mSessionConfig;
         }
 
         boolean getOnline() {

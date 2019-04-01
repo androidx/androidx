@@ -23,7 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
+import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -43,16 +43,16 @@ public final class UseCaseGroupTest {
 
     @Before
     public void setUp() {
-        FakeUseCaseConfiguration fakeUseCaseConfiguration = new FakeUseCaseConfiguration.Builder()
-                .setTargetName("fakeUseCaseConfiguration")
+        FakeUseCaseConfig fakeUseCaseConfig = new FakeUseCaseConfig.Builder()
+                .setTargetName("fakeUseCaseConfig")
                 .build();
-        FakeOtherUseCaseConfiguration fakeOtherUseCaseConfiguration =
-                new FakeOtherUseCaseConfiguration.Builder()
-                        .setTargetName("fakeOtherUseCaseConfiguration")
+        FakeOtherUseCaseConfig fakeOtherUseCaseConfig =
+                new FakeOtherUseCaseConfig.Builder()
+                        .setTargetName("fakeOtherUseCaseConfig")
                         .build();
         mUseCaseGroup = new UseCaseGroup();
-        mFakeUseCase = new FakeUseCase(fakeUseCaseConfiguration);
-        mFakeOtherUseCase = new FakeOtherUseCase(fakeOtherUseCaseConfiguration);
+        mFakeUseCase = new FakeUseCase(fakeUseCaseConfig);
+        mFakeOtherUseCase = new FakeOtherUseCase(fakeOtherUseCaseConfig);
     }
 
     @Test

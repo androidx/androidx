@@ -33,25 +33,25 @@ import android.util.Rational;
 import android.util.Size;
 import android.view.WindowManager;
 
-import androidx.camera.core.AppConfiguration;
+import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.ImageAnalysisConfiguration;
+import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageFormatConstants;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.SurfaceCombination;
-import androidx.camera.core.SurfaceConfiguration;
-import androidx.camera.core.SurfaceConfiguration.ConfigurationSize;
-import androidx.camera.core.SurfaceConfiguration.ConfigurationType;
+import androidx.camera.core.SurfaceConfig;
+import androidx.camera.core.SurfaceConfig.ConfigSize;
+import androidx.camera.core.SurfaceConfig.ConfigType;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCaptureConfiguration;
+import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.testing.StreamConfigurationMapUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
@@ -144,7 +144,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
-                            LEGACY_CAMERA_ID, combination.getSurfaceConfigurationList());
+                            LEGACY_CAMERA_ID, combination.getSurfaceConfigList());
             assertTrue(isSupported);
         }
     }
@@ -161,7 +161,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
-                            LEGACY_CAMERA_ID, combination.getSurfaceConfigurationList());
+                            LEGACY_CAMERA_ID, combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
     }
@@ -178,7 +178,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
-                            LEGACY_CAMERA_ID, combination.getSurfaceConfigurationList());
+                            LEGACY_CAMERA_ID, combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
     }
@@ -195,7 +195,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
-                            LEGACY_CAMERA_ID, combination.getSurfaceConfigurationList());
+                            LEGACY_CAMERA_ID, combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
     }
@@ -212,7 +212,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
-                            LIMITED_CAMERA_ID, combination.getSurfaceConfigurationList());
+                            LIMITED_CAMERA_ID, combination.getSurfaceConfigList());
             assertTrue(isSupported);
         }
     }
@@ -229,7 +229,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
-                            LIMITED_CAMERA_ID, combination.getSurfaceConfigurationList());
+                            LIMITED_CAMERA_ID, combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
     }
@@ -246,7 +246,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
-                            LIMITED_CAMERA_ID, combination.getSurfaceConfigurationList());
+                            LIMITED_CAMERA_ID, combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
     }
@@ -263,7 +263,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
-                            FULL_CAMERA_ID, combination.getSurfaceConfigurationList());
+                            FULL_CAMERA_ID, combination.getSurfaceConfigList());
             assertTrue(isSupported);
         }
     }
@@ -280,7 +280,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
-                            FULL_CAMERA_ID, combination.getSurfaceConfigurationList());
+                            FULL_CAMERA_ID, combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
     }
@@ -297,7 +297,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
                     mSurfaceManager.checkSupported(
-                            LEVEL3_CAMERA_ID, combination.getSurfaceConfigurationList());
+                            LEVEL3_CAMERA_ID, combination.getSurfaceConfigList());
             assertTrue(isSupported);
         }
     }
@@ -305,11 +305,9 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
         Rational aspectRatio = new Rational(16, 9);
-        PreviewConfiguration.Builder previewConfigBuilder = new PreviewConfiguration.Builder();
-        VideoCaptureConfiguration.Builder videoCaptureConfigBuilder =
-                new VideoCaptureConfiguration.Builder();
-        ImageCaptureConfiguration.Builder imageCaptureConfigBuilder =
-                new ImageCaptureConfiguration.Builder();
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+        VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
+        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
 
         previewConfigBuilder.setTargetAspectRatio(aspectRatio);
         videoCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
@@ -342,11 +340,9 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void getSuggestedResolutionsForMixedUseCaseInLimitedDevice() {
         Rational aspectRatio = new Rational(16, 9);
-        PreviewConfiguration.Builder previewConfigBuilder = new PreviewConfiguration.Builder();
-        VideoCaptureConfiguration.Builder videoCaptureConfigBuilder =
-                new VideoCaptureConfiguration.Builder();
-        ImageCaptureConfiguration.Builder imageCaptureConfigBuilder =
-                new ImageCaptureConfiguration.Builder();
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+        VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
+        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
 
         previewConfigBuilder.setTargetAspectRatio(aspectRatio);
         videoCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
@@ -373,107 +369,102 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     @Test
-    public void transformSurfaceConfigurationWithYUVAnalysisSize() {
-        SurfaceConfiguration surfaceConfiguration =
-                mSurfaceManager.transformSurfaceConfiguration(
+    public void transformSurfaceConfigWithYUVAnalysisSize() {
+        SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
                         LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mAnalysisSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.ANALYSIS);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ANALYSIS);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithYUVPreviewSize() {
-        SurfaceConfiguration surfaceConfiguration =
-                mSurfaceManager.transformSurfaceConfiguration(
+    public void transformSurfaceConfigWithYUVPreviewSize() {
+        SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
                         LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mPreviewSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.PREVIEW);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithYUVRecordSize() {
-        SurfaceConfiguration surfaceConfiguration =
-                mSurfaceManager.transformSurfaceConfiguration(
+    public void transformSurfaceConfigWithYUVRecordSize() {
+        SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
                         LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mRecordSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.RECORD);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.YUV, SurfaceConfig.ConfigSize.RECORD);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithYUVMaximumSize() {
-        SurfaceConfiguration surfaceConfiguration =
-                mSurfaceManager.transformSurfaceConfiguration(
+    public void transformSurfaceConfigWithYUVMaximumSize() {
+        SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
                         LEGACY_CAMERA_ID, ImageFormat.YUV_420_888, mMaximumSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.MAXIMUM);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(SurfaceConfig.ConfigType.YUV, ConfigSize.MAXIMUM);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithYUVNotSupportSize() {
-        SurfaceConfiguration surfaceConfiguration =
-                mSurfaceManager.transformSurfaceConfiguration(
+    public void transformSurfaceConfigWithYUVNotSupportSize() {
+        SurfaceConfig surfaceConfig = mSurfaceManager.transformSurfaceConfig(
                         LEGACY_CAMERA_ID,
                         ImageFormat.YUV_420_888,
                         new Size(mMaximumSize.getWidth() + 1, mMaximumSize.getHeight() + 1));
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.NOT_SUPPORT);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.NOT_SUPPORT);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithJPEGAnalysisSize() {
-        SurfaceConfiguration surfaceConfiguration =
-                mSurfaceManager.transformSurfaceConfiguration(
+    public void transformSurfaceConfigWithJPEGAnalysisSize() {
+        SurfaceConfig surfaceConfig =
+                mSurfaceManager.transformSurfaceConfig(
                         LEGACY_CAMERA_ID, ImageFormat.JPEG, mAnalysisSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.ANALYSIS);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(SurfaceConfig.ConfigType.JPEG, ConfigSize.ANALYSIS);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithJPEGPreviewSize() {
-        SurfaceConfiguration surfaceConfiguration =
-                mSurfaceManager.transformSurfaceConfiguration(
+    public void transformSurfaceConfigWithJPEGPreviewSize() {
+        SurfaceConfig surfaceConfig =
+                mSurfaceManager.transformSurfaceConfig(
                         LEGACY_CAMERA_ID, ImageFormat.JPEG, mPreviewSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.PREVIEW);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.PREVIEW);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithJPEGRecordSize() {
-        SurfaceConfiguration surfaceConfiguration =
-                mSurfaceManager.transformSurfaceConfiguration(
+    public void transformSurfaceConfigWithJPEGRecordSize() {
+        SurfaceConfig surfaceConfig =
+                mSurfaceManager.transformSurfaceConfig(
                         LEGACY_CAMERA_ID, ImageFormat.JPEG, mRecordSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.RECORD);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithJPEGMaximumSize() {
-        SurfaceConfiguration surfaceConfiguration =
-                mSurfaceManager.transformSurfaceConfiguration(
+    public void transformSurfaceConfigWithJPEGMaximumSize() {
+        SurfaceConfig surfaceConfig =
+                mSurfaceManager.transformSurfaceConfig(
                         LEGACY_CAMERA_ID, ImageFormat.JPEG, mMaximumSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.MAXIMUM);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithJPEGNotSupportSize() {
-        SurfaceConfiguration surfaceConfiguration =
-                mSurfaceManager.transformSurfaceConfiguration(
+    public void transformSurfaceConfigWithJPEGNotSupportSize() {
+        SurfaceConfig surfaceConfig =
+                mSurfaceManager.transformSurfaceConfig(
                         LEGACY_CAMERA_ID,
                         ImageFormat.JPEG,
                         new Size(mMaximumSize.getWidth() + 1, mMaximumSize.getHeight() + 1));
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.NOT_SUPPORT);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.NOT_SUPPORT);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
@@ -531,12 +522,12 @@ public final class Camera2DeviceSurfaceManagerTest {
     }
 
     private void initCameraX() {
-        AppConfiguration appConfig = createFakeAppConfiguration();
+        AppConfig appConfig = createFakeAppConfig();
         CameraX.init(mContext, appConfig);
         mSurfaceManager = CameraX.getSurfaceManager();
     }
 
-    private AppConfiguration createFakeAppConfiguration() {
+    private AppConfig createFakeAppConfig() {
 
         // Create the camera factory for creating Camera2 camera objects
         CameraFactory cameraFactory = new Camera2CameraFactory(mContext);
@@ -548,20 +539,20 @@ public final class Camera2DeviceSurfaceManagerTest {
         // Create default configuration factory
         ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
         configFactory.installDefaultProvider(
-                ImageAnalysisConfiguration.class,
-                new DefaultImageAnalysisConfigurationProvider(cameraFactory, mContext));
+                ImageAnalysisConfig.class,
+                new DefaultImageAnalysisConfigProvider(cameraFactory, mContext));
         configFactory.installDefaultProvider(
-                ImageCaptureConfiguration.class,
-                new DefaultImageCaptureConfigurationProvider(cameraFactory, mContext));
+                ImageCaptureConfig.class,
+                new DefaultImageCaptureConfigProvider(cameraFactory, mContext));
         configFactory.installDefaultProvider(
-                VideoCaptureConfiguration.class,
-                new DefaultVideoCaptureConfigurationProvider(cameraFactory, mContext));
+                VideoCaptureConfig.class,
+                new DefaultVideoCaptureConfigProvider(cameraFactory, mContext));
         configFactory.installDefaultProvider(
-                PreviewConfiguration.class,
-                new DefaultPreviewConfigurationProvider(cameraFactory, mContext));
+                PreviewConfig.class,
+                new DefaultPreviewConfigProvider(cameraFactory, mContext));
 
-        AppConfiguration.Builder appConfigBuilder =
-                new AppConfiguration.Builder()
+        AppConfig.Builder appConfigBuilder =
+                new AppConfig.Builder()
                         .setCameraFactory(cameraFactory)
                         .setDeviceSurfaceManager(surfaceManager)
                         .setUseCaseConfigFactory(configFactory);

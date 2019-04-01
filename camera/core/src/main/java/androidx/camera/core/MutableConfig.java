@@ -21,11 +21,11 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
 /**
- * MutableConfiguration is a {@link Configuration} that can be modified.
+ * MutableConfig is a {@link Config} that can be modified.
  *
- * <p>MutableConfiguration is the interface used to create immutable Configuration objects.
+ * <p>MutableConfig is the interface used to create immutable Config objects.
  */
-public interface MutableConfiguration extends Configuration {
+public interface MutableConfig extends Config {
 
     /**
      * Inserts a Option/Value pair into the configuration.

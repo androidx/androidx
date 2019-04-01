@@ -24,8 +24,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.Configuration.Option;
-import androidx.camera.core.UseCaseConfiguration.Builder;
+import androidx.camera.core.Config.Option;
+import androidx.camera.core.UseCaseConfig.Builder;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.HashMap;
@@ -59,10 +59,9 @@ public abstract class UseCase {
 
     /**
      * A map of the names of the {@link android.hardware.camera2.CameraDevice} to the {@link
-     * SessionConfiguration} that have been attached to this UseCase
+     * SessionConfig} that have been attached to this UseCase
      */
-    private final Map<String, SessionConfiguration> mAttachedCameraIdToSessionConfigurationMap =
-            new HashMap<>();
+    private final Map<String, SessionConfig> mAttachedCameraIdToSessionConfigMap = new HashMap<>();
 
     /**
      * A map of the names of the {@link android.hardware.camera2.CameraDevice} to the surface
@@ -72,7 +71,7 @@ public abstract class UseCase {
 
     private State mState = State.INACTIVE;
 
-    private UseCaseConfiguration<?> mUseCaseConfiguration;
+    private UseCaseConfig<?> mUseCaseConfig;
 
     /**
      * Except for ImageFormat.JPEG or ImageFormat.YUV, other image formats like SurfaceTexture or
@@ -87,10 +86,10 @@ public abstract class UseCase {
     /**
      * Creates a named instance of the use case.
      *
-     * @param useCaseConfiguration the configuration object used for this use case
+     * @param useCaseConfig the configuration object used for this use case
      */
-    protected UseCase(UseCaseConfiguration<?> useCaseConfiguration) {
-        updateUseCaseConfiguration(useCaseConfiguration);
+    protected UseCase(UseCaseConfig<?> useCaseConfig) {
+        updateUseCaseConfig(useCaseConfig);
     }
 
     /**
@@ -108,7 +107,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(
             CameraX.LensFacing lensFacing) {
         return null;
     }
@@ -118,30 +117,29 @@ public abstract class UseCase {
      *
      * <p>This configuration will be combined with the default configuration that is contained in
      * the pre-populated builder supplied by {@link #getDefaultBuilder}, if it exists and the
-     * behavior of {@link #applyDefaults(UseCaseConfiguration, Builder)} is not overridden. Once
-     * this method returns, the combined use case configuration can be retrieved with {@link
-     * #getUseCaseConfiguration()}.
+     * behavior of {@link #applyDefaults(UseCaseConfig, Builder)} is not overridden. Once this
+     * method returns, the combined use case configuration can be retrieved with
+     * {@link #getUseCaseConfig()}.
      *
-     * <p>This method alone will not make any changes to the {@link SessionConfiguration}, it is up
-     * to the use case to decide when to modify the session configuration.
+     * <p>This method alone will not make any changes to the {@link SessionConfig}, it is up to
+     * the use case to decide when to modify the session configuration.
      *
-     * @param useCaseConfiguration Configuration which will be applied on top of use case defaults,
-     *                             if a default builder is provided by {@link #getDefaultBuilder}.
+     * @param useCaseConfig Configuration which will be applied on top of use case defaults, if a
+     *                      default builder is provided by {@link #getDefaultBuilder}.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void updateUseCaseConfiguration(UseCaseConfiguration<?> useCaseConfiguration) {
-        CameraX.LensFacing lensFacing =
-                ((CameraDeviceConfiguration) useCaseConfiguration).getLensFacing(null);
+    protected void updateUseCaseConfig(UseCaseConfig<?> useCaseConfig) {
+        CameraX.LensFacing lensFacing = ((CameraDeviceConfig) useCaseConfig).getLensFacing(null);
 
-        UseCaseConfiguration.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder(lensFacing);
+        UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder(lensFacing);
         if (defaultBuilder == null) {
             Log.w(
                     TAG,
                     "No default configuration available. Relying solely on user-supplied options.");
-            mUseCaseConfiguration = useCaseConfiguration;
+            mUseCaseConfig = useCaseConfig;
         } else {
-            mUseCaseConfiguration = applyDefaults(useCaseConfiguration, defaultBuilder);
+            mUseCaseConfig = applyDefaults(useCaseConfig, defaultBuilder);
         }
     }
 
@@ -151,30 +149,28 @@ public abstract class UseCase {
      * <p>This is called during initialization of the class. Subclassess can override this method to
      * modify the behavior of combining user-supplied values and default values.
      *
-     * @param userConfiguration    The user-supplied configuration.
+     * @param userConfig    The user-supplied configuration.
      * @param defaultConfigBuilder A builder containing use-case default values.
      * @return The configuration that will be used by this use case.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfiguration<?> applyDefaults(
-            UseCaseConfiguration<?> userConfiguration,
-            UseCaseConfiguration.Builder<?, ?, ?> defaultConfigBuilder) {
+    protected UseCaseConfig<?> applyDefaults(
+            UseCaseConfig<?> userConfig,
+            UseCaseConfig.Builder<?, ?, ?> defaultConfigBuilder) {
 
         // If any options need special handling, this is the place to do it. For now we'll just copy
         // over all options.
-        for (Option<?> opt : userConfiguration.listOptions()) {
+        for (Option<?> opt : userConfig.listOptions()) {
             @SuppressWarnings("unchecked") // Options/values are being copied directly
                     Option<Object> objectOpt = (Option<Object>) opt;
-            defaultConfigBuilder.insertOption(
-                    objectOpt, userConfiguration.retrieveOption(objectOpt));
+            defaultConfigBuilder.insertOption(objectOpt, userConfig.retrieveOption(objectOpt));
         }
 
         @SuppressWarnings(
-                "unchecked") // Since builder is a UseCaseConfiguration.Builder, it should produce a
-                // UseCaseConfiguration
-                UseCaseConfiguration<?> defaultConfig =
-                (UseCaseConfiguration<?>) defaultConfigBuilder.build();
+                "unchecked") // Since builder is a UseCaseConfig.Builder, it should produce a
+                // UseCaseConfig
+                UseCaseConfig<?> defaultConfig = (UseCaseConfig<?>) defaultConfigBuilder.build();
         return defaultConfig;
     }
 
@@ -188,7 +184,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public Set<String> getAttachedCameraIds() {
-        return mAttachedCameraIdToSessionConfigurationMap.keySet();
+        return mAttachedCameraIdToSessionConfigMap.keySet();
     }
 
     /**
@@ -200,8 +196,8 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void attachToCamera(String cameraId, SessionConfiguration sessionConfiguration) {
-        mAttachedCameraIdToSessionConfigurationMap.put(cameraId, sessionConfiguration);
+    protected void attachToCamera(String cameraId, SessionConfig sessionConfig) {
+        mAttachedCameraIdToSessionConfigMap.put(cameraId, sessionConfig);
     }
 
     /**
@@ -245,7 +241,7 @@ public abstract class UseCase {
     }
 
     /**
-     * Get the {@link SessionConfiguration} for the specified camera id.
+     * Get the {@link SessionConfig} for the specified camera id.
      *
      * @param cameraId the id of the camera as referred to be {@link
      *                 android.hardware.camera2.CameraManager}
@@ -253,13 +249,12 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public SessionConfiguration getSessionConfiguration(String cameraId) {
-        SessionConfiguration sessionConfiguration =
-                mAttachedCameraIdToSessionConfigurationMap.get(cameraId);
-        if (sessionConfiguration == null) {
+    public SessionConfig getSessionConfig(String cameraId) {
+        SessionConfig sessionConfig = mAttachedCameraIdToSessionConfigMap.get(cameraId);
+        if (sessionConfig == null) {
             throw new IllegalArgumentException("Invalid camera: " + cameraId);
         } else {
-            return sessionConfiguration;
+            return sessionConfig;
         }
     }
 
@@ -337,7 +332,7 @@ public abstract class UseCase {
     }
 
     public String getName() {
-        return mUseCaseConfiguration.getTargetName("<UnknownUseCase-" + this.hashCode() + ">");
+        return mUseCaseConfig.getTargetName("<UnknownUseCase-" + this.hashCode() + ">");
     }
 
     /**
@@ -348,8 +343,8 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public UseCaseConfiguration<?> getUseCaseConfiguration() {
-        return mUseCaseConfiguration;
+    public UseCaseConfig<?> getUseCaseConfig() {
+        return mUseCaseConfig;
     }
 
     /**
@@ -392,7 +387,7 @@ public abstract class UseCase {
      *                               resolution that depends on camera
      *                               device capability and what and how many use cases will be
      *                               bound.
-     * @return The map with the resolutions that finally used to create the SessionConfiguration to
+     * @return The map with the resolutions that finally used to create the SessionConfig to
      * attach to the camera device.
      */
     protected abstract Map<String, Size> onSuggestedResolutionUpdated(

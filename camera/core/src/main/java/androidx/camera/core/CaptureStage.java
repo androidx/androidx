@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
 /**
- * A {@link CaptureRequestConfiguration} with an identifier.
+ * A {@link CaptureRequestConfig} with an identifier.
  *
  * @hide
  */
@@ -33,17 +33,17 @@ public interface CaptureStage {
     /**
      * Returns the configuration for the capture.
      */
-    CaptureRequestConfiguration getCaptureRequestConfiguration();
+    CaptureRequestConfig getCaptureRequestConfig();
 
     /**
      * A capture stage which contains no additional implementation options
      */
     final class DefaultCaptureStage implements CaptureStage {
-        private final CaptureRequestConfiguration mCaptureRequestConfiguration;
+        private final CaptureRequestConfig mCaptureRequestConfig;
 
         DefaultCaptureStage() {
-            CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
-            mCaptureRequestConfiguration = builder.build();
+            CaptureRequestConfig.Builder builder = new CaptureRequestConfig.Builder();
+            mCaptureRequestConfig = builder.build();
         }
 
         @Override
@@ -52,8 +52,8 @@ public interface CaptureStage {
         }
 
         @Override
-        public CaptureRequestConfiguration getCaptureRequestConfiguration() {
-            return mCaptureRequestConfiguration;
+        public CaptureRequestConfig getCaptureRequestConfig() {
+            return mCaptureRequestConfig;
         }
     }
 }

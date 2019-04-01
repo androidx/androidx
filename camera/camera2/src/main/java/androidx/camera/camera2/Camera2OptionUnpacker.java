@@ -24,33 +24,32 @@ import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureCallbacks;
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CameraDeviceStateCallbacks;
-import androidx.camera.core.Configuration;
-import androidx.camera.core.Configuration.Option;
+import androidx.camera.core.Config;
+import androidx.camera.core.Config.Option;
 import androidx.camera.core.OptionsBundle;
-import androidx.camera.core.SessionConfiguration;
-import androidx.camera.core.UseCaseConfiguration;
+import androidx.camera.core.SessionConfig;
+import androidx.camera.core.UseCaseConfig;
 
 /**
- * A {@link SessionConfiguration.OptionUnpacker} implementation for unpacking Camera2 options into a
- * {@link SessionConfiguration.Builder}.
+ * A {@link SessionConfig.OptionUnpacker} implementation for unpacking Camera2 options into a
+ * {@link SessionConfig.Builder}.
  */
-final class Camera2OptionUnpacker implements SessionConfiguration.OptionUnpacker {
+final class Camera2OptionUnpacker implements SessionConfig.OptionUnpacker {
 
     static final Camera2OptionUnpacker INSTANCE = new Camera2OptionUnpacker();
 
     @Override
-    public void unpack(UseCaseConfiguration<?> config, final SessionConfiguration.Builder builder) {
-        SessionConfiguration defaultSessionConfig =
-                config.getDefaultSessionConfiguration(/*valueIfMissing=*/ null);
+    public void unpack(UseCaseConfig<?> config, final SessionConfig.Builder builder) {
+        SessionConfig defaultSessionConfig =
+                config.getDefaultSessionConfig(/*valueIfMissing=*/ null);
 
         CameraDevice.StateCallback deviceStateCallback =
                 CameraDeviceStateCallbacks.createNoOpCallback();
         CameraCaptureSession.StateCallback sessionStateCallback =
                 CameraCaptureSessionStateCallbacks.createNoOpCallback();
         CameraCaptureCallback cameraCaptureCallback = CameraCaptureCallbacks.createNoOpCallback();
-        Configuration implOptions = OptionsBundle.emptyBundle();
-        int templateType =
-                SessionConfiguration.defaultEmptySessionConfiguration().getTemplateType();
+        Config implOptions = OptionsBundle.emptyBundle();
+        int templateType = SessionConfig.defaultEmptySessionConfig().getTemplateType();
 
         // Apply/extract defaults from session config
         if (defaultSessionConfig != null) {
@@ -68,7 +67,7 @@ final class Camera2OptionUnpacker implements SessionConfiguration.OptionUnpacker
         builder.setImplementationOptions(implOptions);
 
         // Get Camera2 extended options
-        final Camera2Configuration camera2Config = new Camera2Configuration(config);
+        final Camera2Config camera2Config = new Camera2Config(config);
 
         // Apply template type
         builder.setTemplateType(camera2Config.getCaptureRequestTemplate(templateType));
@@ -99,8 +98,8 @@ final class Camera2OptionUnpacker implements SessionConfiguration.OptionUnpacker
 
         // Copy extension keys
         camera2Config.findOptions(
-                Camera2Configuration.CAPTURE_REQUEST_ID_STEM,
-                new Configuration.OptionMatcher() {
+                Camera2Config.CAPTURE_REQUEST_ID_STEM,
+                new Config.OptionMatcher() {
                     @Override
                     public boolean onOptionMatched(Option<?> option) {
                         @SuppressWarnings(

@@ -25,19 +25,18 @@ import android.view.WindowManager;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ConfigurationProvider;
+import androidx.camera.core.ConfigProvider;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageAnalysisConfiguration;
-import androidx.camera.core.SessionConfiguration;
+import androidx.camera.core.ImageAnalysisConfig;
+import androidx.camera.core.SessionConfig;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Provides defaults for {@link ImageAnalysisConfiguration} in the Camera2 implementation.
+ * Provides defaults for {@link ImageAnalysisConfig} in the Camera2 implementation.
  */
-final class DefaultImageAnalysisConfigurationProvider
-        implements ConfigurationProvider<ImageAnalysisConfiguration> {
+final class DefaultImageAnalysisConfigProvider implements ConfigProvider<ImageAnalysisConfig> {
     private static final String TAG = "DefImgAnalysisProvider";
     private static final Rational DEFAULT_ASPECT_RATIO_4_3 = new Rational(4, 3);
     private static final Rational DEFAULT_ASPECT_RATIO_3_4 = new Rational(3, 4);
@@ -45,24 +44,24 @@ final class DefaultImageAnalysisConfigurationProvider
     private final CameraFactory mCameraFactory;
     private final WindowManager mWindowManager;
 
-    DefaultImageAnalysisConfigurationProvider(CameraFactory cameraFactory, Context context) {
+    DefaultImageAnalysisConfigProvider(CameraFactory cameraFactory, Context context) {
         mCameraFactory = cameraFactory;
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     }
 
     @Override
-    public ImageAnalysisConfiguration getConfiguration(LensFacing lensFacing) {
-        ImageAnalysisConfiguration.Builder builder =
-                ImageAnalysisConfiguration.Builder.fromConfig(
-                        ImageAnalysis.DEFAULT_CONFIG.getConfiguration(lensFacing));
+    public ImageAnalysisConfig getConfig(LensFacing lensFacing) {
+        ImageAnalysisConfig.Builder builder =
+                ImageAnalysisConfig.Builder.fromConfig(
+                        ImageAnalysis.DEFAULT_CONFIG.getConfig(lensFacing));
 
-        // SessionConfiguration containing all intrinsic properties needed for ImageAnalysis
-        SessionConfiguration.Builder sessionBuilder = new SessionConfiguration.Builder();
+        // SessionConfig containing all intrinsic properties needed for ImageAnalysis
+        SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
         // TODO(b/114762170): Must set to preview here until we allow for multiple template types
         sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
 
-        // Add options to UseCaseConfiguration
-        builder.setDefaultSessionConfiguration(sessionBuilder.build());
+        // Add options to UseCaseConfig
+        builder.setDefaultSessionConfig(sessionBuilder.build());
         builder.setOptionUnpacker(Camera2OptionUnpacker.INSTANCE);
 
         List<LensFacing> lensFacingList;

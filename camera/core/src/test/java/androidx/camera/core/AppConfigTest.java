@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
-import androidx.camera.testing.fakes.FakeAppConfiguration;
+import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.test.filters.SmallTest;
@@ -36,31 +36,31 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class AppConfigurationTest {
+public class AppConfigTest {
 
-    private AppConfiguration mAppConfiguration;
+    private AppConfig mAppConfig;
 
     @Before
     public void setUp() {
-        mAppConfiguration = FakeAppConfiguration.create();
+        mAppConfig = FakeAppConfig.create();
     }
 
     @Test
     public void canGetConfigTarget() {
-        Class<CameraX> configTarget = mAppConfiguration.getTargetClass(/*valueIfMissing=*/ null);
+        Class<CameraX> configTarget = mAppConfig.getTargetClass(/*valueIfMissing=*/ null);
         assertThat(configTarget).isEqualTo(CameraX.class);
     }
 
     @Test
     public void canGetCameraFactory() {
-        CameraFactory cameraFactory = mAppConfiguration.getCameraFactory(/*valueIfMissing=*/ null);
+        CameraFactory cameraFactory = mAppConfig.getCameraFactory(/*valueIfMissing=*/ null);
         assertThat(cameraFactory).isInstanceOf(FakeCameraFactory.class);
     }
 
     @Test
     public void canGetDeviceSurfaceManager() {
         CameraDeviceSurfaceManager surfaceManager =
-                mAppConfiguration.getDeviceSurfaceManager(/*valueIfMissing=*/ null);
+                mAppConfig.getDeviceSurfaceManager(/*valueIfMissing=*/ null);
         assertThat(surfaceManager).isInstanceOf(FakeCameraDeviceSurfaceManager.class);
     }
 }

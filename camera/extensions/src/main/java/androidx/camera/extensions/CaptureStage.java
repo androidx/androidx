@@ -20,18 +20,17 @@ import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.camera2.Camera2Configuration;
-import androidx.camera.core.CaptureRequestConfiguration;
+import androidx.camera.camera2.Camera2Config;
+import androidx.camera.core.CaptureRequestConfig;
 
 /**
  * The set of parameters that defines a single capture that will be sent to the camera.
  */
 public final class CaptureStage implements androidx.camera.core.CaptureStage {
     private final int mId;
-    private final CaptureRequestConfiguration.Builder mCaptureRequestConfigurationBuilder =
-            new CaptureRequestConfiguration.Builder();
-    private final Camera2Configuration.Builder mCamera2ConfigurationBuilder =
-            new Camera2Configuration.Builder();
+    private final CaptureRequestConfig.Builder mCaptureRequestConfigBuilder =
+            new CaptureRequestConfig.Builder();
+    private final Camera2Config.Builder mCamera2ConfigBuilder = new Camera2Config.Builder();
 
     /**
      * Constructor for a {@link CaptureStage} with specific identifier.
@@ -43,7 +42,7 @@ public final class CaptureStage implements androidx.camera.core.CaptureStage {
      * @param id The identifier for the {@link CaptureStage}.
      * */
     public CaptureStage(int id) {
-        mCaptureRequestConfigurationBuilder.setTag(id);
+        mCaptureRequestConfigBuilder.setTag(id);
         mId = id;
     }
 
@@ -54,22 +53,21 @@ public final class CaptureStage implements androidx.camera.core.CaptureStage {
     }
 
     /**
-     * Returns the {@link CaptureRequestConfiguration} for the {@link CaptureStage} object.
+     * Returns the {@link CaptureRequestConfig} for the {@link CaptureStage} object.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public CaptureRequestConfiguration getCaptureRequestConfiguration() {
-        mCaptureRequestConfigurationBuilder.addImplementationOptions(
-                mCamera2ConfigurationBuilder.build());
-        return mCaptureRequestConfigurationBuilder.build();
+    public CaptureRequestConfig getCaptureRequestConfig() {
+        mCaptureRequestConfigBuilder.addImplementationOptions(mCamera2ConfigBuilder.build());
+        return mCaptureRequestConfigBuilder.build();
     }
 
     /**
      * Adds necessary {@link CaptureRequest.Key} settings into the {@link CaptureStage} object.
      */
     public <T> void addCaptureRequestParameters(CaptureRequest.Key<T> key, T value) {
-        mCamera2ConfigurationBuilder.setCaptureRequestOption(key, value);
+        mCamera2ConfigBuilder.setCaptureRequestOption(key, value);
     }
 }

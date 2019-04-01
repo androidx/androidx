@@ -29,11 +29,11 @@ import java.util.Set;
 import java.util.UUID;
 
 /** Configuration for an image capture use case. */
-public final class ImageCaptureConfiguration
-        implements UseCaseConfiguration<ImageCapture>,
-        ImageOutputConfiguration,
-        CameraDeviceConfiguration,
-        ThreadConfiguration {
+public final class ImageCaptureConfig
+        implements UseCaseConfig<ImageCapture>,
+        ImageOutputConfig,
+        CameraDeviceConfig,
+        ThreadConfig {
 
     // Option Declarations:
     // *********************************************************************************************
@@ -48,7 +48,7 @@ public final class ImageCaptureConfiguration
     private final OptionsBundle mConfig;
 
     /** Creates a new configuration instance. */
-    ImageCaptureConfiguration(OptionsBundle config) {
+    ImageCaptureConfig(OptionsBundle config) {
         mConfig = config;
     }
 
@@ -59,7 +59,7 @@ public final class ImageCaptureConfiguration
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public Configuration getConfiguration() {
+    public Config getConfig() {
         return mConfig;
     }
 
@@ -73,7 +73,7 @@ public final class ImageCaptureConfiguration
     @Nullable
     public ImageCapture.CaptureMode getCaptureMode(
             @Nullable ImageCapture.CaptureMode valueIfMissing) {
-        return getConfiguration().retrieveOption(OPTION_IMAGE_CAPTURE_MODE, valueIfMissing);
+        return getConfig().retrieveOption(OPTION_IMAGE_CAPTURE_MODE, valueIfMissing);
     }
 
     /**
@@ -83,7 +83,7 @@ public final class ImageCaptureConfiguration
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     public ImageCapture.CaptureMode getCaptureMode() {
-        return getConfiguration().retrieveOption(OPTION_IMAGE_CAPTURE_MODE);
+        return getConfig().retrieveOption(OPTION_IMAGE_CAPTURE_MODE);
     }
 
     /**
@@ -95,7 +95,7 @@ public final class ImageCaptureConfiguration
      */
     @Nullable
     public FlashMode getFlashMode(@Nullable FlashMode valueIfMissing) {
-        return getConfiguration().retrieveOption(OPTION_FLASH_MODE, valueIfMissing);
+        return getConfig().retrieveOption(OPTION_FLASH_MODE, valueIfMissing);
     }
 
     /**
@@ -105,7 +105,7 @@ public final class ImageCaptureConfiguration
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     public FlashMode getFlashMode() {
-        return getConfiguration().retrieveOption(OPTION_FLASH_MODE);
+        return getConfig().retrieveOption(OPTION_FLASH_MODE);
     }
 
     /**
@@ -119,7 +119,7 @@ public final class ImageCaptureConfiguration
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public CaptureBundle getCaptureBundle(@Nullable CaptureBundle valueIfMissing) {
-        return getConfiguration().retrieveOption(OPTION_CAPTURE_BUNDLE, valueIfMissing);
+        return getConfig().retrieveOption(OPTION_CAPTURE_BUNDLE, valueIfMissing);
     }
 
     /**
@@ -131,7 +131,7 @@ public final class ImageCaptureConfiguration
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public CaptureBundle getCaptureBundle() {
-        return getConfiguration().retrieveOption(OPTION_CAPTURE_BUNDLE);
+        return getConfig().retrieveOption(OPTION_CAPTURE_BUNDLE);
     }
 
     /**
@@ -145,7 +145,7 @@ public final class ImageCaptureConfiguration
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public CaptureProcessor getCaptureProcessor(@Nullable CaptureProcessor valueIfMissing) {
-        return getConfiguration().retrieveOption(OPTION_CAPTURE_PROCESSOR, valueIfMissing);
+        return getConfig().retrieveOption(OPTION_CAPTURE_PROCESSOR, valueIfMissing);
     }
 
     /**
@@ -157,15 +157,15 @@ public final class ImageCaptureConfiguration
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public CaptureProcessor getCaptureProcessor() {
-        return getConfiguration().retrieveOption(OPTION_CAPTURE_PROCESSOR);
+        return getConfig().retrieveOption(OPTION_CAPTURE_PROCESSOR);
     }
 
-    /** Builder for a {@link ImageCaptureConfiguration}. */
+    /** Builder for a {@link ImageCaptureConfig}. */
     public static final class Builder implements
-            UseCaseConfiguration.Builder<ImageCapture, ImageCaptureConfiguration, Builder>,
-            ImageOutputConfiguration.Builder<ImageCaptureConfiguration, Builder>,
-            CameraDeviceConfiguration.Builder<ImageCaptureConfiguration, Builder>,
-            ThreadConfiguration.Builder<ImageCaptureConfiguration, Builder> {
+            UseCaseConfig.Builder<ImageCapture, ImageCaptureConfig, Builder>,
+            ImageOutputConfig.Builder<ImageCaptureConfig, Builder>,
+            CameraDeviceConfig.Builder<ImageCaptureConfig, Builder>,
+            ThreadConfig.Builder<ImageCaptureConfig, Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
 
@@ -178,7 +178,7 @@ public final class ImageCaptureConfiguration
             mMutableConfig = mutableConfig;
 
             Class<?> oldConfigClass =
-                    mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
+                    mutableConfig.retrieveOption(TargetConfig.OPTION_TARGET_CLASS, null);
             if (oldConfigClass != null && !oldConfigClass.equals(ImageCapture.class)) {
                 throw new IllegalArgumentException(
                         "Invalid target class configuration for "
@@ -191,13 +191,13 @@ public final class ImageCaptureConfiguration
         }
 
         /**
-         * Generates a Builder from another Configuration object
+         * Generates a Builder from another Config object
          *
-         * @param configuration An immutable configuration to pre-populate this builder.
+         * @param config An immutable configuration to pre-populate this builder.
          * @return The new Builder.
          */
-        public static Builder fromConfig(ImageCaptureConfiguration configuration) {
-            return new Builder(MutableOptionsBundle.from(configuration));
+        public static Builder fromConfig(ImageCaptureConfig config) {
+            return new Builder(MutableOptionsBundle.from(config));
         }
 
         /**
@@ -207,7 +207,7 @@ public final class ImageCaptureConfiguration
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public MutableConfiguration getMutableConfiguration() {
+        public MutableConfig getMutableConfig() {
             return mMutableConfig;
         }
 
@@ -223,8 +223,8 @@ public final class ImageCaptureConfiguration
         }
 
         @Override
-        public ImageCaptureConfiguration build() {
-            return new ImageCaptureConfiguration(OptionsBundle.from(mMutableConfig));
+        public ImageCaptureConfig build() {
+            return new ImageCaptureConfig(OptionsBundle.from(mMutableConfig));
         }
 
         /**
@@ -238,7 +238,7 @@ public final class ImageCaptureConfiguration
          * @return The current Builder.
          */
         public Builder setCaptureMode(ImageCapture.CaptureMode captureMode) {
-            getMutableConfiguration().insertOption(OPTION_IMAGE_CAPTURE_MODE, captureMode);
+            getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_MODE, captureMode);
             return builder();
         }
 
@@ -249,7 +249,7 @@ public final class ImageCaptureConfiguration
          * @return The current Builder.
          */
         public Builder setFlashMode(FlashMode flashMode) {
-            getMutableConfiguration().insertOption(OPTION_FLASH_MODE, flashMode);
+            getMutableConfig().insertOption(OPTION_FLASH_MODE, flashMode);
             return builder();
         }
 
@@ -262,7 +262,7 @@ public final class ImageCaptureConfiguration
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setCaptureBundle(CaptureBundle captureBundle) {
-            getMutableConfiguration().insertOption(OPTION_CAPTURE_BUNDLE, captureBundle);
+            getMutableConfig().insertOption(OPTION_CAPTURE_BUNDLE, captureBundle);
             return builder();
         }
 
@@ -275,20 +275,20 @@ public final class ImageCaptureConfiguration
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setCaptureProcessor(CaptureProcessor captureProcessor) {
-            getMutableConfiguration().insertOption(OPTION_CAPTURE_PROCESSOR, captureProcessor);
+            getMutableConfig().insertOption(OPTION_CAPTURE_PROCESSOR, captureProcessor);
             return builder();
         }
 
-        // Start of the default implementation of Configuration.Builder
+        // Start of the default implementation of Config.Builder
         // *****************************************************************************************
 
-        // Implementations of Configuration.Builder default methods
+        // Implementations of Config.Builder default methods
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public <ValueT> Builder insertOption(Option<ValueT> opt, ValueT value) {
-            getMutableConfiguration().insertOption(opt, value);
+            getMutableConfig().insertOption(opt, value);
             return builder();
         }
 
@@ -297,20 +297,20 @@ public final class ImageCaptureConfiguration
         @Override
         @Nullable
         public <ValueT> Builder removeOption(Option<ValueT> opt) {
-            getMutableConfiguration().removeOption(opt);
+            getMutableConfig().removeOption(opt);
             return builder();
         }
 
-        // Implementations of TargetConfiguration.Builder default methods
+        // Implementations of TargetConfig.Builder default methods
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public Builder setTargetClass(Class<ImageCapture> targetClass) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_CLASS, targetClass);
+            getMutableConfig().insertOption(OPTION_TARGET_CLASS, targetClass);
 
             // If no name is set yet, then generate a unique name
-            if (null == getMutableConfiguration().retrieveOption(OPTION_TARGET_NAME, null)) {
+            if (null == getMutableConfig().retrieveOption(OPTION_TARGET_NAME, null)) {
                 String targetName = targetClass.getCanonicalName() + "-" + UUID.randomUUID();
                 setTargetName(targetName);
             }
@@ -320,29 +320,29 @@ public final class ImageCaptureConfiguration
 
         @Override
         public Builder setTargetName(String targetName) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_NAME, targetName);
+            getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
             return builder();
         }
 
-        // Implementations of CameraDeviceConfiguration.Builder default methods
+        // Implementations of CameraDeviceConfig.Builder default methods
 
         @Override
         public Builder setLensFacing(CameraX.LensFacing lensFacing) {
-            getMutableConfiguration().insertOption(OPTION_LENS_FACING, lensFacing);
+            getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return builder();
         }
 
-        // Implementations of ImageOutputConfiguration.Builder default methods
+        // Implementations of ImageOutputConfig.Builder default methods
 
         @Override
         public Builder setTargetAspectRatio(Rational aspectRatio) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
+            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
             return builder();
         }
 
         @Override
         public Builder setTargetRotation(@RotationValue int rotation) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_ROTATION, rotation);
+            getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
             return builder();
         }
 
@@ -360,7 +360,7 @@ public final class ImageCaptureConfiguration
          */
         @Override
         public Builder setTargetResolution(Size resolution) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_RESOLUTION, resolution);
+            getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION, resolution);
             return builder();
         }
 
@@ -368,33 +368,33 @@ public final class ImageCaptureConfiguration
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public Builder setMaxResolution(Size resolution) {
-            getMutableConfiguration().insertOption(OPTION_MAX_RESOLUTION, resolution);
+            getMutableConfig().insertOption(OPTION_MAX_RESOLUTION, resolution);
             return builder();
         }
 
-        // Implementations of ThreadConfiguration.Builder default methods
+        // Implementations of ThreadConfig.Builder default methods
 
         @Override
         public Builder setCallbackHandler(Handler handler) {
-            getMutableConfiguration().insertOption(OPTION_CALLBACK_HANDLER, handler);
+            getMutableConfig().insertOption(OPTION_CALLBACK_HANDLER, handler);
             return builder();
         }
 
-        // Implementations of UseCaseConfiguration.Builder default methods
+        // Implementations of UseCaseConfig.Builder default methods
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setDefaultSessionConfiguration(SessionConfiguration sessionConfig) {
-            getMutableConfiguration().insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionConfig);
+        public Builder setDefaultSessionConfig(SessionConfig sessionConfig) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionConfig);
             return builder();
         }
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setOptionUnpacker(SessionConfiguration.OptionUnpacker optionUnpacker) {
-            getMutableConfiguration().insertOption(OPTION_CONFIG_UNPACKER, optionUnpacker);
+        public Builder setOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_CONFIG_UNPACKER, optionUnpacker);
             return builder();
         }
 
@@ -402,24 +402,24 @@ public final class ImageCaptureConfiguration
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public Builder setSurfaceOccupancyPriority(int priority) {
-            getMutableConfiguration().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
             return builder();
         }
 
-        // End of the default implementation of Configuration.Builder
+        // End of the default implementation of Config.Builder
         // *****************************************************************************************
     }
 
-    // Start of the default implementation of Configuration
+    // Start of the default implementation of Config
     // *********************************************************************************************
 
-    // Implementations of Configuration.Reader default methods
+    // Implementations of Config.Reader default methods
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public boolean containsOption(Option<?> id) {
-        return getConfiguration().containsOption(id);
+        return getConfig().containsOption(id);
     }
 
     /** @hide */
@@ -427,7 +427,7 @@ public final class ImageCaptureConfiguration
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
-        return getConfiguration().retrieveOption(id);
+        return getConfig().retrieveOption(id);
     }
 
     /** @hide */
@@ -435,24 +435,24 @@ public final class ImageCaptureConfiguration
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
-        return getConfiguration().retrieveOption(id, valueIfMissing);
+        return getConfig().retrieveOption(id, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void findOptions(String idStem, OptionMatcher matcher) {
-        getConfiguration().findOptions(idStem, matcher);
+        getConfig().findOptions(idStem, matcher);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Set<Option<?>> listOptions() {
-        return getConfiguration().listOptions();
+        return getConfig().listOptions();
     }
 
-    // Implementations of TargetConfiguration default methods
+    // Implementations of TargetConfig default methods
 
     @Override
     @Nullable
@@ -485,7 +485,7 @@ public final class ImageCaptureConfiguration
         return retrieveOption(OPTION_TARGET_NAME);
     }
 
-    // Implementations of CameraDeviceConfiguration default methods
+    // Implementations of CameraDeviceConfig default methods
 
     @Override
     @Nullable
@@ -498,7 +498,7 @@ public final class ImageCaptureConfiguration
         return retrieveOption(OPTION_LENS_FACING);
     }
 
-    // Implementations of ImageOutputConfiguration default methods
+    // Implementations of ImageOutputConfig default methods
 
     @Override
     @Nullable
@@ -560,7 +560,7 @@ public final class ImageCaptureConfiguration
         return retrieveOption(OPTION_MAX_RESOLUTION);
     }
 
-    // Implementations of ThreadConfiguration default methods
+    // Implementations of ThreadConfig default methods
 
     @Override
     @Nullable
@@ -573,21 +573,20 @@ public final class ImageCaptureConfiguration
         return retrieveOption(OPTION_CALLBACK_HANDLER);
     }
 
-    // Implementations of UseCaseConfiguration default methods
+    // Implementations of UseCaseConfig default methods
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public SessionConfiguration getDefaultSessionConfiguration(
-            @Nullable SessionConfiguration valueIfMissing) {
+    public SessionConfig getDefaultSessionConfig(@Nullable SessionConfig valueIfMissing) {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public SessionConfiguration getDefaultSessionConfiguration() {
+    public SessionConfig getDefaultSessionConfig() {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG);
     }
 
@@ -595,15 +594,15 @@ public final class ImageCaptureConfiguration
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public SessionConfiguration.OptionUnpacker getOptionUnpacker(
-            @Nullable SessionConfiguration.OptionUnpacker valueIfMissing) {
+    public SessionConfig.OptionUnpacker getOptionUnpacker(
+            @Nullable SessionConfig.OptionUnpacker valueIfMissing) {
         return retrieveOption(OPTION_CONFIG_UNPACKER, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public SessionConfiguration.OptionUnpacker getOptionUnpacker() {
+    public SessionConfig.OptionUnpacker getOptionUnpacker() {
         return retrieveOption(OPTION_CONFIG_UNPACKER);
     }
 
@@ -619,7 +618,7 @@ public final class ImageCaptureConfiguration
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
     }
 
-    // End of the default implementation of Configuration
+    // End of the default implementation of Config
     // *********************************************************************************************
 
 }

@@ -21,7 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.Build;
 
 import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
+import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -46,21 +46,18 @@ public class ExtendableUseCaseConfigFactoryTest {
 
     @Test
     public void canInstallProvider_andRetrieveConfig() {
-        mFactory.installDefaultProvider(
-                FakeUseCaseConfiguration.class, new FakeUseCaseConfigurationProvider());
+        mFactory.installDefaultProvider(FakeUseCaseConfig.class, new FakeUseCaseConfigProvider());
 
-        FakeUseCaseConfiguration config = mFactory.getConfiguration(FakeUseCaseConfiguration.class,
-                null);
+        FakeUseCaseConfig config = mFactory.getConfig(FakeUseCaseConfig.class, null);
         assertThat(config).isNotNull();
         assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
     }
 
-    private static class FakeUseCaseConfigurationProvider
-            implements ConfigurationProvider<FakeUseCaseConfiguration> {
+    private static class FakeUseCaseConfigProvider implements ConfigProvider<FakeUseCaseConfig> {
 
         @Override
-        public FakeUseCaseConfiguration getConfiguration(CameraX.LensFacing lensFacing) {
-            return new FakeUseCaseConfiguration.Builder().build();
+        public FakeUseCaseConfig getConfig(CameraX.LensFacing lensFacing) {
+            return new FakeUseCaseConfig.Builder().build();
         }
     }
 }

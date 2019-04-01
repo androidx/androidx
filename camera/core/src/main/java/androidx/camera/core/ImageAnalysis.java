@@ -29,7 +29,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.Map;
@@ -58,7 +58,7 @@ public final class ImageAnalysis extends UseCase {
     final AtomicReference<Analyzer> mSubscribedAnalyzer;
     final AtomicInteger mRelativeRotation = new AtomicInteger();
     private final Handler mHandler;
-    private final ImageAnalysisConfiguration.Builder mUseCaseConfigBuilder;
+    private final ImageAnalysisConfig.Builder mUseCaseConfigBuilder;
     @Nullable
     ImageReaderProxy mImageReader;
     @Nullable
@@ -67,15 +67,14 @@ public final class ImageAnalysis extends UseCase {
     /**
      * Creates a new image analysis use case from the given configuration.
      *
-     * @param configuration for this use case instance
+     * @param config for this use case instance
      */
-    public ImageAnalysis(ImageAnalysisConfiguration configuration) {
-        super(configuration);
-        mUseCaseConfigBuilder = ImageAnalysisConfiguration.Builder.fromConfig(configuration);
+    public ImageAnalysis(ImageAnalysisConfig config) {
+        super(config);
+        mUseCaseConfigBuilder = ImageAnalysisConfig.Builder.fromConfig(config);
 
         // Get the combined configuration with defaults
-        ImageAnalysisConfiguration combinedConfig =
-                (ImageAnalysisConfiguration) getUseCaseConfiguration();
+        ImageAnalysisConfig combinedConfig = (ImageAnalysisConfig) getUseCaseConfig();
         mSubscribedAnalyzer = new AtomicReference<>();
         mHandler = combinedConfig.getCallbackHandler(null);
         if (mHandler == null) {
@@ -107,12 +106,11 @@ public final class ImageAnalysis extends UseCase {
      * @param rotation Desired rotation of the output image.
      */
     public void setTargetRotation(@RotationValue int rotation) {
-        ImageAnalysisConfiguration oldconfig =
-                (ImageAnalysisConfiguration) getUseCaseConfiguration();
-        int oldRotation = oldconfig.getTargetRotation(ImageOutputConfiguration.INVALID_ROTATION);
-        if (oldRotation == ImageOutputConfiguration.INVALID_ROTATION || oldRotation != rotation) {
+        ImageAnalysisConfig oldConfig = (ImageAnalysisConfig) getUseCaseConfig();
+        int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
+        if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
             mUseCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfiguration(mUseCaseConfigBuilder.build());
+            updateUseCaseConfig(mUseCaseConfigBuilder.build());
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
             // For now we'll just update the relative rotation value.
@@ -122,7 +120,7 @@ public final class ImageAnalysis extends UseCase {
             // Old
             // configuration lens facing should match new configuration.
             try {
-                String cameraId = CameraX.getCameraWithLensFacing(oldconfig.getLensFacing());
+                String cameraId = CameraX.getCameraWithLensFacing(oldConfig.getLensFacing());
                 tryUpdateRelativeRotation(cameraId);
             } catch (CameraInfoUnavailableException e) {
                 // Likely don't yet have permissions. This is expected if this method is called
@@ -203,11 +201,11 @@ public final class ImageAnalysis extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        ImageAnalysisConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
-                ImageAnalysisConfiguration.class, lensFacing);
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+        ImageAnalysisConfig defaults = CameraX.getDefaultUseCaseConfig(
+                ImageAnalysisConfig.class, lensFacing);
         if (defaults != null) {
-            return ImageAnalysisConfiguration.Builder.fromConfig(defaults);
+            return ImageAnalysisConfig.Builder.fromConfig(defaults);
         }
 
         return null;
@@ -222,11 +220,10 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
-        final ImageAnalysisConfiguration configuration =
-                (ImageAnalysisConfiguration) getUseCaseConfiguration();
+        final ImageAnalysisConfig config = (ImageAnalysisConfig) getUseCaseConfig();
 
         String cameraId;
-        LensFacing lensFacing = configuration.getLensFacing();
+        LensFacing lensFacing = config.getLensFacing();
         try {
             cameraId = CameraX.getCameraWithLensFacing(lensFacing);
         } catch (CameraInfoUnavailableException e) {
@@ -250,7 +247,7 @@ public final class ImageAnalysis extends UseCase {
                         resolution.getWidth(),
                         resolution.getHeight(),
                         getImageFormat(),
-                        configuration.getImageQueueDepth(),
+                        config.getImageQueueDepth(),
                         mHandler);
 
         tryUpdateRelativeRotation(cameraId);
@@ -260,8 +257,8 @@ public final class ImageAnalysis extends UseCase {
                     public void onImageAvailable(ImageReaderProxy imageReader) {
                         Analyzer analyzer = mSubscribedAnalyzer.get();
                         try (ImageProxy image =
-                                     configuration
-                                             .getImageReaderMode(configuration.getImageReaderMode())
+                                     config
+                                             .getImageReaderMode(config.getImageReaderMode())
                                              .equals(ImageReaderMode.ACQUIRE_NEXT_IMAGE)
                                              ? imageReader.acquireNextImage()
                                              : imageReader.acquireLatestImage()) {
@@ -278,8 +275,7 @@ public final class ImageAnalysis extends UseCase {
                 },
                 mHandler);
 
-        SessionConfiguration.Builder sessionConfigBuilder =
-                SessionConfiguration.Builder.createFrom(configuration);
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
         mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
 
@@ -291,14 +287,13 @@ public final class ImageAnalysis extends UseCase {
     }
 
     private void tryUpdateRelativeRotation(String cameraId) {
-        ImageOutputConfiguration configuration =
-                (ImageOutputConfiguration) getUseCaseConfiguration();
+        ImageOutputConfig config = (ImageOutputConfig) getUseCaseConfig();
         // Get the relative rotation or default to 0 if the camera info is unavailable
         try {
             CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
             mRelativeRotation.set(
                     cameraInfo.getSensorRotationDegrees(
-                            configuration.getTargetRotation(Surface.ROTATION_0)));
+                            config.getTargetRotation(Surface.ROTATION_0)));
         } catch (CameraInfoUnavailableException e) {
             Log.e(TAG, "Unable to retrieve camera sensor orientation.", e);
         }
@@ -333,7 +328,7 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param image           to analyze
          * @param rotationDegrees The rotation required to match the rotation given by
-         *                        ImageOutputConfiguration#getTargetRotation(int).
+         *                        ImageOutputConfig#getTargetRotation(int).
          */
         void analyze(ImageProxy image, int rotationDegrees);
     }
@@ -347,8 +342,7 @@ public final class ImageAnalysis extends UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public static final class Defaults
-            implements ConfigurationProvider<ImageAnalysisConfiguration> {
+    public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
         private static final ImageReaderMode DEFAULT_IMAGE_READER_MODE =
                 ImageReaderMode.ACQUIRE_NEXT_IMAGE;
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
@@ -357,11 +351,11 @@ public final class ImageAnalysis extends UseCase {
         private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 1;
 
-        private static final ImageAnalysisConfiguration DEFAULT_CONFIG;
+        private static final ImageAnalysisConfig DEFAULT_CONFIG;
 
         static {
-            ImageAnalysisConfiguration.Builder builder =
-                    new ImageAnalysisConfiguration.Builder()
+            ImageAnalysisConfig.Builder builder =
+                    new ImageAnalysisConfig.Builder()
                             .setImageReaderMode(DEFAULT_IMAGE_READER_MODE)
                             .setCallbackHandler(DEFAULT_HANDLER)
                             .setImageQueueDepth(DEFAULT_IMAGE_QUEUE_DEPTH)
@@ -373,7 +367,7 @@ public final class ImageAnalysis extends UseCase {
         }
 
         @Override
-        public ImageAnalysisConfiguration getConfiguration(LensFacing lensFacing) {
+        public ImageAnalysisConfig getConfig(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
         }
     }

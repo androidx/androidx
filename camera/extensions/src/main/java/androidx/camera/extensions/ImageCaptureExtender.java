@@ -28,7 +28,7 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CaptureBundle;
 import androidx.camera.core.CaptureProcessor;
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -39,10 +39,10 @@ import java.util.List;
  */
 public abstract class ImageCaptureExtender {
     private static final String TAG = "ImageCaptureExtender";
-    private final ImageCaptureConfiguration.Builder mBuilder;
+    private final ImageCaptureConfig.Builder mBuilder;
     protected ImageCaptureExtender mImpl;
 
-    public ImageCaptureExtender(ImageCaptureConfiguration.Builder builder) {
+    public ImageCaptureExtender(ImageCaptureConfig.Builder builder) {
         mBuilder = builder;
     }
 
@@ -50,8 +50,7 @@ public abstract class ImageCaptureExtender {
         try {
             final Class<?> imageCaptureClass = Class.forName(className);
             Constructor<?> imageCaptureConstructor =
-                    imageCaptureClass.getDeclaredConstructor(
-                            ImageCaptureConfiguration.Builder.class);
+                    imageCaptureClass.getDeclaredConstructor(ImageCaptureConfig.Builder.class);
             mImpl = (ImageCaptureExtender) imageCaptureConstructor.newInstance(mBuilder);
         } catch (ClassNotFoundException
                 | NoSuchMethodException
@@ -70,8 +69,7 @@ public abstract class ImageCaptureExtender {
     }
 
     /**
-     * Indicates whether extension function can support with
-     * {@link ImageCaptureConfiguration.Builder}
+     * Indicates whether extension function can support with {@link ImageCaptureConfig.Builder}
      *
      * @return True if the specific extension function is supported for the camera device.
      */

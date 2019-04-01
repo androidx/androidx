@@ -27,8 +27,8 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.Configuration;
-import androidx.camera.core.MutableConfiguration;
+import androidx.camera.core.Config;
+import androidx.camera.core.MutableConfig;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.OptionsBundle;
 
@@ -36,7 +36,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /** Configuration options related to the {@link android.hardware.camera2} APIs. */
-public final class Camera2Configuration implements Configuration.Reader {
+public final class Camera2Config implements Config.Reader {
 
     static final String CAPTURE_REQUEST_ID_STEM = "camera2.captureRequest.option.";
     static final Option<Integer> TEMPLATE_TYPE_OPTION =
@@ -49,20 +49,20 @@ public final class Camera2Configuration implements Configuration.Reader {
                     CameraCaptureSession.StateCallback.class);
     static final Option<CaptureCallback> SESSION_CAPTURE_CALLBACK_OPTION =
             Option.create("camera2.cameraCaptureSession.captureCallback", CaptureCallback.class);
-    private final Configuration mConfig;
+    private final Config mConfig;
 
     /**
-     * Creates a Camera2Configuration for reading Camera2 options from the given config.
+     * Creates a Camera2Config for reading Camera2 options from the given config.
      *
      * @param config The config that potentially contains Camera2 options.
      */
-    public Camera2Configuration(Configuration config) {
+    public Camera2Config(Config config) {
         mConfig = config;
     }
 
-    // Unforunately, we can't get the Class<T> from the CaptureRequest.Key, so we're forced to erase
-    // the type. This shouldn't be a problem as long as we are only using these options within the
-    // Camera2Configuration and Camera2Configuration.Builder classes.
+    // Unfortunately, we can't get the Class<T> from the CaptureRequest.Key, so we're forced to
+    // erase the type. This shouldn't be a problem as long as we are only using these options
+    // within the Camera2Config and Camera2Config.Builder classes.
     static Option<Object> createCaptureRequestOption(CaptureRequest.Key<?> key) {
         return Option.create(CAPTURE_REQUEST_ID_STEM + key.getName(), Object.class, key);
     }
@@ -80,16 +80,15 @@ public final class Camera2Configuration implements Configuration.Reader {
             CaptureRequest.Key<ValueT> key, @Nullable ValueT valueIfMissing) {
         @SuppressWarnings(
                 "unchecked") // Type should have been only set via Builder#setCaptureRequestOption()
-                Option<ValueT> opt =
-                (Option<ValueT>) Camera2Configuration.createCaptureRequestOption(key);
-        return getConfiguration().retrieveOption(opt, valueIfMissing);
+                Option<ValueT> opt = (Option<ValueT>) Camera2Config.createCaptureRequestOption(key);
+        return getConfig().retrieveOption(opt, valueIfMissing);
     }
 
     /** Returns all capture request options contained in this configuration. */
     Set<Option<?>> getCaptureRequestOptions() {
         final Set<Option<?>> optionSet = new HashSet<>();
         findOptions(
-                Camera2Configuration.CAPTURE_REQUEST_ID_STEM,
+                Camera2Config.CAPTURE_REQUEST_ID_STEM,
                 new OptionMatcher() {
                     @Override
                     public boolean onOptionMatched(Option<?> option) {
@@ -111,7 +110,7 @@ public final class Camera2Configuration implements Configuration.Reader {
      * configuration.
      */
     int getCaptureRequestTemplate(int valueIfMissing) {
-        return getConfiguration().retrieveOption(TEMPLATE_TYPE_OPTION, valueIfMissing);
+        return getConfig().retrieveOption(TEMPLATE_TYPE_OPTION, valueIfMissing);
     }
 
     /**
@@ -123,7 +122,7 @@ public final class Camera2Configuration implements Configuration.Reader {
      */
     public CameraDevice.StateCallback getDeviceStateCallback(
             CameraDevice.StateCallback valueIfMissing) {
-        return getConfiguration().retrieveOption(DEVICE_STATE_CALLBACK_OPTION, valueIfMissing);
+        return getConfig().retrieveOption(DEVICE_STATE_CALLBACK_OPTION, valueIfMissing);
     }
 
     /**
@@ -135,7 +134,7 @@ public final class Camera2Configuration implements Configuration.Reader {
      */
     public CameraCaptureSession.StateCallback getSessionStateCallback(
             CameraCaptureSession.StateCallback valueIfMissing) {
-        return getConfiguration().retrieveOption(SESSION_STATE_CALLBACK_OPTION, valueIfMissing);
+        return getConfig().retrieveOption(SESSION_STATE_CALLBACK_OPTION, valueIfMissing);
     }
 
     // Option Declarations:
@@ -150,32 +149,32 @@ public final class Camera2Configuration implements Configuration.Reader {
      */
     public CameraCaptureSession.CaptureCallback getSessionCaptureCallback(
             CameraCaptureSession.CaptureCallback valueIfMissing) {
-        return getConfiguration().retrieveOption(SESSION_CAPTURE_CALLBACK_OPTION, valueIfMissing);
+        return getConfig().retrieveOption(SESSION_CAPTURE_CALLBACK_OPTION, valueIfMissing);
     }
 
     /**
-     * Returns the underlying immutable {@link Configuration} object.
+     * Returns the underlying immutable {@link Config} object.
      *
-     * @return The underlying {@link Configuration} object.
+     * @return The underlying {@link Config} object.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public Configuration getConfiguration() {
+    public Config getConfig() {
         return mConfig;
     }
 
-    /** Extends a {@link Configuration.Builder} to add Camera2 options. */
+    /** Extends a {@link Config.Builder} to add Camera2 options. */
     public static final class Extender {
 
-        Configuration.Builder<?, ?> mBaseBuilder;
+        Config.Builder<?, ?> mBaseBuilder;
 
         /**
          * Creates an Extender that can be used to add Camera2 options to another Builder.
          *
          * @param baseBuilder The builder being extended.
          */
-        public Extender(Configuration.Builder<?, ?> baseBuilder) {
+        public Extender(Config.Builder<?, ?> baseBuilder) {
             mBaseBuilder = baseBuilder;
         }
 
@@ -190,7 +189,7 @@ public final class Camera2Configuration implements Configuration.Reader {
         public <ValueT> Extender setCaptureRequestOption(
                 CaptureRequest.Key<ValueT> key, ValueT value) {
             // Reify the type so we can obtain the class
-            Option<Object> opt = Camera2Configuration.createCaptureRequestOption(key);
+            Option<Object> opt = Camera2Config.createCaptureRequestOption(key);
             mBaseBuilder.insertOption(opt, value);
             return this;
         }
@@ -276,22 +275,21 @@ public final class Camera2Configuration implements Configuration.Reader {
     }
 
     /**
-     * Builder for creating {@link Camera2Configuration} instance.
+     * Builder for creating {@link Camera2Config} instance.
      *
-     * <p>Use {@link Builder} for creating {@link Configuration} which contains camera2 options
-     * only. And use {@link Extender} to add Camera2 options on existing other {@link
-     * Configuration.Builder}.
+     * <p>Use {@link Builder} for creating {@link Config} which contains camera2 options only.
+     * And use {@link Extender} to add Camera2 options on existing other {@link
+     * Config.Builder}.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public static final class Builder implements
-            Configuration.Builder<Camera2Configuration, Builder> {
+    public static final class Builder implements Config.Builder<Camera2Config, Builder> {
 
         private final MutableOptionsBundle mMutableOptionsBundle = MutableOptionsBundle.create();
 
         @Override
-        public MutableConfiguration getMutableConfiguration() {
+        public MutableConfig getMutableConfig() {
             return mMutableOptionsBundle;
         }
 
@@ -305,36 +303,36 @@ public final class Camera2Configuration implements Configuration.Reader {
          */
         public <ValueT> Builder setCaptureRequestOption(
                 CaptureRequest.Key<ValueT> key, ValueT value) {
-            Option<Object> opt = Camera2Configuration.createCaptureRequestOption(key);
+            Option<Object> opt = Camera2Config.createCaptureRequestOption(key);
             insertOption(opt, value);
             return this;
         }
 
-        /** Inserts options from other {@link Configuration} object. */
-        public Builder insertAllOptions(Configuration configuration) {
-            for (Option<?> option : configuration.listOptions()) {
+        /** Inserts options from other {@link Config} object. */
+        public Builder insertAllOptions(Config config) {
+            for (Option<?> option : config.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
                         Option<Object> objectOpt = (Option<Object>) option;
-                insertOption(objectOpt, configuration.retrieveOption(objectOpt));
+                insertOption(objectOpt, config.retrieveOption(objectOpt));
             }
             return this;
         }
 
         @Override
-        public Camera2Configuration build() {
-            return new Camera2Configuration(OptionsBundle.from(mMutableOptionsBundle));
+        public Camera2Config build() {
+            return new Camera2Config(OptionsBundle.from(mMutableOptionsBundle));
         }
 
-        // Start of the default implementation of Configuration.Builder
+        // Start of the default implementation of Config.Builder
         // *****************************************************************************************
 
-        // Implementations of Configuration.Builder default methods
+        // Implementations of Config.Builder default methods
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public <ValueT> Builder insertOption(Option<ValueT> opt, ValueT value) {
-            getMutableConfiguration().insertOption(opt, value);
+            getMutableConfig().insertOption(opt, value);
             return builder();
         }
 
@@ -343,24 +341,24 @@ public final class Camera2Configuration implements Configuration.Reader {
         @Override
         @Nullable
         public <ValueT> Builder removeOption(Option<ValueT> opt) {
-            getMutableConfiguration().removeOption(opt);
+            getMutableConfig().removeOption(opt);
             return builder();
         }
 
-        // End of the default implementation of Configuration.Builder
+        // End of the default implementation of Config.Builder
         // *****************************************************************************************
     }
 
-    // Start of the default implementation of Configuration
+    // Start of the default implementation of Config
     // *********************************************************************************************
 
-    // Implementations of Configuration.Reader default methods
+    // Implementations of Config.Reader default methods
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public boolean containsOption(Option<?> id) {
-        return getConfiguration().containsOption(id);
+        return getConfig().containsOption(id);
     }
 
     /** @hide */
@@ -368,7 +366,7 @@ public final class Camera2Configuration implements Configuration.Reader {
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
-        return getConfiguration().retrieveOption(id);
+        return getConfig().retrieveOption(id);
     }
 
     /** @hide */
@@ -376,23 +374,23 @@ public final class Camera2Configuration implements Configuration.Reader {
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
-        return getConfiguration().retrieveOption(id, valueIfMissing);
+        return getConfig().retrieveOption(id, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void findOptions(String idStem, OptionMatcher matcher) {
-        getConfiguration().findOptions(idStem, matcher);
+        getConfig().findOptions(idStem, matcher);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Set<Option<?>> listOptions() {
-        return getConfiguration().listOptions();
+        return getConfig().listOptions();
     }
 
-    // End of the default implementation of Configuration
+    // End of the default implementation of Config
     // *********************************************************************************************
 }

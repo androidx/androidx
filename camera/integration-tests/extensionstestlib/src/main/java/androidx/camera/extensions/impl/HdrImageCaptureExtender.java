@@ -24,7 +24,7 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.camera.core.CaptureProcessor;
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageProxyBundle;
 import androidx.camera.extensions.CaptureStage;
@@ -52,7 +52,7 @@ public final class HdrImageCaptureExtender extends ImageCaptureExtender {
     private static final int NORMAL_STAGE_ID = 1;
     private static final int OVER_STAGE_ID = 2;
 
-    public HdrImageCaptureExtender(ImageCaptureConfiguration.Builder builder) {
+    public HdrImageCaptureExtender(ImageCaptureConfig.Builder builder) {
         super(builder);
     }
 

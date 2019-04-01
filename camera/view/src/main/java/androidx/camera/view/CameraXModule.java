@@ -42,12 +42,12 @@ import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedListener;
 import androidx.camera.core.ImageCapture.OnImageSavedListener;
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedListener;
-import androidx.camera.core.VideoCaptureConfiguration;
+import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.view.CameraView.CaptureMode;
 import androidx.camera.view.CameraView.Quality;
 import androidx.lifecycle.Lifecycle;
@@ -74,9 +74,9 @@ final class CameraXModule {
     private static final Rational ASPECT_RATIO_3_4 = new Rational(3, 4);
 
     private final CameraManager mCameraManager;
-    private final PreviewConfiguration.Builder mPreviewConfigBuilder;
-    private final VideoCaptureConfiguration.Builder mVideoCaptureConfigBuilder;
-    private final ImageCaptureConfiguration.Builder mImageCaptureConfigBuilder;
+    private final PreviewConfig.Builder mPreviewConfigBuilder;
+    private final VideoCaptureConfig.Builder mVideoCaptureConfigBuilder;
+    private final ImageCaptureConfig.Builder mImageCaptureConfigBuilder;
     private final CameraView mCameraView;
     final AtomicBoolean mVideoIsRecording = new AtomicBoolean(false);
     private CameraView.Quality mQuality = CameraView.Quality.HIGH;
@@ -115,13 +115,13 @@ final class CameraXModule {
 
         mCameraManager = (CameraManager) view.getContext().getSystemService(Context.CAMERA_SERVICE);
 
-        mPreviewConfigBuilder = new PreviewConfiguration.Builder().setTargetName("Preview");
+        mPreviewConfigBuilder = new PreviewConfig.Builder().setTargetName("Preview");
 
         mImageCaptureConfigBuilder =
-                new ImageCaptureConfiguration.Builder().setTargetName("ImageCapture");
+                new ImageCaptureConfig.Builder().setTargetName("ImageCapture");
 
         mVideoCaptureConfigBuilder =
-                new VideoCaptureConfiguration.Builder().setTargetName("VideoCapture");
+                new VideoCaptureConfig.Builder().setTargetName("VideoCapture");
     }
 
     /**

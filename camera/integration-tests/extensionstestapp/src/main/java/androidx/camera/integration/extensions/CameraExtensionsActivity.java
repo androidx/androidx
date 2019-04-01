@@ -35,9 +35,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.extensions.BokehImageCaptureExtender;
 import androidx.camera.extensions.BokehPreviewExtender;
@@ -91,8 +91,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
             CameraX.unbind(mPreview);
         }
 
-        PreviewConfiguration.Builder builder =
-                new PreviewConfiguration.Builder()
+        PreviewConfig.Builder builder =
+                new PreviewConfig.Builder()
                         .setLensFacing(LensFacing.BACK)
                         .setTargetName("Preview");
 
@@ -179,8 +179,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     void enableImageCapture(ImageCaptureType imageCaptureType) {
         mCurrentImageCaptureType = imageCaptureType;
-        ImageCaptureConfiguration.Builder builder =
-                new ImageCaptureConfiguration.Builder()
+        ImageCaptureConfig.Builder builder =
+                new ImageCaptureConfig.Builder()
                         .setLensFacing(LensFacing.BACK)
                         .setTargetName("ImageCapture");
         Button toggleButton = findViewById(R.id.PhotoToggle);

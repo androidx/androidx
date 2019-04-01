@@ -37,14 +37,14 @@ import java.util.Set;
 /**
  * Configurations needed for a capture session.
  *
- * <p>The SessionConfiguration contains all the {@link android.hardware.camera2} parameters that are
+ * <p>The SessionConfig contains all the {@link android.hardware.camera2} parameters that are
  * required to initialize a {@link android.hardware.camera2.CameraCaptureSession} and issue a {@link
  * CaptureRequest}.
  *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class SessionConfiguration {
+public final class SessionConfig {
 
     /** The set of {@link Surface} that data from the camera will be put into. */
     private final List<DeferrableSurface> mSurfaces;
@@ -53,37 +53,37 @@ public final class SessionConfiguration {
     /** The state callback for a {@link CameraCaptureSession}. */
     private final CameraCaptureSession.StateCallback mSessionStateCallback;
     /** The configuration for building the {@link CaptureRequest}. */
-    private final CaptureRequestConfiguration mCaptureRequestConfiguration;
+    private final CaptureRequestConfig mCaptureRequestConfig;
 
     /**
-     * Private constructor for a SessionConfiguration.
+     * Private constructor for a SessionConfig.
      *
-     * <p>In practice, the {@link SessionConfiguration.BaseBuilder} will be used to construct a
-     * SessionConfiguration.
+     * <p>In practice, the {@link SessionConfig.BaseBuilder} will be used to construct a
+     * SessionConfig.
      *
-     * @param surfaces                    The set of {@link Surface} where data will be put into.
-     * @param deviceStateCallback         The state callback for a {@link CameraDevice}.
-     * @param sessionStateCallback        The state callback for a {@link CameraCaptureSession}.
-     * @param captureRequestConfiguration The configuration for building the {@link CaptureRequest}.
+     * @param surfaces             The set of {@link Surface} where data will be put into.
+     * @param deviceStateCallback  The state callback for a {@link CameraDevice}.
+     * @param sessionStateCallback The state callback for a {@link CameraCaptureSession}.
+     * @param captureRequestConfig The configuration for building the {@link CaptureRequest}.
      */
-    SessionConfiguration(
+    SessionConfig(
             List<DeferrableSurface> surfaces,
             StateCallback deviceStateCallback,
             CameraCaptureSession.StateCallback sessionStateCallback,
-            CaptureRequestConfiguration captureRequestConfiguration) {
+            CaptureRequestConfig captureRequestConfig) {
         mSurfaces = surfaces;
         mDeviceStateCallback = deviceStateCallback;
         mSessionStateCallback = sessionStateCallback;
-        mCaptureRequestConfiguration = captureRequestConfiguration;
+        mCaptureRequestConfig = captureRequestConfig;
     }
 
     /** Returns an instance of a session configuration with minimal configurations. */
-    public static SessionConfiguration defaultEmptySessionConfiguration() {
-        return new SessionConfiguration(
+    public static SessionConfig defaultEmptySessionConfig() {
+        return new SessionConfig(
                 new ArrayList<DeferrableSurface>(),
                 CameraDeviceStateCallbacks.createNoOpCallback(),
                 CameraCaptureSessionStateCallbacks.createNoOpCallback(),
-                new CaptureRequestConfiguration.Builder().build());
+                new CaptureRequestConfig.Builder().build());
     }
 
     public List<DeferrableSurface> getSurfaces() {
@@ -91,15 +91,15 @@ public final class SessionConfiguration {
     }
 
     public Map<Key<?>, CaptureRequestParameter<?>> getCameraCharacteristics() {
-        return mCaptureRequestConfiguration.getCameraCharacteristics();
+        return mCaptureRequestConfig.getCameraCharacteristics();
     }
 
-    public Configuration getImplementationOptions() {
-        return mCaptureRequestConfiguration.getImplementationOptions();
+    public Config getImplementationOptions() {
+        return mCaptureRequestConfig.getImplementationOptions();
     }
 
     public int getTemplateType() {
-        return mCaptureRequestConfiguration.getTemplateType();
+        return mCaptureRequestConfig.getTemplateType();
     }
 
     public CameraDevice.StateCallback getDeviceStateCallback() {
@@ -111,17 +111,17 @@ public final class SessionConfiguration {
     }
 
     public CameraCaptureCallback getCameraCaptureCallback() {
-        return mCaptureRequestConfiguration.getCameraCaptureCallback();
+        return mCaptureRequestConfig.getCameraCaptureCallback();
     }
 
-    public CaptureRequestConfiguration getCaptureRequestConfiguration() {
-        return mCaptureRequestConfiguration;
+    public CaptureRequestConfig getCaptureRequestConfig() {
+        return mCaptureRequestConfig;
     }
 
     /**
-     * Interface for unpacking a configuration into a SessionConfiguration.Builder
+     * Interface for unpacking a configuration into a SessionConfig.Builder
      *
-     * <p>TODO(b/120949879): This will likely be removed once SessionConfiguration is refactored to
+     * <p>TODO(b/120949879): This will likely be removed once SessionConfig is refactored to
      * remove camera2 dependencies.
      *
      * @hide
@@ -134,19 +134,19 @@ public final class SessionConfiguration {
          * @param config the set of options to apply
          * @param builder the builder on which to apply the options
          */
-        void unpack(UseCaseConfiguration<?> config, SessionConfiguration.Builder builder);
+        void unpack(UseCaseConfig<?> config, SessionConfig.Builder builder);
     }
 
     /**
-     * Base builder for easy modification/rebuilding of a {@link SessionConfiguration}.
+     * Base builder for easy modification/rebuilding of a {@link SessionConfig}.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     static class BaseBuilder {
         protected final Set<DeferrableSurface> mSurfaces = new HashSet<>();
-        protected final CaptureRequestConfiguration.Builder mCaptureRequestConfigBuilder =
-                new CaptureRequestConfiguration.Builder();
+        protected final CaptureRequestConfig.Builder mCaptureRequestConfigBuilder =
+                new CaptureRequestConfig.Builder();
         protected CameraDevice.StateCallback mDeviceStateCallback =
                 CameraDeviceStateCallbacks.createNoOpCallback();
         protected CameraCaptureSession.StateCallback mSessionStateCallback =
@@ -154,34 +154,34 @@ public final class SessionConfiguration {
     }
 
     /**
-     * Builder for easy modification/rebuilding of a {@link SessionConfiguration}.
+     * Builder for easy modification/rebuilding of a {@link SessionConfig}.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static class Builder extends BaseBuilder {
         /**
-         * Creates a {@link Builder} from a {@link UseCaseConfiguration}.
+         * Creates a {@link Builder} from a {@link UseCaseConfig}.
          *
          * <p>Populates the builder with all the properties defined in the base configuration.
          */
-        public static Builder createFrom(UseCaseConfiguration<?> configuration) {
-            OptionUnpacker unpacker = configuration.getOptionUnpacker(null);
+        public static Builder createFrom(UseCaseConfig<?> config) {
+            OptionUnpacker unpacker = config.getOptionUnpacker(null);
             if (unpacker == null) {
                 throw new IllegalStateException(
                         "Implementation is missing option unpacker for "
-                                + configuration.getTargetName(configuration.toString()));
+                                + config.getTargetName(config.toString()));
             }
 
             Builder builder = new Builder();
 
             // Unpack the configuration into this builder
-            unpacker.unpack(configuration, builder);
+            unpacker.unpack(config, builder);
             return builder;
         }
 
         /**
-         * Set the template characteristics of the SessionConfiguration.
+         * Set the template characteristics of the SessionConfig.
          *
          * @param templateType Template constant that must match those defined by {@link
          *                     CameraDevice}
@@ -243,17 +243,17 @@ public final class SessionConfiguration {
             mCaptureRequestConfigBuilder.addCharacteristics(characteristics);
         }
 
-        /** Set the {@link Configuration} for options that are implementation specific. */
-        public void setImplementationOptions(Configuration config) {
+        /** Set the {@link Config} for options that are implementation specific. */
+        public void setImplementationOptions(Config config) {
             mCaptureRequestConfigBuilder.setImplementationOptions(config);
         }
 
         /**
-         * Builds an instance of a SessionConfiguration that has all the combined parameters of the
-         * SessionConfiguration that have been added to the Builder.
+         * Builds an instance of a SessionConfig that has all the combined parameters of the
+         * SessionConfig that have been added to the Builder.
          */
-        public SessionConfiguration build() {
-            return new SessionConfiguration(
+        public SessionConfig build() {
+            return new SessionConfig(
                     new ArrayList<>(mSurfaces),
                     mDeviceStateCallback,
                     mSessionStateCallback,
@@ -262,8 +262,8 @@ public final class SessionConfiguration {
     }
 
     /**
-     * Builder for combining multiple instances of {@link SessionConfiguration}. This will check if
-     * all the parameters for the {@link SessionConfiguration} are compatible with each other
+     * Builder for combining multiple instances of {@link SessionConfig}. This will check if all
+     * the parameters for the {@link SessionConfig} are compatible with each other
      *
      * @hide
      */
@@ -278,48 +278,47 @@ public final class SessionConfiguration {
         private boolean mTemplateSet = false;
 
         /**
-         * Add the SessionConfiguration to the set of SessionConfiguration that have been aggregated
-         * by the ValidatingBuilder
+         * Add the SessionConfig to the set of SessionConfig that have been aggregated by the
+         * ValidatingBuilder
          */
-        public void add(SessionConfiguration sessionConfiguration) {
-            CaptureRequestConfiguration captureRequestConfiguration =
-                    sessionConfiguration.getCaptureRequestConfiguration();
+        public void add(SessionConfig sessionConfig) {
+            CaptureRequestConfig captureRequestConfig = sessionConfig.getCaptureRequestConfig();
 
             // Check template
             if (!mTemplateSet) {
                 mCaptureRequestConfigBuilder.setTemplateType(
-                        captureRequestConfiguration.getTemplateType());
+                        captureRequestConfig.getTemplateType());
                 mTemplateSet = true;
             } else if (mCaptureRequestConfigBuilder.getTemplateType()
-                    != captureRequestConfiguration.getTemplateType()) {
+                    != captureRequestConfig.getTemplateType()) {
                 String errorMessage =
                         "Invalid configuration due to template type: "
                                 + mCaptureRequestConfigBuilder.getTemplateType()
                                 + " != "
-                                + captureRequestConfiguration.getTemplateType();
+                                + captureRequestConfig.getTemplateType();
                 Log.d(TAG, errorMessage);
                 mValid = false;
             }
 
             // Check device state callback
-            mDeviceStateCallbacks.add(sessionConfiguration.getDeviceStateCallback());
+            mDeviceStateCallbacks.add(sessionConfig.getDeviceStateCallback());
 
             // Check session state callback
-            mSessionStateCallbacks.add(sessionConfiguration.getSessionStateCallback());
+            mSessionStateCallbacks.add(sessionConfig.getSessionStateCallback());
 
             // Check camera capture callback
-            mCameraCaptureCallbacks.add(captureRequestConfiguration.getCameraCaptureCallback());
+            mCameraCaptureCallbacks.add(captureRequestConfig.getCameraCaptureCallback());
 
             // Check surfaces
-            mSurfaces.addAll(sessionConfiguration.getSurfaces());
+            mSurfaces.addAll(sessionConfig.getSurfaces());
 
             // Check capture request surfaces
             mCaptureRequestConfigBuilder
                     .getSurfaces()
-                    .addAll(captureRequestConfiguration.getSurfaces());
+                    .addAll(captureRequestConfig.getSurfaces());
 
             mCaptureRequestConfigBuilder.addImplementationOptions(
-                    captureRequestConfiguration.getImplementationOptions());
+                    captureRequestConfig.getImplementationOptions());
 
             if (!mSurfaces.containsAll(mCaptureRequestConfigBuilder.getSurfaces())) {
                 String errorMessage =
@@ -331,7 +330,7 @@ public final class SessionConfiguration {
 
             // Check characteristics
             for (Map.Entry<Key<?>, CaptureRequestParameter<?>> entry :
-                    captureRequestConfiguration.getCameraCharacteristics().entrySet()) {
+                    captureRequestConfig.getCameraCharacteristics().entrySet()) {
                 Key<?> addedKey = entry.getKey();
                 if (mCaptureRequestConfigBuilder.getCharacteristic().containsKey(entry.getKey())) {
                     // value is equal
@@ -355,22 +354,22 @@ public final class SessionConfiguration {
             }
         }
 
-        /** Check if the set of SessionConfiguration that have been combined are valid */
+        /** Check if the set of SessionConfig that have been combined are valid */
         public boolean isValid() {
             return mTemplateSet && mValid;
         }
 
         /**
-         * Builds an instance of a SessionConfiguration that has all the combined parameters of the
-         * SessionConfiguration that have been added to the ValidatingBuilder.
+         * Builds an instance of a SessionConfig that has all the combined parameters of the
+         * SessionConfig that have been added to the ValidatingBuilder.
          */
-        public SessionConfiguration build() {
+        public SessionConfig build() {
             if (!mValid) {
                 throw new IllegalArgumentException("Unsupported session configuration combination");
             }
             mCaptureRequestConfigBuilder.setCameraCaptureCallback(
                     CameraCaptureCallbacks.createComboCallback(mCameraCaptureCallbacks));
-            return new SessionConfiguration(
+            return new SessionConfig(
                     new ArrayList<>(mSurfaces),
                     CameraDeviceStateCallbacks.createComboCallback(mDeviceStateCallbacks),
                     CameraCaptureSessionStateCallbacks.createComboCallback(mSessionStateCallbacks),

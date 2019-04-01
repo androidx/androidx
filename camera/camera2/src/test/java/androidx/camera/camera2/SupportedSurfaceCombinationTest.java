@@ -33,21 +33,21 @@ import android.util.Rational;
 import android.util.Size;
 import android.view.WindowManager;
 
-import androidx.camera.core.AppConfiguration;
+import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageFormatConstants;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.SurfaceCombination;
-import androidx.camera.core.SurfaceConfiguration;
-import androidx.camera.core.SurfaceConfiguration.ConfigurationSize;
-import androidx.camera.core.SurfaceConfiguration.ConfigurationType;
+import androidx.camera.core.SurfaceConfig;
+import androidx.camera.core.SurfaceConfig.ConfigSize;
+import androidx.camera.core.SurfaceConfig.ConfigType;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCaptureConfiguration;
+import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.testing.StreamConfigurationMapUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
@@ -139,8 +139,7 @@ public final class SupportedSurfaceCombinationTest {
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    supportedSurfaceCombination.checkSupported(
-                            combination.getSurfaceConfigurationList());
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
             assertTrue(isSupported);
         }
     }
@@ -155,7 +154,7 @@ public final class SupportedSurfaceCombinationTest {
                 supportedSurfaceCombination.getLegacySupportedCombinationList();
 
         boolean isSupported =
-                isAllSubConfigurationListSupported(supportedSurfaceCombination, combinationList);
+                isAllSubConfigListSupported(supportedSurfaceCombination, combinationList);
         assertTrue(isSupported);
     }
 
@@ -170,8 +169,7 @@ public final class SupportedSurfaceCombinationTest {
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    supportedSurfaceCombination.checkSupported(
-                            combination.getSurfaceConfigurationList());
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
     }
@@ -187,8 +185,7 @@ public final class SupportedSurfaceCombinationTest {
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    supportedSurfaceCombination.checkSupported(
-                            combination.getSurfaceConfigurationList());
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
     }
@@ -204,8 +201,7 @@ public final class SupportedSurfaceCombinationTest {
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    supportedSurfaceCombination.checkSupported(
-                            combination.getSurfaceConfigurationList());
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
     }
@@ -221,8 +217,7 @@ public final class SupportedSurfaceCombinationTest {
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    supportedSurfaceCombination.checkSupported(
-                            combination.getSurfaceConfigurationList());
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
             assertTrue(isSupported);
         }
     }
@@ -237,7 +232,7 @@ public final class SupportedSurfaceCombinationTest {
                 supportedSurfaceCombination.getLimitedSupportedCombinationList();
 
         boolean isSupported =
-                isAllSubConfigurationListSupported(supportedSurfaceCombination, combinationList);
+                isAllSubConfigListSupported(supportedSurfaceCombination, combinationList);
         assertTrue(isSupported);
     }
 
@@ -252,8 +247,7 @@ public final class SupportedSurfaceCombinationTest {
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    supportedSurfaceCombination.checkSupported(
-                            combination.getSurfaceConfigurationList());
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
     }
@@ -269,8 +263,7 @@ public final class SupportedSurfaceCombinationTest {
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    supportedSurfaceCombination.checkSupported(
-                            combination.getSurfaceConfigurationList());
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
     }
@@ -286,8 +279,7 @@ public final class SupportedSurfaceCombinationTest {
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    supportedSurfaceCombination.checkSupported(
-                            combination.getSurfaceConfigurationList());
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
             assertTrue(isSupported);
         }
     }
@@ -302,7 +294,7 @@ public final class SupportedSurfaceCombinationTest {
                 supportedSurfaceCombination.getFullSupportedCombinationList();
 
         boolean isSupported =
-                isAllSubConfigurationListSupported(supportedSurfaceCombination, combinationList);
+                isAllSubConfigListSupported(supportedSurfaceCombination, combinationList);
         assertTrue(isSupported);
     }
 
@@ -317,8 +309,7 @@ public final class SupportedSurfaceCombinationTest {
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    supportedSurfaceCombination.checkSupported(
-                            combination.getSurfaceConfigurationList());
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
             assertFalse(isSupported);
         }
     }
@@ -334,8 +325,7 @@ public final class SupportedSurfaceCombinationTest {
 
         for (SurfaceCombination combination : combinationList) {
             boolean isSupported =
-                    supportedSurfaceCombination.checkSupported(
-                            combination.getSurfaceConfigurationList());
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
             assertTrue(isSupported);
         }
     }
@@ -350,7 +340,7 @@ public final class SupportedSurfaceCombinationTest {
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
 
         boolean isSupported =
-                isAllSubConfigurationListSupported(supportedSurfaceCombination, combinationList);
+                isAllSubConfigListSupported(supportedSurfaceCombination, combinationList);
         assertTrue(isSupported);
     }
 
@@ -361,11 +351,9 @@ public final class SupportedSurfaceCombinationTest {
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
 
         Rational aspectRatio = new Rational(16, 9);
-        PreviewConfiguration.Builder previewConfigBuilder = new PreviewConfiguration.Builder();
-        VideoCaptureConfiguration.Builder videoCaptureConfigBuilder =
-                new VideoCaptureConfiguration.Builder();
-        ImageCaptureConfiguration.Builder imageCaptureConfigBuilder =
-                new ImageCaptureConfiguration.Builder();
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+        VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
+        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
 
         previewConfigBuilder.setTargetAspectRatio(aspectRatio);
         videoCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
@@ -395,11 +383,9 @@ public final class SupportedSurfaceCombinationTest {
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
 
         Rational aspectRatio = new Rational(16, 9);
-        PreviewConfiguration.Builder previewConfigBuilder = new PreviewConfiguration.Builder();
-        VideoCaptureConfiguration.Builder videoCaptureConfigBuilder =
-                new VideoCaptureConfiguration.Builder();
-        ImageCaptureConfiguration.Builder imageCaptureConfigBuilder =
-                new ImageCaptureConfiguration.Builder();
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+        VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
+        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
 
         previewConfigBuilder.setTargetAspectRatio(aspectRatio);
         videoCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
@@ -426,135 +412,135 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void transformSurfaceConfigurationWithYUVAnalysisSize() {
+    public void transformSurfaceConfigWithYUVAnalysisSize() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
-        SurfaceConfiguration surfaceConfiguration =
-                supportedSurfaceCombination.transformSurfaceConfiguration(
+        SurfaceConfig surfaceConfig =
+                supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.YUV_420_888, mAnalysisSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.ANALYSIS);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.ANALYSIS);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithYUVPreviewSize() {
+    public void transformSurfaceConfigWithYUVPreviewSize() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
-        SurfaceConfiguration surfaceConfiguration =
-                supportedSurfaceCombination.transformSurfaceConfiguration(
+        SurfaceConfig surfaceConfig =
+                supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.YUV_420_888, mPreviewSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.PREVIEW);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.PREVIEW);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithYUVRecordSize() {
+    public void transformSurfaceConfigWithYUVRecordSize() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
-        SurfaceConfiguration surfaceConfiguration =
-                supportedSurfaceCombination.transformSurfaceConfiguration(
+        SurfaceConfig surfaceConfig =
+                supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.YUV_420_888, mRecordSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.RECORD);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.RECORD);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithYUVMaximumSize() {
+    public void transformSurfaceConfigWithYUVMaximumSize() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
-        SurfaceConfiguration surfaceConfiguration =
-                supportedSurfaceCombination.transformSurfaceConfiguration(
+        SurfaceConfig surfaceConfig =
+                supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.YUV_420_888, mMaximumSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.MAXIMUM);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.MAXIMUM);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithYUVNotSupportSize() {
+    public void transformSurfaceConfigWithYUVNotSupportSize() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
-        SurfaceConfiguration surfaceConfiguration =
-                supportedSurfaceCombination.transformSurfaceConfiguration(
+        SurfaceConfig surfaceConfig =
+                supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.YUV_420_888,
                         new Size(mMaximumSize.getWidth() + 1, mMaximumSize.getHeight() + 1));
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.YUV, ConfigurationSize.NOT_SUPPORT);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.YUV, ConfigSize.NOT_SUPPORT);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithJPEGAnalysisSize() {
+    public void transformSurfaceConfigWithJPEGAnalysisSize() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
-        SurfaceConfiguration surfaceConfiguration =
-                supportedSurfaceCombination.transformSurfaceConfiguration(
+        SurfaceConfig surfaceConfig =
+                supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.JPEG, mAnalysisSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.ANALYSIS);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.ANALYSIS);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithJPEGPreviewSize() {
+    public void transformSurfaceConfigWithJPEGPreviewSize() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
-        SurfaceConfiguration surfaceConfiguration =
-                supportedSurfaceCombination.transformSurfaceConfiguration(
+        SurfaceConfig surfaceConfig =
+                supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.JPEG, mPreviewSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.PREVIEW);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.PREVIEW);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithJPEGRecordSize() {
+    public void transformSurfaceConfigWithJPEGRecordSize() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
-        SurfaceConfiguration surfaceConfiguration =
-                supportedSurfaceCombination.transformSurfaceConfiguration(
+        SurfaceConfig surfaceConfig =
+                supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.JPEG, mRecordSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.RECORD);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.RECORD);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithJPEGMaximumSize() {
+    public void transformSurfaceConfigWithJPEGMaximumSize() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
-        SurfaceConfiguration surfaceConfiguration =
-                supportedSurfaceCombination.transformSurfaceConfiguration(
+        SurfaceConfig surfaceConfig =
+                supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.JPEG, mMaximumSize);
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.MAXIMUM);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.MAXIMUM);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
-    public void transformSurfaceConfigurationWithJPEGNotSupportSize() {
+    public void transformSurfaceConfigWithJPEGNotSupportSize() {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
-        SurfaceConfiguration surfaceConfiguration =
-                supportedSurfaceCombination.transformSurfaceConfiguration(
+        SurfaceConfig surfaceConfig =
+                supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.JPEG,
                         new Size(mMaximumSize.getWidth() + 1, mMaximumSize.getHeight() + 1));
-        SurfaceConfiguration expectedSurfaceConfiguration =
-                SurfaceConfiguration.create(ConfigurationType.JPEG, ConfigurationSize.NOT_SUPPORT);
-        assertEquals(expectedSurfaceConfiguration, surfaceConfiguration);
+        SurfaceConfig expectedSurfaceConfig =
+                SurfaceConfig.create(ConfigType.JPEG, ConfigSize.NOT_SUPPORT);
+        assertEquals(expectedSurfaceConfig, surfaceConfig);
     }
 
     @Test
@@ -615,27 +601,26 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     private void initCameraX() {
-        AppConfiguration appConfig = Camera2AppConfiguration.create(mContext);
+        AppConfig appConfig = Camera2AppConfig.create(mContext);
         CameraX.init(mContext, appConfig);
     }
 
-    private boolean isAllSubConfigurationListSupported(
+    private boolean isAllSubConfigListSupported(
             SupportedSurfaceCombination supportedSurfaceCombination,
             List<SurfaceCombination> combinationList) {
         boolean isSupported = true;
 
         for (SurfaceCombination combination : combinationList) {
-            List<SurfaceConfiguration> configurationList =
-                    combination.getSurfaceConfigurationList();
-            int length = configurationList.size();
+            List<SurfaceConfig> configList = combination.getSurfaceConfigList();
+            int length = configList.size();
 
             if (length <= 1) {
                 continue;
             }
 
             for (int index = 0; index < length; index++) {
-                List<SurfaceConfiguration> subConfigurationList = new ArrayList<>();
-                subConfigurationList.addAll(configurationList);
+                List<SurfaceConfig> subConfigurationList = new ArrayList<>();
+                subConfigurationList.addAll(configList);
                 subConfigurationList.remove(index);
 
                 isSupported &= supportedSurfaceCombination.checkSupported(subConfigurationList);

@@ -16,23 +16,24 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
 /**
- * A class which provides a {@link androidx.camera.core.Configuration} object.
- *
- * @param <C> the {@link Configuration} type provided
+ * A Repository for generating use case configurations.
  *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public interface ConfigurationProvider<C extends Configuration> {
+public interface UseCaseConfigFactory {
 
-    /** Retrieve the {@link androidx.camera.core.Configuration} object.
+    /**
+     * Returns the configuration for the given type, or <code>null</code> if the configuration
+     * cannot be produced.
      *
-     * @param lensFacing The {@link CameraX.LensFacing} that the configuration provider will
-     *                   target to.
-     * */
-    C getConfiguration(CameraX.LensFacing lensFacing);
+     * @param lensFacing The {@link CameraX.LensFacing} that the configuration will target to.
+     */
+    @Nullable
+    <C extends UseCaseConfig<?>> C getConfig(Class<C> configType, CameraX.LensFacing lensFacing);
 }

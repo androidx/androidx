@@ -17,37 +17,36 @@
 package androidx.camera.testing.fakes;
 
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraDeviceConfiguration;
+import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.Configuration;
-import androidx.camera.core.MutableConfiguration;
+import androidx.camera.core.Config;
+import androidx.camera.core.MutableConfig;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.OptionsBundle;
-import androidx.camera.core.SessionConfiguration;
-import androidx.camera.core.UseCaseConfiguration;
+import androidx.camera.core.SessionConfig;
+import androidx.camera.core.UseCaseConfig;
 
 import java.util.Set;
 import java.util.UUID;
 
 /** A fake configuration for {@link FakeUseCase}. */
-public class FakeUseCaseConfiguration
-        implements UseCaseConfiguration<FakeUseCase>, CameraDeviceConfiguration {
+public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, CameraDeviceConfig {
 
-    private final Configuration mConfig;
+    private final Config mConfig;
 
-    FakeUseCaseConfiguration(Configuration config) {
+    FakeUseCaseConfig(Config config) {
         mConfig = config;
     }
 
     @Override
-    public Configuration getConfiguration() {
+    public Config getConfig() {
         return mConfig;
     }
 
-    /** Builder for an empty Configuration */
-    public static final class Builder
-            implements UseCaseConfiguration.Builder<FakeUseCase, FakeUseCaseConfiguration, Builder>,
-            CameraDeviceConfiguration.Builder<FakeUseCaseConfiguration, Builder> {
+    /** Builder for an empty Config */
+    public static final class Builder implements
+            UseCaseConfig.Builder<FakeUseCase, FakeUseCaseConfig, Builder>,
+            CameraDeviceConfig.Builder<FakeUseCaseConfig, Builder> {
 
         private final MutableOptionsBundle mOptionsBundle;
 
@@ -58,7 +57,7 @@ public class FakeUseCaseConfiguration
         }
 
         @Override
-        public MutableConfiguration getMutableConfiguration() {
+        public MutableConfig getMutableConfig() {
             return mOptionsBundle;
         }
 
@@ -68,36 +67,36 @@ public class FakeUseCaseConfiguration
         }
 
         @Override
-        public FakeUseCaseConfiguration build() {
-            return new FakeUseCaseConfiguration(OptionsBundle.from(mOptionsBundle));
+        public FakeUseCaseConfig build() {
+            return new FakeUseCaseConfig(OptionsBundle.from(mOptionsBundle));
         }
 
-        // Start of the default implementation of Configuration.Builder
+        // Start of the default implementation of Config.Builder
         // *****************************************************************************************
 
-        // Implementations of Configuration.Builder default methods
+        // Implementations of Config.Builder default methods
 
         @Override
         public <ValueT> Builder insertOption(Option<ValueT> opt, ValueT value) {
-            getMutableConfiguration().insertOption(opt, value);
+            getMutableConfig().insertOption(opt, value);
             return builder();
         }
 
         @Override
         @Nullable
         public <ValueT> Builder removeOption(Option<ValueT> opt) {
-            getMutableConfiguration().removeOption(opt);
+            getMutableConfig().removeOption(opt);
             return builder();
         }
 
-        // Implementations of TargetConfiguration.Builder default methods
+        // Implementations of TargetConfig.Builder default methods
 
         @Override
         public Builder setTargetClass(Class<FakeUseCase> targetClass) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_CLASS, targetClass);
+            getMutableConfig().insertOption(OPTION_TARGET_CLASS, targetClass);
 
             // If no name is set yet, then generate a unique name
-            if (null == getMutableConfiguration().retrieveOption(OPTION_TARGET_NAME, null)) {
+            if (null == getMutableConfig().retrieveOption(OPTION_TARGET_NAME, null)) {
                 String targetName = targetClass.getCanonicalName() + "-" + UUID.randomUUID();
                 setTargetName(targetName);
             }
@@ -107,75 +106,75 @@ public class FakeUseCaseConfiguration
 
         @Override
         public Builder setTargetName(String targetName) {
-            getMutableConfiguration().insertOption(OPTION_TARGET_NAME, targetName);
+            getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
             return builder();
         }
 
-        // Implementations of CameraDeviceConfiguration.Builder default methods
+        // Implementations of CameraDeviceConfig.Builder default methods
 
         @Override
         public Builder setLensFacing(CameraX.LensFacing lensFacing) {
-            getMutableConfiguration().insertOption(OPTION_LENS_FACING, lensFacing);
+            getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
             return builder();
         }
 
-        // Implementations of UseCaseConfiguration.Builder default methods
+        // Implementations of UseCaseConfig.Builder default methods
 
         @Override
-        public Builder setDefaultSessionConfiguration(SessionConfiguration sessionConfig) {
-            getMutableConfiguration().insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionConfig);
+        public Builder setDefaultSessionConfig(SessionConfig sessionConfig) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_SESSION_CONFIG, sessionConfig);
             return builder();
         }
 
         @Override
-        public Builder setOptionUnpacker(SessionConfiguration.OptionUnpacker optionUnpacker) {
-            getMutableConfiguration().insertOption(OPTION_CONFIG_UNPACKER, optionUnpacker);
+        public Builder setOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_CONFIG_UNPACKER, optionUnpacker);
             return builder();
         }
 
         @Override
         public Builder setSurfaceOccupancyPriority(int priority) {
-            getMutableConfiguration().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
             return builder();
         }
 
-        // End of the default implementation of Configuration.Builder
+        // End of the default implementation of Config.Builder
         // *****************************************************************************************
     }
 
-    // Start of the default implementation of Configuration
+    // Start of the default implementation of Config
     // *********************************************************************************************
 
-    // Implementations of Configuration.Reader default methods
+    // Implementations of Config.Reader default methods
 
     @Override
     public boolean containsOption(Option<?> id) {
-        return getConfiguration().containsOption(id);
+        return getConfig().containsOption(id);
     }
 
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
-        return getConfiguration().retrieveOption(id);
+        return getConfig().retrieveOption(id);
     }
 
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
-        return getConfiguration().retrieveOption(id, valueIfMissing);
+        return getConfig().retrieveOption(id, valueIfMissing);
     }
 
     @Override
     public void findOptions(String idStem, OptionMatcher matcher) {
-        getConfiguration().findOptions(idStem, matcher);
+        getConfig().findOptions(idStem, matcher);
     }
 
     @Override
     public Set<Option<?>> listOptions() {
-        return getConfiguration().listOptions();
+        return getConfig().listOptions();
     }
 
-    // Implementations of TargetConfiguration default methods
+    // Implementations of TargetConfig default methods
 
     @Override
     @Nullable
@@ -207,7 +206,7 @@ public class FakeUseCaseConfiguration
         return retrieveOption(OPTION_TARGET_NAME);
     }
 
-    // Implementations of CameraDeviceConfiguration default methods
+    // Implementations of CameraDeviceConfig default methods
 
     @Override
     @Nullable
@@ -220,29 +219,28 @@ public class FakeUseCaseConfiguration
         return retrieveOption(OPTION_LENS_FACING);
     }
 
-    // Implementations of UseCaseConfiguration default methods
+    // Implementations of UseCaseConfig default methods
 
     @Override
     @Nullable
-    public SessionConfiguration getDefaultSessionConfiguration(
-            @Nullable SessionConfiguration valueIfMissing) {
+    public SessionConfig getDefaultSessionConfig(@Nullable SessionConfig valueIfMissing) {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG, valueIfMissing);
     }
 
     @Override
-    public SessionConfiguration getDefaultSessionConfiguration() {
+    public SessionConfig getDefaultSessionConfig() {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG);
     }
 
     @Override
     @Nullable
-    public SessionConfiguration.OptionUnpacker getOptionUnpacker(
-            @Nullable SessionConfiguration.OptionUnpacker valueIfMissing) {
+    public SessionConfig.OptionUnpacker getOptionUnpacker(
+            @Nullable SessionConfig.OptionUnpacker valueIfMissing) {
         return retrieveOption(OPTION_CONFIG_UNPACKER, valueIfMissing);
     }
 
     @Override
-    public SessionConfiguration.OptionUnpacker getOptionUnpacker() {
+    public SessionConfig.OptionUnpacker getOptionUnpacker() {
         return retrieveOption(OPTION_CONFIG_UNPACKER);
     }
 
@@ -256,6 +254,6 @@ public class FakeUseCaseConfiguration
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
     }
 
-    // End of the default implementation of Configuration
+    // End of the default implementation of Config
     // *********************************************************************************************
 }

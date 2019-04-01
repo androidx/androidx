@@ -26,8 +26,8 @@ import android.util.Range;
 
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CameraDeviceStateCallbacks;
-import androidx.camera.core.Configuration;
-import androidx.camera.testing.fakes.FakeConfiguration;
+import androidx.camera.core.Config;
+import androidx.camera.testing.fakes.FakeConfig;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -36,7 +36,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public final class Camera2ConfigurationTest {
+public final class Camera2ConfigTest {
     private static final int INVALID_TEMPLATE_TYPE = -1;
     private static final int INVALID_COLOR_CORRECTION_MODE = -1;
     private static final CameraCaptureSession.CaptureCallback SESSION_CAPTURE_CALLBACK =
@@ -48,8 +48,8 @@ public final class Camera2ConfigurationTest {
 
     @Test
     public void emptyConfigurationDoesNotContainTemplateType() {
-        FakeConfiguration.Builder builder = new FakeConfiguration.Builder();
-        Camera2Configuration config = new Camera2Configuration(builder.build());
+        FakeConfig.Builder builder = new FakeConfig.Builder();
+        Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(config.getCaptureRequestTemplate(INVALID_TEMPLATE_TYPE))
                 .isEqualTo(INVALID_TEMPLATE_TYPE);
@@ -57,12 +57,12 @@ public final class Camera2ConfigurationTest {
 
     @Test
     public void canExtendWithTemplateType() {
-        FakeConfiguration.Builder builder = new FakeConfiguration.Builder();
+        FakeConfig.Builder builder = new FakeConfig.Builder();
 
-        new Camera2Configuration.Extender(builder)
+        new Camera2Config.Extender(builder)
                 .setCaptureRequestTemplate(CameraDevice.TEMPLATE_PREVIEW);
 
-        Camera2Configuration config = new Camera2Configuration(builder.build());
+        Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(config.getCaptureRequestTemplate(INVALID_TEMPLATE_TYPE))
                 .isEqualTo(CameraDevice.TEMPLATE_PREVIEW);
@@ -70,12 +70,11 @@ public final class Camera2ConfigurationTest {
 
     @Test
     public void canExtendWithSessionCaptureCallback() {
-        FakeConfiguration.Builder builder = new FakeConfiguration.Builder();
+        FakeConfig.Builder builder = new FakeConfig.Builder();
 
-        new Camera2Configuration.Extender(builder)
-                .setSessionCaptureCallback(SESSION_CAPTURE_CALLBACK);
+        new Camera2Config.Extender(builder).setSessionCaptureCallback(SESSION_CAPTURE_CALLBACK);
 
-        Camera2Configuration config = new Camera2Configuration(builder.build());
+        Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(config.getSessionCaptureCallback(/*valueIfMissing=*/ null))
                 .isSameAs(SESSION_CAPTURE_CALLBACK);
@@ -83,11 +82,11 @@ public final class Camera2ConfigurationTest {
 
     @Test
     public void canExtendWithSessionStateCallback() {
-        FakeConfiguration.Builder builder = new FakeConfiguration.Builder();
+        FakeConfig.Builder builder = new FakeConfig.Builder();
 
-        new Camera2Configuration.Extender(builder).setSessionStateCallback(SESSION_STATE_CALLBACK);
+        new Camera2Config.Extender(builder).setSessionStateCallback(SESSION_STATE_CALLBACK);
 
-        Camera2Configuration config = new Camera2Configuration(builder.build());
+        Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(config.getSessionStateCallback(/*valueIfMissing=*/ null))
                 .isSameAs(SESSION_STATE_CALLBACK);
@@ -95,11 +94,11 @@ public final class Camera2ConfigurationTest {
 
     @Test
     public void canExtendWithDeviceStateCallback() {
-        FakeConfiguration.Builder builder = new FakeConfiguration.Builder();
+        FakeConfig.Builder builder = new FakeConfig.Builder();
 
-        new Camera2Configuration.Extender(builder).setDeviceStateCallback(DEVICE_STATE_CALLBACK);
+        new Camera2Config.Extender(builder).setDeviceStateCallback(DEVICE_STATE_CALLBACK);
 
-        Camera2Configuration config = new Camera2Configuration(builder.build());
+        Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(config.getDeviceStateCallback(/*valueIfMissing=*/ null))
                 .isSameAs(DEVICE_STATE_CALLBACK);
@@ -107,16 +106,16 @@ public final class Camera2ConfigurationTest {
 
     @Test
     public void canSetAndRetrieveCaptureRequestKeys() {
-        FakeConfiguration.Builder builder = new FakeConfiguration.Builder();
+        FakeConfig.Builder builder = new FakeConfig.Builder();
 
         Range<Integer> fakeRange = new Range<>(0, 30);
-        new Camera2Configuration.Extender(builder)
+        new Camera2Config.Extender(builder)
                 .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fakeRange)
                 .setCaptureRequestOption(
                         CaptureRequest.COLOR_CORRECTION_MODE,
                         CameraMetadata.COLOR_CORRECTION_MODE_FAST);
 
-        Camera2Configuration config = new Camera2Configuration(builder.build());
+        Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(
                 config.getCaptureRequestOption(
@@ -132,10 +131,10 @@ public final class Camera2ConfigurationTest {
 
     @Test
     public void canSetAndRetrieveCaptureRequestKeys_fromOptionIds() {
-        FakeConfiguration.Builder builder = new FakeConfiguration.Builder();
+        FakeConfig.Builder builder = new FakeConfig.Builder();
 
         Range<Integer> fakeRange = new Range<>(0, 30);
-        new Camera2Configuration.Extender(builder)
+        new Camera2Config.Extender(builder)
                 .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fakeRange)
                 .setCaptureRequestOption(
                         CaptureRequest.COLOR_CORRECTION_MODE,
@@ -143,13 +142,13 @@ public final class Camera2ConfigurationTest {
                 // Insert one non capture request option to ensure it gets filtered out
                 .setCaptureRequestTemplate(CameraDevice.TEMPLATE_PREVIEW);
 
-        Camera2Configuration config = new Camera2Configuration(builder.build());
+        Camera2Config config = new Camera2Config(builder.build());
 
         config.findOptions(
                 "camera2.captureRequest.option",
-                new Configuration.OptionMatcher() {
+                new Config.OptionMatcher() {
                     @Override
-                    public boolean onOptionMatched(Configuration.Option<?> option) {
+                    public boolean onOptionMatched(Config.Option<?> option) {
                         // The token should be the capture request key
                         assertThat(option.getToken())
                                 .isAnyOf(
@@ -165,15 +164,15 @@ public final class Camera2ConfigurationTest {
     @Test
     public void canSetAndRetrieveCaptureRequestKeys_byBuilder() {
         Range<Integer> fakeRange = new Range<>(0, 30);
-        Camera2Configuration.Builder builder =
-                new Camera2Configuration.Builder()
+        Camera2Config.Builder builder =
+                new Camera2Config.Builder()
                         .setCaptureRequestOption(
                                 CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fakeRange)
                         .setCaptureRequestOption(
                                 CaptureRequest.COLOR_CORRECTION_MODE,
                                 CameraMetadata.COLOR_CORRECTION_MODE_FAST);
 
-        Camera2Configuration config = new Camera2Configuration(builder.build());
+        Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(
                 config.getCaptureRequestOption(
@@ -190,18 +189,18 @@ public final class Camera2ConfigurationTest {
     @Test
     public void canInsertAllOptions_byBuilder() {
         Range<Integer> fakeRange = new Range<>(0, 30);
-        Camera2Configuration.Builder builder =
-                new Camera2Configuration.Builder()
+        Camera2Config.Builder builder =
+                new Camera2Config.Builder()
                         .setCaptureRequestOption(
                                 CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fakeRange)
                         .setCaptureRequestOption(
                                 CaptureRequest.COLOR_CORRECTION_MODE,
                                 CameraMetadata.COLOR_CORRECTION_MODE_FAST);
 
-        Camera2Configuration config1 = new Camera2Configuration(builder.build());
+        Camera2Config config1 = new Camera2Config(builder.build());
 
-        Camera2Configuration.Builder builder2 =
-                new Camera2Configuration.Builder()
+        Camera2Config.Builder builder2 =
+                new Camera2Config.Builder()
                         .setCaptureRequestOption(
                                 CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
                         .setCaptureRequestOption(
@@ -209,7 +208,7 @@ public final class Camera2ConfigurationTest {
                                 CaptureRequest.CONTROL_AWB_MODE_AUTO)
                         .insertAllOptions(config1);
 
-        Camera2Configuration config2 = new Camera2Configuration(builder2.build());
+        Camera2Config config2 = new Camera2Config(builder2.build());
 
         assertThat(
                 config2.getCaptureRequestOption(

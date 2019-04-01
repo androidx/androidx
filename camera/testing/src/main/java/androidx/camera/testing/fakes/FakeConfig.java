@@ -19,34 +19,34 @@ package androidx.camera.testing.fakes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.Configuration;
-import androidx.camera.core.MutableConfiguration;
+import androidx.camera.core.Config;
+import androidx.camera.core.MutableConfig;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.OptionsBundle;
 
 import java.util.Set;
 
 /**
- * Wrapper for an empty Configuration
+ * Wrapper for an empty Config
  *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class FakeConfiguration implements Configuration.Reader {
+public final class FakeConfig implements Config.Reader {
 
-    private final Configuration mConfig;
+    private final Config mConfig;
 
-    FakeConfiguration(Configuration config) {
+    FakeConfig(Config config) {
         mConfig = config;
     }
 
     @Override
-    public Configuration getConfiguration() {
+    public Config getConfig() {
         return mConfig;
     }
 
-    /** Builder for an empty Configuration */
-    public static final class Builder implements Configuration.Builder<FakeConfiguration, Builder> {
+    /** Builder for an empty Config */
+    public static final class Builder implements Config.Builder<FakeConfig, Builder> {
 
         private final MutableOptionsBundle mOptionsBundle;
 
@@ -55,7 +55,7 @@ public final class FakeConfiguration implements Configuration.Reader {
         }
 
         @Override
-        public MutableConfiguration getMutableConfiguration() {
+        public MutableConfig getMutableConfig() {
             return mOptionsBundle;
         }
 
@@ -65,20 +65,20 @@ public final class FakeConfiguration implements Configuration.Reader {
         }
 
         @Override
-        public FakeConfiguration build() {
-            return new FakeConfiguration(OptionsBundle.from(mOptionsBundle));
+        public FakeConfig build() {
+            return new FakeConfig(OptionsBundle.from(mOptionsBundle));
         }
 
-        // Start of the default implementation of Configuration.Builder
+        // Start of the default implementation of Config.Builder
         // *****************************************************************************************
 
-        // Implementations of Configuration.Builder default methods
+        // Implementations of Config.Builder default methods
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public <ValueT> Builder insertOption(Option<ValueT> opt, ValueT value) {
-            getMutableConfiguration().insertOption(opt, value);
+            getMutableConfig().insertOption(opt, value);
             return builder();
         }
 
@@ -87,24 +87,24 @@ public final class FakeConfiguration implements Configuration.Reader {
         @Override
         @Nullable
         public <ValueT> Builder removeOption(Option<ValueT> opt) {
-            getMutableConfiguration().removeOption(opt);
+            getMutableConfig().removeOption(opt);
             return builder();
         }
 
-        // End of the default implementation of Configuration.Builder
+        // End of the default implementation of Config.Builder
         // *****************************************************************************************
     }
 
-    // Start of the default implementation of Configuration
+    // Start of the default implementation of Config
     // *********************************************************************************************
 
-    // Implementations of Configuration.Reader default methods
+    // Implementations of Config.Reader default methods
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public boolean containsOption(Option<?> id) {
-        return getConfiguration().containsOption(id);
+        return getConfig().containsOption(id);
     }
 
     /** @hide */
@@ -112,7 +112,7 @@ public final class FakeConfiguration implements Configuration.Reader {
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
-        return getConfiguration().retrieveOption(id);
+        return getConfig().retrieveOption(id);
     }
 
     /** @hide */
@@ -120,23 +120,23 @@ public final class FakeConfiguration implements Configuration.Reader {
     @Override
     @Nullable
     public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
-        return getConfiguration().retrieveOption(id, valueIfMissing);
+        return getConfig().retrieveOption(id, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void findOptions(String idStem, OptionMatcher matcher) {
-        getConfiguration().findOptions(idStem, matcher);
+        getConfig().findOptions(idStem, matcher);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Set<Option<?>> listOptions() {
-        return getConfiguration().listOptions();
+        return getConfig().listOptions();
     }
 
-    // End of the default implementation of Configuration
+    // End of the default implementation of Config
     // *********************************************************************************************
 }

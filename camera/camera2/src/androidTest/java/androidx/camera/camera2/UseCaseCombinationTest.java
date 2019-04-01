@@ -33,14 +33,14 @@ import androidx.camera.core.CameraRepository;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageAnalysisConfiguration;
+import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfiguration;
-import androidx.camera.core.SessionConfiguration;
+import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
@@ -97,7 +97,7 @@ public final class UseCaseCombinationTest {
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.init(context, Camera2AppConfiguration.create(context));
+        CameraX.init(context, Camera2AppConfig.create(context));
         mLifecycle = new FakeLifecycleOwner();
         mHandlerThread = new HandlerThread("ErrorHandlerThread");
         mHandlerThread.start();
@@ -214,8 +214,8 @@ public final class UseCaseCombinationTest {
     }
 
     private void initImageAnalysis() {
-        ImageAnalysisConfiguration imageAnalysisConfiguration =
-                new ImageAnalysisConfiguration.Builder()
+        ImageAnalysisConfig imageAnalysisConfig =
+                new ImageAnalysisConfig.Builder()
                         .setLensFacing(DEFAULT_LENS_FACING)
                         .setTargetName("ImageAnalysis")
                         .setCallbackHandler(new Handler(Looper.getMainLooper()))
@@ -227,7 +227,7 @@ public final class UseCaseCombinationTest {
                         mAnalysisResult.postValue(image.getTimestamp());
                     }
                 };
-        mImageAnalysis = new ImageAnalysis(imageAnalysisConfiguration);
+        mImageAnalysis = new ImageAnalysis(imageAnalysisConfig);
     }
 
     private void initImageCapture() {
@@ -236,27 +236,25 @@ public final class UseCaseCombinationTest {
         mCameraRepository.init(mCameraFactory);
         mUseCaseGroup = new UseCaseGroup();
 
-        ImageCaptureConfiguration imageCaptureConfiguration =
-                new ImageCaptureConfiguration.Builder().setLensFacing(
-                        LensFacing.BACK).build();
-        String cameraId = getCameraIdForLensFacingUnchecked(
-                imageCaptureConfiguration.getLensFacing());
-        mImageCapture = new CallbackAttachingImageCapture(imageCaptureConfiguration, cameraId);
+        ImageCaptureConfig imageCaptureConfig =
+                new ImageCaptureConfig.Builder().setLensFacing(LensFacing.BACK).build();
+        String cameraId = getCameraIdForLensFacingUnchecked(imageCaptureConfig.getLensFacing());
+        mImageCapture = new CallbackAttachingImageCapture(imageCaptureConfig, cameraId);
 
         mImageCapture.addStateChangeListener(
                 mCameraRepository.getCamera(
                         getCameraIdForLensFacingUnchecked(
-                                imageCaptureConfiguration.getLensFacing())));
+                                imageCaptureConfig.getLensFacing())));
     }
 
     private void initPreview() {
-        PreviewConfiguration previewConfiguration =
-                new PreviewConfiguration.Builder()
+        PreviewConfig previewConfig =
+                new PreviewConfig.Builder()
                         .setLensFacing(DEFAULT_LENS_FACING)
                         .setTargetName("Preview")
                         .build();
 
-        mPreview = new Preview(previewConfiguration);
+        mPreview = new Preview(previewConfig);
     }
 
     private String getCameraIdForLensFacingUnchecked(LensFacing lensFacing) {
@@ -275,10 +273,10 @@ public final class UseCaseCombinationTest {
                 new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
         private final SurfaceTexture mSurfaceTexture = new SurfaceTexture(0);
 
-        CallbackAttachingImageCapture(ImageCaptureConfiguration configuration, String cameraId) {
-            super(configuration);
+        CallbackAttachingImageCapture(ImageCaptureConfig config, String cameraId) {
+            super(config);
 
-            SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+            SessionConfig.Builder builder = new SessionConfig.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             builder.addSurface(new ImmediateSurface(new Surface(mSurfaceTexture)));
             builder.setSessionStateCallback(mSessionStateCallback);

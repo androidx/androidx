@@ -32,19 +32,19 @@ import android.os.Looper;
 import android.util.Size;
 import android.view.Surface;
 
-import androidx.camera.core.AppConfiguration;
+import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.CaptureRequestConfiguration;
+import androidx.camera.core.CaptureRequestConfig;
 import androidx.camera.core.DeferrableSurfaces;
 import androidx.camera.core.OnFocusCompletedListener;
 import androidx.camera.core.Preview;
 import androidx.camera.core.Preview.OnPreviewOutputUpdateListener;
 import androidx.camera.core.Preview.PreviewOutput;
-import androidx.camera.core.PreviewConfiguration;
-import androidx.camera.core.SessionConfiguration;
+import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.SessionConfig;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -73,7 +73,7 @@ public final class PreviewTest {
     private static final Size DEFAULT_RESOLUTION = new Size(1920, 1080);
     private static final Size SECONDARY_RESOLUTION = new Size(1280, 720);
 
-    private PreviewConfiguration mDefaultConfiguration;
+    private PreviewConfig mDefaultConfig;
     @Mock
     private OnPreviewOutputUpdateListener mMockListener;
     private String mCameraId;
@@ -83,7 +83,7 @@ public final class PreviewTest {
         // Instantiates OnPreviewOutputUpdateListener before each test run.
         mMockListener = mock(OnPreviewOutputUpdateListener.class);
         Context context = ApplicationProvider.getApplicationContext();
-        AppConfiguration appConfig = Camera2AppConfiguration.create(context);
+        AppConfig appConfig = Camera2AppConfig.create(context);
         CameraFactory cameraFactory = appConfig.getCameraFactory(/*valueIfMissing=*/ null);
         try {
             mCameraId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
@@ -94,18 +94,17 @@ public final class PreviewTest {
         CameraX.init(context, appConfig);
 
         // init CameraX before creating Preview to get preview size with CameraX's context
-        mDefaultConfiguration = Preview.DEFAULT_CONFIG.getConfiguration(null);
+        mDefaultConfig = Preview.DEFAULT_CONFIG.getConfig(null);
     }
 
     @Test
     @UiThreadTest
     public void useCaseIsConstructedWithDefaultConfiguration() {
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         List<Surface> surfaces =
-                DeferrableSurfaces.surfaceList(
-                        useCase.getSessionConfiguration(mCameraId).getSurfaces());
+                DeferrableSurfaces.surfaceList(useCase.getSessionConfig(mCameraId).getSurfaces());
 
         assertThat(surfaces.size()).isEqualTo(1);
         assertThat(surfaces.get(0).isValid()).isTrue();
@@ -114,14 +113,12 @@ public final class PreviewTest {
     @Test
     @UiThreadTest
     public void useCaseIsConstructedWithCustomConfiguration() {
-        PreviewConfiguration configuration =
-                new PreviewConfiguration.Builder().setLensFacing(LensFacing.BACK).build();
-        Preview useCase = new Preview(configuration);
+        PreviewConfig config = new PreviewConfig.Builder().setLensFacing(LensFacing.BACK).build();
+        Preview useCase = new Preview(config);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         List<Surface> surfaces =
-                DeferrableSurfaces.surfaceList(
-                        useCase.getSessionConfiguration(mCameraId).getSurfaces());
+                DeferrableSurfaces.surfaceList(useCase.getSessionConfig(mCameraId).getSurfaces());
 
         assertThat(surfaces.size()).isEqualTo(1);
         assertThat(surfaces.get(0).isValid()).isTrue();
@@ -130,7 +127,7 @@ public final class PreviewTest {
     @Test
     @UiThreadTest
     public void focusRegionCanBeSet() {
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         CameraControl cameraControl = mock(CameraControl.class);
@@ -150,7 +147,7 @@ public final class PreviewTest {
     @Test
     @UiThreadTest
     public void zoomRegionCanBeSet() {
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         CameraControl cameraControl = mock(CameraControl.class);
@@ -167,7 +164,7 @@ public final class PreviewTest {
     @Test
     @UiThreadTest
     public void torchModeCanBeSet() {
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
         CameraControl cameraControl = getFakeCameraControl();
         useCase.attachCameraControl(mCameraId, cameraControl);
 
@@ -184,7 +181,7 @@ public final class PreviewTest {
         if (Build.VERSION.SDK_INT < 26) {
             return;
         }
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
 
         final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
@@ -227,7 +224,7 @@ public final class PreviewTest {
         if (Build.VERSION.SDK_INT <= 26) {
             return;
         }
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
 
         final SurfaceTextureCallable surfaceTextureCallable = new SurfaceTextureCallable();
         final FutureTask<SurfaceTexture> future = new FutureTask<>(surfaceTextureCallable);
@@ -255,7 +252,7 @@ public final class PreviewTest {
     public void surfaceTexture_isListenedOnlyOnce()
             throws InterruptedException, ExecutionException, TimeoutException {
 
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
 
         final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
@@ -291,10 +288,9 @@ public final class PreviewTest {
 
     @Test
     @UiThreadTest
-    public void updateSessionConfigurationWithSuggestedResolution() {
-        PreviewConfiguration configuration =
-                new PreviewConfiguration.Builder().setLensFacing(LensFacing.BACK).build();
-        Preview useCase = new Preview(configuration);
+    public void updateSessionConfigWithSuggestedResolution() {
+        PreviewConfig config = new PreviewConfig.Builder().setLensFacing(LensFacing.BACK).build();
+        Preview useCase = new Preview(config);
 
         final Size[] sizes = {new Size(1920, 1080), new Size(640, 480)};
 
@@ -303,7 +299,7 @@ public final class PreviewTest {
 
             List<Surface> surfaces =
                     DeferrableSurfaces.surfaceList(
-                            useCase.getSessionConfiguration(mCameraId).getSurfaces());
+                            useCase.getSessionConfig(mCameraId).getSurfaces());
 
             assertWithMessage("Failed at Size: " + size).that(surfaces).hasSize(1);
             assertWithMessage("Failed at Size: " + size).that(surfaces.get(0).isValid()).isTrue();
@@ -313,7 +309,7 @@ public final class PreviewTest {
     @Test
     @UiThreadTest
     public void previewOutputListenerCanBeSetAndRetrieved() {
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
         Preview.OnPreviewOutputUpdateListener previewOutputListener =
                 useCase.getOnPreviewOutputUpdateListener();
@@ -329,7 +325,7 @@ public final class PreviewTest {
     @Test
     @UiThreadTest
     public void clear_removePreviewOutputListener() {
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         useCase.setOnPreviewOutputUpdateListener(mMockListener);
@@ -341,7 +337,7 @@ public final class PreviewTest {
     @Test
     @UiThreadTest
     public void previewOutput_isResetOnUpdatedResolution() {
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
         final AtomicInteger calledCount = new AtomicInteger(0);
@@ -367,7 +363,7 @@ public final class PreviewTest {
     @Test
     @UiThreadTest
     public void previewOutput_updatesWithTargetRotation() {
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
         useCase.setTargetRotation(Surface.ROTATION_0);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
@@ -395,7 +391,7 @@ public final class PreviewTest {
     @Test
     public void previewOutput_isResetByReleasedSurface()
             throws InterruptedException, ExecutionException {
-        final Preview useCase = new Preview(mDefaultConfiguration);
+        final Preview useCase = new Preview(mDefaultConfig);
         Handler mainHandler = new Handler(Looper.getMainLooper());
         final Semaphore semaphore = new Semaphore(0);
 
@@ -423,7 +419,7 @@ public final class PreviewTest {
         semaphore.acquire();
 
         // Cause the surface to reset
-        useCase.getSessionConfiguration(mCameraId).getSurfaces().get(0).getSurface().get();
+        useCase.getSessionConfig(mCameraId).getSurfaces().get(0).getSurface().get();
 
         // Wait for the surface to reset
         semaphore.acquire();
@@ -434,7 +430,7 @@ public final class PreviewTest {
     public void outputIsPublished_whenListenerIsSetBefore()
             throws InterruptedException, ExecutionException {
 
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
 
         final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
@@ -459,7 +455,7 @@ public final class PreviewTest {
     public void outputIsPublished_whenListenerIsSetAfter()
             throws InterruptedException, ExecutionException {
 
-        Preview useCase = new Preview(mDefaultConfiguration);
+        Preview useCase = new Preview(mDefaultConfig);
 
         final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
         final FutureTask<SurfaceTexture> future0 = new FutureTask<>(surfaceTextureCallable0);
@@ -483,13 +479,12 @@ public final class PreviewTest {
         return new Camera2CameraControl(
                 new CameraControl.ControlUpdateListener() {
                     @Override
-                    public void onCameraControlUpdateSessionConfiguration(
-                            SessionConfiguration sessionConfiguration) {
+                    public void onCameraControlUpdateSessionConfig(SessionConfig sessionConfig) {
                     }
 
                     @Override
                     public void onCameraControlSingleRequest(
-                            CaptureRequestConfiguration captureRequestConfiguration) {
+                            CaptureRequestConfig captureRequestConfig) {
                     }
                 },
                 new Handler());

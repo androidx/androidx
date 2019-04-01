@@ -28,10 +28,10 @@ import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraRepository;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImmediateSurface;
-import androidx.camera.core.SessionConfiguration;
+import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
+import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -53,7 +53,7 @@ import java.util.Map;
 public final class Camera2ImplCameraRepositoryTest {
     private CameraRepository mCameraRepository;
     private UseCaseGroup mUseCaseGroup;
-    private FakeUseCaseConfiguration mConfiguration;
+    private FakeUseCaseConfig mConfig;
     private CallbackAttachingFakeUseCase mUseCase;
     private CameraFactory mCameraFactory;
 
@@ -76,10 +76,9 @@ public final class Camera2ImplCameraRepositoryTest {
         mCameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext());
         mCameraRepository.init(mCameraFactory);
         mUseCaseGroup = new UseCaseGroup();
-        mConfiguration =
-                new FakeUseCaseConfiguration.Builder().setLensFacing(LensFacing.BACK).build();
-        String cameraId = getCameraIdForLensFacingUnchecked(mConfiguration.getLensFacing());
-        mUseCase = new CallbackAttachingFakeUseCase(mConfiguration, cameraId);
+        mConfig = new FakeUseCaseConfig.Builder().setLensFacing(LensFacing.BACK).build();
+        String cameraId = getCameraIdForLensFacingUnchecked(mConfig.getLensFacing());
+        mUseCase = new CallbackAttachingFakeUseCase(mConfig, cameraId);
         mUseCaseGroup.addUseCase(mUseCase);
     }
 
@@ -87,7 +86,7 @@ public final class Camera2ImplCameraRepositoryTest {
     public void cameraDeviceCallsAreForwardedToCallback() throws InterruptedException {
         mUseCase.addStateChangeListener(
                 mCameraRepository.getCamera(
-                        getCameraIdForLensFacingUnchecked(mConfiguration.getLensFacing())));
+                        getCameraIdForLensFacingUnchecked(mConfig.getLensFacing())));
         mUseCase.doNotifyActive();
         mCameraRepository.onGroupActive(mUseCaseGroup);
 
@@ -104,7 +103,7 @@ public final class Camera2ImplCameraRepositoryTest {
     public void cameraSessionCallsAreForwardedToCallback() throws InterruptedException {
         mUseCase.addStateChangeListener(
                 mCameraRepository.getCamera(
-                        getCameraIdForLensFacingUnchecked(mConfiguration.getLensFacing())));
+                        getCameraIdForLensFacingUnchecked(mConfig.getLensFacing())));
         mUseCase.doNotifyActive();
         mCameraRepository.onGroupActive(mUseCaseGroup);
 
@@ -124,10 +123,10 @@ public final class Camera2ImplCameraRepositoryTest {
         private final SessionStateCallback mSessionStateCallback = new SessionStateCallback();
         private final SurfaceTexture mSurfaceTexture = new SurfaceTexture(0);
 
-        CallbackAttachingFakeUseCase(FakeUseCaseConfiguration configuration, String cameraId) {
-            super(configuration);
+        CallbackAttachingFakeUseCase(FakeUseCaseConfig config, String cameraId) {
+            super(config);
 
-            SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+            SessionConfig.Builder builder = new SessionConfig.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             builder.addSurface(new ImmediateSurface(new Surface(mSurfaceTexture)));
             builder.setDeviceStateCallback(mDeviceStateCallback);

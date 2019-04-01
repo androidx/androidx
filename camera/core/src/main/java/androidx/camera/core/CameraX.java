@@ -93,7 +93,7 @@ public final class CameraX {
     private final ErrorHandler mErrorHandler = new ErrorHandler();
     private CameraFactory mCameraFactory;
     private CameraDeviceSurfaceManager mSurfaceManager;
-    private UseCaseConfigurationFactory mDefaultConfigFactory;
+    private UseCaseConfigFactory mDefaultConfigFactory;
     private Context mContext;
     /** Prevents construction. */
     private CameraX() {
@@ -296,9 +296,9 @@ public final class CameraX {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public static <C extends UseCaseConfiguration<?>> C getDefaultUseCaseConfiguration(
+    public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(
             Class<C> configType, LensFacing lensFacing) {
-        return INSTANCE.getDefaultConfigFactory().getConfiguration(configType, lensFacing);
+        return INSTANCE.getDefaultConfigFactory().getConfig(configType, lensFacing);
     }
 
     /**
@@ -333,13 +333,13 @@ public final class CameraX {
      * <p>The context enables CameraX to obtain access to necessary services, including the camera
      * service. For example, the context can be provided by the application.
      *
-     * @param context          to attach
-     * @param appConfiguration configuration options for this application session.
+     * @param context   to attach
+     * @param appConfig configuration options for this application session.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public static void init(Context context, AppConfiguration appConfiguration) {
-        INSTANCE.initInternal(context, appConfiguration);
+    public static void init(Context context, AppConfig appConfig) {
+        INSTANCE.initInternal(context, appConfig);
     }
 
     /**
@@ -355,7 +355,7 @@ public final class CameraX {
     /**
      * Returns true if CameraX is initialized.
      *
-     * <p>Any previous call to {@link #init(Context, AppConfiguration)} would have initialized
+     * <p>Any previous call to {@link #init(Context, AppConfig)} would have initialized
      * CameraX.
      *
      * @hide
@@ -426,8 +426,8 @@ public final class CameraX {
         for (UseCase useCase : useCases) {
             String cameraId = null;
             LensFacing lensFacing =
-                    useCase.getUseCaseConfiguration()
-                            .retrieveOption(CameraDeviceConfiguration.OPTION_LENS_FACING);
+                    useCase.getUseCaseConfig()
+                            .retrieveOption(CameraDeviceConfig.OPTION_LENS_FACING);
             try {
                 cameraId = getCameraWithLensFacing(lensFacing);
             } catch (Exception e) {
@@ -488,7 +488,7 @@ public final class CameraX {
         return mSurfaceManager;
     }
 
-    private UseCaseConfigurationFactory getDefaultConfigFactory() {
+    private UseCaseConfigFactory getDefaultConfigFactory() {
         if (mDefaultConfigFactory == null) {
             throw new IllegalStateException("CameraX not initialized yet.");
         }
@@ -496,28 +496,28 @@ public final class CameraX {
         return mDefaultConfigFactory;
     }
 
-    private void initInternal(Context context, AppConfiguration appConfiguration) {
+    private void initInternal(Context context, AppConfig appConfig) {
         if (mInitialized.getAndSet(true)) {
             return;
         }
 
         mContext = context.getApplicationContext();
-        mCameraFactory = appConfiguration.getCameraFactory(null);
+        mCameraFactory = appConfig.getCameraFactory(null);
         if (mCameraFactory == null) {
             throw new IllegalStateException(
                     "Invalid app configuration provided. Missing CameraFactory.");
         }
 
-        mSurfaceManager = appConfiguration.getDeviceSurfaceManager(null);
+        mSurfaceManager = appConfig.getDeviceSurfaceManager(null);
         if (mSurfaceManager == null) {
             throw new IllegalStateException(
                     "Invalid app configuration provided. Missing CameraDeviceSurfaceManager.");
         }
 
-        mDefaultConfigFactory = appConfiguration.getUseCaseConfigRepository(null);
+        mDefaultConfigFactory = appConfig.getUseCaseConfigRepository(null);
         if (mDefaultConfigFactory == null) {
             throw new IllegalStateException(
-                    "Invalid app configuration provided. Missing UseCaseConfigurationFactory.");
+                    "Invalid app configuration provided. Missing UseCaseConfigFactory.");
         }
 
         mCameraRepository.init(mCameraFactory);

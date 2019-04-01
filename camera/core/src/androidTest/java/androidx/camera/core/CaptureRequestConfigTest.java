@@ -37,7 +37,7 @@ import java.util.Map;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class CaptureRequestConfigurationTest {
+public class CaptureRequestConfigTest {
     private DeferrableSurface mMockSurface0;
 
     @Before
@@ -47,35 +47,35 @@ public class CaptureRequestConfigurationTest {
 
     @Test
     public void buildCaptureRequestWithNullCameraDevice() throws CameraAccessException {
-        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+        CaptureRequestConfig.Builder builder = new CaptureRequestConfig.Builder();
         CameraDevice cameraDevice = null;
-        CaptureRequestConfiguration captureRequestConfiguration = builder.build();
+        CaptureRequestConfig captureRequestConfig = builder.build();
 
         CaptureRequest.Builder captureRequestBuilder =
-                captureRequestConfiguration.buildCaptureRequest(cameraDevice);
+                captureRequestConfig.buildCaptureRequest(cameraDevice);
 
         assertThat(captureRequestBuilder).isNull();
     }
 
     @Test
     public void builderSetTemplate() {
-        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+        CaptureRequestConfig.Builder builder = new CaptureRequestConfig.Builder();
 
         builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        CaptureRequestConfiguration captureRequestConfiguration = builder.build();
+        CaptureRequestConfig captureRequestConfig = builder.build();
 
-        assertThat(captureRequestConfiguration.getTemplateType())
+        assertThat(captureRequestConfig.getTemplateType())
                 .isEqualTo(CameraDevice.TEMPLATE_PREVIEW);
     }
 
     @Test
     public void builderAddSurface() {
-        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+        CaptureRequestConfig.Builder builder = new CaptureRequestConfig.Builder();
 
         builder.addSurface(mMockSurface0);
-        CaptureRequestConfiguration captureRequestConfiguration = builder.build();
+        CaptureRequestConfig captureRequestConfig = builder.build();
 
-        List<DeferrableSurface> surfaces = captureRequestConfiguration.getSurfaces();
+        List<DeferrableSurface> surfaces = captureRequestConfig.getSurfaces();
 
         assertThat(surfaces).hasSize(1);
         assertThat(surfaces).contains(mMockSurface0);
@@ -83,40 +83,40 @@ public class CaptureRequestConfigurationTest {
 
     @Test
     public void builderRemoveSurface() {
-        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+        CaptureRequestConfig.Builder builder = new CaptureRequestConfig.Builder();
 
         builder.addSurface(mMockSurface0);
         builder.removeSurface(mMockSurface0);
-        CaptureRequestConfiguration captureRequestConfiguration = builder.build();
+        CaptureRequestConfig captureRequestConfig = builder.build();
 
         List<Surface> surfaces =
-                DeferrableSurfaces.surfaceList(captureRequestConfiguration.getSurfaces());
+                DeferrableSurfaces.surfaceList(captureRequestConfig.getSurfaces());
         assertThat(surfaces).isEmpty();
     }
 
     @Test
     public void builderClearSurface() {
-        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+        CaptureRequestConfig.Builder builder = new CaptureRequestConfig.Builder();
 
         builder.addSurface(mMockSurface0);
         builder.clearSurfaces();
-        CaptureRequestConfiguration captureRequestConfiguration = builder.build();
+        CaptureRequestConfig captureRequestConfig = builder.build();
 
         List<Surface> surfaces =
-                DeferrableSurfaces.surfaceList(captureRequestConfiguration.getSurfaces());
+                DeferrableSurfaces.surfaceList(captureRequestConfig.getSurfaces());
         assertThat(surfaces.size()).isEqualTo(0);
     }
 
     @Test
     public void builderAddCharacteristic() {
-        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+        CaptureRequestConfig.Builder builder = new CaptureRequestConfig.Builder();
 
         builder.addCharacteristic(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
-        CaptureRequestConfiguration captureRequestConfiguration = builder.build();
+        CaptureRequestConfig captureRequestConfig = builder.build();
 
         Map<Key<?>, CaptureRequestParameter<?>> parameterMap =
-                captureRequestConfiguration.getCameraCharacteristics();
+                captureRequestConfig.getCameraCharacteristics();
 
         assertThat(parameterMap.containsKey(CaptureRequest.CONTROL_AF_MODE)).isTrue();
         assertThat(parameterMap)
@@ -129,11 +129,11 @@ public class CaptureRequestConfigurationTest {
 
     @Test
     public void builderSetUseTargetedSurface() {
-        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+        CaptureRequestConfig.Builder builder = new CaptureRequestConfig.Builder();
 
         builder.setUseRepeatingSurface(true);
-        CaptureRequestConfiguration captureRequestConfiguration = builder.build();
+        CaptureRequestConfig captureRequestConfig = builder.build();
 
-        assertThat(captureRequestConfiguration.isUseRepeatingSurface()).isTrue();
+        assertThat(captureRequestConfig.isUseRepeatingSurface()).isTrue();
     }
 }

@@ -36,7 +36,7 @@ import java.util.Map;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class SessionConfigurationTest {
+public class SessionConfigTest {
     private DeferrableSurface mMockSurface0;
     private DeferrableSurface mMockSurface1;
 
@@ -48,22 +48,22 @@ public class SessionConfigurationTest {
 
     @Test
     public void builderSetTemplate() {
-        SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder = new SessionConfig.Builder();
 
         builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        SessionConfiguration sessionConfiguration = builder.build();
+        SessionConfig sessionConfig = builder.build();
 
-        assertThat(sessionConfiguration.getTemplateType()).isEqualTo(CameraDevice.TEMPLATE_PREVIEW);
+        assertThat(sessionConfig.getTemplateType()).isEqualTo(CameraDevice.TEMPLATE_PREVIEW);
     }
 
     @Test
     public void builderAddSurface() {
-        SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder = new SessionConfig.Builder();
 
         builder.addSurface(mMockSurface0);
-        SessionConfiguration sessionConfiguration = builder.build();
+        SessionConfig sessionConfig = builder.build();
 
-        List<DeferrableSurface> surfaces = sessionConfiguration.getSurfaces();
+        List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
 
         assertThat(surfaces).hasSize(1);
         assertThat(surfaces).contains(mMockSurface0);
@@ -71,14 +71,14 @@ public class SessionConfigurationTest {
 
     @Test
     public void builderAddNonRepeatingSurface() {
-        SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder = new SessionConfig.Builder();
 
         builder.addNonRepeatingSurface(mMockSurface0);
-        SessionConfiguration sessionConfiguration = builder.build();
+        SessionConfig sessionConfig = builder.build();
 
-        List<DeferrableSurface> surfaces = sessionConfiguration.getSurfaces();
+        List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
         List<DeferrableSurface> repeatingSurfaces =
-                sessionConfiguration.getCaptureRequestConfiguration().getSurfaces();
+                sessionConfig.getCaptureRequestConfig().getSurfaces();
 
         assertThat(surfaces).hasSize(1);
         assertThat(surfaces).contains(mMockSurface0);
@@ -88,16 +88,16 @@ public class SessionConfigurationTest {
 
     @Test
     public void builderAddSurfaceContainsRepeatingSurface() {
-        SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder = new SessionConfig.Builder();
 
         builder.addSurface(mMockSurface0);
         builder.addNonRepeatingSurface(mMockSurface1);
-        SessionConfiguration sessionConfiguration = builder.build();
+        SessionConfig sessionConfig = builder.build();
 
-        List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfiguration.getSurfaces());
+        List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces());
         List<Surface> repeatingSurfaces =
                 DeferrableSurfaces.surfaceList(
-                        sessionConfiguration.getCaptureRequestConfiguration().getSurfaces());
+                        sessionConfig.getCaptureRequestConfig().getSurfaces());
 
         assertThat(surfaces.size()).isAtLeast(repeatingSurfaces.size());
         assertThat(surfaces).containsAllIn(repeatingSurfaces);
@@ -105,38 +105,38 @@ public class SessionConfigurationTest {
 
     @Test
     public void builderRemoveSurface() {
-        SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder = new SessionConfig.Builder();
 
         builder.addSurface(mMockSurface0);
         builder.removeSurface(mMockSurface0);
-        SessionConfiguration sessionConfiguration = builder.build();
+        SessionConfig sessionConfig = builder.build();
 
-        List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfiguration.getSurfaces());
+        List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces());
         assertThat(surfaces).isEmpty();
     }
 
     @Test
     public void builderClearSurface() {
-        SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder = new SessionConfig.Builder();
 
         builder.addSurface(mMockSurface0);
         builder.clearSurfaces();
-        SessionConfiguration sessionConfiguration = builder.build();
+        SessionConfig sessionConfig = builder.build();
 
-        List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfiguration.getSurfaces());
+        List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces());
         assertThat(surfaces.size()).isEqualTo(0);
     }
 
     @Test
     public void builderAddCharacteristic() {
-        SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder = new SessionConfig.Builder();
 
         builder.addCharacteristic(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
-        SessionConfiguration sessionConfiguration = builder.build();
+        SessionConfig sessionConfig = builder.build();
 
         Map<Key<?>, CaptureRequestParameter<?>> parameterMap =
-                sessionConfiguration.getCameraCharacteristics();
+                sessionConfig.getCameraCharacteristics();
 
         assertThat(parameterMap.containsKey(CaptureRequest.CONTROL_AF_MODE)).isTrue();
         assertThat(parameterMap)
@@ -149,59 +149,56 @@ public class SessionConfigurationTest {
 
     @Test
     public void conflictingTemplate() {
-        SessionConfiguration.Builder builderPreview = new SessionConfiguration.Builder();
+        SessionConfig.Builder builderPreview = new SessionConfig.Builder();
         builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        SessionConfiguration sessionConfigurationPreview = builderPreview.build();
-        SessionConfiguration.Builder builderZsl = new SessionConfiguration.Builder();
+        SessionConfig sessionConfigPreview = builderPreview.build();
+        SessionConfig.Builder builderZsl = new SessionConfig.Builder();
         builderZsl.setTemplateType(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
-        SessionConfiguration sessionConfigurationZsl = builderZsl.build();
+        SessionConfig sessionConfigZsl = builderZsl.build();
 
-        SessionConfiguration.ValidatingBuilder validatingBuilder =
-                new SessionConfiguration.ValidatingBuilder();
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
 
-        validatingBuilder.add(sessionConfigurationPreview);
-        validatingBuilder.add(sessionConfigurationZsl);
+        validatingBuilder.add(sessionConfigPreview);
+        validatingBuilder.add(sessionConfigZsl);
 
         assertThat(validatingBuilder.isValid()).isFalse();
     }
 
     @Test
     public void conflictingCharacteristics() {
-        SessionConfiguration.Builder builderAfAuto = new SessionConfiguration.Builder();
+        SessionConfig.Builder builderAfAuto = new SessionConfig.Builder();
         builderAfAuto.addCharacteristic(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
-        SessionConfiguration sessionConfigurationAfAuto = builderAfAuto.build();
-        SessionConfiguration.Builder builderAfOff = new SessionConfiguration.Builder();
+        SessionConfig sessionConfigAfAuto = builderAfAuto.build();
+        SessionConfig.Builder builderAfOff = new SessionConfig.Builder();
         builderAfOff.addCharacteristic(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF);
-        SessionConfiguration sessionConfigurationAfOff = builderAfOff.build();
+        SessionConfig sessionConfigAfOff = builderAfOff.build();
 
-        SessionConfiguration.ValidatingBuilder validatingBuilder =
-                new SessionConfiguration.ValidatingBuilder();
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
 
-        validatingBuilder.add(sessionConfigurationAfAuto);
-        validatingBuilder.add(sessionConfigurationAfOff);
+        validatingBuilder.add(sessionConfigAfAuto);
+        validatingBuilder.add(sessionConfigAfOff);
 
         assertThat(validatingBuilder.isValid()).isFalse();
     }
 
     @Test
     public void combineTwoSessionsValid() {
-        SessionConfiguration.Builder builder0 = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder0 = new SessionConfig.Builder();
         builder0.addSurface(mMockSurface0);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder0.addCharacteristic(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
-        SessionConfiguration.Builder builder1 = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder1 = new SessionConfig.Builder();
         builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder1.addCharacteristic(
                 CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
                 CaptureRequest.CONTROL_AE_ANTIBANDING_MODE_AUTO);
 
-        SessionConfiguration.ValidatingBuilder validatingBuilder =
-                new SessionConfiguration.ValidatingBuilder();
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         validatingBuilder.add(builder0.build());
         validatingBuilder.add(builder1.build());
 
@@ -210,79 +207,76 @@ public class SessionConfigurationTest {
 
     @Test
     public void combineTwoSessionsTemplate() {
-        SessionConfiguration.Builder builder0 = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder0 = new SessionConfig.Builder();
         builder0.addSurface(mMockSurface0);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder0.addCharacteristic(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
-        SessionConfiguration.Builder builder1 = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder1 = new SessionConfig.Builder();
         builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder1.addCharacteristic(
                 CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
                 CaptureRequest.CONTROL_AE_ANTIBANDING_MODE_AUTO);
 
-        SessionConfiguration.ValidatingBuilder validatingBuilder =
-                new SessionConfiguration.ValidatingBuilder();
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         validatingBuilder.add(builder0.build());
         validatingBuilder.add(builder1.build());
 
-        SessionConfiguration sessionConfiguration = validatingBuilder.build();
+        SessionConfig sessionConfig = validatingBuilder.build();
 
-        assertThat(sessionConfiguration.getTemplateType()).isEqualTo(CameraDevice.TEMPLATE_PREVIEW);
+        assertThat(sessionConfig.getTemplateType()).isEqualTo(CameraDevice.TEMPLATE_PREVIEW);
     }
 
     @Test
     public void combineTwoSessionsSurfaces() {
-        SessionConfiguration.Builder builder0 = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder0 = new SessionConfig.Builder();
         builder0.addSurface(mMockSurface0);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder0.addCharacteristic(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
-        SessionConfiguration.Builder builder1 = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder1 = new SessionConfig.Builder();
         builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder1.addCharacteristic(
                 CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
                 CaptureRequest.CONTROL_AE_ANTIBANDING_MODE_AUTO);
 
-        SessionConfiguration.ValidatingBuilder validatingBuilder =
-                new SessionConfiguration.ValidatingBuilder();
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         validatingBuilder.add(builder0.build());
         validatingBuilder.add(builder1.build());
 
-        SessionConfiguration sessionConfiguration = validatingBuilder.build();
+        SessionConfig sessionConfig = validatingBuilder.build();
 
-        List<DeferrableSurface> surfaces = sessionConfiguration.getSurfaces();
+        List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
         assertThat(surfaces).containsExactly(mMockSurface0, mMockSurface1);
     }
 
     @Test
     public void combineTwoSessionsCharacteristics() {
-        SessionConfiguration.Builder builder0 = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder0 = new SessionConfig.Builder();
         builder0.addSurface(mMockSurface0);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder0.addCharacteristic(
                 CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
-        SessionConfiguration.Builder builder1 = new SessionConfiguration.Builder();
+        SessionConfig.Builder builder1 = new SessionConfig.Builder();
         builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder1.addCharacteristic(
                 CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
                 CaptureRequest.CONTROL_AE_ANTIBANDING_MODE_AUTO);
 
-        SessionConfiguration.ValidatingBuilder validatingBuilder =
-                new SessionConfiguration.ValidatingBuilder();
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         validatingBuilder.add(builder0.build());
         validatingBuilder.add(builder1.build());
 
-        SessionConfiguration sessionConfiguration = validatingBuilder.build();
+        SessionConfig sessionConfig = validatingBuilder.build();
 
         Map<Key<?>, CaptureRequestParameter<?>> parameterMap =
-                sessionConfiguration.getCameraCharacteristics();
+                sessionConfig.getCameraCharacteristics();
         assertThat(parameterMap)
                 .containsExactly(
                         CaptureRequest.CONTROL_AF_MODE,

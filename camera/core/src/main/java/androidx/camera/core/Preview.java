@@ -31,7 +31,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import com.google.auto.value.AutoValue;
@@ -64,7 +64,7 @@ public class Preview extends UseCase {
             };
     final CheckedSurfaceTexture mCheckedSurfaceTexture =
             new CheckedSurfaceTexture(mSurfaceTextureListener);
-    private final PreviewConfiguration.Builder mUseCaseConfigBuilder;
+    private final PreviewConfig.Builder mUseCaseConfigBuilder;
     @Nullable
     private OnPreviewOutputUpdateListener mSubscribedPreviewOutputListener;
     @Nullable
@@ -74,18 +74,17 @@ public class Preview extends UseCase {
     /**
      * Creates a new view finder use case from the given configuration.
      *
-     * @param configuration for this use case instance
+     * @param config for this use case instance
      */
     @MainThread
-    public Preview(PreviewConfiguration configuration) {
-        super(configuration);
-        mUseCaseConfigBuilder = PreviewConfiguration.Builder.fromConfig(configuration);
+    public Preview(PreviewConfig config) {
+        super(config);
+        mUseCaseConfigBuilder = PreviewConfig.Builder.fromConfig(config);
     }
 
-    private static SessionConfiguration.Builder createFrom(
-            PreviewConfiguration configuration, DeferrableSurface surface) {
-        SessionConfiguration.Builder sessionConfigBuilder =
-                SessionConfiguration.Builder.createFrom(configuration);
+    private static SessionConfig.Builder createFrom(
+            PreviewConfig config, DeferrableSurface surface) {
+        SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addSurface(surface);
         return sessionConfigBuilder;
     }
@@ -155,12 +154,11 @@ public class Preview extends UseCase {
         }
     }
 
-    // TODO: Timeout may be exposed as a PreviewConfiguration(moved to CameraControl)
+    // TODO: Timeout may be exposed as a PreviewConfig(moved to CameraControl)
 
     private CameraControl getCurrentCameraControl() {
-        PreviewConfiguration configuration =
-                (PreviewConfiguration) getUseCaseConfiguration();
-        String cameraId = getCameraIdUnchecked(configuration.getLensFacing());
+        PreviewConfig config = (PreviewConfig) getUseCaseConfig();
+        String cameraId = getCameraIdUnchecked(config.getLensFacing());
         return getCameraControl(cameraId);
     }
 
@@ -225,11 +223,11 @@ public class Preview extends UseCase {
      * @param rotation Rotation of the surface texture consumer.
      */
     public void setTargetRotation(@RotationValue int rotation) {
-        ImageOutputConfiguration oldconfig = (ImageOutputConfiguration) getUseCaseConfiguration();
-        int oldRotation = oldconfig.getTargetRotation(ImageOutputConfiguration.INVALID_ROTATION);
-        if (oldRotation == ImageOutputConfiguration.INVALID_ROTATION || oldRotation != rotation) {
+        ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
+        int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
+        if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
             mUseCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfiguration(mUseCaseConfigBuilder.build());
+            updateUseCaseConfig(mUseCaseConfigBuilder.build());
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
             // For now we'll just attempt to update the rotation metadata.
@@ -250,11 +248,10 @@ public class Preview extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        PreviewConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
-                PreviewConfiguration.class, lensFacing);
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+        PreviewConfig defaults = CameraX.getDefaultUseCaseConfig(PreviewConfig.class, lensFacing);
         if (defaults != null) {
-            return PreviewConfiguration.Builder.fromConfig(defaults);
+            return PreviewConfig.Builder.fromConfig(defaults);
         }
 
         return null;
@@ -299,8 +296,8 @@ public class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
-        PreviewConfiguration configuration = (PreviewConfiguration) getUseCaseConfiguration();
-        String cameraId = getCameraIdUnchecked(configuration.getLensFacing());
+        PreviewConfig config = (PreviewConfig) getUseCaseConfig();
+        String cameraId = getCameraIdUnchecked(config.getLensFacing());
         Size resolution = suggestedResolutionMap.get(cameraId);
         if (resolution == null) {
             throw new IllegalArgumentException(
@@ -310,8 +307,7 @@ public class Preview extends UseCase {
         mCheckedSurfaceTexture.setResolution(resolution);
         mCheckedSurfaceTexture.resetSurfaceTexture();
 
-        SessionConfiguration.Builder sessionConfigBuilder =
-                createFrom(configuration, mCheckedSurfaceTexture);
+        SessionConfig.Builder sessionConfigBuilder = createFrom(config, mCheckedSurfaceTexture);
         attachToCamera(cameraId, sessionConfigBuilder.build());
 
         return suggestedResolutionMap;
@@ -330,14 +326,14 @@ public class Preview extends UseCase {
 
     @UiThread
     void updateOutput(SurfaceTexture surfaceTexture, Size resolution) {
-        PreviewConfiguration useCaseConfig = (PreviewConfiguration) getUseCaseConfiguration();
+        PreviewConfig useCaseConfig = (PreviewConfig) getUseCaseConfig();
 
         int relativeRotation =
                 (mLatestPreviewOutput == null) ? 0
                         : mLatestPreviewOutput.getRotationDegrees();
         try {
             // Attempt to get the camera ID. If this fails, we probably don't have permission, so we
-            // will rely on the updated UseCaseConfiguration to set the correct rotation in
+            // will rely on the updated UseCaseConfig to set the correct rotation in
             // onSuggestedResolutionUpdated()
             String cameraId = CameraX.getCameraWithLensFacing(useCaseConfig.getLensFacing());
             CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
@@ -407,18 +403,17 @@ public class Preview extends UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public static final class Defaults
-            implements ConfigurationProvider<PreviewConfiguration> {
+    public static final class Defaults implements ConfigProvider<PreviewConfig> {
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final Size DEFAULT_MAX_RESOLUTION =
                 CameraX.getSurfaceManager().getPreviewSize();
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 2;
 
-        private static final PreviewConfiguration DEFAULT_CONFIG;
+        private static final PreviewConfig DEFAULT_CONFIG;
 
         static {
-            PreviewConfiguration.Builder builder =
-                    new PreviewConfiguration.Builder()
+            PreviewConfig.Builder builder =
+                    new PreviewConfig.Builder()
                             .setCallbackHandler(DEFAULT_HANDLER)
                             .setMaxResolution(DEFAULT_MAX_RESOLUTION)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
@@ -426,7 +421,7 @@ public class Preview extends UseCase {
         }
 
         @Override
-        public PreviewConfiguration getConfiguration(LensFacing lensFacing) {
+        public PreviewConfig getConfig(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
         }
     }
@@ -454,7 +449,7 @@ public class Preview extends UseCase {
 
         /**
          * Returns the rotation required, in degrees, to transform the PreviewOutput to match the
-         * orientation given by ImageOutputConfiguration#getTargetRotation(int).
+         * orientation given by ImageOutputConfig#getTargetRotation(int).
          *
          * <p>This number is independent of any rotation value that can be derived from the
          * PreviewOutput's {@link SurfaceTexture#getTransformMatrix(float[])}.

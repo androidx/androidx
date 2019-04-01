@@ -20,30 +20,30 @@ import android.content.Context;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.AppConfiguration;
+import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.UseCaseConfigurationFactory;
+import androidx.camera.core.UseCaseConfigFactory;
 
 /**
- * Convenience class for generating a fake {@link androidx.camera.core.AppConfiguration}.
+ * Convenience class for generating a fake {@link AppConfig}.
  *
- * <p>This {@link AppConfiguration} contains all fake CameraX implementation components.
- * @hide Hidden until {@link CameraX#init(Context, AppConfiguration)} is public.
+ * <p>This {@link AppConfig} contains all fake CameraX implementation components.
+ * @hide Hidden until {@link CameraX#init(Context, AppConfig)} is public.
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class FakeAppConfiguration {
+public final class FakeAppConfig {
 
-    /** Generates a fake {@link androidx.camera.core.AppConfiguration}. */
-    public static AppConfiguration create() {
+    /** Generates a fake {@link AppConfig}. */
+    public static AppConfig create() {
         CameraFactory cameraFactory = new FakeCameraFactory();
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
-        UseCaseConfigurationFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
+        UseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
 
-        AppConfiguration.Builder appConfigBuilder =
-                new AppConfiguration.Builder()
+        AppConfig.Builder appConfigBuilder =
+                new AppConfig.Builder()
                         .setCameraFactory(cameraFactory)
                         .setDeviceSurfaceManager(surfaceManager)
                         .setUseCaseConfigFactory(defaultConfigFactory);

@@ -41,7 +41,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.io.File;
@@ -109,7 +109,7 @@ public class VideoCapture extends UseCase {
     /** For record the first sample written time. */
     private final AtomicBoolean mIsFirstVideoSampleWrite = new AtomicBoolean(false);
     private final AtomicBoolean mIsFirstAudioSampleWrite = new AtomicBoolean(false);
-    private final VideoCaptureConfiguration.Builder mUseCaseConfigBuilder;
+    private final VideoCaptureConfig.Builder mUseCaseConfigBuilder;
     @NonNull
     MediaCodec mVideoEncoder;
     @NonNull
@@ -137,11 +137,11 @@ public class VideoCapture extends UseCase {
     /**
      * Creates a new video capture use case from the given configuration.
      *
-     * @param configuration for this use case instance
+     * @param config for this use case instance
      */
-    public VideoCapture(VideoCaptureConfiguration configuration) {
-        super(configuration);
-        mUseCaseConfigBuilder = VideoCaptureConfiguration.Builder.fromConfig(configuration);
+    public VideoCapture(VideoCaptureConfig config) {
+        super(config);
+        mUseCaseConfigBuilder = VideoCaptureConfig.Builder.fromConfig(config);
 
         // video thread start
         mVideoHandlerThread.start();
@@ -153,15 +153,14 @@ public class VideoCapture extends UseCase {
     }
 
     /** Creates a {@link MediaFormat} using parameters from the configuration */
-    private static MediaFormat createMediaFormat(
-            VideoCaptureConfiguration configuration, Size resolution) {
+    private static MediaFormat createMediaFormat(VideoCaptureConfig config, Size resolution) {
         MediaFormat format =
                 MediaFormat.createVideoFormat(
                         VIDEO_MIME_TYPE, resolution.getWidth(), resolution.getHeight());
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, CodecCapabilities.COLOR_FormatSurface);
-        format.setInteger(MediaFormat.KEY_BIT_RATE, configuration.getBitRate());
-        format.setInteger(MediaFormat.KEY_FRAME_RATE, configuration.getVideoFrameRate());
-        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, configuration.getIFrameInterval());
+        format.setInteger(MediaFormat.KEY_BIT_RATE, config.getBitRate());
+        format.setInteger(MediaFormat.KEY_FRAME_RATE, config.getVideoFrameRate());
+        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, config.getIFrameInterval());
 
         return format;
     }
@@ -183,11 +182,11 @@ public class VideoCapture extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        VideoCaptureConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
-                VideoCaptureConfiguration.class, lensFacing);
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+        VideoCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(
+                VideoCaptureConfig.class, lensFacing);
         if (defaults != null) {
-            return VideoCaptureConfiguration.Builder.fromConfig(defaults);
+            return VideoCaptureConfig.Builder.fromConfig(defaults);
         }
 
         return null;
@@ -202,8 +201,7 @@ public class VideoCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
-        VideoCaptureConfiguration configuration =
-                (VideoCaptureConfiguration) getUseCaseConfiguration();
+        VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
         if (mCameraSurface != null) {
             mVideoEncoder.stop();
             mVideoEncoder.release();
@@ -219,7 +217,7 @@ public class VideoCapture extends UseCase {
             throw new IllegalStateException("Unable to create MediaCodec due to: " + e.getCause());
         }
 
-        String cameraId = getCameraIdUnchecked(configuration.getLensFacing());
+        String cameraId = getCameraIdUnchecked(config.getLensFacing());
         Size resolution = suggestedResolutionMap.get(cameraId);
         if (resolution == null) {
             throw new IllegalArgumentException(
@@ -276,8 +274,7 @@ public class VideoCapture extends UseCase {
         }
 
         String cameraId =
-                getCameraIdUnchecked(
-                        ((CameraDeviceConfiguration) getUseCaseConfiguration()).getLensFacing());
+                getCameraIdUnchecked(((CameraDeviceConfig) getUseCaseConfig()).getLensFacing());
         try {
             // video encoder start
             Log.i(TAG, "videoEncoder start");
@@ -298,7 +295,7 @@ public class VideoCapture extends UseCase {
             CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
             relativeRotation =
                     cameraInfo.getSensorRotationDegrees(
-                            ((ImageOutputConfiguration) getUseCaseConfiguration())
+                            ((ImageOutputConfig) getUseCaseConfig())
                                     .getTargetRotation(Surface.ROTATION_0));
         } catch (CameraInfoUnavailableException e) {
             Log.e(TAG, "Unable to retrieve camera sensor orientation.", e);
@@ -432,11 +429,11 @@ public class VideoCapture extends UseCase {
      * @param rotation Desired rotation of the output video.
      */
     public void setTargetRotation(@RotationValue int rotation) {
-        ImageOutputConfiguration oldconfig = (ImageOutputConfiguration) getUseCaseConfiguration();
-        int oldRotation = oldconfig.getTargetRotation(ImageOutputConfiguration.INVALID_ROTATION);
-        if (oldRotation == ImageOutputConfiguration.INVALID_ROTATION || oldRotation != rotation) {
+        ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
+        int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
+        if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
             mUseCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfiguration(mUseCaseConfigBuilder.build());
+            updateUseCaseConfig(mUseCaseConfigBuilder.build());
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
         }
@@ -447,13 +444,12 @@ public class VideoCapture extends UseCase {
      * audio from selected audio source.
      */
     private void setupEncoder(Size resolution) {
-        VideoCaptureConfiguration configuration =
-                (VideoCaptureConfiguration) getUseCaseConfiguration();
+        VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
 
         // video encoder setup
         mVideoEncoder.reset();
         mVideoEncoder.configure(
-                createMediaFormat(configuration, resolution), /*surface*/
+                createMediaFormat(config, resolution), /*surface*/
                 null, /*crypto*/
                 null,
                 MediaCodec.CONFIGURE_FLAG_ENCODE);
@@ -462,14 +458,13 @@ public class VideoCapture extends UseCase {
         }
         mCameraSurface = mVideoEncoder.createInputSurface();
 
-        SessionConfiguration.Builder builder =
-                SessionConfiguration.Builder.createFrom(configuration);
+        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(config);
 
         mDeferrableSurface = new ImmediateSurface(mCameraSurface);
 
         builder.addSurface(mDeferrableSurface);
 
-        String cameraId = getCameraIdUnchecked(configuration.getLensFacing());
+        String cameraId = getCameraIdUnchecked(config.getLensFacing());
         attachToCamera(cameraId, builder.build());
 
         // audio encoder setup
@@ -481,7 +476,7 @@ public class VideoCapture extends UseCase {
         if (mAudioRecorder != null) {
             mAudioRecorder.release();
         }
-        mAudioRecorder = autoConfigAudioRecordSource(configuration);
+        mAudioRecorder = autoConfigAudioRecordSource(config);
         // check mAudioRecorder
         if (mAudioRecorder == null) {
             Log.e(TAG, "AudioRecord object cannot initialized correctly!");
@@ -572,8 +567,7 @@ public class VideoCapture extends UseCase {
      * @return returns {@code true} if an error condition occurred, otherwise returns {@code false}
      */
     boolean videoEncode(OnVideoSavedListener videoSavedListener) {
-        VideoCaptureConfiguration configuration =
-                (VideoCaptureConfiguration) getUseCaseConfiguration();
+        VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
         // Main encoding loop. Exits on end of stream.
         boolean errorOccurred = false;
         boolean videoEos = false;
@@ -647,7 +641,7 @@ public class VideoCapture extends UseCase {
         // want
         // that to incur latency at the start of capture.
         setupEncoder(
-                getAttachedSurfaceResolution(getCameraIdUnchecked(configuration.getLensFacing())));
+                getAttachedSurfaceResolution(getCameraIdUnchecked(config.getLensFacing())));
         notifyReset();
 
         // notify the UI thread that the video recording has finished
@@ -751,8 +745,7 @@ public class VideoCapture extends UseCase {
     }
 
     /** Create a AudioRecord object to get raw data */
-    private AudioRecord autoConfigAudioRecordSource(
-            VideoCaptureConfiguration configuration) {
+    private AudioRecord autoConfigAudioRecordSource(VideoCaptureConfig config) {
         for (short audioFormat : sAudioEncoding) {
 
             // Use channel count to determine stereo vs mono
@@ -760,14 +753,14 @@ public class VideoCapture extends UseCase {
                     mAudioChannelCount == 1
                             ? AudioFormat.CHANNEL_IN_MONO
                             : AudioFormat.CHANNEL_IN_STEREO;
-            int source = configuration.getAudioRecordSource();
+            int source = config.getAudioRecordSource();
 
             try {
                 int bufferSize =
                         AudioRecord.getMinBufferSize(mAudioSampleRate, channelConfig, audioFormat);
 
                 if (bufferSize <= 0) {
-                    bufferSize = configuration.getAudioMinBufferSize();
+                    bufferSize = config.getAudioMinBufferSize();
                 }
 
                 AudioRecord recorder =
@@ -822,10 +815,9 @@ public class VideoCapture extends UseCase {
         }
 
         // In case no corresponding camcorder profile can be founded, * get default value from
-        // VideoCaptureConfiguration.
+        // VideoCaptureConfig.
         if (!isCamcorderProfileFound) {
-            VideoCaptureConfiguration config =
-                    (VideoCaptureConfiguration) getUseCaseConfiguration();
+            VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
             mAudioChannelCount = config.getAudioChannelCount();
             mAudioSampleRate = config.getAudioSampleRate();
             mAudioBitRate = config.getAudioBitRate();
@@ -879,7 +871,7 @@ public class VideoCapture extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
-            implements ConfigurationProvider<VideoCaptureConfiguration> {
+            implements ConfigProvider<VideoCaptureConfig> {
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final int DEFAULT_VIDEO_FRAME_RATE = 30;
         /** 8Mb/s the recommend rate for 30fps 1080p */
@@ -901,11 +893,11 @@ public class VideoCapture extends UseCase {
         /** Surface occupancy prioirty to this use case */
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 3;
 
-        private static final VideoCaptureConfiguration DEFAULT_CONFIG;
+        private static final VideoCaptureConfig DEFAULT_CONFIG;
 
         static {
-            VideoCaptureConfiguration.Builder builder =
-                    new VideoCaptureConfiguration.Builder()
+            VideoCaptureConfig.Builder builder =
+                    new VideoCaptureConfig.Builder()
                             .setCallbackHandler(DEFAULT_HANDLER)
                             .setVideoFrameRate(DEFAULT_VIDEO_FRAME_RATE)
                             .setBitRate(DEFAULT_BIT_RATE)
@@ -922,7 +914,7 @@ public class VideoCapture extends UseCase {
         }
 
         @Override
-        public VideoCaptureConfiguration getConfiguration(LensFacing lensFacing) {
+        public VideoCaptureConfig getConfig(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
         }
     }

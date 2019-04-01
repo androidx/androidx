@@ -18,13 +18,13 @@ package androidx.camera.extensions;
 
 import android.hardware.camera2.CameraCharacteristics;
 
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 
 /**
  * Default implementation for ImageCaptureExtender.
  */
 public final class DefaultImageCaptureExtender extends ImageCaptureExtender {
-    DefaultImageCaptureExtender(ImageCaptureConfiguration.Builder builder) {
+    DefaultImageCaptureExtender(ImageCaptureConfig.Builder builder) {
         super(builder);
     }
 
