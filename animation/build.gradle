@@ -31,7 +31,7 @@ dependencies {
     androidTestImplementation(TEST_RULES, libs.exclude_for_espresso)
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Animation"
     publish = false
     mavenVersion = LibraryVersions.ANIMATION

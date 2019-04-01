@@ -37,7 +37,7 @@ dependencies {
     androidTestImplementation(JUNIT)
 }
 
-supportLibrary {
+androidx {
     name = "Android RecyclerView Selection"
     publish = true
     mavenVersion = LibraryVersions.RECYCLERVIEW

@@ -38,7 +38,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library Coordinator Layout"
     publish = true
     mavenVersion = LibraryVersions.COORDINATORLAYOUT

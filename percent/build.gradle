@@ -22,7 +22,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Percent Support Library"
     publish = true
     mavenVersion = LibraryVersions.PERCENTLAYOUT

@@ -22,7 +22,7 @@ android {
 
     testOptions.unitTests.includeAndroidResources = true
 }
-supportLibrary {
+androidx {
     name = "Enterprise Feedback"
     publish = true
     mavenVersion = LibraryVersions.ENTERPRISE

@@ -29,7 +29,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-ktx"))
 }
 
-supportLibrary {
+androidx {
     name = "Core Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.CORE

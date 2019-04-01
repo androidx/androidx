@@ -21,7 +21,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Biometric"
     publish = true
     mavenVersion = LibraryVersions.BIOMETRIC

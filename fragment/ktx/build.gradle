@@ -47,7 +47,7 @@ dependencies {
     androidTestImplementation(TEST_RULES)
 }
 
-supportLibrary {
+androidx {
     name = "Fragment Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.FRAGMENT

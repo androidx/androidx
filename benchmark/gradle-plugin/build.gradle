@@ -47,7 +47,7 @@ gradlePlugin {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Benchmark Gradle Plugin"
     publish = true
     toolingProject = true

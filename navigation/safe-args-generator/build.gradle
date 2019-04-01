@@ -19,7 +19,7 @@ import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.SupportConfig
-import androidx.build.SupportLibraryExtension
+import androidx.build.AndroidXExtension
 
 apply plugin: androidx.build.SupportKotlinLibraryPlugin
 
@@ -57,7 +57,7 @@ tasks.findByName("test").doFirst {
 
 tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarDebug")
 
-supportLibrary {
+androidx {
     name = 'Android Navigation TypeSafe Arguments Generator'
     publish = true
     toolingProject = true
@@ -65,6 +65,6 @@ supportLibrary {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = '2017'
     description = "Android Navigation TypeSafe Arguments Generator"
-    url = SupportLibraryExtension.ARCHITECTURE_URL
+    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
 }

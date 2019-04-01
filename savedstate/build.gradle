@@ -29,7 +29,7 @@ dependencies {
     androidTestImplementation(TRUTH)
 }
 
-supportLibrary {
+androidx {
     name = "Activity"
     publish = true
     mavenVersion = LibraryVersions.SAVEDSTATE

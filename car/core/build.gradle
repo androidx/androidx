@@ -52,7 +52,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Car Support UI"
     publish = true
     mavenVersion = LibraryVersions.CAR

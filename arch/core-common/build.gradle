@@ -17,7 +17,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.SupportLibraryExtension;
+import androidx.build.AndroidXExtension;
 
 plugins {
     id("SupportJavaLibraryPlugin")
@@ -30,13 +30,13 @@ dependencies {
     testCompile(MOCKITO_CORE)
 }
 
-supportLibrary {
+androidx {
     name = "Android Arch-Common"
     publish = true
     mavenVersion = LibraryVersions.ARCH_CORE
     mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Arch-Common"
-    url = SupportLibraryExtension.ARCHITECTURE_URL
+    url = AndroidXExtension.ARCHITECTURE_URL
     trackRestrictedAPIs = false
 }

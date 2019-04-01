@@ -35,7 +35,7 @@ dependencies {
     api files("src/main/libs/exoplayer-media2.jar")
 }
 
-supportLibrary {
+androidx {
     name = "Media2 repackaged ExoPlayer dependency"
     publish = true
     mavenVersion = LibraryVersions.MEDIA2_EXOPLAYER

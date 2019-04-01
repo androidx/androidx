@@ -53,7 +53,7 @@ artifacts {
     archives annotationsZip
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library Annotations"
     publish = true
     mavenVersion = LibraryVersions.ANNOTATION

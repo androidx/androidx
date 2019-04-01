@@ -44,7 +44,7 @@ dependencies {
     testImplementation(TEST_RULES)
 }
 
-supportLibrary {
+androidx {
     name = "LiveData Core Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.LIFECYCLE

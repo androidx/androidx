@@ -38,7 +38,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Leanback v17"
     publish = true
     mavenVersion = LibraryVersions.LEANBACK

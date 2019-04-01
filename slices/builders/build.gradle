@@ -30,7 +30,7 @@ dependencies {
     implementation project(':collection')
 }
 
-supportLibrary {
+androidx {
     name = "Slice builders"
     publish = true
     mavenVersion = LibraryVersions.SLICE

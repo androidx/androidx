@@ -16,7 +16,7 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library Document File"
     publish = true
     mavenVersion = LibraryVersions.DOCUMENTFILE

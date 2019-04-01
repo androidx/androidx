@@ -11,7 +11,7 @@ dependencies {
     api(project(":viewpager"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library v13"
     publish = true
     mavenVersion = LibraryVersions.LEGACY

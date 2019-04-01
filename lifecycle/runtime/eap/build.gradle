@@ -55,7 +55,7 @@ dependencies {
     lintPublish(project(':lifecycle:lifecycle-runtime-eap-lint'))
 }
 
-supportLibrary {
+androidx {
     name = "Android Lifecycle Kotlin Extensions"
     publish = false
     mavenVersion = LibraryVersions.LIFECYCLES_COROUTINES

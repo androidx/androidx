@@ -36,7 +36,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "AndroidX media2 library"
     publish = true
     mavenVersion = LibraryVersions.MEDIA2

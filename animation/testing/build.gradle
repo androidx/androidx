@@ -30,7 +30,7 @@ dependencies {
     implementation(TEST_CORE)
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Animation Testing"
     publish = false
     mavenVersion = LibraryVersions.ANIMATION_TESTING
