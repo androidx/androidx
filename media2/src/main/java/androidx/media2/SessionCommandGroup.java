@@ -165,21 +165,6 @@ public final class SessionCommandGroup implements VersionedParcelable {
         }
 
         /**
-         * Adds a predefined command with given {@code commandCode} to this command group.
-         *
-         * @param commandCode A command code to add.
-         *                    Shouldn't be {@link SessionCommand#COMMAND_CODE_CUSTOM}.
-         */
-        public @NonNull Builder addCommand(@CommandCode int commandCode) {
-            if (commandCode == COMMAND_CODE_CUSTOM) {
-                throw new IllegalArgumentException(
-                        "Use addCommand(SessionCommand) for COMMAND_CODE_CUSTOM.");
-            }
-            mCommands.add(new SessionCommand(commandCode));
-            return this;
-        }
-
-        /**
          * Adds all predefined session commands except for the commands added after the specified
          * version without default implementation. This provides convenient way to add commands
          * with implementation.
@@ -216,20 +201,6 @@ public final class SessionCommandGroup implements VersionedParcelable {
             return this;
         }
 
-        /**
-         * Removes a command from this group which matches given {@code commandCode}.
-         *
-         * @param commandCode A command code to find.
-         *                    Shouldn't be {@link SessionCommand#COMMAND_CODE_CUSTOM}.
-         */
-        public @NonNull Builder removeCommand(@CommandCode int commandCode) {
-            if (commandCode == COMMAND_CODE_CUSTOM) {
-                throw new IllegalArgumentException("commandCode shouldn't be COMMAND_CODE_CUSTOM");
-            }
-            mCommands.remove(new SessionCommand(commandCode));
-            return this;
-        }
-
         @NonNull Builder addAllPlayerCommands(@CommandVersion int version) {
             addCommands(version, SessionCommand.VERSION_PLAYER_COMMANDS_MAP);
             return this;
@@ -245,7 +216,7 @@ public final class SessionCommandGroup implements VersionedParcelable {
                 Range exclude = SessionCommand.VERSION_PLAYER_PLAYLIST_COMMANDS_MAP.get(i);
                 for (int code = include.lower; code <= include.upper; code++) {
                     if (code < exclude.lower && code > exclude.upper) {
-                        addCommand(code);
+                        addCommand(new SessionCommand(code));
                     }
                 }
             }
@@ -271,7 +242,7 @@ public final class SessionCommandGroup implements VersionedParcelable {
             for (int i = COMMAND_VERSION_1; i <= version; i++) {
                 Range range = map.get(i);
                 for (int code = range.lower; code <= range.upper; code++) {
-                    addCommand(code);
+                    addCommand(new SessionCommand(code));
                 }
             }
         }
