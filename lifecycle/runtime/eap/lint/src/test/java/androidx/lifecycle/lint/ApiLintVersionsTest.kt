@@ -16,18 +16,21 @@
 
 package androidx.lifecycle.lint
 
+import com.android.tools.lint.detector.api.CURRENT_API
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class MinApiLintTest {
+class ApiLintVersionsTest {
 
     @Test
-    fun minApiCheck() {
+    fun versionsCheck() {
         val registry = LifecycleRuntimeIssueRegistry()
-        // Intentionally Fails in IDE, because we use different API version in
+        // we hardcode version registry.api to the version that is used to run tests
+        Assert.assertEquals(CURRENT_API, registry.api)
+        // Intentionally fails in IDE, because we use different API version in
         // studio and command line
         Assert.assertEquals(3, registry.minApi)
     }
