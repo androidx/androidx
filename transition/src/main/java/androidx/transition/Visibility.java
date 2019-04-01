@@ -417,10 +417,7 @@ public abstract class Visibility extends Transition {
         }
 
         if (overlayView != null) {
-            // TODO: Need to do this for general case of adding to overlay
-            final ViewGroupOverlayImpl overlay;
             if (!reusingOverlayView) {
-                overlay = ViewGroupUtils.getOverlay(sceneRoot);
                 int[] screenLoc = (int[]) startValues.values.get(PROPNAME_SCREEN_LOCATION);
                 int screenX = screenLoc[0];
                 int screenY = screenLoc[1];
@@ -428,28 +425,27 @@ public abstract class Visibility extends Transition {
                 sceneRoot.getLocationOnScreen(loc);
                 overlayView.offsetLeftAndRight((screenX - loc[0]) - overlayView.getLeft());
                 overlayView.offsetTopAndBottom((screenY - loc[1]) - overlayView.getTop());
-                overlay.add(overlayView);
-            } else {
-                overlay = null;
+                ViewGroupUtils.getOverlay(sceneRoot).add(overlayView);
             }
             Animator animator = onDisappear(sceneRoot, overlayView, startValues, endValues);
             if (!reusingOverlayView) {
                 if (animator == null) {
-                    overlay.remove(overlayView);
+                    ViewGroupUtils.getOverlay(sceneRoot).remove(overlayView);
                 } else {
                     startView.setTag(R.id.save_overlay_view, overlayView);
                     final View finalOverlayView = overlayView;
+                    final ViewGroup overlayHost = sceneRoot;
                     addListener(new TransitionListenerAdapter() {
 
                         @Override
                         public void onTransitionPause(@NonNull Transition transition) {
-                            overlay.remove(finalOverlayView);
+                            ViewGroupUtils.getOverlay(overlayHost).remove(finalOverlayView);
                         }
 
                         @Override
                         public void onTransitionResume(@NonNull Transition transition) {
                             if (finalOverlayView.getParent() == null) {
-                                overlay.add(finalOverlayView);
+                                ViewGroupUtils.getOverlay(overlayHost).add(finalOverlayView);
                             } else {
                                 cancel();
                             }
@@ -458,7 +454,7 @@ public abstract class Visibility extends Transition {
                         @Override
                         public void onTransitionEnd(@NonNull Transition transition) {
                             startView.setTag(R.id.save_overlay_view, null);
-                            overlay.remove(finalOverlayView);
+                            ViewGroupUtils.getOverlay(overlayHost).remove(finalOverlayView);
                             transition.removeListener(this);
                         }
                     });
