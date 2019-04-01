@@ -805,7 +805,7 @@ public class MediaUtils {
         commandsBuilder.addAllVolumeCommands(COMMAND_VERSION_CURRENT);
         commandsBuilder.addAllSessionCommands(COMMAND_VERSION_CURRENT);
 
-        commandsBuilder.removeCommand(COMMAND_CODE_PLAYER_SET_SPEED);
+        commandsBuilder.removeCommand(new SessionCommand(COMMAND_CODE_PLAYER_SET_SPEED));
 
         if (state != null && state.getCustomActions() != null) {
             for (CustomAction customAction : state.getCustomActions()) {
