@@ -180,6 +180,7 @@ package androidx.core.app {
     ctor @Deprecated public NotificationCompat();
     method public static androidx.core.app.NotificationCompat.Action! getAction(android.app.Notification!, int);
     method public static int getActionCount(android.app.Notification!);
+    method public static boolean getAllowSystemGeneratedContextualActions(android.app.Notification!);
     method public static int getBadgeIconType(android.app.Notification!);
     method public static String! getCategory(android.app.Notification!);
     method public static String! getChannelId(android.app.Notification!);
@@ -370,6 +371,7 @@ package androidx.core.app {
     method public android.os.Bundle! getExtras();
     method @Deprecated public android.app.Notification! getNotification();
     method protected static CharSequence! limitCharSequenceLength(CharSequence!);
+    method public androidx.core.app.NotificationCompat.Builder setAllowSystemGeneratedContextualActions(boolean);
     method public androidx.core.app.NotificationCompat.Builder! setAutoCancel(boolean);
     method public androidx.core.app.NotificationCompat.Builder! setBadgeIconType(int);
     method public androidx.core.app.NotificationCompat.Builder! setCategory(String!);

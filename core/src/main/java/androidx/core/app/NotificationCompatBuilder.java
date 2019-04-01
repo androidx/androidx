@@ -206,6 +206,10 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                         .setVibrate(null);
             }
         }
+        if (BuildCompat.isAtLeastQ()) {
+            mBuilder.setAllowSystemGeneratedContextualActions(
+                    b.mAllowSystemGeneratedContextualActions);
+        }
     }
 
     @Override
