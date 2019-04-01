@@ -38,7 +38,7 @@ dependencies {
     androidTestImplementation(SUPPORT_CORE_UTILS, libs.support_exclude_config)
 }
 
-supportLibrary {
+androidx {
     name = "Android Lifecycle Service"
     publish = true
     mavenVersion = LibraryVersions.LIFECYCLE

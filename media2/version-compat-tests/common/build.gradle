@@ -26,6 +26,6 @@ dependencies {
     implementation(JUNIT)
 }
 
-supportLibrary {
+androidx {
     toolingProject = true
 }

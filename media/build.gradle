@@ -30,7 +30,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library media compat"
     publish = true
     mavenVersion = LibraryVersions.MEDIA

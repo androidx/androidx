@@ -46,7 +46,7 @@ dependencies {
     testImplementation(TEST_RUNNER)
 }
 
-supportLibrary {
+androidx {
     name = "Android WorkManager Testing"
     publish = true
     mavenVersion = LibraryVersions.WORKMANAGER

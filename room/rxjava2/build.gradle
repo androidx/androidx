@@ -35,7 +35,7 @@ dependencies {
     testImplementation(ARCH_LIFECYCLE_LIVEDATA) // for mocking invalidation tracker
 }
 
-supportLibrary {
+androidx {
     name = "Android Room RXJava2"
     publish = true
     mavenVersion = LibraryVersions.ROOM

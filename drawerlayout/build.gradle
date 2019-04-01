@@ -11,7 +11,7 @@ dependencies {
     api(project(":customview"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library Drawer Layout"
     publish = true
     mavenVersion = LibraryVersions.DRAWERLAYOUT

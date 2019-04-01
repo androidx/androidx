@@ -25,6 +25,6 @@ dependencies {
     compile(TRUTH)
 }
 
-supportLibrary {
+androidx {
     toolingProject = true
 }

@@ -29,7 +29,7 @@ dependencies {
     testCompile(MOCKITO_CORE)
 }
 
-supportLibrary {
+androidx {
     name = "Android Room-Common"
     publish = true
     mavenVersion = LibraryVersions.ROOM

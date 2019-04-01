@@ -35,7 +35,7 @@ dependencies {
     api(GUAVA_LISTENABLE_FUTURE)
 }
 
-supportLibrary {
+androidx {
     name = "Android Room Guava"
     publish = true
     mavenVersion = LibraryVersions.ROOM

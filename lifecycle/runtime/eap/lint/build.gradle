@@ -40,7 +40,7 @@ dependencies {
     testImplementation LINT_TESTS
 }
 
-supportLibrary {
+androidx {
     name = "Android Lifecycles Lint Checks"
     toolingProject = true
     publish = false

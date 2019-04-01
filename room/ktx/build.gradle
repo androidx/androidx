@@ -33,7 +33,7 @@ dependencies {
     testImplementation(MOCKITO_CORE)
 }
 
-supportLibrary {
+androidx {
     name = "Android Room Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.ROOM

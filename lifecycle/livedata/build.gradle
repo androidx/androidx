@@ -40,7 +40,7 @@ dependencies {
     testImplementation(MOCKITO_CORE)
 }
 
-supportLibrary {
+androidx {
     name = "Android Lifecycle LiveData"
     publish = true
     mavenVersion = LibraryVersions.LIFECYCLE

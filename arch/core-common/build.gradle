@@ -30,7 +30,7 @@ dependencies {
     testCompile(MOCKITO_CORE)
 }
 
-supportLibrary {
+androidx {
     name = "Android Arch-Common"
     publish = true
     mavenVersion = LibraryVersions.ARCH_CORE

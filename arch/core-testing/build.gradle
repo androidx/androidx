@@ -38,7 +38,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
 }
 
-supportLibrary {
+androidx {
     name = "Android Core-Testing"
     publish = true
     mavenVersion = LibraryVersions.ARCH_CORE_TESTING

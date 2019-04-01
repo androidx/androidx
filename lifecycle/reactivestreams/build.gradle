@@ -44,7 +44,7 @@ dependencies {
     testImplementation(project(":arch:core-testing"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Lifecycle Reactivestreams"
     publish = true
     mavenVersion = LibraryVersions.LIFECYCLE

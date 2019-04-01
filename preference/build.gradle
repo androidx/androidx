@@ -60,7 +60,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "AndroidX Preference"
     publish = true
     mavenVersion = LibraryVersions.PREFERENCE

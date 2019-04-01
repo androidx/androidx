@@ -60,7 +60,7 @@ dependencies {
     testImplementation(JUNIT)
 }
 
-supportLibrary {
+androidx {
     name = "Android WorkManager GCMNetworkManager Support"
     publish = false
     mavenVersion = LibraryVersions.WORKMANAGER

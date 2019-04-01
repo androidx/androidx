@@ -28,7 +28,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Support VectorDrawable"
     publish = true
     mavenVersion = LibraryVersions.VECTORDRAWABLE

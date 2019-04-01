@@ -56,7 +56,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Emoji Compat"
     publish = true
     mavenVersion = LibraryVersions.EMOJI

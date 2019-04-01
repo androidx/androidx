@@ -34,7 +34,7 @@ dependencies {
     api(JUNIT)
 }
 
-supportLibrary {
+androidx {
     name = "Android Room Testing"
     publish = true
     mavenVersion = LibraryVersions.ROOM

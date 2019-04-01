@@ -28,7 +28,7 @@ dependencies {
     api(project(":arch:core-common"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Arch-Runtime"
     publish = true
     mavenVersion = LibraryVersions.ARCH_RUNTIME

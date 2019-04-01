@@ -63,7 +63,7 @@ android.libraryVariants.all { variant ->
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Navigation Common"
     publish = true
     mavenVersion = LibraryVersions.NAVIGATION

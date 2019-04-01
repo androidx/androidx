@@ -32,7 +32,7 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
 }
 
-supportLibrary {
+androidx {
     name 'Android Lifecycle Runtime'
     publish true
     mavenVersion = LibraryVersions.LIFECYCLE

@@ -9,7 +9,7 @@ dependencies {
     api(project(":annotation"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library Print"
     publish = true
     mavenVersion = LibraryVersions.PRINT

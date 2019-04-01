@@ -45,7 +45,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "AndroidX Media2 Widget library"
     publish = true
     mavenVersion = LibraryVersions.MEDIA2_WIDGET

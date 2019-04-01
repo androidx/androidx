@@ -31,7 +31,7 @@ dependencies {
     compile(project(":annotation"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Lifecycle-Common"
     publish = true
     mavenVersion = LibraryVersions.LIFECYCLE

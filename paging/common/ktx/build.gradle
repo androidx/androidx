@@ -34,7 +34,7 @@ dependencies {
     testImplementation(TEST_RUNNER)
 }
 
-supportLibrary {
+androidx {
     name = "Android Paging-Common Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.PAGING

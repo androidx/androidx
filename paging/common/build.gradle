@@ -39,7 +39,7 @@ dependencies {
     testCompile(GUAVA)
 }
 
-supportLibrary {
+androidx {
     name = "Android Paging-Common"
     publish = true
     mavenVersion = LibraryVersions.PAGING

@@ -43,7 +43,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
 }
 
-supportLibrary {
+androidx {
     name = "Android Navigation UI Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.NAVIGATION

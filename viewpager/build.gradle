@@ -20,7 +20,7 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library View Pager"
     publish = true
     mavenVersion = LibraryVersions.VIEWPAGER

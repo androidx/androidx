@@ -52,7 +52,7 @@ dependencies {
     androidTestImplementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
 }
 
-supportLibrary {
+androidx {
     name = "Android Lifecycle Extensions"
     publish = true
     mavenVersion = LibraryVersions.LIFECYCLE

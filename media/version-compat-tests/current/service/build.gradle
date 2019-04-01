@@ -35,6 +35,6 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     toolingProject = true
 }

@@ -86,7 +86,7 @@ gradlePlugin {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Navigation TypeSafe Arguments Gradle Plugin"
     publish = true
     toolingProject = true

@@ -30,7 +30,7 @@ dependencies {
     compile(ANDROIDX_ANNOTATION)
 }
 
-supportLibrary {
+androidx {
     name = "Android Room-Common-Java8"
     publish = false
     mavenVersion = LibraryVersions.ROOM

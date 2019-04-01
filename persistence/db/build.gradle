@@ -40,7 +40,7 @@ android.libraryVariants.all { variant ->
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android DB"
     publish = true
     mavenVersion = LibraryVersions.PERSISTENCE

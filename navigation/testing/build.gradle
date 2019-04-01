@@ -50,7 +50,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
 }
 
-supportLibrary {
+androidx {
     name = "Android Navigation Testing"
     publish = false
     mavenVersion = LibraryVersions.NAVIGATION_TESTING

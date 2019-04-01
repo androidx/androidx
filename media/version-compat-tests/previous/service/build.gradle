@@ -29,6 +29,6 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
 }
 
-supportLibrary {
+androidx {
     toolingProject = true
 }

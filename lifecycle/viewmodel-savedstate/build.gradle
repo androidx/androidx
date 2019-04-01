@@ -49,7 +49,7 @@ dependencies {
     androidTestImplementation(TEST_RULES)
 }
 
-supportLibrary {
+androidx {
     name = "Android Lifecycle ViewModel with SavedState"
     publish = true
     mavenVersion = LibraryVersions.LIFECYCLES_SAVEDSTATE

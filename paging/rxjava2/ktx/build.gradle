@@ -44,7 +44,7 @@ dependencies {
     androidTestImplementation(ARCH_CORE_TESTING)
 }
 
-supportLibrary {
+androidx {
     name = "Android Paging-RxJava2 Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.PAGING

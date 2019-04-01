@@ -28,7 +28,7 @@ dependencies {
     api(project(":sqlite:sqlite"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Support SQLite - Framework Implementation"
     publish = true
     mavenVersion = LibraryVersions.PERSISTENCE

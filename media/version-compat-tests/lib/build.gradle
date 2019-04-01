@@ -26,7 +26,7 @@ dependencies {
     implementation(JUNIT)
 }
 
-supportLibrary {
+androidx {
     failOnUncheckedWarnings = false
     toolingProject = true
 }

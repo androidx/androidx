@@ -51,7 +51,7 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
 }
 
-supportLibrary {
+androidx {
     name = "Android Navigation Fragment Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.NAVIGATION

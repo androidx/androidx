@@ -48,7 +48,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "AndroidX Widget ViewPager2"
     publish = true
     mavenVersion = LibraryVersions.VIEWPAGER2

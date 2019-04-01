@@ -22,7 +22,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
 }
 
-supportLibrary {
+androidx {
     name = "Android Support HeifWriter"
     publish = true
     mavenVersion = LibraryVersions.HEIFWRITER

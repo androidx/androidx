@@ -55,7 +55,7 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 }
 
-supportLibrary {
+androidx {
     name = "Android Navigation UI"
     publish = true
     mavenVersion = LibraryVersions.NAVIGATION

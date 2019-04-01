@@ -49,7 +49,7 @@ dependencies {
     testImplementation(JUNIT)
 }
 
-supportLibrary {
+androidx {
     name = "Android WorkManager Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.WORKMANAGER

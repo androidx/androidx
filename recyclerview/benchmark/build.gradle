@@ -34,7 +34,7 @@ dependencies {
     androidTestImplementation(KOTLIN_STDLIB)
 }
 
-supportLibrary {
+androidx {
     name = "RecyclerView Benchmarks"
     publish = false
     mavenVersion = LibraryVersions.RECYCLERVIEW

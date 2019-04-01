@@ -47,7 +47,7 @@ dependencies {
     androidTestImplementation(KOTLIN_STDLIB)
 }
 
-supportLibrary {
+androidx {
     name = "Android Paging-Runtime"
     publish = true
     mavenVersion = LibraryVersions.PAGING

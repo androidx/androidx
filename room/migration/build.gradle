@@ -32,7 +32,7 @@ dependencies {
     testCompile(MOCKITO_CORE)
 }
 
-supportLibrary {
+androidx {
     name = "Android Room Migration"
     publish = true
     mavenVersion = LibraryVersions.ROOM

@@ -32,7 +32,7 @@ dependencies {
     testImplementation(MOCKITO_CORE)
 }
 
-supportLibrary {
+androidx {
     name = "Android DB KTX"
     publish = true
     mavenVersion = LibraryVersions.PERSISTENCE

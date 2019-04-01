@@ -18,7 +18,7 @@ dependencies {
     androidTestImplementation(TEST_RULES)
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library Custom View"
     publish = true
     mavenVersion = LibraryVersions.CUSTOMVIEW

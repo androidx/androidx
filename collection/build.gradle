@@ -28,7 +28,7 @@ dependencies {
     testCompile(JUNIT)
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library collections"
     publish = true
     mavenVersion = LibraryVersions.COLLECTION

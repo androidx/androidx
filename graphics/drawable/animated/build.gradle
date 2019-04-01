@@ -33,7 +33,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Support AnimatedVectorDrawable"
     publish = true
     mavenVersion = LibraryVersions.VECTORDRAWABLE_ANIMATED

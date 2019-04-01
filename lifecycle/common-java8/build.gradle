@@ -34,7 +34,7 @@ dependencies {
     testCompile(MOCKITO_CORE)
 }
 
-supportLibrary {
+androidx {
     name = "Android Lifecycle-Common for Java 8 Language"
     publish = true
     mavenVersion = LibraryVersions.LIFECYCLE

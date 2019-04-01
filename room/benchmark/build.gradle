@@ -42,7 +42,7 @@ dependencies {
     androidTestImplementation(KOTLIN_STDLIB)
 }
 
-supportLibrary {
+androidx {
     name = "Room Benchmarks"
     publish = false
     mavenVersion = LibraryVersions.ROOM

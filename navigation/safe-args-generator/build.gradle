@@ -57,7 +57,7 @@ tasks.findByName("test").doFirst {
 
 tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarDebug")
 
-supportLibrary {
+androidx {
     name = 'Android Navigation TypeSafe Arguments Generator'
     publish = true
     toolingProject = true
