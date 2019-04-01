@@ -46,6 +46,12 @@
     <dimen name="abc_slice_row_range_multi_text_height">56dp</dimen>
     <!-- Size of text area row with one line of text and then a range element-->
     <dimen name="abc_slice_row_range_single_text_height">48dp</dimen>
+    <!-- Size of selection area in a row -->
+    <dimen name="abc_slice_row_selection_height">48dp</dimen>
+    <!-- Size of text area of row view with two lines of text and then a selection element -->
+    <dimen name="abc_slice_row_selection_multi_text_height">56dp</dimen>
+    <!-- Size of text area row with one line of text and then a selection element-->
+    <dimen name="abc_slice_row_selection_single_text_height">48dp</dimen>
 
     <!-- Grid view sizes-->
     <!-- Height of a grid row displaying only text or only small images (but not both) -->

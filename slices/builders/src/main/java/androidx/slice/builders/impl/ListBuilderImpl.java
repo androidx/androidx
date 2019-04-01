@@ -45,6 +45,7 @@ import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
+import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION;
 
 import android.app.PendingIntent;
 import android.net.Uri;
@@ -82,7 +83,6 @@ import java.util.Set;
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
 public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder {
-
     private List<Slice> mSliceActions;
     private Set<String> mKeywords;
     private Slice mSliceHeader;
@@ -226,11 +226,14 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
     @Override
     public void addSelection(SelectionBuilder builder) {
-        // TODO: It feels like this should live in SelectionBuilderImpl.
-        SelectionBuilderImpl impl = getSpec().canRender(SliceSpecs.LIST_V2)
-                ? new SelectionBuilderListV2Impl(createChildBuilder(), builder)
-                : new SelectionBuilderBasicImpl(createChildBuilder(), builder);
-        getBuilder().addSubSlice(impl.build());
+        if (getSpec().canRender(SliceSpecs.LIST_V2)) {
+            getBuilder().addSubSlice(
+                    new SelectionBuilderListV2Impl(createChildBuilder(), builder).build(),
+                    SUBTYPE_SELECTION);
+        } else {
+            getBuilder().addSubSlice(
+                    new SelectionBuilderBasicImpl(createChildBuilder(), builder).build());
+        }
     }
 
     /**

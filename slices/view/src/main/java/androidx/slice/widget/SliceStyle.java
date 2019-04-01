@@ -63,6 +63,9 @@ public class SliceStyle {
     private int mRowSingleTextWithRangeHeight;
     private int mRowMinHeight;
     private int mRowRangeHeight;
+    private int mRowSelectionHeight;
+    private int mRowTextWithSelectionHeight;
+    private int mRowSingleTextWithSelectionHeight;
 
     private int mGridBigPicMinHeight;
     private int mGridBigPicMaxHeight;
@@ -127,6 +130,11 @@ public class SliceStyle {
                 R.dimen.abc_slice_row_range_single_text_height);
         mRowMinHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
         mRowRangeHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_range_height);
+        mRowSelectionHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_selection_height);
+        mRowTextWithSelectionHeight = r.getDimensionPixelSize(
+                R.dimen.abc_slice_row_selection_multi_text_height);
+        mRowSingleTextWithSelectionHeight = r.getDimensionPixelSize(
+                R.dimen.abc_slice_row_selection_single_text_height);
 
         mGridBigPicMinHeight = r.getDimensionPixelSize(R.dimen.abc_slice_big_pic_min_height);
         mGridBigPicMaxHeight = r.getDimensionPixelSize(R.dimen.abc_slice_big_pic_max_height);
@@ -207,21 +215,39 @@ public class SliceStyle {
         return mRowStyle;
     }
 
+    public int getRowRangeHeight() {
+        return mRowRangeHeight;
+    }
+
+    public int getRowSelectionHeight() {
+        return mRowSelectionHeight;
+    }
+
     public int getRowHeight(RowContent row, SliceViewPolicy policy) {
         int maxHeight = policy.getMaxSmallHeight() > 0 ? policy.getMaxSmallHeight() : mRowMaxHeight;
-        if (row.getRange() != null || policy.getMode() == MODE_LARGE) {
-            if (row.getRange() != null) {
-                // Range element always has set height and then the height of the text
-                // area on the row will vary depending on if 1 or 2 lines of text.
-                int textAreaHeight = row.getLineCount() > 1 ? mRowTextWithRangeHeight
-                        : mRowSingleTextWithRangeHeight;
-                return textAreaHeight + mRowRangeHeight;
-            } else {
-                return (row.getLineCount() > 1 || row.getIsHeader()) ? maxHeight : mRowMinHeight;
-            }
-        } else {
+
+        if (row.getRange() == null && row.getSelection() == null
+                && policy.getMode() != MODE_LARGE) {
             return maxHeight;
         }
+
+        if (row.getRange() != null) {
+            // Range element always has set height and then the height of the text
+            // area on the row will vary depending on if 1 or 2 lines of text.
+            int textAreaHeight = row.getLineCount() > 1 ? mRowTextWithRangeHeight
+                    : mRowSingleTextWithRangeHeight;
+            return textAreaHeight + mRowRangeHeight;
+        }
+
+        if (row.getSelection() != null) {
+            // Selection element always has set height and then the height of the text
+            // area on the row will vary depending on if 1 or 2 lines of text.
+            int textAreaHeight = row.getLineCount() > 1 ? mRowTextWithSelectionHeight
+                    : mRowSingleTextWithSelectionHeight;
+            return textAreaHeight + mRowSelectionHeight;
+        }
+
+        return (row.getLineCount() > 1 || row.getIsHeader()) ? maxHeight : mRowMinHeight;
     }
 
     public int getGridHeight(GridContent grid, SliceViewPolicy policy) {
