@@ -30,7 +30,7 @@ dependencies {
     api project(":ui-framework")
 }
 
-supportLibrary {
+androidx {
     name = "Androidx UI Framework framework IR-less adapter for R4a"
     publish = true
     mavenVersion = LibraryVersions.UI

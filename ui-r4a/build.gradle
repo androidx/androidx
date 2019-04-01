@@ -26,7 +26,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Crane R4A Composables"
     publish = true
     mavenVersion = LibraryVersions.UI

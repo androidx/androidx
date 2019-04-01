@@ -17,7 +17,6 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.SupportLibraryExtension
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -48,7 +47,7 @@ dependencies {
     androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
 }
 
-supportLibrary {
+androidx {
     name = "AndroidX UI Core"
     publish = true
     mavenVersion = LibraryVersions.UI

@@ -56,7 +56,7 @@ dependencies {
     androidTestImplementation(TRUTH)
 }
 
-supportLibrary {
+androidx {
     name = "Androidx Material"
     publish = true
     mavenVersion = LibraryVersions.UI

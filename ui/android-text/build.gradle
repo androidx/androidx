@@ -30,7 +30,7 @@ dependencies {
     androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
 }
 
-supportLibrary {
+androidx {
     name = "AndroidX Text"
     publish = false
     mavenVersion = LibraryVersions.UI

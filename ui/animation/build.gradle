@@ -46,7 +46,7 @@ dependencies {
     androidTestImplementation(TRUTH)
 }
 
-supportLibrary {
+androidx {
     name = "Composables for Animation Lib"
     publish = true
     mavenVersion = LibraryVersions.UI
