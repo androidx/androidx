@@ -564,7 +564,7 @@ package androidx.ui.rendering.paragraph {
     method public androidx.ui.services.text_editing.TextRange getWordBoundary(androidx.ui.engine.text.TextPosition position);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void paintSelection(androidx.ui.painting.Canvas canvas, androidx.ui.services.text_editing.TextSelection selection);
-    method public void performLayout(androidx.ui.rendering.paragraph.TextConstraints constraints);
+    method public void performLayout(androidx.ui.core.Constraints constraints);
     method public void setMaxLines(Integer? value);
     method public void setOverflow(androidx.ui.rendering.paragraph.TextOverflow value);
     method public void setSize(androidx.ui.engine.geometry.Size p);
@@ -590,20 +590,6 @@ package androidx.ui.rendering.paragraph {
 
   public final class RenderParagraphKt {
     ctor public RenderParagraphKt();
-  }
-
-  public final class TextConstraints {
-    ctor public TextConstraints(float minWidth, float maxWidth, float minHeight, float maxHeight);
-    ctor public TextConstraints();
-    method public float component1();
-    method public float component2();
-    method public float component3();
-    method public float component4();
-    method public androidx.ui.rendering.paragraph.TextConstraints copy(float minWidth, float maxWidth, float minHeight, float maxHeight);
-    method public float getMaxHeight();
-    method public float getMaxWidth();
-    method public float getMinHeight();
-    method public float getMinWidth();
   }
 
   public enum TextOverflow {

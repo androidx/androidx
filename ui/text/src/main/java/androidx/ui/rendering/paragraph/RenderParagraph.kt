@@ -17,6 +17,11 @@
 package androidx.ui.rendering.paragraph
 
 import androidx.annotation.VisibleForTesting
+import androidx.ui.core.Constraints
+import androidx.ui.core.IntPxSize
+import androidx.ui.core.constrain
+import androidx.ui.core.px
+import androidx.ui.core.round
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
@@ -92,7 +97,7 @@ class RenderParagraph(
 
     private var overflowShader: Shader? = null
     private var hasVisualOverflow = false
-    private var constraints: TextConstraints? = null
+    private var constraints: Constraints? = null
     internal var selectionPaint: Paint
 
     init {
@@ -202,8 +207,11 @@ class RenderParagraph(
         )
     }
 
-    internal fun layoutTextWithConstraints(constraints: TextConstraints) {
-        layoutText(minWidth = constraints.minWidth, maxWidth = constraints.maxWidth)
+    internal fun layoutTextWithConstraints(constraints: Constraints) {
+        layoutText(
+            minWidth = constraints.minWidth.value.toFloat(),
+            maxWidth = constraints.maxWidth.value.toFloat()
+        )
     }
 
     fun computeMinIntrinsicWidth(height: Float): Float {
@@ -263,7 +271,7 @@ class RenderParagraph(
     internal val debugHasOverflowShader: Boolean
         get() = overflowShader != null
 
-    fun performLayout(constraints: TextConstraints) {
+    fun performLayout(constraints: Constraints) {
         this.constraints = constraints
 
         layoutTextWithConstraints(constraints)
@@ -272,9 +280,12 @@ class RenderParagraph(
         // layout because the intrinsic size calculations are destructive.
         // Other textPainter state like didExceedMaxLines will also be affected.
         // See also RenderEditable which has a similar issue.
-        val textSize = textPainter.size
         val didOverflowHeight = textPainter.didExceedMaxLines
-        constraints?.let { size = it.constrain(textSize) }
+        size = constraints.constrain(
+            IntPxSize(textPainter.size.width.px.round(), textPainter.size.height.px.round())
+        ).let {
+            Size(it.width.value.toFloat(), it.height.value.toFloat())
+        }
 
         val didOverflowWidth = size.width < textSize.width
         // TODO(abarth): We're only measuring the sizes of the line boxes here. If

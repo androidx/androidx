@@ -23,7 +23,6 @@ import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import androidx.ui.rendering.paragraph.RenderParagraph
-import androidx.ui.rendering.paragraph.TextConstraints
 import androidx.ui.rendering.paragraph.TextOverflow
 import androidx.ui.services.text_editing.TextSelection
 import com.google.r4a.Ambient
@@ -93,30 +92,23 @@ class Text() : Component() {
             val styledText = TextSpan(style = mergedStyle, children = listOf(text))
             <Semantics
                 label=text.toString()>
-                <MeasureBox> constraints ->
-                    val renderParagraph = RenderParagraph(
-                        text = styledText,
-                        textAlign = textAlign,
-                        textDirection = textDirection,
-                        softWrap = softWrap,
-                        overflow = overflow,
-                        textScaleFactor = textScaleFactor,
-                        maxLines = maxLines,
-                        selectionColor = selectionColor
-                    )
 
-                    // TODO(Migration/siyamed): This is temporary and should be removed when resource
-                    // system is resolved.
-                    attachContextToFont(styledText, context)
+                val renderParagraph = RenderParagraph(
+                    text = styledText,
+                    textAlign = textAlign,
+                    textDirection = textDirection,
+                    softWrap = softWrap,
+                    overflow = overflow,
+                    textScaleFactor = textScaleFactor,
+                    maxLines = maxLines,
+                    selectionColor = selectionColor
+                )
+                // TODO(Migration/siyamed): This is temporary and should be removed when resource
+                // system is resolved.
+                attachContextToFont(styledText, context)
 
-                    val boxConstraints = TextConstraints(
-                        constraints.minWidth.value.toFloat(),
-                        constraints.maxWidth.value.toFloat(),
-                        constraints.minHeight.value.toFloat(),
-                        constraints.maxHeight.value.toFloat()
-                    )
-                    renderParagraph.performLayout(boxConstraints)
-
+                <Layout layoutBlock = { measurables, constraints ->
+                    renderParagraph.performLayout(constraints)
                     // Convert the selection's start and end offset to a TextSelection object.
                     selectionPosition?.let {
                         var selectionStart = renderParagraph.getPositionForOffset(it.first).offset
@@ -126,17 +118,14 @@ class Text() : Component() {
                         selection = TextSelection(selectionStart, selectionEnd)
                     }
 
-                    collect {
-                        <Draw> canvas, parent ->
-                            selection?.let{renderParagraph.paintSelection(canvas, it)}
-                            renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
-                        </Draw>
-                    }
-                    layout(
-                        renderParagraph.width.px.round(),
-                        renderParagraph.height.px.round()
-                    ) {}
-                </MeasureBox>
+                    layout(renderParagraph.width.px.round(), renderParagraph.height.px.round()) {}
+                }>
+                    <Draw> canvas, parent ->
+                        selection?.let { renderParagraph.paintSelection(canvas, it) }
+                        renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
+                    </Draw>
+                </Layout>
+
             </Semantics>
         </CurrentTextStyleAmbient.Consumer>
     }
