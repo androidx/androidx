@@ -17,7 +17,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.SupportLibraryExtension
+import androidx.build.AndroidXExtension
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -38,5 +38,5 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle-Common"
-    url = SupportLibraryExtension.ARCHITECTURE_URL
+    url = AndroidXExtension.ARCHITECTURE_URL
 }

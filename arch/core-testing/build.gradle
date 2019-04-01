@@ -17,7 +17,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.SupportLibraryExtension
+import androidx.build.AndroidXExtension
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -45,5 +45,5 @@ androidx {
     mavenGroup = LibraryGroups.ARCH_CORE
     inceptionYear = "2017"
     description = "Android Core-Testing"
-    url = SupportLibraryExtension.ARCHITECTURE_URL
+    url = AndroidXExtension.ARCHITECTURE_URL
 }

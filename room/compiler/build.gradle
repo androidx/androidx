@@ -19,7 +19,7 @@ import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.SupportConfig
-import androidx.build.SupportLibraryExtension
+import androidx.build.AndroidXExtension
 
 plugins {
     id("SupportKotlinLibraryPlugin")
@@ -90,6 +90,6 @@ androidx {
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room annotation processor"
-    url = SupportLibraryExtension.ARCHITECTURE_URL
+    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
 }

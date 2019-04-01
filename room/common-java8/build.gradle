@@ -17,7 +17,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.SupportLibraryExtension;
+import androidx.build.AndroidXExtension;
 
 plugins {
     id("SupportJavaLibraryPlugin")
@@ -37,5 +37,5 @@ androidx {
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2019"
     description = "Android Room-Common-Java8"
-    url = SupportLibraryExtension.ARCHITECTURE_URL
+    url = AndroidXExtension.ARCHITECTURE_URL
 }
