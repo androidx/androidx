@@ -16,7 +16,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.SupportLibraryExtension
+import androidx.build.AndroidXExtension
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -31,12 +31,12 @@ dependencies {
     testCompile(TRUTH)
 }
 
-supportLibrary {
+androidx {
     name = "AndroidX Futures"
     publish = true
     mavenVersion = LibraryVersions.FUTURES
     mavenGroup = LibraryGroups.CONCURRENT
     inceptionYear = "2018"
     description = "Androidx implementation of Guava's ListenableFuture"
-    url = SupportLibraryExtension.ARCHITECTURE_URL
+    url = AndroidXExtension.ARCHITECTURE_URL
 }

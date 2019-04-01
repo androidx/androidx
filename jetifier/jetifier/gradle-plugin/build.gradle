@@ -31,7 +31,7 @@ dependencies {
 }
 
 
-supportLibrary {
+androidx {
     name = "Android Jetifier Gradle Plugin"
     publish = false
     mavenVersion = LibraryVersions.JETIFIER

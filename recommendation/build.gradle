@@ -15,7 +15,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Recommendation"
     publish = true
     mavenVersion = LibraryVersions.RECOMMENDATION

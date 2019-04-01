@@ -37,7 +37,7 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
 }
 
-supportLibrary {
+androidx {
     name = "Slices Benchmarks"
     publish = false
     mavenVersion = LibraryVersions.SLICE_BENCHMARK

@@ -30,7 +30,7 @@ dependencies {
     testCompile(project(":internal-testutils-ktx"))
 }
 
-supportLibrary {
+androidx {
     name = "Collections Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.COLLECTION

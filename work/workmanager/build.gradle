@@ -17,7 +17,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.SupportLibraryExtension
+import androidx.build.AndroidXExtension
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -66,14 +66,14 @@ dependencies {
     testImplementation(JUNIT)
 }
 
-supportLibrary {
+androidx {
     name = "Android WorkManager Runtime"
     publish = true
     mavenVersion = LibraryVersions.WORKMANAGER
     mavenGroup = LibraryGroups.WORKMANAGER
     inceptionYear = "2018"
     description = "Android WorkManager runtime library"
-    url = SupportLibraryExtension.ARCHITECTURE_URL
+    url = AndroidXExtension.ARCHITECTURE_URL
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
     trackRestrictedAPIs = false

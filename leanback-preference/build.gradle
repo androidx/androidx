@@ -26,7 +26,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "AndroidX Leanback Preference"
     publish = true
     mavenVersion = LibraryVersions.LEANBACK_PREFERENCE

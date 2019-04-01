@@ -11,7 +11,7 @@ dependencies {
     api(project(":customview"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library Sliding Pane Layout"
     publish = true
     mavenVersion = LibraryVersions.SLIDINGPANELAYOUT

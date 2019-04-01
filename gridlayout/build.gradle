@@ -16,7 +16,7 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Grid Layout"
     publish = true
     mavenVersion = LibraryVersions.GRIDLAYOUT

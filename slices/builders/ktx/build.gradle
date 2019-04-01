@@ -48,7 +48,7 @@ dependencies {
     implementation project(path: ':core')
 }
 
-supportLibrary {
+androidx {
     name = "Slice builders KTX"
     publish = true
     mavenVersion = LibraryVersions.SLICE_BUILDERS_KTX
