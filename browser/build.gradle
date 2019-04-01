@@ -29,7 +29,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Custom Tabs"
     publish = true
     mavenVersion = LibraryVersions.BROWSER

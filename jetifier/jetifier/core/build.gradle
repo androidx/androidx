@@ -29,7 +29,7 @@ dependencies {
     testCompile(TRUTH)
 }
 
-supportLibrary {
+androidx {
     name = "Android Jetifier Core"
     publish = true
     mavenVersion = LibraryVersions.JETIFIER

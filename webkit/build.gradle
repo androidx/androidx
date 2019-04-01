@@ -49,7 +49,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "WebView Support Library"
     publish = true
     mavenVersion = LibraryVersions.WEBKIT

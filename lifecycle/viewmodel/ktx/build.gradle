@@ -48,7 +48,7 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
 }
 
-supportLibrary {
+androidx {
     name = "Android Lifecycle ViewModel Kotlin Extensions"
     publish = true
     mavenVersion = LibraryVersions.LIFECYCLE

@@ -17,7 +17,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.SupportLibraryExtension
+import androidx.build.AndroidXExtension
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -78,12 +78,12 @@ android.libraryVariants.all { variant ->
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Room-Runtime"
     publish = true
     mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room-Runtime"
-    url = SupportLibraryExtension.ARCHITECTURE_URL
+    url = AndroidXExtension.ARCHITECTURE_URL
 }

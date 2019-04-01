@@ -18,7 +18,7 @@ import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import androidx.build.SupportLibraryExtension
+import androidx.build.AndroidXExtension
 
 plugins {
     id("SupportKotlinLibraryPlugin")
@@ -40,7 +40,7 @@ dependencies {
     testImplementation LINT_TESTS
 }
 
-supportLibrary {
+androidx {
     name = "Android Lifecycles Lint Checks"
     toolingProject = true
     publish = false
@@ -48,6 +48,6 @@ supportLibrary {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2019"
     description = "Android Lifecycles Lint Checks"
-    url = SupportLibraryExtension.ARCHITECTURE_URL
+    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
 }

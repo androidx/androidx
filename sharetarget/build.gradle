@@ -36,7 +36,7 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 }
 
-supportLibrary {
+androidx {
     name = "AndroidX Share Target Support Library"
     publish = true
     mavenVersion = LibraryVersions.SHARETARGET

@@ -33,7 +33,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Transition Support Library"
     publish = true
     mavenVersion = LibraryVersions.TRANSITION

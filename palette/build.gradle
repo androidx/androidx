@@ -23,7 +23,7 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Palette v7"
     publish = true
     mavenVersion = LibraryVersions.PALETTE

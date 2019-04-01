@@ -26,7 +26,7 @@ dependencies {
     api(project(":appcompat"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Emoji AppCompat"
     publish = true
     mavenVersion = LibraryVersions.EMOJI

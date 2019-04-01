@@ -56,7 +56,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Android Car Support Moderator"
     publish = true
     mavenVersion = LibraryVersions.CAR_MODERATOR

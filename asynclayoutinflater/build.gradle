@@ -10,7 +10,7 @@ dependencies {
     api(project(":core"))
 }
 
-supportLibrary {
+androidx {
     name = "Android Support Library Async Layout Inflater"
     publish = true
     mavenVersion = LibraryVersions.ASYNCLAYOUTINFLATER

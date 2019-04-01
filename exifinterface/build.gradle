@@ -14,7 +14,7 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
 }
 
-supportLibrary {
+androidx {
     name = "Android Support ExifInterface"
     publish = true
     mavenVersion = LibraryVersions.EXIFINTERFACE
