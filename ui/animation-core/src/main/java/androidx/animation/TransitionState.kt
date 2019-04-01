@@ -22,19 +22,23 @@ import androidx.ui.core.lerp
 import androidx.ui.lerp
 import androidx.ui.painting.Color
 
-internal open class StateImpl(val name: Any) : MutableTransitionState, TransitionState {
+internal open class StateImpl<T>(val name: T) : MutableTransitionState, TransitionState {
 
-    internal val props: MutableMap<PropKey<out Any>, Any> = mutableMapOf()
+    internal val props: MutableMap<PropKey<Any>, Any> = mutableMapOf()
 
-    override operator fun set(name: PropKey<out Any>, prop: Any) {
-        if (props[name] != null) {
-            throw IllegalArgumentException("prop name $name already exists")
+    override operator fun <T> set(propKey: PropKey<T>, prop: T) {
+        @Suppress("UNCHECKED_CAST")
+        propKey as PropKey<Any>
+        if (props[propKey] != null) {
+            throw IllegalArgumentException("prop name $propKey already exists")
         }
 
-        props[name] = prop
+        props[propKey] = prop as Any
     }
 
-    override operator fun <T : Any> get(propKey: PropKey<T>): T {
+    @Suppress("UNCHECKED_CAST")
+    override operator fun <T> get(propKey: PropKey<T>): T {
+        propKey as PropKey<Any>
         return props[propKey] as T
     }
 }
@@ -44,7 +48,7 @@ internal open class StateImpl(val name: Any) : MutableTransitionState, Transitio
  * [get], providing its property key.
  */
 interface TransitionState {
-    operator fun <T : Any> get(prop: PropKey<T>): T
+    operator fun <T> get(propKey: PropKey<T>): T
 }
 
 /**
@@ -52,13 +56,13 @@ interface TransitionState {
  * [TransitionState]s with corresponding properties and their values.
  */
 interface MutableTransitionState {
-    operator fun set(name: PropKey<out Any>, prop: Any)
+    operator fun <T> set(propKey: PropKey<T>, prop: T)
 }
 
 /**
  * Property key of [T] type.
  */
-interface PropKey<T : Any> {
+interface PropKey<T> {
     fun interpolate(a: T, b: T, fraction: Float): T
 }
 
