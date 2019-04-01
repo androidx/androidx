@@ -21,7 +21,8 @@ import androidx.annotation.Nullable;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * ViewModel is a class that is responsible for preparing and managing the data for
@@ -105,8 +106,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * </>
  */
 public abstract class ViewModel {
+    // Can't use ConcurrentHashMap, because it can lose values on old apis (see b/37042460)
     @Nullable
-    private final ConcurrentHashMap<String, Object> mBagOfTags = new ConcurrentHashMap<>();
+    private final Map<String, Object> mBagOfTags = new HashMap<>();
     private volatile boolean mCleared = false;
 
     /**
@@ -127,9 +129,11 @@ public abstract class ViewModel {
         // because setTagIfAbsent and getTag are not final so we can skip
         // clearing it
         if (mBagOfTags != null) {
-            for (Object value : mBagOfTags.values()) {
-                // see comment for the similar call in setTagIfAbsent
-                closeWithRuntimeException(value);
+            synchronized (mBagOfTags) {
+                for (Object value : mBagOfTags.values()) {
+                    // see comment for the similar call in setTagIfAbsent
+                    closeWithRuntimeException(value);
+                }
             }
         }
         onCleared();
@@ -148,7 +152,14 @@ public abstract class ViewModel {
      * should be idempotent.
      */
     <T> T setTagIfAbsent(String key, T newValue) {
-        @SuppressWarnings("unchecked") T previous = (T) mBagOfTags.putIfAbsent(key, newValue);
+        T previous;
+        synchronized (mBagOfTags) {
+            //noinspection unchecked
+            previous = (T) mBagOfTags.get(key);
+            if (previous == null) {
+                mBagOfTags.put(key, newValue);
+            }
+        }
         T result = previous == null ? newValue : previous;
         if (mCleared) {
             // It is possible that we'll call close() multiple times on the same object, but
@@ -165,7 +176,9 @@ public abstract class ViewModel {
     @SuppressWarnings("TypeParameterUnusedInFormals")
     <T> T getTag(String key) {
         //noinspection unchecked
-        return (T) mBagOfTags.get(key);
+        synchronized (mBagOfTags) {
+            return (T) mBagOfTags.get(key);
+        }
     }
 
     private static void closeWithRuntimeException(Object obj) {
