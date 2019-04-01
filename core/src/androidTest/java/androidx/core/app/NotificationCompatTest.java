@@ -173,7 +173,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     public void testNotificationActionBuilder_copiesRemoteInputs() throws Throwable {
         NotificationCompat.Action a = newActionBuilder()
-                .addRemoteInput(new RemoteInput("a", "b", null, false, null, null)).build();
+                .addRemoteInput(new RemoteInput("a", "b", null, false,
+                        RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO, null, null)).build();
 
         NotificationCompat.Action aCopy = new NotificationCompat.Action.Builder(a).build();
 

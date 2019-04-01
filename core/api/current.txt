@@ -655,6 +655,7 @@ package androidx.core.app {
     method public java.util.Set<java.lang.String>! getAllowedDataTypes();
     method public CharSequence[]! getChoices();
     method public static java.util.Map<java.lang.String,android.net.Uri>! getDataResultsFromIntent(android.content.Intent!, String!);
+    method public int getEditChoicesBeforeSending();
     method public android.os.Bundle! getExtras();
     method public CharSequence! getLabel();
     method public String! getResultKey();
@@ -662,6 +663,9 @@ package androidx.core.app {
     method public static int getResultsSource(android.content.Intent);
     method public boolean isDataOnly();
     method public static void setResultsSource(android.content.Intent, int);
+    field public static final int EDIT_CHOICES_BEFORE_SENDING_AUTO = 0; // 0x0
+    field public static final int EDIT_CHOICES_BEFORE_SENDING_DISABLED = 1; // 0x1
+    field public static final int EDIT_CHOICES_BEFORE_SENDING_ENABLED = 2; // 0x2
     field public static final String EXTRA_RESULTS_DATA = "android.remoteinput.resultsData";
     field public static final String RESULTS_CLIP_LABEL = "android.remoteinput.results";
     field public static final int SOURCE_CHOICE = 1; // 0x1
@@ -676,6 +680,7 @@ package androidx.core.app {
     method public androidx.core.app.RemoteInput.Builder setAllowDataType(String, boolean);
     method public androidx.core.app.RemoteInput.Builder setAllowFreeFormInput(boolean);
     method public androidx.core.app.RemoteInput.Builder setChoices(CharSequence[]?);
+    method public androidx.core.app.RemoteInput.Builder setEditChoicesBeforeSending(int);
     method public androidx.core.app.RemoteInput.Builder setLabel(CharSequence?);
   }
 
