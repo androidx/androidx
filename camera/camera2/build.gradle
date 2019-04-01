@@ -58,7 +58,8 @@ android {
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 }
-supportLibrary {
+
+androidx {
     name = "Jetpack Camera Library Camera2 Implementation/Extensions"
     publish = true
     mavenVersion = UnpublishedLibraryVersions.CAMERA
