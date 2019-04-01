@@ -61,6 +61,8 @@ data class Alignment(val verticalBias: Float, val horizontalBias: Float) {
  * A layout that takes a child and aligns it within itself, according to the alignment parameter.
  * The layout will be as large as possible for finite incoming constraints,
  * or wrap content otherwise.
+ *
+ * For a widget that does alignment and tries to be the same size as its child, see [Wrap].
  */
 @Composable
 fun Align(alignment: Alignment, @Children children: () -> Unit) {
@@ -103,6 +105,8 @@ fun Align(alignment: Alignment, @Children children: () -> Unit) {
  * A layout that takes a child and centers it within itself.
  * The layout will be as large as possible for finite incoming
  * constraints, or wrap content otherwise.
+ *
+ * For a widget that does alignment and tries to be the same size as its child, see [Wrap].
  *
  * Example usage:
  * <Center>
