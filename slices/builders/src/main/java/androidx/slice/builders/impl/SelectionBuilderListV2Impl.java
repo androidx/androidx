@@ -16,14 +16,17 @@
 
 package androidx.slice.builders.impl;
 
+import static android.app.slice.Slice.HINT_LIST_ITEM;
 import static android.app.slice.Slice.HINT_SELECTED;
 import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.slice.core.SliceHints.HINT_SELECTION_OPTION_VALUE;
+import static androidx.slice.core.SliceHints.HINT_SELECTION_OPTION;
+import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_KEY;
+import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_VALUE;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -46,27 +49,27 @@ public class SelectionBuilderListV2Impl extends SelectionBuilderImpl {
 
     @Override
     public void apply(Slice.Builder sliceBuilder) {
+        Slice.Builder actionBuilder = new Slice.Builder(sliceBuilder);
+
         final SelectionBuilder selectionBuilder = getSelectionBuilder();
 
         selectionBuilder.check();
 
-        selectionBuilder.getPrimaryAction().setPrimaryAction(sliceBuilder);
-
         if (selectionBuilder.getTitle() != null) {
-            sliceBuilder.addText(selectionBuilder.getTitle(), null, HINT_TITLE);
+            actionBuilder.addText(selectionBuilder.getTitle(), null, HINT_TITLE);
         }
 
         if (selectionBuilder.getSubtitle() != null) {
-            sliceBuilder.addText(selectionBuilder.getSubtitle(), null);
+            actionBuilder.addText(selectionBuilder.getSubtitle(), null);
         }
 
         if (selectionBuilder.getContentDescription() != null) {
-            sliceBuilder.addText(selectionBuilder.getContentDescription(),
+            actionBuilder.addText(selectionBuilder.getContentDescription(),
                     SUBTYPE_CONTENT_DESCRIPTION);
         }
 
         if (selectionBuilder.getLayoutDirection() != -1) {
-            sliceBuilder.addInt(selectionBuilder.getLayoutDirection(), SUBTYPE_LAYOUT_DIRECTION);
+            actionBuilder.addInt(selectionBuilder.getLayoutDirection(), SUBTYPE_LAYOUT_DIRECTION);
         }
 
         final List<Pair<String, CharSequence>> options = selectionBuilder.getOptions();
@@ -76,8 +79,17 @@ public class SelectionBuilderListV2Impl extends SelectionBuilderImpl {
                 optionSubSliceBuilder.addHints(HINT_SELECTED);
             }
             optionSubSliceBuilder.addText(option.first, SUBTYPE_SELECTION_OPTION_KEY);
-            optionSubSliceBuilder.addText(option.second, null, HINT_SELECTION_OPTION_VALUE);
-            sliceBuilder.addSubSlice(optionSubSliceBuilder.build());
+            optionSubSliceBuilder.addText(option.second, SUBTYPE_SELECTION_OPTION_VALUE);
+            optionSubSliceBuilder.addHints(HINT_SELECTION_OPTION);
+            actionBuilder.addSubSlice(optionSubSliceBuilder.build());
         }
+
+        selectionBuilder.getPrimaryAction().setPrimaryAction(actionBuilder);
+
+        sliceBuilder.addAction(selectionBuilder.getInputAction(), actionBuilder.build(),
+                SUBTYPE_SELECTION);
+
+        // TODO: This should ideally be in ListBuilder, not here.
+        sliceBuilder.addHints(HINT_LIST_ITEM);
     }
 }

@@ -16,6 +16,11 @@
 
 package androidx.slice.builders.impl;
 
+import static android.app.slice.Slice.HINT_LIST_ITEM;
+import static android.app.slice.Slice.HINT_TITLE;
+import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
+import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.RequiresApi;
@@ -40,6 +45,26 @@ public class SelectionBuilderBasicImpl extends SelectionBuilderImpl {
 
         selectionBuilder.check();
 
+        // TODO: This should ideally be in ListBuilder, not here.
+        sliceBuilder.addHints(HINT_LIST_ITEM);
+
         selectionBuilder.getPrimaryAction().setPrimaryAction(sliceBuilder);
+
+        if (selectionBuilder.getTitle() != null) {
+            sliceBuilder.addText(selectionBuilder.getTitle(), null, HINT_TITLE);
+        }
+
+        if (selectionBuilder.getSubtitle() != null) {
+            sliceBuilder.addText(selectionBuilder.getSubtitle(), null);
+        }
+
+        if (selectionBuilder.getContentDescription() != null) {
+            sliceBuilder.addText(selectionBuilder.getContentDescription(),
+                    SUBTYPE_CONTENT_DESCRIPTION);
+        }
+
+        if (selectionBuilder.getLayoutDirection() != -1) {
+            sliceBuilder.addInt(selectionBuilder.getLayoutDirection(), SUBTYPE_LAYOUT_DIRECTION);
+        }
     }
 }
