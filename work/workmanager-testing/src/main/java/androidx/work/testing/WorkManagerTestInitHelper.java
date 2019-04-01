@@ -19,6 +19,7 @@ package androidx.work.testing;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.work.Configuration;
 import androidx.work.impl.WorkManagerImpl;
 
@@ -56,13 +57,28 @@ public final class WorkManagerTestInitHelper {
     /**
      * @return An instance of {@link TestDriver}. This exposes additional functionality that is
      * useful in the context of testing when using WorkManager.
+     * @deprecated Call {@link WorkManagerTestInitHelper#getTestDriver(Context)} instead.
      */
-    public static TestDriver getTestDriver() {
+    @Deprecated
+    public static @Nullable TestDriver getTestDriver() {
         WorkManagerImpl workManager = WorkManagerImpl.getInstance();
         if (workManager == null) {
             return null;
         } else {
-            return ((TestWorkManagerImpl) WorkManagerImpl.getInstance());
+            return (TestWorkManagerImpl) workManager;
+        }
+    }
+
+    /**
+     * @return An instance of {@link TestDriver}. This exposes additional functionality that is
+     * useful in the context of testing when using WorkManager.
+     */
+    public static @Nullable TestDriver getTestDriver(@NonNull Context context) {
+        WorkManagerImpl workManager = WorkManagerImpl.getInstance(context);
+        if (workManager == null) {
+            return null;
+        } else {
+            return (TestWorkManagerImpl) workManager;
         }
     }
 

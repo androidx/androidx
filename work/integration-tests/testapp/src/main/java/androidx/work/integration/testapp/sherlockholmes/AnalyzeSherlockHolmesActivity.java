@@ -70,7 +70,7 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
     }
 
     private void enqueueWork() {
-        WorkManager workManager = WorkManager.getInstance();
+        WorkManager workManager = WorkManager.getInstance(AnalyzeSherlockHolmesActivity.this);
 
         // Cancelling all work just to make it easier to track what is happening here and make it
         // more insulated.

@@ -81,7 +81,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         mContext = context.getApplicationContext();
         mCommandHandler = new CommandHandler(mContext);
         mWorkTimer = new WorkTimer();
-        mWorkManager = workManager != null ? workManager : WorkManagerImpl.getInstance();
+        mWorkManager = workManager != null ? workManager : WorkManagerImpl.getInstance(context);
         mProcessor = processor != null ? processor : mWorkManager.getProcessor();
         mProcessor.addExecutionListener(this);
         // a list of pending intents which need to be processed

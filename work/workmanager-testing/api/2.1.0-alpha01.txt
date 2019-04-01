@@ -13,7 +13,8 @@ package androidx.work.testing {
   }
 
   public final class WorkManagerTestInitHelper {
-    method public static androidx.work.testing.TestDriver! getTestDriver();
+    method @Deprecated public static androidx.work.testing.TestDriver? getTestDriver();
+    method public static androidx.work.testing.TestDriver? getTestDriver(android.content.Context);
     method public static void initializeTestWorkManager(android.content.Context);
     method public static void initializeTestWorkManager(android.content.Context, androidx.work.Configuration);
   }

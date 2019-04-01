@@ -44,10 +44,13 @@ import java.util.concurrent.ExecutionException;
 @LargeTest
 @DoNotInstrument
 public class RobolectricSmokeTest {
+
+    private Context mContext;
+
     @Before
     public void setUp() {
-        Context context = ApplicationProvider.getApplicationContext();
-        WorkManagerTestInitHelper.initializeTestWorkManager(context);
+        mContext = ApplicationProvider.getApplicationContext();
+        WorkManagerTestInitHelper.initializeTestWorkManager(mContext);
     }
 
     @Test
@@ -55,7 +58,7 @@ public class RobolectricSmokeTest {
             throws InterruptedException, ExecutionException {
         WorkRequest request = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         // TestWorkManagerImpl is a subtype of WorkManagerImpl.
-        WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
+        WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance(mContext);
         workManagerImpl.enqueue(Collections.singletonList(request)).getResult().get();
         WorkInfo status = workManagerImpl.getWorkInfoById(request.getId()).get();
         assertThat(status.getState().isFinished(), is(true));
