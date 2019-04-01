@@ -19,6 +19,8 @@
     <application>
         <activity android:name="androidx.ui.core.DpDeviceTest$Companion$TestActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
+        <activity android:name="androidx.ui.core.SpDeviceTest$Companion$TestActivity"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
     </application>
 </manifest>
 
