@@ -29,6 +29,7 @@ import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import static androidx.slice.core.SliceHints.HINT_SELECTION_OPTION;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
 import android.content.Context;
@@ -309,7 +310,7 @@ public class ListContent extends SliceContent {
     private static SliceItem findHeaderItem(@NonNull Slice slice) {
         // See if header is specified
         String[] nonHints = new String[] {HINT_LIST_ITEM, HINT_SHORTCUT, HINT_ACTIONS,
-                HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED, HINT_HORIZONTAL};
+                HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED, HINT_HORIZONTAL, HINT_SELECTION_OPTION};
         SliceItem header = SliceQuery.find(slice, FORMAT_SLICE, null, nonHints);
         if (header != null && isValidHeader(header)) {
             return header;

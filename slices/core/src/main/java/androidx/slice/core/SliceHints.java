@@ -71,21 +71,27 @@ public class SliceHints {
     public static final String SUBTYPE_SELECTION = "selection";
 
     /**
+     * Hint indicating that this slice represents an option selectable in a selection slice.
+     * The parent of this slice must be of subtype {@link #SUBTYPE_SELECTION}.
+     */
+    public static final String HINT_SELECTION_OPTION = "selection_option";
+
+    /**
      * Subtype indicating that this slice represents the key passed back to the application when the
-     * user selects this option. The grandparent of this slice must be of subtype
-     * {@link #SUBTYPE_SELECTION}.
+     * user selects this option. The parent of this slice must have hint
+     * {@link #HINT_SELECTION_OPTION}.
      *
      * Expected to be an item of format {@link androidx.slice.SliceItem@FORMAT_TEXT}.
      */
     public static final String SUBTYPE_SELECTION_OPTION_KEY = "selection_option_key";
 
     /**
-     * Hint indicating that this slice represents the text displayed to the user for this option.
-     * The grandparent of this slice must be of subtype {@link #SUBTYPE_SELECTION}.
+     * Subtype indicating that this slice represents the text displayed to the user for this option.
+     * The parent of this slice must have hint {@link #HINT_SELECTION_OPTION}.
      *
      * Expected to be an item of format {@link androidx.slice.SliceItem@FORMAT_TEXT}.
      */
-    public static final String HINT_SELECTION_OPTION_VALUE = "selection_option_value";
+    public static final String SUBTYPE_SELECTION_OPTION_VALUE = "selection_option_value";
 
     @IntDef({
             LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, UNKNOWN_IMAGE
