@@ -47,5 +47,4 @@ androidx {
     mavenGroup = LibraryGroups.PALETTE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'palette' artifact"
-    useMetalava = true
 }
