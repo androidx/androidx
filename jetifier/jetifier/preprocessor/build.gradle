@@ -15,7 +15,8 @@
  */
 
 plugins {
-    id("SupportKotlinLibraryPlugin")
+    id("AndroidXPlugin")
+    id("kotlin")
     id("application")
 }
 
