@@ -41,7 +41,6 @@ androidx {
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
     description = "AndroidX UI layout classes not targeting a specific design system."
-    useMetalava = true
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {

@@ -31,5 +31,4 @@ androidx {
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
     description = "AndroidX UI test framework."
-    useMetalava = true
 }
