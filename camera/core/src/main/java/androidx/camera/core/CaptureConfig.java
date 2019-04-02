@@ -39,13 +39,13 @@ import java.util.Set;
 /**
  * Configurations needed for a capture request.
  *
- * <p>The CaptureRequestConfig contains all the {@link android.hardware.camera2} parameters that
- * are required to issue a {@link CaptureRequest}.
+ * <p>The CaptureConfig contains all the {@link android.hardware.camera2} parameters that are
+ * required to issue a {@link CaptureRequest}.
  *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class CaptureRequestConfig {
+public final class CaptureConfig {
 
     /** The set of {@link Surface} that data from the camera will be put into. */
     final List<DeferrableSurface> mSurfaces;
@@ -71,10 +71,9 @@ public final class CaptureRequestConfig {
     private final Object mTag;
 
     /**
-     * Private constructor for a CaptureRequestConfig.
+     * Private constructor for a CaptureConfig.
      *
-     * <p>In practice, the {@link CaptureRequestConfig.Builder} will be used to construct a
-     * CaptureRequestConfig.
+     * <p>In practice, the {@link CaptureConfig.Builder} will be used to construct a CaptureConfig.
      *
      * @param surfaces                 The set of {@link Surface} where data will be put into.
      * @param captureRequestParameters The parameters used to configure the {@link CaptureRequest}.
@@ -85,7 +84,7 @@ public final class CaptureRequestConfig {
      *                                 constants defined by {@link CameraDevice}.
      * @param cameraCaptureCallback    The camera capture callback.
      */
-    CaptureRequestConfig(
+    CaptureConfig(
             List<DeferrableSurface> surfaces,
             Map<Key<?>, CaptureRequestParameter<?>> captureRequestParameters,
             Config implementationOptions,
@@ -165,7 +164,7 @@ public final class CaptureRequestConfig {
     }
 
     /**
-     * Builder for easy modification/rebuilding of a {@link CaptureRequestConfig}.
+     * Builder for easy modification/rebuilding of a {@link CaptureConfig}.
      *
      * @hide
      */
@@ -184,7 +183,7 @@ public final class CaptureRequestConfig {
         public Builder() {
         }
 
-        private Builder(CaptureRequestConfig base) {
+        private Builder(CaptureConfig base) {
             mSurfaces.addAll(base.mSurfaces);
             mCaptureRequestParameters.putAll(base.mCaptureRequestParameters);
             mImplementationOptions = MutableOptionsBundle.from(base.mImplementationOptions);
@@ -194,8 +193,8 @@ public final class CaptureRequestConfig {
             mTag = base.getTag();
         }
 
-        /** Create a {@link Builder} from a {@link CaptureRequestConfig} */
-        public static Builder from(CaptureRequestConfig base) {
+        /** Create a {@link Builder} from a {@link CaptureConfig} */
+        public static Builder from(CaptureConfig base) {
             return new Builder(base);
         }
 
@@ -204,7 +203,7 @@ public final class CaptureRequestConfig {
         }
 
         /**
-         * Set the template characteristics of the CaptureRequestConfig.
+         * Set the template characteristics of the CaptureConfig.
          *
          * @param templateType Template constant that must match those defined by {@link
          *                     CameraDevice}
@@ -280,11 +279,11 @@ public final class CaptureRequestConfig {
         }
 
         /**
-         * Builds an instance of a CaptureRequestConfig that has all the combined parameters
-         * of the CaptureRequestConfig that have been added to the Builder.
+         * Builds an instance of a CaptureConfig that has all the combined parameters of the
+         * CaptureConfig that have been added to the Builder.
          */
-        public CaptureRequestConfig build() {
-            return new CaptureRequestConfig(
+        public CaptureConfig build() {
+            return new CaptureConfig(
                     new ArrayList<>(mSurfaces),
                     new HashMap<>(mCaptureRequestParameters),
                     OptionsBundle.from(mImplementationOptions),

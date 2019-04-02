@@ -21,15 +21,14 @@ import android.hardware.camera2.CaptureRequest;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.Camera2Config;
-import androidx.camera.core.CaptureRequestConfig;
+import androidx.camera.core.CaptureConfig;
 
 /**
  * The set of parameters that defines a single capture that will be sent to the camera.
  */
 public final class CaptureStage implements androidx.camera.core.CaptureStage {
     private final int mId;
-    private final CaptureRequestConfig.Builder mCaptureRequestConfigBuilder =
-            new CaptureRequestConfig.Builder();
+    private final CaptureConfig.Builder mCaptureConfigBuilder = new CaptureConfig.Builder();
     private final Camera2Config.Builder mCamera2ConfigBuilder = new Camera2Config.Builder();
 
     /**
@@ -42,7 +41,7 @@ public final class CaptureStage implements androidx.camera.core.CaptureStage {
      * @param id The identifier for the {@link CaptureStage}.
      * */
     public CaptureStage(int id) {
-        mCaptureRequestConfigBuilder.setTag(id);
+        mCaptureConfigBuilder.setTag(id);
         mId = id;
     }
 
@@ -53,15 +52,15 @@ public final class CaptureStage implements androidx.camera.core.CaptureStage {
     }
 
     /**
-     * Returns the {@link CaptureRequestConfig} for the {@link CaptureStage} object.
+     * Returns the {@link CaptureConfig} for the {@link CaptureStage} object.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public CaptureRequestConfig getCaptureRequestConfig() {
-        mCaptureRequestConfigBuilder.addImplementationOptions(mCamera2ConfigBuilder.build());
-        return mCaptureRequestConfigBuilder.build();
+    public CaptureConfig getCaptureConfig() {
+        mCaptureConfigBuilder.addImplementationOptions(mCamera2ConfigBuilder.build());
+        return mCaptureConfigBuilder.build();
     }
 
     /**

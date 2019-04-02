@@ -38,8 +38,8 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class Camera2CaptureSessionCaptureCallbacks {
-    private Camera2CaptureSessionCaptureCallbacks() {
+public final class Camera2CaptureCallbacks {
+    private Camera2CaptureCallbacks() {
     }
 
     /** Returns a session capture callback which does nothing. */

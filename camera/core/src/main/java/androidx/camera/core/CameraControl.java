@@ -58,7 +58,7 @@ public interface CameraControl {
     void focus(
             Rect focus,
             Rect metering,
-            @Nullable OnFocusCompletedListener listener,
+            @Nullable OnFocusListener listener,
             @Nullable Handler handler);
 
     /**
@@ -107,9 +107,9 @@ public interface CameraControl {
     /**
      * Performs a single capture request.
      *
-     * @param captureRequestConfig
+     * @param captureConfig
      */
-    void submitSingleRequest(CaptureRequestConfig captureRequestConfig);
+    void submitSingleRequest(CaptureConfig captureConfig);
 
     CameraControl DEFAULT_EMPTY_INSTANCE = new CameraControl() {
         @Override
@@ -117,7 +117,7 @@ public interface CameraControl {
         }
 
         @Override
-        public void focus(Rect focus, Rect metering, @Nullable OnFocusCompletedListener listener,
+        public void focus(Rect focus, Rect metering, @Nullable OnFocusListener listener,
                 @Nullable Handler handler) {
         }
 
@@ -162,7 +162,7 @@ public interface CameraControl {
         }
 
         @Override
-        public void submitSingleRequest(CaptureRequestConfig captureRequestConfig) {
+        public void submitSingleRequest(CaptureConfig captureConfig) {
         }
     };
 
@@ -173,6 +173,6 @@ public interface CameraControl {
         void onCameraControlUpdateSessionConfig(SessionConfig sessionConfig);
 
         /** Called when CameraControl need to send single request. */
-        void onCameraControlSingleRequest(CaptureRequestConfig captureRequestConfig);
+        void onCameraControlSingleRequest(CaptureConfig captureConfig);
     }
 }

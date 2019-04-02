@@ -39,7 +39,7 @@ import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.CaptureRequestConfig;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfig;
@@ -538,15 +538,14 @@ final class Camera implements BaseCamera {
 
         mCaptureSession.close();
 
-        List<CaptureRequestConfig> unissuedCaptureRequestConfigs =
-                mCaptureSession.getCaptureRequestConfigs();
+        List<CaptureConfig> unissuedCaptureConfigs = mCaptureSession.getCaptureConfigs();
         mCaptureSession = new CaptureSession(mHandler);
         mCaptureSession.setSessionConfig(previousSessionConfig);
         // When the previous capture session has not reached the open state, the issued single
         // capture
         // requests will still be in request queue and will need to be passed to the next capture
         // session.
-        mCaptureSession.issueSingleCaptureRequests(unissuedCaptureRequestConfigs);
+        mCaptureSession.issueSingleCaptureRequests(unissuedCaptureConfigs);
     }
 
     private CameraDevice.StateCallback createDeviceStateCallback() {
@@ -558,14 +557,12 @@ final class Camera implements BaseCamera {
     }
 
     /**
-     * Checks if there's valid repeating surface and attaches one to
-     * {@link CaptureRequestConfig.Builder}.
+     * Checks if there's valid repeating surface and attaches one to {@link CaptureConfig.Builder}.
      *
-     * @param captureRequestConfigBuilder the configuration builder to attach a repeating surface
+     * @param captureConfigBuilder the configuration builder to attach a repeating surface
      * @return True if repeating surface has been successfully attached, otherwise false.
      */
-    private boolean checkAndAttachRepeatingSurface(
-            CaptureRequestConfig.Builder captureRequestConfigBuilder) {
+    private boolean checkAndAttachRepeatingSurface(CaptureConfig.Builder captureConfigBuilder) {
         Collection<UseCase> activeUseCases;
         synchronized (mAttachedUseCaseLock) {
             activeUseCases = mUseCaseAttachState.getActiveAndOnlineUseCases();
@@ -574,24 +571,21 @@ final class Camera implements BaseCamera {
         DeferrableSurface repeatingSurface = null;
         for (UseCase useCase : activeUseCases) {
             SessionConfig sessionConfig = useCase.getSessionConfig(mCameraId);
-            List<DeferrableSurface> surfaces =
-                    sessionConfig.getCaptureRequestConfig().getSurfaces();
+            List<DeferrableSurface> surfaces = sessionConfig.getCaptureConfig().getSurfaces();
             if (!surfaces.isEmpty()) {
-                // When an use case is active, all surfaces in its CaptureRequestConfig are
-                // added to
-                // the repeating request. Choose the first one here as the repeating surface.
+                // When an use case is active, all surfaces in its CaptureConfig are added to the
+                // repeating request. Choose the first one here as the repeating surface.
                 repeatingSurface = surfaces.get(0);
                 break;
             }
         }
 
         if (repeatingSurface == null) {
-            Log.w(TAG,
-                    "Unable to find a repeating surface to attach to CaptureRequestConfig");
+            Log.w(TAG, "Unable to find a repeating surface to attach to CaptureConfig");
             return false;
         }
 
-        captureRequestConfigBuilder.addSurface(repeatingSurface);
+        captureConfigBuilder.addSurface(repeatingSurface);
         return true;
     }
 
@@ -604,27 +598,25 @@ final class Camera implements BaseCamera {
     /**
      * Submits single request
      *
-     * @param captureRequestConfig capture configuration used for creating CaptureRequest
+     * @param captureConfig capture configuration used for creating CaptureRequest
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void submitSingleRequest(final CaptureRequestConfig captureRequestConfig) {
+    public void submitSingleRequest(final CaptureConfig captureConfig) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera.this.submitSingleRequest(captureRequestConfig);
+                    Camera.this.submitSingleRequest(captureConfig);
                 }
             });
             return;
         }
 
         // Recreates the Builder to add extra config needed
-        CaptureRequestConfig.Builder builder =
-                CaptureRequestConfig.Builder.from(captureRequestConfig);
+        CaptureConfig.Builder builder = CaptureConfig.Builder.from(captureConfig);
 
-        if (captureRequestConfig.getSurfaces().isEmpty()
-                && captureRequestConfig.isUseRepeatingSurface()) {
+        if (captureConfig.getSurfaces().isEmpty() && captureConfig.isUseRepeatingSurface()) {
             // Checks and attaches if there's valid repeating surface. If there's no, skip this
             // single request.
             if (!checkAndAttachRepeatingSurface(builder)) {
@@ -646,8 +638,8 @@ final class Camera implements BaseCamera {
 
     /** {@inheritDoc} */
     @Override
-    public void onCameraControlSingleRequest(CaptureRequestConfig captureRequestConfig) {
-        submitSingleRequest(captureRequestConfig);
+    public void onCameraControlSingleRequest(CaptureConfig captureConfig) {
+        submitSingleRequest(captureConfig);
     }
 
     enum State {

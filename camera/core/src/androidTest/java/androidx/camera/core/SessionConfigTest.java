@@ -77,8 +77,7 @@ public class SessionConfigTest {
         SessionConfig sessionConfig = builder.build();
 
         List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
-        List<DeferrableSurface> repeatingSurfaces =
-                sessionConfig.getCaptureRequestConfig().getSurfaces();
+        List<DeferrableSurface> repeatingSurfaces = sessionConfig.getCaptureConfig().getSurfaces();
 
         assertThat(surfaces).hasSize(1);
         assertThat(surfaces).contains(mMockSurface0);
@@ -96,8 +95,7 @@ public class SessionConfigTest {
 
         List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces());
         List<Surface> repeatingSurfaces =
-                DeferrableSurfaces.surfaceList(
-                        sessionConfig.getCaptureRequestConfig().getSurfaces());
+                DeferrableSurfaces.surfaceList(sessionConfig.getCaptureConfig().getSurfaces());
 
         assertThat(surfaces.size()).isAtLeast(repeatingSurfaces.size());
         assertThat(surfaces).containsAllIn(repeatingSurfaces);

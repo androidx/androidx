@@ -19,7 +19,7 @@ package androidx.camera.core;
 import android.graphics.Rect;
 
 /** Listener called when focus scan has completed. */
-public interface OnFocusCompletedListener {
+public interface OnFocusListener {
     /** Callback when focus has been locked. */
     void onFocusLocked(Rect afRect);
 

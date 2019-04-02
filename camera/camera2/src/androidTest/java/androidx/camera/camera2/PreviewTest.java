@@ -37,9 +37,9 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.CaptureRequestConfig;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurfaces;
-import androidx.camera.core.OnFocusCompletedListener;
+import androidx.camera.core.OnFocusListener;
 import androidx.camera.core.Preview;
 import androidx.camera.core.Preview.OnPreviewOutputUpdateListener;
 import androidx.camera.core.Preview.PreviewOutput;
@@ -134,12 +134,12 @@ public final class PreviewTest {
         useCase.attachCameraControl(mCameraId, cameraControl);
 
         Rect rect = new Rect(/*left=*/ 200, /*top=*/ 200, /*right=*/ 800, /*bottom=*/ 800);
-        useCase.focus(rect, rect, mock(OnFocusCompletedListener.class));
+        useCase.focus(rect, rect, mock(OnFocusListener.class));
 
         ArgumentCaptor<Rect> rectArgumentCaptor1 = ArgumentCaptor.forClass(Rect.class);
         ArgumentCaptor<Rect> rectArgumentCaptor2 = ArgumentCaptor.forClass(Rect.class);
         verify(cameraControl).focus(rectArgumentCaptor1.capture(), rectArgumentCaptor2.capture(),
-                any(OnFocusCompletedListener.class), any(Handler.class));
+                any(OnFocusListener.class), any(Handler.class));
         assertThat(rectArgumentCaptor1.getValue()).isEqualTo(rect);
         assertThat(rectArgumentCaptor2.getValue()).isEqualTo(rect);
     }
@@ -483,8 +483,7 @@ public final class PreviewTest {
                     }
 
                     @Override
-                    public void onCameraControlSingleRequest(
-                            CaptureRequestConfig captureRequestConfig) {
+                    public void onCameraControlSingleRequest(CaptureConfig captureConfig) {
                     }
                 },
                 new Handler());

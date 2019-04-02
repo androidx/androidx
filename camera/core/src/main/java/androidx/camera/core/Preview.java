@@ -186,7 +186,7 @@ public class Preview extends UseCase {
      * @param metering rectangle with dimensions in sensor coordinate frame for metering
      * @param listener listener for when focus has completed
      */
-    public void focus(Rect focus, Rect metering, @Nullable OnFocusCompletedListener listener) {
+    public void focus(Rect focus, Rect metering, @Nullable OnFocusListener listener) {
         getCurrentCameraControl().focus(focus, metering, listener, mMainHandler);
     }
 

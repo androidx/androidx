@@ -38,7 +38,7 @@ import androidx.camera.camera2.CaptureSession.State;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureCallbacks;
 import androidx.camera.core.CameraCaptureResult;
-import androidx.camera.core.CaptureRequestConfig;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfig;
@@ -215,7 +215,7 @@ public final class CaptureSessionTest {
 
         assertThat(captureSession.getState()).isEqualTo(State.OPENED);
 
-        captureSession.issueSingleCaptureRequest(mTestParameters0.mCaptureRequestConfig);
+        captureSession.issueSingleCaptureRequest(mTestParameters0.mCaptureConfig);
 
         mTestParameters0.waitForCameraCaptureCallback();
 
@@ -230,7 +230,7 @@ public final class CaptureSessionTest {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
-        captureSession.issueSingleCaptureRequest(mTestParameters0.mCaptureRequestConfig);
+        captureSession.issueSingleCaptureRequest(mTestParameters0.mCaptureConfig);
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
 
         mTestParameters0.waitForCameraCaptureCallback();
@@ -247,7 +247,7 @@ public final class CaptureSessionTest {
         captureSession.close();
 
         // Should throw IllegalStateException
-        captureSession.issueSingleCaptureRequest(mTestParameters0.mCaptureRequestConfig);
+        captureSession.issueSingleCaptureRequest(mTestParameters0.mCaptureConfig);
     }
 
     @Test
@@ -308,7 +308,7 @@ public final class CaptureSessionTest {
 
         private final ImageReader mImageReader;
         private final SessionConfig mSessionConfig;
-        private final CaptureRequestConfig mCaptureRequestConfig;
+        private final CaptureConfig mCaptureConfig;
 
         private final CameraCaptureSession.StateCallback mSessionStateCallback =
                 Mockito.mock(CameraCaptureSession.StateCallback.class);
@@ -351,13 +351,12 @@ public final class CaptureSessionTest {
 
             mSessionConfig = builder.build();
 
-            CaptureRequestConfig.Builder captureRequestConfigBuilder =
-                    new CaptureRequestConfig.Builder();
-            captureRequestConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            captureRequestConfigBuilder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
-            captureRequestConfigBuilder.setCameraCaptureCallback(mComboCameraCaptureCallback);
+            CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
+            captureConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+            captureConfigBuilder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
+            captureConfigBuilder.setCameraCaptureCallback(mComboCameraCaptureCallback);
 
-            mCaptureRequestConfig = captureRequestConfigBuilder.build();
+            mCaptureConfig = captureConfigBuilder.build();
         }
 
         /**

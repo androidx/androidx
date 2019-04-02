@@ -29,11 +29,11 @@ import androidx.camera.core.CameraCaptureFailure;
  * An adapter that passes {@link CameraCaptureSession.CaptureCallback} to {@link
  * CameraCaptureCallback}.
  */
-final class CameraCaptureCallbackAdapter extends CameraCaptureSession.CaptureCallback {
+final class CaptureCallbackAdapter extends CameraCaptureSession.CaptureCallback {
 
     private final CameraCaptureCallback mCameraCaptureCallback;
 
-    CameraCaptureCallbackAdapter(CameraCaptureCallback cameraCaptureCallback) {
+    CaptureCallbackAdapter(CameraCaptureCallback cameraCaptureCallback) {
         if (cameraCaptureCallback == null) {
             throw new NullPointerException("cameraCaptureCallback is null");
         }

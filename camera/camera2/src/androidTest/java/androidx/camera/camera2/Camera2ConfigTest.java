@@ -40,7 +40,7 @@ public final class Camera2ConfigTest {
     private static final int INVALID_TEMPLATE_TYPE = -1;
     private static final int INVALID_COLOR_CORRECTION_MODE = -1;
     private static final CameraCaptureSession.CaptureCallback SESSION_CAPTURE_CALLBACK =
-            Camera2CaptureSessionCaptureCallbacks.createComboCallback();
+            Camera2CaptureCallbacks.createComboCallback();
     private static final CameraCaptureSession.StateCallback SESSION_STATE_CALLBACK =
             CameraCaptureSessionStateCallbacks.createNoOpCallback();
     private static final CameraDevice.StateCallback DEVICE_STATE_CALLBACK =

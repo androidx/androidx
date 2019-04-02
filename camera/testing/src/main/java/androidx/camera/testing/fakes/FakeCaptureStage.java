@@ -18,7 +18,7 @@ package androidx.camera.testing.fakes;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.CaptureRequestConfig;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.CaptureStage;
 
 /**
@@ -30,12 +30,12 @@ import androidx.camera.core.CaptureStage;
 public class FakeCaptureStage implements CaptureStage {
 
     private final int mId;
-    private final CaptureRequestConfig mCaptureRequestConfig;
+    private final CaptureConfig mCaptureConfig;
 
     /** Create a FakeCaptureStage with the given parameters. */
-    public FakeCaptureStage(int id, CaptureRequestConfig captureRequestConfig) {
+    public FakeCaptureStage(int id, CaptureConfig captureConfig) {
         mId = id;
-        mCaptureRequestConfig = captureRequestConfig;
+        mCaptureConfig = captureConfig;
     }
 
     @Override
@@ -44,7 +44,7 @@ public class FakeCaptureStage implements CaptureStage {
     }
 
     @Override
-    public CaptureRequestConfig getCaptureRequestConfig() {
-        return mCaptureRequestConfig;
+    public CaptureConfig getCaptureConfig() {
+        return mCaptureConfig;
     }
 }

@@ -34,15 +34,15 @@ import java.util.Arrays;
 import java.util.List;
 
 /** Provides defaults for {@link ImageCaptureConfig} in the Camera2 implementation. */
-final class DefaultImageCaptureConfigProvider implements ConfigProvider<ImageCaptureConfig> {
-    private static final String TAG = "DefImgCapProvider";
+final class ImageCaptureConfigProvider implements ConfigProvider<ImageCaptureConfig> {
+    private static final String TAG = "ImageCaptureProvider";
     private static final Rational DEFAULT_ASPECT_RATIO_4_3 = new Rational(4, 3);
     private static final Rational DEFAULT_ASPECT_RATIO_3_4 = new Rational(3, 4);
 
     private final CameraFactory mCameraFactory;
     private final WindowManager mWindowManager;
 
-    DefaultImageCaptureConfigProvider(CameraFactory cameraFactory, Context context) {
+    ImageCaptureConfigProvider(CameraFactory cameraFactory, Context context) {
         mCameraFactory = cameraFactory;
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     }

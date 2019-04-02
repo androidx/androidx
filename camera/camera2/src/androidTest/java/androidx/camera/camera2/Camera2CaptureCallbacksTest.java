@@ -36,7 +36,7 @@ import org.mockito.Mockito;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public final class Camera2CaptureSessionCaptureCallbacksTest {
+public final class Camera2CaptureCallbacksTest {
 
     @Test
     public void comboCallbackInvokesConstituentCallbacks() {
@@ -45,7 +45,7 @@ public final class Camera2CaptureSessionCaptureCallbacksTest {
         CameraCaptureSession.CaptureCallback callback1 =
                 Mockito.mock(CameraCaptureSession.CaptureCallback.class);
         CameraCaptureSession.CaptureCallback comboCallback =
-                Camera2CaptureSessionCaptureCallbacks.createComboCallback(callback0, callback1);
+                Camera2CaptureCallbacks.createComboCallback(callback0, callback1);
         CameraCaptureSession session = Mockito.mock(CameraCaptureSession.class);
         CaptureResult result = Mockito.mock(CaptureResult.class);
         CaptureFailure failure = Mockito.mock(CaptureFailure.class);

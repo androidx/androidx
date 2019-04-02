@@ -43,13 +43,13 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public final class CameraCaptureCallbackAdapterTest {
+public final class CaptureCallbackAdapterTest {
 
     private CameraCaptureCallback mCameraCaptureCallback;
     private CameraCaptureSession mCameraCaptureSession;
     private CaptureRequest mCaptureRequest;
     private TotalCaptureResult mCaptureResult;
-    private CameraCaptureCallbackAdapter mCameraCaptureCallbackAdapter;
+    private CaptureCallbackAdapter mCaptureCallbackAdapter;
 
     @Before
     public void setUp() {
@@ -57,24 +57,24 @@ public final class CameraCaptureCallbackAdapterTest {
         mCameraCaptureSession = mock(CameraCaptureSession.class);
         mCaptureRequest = mock(CaptureRequest.class);
         mCaptureResult = mock(TotalCaptureResult.class);
-        mCameraCaptureCallbackAdapter = new CameraCaptureCallbackAdapter(mCameraCaptureCallback);
+        mCaptureCallbackAdapter = new CaptureCallbackAdapter(mCameraCaptureCallback);
     }
 
     @Test(expected = NullPointerException.class)
-    public void createCameraCaptureCallbackAdapterWithNullArgument() {
-        new CameraCaptureCallbackAdapter(null);
+    public void createCaptureCallbackAdapterWithNullArgument() {
+        new CaptureCallbackAdapter(null);
     }
 
     @Test
     public void onCaptureCompleted() {
-        mCameraCaptureCallbackAdapter.onCaptureCompleted(
+        mCaptureCallbackAdapter.onCaptureCompleted(
                 mCameraCaptureSession, mCaptureRequest, mCaptureResult);
         verify(mCameraCaptureCallback, times(1)).onCaptureCompleted(any(CameraCaptureResult.class));
     }
 
     @Test
     public void onCaptureFailed() {
-        mCameraCaptureCallbackAdapter.onCaptureFailed(mCameraCaptureSession, mCaptureRequest,
+        mCaptureCallbackAdapter.onCaptureFailed(mCameraCaptureSession, mCaptureRequest,
                 mock(CaptureFailure.class));
         verify(mCameraCaptureCallback, times(1)).onCaptureFailed(any(CameraCaptureFailure.class));
     }

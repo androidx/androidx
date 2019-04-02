@@ -29,7 +29,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
-import androidx.camera.core.CaptureRequestConfig;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.Config.Option;
 import androidx.camera.core.DeferrableSurface;
@@ -53,8 +53,7 @@ final class CaptureSession {
     @Nullable
     private final Handler mHandler;
     /** The configuration for the currently issued single capture requests. */
-    private final List<CaptureRequestConfig> mCaptureRequestConfigs =
-            new ArrayList<>();
+    private final List<CaptureConfig> mCaptureConfigs = new ArrayList<>();
     /** Lock on whether the camera is open or closed. */
     final Object mStateLock = new Object();
     /** Callback for handling image captures. */
@@ -286,18 +285,18 @@ final class CaptureSession {
     /**
      * Issues a single capture request.
      *
-     * @param captureRequestConfig which is used to construct a {@link CaptureRequest}.
+     * @param captureConfig which is used to construct a {@link CaptureRequest}.
      */
-    void issueSingleCaptureRequest(CaptureRequestConfig captureRequestConfig) {
-        issueSingleCaptureRequests(Collections.singletonList(captureRequestConfig));
+    void issueSingleCaptureRequest(CaptureConfig captureConfig) {
+        issueSingleCaptureRequests(Collections.singletonList(captureConfig));
     }
 
     /**
      * Issues single capture requests.
      *
-     * @param captureRequestConfigs which is used to construct {@link CaptureRequest}.
+     * @param captureConfigs which is used to construct {@link CaptureRequest}.
      */
-    void issueSingleCaptureRequests(List<CaptureRequestConfig> captureRequestConfigs) {
+    void issueSingleCaptureRequests(List<CaptureConfig> captureConfigs) {
         synchronized (mStateLock) {
             switch (mState) {
                 case UNINITIALIZED:
@@ -306,10 +305,10 @@ final class CaptureSession {
                                     + mState);
                 case INITIALIZED:
                 case OPENING:
-                    mCaptureRequestConfigs.addAll(captureRequestConfigs);
+                    mCaptureConfigs.addAll(captureConfigs);
                     break;
                 case OPENED:
-                    mCaptureRequestConfigs.addAll(captureRequestConfigs);
+                    mCaptureConfigs.addAll(captureConfigs);
                     issueCaptureRequests();
                     break;
                 case CLOSED:
@@ -322,9 +321,9 @@ final class CaptureSession {
     }
 
     /** Returns the configurations of the capture requests. */
-    List<CaptureRequestConfig> getCaptureRequestConfigs() {
+    List<CaptureConfig> getCaptureConfigs() {
         synchronized (mStateLock) {
-            return Collections.unmodifiableList(mCaptureRequestConfigs);
+            return Collections.unmodifiableList(mCaptureConfigs);
         }
     }
 
@@ -346,26 +345,25 @@ final class CaptureSession {
             return;
         }
 
-        CaptureRequestConfig captureRequestConfig =
-                mSessionConfig.getCaptureRequestConfig();
+        CaptureConfig captureConfig = mSessionConfig.getCaptureConfig();
 
         try {
             Log.d(TAG, "Issuing request for session.");
             CaptureRequest.Builder builder =
-                    captureRequestConfig.buildCaptureRequest(mCameraCaptureSession.getDevice());
+                    captureConfig.buildCaptureRequest(mCameraCaptureSession.getDevice());
             if (builder == null) {
                 Log.d(TAG, "Skipping issuing empty request for session.");
                 return;
             }
 
             applyImplementationOptionTCaptureBuilder(
-                    builder, captureRequestConfig.getImplementationOptions());
+                    builder, captureConfig.getImplementationOptions());
 
             CameraCaptureSession.CaptureCallback comboCaptureCallback =
-                    Camera2CaptureSessionCaptureCallbacks.createComboCallback(
+                    Camera2CaptureCallbacks.createComboCallback(
                             mCaptureCallback,
                             CaptureCallbackConverter.toCaptureCallback(
-                                    captureRequestConfig.getCameraCaptureCallback()));
+                                    captureConfig.getCameraCaptureCallback()));
             mCameraCaptureSession.setRepeatingRequest(
                     builder.build(), comboCaptureCallback, mHandler);
         } catch (CameraAccessException e) {
@@ -400,36 +398,36 @@ final class CaptureSession {
         }
     }
 
-    /** Issues mCaptureRequestConfigs to {@link CameraCaptureSession}. */
+    /** Issues mCaptureConfigs to {@link CameraCaptureSession}. */
     void issueCaptureRequests() {
-        if (mCaptureRequestConfigs.isEmpty()) {
+        if (mCaptureConfigs.isEmpty()) {
             return;
         }
 
-        for (CaptureRequestConfig captureRequestConfig : mCaptureRequestConfigs) {
-            if (captureRequestConfig.getSurfaces().isEmpty()) {
+        for (CaptureConfig captureConfig : mCaptureConfigs) {
+            if (captureConfig.getSurfaces().isEmpty()) {
                 Log.d(TAG, "Skipping issuing empty capture request.");
                 continue;
             }
             try {
                 Log.d(TAG, "Issuing capture request.");
                 CaptureRequest.Builder builder =
-                        captureRequestConfig.buildCaptureRequest(mCameraCaptureSession.getDevice());
+                        captureConfig.buildCaptureRequest(mCameraCaptureSession.getDevice());
 
                 applyImplementationOptionTCaptureBuilder(
-                        builder, captureRequestConfig.getImplementationOptions());
+                        builder, captureConfig.getImplementationOptions());
 
                 mCameraCaptureSession.capture(
                         builder.build(),
                         CaptureCallbackConverter.toCaptureCallback(
-                                captureRequestConfig.getCameraCaptureCallback()),
+                                captureConfig.getCameraCaptureCallback()),
                         mHandler);
             } catch (CameraAccessException e) {
                 Log.e(TAG, "Unable to access camera: " + e.getMessage());
                 Thread.dumpStack();
             }
         }
-        mCaptureRequestConfigs.clear();
+        mCaptureConfigs.clear();
     }
 
     enum State {

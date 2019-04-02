@@ -88,8 +88,7 @@ final class Camera2OptionUnpacker implements SessionConfig.OptionUnpacker {
                         cameraCaptureCallback,
                         CaptureCallbackContainer.create(
                                 camera2Config.getSessionCaptureCallback(
-                                        Camera2CaptureSessionCaptureCallbacks
-                                                .createNoOpCallback())));
+                                        Camera2CaptureCallbacks.createNoOpCallback())));
 
         // Apply state callbacks
         builder.setDeviceStateCallback(deviceStateCallback);

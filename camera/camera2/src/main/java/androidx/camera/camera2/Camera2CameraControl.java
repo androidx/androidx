@@ -33,10 +33,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CaptureRequestConfig;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.FlashMode;
-import androidx.camera.core.OnFocusCompletedListener;
+import androidx.camera.core.OnFocusListener;
 import androidx.camera.core.SessionConfig;
 
 import java.util.HashSet;
@@ -65,7 +65,7 @@ public final class Camera2CameraControl implements CameraControl {
     private volatile MeteringRectangle mAeRect;
     private volatile MeteringRectangle mAwbRect;
     volatile Integer mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
-    volatile OnFocusCompletedListener mFocusListener = null;
+    volatile OnFocusListener mFocusListener = null;
     private volatile Handler mFocusListenerHandler = null;
     volatile CaptureResultListener mSessionListenerForFocus = null;
     private final Runnable mHandleFocusTimeoutRunnable =
@@ -121,7 +121,7 @@ public final class Camera2CameraControl implements CameraControl {
     public void focus(
             final Rect focus,
             final Rect metering,
-            @Nullable final OnFocusCompletedListener listener,
+            @Nullable final OnFocusListener listener,
             @Nullable final Handler listenerHandler) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
@@ -234,8 +234,7 @@ public final class Camera2CameraControl implements CameraControl {
         mAwbRect = zeroRegion;
 
         // Send a single request to cancel af process
-        CaptureRequestConfig.Builder singleRequestBuilder =
-                createCaptureRequestBuilderWithSharedOptions();
+        CaptureConfig.Builder singleRequestBuilder = createCaptureBuilderWithSharedOptions();
         singleRequestBuilder.setTemplateType(getDefaultTemplate());
         singleRequestBuilder.setUseRepeatingSurface(true);
         Camera2Config.Builder configBuilder = new Camera2Config.Builder();
@@ -282,8 +281,7 @@ public final class Camera2CameraControl implements CameraControl {
         }
 
         if (!torch) {
-            CaptureRequestConfig.Builder singleRequestBuilder =
-                    createCaptureRequestBuilderWithSharedOptions();
+            CaptureConfig.Builder singleRequestBuilder = createCaptureBuilderWithSharedOptions();
             singleRequestBuilder.setTemplateType(getDefaultTemplate());
             singleRequestBuilder.setUseRepeatingSurface(true);
             Camera2Config.Builder configBuilder = new Camera2Config.Builder();
@@ -321,8 +319,7 @@ public final class Camera2CameraControl implements CameraControl {
             return;
         }
 
-        CaptureRequestConfig.Builder builder =
-                createCaptureRequestBuilderWithSharedOptions();
+        CaptureConfig.Builder builder = createCaptureBuilderWithSharedOptions();
         builder.setTemplateType(getDefaultTemplate());
         builder.setUseRepeatingSurface(true);
         Camera2Config.Builder configBuilder = new Camera2Config.Builder();
@@ -348,8 +345,7 @@ public final class Camera2CameraControl implements CameraControl {
             return;
         }
 
-        CaptureRequestConfig.Builder builder =
-                createCaptureRequestBuilderWithSharedOptions();
+        CaptureConfig.Builder builder = createCaptureBuilderWithSharedOptions();
         builder.setTemplateType(getDefaultTemplate());
         builder.setUseRepeatingSurface(true);
         Camera2Config.Builder configBuilder = new Camera2Config.Builder();
@@ -377,8 +373,7 @@ public final class Camera2CameraControl implements CameraControl {
             });
             return;
         }
-        CaptureRequestConfig.Builder builder =
-                createCaptureRequestBuilderWithSharedOptions();
+        CaptureConfig.Builder builder = createCaptureBuilderWithSharedOptions();
         builder.setUseRepeatingSurface(true);
         builder.setTemplateType(getDefaultTemplate());
 
@@ -399,17 +394,17 @@ public final class Camera2CameraControl implements CameraControl {
         return CameraDevice.TEMPLATE_PREVIEW;
     }
 
-    void notifySingleRequest(final CaptureRequestConfig captureRequestConfig) {
+    void notifySingleRequest(final CaptureConfig captureConfig) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera2CameraControl.this.notifySingleRequest(captureRequestConfig);
+                    Camera2CameraControl.this.notifySingleRequest(captureConfig);
                 }
             });
             return;
         }
-        mControlUpdateListener.onCameraControlSingleRequest(captureRequestConfig);
+        mControlUpdateListener.onCameraControlSingleRequest(captureConfig);
     }
 
     void updateSessionConfig() {
@@ -428,31 +423,30 @@ public final class Camera2CameraControl implements CameraControl {
 
     /** {@inheritDoc} */
     @Override
-    public void submitSingleRequest(final CaptureRequestConfig captureRequestConfig) {
+    public void submitSingleRequest(final CaptureConfig captureConfig) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera2CameraControl.this.submitSingleRequest(captureRequestConfig);
+                    Camera2CameraControl.this.submitSingleRequest(captureConfig);
                 }
             });
             return;
         }
 
-        CaptureRequestConfig.Builder builder = CaptureRequestConfig.Builder.from(
-                captureRequestConfig);
+        CaptureConfig.Builder builder = CaptureConfig.Builder.from(captureConfig);
         // Always override options by shared options for the single request from outside.
         builder.addImplementationOptions(getSharedOptions());
         notifySingleRequest(builder.build());
     }
 
     /**
-     * Creates a CaptureRequestConfig.Builder contains shared options.
+     * Creates a CaptureConfig.Builder contains shared options.
      *
-     * @return a {@link CaptureRequestConfig.Builder} contains shared options.
+     * @return a {@link CaptureConfig.Builder} contains shared options.
      */
-    private CaptureRequestConfig.Builder createCaptureRequestBuilderWithSharedOptions() {
-        CaptureRequestConfig.Builder builder = new CaptureRequestConfig.Builder();
+    private CaptureConfig.Builder createCaptureBuilderWithSharedOptions() {
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
         builder.addImplementationOptions(getSharedOptions());
         return builder;
     }

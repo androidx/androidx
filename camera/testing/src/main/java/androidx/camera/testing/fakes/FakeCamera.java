@@ -19,7 +19,7 @@ package androidx.camera.testing.fakes;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
-import androidx.camera.core.CaptureRequestConfig;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 
@@ -92,6 +92,6 @@ public class FakeCamera implements BaseCamera {
     }
 
     @Override
-    public void onCameraControlSingleRequest(CaptureRequestConfig captureRequestConfig) {
+    public void onCameraControlSingleRequest(CaptureConfig captureConfig) {
     }
 }

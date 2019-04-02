@@ -799,7 +799,7 @@ public class ImageCapture extends UseCase {
     // TODO(b/123897971):  move the device specific code once we complete the device workaround
     // module.
     private void applyPixelHdrPlusChangeForCaptureMode(
-            CaptureMode captureMode, CaptureRequestConfig.Builder takePhotoRequestBuilder) {
+            CaptureMode captureMode, CaptureConfig.Builder takePhotoRequestBuilder) {
         if (Build.MANUFACTURER.equals("Google")
                 && (Build.MODEL.equals("Pixel 2") || Build.MODEL.equals("Pixel 3"))) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -824,16 +824,16 @@ public class ImageCapture extends UseCase {
         List<ListenableFuture<Void>> futureList = new ArrayList<>();
 
         for (CaptureStage captureStage : mCaptureBundle.getCaptureStages()) {
-            final CaptureRequestConfig.Builder builder = new CaptureRequestConfig.Builder();
+            final CaptureConfig.Builder builder = new CaptureConfig.Builder();
             builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
             builder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
 
             applyPixelHdrPlusChangeForCaptureMode(mCaptureMode, builder);
 
             builder.addImplementationOptions(
-                    captureStage.getCaptureRequestConfig().getImplementationOptions());
+                    captureStage.getCaptureConfig().getImplementationOptions());
 
-            builder.setTag(captureStage.getCaptureRequestConfig().getTag());
+            builder.setTag(captureStage.getCaptureConfig().getTag());
 
             final CameraCaptureCallback metadataMatchingCallback = mMetadataMatchingCaptureCallback;
             final CameraControl cameraControl = getCurrentCameraControl();

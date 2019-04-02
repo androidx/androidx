@@ -54,17 +54,13 @@ public final class Camera2AppConfig {
         // Create default configuration factory
         ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
         configFactory.installDefaultProvider(
-                ImageAnalysisConfig.class,
-                new DefaultImageAnalysisConfigProvider(cameraFactory, context));
+                ImageAnalysisConfig.class, new ImageAnalysisConfigProvider(cameraFactory, context));
         configFactory.installDefaultProvider(
-                ImageCaptureConfig.class,
-                new DefaultImageCaptureConfigProvider(cameraFactory, context));
+                ImageCaptureConfig.class, new ImageCaptureConfigProvider(cameraFactory, context));
         configFactory.installDefaultProvider(
-                VideoCaptureConfig.class,
-                new DefaultVideoCaptureConfigProvider(cameraFactory, context));
+                VideoCaptureConfig.class, new VideoCaptureConfigProvider(cameraFactory, context));
         configFactory.installDefaultProvider(
-                PreviewConfig.class,
-                new DefaultPreviewConfigProvider(cameraFactory, context));
+                PreviewConfig.class, new PreviewConfigProvider(cameraFactory, context));
 
         AppConfig.Builder appConfigBuilder =
                 new AppConfig.Builder()

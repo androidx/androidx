@@ -107,7 +107,7 @@ public abstract class PreviewExtender {
     }
 
     protected void setCaptureStage(@NonNull CaptureStage captureStage) {
-        Config config = captureStage.getCaptureRequestConfig().getImplementationOptions();
+        Config config = captureStage.getCaptureConfig().getImplementationOptions();
 
         for (Option<?> option : config.listOptions()) {
             @SuppressWarnings("unchecked") // Options/values are being copied directly

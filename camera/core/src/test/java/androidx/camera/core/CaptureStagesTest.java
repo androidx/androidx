@@ -32,8 +32,7 @@ public class CaptureStagesTest {
     @Test
     public void defaultCaptureStageHasNoOptions() {
         CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
-        Config options =
-                captureStage.getCaptureRequestConfig().getImplementationOptions();
+        Config options = captureStage.getCaptureConfig().getImplementationOptions();
 
         assertThat(options.listOptions().size()).isEqualTo(0);
     }

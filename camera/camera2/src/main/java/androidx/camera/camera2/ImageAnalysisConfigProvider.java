@@ -26,34 +26,36 @@ import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ConfigProvider;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.SessionConfig;
-import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCaptureConfig;
 
 import java.util.Arrays;
 import java.util.List;
 
-/** Provides defaults for {@link VideoCaptureConfig} in the Camera2 implementation. */
-final class DefaultVideoCaptureConfigProvider implements ConfigProvider<VideoCaptureConfig> {
-    private static final String TAG = "DefVideoCapProvider";
-    private static final Rational DEFAULT_ASPECT_RATIO_16_9 = new Rational(16, 9);
-    private static final Rational DEFAULT_ASPECT_RATIO_9_16 = new Rational(9, 16);
+/**
+ * Provides defaults for {@link ImageAnalysisConfig} in the Camera2 implementation.
+ */
+final class ImageAnalysisConfigProvider implements ConfigProvider<ImageAnalysisConfig> {
+    private static final String TAG = "ImageAnalysisProvider";
+    private static final Rational DEFAULT_ASPECT_RATIO_4_3 = new Rational(4, 3);
+    private static final Rational DEFAULT_ASPECT_RATIO_3_4 = new Rational(3, 4);
 
     private final CameraFactory mCameraFactory;
     private final WindowManager mWindowManager;
 
-    DefaultVideoCaptureConfigProvider(CameraFactory cameraFactory, Context context) {
+    ImageAnalysisConfigProvider(CameraFactory cameraFactory, Context context) {
         mCameraFactory = cameraFactory;
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     }
 
     @Override
-    public VideoCaptureConfig getConfig(LensFacing lensFacing) {
-        VideoCaptureConfig.Builder builder =
-                VideoCaptureConfig.Builder.fromConfig(
-                        VideoCapture.DEFAULT_CONFIG.getConfig(lensFacing));
+    public ImageAnalysisConfig getConfig(LensFacing lensFacing) {
+        ImageAnalysisConfig.Builder builder =
+                ImageAnalysisConfig.Builder.fromConfig(
+                        ImageAnalysis.DEFAULT_CONFIG.getConfig(lensFacing));
 
-        // SessionConfig containing all intrinsic properties needed for VideoCapture
+        // SessionConfig containing all intrinsic properties needed for ImageAnalysis
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
         // TODO(b/114762170): Must set to preview here until we allow for multiple template types
         sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -88,9 +90,9 @@ final class DefaultVideoCaptureConfigProvider implements ConfigProvider<VideoCap
             boolean isRotateNeeded = (rotationDegrees == 90 || rotationDegrees == 270);
             builder.setTargetRotation(targetRotation);
             builder.setTargetAspectRatio(
-                    isRotateNeeded ? DEFAULT_ASPECT_RATIO_9_16 : DEFAULT_ASPECT_RATIO_16_9);
+                    isRotateNeeded ? DEFAULT_ASPECT_RATIO_3_4 : DEFAULT_ASPECT_RATIO_4_3);
         } catch (Exception e) {
-            Log.w(TAG, "Unable to determine default lens facing for VideoCapture.", e);
+            Log.w(TAG, "Unable to determine default lens facing for ImageAnalysis.", e);
         }
 
         return builder.build();

@@ -53,7 +53,7 @@ public final class SessionConfig {
     /** The state callback for a {@link CameraCaptureSession}. */
     private final CameraCaptureSession.StateCallback mSessionStateCallback;
     /** The configuration for building the {@link CaptureRequest}. */
-    private final CaptureRequestConfig mCaptureRequestConfig;
+    private final CaptureConfig mCaptureConfig;
 
     /**
      * Private constructor for a SessionConfig.
@@ -64,17 +64,17 @@ public final class SessionConfig {
      * @param surfaces             The set of {@link Surface} where data will be put into.
      * @param deviceStateCallback  The state callback for a {@link CameraDevice}.
      * @param sessionStateCallback The state callback for a {@link CameraCaptureSession}.
-     * @param captureRequestConfig The configuration for building the {@link CaptureRequest}.
+     * @param captureConfig        The configuration for building the {@link CaptureRequest}.
      */
     SessionConfig(
             List<DeferrableSurface> surfaces,
             StateCallback deviceStateCallback,
             CameraCaptureSession.StateCallback sessionStateCallback,
-            CaptureRequestConfig captureRequestConfig) {
+            CaptureConfig captureConfig) {
         mSurfaces = surfaces;
         mDeviceStateCallback = deviceStateCallback;
         mSessionStateCallback = sessionStateCallback;
-        mCaptureRequestConfig = captureRequestConfig;
+        mCaptureConfig = captureConfig;
     }
 
     /** Returns an instance of a session configuration with minimal configurations. */
@@ -83,7 +83,7 @@ public final class SessionConfig {
                 new ArrayList<DeferrableSurface>(),
                 CameraDeviceStateCallbacks.createNoOpCallback(),
                 CameraCaptureSessionStateCallbacks.createNoOpCallback(),
-                new CaptureRequestConfig.Builder().build());
+                new CaptureConfig.Builder().build());
     }
 
     public List<DeferrableSurface> getSurfaces() {
@@ -91,15 +91,15 @@ public final class SessionConfig {
     }
 
     public Map<Key<?>, CaptureRequestParameter<?>> getCameraCharacteristics() {
-        return mCaptureRequestConfig.getCameraCharacteristics();
+        return mCaptureConfig.getCameraCharacteristics();
     }
 
     public Config getImplementationOptions() {
-        return mCaptureRequestConfig.getImplementationOptions();
+        return mCaptureConfig.getImplementationOptions();
     }
 
     public int getTemplateType() {
-        return mCaptureRequestConfig.getTemplateType();
+        return mCaptureConfig.getTemplateType();
     }
 
     public CameraDevice.StateCallback getDeviceStateCallback() {
@@ -111,11 +111,11 @@ public final class SessionConfig {
     }
 
     public CameraCaptureCallback getCameraCaptureCallback() {
-        return mCaptureRequestConfig.getCameraCaptureCallback();
+        return mCaptureConfig.getCameraCaptureCallback();
     }
 
-    public CaptureRequestConfig getCaptureRequestConfig() {
-        return mCaptureRequestConfig;
+    public CaptureConfig getCaptureConfig() {
+        return mCaptureConfig;
     }
 
     /**
@@ -145,8 +145,7 @@ public final class SessionConfig {
     @RestrictTo(Scope.LIBRARY_GROUP)
     static class BaseBuilder {
         protected final Set<DeferrableSurface> mSurfaces = new HashSet<>();
-        protected final CaptureRequestConfig.Builder mCaptureRequestConfigBuilder =
-                new CaptureRequestConfig.Builder();
+        protected final CaptureConfig.Builder mCaptureConfigBuilder = new CaptureConfig.Builder();
         protected CameraDevice.StateCallback mDeviceStateCallback =
                 CameraDeviceStateCallbacks.createNoOpCallback();
         protected CameraCaptureSession.StateCallback mSessionStateCallback =
@@ -189,7 +188,7 @@ public final class SessionConfig {
          *                     should be moved
          */
         public void setTemplateType(int templateType) {
-            mCaptureRequestConfigBuilder.setTemplateType(templateType);
+            mCaptureConfigBuilder.setTemplateType(templateType);
         }
 
         // TODO(b/120949879): This is camera2 implementation detail that should be moved
@@ -205,13 +204,13 @@ public final class SessionConfig {
 
         /** Set the {@link CameraCaptureCallback}. */
         public void setCameraCaptureCallback(CameraCaptureCallback cameraCaptureCallback) {
-            mCaptureRequestConfigBuilder.setCameraCaptureCallback(cameraCaptureCallback);
+            mCaptureConfigBuilder.setCameraCaptureCallback(cameraCaptureCallback);
         }
 
         /** Add a surface to the set that the session repeatedly writes data to. */
         public void addSurface(DeferrableSurface surface) {
             mSurfaces.add(surface);
-            mCaptureRequestConfigBuilder.addSurface(surface);
+            mCaptureConfigBuilder.addSurface(surface);
         }
 
         /** Add a surface for the session which only used for single captures. */
@@ -222,30 +221,30 @@ public final class SessionConfig {
         /** Remove a surface from the set which the session repeatedly writes to. */
         public void removeSurface(DeferrableSurface surface) {
             mSurfaces.remove(surface);
-            mCaptureRequestConfigBuilder.removeSurface(surface);
+            mCaptureConfigBuilder.removeSurface(surface);
         }
 
         /** Clears all surfaces from the set which the session writes to. */
         public void clearSurfaces() {
             mSurfaces.clear();
-            mCaptureRequestConfigBuilder.clearSurfaces();
+            mCaptureConfigBuilder.clearSurfaces();
         }
 
         /** Add the {@link CaptureRequest.Key} value pair that will be applied. */
         // TODO(b/120949879): This is camera2 implementation detail that should be moved
         public <T> void addCharacteristic(Key<T> key, T value) {
-            mCaptureRequestConfigBuilder.addCharacteristic(key, value);
+            mCaptureConfigBuilder.addCharacteristic(key, value);
         }
 
         /** Add the {@link CaptureRequestParameter} that will be applied. */
         // TODO(b/120949879): This is camera2 implementation detail that should be moved
         public void addCharacteristics(Map<Key<?>, CaptureRequestParameter<?>> characteristics) {
-            mCaptureRequestConfigBuilder.addCharacteristics(characteristics);
+            mCaptureConfigBuilder.addCharacteristics(characteristics);
         }
 
         /** Set the {@link Config} for options that are implementation specific. */
         public void setImplementationOptions(Config config) {
-            mCaptureRequestConfigBuilder.setImplementationOptions(config);
+            mCaptureConfigBuilder.setImplementationOptions(config);
         }
 
         /**
@@ -257,7 +256,7 @@ public final class SessionConfig {
                     new ArrayList<>(mSurfaces),
                     mDeviceStateCallback,
                     mSessionStateCallback,
-                    mCaptureRequestConfigBuilder.build());
+                    mCaptureConfigBuilder.build());
         }
     }
 
@@ -282,20 +281,18 @@ public final class SessionConfig {
          * ValidatingBuilder
          */
         public void add(SessionConfig sessionConfig) {
-            CaptureRequestConfig captureRequestConfig = sessionConfig.getCaptureRequestConfig();
+            CaptureConfig captureConfig = sessionConfig.getCaptureConfig();
 
             // Check template
             if (!mTemplateSet) {
-                mCaptureRequestConfigBuilder.setTemplateType(
-                        captureRequestConfig.getTemplateType());
+                mCaptureConfigBuilder.setTemplateType(captureConfig.getTemplateType());
                 mTemplateSet = true;
-            } else if (mCaptureRequestConfigBuilder.getTemplateType()
-                    != captureRequestConfig.getTemplateType()) {
+            } else if (mCaptureConfigBuilder.getTemplateType() != captureConfig.getTemplateType()) {
                 String errorMessage =
                         "Invalid configuration due to template type: "
-                                + mCaptureRequestConfigBuilder.getTemplateType()
+                                + mCaptureConfigBuilder.getTemplateType()
                                 + " != "
-                                + captureRequestConfig.getTemplateType();
+                                + captureConfig.getTemplateType();
                 Log.d(TAG, errorMessage);
                 mValid = false;
             }
@@ -307,20 +304,18 @@ public final class SessionConfig {
             mSessionStateCallbacks.add(sessionConfig.getSessionStateCallback());
 
             // Check camera capture callback
-            mCameraCaptureCallbacks.add(captureRequestConfig.getCameraCaptureCallback());
+            mCameraCaptureCallbacks.add(captureConfig.getCameraCaptureCallback());
 
             // Check surfaces
             mSurfaces.addAll(sessionConfig.getSurfaces());
 
             // Check capture request surfaces
-            mCaptureRequestConfigBuilder
-                    .getSurfaces()
-                    .addAll(captureRequestConfig.getSurfaces());
+            mCaptureConfigBuilder.getSurfaces().addAll(captureConfig.getSurfaces());
 
-            mCaptureRequestConfigBuilder.addImplementationOptions(
-                    captureRequestConfig.getImplementationOptions());
+            mCaptureConfigBuilder.addImplementationOptions(
+                    captureConfig.getImplementationOptions());
 
-            if (!mSurfaces.containsAll(mCaptureRequestConfigBuilder.getSurfaces())) {
+            if (!mSurfaces.containsAll(mCaptureConfigBuilder.getSurfaces())) {
                 String errorMessage =
                         "Invalid configuration due to capture request surfaces are not a subset "
                                 + "of surfaces";
@@ -330,13 +325,13 @@ public final class SessionConfig {
 
             // Check characteristics
             for (Map.Entry<Key<?>, CaptureRequestParameter<?>> entry :
-                    captureRequestConfig.getCameraCharacteristics().entrySet()) {
+                    captureConfig.getCameraCharacteristics().entrySet()) {
                 Key<?> addedKey = entry.getKey();
-                if (mCaptureRequestConfigBuilder.getCharacteristic().containsKey(entry.getKey())) {
+                if (mCaptureConfigBuilder.getCharacteristic().containsKey(entry.getKey())) {
                     // value is equal
                     CaptureRequestParameter<?> addedValue = entry.getValue();
                     CaptureRequestParameter<?> oldValue =
-                            mCaptureRequestConfigBuilder.getCharacteristic().get(addedKey);
+                            mCaptureConfigBuilder.getCharacteristic().get(addedKey);
                     if (!addedValue.getValue().equals(oldValue.getValue())) {
                         String errorMessage =
                                 "Invalid configuration due to conflicting CaptureRequest.Keys: "
@@ -347,9 +342,7 @@ public final class SessionConfig {
                         mValid = false;
                     }
                 } else {
-                    mCaptureRequestConfigBuilder
-                            .getCharacteristic()
-                            .put(entry.getKey(), entry.getValue());
+                    mCaptureConfigBuilder.getCharacteristic().put(entry.getKey(), entry.getValue());
                 }
             }
         }
@@ -367,13 +360,13 @@ public final class SessionConfig {
             if (!mValid) {
                 throw new IllegalArgumentException("Unsupported session configuration combination");
             }
-            mCaptureRequestConfigBuilder.setCameraCaptureCallback(
+            mCaptureConfigBuilder.setCameraCaptureCallback(
                     CameraCaptureCallbacks.createComboCallback(mCameraCaptureCallbacks));
             return new SessionConfig(
                     new ArrayList<>(mSurfaces),
                     CameraDeviceStateCallbacks.createComboCallback(mDeviceStateCallbacks),
                     CameraCaptureSessionStateCallbacks.createComboCallback(mSessionStateCallbacks),
-                    mCaptureRequestConfigBuilder.build());
+                    mCaptureConfigBuilder.build());
         }
     }
 }

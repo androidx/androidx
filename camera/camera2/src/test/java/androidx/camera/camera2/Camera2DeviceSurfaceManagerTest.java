@@ -540,16 +540,16 @@ public final class Camera2DeviceSurfaceManagerTest {
         ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
         configFactory.installDefaultProvider(
                 ImageAnalysisConfig.class,
-                new DefaultImageAnalysisConfigProvider(cameraFactory, mContext));
+                new ImageAnalysisConfigProvider(cameraFactory, mContext));
         configFactory.installDefaultProvider(
                 ImageCaptureConfig.class,
-                new DefaultImageCaptureConfigProvider(cameraFactory, mContext));
+                new ImageCaptureConfigProvider(cameraFactory, mContext));
         configFactory.installDefaultProvider(
                 VideoCaptureConfig.class,
-                new DefaultVideoCaptureConfigProvider(cameraFactory, mContext));
+                new VideoCaptureConfigProvider(cameraFactory, mContext));
         configFactory.installDefaultProvider(
                 PreviewConfig.class,
-                new DefaultPreviewConfigProvider(cameraFactory, mContext));
+                new PreviewConfigProvider(cameraFactory, mContext));
 
         AppConfig.Builder appConfigBuilder =
                 new AppConfig.Builder()
