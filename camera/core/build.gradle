@@ -71,7 +71,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Jetpack Camera Core Library"
     publish = true
     mavenVersion = UnpublishedLibraryVersions.CAMERA

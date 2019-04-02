@@ -35,7 +35,7 @@ android {
     }
 }
 
-supportLibrary {
+androidx {
     name = "Jetpack Camera Library OEM Extensions"
     publish = false
     mavenVersion = UnpublishedLibraryVersions.CAMERA
