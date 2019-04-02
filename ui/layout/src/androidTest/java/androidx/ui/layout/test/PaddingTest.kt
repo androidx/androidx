@@ -56,14 +56,7 @@ class PaddingTest : LayoutTest() {
             <Center>
                 <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
                     <Padding padding=EdgeInsets(padding)>
-                        <Container
-                            padding=null
-                            color=null
-                            alignment=null
-                            margin=null
-                            constraints=null
-                            width=null
-                            height=null>
+                        <Container>
                             <OnPositioned onPositioned={ coordinates ->
                                 childSize = coordinates.size
                                 childPosition =
@@ -102,14 +95,7 @@ class PaddingTest : LayoutTest() {
             <Center>
                 <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
                     <Padding padding>
-                        <Container
-                            padding=null
-                            color=null
-                            alignment=null
-                            margin=null
-                            constraints=null
-                            width=null
-                            height=null>
+                        <Container>
                             <OnPositioned onPositioned={ coordinates ->
                                 childSize = coordinates.size
                                 childPosition =
@@ -158,14 +144,7 @@ class PaddingTest : LayoutTest() {
             <Center>
                 <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
                     <Padding padding=EdgeInsets(padding)>
-                        <Container
-                            padding=null
-                            color=null
-                            alignment=null
-                            margin=null
-                            constraints=null
-                            width=null
-                            height=null>
+                        <Container>
                             <OnPositioned onPositioned={ coordinates ->
                                 childSize = coordinates.size
                                 childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
