@@ -46,6 +46,8 @@ public final class Destination implements VersionedParcelable {
     LatLng mLatLng;
     @ParcelField(6)
     EnumWrapper<Traffic> mTraffic;
+    @ParcelField(7)
+    CharSequence mFormattedEta;
 
     /**
      * Congestion level on the way to a destination, compared to ideal driving conditions.
@@ -75,13 +77,15 @@ public final class Destination implements VersionedParcelable {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     Destination(@NonNull String title, @NonNull String address, @Nullable Distance distance,
-            @Nullable Time eta, @Nullable LatLng latlng, @Nullable EnumWrapper<Traffic> traffic) {
+            @Nullable Time eta, @Nullable LatLng latlng, @Nullable EnumWrapper<Traffic> traffic,
+            @Nullable CharSequence formattedEta) {
         mTitle = title;
         mAddress = address;
         mDistance = distance;
         mEta = eta;
         mLatLng = latlng;
         mTraffic = traffic;
+        mFormattedEta = formattedEta;
     }
 
     /**
@@ -94,6 +98,7 @@ public final class Destination implements VersionedParcelable {
         private Time mEta;
         private LatLng mLatLng;
         private EnumWrapper<Traffic> mTraffic;
+        private CharSequence mFormattedEta;
 
         /**
          * Sets the destination title (formatted for the current user's locale), or empty if there
@@ -135,11 +140,28 @@ public final class Destination implements VersionedParcelable {
          * Sets the estimated time of arrival to this destination, or null if estimated time of
          * arrival is unknown.
          *
+         * Provides an alternative to {@link #setFormattedEta(CharSequence)} and both may
+         * optionally be set.
+         *
          * @return this object for chaining
          */
         @NonNull
         public Builder setEta(@Nullable ZonedDateTime eta) {
             mEta = eta != null ? new Time(eta) : null;
+            return this;
+        }
+
+        /**
+         * Sets the estimated time of arrival to this destination as a formatted CharSequence, or
+         * empty if estimated time of arrival is unknown.
+         *
+         * Provides an alternative to {@link #setEta(ZonedDateTime)} and both may optionally be set.
+         *
+         * @return this object for chaining
+         */
+        @NonNull
+        public Builder setFormattedEta(@NonNull CharSequence formattedEta) {
+            mFormattedEta = Preconditions.checkNotNull(formattedEta);
             return this;
         }
 
@@ -173,7 +195,8 @@ public final class Destination implements VersionedParcelable {
          */
         @NonNull
         public Destination build() {
-            return new Destination(mTitle, mAddress, mDistance, mEta, mLatLng, mTraffic);
+            return new Destination(
+                    mTitle, mAddress, mDistance, mEta, mLatLng, mTraffic, mFormattedEta);
         }
     }
 
@@ -214,6 +237,15 @@ public final class Destination implements VersionedParcelable {
     }
 
     /**
+     * Returns the estimated time of arrival to this destination as a formatted String, or empty if
+     * it was not provided or is unknown.
+     */
+    @NonNull
+    public CharSequence getFormattedEta() {
+        return Common.nonNullOrEmpty(mFormattedEta);
+    }
+
+    /**
      * Returns the congestion level to this destination, compared to to ideal driving conditions.
      */
     @NonNull
@@ -243,18 +275,20 @@ public final class Destination implements VersionedParcelable {
                 && Objects.equals(getDistance(), that.getDistance())
                 && Objects.equals(getLocation(), that.getLocation())
                 && Objects.equals(getEta(), that.getEta())
-                && Objects.equals(getTraffic(), that.getTraffic());
+                && Objects.equals(getTraffic(), that.getTraffic())
+                && Objects.equals(getFormattedEta(), that.getFormattedEta());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getTitle(), getAddress(), getDistance(), getLocation(), getEta(),
-            getTraffic());
+            getTraffic(), getFormattedEta());
     }
 
     @Override
     public String toString() {
         return String.format("{title: %s, address: %s, distance: %s, location: %s, eta: %s, "
-                + "traffic: %s}", mTitle, mAddress, mDistance, mLatLng, mEta, mTraffic);
+                + "traffic: %s, formattedEta: %s}",
+                mTitle, mAddress, mDistance, mLatLng, mEta, mTraffic, mFormattedEta);
     }
 }
