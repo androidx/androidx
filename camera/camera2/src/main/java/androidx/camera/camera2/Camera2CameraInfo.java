@@ -89,7 +89,7 @@ final class Camera2CameraInfo implements CameraInfo {
     }
 
     @SuppressLint("RestrictedApi") // TODO(b/124323692): Remove after aosp/900913 is merged
-    private int getSupportedHardwareLevel() {
+    int getSupportedHardwareLevel() {
         Integer deviceLevel =
                 mCameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
         Preconditions.checkNotNull(deviceLevel);

@@ -17,12 +17,17 @@
 package androidx.camera.camera2;
 
 import android.annotation.SuppressLint;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
@@ -37,9 +42,11 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureRequestConfiguration;
 import androidx.camera.core.DeferrableSurface;
+import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfiguration;
 import androidx.camera.core.SessionConfiguration.ValidatingBuilder;
 import androidx.camera.core.UseCaseAttachState;
+import androidx.core.os.BuildCompat;
 
 import java.util.Collection;
 import java.util.List;
@@ -166,12 +173,7 @@ final class Camera implements BaseCamera {
         switch (mState.get()) {
             case OPENED:
                 mState.set(State.CLOSING);
-                mCaptureSession.close();
-                mCameraDevice.close();
-                mCaptureSession.notifyCameraDeviceClose();
-                resetCaptureSession();
-                mCameraDevice = null;
-
+                closeCameraResource();
                 break;
             case OPENING:
             case REOPENING:
@@ -180,6 +182,64 @@ final class Camera implements BaseCamera {
             default:
                 Log.d(TAG, "close() ignored due to being in state: " + mState.get());
         }
+    }
+
+    private void configAndClose() {
+        switch (mState.get()) {
+            case OPENED:
+                mState.set(State.CLOSING);
+
+                resetCaptureSession();
+
+                SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+                surfaceTexture.setDefaultBufferSize(640, 480);
+
+                SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+                builder.addNonRepeatingSurface(new ImmediateSurface(new Surface(surfaceTexture)));
+                builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+                builder.setSessionStateCallback(new CameraCaptureSession.StateCallback() {
+
+                    @Override
+                    public void onConfigured(CameraCaptureSession session) {
+                        session.close();
+                    }
+
+                    @Override
+                    public void onConfigureFailed(CameraCaptureSession session) {
+                        closeCameraResource();
+                    }
+
+                    @Override
+                    public void onClosed(CameraCaptureSession session) {
+                        closeCameraResource();
+                    }
+                });
+
+                try {
+                    Log.d(TAG, "Start configAndClose.");
+                    new CaptureSession(null).open(builder.build(), mCameraDevice);
+                } catch (CameraAccessException e) {
+                    Log.d(TAG, "Unable to configure camera " + mCameraId + " due to "
+                            + e.getMessage());
+                }
+
+                break;
+            case OPENING:
+            case REOPENING:
+                mState.set(State.CLOSING);
+                break;
+            default:
+                Log.d(TAG, "configAndClose() ignored due to being in state: " + mState.get());
+        }
+
+    }
+
+    void closeCameraResource() {
+        mCaptureSession.close();
+        mCameraDevice.close();
+        mCaptureSession.notifyCameraDeviceClose();
+        resetCaptureSession();
+        mCameraDevice = null;
     }
 
     /**
@@ -366,7 +426,15 @@ final class Camera implements BaseCamera {
             }
 
             if (mUseCaseAttachState.getOnlineUseCases().isEmpty()) {
-                close();
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && !BuildCompat.isAtLeastQ()
+                        && ((Camera2CameraInfo) mCameraInfo).getSupportedHardwareLevel()
+                        == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+                    // To configure surface again before close camera. This step would disconnect
+                    // previous connected surface in some legacy device to prevent exception.
+                    configAndClose();
+                } else {
+                    close();
+                }
                 return;
             }
         }
