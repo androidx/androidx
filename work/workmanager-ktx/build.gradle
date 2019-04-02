@@ -57,5 +57,4 @@ androidx {
     inceptionYear = "2018"
     description = "Android WorkManager Kotlin Extensions"
     url = AndroidXExtension.ARCHITECTURE_URL
-    useMetalava = true
 }

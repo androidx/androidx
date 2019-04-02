@@ -55,5 +55,4 @@ androidx {
     mavenGroup = LibraryGroups.DYNAMICANIMATION
     inceptionYear = "2018"
     description = "Kotlin extensions for 'dynamicanimation' artifact"
-    useMetalava = true
 }

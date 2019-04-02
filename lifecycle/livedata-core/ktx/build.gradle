@@ -51,5 +51,4 @@ androidx {
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'livedata-core' artifact"
-    useMetalava = true
 }

@@ -58,6 +58,4 @@ androidx {
     inceptionYear = "2017"
     description = "Android Navigation-Testing"
     url = AndroidXExtension.ARCHITECTURE_URL
-    // TODO useMetalava = true
-    // A bug in type parameter bound resolution causes metalava to always fail on validating the API
 }
