@@ -40,6 +40,8 @@
             <argument android:name="objectRelativeArg" app:argType=".pkg.ClassName"/>
             <argument android:name="objectRelativeArg2" app:argType=".ClassName"/>
             <argument android:name="objectRelativeArg3" app:argType=".OuterClass$InnerClass"/>
+            <argument android:name="implicitNullString" android:defaultValue="@null" />
+            <argument android:name="explicitNullString" app:argType="string" app:nullable="true" android:defaultValue="@null" />
         </action>
     </fragment>
     <fragment android:id="@+id/next_fragment"
