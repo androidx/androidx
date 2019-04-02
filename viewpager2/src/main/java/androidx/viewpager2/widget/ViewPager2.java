@@ -427,7 +427,7 @@ public final class ViewPager2 extends ViewGroup {
             out.writeParcelable(mAdapterState, flags);
         }
 
-        static final Creator<SavedState> CREATOR = new ClassLoaderCreator<SavedState>() {
+        public static final Creator<SavedState> CREATOR = new ClassLoaderCreator<SavedState>() {
             @Override
             public SavedState createFromParcel(Parcel source, ClassLoader loader) {
                 return Build.VERSION.SDK_INT >= 24
