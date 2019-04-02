@@ -57,5 +57,4 @@ androidx {
     description = "A set of Kotlin extension methods built on top of slice-builders APIs."
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
-    useMetalava = true
 }

@@ -21,8 +21,11 @@ import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
 import androidx.build.SupportConfig
 
-apply plugin: androidx.build.SupportKotlinLibraryPlugin
-apply plugin: 'java-gradle-plugin'
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+    id("java-gradle-plugin")
+}
 
 ext.generatedResources = "$buildDir/generated/resources"
 ext.prebuiltsRoot = "${project.projectDir.getParentFile()}/../../../prebuilts"

@@ -40,5 +40,4 @@ androidx {
     inceptionYear = "2018"
     description = "Kotlin extensions for DB"
     url = AndroidXExtension.ARCHITECTURE_URL
-    useMetalava = true
 }
