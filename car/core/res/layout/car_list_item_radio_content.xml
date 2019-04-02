@@ -19,55 +19,73 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingConstraints"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingEnd="@dimen/car_keyline_1"
-    android:minHeight="@dimen/car_single_line_list_item_height" >
-
-    <!-- Primary Action. -->
-    <ImageView
-        android:id="@+id/primary_icon"
-        android:layout_width="@dimen/car_primary_icon_size"
-        android:layout_height="@dimen/car_primary_icon_size"
-        android:layout_marginStart="@dimen/car_keyline_1"
-        android:tint="?attr/listItemPrimaryIconTint"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <!-- Text. -->
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/car_padding_4"
-        android:singleLine="true"
-        android:ellipsize="end"
-        android:textAppearance="?attr/listItemTitleTextAppearance"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/radio_button" />
+    android:minHeight="@dimen/car_single_line_list_item_height"
+    android:paddingEnd="@dimen/car_keyline_1">
 
     <!-- Radio button. -->
-    <View
-        android:id="@+id/radio_button_divider"
-        android:background="?attr/listItemActionDividerColor"
-        android:layout_marginEnd="@dimen/car_padding_1"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/radio_button"
-        style="@style/CarListVerticalDivider" />
-
     <RadioButton
         android:id="@+id/radio_button"
         android:layout_width="@dimen/car_primary_icon_size"
         android:layout_height="@dimen/car_primary_icon_size"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="@dimen/car_keyline_1"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/radio_button_divider"
+        style="@style/CarListVerticalDivider"
+        android:background="?attr/listItemActionDividerColor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/radio_button"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Text. -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/car_keyline_3"
+        android:layout_marginStart="@dimen/car_keyline_3"
+        android:layout_marginTop="@dimen/car_padding_2"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textAppearance="?attr/listItemTitleTextAppearance"
+        app:layout_constraintBottom_toTopOf="@+id/body"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/body"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/car_padding_2"
+        android:layout_marginEnd="@dimen/car_keyline_3"
+        android:layout_marginStart="@dimen/car_keyline_3"
+        android:ellipsize="end"
+        android:singleLine="false"
+        android:textAppearance="?attr/listItemBodyTextAppearance"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title" />
+
+    <!-- Primary Icon. -->
+    <ImageView
+        android:id="@+id/primary_icon"
+        android:layout_width="@dimen/car_primary_icon_size"
+        android:layout_height="@dimen/car_primary_icon_size"
+        android:layout_marginEnd="@dimen/car_keyline_1"
+        android:layout_marginStart="@dimen/car_padding_4"
+        android:tint="?attr/listItemPrimaryIconTint"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
 
