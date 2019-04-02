@@ -289,7 +289,11 @@ internal fun inferArgument(name: String, defaultValue: String, rFilePackage: Str
     if (boolValue != null) {
         return Argument(name, BoolType, boolValue)
     }
-    return Argument(name, StringType, StringValue(defaultValue))
+    return if (defaultValue == VALUE_NULL) {
+        Argument(name, StringType, NullValue, true)
+    } else {
+        Argument(name, StringType, StringValue(defaultValue))
+    }
 }
 
 // @[+][package:]id/resource_name -> package.R.id.resource_name
