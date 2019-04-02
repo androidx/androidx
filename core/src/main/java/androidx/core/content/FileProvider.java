@@ -602,6 +602,11 @@ public class FileProvider extends ContentProvider {
 
         final ProviderInfo info = context.getPackageManager()
                 .resolveContentProvider(authority, PackageManager.GET_META_DATA);
+        if (info == null) {
+            throw new IllegalArgumentException(
+                    "Couldn't find meta-data for provider with authority " + authority);
+        }
+
         final XmlResourceParser in = info.loadXmlMetaData(
                 context.getPackageManager(), META_DATA_FILE_PROVIDER_PATHS);
         if (in == null) {
