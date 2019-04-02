@@ -41,7 +41,6 @@ androidx {
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
     description = "AndroidX UI kernel classes for building up all other components."
-    useMetalava = true
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
