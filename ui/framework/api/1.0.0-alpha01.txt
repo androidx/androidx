@@ -159,6 +159,13 @@ package androidx.ui.core {
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Measurable, androidx.ui.core.Constraints constraints);
   }
 
+  public final class TestTagProviderKt {
+    ctor public TestTagProviderKt();
+    method public static void TestTag(String tag, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static String getDefaultTestTag();
+    method public static com.google.r4a.Ambient<java.lang.String> getTestTagAmbient();
+  }
+
   public final class Text extends com.google.r4a.Component {
     ctor public Text();
     method public void compose();

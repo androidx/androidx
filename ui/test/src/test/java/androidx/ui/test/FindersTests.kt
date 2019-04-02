@@ -26,10 +26,12 @@ class FindersTests {
     @Test
     fun findByTag_zeroOutOfOne_findsNone() {
         val foundNodes = FakeUiTestRunner()
-            .withSemantics(newNode(
-                SemanticsProperties(
-                    testTag = "not_myTestTag"
-                ))
+            .withSemantics(
+                newNode(
+                    SemanticsProperties(
+                        testTag = "not_myTestTag"
+                    )
+                )
             )
             .findByTag("myTestTag")
             .findAllMatching()
@@ -39,12 +41,16 @@ class FindersTests {
 
     @Test
     fun findByTag_oneOutOfTwo_findsOne() {
-        val node1 = newNode(SemanticsProperties(
-            testTag = "myTestTag"
-        ))
-        var node2 = newNode(SemanticsProperties(
-            testTag = "myTestTag2"
-        ))
+        val node1 = newNode(
+            SemanticsProperties(
+                testTag = "myTestTag"
+            )
+        )
+        var node2 = newNode(
+            SemanticsProperties(
+                testTag = "myTestTag2"
+            )
+        )
 
         val foundNodes = FakeUiTestRunner()
             .withSemantics(node1, node2)
@@ -56,12 +62,16 @@ class FindersTests {
 
     @Test
     fun findByTag_twoOutOfTwo_findsTwo() {
-        val node1 = newNode(SemanticsProperties(
-            testTag = "myTestTag"
-        ))
-        var node2 = newNode(SemanticsProperties(
-            testTag = "myTestTag"
-        ))
+        val node1 = newNode(
+            SemanticsProperties(
+                testTag = "myTestTag"
+            )
+        )
+        var node2 = newNode(
+            SemanticsProperties(
+                testTag = "myTestTag"
+            )
+        )
 
         val foundNodes = FakeUiTestRunner()
             .withSemantics(node1, node2)

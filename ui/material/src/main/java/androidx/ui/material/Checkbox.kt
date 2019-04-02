@@ -42,10 +42,9 @@ class Checkbox : Component() {
     var color: Color? = null
     var value: ToggleableState = ToggleableState.Unchecked
     var onToggle: (() -> Unit)? = null
-    var testTag: String? = null
 
     override fun compose() {
-        <Toggleable testTag value onToggle>
+        <Toggleable value onToggle>
             <Layout layoutBlock = { _, constraints ->
                 val checkboxSizePx = checkboxSize.toIntPx()
                 val calculatedWidth =

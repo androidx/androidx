@@ -22,7 +22,9 @@ import androidx.ui.core.semantics.SemanticsSortKey
 import androidx.ui.services.text_editing.TextSelection
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.ambient
 import com.google.r4a.composer
+import com.google.r4a.unaryPlus
 
 @Composable
 fun Semantics(
@@ -66,6 +68,7 @@ fun Semantics(
     onDidGainAccessibilityFocus: (() -> Unit)? = null,
     onDidLoseAccessibilityFocus: (() -> Unit)? = null
 ) {
+    val providedTestTag = +ambient(TestTagAmbient)
     <SemanticsR4ANode
         container=container
         explicitChildNodes=explicitChildNodes
@@ -89,7 +92,7 @@ fun Semantics(
             hint = hint,
             textDirection = textDirection,
             sortKey = sortKey,
-            testTag = testTag,
+            testTag = testTag ?: providedTestTag,
             onTap = onTap,
             onLongPress = onLongPress,
             onScrollLeft = onScrollLeft,
@@ -107,6 +110,8 @@ fun Semantics(
             onDidLoseAccessibilityFocus = onDidLoseAccessibilityFocus,
             onSetSelection = onSetSelection
         )>
-        <children />
+        <TestTag tag=DefaultTestTag>
+            <children />
+        </TestTag>
     </SemanticsR4ANode>
 }
