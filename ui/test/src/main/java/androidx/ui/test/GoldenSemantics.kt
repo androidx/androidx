@@ -23,36 +23,40 @@ class SemanticsPropertiesBuilder(
     var enabled: Boolean?,
     var checked: Boolean?,
     var inMutuallyExclusiveGroup: Boolean,
-    var selected: Boolean
+    var selected: Boolean,
+    var button: Boolean
 ) {
     fun build(): SemanticsConfiguration {
         return createFullSemantics(
             enabled = enabled,
             checked = checked,
             inMutuallyExclusiveGroup = inMutuallyExclusiveGroup,
-            selected = selected
+            selected = selected,
+            button = button
         )
     }
 }
 
 /**
- * Ensures the created [SemanticsProperties] object doesn't have any default values set.
+ * Ensures the created [SemanticsConfiguration] object doesn't have any default values set.
  * This intentionally enforces choosing every value in order to minimise possible unwanted
  * side effects. Should be used to create initial default semantics for widgets and afterwards
- * [SemanticsProperties.copyWith] should be used to create a modified copy.
+ * [SemanticsConfiguration.copyWith] should be used to create a modified copy.
  */
 // TODO(catalintudor): add remaining properties
 fun createFullSemantics(
     enabled: Boolean? = null,
     checked: Boolean? = null,
     selected: Boolean = false,
-    inMutuallyExclusiveGroup: Boolean = false
+    inMutuallyExclusiveGroup: Boolean = false,
+    button: Boolean = false
 ): SemanticsConfiguration {
     return SemanticsConfiguration().also {
         it.isEnabled = enabled
         it.isChecked = checked
         it.isInMutuallyExclusiveGroup = inMutuallyExclusiveGroup
         it.isSelected = selected
+        it.isButton = button
     }
 }
 
@@ -61,14 +65,15 @@ fun SemanticsConfiguration.toBuilder(): SemanticsPropertiesBuilder {
         enabled = isEnabled,
         checked = isChecked,
         inMutuallyExclusiveGroup = isInMutuallyExclusiveGroup,
-        selected = isSelected
+        selected = isSelected,
+        button = isButton
     )
 }
 
 /**
- * Returns a (mutated) copy of the original [SemanticsProperties] object.
+ * Returns a (mutated) copy of the original [SemanticsConfiguration] object.
  * Uses [SemanticsPropertiesBuilder] as an intermediate (mutable) representation of
- * [SemanticsProperties]
+ * [SemanticsConfiguration]
  */
 fun SemanticsConfiguration.copyWith(diff: SemanticsPropertiesBuilder.() -> Unit):
         SemanticsConfiguration {
@@ -94,9 +99,16 @@ fun SemanticsConfiguration.assertEquals(expected: SemanticsConfiguration) {
                     "but was $isInMutuallyExclusiveGroup"
         )
     }
+
     if (isSelected != expected.isSelected) {
         assertMessage.append(
             "\n- expected 'isSelected' = ${expected.isSelected} but was $isSelected"
+        )
+    }
+
+    if (isButton != expected.isButton) {
+        assertMessage.append(
+            "\n- expected 'isButton' = ${expected.isButton} but was $isButton"
         )
     }
 

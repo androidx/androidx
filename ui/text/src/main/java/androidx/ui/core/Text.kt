@@ -112,7 +112,7 @@ fun Text(
         // Make a wrapper to avoid modifying the style on the original element
         val styledText = TextSpan(style = mergedStyle, children = listOf(text))
         <Semantics
-            label=text.toString()>
+            label=text.text>
             val renderParagraph = RenderParagraph(
                 text = styledText,
                 textAlign = textAlign,
