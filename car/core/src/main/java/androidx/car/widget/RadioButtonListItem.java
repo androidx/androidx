@@ -29,6 +29,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.DimenRes;
+import androidx.annotation.Dimension;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -43,11 +44,12 @@ import java.util.List;
 /**
  * Class to build a list item with {@link RadioButton}.
  *
- * <p>A radio button list item visually composes of 3 parts.
+ * <p>A radio button list item visually composes of 4 parts.
  * <ul>
- *     <li>optional {@code Primary Action Icon}.
- *     <li>optional {@code Text}.
- *     <li>A {@link RadioButton}.
+ * <li>optional {@code Primary Action Icon}.
+ * <li>optional {@code Title}.
+ * <li>optional {@code Body}.
+ * <li>A {@link RadioButton}.
  * </ul>
  *
  * <p>Clicking the item always checks the radio button.
@@ -58,7 +60,9 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
     @IntDef({
             PRIMARY_ACTION_ICON_SIZE_SMALL, PRIMARY_ACTION_ICON_SIZE_MEDIUM,
             PRIMARY_ACTION_ICON_SIZE_LARGE})
-    private @interface PrimaryActionIconSize {}
+    private @interface PrimaryActionIconSize {
+    }
+
     /**
      * Small sized icon is the mostly commonly used size.
      */
@@ -81,8 +85,10 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
     private Drawable mPrimaryActionIconDrawable;
     @PrimaryActionIconSize private int mPrimaryActionIconSize = PRIMARY_ACTION_ICON_SIZE_SMALL;
 
+    @Dimension(unit = Dimension.PX)
     private int mTextStartMargin;
-    private CharSequence mText;
+    private CharSequence mTitle;
+    private CharSequence mBody;
 
     private boolean mIsChecked;
     private boolean mShowRadioButtonDivider;
@@ -98,6 +104,7 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
 
     public RadioButtonListItem(@NonNull Context context) {
         mContext = context;
+        mTextStartMargin = mContext.getResources().getDimensionPixelSize(R.dimen.car_keyline_3);
         markDirty();
     }
 
@@ -185,12 +192,22 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
     }
 
     /**
-     * Sets text to be displayed next to icon.
+     * Sets title text to be displayed next to icon.
      *
      * @param text Text to be displayed, or {@code null} to clear the content.
      */
-    public void setText(@Nullable CharSequence text) {
-        mText = text;
+    public void setTitle(@Nullable CharSequence text) {
+        mTitle = text;
+        markDirty();
+    }
+
+    /**
+     * Sets body text to be displayed next to radio button.
+     *
+     * @param text Text to be displayed, or {@code null} to clear the content.
+     */
+    public void setBody(@Nullable CharSequence text) {
+        mBody = text;
         markDirty();
     }
 
@@ -240,6 +257,7 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
 
     private void setTextInternal() {
         setTextContent();
+        setTextVerticalMargins();
         setTextStartMargin();
     }
 
@@ -329,34 +347,60 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
     }
 
     private void setTextContent() {
-        if (!TextUtils.isEmpty(mText)) {
+        if (!TextUtils.isEmpty(mTitle)) {
             mBinders.add(vh -> {
-                vh.getText().setVisibility(View.VISIBLE);
-                vh.getText().setText(mText);
+                vh.getTitle().setVisibility(View.VISIBLE);
+                vh.getTitle().setText(mTitle);
+            });
+        }
+
+        if (!TextUtils.isEmpty(mBody)) {
+            mBinders.add(vh -> {
+                vh.getBody().setVisibility(View.VISIBLE);
+                vh.getBody().setText(mBody);
+            });
+        } else {
+            mBinders.add(vh -> vh.getBody().setVisibility(View.GONE));
+        }
+    }
+
+    /**
+     * Sets top and bottom margins of text views depending on existence of other text view.
+     */
+    private void setTextVerticalMargins() {
+        if (TextUtils.isEmpty(mBody)) {
+            mBinders.add(vh -> {
+                ViewGroup.MarginLayoutParams textViewLayoutParams =
+                        (ViewGroup.MarginLayoutParams) vh.getTitle().getLayoutParams();
+                textViewLayoutParams.topMargin = 0;
+                vh.getTitle().requestLayout();
+            });
+        }
+
+        if (TextUtils.isEmpty(mTitle)) {
+            mBinders.add(vh -> {
+                ViewGroup.MarginLayoutParams textViewLayoutParams =
+                        (ViewGroup.MarginLayoutParams) vh.getBody().getLayoutParams();
+                textViewLayoutParams.bottomMargin = 0;
+                vh.getBody().requestLayout();
             });
         }
     }
 
     /**
-     * Sets start margin of text view depending on icon type.
+     * Sets start margin of text views.
      */
     private void setTextStartMargin() {
-        int offset = 0;
-        if (mPrimaryActionIconDrawable != null) {
-            // If there is an icon, offset text to accommodate it.
-            @DimenRes int startMarginResId =
-                    mPrimaryActionIconSize == PRIMARY_ACTION_ICON_SIZE_LARGE
-                            ? R.dimen.car_keyline_4
-                            : R.dimen.car_keyline_3;  // Small and medium sized icon.
-            offset = mContext.getResources().getDimensionPixelSize(startMarginResId);
-        }
-
-        int startMargin = offset + mTextStartMargin;
         mBinders.add(vh -> {
-            ViewGroup.MarginLayoutParams layoutParams =
-                    (ViewGroup.MarginLayoutParams) vh.getText().getLayoutParams();
-            layoutParams.setMarginStart(startMargin);
-            vh.getText().requestLayout();
+            ViewGroup.MarginLayoutParams textViewLayoutParams =
+                    (ViewGroup.MarginLayoutParams) vh.getTitle().getLayoutParams();
+            textViewLayoutParams.setMarginStart(mTextStartMargin);
+            vh.getTitle().requestLayout();
+
+            ViewGroup.MarginLayoutParams bodyTextViewLayoutParams =
+                    (ViewGroup.MarginLayoutParams) vh.getBody().getLayoutParams();
+            bodyTextViewLayoutParams.setMarginStart(mTextStartMargin);
+            vh.getBody().requestLayout();
         });
     }
 
@@ -402,7 +446,8 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
         private ViewGroup mContainerLayout;
 
         private ImageView mPrimaryIcon;
-        private TextView mText;
+        private TextView mTitle;
+        private TextView mBody;
 
         private View mRadioButtonDivider;
         private RadioButton mRadioButton;
@@ -413,7 +458,8 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
             mContainerLayout = itemView.findViewById(R.id.container);
 
             mPrimaryIcon = itemView.findViewById(R.id.primary_icon);
-            mText = itemView.findViewById(R.id.text);
+            mTitle = itemView.findViewById(R.id.title);
+            mBody = itemView.findViewById(R.id.body);
 
             mRadioButton = itemView.findViewById(R.id.radio_button);
             mRadioButtonDivider = itemView.findViewById(R.id.radio_button_divider);
@@ -427,7 +473,7 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
             // Each line groups relevant child views in an effort to help keep this view array
             // updated with actual child views in the ViewHolder.
             mWidgetViews = new View[]{
-                    mPrimaryIcon, mText,
+                    mPrimaryIcon, mTitle, mBody,
                     mRadioButton, mRadioButtonDivider};
         }
 
@@ -442,8 +488,13 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
         }
 
         @NonNull
-        public TextView getText() {
-            return mText;
+        public TextView getTitle() {
+            return mTitle;
+        }
+
+        @NonNull
+        public TextView getBody() {
+            return mBody;
         }
 
         @NonNull
@@ -464,7 +515,8 @@ public class RadioButtonListItem extends ListItem<RadioButtonListItem.ViewHolder
         @Override
         public void onUxRestrictionsChanged(
                 androidx.car.uxrestrictions.CarUxRestrictions restrictionInfo) {
-            CarUxRestrictionsUtils.apply(itemView.getContext(), restrictionInfo, getText());
+            CarUxRestrictionsUtils.apply(itemView.getContext(), restrictionInfo, getTitle());
+            CarUxRestrictionsUtils.apply(itemView.getContext(), restrictionInfo, getBody());
         }
     }
 }
