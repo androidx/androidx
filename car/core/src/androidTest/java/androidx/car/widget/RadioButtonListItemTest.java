@@ -86,102 +86,90 @@ public class RadioButtonListItemTest {
     }
 
     @Test
-    public void testSetPrimaryActionIcon_NoIconTextNoOffset() {
+    public void testSetPrimaryActionIcon_NoIcon() {
         RadioButtonListItem item = new RadioButtonListItem(mActivity);
         item.setPrimaryActionNoIcon();
-        item.setText("text");
+        item.setTitle("text");
 
         setupPagedListView(Arrays.asList(item));
 
-        assertThat(getViewHolderAtPosition(0).getText().getLeft(), is(equalTo(0)));
+        assertThat(getViewHolderAtPosition(0).getPrimaryIcon().getVisibility(),
+                is(equalTo(View.GONE)));
+        assertThat(getViewHolderAtPosition(0).getPrimaryIcon().getLeft(), is(equalTo(0)));
     }
 
     @Test
-    public void testSetPrimaryActionIcon_SmallIconTextOffset() {
-        RadioButtonListItem item = new RadioButtonListItem(mActivity);
-        item.setPrimaryActionIcon(
-                android.R.drawable.sym_def_app_icon,
-                RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
-        item.setText("text");
-
-        setupPagedListView(Arrays.asList(item));
-
-        int expected = ApplicationProvider.getApplicationContext().getResources()
-                .getDimensionPixelSize(R.dimen.car_keyline_3);
-        assertThat(getViewHolderAtPosition(0).getText().getLeft(), is(equalTo(expected)));
-    }
-
-    @Test
-    public void testSetPrimaryActionIcon_MediumIconTextOffset() {
+    public void testSetPrimaryActionIcon_SmallIconOffset() {
         RadioButtonListItem item = new RadioButtonListItem(mActivity);
         item.setPrimaryActionIcon(
                 android.R.drawable.sym_def_app_icon,
                 RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
-        item.setText("text");
+        item.setTitle("text");
 
         setupPagedListView(Arrays.asList(item));
 
-        int expected = ApplicationProvider.getApplicationContext().getResources()
-                .getDimensionPixelSize(R.dimen.car_keyline_3);
-        assertThat(getViewHolderAtPosition(0).getText().getLeft(), is(equalTo(expected)));
+        View itemView = getViewHolderAtPosition(0).getContainerLayout();
+        int expected = itemView.getRight() - itemView.getPaddingRight()
+                - ApplicationProvider.getApplicationContext().getResources().getDimensionPixelSize(
+                R.dimen.car_keyline_1);
+
+        assertThat(getViewHolderAtPosition(0).getPrimaryIcon().getRight(), is(equalTo(expected)));
     }
 
     @Test
-    public void testSetPrimaryActionIcon_LargeIconTextOffset() {
+    public void testSetPrimaryActionIcon_LargeIconOffset() {
         RadioButtonListItem item = new RadioButtonListItem(mActivity);
         item.setPrimaryActionIcon(
                 android.R.drawable.sym_def_app_icon,
-                RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
-        item.setText("text");
+                RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
+        item.setTitle("text");
 
         setupPagedListView(Arrays.asList(item));
 
-        int expected = ApplicationProvider.getApplicationContext().getResources()
-                .getDimensionPixelSize(R.dimen.car_keyline_4);
-        assertThat(getViewHolderAtPosition(0).getText().getLeft(), is(equalTo(expected)));
+        View itemView = getViewHolderAtPosition(0).getContainerLayout();
+        int expected = itemView.getRight() - itemView.getPaddingRight()
+                - ApplicationProvider.getApplicationContext().getResources().getDimensionPixelSize(
+                R.dimen.car_keyline_1);
+
+        assertThat(getViewHolderAtPosition(0).getPrimaryIcon().getRight(), is(equalTo(expected)));
     }
 
     @Test
     public void testSetText() {
         CharSequence text = "text";
         RadioButtonListItem item = new RadioButtonListItem(mActivity);
-        item.setText(text);
+        item.setTitle(text);
         setupPagedListView(Arrays.asList(item));
 
-        assertThat(getViewHolderAtPosition(0).getText().getText(), is(equalTo(text)));
+        assertThat(getViewHolderAtPosition(0).getTitle().getText(), is(equalTo(text)));
     }
 
     @Test
-    public void testSetTextStartMargin_NoIcon() {
+    public void testSetTextStartMargin_DefaultMargin() {
         RadioButtonListItem item = new RadioButtonListItem(mActivity);
-        item.setPrimaryActionNoIcon();
-        item.setText("text");
-        item.setTextStartMargin(R.dimen.car_keyline_1);
+        item.setPrimaryActionIcon(null, RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+        item.setTitle("text");
 
         setupPagedListView(Arrays.asList(item));
-
         int expected = ApplicationProvider.getApplicationContext().getResources()
-                .getDimensionPixelSize(R.dimen.car_keyline_1);
-        assertThat(getViewHolderAtPosition(0).getText().getLeft(), is(equalTo(expected)));
+                .getDimensionPixelSize(R.dimen.car_keyline_3);
+        assertThat(getViewHolderAtPosition(0).getTitle().getLeft(), is(equalTo(expected)));
     }
 
     @Test
-    public void testSetTextStartMargin_MarginPlusOffsetByIcon() {
+    public void testSetTextStartMargin_CustomMargin() {
         RadioButtonListItem item = new RadioButtonListItem(mActivity);
         item.setPrimaryActionIcon(
                 android.R.drawable.sym_def_app_icon,
                 RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
-        item.setText("text");
-        item.setTextStartMargin(R.dimen.car_keyline_1);
+        item.setTitle("text");
+        item.setTextStartMargin(R.dimen.car_keyline_4);
 
         setupPagedListView(Arrays.asList(item));
+        int expected = ApplicationProvider.getApplicationContext().getResources()
+                .getDimensionPixelSize(R.dimen.car_keyline_4);
 
-        int margin = ApplicationProvider.getApplicationContext().getResources()
-                .getDimensionPixelSize(R.dimen.car_keyline_1);
-        // Offset is determined by icon size - small icon uses keyline 3.
-        int offset = ApplicationProvider.getApplicationContext().getResources()
-                .getDimensionPixelSize(R.dimen.car_keyline_3);
-        assertThat(getViewHolderAtPosition(0).getText().getLeft(), is(equalTo(offset + margin)));
+        assertThat(getViewHolderAtPosition(0).getTitle().getLeft(), is(equalTo(expected)));
     }
 
     @Test
