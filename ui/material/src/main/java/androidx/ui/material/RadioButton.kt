@@ -209,8 +209,7 @@ private fun DensityReceiver.drawRadio(
     val centerH = parentSize.height.value / 2
     val center = Offset(centerW, centerH)
 
-    canvas.drawCircle(center, (RadioRadius - strokeWidth / 2).toPx().value, p)
-
+    canvas.drawCircle(center, (RadioRadius - RadioStrokeWidth / 2).toPx().value, p)
     if (selected) {
         p.style = PaintingStyle.fill
         p.strokeWidth = 0f
@@ -223,7 +222,7 @@ private val UnselectedRadioColor = Color(0xFF7D7D7D.toInt())
 
 // TODO(malkov): random numbers for now to produce radio as in material comp.
 private val InnerCircleSize = 4.75.dp
-private val RadioStrokeWidth = 2.dp
+private val RadioStrokeWidth = 2.5.dp
 private val RadioRadius = 10.dp
 
 private val DefaultRadioItemPadding = 10.dp

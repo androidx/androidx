@@ -16,115 +16,259 @@
 
 package androidx.ui.material
 
+import androidx.animation.ColorPropKey
+import androidx.animation.FloatPropKey
+import androidx.animation.TransitionSpec
+import androidx.animation.transitionDefinition
+import androidx.ui.animation.Transition
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
-import androidx.ui.core.Dp
 import androidx.ui.core.Layout
 import androidx.ui.core.adapter.Draw
+import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
-import androidx.ui.core.min
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Radius
 import androidx.ui.engine.geometry.shrink
-import androidx.ui.painting.Canvas
+import androidx.ui.engine.geometry.withRadius
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
-import androidx.ui.painting.Path
-import com.google.r4a.Component
+import androidx.ui.painting.StrokeCap
+import com.google.r4a.Composable
+import com.google.r4a.ambient
 import com.google.r4a.composer
+import com.google.r4a.memo
+import com.google.r4a.unaryPlus
 
-// TODO(clara): This should not be a class once R4A bug is fixed
-class Checkbox : Component() {
-
-    // TODO(clara): remove this default
-    var color: Color? = null
-    var value: ToggleableState = ToggleableState.Unchecked
-    var onToggle: (() -> Unit)? = null
-
-    override fun compose() {
-        <Toggleable value onToggle>
-            <Layout layoutBlock = { _, constraints ->
-                val checkboxSizePx = checkboxSize.toIntPx()
-                val calculatedWidth =
-                    min(min(constraints.maxHeight, constraints.maxWidth), checkboxSizePx)
-                layout(calculatedWidth, calculatedWidth) {
-                    // No mChildren to place
-                }
-            }>
-                <Colors.Consumer> colors ->
-                    <DrawCheckbox
-                        color=(color ?: colors.secondary)
-                        value
-                        strokeWidth=strokeWidth />
-                </Colors.Consumer>
-            </Layout>
-        </Toggleable>
-    }
+// TODO(malkov): think about how to abstract it better
+/**
+ * Function to resolve parent checkbox state based on children checkboxes' state
+ * Use it when you have a hierarchy relationship between checkboxes in different levels
+ *
+ * @param childrenStates states of children checkboxes this parent is responsible for
+ */
+fun parentCheckboxState(vararg childrenStates: ToggleableState): ToggleableState {
+    return if (childrenStates.all { it == ToggleableState.Checked }) ToggleableState.Checked
+    else if (childrenStates.all { it == ToggleableState.Unchecked }) ToggleableState.Unchecked
+    else ToggleableState.Indeterminate
 }
 
-internal fun DrawCheckbox(value: ToggleableState, color: Color, strokeWidth: Dp) {
+/**
+ * A checkbox is a toggleable component that provides checked / unchecked / indeterminate options
+ * A checkbox can only reach an indeterminate state when it has
+ * child checkboxes with different state values.
+ *
+ * @see [parentCheckboxState] to create parent checkbox state based on children's state
+ *
+ * @param value whether checkbox is checked, unchecked or in indeterminate state
+ * @param onToggle callback to be invoked when checkbox is being toggled
+ * @param color custom color for checkbox. By default [MaterialColors.secondary] will be used
+ * @param testTag temporary test tag for testing purposes
+ */
+@Composable
+fun Checkbox(
+    value: ToggleableState,
+    onToggle: (() -> Unit)? = null,
+    color: Color? = null
+) {
+    <Toggleable value onToggle>
+        <Layout layoutBlock={ _, constraints ->
+            val checkboxSizePx = CheckboxSizeWithDefaultPadding.toIntPx()
+            val height = checkboxSizePx.coerceIn(constraints.minHeight, constraints.maxHeight)
+            val width = checkboxSizePx.coerceIn(constraints.minWidth, constraints.maxWidth)
+            layout(width, height) {}
+        }>
+            <DrawCheckbox value color />
+        </Layout>
+    </Toggleable>
+}
+
+@Composable
+private fun DrawCheckbox(value: ToggleableState, color: Color?) {
+    val colors = +ambient(Colors)
+    val activeColor = color ?: colors.secondary
+    val definition = +memo(activeColor) {
+        generateTransitionDefinition(activeColor)
+    }
+    <Transition definition toState=value> state ->
+        <DrawBox
+            color=state[BoxColorProp]
+            innerRadiusFraction=state[InnerRadiusFractionProp] />
+        <DrawCheck
+            checkFraction=state[CheckFractionProp]
+            crossCenterGravitation=state[CenterGravitationForCheck] />
+    </Transition>
+}
+
+@Composable
+private fun DrawBox(color: Color, innerRadiusFraction: Float) {
     <Draw> canvas, parentSize ->
-        val radius = Radius.circular(radiusSize.toPx().value)
-        val strokeWidthPx = strokeWidth.toPx().value
-        val outer = RRect(0f, 0f, parentSize.width.value, parentSize.height.value, radius)
-        if (value == ToggleableState.Checked) {
-            drawChecked(canvas, outer, color, strokeWidthPx)
-        } else if (value == ToggleableState.Unchecked) {
-            // TODO(clara): Where does this color come from?
-            drawUnchecked(canvas, outer, color, strokeWidthPx)
-        } else { // Indeterminate
-            drawIndeterminate(canvas, outer, color, strokeWidthPx)
-        }
+        val paint = Paint()
+        paint.strokeWidth = StrokeWidth.toPx().value
+        paint.isAntiAlias = true
+        paint.color = color
+
+        val outer = RRect(
+            0f,
+            0f,
+            CheckboxSize.toPx().value,
+            CheckboxSize.toPx().value,
+            Radius.circular(RadiusSize.toPx().value)
+        )
+
+        val shrinkTo = calcMiddleValue(
+            paint.strokeWidth,
+            outer.width / 2,
+            innerRadiusFraction
+        )
+        val innerSquared = outer.shrink(shrinkTo)
+        val squareMultiplier = innerRadiusFraction * innerRadiusFraction
+
+        // TODO(malkov): this radius formula is not in material spec
+        val inner = innerSquared
+            .withRadius(Radius.circular(innerSquared.width * squareMultiplier))
+        canvas.drawDRRect(outer, inner, paint)
     </Draw>
 }
 
-internal fun drawUnchecked(canvas: Canvas, outer: RRect, color: Color, strokeWidth: Float) {
-    val paint = Paint()
-    paint.strokeWidth = strokeWidth
-    paint.color = Color(0x42000000.toInt()) // grey for now
-    val inner = outer.shrink(paint.strokeWidth)
-    canvas.drawDRRect(outer, inner, paint)
+@Composable
+private fun DrawCheck(
+    checkFraction: Float,
+    crossCenterGravitation: Float
+) {
+    <Draw> canvas, parentSize ->
+        val paint = Paint()
+        paint.isAntiAlias = true
+        paint.style = PaintingStyle.stroke
+        paint.strokeCap = StrokeCap.square
+        paint.strokeWidth = StrokeWidth.toPx().value
+        paint.color = CheckStrokeDefaultColor
+
+        val outer = RRect(0f, 0f, CheckboxSize.toPx().value, CheckboxSize.toPx().value)
+        val width = outer.width
+
+        val checkCrossX = 0.4f
+        val checkCrossY = 0.7f
+        val leftX = 0.2f
+        val leftY = 0.5f
+        val rightX = 0.8f
+        val rightY = 0.3f
+
+        val gravitatedCrossX = calcMiddleValue(checkCrossX, 0.5f, crossCenterGravitation)
+        val gravitatedCrossY = calcMiddleValue(checkCrossY, 0.5f, crossCenterGravitation)
+
+        // gravitate only Y for end to achieve center line
+        val gravitatedLeftY = calcMiddleValue(leftY, 0.5f, crossCenterGravitation)
+        val gravitatedRightY = calcMiddleValue(rightY, 0.5f, crossCenterGravitation)
+
+        val crossPoint = Offset(width * gravitatedCrossX, width * gravitatedCrossY)
+        val rightBranch = Offset(
+            width * calcMiddleValue(gravitatedCrossX, rightX, checkFraction),
+            width * calcMiddleValue(gravitatedCrossY, gravitatedRightY, checkFraction)
+        )
+        val leftBranch = Offset(
+            width * calcMiddleValue(gravitatedCrossX, leftX, checkFraction),
+            width * calcMiddleValue(gravitatedCrossY, gravitatedLeftY, checkFraction)
+        )
+        canvas.drawLine(crossPoint, leftBranch, paint)
+        canvas.drawLine(crossPoint, rightBranch, paint)
+    </Draw>
 }
 
-internal fun drawChecked(canvas: Canvas, outer: RRect, color: Color, strokeWidth: Float) {
-    val paint = Paint()
-    paint.strokeWidth = strokeWidth
-    paint.color = color
-    // Background
-    canvas.drawRRect(outer, paint)
-
-    // Check
-    paint.color = Color(0xFFFFFFFF.toInt())
-    paint.style = PaintingStyle.stroke
-    val path = Path()
-    val width = outer.width
-    val start = Offset(width * 0.15f, width * 0.45f)
-    val mid = Offset(width * 0.4f, width * 0.7f)
-    val end = Offset(width * 0.85f, width * 0.25f)
-    path.moveTo(start.dx, start.dy)
-    path.lineTo(mid.dx, mid.dy)
-    path.lineTo(end.dx, end.dy)
-    canvas.drawPath(path, paint)
+private fun calcMiddleValue(start: Float, finish: Float, fraction: Float): Float {
+    return start * (1 - fraction) + finish * fraction
 }
 
-internal fun drawIndeterminate(canvas: Canvas, outer: RRect, color: Color, strokeWidth: Float) {
-    val paint = Paint()
-    paint.strokeWidth = strokeWidth
-    paint.color = color
-    // Background
-    canvas.drawRRect(outer, paint)
+// all float props are fraction now [0f .. 1f] as it seems convenient
+private val InnerRadiusFractionProp = FloatPropKey()
+private val CheckFractionProp = FloatPropKey()
+private val CenterGravitationForCheck = FloatPropKey()
+private val BoxColorProp = ColorPropKey()
 
-    // Dash
-    paint.color = Color(0xFFFFFFFF.toInt())
-    val width = outer.width
-    val start = Offset(width * 0.2f, width * 0.5f)
-    val end = Offset(width * 0.8f, width * 0.5f)
-    canvas.drawLine(start, end, paint)
+private val BoxAnimationDuration = 100
+private val CheckStrokeAnimationDuration = 100
+
+private fun generateTransitionDefinition(color: Color) = transitionDefinition {
+    state(ToggleableState.Checked) {
+        this[CheckFractionProp] = 1f
+        this[InnerRadiusFractionProp] = 1f
+        this[CenterGravitationForCheck] = 0f
+        this[BoxColorProp] = color
+    }
+    state(ToggleableState.Unchecked) {
+        this[CheckFractionProp] = 0f
+        this[InnerRadiusFractionProp] = 0f
+        this[CenterGravitationForCheck] = 1f
+        this[BoxColorProp] = UncheckedBoxColor
+    }
+    state(ToggleableState.Indeterminate) {
+        this[CheckFractionProp] = 1f
+        this[InnerRadiusFractionProp] = 1f
+        this[CenterGravitationForCheck] = 1f
+        this[BoxColorProp] = color
+    }
+    transition(fromState = ToggleableState.Unchecked, toState = ToggleableState.Checked) {
+        boxTransitionFromUnchecked(color)
+        CenterGravitationForCheck using tween {
+            duration = 0
+        }
+    }
+    transition(fromState = ToggleableState.Checked, toState = ToggleableState.Unchecked) {
+        boxTransitionToUnchecked(color)
+        CenterGravitationForCheck using tween {
+            duration = CheckStrokeAnimationDuration
+        }
+    }
+    transition(fromState = ToggleableState.Checked, toState = ToggleableState.Indeterminate) {
+        CenterGravitationForCheck using tween {
+            duration = CheckStrokeAnimationDuration
+        }
+    }
+    transition(fromState = ToggleableState.Indeterminate, toState = ToggleableState.Checked) {
+        CenterGravitationForCheck using tween {
+            duration = CheckStrokeAnimationDuration
+        }
+    }
+    transition(fromState = ToggleableState.Indeterminate, toState = ToggleableState.Unchecked) {
+        boxTransitionToUnchecked(color)
+    }
+    transition(fromState = ToggleableState.Unchecked, toState = ToggleableState.Indeterminate) {
+        boxTransitionFromUnchecked(color)
+    }
 }
 
-internal val checkboxSize = 24.dp
-// TODO(clara): I made these values up, not in spec
-internal val strokeWidth = 2.5.dp
-internal val radiusSize = 4.dp
+private fun TransitionSpec.boxTransitionFromUnchecked(color: Color) {
+    BoxColorProp using tween {
+        duration = 0
+    }
+    InnerRadiusFractionProp using tween {
+        duration = BoxAnimationDuration
+    }
+    CheckFractionProp using tween {
+        duration = CheckStrokeAnimationDuration
+        delay = BoxAnimationDuration.toLong()
+    }
+}
+
+private fun TransitionSpec.boxTransitionToUnchecked(color: Color) {
+    BoxColorProp using tween {
+        duration = 0
+    }
+    InnerRadiusFractionProp using tween {
+        duration = BoxAnimationDuration
+        delay = CheckStrokeAnimationDuration.toLong()
+    }
+    CheckFractionProp using tween {
+        duration = CheckStrokeAnimationDuration
+    }
+}
+
+private val CheckboxSizeWithDefaultPadding = 24.dp
+private val CheckboxSize = 20.dp
+private val StrokeWidth = 2.dp
+private val RadiusSize = 2.dp
+
+private val UncheckedBoxColor = Color(0xFF7D7D7D.toInt())
+private val CheckStrokeDefaultColor = Color(0xFFFFFFFF.toInt())

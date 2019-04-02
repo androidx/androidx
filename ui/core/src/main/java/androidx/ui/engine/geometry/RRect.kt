@@ -392,6 +392,17 @@ fun RRect.grow(delta: Float): RRect = RRect(
     bottomLeft = Radius.elliptical(bottomLeftRadiusX + delta, bottomLeftRadiusY + delta)
 )
 
+fun RRect.withRadius(radius: Radius): RRect = RRect(
+    left = left,
+    top = top,
+    right = right,
+    bottom = bottom,
+    topLeft = radius,
+    topRight = radius,
+    bottomLeft = radius,
+    bottomRight = radius
+)
+
 /** Returns a new [RRect] with edges and radii moved inwards by the given delta. */
 fun RRect.shrink(delta: Float): RRect = grow(-delta)
 

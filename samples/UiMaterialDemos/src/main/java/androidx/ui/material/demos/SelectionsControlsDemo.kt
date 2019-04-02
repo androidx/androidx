@@ -36,6 +36,7 @@ import androidx.ui.material.RadioButton
 import androidx.ui.material.RadioGroup
 import androidx.ui.material.Switch
 import androidx.ui.material.Typography
+import androidx.ui.material.parentCheckboxState
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
@@ -81,9 +82,12 @@ class CheckboxState(
 }
 
 @Composable
-fun SelectionsControlsDemo(
-    checkboxState: CheckboxState = CheckboxState(value = Checked)
-) {
+fun SelectionsControlsDemo() {
+
+    val checkboxState = CheckboxState(value = Checked)
+    val checkboxState2 = CheckboxState(value = Checked)
+    val checkboxState3 = CheckboxState(value = Checked)
+
     val customColor = +memo {
         Color(0xffff0000.toInt())
     }
@@ -145,10 +149,33 @@ fun SelectionsControlsDemo(
             </Padding>
         </RadioGroup>
         <Row mainAxisAlignment=MainAxisAlignment.SpaceAround>
+            val parent = parentCheckboxState(
+                checkboxState.value,
+                checkboxState2.value,
+                checkboxState3.value
+            )
             <Checkbox value=checkboxState.value onToggle={ checkboxState.toggle() } />
-            <Checkbox value=Unchecked />
-            <Checkbox value=Checked color=customColor />
-            <Checkbox value=ToggleableState.Indeterminate />
+            <Checkbox
+                value=checkboxState2.value
+                onToggle={ checkboxState2.toggle() }
+                color=customColor2 />
+            <Checkbox
+                value=checkboxState3.value
+                onToggle={ checkboxState3.toggle() }
+                color=customColor3 />
+            <Column>
+                <Text text=TextSpan(text = "Parent", style = typography.h3) />
+                <Checkbox
+                    value=parent
+                    color=customColor4
+                    onToggle={
+                        val s = if (parent == Checked) Unchecked
+                        else Checked
+                        checkboxState.value = s
+                        checkboxState2.value = s
+                        checkboxState3.value = s
+                    } />
+            </Column>
         </Row>
         <Row mainAxisAlignment=MainAxisAlignment.SpaceAround>
             val (c, onC) = +state { true }

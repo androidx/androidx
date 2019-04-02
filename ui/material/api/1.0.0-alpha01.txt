@@ -36,22 +36,10 @@ package androidx.ui.material {
     method public static void Button(String text, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
   }
 
-  public final class Checkbox extends com.google.r4a.Component {
-    ctor public Checkbox();
-    method public void compose();
-    method public androidx.ui.painting.Color? getColor();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnToggle();
-    method public androidx.ui.baseui.selection.ToggleableState getValue();
-    method public void setColor(androidx.ui.painting.Color? p);
-    method public void setOnToggle(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setValue(androidx.ui.baseui.selection.ToggleableState p);
-    property public final androidx.ui.painting.Color? color;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle;
-    property public final androidx.ui.baseui.selection.ToggleableState value;
-  }
-
   public final class CheckboxKt {
     ctor public CheckboxKt();
+    method public static void Checkbox(androidx.ui.baseui.selection.ToggleableState value, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, androidx.ui.painting.Color? color = null);
+    method public static androidx.ui.baseui.selection.ToggleableState parentCheckboxState(androidx.ui.baseui.selection.ToggleableState... childrenStates);
   }
 
   public final class MaterialColors {
