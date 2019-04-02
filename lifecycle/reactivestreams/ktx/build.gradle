@@ -42,5 +42,4 @@ androidx {
   inceptionYear = "2018"
   description = "Kotlin extensions for Lifecycle ReactiveStreams"
   url = AndroidXExtension.ARCHITECTURE_URL
-  useMetalava = true
 }

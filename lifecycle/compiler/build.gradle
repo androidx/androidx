@@ -5,7 +5,8 @@ import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
 
 plugins {
-    id("SupportKotlinLibraryPlugin")
+    id("AndroidXPlugin")
+    id("kotlin")
 }
 
 sourceSets {

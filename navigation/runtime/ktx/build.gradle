@@ -54,6 +54,4 @@ androidx {
     inceptionYear = "2018"
     description = "Android Navigation-Runtime-Ktx"
     url = AndroidXExtension.ARCHITECTURE_URL
-    // TODO useMetalava = true
-    // A bug in type parameter bound resolution causes metalava to always fail on validating the API
 }
