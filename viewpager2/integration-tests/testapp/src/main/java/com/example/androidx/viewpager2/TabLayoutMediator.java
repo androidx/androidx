@@ -152,6 +152,7 @@ public final class TabLayoutMediator {
         mPagerAdapterObserver = null;
         mOnTabSelectedListener = null;
         mOnPageChangeCallback = null;
+        mAttached = false;
     }
 
     @SuppressWarnings("WeakerAccess")
