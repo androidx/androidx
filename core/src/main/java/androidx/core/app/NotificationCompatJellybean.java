@@ -132,7 +132,7 @@ class NotificationCompatJellybean {
         }
         return new NotificationCompat.Action(icon, title, actionIntent, extras, remoteInputs,
                 dataOnlyRemoteInputs, allowGeneratedReplies,
-                NotificationCompat.Action.SEMANTIC_ACTION_NONE, true);
+                NotificationCompat.Action.SEMANTIC_ACTION_NONE, true, false /* isContextual */);
     }
 
     public static Bundle writeActionAndGetExtras(
@@ -241,7 +241,8 @@ class NotificationCompatJellybean {
                 fromBundleArray(getBundleArrayFromBundle(bundle, KEY_DATA_ONLY_REMOTE_INPUTS)),
                 allowGeneratedReplies,
                 bundle.getInt(KEY_SEMANTIC_ACTION),
-                bundle.getBoolean(KEY_SHOWS_USER_INTERFACE));
+                bundle.getBoolean(KEY_SHOWS_USER_INTERFACE),
+                false /* is_contextual is only supported for Q+ devices */);
     }
 
     static Bundle getBundleForAction(NotificationCompat.Action action) {
