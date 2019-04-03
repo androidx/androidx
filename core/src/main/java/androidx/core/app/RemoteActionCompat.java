@@ -88,8 +88,10 @@ public final class RemoteActionCompat implements VersionedParcelable {
 
     /**
      * Used for VersionedParcelable.
+     * @hide
      */
-    RemoteActionCompat() {}
+    @RestrictTo(LIBRARY_GROUP)
+    public RemoteActionCompat() {}
 
     /**
      * Constructs a {@link RemoteActionCompat} using data from {@code other}.
