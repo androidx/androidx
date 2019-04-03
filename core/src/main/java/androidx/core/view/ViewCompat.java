@@ -2525,7 +2525,7 @@ public class ViewCompat {
      * @see View#getSystemGestureExclusionRects
      */
     @NonNull
-    public List<Rect> getSystemGestureExclusionRects(@NonNull View view) {
+    public static List<Rect> getSystemGestureExclusionRects(@NonNull View view) {
         if (BuildCompat.isAtLeastQ()) {
             return view.getSystemGestureExclusionRects();
         }
