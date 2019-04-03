@@ -19,6 +19,7 @@ package androidx.animation
 import android.animation.TimeInterpolator
 import androidx.animation.Physics.Companion.DampingRatioNoBouncy
 import androidx.animation.Physics.Companion.StiffnessVeryLow
+import kotlin.math.max
 
 const val DEBUG = false
 
@@ -180,7 +181,9 @@ internal class Tween<T>(
         startVelocity: Float,
         interpolator: (T, T, Float) -> T
     ): T {
-        val rawFraction = if (duration == 0L) 1f else (playTime - delay) / duration.toFloat()
+        val rawFraction =
+            if (duration == 0L) 1f
+            else max(0, playTime - delay) / duration.toFloat()
         val fraction = timeInterpolator.getInterpolation(rawFraction)
         return interpolator(start, end, fraction)
     }
