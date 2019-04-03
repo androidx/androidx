@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
  *
  * <pre>
  * {@code
- * WorkManager workManager = WorkManager.getInstance();
+ * WorkManager workManager = WorkManager.getInstance(Context);
  * workManager.enqueue(new OneTimeWorkRequest.Builder(FooWorker.class).build());}</pre>
  *
  * A {@link WorkRequest} has an associated id that can be used for lookups and observation as
@@ -131,10 +131,11 @@ public abstract class WorkManager {
      * @return The singleton instance of {@link WorkManager}; this may be {@code null} in unusual
      *         circumstances where you have disabled automatic initialization and have failed to
      *         manually call {@link #initialize(Context, Configuration)}.
-     * @throws IllegalStateException If WorkManager is not initialized properly.  This is most
-     *         likely because you disabled the automatic initialization but forgot to manually
-     *         call {@link WorkManager#initialize(Context, Configuration)}.
+     * @throws IllegalStateException If WorkManager is not initialized properly as per the exception
+     *                               message.
+     * @deprecated Call {@link WorkManager#getInstance(Context)} instead.
      */
+    @Deprecated
     public static @NonNull WorkManager getInstance() {
         WorkManager workManager = WorkManagerImpl.getInstance();
         if (workManager == null) {
@@ -148,6 +149,19 @@ public abstract class WorkManager {
     }
 
     /**
+     * Retrieves the {@code default} singleton instance of {@link WorkManager}.
+     *
+     * @param context A {@link Context} for on-demand initialization.
+     * @return The singleton instance of {@link WorkManager}; this may be {@code null} in unusual
+     *         circumstances where you have disabled automatic initialization and have failed to
+     *         manually call {@link #initialize(Context, Configuration)}.
+     * @throws IllegalStateException If WorkManager is not initialized properly
+     */
+    public static @NonNull WorkManager getInstance(@NonNull Context context) {
+        return WorkManagerImpl.getInstance(context);
+    }
+
+    /**
      * Used to do a one-time initialization of the {@link WorkManager} singleton with a custom
      * {@link Configuration}.  By default, this method should not be called because WorkManager is
      * automatically initialized.  To initialize WorkManager yourself, please follow these steps:
@@ -155,7 +169,7 @@ public abstract class WorkManager {
      * <li>Disable {@code androidx.work.impl.WorkManagerInitializer} in your manifest.
      * <li>Invoke this method in {@code Application#onCreate} or a {@code ContentProvider}. Note
      * that this method <b>must</b> be invoked in one of these two places or you risk getting a
-     * {@code NullPointerException} in {@link #getInstance()}.
+     * {@code NullPointerException} in {@link #getInstance(Context)}.
      * </ul></p>
      * <p>
      * This method throws an exception if it is called multiple times.

@@ -17,6 +17,8 @@
 package androidx.work.testing;
 
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Worker;
@@ -44,11 +46,13 @@ import java.util.UUID;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TestScheduler implements Scheduler, ExecutionListener {
 
+    private final Context mContext;
     private final Map<String, InternalWorkState> mInternalWorkStates;
 
     private static final Object sLock = new Object();
 
-    TestScheduler() {
+    TestScheduler(@NonNull Context context) {
+        mContext = context;
         mInternalWorkStates = new HashMap<>();
     }
 
@@ -62,7 +66,7 @@ class TestScheduler implements Scheduler, ExecutionListener {
             List<String> workSpecIdsToSchedule = new ArrayList<>(workSpecs.length);
             for (WorkSpec workSpec : workSpecs) {
                 if (!mInternalWorkStates.containsKey(workSpec.id)) {
-                    mInternalWorkStates.put(workSpec.id, new InternalWorkState(workSpec));
+                    mInternalWorkStates.put(workSpec.id, new InternalWorkState(mContext, workSpec));
                 }
                 workSpecIdsToSchedule.add(workSpec.id);
             }
@@ -73,7 +77,7 @@ class TestScheduler implements Scheduler, ExecutionListener {
     @Override
     public void cancel(@NonNull String workSpecId) {
         synchronized (sLock) {
-            WorkManagerImpl.getInstance().stopWork(workSpecId);
+            WorkManagerImpl.getInstance(mContext).stopWork(workSpecId);
             mInternalWorkStates.remove(workSpecId);
         }
     }
@@ -152,7 +156,7 @@ class TestScheduler implements Scheduler, ExecutionListener {
         for (String workSpecId : workSpecIds) {
             InternalWorkState internalWorkState = mInternalWorkStates.get(workSpecId);
             if (internalWorkState.isRunnable()) {
-                WorkManagerImpl.getInstance().startWork(workSpecId);
+                WorkManagerImpl.getInstance(mContext).startWork(workSpecId);
             }
         }
     }
@@ -162,12 +166,14 @@ class TestScheduler implements Scheduler, ExecutionListener {
      */
     private static class InternalWorkState {
 
+        @NonNull Context mContext;
         @NonNull WorkSpec mWorkSpec;
         boolean mConstraintsMet;
         boolean mInitialDelayMet;
         boolean mPeriodDelayMet;
 
-        InternalWorkState(@NonNull WorkSpec workSpec) {
+        InternalWorkState(@NonNull Context context, @NonNull WorkSpec workSpec) {
+            mContext = context;
             mWorkSpec = workSpec;
             mConstraintsMet = !mWorkSpec.hasConstraints();
             mInitialDelayMet = (mWorkSpec.initialDelay == 0L);
@@ -180,7 +186,7 @@ class TestScheduler implements Scheduler, ExecutionListener {
             if (mWorkSpec.isPeriodic()) {
                 // Reset the startTime to simulate the first run of PeriodicWork.
                 // Otherwise WorkerWrapper de-dupes runs of PeriodicWork to 1 execution per interval
-                WorkManagerImpl workManager = WorkManagerImpl.getInstance();
+                WorkManagerImpl workManager = WorkManagerImpl.getInstance(mContext);
                 WorkDatabase workDatabase = workManager.getWorkDatabase();
                 workDatabase.workSpecDao().setPeriodStartTime(mWorkSpec.id, 0);
             }

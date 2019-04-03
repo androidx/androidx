@@ -264,4 +264,18 @@ public final class Configuration {
             return new Configuration(this);
         }
     }
+
+    /**
+     * A class that can provide the {@link Configuration} for WorkManager.  If your
+     * {@link android.app.Application} class implements this interface and you have disabled
+     * automatic initialization ({@link WorkManager#initialize(Context, Configuration)}, WorkManager
+     * can automatically create and configure itself on-demand.
+     */
+    public interface Provider {
+
+        /**
+         * @return The {@link Configuration} used to initialize WorkManager
+         */
+        @NonNull Configuration getWorkManagerConfiguration();
+    }
 }
