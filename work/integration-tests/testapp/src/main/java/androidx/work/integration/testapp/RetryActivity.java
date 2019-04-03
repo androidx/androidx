@@ -65,7 +65,7 @@ public class RetryActivity extends AppCompatActivity {
             }
         });
 
-        WorkManager.getInstance().getWorkInfosByTagLiveData("test")
+        WorkManager.getInstance(RetryActivity.this).getWorkInfosByTagLiveData("test")
                 .observe(this, new Observer<List<WorkInfo>>() {
                     @Override
                     public void onChanged(@Nullable List<WorkInfo> workInfos) {
@@ -102,7 +102,7 @@ public class RetryActivity extends AppCompatActivity {
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
                 .build();
 
-        WorkManager.getInstance()
+        WorkManager.getInstance(RetryActivity.this)
                 .beginUniqueWork(name, ExistingWorkPolicy.KEEP, workRequest)
                 .enqueue();
     }

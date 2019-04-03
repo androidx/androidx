@@ -81,7 +81,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
         findViewById(R.id.clear_all).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                WorkManager.getInstance()
+                WorkManager.getInstance(ImageProcessingActivity.this)
                         .enqueue(OneTimeWorkRequest.from(ImageCleanupWorker.class));
             }
         });
@@ -100,7 +100,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
                 setupWork[i] = ImageSetupWorker.createWork(uriString);
                 processingWork[i] = ImageProcessingWorker.createWork(uriString);
             }
-            WorkManager.getInstance()
+            WorkManager.getInstance(ImageProcessingActivity.this)
                     .beginWith(Arrays.asList(setupWork))
                     .then(Arrays.asList(processingWork))
                     .enqueue();
@@ -110,7 +110,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
             String uriString = data.getData().toString();
             OneTimeWorkRequest setupWork = ImageSetupWorker.createWork(uriString);
             OneTimeWorkRequest processingWork = ImageProcessingWorker.createWork(uriString);
-            WorkManager.getInstance()
+            WorkManager.getInstance(ImageProcessingActivity.this)
                     .beginWith(setupWork)
                     .then(processingWork)
                     .enqueue();

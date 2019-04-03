@@ -48,13 +48,14 @@ import java.util.concurrent.TimeUnit;
 @LargeTest
 public class TestSchedulerTest {
 
+    private Context mContext;
     private TestDriver mTestDriver;
 
     @Before
     public void setUp() {
-        Context context = ApplicationProvider.getApplicationContext();
-        WorkManagerTestInitHelper.initializeTestWorkManager(context);
-        mTestDriver = WorkManagerTestInitHelper.getTestDriver();
+        mContext = ApplicationProvider.getApplicationContext();
+        WorkManagerTestInitHelper.initializeTestWorkManager(mContext);
+        mTestDriver = WorkManagerTestInitHelper.getTestDriver(mContext);
         CountingTestWorker.COUNT.set(0);
     }
 
@@ -64,7 +65,7 @@ public class TestSchedulerTest {
 
         WorkRequest request = createWorkRequest();
         // TestWorkManagerImpl is a subtype of WorkManagerImpl.
-        WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
+        WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance(mContext);
         workManagerImpl.enqueue(Collections.singletonList(request)).getResult().get();
         WorkInfo status = workManagerImpl.getWorkInfoById(request.getId()).get();
         assertThat(status.getState().isFinished(), is(true));
@@ -76,7 +77,7 @@ public class TestSchedulerTest {
 
         OneTimeWorkRequest request = createWorkRequest();
         OneTimeWorkRequest dependentRequest = createWorkRequest();
-        WorkManager workManager = WorkManager.getInstance();
+        WorkManager workManager = WorkManager.getInstance(mContext);
         WorkContinuation continuation = workManager.beginWith(request)
                 .then(dependentRequest);
         continuation.enqueue().getResult().get();
@@ -93,7 +94,7 @@ public class TestSchedulerTest {
             throws InterruptedException, ExecutionException {
 
         OneTimeWorkRequest request = createWorkRequestWithNetworkConstraints();
-        WorkManager workManager = WorkManager.getInstance();
+        WorkManager workManager = WorkManager.getInstance(mContext);
         workManager.enqueue(request);
         WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(false));
@@ -104,7 +105,7 @@ public class TestSchedulerTest {
             throws InterruptedException, ExecutionException {
 
         OneTimeWorkRequest request = createWorkRequestWithNetworkConstraints();
-        WorkManager workManager = WorkManager.getInstance();
+        WorkManager workManager = WorkManager.getInstance(mContext);
         workManager.enqueue(request);
         WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(false));
@@ -118,7 +119,7 @@ public class TestSchedulerTest {
             throws InterruptedException, ExecutionException {
 
         OneTimeWorkRequest request = createWorkRequestWithInitialDelay();
-        WorkManager workManager = WorkManager.getInstance();
+        WorkManager workManager = WorkManager.getInstance(mContext);
         workManager.enqueue(request);
         WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(false));
@@ -129,7 +130,7 @@ public class TestSchedulerTest {
             throws InterruptedException, ExecutionException {
 
         OneTimeWorkRequest request = createWorkRequestWithInitialDelay();
-        WorkManager workManager = WorkManager.getInstance();
+        WorkManager workManager = WorkManager.getInstance(mContext);
         workManager.enqueue(request);
         mTestDriver.setInitialDelayMet(request.getId());
         WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
@@ -139,7 +140,7 @@ public class TestSchedulerTest {
     @Test
     public void testWorker_withPeriodDelay_shouldRun() {
         PeriodicWorkRequest request = createWorkRequestWithPeriodDelay();
-        WorkManager workManager = WorkManager.getInstance();
+        WorkManager workManager = WorkManager.getInstance(mContext);
         workManager.enqueue(request);
         assertThat(CountingTestWorker.COUNT.get(), is(1));
     }
@@ -149,7 +150,7 @@ public class TestSchedulerTest {
             throws InterruptedException, ExecutionException {
 
         PeriodicWorkRequest request = createWorkRequestWithPeriodDelay();
-        WorkManager workManager = WorkManager.getInstance();
+        WorkManager workManager = WorkManager.getInstance(mContext);
         workManager.enqueue(request);
         assertThat(CountingTestWorker.COUNT.get(), is(1));
         for (int i = 0; i < 5; ++i) {

@@ -23,6 +23,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -118,6 +119,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
                 context, configuration, taskExecutor, mDatabase, schedulers, mProcessor);
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mSystemJobServiceSpy = spy(new SystemJobService());
+        doReturn(context).when(mSystemJobServiceSpy).getApplicationContext();
         doNothing().when(mSystemJobServiceSpy).onExecuted(anyString(), anyBoolean());
         mSystemJobServiceSpy.onCreate();
     }
@@ -189,7 +191,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
 
         JobParameters mockParams = createMockJobParameters(work.getStringId());
         assertThat(mSystemJobServiceSpy.onStartJob(mockParams), is(true));
-        WorkManagerImpl.getInstance().cancelWorkById(work.getId());
+        mWorkManagerImpl.cancelWorkById(work.getId());
         assertThat(mSystemJobServiceSpy.onStopJob(mockParams), is(false));
     }
 
