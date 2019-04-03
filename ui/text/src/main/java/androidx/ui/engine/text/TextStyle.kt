@@ -47,6 +47,8 @@ import androidx.ui.painting.Paint
  * * `foreground`: The paint used to draw the text. If this is specified, `color` must be null.
  * * `fontSynthesis`: Whether to synthesize font weight and/or style when the requested weight or
  *                    style cannot be found in the provided custom font family.
+ * * `textIndent`: The amount of indentation applied to the affected paragraph. A paragraph is affected
+ *                 if any of its character is covered by the TextSpan.
  */
 data class TextStyle constructor(
     val color: Color? = null,
@@ -66,7 +68,8 @@ data class TextStyle constructor(
     // TODO(Migration/haoyuchang): background is changed to color from paint.
     val background: Color? = null,
     val foreground: Paint? = null,
-    val fontSynthesis: FontSynthesis? = null
+    val fontSynthesis: FontSynthesis? = null,
+    val textIndent: TextIndent? = null
 ) {
     init {
         assert(color == null || foreground == null) {

@@ -19,6 +19,7 @@ import androidx.core.os.BuildCompat
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.FontTestData.Companion.BASIC_KERN_FONT
@@ -1085,6 +1086,103 @@ class ParagraphIntegrationTest {
         assertThat(
             paragraphImpl.getLineWidth(0),
             equalTo(fontSize * text.length + wordSpacing + wordSpacingOverwrite)
+        )
+    }
+
+    @Test
+    fun textStyle_textIndent_onSingleLine() {
+        val text = "abc"
+        val fontSize = 20.0f
+        val indent = 20.0f
+        val textStyle = TextStyle(textIndent = TextIndent(firstLine = indent.px))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(
+                    textStyle = textStyle,
+                    start = 0,
+                    end = text.length
+                )
+            ),
+            fontSize = fontSize,
+            fontFamily = fontFamilyMeasureFont
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        // This offset should point to the first character 'a' if indent is applied.
+        // Otherwise this offset will point to the second character 'b'.
+        val offset = Offset(indent + 1, fontSize / 2)
+        // The position corresponding to the offset should be the first char 'a'.
+        assertThat(paragraphImpl.getPositionForOffset(offset).offset, equalTo(0))
+    }
+
+    @Test
+    fun textStyle_textIndent_onFirstLine() {
+        val text = "abcdef"
+        val fontSize = 20.0f
+        val indent = 20.0f
+        val textStyle = TextStyle(textIndent = TextIndent(firstLine = indent.px))
+        val paragraphWidth = "abcd".length * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(
+                    textStyle = textStyle,
+                    start = 0,
+                    end = text.length
+                )
+            ),
+            fontSize = fontSize,
+            fontFamily = fontFamilyMeasureFont
+        )
+        paragraph.layout(ParagraphConstraints(width = paragraphWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        assertThat(paragraphImpl.lineCount, equalTo(2))
+        // This offset should point to the first character of the first line if indent is applied.
+        // Otherwise this offset will point to the second character of the second line.
+        val offset = Offset(indent + 1, fontSize / 2)
+        // The position corresponding to the offset should be the first char 'a'.
+        assertThat(paragraphImpl.getPositionForOffset(offset).offset, equalTo(0))
+    }
+
+    @Test
+    fun textStyle_textIndent_onRestLine() {
+        val text = "abcde"
+        val fontSize = 20.0f
+        val indent = 20.0f
+        val textStyle = TextStyle(
+            textIndent = TextIndent(
+                firstLine = 0.px,
+                restLine = indent.px
+            )
+        )
+        val paragraphWidth = "abc".length * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(
+                    textStyle = textStyle,
+                    start = 0,
+                    end = text.length
+                )
+            ),
+            fontSize = fontSize,
+            fontFamily = fontFamilyMeasureFont
+        )
+        paragraph.layout(ParagraphConstraints(width = paragraphWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+        // This offset should point to the first character of the second line if indent is applied.
+        // Otherwise this offset will point to the second character of the second line.
+        val offset = Offset(indent + 1, fontSize / 2 + fontSize)
+        // The position corresponding to the offset should be the 'd' in the second line.
+        assertThat(
+            paragraphImpl.getPositionForOffset(offset).offset,
+            equalTo("abcd".length - 1)
         )
     }
 

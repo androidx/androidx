@@ -232,6 +232,27 @@ package androidx.ui.engine.text {
     method public static androidx.ui.engine.text.TextGeometricTransform lerp(androidx.ui.engine.text.TextGeometricTransform a, androidx.ui.engine.text.TextGeometricTransform b, float t);
   }
 
+  public final class TextIndent {
+    ctor public TextIndent(androidx.ui.core.Px firstLine, androidx.ui.core.Px restLine);
+    ctor public TextIndent();
+    method public androidx.ui.core.Px component1();
+    method public androidx.ui.core.Px component2();
+    method public androidx.ui.engine.text.TextIndent copy(androidx.ui.core.Px firstLine, androidx.ui.core.Px restLine);
+    method public androidx.ui.core.Px getFirstLine();
+    method public androidx.ui.core.Px getRestLine();
+    field public static final androidx.ui.engine.text.TextIndent.Companion! Companion;
+  }
+
+  public static final class TextIndent.Companion {
+    method public androidx.ui.engine.text.TextIndent getNONE();
+    property public final androidx.ui.engine.text.TextIndent NONE;
+  }
+
+  public final class TextIndentKt {
+    ctor public TextIndentKt();
+    method public static androidx.ui.engine.text.TextIndent lerp(androidx.ui.engine.text.TextIndent a, androidx.ui.engine.text.TextIndent b, float t);
+  }
+
   public final class TextPosition {
     ctor public TextPosition(int offset, androidx.ui.engine.text.TextAffinity affinity);
     method public int component1();
@@ -242,7 +263,7 @@ package androidx.ui.engine.text {
   }
 
   public final class TextStyle {
-    ctor public TextStyle(androidx.ui.painting.Color? color, androidx.ui.engine.text.TextDecoration? decoration, androidx.ui.engine.text.FontWeight? fontWeight, androidx.ui.engine.text.FontStyle? fontStyle, androidx.ui.engine.text.font.FontFamily? fontFamily, Float? fontSize, String? fontFeatureSettings, Float? letterSpacing, Float? wordSpacing, androidx.ui.engine.text.TextBaseline? textBaseline, androidx.ui.engine.text.BaselineShift? baselineShift, androidx.ui.engine.text.TextGeometricTransform? textGeometricTransform, Float? height, androidx.ui.engine.window.Locale? locale, androidx.ui.painting.Color? background, androidx.ui.painting.Paint? foreground, androidx.ui.engine.text.FontSynthesis? fontSynthesis);
+    ctor public TextStyle(androidx.ui.painting.Color? color, androidx.ui.engine.text.TextDecoration? decoration, androidx.ui.engine.text.FontWeight? fontWeight, androidx.ui.engine.text.FontStyle? fontStyle, androidx.ui.engine.text.font.FontFamily? fontFamily, Float? fontSize, String? fontFeatureSettings, Float? letterSpacing, Float? wordSpacing, androidx.ui.engine.text.TextBaseline? textBaseline, androidx.ui.engine.text.BaselineShift? baselineShift, androidx.ui.engine.text.TextGeometricTransform? textGeometricTransform, Float? height, androidx.ui.engine.window.Locale? locale, androidx.ui.painting.Color? background, androidx.ui.painting.Paint? foreground, androidx.ui.engine.text.FontSynthesis? fontSynthesis, androidx.ui.engine.text.TextIndent? textIndent);
     ctor public TextStyle();
     method public androidx.ui.painting.Color? component1();
     method public androidx.ui.engine.text.TextBaseline? component10();
@@ -253,6 +274,7 @@ package androidx.ui.engine.text {
     method public androidx.ui.painting.Color? component15();
     method public androidx.ui.painting.Paint? component16();
     method public androidx.ui.engine.text.FontSynthesis? component17();
+    method public androidx.ui.engine.text.TextIndent? component18();
     method public androidx.ui.engine.text.TextDecoration? component2();
     method public androidx.ui.engine.text.FontWeight? component3();
     method public androidx.ui.engine.text.FontStyle? component4();
@@ -261,7 +283,7 @@ package androidx.ui.engine.text {
     method public String? component7();
     method public Float? component8();
     method public Float? component9();
-    method public androidx.ui.engine.text.TextStyle copy(androidx.ui.painting.Color? color, androidx.ui.engine.text.TextDecoration? decoration, androidx.ui.engine.text.FontWeight? fontWeight, androidx.ui.engine.text.FontStyle? fontStyle, androidx.ui.engine.text.font.FontFamily? fontFamily, Float? fontSize, String? fontFeatureSettings, Float? letterSpacing, Float? wordSpacing, androidx.ui.engine.text.TextBaseline? textBaseline, androidx.ui.engine.text.BaselineShift? baselineShift, androidx.ui.engine.text.TextGeometricTransform? textGeometricTransform, Float? height, androidx.ui.engine.window.Locale? locale, androidx.ui.painting.Color? background, androidx.ui.painting.Paint? foreground, androidx.ui.engine.text.FontSynthesis? fontSynthesis);
+    method public androidx.ui.engine.text.TextStyle copy(androidx.ui.painting.Color? color, androidx.ui.engine.text.TextDecoration? decoration, androidx.ui.engine.text.FontWeight? fontWeight, androidx.ui.engine.text.FontStyle? fontStyle, androidx.ui.engine.text.font.FontFamily? fontFamily, Float? fontSize, String? fontFeatureSettings, Float? letterSpacing, Float? wordSpacing, androidx.ui.engine.text.TextBaseline? textBaseline, androidx.ui.engine.text.BaselineShift? baselineShift, androidx.ui.engine.text.TextGeometricTransform? textGeometricTransform, Float? height, androidx.ui.engine.window.Locale? locale, androidx.ui.painting.Color? background, androidx.ui.painting.Paint? foreground, androidx.ui.engine.text.FontSynthesis? fontSynthesis, androidx.ui.engine.text.TextIndent? textIndent);
     method public androidx.ui.painting.Color? getBackground();
     method public androidx.ui.engine.text.BaselineShift? getBaselineShift();
     method public androidx.ui.painting.Color? getColor();
@@ -278,6 +300,7 @@ package androidx.ui.engine.text {
     method public androidx.ui.engine.window.Locale? getLocale();
     method public androidx.ui.engine.text.TextBaseline? getTextBaseline();
     method public androidx.ui.engine.text.TextGeometricTransform? getTextGeometricTransform();
+    method public androidx.ui.engine.text.TextIndent? getTextIndent();
     method public Float? getWordSpacing();
   }
 
@@ -350,6 +373,15 @@ package androidx.ui.engine.text.font {
   public final class FontKt {
     ctor public FontKt();
     method public static androidx.ui.engine.text.font.FontFamily asFontFamily(androidx.ui.engine.text.font.Font);
+  }
+
+}
+
+package androidx.ui.engine.text.platform {
+
+  public final class ParagraphAndroidKt {
+    ctor public ParagraphAndroidKt();
+    field public static final char LINE_FEED = 10; // 0x000a '\n'
   }
 
 }
@@ -467,7 +499,7 @@ package androidx.ui.painting {
   }
 
   public final class TextStyle {
-    ctor public TextStyle(Boolean? inherit, androidx.ui.painting.Color? color, Float? fontSize, androidx.ui.engine.text.FontWeight? fontWeight, androidx.ui.engine.text.FontStyle? fontStyle, androidx.ui.engine.text.FontSynthesis? fontSynthesis, String? fontFeatureSettings, Float? letterSpacing, Float? wordSpacing, androidx.ui.engine.text.TextBaseline? textBaseline, androidx.ui.engine.text.BaselineShift? baselineShift, androidx.ui.engine.text.TextGeometricTransform? textGeometricTransform, Float? height, androidx.ui.engine.window.Locale? locale, androidx.ui.painting.Color? background, androidx.ui.engine.text.TextDecoration? decoration, androidx.ui.engine.text.font.FontFamily? fontFamily, String? debugLabel);
+    ctor public TextStyle(Boolean? inherit, androidx.ui.painting.Color? color, Float? fontSize, androidx.ui.engine.text.FontWeight? fontWeight, androidx.ui.engine.text.FontStyle? fontStyle, androidx.ui.engine.text.FontSynthesis? fontSynthesis, String? fontFeatureSettings, Float? letterSpacing, Float? wordSpacing, androidx.ui.engine.text.TextBaseline? textBaseline, androidx.ui.engine.text.BaselineShift? baselineShift, androidx.ui.engine.text.TextGeometricTransform? textGeometricTransform, Float? height, androidx.ui.engine.window.Locale? locale, androidx.ui.painting.Color? background, androidx.ui.engine.text.TextDecoration? decoration, androidx.ui.engine.text.font.FontFamily? fontFamily, androidx.ui.engine.text.TextIndent? textIndent, String? debugLabel);
     ctor public TextStyle();
     method public androidx.ui.painting.TextStyle apply(androidx.ui.painting.Color? color = null, androidx.ui.engine.text.TextDecoration? decoration = null, androidx.ui.engine.text.font.FontFamily? fontFamily = null, float fontSizeFactor = 1.0f, float fontSizeDelta = 0.0f, int fontWeightDelta = 0, float letterSpacingFactor = 1.0f, float letterSpacingDelta = 0.0f, float wordSpacingFactor = 1.0f, float wordSpacingDelta = 0.0f, float heightFactor = 1.0f, float heightDelta = 0.0f);
     method public androidx.ui.painting.basictypes.RenderComparison compareTo(androidx.ui.painting.TextStyle other);
@@ -480,7 +512,8 @@ package androidx.ui.painting {
     method public androidx.ui.painting.Color? component15();
     method public androidx.ui.engine.text.TextDecoration? component16();
     method public androidx.ui.engine.text.font.FontFamily? component17();
-    method public String? component18();
+    method public androidx.ui.engine.text.TextIndent? component18();
+    method public String? component19();
     method public androidx.ui.painting.Color? component2();
     method public Float? component3();
     method public androidx.ui.engine.text.FontWeight? component4();
@@ -489,7 +522,7 @@ package androidx.ui.painting {
     method public String? component7();
     method public Float? component8();
     method public Float? component9();
-    method public androidx.ui.painting.TextStyle copy(Boolean? inherit, androidx.ui.painting.Color? color, Float? fontSize, androidx.ui.engine.text.FontWeight? fontWeight, androidx.ui.engine.text.FontStyle? fontStyle, androidx.ui.engine.text.FontSynthesis? fontSynthesis, String? fontFeatureSettings, Float? letterSpacing, Float? wordSpacing, androidx.ui.engine.text.TextBaseline? textBaseline, androidx.ui.engine.text.BaselineShift? baselineShift, androidx.ui.engine.text.TextGeometricTransform? textGeometricTransform, Float? height, androidx.ui.engine.window.Locale? locale, androidx.ui.painting.Color? background, androidx.ui.engine.text.TextDecoration? decoration, androidx.ui.engine.text.font.FontFamily? fontFamily, String? debugLabel);
+    method public androidx.ui.painting.TextStyle copy(Boolean? inherit, androidx.ui.painting.Color? color, Float? fontSize, androidx.ui.engine.text.FontWeight? fontWeight, androidx.ui.engine.text.FontStyle? fontStyle, androidx.ui.engine.text.FontSynthesis? fontSynthesis, String? fontFeatureSettings, Float? letterSpacing, Float? wordSpacing, androidx.ui.engine.text.TextBaseline? textBaseline, androidx.ui.engine.text.BaselineShift? baselineShift, androidx.ui.engine.text.TextGeometricTransform? textGeometricTransform, Float? height, androidx.ui.engine.window.Locale? locale, androidx.ui.painting.Color? background, androidx.ui.engine.text.TextDecoration? decoration, androidx.ui.engine.text.font.FontFamily? fontFamily, androidx.ui.engine.text.TextIndent? textIndent, String? debugLabel);
     method public androidx.ui.painting.Color? getBackground();
     method public androidx.ui.engine.text.BaselineShift? getBaselineShift();
     method public androidx.ui.painting.Color? getColor();
@@ -508,6 +541,7 @@ package androidx.ui.painting {
     method public androidx.ui.engine.text.ParagraphStyle getParagraphStyle(androidx.ui.engine.text.TextAlign? textAlign = null, androidx.ui.engine.text.TextDirection? textDirection = null, float textScaleFactor = 1.0f, Boolean? ellipsis = null, Integer? maxLines = null, androidx.ui.engine.window.Locale? locale = null);
     method public androidx.ui.engine.text.TextBaseline? getTextBaseline();
     method public androidx.ui.engine.text.TextGeometricTransform? getTextGeometricTransform();
+    method public androidx.ui.engine.text.TextIndent? getTextIndent();
     method public androidx.ui.engine.text.TextStyle getTextStyle(float textScaleFactor = 1.0f);
     method public Float? getWordSpacing();
     method public androidx.ui.painting.TextStyle merge(androidx.ui.painting.TextStyle? other = null);
