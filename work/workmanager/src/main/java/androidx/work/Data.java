@@ -109,6 +109,41 @@ public final class Data {
         }
     }
 
+    /**
+     * Gets the byte value for the given key.
+     *
+     * @param key The key for the argument
+     * @param defaultValue The default value to return if the key is not found
+     * @return The value specified by the key if it exists; the default value otherwise
+     */
+    public byte getByte(@NonNull String key, byte defaultValue) {
+        Object value = mValues.get(key);
+        if (value instanceof Byte) {
+            return (byte) value;
+        } else {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Gets the byte array value for the given key.
+     *
+     * @param key The key for the argument
+     * @return The value specified by the key if it exists; {@code null} otherwise
+     */
+    public @Nullable byte[] getByteArray(@NonNull String key) {
+        Object value = mValues.get(key);
+        if (value instanceof Byte[]) {
+            Byte[] array = (Byte[]) value;
+            byte[] returnArray = new byte[array.length];
+            for (int i = 0; i < array.length; ++i) {
+                returnArray[i] = array[i];
+            }
+            return returnArray;
+        } else {
+            return null;
+        }
+    }
 
     /**
      * Gets the integer value for the given key.
@@ -422,6 +457,14 @@ public final class Data {
         return returnValue;
     }
 
+    static @NonNull Byte[] convertPrimitiveByteArray(@NonNull byte[] value) {
+        Byte[] returnValue = new Byte[value.length];
+        for (int i = 0; i < value.length; ++i) {
+            returnValue[i] = value[i];
+        }
+        return returnValue;
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static @NonNull Integer[] convertPrimitiveIntArray(@NonNull int[] value) {
         Integer[] returnValue = new Integer[value.length];
@@ -486,6 +529,30 @@ public final class Data {
          */
         public @NonNull Builder putBooleanArray(@NonNull String key, @NonNull boolean[] value) {
             mValues.put(key, convertPrimitiveBooleanArray(value));
+            return this;
+        }
+
+        /**
+         * Puts an byte into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public @NonNull Builder putByte(@NonNull String key, byte value) {
+            mValues.put(key, value);
+            return this;
+        }
+
+        /**
+         * Puts an integer array into the arguments.
+         *
+         * @param key The key for this argument
+         * @param value The value for this argument
+         * @return The {@link Builder}
+         */
+        public @NonNull Builder putByteArray(@NonNull String key, @NonNull byte[] value) {
+            mValues.put(key, convertPrimitiveByteArray(value));
             return this;
         }
 
@@ -658,12 +725,14 @@ public final class Data {
             } else {
                 Class valueType = value.getClass();
                 if (valueType == Boolean.class
+                        || valueType == Byte.class
                         || valueType == Integer.class
                         || valueType == Long.class
                         || valueType == Float.class
                         || valueType == Double.class
                         || valueType == String.class
                         || valueType == Boolean[].class
+                        || valueType == Byte[].class
                         || valueType == Integer[].class
                         || valueType == Long[].class
                         || valueType == Float[].class
@@ -672,6 +741,8 @@ public final class Data {
                     mValues.put(key, value);
                 } else if (valueType == boolean[].class) {
                     mValues.put(key, convertPrimitiveBooleanArray((boolean[]) value));
+                } else if (valueType == byte[].class) {
+                    mValues.put(key, convertPrimitiveByteArray((byte[]) value));
                 } else if (valueType == int[].class) {
                     mValues.put(key, convertPrimitiveIntArray((int[]) value));
                 } else if (valueType == long[].class) {

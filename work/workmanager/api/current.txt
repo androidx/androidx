@@ -62,6 +62,8 @@ package androidx.work {
     ctor public Data(androidx.work.Data);
     method public boolean getBoolean(String, boolean);
     method public boolean[]? getBooleanArray(String);
+    method public byte getByte(String, byte);
+    method public byte[]? getByteArray(String);
     method public double getDouble(String, double);
     method public double[]? getDoubleArray(String);
     method public float getFloat(String, float);
@@ -84,6 +86,8 @@ package androidx.work {
     method public androidx.work.Data.Builder putAll(java.util.Map<java.lang.String,java.lang.Object>);
     method public androidx.work.Data.Builder putBoolean(String, boolean);
     method public androidx.work.Data.Builder putBooleanArray(String, boolean[]);
+    method public androidx.work.Data.Builder putByte(String, byte);
+    method public androidx.work.Data.Builder putByteArray(String, byte[]);
     method public androidx.work.Data.Builder putDouble(String, double);
     method public androidx.work.Data.Builder putDoubleArray(String, double[]);
     method public androidx.work.Data.Builder putFloat(String, float);
