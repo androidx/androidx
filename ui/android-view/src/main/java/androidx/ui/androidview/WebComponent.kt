@@ -18,14 +18,8 @@ package androidx.ui.androidview
 
 import android.print.PrintDocumentAdapter
 import android.util.Log
-import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.WebView
-import android.widget.FrameLayout
 import com.google.r4a.Composable
-import com.google.r4a.Model
-import com.google.r4a.adapters.setLayoutHeight
-import com.google.r4a.adapters.setLayoutWidth
 import com.google.r4a.composer
 
 class WebContext {
@@ -34,15 +28,41 @@ class WebContext {
         val debug = true
     }
 
-    public fun createPrintDocumentAdapter(documentName: String): PrintDocumentAdapter {
-        return webView.createPrintDocumentAdapter(documentName)
+    fun createPrintDocumentAdapter(documentName: String): PrintDocumentAdapter {
+        validateWebView()
+        return webView!!.createPrintDocumentAdapter(documentName)
     }
 
-    internal var webView: WebView = WebView(composer.composer.context)
+    fun goForward() {
+        validateWebView()
+        webView!!.goForward()
+    }
+
+    fun goBack() {
+        validateWebView()
+        webView!!.goBack()
+    }
+
+    private fun validateWebView() {
+        if (webView == null) {
+            throw IllegalStateException("The WebView is not initialized yet.")
+        }
+    }
+
+    internal var webView: WebView? = null
 }
 
-private fun FrameLayout.setComposeCallback(composeCallback: (FrameLayout)->Unit) {
-    composeCallback(this)
+private fun WebView.setRef(ref: (WebView)->Unit) {
+    ref(this)
+}
+
+private fun WebView.setUrl(url: String) {
+    if (originalUrl != url) {
+        if (WebContext.debug) {
+            Log.d("WebComponent", "WebComponent load url")
+        }
+        loadUrl(url)
+    }
 }
 
 @Composable
@@ -51,28 +71,7 @@ fun WebComponent(url: String, webContext: WebContext) {
         Log.d("WebComponent", "WebComponent compose " + url)
     }
 
-    <FrameLayout
-        layoutWidth=MATCH_PARENT
-        layoutHeight=MATCH_PARENT
-        composeCallback={
-            if (WebContext.debug) {
-                Log.d("WebComponent", "WebComponent composeCallback")
-            }
-
-            val webView = webContext.webView
-            val parent = webView.parent
-            if (parent != it) {
-                if (parent is ViewGroup) {
-                    parent.removeView(webView)
-                }
-                it.addView(webView, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
-            }
-
-            if (!url.equals(webView.url)) {
-                if (WebContext.debug) {
-                    Log.d("WebComponent", "WebComponent load url")
-                }
-                webView.loadUrl(url)
-            }
-        } />
+    <WebView
+        ref={webContext.webView = it}
+        url=url/>
 }
