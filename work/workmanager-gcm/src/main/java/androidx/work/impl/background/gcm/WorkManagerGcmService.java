@@ -51,7 +51,7 @@ public class WorkManagerGcmService extends GcmTaskService {
     @Override
     public void onCreate() {
         super.onCreate();
-        mWorkManager = WorkManagerImpl.getInstance();
+        mWorkManager = WorkManagerImpl.getInstance(getApplicationContext());
     }
 
     @Override

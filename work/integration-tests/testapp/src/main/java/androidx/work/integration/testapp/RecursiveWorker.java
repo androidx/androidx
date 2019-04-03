@@ -44,7 +44,7 @@ public class RecursiveWorker extends Worker {
                 .addTag(TAG)
                 .setInitialDelay(100, TimeUnit.MILLISECONDS)
                 .build();
-        WorkManager.getInstance().enqueue(newRequest);
+        WorkManager.getInstance(getApplicationContext()).enqueue(newRequest);
         return Result.success();
     }
 }

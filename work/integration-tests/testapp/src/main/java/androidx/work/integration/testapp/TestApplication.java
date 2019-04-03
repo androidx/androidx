@@ -15,22 +15,21 @@
  */
 
 package androidx.work.integration.testapp;
+
 import android.app.Application;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.work.Configuration;
-import androidx.work.WorkManager;
 
 /**
  * An Application class that initializes WorkManager.
  */
-public class TestApplication extends Application {
+public class TestApplication extends Application implements Configuration.Provider {
 
+    @NonNull
     @Override
-    public void onCreate() {
-        super.onCreate();
-        WorkManager.initialize(
-                this,
-                new Configuration.Builder().setMinimumLoggingLevel(Log.VERBOSE).build());
+    public Configuration getWorkManagerConfiguration() {
+        return new Configuration.Builder().setMinimumLoggingLevel(Log.VERBOSE).build();
     }
 }
