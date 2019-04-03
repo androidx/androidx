@@ -16,9 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
-import androidx.annotation.RestrictTo;
+import androidx.annotation.IntRange;
 
 /**
  * Immutable class for describing video size.
@@ -29,10 +27,14 @@ public final class VideoSize {
      *
      * @param width The width of the video
      * @param height The height of the video
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public VideoSize(int width, int height) {
+    public VideoSize(@IntRange(from = 0) int width, @IntRange(from = 0) int height) {
+        if (width < 0) {
+            throw new IllegalArgumentException("width can not be negative");
+        }
+        if (height < 0) {
+            throw new IllegalArgumentException("height can not be negative");
+        }
         mWidth = width;
         mHeight = height;
     }
@@ -40,14 +42,14 @@ public final class VideoSize {
     /**
      * Returns the width of the video.
      */
-    public int getWidth() {
+    public @IntRange(from = 0) int getWidth() {
         return mWidth;
     }
 
     /**
      * Returns the height of the video.
      */
-    public int getHeight() {
+    public @IntRange(from = 0) int getHeight() {
         return mHeight;
     }
 

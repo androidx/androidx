@@ -22,6 +22,7 @@ package androidx.media2.widget {
     method public int getPreviousMediaItemIndex();
     method public int getRepeatMode();
     method public int getShuffleMode();
+    method public androidx.media2.VideoSize getVideoSize();
     method public int getVolume();
     method public int getVolumeControlType();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult>! pause();

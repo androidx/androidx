@@ -28,6 +28,7 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Pair;
@@ -37,6 +38,7 @@ import androidx.media2.MediaMetadata;
 import androidx.media2.RemoteSessionPlayer;
 import androidx.media2.SessionPlayer;
 import androidx.media2.UriMediaItem;
+import androidx.media2.VideoSize;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
@@ -433,6 +435,12 @@ public class RoutePlayer extends RemoteSessionPlayer {
     @Override
     public int getShuffleMode() {
         return SessionPlayer.SHUFFLE_MODE_NONE;
+    }
+
+    @Override
+    @NonNull
+    public VideoSize getVideoSize() {
+        return new VideoSize(0, 0);
     }
 
     @Override

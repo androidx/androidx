@@ -16,6 +16,7 @@
 
 package androidx.media2;
 
+import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 
@@ -46,6 +47,7 @@ public class MockPlayer extends SessionPlayer {
     public @PlayerState int mLastPlayerState;
     public @BuffState int mLastBufferingState;
     public long mDuration;
+    public VideoSize mVideoSize;
 
     public List<MediaItem> mPlaylist;
     public MediaMetadata mMetadata;
@@ -257,6 +259,15 @@ public class MockPlayer extends SessionPlayer {
             mCountDownLatch.countDown();
         }
         return new SyncListenableFuture(mCurrentMediaItem);
+    }
+
+    @Override
+    @NonNull
+    public VideoSize getVideoSize() {
+        if (mVideoSize == null) {
+            return new VideoSize(0, 0);
+        }
+        return mVideoSize;
     }
 
     /////////////////////////////////////////////////////////////////////////////////
