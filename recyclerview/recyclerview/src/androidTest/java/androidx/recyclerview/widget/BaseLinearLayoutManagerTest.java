@@ -99,8 +99,10 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
                 ? new TestAdapter(config.mItemCount, childLayoutParams)
                 : config.mTestAdapter;
         mRecyclerView.setAdapter(mTestAdapter);
-        mLayoutManager = new WrappedLinearLayoutManager(getActivity(), config.mOrientation,
-            config.mReverseLayout);
+        mLayoutManager = config.mTestLayoutManager == null
+                ? new WrappedLinearLayoutManager(
+                        getActivity(), config.mOrientation, config.mReverseLayout)
+                : config.mTestLayoutManager;
         mLayoutManager.setStackFromEnd(config.mStackFromEnd);
         mLayoutManager.setRecycleChildrenOnDetach(config.mRecycleChildrenOnDetach);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -289,6 +291,8 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
         TestAdapter mTestAdapter;
 
+        WrappedLinearLayoutManager mTestLayoutManager;
+
         Config(int orientation, boolean reverseLayout, boolean stackFromEnd) {
             mOrientation = orientation;
             mReverseLayout = reverseLayout;
@@ -378,7 +382,6 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
         };
 
         RecyclerView.OnScrollListener mCallbackListener = new RecyclerView.OnScrollListener() {
-
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
