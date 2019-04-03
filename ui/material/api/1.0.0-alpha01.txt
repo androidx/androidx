@@ -33,7 +33,7 @@ package androidx.ui.material {
   public final class ButtonKt {
     ctor public ButtonKt();
     method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Button(String text, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
+    method public static void Button(String text, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle>? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
   }
 
   public final class CheckboxKt {
@@ -142,11 +142,7 @@ package androidx.ui.material {
 
   public final class TextKt {
     ctor public TextKt();
-    method public static void Body1TextStyle(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void ButtonTextStyle(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void H1TextStyle(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void TextColor(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color> color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void TextColorForBackground(androidx.ui.painting.Color background, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void StyledText(String text, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle> style);
     method public static com.google.r4a.Effect<androidx.ui.painting.Color> textColorForBackground(androidx.ui.painting.Color background);
   }
 

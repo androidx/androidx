@@ -19,14 +19,11 @@ package androidx.ui.material.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.Text
-import androidx.ui.material.H1TextStyle
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.StyledText
 import androidx.ui.painting.Color
-import androidx.ui.painting.TextSpan
-import androidx.ui.painting.TextStyle
-import com.google.r4a.setContent
 import com.google.r4a.composer
+import com.google.r4a.setContent
 
 open class TextActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,14 +31,12 @@ open class TextActivity : Activity() {
         setContent {
             <CraneWrapper>
                 <MaterialTheme>
-                    <H1TextStyle>
-                        <Text text=TextSpan(
-                            text = "Hello",
-                            style=TextStyle(
-                                color = Color(0xFFFF0000.toInt())
-                            )) />
-                    </H1TextStyle>
+                    val textColor = Color(0xFFFF0000.toInt())
+                    <StyledText
+                        text="Hello"
+                        style={ h1.copy(color = textColor)} />
                 </MaterialTheme>
-            </CraneWrapper> }
+            </CraneWrapper>
+        }
     }
 }

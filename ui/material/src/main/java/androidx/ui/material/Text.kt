@@ -16,11 +16,10 @@
 
 package androidx.ui.material
 
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Text
 import androidx.ui.painting.Color
+import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
-import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.ambient
 import com.google.r4a.composer
@@ -28,66 +27,18 @@ import com.google.r4a.effectOf
 import com.google.r4a.unaryPlus
 
 /**
- * Applies [MaterialTypography.h1] for children [Text] components.
- */
-@Composable
-fun H1TextStyle(@Children children: () -> Unit) {
-    <CurrentTextStyleProvider value=+themeTextStyle { h1 }>
-        <children />
-    </CurrentTextStyleProvider>
-}
-
-/**
- * Applies [MaterialTypography.body1] for children [Text] components.
- */
-@Composable
-fun Body1TextStyle(@Children children: () -> Unit) {
-    <CurrentTextStyleProvider value=+themeTextStyle { body1 }>
-        <children />
-    </CurrentTextStyleProvider>
-}
-
-/**
- * Applies [MaterialTypography.button] for children [Text] components.
- */
-@Composable
-fun ButtonTextStyle(@Children children: () -> Unit) {
-    <CurrentTextStyleProvider value=+themeTextStyle { button }>
-        <children />
-    </CurrentTextStyleProvider>
-}
-
-/**
- * Applies color for children [Text] components.
- */
-@Composable
-fun TextColor(
-    color: (MaterialColors.() -> Color),
-    @Children children: () -> Unit
-) {
-    val value = TextStyle(color = (+ambient(Colors)).color())
-    <CurrentTextStyleProvider value>
-        <children />
-    </CurrentTextStyleProvider>
-}
-
-/**
- * Applies color for children [Text] components.
+ * Version of [Text] which allows you to specify a text style based on the
+ * styles from the [MaterialTypography].
  *
- * Tries to match the background color to correlated text color. For example,
- * on [MaterialColors.primary] background [MaterialColors.onPrimary] will be used.
+ * Example:
+ *     <StyledText text="Hello" style={ h1 } />
  *
- * @see textColorForBackground
+ * @param text The text to display.
+ * @param style The text style selector from the [MaterialTypography].
  */
 @Composable
-fun TextColorForBackground(
-    background: Color,
-    @Children children: () -> Unit
-) {
-    val value = TextStyle(color = +textColorForBackground(background))
-    <CurrentTextStyleProvider value>
-        <children />
-    </CurrentTextStyleProvider>
+fun StyledText(text: String, style: (MaterialTypography.() -> TextStyle)) {
+    <Text text=TextSpan(text = text, style = +themeTextStyle(style)) />
 }
 
 /**
