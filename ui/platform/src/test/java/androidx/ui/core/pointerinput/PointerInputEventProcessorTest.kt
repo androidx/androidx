@@ -1228,12 +1228,14 @@ class PointerInputEventProcessorTest {
 
     // Private helpers
 
+    @Suppress("TestFunctionName")
     private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int) =
-        LayoutNode().apply {
+        androidx.ui.core.LayoutNode().apply {
             moveTo(x.ipx, y.ipx)
             resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
         }
 
+    @Suppress("TestFunctionName")
     private fun PointerInputEventData(
         id: Int,
         timestamp: Timestamp,
@@ -1244,6 +1246,7 @@ class PointerInputEventProcessorTest {
         return PointerInputEventData(id, pointerInputData)
     }
 
+    @Suppress("TestFunctionName")
     private fun PointerInputEvent(
         id: Int,
         timestamp: Timestamp,
@@ -1254,12 +1257,5 @@ class PointerInputEventProcessorTest {
             timestamp,
             listOf(PointerInputEventData(id, timestamp, position, down))
         )
-    }
-
-    private open inner class MyPointerInputHandler() :
-        Function2<PointerInputChange, PointerEventPass, PointerInputChange> {
-        override fun invoke(p1: PointerInputChange, p2: PointerEventPass): PointerInputChange {
-            return p1
-        }
     }
 }
