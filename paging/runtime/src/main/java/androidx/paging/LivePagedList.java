@@ -32,7 +32,7 @@ class LivePagedList<Key, Value> extends LiveData<PagedList<Value>>
     private final PagedList.Config mConfig;
 
     @Nullable
-    private final PagedList.BoundaryCallback mBoundaryCallback;
+    private final PagedList.BoundaryCallback<Value> mBoundaryCallback;
 
     @NonNull
     private final DataSource.Factory<Key, Value> mDataSourceFactory;
@@ -73,7 +73,7 @@ class LivePagedList<Key, Value> extends LiveData<PagedList<Value>>
     LivePagedList(
             @Nullable Key initialKey,
             @NonNull PagedList.Config config,
-            @Nullable PagedList.BoundaryCallback boundaryCallback,
+            @Nullable PagedList.BoundaryCallback<Value> boundaryCallback,
             @NonNull DataSource.Factory<Key, Value> dataSourceFactory,
             @NonNull Executor notifyExecutor,
             @NonNull Executor fetchExecutor) {
@@ -91,6 +91,7 @@ class LivePagedList<Key, Value> extends LiveData<PagedList<Value>>
         next.setRetryCallback(mRefreshRetryCallback);
     }
 
+    @SuppressWarnings("unchecked") // getLastKey guaranteed to be of 'Key' type
     @NonNull
     private ListenableFuture<PagedList<Value>> getListenableFuture() {
         DataSource<Key, Value> dataSource = mDataSourceFactory.create();
@@ -98,7 +99,7 @@ class LivePagedList<Key, Value> extends LiveData<PagedList<Value>>
         dataSource.addInvalidatedCallback(mCallback);
 
         mCurrentData.setInitialLoadState(PagedList.LoadState.LOADING, null);
-        //noinspection unchecked
+
         return PagedList.create(
                 dataSource,
                 mNotifyExecutor,
