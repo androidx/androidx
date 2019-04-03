@@ -338,6 +338,12 @@ interface BooksDao {
     @Query("SELECT dateOfBirth FROM author WHERE authorId = :authorId")
     suspend fun getAuthorDateOfBirths(authorId: String): Date
 
+    @Query("SELECT * FROM author WHERE dateOfBirth IN (:dates)")
+    fun getAuthorsWithBirthDatesList(dates: List<Date>): List<Author>
+
+    @Query("SELECT * FROM author WHERE dateOfBirth IN (:dates)")
+    fun getAuthorsWithBirthDatesVararg(vararg dates: Date): List<Author>
+
     // see: b/123767877, suspend function with inner class as parameter issues.
     @Query("SELECT 0 FROM book WHERE bookId = :param")
     suspend fun getZero(param: AnswerConverter.Answer): Int
