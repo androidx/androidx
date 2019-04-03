@@ -31,6 +31,7 @@ import androidx.ui.material.ripple.BoundedRipple
 import androidx.ui.material.surface.Surface
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
+import androidx.ui.painting.TextStyle
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -57,57 +58,46 @@ import com.google.r4a.unaryPlus
  *     </Button>
  *
  * @see Button overload for the default Material Design implementation of [Button] with text.
+ *
+ * @param onClick Will be called when user clicked on the button.
+ * @param enabled Defines the enabled state. The button will not be clickable when it set
+ *  to false or when [onClick] is null.
+ * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
+ *  the [Shapes.button] from [CurrentShapeAmbient].
+ * @param color The background color. When null is provided [MaterialColors.primary] is used.
+ * @param elevation The z-coordinate at which to place this button. This controls the size
+ *  of the shadow below the button.
  */
 @Composable
 fun Button(
-    /**
-     * Will be called when user clicked on the button
-     */
     onClick: (() -> Unit)? = null,
-    /**
-     * Defines the enabled state.
-     * The button will not be clickable when it set to false or when [onClick] is null.
-     */
     enabled: Boolean = true,
-    /**
-     * Defines the Button's shape as well its shadow.
-     *
-     * When null is provided it uses the [Shapes.button] from [CurrentShapeAmbient].
-     */
     shape: ShapeBorder? = null,
-    /**
-     * The background color.
-     *
-     * When null is provided it uses the [MaterialColors.primary] color.
-     */
     color: Color? = null,
-    /**
-     * The z-coordinate at which to place this button. This controls the size
-     * of the shadow below the button.
-     */
     elevation: Dp = 0.dp,
     @Children children: () -> Unit
 ) {
     val surfaceColor = +color.orFromTheme { primary }
     val surfaceShape = +shape.orFromTheme { button }
-    val clickableChildren = @Composable {
-        <Clickable enabled onClick>
-            <children />
-        </Clickable>
-    }
-    <ButtonTextStyle>
-        <TextColorForBackground background=surfaceColor>
-            <Surface shape=surfaceShape color=surfaceColor elevation>
-                if (enabled && onClick != null) {
-                    <BoundedRipple>
-                        <clickableChildren />
-                    </BoundedRipple>
-                } else {
+    val textStyle = (+themeTextStyle { button }).copy(
+        color = +textColorForBackground(surfaceColor)
+    )
+    <CurrentTextStyleProvider value=textStyle>
+        <Surface shape=surfaceShape color=surfaceColor elevation>
+            val clickableChildren = @Composable {
+                <Clickable enabled onClick>
+                    <children />
+                </Clickable>
+            }
+            if (enabled && onClick != null) {
+                <BoundedRipple>
                     <clickableChildren />
-                }
-            </Surface>
-        </TextColorForBackground>
-    </ButtonTextStyle>
+                </BoundedRipple>
+            } else {
+                <clickableChildren />
+            }
+        </Surface>
+    </CurrentTextStyleProvider>
 }
 
 /**
@@ -126,38 +116,26 @@ fun Button(
  *         text="TEXT") />
  *
  * @see Button for the flexible implementation with a customizable content.
+ *
+ * @param text The text to display.
+ * @param textStyle The optional text style selector from the [MaterialTypography].
+ * @param onClick Will be called when user clicked on the button.
+ * @param enabled Defines the enabled state. The button will not be clickable when it set
+ *  to false or when [onClick] is null.
+ * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
+ *  the [Shapes.button] from [CurrentShapeAmbient].
+ * @param color The background color. When null is provided [MaterialColors.primary] is used.
+ * @param elevation The z-coordinate at which to place this button. This controls the size
+ *  of the shadow below the button.
  */
 @Composable
 fun Button(
-    /**
-     * The text to display.
-     */
     text: String,
-    /**
-     * Will be called when user clicked on the button
-     */
+    textStyle: (MaterialTypography.() -> TextStyle)? = null,
     onClick: (() -> Unit)? = null,
-    /**
-     * Defines the enabled state.
-     * The button will not be clickable when it set to false or when [onClick] is null.
-     */
     enabled: Boolean = true,
-    /**
-     * Defines the Button's shape as well its shadow.
-     *
-     * When null is provided it uses the [Shapes.button] from [CurrentShapeAmbient].
-     */
     shape: ShapeBorder? = null,
-    /**
-     * The background color.
-     *
-     * When null is provided it uses the [MaterialColors.primary] color.
-     */
     color: Color? = null,
-    /**
-     * The z-coordinate at which to place this button. This controls the size
-     * of the shadow below the button.
-     */
     elevation: Dp = 0.dp
 ) {
     val surfaceColor = +color.orFromTheme { primary }
@@ -186,7 +164,8 @@ fun Button(
                 placeable.place(leftOffset, topOffset)
             }
         }>
-            <Text text=TextSpan(text = text) />
+            val style = textStyle?.let { +themeTextStyle(it) }
+            <Text text=TextSpan(text = text, style = style) />
         </Layout>
     </Button>
 }

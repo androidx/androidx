@@ -244,10 +244,6 @@ fun MaterialRippleTheme(@Children children: () -> Unit) {
 
 /**
  * Helps to resolve the [TextStyle] by applying [choosingBlock] for the current [Typography].
- *
- * If you specify [background] text color will try to match the correlated color. For example,
- * on [MaterialColors.primary] background [MaterialColors.onPrimary] will be used.
- * If matching is failed [fallbackTextColor] will be used.
  */
 @CheckResult(suggest = "+")
 fun themeTextStyle(

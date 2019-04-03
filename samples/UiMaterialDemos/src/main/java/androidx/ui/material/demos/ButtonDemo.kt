@@ -71,11 +71,17 @@ fun ButtonDemo() {
                             )
                         )
                     }
+
                     <Button
                         onClick
                         color=Color.Transparent
                         shape=outlinedShape
                         text="OUTLINED" />
+
+                    <Button
+                        onClick
+                        text="CUSTOM STYLE"
+                        textStyle={ body2.copy(color = Color(0xFFFFFF00.toInt()))} />
 
                     <Button onClick>
                         <Padding padding=EdgeInsets(16.dp)>
