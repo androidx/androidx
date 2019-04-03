@@ -512,7 +512,8 @@ class TypeAdapterStore private constructor(
         if (MoreTypes.isType(typeMirror) && typeUtils.isAssignable(typeMirror,
                 typeUtils.erasure(context.COMMON_TYPES.COLLECTION))) {
             val declared = MoreTypes.asDeclared(typeMirror)
-            val binder = findStatementValueBinder(declared.typeArguments.first(), null)
+            val binder = findStatementValueBinder(
+                declared.typeArguments.first().extendsBoundOrSelf(), null)
             if (binder != null) {
                 return CollectionQueryParameterAdapter(binder)
             } else {
