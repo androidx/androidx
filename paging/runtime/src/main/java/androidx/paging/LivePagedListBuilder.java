@@ -41,7 +41,7 @@ public final class LivePagedListBuilder<Key, Value> {
     private Key mInitialLoadKey;
     private PagedList.Config mConfig;
     private DataSource.Factory<Key, Value> mDataSourceFactory;
-    private PagedList.BoundaryCallback mBoundaryCallback;
+    private PagedList.BoundaryCallback<Value> mBoundaryCallback;
     @SuppressLint("RestrictedApi")
     private Executor mFetchExecutor = ArchTaskExecutor.getIOThreadExecutor();
 
