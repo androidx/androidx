@@ -47,7 +47,7 @@ public class FragmentFactory {
         Class<?> clazz = sClassMap.get(className);
         if (clazz == null) {
             // Class not found in the cache, see if it's real, and try to add it
-            clazz = classLoader.loadClass(className);
+            clazz = Class.forName(className, false, classLoader);
             sClassMap.put(className, clazz);
         }
         return clazz;
@@ -73,7 +73,7 @@ public class FragmentFactory {
 
     /**
      * Parse a Fragment Class from the given class name. The resulting Class is kept in a global
-     * cache, bypassing the {@link ClassLoader#loadClass(String)} calls when passed the same
+     * cache, bypassing the {@link Class#forName(String)} calls when passed the same
      * class name again.
      *
      * @param classLoader The default classloader to use for loading the Class

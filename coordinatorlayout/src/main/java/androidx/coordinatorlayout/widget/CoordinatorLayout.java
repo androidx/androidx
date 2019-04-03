@@ -621,8 +621,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
             }
             Constructor<Behavior> c = constructors.get(fullName);
             if (c == null) {
-                final Class<Behavior> clazz = (Class<Behavior>) context.getClassLoader()
-                        .loadClass(fullName);
+                final Class<Behavior> clazz =
+                        (Class<Behavior>) Class.forName(fullName, false, context.getClassLoader());
                 c = clazz.getConstructor(CONSTRUCTOR_PARAMS);
                 c.setAccessible(true);
                 constructors.put(fullName, c);
