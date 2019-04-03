@@ -83,7 +83,9 @@ public class PagerSnapHelperTest extends BaseLinearLayoutManagerTest {
         for (Config config : configs) {
             for (boolean reverseScroll : new boolean[] {false, true}) {
                 for (ChildSize childSize : ChildSize.values()) {
-                    result.add(new Object[]{config, reverseScroll, childSize});
+                    if (!config.mWrap) {
+                        result.add(new Object[]{config, reverseScroll, childSize});
+                    }
                 }
             }
         }
