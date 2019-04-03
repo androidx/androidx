@@ -278,6 +278,7 @@ class NotificationCompatJellybean {
                 data.getCharSequence(KEY_LABEL),
                 data.getCharSequenceArray(KEY_CHOICES),
                 data.getBoolean(KEY_ALLOW_FREE_FORM_INPUT),
+                RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO, // Tap-to-edit is only supported on Q+
                 data.getBundle(KEY_EXTRAS),
                 allowedDataTypes);
     }

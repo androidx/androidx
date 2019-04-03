@@ -4860,6 +4860,7 @@ public class NotificationCompat {
                     remoteInput.getLabel(),
                     remoteInput.getChoices(),
                     remoteInput.getAllowFreeFormInput(),
+                    remoteInput.getEditChoicesBeforeSending(),
                     remoteInput.getExtras(),
                     null /* allowedDataTypes */)
                     : null;
@@ -5251,7 +5252,8 @@ public class NotificationCompat {
             for (int i = 0; i < srcArray.length; i++) {
                 android.app.RemoteInput src = srcArray[i];
                 remoteInputs[i] = new RemoteInput(src.getResultKey(), src.getLabel(),
-                        src.getChoices(), src.getAllowFreeFormInput(), src.getExtras(), null);
+                        src.getChoices(), src.getAllowFreeFormInput(),
+                        src.getEditChoicesBeforeSending(), src.getExtras(), null);
             }
         }
 

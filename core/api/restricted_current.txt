@@ -101,6 +101,9 @@ package androidx.core.app {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public CharSequence! mTitle;
   }
 
+  @IntDef({androidx.core.app.RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO, androidx.core.app.RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED, androidx.core.app.RemoteInput.EDIT_CHOICES_BEFORE_SENDING_ENABLED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface RemoteInput.EditChoicesBeforeSending {
+  }
+
   @IntDef({androidx.core.app.RemoteInput.SOURCE_FREE_FORM_INPUT, androidx.core.app.RemoteInput.SOURCE_CHOICE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface RemoteInput.Source {
   }
 
