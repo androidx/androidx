@@ -16,7 +16,6 @@
 
 package androidx.animation
 
-import android.view.animation.LinearInterpolator
 import androidx.ui.painting.Color
 import kotlin.experimental.ExperimentalTypeInference
 
@@ -32,7 +31,7 @@ import kotlin.experimental.ExperimentalTypeInference
  * ```
  *  transition(fromState = ButtonState.Released, toState = ButtonState.Pressed) {
  *      radius using tween {
- *          interpolator = LinearInterpolator()
+ *          easing = LinearEasing
  *          duration = 75
  *      }
  *      alpha using keyframes {
@@ -256,7 +255,7 @@ private val example = transitionDefinition {
 
     transition(fromState = ButtonState.Released, toState = ButtonState.Pressed) {
         background using tween {
-            interpolator = LinearInterpolator()
+            easing = LinearEasing
             duration = 75 // TODO: support time unit
         }
         alpha using keyframes {
@@ -276,7 +275,7 @@ private val example = transitionDefinition {
         //
 //        // TODO: how do we define sequential tween, alpha then radius snap
 //        alpha using tween {
-//            interpolator = LinearInterpolator()
+//            easing = LinearEasing
 //            duration = 150
 //            onAnimationEnd {
 //                // TODO: Does this look better as its own entry?

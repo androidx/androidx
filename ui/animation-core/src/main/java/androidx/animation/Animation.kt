@@ -16,10 +16,8 @@
 
 package androidx.animation
 
-import android.animation.TimeInterpolator
 import androidx.animation.Physics.Companion.DampingRatioNoBouncy
 import androidx.animation.Physics.Companion.StiffnessVeryLow
-import kotlin.math.max
 
 const val DEBUG = false
 
@@ -148,14 +146,14 @@ internal class Keyframes<T>(
 }
 
 /**
- * [Tween] is responsible for animating from one value to another using a provided easing curve.
+ * [Tween] is responsible for animating from one value to another using a provided easing easing.
  * The duration for such an animation can be adjusted via [duration]. The animation can be
  * delayed via [delay].
  */
 internal class Tween<T>(
     private val duration: Long,
     private val delay: Long = 0,
-    private val timeInterpolator: TimeInterpolator
+    private val easing: Easing
 ) : DiffBasedVelocityAnimation<T> {
 
     init {
@@ -181,10 +179,9 @@ internal class Tween<T>(
         startVelocity: Float,
         interpolator: (T, T, Float) -> T
     ): T {
-        val rawFraction =
-            if (duration == 0L) 1f
-            else max(0, playTime - delay) / duration.toFloat()
-        val fraction = timeInterpolator.getInterpolation(rawFraction)
+        val playTime: Long = (playTime - delay).coerceIn(0, duration)
+        val rawFraction = if (duration == 0L) 1f else playTime / duration.toFloat()
+        val fraction = easing(rawFraction)
         return interpolator(start, end, fraction)
     }
 }
