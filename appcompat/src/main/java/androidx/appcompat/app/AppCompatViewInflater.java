@@ -323,8 +323,10 @@ public class AppCompatViewInflater {
         try {
             if (constructor == null) {
                 // Class not found in the cache, see if it's real, and try to add it
-                Class<? extends View> clazz = context.getClassLoader().loadClass(
-                        prefix != null ? (prefix + name) : name).asSubclass(View.class);
+                Class<? extends View> clazz = Class.forName(
+                        prefix != null ? (prefix + name) : name,
+                        false,
+                        context.getClassLoader()).asSubclass(View.class);
 
                 constructor = clazz.getConstructor(sConstructorSignature);
                 sConstructorMap.put(name, constructor);
