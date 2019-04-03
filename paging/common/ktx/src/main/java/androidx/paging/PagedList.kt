@@ -42,6 +42,7 @@ fun <Key, Value> PagedList(
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     initialKey: Key? = null
 ): PagedList<Value> {
+    @Suppress("DEPRECATION")
     return PagedList.Builder(dataSource, config)
         .setNotifyExecutor(notifyExecutor)
         .setFetchExecutor(fetchExecutor)

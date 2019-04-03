@@ -314,7 +314,7 @@ public final class RxPagedListBuilder<Key, Value> {
             }
         }
 
-        @SuppressWarnings("unchecked") // for casting getLastKey to Key
+        @SuppressWarnings({"unchecked", "deprecation"}) // for getLastKey cast, and Builder.build()
         private PagedList<Value> createPagedList() {
             @Nullable Key initializeKey = mInitialLoadKey;
             if (mList != null) {
