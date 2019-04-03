@@ -29,6 +29,10 @@ package androidx.work {
     method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory);
   }
 
+  public static interface Configuration.Provider {
+    method public androidx.work.Configuration getWorkManagerConfiguration();
+  }
+
   public final class Constraints {
     ctor public Constraints(androidx.work.Constraints);
     method public androidx.work.NetworkType getRequiredNetworkType();
@@ -228,7 +232,8 @@ package androidx.work {
     method public abstract androidx.work.Operation enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
     method public androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
     method public abstract androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>);
-    method public static androidx.work.WorkManager getInstance();
+    method @Deprecated public static androidx.work.WorkManager getInstance();
+    method public static androidx.work.WorkManager getInstance(android.content.Context);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Long> getLastCancelAllTimeMillis();
     method public abstract androidx.lifecycle.LiveData<java.lang.Long> getLastCancelAllTimeMillisLiveData();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkInfo> getWorkInfoById(java.util.UUID);

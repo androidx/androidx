@@ -50,7 +50,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
     @Override
     public void onCreate() {
         super.onCreate();
-        mWorkManagerImpl = WorkManagerImpl.getInstance();
+        mWorkManagerImpl = WorkManagerImpl.getInstance(getApplicationContext());
         if (mWorkManagerImpl == null) {
             // This can occur if...
             // 1. The app is performing an auto-backup.  Prior to O, JobScheduler could erroneously

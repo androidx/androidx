@@ -19,8 +19,8 @@
  * <p>
  * This testing library provides a way to manually initialize WorkManager for tests by using
  * {@link androidx.work.testing.WorkManagerTestInitHelper}.  Once initialized, you can use
- * {@link androidx.work.testing.WorkManagerTestInitHelper#getTestDriver()} to drive constraints and
- * timing-related triggers for your background work.
+ * {@link androidx.work.testing.WorkManagerTestInitHelper#getTestDriver(android.content.Context)} to
+ * drive constraints and timing-related triggers for your background work.
  * <p>
  * For ease of testing, this library defaults to using a synchronous
  * {@link java.util.concurrent.Executor}; you can change this in the

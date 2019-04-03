@@ -188,7 +188,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
     public WorkDatabase getWorkDatabase() {
-        return WorkManagerImpl.getInstance().getWorkDatabase();
+        return WorkManagerImpl.getInstance(getApplicationContext()).getWorkDatabase();
     }
 
     /**
