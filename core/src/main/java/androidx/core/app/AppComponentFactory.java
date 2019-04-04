@@ -101,7 +101,8 @@ public class AppComponentFactory extends android.app.AppComponentFactory {
             @NonNull String className)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         try {
-            return (Application) cl.loadClass(className).getDeclaredConstructor().newInstance();
+            return (Application) Class.forName(className, false, cl)
+                    .getDeclaredConstructor().newInstance();
         } catch (InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException("Couldn't call constructor", e);
         }
@@ -124,7 +125,8 @@ public class AppComponentFactory extends android.app.AppComponentFactory {
             @NonNull String className, @Nullable Intent intent)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         try {
-            return (Activity) cl.loadClass(className).getDeclaredConstructor().newInstance();
+            return (Activity) Class.forName(className, false, cl)
+                    .getDeclaredConstructor().newInstance();
         } catch (InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException("Couldn't call constructor", e);
         }
@@ -143,8 +145,8 @@ public class AppComponentFactory extends android.app.AppComponentFactory {
             @NonNull String className, @Nullable Intent intent)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         try {
-            return (BroadcastReceiver) cl.loadClass(className).getDeclaredConstructor()
-                    .newInstance();
+            return (BroadcastReceiver) Class.forName(className, false, cl)
+                    .getDeclaredConstructor().newInstance();
         } catch (InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException("Couldn't call constructor", e);
         }
@@ -167,7 +169,8 @@ public class AppComponentFactory extends android.app.AppComponentFactory {
             @NonNull String className, @Nullable Intent intent)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         try {
-            return (Service) cl.loadClass(className).getDeclaredConstructor().newInstance();
+            return (Service) Class.forName(className, false, cl)
+                    .getDeclaredConstructor().newInstance();
         } catch (InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException("Couldn't call constructor", e);
         }
@@ -189,7 +192,8 @@ public class AppComponentFactory extends android.app.AppComponentFactory {
             @NonNull String className)
             throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         try {
-            return (ContentProvider) cl.loadClass(className).getDeclaredConstructor().newInstance();
+            return (ContentProvider) Class.forName(className, false, cl)
+                    .getDeclaredConstructor().newInstance();
         } catch (InvocationTargetException | NoSuchMethodException e) {
             throw new RuntimeException("Couldn't call constructor", e);
         }

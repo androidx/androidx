@@ -803,7 +803,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         classLoader = context.getClassLoader();
                     }
                     Class<? extends LayoutManager> layoutManagerClass =
-                            classLoader.loadClass(className).asSubclass(LayoutManager.class);
+                            Class.forName(className, false, classLoader)
+                                    .asSubclass(LayoutManager.class);
                     Constructor<? extends LayoutManager> constructor;
                     Object[] constructorArgs = null;
                     try {
