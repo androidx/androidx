@@ -17,6 +17,7 @@
 package androidx.ui.testutils
 
 import androidx.ui.core.ConsumedData
+import androidx.ui.core.Duration
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
@@ -39,10 +40,29 @@ fun down(
     )
 
 fun PointerInputChange.moveTo(timestamp: Timestamp, x: Float = 0f, y: Float = 0f) =
-    copy(previous = current, current = PointerInputData(timestamp, Offset(x, y), true))
+    copy(
+        previous = current,
+        current = PointerInputData(timestamp, Offset(x, y), true),
+        consumed = ConsumedData()
+    )
+
+fun PointerInputChange.moveBy(duration: Duration, dx: Float = 0f, dy: Float = 0f) =
+    copy(
+        previous = current,
+        current = PointerInputData(
+            current.timestamp!! + duration,
+            Offset(current.position!!.dx + dx, current.position.dy + dy),
+            true
+        ),
+        consumed = ConsumedData()
+    )
 
 fun PointerInputChange.up(timestamp: Timestamp) =
-    copy(previous = current, current = PointerInputData(timestamp, null, false))
+    copy(
+        previous = current,
+        current = PointerInputData(timestamp, null, false),
+        consumed = ConsumedData()
+    )
 
 fun PointerInputChange.consume(dx: Float = 0f, dy: Float = 0f, downChange: Boolean = false) =
     copy(

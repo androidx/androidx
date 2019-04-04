@@ -214,12 +214,54 @@ package androidx.ui.core {
     method public static void CraneWrapper(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method @CheckResult("+") public static com.google.r4a.Effect<androidx.ui.core.Density> ambientDensity();
     method public static com.google.r4a.Ambient<android.content.Context> getContextAmbient();
+    method public static com.google.r4a.Ambient<androidx.ui.core.Density> getDensityAmbient();
     method @CheckResult("+") public static <R> com.google.r4a.Effect<R> withDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,? extends R> block);
   }
 
 }
 
 package androidx.ui.core.gesture {
+
+  public final class ConstantsKt {
+    ctor public ConstantsKt();
+    method public static androidx.ui.core.Duration getDoubleTapMinTime();
+    method public static androidx.ui.core.Dp getDoubleTapSlop();
+    method public static androidx.ui.core.Duration getDoubleTapTimeout();
+    method public static androidx.ui.core.Dp getDoubleTapTouchSlop();
+    method public static androidx.ui.core.Dp getHoverTapSlop();
+    method public static androidx.ui.core.Duration getHoverTapTimeout();
+    method public static androidx.ui.core.Duration getJumpTapTimeout();
+    method public static androidx.ui.core.Duration getLongPressTimeout();
+    method public static androidx.ui.core.Dp getMaxFlingVelocity();
+    method public static androidx.ui.core.Dp getMinFlingVelocity();
+    method public static float getPagingTouchSlop();
+    method public static float getPanSlop();
+    method public static androidx.ui.core.Duration getPressTimeout();
+    method public static androidx.ui.core.Dp getScaleSlop();
+    method public static androidx.ui.core.Dp getTouchSlop();
+    method public static androidx.ui.core.Dp getWindowTouchSlop();
+    method public static androidx.ui.core.Duration getZoomControlsTimeout();
+  }
+
+  public final class DragGestureDetector extends com.google.r4a.Component {
+    ctor public DragGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void compose();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.Direction,java.lang.Boolean>? getCanDrag();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
+    method public androidx.ui.core.gesture.DragObserver? getDragObserver();
+    method public void setCanDrag(kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? value);
+    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+    method public void setDragObserver(androidx.ui.core.gesture.DragObserver? value);
+    property public final kotlin.jvm.functions.Function1<androidx.ui.core.Direction,java.lang.Boolean>? canDrag;
+    property public final androidx.ui.core.gesture.DragObserver? dragObserver;
+  }
+
+  public class DragObserver {
+    ctor public DragObserver();
+    method public androidx.ui.core.PxPosition onDrag(androidx.ui.core.PxPosition dragDistance);
+    method public void onStart();
+    method public void onStop(androidx.ui.core.PxPosition velocity);
+  }
 
   public final class PressGestureDetectorKt {
     ctor public PressGestureDetectorKt();
@@ -266,7 +308,7 @@ package androidx.ui.core.gesture.util {
   public final class VelocityTracker {
     ctor public VelocityTracker();
     method public void addPosition(androidx.ui.core.Timestamp time, androidx.ui.core.PxPosition position);
-    method public androidx.ui.core.Velocity calculateVelocity(androidx.ui.core.Px min = 0.0.px, androidx.ui.core.Px max = Float.MAX_VALUE.px);
+    method public androidx.ui.core.Velocity calculateVelocity();
     method public void resetTracking();
   }
 

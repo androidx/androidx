@@ -20,17 +20,22 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.PxPosition
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.PressGestureDetector
 import androidx.ui.core.dp
+import androidx.ui.core.Direction
+import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.min
 import androidx.ui.core.px
 import androidx.ui.core.toRect
+import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
@@ -124,34 +129,83 @@ fun Rectangles() {
 
 var small = false
 var pressed = false
+val MIN_VERTICAL_OFFSET = 0.dp
+val MAX_VERTICAL_OFFSET = 100.dp
+var verticalOffset = MIN_VERTICAL_OFFSET
 
 @Composable
 fun CraneRects() {
     <CraneWrapper>
-        <Recompose> recompose ->
-            val onPress: (PxPosition) -> Unit = {
-                pressed = true
-                recompose()
+        <DensityAmbient.Consumer> density ->
+            withDensity(density) {
+                <Recompose> recompose ->
+                    val onPress: (PxPosition) -> Unit = {
+                        pressed = true
+                        recompose()
+                    }
+
+                    val onRelease = {
+                        small = !small
+                        pressed = false
+                        recompose()
+                    }
+
+                    val onCancel = {
+                        pressed = false
+                        recompose()
+                    }
+
+                    val canDrag: ((Direction) -> Boolean) = { direction ->
+                        when (direction) {
+                            Direction.DOWN -> verticalOffset < MAX_VERTICAL_OFFSET
+                            Direction.UP -> verticalOffset > MIN_VERTICAL_OFFSET
+                            else -> false
+                        }
+                    }
+
+                    val dragObserver = object : DragObserver() {
+                        override fun onDrag(dragDistance: PxPosition): PxPosition {
+                            var consumedDy = dragDistance.y.toDp()
+                            verticalOffset += consumedDy
+                            if (verticalOffset > MAX_VERTICAL_OFFSET) {
+                                consumedDy -= verticalOffset - MAX_VERTICAL_OFFSET
+                                verticalOffset = MAX_VERTICAL_OFFSET
+                            } else if (verticalOffset < MIN_VERTICAL_OFFSET) {
+                                consumedDy -= verticalOffset + MAX_VERTICAL_OFFSET
+                                verticalOffset = MIN_VERTICAL_OFFSET
+                            }
+                            recompose()
+                            return PxPosition(0.px, consumedDy.toPx())
+                        }
+
+                        override fun onStop(velocity: PxPosition) {
+                            verticalOffset = when {
+                                velocity.y.value > 0 -> MAX_VERTICAL_OFFSET
+                                velocity.y.value < 0 -> MIN_VERTICAL_OFFSET
+                                else -> verticalOffset
+                            }
+                            recompose()
+                        }
+                    }
+
+                    val padding = if (pressed) 36.dp else if (small) 48.dp else 96.dp
+                    val topPadding = padding + verticalOffset
+                    val edgeInsets = EdgeInsets(
+                        left = padding,
+                        top = topPadding,
+                        right = padding,
+                        bottom = padding
+                    )
+
+                    <DragGestureDetector canDrag dragObserver>
+                        <Padding padding=edgeInsets>
+                            <PressGestureDetector onPress onRelease onCancel>
+                                <Rectangles />
+                            </PressGestureDetector>
+                        </Padding>
+                    </DragGestureDetector>
+                </Recompose>
             }
-
-            val onRelease = {
-                small = !small
-                pressed = false
-                recompose()
-            }
-
-            val onCancel = {
-                pressed = false
-                recompose()
-            }
-
-            val padding = if (pressed) 36.dp else if (small) 48.dp else 96.dp
-
-            <Padding padding=EdgeInsets(padding)>
-                <PressGestureDetector onPress onRelease onCancel>
-                    <Rectangles />
-                </PressGestureDetector>
-            </Padding>
-        </Recompose>
+        </DensityAmbient.Consumer>
     </CraneWrapper>
 }

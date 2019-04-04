@@ -75,7 +75,7 @@ fun CraneWrapper(@Children children: () -> Unit) {
 
 val ContextAmbient = Ambient.of<Context>()
 
-internal val DensityAmbient = Ambient.of<Density>()
+val DensityAmbient = Ambient.of<Density>()
 
 /**
  * [ambient] to get a [Density] object from an internal [DensityAmbient].
