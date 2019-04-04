@@ -25,9 +25,9 @@ import android.view.Surface;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.concurrent.futures.ResolvableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 
 import java.nio.IntBuffer;
 
@@ -117,7 +117,7 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
      */
     @Override
     public ListenableFuture<Surface> getSurface() {
-        final SettableFuture<Surface> deferredSurface = SettableFuture.create();
+        final ResolvableFuture<Surface> deferredSurface = ResolvableFuture.create();
         Runnable checkAndSetRunnable =
                 new Runnable() {
                     @Override

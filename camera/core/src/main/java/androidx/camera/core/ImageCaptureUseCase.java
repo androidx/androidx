@@ -44,6 +44,7 @@ import androidx.camera.core.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.CameraCaptureResult.EmptyCameraCaptureResult;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.concurrent.futures.ResolvableFuture;
 
 import com.google.common.base.Function;
 import com.google.common.util.concurrent.AsyncCallable;
@@ -52,7 +53,6 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 
 import java.io.File;
 import java.util.ArrayDeque;
@@ -815,7 +815,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
 
     /** Issues a take picture request. */
     ListenableFuture<Void> issueTakePicture() {
-        List<SettableFuture<Void>> futureList = new ArrayList<>();
+        List<ResolvableFuture<Void>> futureList = new ArrayList<>();
 
         for (CaptureStage captureStage : mCaptureBundle.getCaptureStages()) {
             CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
@@ -829,7 +829,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
 
             builder.setTag(captureStage.getCaptureRequestConfiguration().getTag());
 
-            final SettableFuture<Void> future = SettableFuture.create();
+            final ResolvableFuture<Void> future = ResolvableFuture.create();
             builder.setCameraCaptureCallback(new CameraCaptureCallbacks.ComboCameraCaptureCallback(
                     Arrays.asList(
                             new CameraCaptureCallback() {
@@ -1048,7 +1048,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
             final long startTimeInMs =
                     (timeoutInMs != NO_TIMEOUT) ? SystemClock.elapsedRealtime() : 0L;
 
-            final SettableFuture<T> future = SettableFuture.create();
+            final ResolvableFuture<T> future = ResolvableFuture.create();
             addListener(
                     new CaptureResultListener() {
                         @Override
