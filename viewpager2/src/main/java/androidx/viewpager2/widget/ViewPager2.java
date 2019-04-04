@@ -710,8 +710,13 @@ public final class ViewPager2 extends ViewGroup {
             if (!isUserInputEnabled()) {
                 info.removeAction(AccessibilityActionCompat.ACTION_SCROLL_BACKWARD);
                 info.removeAction(AccessibilityActionCompat.ACTION_SCROLL_FORWARD);
-                info.setScrollable(false);
+                removeScrollableFromNodeInfo(info);
             }
+        }
+
+        @SuppressWarnings("deprecation")
+        private void removeScrollableFromNodeInfo(@NonNull AccessibilityNodeInfoCompat info) {
+            info.setScrollable(false);
         }
     }
 
