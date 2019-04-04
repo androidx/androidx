@@ -20,7 +20,8 @@ import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension;
 
 plugins {
-    id("SupportJavaLibraryPlugin")
+    id("AndroidXPlugin")
+    id("java")
     id("kotlin")
 }
 
