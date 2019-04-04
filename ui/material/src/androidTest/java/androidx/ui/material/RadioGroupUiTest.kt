@@ -18,6 +18,7 @@ package androidx.ui.material
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.TestTag
 import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected
@@ -38,9 +39,9 @@ internal class RadioGroupSelectedState<T>(var selected: T)
 @RunWith(JUnit4::class)
 class RadioGroupUiTest : AndroidUiTestRunner() {
 
-    private val idOne = 1
-    private val idTwo = 2
-    private val idThree = 3
+    private val itemOne = "Bar"
+    private val itemTwo = "Foo"
+    private val itemThree = "Sap"
 
     private val unselectedRadioGroupItemSemantics = createFullSemantics(
         inMutuallyExclusiveGroup = true,
@@ -50,126 +51,139 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
         inMutuallyExclusiveGroup = true,
         selected = true
     )
-    private val options = mapOf(
-        idOne to "Bar",
-        idTwo to "Foo",
-        idThree to "Sap"
-    )
+    private val options = listOf(itemOne, itemTwo, itemThree)
 
     @Test
     fun radioGroupTest_defaultSemantics() {
-        val select = RadioGroupSelectedState(idOne)
+        val select = RadioGroupSelectedState(itemOne)
 
         setContent {
             <CraneWrapper>
                 <MaterialTheme>
-                    <RadioGroup
-                        options
-                        selectedOption=select.selected
-                        onOptionSelected={ select.selected = it } />
+                    <RadioGroup> options.forEach { item ->
+                        <TestTag tag=item>
+                            <RadioGroupTextItem
+                                text=item
+                                selected=(select.selected == item)
+                                onSelected={ select.selected = item } />
+                        </TestTag>
+                    }
+                    </RadioGroup>
                 </MaterialTheme>
             </CraneWrapper>
         }
 
-        findByTag(idOne.toString()).assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
-        findByTag(idTwo.toString()).assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
-        findByTag(idThree.toString()).assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+        findByTag(itemOne).assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
+        findByTag(itemTwo).assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+        findByTag(itemThree).assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
 
-        findByTag(idOne.toString())
+        findByTag(itemOne)
             .assertIsInMutuallyExclusiveGroup()
             .assertIsSelected(true)
-        findByTag(idTwo.toString())
+        findByTag(itemTwo)
             .assertIsInMutuallyExclusiveGroup()
             .assertIsSelected(false)
-        findByTag(idThree.toString())
+        findByTag(itemThree)
             .assertIsInMutuallyExclusiveGroup()
             .assertIsSelected(false)
     }
 
     @Test
     fun radioGroupTest_ensureUnselectable() {
-        val select = RadioGroupSelectedState(idOne)
+        val select = RadioGroupSelectedState(itemOne)
 
         setContent {
             <CraneWrapper>
                 <MaterialTheme>
-                    <RadioGroup
-                        options
-                        selectedOption=select.selected
-                        onOptionSelected={ select.selected = it } />
+                    <RadioGroup> options.forEach { item ->
+                        <TestTag tag=item>
+                            <RadioGroupTextItem
+                                text=item
+                                selected=(select.selected == item)
+                                onSelected={ select.selected = item } />
+                        </TestTag>
+                    }
                 </MaterialTheme>
             </CraneWrapper>
         }
 
-        findByTag(idOne.toString())
+        findByTag(itemOne)
             .assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
             .doClick()
             .assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
 
-        findByTag(idTwo.toString())
+        findByTag(itemTwo)
             .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
 
-        findByTag(idThree.toString())
+        findByTag(itemThree)
             .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
     }
 
     @Test
     fun radioGroupTest_clickSelect() {
-        val select = RadioGroupSelectedState(idOne)
+        val select = RadioGroupSelectedState(itemOne)
         setContent {
             <CraneWrapper>
                 <MaterialTheme>
-                    <RadioGroup
-                        options
-                        selectedOption=select.selected
-                        onOptionSelected={ select.selected = it } />
+                    <RadioGroup> options.forEach { item ->
+                        <TestTag tag=item>
+                            <RadioGroupTextItem
+                                text=item
+                                selected=(select.selected == item)
+                                onSelected={ select.selected = item } />
+                        </TestTag>
+                    }
                 </MaterialTheme>
             </CraneWrapper>
         }
-        findByTag(idTwo.toString())
+        findByTag(itemTwo)
             .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
             .doClick()
             .assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
 
-        findByTag(idOne.toString())
+        findByTag(itemOne)
             .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
 
-        findByTag(idThree.toString())
+        findByTag(itemThree)
             .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
     }
 
     @Test
     fun radioGroupTest_clickSelectTwoDifferentItems() {
-        val select = RadioGroupSelectedState(idOne)
+        val select = RadioGroupSelectedState(itemOne)
 
         setContent {
             <CraneWrapper>
                 <MaterialTheme>
-                    <RadioGroup
-                        options
-                        selectedOption=select.selected
-                        onOptionSelected={ select.selected = it } />
+                    <RadioGroup> options.forEach { item ->
+                        <TestTag tag=item>
+                            <RadioGroupTextItem
+                                text=item
+                                selected=(select.selected == item)
+                                onSelected={ select.selected = item } />
+                        </TestTag>
+                    }
                 </MaterialTheme>
             </CraneWrapper>
         }
 
-        findByTag(idTwo.toString())
+        findByTag(itemTwo)
             .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
             .doClick()
             .assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
 
-        findByTag(idOne.toString())
+        findByTag(itemOne)
             .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
 
-        findByTag(idThree.toString())
+        findByTag(itemThree)
             .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
             .doClick()
             .assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
 
-        findByTag(idOne.toString())
+        findByTag(itemOne)
             .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
 
-        findByTag(idTwo.toString())
+        findByTag(itemTwo)
             .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
     }
 }

@@ -12,7 +12,7 @@ package androidx.ui.baseui.selection {
 
   public final class MutuallyExclusiveSetItemKt {
     ctor public MutuallyExclusiveSetItemKt();
-    method public static <K> void MutuallyExclusiveSetItem(K! key, boolean selected, kotlin.jvm.functions.Function1<? super K,kotlin.Unit> onSelected, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ToggleableKt {
@@ -120,12 +120,13 @@ package androidx.ui.material {
   public final class RadioButtonKt {
     ctor public RadioButtonKt();
     method public static void RadioButton(boolean selected, androidx.ui.painting.Color? color = null);
-    method public static <K> void RadioGroup(java.util.List<? extends K> options, K! selectedOption, kotlin.jvm.functions.Function1<? super K,kotlin.Unit> onOptionSelected, kotlin.jvm.functions.Function3<? super androidx.ui.material.RadioGroupScope,? super K,? super java.lang.Boolean,kotlin.Unit> children);
-    method public static <K> void RadioGroup(java.util.Map<K,java.lang.String> options, K! selectedOption, kotlin.jvm.functions.Function1<? super K,kotlin.Unit> onOptionSelected, androidx.ui.core.Dp labelOffset = androidx.ui.material.RadioButtonKt.DefaultRadioLabelOffset, androidx.ui.painting.Color? radioColor = null, androidx.ui.painting.TextStyle? textStyle = null);
+    method public static void RadioGroup(kotlin.jvm.functions.Function1<? super androidx.ui.material.RadioGroupScope,kotlin.Unit> children);
+    method public static void RadioGroup(java.util.List<java.lang.String> options, String? selectedOption, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onOptionSelected, androidx.ui.painting.Color? radioColor = null, androidx.ui.painting.TextStyle? textStyle = null);
   }
 
   public final class RadioGroupScope {
-    method public void RadioTextItem(boolean isSelected, String text, androidx.ui.core.Dp labelOffset = androidx.ui.material.RadioButtonKt.DefaultRadioLabelOffset, androidx.ui.painting.Color? radioColor = null, androidx.ui.painting.TextStyle? textStyle = null);
+    method public void RadioGroupItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void RadioGroupTextItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, String text, androidx.ui.painting.Color? radioColor = null, androidx.ui.painting.TextStyle? textStyle = null);
   }
 
   public final class Shapes {

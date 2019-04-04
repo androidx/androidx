@@ -16,6 +16,10 @@
 
 package androidx.ui.material
 
+import androidx.animation.ColorPropKey
+import androidx.animation.DpPropKey
+import androidx.animation.transitionDefinition
+import androidx.ui.animation.Transition
 import androidx.ui.baseui.selection.MutuallyExclusiveSetItem
 import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Dp
@@ -27,6 +31,10 @@ import androidx.ui.core.dp
 import androidx.ui.core.max
 import androidx.ui.core.min
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.engine.geometry.RRect
+import androidx.ui.engine.geometry.Radius
+import androidx.ui.engine.geometry.shift
+import androidx.ui.engine.geometry.shrink
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.MainAxisAlignment
@@ -37,7 +45,6 @@ import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
-import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -46,120 +53,136 @@ import com.google.r4a.composer
 import com.google.r4a.memo
 import com.google.r4a.unaryPlus
 
-// TODO(malkov): need to support case when no radio buttons selected
 /**
  * Components for creating mutually exclusive set of [RadioButton]s.
- * Because of the nature of mutually exclusive set, when radio button is checked,
- * it can't be unchecked by being pressed again. This component guarantees
- * that there always will be only one selected item at a time.
+ * Because of the nature of mutually exclusive set, when radio button is selected,
+ * it can't be unselected by being pressed again.
  *
- * The selection identified by unique key, parametrized as [K] and onOptionSelected
- * callback invoked when new child was selected
+ * Typical children for RadioGroup will be [RadioGroupScope.RadioGroupItem] and following usage:
  *
- * Typical children for RadioGroup will be [RadioGroup.Item] and following usage:
- *
- *     <RadioGroup ...> key, isSelected ->
- *         <RadioGroupItem text=key.toString() isSelected>
+ *     <RadioGroup> options.forEach { item ->
+ *         <RadioGroupTextItem text=item.toString() selected=... onSelected={...}/>
+ *      }
  *     </RadioGroup>
  *
  * If you want a simplest ready-to-use version, consider using
  *     <RadioGroup .../>
  * without children
- *
- * @param options id to value container to provide data for every RadioButton option
- * @param selectedOption id of type [K] which represent selected RadioButton option
- * @param onOptionSelected callback to be invoked when RadioButton item is selected
- * @param children components to draw ui horizontally after RadioButton based on value V
  */
 @Composable
-fun <K> RadioGroup(
-    options: List<K>,
-    selectedOption: K,
-    onOptionSelected: (key: K) -> Unit,
-    @Children children: RadioGroupScope.(key: K, isSelected: Boolean) -> Unit
+fun RadioGroup(
+    @Children children: RadioGroupScope.() -> Unit
 ) {
     val scope = +memo { RadioGroupScope() }
-    <Column mainAxisSize=MainAxisSize.Min> options.forEach { key ->
-        val selected = selectedOption == key
-        <MutuallyExclusiveSetItem
-            key=key
-            selected
-            onSelected={ onOptionSelected(it) }>
-            <children p1=scope key=key isSelected=selected />
-        </MutuallyExclusiveSetItem>
-    }
+    <Column mainAxisSize=MainAxisSize.Min>
+        <children p1=scope />
     </Column>
 }
 
 /**
  * Components for creating mutually exclusive set of [RadioButton]
  * as well as text label for this RadioButtons.
- * Because of the nature of mutually exclusive set, when radio button is checked,
- * it can't be unchecked by being pressed again. This component guarantees
- * that there always will be only one selected RadioButton at a time
+ * Because of the nature of mutually exclusive set, when radio button is selected,
+ * it can't be unselected by being pressed again. This component guarantees
+ * that there will be only one or none selected RadioButton at a time
  *
  * This component is ready to use without children being passed and it uses
- * RadioGroupItem as a child implementation
+ * [RadioGroupScope.RadioGroupTextItem] as a child implementation
  *
- * The selection identified by unique key, parametrized as [K] and onSelectedChanged
- * callback invoked when new RadioButton was selected
- *
- * @param options id to text container to provide RadioButtons id and label
- * @param selectedOption id of type K which represent selected RadioButton
+ * @param options list of [String] to provide RadioButtons label
+ * @param selectedOption label which represents selected RadioButton,
+ * or [null] if nothing is selected
  * @param onOptionSelected callback to be invoked when RadioButton is selected
- * @param radioStyle parameters for RadioButtons customization
+ * @param radioColor color for RadioButtons when selected
  * @param textStyle parameters for text customization
  */
 @Composable
-fun <K> RadioGroup(
-    options: Map<K, String>,
-    selectedOption: K,
-    onOptionSelected: (K) -> Unit,
-    labelOffset: Dp = DefaultRadioLabelOffset,
+fun RadioGroup(
+    options: List<String>,
+    selectedOption: String?,
+    onOptionSelected: (String) -> Unit,
     radioColor: Color? = null,
     textStyle: TextStyle? = null
 ) {
-    val keys = +memo(options) { options.keys.toList() }
-    <RadioGroup options=keys selectedOption onOptionSelected> key, isSelected ->
-        val text = options[key]!!
-        <Padding padding=EdgeInsets(DefaultRadioItemPadding)>
-            <RadioTextItem text isSelected labelOffset radioColor textStyle />
-        </Padding>
+    <RadioGroup> options.forEach { text ->
+        <RadioGroupTextItem
+            selected=(text == selectedOption)
+            onSelected={ onOptionSelected(text) }
+            text
+            radioColor
+            textStyle />
+    }
     </RadioGroup>
 }
 
 class RadioGroupScope internal constructor() {
+
+    /**
+     * Basic item to be used inside [RadioGroup].
+     *
+     * This component provides basic radio item behavior such as
+     * clicks and accessibility support.
+     *
+     * If you need ready-to-use item with RadioButton and Text inside,
+     * consider using [RadioGroupTextItem].
+     *
+     * @param selected whether or not this item is selected
+     * @param onSelected callback to be invoked when your item is selected,
+     * does nothing if item is already selected
+     */
+    @Composable
+    fun RadioGroupItem(
+        selected: Boolean,
+        onSelected: () -> Unit,
+        @Children children: () -> Unit
+    ) {
+        <MutuallyExclusiveSetItem
+            selected
+            onSelected={ if (!selected) onSelected() }>
+            <children />
+        </MutuallyExclusiveSetItem>
+    }
+
     /**
      * Simple component to be used inside [RadioGroup] as a child
-     * Consists of radio group and text that follows this button
+     * Consists of [RadioButton] and [Text] that follows this button
      *
-     * Defaults used: for text, [MaterialTypography.body1] will be used
+     * Defaults used:
+     * * for text, [MaterialTypography.body1] will be used
+     * * for selected radio button, [MaterialColors.primary] will be used
      *
-     * @param isSelected whether or not radio button in this item should be selected
-     * @param text to put as a visual description of this item
-     * @param radioStyle parameters for RadioButtons customization
+     * @param selected whether or not radio button in this item is selected
+     * @param onSelected callback to be invoked when your item is selected
+     * does nothing if item is already selected
+     * @param text to put as a label description of this item
+     * @param radioColor color for RadioButtons when selected
      * @param textStyle parameters for text customization
      */
     @Composable
-    fun RadioTextItem(
-        isSelected: Boolean,
+    fun RadioGroupTextItem(
+        selected: Boolean,
+        onSelected: () -> Unit,
         text: String,
-        labelOffset: Dp = DefaultRadioLabelOffset,
         radioColor: Color? = null,
         textStyle: TextStyle? = null
     ) {
-        val typography = +ambient(Typography)
-        <Row mainAxisSize=MainAxisSize.Max mainAxisAlignment=MainAxisAlignment.Start>
-            <RadioButton selected=isSelected color=radioColor />
-            <Padding padding=EdgeInsets(left = labelOffset)>
-                <Text text=TextSpan(style = typography.body1.merge(textStyle), text = text) />
+        <RadioGroupItem selected onSelected>
+            val padding =
+                EdgeInsets(top = DefaultRadioItemPadding, bottom = DefaultRadioItemPadding)
+            <Padding padding>
+                <Row mainAxisSize=MainAxisSize.Max mainAxisAlignment=MainAxisAlignment.Start>
+                    <RadioButton selected color=radioColor />
+                    <Padding padding=EdgeInsets(left = DefaultRadioLabelOffset)>
+                        <StyledText text style={ body1.merge(textStyle) } />
+                    </Padding>
+                </Row>
             </Padding>
-        </Row>
+        </RadioGroupItem>
     }
 }
 
 /**
- * Component to represent two states, selected and unchecked.
+ * Component to represent two states, selected and not selected.
  *
  * RadioButtons are usually coupled together to [RadioGroup] to represent
  * multiply-exclusion set of options for user to choose from
@@ -172,7 +195,7 @@ fun RadioButton(
     selected: Boolean,
     color: Color? = null
 ) {
-    <Layout layoutBlock = { _, constraints ->
+    <Layout layoutBlock={ _, constraints ->
         val size = RadioRadius.toIntPx() * 2
         val w = max(constraints.minWidth, min(constraints.maxWidth, size))
         val h = max(constraints.minHeight, min(constraints.maxHeight, size))
@@ -181,39 +204,131 @@ fun RadioButton(
         }
     }>
         val colors = +ambient(Colors)
-        <DrawRadioButton selected color=(color ?: colors.primary) />
+        val activeColor = color ?: colors.primary
+        val definition = +memo(activeColor) {
+            generateTransitionDefinition(activeColor)
+        }
+        <Transition definition toState=selected> state ->
+            <DrawRadioButton
+                color=state[ColorProp]
+                outerRadius=state[OuterRadiusProp]
+                innerRadius=state[InnerRadiusProp]
+                gap=state[GapProp] />
+        </Transition>
     </Layout>
 }
 
 @Composable
-private fun DrawRadioButton(selected: Boolean, color: Color) {
+private fun DrawRadioButton(color: Color, outerRadius: Dp, innerRadius: Dp, gap: Dp) {
     <Draw> canvas, parentSize ->
-        drawRadio(canvas, parentSize, selected, color)
+        drawRadio(canvas, parentSize, color, outerRadius, innerRadius, gap)
     </Draw>
 }
 
 private fun DensityReceiver.drawRadio(
     canvas: Canvas,
     parentSize: PxSize,
-    selected: Boolean,
-    color: Color
+    color: Color,
+    outerRadius: Dp,
+    innerRadius: Dp,
+    gap: Dp
 ) {
     val p = Paint()
     p.isAntiAlias = true
-    p.color = if (selected) color else UnselectedRadioColor
-    p.strokeWidth = RadioStrokeWidth.toPx().value
-    p.style = PaintingStyle.stroke
+    p.color = color
+    p.style = PaintingStyle.fill
 
     // TODO(malkov): currently Radio gravity is always CENTER but we need to be flexible
     val centerW = parentSize.width.value / 2
     val centerH = parentSize.height.value / 2
-    val center = Offset(centerW, centerH)
+    val outerPx = outerRadius.toPx().value
+    val innerPx = innerRadius.toPx().value
 
-    canvas.drawCircle(center, (RadioRadius - RadioStrokeWidth / 2).toPx().value, p)
-    if (selected) {
-        p.style = PaintingStyle.fill
-        p.strokeWidth = 0f
-        canvas.drawCircle(center, InnerCircleSize.toPx().value, p)
+    val circleOffset = Offset(centerW - outerPx, centerH - outerPx)
+    val outer = RRect(
+        0f,
+        0f,
+        outerPx * 2,
+        outerPx * 2,
+        Radius.circular(outerPx)
+    ).shift(circleOffset)
+
+    if (gap == 0.dp) {
+        val inner = outer.shrink(outerPx - innerPx)
+        canvas.drawDRRect(outer, inner, p)
+    } else {
+        val inner = outer.shrink(RadioStrokeWidth.toPx().value)
+        canvas.drawDRRect(outer, inner, p)
+        val radioOuter = inner.shrink(gap.toPx().value)
+        val radioInner = outer.shrink(outerPx - innerPx)
+        canvas.drawDRRect(radioOuter, radioInner, p)
+    }
+}
+
+private val OuterRadiusProp = DpPropKey()
+private val InnerRadiusProp = DpPropKey()
+private val GapProp = DpPropKey()
+private val ColorProp = ColorPropKey()
+
+private val RadiusClosureDuration = 150
+private val PulseDuration = 100
+private val GapDuration = 150
+private val TotalDuration = RadiusClosureDuration + PulseDuration + GapDuration
+
+private fun generateTransitionDefinition(activeColor: Color) = transitionDefinition {
+    state(false) {
+        this[OuterRadiusProp] = RadioRadius
+        this[InnerRadiusProp] = InitialInner
+        this[GapProp] = 0.dp
+        this[ColorProp] = UnselectedRadioColor
+    }
+    state(true) {
+        this[OuterRadiusProp] = RadioRadius
+        this[InnerRadiusProp] = 0.dp
+        this[GapProp] = DefaultGap
+        this[ColorProp] = activeColor
+    }
+    transition(fromState = false, toState = true) {
+        ColorProp using tween {
+            duration = 0
+        }
+        OuterRadiusProp using keyframes {
+            val smallerOuter = RadioRadius - OuterOffsetDuringAnimation + RadioStrokeWidth / 2
+            duration = TotalDuration
+            RadioRadius at 0
+            smallerOuter at RadiusClosureDuration
+            smallerOuter + PulseDelta at RadiusClosureDuration + PulseDuration / 2
+            smallerOuter at RadiusClosureDuration + PulseDuration
+            RadioRadius at TotalDuration
+        }
+        InnerRadiusProp using tween {
+            duration = RadiusClosureDuration
+        }
+        GapProp using tween {
+            delay = (RadiusClosureDuration + PulseDuration).toLong()
+            duration = GapDuration
+        }
+    }
+    transition(fromState = true, toState = false) {
+        ColorProp using tween {
+            duration = 0
+        }
+        OuterRadiusProp using keyframes {
+            val smallerOuter = RadioRadius - OuterOffsetDuringAnimation + RadioStrokeWidth / 2
+            duration = TotalDuration
+            RadioRadius at 0
+            smallerOuter at GapDuration
+            smallerOuter + PulseDelta at GapDuration + PulseDuration / 2
+            smallerOuter at GapDuration + PulseDuration
+            RadioRadius at TotalDuration
+        }
+        GapProp using tween {
+            duration = GapDuration
+        }
+        InnerRadiusProp using tween {
+            delay = (GapDuration + PulseDuration).toLong()
+            duration = RadiusClosureDuration
+        }
     }
 }
 
@@ -221,9 +336,14 @@ private fun DensityReceiver.drawRadio(
 private val UnselectedRadioColor = Color(0xFF7D7D7D.toInt())
 
 // TODO(malkov): random numbers for now to produce radio as in material comp.
-private val InnerCircleSize = 4.75.dp
-private val RadioStrokeWidth = 2.5.dp
 private val RadioRadius = 10.dp
+private val RadioStrokeWidth = 2.dp
+private val DefaultGap = 3.dp
 
-private val DefaultRadioItemPadding = 10.dp
+// for animations
+private val OuterOffsetDuringAnimation = 2.dp
+private val PulseDelta = 0.5.dp
+private val InitialInner = RadioRadius - RadioStrokeWidth
+
 private val DefaultRadioLabelOffset = 20.dp
+private val DefaultRadioItemPadding = 10.dp

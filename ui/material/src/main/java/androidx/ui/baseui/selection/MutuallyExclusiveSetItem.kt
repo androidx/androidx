@@ -26,25 +26,20 @@ import com.google.r4a.composer
  * Component for representing one option out of many
  * in mutually exclusion set, e.g [androidx.ui.material.RadioGroup]
  *
- * Provides click handling as well as [Semantics] with testTag equals to [key] value
+ * Provides click handling as well as [Semantics] for accessibility
  *
- * @param key key for handling clicks as well as for testTag for Semantics
  * @param selected whether or not this item is selected in mutually exclusion set
- * @param onSelected callback to invoke when this item is selected,
- * does nothing if item is already selected
- * @param children composable content of this item
+ * @param onSelected callback to invoke when this item is clicked
  */
 @Composable
-fun <K> MutuallyExclusiveSetItem(
-    key: K,
+fun MutuallyExclusiveSetItem(
     selected: Boolean,
-    onSelected: (K) -> Unit,
+    onSelected: () -> Unit,
     @Children children: () -> Unit
 ) {
-    <PressGestureDetector onPress={ if (!selected) onSelected(key) }>
+    <PressGestureDetector onPress={ onSelected() }>
         <Semantics
             inMutuallyExclusiveGroup=true
-            testTag=key.toString()
             selected=selected>
             <children />
         </Semantics>
