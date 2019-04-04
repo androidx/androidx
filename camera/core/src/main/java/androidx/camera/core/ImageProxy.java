@@ -19,9 +19,9 @@ package androidx.camera.core;
 import android.graphics.Rect;
 import android.media.Image;
 
-import java.nio.ByteBuffer;
+import androidx.annotation.Nullable;
 
-import javax.annotation.Nullable;
+import java.nio.ByteBuffer;
 
 /** An image proxy which has an analogous interface as {@link android.media.Image}. */
 public interface ImageProxy extends AutoCloseable {
