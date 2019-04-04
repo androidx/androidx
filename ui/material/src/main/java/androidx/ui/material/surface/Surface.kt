@@ -16,10 +16,14 @@
 
 package androidx.ui.material.surface
 
+import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
 import androidx.ui.core.Layout
+import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
+import androidx.ui.material.Colors
+import androidx.ui.material.MaterialColors
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.clip.ClipPath
@@ -29,18 +33,14 @@ import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.material.ripple.RippleSurface
 import androidx.ui.material.ripple.RippleSurfaceOwner
 import androidx.ui.material.ripple.ambientRippleSurface
+import androidx.ui.material.textColorForBackground
 import androidx.ui.painting.Color
-import com.google.r4a.Ambient
+import androidx.ui.painting.TextStyle
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.ambient
 import com.google.r4a.composer
-
-/**
- * The ambient to configure the color of the shadow below the [Surface].
- *
- * Defaults to fully opaque black.
- */
-val CurrentSurfaceShadowColor = Ambient.of { Color(0xFF000000.toInt()) }
+import com.google.r4a.unaryPlus
 
 /**
  * The [Surface] is responsible for:
@@ -63,54 +63,58 @@ val CurrentSurfaceShadowColor = Ambient.of { Color(0xFF000000.toInt()) }
  * or themselves made of surface. Surface reacts to user input using [RippleEffect] effects.
  * To trigger a reaction on the surface, use a [RippleSurfaceOwner] obtained via
  * [ambientRippleSurface].
+ *
+ * The text color for internal [Text] components will try to match the correlated color
+ * for the background [color]. For example, on [MaterialColors.surface] background
+ * [MaterialColors.onSurface] will be used for text. To modify these default style
+ * values use [CurrentTextStyleProvider] or provide direct styling to your components.
+ *
+ * @param shape Defines the surface's shape as well its shadow. A shadow is only
+ *  displayed if the [elevation] is greater than zero.
+ * @param color A selector for the background color. When null is provided it uses
+ *  the [MaterialColors.surface]. Use [TransparentSurface] to have no color.
+ * @param elevation The z-coordinate at which to place this surface. This controls
+ *  the size of the shadow below the surface.
  */
 @Composable
 fun Surface(
-    /**
-     * Defines the surface's shape as well its shadow.
-     *
-     * A shadow is only displayed if the [elevation] is greater than
-     * zero.
-     */
     shape: ShapeBorder = RoundedRectangleBorder(),
-    /**
-     * The color to paint the surface.
-     *
-     * By default it has no color.
-     */
-    color: Color? = null,
-    /**
-     * The z-coordinate at which to place this surface. This controls the size
-     * of the shadow below the surface.
-     */
+    color: (MaterialColors.() -> Color)? = null,
     elevation: Dp = 0.dp,
     @Children children: () -> Unit
 ) {
-    <CurrentSurfaceShadowColor.Consumer> shadowColor ->
-        <SurfaceMeasureBox>
-            <CachingClipper
-                clipper=ShapeBorderClipper(shape)> clipper ->
-                <DrawShadow elevation clipper shadowColor />
-                <ClipPath clipper>
-                    <DrawColor color />
-                    <RippleSurface color>
+    val colors = +ambient(Colors)
+    val finalColor = if (color != null) colors.color() else colors.surface
+    <SurfaceLayout>
+        <CachingClipper
+            clipper=ShapeBorderClipper(shape)> clipper ->
+            <DrawShadow elevation clipper />
+            <ClipPath clipper>
+                <DrawColor color=finalColor />
+                <RippleSurface color=finalColor>
+                    val textColor = +textColorForBackground(finalColor)
+                    if (textColor != null) {
+                        <CurrentTextStyleProvider value=TextStyle(color = textColor)>
+                            <children />
+                        </CurrentTextStyleProvider>
+                    } else {
                         <children />
-                    </RippleSurface>
-                </ClipPath>
-            </CachingClipper>
-            <DrawBorder shape />
-        </SurfaceMeasureBox>
-    </CurrentSurfaceShadowColor.Consumer>
+                    }
+                </RippleSurface>
+            </ClipPath>
+        </CachingClipper>
+        <DrawBorder shape />
+    </SurfaceLayout>
 }
 
 /**
- * A simple MeasureBox which just reserves a space for a [Surface].
+ * A simple layout which just reserves a space for a [Surface].
  * It position the only child in the left top corner.
  *
  * TODO("Andrey: Should be replaced with some basic layout implementation when we have it")
  */
 @Composable
-private fun SurfaceMeasureBox(@Children children: () -> Unit) {
+private fun SurfaceLayout(@Children children: () -> Unit) {
     <Layout children layoutBlock={ measurables, constraints ->
         if (measurables.size > 1) {
             throw IllegalStateException("Surface can have only one direct measurable child!")

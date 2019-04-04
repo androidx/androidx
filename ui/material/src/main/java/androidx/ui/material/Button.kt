@@ -34,6 +34,7 @@ import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.unaryPlus
 
@@ -48,7 +49,7 @@ import com.google.r4a.unaryPlus
  * The text style for internal [Text] components will be changed to [MaterialTypography.button],
  * text color will try to match the correlated color for the background [color]. For example,
  * on [MaterialColors.primary] background [MaterialColors.onPrimary] will be used for text.
- * To modify these default style values, use [CurrentTextStyleProvider].
+ * To modify these default style values use [CurrentTextStyleProvider].
  *
  * Example:
  *     <Button onClick={ ... }>
@@ -64,7 +65,8 @@ import com.google.r4a.unaryPlus
  *  to false or when [onClick] is null.
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  *  the [Shapes.button] from [CurrentShapeAmbient].
- * @param color The background color. When null is provided [MaterialColors.primary] is used.
+ * @param color A selector for the background. [MaterialColors.primary] is used when null
+ *  is provided.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
@@ -73,17 +75,15 @@ fun Button(
     onClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     shape: ShapeBorder? = null,
-    color: Color? = null,
+    color: (MaterialColors.() -> Color)? = null,
     elevation: Dp = 0.dp,
     @Children children: () -> Unit
 ) {
-    val surfaceColor = +color.orFromTheme { primary }
+    val surfaceColor = color ?: { primary }
     val surfaceShape = +shape.orFromTheme { button }
-    val textStyle = (+themeTextStyle { button }).copy(
-        color = +textColorForBackground(surfaceColor)
-    )
-    <CurrentTextStyleProvider value=textStyle>
-        <Surface shape=surfaceShape color=surfaceColor elevation>
+    val textStyle = +themeTextStyle { button }
+    <Surface shape=surfaceShape color=surfaceColor elevation>
+        <CurrentTextStyleProvider value=textStyle>
             val clickableChildren = @Composable {
                 <Clickable enabled onClick>
                     <children />
@@ -96,8 +96,8 @@ fun Button(
             } else {
                 <clickableChildren />
             }
-        </Surface>
-    </CurrentTextStyleProvider>
+        </CurrentTextStyleProvider>
+    </Surface>
 }
 
 /**
@@ -116,6 +116,7 @@ fun Button(
  *         text="TEXT") />
  *
  * @see Button for the flexible implementation with a customizable content.
+ * @see TransparentButton for the version with no background.
  *
  * @param text The text to display.
  * @param textStyle The optional text style selector from the [MaterialTypography].
@@ -124,7 +125,8 @@ fun Button(
  *  to false or when [onClick] is null.
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  *  the [Shapes.button] from [CurrentShapeAmbient].
- * @param color The background color. When null is provided [MaterialColors.primary] is used.
+ * @param color A selector for the background. [MaterialColors.primary] is used when null
+ *  is provided.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
@@ -135,12 +137,13 @@ fun Button(
     onClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     shape: ShapeBorder? = null,
-    color: Color? = null,
+    color: (MaterialColors.() -> Color)? = null,
     elevation: Dp = 0.dp
 ) {
-    val surfaceColor = +color.orFromTheme { primary }
+    val surfaceColor = color ?: { primary }
     val surfaceShape = +shape.orFromTheme { button }
-    val hasBackground = surfaceColor.alpha > 0 || surfaceShape.borderStyle != BorderStyle.None
+    val hasBackground = surfaceShape.borderStyle != BorderStyle.None ||
+            (+ambient(Colors)).surfaceColor().alpha > 0
     val horPaddings = if (hasBackground) ButtonHorPadding else ButtonHorPaddingNoBg
     <Button onClick enabled elevation color=surfaceColor shape=surfaceShape>
         val constraints = +withDensity {
@@ -148,11 +151,45 @@ fun Button(
                 .tightConstraintsForHeight(ButtonHeight.toIntPx())
                 .copy(minWidth = ButtonMinWidth.toIntPx())
         }
-        <Container padding=EdgeInsets(left=horPaddings, right=horPaddings) constraints>
+        <Container padding=EdgeInsets(left = horPaddings, right = horPaddings) constraints>
             val style = textStyle?.let { +themeTextStyle(it) }
             <Text text=TextSpan(text = text, style = style) />
         </Container>
     </Button>
+}
+
+/**
+ * Material Design implementation of [Button] with [text] and no background.
+ * This will also apply [MaterialColors.primary] as a text color by default, but
+ * you can not override this with [textStyle].
+ *
+ * [Button] will be clickable if you provide [onClick] and [enabled] set to true.
+ * You can specify a [shape] of the surface, it's background [color] and [elevation].
+ *
+ * @param text The text to display.
+ * @param textStyle The optional text style selector from the [MaterialTypography].
+ * @param onClick Will be called when user clicked on the button.
+ * @param enabled Defines the enabled state. The button will not be clickable when it set
+ *  to false or when [onClick] is null.
+ * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
+ *  the [Shapes.button] from [CurrentShapeAmbient].
+ * @param elevation The z-coordinate at which to place this button. This controls the size
+ *  of the shadow below the button.
+ */
+@Composable
+fun TransparentButton(
+    text: String,
+    textStyle: (MaterialTypography.() -> TextStyle)? = null,
+    onClick: (() -> Unit)? = null,
+    enabled: Boolean = true,
+    shape: ShapeBorder? = null,
+    elevation: Dp = 0.dp
+) {
+    val colors = +ambient(Colors)
+    val primary: MaterialTypography.() -> TextStyle = {
+        TextStyle(color = colors.primary).merge(textStyle?.invoke(this))
+    }
+    <Button text onClick enabled shape elevation textStyle=primary color={ Color.Transparent } />
 }
 
 // Specification for Material Button:

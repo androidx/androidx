@@ -260,24 +260,6 @@ fun themeTextStyle(
     style
 }
 
-/**
- * Helps to resolve the [Color]. It will take the current value of the value from
- * [Colors] by applying the [choosingBlock] block on it.
- *
- * Example:
- *     val finalColor = +color.orFromTheme { primary }
- */
-fun Color?.orFromTheme(choosingBlock: MaterialColors.() -> Color): Effect<Color> {
-    val color = this
-    return effectOf {
-        if (color == null) {
-            (+ambient(Colors)).choosingBlock()
-        } else {
-            color
-        }
-    }
-}
-
 // Shapes
 
 /**

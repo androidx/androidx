@@ -31,7 +31,7 @@ import com.google.r4a.composer
  */
 @Composable
 fun DrawColor(color: Color?) {
-    if (color != null) {
+    if (color != null && color.alpha > 0) {
         val paint = Paint()
         paint.color = color
         paint.style = PaintingStyle.fill

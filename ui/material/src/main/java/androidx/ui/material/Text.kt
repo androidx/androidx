@@ -49,11 +49,13 @@ fun textColorForBackground(background: Color) = effectOf<Color?> {
     with(+ambient(Colors)) {
         when (background) {
             primary -> onPrimary
+            primaryVariant -> onPrimary
             secondary -> onSecondary
-            background -> onBackground
+            secondaryVariant -> onSecondary
+            this.background -> onBackground
             surface -> onSurface
             error -> onError
-            else -> primary
+            else -> null
         }
     }
 }

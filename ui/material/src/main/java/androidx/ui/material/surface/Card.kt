@@ -18,7 +18,6 @@ package androidx.ui.material.surface
 
 import androidx.ui.core.Dp
 import androidx.ui.core.dp
-import androidx.ui.material.Colors
 import androidx.ui.material.MaterialColors
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
@@ -27,42 +26,28 @@ import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
-/** The helper object to understand when the parameter was explicitly provided */
-internal val ColorNotProvided = Color(0)
-
 /**
  * Cards are [Surface]s that display content and actions on a single topic.
  *
  * By default it uses the [MaterialColors.surface] as a background color.
+ *
+ * @param shape Defines the surface's shape as well its shadow. A shadow is only
+ *  displayed if the [elevation] is greater than zero.
+ * @param color A selector for the background color. When null is provided it uses
+ *  the [MaterialColors.surface]. Use [TransparentSurface] to have no color.
+ * @param elevation The z-coordinate at which to place this surface. This controls
+ *  the size of the shadow below the surface.
+ *
  */
 @Composable
 fun Card(
-    /**
-     * Defines the surface's shape as well its shadow.
-     *
-     * A shadow is only displayed if the [elevation] is greater than
-     * zero.
-     */
     shape: ShapeBorder = RoundedRectangleBorder(),
-    /**
-     * The color to paint the [Card].
-     *
-     * By default it uses the [MaterialColors.surface] color.
-     * To create a transparent surface you can use a [TransparentSurface].
-     */
-    color: Color? = ColorNotProvided,
-    /**
-     * The z-coordinate at which to place this surface. This controls the size
-     * of the shadow below the surface.
-     */
+    color: (MaterialColors.() -> Color)? = null,
     elevation: Dp = 0.dp,
     @Children children: () -> Unit
 ) {
-    if (color == ColorNotProvided) {
-        <Colors.Consumer> themeColor ->
-            <Surface color=themeColor.surface shape elevation children />
-        </Colors.Consumer>
-    } else {
-        <Surface shape elevation color children />
-    }
+    // TODO(Andrey: This currently adds no logic on top of Surface, I just reserve the name
+    // for now. We will see what will be the additional Card specific logic later.
+    // It will add the default shape with rounded corners, default 1px elevation, elevate on hover.
+    <Surface shape elevation color children />
 }

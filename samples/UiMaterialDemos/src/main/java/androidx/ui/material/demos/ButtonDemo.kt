@@ -27,15 +27,14 @@ import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Padding
 import androidx.ui.material.Button
-import androidx.ui.material.Colors
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.TransparentButton
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BorderSide
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
 import com.google.r4a.Composable
-import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.unaryPlus
 
@@ -50,14 +49,11 @@ fun ButtonDemo() {
 
                     <Button onClick text="SH" />
 
-                    <Button
-                        onClick
-                        color=Color.Transparent
-                        text="NO BACKGROUND" />
+                    <TransparentButton onClick text="NO BACKGROUND" />
 
                     <Button
                         onClick
-                        color=(+ambient(Colors)).secondary
+                        color={ secondary }
                         text="SECONDARY COLOR" />
 
                     val outlinedShape = +withDensity {
@@ -72,11 +68,7 @@ fun ButtonDemo() {
                         )
                     }
 
-                    <Button
-                        onClick
-                        color=Color.Transparent
-                        shape=outlinedShape
-                        text="OUTLINED" />
+                    <TransparentButton onClick shape=outlinedShape text="OUTLINED" />
 
                     <Button
                         onClick

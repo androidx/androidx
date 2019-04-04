@@ -42,7 +42,7 @@ fun RippleDemo() {
                 )
                 <Card shape>
                     <BoundedRipple>
-                        <Container>
+                        <Container expanded=true>
                             <BoundedRipple>
                                 <Container width=100.dp height=50.dp>
                                     <StyledText text="inner" style={ body1 } />

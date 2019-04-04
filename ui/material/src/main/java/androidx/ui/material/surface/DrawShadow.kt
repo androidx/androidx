@@ -20,30 +20,27 @@ import androidx.ui.core.Dp
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.dp
 import androidx.ui.material.clip.CustomClipper
-import androidx.ui.painting.Color
 import androidx.ui.painting.Path
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
 /**
- * Draws the shadow with the [shadowColor] color.
- * [elevation] defines the visual dept of the physical object.
+ * Draws the shadow. The [elevation] defines the visual dept of the physical object.
  * The physical object has a shape specified by [clipper].
  *
  * TODO("Andrey: Find the proper module and package for it")
+ *
+ * @param elevation The z-coordinate at which to place this physical object.
+ * @param clipper Defines a shape of the physical object
  */
 @Composable
 fun DrawShadow(
-    /** The z-coordinate at which to place this physical object. */
     elevation: Dp,
-    /** Defines a shape of the physical object */
-    clipper: CustomClipper<Path>,
-    /** When elevation is non zero the color to use for the shadow colorCallback. */
-    shadowColor: Color
+    clipper: CustomClipper<Path>
 ) {
     if (elevation != 0.dp) {
         <Draw> canvas, parentSize ->
-            // TODO("Migration|Andrey: Needs canvas.drawShadow. b/123215187")
+            TODO("Migration|Andrey: Needs canvas.drawShadow. b/123215187")
 //            canvas.drawShadow(
 //                clipper.getClip(parentSize, density),
 //                shadowColor,

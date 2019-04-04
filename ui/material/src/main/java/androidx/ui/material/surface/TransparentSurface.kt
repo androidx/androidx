@@ -19,6 +19,7 @@ package androidx.ui.material.surface
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.ripple.RippleEffect
+import androidx.ui.painting.Color
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -31,14 +32,13 @@ import com.google.r4a.composer
  * draws children on top of the [RippleEffect].
  * A [TransparentSurface] can be placed on top of opaque components to show
  * [RippleEffect] effects on top of them.
+ *
+ * @param shape Defines the surface's shape.
  */
 @Composable
 fun TransparentSurface(
-    /**
-     * Defines the surface's shape.
-     */
     shape: ShapeBorder = RoundedRectangleBorder(),
     @Children children: () -> Unit
 ) {
-    <Surface shape children />
+    <Surface shape children color={ Color.Transparent } />
 }
