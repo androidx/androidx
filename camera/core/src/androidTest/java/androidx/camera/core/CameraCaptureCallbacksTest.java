@@ -16,15 +16,18 @@
 
 package androidx.camera.core;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import androidx.camera.core.CameraCaptureCallbacks.NoOpCameraCaptureCallback;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -32,11 +35,11 @@ public final class CameraCaptureCallbacksTest {
 
     @Test
     public void comboCallbackInvokesConstituentCallbacks() {
-        CameraCaptureCallback callback0 = Mockito.mock(CameraCaptureCallback.class);
-        CameraCaptureCallback callback1 = Mockito.mock(CameraCaptureCallback.class);
+        CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
+        CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);
         CameraCaptureCallback comboCallback =
                 CameraCaptureCallbacks.createComboCallback(callback0, callback1);
-        CameraCaptureResult result = Mockito.mock(CameraCaptureResult.class);
+        CameraCaptureResult result = mock(CameraCaptureResult.class);
         CameraCaptureFailure failure = new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR);
 
         comboCallback.onCaptureCompleted(result);
@@ -46,5 +49,21 @@ public final class CameraCaptureCallbacksTest {
         comboCallback.onCaptureFailed(failure);
         verify(callback0, times(1)).onCaptureFailed(failure);
         verify(callback1, times(1)).onCaptureFailed(failure);
+    }
+
+    @Test
+    public void comboCallbackOnSingle_returnsSingle() {
+        CameraCaptureCallback callback = mock(CameraCaptureCallback.class);
+
+        CameraCaptureCallback returnCallback = CameraCaptureCallbacks.createComboCallback(callback);
+
+        assertThat(returnCallback).isEqualTo(callback);
+    }
+
+    @Test
+    public void comboCallbackOnEmpty_returnsNoOp() {
+        CameraCaptureCallback callback = CameraCaptureCallbacks.createComboCallback();
+
+        assertThat(callback).isInstanceOf(NoOpCameraCaptureCallback.class);
     }
 }

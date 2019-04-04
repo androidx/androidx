@@ -28,6 +28,7 @@ import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
@@ -186,10 +187,11 @@ final class CaptureSession {
                     notifySurfaceAttached();
                     mState = State.OPENING;
                     Log.d(TAG, "Opening capture session.");
+                    List<CameraCaptureSession.StateCallback> callbacks =
+                            new ArrayList<>(sessionConfig.getSessionStateCallbacks());
+                    callbacks.add(mCaptureSessionStateCallback);
                     CameraCaptureSession.StateCallback comboCallback =
-                            CameraCaptureSessionStateCallbacks.createComboCallback(
-                                    mCaptureSessionStateCallback,
-                                    sessionConfig.getSessionStateCallback());
+                            CameraCaptureSessionStateCallbacks.createComboCallback(callbacks);
                     cameraDevice.createCaptureSession(mConfiguredSurfaces, comboCallback, mHandler);
                     break;
                 default:
@@ -360,10 +362,10 @@ final class CaptureSession {
                     builder, captureConfig.getImplementationOptions());
 
             CameraCaptureSession.CaptureCallback comboCaptureCallback =
-                    Camera2CaptureCallbacks.createComboCallback(
-                            mCaptureCallback,
-                            CaptureCallbackConverter.toCaptureCallback(
-                                    captureConfig.getCameraCaptureCallback()));
+                    createCamera2CaptureCallback(
+                            captureConfig.getCameraCaptureCallbacks(),
+                            mCaptureCallback);
+
             mCameraCaptureSession.setRepeatingRequest(
                     builder.build(), comboCaptureCallback, mHandler);
         } catch (CameraAccessException e) {
@@ -419,8 +421,7 @@ final class CaptureSession {
 
                 mCameraCaptureSession.capture(
                         builder.build(),
-                        CaptureCallbackConverter.toCaptureCallback(
-                                captureConfig.getCameraCaptureCallback()),
+                        createCamera2CaptureCallback(captureConfig.getCameraCaptureCallbacks()),
                         mHandler);
             } catch (CameraAccessException e) {
                 Log.e(TAG, "Unable to access camera: " + e.getMessage());
@@ -428,6 +429,18 @@ final class CaptureSession {
             }
         }
         mCaptureConfigs.clear();
+    }
+
+    private CameraCaptureSession.CaptureCallback createCamera2CaptureCallback(
+            List<CameraCaptureCallback> cameraCaptureCallbacks,
+            CameraCaptureSession.CaptureCallback... additionalCallbacks) {
+        List<CameraCaptureSession.CaptureCallback> camera2Callbacks =
+                new ArrayList<>(cameraCaptureCallbacks.size() + additionalCallbacks.length);
+        for (CameraCaptureCallback callback : cameraCaptureCallbacks) {
+            camera2Callbacks.add(CaptureCallbackConverter.toCaptureCallback(callback));
+        }
+        Collections.addAll(camera2Callbacks, additionalCallbacks);
+        return Camera2CaptureCallbacks.createComboCallback(camera2Callbacks);
     }
 
     enum State {

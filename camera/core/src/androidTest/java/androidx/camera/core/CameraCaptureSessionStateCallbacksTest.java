@@ -16,6 +16,9 @@
 
 package androidx.camera.core;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -23,6 +26,7 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.os.Build;
 import android.view.Surface;
 
+import androidx.camera.core.CameraCaptureSessionStateCallbacks.NoOpSessionStateCallback;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -76,5 +80,24 @@ public final class CameraCaptureSessionStateCallbacksTest {
         comboCallback.onConfigureFailed(session);
         verify(callback0, times(1)).onConfigureFailed(session);
         verify(callback1, times(1)).onConfigureFailed(session);
+    }
+
+    @Test
+    public void comboCallbackOnSingle_returnsSingle() {
+        CameraCaptureSession.StateCallback callback =
+                mock(CameraCaptureSession.StateCallback.class);
+
+        CameraCaptureSession.StateCallback returnCallback =
+                CameraCaptureSessionStateCallbacks.createComboCallback(callback);
+
+        assertThat(returnCallback).isEqualTo(callback);
+    }
+
+    @Test
+    public void comboCallbackOnEmpty_returnsNoOp() {
+        CameraCaptureSession.StateCallback callback =
+                CameraCaptureSessionStateCallbacks.createComboCallback();
+
+        assertThat(callback).isInstanceOf(NoOpSessionStateCallback.class);
     }
 }

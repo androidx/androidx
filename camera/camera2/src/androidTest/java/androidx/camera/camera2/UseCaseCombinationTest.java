@@ -279,7 +279,7 @@ public final class UseCaseCombinationTest {
             SessionConfig.Builder builder = new SessionConfig.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             builder.addSurface(new ImmediateSurface(new Surface(mSurfaceTexture)));
-            builder.setSessionStateCallback(mSessionStateCallback);
+            builder.addSessionStateCallback(mSessionStateCallback);
 
             attachToCamera(cameraId, builder.build());
         }

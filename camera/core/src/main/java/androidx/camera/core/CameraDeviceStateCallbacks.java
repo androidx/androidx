@@ -47,6 +47,11 @@ public final class CameraDeviceStateCallbacks {
      */
     public static CameraDevice.StateCallback createComboCallback(
             List<CameraDevice.StateCallback> callbacks) {
+        if (callbacks.isEmpty()) {
+            return createNoOpCallback();
+        } else if (callbacks.size() == 1) {
+            return callbacks.get(0);
+        }
         return new ComboDeviceStateCallback(callbacks);
     }
 

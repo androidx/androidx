@@ -346,15 +346,15 @@ public final class CaptureSessionTest {
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
             builder.addSurface(mDeferrableSurface);
-            builder.setSessionStateCallback(mSessionStateCallback);
-            builder.setCameraCaptureCallback(mSessionCameraCaptureCallback);
+            builder.addSessionStateCallback(mSessionStateCallback);
+            builder.addCameraCaptureCallback(mSessionCameraCaptureCallback);
 
             mSessionConfig = builder.build();
 
             CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
             captureConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             captureConfigBuilder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
-            captureConfigBuilder.setCameraCaptureCallback(mComboCameraCaptureCallback);
+            captureConfigBuilder.addCameraCaptureCallback(mComboCameraCaptureCallback);
 
             mCaptureConfig = captureConfigBuilder.build();
         }

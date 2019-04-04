@@ -84,13 +84,20 @@ public class UseCaseAttachStateTest {
         assertThat(DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces()))
                 .containsExactly(fakeUseCase.mSurface);
 
-        sessionConfig.getDeviceStateCallback().onOpened(mMockCameraDevice);
+        for (CameraDevice.StateCallback callback : sessionConfig.getDeviceStateCallbacks()) {
+            callback.onOpened(mMockCameraDevice);
+        }
         verify(fakeUseCase.mDeviceStateCallback, times(1)).onOpened(mMockCameraDevice);
 
-        sessionConfig.getSessionStateCallback().onConfigured(mMockCameraCaptureSession);
+        for (CameraCaptureSession.StateCallback callback
+                : sessionConfig.getSessionStateCallbacks()) {
+            callback.onConfigured(mMockCameraCaptureSession);
+        }
         verify(fakeUseCase.mSessionStateCallback, times(1)).onConfigured(mMockCameraCaptureSession);
 
-        sessionConfig.getCameraCaptureCallback().onCaptureCompleted(null);
+        for (CameraCaptureCallback callback : sessionConfig.getCameraCaptureCallbacks()) {
+            callback.onCaptureCompleted(null);
+        }
         verify(fakeUseCase.mCameraCaptureCallback, times(1)).onCaptureCompleted(null);
     }
 
@@ -118,17 +125,24 @@ public class UseCaseAttachStateTest {
         assertThat(DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces()))
                 .containsExactly(fakeUseCase0.mSurface, fakeUseCase1.mSurface);
 
-        sessionConfig.getDeviceStateCallback().onOpened(mMockCameraDevice);
+        for (CameraDevice.StateCallback callback : sessionConfig.getDeviceStateCallbacks()) {
+            callback.onOpened(mMockCameraDevice);
+        }
         verify(fakeUseCase0.mDeviceStateCallback, times(1)).onOpened(mMockCameraDevice);
         verify(fakeUseCase1.mDeviceStateCallback, times(1)).onOpened(mMockCameraDevice);
 
-        sessionConfig.getSessionStateCallback().onConfigured(mMockCameraCaptureSession);
+        for (CameraCaptureSession.StateCallback callback
+                : sessionConfig.getSessionStateCallbacks()) {
+            callback.onConfigured(mMockCameraCaptureSession);
+        }
         verify(fakeUseCase0.mSessionStateCallback, times(1)).onConfigured(
                 mMockCameraCaptureSession);
         verify(fakeUseCase1.mSessionStateCallback, times(1)).onConfigured(
                 mMockCameraCaptureSession);
 
-        sessionConfig.getCameraCaptureCallback().onCaptureCompleted(null);
+        for (CameraCaptureCallback callback : sessionConfig.getCameraCaptureCallbacks()) {
+            callback.onCaptureCompleted(null);
+        }
         verify(fakeUseCase0.mCameraCaptureCallback, times(1)).onCaptureCompleted(null);
         verify(fakeUseCase1.mCameraCaptureCallback, times(1)).onCaptureCompleted(null);
     }
@@ -149,13 +163,20 @@ public class UseCaseAttachStateTest {
         SessionConfig sessionConfig = builder.build();
         assertThat(sessionConfig.getSurfaces()).isEmpty();
 
-        sessionConfig.getDeviceStateCallback().onOpened(mMockCameraDevice);
+        for (CameraDevice.StateCallback callback : sessionConfig.getDeviceStateCallbacks()) {
+            callback.onOpened(mMockCameraDevice);
+        }
         verify(fakeUseCase.mDeviceStateCallback, never()).onOpened(mMockCameraDevice);
 
-        sessionConfig.getSessionStateCallback().onConfigured(mMockCameraCaptureSession);
+        for (CameraCaptureSession.StateCallback callback
+                : sessionConfig.getSessionStateCallbacks()) {
+            callback.onConfigured(mMockCameraCaptureSession);
+        }
         verify(fakeUseCase.mSessionStateCallback, never()).onConfigured(mMockCameraCaptureSession);
 
-        sessionConfig.getCameraCaptureCallback().onCaptureCompleted(null);
+        for (CameraCaptureCallback callback : sessionConfig.getCameraCaptureCallbacks()) {
+            callback.onCaptureCompleted(null);
+        }
         verify(fakeUseCase.mCameraCaptureCallback, never()).onCaptureCompleted(null);
     }
 
@@ -177,13 +198,20 @@ public class UseCaseAttachStateTest {
         assertThat(DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces()))
                 .containsExactly(fakeUseCase.mSurface);
 
-        sessionConfig.getDeviceStateCallback().onOpened(mMockCameraDevice);
+        for (CameraDevice.StateCallback callback : sessionConfig.getDeviceStateCallbacks()) {
+            callback.onOpened(mMockCameraDevice);
+        }
         verify(fakeUseCase.mDeviceStateCallback, times(1)).onOpened(mMockCameraDevice);
 
-        sessionConfig.getSessionStateCallback().onConfigured(mMockCameraCaptureSession);
+        for (CameraCaptureSession.StateCallback callback
+                : sessionConfig.getSessionStateCallbacks()) {
+            callback.onConfigured(mMockCameraCaptureSession);
+        }
         verify(fakeUseCase.mSessionStateCallback, times(1)).onConfigured(mMockCameraCaptureSession);
 
-        sessionConfig.getCameraCaptureCallback().onCaptureCompleted(null);
+        for (CameraCaptureCallback callback : sessionConfig.getCameraCaptureCallbacks()) {
+            callback.onCaptureCompleted(null);
+        }
         verify(fakeUseCase.mCameraCaptureCallback, times(1)).onCaptureCompleted(null);
     }
 
@@ -204,13 +232,20 @@ public class UseCaseAttachStateTest {
         SessionConfig sessionConfig = builder.build();
         assertThat(sessionConfig.getSurfaces()).isEmpty();
 
-        sessionConfig.getDeviceStateCallback().onOpened(mMockCameraDevice);
+        for (CameraDevice.StateCallback callback : sessionConfig.getDeviceStateCallbacks()) {
+            callback.onOpened(mMockCameraDevice);
+        }
         verify(fakeUseCase.mDeviceStateCallback, never()).onOpened(mMockCameraDevice);
 
-        sessionConfig.getSessionStateCallback().onConfigured(mMockCameraCaptureSession);
+        for (CameraCaptureSession.StateCallback callback
+                : sessionConfig.getSessionStateCallbacks()) {
+            callback.onConfigured(mMockCameraCaptureSession);
+        }
         verify(fakeUseCase.mSessionStateCallback, never()).onConfigured(mMockCameraCaptureSession);
 
-        sessionConfig.getCameraCaptureCallback().onCaptureCompleted(null);
+        for (CameraCaptureCallback callback : sessionConfig.getCameraCaptureCallbacks()) {
+            callback.onCaptureCompleted(null);
+        }
         verify(fakeUseCase.mCameraCaptureCallback, never()).onCaptureCompleted(null);
     }
 
@@ -232,13 +267,20 @@ public class UseCaseAttachStateTest {
         SessionConfig sessionConfig = builder.build();
         assertThat(sessionConfig.getSurfaces()).isEmpty();
 
-        sessionConfig.getDeviceStateCallback().onOpened(mMockCameraDevice);
+        for (CameraDevice.StateCallback callback : sessionConfig.getDeviceStateCallbacks()) {
+            callback.onOpened(mMockCameraDevice);
+        }
         verify(fakeUseCase.mDeviceStateCallback, never()).onOpened(mMockCameraDevice);
 
-        sessionConfig.getSessionStateCallback().onConfigured(mMockCameraCaptureSession);
+        for (CameraCaptureSession.StateCallback callback
+                : sessionConfig.getSessionStateCallbacks()) {
+            callback.onConfigured(mMockCameraCaptureSession);
+        }
         verify(fakeUseCase.mSessionStateCallback, never()).onConfigured(mMockCameraCaptureSession);
 
-        sessionConfig.getCameraCaptureCallback().onCaptureCompleted(null);
+        for (CameraCaptureCallback callback : sessionConfig.getCameraCaptureCallbacks()) {
+            callback.onCaptureCompleted(null);
+        }
         verify(fakeUseCase.mCameraCaptureCallback, never()).onCaptureCompleted(null);
     }
 
@@ -323,9 +365,9 @@ public class UseCaseAttachStateTest {
             SessionConfig.Builder builder = new SessionConfig.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             builder.addSurface(new ImmediateSurface(mSurface));
-            builder.setDeviceStateCallback(mDeviceStateCallback);
-            builder.setSessionStateCallback(mSessionStateCallback);
-            builder.setCameraCaptureCallback(mCameraCaptureCallback);
+            builder.addDeviceStateCallback(mDeviceStateCallback);
+            builder.addSessionStateCallback(mSessionStateCallback);
+            builder.addCameraCaptureCallback(mCameraCaptureCallback);
 
             LensFacing lensFacing = ((CameraDeviceConfig) getUseCaseConfig()).getLensFacing();
             try {

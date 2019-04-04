@@ -50,6 +50,11 @@ public final class CameraCaptureSessionStateCallbacks {
      */
     public static CameraCaptureSession.StateCallback createComboCallback(
             List<CameraCaptureSession.StateCallback> callbacks) {
+        if (callbacks.isEmpty()) {
+            return createNoOpCallback();
+        } else if (callbacks.size() == 1) {
+            return callbacks.get(0);
+        }
         return new ComboSessionStateCallback(callbacks);
     }
 
@@ -91,7 +96,7 @@ public final class CameraCaptureSessionStateCallbacks {
         }
     }
 
-    private static final class ComboSessionStateCallback
+    static final class ComboSessionStateCallback
             extends CameraCaptureSession.StateCallback {
         private final List<CameraCaptureSession.StateCallback> mCallbacks = new ArrayList<>();
 

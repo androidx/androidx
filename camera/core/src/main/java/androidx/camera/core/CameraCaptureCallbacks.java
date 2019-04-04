@@ -41,6 +41,11 @@ public final class CameraCaptureCallbacks {
 
     /** Returns a camera capture callback which calls a list of other callbacks. */
     static CameraCaptureCallback createComboCallback(List<CameraCaptureCallback> callbacks) {
+        if (callbacks.isEmpty()) {
+            return createNoOpCallback();
+        } else if (callbacks.size() == 1) {
+            return callbacks.get(0);
+        }
         return new ComboCameraCaptureCallback(callbacks);
     }
 
