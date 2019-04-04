@@ -211,12 +211,12 @@ class PreferenceInflater {
                 final ClassLoader classLoader = mContext.getClassLoader();
                 Class<?> clazz = null;
                 if (prefixes == null || prefixes.length == 0) {
-                    clazz = classLoader.loadClass(name);
+                    clazz = Class.forName(name, false, classLoader);
                 } else {
                     ClassNotFoundException notFoundException = null;
                     for (final String prefix : prefixes) {
                         try {
-                            clazz = classLoader.loadClass(prefix + name);
+                            clazz = Class.forName(prefix + name, false, classLoader);
                             break;
                         } catch (final ClassNotFoundException e) {
                             notFoundException = e;

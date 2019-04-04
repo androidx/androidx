@@ -288,8 +288,8 @@ public class ShortcutManagerCompat {
             if (Build.VERSION.SDK_INT >= 23) {
                 try {
                     ClassLoader loader = ShortcutManagerCompat.class.getClassLoader();
-                    Class saver = loader.loadClass(
-                            "androidx.sharetarget.ShortcutInfoCompatSaverImpl");
+                    Class saver = Class.forName(
+                            "androidx.sharetarget.ShortcutInfoCompatSaverImpl", false, loader);
                     Method getInstanceMethod = saver.getMethod("getInstance", Context.class);
                     sShortcutInfoCompatSaver = (ShortcutInfoCompatSaver) getInstanceMethod.invoke(
                             null, context);
