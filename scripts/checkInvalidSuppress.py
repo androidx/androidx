@@ -33,18 +33,18 @@ MATCHERS = {
     '//noinspection unchecked' : '@SuppressWarnings("unchecked")',
 }
 
-report = ""
-
-## Check a line for any invalid suppressions, and add to 'report' if found
-def checkLine(filename, i, line, lines):
-  global report
+## Check a line for any invalid suppressions, and return it if found
+def getReportForLine(filename, i, line, lines):
   for bad, good in MATCHERS.iteritems():
     if bad in line:
       context = "".join(lines[i:i+3])
-      report += "\n{}:{}:\nError: unsupported comment suppression\n{}Instead, use: {}\n".format(
+      return "\n{}:{}:\nError: unsupported comment suppression\n{}Instead, use: {}\n".format(
           filename, i, context, good)
+  return ""
 
 def main():
+  report = ""
+
   for filename in sys.argv[1:]:
     # suppress comments ignored in kotlin, but may as well block there too
     if not filename.endswith(".java") and not filename.endswith(".kt"):
@@ -52,13 +52,17 @@ def main():
 
     filename = os.path.join(MAIN_DIRECTORY, filename)
 
+    # check file exists
+    if not os.path.isfile(filename):
+      continue
+
     with open(filename, "r") as f:
       lines = f.readlines()
 
       linetuples = map(lambda i: [i, lines[i]], range(len(lines)))
       for i, line in linetuples:
         if ROOT_MATCH in line:
-          checkLine(filename, i, line, lines)
+          report += getReportForLine(filename, i, line, lines)
 
   if not report:
     sys.exit(0)
