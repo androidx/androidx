@@ -34,7 +34,6 @@ dependencies {
     api project(':ui-layout')
     api project(':ui-animation')
     api(KOTLIN_R4A_STDLIB)
-    implementation "androidx.interpolator:interpolator:1.0.0"
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)

@@ -18,6 +18,7 @@ package androidx.animation
 
 import androidx.ui.core.Dp
 import androidx.ui.core.Px
+import androidx.ui.core.PxPosition
 import androidx.ui.core.lerp
 import androidx.ui.lerp
 import androidx.ui.painting.Color
@@ -67,7 +68,7 @@ interface PropKey<T> {
 }
 
 /**
- * Built-in property key for color properties.
+ * Built-in property key for [Color] properties.
  */
 class ColorPropKey : PropKey<Color> {
     override fun interpolate(a: Color, b: Color, fraction: Float): Color {
@@ -76,7 +77,7 @@ class ColorPropKey : PropKey<Color> {
 }
 
 /**
- * Built-in property key for float properties.
+ * Built-in property key for [Float] properties.
  */
 class FloatPropKey : PropKey<Float> {
     override fun interpolate(a: Float, b: Float, fraction: Float) =
@@ -85,7 +86,7 @@ class FloatPropKey : PropKey<Float> {
 
 // TODO: refactor out the entirely independent bit of the animation engine
 /**
- * Built-in property key for int properties.
+ * Built-in property key for [Int] properties.
  */
 class IntPropKey : PropKey<Int> {
     override fun interpolate(a: Int, b: Int, fraction: Float) =
@@ -93,7 +94,7 @@ class IntPropKey : PropKey<Int> {
 }
 
 /**
- * Built-in property key for Dp properties.
+ * Built-in property key for [Px] properties.
  */
 class PxPropKey : PropKey<Px> {
     override fun interpolate(a: Px, b: Px, fraction: Float): Px =
@@ -101,9 +102,17 @@ class PxPropKey : PropKey<Px> {
 }
 
 /**
- * Built-in property key for Dp properties.
+ * Built-in property key for [Dp] properties.
  */
 class DpPropKey : PropKey<Dp> {
     override fun interpolate(a: Dp, b: Dp, fraction: Float): Dp =
+        lerp(a, b, fraction)
+}
+
+/**
+ * Built-in property key for [PxPosition] properties.
+ */
+class PxPositionPropKey : PropKey<PxPosition> {
+    override fun interpolate(a: PxPosition, b: PxPosition, fraction: Float): PxPosition =
         lerp(a, b, fraction)
 }
