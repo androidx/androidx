@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.hardware.camera2.CaptureRequest;
+import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -33,6 +34,8 @@ import com.google.auto.value.AutoValue;
 @RestrictTo(Scope.LIBRARY_GROUP)
 @AutoValue
 public abstract class CaptureRequestParameter<T> {
+    private static final String TAG = "CaptureRequestParameter";
+
     /** Prevent subclassing. */
     CaptureRequestParameter() {
     }
@@ -49,7 +52,14 @@ public abstract class CaptureRequestParameter<T> {
      * erased.
      */
     public final void apply(CaptureRequest.Builder builder) {
-        builder.set(getKey(), getValue());
+        // TODO(b/129997028): Error of setting unavailable CaptureRequest.Key may need to send
+        //  back out to the developer
+        try {
+            // Ignores keys that don't exist
+            builder.set(getKey(), getValue());
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "CaptureRequest.Key is not supported: " + getKey());
+        }
     }
 
     /** Returns the key of the CaptureRequestParameter. */
