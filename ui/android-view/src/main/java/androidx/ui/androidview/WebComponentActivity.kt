@@ -18,22 +18,26 @@ package androidx.ui.androidview
 
 import android.app.Activity
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import com.google.r4a.Composable
 import com.google.r4a.Model
+import com.google.r4a.adapters.dp
+import com.google.r4a.adapters.setControlledText
 import com.google.r4a.adapters.setLayoutHeight
+import com.google.r4a.adapters.setLayoutWeight
 import com.google.r4a.adapters.setLayoutWidth
 import com.google.r4a.adapters.setOnClick
-import com.google.r4a.adapters.setOnTextChangedListener
+import com.google.r4a.adapters.setOnTextChanged
 import com.google.r4a.composer
 import com.google.r4a.setContent
+import com.google.r4a.state
+import com.google.r4a.unaryPlus
 
 @Model
 class WebParams {
@@ -63,39 +67,53 @@ fun renderViews(webParams: WebParams = WebParams(), webContext: WebContext = Web
         Log.d("WebCompAct", "renderViews")
     }
 
-    var text: String = ""
+    val textContents = +state { "https://www.google.com" }
 
     <LinearLayout
         orientation=LinearLayout.VERTICAL
         layoutWidth=MATCH_PARENT
         layoutHeight=MATCH_PARENT>
-        <EditText
-            text="https://www.google.com"
-            onTextChangedListener=object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) { }
-
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) { }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    text = s.toString()
-                }
-            } />
-
-        <Button
-            text="Go"
-            onClick={
-                if (text.isNotBlank()) {
-                    if (WebContext.debug) {
-                        Log.d("WebCompAct", "setting url to " + text)
+        <LinearLayout
+            orientation=LinearLayout.HORIZONTAL
+            layoutWidth=MATCH_PARENT
+            layoutHeight=WRAP_CONTENT
+            weightSum=1f>
+            <Button
+                layoutWidth=40.dp
+                layoutHeight=WRAP_CONTENT
+                text="<"
+                onClick={
+                    webContext.goBack()
+                } />
+            <Button
+                layoutWidth=40.dp
+                layoutHeight=WRAP_CONTENT
+                text=">"
+                onClick={
+                    webContext.goForward()
+                } />
+            <EditText
+                layoutWidth=0.dp
+                layoutHeight=WRAP_CONTENT
+                layoutWeight=1f
+                singleLine=true
+                controlledText=textContents.value
+                onTextChanged={ s: CharSequence?, start, before, count ->
+                    textContents.value = s.toString()
+                } />
+            <Button
+                layoutWidth=WRAP_CONTENT
+                layoutHeight=WRAP_CONTENT
+                text="Go"
+                onClick={
+                    if (textContents.value.isNotBlank()) {
+                        if (WebContext.debug) {
+                            Log.d("WebCompAct", "setting url to " + textContents.value)
+                        }
+                        webParams.url = textContents.value
                     }
-                    webParams.url = text
-                }
-            } />
+                } />
+        </LinearLayout>
 
         if (WebContext.debug) {
             Log.d("WebCompAct", "webComponent: start")
