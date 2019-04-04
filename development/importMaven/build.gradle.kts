@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import org.apache.maven.model.Dependency
 import org.apache.maven.model.Parent
 import org.apache.maven.model.Repository
@@ -26,6 +28,7 @@ import org.apache.maven.model.resolution.ModelResolver
 import java.security.MessageDigest
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
 import java.io.InputStream
+import javax.xml.parsers.DocumentBuilderFactory
 
 buildscript {
     repositories {
@@ -38,6 +41,7 @@ buildscript {
         classpath(gradleApi())
         classpath("org.apache.maven:maven-model:3.5.4")
         classpath("org.apache.maven:maven-model-builder:3.5.4")
+        classpath("com.squareup.okhttp3:okhttp:3.11.0")
     }
 }
 
@@ -256,6 +260,51 @@ fun digest(file: File, algorithm: String): File {
 }
 
 /**
+ * Fetches license information for external dependencies.
+ */
+fun licenseFor(pomFile: File): File? {
+    try {
+        val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        val document = builder.parse(pomFile)
+        val client = OkHttpClient()
+        /*
+          This is what a licenses declaration looks like:
+          <licenses>
+            <license>
+              <name>Android Software Development Kit License</name>
+              <url>https://developer.android.com/studio/terms.html</url>
+              <distribution>repo</distribution>
+            </license>
+          </licenses>
+         */
+        val licenses = document.getElementsByTagName("license")
+        for (i in 0 until licenses.length) {
+            val license = licenses.item(i)
+            val children = license.childNodes
+            for (j in 0 until children.length) {
+                val element = children.item(j)
+                if (element.nodeName.toLowerCase() == "url") {
+                    val url = element.textContent
+                    val request = Request.Builder().url(url).build()
+                    val response = client.newCall(request).execute()
+                    val contents = response.body()?.string()
+                    if (contents != null) {
+                        val parent = System.getProperty("java.io.tmpdir")
+                        val outputFile = File(parent, "${pomFile.name}.LICENSE")
+                        outputFile.deleteOnExit()
+                        outputFile.writeText(contents)
+                        return outputFile
+                    }
+                }
+            }
+        }
+    } catch (exception: Throwable) {
+        println("Error fetching license information for $pomFile")
+    }
+    return null
+}
+
+/**
  * Copies artifacts to the right locations.
  */
 fun copyArtifact(artifact: ResolvedArtifact, internal: Boolean = false) {
@@ -293,6 +342,18 @@ fun copyArtifact(artifact: ResolvedArtifact, internal: Boolean = false) {
             )
             into(location)
         }
+        if (supportingArtifact.file.name.endsWith(".pom")) {
+            val license = if (!internal) licenseFor(supportingArtifact.file) else null
+            if (license != null) {
+                println("Copying License files for ${supportingArtifact.file.name} to $location")
+                copy {
+                    from(license)
+                    into(location)
+                    // rename to a file called LICENSE
+                    rename { "LICENSE" }
+                }
+            }
+        }
     }
 }
 
@@ -325,6 +386,17 @@ fun copyPomFile(
             digest(pomFile, "SHA1")
         )
         into(location)
+    }
+    // Copy licenses if available for external dependencies
+    val license = if (!internal) licenseFor(pomFile) else null
+    if (license != null) {
+        println("Copying License files for ${pomFile.name} to $location")
+        copy {
+            from(license)
+            into(location)
+            // rename to a file called LICENSE
+            rename { "LICENSE" }
+        }
     }
 }
 
