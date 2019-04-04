@@ -17,9 +17,9 @@
 package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
+import androidx.concurrent.futures.ResolvableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.SettableFuture;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +40,7 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
 
     /** Map of id to {@link ImageProxy} Future. */
     @GuardedBy("mLock")
-    private final Map<Integer, SettableFuture<ImageProxy>> mFutureResults = new HashMap<>();
+    private final Map<Integer, ResolvableFuture<ImageProxy>> mFutureResults = new HashMap<>();
 
     private final List<Integer> mCaptureIdList;
 
@@ -93,7 +93,7 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
             // If the CaptureId is associated with this SettableImageProxyBundle, set the
             // corresponding Future. Otherwise, throws exception.
             if (mFutureResults.containsKey(captureId)) {
-                SettableFuture<ImageProxy> futureResult = mFutureResults.get(captureId);
+                ResolvableFuture<ImageProxy> futureResult = mFutureResults.get(captureId);
                 futureResult.set(imageProxy);
             } else {
                 throw new IllegalArgumentException(
@@ -131,7 +131,7 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
 
     private void setup() {
         for (Integer captureId : mCaptureIdList) {
-            SettableFuture<ImageProxy> futureResult = SettableFuture.create();
+            ResolvableFuture<ImageProxy> futureResult = ResolvableFuture.create();
             mFutureResults.put(captureId, futureResult);
         }
     }
