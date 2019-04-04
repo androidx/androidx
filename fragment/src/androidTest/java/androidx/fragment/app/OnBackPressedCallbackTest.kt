@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.annotation.UiThreadTest
@@ -35,15 +36,94 @@ class OnBackPressedCallbackTest {
     @get:Rule
     var activityRule = ActivityTestRule(FragmentTestActivity::class.java)
 
+    @Suppress("DEPRECATION")
     @UiThreadTest
     @Test
-    fun testOnBackPressed() {
+    fun testBackPressWithFrameworkFragment() {
         val activity = activityRule.activity
-        var onBackPressed = false
-        activity.addOnBackPressedCallback {
-            onBackPressed = true
-            false
-        }
+        val fragmentManager = activity.fragmentManager
+        val fragment = android.app.Fragment()
+
+        fragmentManager.beginTransaction()
+            .add(R.id.content, fragment)
+            .addToBackStack(null)
+            .commit()
+        fragmentManager.executePendingTransactions()
+        assertThat(fragmentManager.findFragmentById(R.id.content))
+            .isSameAs(fragment)
+
+        activity.onBackPressed()
+
+        assertThat(fragmentManager.findFragmentById(R.id.content))
+            .isNull()
+    }
+
+    @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun testBackPressWithFragmentOverFrameworkFragment() {
+        val activity = activityRule.activity
+        val fragmentManager = activity.fragmentManager
+        val fragment = android.app.Fragment()
+
+        fragmentManager.beginTransaction()
+            .add(R.id.content, fragment)
+            .addToBackStack(null)
+            .commit()
+        fragmentManager.executePendingTransactions()
+        assertThat(fragmentManager.findFragmentById(R.id.content))
+            .isSameAs(fragment)
+
+        val supportFragmentManager = activity.supportFragmentManager
+        val supportFragment = StrictFragment()
+
+        supportFragmentManager.beginTransaction()
+            .add(R.id.content, supportFragment)
+            .addToBackStack(null)
+            .commit()
+        supportFragmentManager.executePendingTransactions()
+        assertThat(supportFragmentManager.findFragmentById(R.id.content))
+            .isSameAs(supportFragment)
+
+        activity.onBackPressed()
+
+        assertThat(supportFragmentManager.findFragmentById(R.id.content))
+            .isNull()
+        assertThat(fragmentManager.findFragmentById(R.id.content))
+            .isSameAs(fragment)
+    }
+
+    @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun testBackPressWithCallbackOverFrameworkFragment() {
+        val activity = activityRule.activity
+        val fragmentManager = activity.fragmentManager
+        val fragment = android.app.Fragment()
+
+        fragmentManager.beginTransaction()
+            .add(R.id.content, fragment)
+            .addToBackStack(null)
+            .commit()
+        fragmentManager.executePendingTransactions()
+        assertThat(fragmentManager.findFragmentById(R.id.content))
+            .isSameAs(fragment)
+
+        val callback = CountingOnBackPressedCallback()
+        activity.onBackPressedDispatcher.addCallback(callback)
+
+        activity.onBackPressed()
+
+        assertThat(callback.count)
+            .isEqualTo(1)
+        assertThat(fragmentManager.findFragmentById(R.id.content))
+            .isSameAs(fragment)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testBackPressWithCallbackOverFragment() {
+        val activity = activityRule.activity
         val fragmentManager = activity.supportFragmentManager
         val fragment = StrictFragment()
         fragmentManager.beginTransaction()
@@ -53,11 +133,26 @@ class OnBackPressedCallbackTest {
         fragmentManager.executePendingTransactions()
         assertThat(fragmentManager.findFragmentById(R.id.content))
             .isSameAs(fragment)
+
+        val callback = CountingOnBackPressedCallback()
+        activity.onBackPressedDispatcher.addCallback(callback)
+
         activity.onBackPressed()
+
         assertWithMessage("OnBackPressedCallbacks should be called before FragmentManager")
-            .that(onBackPressed)
-            .isTrue()
+            .that(callback.count)
+            .isEqualTo(1)
         assertThat(fragmentManager.findFragmentById(R.id.content))
-            .isNull()
+            .isSameAs(fragment)
+    }
+}
+
+class CountingOnBackPressedCallback(val returnValue: Boolean = true) :
+    OnBackPressedCallback {
+    var count = 0
+
+    override fun handleOnBackPressed(): Boolean {
+        count++
+        return returnValue
     }
 }
