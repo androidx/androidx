@@ -35,11 +35,10 @@ import com.google.android.material.navigation.NavigationView
 /**
  * A simple activity demonstrating use of a NavHostFragment with a navigation drawer.
  */
-class NavigationActivity : AppCompatActivity() {
+class NavigationActivity : AppCompatActivity(R.layout.navigation_activity) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.navigation_activity)
 
         val navController = findNavController(R.id.my_nav_host_fragment)
 
