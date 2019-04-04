@@ -202,7 +202,7 @@ public class TransitionInflater {
                 Constructor constructor = CONSTRUCTORS.get(className);
                 if (constructor == null) {
                     @SuppressWarnings("unchecked")
-                    Class<?> c = mContext.getClassLoader().loadClass(className)
+                    Class<?> c = Class.forName(className, false, mContext.getClassLoader())
                             .asSubclass(expectedType);
                     if (c != null) {
                         constructor = c.getConstructor(CONSTRUCTOR_SIGNATURE);
