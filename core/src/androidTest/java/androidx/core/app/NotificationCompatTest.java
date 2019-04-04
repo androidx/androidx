@@ -1000,6 +1000,25 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertTrue(result.isContextual());
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // TODO(gsennton): This only works on Q+
+    public void getAllowSystemGeneratedContextualActions_trueByDefault() {
+        if (!BuildCompat.isAtLeastQ()) return;
+        Notification notification =
+                new NotificationCompat.Builder(mContext, "test channel").build();
+        assertTrue(NotificationCompat.getAllowSystemGeneratedContextualActions(notification));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // TODO(gsennton): This only works on Q+
+    public void getAllowSystemGeneratedContextualActions() {
+        if (!BuildCompat.isAtLeastQ()) return;
+        Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .setAllowSystemGeneratedContextualActions(false)
+                .build();
+        assertFalse(NotificationCompat.getAllowSystemGeneratedContextualActions(notification));
+    }
+
     // Add the @Test annotation to enable this test. This test is disabled by default as it's not a
     // unit test. This will simply create 4 MessagingStyle notifications so a developer may see what
     // the end result will look like on a physical device (or emulator).

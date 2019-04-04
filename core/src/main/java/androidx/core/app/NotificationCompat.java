@@ -716,6 +716,7 @@ public class NotificationCompat {
         String mShortcutId;
         long mTimeout;
         @GroupAlertBehavior int mGroupAlertBehavior = GROUP_ALERT_ALL;
+        boolean mAllowSystemGeneratedContextualActions;
         Notification mNotification = new Notification();
 
         /**
@@ -746,6 +747,7 @@ public class NotificationCompat {
             mNotification.audioStreamType = Notification.STREAM_DEFAULT;
             mPriority = PRIORITY_DEFAULT;
             mPeople = new ArrayList<String>();
+            mAllowSystemGeneratedContextualActions = true;
         }
 
         /**
@@ -1572,6 +1574,16 @@ public class NotificationCompat {
          */
         public Builder extend(Extender extender) {
             extender.extend(this);
+            return this;
+        }
+
+        /**
+         * Determines whether the platform can generate contextual actions for a notification.
+         * By default this is true.
+         */
+        @NonNull
+        public Builder setAllowSystemGeneratedContextualActions(boolean allowed) {
+            mAllowSystemGeneratedContextualActions = allowed;
             return this;
         }
 
@@ -5463,6 +5475,18 @@ public class NotificationCompat {
             return notification.getGroupAlertBehavior();
         } else {
             return GROUP_ALERT_ALL;
+        }
+    }
+
+    /**
+     * Returns whether the platform is allowed (by the app developer) to generate contextual actions
+     * for this notification.
+     */
+    public static boolean getAllowSystemGeneratedContextualActions(Notification notification) {
+        if (BuildCompat.isAtLeastQ()) {
+            return notification.getAllowSystemGeneratedContextualActions();
+        } else {
+            return false;
         }
     }
 
