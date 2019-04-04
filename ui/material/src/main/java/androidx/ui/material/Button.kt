@@ -17,14 +17,14 @@
 package androidx.ui.material
 
 import androidx.ui.baseui.Clickable
+import androidx.ui.core.Constraints
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
-import androidx.ui.core.IntPx
-import androidx.ui.core.Layout
 import androidx.ui.core.Text
-import androidx.ui.core.coerceAtLeast
-import androidx.ui.core.coerceAtMost
 import androidx.ui.core.dp
+import androidx.ui.core.withDensity
+import androidx.ui.layout.Container
+import androidx.ui.layout.EdgeInsets
 import androidx.ui.material.borders.BorderStyle
 import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.ripple.BoundedRipple
@@ -142,31 +142,16 @@ fun Button(
     val surfaceShape = +shape.orFromTheme { button }
     val hasBackground = surfaceColor.alpha > 0 || surfaceShape.borderStyle != BorderStyle.None
     val horPaddings = if (hasBackground) ButtonHorPadding else ButtonHorPaddingNoBg
-    <Button onClick enabled elevation color=surfaceColor shape=surfaceShape >
-        <Layout layoutBlock={ measurables, constraints ->
-            val fullHorPaddings = horPaddings.toIntPx() * 2
-            val textConstraints = constraints.copy(
-                minWidth = (constraints.minWidth - fullHorPaddings).coerceAtLeast(IntPx.Zero),
-                maxWidth = (constraints.maxWidth - fullHorPaddings).coerceAtLeast(IntPx.Zero),
-                maxHeight = constraints.maxHeight.coerceAtMost(ButtonHeight.toIntPx())
-            )
-
-            val placeable = measurables.first().measure(textConstraints)
-
-            val width =
-                (placeable.width + fullHorPaddings).coerceAtLeast(ButtonMinWidth.toIntPx())
-            val height = ButtonHeight.toIntPx()
-
-            val leftOffset = (width - fullHorPaddings - placeable.width) / 2 + fullHorPaddings / 2
-            val topOffset = (height - placeable.height) / 2
-
-            layout(width, height) {
-                placeable.place(leftOffset, topOffset)
-            }
-        }>
+    <Button onClick enabled elevation color=surfaceColor shape=surfaceShape>
+        val constraints = +withDensity {
+            Constraints
+                .tightConstraintsForHeight(ButtonHeight.toIntPx())
+                .copy(minWidth = ButtonMinWidth.toIntPx())
+        }
+        <Container padding=EdgeInsets(left=horPaddings, right=horPaddings) constraints>
             val style = textStyle?.let { +themeTextStyle(it) }
             <Text text=TextSpan(text = text, style = style) />
-        </Layout>
+        </Container>
     </Button>
 }
 
