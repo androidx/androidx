@@ -53,8 +53,10 @@ public final class SessionConfig {
     private final List<CameraDevice.StateCallback> mDeviceStateCallbacks;
     /** The state callback for a {@link CameraCaptureSession}. */
     private final List<CameraCaptureSession.StateCallback> mSessionStateCallbacks;
-    /** The configuration for building the {@link CaptureRequest}. */
-    private final CaptureConfig mCaptureConfig;
+    /** The callbacks used in single requests. */
+    private final List<CameraCaptureCallback> mSingleCameraCaptureCallbacks;
+    /** The configuration for building the {@link CaptureRequest} used for repeating requests. */
+    private final CaptureConfig mRepeatingCaptureConfig;
 
     /**
      * Private constructor for a SessionConfig.
@@ -62,20 +64,23 @@ public final class SessionConfig {
      * <p>In practice, the {@link SessionConfig.BaseBuilder} will be used to construct a
      * SessionConfig.
      *
-     * @param surfaces              The set of {@link Surface} where data will be put into.
-     * @param deviceStateCallbacks  The state callbacks for a {@link CameraDevice}.
-     * @param sessionStateCallbacks The state callbacks for a {@link CameraCaptureSession}.
-     * @param captureConfig         The configuration for building the {@link CaptureRequest}.
+     * @param surfaces               The set of {@link Surface} where data will be put into.
+     * @param deviceStateCallbacks   The state callbacks for a {@link CameraDevice}.
+     * @param sessionStateCallbacks  The state callbacks for a {@link CameraCaptureSession}.
+     * @param repeatingCaptureConfig The configuration for building the {@link CaptureRequest}.
      */
     SessionConfig(
             List<DeferrableSurface> surfaces,
             List<StateCallback> deviceStateCallbacks,
             List<CameraCaptureSession.StateCallback> sessionStateCallbacks,
-            CaptureConfig captureConfig) {
+            List<CameraCaptureCallback> singleCameraCaptureCallbacks,
+            CaptureConfig repeatingCaptureConfig) {
         mSurfaces = surfaces;
         mDeviceStateCallbacks = Collections.unmodifiableList(deviceStateCallbacks);
         mSessionStateCallbacks = Collections.unmodifiableList(sessionStateCallbacks);
-        mCaptureConfig = captureConfig;
+        mSingleCameraCaptureCallbacks =
+                Collections.unmodifiableList(singleCameraCaptureCallbacks);
+        mRepeatingCaptureConfig = repeatingCaptureConfig;
     }
 
     /** Returns an instance of a session configuration with minimal configurations. */
@@ -84,6 +89,7 @@ public final class SessionConfig {
                 new ArrayList<DeferrableSurface>(),
                 new ArrayList<CameraDevice.StateCallback>(0),
                 new ArrayList<CameraCaptureSession.StateCallback>(0),
+                new ArrayList<CameraCaptureCallback>(0),
                 new CaptureConfig.Builder().build());
     }
 
@@ -92,15 +98,15 @@ public final class SessionConfig {
     }
 
     public Map<Key<?>, CaptureRequestParameter<?>> getCameraCharacteristics() {
-        return mCaptureConfig.getCameraCharacteristics();
+        return mRepeatingCaptureConfig.getCameraCharacteristics();
     }
 
     public Config getImplementationOptions() {
-        return mCaptureConfig.getImplementationOptions();
+        return mRepeatingCaptureConfig.getImplementationOptions();
     }
 
     public int getTemplateType() {
-        return mCaptureConfig.getTemplateType();
+        return mRepeatingCaptureConfig.getTemplateType();
     }
 
     /** Obtains all registered {@link CameraDevice.StateCallback} callbacks. */
@@ -113,13 +119,18 @@ public final class SessionConfig {
         return mSessionStateCallbacks;
     }
 
-    /** Obtains all registered {@link CameraCaptureCallback} callbacks. */
-    public List<CameraCaptureCallback> getCameraCaptureCallbacks() {
-        return mCaptureConfig.getCameraCaptureCallbacks();
+    /** Obtains all registered {@link CameraCaptureCallback} callbacks for repeating requests. */
+    public List<CameraCaptureCallback> getRepeatingCameraCaptureCallbacks() {
+        return mRepeatingCaptureConfig.getCameraCaptureCallbacks();
     }
 
-    public CaptureConfig getCaptureConfig() {
-        return mCaptureConfig;
+    /** Obtains all registered {@link CameraCaptureCallback} callbacks for single requests. */
+    public List<CameraCaptureCallback> getSingleCameraCaptureCallbacks() {
+        return mSingleCameraCaptureCallbacks;
+    }
+
+    public CaptureConfig getRepeatingCaptureConfig() {
+        return mRepeatingCaptureConfig;
     }
 
     /**
@@ -152,6 +163,8 @@ public final class SessionConfig {
         protected final CaptureConfig.Builder mCaptureConfigBuilder = new CaptureConfig.Builder();
         protected List<CameraDevice.StateCallback> mDeviceStateCallbacks = new ArrayList<>();
         protected List<CameraCaptureSession.StateCallback> mSessionStateCallbacks =
+                new ArrayList<>();
+        protected final List<CameraCaptureCallback> mInteropCameraCaptureCallbacks =
                 new ArrayList<>();
     }
 
@@ -242,21 +255,54 @@ public final class SessionConfig {
         }
 
         /**
-         * Adds a {@link CameraCaptureSession.StateCallback} callback.
+         * Adds a {@link CameraCaptureCallback} callback for repeating requests.
+         * <p>This callback does not call for single requests.
          * @throws IllegalArgumentException if the callback already exists in the configuration.
          */
-        public void addCameraCaptureCallback(CameraCaptureCallback cameraCaptureCallback) {
+        public void addRepeatingCameraCaptureCallback(CameraCaptureCallback cameraCaptureCallback) {
             mCaptureConfigBuilder.addCameraCaptureCallback(cameraCaptureCallback);
         }
 
         /**
-         * Adds all {@link CameraCaptureSession.StateCallback} callbacks.
+         * Adds all {@link CameraCaptureCallback} callbacks.
+         * <p>These callbacks do not call for single requests.
+         * @throws IllegalArgumentException if any callback already exists in the configuration.
+         */
+        public void addAllRepeatingCameraCaptureCallbacks(
+                Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
+            mCaptureConfigBuilder.addAllCameraCaptureCallbacks(cameraCaptureCallbacks);
+        }
+
+        /**
+         * Adds a {@link CameraCaptureCallback} callback for single and repeating requests.
+         * <p>Listeners added here are available in both the
+         * {@link #getRepeatingCameraCaptureCallbacks()} and
+         * {@link #getSingleCameraCaptureCallbacks()} methods.
+         * @throws IllegalArgumentException if the callback already exists in the configuration.
+         */
+        public void addCameraCaptureCallback(CameraCaptureCallback cameraCaptureCallback) {
+            mCaptureConfigBuilder.addCameraCaptureCallback(cameraCaptureCallback);
+            mInteropCameraCaptureCallbacks.add(cameraCaptureCallback);
+        }
+
+        /**
+         * Adds all {@link CameraCaptureCallback} callbacks for single and repeating requests.
+         * <p>Listeners added here are available in both the
+         * {@link #getRepeatingCameraCaptureCallbacks()} and
+         * {@link #getSingleCameraCaptureCallbacks()} methods.
          * @throws IllegalArgumentException if any callback already exists in the configuration.
          */
         public void addAllCameraCaptureCallbacks(
                 Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
             mCaptureConfigBuilder.addAllCameraCaptureCallbacks(cameraCaptureCallbacks);
+            mInteropCameraCaptureCallbacks.addAll(cameraCaptureCallbacks);
         }
+
+        /** Obtain all {@link CameraCaptureCallback} callbacks for single requests. */
+        public List<CameraCaptureCallback> getSingleCameraCaptureCallbacks() {
+            return Collections.unmodifiableList(mInteropCameraCaptureCallbacks);
+        }
+
 
         /** Add a surface to the set that the session repeatedly writes data to. */
         public void addSurface(DeferrableSurface surface) {
@@ -307,6 +353,7 @@ public final class SessionConfig {
                     new ArrayList<>(mSurfaces),
                     mDeviceStateCallbacks,
                     mSessionStateCallbacks,
+                    mInteropCameraCaptureCallbacks,
                     mCaptureConfigBuilder.build());
         }
     }
@@ -323,7 +370,8 @@ public final class SessionConfig {
         private final List<CameraDevice.StateCallback> mDeviceStateCallbacks = new ArrayList<>();
         private final List<CameraCaptureSession.StateCallback> mSessionStateCallbacks =
                 new ArrayList<>();
-        private final List<CameraCaptureCallback> mCameraCaptureCallbacks = new ArrayList<>();
+        private final List<CameraCaptureCallback> mSingleCameraCaptureCallbacks =
+                new ArrayList<>();
         private boolean mValid = true;
         private boolean mTemplateSet = false;
 
@@ -332,7 +380,7 @@ public final class SessionConfig {
          * ValidatingBuilder
          */
         public void add(SessionConfig sessionConfig) {
-            CaptureConfig captureConfig = sessionConfig.getCaptureConfig();
+            CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
 
             // Check template
             if (!mTemplateSet) {
@@ -354,8 +402,12 @@ public final class SessionConfig {
             // Check session state callbacks
             mSessionStateCallbacks.addAll(sessionConfig.getSessionStateCallbacks());
 
-            // Check camera capture callbacks
-            mCameraCaptureCallbacks.addAll(captureConfig.getCameraCaptureCallbacks());
+            // Check camera capture callbacks for repeating requests.
+            mCaptureConfigBuilder.addAllCameraCaptureCallbacks(
+                    sessionConfig.getRepeatingCameraCaptureCallbacks());
+
+            // Check camera capture callbacks for single requests.
+            mSingleCameraCaptureCallbacks.addAll(sessionConfig.getSingleCameraCaptureCallbacks());
 
             // Check surfaces
             mSurfaces.addAll(sessionConfig.getSurfaces());
@@ -411,11 +463,11 @@ public final class SessionConfig {
             if (!mValid) {
                 throw new IllegalArgumentException("Unsupported session configuration combination");
             }
-            mCaptureConfigBuilder.addAllCameraCaptureCallbacks(mCameraCaptureCallbacks);
             return new SessionConfig(
                     new ArrayList<>(mSurfaces),
                     mDeviceStateCallbacks,
                     mSessionStateCallbacks,
+                    mSingleCameraCaptureCallbacks,
                     mCaptureConfigBuilder.build());
         }
     }

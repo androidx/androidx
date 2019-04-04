@@ -347,7 +347,7 @@ final class CaptureSession {
             return;
         }
 
-        CaptureConfig captureConfig = mSessionConfig.getCaptureConfig();
+        CaptureConfig captureConfig = mSessionConfig.getRepeatingCaptureConfig();
 
         try {
             Log.d(TAG, "Issuing request for session.");

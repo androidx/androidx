@@ -81,7 +81,8 @@ public class SessionConfigTest {
         SessionConfig sessionConfig = builder.build();
 
         List<DeferrableSurface> surfaces = sessionConfig.getSurfaces();
-        List<DeferrableSurface> repeatingSurfaces = sessionConfig.getCaptureConfig().getSurfaces();
+        List<DeferrableSurface> repeatingSurfaces =
+                sessionConfig.getRepeatingCaptureConfig().getSurfaces();
 
         assertThat(surfaces).hasSize(1);
         assertThat(surfaces).contains(mMockSurface0);
@@ -99,7 +100,8 @@ public class SessionConfigTest {
 
         List<Surface> surfaces = DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces());
         List<Surface> repeatingSurfaces =
-                DeferrableSurfaces.surfaceList(sessionConfig.getCaptureConfig().getSurfaces());
+                DeferrableSurfaces.surfaceList(
+                        sessionConfig.getRepeatingCaptureConfig().getSurfaces());
 
         assertThat(surfaces.size()).isAtLeast(repeatingSurfaces.size());
         assertThat(surfaces).containsAllIn(repeatingSurfaces);
@@ -292,46 +294,52 @@ public class SessionConfigTest {
     }
 
     @Test
-    public void builderAddMultipleCameraCaptureCallbacks() {
+    public void builderAddMultipleRepeatingCameraCaptureCallbacks() {
         SessionConfig.Builder builder = new SessionConfig.Builder();
         CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
         CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);
 
-        builder.addCameraCaptureCallback(callback0);
-        builder.addCameraCaptureCallback(callback1);
+        builder.addRepeatingCameraCaptureCallback(callback0);
+        builder.addRepeatingCameraCaptureCallback(callback1);
         SessionConfig configuration = builder.build();
 
-        assertThat(configuration.getCameraCaptureCallbacks()).containsExactly(callback0, callback1);
+        assertThat(configuration.getRepeatingCameraCaptureCallbacks())
+                .containsExactly(callback0, callback1);
+        assertThat(configuration.getSingleCameraCaptureCallbacks())
+                .containsNoneOf(callback0, callback1);
     }
 
     @Test
-    public void builderAddAllCameraCaptureCallbacks() {
+    public void builderAddAllRepeatingCameraCaptureCallbacks() {
         SessionConfig.Builder builder = new SessionConfig.Builder();
         CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
         CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);
         List<CameraCaptureCallback> callbacks = Lists.newArrayList(callback0, callback1);
 
-        builder.addAllCameraCaptureCallbacks(callbacks);
+        builder.addAllRepeatingCameraCaptureCallbacks(callbacks);
         SessionConfig configuration = builder.build();
 
-        assertThat(configuration.getCameraCaptureCallbacks()).containsExactly(callback0, callback1);
+        assertThat(configuration.getRepeatingCameraCaptureCallbacks())
+                .containsExactly(callback0, callback1);
+        assertThat(configuration.getSingleCameraCaptureCallbacks())
+                .containsNoneOf(callback0, callback1);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void builderAddDuplicateCameraCaptureCallback_throwsException() {
+    public void builderAddDuplicateRepeatingCameraCaptureCallback_throwsException() {
         SessionConfig.Builder builder = new SessionConfig.Builder();
         CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
 
-        builder.addCameraCaptureCallback(callback0);
-        builder.addCameraCaptureCallback(callback0);
+        builder.addRepeatingCameraCaptureCallback(callback0);
+        builder.addRepeatingCameraCaptureCallback(callback0);
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void cameraCaptureCallbacks_areImmutable() {
+    public void repeatingCameraCaptureCallbacks_areImmutable() {
         SessionConfig.Builder builder = new SessionConfig.Builder();
         SessionConfig configuration = builder.build();
 
-        configuration.getCameraCaptureCallbacks().add(mock(CameraCaptureCallback.class));
+        configuration.getRepeatingCameraCaptureCallbacks().add(mock(CameraCaptureCallback.class));
     }
 
     @Test
@@ -427,4 +435,93 @@ public class SessionConfigTest {
                 .add(mock(CameraCaptureSession.StateCallback.class));
     }
 
+    @Test
+    public void builderAddMultipleCameraCallbacks() {
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+        CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
+        CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);
+
+        builder.addCameraCaptureCallback(callback0);
+        builder.addCameraCaptureCallback(callback1);
+        SessionConfig configuration = builder.build();
+
+        assertThat(configuration.getSingleCameraCaptureCallbacks())
+                .containsExactly(callback0, callback1);
+        assertThat(configuration.getRepeatingCameraCaptureCallbacks())
+                .containsExactly(callback0, callback1);
+    }
+
+    @Test
+    public void builderAddAllCameraCallbacks() {
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+        CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
+        CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);
+        List<CameraCaptureCallback> callbacks = Lists.newArrayList(callback0, callback1);
+
+        builder.addAllCameraCaptureCallbacks(callbacks);
+        SessionConfig configuration = builder.build();
+
+        assertThat(configuration.getSingleCameraCaptureCallbacks())
+                .containsExactly(callback0, callback1);
+        assertThat(configuration.getRepeatingCameraCaptureCallbacks())
+                .containsExactly(callback0, callback1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void builderAddDuplicateCameraCallback_throwsException() {
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+        CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
+
+        builder.addCameraCaptureCallback(callback0);
+        builder.addCameraCaptureCallback(callback0);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void singleCameraCaptureCallbacks_areImmutable() {
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+        SessionConfig configuration = builder.build();
+
+        configuration.getSingleCameraCaptureCallbacks().add(mock(CameraCaptureCallback.class));
+    }
+
+    @Test
+    public void combineTwoSessionsCallbacks() {
+        SessionConfig.Builder builder0 = new SessionConfig.Builder();
+        CameraCaptureSession.StateCallback sessionCallback0 =
+                mock(CameraCaptureSession.StateCallback.class);
+        CameraDevice.StateCallback deviceCallback0 =  mock(CameraDevice.StateCallback.class);
+        CameraCaptureCallback repeatingCallback0 =  mock(CameraCaptureCallback.class);
+        CameraCaptureCallback cameraCallback0 = mock(CameraCaptureCallback.class);
+        builder0.addSessionStateCallback(sessionCallback0);
+        builder0.addDeviceStateCallback(deviceCallback0);
+        builder0.addRepeatingCameraCaptureCallback(repeatingCallback0);
+        builder0.addCameraCaptureCallback(cameraCallback0);
+
+        SessionConfig.Builder builder1 = new SessionConfig.Builder();
+        CameraCaptureSession.StateCallback sessionCallback1 =
+                mock(CameraCaptureSession.StateCallback.class);
+        CameraDevice.StateCallback deviceCallback1 =  mock(CameraDevice.StateCallback.class);
+        CameraCaptureCallback repeatingCallback1 =  mock(CameraCaptureCallback.class);
+        CameraCaptureCallback cameraCallback1 = mock(CameraCaptureCallback.class);
+        builder1.addSessionStateCallback(sessionCallback1);
+        builder1.addDeviceStateCallback(deviceCallback1);
+        builder1.addRepeatingCameraCaptureCallback(repeatingCallback1);
+        builder1.addCameraCaptureCallback(cameraCallback1);
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+        validatingBuilder.add(builder0.build());
+        validatingBuilder.add(builder1.build());
+
+        SessionConfig sessionConfig = validatingBuilder.build();
+
+        assertThat(sessionConfig.getSessionStateCallbacks())
+                .containsExactly(sessionCallback0, sessionCallback1);
+        assertThat(sessionConfig.getDeviceStateCallbacks())
+                .containsExactly(deviceCallback0, deviceCallback1);
+        assertThat(sessionConfig.getRepeatingCameraCaptureCallbacks())
+                .containsExactly(
+                        repeatingCallback0, cameraCallback0, repeatingCallback1, cameraCallback1);
+        assertThat(sessionConfig.getSingleCameraCaptureCallbacks())
+                .containsExactly(cameraCallback0, cameraCallback1);
+    }
 }
