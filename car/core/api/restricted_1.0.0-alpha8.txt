@@ -1,0 +1,103 @@
+// Signature format: 3.0
+package androidx.car.navigation.utils {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface Bundlable {
+    method public void fromBundle(androidx.car.navigation.utils.BundleMarshaller);
+    method public void toBundle(androidx.car.navigation.utils.BundleMarshaller);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class BundleMarshaller {
+    ctor public BundleMarshaller();
+    method public void applyDelta(android.os.Bundle!);
+    method public boolean getBoolean(String);
+    method public <T extends androidx.car.navigation.utils.Bundlable> T? getBundlable(String, T?, java.util.function.Supplier<T>);
+    method public <T extends androidx.car.navigation.utils.Bundlable> java.util.List<T>? getBundlableList(String, java.util.List<T>?, java.util.function.Supplier<T>);
+    method public <T extends androidx.car.navigation.utils.Bundlable> java.util.List<T> getBundlableListNonNull(String, java.util.List<T>, java.util.function.Supplier<T>);
+    method public <T extends androidx.car.navigation.utils.Bundlable> T getBundlableNonNull(String, T, java.util.function.Supplier<T>);
+    method public android.os.Bundle! getBundle();
+    method public android.os.Bundle! getDelta();
+    method public double getDouble(String);
+    method public <T extends java.lang.Enum<T>> T? getEnum(String, Class<T>);
+    method public <T extends java.lang.Enum<T>> T getEnumNonNull(String, Class<T>, T);
+    method public float getFloat(String);
+    method public int getInt(String);
+    method public String? getString(String);
+    method public String getStringNonNull(String, String);
+    method public void putBoolean(String, boolean);
+    method public <T extends androidx.car.navigation.utils.Bundlable> void putBundlable(String, T?);
+    method public <T extends androidx.car.navigation.utils.Bundlable> void putBundlableList(String, java.util.List<T>?);
+    method public void putDouble(String, double);
+    method public <T extends java.lang.Enum<T>> void putEnum(String, T?);
+    method public void putFloat(String, float);
+    method public void putInt(String, int);
+    method public void putString(String, String?);
+    method public void resetBundle();
+    method public void resetDelta();
+    method public void setBundle(android.os.Bundle!);
+  }
+
+}
+
+package androidx.car.util {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class CarUxRestrictionsUtils {
+    method public static void apply(android.content.Context!, androidx.car.uxrestrictions.CarUxRestrictions!, android.widget.TextView!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DropShadowScrollListener extends androidx.recyclerview.widget.RecyclerView.OnScrollListener {
+    ctor public DropShadowScrollListener(android.view.View!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class GridLayoutManagerUtils {
+    method public static int getFirstRowItemCount(androidx.recyclerview.widget.RecyclerView!);
+    method public static int getLastItemPositionOnSameRow(android.view.View!, androidx.recyclerview.widget.RecyclerView!);
+    method public static int getSpanIndex(android.view.View!);
+    method public static boolean isOnLastRow(android.view.View!, androidx.recyclerview.widget.RecyclerView!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ListItemBackgroundResolver {
+    method public static void setBackground(android.view.View!, int, int);
+  }
+
+}
+
+package androidx.car.uxrestrictions {
+
+  public final class CarUxRestrictions {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public CarUxRestrictions(android.car.drivingstate.CarUxRestrictions!);
+  }
+
+  @IntDef(flag=true, value={androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_BASELINE, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_DIALPAD, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_FILTERING, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_LIMIT_STRING_LENGTH, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_LIMIT_CONTENT, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_TEXT_MESSAGE, androidx.car.uxrestrictions.CarUxRestrictions.UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CarUxRestrictions.CarUxRestrictionsInfo {
+  }
+
+}
+
+package androidx.car.widget.itemdecorators {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class BottomOffsetDecoration extends androidx.recyclerview.widget.RecyclerView.ItemDecoration {
+    ctor public BottomOffsetDecoration(int);
+    method public int getBottomOffset();
+    method public void setBottomOffset(int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DividerDecoration extends androidx.recyclerview.widget.RecyclerView.ItemDecoration {
+    ctor public DividerDecoration(android.content.Context!, int, int, @IdRes int, @IdRes int, @ColorRes int);
+    method public void setDividerColor(@ColorRes int);
+    method public void setVisibilityManager(androidx.car.widget.PagedListView.DividerVisibilityManager!);
+    method public void updateDividerColor();
+    field public static final int INVALID_RESOURCE_ID = -1; // 0xffffffff
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ItemSpacingDecoration extends androidx.recyclerview.widget.RecyclerView.ItemDecoration {
+    ctor public ItemSpacingDecoration(int);
+    method public void setItemSpacing(int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TopOffsetDecoration extends androidx.recyclerview.widget.RecyclerView.ItemDecoration {
+    ctor public TopOffsetDecoration(int);
+    method public int getTopOffset();
+    method public void setTopOffset(int);
+  }
+
+}
+
