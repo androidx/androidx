@@ -388,7 +388,15 @@ final class CaptureSession {
             Option<Object> typeErasedOption = (Option<Object>) option;
             @SuppressWarnings("unchecked")
             CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();
-            builder.set(key, camera2Config.retrieveOption(typeErasedOption));
+
+            // TODO(b/129997028): Error of setting unavailable CaptureRequest.Key may need to
+            //  send back out to the developer
+            try {
+                // Ignores keys that don't exist
+                builder.set(key, camera2Config.retrieveOption(typeErasedOption));
+            } catch (IllegalArgumentException e) {
+                Log.e(TAG, "CaptureRequest.Key is not supported: " + key);
+            }
         }
     }
 
