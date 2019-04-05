@@ -378,7 +378,7 @@ public class WorkSpec {
     }
 
     /**
-     * A POJO containing the ID, state, output, and tags of a WorkSpec.
+     * A POJO containing the ID, state, output, tags, and run attempt count of a WorkSpec.
      */
     public static class WorkInfoPojo {
 
@@ -390,6 +390,9 @@ public class WorkSpec {
 
         @ColumnInfo(name = "output")
         public Data output;
+
+        @ColumnInfo(name = "run_attempt_count")
+        public int runAttemptCount;
 
         @Relation(
                 parentColumn = "id",
@@ -404,7 +407,7 @@ public class WorkSpec {
          * @return The {@link WorkInfo} represented by this POJO
          */
         public WorkInfo toWorkInfo() {
-            return new WorkInfo(UUID.fromString(id), state, output, tags);
+            return new WorkInfo(UUID.fromString(id), state, output, tags, runAttemptCount);
         }
 
         @Override
@@ -414,6 +417,7 @@ public class WorkSpec {
 
             WorkInfoPojo that = (WorkInfoPojo) o;
 
+            if (runAttemptCount != that.runAttemptCount) return false;
             if (id != null ? !id.equals(that.id) : that.id != null) return false;
             if (state != that.state) return false;
             if (output != null ? !output.equals(that.output) : that.output != null) return false;
@@ -425,6 +429,7 @@ public class WorkSpec {
             int result = id != null ? id.hashCode() : 0;
             result = 31 * result + (state != null ? state.hashCode() : 0);
             result = 31 * result + (output != null ? output.hashCode() : 0);
+            result = 31 * result + runAttemptCount;
             result = 31 * result + (tags != null ? tags.hashCode() : 0);
             return result;
         }

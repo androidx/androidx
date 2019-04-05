@@ -31,6 +31,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -309,6 +310,20 @@ public class MainActivity extends AppCompatActivity {
 
                 WorkManager.getInstance(MainActivity.this)
                         .enqueueUniqueWork(RetryWorker.TAG, REPLACE, request);
+                WorkManager.getInstance(MainActivity.this).getWorkInfoByIdLiveData(request.getId())
+                        .observe(MainActivity.this, new Observer<WorkInfo>() {
+                            @Override
+                            public void onChanged(WorkInfo workInfo) {
+                                if (workInfo == null) {
+                                    return;
+                                }
+                                Toast.makeText(
+                                        MainActivity.this,
+                                        "Run attempt count #" + workInfo.getRunAttemptCount(),
+                                        Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+                        });
             }
         });
 
