@@ -16,7 +16,6 @@
 
 package androidx.camera.core;
 
-import android.annotation.SuppressLint;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -101,7 +100,6 @@ public abstract class DeferrableSurface {
      * resources in the listener. This can ensure the surface is closed after it is no longer held
      * in camera.
      */
-    @SuppressLint("RestrictedApi") // TODO(b/124323692): Remove after aosp/900913 is merged
     public void setOnSurfaceDetachedListener(@NonNull Executor executor,
             @NonNull OnSurfaceDetachedListener listener) {
         Preconditions.checkNotNull(executor);
@@ -121,7 +119,6 @@ public abstract class DeferrableSurface {
         }
     }
 
-    @SuppressLint("RestrictedApi") // TODO(b/124323692): Remove after aosp/900913 is merged
     private static void callOnSurfaceDetachedListener(
             @NonNull final OnSurfaceDetachedListener listener, @NonNull Executor executor) {
         Preconditions.checkNotNull(executor);

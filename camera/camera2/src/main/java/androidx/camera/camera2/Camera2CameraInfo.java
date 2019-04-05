@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2;
 
-import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
@@ -54,7 +53,6 @@ final class Camera2CameraInfo implements CameraInfo {
         logDeviceInfo();
     }
 
-    @SuppressLint("RestrictedApi") // TODO(b/124323692): Remove after aosp/900913 is merged
     @Nullable
     @Override
     public LensFacing getLensFacing() {
@@ -70,7 +68,6 @@ final class Camera2CameraInfo implements CameraInfo {
         }
     }
 
-    @SuppressLint("RestrictedApi") // TODO(b/124323692): Remove after aosp/900913 is merged
     @Override
     public int getSensorRotationDegrees(@RotationValue int relativeRotation) {
         Integer sensorOrientation =
@@ -88,7 +85,6 @@ final class Camera2CameraInfo implements CameraInfo {
                 isOppositeFacingScreen);
     }
 
-    @SuppressLint("RestrictedApi") // TODO(b/124323692): Remove after aosp/900913 is merged
     int getSupportedHardwareLevel() {
         Integer deviceLevel =
                 mCameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
