@@ -48,6 +48,9 @@ init.configureSubProjects()
 
 apply plugin: AndroidXPlugin
 
+// TODO(b/130047144): Remove this
+task('jacocoTestReport') {} // Fake task to unbreak the build
+
 // AndroidX needed before jetify since it accesses the createArchive task name directly.
 /*
 apply from: 'buildSrc/jetify.gradle'
