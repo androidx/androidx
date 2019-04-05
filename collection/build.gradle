@@ -19,7 +19,8 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
 plugins {
-    id("SupportJavaLibraryPlugin")
+    id("AndroidXPlugin")
+    id("java")
 }
 
 dependencies {
