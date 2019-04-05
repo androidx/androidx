@@ -376,9 +376,18 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".app.AppCompatNightModeActivity"
-                  android:label="@string/mode_night_activity_title"
+        <activity android:name=".app.AppCompatDefaultNightModeActivity"
+                  android:label="@string/mode_night_activity_title_default"
                   android:theme="@style/Theme.AppCompat.DayNight">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".app.AppCompatLocalNightModeActivity"
+            android:label="@string/mode_night_activity_title_local"
+            android:theme="@style/Theme.AppCompat.DayNight">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />

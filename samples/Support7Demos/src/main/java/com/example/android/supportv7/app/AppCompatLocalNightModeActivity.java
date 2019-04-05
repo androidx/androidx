@@ -29,7 +29,7 @@ import com.example.android.supportv7.R;
 /**
  * This demonstrates idiomatic usage of AppCompatActivity with Theme.AppCompat.DayNight
  */
-public class AppCompatNightModeActivity extends AppCompatActivity {
+public class AppCompatLocalNightModeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
