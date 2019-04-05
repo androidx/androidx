@@ -7,6 +7,7 @@ plugins {
     id("SupportAndroidLibraryPlugin")
     id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
+    id("r4a")
 }
 
 dependencies {
@@ -15,6 +16,8 @@ dependencies {
     api project(":ui-core")
     api project(":ui-intermediate")
     implementation project(":ui-platform")
+    implementation(KOTLIN_R4A_STDLIB)
+    implementation(KOTLIN_R4A_RUNTIME)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)

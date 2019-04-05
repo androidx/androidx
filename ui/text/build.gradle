@@ -30,6 +30,7 @@ dependencies {
     api project(":ui-android-text")
     api project(":ui-core")
 
+    implementation(KOTLIN_R4A_STDLIB)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)

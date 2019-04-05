@@ -6,6 +6,7 @@ plugins {
     id("SupportAndroidLibraryPlugin")
     id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
+    id("r4a")
 }
 
 dependencies {

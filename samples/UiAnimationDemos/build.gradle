@@ -5,12 +5,14 @@ import androidx.build.LibraryVersions
 plugins {
     id("SupportAndroidLibraryPlugin")
     id("org.jetbrains.kotlin.android")
+    id("r4a")
 }
 
 dependencies {
     api "androidx.annotation:annotation:1.0.0"
     api "androidx.activity:activity:1.0.0-alpha01"
     api(KOTLIN_R4A_STDLIB)
+    api(KOTLIN_R4A_RUNTIME)
     api project(':ui-animation')
     implementation project(":ui-framework-adapter")
 }

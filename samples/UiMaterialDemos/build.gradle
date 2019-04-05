@@ -6,6 +6,7 @@ plugins {
     id("SupportAndroidLibraryPlugin")
     id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
+    id("r4a")
 }
 
 dependencies {
@@ -13,6 +14,7 @@ dependencies {
     api "androidx.activity:activity:1.0.0-alpha01"
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
+    api(KOTLIN_R4A_RUNTIME)
     api project(':ui-material')
     implementation project(":ui-framework-adapter")
     implementation project(":ui-layout")
