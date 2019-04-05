@@ -103,8 +103,7 @@ open class BaseTest {
 
         // animations getting in the way on API < 16
         if (Build.VERSION.SDK_INT < 16) {
-            val recyclerView: RecyclerView = viewPager.getChildAt(0) as RecyclerView
-            recyclerView.overScrollMode = OVER_SCROLL_NEVER
+            viewPager.recyclerView.overScrollMode = OVER_SCROLL_NEVER
         }
 
         return Context(activityTestRule)
@@ -329,10 +328,14 @@ open class BaseTest {
             }
         }
 
+    val ViewPager2.recyclerView: RecyclerView
+        get() {
+            return getChildAt(0) as RecyclerView
+        }
+
     val ViewPager2.currentCompletelyVisibleItem: Int
         get() {
-            return ((getChildAt(0) as RecyclerView)
-                .layoutManager as LinearLayoutManager)
+            return (recyclerView.layoutManager as LinearLayoutManager)
                 .findFirstCompletelyVisibleItemPosition()
         }
 
