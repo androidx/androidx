@@ -26,8 +26,8 @@ import java.util.UUID;
 
 /**
  * Information about a particular {@link WorkRequest} containing the id of the WorkRequest, its
- * current {@link State}, output, and tags.  Note that output is only available for the terminal
- * states ({@link State#SUCCEEDED} and {@link State#FAILED}).
+ * current {@link State}, output, tags, and run attempt count.  Note that output is only available
+ * for the terminal states ({@link State#SUCCEEDED} and {@link State#FAILED}).
  */
 
 public final class WorkInfo {
@@ -36,6 +36,7 @@ public final class WorkInfo {
     private @NonNull State mState;
     private @NonNull Data mOutputData;
     private @NonNull Set<String> mTags;
+    private int mRunAttemptCount;
 
     /**
      * @hide
@@ -45,11 +46,13 @@ public final class WorkInfo {
             @NonNull UUID id,
             @NonNull State state,
             @NonNull Data outputData,
-            @NonNull List<String> tags) {
+            @NonNull List<String> tags,
+            int runAttemptCount) {
         mId = id;
         mState = state;
         mOutputData = outputData;
         mTags = new HashSet<>(tags);
+        mRunAttemptCount = runAttemptCount;
     }
 
     /**
@@ -89,28 +92,37 @@ public final class WorkInfo {
         return mTags;
     }
 
+    /**
+     * Gets the run attempt count of the {@link WorkRequest}.  Note that for
+     * {@link PeriodicWorkRequest}s, the run attempt count gets reset between successful runs.
+     *
+     * @return The run attempt count of the {@link WorkRequest}.
+     */
+    public int getRunAttemptCount() {
+        return mRunAttemptCount;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        WorkInfo that = (WorkInfo) o;
+        WorkInfo workInfo = (WorkInfo) o;
 
-        if (mId != null ? !mId.equals(that.mId) : that.mId != null) return false;
-        if (mState != that.mState) return false;
-        if (mOutputData != null ? !mOutputData.equals(that.mOutputData)
-                : that.mOutputData != null) {
-            return false;
-        }
-        return mTags != null ? mTags.equals(that.mTags) : that.mTags == null;
+        if (mRunAttemptCount != workInfo.mRunAttemptCount) return false;
+        if (!mId.equals(workInfo.mId)) return false;
+        if (mState != workInfo.mState) return false;
+        if (!mOutputData.equals(workInfo.mOutputData)) return false;
+        return mTags.equals(workInfo.mTags);
     }
 
     @Override
     public int hashCode() {
-        int result = mId != null ? mId.hashCode() : 0;
-        result = 31 * result + (mState != null ? mState.hashCode() : 0);
-        result = 31 * result + (mOutputData != null ? mOutputData.hashCode() : 0);
-        result = 31 * result + (mTags != null ? mTags.hashCode() : 0);
+        int result = mId.hashCode();
+        result = 31 * result + mState.hashCode();
+        result = 31 * result + mOutputData.hashCode();
+        result = 31 * result + mTags.hashCode();
+        result = 31 * result + mRunAttemptCount;
         return result;
     }
 

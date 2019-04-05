@@ -208,6 +208,7 @@ package androidx.work {
   public final class WorkInfo {
     method public java.util.UUID getId();
     method public androidx.work.Data getOutputData();
+    method public int getRunAttemptCount();
     method public androidx.work.WorkInfo.State getState();
     method public java.util.Set<java.lang.String> getTags();
   }
