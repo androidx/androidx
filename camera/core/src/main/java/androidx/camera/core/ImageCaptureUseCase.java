@@ -44,6 +44,7 @@ import androidx.camera.core.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.CameraCaptureResult.EmptyCameraCaptureResult;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.ResolvableFuture;
 
 import com.google.common.base.Function;
@@ -51,7 +52,6 @@ import com.google.common.util.concurrent.AsyncCallable;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
@@ -662,7 +662,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * <p>For example, cancel 3A scan, close torch if necessary.
      */
     ListenableFuture<Void> postTakePicture(final TakePictureState state) {
-        return Futures.submitAsync(
+        return com.google.common.util.concurrent.Futures.submitAsync(
                 new AsyncCallable<Void>() {
                     @Override
                     public ListenableFuture<Void> call() throws Exception {
@@ -855,7 +855,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
             getCurrentCameraControl().submitSingleRequest(builder.build());
         }
 
-        return Futures.whenAllSucceed(futureList).call(
+        return com.google.common.util.concurrent.Futures.whenAllSucceed(futureList).call(
                 new Callable<Void>() {
                     @Override
                     public Void call() {
