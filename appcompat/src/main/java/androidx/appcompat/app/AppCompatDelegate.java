@@ -238,6 +238,18 @@ public abstract class AppCompatDelegate {
     }
 
     /**
+     * Create an {@link androidx.appcompat.app.AppCompatDelegate} to use with a {@code context}
+     * and hosted by an {@code Activity}.
+     *
+     * @param callback An optional callback for AppCompat specific events
+     */
+    @NonNull
+    public static AppCompatDelegate create(@NonNull Context context, @NonNull Activity activity,
+            @Nullable AppCompatCallback callback) {
+        return new AppCompatDelegateImpl(context, activity, callback);
+    }
+
+    /**
      * Private constructor
      */
     AppCompatDelegate() {}
