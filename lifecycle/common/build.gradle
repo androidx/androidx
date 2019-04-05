@@ -22,7 +22,8 @@ import androidx.build.AndroidXExtension
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
-    id("SupportJavaLibraryPlugin")
+    id("AndroidXPlugin")
+    id("java")
 }
 
 dependencies {
