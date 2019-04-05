@@ -16,37 +16,52 @@
 
 package androidx.appcompat.app;
 
+import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
+import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
 import static androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals;
-import static androidx.appcompat.testutils.NightModeUtils.setLocalNightModeAndWait;
+import static androidx.appcompat.testutils.NightModeUtils.setNightModeAndWait;
 
 import static org.junit.Assert.assertEquals;
 
 import android.content.res.Configuration;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.appcompat.testutils.NightModeUtils.NightSetMode;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 @LargeTest
-@RunWith(AndroidJUnit4.class)
+@RunWith(Parameterized.class)
 public class NightModeUiModeConfigChangesTestCase {
+    @Parameterized.Parameters
+    public static Collection<NightSetMode> data() {
+        return Arrays.asList(NightSetMode.DEFAULT, NightSetMode.LOCAL);
+    }
+
+    private final NightSetMode mSetMode;
+
     @Rule
     public final ActivityTestRule<NightModeUiModeConfigChangesActivity> mActivityTestRule;
 
-    public NightModeUiModeConfigChangesTestCase() {
+    public NightModeUiModeConfigChangesTestCase(NightSetMode setMode) {
+        mSetMode = setMode;
         mActivityTestRule = new ActivityTestRule<>(NightModeUiModeConfigChangesActivity.class);
     }
 
     @Before
     public void setup() {
         // By default we'll set the night mode to NO, which allows us to make better
-        // assumptions in the test below
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        // assumptions in the tests below
+        AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO);
     }
 
     @Test
@@ -56,14 +71,14 @@ public class NightModeUiModeConfigChangesTestCase {
                 & Configuration.UI_MODE_NIGHT_MASK;
 
         // Set local night mode to YES
-        setLocalNightModeAndWait(mActivityTestRule, AppCompatDelegate.MODE_NIGHT_YES);
+        setNightModeAndWait(mActivityTestRule, MODE_NIGHT_YES, mSetMode);
 
         // Assert that the Activity did not get updated
         assertConfigurationNightModeEquals(defaultNightMode,
                 mActivityTestRule.getActivity().getResources().getConfiguration());
 
         // Set local night mode back to NO
-        setLocalNightModeAndWait(mActivityTestRule, AppCompatDelegate.MODE_NIGHT_NO);
+        setNightModeAndWait(mActivityTestRule, MODE_NIGHT_NO, mSetMode);
 
         // Assert that the Activity did not get updated
         assertConfigurationNightModeEquals(defaultNightMode,
@@ -73,15 +88,19 @@ public class NightModeUiModeConfigChangesTestCase {
     @Test
     public void testOnNightModeChangedCalled() throws Throwable {
         // Set local night mode to YES
-        setLocalNightModeAndWait(mActivityTestRule, AppCompatDelegate.MODE_NIGHT_YES);
+        setNightModeAndWait(mActivityTestRule, MODE_NIGHT_YES, mSetMode);
         // Assert that the Activity received a new value
-        assertEquals(AppCompatDelegate.MODE_NIGHT_YES,
-                mActivityTestRule.getActivity().getLastNightModeAndReset());
+        assertEquals(MODE_NIGHT_YES, mActivityTestRule.getActivity().getLastNightModeAndReset());
 
         // Set local night mode to NO
-        setLocalNightModeAndWait(mActivityTestRule, AppCompatDelegate.MODE_NIGHT_NO);
+        setNightModeAndWait(mActivityTestRule, MODE_NIGHT_NO, mSetMode);
         // Assert that the Activity received a new value
-        assertEquals(AppCompatDelegate.MODE_NIGHT_NO,
-                mActivityTestRule.getActivity().getLastNightModeAndReset());
+        assertEquals(MODE_NIGHT_NO, mActivityTestRule.getActivity().getLastNightModeAndReset());
+    }
+
+    @After
+    public void cleanup() throws Throwable {
+        // Reset the default night mode
+        setNightModeAndWait(mActivityTestRule, MODE_NIGHT_NO, NightSetMode.DEFAULT);
     }
 }
