@@ -46,6 +46,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.res.TypedArrayUtils;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import java.util.ArrayList;
@@ -498,9 +499,11 @@ public class Preference implements Comparable<Preference> {
      *               returns.
      */
     public void onBindViewHolder(PreferenceViewHolder holder) {
+        View itemView = holder.itemView;
         Integer summaryTextColor = null;
-        holder.itemView.setOnClickListener(mClickListener);
-        holder.itemView.setId(mViewId);
+
+        itemView.setOnClickListener(mClickListener);
+        itemView.setId(mViewId);
 
         final TextView summaryView = (TextView) holder.findViewById(android.R.id.summary);
         if (summaryView != null) {
@@ -563,23 +566,30 @@ public class Preference implements Comparable<Preference> {
         }
 
         if (mShouldDisableView) {
-            setEnabledStateOnViews(holder.itemView, isEnabled());
+            setEnabledStateOnViews(itemView, isEnabled());
         } else {
-            setEnabledStateOnViews(holder.itemView, true);
+            setEnabledStateOnViews(itemView, true);
         }
 
         final boolean selectable = isSelectable();
-        holder.itemView.setFocusable(selectable);
-        holder.itemView.setClickable(selectable);
+        itemView.setFocusable(selectable);
+        itemView.setClickable(selectable);
 
         holder.setDividerAllowedAbove(mAllowDividerAbove);
         holder.setDividerAllowedBelow(mAllowDividerBelow);
 
-        if (isCopyingEnabled() && mOnCopyListener == null) {
+        final boolean copyingEnabled = isCopyingEnabled();
+
+        if (copyingEnabled && mOnCopyListener == null) {
             mOnCopyListener = new OnPreferenceCopyListener(this);
         }
-        holder.itemView.setOnCreateContextMenuListener(isCopyingEnabled() ? mOnCopyListener : null);
-        holder.itemView.setLongClickable(isCopyingEnabled());
+        itemView.setOnCreateContextMenuListener(copyingEnabled ? mOnCopyListener : null);
+        itemView.setLongClickable(copyingEnabled);
+
+        // Remove touch ripple if the view isn't selectable
+        if (copyingEnabled && !selectable) {
+            ViewCompat.setBackground(itemView, null);
+        }
     }
 
     /**
@@ -1165,7 +1175,7 @@ public class Preference implements Comparable<Preference> {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void performClick() {
 
-        if (!isEnabled()) {
+        if (!isEnabled() || !isSelectable()) {
             return;
         }
 
