@@ -222,7 +222,8 @@
     <string name="mode_night_no">MODE_NIGHT_NO</string>
     <string name="mode_night_auto_time">MODE_NIGHT_AUTO_TIME</string>
     <string name="mode_night_auto_battery">MODE_NIGHT_AUTO_BATTERY</string>
-    <string name="mode_night_activity_title">AppCompat/DayNight/Activity Usage</string>
+    <string name="mode_night_activity_title_local">AppCompat/DayNight/Activity Usage (local)</string>
+    <string name="mode_night_activity_title_default">AppCompat/DayNight/Activity Usage (default)</string>
     <string name="mode_night_dialog_title">AppCompat/DayNight/Dialog Usage</string>
     <string name="mode_night_alertdialog_title">AppCompat/DayNight/AlertDialog Usage</string>
 
