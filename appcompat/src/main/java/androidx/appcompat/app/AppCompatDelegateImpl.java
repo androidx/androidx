@@ -273,6 +273,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         this(context, window, callback, context);
     }
 
+    AppCompatDelegateImpl(Context context, Activity activity, AppCompatCallback callback) {
+        this(context, null, callback, activity);
+    }
+
     private AppCompatDelegateImpl(Context context, Window window, AppCompatCallback callback,
             Object host) {
         mContext = context;
