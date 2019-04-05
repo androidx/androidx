@@ -1,8 +1,5 @@
+import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
 import static androidx.build.dependencies.DependenciesKt.MATERIAL
-
-buildscript {
-    ext.kotlin_version = '1.2.0'
-}
 
 plugins {
     id("AndroidXPlugin")
@@ -18,7 +15,7 @@ dependencies {
     implementation(project(":cardview"))
     implementation(project(":coordinatorlayout"))
     implementation(project(":swiperefreshlayout"))
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
+    implementation(KOTLIN_STDLIB)
 }
 
 android {
