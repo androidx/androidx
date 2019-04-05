@@ -961,12 +961,14 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 ENQUEUED,
                 Data.EMPTY,
-                Collections.singletonList(TestWorker.class.getName()));
+                Collections.singletonList(TestWorker.class.getName()),
+                0);
         WorkInfo workInfo1 = new WorkInfo(
                 work1.getId(),
                 ENQUEUED,
                 Data.EMPTY,
-                Collections.singletonList(TestWorker.class.getName()));
+                Collections.singletonList(TestWorker.class.getName()),
+                0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1));
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
@@ -980,7 +982,8 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 RUNNING,
                 Data.EMPTY,
-                Collections.singletonList(TestWorker.class.getName()));
+                Collections.singletonList(TestWorker.class.getName()),
+                0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1));
 
         clearInvocations(mockObserver);
@@ -994,7 +997,8 @@ public class WorkManagerImplTest {
                 work1.getId(),
                 RUNNING,
                 Data.EMPTY,
-                Collections.singletonList(TestWorker.class.getName()));
+                Collections.singletonList(TestWorker.class.getName()),
+                0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1));
 
         liveData.removeObservers(testLifecycleOwner);
@@ -1027,17 +1031,20 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 RUNNING,
                 Data.EMPTY,
-                Arrays.asList(TestWorker.class.getName(), firstTag, secondTag));
+                Arrays.asList(TestWorker.class.getName(), firstTag, secondTag),
+                0);
         WorkInfo workInfo1 = new WorkInfo(
                 work1.getId(),
                 BLOCKED,
                 Data.EMPTY,
-                Arrays.asList(TestWorker.class.getName(), firstTag));
+                Arrays.asList(TestWorker.class.getName(), firstTag),
+                0);
         WorkInfo workInfo2 = new WorkInfo(
                 work2.getId(),
                 SUCCEEDED,
                 Data.EMPTY,
-                Arrays.asList(TestWorker.class.getName(), secondTag));
+                Arrays.asList(TestWorker.class.getName(), secondTag),
+                0);
 
         List<WorkInfo> workInfos = mWorkManagerImpl.getWorkInfosByTag(firstTag).get();
         assertThat(workInfos, containsInAnyOrder(workInfo0, workInfo1));
@@ -1071,17 +1078,20 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 RUNNING,
                 Data.EMPTY,
-                Collections.singletonList(InfiniteTestWorker.class.getName()));
+                Collections.singletonList(InfiniteTestWorker.class.getName()),
+                0);
         WorkInfo workInfo1 = new WorkInfo(
                 work1.getId(),
                 BLOCKED,
                 Data.EMPTY,
-                Collections.singletonList(InfiniteTestWorker.class.getName()));
+                Collections.singletonList(InfiniteTestWorker.class.getName()),
+                0);
         WorkInfo workInfo2 = new WorkInfo(
                 work2.getId(),
                 BLOCKED,
                 Data.EMPTY,
-                Collections.singletonList(InfiniteTestWorker.class.getName()));
+                Collections.singletonList(InfiniteTestWorker.class.getName()),
+                0);
 
         List<WorkInfo> workInfos = mWorkManagerImpl.getWorkInfosForUniqueWork(uniqueName).get();
         assertThat(workInfos, containsInAnyOrder(workInfo0, workInfo1, workInfo2));
@@ -1126,17 +1136,20 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 RUNNING,
                 Data.EMPTY,
-                Collections.singletonList(InfiniteTestWorker.class.getName()));
+                Collections.singletonList(InfiniteTestWorker.class.getName()),
+                0);
         WorkInfo workInfo1 = new WorkInfo(
                 work1.getId(),
                 BLOCKED,
                 Data.EMPTY,
-                Collections.singletonList(InfiniteTestWorker.class.getName()));
+                Collections.singletonList(InfiniteTestWorker.class.getName()),
+                0);
         WorkInfo workInfo2 = new WorkInfo(
                 work2.getId(),
                 BLOCKED,
                 Data.EMPTY,
-                Collections.singletonList(InfiniteTestWorker.class.getName()));
+                Collections.singletonList(InfiniteTestWorker.class.getName()),
+                0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1, workInfo2));
 
         workSpecDao.setState(ENQUEUED, work0.getStringId());
@@ -1149,7 +1162,8 @@ public class WorkManagerImplTest {
                 work0.getId(),
                 ENQUEUED,
                 Data.EMPTY,
-                Collections.singletonList(InfiniteTestWorker.class.getName()));
+                Collections.singletonList(InfiniteTestWorker.class.getName()),
+                0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1, workInfo2));
 
         liveData.removeObservers(testLifecycleOwner);
