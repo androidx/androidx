@@ -16,29 +16,29 @@
 
 package androidx.ui.material.ripple
 
-// TODO("Andrey: Android dependencies are temporary. To be replaced with Crane's animations system)
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.animation.FastOutSlowInEasing
+import androidx.animation.IntPropKey
+import androidx.animation.InterruptionHandling
+import androidx.animation.LinearEasing
+import androidx.animation.PxPositionPropKey
+import androidx.animation.PxPropKey
+import androidx.animation.TransitionAnimation
+import androidx.animation.transitionDefinition
 import androidx.ui.core.Density
 import androidx.ui.core.DensityReceiver
-import androidx.ui.core.Duration
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Px
 import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
-import androidx.ui.core.Timestamp
 import androidx.ui.core.center
 import androidx.ui.core.dp
 import androidx.ui.core.getDistance
 import androidx.ui.core.inMilliseconds
-import androidx.ui.core.lerp
 import androidx.ui.core.max
 import androidx.ui.core.milliseconds
-import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.toBounds
+import androidx.ui.core.toOffset
 import androidx.ui.core.toRect
 import androidx.ui.core.toSize
 import androidx.ui.core.withDensity
@@ -53,11 +53,6 @@ import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.getAsTranslation
-
-internal val FadeInDuration = 75.milliseconds
-internal val RadiusDuration = 225.milliseconds
-internal val FadeOutDuration = 150.milliseconds
-internal val FadeOutMinStartDelay = 225.milliseconds
 
 internal fun getRippleClipCallback(
     containedInkWell: Boolean,
@@ -117,8 +112,6 @@ object DefaultRippleEffectFactory : RippleEffectFactory() {
     }
 }
 
-private fun now(): Timestamp = System.currentTimeMillis().millisecondsToTimestamp()
-
 /**
  * A visual reaction on a piece of [RippleSurface] to user input.
  *
@@ -164,11 +157,9 @@ internal class DefaultRippleEffect(
         clippingBorderRadius ?: BorderRadius.Zero
     private val clipCallback: ((LayoutCoordinates) -> PxBounds)? =
         getRippleClipCallback(containedInkWell, boundsCallback)
-    private val startedTime: Timestamp = now()
-
-    private val radius: ValueAnimator
-    private val fadeIn: ValueAnimator
-    private val fadeOut: ValueAnimator
+    private val animation: TransitionAnimation<RippleTransitionState>
+    private var transitionState = RippleTransitionState.Initial
+    private var finishRequested = false
 
     init {
         val surfaceSize = getSurfaceSize(coordinates, boundsCallback)
@@ -177,50 +168,29 @@ internal class DefaultRippleEffect(
             getRippleTargetRadius(surfaceSize)
         }
 
-        val redrawListener = object : ValueAnimator.AnimatorUpdateListener {
-            override fun onAnimationUpdate(animation: ValueAnimator?) {
-                rippleSurface.markNeedsRedraw()
-            }
-        }
-
-        // Immediately begin fading-in the initial ripple.
-        fadeIn = ValueAnimator.ofInt(0, color.alpha)
-        fadeIn.duration = FadeInDuration.inMilliseconds()
-        fadeIn.addUpdateListener(redrawListener)
-        fadeIn.start()
-
-        // Controls the ripple radius and its center.
-        radius = ValueAnimator.ofFloat(startRadius.value, targetRadius.value)
-        radius.duration = RadiusDuration.inMilliseconds()
-        radius.interpolator = FastOutSlowInInterpolator()
-        radius.addUpdateListener(redrawListener)
-        radius.start()
-
-        // Controls the fading-out effects. Will be started in finish callback
-        fadeOut = ValueAnimator.ofInt(color.alpha, 0)
-        fadeOut.duration = FadeOutDuration.inMilliseconds()
-        fadeOut.addUpdateListener(redrawListener)
-        fadeOut.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
+        animation = RippleTransition.definition(
+            revealedAlpha = color.alpha,
+            startRadius = startRadius,
+            endRadius = targetRadius,
+            startCenter = touchPosition,
+            endCenter = coordinates.size.center()
+        ).createAnimation()
+        animation.onUpdate = { rippleSurface.markNeedsRedraw() }
+        animation.onStateChangeFinished = { stage ->
+            transitionState = stage
+            if (transitionState == RippleTransitionState.Finished) {
                 dispose()
             }
-        })
+        }
+        // currently we are in Initial state, now we start the animation:
+        animation.toState(RippleTransitionState.Revealed)
 
         rippleSurface.addEffect(this)
     }
 
     override fun finish(canceled: Boolean) {
-        // if we still fading-in we should immediately switch to the final alpha.
-        if (fadeIn.isRunning) {
-            fadeIn.end()
-        }
-        val currentTime = now()
-        // starting fading-out but not before [FadeOutMinStartDelay] after the ripple start.
-        val difference = currentTime - startedTime
-        val startDelay = if (difference < FadeOutMinStartDelay)
-            FadeOutMinStartDelay - difference else Duration.Zero
-        fadeOut.startDelay = startDelay.inMilliseconds()
-        fadeOut.start()
+        finishRequested = true
+        animation.toState(RippleTransitionState.Finished)
     }
 
     private fun clipRRectFromRect(rect: Rect): RRect {
@@ -246,17 +216,16 @@ internal class DefaultRippleEffect(
     }
 
     override fun drawEffect(canvas: Canvas, transform: Matrix4) {
-        val alpha = (if (fadeOut.isRunning) fadeOut.animatedValue else fadeIn.animatedValue) as Int
+        val alpha = if (transitionState == RippleTransitionState.Initial && finishRequested) {
+            // if we still fading-in we should immediately switch to the final alpha.
+            color.alpha
+        } else {
+            animation[RippleTransition.Alpha]
+        }
+        val radius = animation[RippleTransition.Radius].value
+        val centerOffset = animation[RippleTransition.Center].toOffset()
         val paint = Paint()
         paint.color = color.withAlpha(alpha)
-        // Ripple moves to the center of the parent layout
-        val center = lerp(
-            touchPosition,
-            coordinates.size.center(),
-            radius.animatedFraction
-        )
-        val radius = radius.animatedValue as Float
-        val centerOffset = Offset(center.x.value, center.y.value)
         val originOffset = transform.getAsTranslation()
         val clipRect = clipCallback?.invoke(coordinates)?.toRect()
         if (originOffset == null) {
@@ -276,6 +245,70 @@ internal class DefaultRippleEffect(
             if (clipRect != null) {
                 canvas.restore()
             }
+        }
+    }
+}
+
+/**
+ * The Ripple transition specification.
+ */
+private object RippleTransition {
+
+    private val FadeInDuration = 75.milliseconds
+    private val RadiusDuration = 225.milliseconds
+    private val FadeOutDuration = 150.milliseconds
+
+    val Alpha = IntPropKey()
+    val Radius = PxPropKey()
+    val Center = PxPositionPropKey()
+
+    fun definition(
+        revealedAlpha: Int,
+        startRadius: Px,
+        endRadius: Px,
+        startCenter: PxPosition,
+        endCenter: PxPosition
+    ) = transitionDefinition {
+        state(RippleTransitionState.Initial) {
+            this[Alpha] = 0
+            this[Radius] = startRadius
+            this[Center] = startCenter
+        }
+        state(RippleTransitionState.Revealed) {
+            this[Alpha] = revealedAlpha
+            this[Radius] = endRadius
+            this[Center] = endCenter
+        }
+        state(RippleTransitionState.Finished) {
+            this[Alpha] = 0
+            // the rest are the same as for Revealed
+            this[Radius] = endRadius
+            this[Center] = endCenter
+        }
+        transition(RippleTransitionState.Initial to RippleTransitionState.Revealed) {
+            Alpha using tween {
+                duration = FadeInDuration.inMilliseconds().toInt()
+                easing = LinearEasing
+            }
+            Radius using tween {
+                duration = RadiusDuration.inMilliseconds().toInt()
+                easing = FastOutSlowInEasing
+            }
+            Center using tween {
+                duration = RadiusDuration.inMilliseconds().toInt()
+                easing = LinearEasing
+            }
+            // we need to always finish the radius animation before starting fading out
+            interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE
+        }
+        transition(RippleTransitionState.Revealed to RippleTransitionState.Finished) {
+            fun <T> toFinished() = tween<T> {
+                duration = FadeOutDuration.inMilliseconds().toInt()
+                easing = LinearEasing
+            }
+            Alpha using toFinished()
+            Radius using toFinished()
+            Center using toFinished()
         }
     }
 }

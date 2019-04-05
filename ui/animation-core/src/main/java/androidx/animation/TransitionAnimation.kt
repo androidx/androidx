@@ -48,6 +48,7 @@ class TransitionAnimation<T> : Choreographer.FrameCallback {
     private var pendingState: StateImpl<T>? = null
     private var currentAnimations: MutableMap<PropKey<Any>, Animation<Any>> = mutableMapOf()
     private var startVelocityMap: MutableMap<PropKey<Any>, Float> = mutableMapOf()
+    private var isRunning = false
 
     // TODO("Create a more efficient code path for default only transition def")
 
@@ -61,7 +62,7 @@ class TransitionAnimation<T> : Choreographer.FrameCallback {
 
     // Interpolate current state and the new state
     private fun setState(newState: StateImpl<T>) {
-        if (isRunning()) {
+        if (isRunning) {
             val currentSpec = def.getSpec(fromState.name, toState.name)
             if (currentSpec.interruptionHandling == InterruptionHandling.UNINTERRUPTIBLE) {
                 pendingState = newState
@@ -132,8 +133,8 @@ class TransitionAnimation<T> : Choreographer.FrameCallback {
 
     // TODO: Make this internal
     override fun doFrame(frameTimeNanos: Long) {
-        doAnimationFrame(frameTimeNanos / 1000000L)
-        if (isRunning()) {
+        if (isRunning) {
+            doAnimationFrame(frameTimeNanos / 1000000L)
             // TODO: Use refactor out all the dependencies on Choreographer
             Choreographer.getInstance().postFrameCallback(this)
         }
@@ -141,7 +142,8 @@ class TransitionAnimation<T> : Choreographer.FrameCallback {
 
     // Start animation if not running, otherwise reset start time
     private fun startAnimation() {
-        if (!isRunning()) {
+        if (!isRunning) {
+            isRunning = true
             Choreographer.getInstance().postFrameCallback(this)
         } else {
             startTime = lastFrameTime
@@ -181,21 +183,22 @@ class TransitionAnimation<T> : Choreographer.FrameCallback {
             startVelocityMap.clear()
 
             fromState = toState
-            onStateChangeFinished?.invoke(toState.name)
-            if (pendingState == null) {
-                endAnimation()
-            } else {
+            endAnimation()
+            val currentStateName = toState.name
+            if (pendingState != null) {
                 setState(pendingState!!)
                 pendingState = null
             }
+            onStateChangeFinished?.invoke(currentStateName)
         }
     }
 
     private fun endAnimation() {
         Choreographer.getInstance().removeFrameCallback(this)
         startTime = UNSET
+        lastFrameTime = UNSET
+        isRunning = false
     }
-    private fun isRunning() = (startTime != UNSET)
 }
 
 /**

@@ -17,6 +17,7 @@
 
 package androidx.ui.core
 
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.lerp
 import kotlin.math.max
@@ -429,6 +430,13 @@ data class PxPosition(val x: Px, val y: Px) {
  */
 fun PxPosition.getDistance(): Px {
     return Px(sqrt(x.value * x.value + y.value * y.value))
+}
+
+/**
+ * Convert a [PxPosition] to a [Offset].
+ */
+fun PxPosition.toOffset(): Offset {
+    return Offset(x.value, y.value)
 }
 
 /**
