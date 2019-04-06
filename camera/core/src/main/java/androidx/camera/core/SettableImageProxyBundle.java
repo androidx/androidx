@@ -16,55 +16,35 @@
 
 package androidx.camera.core;
 
+import android.util.SparseArray;
+
 import androidx.annotation.GuardedBy;
-import androidx.concurrent.futures.ResolvableFuture;
+import androidx.annotation.NonNull;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A {@link ImageProxyBundle} with a predefined set of captured ids. The {@link ListenableFuture}
  * for the capture id becomes valid when the corresponding {@link ImageProxy} has been set.
  */
 final class SettableImageProxyBundle implements ImageProxyBundle {
-    private final Object mLock = new Object();
-
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    final Object mLock = new Object();
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @GuardedBy("mLock")
+    final SparseArray<CallbackToFutureAdapter.Completer<ImageProxy>> mCompleters =
+            new SparseArray<>();
+    /** Map of id to {@link ImageProxy} Future. */
+    @GuardedBy("mLock")
+    private final SparseArray<ListenableFuture<ImageProxy>> mFutureResults = new SparseArray<>();
+    private final List<Integer> mCaptureIdList;
     // Whether or not the bundle has been closed or not
     @GuardedBy("mLock")
     private boolean mClosed = false;
-
-    /** Map of id to {@link ImageProxy} Future. */
-    @GuardedBy("mLock")
-    private final Map<Integer, ResolvableFuture<ImageProxy>> mFutureResults = new HashMap<>();
-
-    private final List<Integer> mCaptureIdList;
-
-    @Override
-    public ListenableFuture<ImageProxy> getImageProxy(int captureId) {
-        synchronized (mLock) {
-            if (mClosed) {
-                throw new IllegalStateException("ImageProxyBundle already closed.");
-            }
-
-            // Returns the future that has been set if it exists
-            if (!mFutureResults.containsKey(captureId)) {
-                throw new IllegalArgumentException(
-                        "ImageProxyBundle does not contain this id: " + captureId);
-            }
-
-            return mFutureResults.get(captureId);
-        }
-    }
-
-    @Override
-    public List<Integer> getCaptureIds() {
-        return Collections.unmodifiableList(new ArrayList<>(mFutureResults.keySet()));
-    }
 
     /**
      * Create a {@link ImageProxyBundle} for captures with the given ids.
@@ -74,6 +54,29 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
     SettableImageProxyBundle(List<Integer> captureIds) {
         mCaptureIdList = captureIds;
         setup();
+    }
+
+    @Override
+    public ListenableFuture<ImageProxy> getImageProxy(int captureId) {
+        synchronized (mLock) {
+            if (mClosed) {
+                throw new IllegalStateException("ImageProxyBundle already closed.");
+            }
+
+            // Returns the future that has been set if it exists
+            ListenableFuture<ImageProxy> result = mFutureResults.get(captureId);
+            if (result == null) {
+                throw new IllegalArgumentException(
+                        "ImageProxyBundle does not contain this id: " + captureId);
+            }
+
+            return result;
+        }
+    }
+
+    @Override
+    public List<Integer> getCaptureIds() {
+        return Collections.unmodifiableList(mCaptureIdList);
     }
 
     /**
@@ -92,9 +95,9 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
 
             // If the CaptureId is associated with this SettableImageProxyBundle, set the
             // corresponding Future. Otherwise, throws exception.
-            if (mFutureResults.containsKey(captureId)) {
-                ResolvableFuture<ImageProxy> futureResult = mFutureResults.get(captureId);
-                futureResult.set(imageProxy);
+            CallbackToFutureAdapter.Completer<ImageProxy> completer = mCompleters.get(captureId);
+            if (completer != null) {
+                completer.set(imageProxy);
             } else {
                 throw new IllegalArgumentException(
                         "ImageProxyBundle does not contain this id: " + captureId);
@@ -111,6 +114,7 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
                 return;
             }
             mFutureResults.clear();
+            mCompleters.clear();
             mClosed = true;
         }
     }
@@ -125,14 +129,30 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
             }
 
             mFutureResults.clear();
+            mCompleters.clear();
             setup();
         }
     }
 
     private void setup() {
-        for (Integer captureId : mCaptureIdList) {
-            ResolvableFuture<ImageProxy> futureResult = ResolvableFuture.create();
-            mFutureResults.put(captureId, futureResult);
+        synchronized (mLock) {
+            for (final int captureId : mCaptureIdList) {
+                ListenableFuture<ImageProxy> futureResult = CallbackToFutureAdapter.getFuture(
+                        new CallbackToFutureAdapter.Resolver<ImageProxy>() {
+                            @Override
+                            public Object attachCompleter(
+                                    @NonNull CallbackToFutureAdapter.Completer<ImageProxy>
+                                            completer) {
+                                synchronized (mLock) { // Not technically needed since
+                                    // attachCompleter is called inline, but mLock is re-entrant
+                                    // so there's no harm.
+                                    mCompleters.put(captureId, completer);
+                                }
+                                return "getImageProxy(id: " + captureId + ")";
+                            }
+                        });
+                mFutureResults.put(captureId, futureResult);
+            }
         }
     }
 }
