@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl.utils.executor;
 
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
+/**
+ * An Executor which will post to the main thread.
+ */
 final class MainThreadExecutor implements Executor {
     private static volatile Executor sExecutor;
     private final Handler mMainThreadHandler;
@@ -44,7 +49,7 @@ final class MainThreadExecutor implements Executor {
     }
 
     @Override
-    public void execute(Runnable command) {
+    public void execute(@NonNull Runnable command) {
         if (!mMainThreadHandler.post(command)) {
             throw new RejectedExecutionException(mMainThreadHandler + " is shutting down");
         }

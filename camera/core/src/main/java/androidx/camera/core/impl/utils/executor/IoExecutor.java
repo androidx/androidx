@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.core.impl.utils.executor;
+
+import androidx.annotation.NonNull;
+import androidx.camera.core.CameraXThreads;
 
 import java.util.Locale;
 import java.util.concurrent.Executor;
@@ -25,9 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A singleton executor which should be used for I/O tasks.
- *
- * <p>TODO(b/115779693): Make this executor configurable
  */
+// TODO(b/115779693): Make this executor configurable
 final class IoExecutor implements Executor {
     private static volatile Executor sExecutor;
 
@@ -66,7 +68,7 @@ final class IoExecutor implements Executor {
     }
 
     @Override
-    public void execute(Runnable command) {
+    public void execute(@NonNull Runnable command) {
         mIoService.execute(command);
     }
 }

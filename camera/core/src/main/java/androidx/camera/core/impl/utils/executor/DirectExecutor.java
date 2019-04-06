@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.core.impl.utils.futures;
+package androidx.camera.core.impl.utils.executor;
 
 import java.util.concurrent.Executor;
 

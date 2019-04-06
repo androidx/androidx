@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -100,7 +101,7 @@ public final class IoExecutorTest {
         } finally {
             mLock.unlock();
         }
-        mIoExecutor = IoExecutor.getInstance();
+        mIoExecutor = CameraXExecutors.ioExecutor();
     }
 
     @Test

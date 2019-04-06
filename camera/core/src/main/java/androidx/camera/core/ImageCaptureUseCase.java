@@ -44,6 +44,7 @@ import androidx.camera.core.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.CameraCaptureResult.EmptyCameraCaptureResult;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.ResolvableFuture;
 
@@ -395,7 +396,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                     @Override
                     public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
                         Handler completionHandler = (mHandler != null) ? mHandler : mMainHandler;
-                        IoExecutor.getInstance()
+                        CameraXExecutors.ioExecutor()
                                 .execute(
                                         new ImageSaver(
                                                 image,
@@ -513,7 +514,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
     public void clear() {
         if (mDeferrableSurface != null) {
             mDeferrableSurface.setOnSurfaceDetachedListener(
-                    MainThreadExecutor.getInstance(),
+                    CameraXExecutors.mainThreadExecutor(),
                     new DeferrableSurface.OnSurfaceDetachedListener() {
                         @Override
                         public void onSurfaceDetached() {

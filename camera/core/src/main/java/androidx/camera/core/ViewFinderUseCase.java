@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import com.google.auto.value.AutoValue;
 
@@ -268,7 +269,7 @@ public class ViewFinderUseCase extends BaseUseCase {
     @Override
     public void clear() {
         mCheckedSurfaceTexture.setOnSurfaceDetachedListener(
-                MainThreadExecutor.getInstance(),
+                CameraXExecutors.mainThreadExecutor(),
                 new DeferrableSurface.OnSurfaceDetachedListener() {
                     @Override
                     public void onSurfaceDetached() {

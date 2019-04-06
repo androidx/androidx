@@ -30,6 +30,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -180,7 +181,7 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
     public void clear() {
         if (mDeferrableSurface != null) {
             mDeferrableSurface.setOnSurfaceDetachedListener(
-                    MainThreadExecutor.getInstance(),
+                    CameraXExecutors.mainThreadExecutor(),
                     new DeferrableSurface.OnSurfaceDetachedListener() {
                         @Override
                         public void onSurfaceDetached() {

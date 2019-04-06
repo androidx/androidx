@@ -42,6 +42,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.io.File;
 import java.io.IOException;
@@ -407,7 +408,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
 
         final Surface surface = mCameraSurface;
         mDeferrableSurface.setOnSurfaceDetachedListener(
-                MainThreadExecutor.getInstance(),
+                CameraXExecutors.mainThreadExecutor(),
                 new DeferrableSurface.OnSurfaceDetachedListener() {
                     @Override
                     public void onSurfaceDetached() {
