@@ -63,7 +63,7 @@ public class ViewFinderUseCase extends BaseUseCase {
                 }
             };
     final CheckedSurfaceTexture mCheckedSurfaceTexture =
-            new CheckedSurfaceTexture(mSurfaceTextureListener, mMainHandler);
+            new CheckedSurfaceTexture(mSurfaceTextureListener);
     private final ViewFinderUseCaseConfiguration.Builder mUseCaseConfigBuilder;
     @Nullable
     private OnViewFinderOutputUpdateListener mSubscribedViewFinderOutputListener;

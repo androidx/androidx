@@ -18,18 +18,20 @@ package androidx.camera.core;
 
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
-import android.os.Handler;
 import android.os.Looper;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.concurrent.futures.ResolvableFuture;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.nio.IntBuffer;
+import java.util.concurrent.Executor;
 
 /**
  * A {@link DeferrableSurface} which verifies the {@link SurfaceTexture} that backs the {@link
@@ -37,17 +39,16 @@ import java.nio.IntBuffer;
  */
 final class CheckedSurfaceTexture extends DeferrableSurface {
     private final OnTextureChangedListener mOutputChangedListener;
-    private final Handler mMainThreadHandler;
     @Nullable
     SurfaceTexture mSurfaceTexture;
     @Nullable
     Surface mSurface;
     @Nullable
     private Size mResolution;
+
     CheckedSurfaceTexture(
-            OnTextureChangedListener outputChangedListener, Handler mainThreadHandler) {
+            OnTextureChangedListener outputChangedListener) {
         mOutputChangedListener = outputChangedListener;
-        mMainThreadHandler = mainThreadHandler;
     }
 
     private static SurfaceTexture createDetachedSurfaceTexture(Size resolution) {
@@ -84,11 +85,9 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
             released = surfaceTexture.isReleased();
         } else {
             // WARNING: This relies on some implementation details of the ViewFinderOutput native
-            // code.
-            // If the ViewFinderOutput is released, we should get a RuntimeException. If not, we
-            // should
-            // get an IllegalStateException since we are not in the same EGL context as the
-            // consumer.
+            // code. If the ViewFinderOutput is released, we should get a RuntimeException. If not,
+            // we should get an IllegalStateException since we are not in the same EGL context as
+            // the consumer.
             Exception exception = null;
             try {
                 // TODO(b/121198329) Make sure updateTexImage() isn't called on consumer EGL context
@@ -117,27 +116,34 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
      */
     @Override
     public ListenableFuture<Surface> getSurface() {
-        final ResolvableFuture<Surface> deferredSurface = ResolvableFuture.create();
-        Runnable checkAndSetRunnable =
-                new Runnable() {
+
+        return CallbackToFutureAdapter.getFuture(
+                new CallbackToFutureAdapter.Resolver<Surface>() {
                     @Override
-                    public void run() {
-                        if (CheckedSurfaceTexture.this.surfaceTextureReleased(mSurfaceTexture)) {
-                            // Reset the surface texture and notify the listener
-                            CheckedSurfaceTexture.this.resetSurfaceTexture();
-                        }
+                    public Object attachCompleter(
+                            @NonNull final CallbackToFutureAdapter.Completer<Surface> completer) {
+                        Executor executor =
+                                (Looper.myLooper() == Looper.getMainLooper())
+                                        ? CameraXExecutors.directExecutor()
+                                        : CameraXExecutors.mainThreadExecutor();
+                        Runnable checkAndSetRunnable =
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (CheckedSurfaceTexture.this.surfaceTextureReleased(
+                                                mSurfaceTexture)) {
+                                            // Reset the surface texture and notify the listener
+                                            CheckedSurfaceTexture.this.resetSurfaceTexture();
+                                        }
 
-                        deferredSurface.set(mSurface);
+                                        completer.set(mSurface);
+                                    }
+                                };
+
+                        executor.execute(checkAndSetRunnable);
+                        return "CheckSurfaceTexture";
                     }
-                };
-
-        if (Looper.myLooper() == mMainThreadHandler.getLooper()) {
-            checkAndSetRunnable.run();
-        } else {
-            mMainThreadHandler.post(checkAndSetRunnable);
-        }
-
-        return deferredSurface;
+                });
     }
 
     void release() {

@@ -20,8 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.SurfaceTexture;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Size;
 
 import androidx.annotation.Nullable;
@@ -41,7 +39,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class CheckedSurfaceTextureTest {
 
-    private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
     private Size mDefaultResolution;
     private CheckedSurfaceTexture mCheckedSurfaceTexture;
     private SurfaceTexture mLatestSurfaceTexture;
@@ -58,7 +55,7 @@ public class CheckedSurfaceTextureTest {
     public void setup() {
         mDefaultResolution = new Size(640, 480);
         mCheckedSurfaceTexture =
-                new CheckedSurfaceTexture(mTextureChangedListener, mMainThreadHandler);
+                new CheckedSurfaceTexture(mTextureChangedListener);
         mCheckedSurfaceTexture.setResolution(mDefaultResolution);
     }
 
