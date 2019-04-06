@@ -46,7 +46,7 @@ import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.concurrent.futures.ResolvableFuture;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.base.Function;
 import com.google.common.util.concurrent.AsyncCallable;
@@ -93,10 +93,13 @@ public class ImageCaptureUseCase extends BaseUseCase {
     // Empty metadata object used as a placeholder for no user-supplied metadata.
     // Should be initialized to all default values.
     private static final Metadata EMPTY_METADATA = new Metadata();
-    final Handler mHandler;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Handler mMainHandler = new Handler(Looper.getMainLooper());
-    private final SessionConfiguration.Builder mSessionConfigBuilder;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final ArrayDeque<ImageCaptureRequest> mImageCaptureRequests = new ArrayDeque<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    final Handler mHandler;
+    private final SessionConfiguration.Builder mSessionConfigBuilder;
     private final ExecutorService mExecutor =
             Executors.newFixedThreadPool(
                     1,
@@ -121,13 +124,12 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * by {@link #takePicture(OnImageCapturedListener)}
      */
     private final CaptureProcessor mCaptureProcessor;
-
+    private final ImageCaptureUseCaseConfiguration.Builder mUseCaseConfigBuilder;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+            ImageReaderProxy mImageReader;
     /** Callback used to match the {@link ImageProxy} with the {@link ImageInfo}. */
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
-
-    private final ImageCaptureUseCaseConfiguration.Builder mUseCaseConfigBuilder;
     private ImageCaptureUseCaseConfiguration mConfiguration;
-    ImageReaderProxy mImageReader;
     private DeferrableSurface mDeferrableSurface;
     /**
      * A flag to check 3A converged or not.
@@ -816,10 +818,11 @@ public class ImageCaptureUseCase extends BaseUseCase {
 
     /** Issues a take picture request. */
     ListenableFuture<Void> issueTakePicture() {
-        List<ResolvableFuture<Void>> futureList = new ArrayList<>();
+        List<ListenableFuture<Void>> futureList = new ArrayList<>();
 
         for (CaptureStage captureStage : mCaptureBundle.getCaptureStages()) {
-            CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
+            final CaptureRequestConfiguration.Builder builder =
+                    new CaptureRequestConfiguration.Builder();
             builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
             builder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
 
@@ -830,30 +833,42 @@ public class ImageCaptureUseCase extends BaseUseCase {
 
             builder.setTag(captureStage.getCaptureRequestConfiguration().getTag());
 
-            final ResolvableFuture<Void> future = ResolvableFuture.create();
-            builder.setCameraCaptureCallback(new CameraCaptureCallbacks.ComboCameraCaptureCallback(
-                    Arrays.asList(
-                            new CameraCaptureCallback() {
+            final CameraCaptureCallback metadataMatchingCallback = mMetadataMatchingCaptureCallback;
+            final CameraControl cameraControl = getCurrentCameraControl();
+            ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(
+                    new CallbackToFutureAdapter.Resolver<Void>() {
+                        @Override
+                        public Object attachCompleter(
+                                @NonNull final CallbackToFutureAdapter.Completer<Void> completer) {
+                            CameraCaptureCallback completerCallback = new CameraCaptureCallback() {
                                 @Override
                                 public void onCaptureCompleted(
                                         @NonNull CameraCaptureResult result) {
-                                    future.set(null);
+                                    completer.set(null);
                                 }
 
                                 @Override
-                                public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
+                                public void onCaptureFailed(
+                                        @NonNull CameraCaptureFailure failure) {
                                     Log.e(TAG,
                                             "capture picture get onCaptureFailed with reason "
                                                     + failure.getReason());
-                                    future.set(null);
+                                    completer.set(null);
                                 }
-                            },
-                            mMetadataMatchingCaptureCallback
-                    ))
-            );
+                            };
+                            builder.setCameraCaptureCallback(
+                                    new CameraCaptureCallbacks.ComboCameraCaptureCallback(
+                                            Arrays.asList(
+                                                    completerCallback,
+                                                    metadataMatchingCallback
+                                            )));
+                            cameraControl.submitSingleRequest(builder.build());
+                            return "issueTakePicture";
+                        }
+                    });
 
             futureList.add(future);
-            getCurrentCameraControl().submitSingleRequest(builder.build());
+
         }
 
         return com.google.common.util.concurrent.Futures.whenAllSucceed(futureList).call(
@@ -1025,7 +1040,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
          * @param <T>     the type parameter for CaptureResult checker.
          * @return a listenable future for capture result check process.
          */
-        public <T> ListenableFuture<T> checkCaptureResult(CaptureResultChecker<T> checker) {
+        <T> ListenableFuture<T> checkCaptureResult(CaptureResultChecker<T> checker) {
             return checkCaptureResult(checker, NO_TIMEOUT, null);
         }
 
@@ -1041,7 +1056,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
          * @param <T>         the type parameter for CaptureResult checker.
          * @return a listenable future for capture result check process.
          */
-        public <T> ListenableFuture<T> checkCaptureResult(
+        <T> ListenableFuture<T> checkCaptureResult(
                 final CaptureResultChecker<T> checker, final long timeoutInMs, final T defValue) {
             if (timeoutInMs < NO_TIMEOUT) {
                 throw new IllegalArgumentException("Invalid timeout value: " + timeoutInMs);
@@ -1049,26 +1064,33 @@ public class ImageCaptureUseCase extends BaseUseCase {
             final long startTimeInMs =
                     (timeoutInMs != NO_TIMEOUT) ? SystemClock.elapsedRealtime() : 0L;
 
-            final ResolvableFuture<T> future = ResolvableFuture.create();
-            addListener(
-                    new CaptureResultListener() {
+            return CallbackToFutureAdapter.getFuture(
+                    new CallbackToFutureAdapter.Resolver<T>() {
                         @Override
-                        public boolean onCaptureResult(@NonNull CameraCaptureResult captureResult) {
-                            T result = checker.check(captureResult);
-                            if (result != null) {
-                                future.set(result);
-                                return true;
-                            } else if (startTimeInMs > 0
-                                    && SystemClock.elapsedRealtime() - startTimeInMs
-                                    > timeoutInMs) {
-                                future.set(defValue);
-                                return true;
-                            }
-                            // Return false to continue check.
-                            return false;
+                        public Object attachCompleter(
+                                @NonNull final CallbackToFutureAdapter.Completer<T> completer) {
+                            addListener(
+                                    new CaptureResultListener() {
+                                        @Override
+                                        public boolean onCaptureResult(
+                                                @NonNull CameraCaptureResult captureResult) {
+                                            T result = checker.check(captureResult);
+                                            if (result != null) {
+                                                completer.set(result);
+                                                return true;
+                                            } else if (startTimeInMs > 0
+                                                    && SystemClock.elapsedRealtime() - startTimeInMs
+                                                    > timeoutInMs) {
+                                                completer.set(defValue);
+                                                return true;
+                                            }
+                                            // Return false to continue check.
+                                            return false;
+                                        }
+                                    });
+                            return "checkCaptureResult";
                         }
                     });
-            return future;
         }
 
         /**
@@ -1093,7 +1115,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
         }
 
         /** Add capture result listener. */
-        private void addListener(CaptureResultListener listener) {
+        void addListener(CaptureResultListener listener) {
             synchronized (mCaptureResultListeners) {
                 mCaptureResultListeners.add(listener);
             }
