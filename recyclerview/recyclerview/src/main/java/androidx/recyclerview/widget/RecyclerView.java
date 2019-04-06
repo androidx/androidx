@@ -3642,6 +3642,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         super.sendAccessibilityEventUnchecked(event);
     }
 
+    @Override
+    public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
+        onPopulateAccessibilityEvent(event);
+        return true;
+    }
+
     /**
      * Gets the current ItemAnimator for this RecyclerView. A null return value
      * indicates that there is no animator and that item changes will happen without
