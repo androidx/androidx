@@ -6335,9 +6335,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         + " should first call stopIgnoringView(view) before calling recycle."
                         + exceptionLabel());
             }
-            //noinspection unchecked
             final boolean transientStatePreventsRecycling = holder
                     .doesTransientStatePreventRecycling();
+            @SuppressWarnings("unchecked")
             final boolean forceRecycle = mAdapter != null
                     && transientStatePreventsRecycling
                     && mAdapter.onFailedToRecycleView(holder);
