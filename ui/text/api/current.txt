@@ -1,6 +1,22 @@
 // Signature format: 3.0
 package androidx.ui.core {
 
+  public final class EditableTextKt {
+    ctor public EditableTextKt();
+    method public static void EditableText(androidx.ui.input.EditorState value, androidx.ui.core.EditorStyle editorStyle, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorState,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onEditorActionPerformed = {}, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onKeyEventForwarded = {});
+  }
+
+  public final class EditorStyle {
+    ctor public EditorStyle(androidx.ui.painting.TextStyle textStyle, androidx.ui.painting.Color compositionColor, androidx.ui.painting.Color selectionColor);
+    method public androidx.ui.painting.TextStyle component1();
+    method public androidx.ui.painting.Color component2();
+    method public androidx.ui.painting.Color component3();
+    method public androidx.ui.core.EditorStyle copy(androidx.ui.painting.TextStyle textStyle, androidx.ui.painting.Color compositionColor, androidx.ui.painting.Color selectionColor);
+    method public androidx.ui.painting.Color getCompositionColor();
+    method public androidx.ui.painting.Color getSelectionColor();
+    method public androidx.ui.painting.TextStyle getTextStyle();
+  }
+
   public final class TextKt {
     ctor public TextKt();
     method public static void CurrentTextStyleProvider(androidx.ui.painting.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);

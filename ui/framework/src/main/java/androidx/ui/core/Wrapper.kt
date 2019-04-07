@@ -17,6 +17,8 @@ package androidx.ui.core
 
 import android.content.Context
 import androidx.annotation.CheckResult
+import androidx.ui.core.input.FocusManager
+import androidx.ui.input.TextInputService
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -32,6 +34,10 @@ import com.google.r4a.unaryPlus
 fun CraneWrapper(@Children children: () -> Unit) {
     val rootRef = +memo { Ref<AndroidCraneView>() }
 
+    // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work with
+    //             nested AndroidCraneView case
+    val focusManager = FocusManager()
+
     <AndroidCraneView ref=rootRef>
         val reference = +compositionReference()
         val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
@@ -39,7 +45,11 @@ fun CraneWrapper(@Children children: () -> Unit) {
         R4a.composeInto(container = rootLayoutNode, context = context, parent = reference) {
             <ContextAmbient.Provider value=context>
                 <DensityAmbient.Provider value=Density(context)>
-                    <children />
+                    <FocusManagerAmbient.Provider value=focusManager>
+                        <TextInputServiceAmbient.Provider value=rootRef.value?.textInputService>
+                            <children />
+                        </TextInputServiceAmbient.Provider>
+                    </FocusManagerAmbient.Provider>
                 </DensityAmbient.Provider>
             </ContextAmbient.Provider>
         }
@@ -49,6 +59,10 @@ fun CraneWrapper(@Children children: () -> Unit) {
 val ContextAmbient = Ambient.of<Context>()
 
 val DensityAmbient = Ambient.of<Density>()
+
+internal val FocusManagerAmbient = Ambient.of<FocusManager>()
+
+internal val TextInputServiceAmbient = Ambient.of<TextInputService?>()
 
 /**
  * [ambient] to get a [Density] object from an internal [DensityAmbient].

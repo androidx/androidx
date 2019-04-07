@@ -292,6 +292,14 @@ package androidx.ui.core {
 
 }
 
+package androidx.ui.core.input {
+
+  public final class EditableUtilKt {
+    ctor public EditableUtilKt();
+  }
+
+}
+
 package androidx.ui.core.pointerinput {
 
   public final class MotionEventAdapterKt {
