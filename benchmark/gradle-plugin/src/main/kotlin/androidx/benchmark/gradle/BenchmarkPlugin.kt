@@ -17,34 +17,113 @@
 package androidx.benchmark.gradle
 
 import com.android.build.gradle.AppExtension
-import com.android.build.gradle.AppPlugin
+import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.LibraryPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.tasks.StopExecutionException
 
 class BenchmarkPlugin : Plugin<Project> {
+    private var foundAndroidPlugin = false
+
     override fun apply(project: Project) {
-        var sdkPath: String? = null
-        project.plugins.all {
-            when (it) {
-                is LibraryPlugin -> {
-                    val extension = project.extensions.getByType(LibraryExtension::class.java)
-                    sdkPath = extension.sdkDirectory.path
+        // NOTE: Although none of the configuration code depends on a reference to the Android
+        // plugin here, there is some implicit coupling behind the scenes, which ensures that the
+        // required BaseExtension from AGP can be found by registering project configuration as a
+        // PluginManager callback.
+
+        project.pluginManager.withPlugin("com.android.application") {
+            configureWithAndroidPlugin(project)
+        }
+
+        project.pluginManager.withPlugin("com.android.library") {
+            configureWithAndroidPlugin(project)
+        }
+
+        // Verify that the configuration from this plugin dependent on AGP was successfully applied.
+        project.afterEvaluate {
+            if (!foundAndroidPlugin) {
+                throw StopExecutionException(
+                    """A required plugin, com.android.application or com.android.library was not
+                        found. The androidx.benchmark plugin currently only supports android
+                        application or library modules. Ensure that a required plugin is applied
+                        in the project build.gradle file."""
+                        .trimIndent()
+                )
+            }
+        }
+    }
+
+    private fun configureWithAndroidPlugin(project: Project) {
+        if (!foundAndroidPlugin) {
+            foundAndroidPlugin = true
+            val extension = project.extensions.getByType(BaseExtension::class.java)
+            configureWithAndroidExtension(project, extension)
+        }
+    }
+
+    private fun configureWithAndroidExtension(project: Project, extension: BaseExtension) {
+        val adb = Adb(extension.adbExecutable.absolutePath, project.logger)
+
+        project.tasks.register("lockClocks", LockClocksTask::class.java, adb)
+        project.tasks.register("unlockClocks", UnlockClocksTask::class.java, adb)
+        val benchmarkReportTask =
+            project.tasks.register("benchmarkReport", BenchmarkReportTask::class.java, adb)
+        benchmarkReportTask.configure { it.dependsOn("connectedAndroidTest") }
+
+        val extensionVariants = when (extension) {
+            is AppExtension -> extension.applicationVariants
+            is LibraryExtension -> extension.libraryVariants
+            else -> throw StopExecutionException(
+                """Missing required Android extension in project ${project.name}, this typically
+                    means you are missing the required com.android.application or
+                    com.android.library plugins or they could not be found. The
+                    androidx.benchmark plugin currently only supports android application or
+                    library modules. Ensure that the required plugin is applied in the project
+                    build.gradle file.""".trimIndent()
+            )
+        }
+
+        // NOTE: .all here is a Gradle API, which will run the callback passed to it after the
+        // extension variants have been resolved.
+        var applied = false
+        extensionVariants.all {
+            if (!applied) {
+                applied = true
+                project.tasks.named("connectedAndroidTest").configure {
+                    configureWithConnectedAndroidTest(project, it)
                 }
-                is AppPlugin -> {
-                    val extension = project.extensions.getByType(AppExtension::class.java)
-                    sdkPath = extension.sdkDirectory.path
+            }
+        }
+    }
+
+    private fun configureWithConnectedAndroidTest(project: Project, connectedAndroidTest: Task) {
+        // The task benchmarkReport must be registered by this point, and is responsible for
+        // pulling report data from all connected devices onto host machine through adb.
+        connectedAndroidTest.finalizedBy("benchmarkReport")
+
+        var hasJetpackBenchmark = false
+
+        project.configurations.matching { it.name.contains("androidTest") }.all {
+            it.allDependencies.all { dependency ->
+                if (dependency.name == "benchmark" && dependency.group == "androidx.benchmark") {
+                    hasJetpackBenchmark = true
                 }
             }
         }
 
-        if (sdkPath.isNullOrEmpty()) {
-            throw StopExecutionException("Unable to find Android SDK")
+        if (!hasJetpackBenchmark) {
+            throw StopExecutionException(
+                """Project ${project.name} missing required project dependency,
+                    androidx.benchmark:benchmark. The androidx.benchmark plugin is meant to be
+                    used in conjunction with the androix.benchmark library, but it was not found
+                    within this project's dependencies. You can add the androidx.benchmark library
+                    to your project by including androidTestImplementation
+                    'androidx.benchmark:benchmark:<version>' in the dependencies block of the
+                    project build.gradle file"""
+                    .trimIndent()
+            )
         }
-
-        project.tasks.create("lockClocks", LockClocksTask::class.java, sdkPath)
-        project.tasks.create("unlockClocks", UnlockClocksTask::class.java, sdkPath)
     }
 }

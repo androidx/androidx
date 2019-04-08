@@ -16,11 +16,14 @@
 
 package androidx.benchmark
 
+import android.Manifest
 import android.app.Activity
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -147,49 +150,55 @@ class BenchmarkRule : TestRule {
     }
 
     override fun apply(base: Statement, description: Description): Statement {
-        return object : Statement() {
-            @Throws(Throwable::class)
-            override fun evaluate() {
-                applied = true
-                var invokeMethodName = description.methodName
-                Log.i(TAG, "Running ${description.className}#$invokeMethodName")
+        return RuleChain
+            .outerRule(GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE))
+            .around { base, description ->
+                object : Statement() {
+                    @Throws(Throwable::class)
+                    override fun evaluate() {
+                        applied = true
+                        var invokeMethodName = description.methodName
+                        Log.i(TAG, "Running ${description.className}#$invokeMethodName")
 
-                // validate and simplify the function name.
-                // First, remove the "test" prefix which normally comes from CTS test.
-                // Then make sure the [subTestName] is valid, not just numbers like [0].
-                if (invokeMethodName.startsWith("test")) {
-                    assertTrue(
-                        "The test name $invokeMethodName is too short",
-                        invokeMethodName.length > 5
-                    )
-                    invokeMethodName = invokeMethodName.substring(4, 5).toLowerCase() +
-                            invokeMethodName.substring(5)
+                        // validate and simplify the function name.
+                        // First, remove the "test" prefix which normally comes from CTS test.
+                        // Then make sure the [subTestName] is valid, not just numbers like [0].
+                        if (invokeMethodName.startsWith("test")) {
+                            assertTrue(
+                                "The test name $invokeMethodName is too short",
+                                invokeMethodName.length > 5
+                            )
+                            invokeMethodName = invokeMethodName.substring(4, 5).toLowerCase() +
+                                    invokeMethodName.substring(5)
+                        }
+
+                        val index = invokeMethodName.lastIndexOf('[')
+                        if (index > 0) {
+                            val allDigits =
+                                invokeMethodName.substring(index + 1, invokeMethodName.length - 1)
+                                    .all { Character.isDigit(it) }
+                            assertFalse(
+                                "The name in [] can't contain only digits for $invokeMethodName",
+                                allDigits
+                            )
+                        }
+
+                        base.evaluate()
+
+                        val fullTestName = WarningState.WARNING_PREFIX +
+                                description.testClass.simpleName + "." + invokeMethodName
+                        InstrumentationRegistry.getInstrumentation().sendStatus(
+                            Activity.RESULT_OK,
+                            internalState.getFullStatusReport(fullTestName)
+                        )
+
+                        ResultWriter.appendStats(
+                            invokeMethodName, description.className, internalState.getReport()
+                        )
+                    }
                 }
-
-                val index = invokeMethodName.lastIndexOf('[')
-                if (index > 0) {
-                    val allDigits =
-                        invokeMethodName.substring(index + 1, invokeMethodName.length - 1)
-                            .all { Character.isDigit(it) }
-                    assertFalse(
-                        "The name in [] can't contain only digits for $invokeMethodName",
-                        allDigits
-                    )
-                }
-
-                base.evaluate()
-
-                val fullTestName = WarningState.WARNING_PREFIX +
-                        description.testClass.simpleName + "." + invokeMethodName
-                InstrumentationRegistry.getInstrumentation().sendStatus(
-                    Activity.RESULT_OK,
-                    internalState.getFullStatusReport(fullTestName)
-                )
-
-                ResultWriter.appendStats(
-                    invokeMethodName, description.className, internalState.getReport())
             }
-        }
+            .apply(base, description)
     }
 
     /**
