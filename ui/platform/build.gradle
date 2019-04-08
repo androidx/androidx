@@ -11,6 +11,7 @@ plugins {
 }
 
 dependencies {
+    api project(":compose-runtime")
     api project(":ui-core")
     api project(":ui-intermediate")
 

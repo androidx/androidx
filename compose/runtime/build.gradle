@@ -21,22 +21,38 @@ import androidx.build.LibraryVersions
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-android")
 }
 
 dependencies {
-    api(KOTLIN_R4A_STDLIB)
-    api(KOTLIN_R4A_COROUTINES)
-    api project(":compose-runtime")
-    api project(":ui-framework")
+    implementation "androidx.annotation:annotation:1.0.0"
+    implementation(KOTLIN_STDLIB)
+    testImplementation(JUNIT)
+    testImplementation(ROBOLECTRIC)
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 16
+    }
+    lintOptions {
+        disable("SyntheticAccessor")
+    }
+    buildTypes {
+        debug {
+            testCoverageEnabled = false
+        }
+        release {
+            testCoverageEnabled = false
+        }
+    }
 }
 
 androidx {
-    name = "Androidx UI Framework framework IR-less adapter for R4a"
+    name = "AndroidX Compose"
     publish = true
-    mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
+    mavenVersion = LibraryVersions.COMPOSE
+    mavenGroup = LibraryGroups.COMPOSE
     inceptionYear = "2019"
-    description = "framework components adapter for androidx UI."
+    description = "Contains support code for tree composition"
 }
