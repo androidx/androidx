@@ -1587,8 +1587,13 @@ public class SlidingPaneLayout extends ViewGroup {
             dest.setContentDescription(src.getContentDescription());
 
             dest.setEnabled(src.isEnabled());
+            dest.setClickable(src.isClickable());
+            dest.setFocusable(src.isFocusable());
+            dest.setFocused(src.isFocused());
             dest.setAccessibilityFocused(src.isAccessibilityFocused());
             dest.setSelected(src.isSelected());
+            dest.setLongClickable(src.isLongClickable());
+
             dest.addAction(src.getActions());
 
             dest.setMovementGranularities(src.getMovementGranularities());

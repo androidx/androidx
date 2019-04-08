@@ -2103,10 +2103,7 @@ public class AccessibilityNodeInfoCompat {
      *
      * @param focusable True if the node is focusable.
      * @throws IllegalStateException If called from an AccessibilityService.
-     * @deprecated Use {@link #addAction(AccessibilityActionCompat)}
-     * with {@link AccessibilityActionCompat#ACTION_FOCUS}
      */
-    @Deprecated
     public void setFocusable(boolean focusable) {
         mInfo.setFocusable(focusable);
     }
@@ -2240,10 +2237,7 @@ public class AccessibilityNodeInfoCompat {
      *
      * @param clickable True if the node is clickable.
      * @throws IllegalStateException If called from an AccessibilityService.
-     * @deprecated Use {@link #addAction(AccessibilityActionCompat)}
-     * with {@link AccessibilityActionCompat#ACTION_CLICK}
      */
-    @Deprecated
     public void setClickable(boolean clickable) {
         mInfo.setClickable(clickable);
     }
@@ -2267,10 +2261,7 @@ public class AccessibilityNodeInfoCompat {
      *
      * @param longClickable True if the node is long clickable.
      * @throws IllegalStateException If called from an AccessibilityService.
-     * @deprecated Use {@link #addAction(AccessibilityActionCompat)}
-     * with {@link AccessibilityActionCompat#ACTION_LONG_CLICK}
      */
-    @Deprecated
     public void setLongClickable(boolean longClickable) {
         mInfo.setLongClickable(longClickable);
     }
@@ -2342,9 +2333,7 @@ public class AccessibilityNodeInfoCompat {
      *
      * @param scrollable True if the node is scrollable, false otherwise.
      * @throws IllegalStateException If called from an AccessibilityService.
-     * @deprecated Use {@link #addAction(AccessibilityActionCompat)}
      */
-    @Deprecated
     public void setScrollable(boolean scrollable) {
         mInfo.setScrollable(scrollable);
     }
@@ -2880,10 +2869,7 @@ public class AccessibilityNodeInfoCompat {
      *
      * @param contextClickable True if the node is context clickable.
      * @throws IllegalStateException If called from an AccessibilityService.
-     * @deprecated Use {@link #addAction(AccessibilityActionCompat)}
-     * with {@link AccessibilityActionCompat#ACTION_CONTEXT_CLICK
      */
-    @Deprecated
     public void setContextClickable(boolean contextClickable) {
         if (Build.VERSION.SDK_INT >= 23) {
             mInfo.setContextClickable(contextClickable);
