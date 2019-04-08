@@ -192,6 +192,12 @@ class TransitionDefinition<T> {
      * Creates a transition animation using the transition definition.
      */
     fun createAnimation() = TransitionAnimation(this)
+
+    /**
+     * Returns a state holder for the specific state [name]. Useful for the cases
+     * where we don't need actual animation to be happening like in tests.
+     */
+    fun getStateFor(name: T): TransitionState = states.getValue(name)
 }
 
 /**

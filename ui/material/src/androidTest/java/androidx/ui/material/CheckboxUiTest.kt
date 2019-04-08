@@ -23,6 +23,7 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.core.TestTag
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
+import androidx.ui.test.DisableTransitions
 import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertSemanticsIsEqualTo
 import androidx.ui.test.copyWith
@@ -31,6 +32,7 @@ import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import com.google.r4a.Model
 import com.google.r4a.composer
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -45,6 +47,10 @@ class CheckboxState(var value: ToggleableState = Checked) {
 @MediumTest
 @RunWith(JUnit4::class)
 class CheckboxUiTest : AndroidUiTestRunner() {
+
+    @get:Rule
+    val disableTransitions = DisableTransitions()
+
     // TODO(b/126881459): this should be the default semantic for checkbox
     private val defaultCheckboxSemantics = createFullSemantics(
         enabled = false,

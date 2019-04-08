@@ -48,10 +48,21 @@ fun <T> Transition(
     toState: T,
     @Children children: (state: TransitionState) -> Unit
 ) {
-    val model = +memo(definition) { TransitionModel(definition) }
-    model.anim.toState(toState)
-    <children state=model />
+    if (transitionsEnabled) {
+        val model = +memo(definition) { TransitionModel(definition) }
+        model.anim.toState(toState)
+        <children state=model />
+    } else {
+        val state = +memo(definition, toState) { definition.getStateFor(toState) }
+        <children state/>
+    }
 }
+
+/**
+ * Stores the enabled state for [Transition] animations. Useful for tests to disable
+ * animations and have reliable screenshot tests.
+ */
+var transitionsEnabled = true
 
 // TODO(Doris): Use Clock idea instead of TransitionModel with pulse
 @Model

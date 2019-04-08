@@ -18,6 +18,16 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsTreeQuery assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeQuery, androidx.ui.core.semantics.SemanticsProperties expectedProperties);
   }
 
+  public final class DisableTransitions implements org.junit.rules.TestRule {
+    ctor public DisableTransitions();
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
+  }
+
+  public final class DisableTransitions.DisableTransitionsStatement extends org.junit.runners.model.Statement {
+    ctor public DisableTransitions.DisableTransitionsStatement(org.junit.runners.model.Statement $outer);
+    method public void evaluate();
+  }
+
   public final class FindersKt {
     ctor public FindersKt();
     method public static androidx.ui.test.SemanticsTreeQuery findByCondition(androidx.ui.test.UiTestRunner, kotlin.jvm.functions.Function1<? super androidx.ui.core.SemanticsTreeNode,java.lang.Boolean> selector);
