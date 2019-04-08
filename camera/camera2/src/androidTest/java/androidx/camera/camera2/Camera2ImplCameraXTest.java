@@ -36,6 +36,8 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysisConfig;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
@@ -322,11 +324,11 @@ public final class Camera2ImplCameraXTest {
         ImageAnalysisConfig config0 = builder.build();
         ImageAnalysis useCase0 = new ImageAnalysis(config0);
 
-        ImageAnalysisConfig config1 =
-                new ImageAnalysisConfig.Builder()
-                        .setLensFacing(DEFAULT_LENS_FACING)
+        ImageCaptureConfig configuration =
+                new ImageCaptureConfig.Builder()
+                        .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                         .build();
-        ImageAnalysis useCase1 = new ImageAnalysis(config1);
+        ImageCapture useCase1 = new ImageCapture(configuration);
 
         CameraX.bindToLifecycle(mLifecycle, useCase0, useCase1);
         mLifecycle.startAndResume();
@@ -348,13 +350,14 @@ public final class Camera2ImplCameraXTest {
         ImageAnalysisConfig config0 = builder.build();
         ImageAnalysis useCase0 = new ImageAnalysis(config0);
 
-        ImageAnalysisConfig config1 =
-                new ImageAnalysisConfig.Builder()
-                        .setLensFacing(DEFAULT_LENS_FACING)
+        ImageCaptureConfig configuration =
+                new ImageCaptureConfig.Builder()
+                        .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                         .build();
-        ImageAnalysis useCase1 = new ImageAnalysis(config1);
+        ImageCapture useCase1 = new ImageCapture(configuration);
 
         CameraX.bindToLifecycle(mLifecycle, useCase0, useCase1);
+
         mLifecycle.startAndResume();
 
         verify(mMockStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));

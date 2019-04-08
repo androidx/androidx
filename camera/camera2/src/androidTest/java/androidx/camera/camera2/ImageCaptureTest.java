@@ -68,7 +68,10 @@ import java.util.concurrent.Semaphore;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageCaptureTest {
-    private static final Size DEFAULT_RESOLUTION = new Size(1920, 1080);
+    // Use most supported resolution for different supported hardware level devices,
+    // especially for legacy devices.
+    private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
+    private static final Size SECONDARY_RESOLUTION = new Size(320, 240);
     private static final LensFacing BACK_LENS_FACING = LensFacing.BACK;
 
     private HandlerThread mHandlerThread;
@@ -434,7 +437,7 @@ public final class ImageCaptureTest {
                 new ImageCaptureConfig.Builder().setCallbackHandler(mHandler).build();
         ImageCapture useCase = new ImageCapture(config);
         useCase.addStateChangeListener(mCamera);
-        final Size[] sizes = {new Size(1920, 1080), new Size(640, 480)};
+        final Size[] sizes = {SECONDARY_RESOLUTION, DEFAULT_RESOLUTION};
 
         for (Size size : sizes) {
             Map<String, Size> suggestedResolutionMap = new HashMap<>();

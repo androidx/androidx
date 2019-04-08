@@ -66,8 +66,6 @@ import java.util.concurrent.Semaphore;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class UseCaseCombinationTest {
-    private static final String TAG = "UseCaseCombinationTest";
-    private static final Size DEFAULT_RESOLUTION = new Size(1920, 1080);
     private static final LensFacing DEFAULT_LENS_FACING = LensFacing.BACK;
     private final MutableLiveData<Long> mAnalysisResult = new MutableLiveData<>();
     @Rule
@@ -275,7 +273,9 @@ public final class UseCaseCombinationTest {
 
         CallbackAttachingImageCapture(ImageCaptureConfig config, String cameraId) {
             super(config);
-
+            // Use most supported resolution for different supported hardware level devices,
+            // especially for legacy devices.
+            mSurfaceTexture.setDefaultBufferSize(640, 480);
             SessionConfig.Builder builder = new SessionConfig.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             builder.addSurface(new ImmediateSurface(new Surface(mSurfaceTexture)));

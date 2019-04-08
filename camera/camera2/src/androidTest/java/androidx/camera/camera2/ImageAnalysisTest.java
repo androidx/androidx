@@ -60,7 +60,10 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageAnalysisTest {
+    // Use most supported resolution for different supported hardware level devices,
+    // especially for legacy devices.
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
+    private static final Size SECONDARY_RESOLUTION = new Size(320, 240);
     private final ImageAnalysisConfig mDefaultConfig = ImageAnalysis.DEFAULT_CONFIG.getConfig(null);
     private final StateChangeListener mMockListener = Mockito.mock(StateChangeListener.class);
     private final Analyzer mMockAnalyzer = Mockito.mock(Analyzer.class);
@@ -194,7 +197,7 @@ public final class ImageAnalysisTest {
     @Test
     public void updateSessionConfigWithSuggestedResolution() throws InterruptedException {
         final int imageFormat = ImageFormat.YUV_420_888;
-        final Size[] sizes = {new Size(1280, 720), new Size(640, 480)};
+        final Size[] sizes = {SECONDARY_RESOLUTION, DEFAULT_RESOLUTION};
 
         ImageAnalysisConfig config =
                 new ImageAnalysisConfig.Builder().setCallbackHandler(mHandler).build();

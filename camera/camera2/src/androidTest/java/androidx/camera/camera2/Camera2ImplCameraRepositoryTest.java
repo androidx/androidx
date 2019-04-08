@@ -37,6 +37,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.GrantPermissionRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -82,6 +83,15 @@ public final class Camera2ImplCameraRepositoryTest {
         mUseCaseGroup.addUseCase(mUseCase);
     }
 
+    @After
+    public void tearDown() throws InterruptedException {
+        mCameraRepository.onGroupInactive(mUseCaseGroup);
+
+        // Wait some time for the cameras to close. We need the cameras to close to bring CameraX
+        // back to the initial state.
+        Thread.sleep(3000);
+    }
+
     @Test
     public void cameraDeviceCallsAreForwardedToCallback() throws InterruptedException {
         mUseCase.addStateChangeListener(
@@ -125,6 +135,9 @@ public final class Camera2ImplCameraRepositoryTest {
 
         CallbackAttachingFakeUseCase(FakeUseCaseConfig config, String cameraId) {
             super(config);
+            // Use most supported resolution for different supported hardware level devices,
+            // especially for legacy devices.
+            mSurfaceTexture.setDefaultBufferSize(640, 480);
 
             SessionConfig.Builder builder = new SessionConfig.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
