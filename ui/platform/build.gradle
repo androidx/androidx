@@ -4,7 +4,8 @@ import androidx.build.LibraryVersions
 
 // TODO(pavlis): Make this a multi-platform module
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
     id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
 }

@@ -4,7 +4,8 @@ import androidx.build.LibraryVersions
 
 // TODO(mount): Make this platform-independent after making platform multi-platform
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
     id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
     id("r4a")
