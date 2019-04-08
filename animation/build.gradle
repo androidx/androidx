@@ -28,8 +28,8 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":collection"))
 
-    androidTestImplementation(TEST_EXT_JUNIT, libs.exclude_for_espresso)
-    androidTestImplementation(TEST_RULES, libs.exclude_for_espresso)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT, libs.exclude_for_espresso)
+    androidTestImplementation(ANDROIDX_TEST_RULES, libs.exclude_for_espresso)
 }
 
 androidx {

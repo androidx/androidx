@@ -27,8 +27,8 @@ dependencies {
     implementation(project(":annotation"))
     implementation(project(":core"))
     implementation(project(":animation"))
-    implementation(TEST_EXT_JUNIT)
-    implementation(TEST_CORE)
+    implementation(ANDROIDX_TEST_EXT_JUNIT)
+    implementation(ANDROIDX_TEST_CORE)
 }
 
 androidx {
