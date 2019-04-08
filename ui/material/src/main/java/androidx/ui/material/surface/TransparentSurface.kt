@@ -40,5 +40,5 @@ fun TransparentSurface(
     shape: ShapeBorder = RoundedRectangleBorder(),
     @Children children: () -> Unit
 ) {
-    <Surface shape children color={ Color.Transparent } />
+    <Surface shape children color=Color.Transparent />
 }

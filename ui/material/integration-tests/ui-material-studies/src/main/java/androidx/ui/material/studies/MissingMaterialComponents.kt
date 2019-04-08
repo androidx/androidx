@@ -20,12 +20,11 @@ import androidx.ui.core.Dp
 import androidx.ui.core.dp
 import androidx.ui.layout.Container
 import androidx.ui.layout.FlexColumn
-import androidx.ui.material.Colors
 import androidx.ui.material.surface.Surface
+import androidx.ui.material.themeColor
 import androidx.ui.painting.Color
 import com.google.r4a.Children
 import com.google.r4a.Composable
-import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.unaryPlus
 
@@ -42,8 +41,7 @@ fun Scaffold(appBar: @Composable() () -> Unit, @Children children: () -> Unit) {
             <appBar />
         }
         expanded(flex = 1.0f) {
-            val colors = +ambient(Colors)
-            <Surface color={ surface }>
+            <Surface color=+themeColor { surface }>
                 <children />
             </Surface>
         }

@@ -243,7 +243,15 @@ fun MaterialRippleTheme(@Children children: () -> Unit) {
 }
 
 /**
- * Helps to resolve the [TextStyle] by applying [choosingBlock] for the current [Typography].
+ * Helps to resolve the [Color] by applying [choosingBlock] for the [MaterialColors].
+ */
+@CheckResult(suggest = "+")
+fun themeColor(
+    choosingBlock: MaterialColors.() -> Color
+) = effectOf<Color> { (+ambient(Colors)).choosingBlock() }
+
+/**
+ * Helps to resolve the [TextStyle] by applying [choosingBlock] for the [MaterialTypography].
  */
 @CheckResult(suggest = "+")
 fun themeTextStyle(
@@ -301,9 +309,29 @@ fun MaterialButtonShapeTheme(@Children children: () -> Unit) {
     </CurrentShapeAmbient.Provider>
 }
 
+// Syntax helpers for having theme fallbacks
+
 /**
- * Helps to resolve the [ShapeBorder]. It will take the current value of the value from
- * [CurrentShapeAmbient] if null was used.
+ * Helps to resolve the [Color]. It will take the current value or the [choosingBlock]
+ * value from [Colors] if null was used.
+ *
+ * Example:
+ *     val finalColor = +color.orFromTheme { primary }
+ */
+fun Color?.orFromTheme(choosingBlock: MaterialColors.() -> Color): Effect<Color> {
+    val color = this
+    return effectOf {
+        if (color == null) {
+            (+ambient(Colors)).choosingBlock()
+        } else {
+            color
+        }
+    }
+}
+
+/**
+ * Helps to resolve the [ShapeBorder]. It will take the current value or the [choosingBlock]
+ * value from [CurrentShapeAmbient] if null was used.
  *
  * Example:
  *     val surfaceShape = +shape.orFromTheme{ button }

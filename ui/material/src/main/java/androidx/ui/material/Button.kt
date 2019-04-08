@@ -34,7 +34,6 @@ import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import com.google.r4a.Children
 import com.google.r4a.Composable
-import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.unaryPlus
 
@@ -65,8 +64,8 @@ import com.google.r4a.unaryPlus
  *  to false or when [onClick] is null.
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  *  the [Shapes.button] from [CurrentShapeAmbient].
- * @param color A selector for the background. [MaterialColors.primary] is used when null
- *  is provided.
+ * @param color The background color. [MaterialColors.primary] is used when null
+ *  is provided. Provide [Color.Transparent] to have no color.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
@@ -75,11 +74,11 @@ fun Button(
     onClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     shape: ShapeBorder? = null,
-    color: (MaterialColors.() -> Color)? = null,
+    color: Color? = null,
     elevation: Dp = 0.dp,
     @Children children: () -> Unit
 ) {
-    val surfaceColor = color ?: { primary }
+    val surfaceColor = +color.orFromTheme { primary }
     val surfaceShape = +shape.orFromTheme { button }
     val textStyle = +themeTextStyle { button }
     <Surface shape=surfaceShape color=surfaceColor elevation>
@@ -119,31 +118,30 @@ fun Button(
  * @see TransparentButton for the version with no background.
  *
  * @param text The text to display.
- * @param textStyle The optional text style selector from the [MaterialTypography].
+ * @param textStyle The optional text style to apply for the text.
  * @param onClick Will be called when user clicked on the button.
  * @param enabled Defines the enabled state. The button will not be clickable when it set
  *  to false or when [onClick] is null.
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  *  the [Shapes.button] from [CurrentShapeAmbient].
- * @param color A selector for the background. [MaterialColors.primary] is used when null
- *  is provided.
+ * @param color The background color. [MaterialColors.primary] is used when null
+ *  is provided. Use [TransparentButton] to have no color.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
 @Composable
 fun Button(
     text: String,
-    textStyle: (MaterialTypography.() -> TextStyle)? = null,
+    textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     shape: ShapeBorder? = null,
-    color: (MaterialColors.() -> Color)? = null,
+    color: Color? = null,
     elevation: Dp = 0.dp
 ) {
-    val surfaceColor = color ?: { primary }
+    val surfaceColor = +color.orFromTheme { primary }
     val surfaceShape = +shape.orFromTheme { button }
-    val hasBackground = surfaceShape.borderStyle != BorderStyle.None ||
-            (+ambient(Colors)).surfaceColor().alpha > 0
+    val hasBackground = surfaceColor.alpha > 0 || surfaceShape.borderStyle != BorderStyle.None
     val horPaddings = if (hasBackground) ButtonHorPadding else ButtonHorPaddingNoBg
     <Button onClick enabled elevation color=surfaceColor shape=surfaceShape>
         val constraints = +withDensity {
@@ -152,8 +150,7 @@ fun Button(
                 .copy(minWidth = ButtonMinWidth.toIntPx())
         }
         <Container padding=EdgeInsets(left = horPaddings, right = horPaddings) constraints>
-            val style = textStyle?.let { +themeTextStyle(it) }
-            <Text text=TextSpan(text = text, style = style) />
+            <Text text=TextSpan(text = text, style = textStyle) />
         </Container>
     </Button>
 }
@@ -161,13 +158,13 @@ fun Button(
 /**
  * Material Design implementation of [Button] with [text] and no background.
  * This will also apply [MaterialColors.primary] as a text color by default, but
- * you can not override this with [textStyle].
+ * you can override this with [textStyle].
  *
  * [Button] will be clickable if you provide [onClick] and [enabled] set to true.
  * You can specify a [shape] of the surface, it's background [color] and [elevation].
  *
  * @param text The text to display.
- * @param textStyle The optional text style selector from the [MaterialTypography].
+ * @param textStyle The optional text style to apply for the text.
  * @param onClick Will be called when user clicked on the button.
  * @param enabled Defines the enabled state. The button will not be clickable when it set
  *  to false or when [onClick] is null.
@@ -179,17 +176,14 @@ fun Button(
 @Composable
 fun TransparentButton(
     text: String,
-    textStyle: (MaterialTypography.() -> TextStyle)? = null,
+    textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     shape: ShapeBorder? = null,
     elevation: Dp = 0.dp
 ) {
-    val colors = +ambient(Colors)
-    val primary: MaterialTypography.() -> TextStyle = {
-        TextStyle(color = colors.primary).merge(textStyle?.invoke(this))
-    }
-    <Button text onClick enabled shape elevation textStyle=primary color={ Color.Transparent } />
+    val finalTextStyle = TextStyle(color = +themeColor { primary }).merge(textStyle)
+    <Button text onClick enabled shape elevation textStyle=finalTextStyle color=Color.Transparent />
 }
 
 // Specification for Material Button:

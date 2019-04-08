@@ -27,9 +27,11 @@ import androidx.ui.material.borders.BorderSide
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.ripple.BoundedRipple
 import androidx.ui.material.surface.Card
+import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
 import com.google.r4a.Composable
 import com.google.r4a.composer
+import com.google.r4a.unaryPlus
 
 @Composable
 fun RippleDemo() {
@@ -45,7 +47,7 @@ fun RippleDemo() {
                         <Container expanded=true>
                             <BoundedRipple>
                                 <Container width=100.dp height=50.dp>
-                                    <StyledText text="inner" style={ body1 } />
+                                    <StyledText text="inner" style=+themeTextStyle { body1 } />
                                 </Container>
                             </BoundedRipple>
                         </Container>

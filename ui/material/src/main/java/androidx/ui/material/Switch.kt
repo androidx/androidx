@@ -37,7 +37,6 @@ import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.StrokeCap
 import com.google.r4a.Composable
-import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.memo
 import com.google.r4a.unaryPlus
@@ -75,7 +74,6 @@ fun Switch(
             }
             layout(width, height) { ps.forEach { it.place(0.ipx, 0.ipx) } }
         }>
-            val colors = +ambient(Colors)
             <DrawSwitch checked color />
         </Layout>
     </Toggleable>
@@ -83,12 +81,11 @@ fun Switch(
 
 @Composable
 private fun DrawSwitch(checked: Boolean, color: Color? = null) {
-    val colors = +ambient(Colors)
-    val transDef = +memo(color) {
-        val activeColor = color ?: colors.primary
+    val activeColor = +color.orFromTheme { primary }
+    val transDef = +memo(activeColor) {
         generateTransitionDefinition(activeColor)
     }
-    val trackColor = if (checked) color ?: colors.primary else UncheckedTrackColor
+    val trackColor = if (checked) activeColor else UncheckedTrackColor
     <DrawTrack color=trackColor />
     <Transition definition=transDef toState=checked> state ->
         <DrawThumb

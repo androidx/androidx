@@ -21,9 +21,11 @@ import android.os.Bundle
 import androidx.ui.core.CraneWrapper
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.StyledText
+import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
 import com.google.r4a.composer
 import com.google.r4a.setContent
+import com.google.r4a.unaryPlus
 
 open class TextActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +36,7 @@ open class TextActivity : Activity() {
                     val textColor = Color(0xFFFF0000.toInt())
                     <StyledText
                         text="Hello"
-                        style={ h1.copy(color = textColor)} />
+                        style=+themeTextStyle { h1.copy(color = textColor)} />
                 </MaterialTheme>
             </CraneWrapper>
         }

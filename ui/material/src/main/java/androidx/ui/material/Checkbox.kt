@@ -37,7 +37,6 @@ import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.StrokeCap
 import com.google.r4a.Composable
-import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.memo
 import com.google.r4a.unaryPlus
@@ -87,8 +86,7 @@ fun Checkbox(
 
 @Composable
 private fun DrawCheckbox(value: ToggleableState, color: Color?) {
-    val colors = +ambient(Colors)
-    val activeColor = color ?: colors.secondary
+    val activeColor = +color.orFromTheme { secondary }
     val definition = +memo(activeColor) {
         generateTransitionDefinition(activeColor)
     }
