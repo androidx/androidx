@@ -43,7 +43,7 @@ import androidx.navigation.Navigator;
  * defining your app's chrome around it, e.g.:</p>
  *
  * <pre class="prettyprint">
- * &lt;android.support.v4.widget.DrawerLayout
+ * &lt;androidx.drawerlayout.widget.DrawerLayout
  *        xmlns:android="http://schemas.android.com/apk/res/android"
  *        xmlns:app="http://schemas.android.com/apk/res-auto"
  *        android:layout_width="match_parent"
@@ -59,7 +59,7 @@ import androidx.navigation.Navigator;
  *            android:layout_width="wrap_content"
  *            android:layout_height="match_parent"
  *            android:layout_gravity="start"/&gt;
- * &lt;/android.support.v4.widget.DrawerLayout&gt;
+ * &lt;/androidx.drawerlayout.widget.DrawerLayout&gt;
  * </pre>
  *
  * <p>Each NavHostFragment has a {@link NavController} that defines valid navigation within
