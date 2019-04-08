@@ -205,9 +205,7 @@ public final class ViewPager2 extends ViewGroup {
         SavedState ss = new SavedState(superState);
 
         ss.mRecyclerViewId = mRecyclerView.getId();
-        ss.mOrientation = getOrientation();
         ss.mCurrentItem = mCurrentItem;
-        ss.mUserScrollable = mUserInputEnabled;
         ss.mScrollInProgress =
                 mLayoutManager.findFirstCompletelyVisibleItemPosition() != mCurrentItem;
 
@@ -228,9 +226,7 @@ public final class ViewPager2 extends ViewGroup {
 
         SavedState ss = (SavedState) state;
         super.onRestoreInstanceState(ss.getSuperState());
-        setOrientation(ss.mOrientation);
         mCurrentItem = ss.mCurrentItem;
-        mUserInputEnabled = ss.mUserScrollable;
         if (ss.mScrollInProgress) {
             // A scroll was in progress, so the RecyclerView is not at mCurrentItem right now. Move
             // it to mCurrentItem instantly in the _next_ frame, as RecyclerView is not yet fired up
@@ -277,9 +273,7 @@ public final class ViewPager2 extends ViewGroup {
 
     static class SavedState extends BaseSavedState {
         int mRecyclerViewId;
-        @Orientation int mOrientation;
         int mCurrentItem;
-        boolean mUserScrollable;
         boolean mScrollInProgress;
         Parcelable mAdapterState;
 
@@ -300,9 +294,7 @@ public final class ViewPager2 extends ViewGroup {
 
         private void readValues(Parcel source, ClassLoader loader) {
             mRecyclerViewId = source.readInt();
-            mOrientation = source.readInt();
             mCurrentItem = source.readInt();
-            mUserScrollable = source.readByte() != 0;
             mScrollInProgress = source.readByte() != 0;
             mAdapterState = source.readParcelable(loader);
         }
@@ -311,9 +303,7 @@ public final class ViewPager2 extends ViewGroup {
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeInt(mRecyclerViewId);
-            out.writeInt(mOrientation);
             out.writeInt(mCurrentItem);
-            out.writeByte((byte) (mUserScrollable ? 1 : 0));
             out.writeByte((byte) (mScrollInProgress ? 1 : 0));
             out.writeParcelable(mAdapterState, flags);
         }
