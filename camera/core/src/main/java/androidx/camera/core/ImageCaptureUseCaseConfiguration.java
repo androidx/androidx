@@ -348,8 +348,18 @@ public final class ImageCaptureUseCaseConfiguration
             return builder();
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        /**
+         * Sets the intended output target resolution.
+         *
+         * <p>The target resolution attempts to establish a minimum bound for the image resolution.
+         * The actual image resolution will be the closest available resolution in size that is not
+         * smaller than the target resolution, as determined by the Camera implementation. However,
+         * if no resolution exists that is equal to or larger than the target resolution, the
+         * nearest available resolution smaller than the target resolution will be chosen.
+         *
+         * @param resolution The target resolution to choose from supported output sizes list.
+         * @return The current Builder.
+         */
         @Override
         public Builder setTargetResolution(Size resolution) {
             getMutableConfiguration().insertOption(OPTION_TARGET_RESOLUTION, resolution);
@@ -516,15 +526,24 @@ public final class ImageCaptureUseCaseConfiguration
         return retrieveOption(OPTION_TARGET_ROTATION);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    /**
+     * Retrieves the resolution of the target intending to use from this configuration.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
     @Override
     public Size getTargetResolution(Size valueIfMissing) {
         return retrieveOption(OPTION_TARGET_RESOLUTION, valueIfMissing);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    /**
+     * Retrieves the resolution of the target intending to use from this configuration.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
     @Override
     public Size getTargetResolution() {
         return retrieveOption(OPTION_TARGET_RESOLUTION);
