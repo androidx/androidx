@@ -18,9 +18,7 @@ ext.supportRootFolder = new File("../../../..")
 apply from: "$supportRootFolder/buildSrc/repos.gradle"
 repos.addMavenRepositories(repositories)
 
-ext.runningInBuildServer = System.env.DIST_DIR != null && System.env.OUT_DIR != null
-ext.repoDir = runningInBuildServer ? new File(System.env.OUT_DIR + '/gradle/frameworks/support/build') :
-        new File("$supportRootFolder/../../out/host/gradle/frameworks/support/build")
+ext.repoDir = runningInBuildServer ? new File(System.env.OUT_DIR + '/support/build')
 
 task createArchive(type: Exec) {
     inputs.files(fileTree(dir: "$supportRootFolder/navigation",
