@@ -15,9 +15,8 @@
  */
 
 import static androidx.build.dependencies.DependenciesKt.*
-// TODO(b/124783972): Switch to androidx.build.LibraryVersions and androidx.build.LibraryGroups when ready
-import androidx.build.UnpublishedLibraryVersions
-import androidx.build.UnpublishedLibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.LibraryGroups
 
 plugins {
     id("AndroidXPlugin")
