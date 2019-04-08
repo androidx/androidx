@@ -30,13 +30,13 @@ plugins {
 
 dependencies {
     api "androidx.annotation:annotation:1.0.0"
+    api project(":compose-runtime")
     api project(":ui-core")
     api project(':ui-framework')
     api project(':ui-framework-adapter')
     api project(':ui-layout')
     api project(':ui-animation')
     api(KOTLIN_R4A_STDLIB)
-    api(KOTLIN_R4A_RUNTIME)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)

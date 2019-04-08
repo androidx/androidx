@@ -28,7 +28,7 @@ plugins {
 dependencies {
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
-    api(KOTLIN_R4A_RUNTIME)
+    api project(":compose-runtime")
     api project(":ui-framework")
 }
 

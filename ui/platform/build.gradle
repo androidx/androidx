@@ -11,11 +11,12 @@ plugins {
 }
 
 dependencies {
+    api project(":compose-runtime")
     api project(":ui-core")
     api project(":ui-intermediate")
+    api project(":compose-runtime")
 
     implementation(KOTLIN_R4A_STDLIB)
-    implementation(KOTLIN_R4A_RUNTIME)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)

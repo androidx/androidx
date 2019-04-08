@@ -14,10 +14,10 @@ dependencies {
     api "androidx.annotation:annotation:1.0.0"
     api "androidx.activity:activity:1.0.0-alpha01"
     api project(":ui-core")
+    api project(":compose-runtime")
     implementation project(":ui-android-core")
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
-    api(KOTLIN_R4A_RUNTIME)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
