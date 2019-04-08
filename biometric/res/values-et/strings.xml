@@ -24,5 +24,6 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Ühtegi sõrmejälge pole registreeritud."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Selles seadmes pole sõrmejäljeandurit"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Kasutaja tühistas sõrmejälje kasutamise."</string>
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Liiga palju katseid. Proovige hiljem uuesti."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Tundmatu viga"</string>
 </resources>

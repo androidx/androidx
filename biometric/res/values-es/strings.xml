@@ -24,7 +24,6 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"No se ha registrado ninguna huella digital."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"El dispositivo no tiene ningún sensor de huellas digitales"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"El usuario ha cancelado la operación de huella digital."</string>
-    <!-- no translation found for fingerprint_error_lockout (1651062876313169162) -->
-    <skip />
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Has realizado demasiados intentos. Vuelve a probar más tarde."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Error desconocido"</string>
 </resources>

@@ -24,5 +24,6 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Der er ikke registreret nogen fingeraftryk."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Denne enhed har ingen fingeraftrykslæser"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Fingeraftrykshandlingen blev annulleret af brugeren."</string>
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Der var for mange forsøg Prøv igen senere."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Ukendt fejl"</string>
 </resources>
