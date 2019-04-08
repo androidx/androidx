@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     implementation(KOTLIN_STDLIB)
+    implementation(project(":appcompat"))
     implementation(project(":navigation:navigation-fragment-ktx"))
     implementation(project(":navigation:navigation-ui-ktx"))
     implementation(project(":navigation:navigation-testing"))
