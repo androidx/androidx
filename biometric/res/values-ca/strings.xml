@@ -24,7 +24,6 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"No s\'ha registrat cap empremta digital."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Aquest dispositiu no té sensor d\'empremtes digitals"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"L\'usuari ha cancel·lat l\'operació d\'empremta digital."</string>
-    <!-- no translation found for fingerprint_error_lockout (1651062876313169162) -->
-    <skip />
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Massa intents. Torna-ho a provar més tard."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Error desconegut"</string>
 </resources>
