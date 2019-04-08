@@ -16,8 +16,10 @@
 
 package androidx.ui.core
 
+import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.R4a
 import com.google.r4a.composer
 import com.google.r4a.memo
 import com.google.r4a.onCommit
@@ -60,7 +62,7 @@ internal class ComplexLayoutState(
     internal val layoutNode: LayoutNode
         get() = layoutNodeRef.value!!
 
-    private val childrenMeasurables: List<Measurable>
+    internal val childrenMeasurables: List<Measurable>
         get() = layoutNode.childrenMeasureBoxes().map {
             when (it) {
                 is ComplexLayoutState -> it as Measurable
@@ -137,7 +139,7 @@ internal class ComplexLayoutState(
  * [ComplexMeasureBox] which composes its children during its own composition, so the tree of
  * component nodes will be built in one composition pass. Since it composes its children
  * non-lazily, the children composable has to be known beforehand, which is the case for most
- * use cases. TODO(popam): add support for subcompositions
+ * use cases.
  * TODO(popam): improve this doc when the component is finalized
  */
 @Composable
@@ -180,7 +182,7 @@ fun ComplexLayout(
  * Receiver scope for [SingleCompositionComplexMeasureBoxReceiver] intrinsic measurements lambdas.
  */
 class SingleCompositionIntrinsicMeasurementsReceiver internal constructor(
-    private val measureBox: ComplexLayoutState
+    internal val measureBox: ComplexLayoutState
 ) : DensityReceiver {
     override val density: Density
         get() = measureBox.density
@@ -198,7 +200,7 @@ class SingleCompositionIntrinsicMeasurementsReceiver internal constructor(
  * Receiver scope for [SingleCompositionComplexMeasureBoxReceiver#layout]'s lambda.
  */
 class SingleCompositionLayoutBlockReceiver internal constructor(
-    private val complexMeasureBox: ComplexLayoutState
+    internal val complexMeasureBox: ComplexLayoutState
 ) : DensityReceiver {
     override val density: Density
         get() = complexMeasureBox.density
@@ -238,6 +240,7 @@ fun Layout(
 ) {
     val complexLayoutBlock: LayoutBlock = { measurables, constraints: Constraints ->
         val measureBoxReceiver = SingleCompositionMeasureBoxReceiver(
+            complexMeasureBox,
             { m, c -> m.measure(c) }, /* measure lambda */
             this::layoutResult,
             density
@@ -247,7 +250,7 @@ fun Layout(
 
     val minIntrinsicWidthBlock: IntrinsicMeasurementBlock = { measurables, h ->
         var intrinsicWidth = IntPx.Zero
-        val measureBoxReceiver = SingleCompositionMeasureBoxReceiver({ m, c ->
+        val measureBoxReceiver = SingleCompositionMeasureBoxReceiver(measureBox, { m, c ->
             val width = m.minIntrinsicWidth(c.minHeight)
             DummyPlaceable(width, h)
         }, { width, _, _ -> intrinsicWidth = width }, density)
@@ -258,7 +261,7 @@ fun Layout(
 
     val maxIntrinsicWidthBlock: IntrinsicMeasurementBlock = { measurables, h ->
         var intrinsicWidth = IntPx.Zero
-        val measureBoxReceiver = SingleCompositionMeasureBoxReceiver({ m, c ->
+        val measureBoxReceiver = SingleCompositionMeasureBoxReceiver(measureBox, { m, c ->
             val width = m.maxIntrinsicWidth(c.minHeight)
             DummyPlaceable(width, h)
         }, { width, _, _ -> intrinsicWidth = width }, density)
@@ -269,7 +272,7 @@ fun Layout(
 
     val minIntrinsicHeightBlock: IntrinsicMeasurementBlock = { measurables, w ->
         var intrinsicHeight = IntPx.Zero
-        val measureBoxReceiver = SingleCompositionMeasureBoxReceiver({ m, c ->
+        val measureBoxReceiver = SingleCompositionMeasureBoxReceiver(measureBox, { m, c ->
             val height = m.minIntrinsicHeight(c.minWidth)
             DummyPlaceable(w, height)
         }, { _, height, _ -> intrinsicHeight = height }, density)
@@ -279,7 +282,7 @@ fun Layout(
     }
     val maxIntrinsicHeightBlock: IntrinsicMeasurementBlock = { measurables, w ->
         var intrinsicHeight = IntPx.Zero
-        val measureBoxReceiver = SingleCompositionMeasureBoxReceiver({ m, c ->
+        val measureBoxReceiver = SingleCompositionMeasureBoxReceiver(measureBox, { m, c ->
             val height = m.maxIntrinsicHeight(c.minWidth)
             DummyPlaceable(w, height)
         }, { _, height, _ -> intrinsicHeight = height }, density)
@@ -301,6 +304,7 @@ fun Layout(
  * Used to mask away intrinsics inside [Layout].
  */
 class SingleCompositionMeasureBoxReceiver internal constructor(
+    internal val complexMeasureBox: ComplexLayoutState,
     private val complexMeasure: (Measurable, Constraints) -> Placeable,
     private val complexLayoutResult: (IntPx, IntPx, PositioningBlockReceiver.() -> Unit) -> Unit,
     override val density: Density
@@ -319,4 +323,63 @@ class SingleCompositionMeasureBoxReceiver internal constructor(
     fun layout(width: IntPx, height: IntPx, block: PositioningBlockReceiver.() -> Unit) {
         complexLayoutResult(width, height, block)
     }
+}
+
+/**
+ * A widget that defines its own content according to the available space, based on the incoming
+ * constraints. Example usage:
+ *
+ * <WithConstraints> constraints ->
+ *     if (constraints.maxWidth < 100.ipx) {
+ *         <Icon />
+ *     } else {
+ *         <Row>
+ *             <Icon />
+ *             <IconDescription />
+ *          </Row>
+ *     }
+ * </WithConstraints>
+ *
+ * The widget will compose the given children, and will position the resulting layout widgets
+ * in a parent [Layout]. The widget will be as small as possible such that it can fit its
+ * children. If the composition yields multiple layout children, these will be all placed at the
+ * top left of the WithConstraints, so consider wrapping them in an additional common
+ * parent if different positioning is preferred.
+ *
+ * Please note that using this widget might be a performance hit, so please use with care.
+ */
+@Composable
+fun WithConstraints(@Children children: (Constraints) -> Unit) {
+    var ambients: Ambient.Reference? = null
+    <Ambient.Portal> value ->
+        ambients = value
+    </Ambient.Portal>
+
+    <Layout
+        layoutBlock = { _, constraints ->
+            val root = complexMeasureBox.layoutNode
+            // Start subcomposition from the current node.
+            R4a.composeInto(
+                root,
+                ambients!!.getAmbient(ContextAmbient),
+                ambients
+            ) {
+                <children p1=constraints />
+            }
+
+            // Measure the obtained children and compute our size.
+            val measurables = complexMeasureBox.childrenMeasurables
+            val placeables = measurables.map { it.measure(constraints) }
+            val layoutSize = constraints.constrain(IntPxSize(
+                placeables.map { it.width }.maxBy { it.value } ?: IntPx.Zero,
+                placeables.map { it.height }.maxBy { it.value } ?: IntPx.Zero
+            ))
+
+            layout(layoutSize.width, layoutSize.height) {
+                placeables.forEach { placeable ->
+                    placeable.place(IntPx.Zero, IntPx.Zero)
+                }
+            }
+        }
+        children={} />
 }
