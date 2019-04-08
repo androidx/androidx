@@ -24,5 +24,6 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"اثر انگشتی ثبت نشده است."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"این دستگاه حسگر اثر انگشت ندارد"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"کاربر عملیات اثر انگشت را لغو کرد"</string>
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"تعداد تلاش‌ها بیش از حد مجاز است. لطفاً بعداً دوباره امتحان کنید."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"خطای ناشناس"</string>
 </resources>
