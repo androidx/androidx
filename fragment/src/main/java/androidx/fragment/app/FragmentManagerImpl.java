@@ -746,10 +746,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     }
                     // fall through
                 case Fragment.CREATED:
-                    // This is outside the if statement below on purpose; we want this to run
-                    // even if we do a moveToState from CREATED => *, CREATED => CREATED, and
-                    // * => CREATED as part of the case fallthrough above.
-                    ensureInflatedFragmentView(f);
+                    // We want to unconditionally run this anytime we do a moveToState that
+                    // moves the Fragment above INITIALIZING, including cases such as when
+                    // we move from CREATED => CREATED as part of the case fall through above.
+                    if (newState > Fragment.INITIALIZING) {
+                        ensureInflatedFragmentView(f);
+                    }
 
                     if (newState > Fragment.CREATED) {
                         if (DEBUG) Log.v(TAG, "moveto ACTIVITY_CREATED: " + f);
