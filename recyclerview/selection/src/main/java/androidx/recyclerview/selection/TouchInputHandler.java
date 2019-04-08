@@ -88,7 +88,7 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
         }
 
         if (mSelectionTracker.hasSelection()) {
-            if (isRangeExtension(e)) {
+            if (shouldExtendRange(e)) {
                 extendSelectionRange(item);
             } else if (mSelectionTracker.isSelected(item.getSelectionKey())) {
                 mSelectionTracker.deselect(item.getSelectionKey());
@@ -121,32 +121,26 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
 
         boolean handled = false;
 
-        if (isRangeExtension(e)) {
+        if (shouldExtendRange(e)) {
             extendSelectionRange(item);
-            handled = true;
-        } else {
-            if (!mSelectionTracker.isSelected(item.getSelectionKey())
-                    && mSelectionPredicate.canSetStateForKey(item.getSelectionKey(), true)) {
-                // If we cannot select it, we didn't apply anchoring - therefore should not
-                // start gesture selection
-                if (selectItem(item)) {
-                    // And finally if the item was selected && we can select multiple
-                    // we kick off gesture selection.
-                    if (mSelectionPredicate.canSelectMultiple()) {
-                        mGestureStarter.run();
-                    }
-                    handled = true;
-                }
-            } else {
-                // We only initiate drag and drop on long press for touch to allow regular
-                // touch-based scrolling
-                mOnDragInitiatedListener.onDragInitiated(e);
-                handled = true;
-            }
-        }
-
-        if (handled) {
             mHapticPerformer.run();
+        } else {
+            if (mSelectionTracker.isSelected(item.getSelectionKey())) {
+                // Long press on existing selected item initiates drag/drop.
+                mOnDragInitiatedListener.onDragInitiated(e);
+                mHapticPerformer.run();
+            } else if (mSelectionPredicate.canSetStateForKey(item.getSelectionKey(), true)
+                    && selectItem(item)) {
+                // And finally if the item was selected && we can select multiple
+                // we kick off gesture selection.
+                // NOTE: isRangeActive should ALWAYS be true at this point, but there have
+                // been reports indicating that assumption isn't correct. So we explicitly
+                // check isRangeActive.
+                if (mSelectionPredicate.canSelectMultiple() && mSelectionTracker.isRangeActive()) {
+                    mGestureStarter.run();
+                }
+                mHapticPerformer.run();
+            }
         }
     }
 }
