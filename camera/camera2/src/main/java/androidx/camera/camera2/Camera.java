@@ -426,9 +426,18 @@ final class Camera implements BaseCamera {
             }
 
             if (mUseCaseAttachState.getOnlineUseCases().isEmpty()) {
+
+                boolean isLegacyDevice = false;
+                try {
+                    Camera2CameraInfo camera2CameraInfo = (Camera2CameraInfo) getCameraInfo();
+                    isLegacyDevice = camera2CameraInfo.getSupportedHardwareLevel()
+                            == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
+                } catch (CameraInfoUnavailableException e) {
+                    Log.w(TAG, "Check legacy device failed.", e);
+                }
+
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && !BuildCompat.isAtLeastQ()
-                        && ((Camera2CameraInfo) mCameraInfo).getSupportedHardwareLevel()
-                        == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+                        && isLegacyDevice) {
                     // To configure surface again before close camera. This step would disconnect
                     // previous connected surface in some legacy device to prevent exception.
                     configAndClose();
