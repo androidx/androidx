@@ -49,7 +49,9 @@ import org.jetbrains.uast.visitor.AbstractUastVisitor
 import org.jetbrains.uast.visitor.UastVisitor
 import java.util.ArrayDeque
 
-private const val CONTINUATION = "kotlin.coroutines.experimental.Continuation<? super kotlin.Unit>"
+// both old and new ones
+private val CONTINUATION_NAMES = setOf("kotlin.coroutines.Continuation<? super kotlin.Unit>",
+    "kotlin.coroutines.experimental.Continuation<? super kotlin.Unit>")
 
 internal fun errorMessage(whenMethodName: String) =
     "Unsafe View access from finally/catch block inside of `Lifecycle.$whenMethodName` scope"
@@ -209,7 +211,7 @@ private fun ULambdaExpression.isSuspendLambda(context: JavaContext): Boolean {
     }
     val superBound = (params[params.size - 2] as? PsiWildcardType)?.superBound as? PsiClassType
     return if (superBound != null) {
-        context.evaluator.getQualifiedName(superBound) == CONTINUATION
+        context.evaluator.getQualifiedName(superBound) in CONTINUATION_NAMES
     } else {
         false
     }
