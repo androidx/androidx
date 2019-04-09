@@ -213,9 +213,9 @@ fun lerp(a: BorderRadius?, b: BorderRadius?, t: Float): BorderRadius? {
     if (b == null)
         return a * (1.0f - t)
     return BorderRadius(
-        topLeft = lerp(a.topLeft, b.topLeft, t)!!,
-        topRight = lerp(a.topRight, b.topRight, t)!!,
-        bottomLeft = lerp(a.bottomLeft, b.bottomLeft, t)!!,
-        bottomRight = lerp(a.bottomRight, b.bottomRight, t)!!
+        topLeft = lerp(a.topLeft, b.topLeft, t),
+        topRight = lerp(a.topRight, b.topRight, t),
+        bottomLeft = lerp(a.bottomLeft, b.bottomLeft, t),
+        bottomRight = lerp(a.bottomRight, b.bottomRight, t)
     )
 }
