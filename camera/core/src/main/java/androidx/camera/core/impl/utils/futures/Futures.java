@@ -16,13 +16,11 @@
 
 package androidx.camera.core.impl.utils.futures;
 
-import static com.google.common.base.Preconditions.checkState;
 
 import androidx.annotation.Nullable;
+import androidx.arch.core.util.Function;
+import androidx.core.util.Preconditions;
 
-import com.google.common.base.Function;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.CancellationException;
@@ -131,7 +129,7 @@ public final class Futures {
 
         @Override
         public String toString() {
-            return MoreObjects.toStringHelper(this).addValue(mCallback).toString();
+            return getClass().getSimpleName() + "," + mCallback;
         }
     }
 
@@ -158,7 +156,7 @@ public final class Futures {
          * Why do we deviate here? The answer: We want for fluentFuture.getDone() to throw the same
          * exception as Futures.getDone(fluentFuture).
          */
-        checkState(future.isDone(), "Future was expected to be done: %s", future);
+        Preconditions.checkState(future.isDone(), "Future was expected to be done, " + future);
         return getUninterruptibly(future);
     }
 
