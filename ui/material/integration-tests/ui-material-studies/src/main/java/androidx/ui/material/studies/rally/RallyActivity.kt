@@ -28,9 +28,11 @@ import androidx.ui.material.StyledText
 import androidx.ui.material.studies.Orientation
 import androidx.ui.material.studies.Scaffold
 import androidx.ui.material.studies.Spacer
+import androidx.ui.material.themeTextStyle
 import com.google.r4a.Composable
 import com.google.r4a.composer
 import com.google.r4a.setContent
+import com.google.r4a.unaryPlus
 
 /**
  * This Activity recreates the Rally Material Study from
@@ -60,7 +62,7 @@ class RallyActivity : Activity() {
         // TODO: Transform to tabs
         <Row>
             // <Icon />
-            <StyledText text="Overview" style={ h4 } />
+            <StyledText text="Overview" style=+themeTextStyle { h4 } />
             // TODO: Other items
         </Row>
     }

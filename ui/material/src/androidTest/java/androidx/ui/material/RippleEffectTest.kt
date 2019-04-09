@@ -97,7 +97,7 @@ class RippleEffectTest : AndroidUiTestRunner() {
             <CraneWrapper>
                 <MaterialTheme>
                     <CurrentRippleTheme.Provider value=RippleTheme(factory, colorCallback)>
-                        <Card color={ Color(android.graphics.Color.RED) }>
+                        <Card>
                             <Padding padding=EdgeInsets(padding)>
                                 <Semantics testTag="ripple">
                                     <BoundedRipple>

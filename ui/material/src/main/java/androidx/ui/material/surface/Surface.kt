@@ -22,13 +22,13 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
-import androidx.ui.material.Colors
 import androidx.ui.material.MaterialColors
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.clip.ClipPath
 import androidx.ui.material.clip.ShapeBorderClipper
 import androidx.ui.material.clip.cache.CachingClipper
+import androidx.ui.material.orFromTheme
 import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.material.ripple.RippleSurface
 import androidx.ui.material.ripple.RippleSurfaceOwner
@@ -38,7 +38,6 @@ import androidx.ui.painting.Color
 import androidx.ui.painting.TextStyle
 import com.google.r4a.Children
 import com.google.r4a.Composable
-import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.unaryPlus
 
@@ -71,20 +70,19 @@ import com.google.r4a.unaryPlus
  *
  * @param shape Defines the surface's shape as well its shadow. A shadow is only
  *  displayed if the [elevation] is greater than zero.
- * @param color A selector for the background color. When null is provided it uses
- *  the [MaterialColors.surface]. Use [TransparentSurface] to have no color.
+ * @param color The background color. [MaterialColors.surface] is used when null
+ *  is provided. Use [TransparentSurface] to have no color.
  * @param elevation The z-coordinate at which to place this surface. This controls
  *  the size of the shadow below the surface.
  */
 @Composable
 fun Surface(
     shape: ShapeBorder = RoundedRectangleBorder(),
-    color: (MaterialColors.() -> Color)? = null,
+    color: Color? = null,
     elevation: Dp = 0.dp,
     @Children children: () -> Unit
 ) {
-    val colors = +ambient(Colors)
-    val finalColor = if (color != null) colors.color() else colors.surface
+    val finalColor = +color.orFromTheme { surface }
     <SurfaceLayout>
         <CachingClipper
             clipper=ShapeBorderClipper(shape)> clipper ->

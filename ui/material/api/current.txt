@@ -32,9 +32,9 @@ package androidx.ui.material {
 
   public final class ButtonKt {
     ctor public ButtonKt();
-    method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color>? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Button(String text, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle>? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color>? color = null, androidx.ui.core.Dp elevation = 0.dp);
-    method public static void TransparentButton(String text, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle>? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.core.Dp elevation = 0.dp);
+    method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Button(String text, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
+    method public static void TransparentButton(String text, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.core.Dp elevation = 0.dp);
   }
 
   public final class CheckboxKt {
@@ -81,7 +81,9 @@ package androidx.ui.material {
     method public static com.google.r4a.Ambient<androidx.ui.material.MaterialColors> getColors();
     method public static com.google.r4a.Ambient<androidx.ui.material.Shapes> getCurrentShapeAmbient();
     method public static com.google.r4a.Ambient<androidx.ui.material.MaterialTypography> getTypography();
+    method public static com.google.r4a.Effect<androidx.ui.painting.Color> orFromTheme(androidx.ui.painting.Color?, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color> choosingBlock);
     method public static com.google.r4a.Effect<androidx.ui.material.borders.ShapeBorder> orFromTheme(androidx.ui.material.borders.ShapeBorder?, kotlin.jvm.functions.Function1<? super androidx.ui.material.Shapes,? extends androidx.ui.material.borders.ShapeBorder> choosingBlock);
+    method @CheckResult("+") public static com.google.r4a.Effect<androidx.ui.painting.Color> themeColor(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color> choosingBlock);
     method @CheckResult("+") public static com.google.r4a.Effect<androidx.ui.painting.TextStyle> themeTextStyle(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle> choosingBlock);
   }
 
@@ -143,7 +145,7 @@ package androidx.ui.material {
 
   public final class TextKt {
     ctor public TextKt();
-    method public static void StyledText(String text, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle> style);
+    method public static void StyledText(String text, androidx.ui.painting.TextStyle style);
     method public static com.google.r4a.Effect<androidx.ui.painting.Color> textColorForBackground(androidx.ui.painting.Color background);
   }
 
@@ -422,7 +424,7 @@ package androidx.ui.material.surface {
 
   public final class CardKt {
     ctor public CardKt();
-    method public static void Card(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color>? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Card(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DrawBorderKt {
@@ -442,7 +444,7 @@ package androidx.ui.material.surface {
 
   public final class SurfaceKt {
     ctor public SurfaceKt();
-    method public static void Surface(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color>? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Surface(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class TransparentSurfaceKt {

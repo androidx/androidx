@@ -33,8 +33,8 @@ import com.google.r4a.composer
  *
  * @param shape Defines the surface's shape as well its shadow. A shadow is only
  *  displayed if the [elevation] is greater than zero.
- * @param color A selector for the background color. When null is provided it uses
- *  the [MaterialColors.surface]. Use [TransparentSurface] to have no color.
+ * @param color The background color. [MaterialColors.surface] is used when null
+ *  is provided. Use [TransparentSurface] to have no color.
  * @param elevation The z-coordinate at which to place this surface. This controls
  *  the size of the shadow below the surface.
  *
@@ -42,7 +42,7 @@ import com.google.r4a.composer
 @Composable
 fun Card(
     shape: ShapeBorder = RoundedRectangleBorder(),
-    color: (MaterialColors.() -> Color)? = null,
+    color: Color? = null,
     elevation: Dp = 0.dp,
     @Children children: () -> Unit
 ) {

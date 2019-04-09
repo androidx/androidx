@@ -38,6 +38,7 @@ import androidx.ui.material.StyledText
 import androidx.ui.material.Switch
 import androidx.ui.material.Typography
 import androidx.ui.material.parentCheckboxState
+import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
 import com.google.r4a.Children
@@ -125,7 +126,7 @@ fun SelectionsControlsDemo() {
                             width=100.dp
                             height=38.dp
                         >
-                            <StyledText text=option.take(1) style={ h5 } />
+                            <StyledText text=option.take(1) style=+themeTextStyle { h5 } />
                         </Container>
                     </Row>
                 </Padding>

@@ -48,7 +48,6 @@ import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.TextStyle
 import com.google.r4a.Children
 import com.google.r4a.Composable
-import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.memo
 import com.google.r4a.unaryPlus
@@ -173,7 +172,7 @@ class RadioGroupScope internal constructor() {
                 <Row mainAxisSize=MainAxisSize.Max mainAxisAlignment=MainAxisAlignment.Start>
                     <RadioButton selected color=radioColor />
                     <Padding padding=EdgeInsets(left = DefaultRadioLabelOffset)>
-                        <StyledText text style={ body1.merge(textStyle) } />
+                        <StyledText text style=+themeTextStyle { body1.merge(textStyle) } />
                     </Padding>
                 </Row>
             </Padding>
@@ -188,7 +187,7 @@ class RadioGroupScope internal constructor() {
  * multiply-exclusion set of options for user to choose from
  *
  * @param selected boolean state for this button: either it is selected or not
- * @param color optional color. [MaterialColor.primary] is used by default
+ * @param color optional color. [MaterialColors.primary] is used by default
  */
 @Composable
 fun RadioButton(
@@ -203,8 +202,7 @@ fun RadioButton(
             // no children to place
         }
     }>
-        val colors = +ambient(Colors)
-        val activeColor = color ?: colors.primary
+        val activeColor = +color.orFromTheme { primary }
         val definition = +memo(activeColor) {
             generateTransitionDefinition(activeColor)
         }

@@ -24,21 +24,20 @@ import com.google.r4a.Composable
 import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.effectOf
-import com.google.r4a.unaryPlus
 
 /**
  * Version of [Text] which allows you to specify a text style based on the
  * styles from the [MaterialTypography].
  *
  * Example:
- *     <StyledText text="Hello" style={ h1 } />
+ *     <StyledText text="Hello" style=+themeTextStyle { h1 } />
  *
  * @param text The text to display.
- * @param style The text style selector from the [MaterialTypography].
+ * @param style The text style for the text.
  */
 @Composable
-fun StyledText(text: String, style: (MaterialTypography.() -> TextStyle)) {
-    <Text text=TextSpan(text = text, style = +themeTextStyle(style)) />
+fun StyledText(text: String, style: TextStyle) {
+    <Text text=TextSpan(text = text, style = style) />
 }
 
 /**

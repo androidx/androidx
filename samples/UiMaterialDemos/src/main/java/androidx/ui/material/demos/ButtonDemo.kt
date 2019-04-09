@@ -32,6 +32,8 @@ import androidx.ui.material.TransparentButton
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BorderSide
 import androidx.ui.material.borders.RoundedRectangleBorder
+import androidx.ui.material.themeColor
+import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
 import com.google.r4a.Composable
@@ -53,7 +55,7 @@ fun ButtonDemo() {
 
                     <Button
                         onClick
-                        color={ secondary }
+                        color=+themeColor { secondary }
                         text="SECONDARY COLOR" />
 
                     val outlinedShape = +withDensity {
@@ -70,10 +72,11 @@ fun ButtonDemo() {
 
                     <TransparentButton onClick shape=outlinedShape text="OUTLINED" />
 
+                    val customColor = Color(0xFFFFFF00.toInt())
                     <Button
                         onClick
                         text="CUSTOM STYLE"
-                        textStyle={ body2.copy(color = Color(0xFFFFFF00.toInt()))} />
+                        textStyle=+themeTextStyle { body2.copy(color = customColor) } />
 
                     <Button onClick>
                         <Padding padding=EdgeInsets(16.dp)>
