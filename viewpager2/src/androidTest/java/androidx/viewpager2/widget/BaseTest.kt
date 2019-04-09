@@ -123,8 +123,12 @@ open class BaseTest {
             adapterProvider: AdapterProvider,
             onCreateCallback: ((ViewPager2) -> Unit) = { }
         ) {
+            val orientation = viewPager.orientation
+            val isUserInputEnabled = viewPager.isUserInputEnabled
             TestActivity.onCreateCallback = { activity ->
                 val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+                viewPager.orientation = orientation
+                viewPager.isUserInputEnabled = isUserInputEnabled
                 viewPager.adapter = adapterProvider(activity)
                 onCreateCallback(viewPager)
             }
