@@ -17,6 +17,7 @@
 package androidx.ui.material.ripple
 
 import androidx.annotation.CheckResult
+import androidx.ui.animation.transitionsEnabled
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.adapter.Draw
@@ -93,7 +94,9 @@ fun RippleSurface(
 
     <OnPositioned onPositioned={ owner._layoutCoordinates = it } />
     <Draw> canvas, size ->
-        if (owner.effects.isNotEmpty()) {
+        // TODO(Andrey) Find a better way to disable ripples when transitions are disabled.
+        val transitionsEnabled = transitionsEnabled
+        if (owner.effects.isNotEmpty() && transitionsEnabled) {
             canvas.save()
             canvas.clipRect(size.toRect())
             owner.effects.forEach { it.draw(canvas) }
