@@ -105,34 +105,22 @@ fun SelectionsControlsDemo() {
                 radioColor=customColor2 />
         </Container>
         <Padding padding=EdgeInsets(10.dp)>
-            <RadioGroup> radioOptions.forEach { text ->
-                <RadioGroupTextItem
-                    selected=(text == selectedOption)
-                    onSelected={ onOptionSelected(text) }
-                    text=text
-                    radioColor=customColor3
-                    textStyle=typography.caption />
-            }
+            <RadioGroup>
+                val textStyle = +themeTextStyle { subtitle1 }
+                <Row mainAxisAlignment=MainAxisAlignment.SpaceEvenly> radioOptions.forEach { text ->
+                    val selected = text == selectedOption
+                    <RadioGroupItem
+                        selected=selected
+                        onSelected={ onOptionSelected(text) }>
+                        <Column>
+                            <RadioButton selected />
+                            <StyledText text=text style=textStyle />
+                        </Column>
+                    </RadioGroupItem>
+                }
+                </Row>
             </RadioGroup>
         </Padding>
-        <RadioGroup> radioOptions.drop(1).forEach { option ->
-            val selected = option == selectedOption
-            <RadioGroupItem selected onSelected={ onOptionSelected(option) }>
-                <Padding padding=EdgeInsets(2.5.dp)>
-                    <Row>
-                        <RadioButton selected color=customColor4 />
-                        <Container
-                            color=(if (selected) customColor2 else customColor3)
-                            width=100.dp
-                            height=38.dp
-                        >
-                            <StyledText text=option.take(1) style=+themeTextStyle { h5 } />
-                        </Container>
-                    </Row>
-                </Padding>
-            </RadioGroupItem>
-        }
-        </RadioGroup>
         <Row mainAxisAlignment=MainAxisAlignment.SpaceAround>
             val parent = parentCheckboxState(
                 checkboxState.value,

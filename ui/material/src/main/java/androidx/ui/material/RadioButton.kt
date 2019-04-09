@@ -59,23 +59,25 @@ import com.google.r4a.unaryPlus
  *
  * Typical children for RadioGroup will be [RadioGroupScope.RadioGroupItem] and following usage:
  *
- *     <RadioGroup> options.forEach { item ->
- *         <RadioGroupTextItem text=item.toString() selected=... onSelected={...}/>
- *      }
+ *     <RadioGroup>
+ *         <Column> options.forEach { item ->
+ *             <RadioGroupTextItem text=item.toString() selected=... onSelected={...}/>
+ *         }
+ *         </Column>
  *     </RadioGroup>
  *
- * If you want a simplest ready-to-use version, consider using
- *     <RadioGroup .../>
- * without children
+ * If you want a simplified version with [Column] of [RadioGroupScope.RadioGroupTextItem],
+ * consider using version that accepts list of [String] options and doesn't require any children:
+ *
+ *     <RadioGroup
+ *         options=listOfOption
+ *         selectedOption=...
+ *         onOptionSelected={...}/>
  */
 @Composable
-fun RadioGroup(
-    @Children children: RadioGroupScope.() -> Unit
-) {
+fun RadioGroup(@Children children: RadioGroupScope.() -> Unit) {
     val scope = +memo { RadioGroupScope() }
-    <Column mainAxisSize=MainAxisSize.Min>
-        <children p1=scope />
-    </Column>
+    <children p1=scope />
 }
 
 /**
@@ -83,10 +85,10 @@ fun RadioGroup(
  * as well as text label for this RadioButtons.
  * Because of the nature of mutually exclusive set, when radio button is selected,
  * it can't be unselected by being pressed again. This component guarantees
- * that there will be only one or none selected RadioButton at a time
+ * that there will be only one or none selected RadioButton at a time.
  *
- * This component is ready to use without children being passed and it uses
- * [RadioGroupScope.RadioGroupTextItem] as a child implementation
+ * This component is ready to use without children being passed and
+ * it places the options into a [Column] of [RadioGroupScope.RadioGroupTextItem].
  *
  * @param options list of [String] to provide RadioButtons label
  * @param selectedOption label which represents selected RadioButton,
@@ -103,14 +105,16 @@ fun RadioGroup(
     radioColor: Color? = null,
     textStyle: TextStyle? = null
 ) {
-    <RadioGroup> options.forEach { text ->
-        <RadioGroupTextItem
-            selected=(text == selectedOption)
-            onSelected={ onOptionSelected(text) }
-            text
-            radioColor
-            textStyle />
-    }
+    <RadioGroup>
+        <Column mainAxisSize=MainAxisSize.Min> options.forEach { text ->
+            <RadioGroupTextItem
+                selected=(text == selectedOption)
+                onSelected={ onOptionSelected(text) }
+                text
+                radioColor
+                textStyle />
+        }
+        </Column>
     </RadioGroup>
 }
 
@@ -122,7 +126,7 @@ class RadioGroupScope internal constructor() {
      * This component provides basic radio item behavior such as
      * clicks and accessibility support.
      *
-     * If you need ready-to-use item with RadioButton and Text inside,
+     * If you need simple item with [RadioButton] and [Text] wrapped in a [Row],
      * consider using [RadioGroupTextItem].
      *
      * @param selected whether or not this item is selected
@@ -143,8 +147,8 @@ class RadioGroupScope internal constructor() {
     }
 
     /**
-     * Simple component to be used inside [RadioGroup] as a child
-     * Consists of [RadioButton] and [Text] that follows this button
+     * Simple component to be used inside [RadioGroup] as a child.
+     * Places [RadioButton] and [Text] inside the [Row].
      *
      * Defaults used:
      * * for text, [MaterialTypography.body1] will be used
@@ -183,8 +187,9 @@ class RadioGroupScope internal constructor() {
 /**
  * Component to represent two states, selected and not selected.
  *
- * RadioButtons are usually coupled together to [RadioGroup] to represent
- * multiply-exclusion set of options for user to choose from
+ * RadioButton is usually used as a child of [RadioGroupScope.RadioGroupItem], and these items
+ * and coupled together to [RadioGroup] to represent a multiple exclusion set of options
+ * the user can choose from.
  *
  * @param selected boolean state for this button: either it is selected or not
  * @param color optional color. [MaterialColors.primary] is used by default
