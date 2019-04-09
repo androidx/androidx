@@ -17,15 +17,14 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
-import androidx.ui.core.ipx
 import androidx.ui.core.round
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
+import androidx.ui.layout.DpConstraints
 import androidx.ui.test.android.AndroidUiTestRunner
 import com.google.common.truth.Truth.assertThat
 import com.google.r4a.composer
@@ -37,9 +36,9 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class DividerUiTest : AndroidUiTestRunner() {
 
-    private val bigConstraints = Constraints(
-        maxWidth = 5000.ipx,
-        maxHeight = 5000.ipx
+    private val bigConstraints = DpConstraints(
+        maxWidth = 5000.dp,
+        maxHeight = 5000.dp
     )
 
     private val defaultHeight = 1.dp

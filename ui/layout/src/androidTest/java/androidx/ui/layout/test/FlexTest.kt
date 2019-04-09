@@ -17,7 +17,6 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
@@ -34,6 +33,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
+import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.MainAxisAlignment
@@ -736,8 +736,7 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: PxSize
         show @Composable {
             <Center>
-                val additionalConstraints = Constraints(minWidth = rowWidth)
-                <ConstrainedBox additionalConstraints>
+                <ConstrainedBox constraints = DpConstraints(minWidth = rowWidthDp)>
                     <Row mainAxisSize=MainAxisSize.Min>
                         <Container width=sizeDp height=sizeDp/>
                         <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
@@ -773,8 +772,7 @@ class FlexTest : LayoutTest() {
         lateinit var expandedChildSize: PxSize
         show @Composable {
             <Center>
-                val additionalConstraints = Constraints(minWidth = rowWidth)
-                <ConstrainedBox additionalConstraints>
+                <ConstrainedBox constraints = DpConstraints(minWidth = rowWidthDp)>
                     <FlexRow mainAxisSize=MainAxisSize.Min>
                         expanded(flex=1f) {
                             <Container width=sizeDp height=sizeDp>
@@ -883,8 +881,7 @@ class FlexTest : LayoutTest() {
         lateinit var expandedChildSize: PxSize
         show @Composable {
             <Center>
-                val additionalConstraints = Constraints(minHeight = columnHeight)
-                <ConstrainedBox additionalConstraints>
+                <ConstrainedBox constraints = DpConstraints(minHeight = columnHeightDp)>
                     <FlexColumn mainAxisSize=MainAxisSize.Min>
                         expanded(flex=1f) {
                             <Container width=sizeDp height=sizeDp>
@@ -930,8 +927,7 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: PxSize
         show @Composable {
             <Center>
-                val additionalConstraints = Constraints(minHeight = columnHeight)
-                <ConstrainedBox additionalConstraints>
+                <ConstrainedBox constraints = DpConstraints(minHeight = columnHeightDp)>
                     <Column mainAxisSize=MainAxisSize.Min>
                         <Container width=sizeDp height=sizeDp/>
                         <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
@@ -1478,7 +1474,7 @@ class FlexTest : LayoutTest() {
         val containerSize = Ref<PxSize>()
         show @Composable {
             <Center>
-                <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
+                <ConstrainedBox constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)>
                     <Column>
                         <OnChildPositioned onPositioned = { coordinates ->
                             containerSize.value = coordinates.size

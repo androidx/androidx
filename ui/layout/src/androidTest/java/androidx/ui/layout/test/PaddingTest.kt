@@ -17,7 +17,6 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Constraints
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
@@ -29,6 +28,7 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
+import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import com.google.r4a.Composable
@@ -45,7 +45,8 @@ import java.util.concurrent.TimeUnit
 class PaddingTest : LayoutTest() {
     @Test
     fun testPaddingIsApplied() = withDensity(density) {
-        val size = 50.dp.toIntPx()
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
         val padding = 10.dp
         val paddingPx = padding.toIntPx()
 
@@ -54,7 +55,7 @@ class PaddingTest : LayoutTest() {
         var childPosition = PxPosition(-1.px, -1.px)
         show @Composable {
             <Center>
-                <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
+                <ConstrainedBox constraints=DpConstraints.tightConstraints(sizeDp, sizeDp)>
                     <Padding padding=EdgeInsets(padding)>
                         <Container>
                             <OnPositioned onPositioned={ coordinates ->
@@ -85,7 +86,8 @@ class PaddingTest : LayoutTest() {
 
     @Test
     fun testPaddingIsApplied_withDifferentInsets() = withDensity(density) {
-        val size = 50.dp.toIntPx()
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
         val padding = EdgeInsets(10.dp, 15.dp, 20.dp, 30.dp)
 
         val drawLatch = CountDownLatch(1)
@@ -93,7 +95,7 @@ class PaddingTest : LayoutTest() {
         var childPosition = PxPosition(-1.px, -1.px)
         show @Composable {
             <Center>
-                <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
+                <ConstrainedBox constraints=DpConstraints.tightConstraints(sizeDp, sizeDp)>
                     <Padding padding>
                         <Container>
                             <OnPositioned onPositioned={ coordinates ->
@@ -133,7 +135,8 @@ class PaddingTest : LayoutTest() {
 
     @Test
     fun testPadding_withInsufficientSpace() = withDensity(density) {
-        val size = 50.dp.toIntPx()
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
         val padding = 30.dp
         val paddingPx = padding.toIntPx()
 
@@ -142,7 +145,7 @@ class PaddingTest : LayoutTest() {
         var childPosition = PxPosition(-1.px, -1.px)
         show @Composable {
             <Center>
-                <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
+                <ConstrainedBox constraints=DpConstraints.tightConstraints(sizeDp, sizeDp)>
                     <Padding padding=EdgeInsets(padding)>
                         <Container>
                             <OnPositioned onPositioned={ coordinates ->

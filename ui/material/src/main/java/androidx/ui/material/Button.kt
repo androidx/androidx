@@ -17,13 +17,12 @@
 package androidx.ui.material
 
 import androidx.ui.baseui.Clickable
-import androidx.ui.core.Constraints
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
 import androidx.ui.core.Text
 import androidx.ui.core.dp
-import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
+import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.material.borders.BorderStyle
 import androidx.ui.material.borders.ShapeBorder
@@ -144,11 +143,9 @@ fun Button(
     val hasBackground = surfaceColor.alpha > 0 || surfaceShape.borderStyle != BorderStyle.None
     val horPaddings = if (hasBackground) ButtonHorPadding else ButtonHorPaddingNoBg
     <Button onClick enabled elevation color=surfaceColor shape=surfaceShape>
-        val constraints = +withDensity {
-            Constraints
-                .tightConstraintsForHeight(ButtonHeight.toIntPx())
-                .copy(minWidth = ButtonMinWidth.toIntPx())
-        }
+        val constraints = DpConstraints
+            .tightConstraintsForHeight(ButtonHeight)
+            .copy(minWidth = ButtonMinWidth)
         <Container padding=EdgeInsets(left = horPaddings, right = horPaddings) constraints>
             <Text text=TextSpan(text = text, style = textStyle) />
         </Container>

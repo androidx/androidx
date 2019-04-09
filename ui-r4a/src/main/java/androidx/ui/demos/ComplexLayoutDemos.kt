@@ -39,6 +39,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
+import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
@@ -238,7 +239,7 @@ fun StackUsage() {
 @Composable
 fun ConstrainedBoxUsage() {
     <Align alignment=Alignment.Center>
-        <ConstrainedBox additionalConstraints=Constraints.tightConstraints(50.dp, 50.dp)>
+        <ConstrainedBox constraints=DpConstraints.tightConstraints(50.dp, 50.dp)>
             <SizedRectangle color=Color(0xFFFF0000) />
         </ConstrainedBox>
     </Align>
@@ -448,9 +449,8 @@ fun ComplexLayoutDemos() {
     }
     <CraneWrapper>
         <Center>
-            val additionalConstraints =
-                Constraints.tightConstraintsForWidth(50.ipx * rectColorModel.cnt)
-            <ConstrainedBox additionalConstraints>
+            val rectangleWidth = 30.dp * rectColorModel.cnt
+            <ConstrainedBox constraints=DpConstraints.tightConstraintsForWidth(rectangleWidth)>
                 <FillWithRectangles />
             </ConstrainedBox>
         </Center>

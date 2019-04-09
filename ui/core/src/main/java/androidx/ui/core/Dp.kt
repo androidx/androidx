@@ -193,6 +193,12 @@ data /*inline*/ class Dp(val value: Float) {
     Dp(value = value.coerceAtMost(maximumValue.value))
 
 /**
+ *
+ * Return whether `true` when it is finite or `false` when it is [Dp.Infinity]
+ */
+/*inline*/ fun Dp.isFinite(): Boolean = value != Float.MAX_VALUE
+
+/**
  * Linearly interpolate between two [Dp]s.
  *
  * The `t` argument represents position on the timeline, with 0.0 meaning

@@ -17,7 +17,6 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Constraints
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
@@ -30,6 +29,7 @@ import androidx.ui.layout.Align
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
+import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Wrap
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -90,11 +90,9 @@ class WrapTest : LayoutTest() {
                     wrapSize.value = coordinates.size
                     positionedLatch.countDown()
                 }>
-                    val additionalConstraints = Constraints(
-                        minWidth = doubleSize,
-                        minHeight = doubleSize
-                    )
-                    <ConstrainedBox additionalConstraints>
+                    val constraints =
+                        DpConstraints(minWidth = doubleSizeDp, minHeight = doubleSizeDp)
+                    <ConstrainedBox constraints>
                         <Wrap>
                             <Container width=sizeDp height=sizeDp>
                                 <SaveLayoutInfo
@@ -131,11 +129,11 @@ class WrapTest : LayoutTest() {
                     wrapSize.value = coordinates.size
                     positionedLatch.countDown()
                 }>
-                    val additionalConstraints = Constraints(
-                        minWidth = doubleSize,
-                        minHeight = doubleSize
+                    val constraints = DpConstraints(
+                        minWidth = doubleSizeDp,
+                        minHeight = doubleSizeDp
                     )
-                    <ConstrainedBox additionalConstraints>
+                    <ConstrainedBox constraints>
                         <Wrap alignment=Alignment.Center>
                             <Container width=sizeDp height=sizeDp>
                                 <SaveLayoutInfo

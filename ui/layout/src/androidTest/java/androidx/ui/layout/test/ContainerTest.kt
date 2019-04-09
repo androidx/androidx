@@ -17,7 +17,6 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.Layout
 import androidx.ui.core.OnChildPositioned
@@ -36,6 +35,7 @@ import androidx.ui.layout.Align
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
+import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Row
 import com.google.r4a.Composable
@@ -118,7 +118,7 @@ class ContainerTest : LayoutTest() {
         val childWidth = childWidthDp.toIntPx()
         val childHeightDp = 30.dp
         val childHeight = childHeightDp.toIntPx()
-        val childConstraints = Constraints.tightConstraints(childWidth, childHeight)
+        val childConstraints = DpConstraints.tightConstraints(childWidthDp, childHeightDp)
 
         val positionedLatch = CountDownLatch(4)
         val containerSize = Ref<PxSize>()
@@ -232,11 +232,8 @@ class ContainerTest : LayoutTest() {
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
                 }>
-                    val additionalConstraints = Constraints(
-                        minWidth = size * 2,
-                        minHeight = size * 2
-                    )
-                    <ConstrainedBox additionalConstraints>
+                    val constraints = DpConstraints(minWidth = sizeDp * 2, minHeight = sizeDp * 2)
+                    <ConstrainedBox constraints>
                         <Container alignment=Alignment.BottomRight>
                             <OnChildPositioned onPositioned = { coordinates ->
                                 childSize.value = coordinates.size
@@ -253,7 +250,10 @@ class ContainerTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(size * 2, size * 2), containerSize.value)
+        assertEquals(
+            PxSize((sizeDp * 2).toIntPx(), (sizeDp * 2).toIntPx()),
+            containerSize.value
+        )
         assertEquals(PxSize(size, size), childSize.value)
         assertEquals(PxPosition(size + 1.ipx, size + 1.ipx), childPosition.value)
     }

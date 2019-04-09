@@ -41,12 +41,12 @@ package androidx.ui.layout {
 
   public final class ConstrainedBoxKt {
     ctor public ConstrainedBoxKt();
-    method public static void ConstrainedBox(androidx.ui.core.Constraints additionalConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void ConstrainedBox(androidx.ui.layout.DpConstraints constraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ContainerKt {
     ctor public ContainerKt();
-    method public static void Container(androidx.ui.layout.EdgeInsets? padding = null, androidx.ui.painting.Color? color = null, androidx.ui.layout.Alignment alignment = Alignment.Center, androidx.ui.layout.EdgeInsets? margin = null, boolean expanded = false, androidx.ui.core.Constraints? constraints = null, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children = {});
+    method public static void Container(androidx.ui.layout.EdgeInsets? padding = null, androidx.ui.painting.Color? color = null, androidx.ui.layout.Alignment alignment = Alignment.Center, androidx.ui.layout.EdgeInsets? margin = null, boolean expanded = false, androidx.ui.layout.DpConstraints? constraints = null, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children = {});
   }
 
   public final class CrossAxisAlignment {
@@ -65,6 +65,41 @@ package androidx.ui.layout {
     property public final int End;
     property public final int Start;
     property public final int Stretch;
+  }
+
+  public final class DpConstraints {
+    ctor public DpConstraints(androidx.ui.core.Dp minWidth, androidx.ui.core.Dp maxWidth, androidx.ui.core.Dp minHeight, androidx.ui.core.Dp maxHeight);
+    ctor public DpConstraints();
+    method public androidx.ui.core.Dp component1();
+    method public androidx.ui.core.Dp component2();
+    method public androidx.ui.core.Dp component3();
+    method public androidx.ui.core.Dp component4();
+    method public androidx.ui.layout.DpConstraints copy(androidx.ui.core.Dp minWidth, androidx.ui.core.Dp maxWidth, androidx.ui.core.Dp minHeight, androidx.ui.core.Dp maxHeight);
+    method public androidx.ui.core.Dp getMaxHeight();
+    method public androidx.ui.core.Dp getMaxWidth();
+    method public androidx.ui.core.Dp getMinHeight();
+    method public androidx.ui.core.Dp getMinWidth();
+    field public static final androidx.ui.layout.DpConstraints.Companion! Companion;
+  }
+
+  public static final class DpConstraints.Companion {
+    method public androidx.ui.layout.DpConstraints tightConstraints(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
+    method public androidx.ui.layout.DpConstraints tightConstraintsForHeight(androidx.ui.core.Dp height);
+    method public androidx.ui.layout.DpConstraints tightConstraintsForWidth(androidx.ui.core.Dp width);
+  }
+
+  public final class DpConstraintsKt {
+    ctor public DpConstraintsKt();
+    method public static androidx.ui.core.Constraints Constraints(androidx.ui.core.DensityReceiver, androidx.ui.layout.DpConstraints dpConstraints);
+    method public static androidx.ui.layout.DpConstraints enforce(androidx.ui.layout.DpConstraints, androidx.ui.layout.DpConstraints otherConstraints);
+    method public static boolean getHasBoundedHeight(androidx.ui.layout.DpConstraints);
+    method public static boolean getHasBoundedWidth(androidx.ui.layout.DpConstraints);
+    method public static boolean getHasTightHeight(androidx.ui.layout.DpConstraints);
+    method public static boolean getHasTightWidth(androidx.ui.layout.DpConstraints);
+    method public static boolean getSatisfiable(androidx.ui.layout.DpConstraints);
+    method public static boolean isTight(androidx.ui.layout.DpConstraints);
+    method public static boolean isZero(androidx.ui.layout.DpConstraints);
+    method public static androidx.ui.layout.DpConstraints withTight(androidx.ui.layout.DpConstraints, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
   }
 
   public final class EdgeInsets {

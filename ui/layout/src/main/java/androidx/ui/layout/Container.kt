@@ -62,7 +62,7 @@ fun Container(
     alignment: Alignment = Alignment.Center,
     margin: EdgeInsets? = null,
     expanded: Boolean = false,
-    constraints: Constraints? = null,
+    constraints: DpConstraints? = null,
     width: Dp? = null,
     height: Dp? = null,
     @Children() children: () -> Unit = {}
@@ -111,17 +111,16 @@ fun Container(
     }
 
     if (constraints != null || width != null || height != null) {
-        val additionalConstraints = +withDensity {
-            (constraints ?: Constraints()).withTight(
-                width?.toIntPx(),
-                height?.toIntPx()
-            )
+        val containerConstraints = +withDensity {
+            (constraints ?: DpConstraints()).withTight(width, height)
         }
         val childContainer = container
         container = @Composable {
-            <ConstrainedBox additionalConstraints>
-                <childContainer />
-            </ConstrainedBox>
+            +withDensity {
+                <ConstrainedBox constraints=containerConstraints>
+                    <childContainer />
+                </ConstrainedBox>
+            }
         }
     }
 

@@ -20,16 +20,15 @@ import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.baseui.selection.ToggleableState.Checked
 import androidx.ui.baseui.selection.ToggleableState.Indeterminate
 import androidx.ui.baseui.selection.ToggleableState.Unchecked
-import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
-import androidx.ui.core.ipx
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
+import androidx.ui.layout.DpConstraints
 import androidx.ui.test.DisableTransitions
 import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertIsChecked
@@ -73,11 +72,11 @@ class CheckboxUiTest : AndroidUiTestRunner() {
 
     private val defaultTag = "myCheckbox"
 
-    private val bigConstraints = Constraints(
-        minWidth = 0.ipx,
-        minHeight = 0.ipx,
-        maxHeight = 1000.ipx,
-        maxWidth = 1000.ipx
+    private val bigConstraints = DpConstraints(
+        minWidth = 0.dp,
+        minHeight = 0.dp,
+        maxHeight = 1000.dp,
+        maxWidth = 1000.dp
     )
 
     private val materialCheckboxSize = 24.dp

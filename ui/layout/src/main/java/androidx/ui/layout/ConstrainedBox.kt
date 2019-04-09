@@ -25,31 +25,26 @@ import com.google.r4a.Composable
 import com.google.r4a.composer
 
 /**
- * Widget that enforces additional [Constraints] to its only child.
- *
- * Example usage:
- *     <ConstrainedBox additionalConstraints=tightConstraints(50.dp, 50.dp)>
- *         <SizedRectangle color=Color(0xFFFF0000) />
- *     </ConstrainedBox>
- * Assuming that the ConstrainedBox is measured with unbounded constraints, here
- * the additional constraints can be used to make the rectangle have a specific size.
+ * Widget that enforces additional [Constraints] to its only child. The ConstrainedBox will
+ * itself create a [Layout] which will take the same size that the child chooses.
+ * If there is no child, the ConstrainedBox will size itself to the min constraints that would
+ * have been passed to the child.
+ * Note that, if the incoming constraints from the parent of the ConstrainedBox do not allow it,
+ * the intrinsic ConstrainedBox constraints will not be satisfied - these will always be coerced
+ * inside the incoming constraints.
  */
 @Composable
 fun ConstrainedBox(
-    additionalConstraints: Constraints,
-    @Children children: @Composable() () -> Unit
+    constraints: DpConstraints,
+    @Children children: () -> Unit
 ) {
-    <Layout layoutBlock = { measurables, constraints ->
+    <Layout layoutBlock = { measurables, incomingConstraints ->
         val measurable = measurables.firstOrNull()
-        val childConstraints = additionalConstraints.enforce(constraints)
-        val placeable = if (measurable != null) {
-            measurable.measure(childConstraints)
-        } else {
-            null
-        }
+        val childConstraints = Constraints(constraints).enforce(incomingConstraints)
+        val placeable = measurable?.measure(childConstraints)
 
-        val layoutWidth = placeable?.width ?: constraints.minWidth
-        val layoutHeight = placeable?.height ?: constraints.minHeight
+        val layoutWidth = placeable?.width ?: childConstraints.minWidth
+        val layoutHeight = placeable?.height ?: childConstraints.minHeight
         layout(layoutWidth, layoutHeight) {
             placeable?.place(IntPx.Zero, IntPx.Zero)
         }
