@@ -512,6 +512,23 @@ package androidx.media2 {
     method public boolean isRated();
   }
 
+  public abstract class RemoteSessionPlayer extends androidx.media2.SessionPlayer {
+    ctor public RemoteSessionPlayer();
+    method public abstract java.util.concurrent.Future<androidx.media2.SessionPlayer.PlayerResult> adjustVolume(int);
+    method public abstract int getMaxVolume();
+    method public abstract int getVolume();
+    method public abstract int getVolumeControlType();
+    method public abstract java.util.concurrent.Future<androidx.media2.SessionPlayer.PlayerResult> setVolume(int);
+    field public static final int VOLUME_CONTROL_ABSOLUTE = 2; // 0x2
+    field public static final int VOLUME_CONTROL_FIXED = 0; // 0x0
+    field public static final int VOLUME_CONTROL_RELATIVE = 1; // 0x1
+  }
+
+  public static class RemoteSessionPlayer.Callback extends androidx.media2.SessionPlayer.PlayerCallback {
+    ctor public RemoteSessionPlayer.Callback();
+    method public void onVolumeChanged(androidx.media2.RemoteSessionPlayer, int);
+  }
+
   public final class SessionCommand implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionCommand(int);
     ctor public SessionCommand(String, android.os.Bundle?);
