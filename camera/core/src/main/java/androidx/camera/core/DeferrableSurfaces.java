@@ -94,4 +94,11 @@ public final class DeferrableSurfaces {
             return Collections.unmodifiableSet(Collections.<Surface>emptySet());
         }
     }
+
+    /** Calls {@link DeferrableSurface#refresh()} iteratively. */
+    public static void refresh(Collection<DeferrableSurface> deferrableSurfaces) {
+        for (DeferrableSurface deferrableSurface : deferrableSurfaces) {
+            deferrableSurface.refresh();
+        }
+    }
 }

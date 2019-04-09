@@ -46,8 +46,7 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
     @Nullable
     private Size mResolution;
 
-    CheckedSurfaceTexture(
-            OnTextureChangedListener outputChangedListener) {
+    CheckedSurfaceTexture(OnTextureChangedListener outputChangedListener) {
         mOutputChangedListener = outputChangedListener;
     }
 
@@ -73,10 +72,10 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
 
         release();
         mSurfaceTexture = createDetachedSurfaceTexture(mResolution);
-        mSurface = new Surface(mSurfaceTexture);
         mOutputChangedListener.onTextureChanged(mSurfaceTexture, mResolution);
     }
 
+    @UiThread
     boolean surfaceTextureReleased(SurfaceTexture surfaceTexture) {
         boolean released = false;
 
@@ -116,16 +115,11 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
      */
     @Override
     public ListenableFuture<Surface> getSurface() {
-
         return CallbackToFutureAdapter.getFuture(
                 new CallbackToFutureAdapter.Resolver<Surface>() {
                     @Override
                     public Object attachCompleter(
                             @NonNull final CallbackToFutureAdapter.Completer<Surface> completer) {
-                        Executor executor =
-                                (Looper.myLooper() == Looper.getMainLooper())
-                                        ? CameraXExecutors.directExecutor()
-                                        : CameraXExecutors.mainThreadExecutor();
                         Runnable checkAndSetRunnable =
                                 new Runnable() {
                                     @Override
@@ -136,21 +130,53 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
                                             CheckedSurfaceTexture.this.resetSurfaceTexture();
                                         }
 
+                                        if (mSurface == null) {
+                                            mSurface = new Surface(mSurfaceTexture);
+                                        }
                                         completer.set(mSurface);
                                     }
                                 };
-
-                        executor.execute(checkAndSetRunnable);
+                        runOnMainThread(checkAndSetRunnable);
                         return "CheckSurfaceTexture";
                     }
                 });
     }
 
+    @Override
+    public void refresh() {
+        runOnMainThread(new Runnable() {
+            @Override
+            public void run() {
+                if (CheckedSurfaceTexture.this.surfaceTextureReleased(mSurfaceTexture)) {
+                    // Reset the surface texture and notify the listener
+                    CheckedSurfaceTexture.this.resetSurfaceTexture();
+                }
+                // To fix the incorrect preview orientation for devices running on legacy camera,
+                // it needs to attach a new Surface instance to the newly created camera capture
+                // session.
+                mSurface = new Surface(mSurfaceTexture);
+            }
+        });
+    }
+
+    @UiThread
     void release() {
         if (mSurface != null) {
+            // Release surface will also release surface texture.
             mSurface.release();
-            mSurface = null;
+        } else if (mSurfaceTexture != null) {
+            mSurfaceTexture.release();
         }
+        mSurface = null;
+        mSurfaceTexture = null;
+    }
+
+    void runOnMainThread(Runnable runnable) {
+        Executor executor =
+                (Looper.myLooper() == Looper.getMainLooper())
+                        ? CameraXExecutors.directExecutor()
+                        : CameraXExecutors.mainThreadExecutor();
+        executor.execute(runnable);
     }
 
     interface OnTextureChangedListener {
