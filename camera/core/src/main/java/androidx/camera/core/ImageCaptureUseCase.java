@@ -52,7 +52,6 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.base.Function;
-import com.google.common.util.concurrent.AsyncCallable;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
@@ -64,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -665,15 +665,22 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * <p>For example, cancel 3A scan, close torch if necessary.
      */
     ListenableFuture<Void> postTakePicture(final TakePictureState state) {
-        return com.google.common.util.concurrent.Futures.submitAsync(
-                new AsyncCallable<Void>() {
+        final Executor executor = mExecutor;
+        return CallbackToFutureAdapter.getFuture(new CallbackToFutureAdapter.Resolver<Void>() {
+            @Override
+            public Object attachCompleter(
+                    @NonNull final CallbackToFutureAdapter.Completer<Void> completer) {
+
+                executor.execute(new Runnable() {
                     @Override
-                    public ListenableFuture<Void> call() throws Exception {
+                    public void run() {
                         ImageCaptureUseCase.this.cancelAfAeTrigger(state);
-                        return Futures.immediateFuture(null);
+                        completer.set(null);
                     }
-                },
-                mExecutor);
+                });
+                return "postTakePicture[state=" + state + "]";
+            }
+        });
     }
 
     /**
