@@ -1,6 +1,7 @@
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -19,6 +20,7 @@ dependencies {
     // TODO: remove this dependency after CraneRects is cleaned up
     implementation project(':ui-layout')
     implementation project(':ui-framework')
+    implementation project(':ui-text')
 }
 
 android {

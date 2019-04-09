@@ -196,7 +196,9 @@ class RenderParagraph(
     val height: Float
         get() = textPainter.height
 
-    internal fun layoutText(minWidth: Float = 0.0f, maxWidth: Float = Float.POSITIVE_INFINITY) {
+    // TODO(b/130800659): IR compiler bug, should be internal
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    fun layoutText(minWidth: Float = 0.0f, maxWidth: Float = Float.POSITIVE_INFINITY) {
         val widthMatters = softWrap || overflow == TextOverflow.ELLIPSIS
         textPainter.layout(
             minWidth = minWidth, maxWidth =

@@ -35,6 +35,7 @@ dependencies {
     api project(':ui-framework')
     api project(':ui-framework-adapter')
     api project(':ui-layout')
+    api project(':ui-text')
     api project(':ui-animation')
     api(KOTLIN_R4A_STDLIB)
     testImplementation(JUNIT)

@@ -16,6 +16,8 @@
 
 package androidx.ui.core.semantics
 
+import androidx.ui.services.text_editing.TextSelection
+
 private const val INDEX_TAP = 1 shl 0
 private const val INDEX_LONG_PRESS = 1 shl 1
 private const val INDEX_SCROLL_LEFT = 1 shl 2
@@ -40,8 +42,23 @@ private const val INDEX_MOVE_CURSOR_BACKWARD_BY_WORD = 1 shl 20
 
 private typealias VoidCallback = () -> Unit
 
+/**
+ * Signature for [SemanticsActionType]s that move the cursor.
+ *
+ * If `extendSelection` is set to true the cursor movement should extend the
+ * current selection or (if nothing is currently selected) start a selection.
+ */
+typealias MoveCursorHandler = (extendSelection: Boolean) -> Unit
+
+/**
+ * Signature for the [SemanticsActionType.SetSelection] handlers to change the
+ * text selection (or re-position the cursor) to `selection`.
+ */
+typealias SetSelectionHandler = (selection: TextSelection) -> Unit
+
 data class SemanticsAction<T : Any>(val type: SemanticsActionType<T>, val handler: T) {
     fun invokeHandler(args: Any?) {
+        @Suppress("UNCHECKED_CAST")
         when (type.numArguments) {
             0 -> (handler as VoidCallback)()
             1 -> (handler as (Any?) -> Unit)(args)
@@ -64,7 +81,8 @@ class SemanticsActionType<T> private constructor(
      *
      * Each action has one bit set in this bit field.
      */
-    internal val bitmask: Int,
+    // TODO(ryanmentley): this should be internal, but can't because we need it from other packages
+    val bitmask: Int,
     internal val numArguments: Int
 ) {
     companion object {

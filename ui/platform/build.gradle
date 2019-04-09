@@ -1,7 +1,7 @@
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
+import static androidx.build.dependencies.DependenciesKt.*
 // TODO(pavlis): Make this a multi-platform module
 plugins {
     id("AndroidXPlugin")
@@ -13,7 +13,6 @@ plugins {
 dependencies {
     api project(":compose-runtime")
     api project(":ui-core")
-    api project(":ui-intermediate")
     api project(":compose-runtime")
 
     implementation(KOTLIN_R4A_STDLIB)

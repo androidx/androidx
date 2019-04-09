@@ -1,4 +1,16 @@
 // Signature format: 3.0
+package androidx.ui.core {
+
+  public final class TextKt {
+    ctor public TextKt();
+    method public static void CurrentTextStyleProvider(androidx.ui.painting.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Text(androidx.ui.painting.TextSpan text, androidx.ui.engine.text.TextAlign textAlign = androidx.ui.core.TextKt.DefaultTextAlign, androidx.ui.engine.text.TextDirection textDirection = androidx.ui.core.TextKt.DefaultTextDirection, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, float textScaleFactor = 1.0f, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.services.text_editing.TextSelection? selection = null, kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset>? selectionPosition = null, androidx.ui.painting.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor);
+    method public static void Text(String text, androidx.ui.painting.TextStyle? style = null, androidx.ui.engine.text.TextAlign textAlign = androidx.ui.core.TextKt.DefaultTextAlign, androidx.ui.engine.text.TextDirection textDirection = androidx.ui.core.TextKt.DefaultTextDirection, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines);
+    method public static com.google.r4a.Effect<androidx.ui.painting.TextStyle> currentTextStyle();
+  }
+
+}
+
 package androidx.ui.engine.text {
 
   public final class BaselineShift {
@@ -141,12 +153,6 @@ package androidx.ui.engine.text {
     ctor public ParagraphStyleKt();
   }
 
-  public enum TextAffinity {
-    ctor protected TextAffinity();
-    enum_constant public static final androidx.ui.engine.text.TextAffinity downstream;
-    enum_constant public static final androidx.ui.engine.text.TextAffinity upstream;
-  }
-
   public enum TextAlign {
     ctor protected TextAlign();
     enum_constant public static final androidx.ui.engine.text.TextAlign CENTER;
@@ -204,12 +210,6 @@ package androidx.ui.engine.text {
     property public final androidx.ui.engine.text.TextDecoration underline;
   }
 
-  public enum TextDirection {
-    ctor protected TextDirection();
-    enum_constant public static final androidx.ui.engine.text.TextDirection LTR;
-    enum_constant public static final androidx.ui.engine.text.TextDirection RTL;
-  }
-
   public final class TextGeometricTransform {
     ctor public TextGeometricTransform(Float? scaleX, Float? skewX);
     ctor public TextGeometricTransform();
@@ -248,15 +248,6 @@ package androidx.ui.engine.text {
   public final class TextIndentKt {
     ctor public TextIndentKt();
     method public static androidx.ui.engine.text.TextIndent lerp(androidx.ui.engine.text.TextIndent a, androidx.ui.engine.text.TextIndent b, float t);
-  }
-
-  public final class TextPosition {
-    ctor public TextPosition(int offset, androidx.ui.engine.text.TextAffinity affinity);
-    method public int component1();
-    method public androidx.ui.engine.text.TextAffinity component2();
-    method public androidx.ui.engine.text.TextPosition copy(int offset, androidx.ui.engine.text.TextAffinity affinity);
-    method public androidx.ui.engine.text.TextAffinity getAffinity();
-    method public int getOffset();
   }
 
   public final class TextStyle {
@@ -619,55 +610,6 @@ package androidx.ui.rendering.paragraph {
     enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow CLIP;
     enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow ELLIPSIS;
     enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow FADE;
-  }
-
-}
-
-package androidx.ui.services.text_editing {
-
-  public class TextRange {
-    ctor public TextRange(int start, int end);
-    method public final int getEnd();
-    method public final int getStart();
-    method public final boolean isCollapsed();
-    method public final boolean isNormalized();
-    method public final boolean isValid();
-    method public final String textAfter(String text);
-    method public final String textBefore(String text);
-    method public final String textInside(String text);
-    property public final boolean isCollapsed;
-    property public final boolean isNormalized;
-    property public final boolean isValid;
-    field public static final androidx.ui.services.text_editing.TextRange.Companion! Companion;
-  }
-
-  public static final class TextRange.Companion {
-    method public androidx.ui.services.text_editing.TextRange collapsed(int offset);
-    method public androidx.ui.services.text_editing.TextRange getEmpty();
-    property public final androidx.ui.services.text_editing.TextRange empty;
-  }
-
-  public final class TextSelection extends androidx.ui.services.text_editing.TextRange {
-    ctor public TextSelection(int baseOffset, int extentOffset, androidx.ui.engine.text.TextAffinity affinity, boolean isDirectional);
-    method public int component1();
-    method public int component2();
-    method public androidx.ui.engine.text.TextAffinity component3();
-    method public boolean component4();
-    method public androidx.ui.services.text_editing.TextSelection copy(int baseOffset, int extentOffset, androidx.ui.engine.text.TextAffinity affinity, boolean isDirectional);
-    method public androidx.ui.engine.text.TextAffinity getAffinity();
-    method public androidx.ui.engine.text.TextPosition getBase();
-    method public int getBaseOffset();
-    method public androidx.ui.engine.text.TextPosition getExtent();
-    method public int getExtentOffset();
-    method public boolean isDirectional();
-    property public final androidx.ui.engine.text.TextPosition base;
-    property public final androidx.ui.engine.text.TextPosition extent;
-    field public static final androidx.ui.services.text_editing.TextSelection.Companion! Companion;
-  }
-
-  public static final class TextSelection.Companion {
-    method public androidx.ui.services.text_editing.TextSelection collapsed(int offset, androidx.ui.engine.text.TextAffinity affinity = TextAffinity.downstream);
-    method public androidx.ui.services.text_editing.TextSelection fromPosition(androidx.ui.engine.text.TextPosition position);
   }
 
 }

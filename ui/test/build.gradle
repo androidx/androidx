@@ -12,8 +12,8 @@ plugins {
 
 dependencies {
     api project(":ui-core")
+    api project(":ui-platform")
     api project(":ui-framework")
-    api project(":ui-intermediate")
     api project(":ui-animation")
     api project(":compose-runtime")
 

@@ -42,7 +42,10 @@ internal open class FontMatcher {
     open fun matchFont(fontFamily: FontFamily, fontWeight: FontWeight, fontStyle: FontStyle): Font {
         // check for exact match first
         fontFamily.filter { it.weight == fontWeight && it.style == fontStyle }.let {
-            if (it.isNotEmpty()) return it[0]
+            // TODO(b/130797349): IR compiler bug was here
+            if (it.isNotEmpty()) {
+                return it[0]
+            }
         }
 
         // if no exact match, filter with style

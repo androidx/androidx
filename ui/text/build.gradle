@@ -25,11 +25,14 @@ plugins {
     id("com.android.library")
     id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
+    id("r4a")
 }
 
 dependencies {
     api project(":ui-android-text")
     api project(":ui-core")
+    api project(":ui-framework")
+    api project(":compose-runtime")
 
     implementation(KOTLIN_R4A_STDLIB)
     testImplementation(JUNIT)
@@ -59,4 +62,10 @@ androidx {
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
     description = "AndroidX UI Text"
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        useIR = true
+    }
 }

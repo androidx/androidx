@@ -23,20 +23,6 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
- * Signature for [SemanticsActionType]s that move the cursor.
- *
- * If `extendSelection` is set to true the cursor movement should extend the
- * current selection or (if nothing is currently selected) start a selection.
- */
-typealias MoveCursorHandler = (extendSelection: Boolean) -> Unit
-
-/**
- * Signature for the [SemanticsActionType.SetSelection] handlers to change the
- * text selection (or re-position the cursor) to `selection`.
- */
-typealias SetSelectionHandler = (selection: TextSelection) -> Unit
-
-/**
  * Describes the semantic information associated with the owning component
  *
  * The information provided in the configuration is used to to generate the

@@ -128,7 +128,9 @@ class FontWeightTest {
             FontWeight.w900 to 900
         )
 
-        fontWeights.forEach { fontWeight, expectedWeight ->
+        // TODO(b/130795950): IR compiler bug was here
+        for (weightPair in fontWeights) {
+            val (fontWeight, expectedWeight) = weightPair
             assertThat(fontWeight.weight).isEqualTo(expectedWeight)
         }
     }
