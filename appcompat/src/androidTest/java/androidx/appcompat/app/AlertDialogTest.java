@@ -39,6 +39,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
@@ -49,6 +50,7 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -58,6 +60,7 @@ import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckedTextView;
@@ -1347,6 +1350,27 @@ public class AlertDialogTest {
         // Show all, click positive
         verifyDialogButtonsPostCreation("Post positive", "Post negative", "Post neutral",
                 AlertDialog.BUTTON_POSITIVE);
+    }
+
+    @Test
+    @UiThreadTest
+    public void testBackgroundDrawable() throws Throwable {
+        final AlertDialog dialog = new AlertDialog.Builder(mActivityTestRule.getActivity())
+                .setTitle(R.string.alert_dialog_title)
+                .setMessage(R.string.alert_dialog_content)
+                .create();
+
+        // Now set the windowBackground of the Dialog
+        final ColorDrawable background = new ColorDrawable(Color.MAGENTA);
+        final Window window = dialog.getWindow();
+        final View decorView = window.getDecorView();
+        window.setBackgroundDrawable(background);
+
+        // Show the Dialog
+        dialog.show();
+
+        // And assert that the background is maintained
+        assertSame(background, decorView.getBackground());
     }
 
     private static class TestDrawable extends ColorDrawable {
