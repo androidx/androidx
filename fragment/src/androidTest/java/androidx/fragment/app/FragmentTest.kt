@@ -128,11 +128,11 @@ class FragmentTest {
         }
         // Wait for the middle of the animation
         waitForHalfFadeIn(fragmentA)
-        FragmentTestUtil.popBackStackImmediate(activityRule)
+        activityRule.popBackStackImmediate()
 
         // Wait for the middle of the animation
         waitForHalfFadeIn(fragmentB)
-        FragmentTestUtil.popBackStackImmediate(activityRule)
+        activityRule.popBackStackImmediate()
     }
 
     @SmallTest
@@ -152,7 +152,7 @@ class FragmentTest {
     @RequiresApi(16) // ViewTreeObserver.OnDrawListener was added in API 16
     private fun waitForHalfFadeIn(fragment: Fragment) {
         if (fragment.view == null) {
-            FragmentTestUtil.waitForExecution(activityRule)
+            activityRule.waitForExecution()
         }
         val view = fragment.requireView()
         val animation = view.animation
