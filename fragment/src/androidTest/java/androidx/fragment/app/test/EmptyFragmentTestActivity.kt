@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
+package androidx.fragment.app.test
 
-package androidx.fragment.app.test;
+import androidx.fragment.app.FragmentActivity
 
-import androidx.fragment.app.FragmentActivity;
-
-public class EmptyFragmentTestActivity extends FragmentActivity {
-}
+class EmptyFragmentTestActivity : FragmentActivity()
