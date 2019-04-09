@@ -43,6 +43,11 @@ package androidx.ui.material {
     method public static androidx.ui.baseui.selection.ToggleableState parentCheckboxState(androidx.ui.baseui.selection.ToggleableState... childrenStates);
   }
 
+  public final class DividerKt {
+    ctor public DividerKt();
+    method public static void Divider(androidx.ui.painting.Color? color = null, androidx.ui.core.Dp height = 1.dp, androidx.ui.core.Dp indent = 0.dp);
+  }
+
   public final class MaterialColors {
     ctor public MaterialColors(androidx.ui.painting.Color primary, androidx.ui.painting.Color primaryVariant, androidx.ui.painting.Color secondary, androidx.ui.painting.Color secondaryVariant, androidx.ui.painting.Color background, androidx.ui.painting.Color surface, androidx.ui.painting.Color error, androidx.ui.painting.Color onPrimary, androidx.ui.painting.Color onSecondary, androidx.ui.painting.Color onBackground, androidx.ui.painting.Color onSurface, androidx.ui.painting.Color onError);
     ctor public MaterialColors();
