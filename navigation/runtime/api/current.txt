@@ -52,6 +52,9 @@ package androidx.navigation {
     method public void navigate(@IdRes int, android.os.Bundle?);
     method public void navigate(@IdRes int, android.os.Bundle?, androidx.navigation.NavOptions?);
     method public void navigate(@IdRes int, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
+    method public void navigate(android.net.Uri);
+    method public void navigate(android.net.Uri, androidx.navigation.NavOptions?);
+    method public void navigate(android.net.Uri, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
     method public void navigate(androidx.navigation.NavDirections);
     method public void navigate(androidx.navigation.NavDirections, androidx.navigation.NavOptions?);
     method public void navigate(androidx.navigation.NavDirections, androidx.navigation.Navigator.Extras);
