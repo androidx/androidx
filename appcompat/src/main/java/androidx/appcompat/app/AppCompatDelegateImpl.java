@@ -283,10 +283,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         mAppCompatCallback = callback;
         mHost = host;
 
-        if (window != null) {
-            attachToWindow(window);
-        }
-
         if (mLocalNightMode == MODE_NIGHT_UNSPECIFIED && mHost instanceof Dialog) {
             final AppCompatActivity activity = tryUnwrapContext();
             if (activity != null) {
@@ -308,6 +304,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
+        if (window != null) {
+            attachToWindow(window);
+        }
+
         // Preload appcompat-specific handling of drawables that should be handled in a special
         // way (for tinting etc). After the following line completes, calls from AppCompatResources
         // to ResourceManagerInternal (in appcompat-resources) will handle those internal drawable
@@ -326,6 +326,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // attachBaseContext will only be called from an Activity, so make sure we switch this for
         // Dialogs, etc
         mBaseContextAttached = true;
+
+        applyDayNight();
 
         // We lazily fetch the Window for Activities, to allow DayNight to apply in
         // attachBaseContext
@@ -348,16 +350,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 }
             }
         }
-
-        applyDayNight();
-
-        final TintTypedArray a = TintTypedArray.obtainStyledAttributes(
-                mContext, null, sWindowBackgroundStyleable);
-        final Drawable winBg = a.getDrawableIfKnown(0);
-        if (winBg != null) {
-            mWindow.setBackgroundDrawable(winBg);
-        }
-        a.recycle();
 
         mCreated = true;
     }
@@ -625,6 +617,15 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         mAppCompatWindowCallback = new AppCompatWindowCallback(callback);
         // Now install the new callback
         window.setCallback(mAppCompatWindowCallback);
+
+        final TintTypedArray a = TintTypedArray.obtainStyledAttributes(
+                mContext, null, sWindowBackgroundStyleable);
+        final Drawable winBg = a.getDrawableIfKnown(0);
+        if (winBg != null) {
+            // Now set the background drawable
+            window.setBackgroundDrawable(winBg);
+        }
+        a.recycle();
 
         mWindow = window;
     }
