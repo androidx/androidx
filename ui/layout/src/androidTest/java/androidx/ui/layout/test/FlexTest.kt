@@ -19,9 +19,11 @@ package androidx.ui.layout.test
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Constraints
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
+import androidx.ui.core.Ref
 import androidx.ui.core.dp
 import androidx.ui.core.px
 import androidx.ui.core.round
@@ -1463,5 +1465,32 @@ class FlexTest : LayoutTest() {
         assertEquals(PxPosition(0.px, (gap / 2).toPx()), childPosition[0])
         assertEquals(PxPosition(0.px, (gap * 3 / 2).toPx() + size.toPx()), childPosition[1])
         assertEquals(PxPosition(0.px, (gap * 5 / 2).toPx() + size.toPx() * 2), childPosition[2])
+    }
+
+    @Test
+    fun testRow_doesNotUseMinConstraintsOnChildren() = withDensity(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+        val childSizeDp = 30.dp
+        val childSize = childSizeDp.toIntPx()
+
+        val drawLatch = CountDownLatch(4)
+        val containerSize = Ref<PxSize>()
+        show @Composable {
+            <Center>
+                <ConstrainedBox additionalConstraints=Constraints.tightConstraints(size, size)>
+                    <Column>
+                        <OnChildPositioned onPositioned = { coordinates ->
+                            containerSize.value = coordinates.size
+                        }>
+                            <Container width=childSizeDp height=childSizeDp />
+                        </OnChildPositioned>
+                    </Column>
+                </ConstrainedBox>
+            </Center>
+        }
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(PxSize(childSize, childSize), containerSize.value)
     }
 }

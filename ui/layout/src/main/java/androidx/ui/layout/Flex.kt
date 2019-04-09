@@ -487,7 +487,7 @@ private fun Flex(
                     if (crossAxisAlignment == CrossAxisAlignment.Stretch) {
                         it.stretchCrossAxis()
                     } else {
-                        it
+                        it.copy(crossAxisMin = IntPx.Zero)
                     }
                 }.toBoxConstraints(orientation)
             )
@@ -514,7 +514,7 @@ private fun Flex(
                     if (crossAxisAlignment == CrossAxisAlignment.Stretch) {
                         constraints.crossAxisMax
                     } else {
-                        constraints.crossAxisMin
+                        IntPx.Zero
                     },
                     constraints.crossAxisMax
                 ).toBoxConstraints(orientation)
