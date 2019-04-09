@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.ViewModelStore
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -715,8 +716,8 @@ class PostponedTransitionTest {
     // the state as if it wasn't postponed.
     @Test
     fun saveWhilePostponed() {
-        val fc1 = activityRule.createController()
-        activityRule.resumeController(fc1, null)
+        val viewModelStore = ViewModelStore()
+        val fc1 = activityRule.startupFragmentController(viewModelStore)
 
         val fm1 = fc1.supportFragmentManager
 
@@ -728,10 +729,7 @@ class PostponedTransitionTest {
             .commit()
         activityRule.waitForExecution()
 
-        val state = activityRule.destroyController(fc1)
-
-        val fc2 = activityRule.createController()
-        activityRule.resumeController(fc2, state)
+        val fc2 = fc1.restart(activityRule, viewModelStore)
 
         val fm2 = fc2.supportFragmentManager
         val fragment2 = fm2.findFragmentByTag("1")!!

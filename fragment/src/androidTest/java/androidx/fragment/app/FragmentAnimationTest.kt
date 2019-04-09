@@ -30,6 +30,7 @@ import androidx.core.view.ViewCompat
 import androidx.fragment.app.CtsMockitoUtils.within
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.ViewModelStore
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -351,8 +352,8 @@ class FragmentAnimationTest {
     @Test
     fun saveWhileAnimatingAway() {
         waitForAnimationReady()
-        val fc1 = activityRule.createController()
-        activityRule.resumeController(fc1, null)
+        val viewModelStore = ViewModelStore()
+        val fc1 = activityRule.startupFragmentController(viewModelStore)
 
         val fm1 = fc1.supportFragmentManager
 
@@ -381,10 +382,7 @@ class FragmentAnimationTest {
         // still exists because it is animating
         assertThat(fm1.findFragmentByTag("2")).isEqualTo(fragment2)
 
-        val state = activityRule.destroyController(fc1)
-
-        val fc2 = activityRule.createController()
-        activityRule.resumeController(fc2, state)
+        val fc2 = fc1.restart(activityRule, viewModelStore)
 
         val fm2 = fc2.supportFragmentManager
         val fragment2restored = fm2.findFragmentByTag("2")

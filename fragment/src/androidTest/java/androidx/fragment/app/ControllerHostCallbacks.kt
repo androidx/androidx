@@ -32,36 +32,46 @@ fun ActivityTestRule<out FragmentActivity>.startupFragmentController(
     viewModelStore: ViewModelStore,
     savedState: Parcelable? = null
 ): FragmentController {
-    val fc = FragmentController.createController(
-        ControllerHostCallbacks(activity, viewModelStore)
-    )
-    fc.attachHost(null)
-    fc.restoreSaveState(savedState)
-    fc.dispatchCreate()
-    fc.dispatchActivityCreated()
-    fc.noteStateNotSaved()
-    fc.execPendingActions()
-    fc.dispatchStart()
-    fc.dispatchResume()
-    fc.execPendingActions()
+    lateinit var fc: FragmentController
+    runOnUiThreadRethrow {
+        fc = FragmentController.createController(
+            ControllerHostCallbacks(activity, viewModelStore)
+        )
+        fc.attachHost(null)
+        fc.restoreSaveState(savedState)
+        fc.dispatchCreate()
+        fc.dispatchActivityCreated()
+        fc.noteStateNotSaved()
+        fc.execPendingActions()
+        fc.dispatchStart()
+        fc.dispatchResume()
+        fc.execPendingActions()
+    }
     return fc
 }
 
 fun FragmentController.restart(
     rule: ActivityTestRule<out FragmentActivity>,
-    viewModelStore: ViewModelStore
+    viewModelStore: ViewModelStore,
+    destroyNonConfig: Boolean = true
 ): FragmentController {
-    val savedState = shutdown(viewModelStore)
+    var savedState: Parcelable? = null
+    rule.runOnUiThreadRethrow {
+        savedState = shutdown(viewModelStore, destroyNonConfig)
+    }
     return rule.startupFragmentController(viewModelStore, savedState)
 }
 
 fun FragmentController.shutdown(
-    viewModelStore: ViewModelStore
+    viewModelStore: ViewModelStore,
+    destroyNonConfig: Boolean = true
 ): Parcelable? {
     dispatchPause()
     val savedState = saveAllState()
     dispatchStop()
-    viewModelStore.clear()
+    if (destroyNonConfig) {
+        viewModelStore.clear()
+    }
     dispatchDestroy()
     return savedState
 }

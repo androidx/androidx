@@ -458,8 +458,8 @@ class SaveStateFragmentTest {
     @Test
     @UiThreadTest
     fun saveRemovedFragment() {
-        var fc = activityRule.createController()
-        activityRule.resumeController(fc, null)
+        val viewModelStore = ViewModelStore()
+        var fc = activityRule.startupFragmentController(viewModelStore)
         var fm = fc.supportFragmentManager
 
         var fragment1 = SaveStateFragment.create(1)
@@ -474,10 +474,7 @@ class SaveStateFragmentTest {
             .commit()
         fm.executePendingTransactions()
 
-        val savedState = activityRule.destroyController(fc)
-
-        fc = activityRule.createController()
-        activityRule.resumeController(fc, savedState)
+        fc = fc.restart(activityRule, viewModelStore)
         fm = fc.supportFragmentManager
         fragment2 = fm.findFragmentByTag("2") as SaveStateFragment
         assertThat(fragment2).isNotNull()

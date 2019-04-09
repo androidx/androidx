@@ -16,9 +16,7 @@
 package androidx.fragment.app
 
 import android.app.Activity
-import android.os.Handler
 import android.os.Looper
-import android.os.Parcelable
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.test.platform.app.InstrumentationRegistry
@@ -108,48 +106,4 @@ fun assertChildren(container: ViewGroup, vararg fragments: Fragment) {
             .that(fragment.requireView())
             .isSameAs(container.getChildAt(index))
     }
-}
-
-fun ActivityTestRule<out FragmentActivity>.createController(): FragmentController {
-    lateinit var controller: FragmentController
-    runOnUiThreadRethrow {
-        val handler = Handler()
-        val hostCallbacks = androidx.fragment.app.HostCallbacks(activity, handler, 0)
-        controller = FragmentController.createController(hostCallbacks)
-    }
-    return controller
-}
-
-fun ActivityTestRule<out FragmentActivity>.resumeController(
-    fragmentController: FragmentController,
-    savedState: Pair<Parcelable?, FragmentManagerNonConfig?>?
-) {
-    runOnUiThreadRethrow {
-        fragmentController.attachHost(null)
-        if (savedState != null) {
-            fragmentController.restoreAllState(savedState.first, savedState.second)
-        }
-        fragmentController.dispatchCreate()
-        fragmentController.dispatchActivityCreated()
-        fragmentController.noteStateNotSaved()
-        fragmentController.execPendingActions()
-        fragmentController.dispatchStart()
-        fragmentController.dispatchResume()
-        fragmentController.execPendingActions()
-    }
-}
-
-fun ActivityTestRule<out Activity>.destroyController(
-    fragmentController: FragmentController
-): Pair<Parcelable?, FragmentManagerNonConfig?> {
-    var savedState: Parcelable? = null
-    var nonConfig: FragmentManagerNonConfig? = null
-    runOnUiThreadRethrow {
-        fragmentController.dispatchPause()
-        savedState = fragmentController.saveAllState()
-        nonConfig = fragmentController.retainNestedNonConfig()
-        fragmentController.dispatchStop()
-        fragmentController.dispatchDestroy()
-    }
-    return savedState to nonConfig
 }
