@@ -16,9 +16,19 @@
 
 package androidx.camera.core.impl.utils.futures;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import androidx.annotation.Nullable;
 
+import com.google.common.base.Function;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
 
 /**
  * Utility class for generating specific implementations of {@link ListenableFuture}.
@@ -37,6 +47,142 @@ public final class Futures {
         }
 
         return new ImmediateFuture<>(value);
+    }
+
+    /**
+     * Returns a new {@code Future} whose result is asynchronously derived from the result
+     * of the given {@code Future}. If the given {@code Future} fails, the returned {@code Future}
+     * fails with the same exception (and the function is not invoked).
+     *
+     * @param input The future to transform
+     * @param function A function to transform the result of the input future to the result of the
+     *     output future
+     * @param executor Executor to run the function in.
+     * @return A future that holds result of the function (if the input succeeded) or the original
+     *     input's failure (if not)
+     */
+    public static <I, O> ListenableFuture<O> transformAsync(
+            ListenableFuture<I> input,
+            AsyncFunction<? super I, ? extends O> function,
+            Executor executor) {
+        return AbstractTransformFuture.create(input, function, executor);
+    }
+
+    /**
+     * Returns a new {@code Future} whose result is derived from the result of the given {@code
+     * Future}. If {@code input} fails, the returned {@code Future} fails with the same
+     * exception (and the function is not invoked)
+     *
+     * @param input The future to transform
+     * @param function A Function to transform the results of the provided future to the results of
+     *     the returned future.
+     * @param executor Executor to run the function in.
+     * @return A future that holds result of the transformation.
+     */
+    public static <I, O> ListenableFuture<O> transform(
+            ListenableFuture<I> input, Function<? super I, ? extends O> function,
+            Executor executor) {
+        return AbstractTransformFuture.create(input, function, executor);
+    }
+
+    /**
+     * Registers separate success and failure callbacks to be run when the {@code Future}'s
+     * computation is {@linkplain java.util.concurrent.Future#isDone() complete} or, if the
+     * computation is already complete, immediately.
+     *
+     * @param future The future attach the callback to.
+     * @param callback The callback to invoke when {@code future} is completed.
+     * @param executor The executor to run {@code callback} when the future completes.
+     */
+    public static <V> void addCallback(
+            final ListenableFuture<V> future,
+            final FutureCallback<? super V> callback,
+            Executor executor) {
+        Preconditions.checkNotNull(callback);
+        future.addListener(new CallbackListener<V>(future, callback), executor);
+    }
+
+    /**
+     * See {@link #addCallback(ListenableFuture, FutureCallback, Executor)} for behavioral notes.
+     */
+    private static final class CallbackListener<V> implements Runnable {
+        final Future<V> mFuture;
+        final FutureCallback<? super V> mCallback;
+
+        CallbackListener(Future<V> future, FutureCallback<? super V> callback) {
+            mFuture = future;
+            mCallback = callback;
+        }
+
+        @Override
+        public void run() {
+            final V value;
+            try {
+                value = getDone(mFuture);
+            } catch (ExecutionException e) {
+                mCallback.onFailure(e.getCause());
+                return;
+            } catch (RuntimeException | Error e) {
+                mCallback.onFailure(e);
+                return;
+            }
+            mCallback.onSuccess(value);
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(this).addValue(mCallback).toString();
+        }
+    }
+
+    /**
+     * Returns the result of the input {@code Future}, which must have already completed.
+     *
+     * <p>The benefits of this method are twofold. First, the name "getDone" suggests to readers
+     * that the {@code Future} is already done. Second, if buggy code calls {@code getDone} on a
+     * {@code Future} that is still pending, the program will throw instead of block.
+     *
+     * @throws ExecutionException if the {@code Future} failed with an exception
+     * @throws CancellationException if the {@code Future} was cancelled
+     * @throws IllegalStateException if the {@code Future} is not done
+     */
+    public static <V> V getDone(Future<V> future) throws ExecutionException {
+        /*
+         * We throw IllegalStateException, since the call could succeed later. Perhaps we
+         * "should" throw IllegalArgumentException, since the call could succeed with a different
+         * argument. Those exceptions' docs suggest that either is acceptable. Google's Java
+         * Practices page recommends IllegalArgumentException here, in part to keep its
+         * recommendation simple: Static methods should throw IllegalStateException only when
+         * they use static state.
+         *
+         * Why do we deviate here? The answer: We want for fluentFuture.getDone() to throw the same
+         * exception as Futures.getDone(fluentFuture).
+         */
+        checkState(future.isDone(), "Future was expected to be done: %s", future);
+        return getUninterruptibly(future);
+    }
+
+    /**
+     * Invokes {@code mFuture.}{@link Future#get() get()} uninterruptibly.
+     *
+     * @throws ExecutionException if the computation threw an exception
+     * @throws CancellationException if the computation was cancelled
+     */
+    public static <V> V getUninterruptibly(Future<V> future) throws ExecutionException {
+        boolean interrupted = false;
+        try {
+            while (true) {
+                try {
+                    return future.get();
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                }
+            }
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     /**
