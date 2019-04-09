@@ -610,7 +610,7 @@ package androidx.core.app {
     field public static final int IMPORTANCE_UNSPECIFIED = -1000; // 0xfffffc18
   }
 
-  public class Person {
+  public class Person implements androidx.versionedparcelable.VersionedParcelable {
     method public static androidx.core.app.Person fromBundle(android.os.Bundle);
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method public String? getKey();
