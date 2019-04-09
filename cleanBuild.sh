@@ -27,8 +27,9 @@ fi
 
 export OUT_DIR=../../out
 function removeCaches() {
-  rm -rf .gradle
+  rm -rf .gradle 
   rm -rf buildSrc/.gradle
+  rm -rf buildSrc/build
   rm -f local.properties
   rm -rf ../../out
 }
