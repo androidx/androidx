@@ -155,7 +155,7 @@ private fun DensityReceiver.drawThumb(
 
 private val RelativeThumbTranslationProp = FloatPropKey()
 private val ThumbColorProp = ColorPropKey()
-private val SwitchAnimationDuration = 100
+private const val SwitchAnimationDuration = 100
 
 private fun generateTransitionDefinition(activeColor: Color) = transitionDefinition {
     fun <T> TransitionSpec.switchTween() = tween<T> {
@@ -183,7 +183,7 @@ private fun generateTransitionDefinition(activeColor: Color) = transitionDefinit
 // TODO(malkov): see how it goes and maybe move it to styles or cross-widget defaults
 private val UncheckedThumbColor = Color(0xFFEBEBEB.toInt())
 private val UncheckedTrackColor = Color(0xFF7D7D7D.toInt())
-private val TrackAlpha = 75
+private const val TrackAlpha = 75
 
 // TODO(malkov): random numbers which produce the same switch as android.widget.Switch
 private val MinWidth = 47.5.dp

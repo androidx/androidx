@@ -102,7 +102,7 @@ private fun DrawCheckbox(value: ToggleableState, color: Color?) {
 
 @Composable
 private fun DrawBox(color: Color, innerRadiusFraction: Float) {
-    <Draw> canvas, parentSize ->
+    <Draw> canvas, _ ->
         val paint = Paint()
         paint.strokeWidth = StrokeWidth.toPx().value
         paint.isAntiAlias = true
@@ -136,7 +136,7 @@ private fun DrawCheck(
     checkFraction: Float,
     crossCenterGravitation: Float
 ) {
-    <Draw> canvas, parentSize ->
+    <Draw> canvas, _ ->
         val paint = Paint()
         paint.isAntiAlias = true
         paint.style = PaintingStyle.stroke
@@ -208,13 +208,13 @@ private fun generateTransitionDefinition(color: Color) = transitionDefinition {
         this[BoxColorProp] = color
     }
     transition(fromState = ToggleableState.Unchecked, toState = ToggleableState.Checked) {
-        boxTransitionFromUnchecked(color)
+        boxTransitionFromUnchecked()
         CenterGravitationForCheck using tween {
             duration = 0
         }
     }
     transition(fromState = ToggleableState.Checked, toState = ToggleableState.Unchecked) {
-        boxTransitionToUnchecked(color)
+        boxTransitionToUnchecked()
         CenterGravitationForCheck using tween {
             duration = CheckStrokeAnimationDuration
         }
@@ -230,14 +230,14 @@ private fun generateTransitionDefinition(color: Color) = transitionDefinition {
         }
     }
     transition(fromState = ToggleableState.Indeterminate, toState = ToggleableState.Unchecked) {
-        boxTransitionToUnchecked(color)
+        boxTransitionToUnchecked()
     }
     transition(fromState = ToggleableState.Unchecked, toState = ToggleableState.Indeterminate) {
-        boxTransitionFromUnchecked(color)
+        boxTransitionFromUnchecked()
     }
 }
 
-private fun TransitionSpec.boxTransitionFromUnchecked(color: Color) {
+private fun TransitionSpec.boxTransitionFromUnchecked() {
     BoxColorProp using tween {
         duration = 0
     }
@@ -250,7 +250,7 @@ private fun TransitionSpec.boxTransitionFromUnchecked(color: Color) {
     }
 }
 
-private fun TransitionSpec.boxTransitionToUnchecked(color: Color) {
+private fun TransitionSpec.boxTransitionToUnchecked() {
     BoxColorProp using tween {
         duration = 0
     }

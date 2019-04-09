@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.material.test
+package androidx.ui.material
 
 import androidx.test.filters.MediumTest
 import androidx.ui.baseui.selection.ToggleableState
@@ -21,8 +21,6 @@ import androidx.ui.baseui.selection.ToggleableState.Checked
 import androidx.ui.baseui.selection.ToggleableState.Unchecked
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.TestTag
-import androidx.ui.material.Checkbox
-import androidx.ui.material.MaterialTheme
 import androidx.ui.test.DisableTransitions
 import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertSemanticsIsEqualTo

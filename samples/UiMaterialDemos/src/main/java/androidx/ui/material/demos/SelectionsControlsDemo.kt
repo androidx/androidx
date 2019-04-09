@@ -19,11 +19,8 @@ package androidx.ui.material.demos
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.baseui.selection.ToggleableState.Checked
 import androidx.ui.baseui.selection.ToggleableState.Unchecked
-import androidx.ui.core.Constraints
-import androidx.ui.core.MeasureBox
 import androidx.ui.core.Text
 import androidx.ui.core.dp
-import androidx.ui.core.times
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -41,33 +38,12 @@ import androidx.ui.material.parentCheckboxState
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
-import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.Model
 import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.state
 import com.google.r4a.unaryPlus
-
-@Composable
-fun FillGrid(horizontalGridCount: Int, @Children children: () -> Unit) {
-    <MeasureBox> constraints ->
-        val measurables = collect(children)
-        val verticalGrid = (measurables.size + horizontalGridCount - 1) / horizontalGridCount
-        val cellW = constraints.maxWidth / horizontalGridCount
-        val cellH = constraints.maxHeight / verticalGrid
-        val c = Constraints.tightConstraints(cellW, cellH)
-        layout(constraints.maxWidth, constraints.maxHeight) {
-            measurables
-                .map { it.measure(c) }
-                .forEachIndexed { index, placeable ->
-                    val x = index % horizontalGridCount * cellW
-                    val y = cellH * (index / horizontalGridCount)
-                    placeable.place(x, y)
-                }
-        }
-    </MeasureBox>
-}
 
 @Model
 class CheckboxState(
