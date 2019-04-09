@@ -138,7 +138,7 @@ internal class ParagraphAndroid constructor(
     val underlyingText: CharSequence
         get() = ensureLayout.text
 
-    fun layout(width: Float, force: Boolean = false) {
+    fun layout(width: Float) {
         val floorWidth = floor(width)
 
         paragraphStyle.fontSize?.let {

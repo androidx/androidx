@@ -17,7 +17,6 @@
 package androidx.ui.painting
 
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.text.Paragraph
 import androidx.ui.engine.text.ParagraphBuilder
@@ -25,11 +24,9 @@ import androidx.ui.engine.text.ParagraphConstraints
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextBaseline
-import androidx.ui.engine.text.TextBox
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.engine.window.Locale
-import androidx.ui.services.text_editing.TextRange
 import androidx.ui.services.text_editing.TextSelection
 import kotlin.math.ceil
 
@@ -372,163 +369,15 @@ class TextPainter(
         paragraph!!.paint(canvas, offset.dx, offset.dy)
     }
 
-    // TODO(Migration/qqd): Implement offset related functions.
-//    bool _isUtf16Surrogate(int value) {
-//        return value & 0xF800 == 0xD800;
-//    }
-
-    /** Returns the closest offset after `offset` at which the inout cursor can be positioned. */
-    // TODO(Migration/qqd): Implement getOffsetAfter.
-    fun getOffsetAfter(offset: Int): Int {
-        TODO()
-//        final int nextCodeUnit = _text.codeUnitAt(offset);
-//        if (nextCodeUnit == null)
-//            return null;
-//        // TODO(goderbauer): doesn't handle extended grapheme clusters with more than one Unicode scalar value (https://github.com/flutter/flutter/issues/13404).
-//        return _isUtf16Surrogate(nextCodeUnit) ? offset + 2 : offset + 1;
-    }
-
-    /** Returns the closest offset before `offset` at which the inout cursor can be positioned. */
-    // TODO(Migration/qqd): Implement getOffsetBefore.
-    fun getOffsetBefore(offset: Int): Int {
-        TODO()
-//        final int prevCodeUnit = _text.codeUnitAt(offset - 1);
-//        if (prevCodeUnit == null)
-//            return null;
-//        // TODO(goderbauer): doesn't handle extended grapheme clusters with more than one Unicode scalar value (https://github.com/flutter/flutter/issues/13404).
-//        return _isUtf16Surrogate(prevCodeUnit) ? offset - 2 : offset - 1;
-    }
-
-    // TODO(Migration/qqd): Implement _getOffsetFromUpstream.
-    fun _getOffsetFromUpstream(offset: Int, caretPrototype: Rect): Offset {
-        TODO()
-//        final int prevCodeUnit = _text.codeUnitAt(offset - 1);
-//        if (prevCodeUnit == null)
-//            return null;
-//        final int prevRuneOffset = _isUtf16Surrogate(prevCodeUnit) ? offset - 2 : offset - 1;
-//        final List<TextBox> boxes = _paragraph.getBoxesForRange(prevRuneOffset, offset);
-//        if (boxes.isEmpty)
-//            return null;
-//        final TextBox box = boxes[0];
-//        final double caretEnd = box.end;
-//        final double dx = box.direction == TextDirection.rtl ? caretEnd : caretEnd - caretPrototype.width;
-//        return new Offset(dx, box.top);
-    }
-
-    // TODO(Migration/qqd): Implement _getOffsetFromDownstream.
-    fun _getOffsetFromDownstream(offset: Int, caretPrototype: Rect): Offset {
-        TODO()
-//        final int nextCodeUnit = _text.codeUnitAt(offset);
-//        if (nextCodeUnit == null)
-//            return null;
-//        final int nextRuneOffset = _isUtf16Surrogate(nextCodeUnit) ? offset + 2 : offset + 1;
-//        final List<TextBox> boxes = _paragraph.getBoxesForRange(offset, nextRuneOffset);
-//        if (boxes.isEmpty)
-//            return null;
-//        final TextBox box = boxes[0];
-//        final double caretStart = box.start;
-//        final double dx = box.direction == TextDirection.rtl ? caretStart - caretPrototype.width : caretStart;
-//        return new Offset(dx, box.top);
-    }
-
-    // TODO(Migration/qqd): Implement _emptyOffset.
-    var _emptyOffset: Offset = Offset(0.0f, 0.0f)
-        get() {
-            TODO()
-//        assert(!_needsLayout); // implies textDirection is non-null
-//        assert(textAlign != null);
-//        switch (textAlign) {
-//            case TextAlign.left:
-//            return Offset.zero;
-//            case TextAlign.right:
-//            return new Offset(width, 0.0);
-//            case TextAlign.center:
-//            return new Offset(width / 2.0, 0.0);
-//            case TextAlign.justify:
-//            case TextAlign.start:
-//            assert(textDirection != null);
-//            switch (textDirection) {
-//                case TextDirection.rtl:
-//                return new Offset(width, 0.0);
-//                case TextDirection.ltr:
-//                return Offset.zero;
-//            }
-//            return null;
-//            case TextAlign.end:
-//            assert(textDirection != null);
-//            switch (textDirection) {
-//                case TextDirection.rtl:
-//                return Offset.zero;
-//                case TextDirection.ltr:
-//                return new Offset(width, 0.0);
-//            }
-//            return null;
-//        }
-//        return null;
-    }
-
-    /**
-     * Returns the offset at which to paint the caret.
-     *
-     * Valid only after [layout] has been called.
-     */
-    // TODO(Migration/qqd): Implement getOffsetForCaret.
-    fun getOffsetForCaret(position: TextPosition, caretPrototype: Rect): Offset {
-        TODO()
-//        assert(!_needsLayout);
-//        final int offset = position.offset;
-//        assert(position.affinity != null);
-//        switch (position.affinity) {
-//            case TextAffinity.upstream:
-//            return _getOffsetFromUpstream(offset, caretPrototype)
-//            ?? _getOffsetFromDownstream(offset, caretPrototype)
-//            ?? _emptyOffset;
-//            case TextAffinity.downstream:
-//            return _getOffsetFromDownstream(offset, caretPrototype)
-//            ?? _getOffsetFromUpstream(offset, caretPrototype)
-//            ?? _emptyOffset;
-//        }
-//        return null;
-    }
-
     /** Returns path that enclose the given text selection range. */
     fun getPathForSelection(selection: TextSelection): Path {
         assert(!needsLayout)
         return paragraph!!.getPathForRange(selection.start, selection.end)
     }
 
-    /**
-     * Returns a list of rects that bound the given selection.
-     *
-     * A given selection might have more than one rect if this text painter contains bidirectional
-     * text because logically contiguous text might not be visually contiguous.
-     */
-    // TODO(Migration/qqd): Implement getBoxesForSelection.
-    fun getBoxesForSelection(selection: TextSelection): List<TextBox> {
-        TODO()
-//        assert(!needsLayout)
-//        return paragraph!!.getBoxesForRange(selection.start, selection.end)
-    }
-
     /** Returns the position within the text for the given pixel offset. */
     fun getPositionForOffset(offset: Offset): TextPosition {
         assert(!needsLayout)
         return paragraph!!.getPositionForOffset(offset)
-    }
-
-    /**
-     * Returns the text range of the word at the given offset. Characters not part of a word, such
-     * as spaces, symbols, and punctuation, have word breaks on both sides. In such cases, this
-     * method will return a text range that contains the given text position.
-     *
-     * Word boundaries are defined more precisely in Unicode Standard Annex #29
-     * <http://www.unicode.org/reports/tr29/#Word_Boundaries>.
-     */
-    // TODO(Migration/qqd): Implement getWordBoundary.
-    fun getWordBoundary(position: TextPosition): TextRange {
-        TODO()
-//        assert(!needsLayout)
-//        val indices: List<Int> = paragraph!!.getWordBoundary(position.offset)
-//        return TextRange(start = indices[0], end = indices[1])
     }
 }

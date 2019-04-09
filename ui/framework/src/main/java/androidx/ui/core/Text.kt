@@ -85,7 +85,6 @@ class Text() : Component() {
     var selectionColor: Color = DEFAULT_SELECTION_COLOR
 
     override fun compose() {
-        assert(text != null)
         val context = composer.composer.context
 
         <CurrentTextStyleAmbient.Consumer> style ->
@@ -109,7 +108,7 @@ class Text() : Component() {
                 // system is resolved.
                 attachContextToFont(styledText, context)
 
-                <Layout layoutBlock = { measurables, constraints ->
+                <Layout layoutBlock = { _, constraints ->
                     renderParagraph.performLayout(constraints)
                     // Convert the selection's start and end offset to a TextSelection object.
                     selectionPosition?.let {
@@ -122,7 +121,7 @@ class Text() : Component() {
 
                     layout(renderParagraph.width.px.round(), renderParagraph.height.px.round()) {}
                 }>
-                    <Draw> canvas, parent ->
+                    <Draw> canvas, _ ->
                         selection?.let { renderParagraph.paintSelection(canvas, it) }
                         renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
                     </Draw>

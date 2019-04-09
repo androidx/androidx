@@ -40,7 +40,7 @@ import androidx.ui.painting.Path
 class Paragraph internal constructor(
     val text: StringBuilder,
     val paragraphStyle: ParagraphStyle,
-    val textStyles: List<ParagraphBuilder.TextStyleIndex>
+    internal val textStyles: List<ParagraphBuilder.TextStyleIndex>
 ) {
     private var needsLayout = true
     /** increased visibility for testing **/
@@ -136,7 +136,7 @@ class Paragraph internal constructor(
         // floored in paragraphImpl, or the comparison should be moved to there.
         if (!needsLayout && this.width == width && !force) return
         needsLayout = false
-        paragraphImpl.layout(width, force)
+        paragraphImpl.layout(width)
     }
 
     /** Returns path that enclose the given text range. */
@@ -159,47 +159,9 @@ class Paragraph internal constructor(
     /** Returns the width of the given line. */
     fun getLineWidth(lineIndex: Int): Float = paragraphImpl.getLineWidth(lineIndex)
 
-    /** Returns a list of text boxes that enclose the given text range. */
-    fun getBoxesForRange(start: Int, end: Int): List<TextBox> {
-        TODO()
-        // native 'Paragraph_getRectsForRange';
-        //    std::vector<TextBox> ParagraphImplTxt::getRectsForRange(
-        //        unsigned start,
-        //        unsigned end,
-        //        txt::Paragraph::RectStyle rect_style) {
-        //        std::vector<TextBox> result;
-        //        std::vector<txt::Paragraph::TextBox> boxes =
-        //            m_paragraph->GetRectsForRange(start, end, rect_style);
-        //        for (const txt::Paragraph::TextBox& box : boxes) {
-        //        result.emplace_back(box.rect,
-        //            static_cast<blink::TextDirection>(box.direction));
-        //    }
-        //        return result;
-        //    }
-    }
-
     /** Returns the text position closest to the given offset. */
     fun getPositionForOffset(offset: Offset): TextPosition {
         return paragraphImpl.getPositionForOffset(offset)
-    }
-
-    /**
-     * Returns the [start, end] of the word at the given offset. Characters not
-     * part of a word, such as spaces, symbols, and punctuation, have word breaks
-     * on both sides. In such cases, this method will return [offset, offset+1].
-     * Word boundaries are defined more precisely in Unicode Standard Annex #29
-     * http://www.unicode.org/reports/tr29/#Word_Boundaries
-     */
-    fun getWordBoundary(offset: Int): List<Int> {
-        TODO()
-// TODO(Migration/siyamed): native blink::paragraph_impl_txt.cc
-//    Dart_Handle ParagraphImplTxt::getWordBoundary(unsigned offset) {
-//        txt::Paragraph::Range<size_t> point = m_paragraph->GetWordBoundary(offset);
-//        Dart_Handle result = Dart_NewListOf(Dart_CoreType_Int, 2);
-//        Dart_ListSetAt(result, 0, ToDart(point.start));
-//        Dart_ListSetAt(result, 1, ToDart(point.end));
-//        return result;
-//    }
     }
 
     // Redirecting the paint function in this way solves some dependency problems
