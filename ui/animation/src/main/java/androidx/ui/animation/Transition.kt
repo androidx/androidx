@@ -46,7 +46,7 @@ import com.google.r4a.unaryPlus
 fun <T> Transition(
     definition: TransitionDefinition<T>,
     toState: T,
-    @Children children: (state: TransitionState) -> Unit
+    @Children children: @Composable() (state: TransitionState) -> Unit
 ) {
     if (transitionsEnabled) {
         val model = +memo(definition) { TransitionModel(definition) }
@@ -80,6 +80,7 @@ private class TransitionModel<T>(
 
     override fun <T> get(propKey: PropKey<T>): T {
         // we need to access the animationPulse so Compose will record this @Model values usage.
+        @Suppress("UNUSED_VARIABLE")
         val pulse = animationPulse
         return anim[propKey]
     }

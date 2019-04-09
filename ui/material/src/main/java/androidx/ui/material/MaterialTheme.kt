@@ -53,6 +53,7 @@ import com.google.r4a.unaryPlus
  * All values may be overriden by providing this component with the [colors] and [typography]
  * attributes. Use this to configure the overall theme of your application.
  */
+@Composable
 fun MaterialTheme(
     colors: MaterialColors = MaterialColors(),
     typography: MaterialTypography = MaterialTypography(),

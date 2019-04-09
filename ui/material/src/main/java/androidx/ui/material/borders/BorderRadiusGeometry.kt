@@ -306,7 +306,7 @@ abstract class BorderRadiusGeometry {
 fun lerp(a: BorderRadiusGeometry?, b: BorderRadiusGeometry?, t: Float): BorderRadiusGeometry? {
     if (a == null && b == null)
         return null
-    val a = a ?: BorderRadius.Zero
-    val b = b ?: BorderRadius.Zero
-    return a.add((b.subtract(a)) * t)
+    val newA = a ?: BorderRadius.Zero
+    val newB = b ?: BorderRadius.Zero
+    return newA.add((newB.subtract(newA)) * t)
 }

@@ -25,6 +25,7 @@ import androidx.ui.core.toRect
 import androidx.ui.painting.Color
 import com.google.r4a.Ambient
 import com.google.r4a.Children
+import com.google.r4a.Composable
 import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.effectOf
@@ -81,6 +82,7 @@ fun ambientRippleSurface() = effectOf<RippleSurfaceOwner> { +ambient(CurrentRipp
 /**
  * A surface used to draw [RippleEffect]s on top of it.
  */
+@Composable
 fun RippleSurface(
     /**
      * The surface background backgroundColor.

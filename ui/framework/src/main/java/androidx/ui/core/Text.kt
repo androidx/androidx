@@ -172,6 +172,7 @@ fun TextComposable(
  * components included in this component's children will be styled with this style unless
  * styled explicitly.
  */
+@Composable
 fun CurrentTextStyleProvider(value: TextStyle, @Children children: () -> Unit) {
     <CurrentTextStyleAmbient.Consumer> style ->
         val mergedStyle = style.merge(value)

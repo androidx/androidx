@@ -34,7 +34,7 @@ import com.google.r4a.unaryPlus
 @Composable
 fun <T> CachingClipper(
     clipper: CustomClipper<T>,
-    @Children children: (clipper: CustomClipper<T>) -> Unit
+    @Children children: @Composable() (clipper: CustomClipper<T>) -> Unit
 ) {
     val cachingClipper = +memo(clipper) { CachingCustomClipper(clipper) }
     <children clipper=cachingClipper />
