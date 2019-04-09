@@ -16,7 +16,7 @@
 
 package androidx.ui.material.surface
 
-import androidx.ui.core.adapter.Draw
+import androidx.ui.core.Draw
 import androidx.ui.core.toRect
 import androidx.ui.material.borders.ShapeBorder
 import com.google.r4a.Composable

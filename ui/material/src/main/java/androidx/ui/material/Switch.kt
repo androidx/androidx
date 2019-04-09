@@ -25,9 +25,9 @@ import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityReceiver
+import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.PxSize
-import androidx.ui.core.adapter.Draw
 import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
 import androidx.ui.core.ipx

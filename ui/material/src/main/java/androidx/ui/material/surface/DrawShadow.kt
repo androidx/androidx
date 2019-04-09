@@ -17,7 +17,7 @@
 package androidx.ui.material.surface
 
 import androidx.ui.core.Dp
-import androidx.ui.core.adapter.Draw
+import androidx.ui.core.Draw
 import androidx.ui.core.dp
 import androidx.ui.material.clip.CustomClipper
 import androidx.ui.painting.Path

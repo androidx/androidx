@@ -150,23 +150,6 @@ internal val CurrentTextStyleAmbient = Ambient<TextStyle>("current text style") 
 }
 
 /**
- * Temporary needed to be able to use the component from the adapter module. b/120971484
- */
-@Composable
-fun TextComposable(
-    text: TextSpan,
-    textAlign: TextAlign = TextAlign.START,
-    textDirection: TextDirection = TextDirection.LTR,
-    softWrap: Boolean = true,
-    overflow: TextOverflow = TextOverflow.CLIP,
-    textScaleFactor: Float = 1.0f,
-    maxLines: Int? = null,
-    selection: TextSelection? = null
-) {
-    <Text text textAlign textDirection softWrap overflow textScaleFactor maxLines selection/>
-}
-
-/**
  * This component is used to set the current value of the Text style ambient. The given style will
  * be merged with the current style values for any missing attributes. Any [Text]
  * components included in this component's children will be styled with this style unless

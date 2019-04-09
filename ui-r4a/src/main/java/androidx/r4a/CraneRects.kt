@@ -21,13 +21,13 @@ import android.graphics.BitmapFactory
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.Direction
+import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.PxPosition
-import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.PressGestureDetector
 import androidx.ui.core.dp
-import androidx.ui.core.Direction
 import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.hasBoundedHeight

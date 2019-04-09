@@ -23,10 +23,10 @@ import androidx.ui.animation.Transition
 import androidx.ui.baseui.selection.MutuallyExclusiveSetItem
 import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Dp
+import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.PxSize
 import androidx.ui.core.Text
-import androidx.ui.core.adapter.Draw
 import androidx.ui.core.dp
 import androidx.ui.core.max
 import androidx.ui.core.min

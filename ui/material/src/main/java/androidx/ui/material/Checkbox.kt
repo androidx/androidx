@@ -24,7 +24,7 @@ import androidx.ui.animation.Transition
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.Layout
-import androidx.ui.core.adapter.Draw
+import androidx.ui.core.Draw
 import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Offset

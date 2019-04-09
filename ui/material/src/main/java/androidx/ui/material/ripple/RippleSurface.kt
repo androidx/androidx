@@ -18,9 +18,9 @@ package androidx.ui.material.ripple
 
 import androidx.annotation.CheckResult
 import androidx.ui.animation.transitionsEnabled
+import androidx.ui.core.Draw
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
-import androidx.ui.core.adapter.Draw
 import androidx.ui.core.toRect
 import androidx.ui.painting.Color
 import com.google.r4a.Ambient

@@ -30,11 +30,6 @@ package androidx.ui.core {
     method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> p);
   }
 
-  public final class DrawKt {
-    ctor public DrawKt();
-    method public static void DrawComposable(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> onPaint);
-  }
-
   public final class IntrinsicMeasurementsReceiver implements androidx.ui.core.DensityReceiver {
     method public java.util.List<androidx.ui.core.Measurable> collect(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public androidx.ui.core.Density getDensity();
@@ -205,7 +200,6 @@ package androidx.ui.core {
   public final class TextKt {
     ctor public TextKt();
     method public static void CurrentTextStyleProvider(androidx.ui.painting.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void TextComposable(androidx.ui.painting.TextSpan text, androidx.ui.engine.text.TextAlign textAlign = TextAlign.START, androidx.ui.engine.text.TextDirection textDirection = TextDirection.LTR, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = TextOverflow.CLIP, float textScaleFactor = 1.0f, Integer? maxLines = null, androidx.ui.services.text_editing.TextSelection? selection = null);
     method public static com.google.r4a.Effect<androidx.ui.painting.TextStyle> currentTextStyle();
   }
 

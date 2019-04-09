@@ -18,7 +18,6 @@ package androidx.ui.core
 import androidx.ui.painting.Canvas
 import com.google.r4a.Children
 import com.google.r4a.Component
-import com.google.r4a.Composable
 import com.google.r4a.composer
 
 /**
@@ -39,15 +38,4 @@ class Draw(
         // Hide the internals of DrawNode
         <DrawNode onPaint />
     }
-}
-
-/**
- * Temporary needed to be able to use the component from the adapter module. b/120971484
- */
-@Composable
-fun DrawComposable(
-    @Children(composable = false)
-    onPaint: DensityReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
-) {
-    <Draw onPaint />
 }
