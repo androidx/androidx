@@ -304,7 +304,6 @@ package androidx.media2 {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> addPlaylistItem(int, androidx.media2.MediaItem);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> attachAuxEffect(int);
     method public void close() throws java.lang.Exception;
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> deselectTrack(androidx.media2.MediaPlayer.TrackInfo);
     method public androidx.media.AudioAttributesCompat? getAudioAttributes();
     method public int getAudioSessionId();
     method public long getBufferedPosition();
@@ -379,7 +378,6 @@ package androidx.media2 {
     method public void onError(androidx.media2.MediaPlayer, androidx.media2.MediaItem, int, int);
     method public void onInfo(androidx.media2.MediaPlayer, androidx.media2.MediaItem, int, int);
     method public void onMediaTimeDiscontinuity(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.MediaTimestamp);
-    method public void onSubtitleData(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.SubtitleData);
     method public void onTimedMetaDataAvailable(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.TimedMetaData);
     method public void onVideoSizeChanged(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.VideoSize);
   }
@@ -699,16 +697,6 @@ package androidx.media2 {
     method public int getMaxStars();
     method public float getStarRating();
     method public boolean isRated();
-  }
-
-  public final class SubtitleData {
-    method public byte[] getData();
-    method public long getDurationUs();
-    method public long getStartTimeUs();
-    method public androidx.media2.MediaPlayer.TrackInfo getTrackInfo();
-    field public static final String MIMETYPE_TEXT_CEA_608 = "text/cea-608";
-    field public static final String MIMETYPE_TEXT_CEA_708 = "text/cea-708";
-    field public static final String MIMETYPE_TEXT_VTT = "text/vtt";
   }
 
   public final class ThumbRating implements androidx.media2.Rating {

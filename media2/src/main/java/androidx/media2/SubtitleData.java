@@ -19,7 +19,6 @@ package androidx.media2;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.media2.MediaPlayer.TrackInfo;
 
@@ -66,7 +65,11 @@ import java.util.concurrent.Executor;
  * <p>
  * @see MediaPlayer#registerPlayerCallback(Executor, SessionPlayer.PlayerCallback)
  * @see MediaPlayer.PlayerCallback#onSubtitleData(MediaPlayer, MediaItem, SubtitleData)
+ *
+ * @hide
  */
+// TODO: replace this byte oriented data with structured data (b/130312596)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class SubtitleData {
     private static final String TAG = "SubtitleData";
 
