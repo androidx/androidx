@@ -25,11 +25,11 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -289,7 +289,7 @@ class ProcessingImageReader implements ImageReaderProxy {
             futureList.add(mSettableImageProxyBundle.getImageProxy((id)));
         }
         Futures.addCallback(Futures.successfulAsList(futureList), mCaptureStageReadyCallback,
-                MoreExecutors.directExecutor());
+                CameraXExecutors.directExecutor());
     }
 
     // Incoming Image from InputImageReader. Acquires it and add to SettableImageProxyBundle.

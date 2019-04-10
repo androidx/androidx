@@ -20,8 +20,8 @@ import android.view.Surface;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.utils.futures.Futures;
 
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
@@ -60,8 +60,7 @@ public final class DeferrableSurfaces {
 
         try {
             // Need to create a new list since the list returned by successfulAsList() is
-            // unmodifiable so
-            // it will throw an Exception
+            // unmodifiable so it will throw an Exception
             List<Surface> surfaces =
                     new ArrayList<>(Futures.successfulAsList(listenableFutureSurfaces).get());
             surfaces.removeAll(Collections.singleton(null));
