@@ -21,7 +21,9 @@ import android.os.SystemClock
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTestUtil
+import androidx.fragment.app.executePendingTransactions
+import androidx.fragment.app.popBackStackImmediate
+import androidx.fragment.app.waitForExecution
 import androidx.fragment.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -248,7 +250,7 @@ class FragmentTransactionTest {
             .addToBackStack(null)
             .commit()
 
-        FragmentTestUtil.executePendingTransactions(activityRule)
+        activityRule.executePendingTransactions()
         var fragments: Collection<Fragment> = fm.fragments
         assertThat(fragments.size).isEqualTo(1)
         assertThat(fragments.contains(fragment)).isTrue()
@@ -258,37 +260,37 @@ class FragmentTransactionTest {
             .remove(fragment)
             .addToBackStack(null)
             .commit()
-        FragmentTestUtil.executePendingTransactions(activityRule)
+        activityRule.executePendingTransactions()
         assertThat(fm.fragments.isEmpty()).isTrue()
 
         // Now try detached fragments
-        FragmentTestUtil.popBackStackImmediate(activityRule)
+        activityRule.popBackStackImmediate()
         fm.beginTransaction()
             .detach(fragment)
             .addToBackStack(null)
             .commit()
-        FragmentTestUtil.executePendingTransactions(activityRule)
+        activityRule.executePendingTransactions()
         assertThat(fm.fragments.isEmpty()).isTrue()
 
         // Now try hidden fragments
-        FragmentTestUtil.popBackStackImmediate(activityRule)
+        activityRule.popBackStackImmediate()
         fm.beginTransaction()
             .hide(fragment)
             .addToBackStack(null)
             .commit()
-        FragmentTestUtil.executePendingTransactions(activityRule)
+        activityRule.executePendingTransactions()
         fragments = fm.fragments
         assertThat(fragments.size).isEqualTo(1)
         assertThat(fragments.contains(fragment)).isTrue()
 
         // And showing it again shouldn't change anything:
-        FragmentTestUtil.popBackStackImmediate(activityRule)
+        activityRule.popBackStackImmediate()
         fragments = fm.fragments
         assertThat(fragments.size).isEqualTo(1)
         assertThat(fragments.contains(fragment)).isTrue()
 
         // Now pop back to the start state
-        FragmentTestUtil.popBackStackImmediate(activityRule)
+        activityRule.popBackStackImmediate()
 
         // We can't force concurrency, but we can do it lots of times and hope that
         // we hit it.
@@ -331,13 +333,13 @@ class FragmentTransactionTest {
             .beginTransaction()
             .add(fragment1, "1")
             .commit()
-        FragmentTestUtil.executePendingTransactions(activityRule)
+        activityRule.executePendingTransactions()
         val fm = fragment1.childFragmentManager
         activity.supportFragmentManager
             .beginTransaction()
             .remove(fragment1)
             .commit()
-        FragmentTestUtil.executePendingTransactions(activityRule)
+        activityRule.executePendingTransactions()
         assertThat(activity.supportFragmentManager.fragments.size).isEqualTo(0)
         assertThat(fm.fragments.size).isEqualTo(0)
 
@@ -347,7 +349,7 @@ class FragmentTransactionTest {
         fm.beginTransaction()
             .add(fragment2, "2")
             .commitAllowingStateLoss()
-        FragmentTestUtil.executePendingTransactions(activityRule)
+        activityRule.executePendingTransactions()
         assertThat(fm.fragments.size).isEqualTo(0)
 
         // It should also allow commitNowAllowingStateLoss by doing nothing
@@ -370,18 +372,18 @@ class FragmentTransactionTest {
         val intent1 = Intent(activity, NewIntentActivity::class.java)
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val newIntentActivity = instrumentation.startActivitySync(intent1) as NewIntentActivity
-        FragmentTestUtil.waitForExecution(activityRule)
+        activityRule.waitForExecution()
 
         val intent2 = Intent(activity, FragmentTestActivity::class.java)
         intent2.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         instrumentation.startActivitySync(intent2)
-        FragmentTestUtil.waitForExecution(activityRule)
+        activityRule.waitForExecution()
 
         val intent3 = Intent(activity, NewIntentActivity::class.java)
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         activity.startActivity(intent3)
         assertThat(newIntentActivity.newIntent.await(1, TimeUnit.SECONDS)).isTrue()
-        FragmentTestUtil.waitForExecution(activityRule)
+        activityRule.waitForExecution()
 
         for (fragment in newIntentActivity.supportFragmentManager.fragments) {
             // There really should only be one fragment in newIntentActivity.
