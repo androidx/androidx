@@ -42,7 +42,7 @@ buildscript {
 
 repos.addMavenRepositories(repositories)
 
-init.setupRepoOutAndBuildNumber()
+init.setupRepoOutAndStartParam()
 
 init.configureSubProjects()
 
