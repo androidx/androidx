@@ -68,30 +68,28 @@ data class Alignment(val verticalBias: Float, val horizontalBias: Float) {
 fun Align(alignment: Alignment, @Children children: () -> Unit) {
     <Layout layoutBlock ={ measurables, constraints ->
         val measurable = measurables.firstOrNull()
-        if (measurable == null) {
-            layout(constraints.minWidth, constraints.minHeight) {}
+        // The child cannot be larger than our max constraints, but we ignore min constraints.
+        val childConstraints = Constraints(
+            maxWidth = constraints.maxWidth,
+            maxHeight = constraints.maxHeight
+        )
+        val placeable = measurable?.measure(childConstraints)
+
+        // The layout is as large as possible for bounded constraints,
+        // or wrap content otherwise.
+        val layoutWidth = if (constraints.maxWidth.isFinite()) {
+            constraints.maxWidth
         } else {
-            // The child cannot be larger than our max constraints, but we ignore min constraints.
-            val childConstraints = Constraints(
-                maxWidth = constraints.maxWidth,
-                maxHeight = constraints.maxHeight
-            )
-            val placeable = measurable.measure(childConstraints)
+            placeable?.width ?: constraints.minWidth
+        }
+        val layoutHeight = if (constraints.maxHeight.isFinite()) {
+            constraints.maxHeight
+        } else {
+            placeable?.height ?: constraints.minHeight
+        }
 
-            // The layout is as large as possible for bounded constraints,
-            // or wrap content otherwise.
-            val layoutWidth = if (constraints.maxWidth.isFinite()) {
-                constraints.maxWidth
-            } else {
-                placeable.width
-            }
-            val layoutHeight = if (constraints.maxHeight.isFinite()) {
-                constraints.maxHeight
-            } else {
-                placeable.height
-            }
-
-            layout(layoutWidth, layoutHeight) {
+        layout(layoutWidth, layoutHeight) {
+            if (placeable != null) {
                 val position = alignment.align(
                     IntPxSize(layoutWidth - placeable.width, layoutHeight - placeable.height)
                 )

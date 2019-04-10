@@ -39,9 +39,7 @@ fun Divider(
     indent: Dp = 0.dp
 ) {
     val dividerColor = +color.orFromTheme { onSurface }
-    // TODO: infinite width is a temporary hack for b/130219547
     <Container
-        width=Dp.Infinity
         height
         expanded=true
         color=dividerColor
