@@ -78,7 +78,7 @@ for w in testcls:
 testcls = ['Browse', 'GuidedStep', 'VerticalGrid', 'Playback', 'Video', 'Details', 'Rows', 'Headers']
 
 for w in testcls:
-    print "copy {}SupporFrgamentTest to {}tFragmentTest".format(w, w)
+    print "copy {}SupporFragmentTest to {}FragmentTest".format(w, w)
 
     file = open('java/androidx/leanback/app/{}SupportFragmentTest.java'.format(w), 'r')
     outfile = open('java/androidx/leanback/app/{}FragmentTest.java'.format(w), 'w')
