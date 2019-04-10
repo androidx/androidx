@@ -29,7 +29,7 @@ class KotlinPluginTest : BasePluginTest() {
         setupSimpleKotlinBuildGradle()
         runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
 
-        assertGenerated("debug/$NEXT_ARGUMENTS.kt")
+        assertGenerated("debug/$NEXT_DIRECTIONS.kt")
         assertGenerated("debug/$NEXT_ARGUMENTS.kt")
         assertGenerated("debug/$MAIN_DIRECTIONS.kt")
     }
