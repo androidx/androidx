@@ -16,12 +16,10 @@
 
 package androidx.camera.core.impl.utils.futures;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
-import com.google.common.annotations.GwtCompatible;
 import com.google.common.util.concurrent.ListenableFuture;
-
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
@@ -39,7 +37,6 @@ import java.util.concurrent.Future;
  * @param <I>
  * @param <O>
  */
-@GwtCompatible
 @FunctionalInterface
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface AsyncFunction<I, O> {

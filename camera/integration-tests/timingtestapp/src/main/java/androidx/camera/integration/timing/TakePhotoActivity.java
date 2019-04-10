@@ -37,8 +37,6 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ViewFinderUseCase;
 import androidx.camera.core.ViewFinderUseCaseConfiguration;
 
-import com.google.common.base.Ascii;
-
 /** This Activity is used to run image capture performance test in mobileharness. */
 public class TakePhotoActivity extends BaseActivity {
 
@@ -250,7 +248,7 @@ public class TakePhotoActivity extends BaseActivity {
         if (bundle != null) {
             final String captureModeString = bundle.getString(EXTRA_CAPTURE_MODE);
             if (captureModeString != null) {
-                mCaptureMode = CaptureMode.valueOf(Ascii.toUpperCase(captureModeString));
+                mCaptureMode = CaptureMode.valueOf(captureModeString.toUpperCase());
             }
             final String cameraLensFacing = bundle.getString(EXTRA_CAMERA_FACING);
             if (cameraLensFacing != null) {
@@ -271,9 +269,9 @@ public class TakePhotoActivity extends BaseActivity {
 
     void setupCamera(String cameraFacing) {
         Log.d(TAG, "Camera Facing: " + cameraFacing);
-        if (Ascii.equalsIgnoreCase(cameraFacing, CAMERA_FACING_BACK)) {
+        if (CAMERA_FACING_BACK.equalsIgnoreCase(cameraFacing)) {
             mCurrentCameraLensFacing = LensFacing.BACK;
-        } else if (Ascii.equalsIgnoreCase(cameraFacing, CAMERA_FACING_FRONT)) {
+        } else if (CAMERA_FACING_FRONT.equalsIgnoreCase(cameraFacing)) {
             mCurrentCameraLensFacing = LensFacing.FRONT;
         } else {
             throw new RuntimeException("Invalid lens facing: " + cameraFacing);

@@ -16,7 +16,7 @@
 
 package androidx.camera.core.impl.utils.futures;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static androidx.core.util.Preconditions.checkNotNull;
 
 import androidx.annotation.RestrictTo;
 

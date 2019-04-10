@@ -18,10 +18,9 @@ package androidx.camera.core.impl.utils.futures;
 
 
 import androidx.annotation.RestrictTo;
+import androidx.arch.core.util.Function;
 
-import com.google.common.base.Function;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -117,13 +116,11 @@ public abstract class FluentFuture<V> extends AbstractFuture<V> {
      */
     abstract static class TrustedFuture<V> extends FluentFuture<V>
             implements AbstractFuture.Trusted<V> {
-        @CanIgnoreReturnValue
         @Override
         public final V get() throws InterruptedException, ExecutionException {
             return super.get();
         }
 
-        @CanIgnoreReturnValue
         @Override
         public final V get(long timeout, TimeUnit unit)
                 throws InterruptedException, ExecutionException, TimeoutException {
@@ -145,7 +142,6 @@ public abstract class FluentFuture<V> extends AbstractFuture<V> {
             super.addListener(listener, executor);
         }
 
-        @CanIgnoreReturnValue
         @Override
         public final boolean cancel(boolean mayInterruptIfRunning) {
             return super.cancel(mayInterruptIfRunning);

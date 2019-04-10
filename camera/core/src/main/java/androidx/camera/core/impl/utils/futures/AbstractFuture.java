@@ -16,7 +16,7 @@
 
 package androidx.camera.core.impl.utils.futures;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static androidx.core.util.Preconditions.checkNotNull;
 
 import static java.util.concurrent.atomic.AtomicReferenceFieldUpdater.newUpdater;
 
@@ -26,10 +26,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.internal.InternalFutureFailureAccess;
 import androidx.camera.core.impl.utils.futures.internal.InternalFutures;
 
-import com.google.common.annotations.Beta;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import com.google.errorprone.annotations.ForOverride;
 
 import java.util.Locale;
 import java.util.concurrent.CancellationException;
@@ -91,13 +88,11 @@ public abstract class AbstractFuture<V> extends InternalFutureFailureAccess
      * that {@link #get} calls exactly the implementation of {@link AbstractFuture#get}.
      */
     abstract static class TrustedFuture<V> extends AbstractFuture<V> implements Trusted<V> {
-        @CanIgnoreReturnValue
         @Override
         public final V get() throws InterruptedException, ExecutionException {
             return super.get();
         }
 
-        @CanIgnoreReturnValue
         @Override
         public final V get(long timeout, TimeUnit unit)
                 throws InterruptedException, ExecutionException, TimeoutException {
@@ -119,7 +114,6 @@ public abstract class AbstractFuture<V> extends InternalFutureFailureAccess
             super.addListener(listener, executor);
         }
 
-        @CanIgnoreReturnValue
         @Override
         public final boolean cancel(boolean mayInterruptIfRunning) {
             return super.cancel(mayInterruptIfRunning);
@@ -400,7 +394,6 @@ public abstract class AbstractFuture<V> extends InternalFutureFailureAccess
      *
      * @throws CancellationException {@inheritDoc}
      */
-    @CanIgnoreReturnValue
     @Override
     public V get(long timeout, TimeUnit unit)
             throws InterruptedException, TimeoutException, ExecutionException {
@@ -517,7 +510,6 @@ public abstract class AbstractFuture<V> extends InternalFutureFailureAccess
      *
      * @throws CancellationException {@inheritDoc}
      */
-    @CanIgnoreReturnValue
     @Override
     public V get() throws InterruptedException, ExecutionException {
         if (Thread.interrupted()) {
@@ -603,7 +595,6 @@ public abstract class AbstractFuture<V> extends InternalFutureFailureAccess
      * cancelled without a call to {@code cancel}, such as by calling {@code
      * setFuture(cancelledFuture)}.
      */
-    @CanIgnoreReturnValue
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
         Object localValue = mValue;
@@ -751,7 +742,6 @@ public abstract class AbstractFuture<V> extends InternalFutureFailureAccess
      * @param value the value to be used as the result
      * @return true if the attempt was accepted, completing the {@code Future}
      */
-    @CanIgnoreReturnValue
     protected boolean set(@Nullable V value) {
         Object valueToSet = value == null ? NULL : value;
         if (ATOMIC_HELPER.casValue(this, null, valueToSet)) {
@@ -777,7 +767,6 @@ public abstract class AbstractFuture<V> extends InternalFutureFailureAccess
      * @param throwable the mException to be used as the failed result
      * @return true if the attempt was accepted, completing the {@code Future}
      */
-    @CanIgnoreReturnValue
     protected boolean setException(Throwable throwable) {
         Object valueToSet = new Failure(checkNotNull(throwable));
         if (ATOMIC_HELPER.casValue(this, null, valueToSet)) {
@@ -817,7 +806,6 @@ public abstract class AbstractFuture<V> extends InternalFutureFailureAccess
      * cancelled or set.
      * @since 19.0
      */
-    @CanIgnoreReturnValue
     protected boolean setFuture(ListenableFuture<? extends V> future) {
         checkNotNull(future);
         Object localValue = mValue;
@@ -1027,8 +1015,6 @@ public abstract class AbstractFuture<V> extends InternalFutureFailureAccess
      *
      * @since 20.0
      */
-    @Beta
-    @ForOverride
     protected void afterDone() {
     }
 

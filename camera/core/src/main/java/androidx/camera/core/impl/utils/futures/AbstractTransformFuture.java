@@ -17,18 +17,14 @@
 package androidx.camera.core.impl.utils.futures;
 
 import static androidx.camera.core.impl.utils.futures.Futures.getDone;
+import static androidx.core.util.Preconditions.checkNotNull;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.arch.core.util.Function;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
-import com.google.common.annotations.GwtCompatible;
-import com.google.common.base.Function;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.errorprone.annotations.ForOverride;
-
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -42,7 +38,6 @@ import java.util.concurrent.RejectedExecutionException;
  * Implementations of {@code Futures.transform*}.
  * @hide
  */
-@GwtCompatible
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class AbstractTransformFuture<I, O, F, T> extends FluentFuture.TrustedFuture<O> implements
         Runnable {
@@ -197,11 +192,9 @@ abstract class AbstractTransformFuture<I, O, F, T> extends FluentFuture.TrustedF
     }
 
     /** Template method for subtypes to actually run the transform. */
-    @ForOverride
     abstract @Nullable T doTransform(F function, @Nullable I result) throws Exception;
 
     /** Template method for subtypes to actually set the result. */
-    @ForOverride
     abstract void setResult(@Nullable T result);
 
     @Override
@@ -249,8 +242,7 @@ abstract class AbstractTransformFuture<I, O, F, T> extends FluentFuture.TrustedF
             checkNotNull(
                     outputFuture,
                     "AsyncFunction.apply returned null instead of a Future. "
-                            + "Did you mean to return immediateFuture(null)? %s",
-                    function);
+                            + "Did you mean to return immediateFuture(null)? " + function);
             return outputFuture;
         }
 
