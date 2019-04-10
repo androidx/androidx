@@ -53,7 +53,7 @@ import androidx.navigation.Navigator;
  *            android:layout_height="match_parent"
  *            android:id="@+id/my_nav_host_fragment"
  *            android:name="androidx.navigation.fragment.NavHostFragment"
- *            app:navGraph="@xml/nav_sample"
+ *            app:navGraph="@navigation/nav_sample"
  *            app:defaultNavHost="true" /&gt;
  *    &lt;android.support.design.widget.NavigationView
  *            android:layout_width="wrap_content"
