@@ -212,8 +212,9 @@ class MediaSessionImplBase implements MediaSessionImpl {
             mBroadcastReceiver = null;
         }
 
+        // TODO(b/130280379): Use SessionToken#getExtras() when the API is ready.
         mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mbrComponent,
-                mMediaButtonIntent, mSessionToken);
+                mMediaButtonIntent, null /* mSessionToken.getExtras() */, mSessionToken);
         // NOTE: mSessionLegacyStub should be created after mSessionCompat created.
         mSessionLegacyStub = new MediaSessionLegacyStub(this);
 

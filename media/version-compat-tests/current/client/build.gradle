@@ -29,9 +29,3 @@ dependencies {
     androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
 }
-
-android {
-    defaultConfig {
-        minSdkVersion 19
-    }
-}
