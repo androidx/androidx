@@ -16,7 +16,7 @@
 
 package androidx.room.vo
 
-import androidx.room.ext.AndroidTypeNames
+import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
@@ -144,7 +144,7 @@ data class RelationCollector(
             }
         }
         scope.builder().apply {
-            val keyType = if (mapTypeName.rawType == AndroidTypeNames.LONG_SPARSE_ARRAY) {
+            val keyType = if (mapTypeName.rawType == CollectionTypeNames.LONG_SPARSE_ARRAY) {
                 keyTypeName.unbox()
             } else {
                 keyTypeName
@@ -243,16 +243,16 @@ data class RelationCollector(
                 }
 
                 val canUseLongSparseArray = context.processingEnv.elementUtils
-                        .getTypeElement(AndroidTypeNames.LONG_SPARSE_ARRAY.toString()) != null
+                        .getTypeElement(CollectionTypeNames.LONG_SPARSE_ARRAY.toString()) != null
                 val canUseArrayMap = context.processingEnv.elementUtils
-                        .getTypeElement(AndroidTypeNames.ARRAY_MAP.toString()) != null
+                        .getTypeElement(CollectionTypeNames.ARRAY_MAP.toString()) != null
                 val tmpMapType = when {
                     canUseLongSparseArray && affinity == SQLTypeAffinity.INTEGER -> {
-                        ParameterizedTypeName.get(AndroidTypeNames.LONG_SPARSE_ARRAY,
+                        ParameterizedTypeName.get(CollectionTypeNames.LONG_SPARSE_ARRAY,
                                 collectionTypeName)
                     }
                     canUseArrayMap -> {
-                        ParameterizedTypeName.get(AndroidTypeNames.ARRAY_MAP,
+                        ParameterizedTypeName.get(CollectionTypeNames.ARRAY_MAP,
                                 keyType, collectionTypeName)
                     }
                     else -> {
@@ -275,10 +275,11 @@ data class RelationCollector(
                 }
                 val resultInfo = parsedQuery.resultInfo
 
-                val usingLongSparseArray = tmpMapType.rawType == AndroidTypeNames.LONG_SPARSE_ARRAY
+                val usingLongSparseArray =
+                    tmpMapType.rawType == CollectionTypeNames.LONG_SPARSE_ARRAY
                 val queryParam = if (usingLongSparseArray) {
                     val longSparseArrayElement = context.processingEnv.elementUtils
-                            .getTypeElement(AndroidTypeNames.LONG_SPARSE_ARRAY.toString())
+                            .getTypeElement(CollectionTypeNames.LONG_SPARSE_ARRAY.toString())
                     QueryParameter(
                             name = RelationCollectorMethodWriter.PARAM_MAP_VARIABLE,
                             sqlName = RelationCollectorMethodWriter.PARAM_MAP_VARIABLE,

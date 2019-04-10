@@ -17,6 +17,7 @@
 package androidx.room.writer
 
 import androidx.room.ext.AndroidTypeNames
+import androidx.room.ext.CollectionTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
@@ -68,7 +69,7 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector)
         val stmtVar = scope.getTmpVar("_stmt")
         scope.builder().apply {
             val usingLongSparseArray =
-                    collector.mapTypeName.rawType == AndroidTypeNames.LONG_SPARSE_ARRAY
+                    collector.mapTypeName.rawType == CollectionTypeNames.LONG_SPARSE_ARRAY
             if (usingLongSparseArray) {
                 beginControlFlow("if ($N.isEmpty())", param)
             } else {

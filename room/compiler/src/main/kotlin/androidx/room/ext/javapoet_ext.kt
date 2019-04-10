@@ -37,68 +37,67 @@ fun KClass<*>.arrayTypeName() = ArrayTypeName.of(typeName())
 fun TypeMirror.typeName() = TypeName.get(this)
 
 object SupportDbTypeNames {
-    val DB: ClassName = ClassName.get("androidx.sqlite.db", "SupportSQLiteDatabase")
+    val DB: ClassName = ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteDatabase")
     val SQLITE_STMT: ClassName =
-            ClassName.get("androidx.sqlite.db", "SupportSQLiteStatement")
+            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteStatement")
     val SQLITE_OPEN_HELPER: ClassName =
-            ClassName.get("androidx.sqlite.db", "SupportSQLiteOpenHelper")
+            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper")
     val SQLITE_OPEN_HELPER_CALLBACK: ClassName =
-            ClassName.get("androidx.sqlite.db", "SupportSQLiteOpenHelper.Callback")
+            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Callback")
     val SQLITE_OPEN_HELPER_CONFIG: ClassName =
-            ClassName.get("androidx.sqlite.db", "SupportSQLiteOpenHelper.Configuration")
+            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteOpenHelper.Configuration")
     val QUERY: ClassName =
-            ClassName.get("androidx.sqlite.db", "SupportSQLiteQuery")
+            ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteQuery")
 }
 
 object RoomTypeNames {
-    val STRING_UTIL: ClassName = ClassName.get("androidx.room.util", "StringUtil")
-    val ROOM_DB: ClassName = ClassName.get("androidx.room", "RoomDatabase")
-    val ROOM_DB_KT: ClassName = ClassName.get("androidx.room", "RoomDatabaseKt")
-    val ROOM_DB_CONFIG: ClassName = ClassName.get("androidx.room",
-            "DatabaseConfiguration")
+    val STRING_UTIL: ClassName = ClassName.get("$ROOM_PACKAGE.util", "StringUtil")
+    val ROOM_DB: ClassName = ClassName.get(ROOM_PACKAGE, "RoomDatabase")
+    val ROOM_DB_KT: ClassName = ClassName.get(ROOM_PACKAGE, "RoomDatabaseKt")
+    val ROOM_DB_CONFIG: ClassName = ClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
     val INSERTION_ADAPTER: ClassName =
-            ClassName.get("androidx.room", "EntityInsertionAdapter")
+            ClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
     val DELETE_OR_UPDATE_ADAPTER: ClassName =
-            ClassName.get("androidx.room", "EntityDeletionOrUpdateAdapter")
+            ClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
     val SHARED_SQLITE_STMT: ClassName =
-            ClassName.get("androidx.room", "SharedSQLiteStatement")
+            ClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
     val INVALIDATION_TRACKER: ClassName =
-            ClassName.get("androidx.room", "InvalidationTracker")
+            ClassName.get(ROOM_PACKAGE, "InvalidationTracker")
     val INVALIDATION_OBSERVER: ClassName =
-            ClassName.get("androidx.room.InvalidationTracker", "Observer")
+            ClassName.get("$ROOM_PACKAGE.InvalidationTracker", "Observer")
     val ROOM_SQL_QUERY: ClassName =
-            ClassName.get("androidx.room", "RoomSQLiteQuery")
+            ClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
     val OPEN_HELPER: ClassName =
-            ClassName.get("androidx.room", "RoomOpenHelper")
+            ClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
     val OPEN_HELPER_DELEGATE: ClassName =
-            ClassName.get("androidx.room", "RoomOpenHelper.Delegate")
+            ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.Delegate")
     val TABLE_INFO: ClassName =
-            ClassName.get("androidx.room.util", "TableInfo")
+            ClassName.get("$ROOM_PACKAGE.util", "TableInfo")
     val TABLE_INFO_COLUMN: ClassName =
-            ClassName.get("androidx.room.util", "TableInfo.Column")
+            ClassName.get("$ROOM_PACKAGE.util", "TableInfo.Column")
     val TABLE_INFO_FOREIGN_KEY: ClassName =
-            ClassName.get("androidx.room.util", "TableInfo.ForeignKey")
+            ClassName.get("$ROOM_PACKAGE.util", "TableInfo.ForeignKey")
     val TABLE_INFO_INDEX: ClassName =
-            ClassName.get("androidx.room.util", "TableInfo.Index")
+            ClassName.get("$ROOM_PACKAGE.util", "TableInfo.Index")
     val FTS_TABLE_INFO: ClassName =
-            ClassName.get("androidx.room.util", "FtsTableInfo")
+            ClassName.get("$ROOM_PACKAGE.util", "FtsTableInfo")
     val VIEW_INFO: ClassName =
-            ClassName.get("androidx.room.util", "ViewInfo")
+            ClassName.get("$ROOM_PACKAGE.util", "ViewInfo")
     val LIMIT_OFFSET_DATA_SOURCE: ClassName =
-            ClassName.get("androidx.room.paging", "LimitOffsetDataSource")
+            ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetDataSource")
     val DB_UTIL: ClassName =
-            ClassName.get("androidx.room.util", "DBUtil")
+            ClassName.get("$ROOM_PACKAGE.util", "DBUtil")
     val CURSOR_UTIL: ClassName =
-            ClassName.get("androidx.room.util", "CursorUtil")
+            ClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
 }
 
 object PagingTypeNames {
     val DATA_SOURCE: ClassName =
-            ClassName.get("androidx.paging", "DataSource")
+            ClassName.get(PAGING_PACKAGE, "DataSource")
     val POSITIONAL_DATA_SOURCE: ClassName =
-            ClassName.get("androidx.paging", "PositionalDataSource")
+            ClassName.get(PAGING_PACKAGE, "PositionalDataSource")
     val DATA_SOURCE_FACTORY: ClassName =
-            ClassName.get("androidx.paging", "DataSource.Factory")
+            ClassName.get(PAGING_PACKAGE, "DataSource.Factory")
 }
 
 object LifecyclesTypeNames {
@@ -109,9 +108,12 @@ object LifecyclesTypeNames {
 
 object AndroidTypeNames {
     val CURSOR: ClassName = ClassName.get("android.database", "Cursor")
-    val ARRAY_MAP: ClassName = ClassName.get("androidx.collection", "ArrayMap")
-    val LONG_SPARSE_ARRAY: ClassName = ClassName.get("androidx.collection", "LongSparseArray")
     val BUILD: ClassName = ClassName.get("android.os", "Build")
+}
+
+object CollectionTypeNames {
+    val ARRAY_MAP: ClassName = ClassName.get(COLLECTION_PACKAGE, "ArrayMap")
+    val LONG_SPARSE_ARRAY: ClassName = ClassName.get(COLLECTION_PACKAGE, "LongSparseArray")
 }
 
 object CommonTypeNames {
@@ -143,19 +145,18 @@ object ReactiveStreamsTypeNames {
 }
 
 object RoomGuavaTypeNames {
-    val GUAVA_ROOM = ClassName.get("androidx.room.guava", "GuavaRoom")
+    val GUAVA_ROOM = ClassName.get("$ROOM_PACKAGE.guava", "GuavaRoom")
 }
 
 object RoomRxJava2TypeNames {
-    val RX_ROOM = ClassName.get("androidx.room", "RxRoom")
+    val RX_ROOM = ClassName.get(ROOM_PACKAGE, "RxRoom")
     val RX_ROOM_CREATE_FLOWABLE = "createFlowable"
     val RX_ROOM_CREATE_OBSERVABLE = "createObservable"
-    val RX_EMPTY_RESULT_SET_EXCEPTION = ClassName.get("androidx.room",
-            "EmptyResultSetException")
+    val RX_EMPTY_RESULT_SET_EXCEPTION = ClassName.get(ROOM_PACKAGE, "EmptyResultSetException")
 }
 
 object RoomCoroutinesTypeNames {
-    val COROUTINES_ROOM = ClassName.get("androidx.room", "CoroutinesRoom")
+    val COROUTINES_ROOM = ClassName.get(ROOM_PACKAGE, "CoroutinesRoom")
 }
 
 object KotlinTypeNames {
