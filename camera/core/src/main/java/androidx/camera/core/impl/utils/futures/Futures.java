@@ -16,13 +16,14 @@
 
 package androidx.camera.core.impl.utils.futures;
 
-
 import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -81,6 +82,23 @@ public final class Futures {
             ListenableFuture<I> input, Function<? super I, ? extends O> function,
             Executor executor) {
         return AbstractTransformFuture.create(input, function, executor);
+    }
+
+    /**
+     * Creates a new {@code ListenableFuture} whose value is a list containing the values of all its
+     * successful input futures. The list of results is in the same order as the input list, and if
+     * any of the provided futures fails or is canceled, its corresponding position will contain
+     * {@code null} (which is indistinguishable from the future having a successful value of {@code
+     * null}).
+     *
+     * <p>Canceling this future will attempt to cancel all the component futures.
+     *
+     * @param futures futures to combine
+     * @return a future that provides a list of the results of the component futures
+     */
+    public static <V> ListenableFuture<List<V>> successfulAsList(
+            Collection<? extends ListenableFuture<? extends V>> futures) {
+        return new CollectionFuture.ListFuture<V>(futures, false);
     }
 
     /**
