@@ -19,6 +19,7 @@ package androidx.ui.material
 import androidx.test.filters.MediumTest
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.TestTag
+import androidx.ui.layout.Column
 import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected
@@ -26,6 +27,8 @@ import androidx.ui.test.assertSemanticsIsEqualTo
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
+import com.google.r4a.Children
+import com.google.r4a.Composable
 import com.google.r4a.Model
 import com.google.r4a.composer
 import org.junit.Test
@@ -53,24 +56,33 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     )
     private val options = listOf(itemOne, itemTwo, itemThree)
 
+    @Composable
+    fun VerticalRadioGroupforTests(@Children children: RadioGroupScope.() -> Unit) {
+        <CraneWrapper>
+            <MaterialTheme>
+                <RadioGroup>
+                    <Column>
+                        <children p1=this />
+                    </Column>
+                </RadioGroup>
+            </MaterialTheme>
+        </CraneWrapper>
+    }
+
     @Test
     fun radioGroupTest_defaultSemantics() {
         val select = RadioGroupSelectedState(itemOne)
 
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <RadioGroup> options.forEach { item ->
-                        <TestTag tag=item>
-                            <RadioGroupTextItem
-                                text=item
-                                selected=(select.selected == item)
-                                onSelected={ select.selected = item } />
-                        </TestTag>
-                    }
-                    </RadioGroup>
-                </MaterialTheme>
-            </CraneWrapper>
+            <VerticalRadioGroupforTests> options.forEach { item ->
+                <TestTag tag=item>
+                    <RadioGroupTextItem
+                        text=item
+                        selected=(select.selected == item)
+                        onSelected={ select.selected = item } />
+                </TestTag>
+            }
+            </VerticalRadioGroupforTests>
         }
 
         findByTag(itemOne).assertSemanticsIsEqualTo(selectedRadioGroupItemSemantics)
@@ -93,18 +105,15 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
         val select = RadioGroupSelectedState(itemOne)
 
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <RadioGroup> options.forEach { item ->
-                        <TestTag tag=item>
-                            <RadioGroupTextItem
-                                text=item
-                                selected=(select.selected == item)
-                                onSelected={ select.selected = item } />
-                        </TestTag>
-                    }
-                </MaterialTheme>
-            </CraneWrapper>
+            <VerticalRadioGroupforTests> options.forEach { item ->
+                <TestTag tag=item>
+                    <RadioGroupTextItem
+                        text=item
+                        selected=(select.selected == item)
+                        onSelected={ select.selected = item } />
+                </TestTag>
+            }
+            </VerticalRadioGroupforTests>
         }
 
         findByTag(itemOne)
@@ -123,18 +132,15 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     fun radioGroupTest_clickSelect() {
         val select = RadioGroupSelectedState(itemOne)
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <RadioGroup> options.forEach { item ->
-                        <TestTag tag=item>
-                            <RadioGroupTextItem
-                                text=item
-                                selected=(select.selected == item)
-                                onSelected={ select.selected = item } />
-                        </TestTag>
-                    }
-                </MaterialTheme>
-            </CraneWrapper>
+            <VerticalRadioGroupforTests> options.forEach { item ->
+                <TestTag tag=item>
+                    <RadioGroupTextItem
+                        text=item
+                        selected=(select.selected == item)
+                        onSelected={ select.selected = item } />
+                </TestTag>
+            }
+            </VerticalRadioGroupforTests>
         }
         findByTag(itemTwo)
             .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
@@ -153,18 +159,15 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
         val select = RadioGroupSelectedState(itemOne)
 
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <RadioGroup> options.forEach { item ->
-                        <TestTag tag=item>
-                            <RadioGroupTextItem
-                                text=item
-                                selected=(select.selected == item)
-                                onSelected={ select.selected = item } />
-                        </TestTag>
-                    }
-                </MaterialTheme>
-            </CraneWrapper>
+            <VerticalRadioGroupforTests> options.forEach { item ->
+                <TestTag tag=item>
+                    <RadioGroupTextItem
+                        text=item
+                        selected=(select.selected == item)
+                        onSelected={ select.selected = item } />
+                </TestTag>
+            }
+            </VerticalRadioGroupforTests>
         }
 
         findByTag(itemTwo)
