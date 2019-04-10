@@ -19,9 +19,9 @@
 
 package androidx.leanback.app;
 
-import android.app.Fragment;
 import android.os.Bundle;
 
+import android.app.Fragment;
 import androidx.leanback.widget.ArrayObjectAdapter;
 import androidx.leanback.widget.VerticalGridPresenter;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
