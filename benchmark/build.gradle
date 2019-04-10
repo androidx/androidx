@@ -26,7 +26,7 @@ plugins {
 
 dependencies {
     implementation(SUPPORT_ANNOTATIONS)
-    implementation(TEST_RUNNER)
+    implementation(ANDROIDX_TEST_RUNNER)
 
     androidTestImplementation(JUNIT)
     implementation(KOTLIN_STDLIB)
