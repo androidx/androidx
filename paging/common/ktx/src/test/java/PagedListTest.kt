@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.paging.Config
-import androidx.paging.PagedList
-import androidx.paging.PositionalDataSource
+package androidx.paging
+
 import androidx.paging.futures.DirectExecutor
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
