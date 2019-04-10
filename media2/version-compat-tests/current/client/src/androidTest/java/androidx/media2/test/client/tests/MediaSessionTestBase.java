@@ -39,6 +39,7 @@ import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionResult;
 import androidx.media2.SessionToken;
+import androidx.media2.VideoSize;
 import androidx.media2.test.common.TestUtils.SyncHandler;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -388,6 +389,12 @@ abstract class MediaSessionTestBase {
             synchronized (this) {
                 mOnCustomCommandRunnable = runnable;
             }
+        }
+
+        @Override
+        public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
+                @NonNull VideoSize videoSize) {
+            mCallbackProxy.onVideoSizeChanged(controller, item, videoSize);
         }
     }
 

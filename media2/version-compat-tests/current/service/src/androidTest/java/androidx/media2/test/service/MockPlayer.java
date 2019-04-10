@@ -504,4 +504,19 @@ public class MockPlayer extends SessionPlayer {
     public @NonNull VideoSize getVideoSize() {
         return mVideoSize;
     }
+
+    public void notifyVideoSizeChanged(final @NonNull VideoSize videoSize) {
+        mVideoSize = videoSize;
+
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onVideoSizeChanged(MockPlayer.this, mItem, videoSize);
+                }
+            });
+        }
+    }
 }

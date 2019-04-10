@@ -60,6 +60,7 @@ import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionResult;
 import androidx.media2.SessionToken;
+import androidx.media2.VideoSize;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.common.MediaBrowserConstants;
 import androidx.media2.test.common.TestUtils;
@@ -662,6 +663,12 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         @Override
         public void onPlaybackCompleted(MediaController controller) {
             mCallbackProxy.onPlaybackCompleted(controller);
+        }
+
+        @Override
+        public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
+                @NonNull VideoSize videoSize) {
+            mCallbackProxy.onVideoSizeChanged(controller, item, videoSize);
         }
 
         @Override

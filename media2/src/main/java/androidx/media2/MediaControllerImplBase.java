@@ -149,6 +149,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     private PendingIntent mSessionActivity;
     @GuardedBy("mLock")
     private SessionCommandGroup mAllowedCommands;
+    @GuardedBy("mLock")
+    private VideoSize mVideoSize = new VideoSize(0, 0);
 
     // Assignment should be used with the lock hold, but should be used without a lock to prevent
     // potential deadlock.
@@ -769,6 +771,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
+    public @NonNull VideoSize getVideoSize() {
+        synchronized (mLock) {
+            return mVideoSize;
+        }
+    }
+
+    @Override
     public @NonNull Context getContext() {
         return mContext;
     }
@@ -1060,6 +1069,21 @@ class MediaControllerImplBase implements MediaControllerImpl {
         });
     }
 
+    void notifyVideoSizeChanged(final MediaItem item, final VideoSize videoSize) {
+        synchronized (mLock) {
+            mVideoSize = videoSize;
+        }
+        mCallbackExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if (!mInstance.isConnected()) {
+                    return;
+                }
+                mCallback.onVideoSizeChanged(mInstance, item, videoSize);
+            }
+        });
+    }
+
     // Should be used without a lock to prevent potential deadlock.
     void onConnectedNotLocked(IMediaSession sessionBinder,
             final SessionCommandGroup allowedCommands,
@@ -1077,7 +1101,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
             final int currentMediaItemIndex,
             final int previousMediaItemIndex,
             final int nextMediaItemIndex,
-            final Bundle tokenExtras) {
+            final Bundle tokenExtras,
+            final VideoSize videoSize) {
         if (DEBUG) {
             Log.d(TAG, "onConnectedNotLocked sessionBinder=" + sessionBinder
                     + ", allowedCommands=" + allowedCommands);
@@ -1116,6 +1141,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 mCurrentMediaItemIndex = currentMediaItemIndex;
                 mPreviousMediaItemIndex = previousMediaItemIndex;
                 mNextMediaItemIndex = nextMediaItemIndex;
+                mVideoSize = videoSize;
                 try {
                     // Implementation for the local binder is no-op,
                     // so can be used without worrying about deadlock.
