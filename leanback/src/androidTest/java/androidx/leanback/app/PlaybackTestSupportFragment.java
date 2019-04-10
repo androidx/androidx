@@ -59,7 +59,6 @@ public class PlaybackTestSupportFragment extends PlaybackSupportFragment {
     private static final int RELATED_CONTENT_ROWS = 3;
 
     private androidx.leanback.media.PlaybackControlGlue mGlue;
-    boolean mDestroyCalled;
 
     @Override
     public SparseArrayObjectAdapter getAdapter() {
@@ -73,12 +72,6 @@ public class PlaybackTestSupportFragment extends PlaybackSupportFragment {
             Log.d(TAG, "onItemClicked: " + item + " row " + row);
         }
     };
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mDestroyCalled = true;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
