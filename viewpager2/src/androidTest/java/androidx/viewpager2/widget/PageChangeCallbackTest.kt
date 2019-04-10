@@ -819,6 +819,73 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         }
     }
 
+    /**
+     * Expected trace (marker events left out):
+     *
+     * >> viewPager.setAdapter(adapter)
+     * onPageSelected(0)
+     * onPageScrolled(0, 0.000000, 0)
+     * >> config change
+     * onPageSelected(0)
+     * onPageScrolled(0, 0.000000, 0)
+     * >> viewPager.setCurrentItem(2, false)
+     * onPageSelected(2)
+     * onPageScrolled(2, 0.000000, 0)
+     * >> config change
+     * onPageSelected(2)
+     * onPageScrolled(2, 0.000000, 0)
+     */
+    @Test
+    fun test_initialEvents() {
+        // given
+        val test = setUpTest(config.orientation)
+        val recorder = test.viewPager.addNewRecordingCallback()
+        val adapterProvider = viewAdapterProvider(stringSequence(3))
+        val marker = 1
+
+        fun expectedEvents(page: Int): List<Event> {
+            return listOf(
+                OnPageSelectedEvent(page) as Event,
+                OnPageScrolledEvent(page, 0f, 0) as Event
+            )
+        }
+
+        // when
+        test.setAdapterSync(adapterProvider)
+        // then
+        assertThat(recorder.allEvents, equalTo(expectedEvents(0)))
+
+        // when
+        recorder.reset()
+        test.recreateActivity(adapterProvider) { newViewPager ->
+            recorder.markEvent(marker)
+            // viewPager is recreated, so need to reattach callback
+            newViewPager.registerOnPageChangeCallback(recorder)
+        }
+        // then
+        assertThat(recorder.allEvents, equalTo(
+            listOf(MarkerEvent(marker))
+                .plus(expectedEvents(0)))
+        )
+
+        // given
+        val targetPage = 2
+        // when
+        recorder.reset()
+        test.viewPager.setCurrentItemSync(targetPage, false, 2, SECONDS)
+        test.recreateActivity(adapterProvider) { newViewPager ->
+            recorder.markEvent(marker)
+            // viewPager is recreated, so need to reattach callback
+            newViewPager.registerOnPageChangeCallback(recorder)
+        }
+        // then
+        assertThat(recorder.allEvents, equalTo(
+            expectedEvents(targetPage)
+                .plus(MarkerEvent(marker))
+                .plus(expectedEvents(targetPage)))
+        )
+    }
+
     private fun test_setCurrentItem_outOfBounds(smoothScroll: Boolean) {
         val test = setUpTest(config.orientation)
         val n = 3
@@ -942,6 +1009,10 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
 
         fun stateEvents(state: Int): List<OnPageScrollStateChangedEvent> {
             return stateEvents.filter { it.state == state }
+        }
+
+        fun reset() {
+            events.clear()
         }
 
         override fun onPageScrolled(
