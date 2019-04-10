@@ -12,6 +12,11 @@ package androidx.ui.baseui {
     method public static void ColoredRect(androidx.ui.painting.Color color, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
   }
 
+  public final class SimpleImageKt {
+    ctor public SimpleImageKt();
+    method public static error.NonExistentClass SimpleImage(androidx.ui.painting.Image image);
+  }
+
 }
 
 package androidx.ui.baseui.selection {
@@ -52,6 +57,17 @@ package androidx.ui.material {
   public final class DividerKt {
     ctor public DividerKt();
     method public static void Divider(androidx.ui.painting.Color? color = null, androidx.ui.core.Dp height = 1.dp, androidx.ui.core.Dp indent = 0.dp);
+  }
+
+  public final class FloatingActionButtonKt {
+    ctor public FloatingActionButtonKt();
+    method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.core.Dp minSize = FabSize, androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.CircleBorder(), androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void FloatingActionButton(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
+    method public static void FloatingActionButton(String text, androidx.ui.painting.Image? icon = null, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
+    method public static androidx.ui.core.Dp getExtendedFabHeight();
+    method public static androidx.ui.core.Dp getExtendedFabIconPadding();
+    method public static androidx.ui.core.Dp getExtendedFabTextPadding();
+    method public static androidx.ui.core.Dp getFabSize();
   }
 
   public final class MaterialColors {

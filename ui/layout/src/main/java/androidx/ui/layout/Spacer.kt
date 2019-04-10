@@ -32,23 +32,21 @@ fun FixedSpacer(width: Dp, height: Dp) {
 }
 
 /**
- * Component that represents an empty space with fixed width.
- * Height will expand to the parent's constraints.
+ * Component that represents an empty space with fixed width and zero height.
  *
  * @param width width of the empty space
  */
 @Composable
 fun WidthSpacer(width: Dp) {
-    <Container width expanded=true />
+    <Container width />
 }
 
 /**
- * Component that represents an empty space with fixed height.
- * Width will expand to the parent's constraints.
+ * Component that represents an empty space with fixed height and zero width.
  *
  * @param height height of the empty space
  */
 @Composable
 fun HeightSpacer(height: Dp) {
-    <Container height expanded=true />
+    <Container height />
 }

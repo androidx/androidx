@@ -20,6 +20,7 @@ import androidx.test.filters.MediumTest
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
+import androidx.ui.core.ipx
 import androidx.ui.core.round
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
@@ -121,9 +122,8 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        val dm = activityTestRule.activity.resources.displayMetrics
         withDensity(density) {
-            Truth.assertThat(size?.height?.round()?.value).isEqualTo(dm.heightPixels)
+            Truth.assertThat(size?.height?.round()).isEqualTo(0.ipx)
             Truth.assertThat(size?.width?.round()).isEqualTo(width.toIntPx())
         }
     }
@@ -154,7 +154,7 @@ class SpacerTest : LayoutTest() {
         drawLatch.await(1, TimeUnit.SECONDS)
 
         withDensity(density) {
-            Truth.assertThat(size?.height?.round()).isEqualTo(containerHeight.toIntPx())
+            Truth.assertThat(size?.height?.round()).isEqualTo(0.ipx)
             Truth.assertThat(size?.width?.round()).isEqualTo(containerWidth.toIntPx())
         }
     }
@@ -177,10 +177,9 @@ class SpacerTest : LayoutTest() {
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
-        val dm = activityTestRule.activity.resources.displayMetrics
         withDensity(density) {
             Truth.assertThat(size?.height?.round()).isEqualTo(height.toIntPx())
-            Truth.assertThat(size?.width?.round()?.value).isEqualTo(dm.widthPixels)
+            Truth.assertThat(size?.width?.round()).isEqualTo(0.ipx)
         }
     }
 
@@ -211,7 +210,7 @@ class SpacerTest : LayoutTest() {
 
         withDensity(density) {
             Truth.assertThat(size?.height?.round()).isEqualTo(containerHeight.toIntPx())
-            Truth.assertThat(size?.width?.round()).isEqualTo(containerWidth.toIntPx())
+            Truth.assertThat(size?.width?.round()).isEqualTo(0.ipx)
         }
     }
 }
