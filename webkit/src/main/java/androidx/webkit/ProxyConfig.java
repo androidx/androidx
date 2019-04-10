@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -61,6 +63,7 @@ public class ProxyConfig {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @StringDef({MATCH_HTTP, MATCH_HTTPS, MATCH_ALL_SCHEMES})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface ProxyScheme {}
     private static final String BYPASS_RULE_SIMPLE_NAMES = "<local>";
     private static final String BYPASS_RULE_SUBTRACT_IMPLICIT = "<-loopback>";
