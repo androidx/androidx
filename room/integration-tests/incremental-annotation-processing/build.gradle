@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,57 +15,64 @@
  */
 
 import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.CompilationTarget
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.AndroidXExtension
 import androidx.build.SupportConfig
 
 plugins {
+    id("AndroidXPlugin")
     id("kotlin")
 }
 
 def generatedResources = "$buildDir/generated/resources"
 def prebuiltsRoot = SupportConfig.getPrebuiltsRootPath(project)
-def debugKeystore = "${SupportConfig.getKeystore(project)}"
+def localSupportRepo = SupportConfig.getSupportRepoPath(project)
 def agpVersion = SupportConfig.getAGPVersion(project)
-def supportRepo = SupportConfig.getSupportRepoPath(project)
+def debugKeystore = "${SupportConfig.getKeystore(project)}"
 
 sourceSets {
+    test.java.srcDirs += 'src/tests/kotlin'
     test.resources.srcDirs += generatedResources
 }
 
+
 dependencies {
-    implementation(KOTLIN_STDLIB)
+    compile(KOTLIN_STDLIB)
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     testImplementation gradleTestKit()
+
 }
 
 task generateSdkResource() {
     inputs.property("prebuiltsRoot", prebuiltsRoot)
+    inputs.property("localSupportRepo", localSupportRepo)
     inputs.property("compileSdkVersion", SupportConfig.TARGET_SDK_VERSION)
     inputs.property("buildToolsVersion", SupportConfig.BUILD_TOOLS_VERSION)
     inputs.property("minSdkVersion", SupportConfig.DEFAULT_MIN_SDK_VERSION)
     inputs.property("debugKeystore", debugKeystore)
-    inputs.property("supportRepo", supportRepo)
     outputs.dir(generatedResources)
     doLast {
-        def gradleVersion = gradle.getGradleVersion()
         new File(generatedResources, "sdk.prop").withWriter('UTF-8') { writer ->
             writer.write("prebuiltsRepo=$prebuiltsRoot\n")
+            writer.write("localSupportRepo=$localSupportRepo\n")
+            writer.write("agpVersion=$agpVersion\n")
             writer.write("compileSdkVersion=$SupportConfig.TARGET_SDK_VERSION\n")
             writer.write("buildToolsVersion=$SupportConfig.BUILD_TOOLS_VERSION\n")
             writer.write("minSdkVersion=$SupportConfig.DEFAULT_MIN_SDK_VERSION\n")
             writer.write("debugKeystore=$debugKeystore\n")
-            writer.write("agpVersion=$agpVersion\n")
-            writer.write("gradleVersion=$gradleVersion\n")
-            writer.write("supportRepo=$supportRepo\n")
         }
     }
 }
 
 tasks.findByName("compileTestKotlin").dependsOn(generateSdkResource)
 
-// lifecycle-common and annotation are the dependencies of lifecycle-compiler
-tasks.findByPath("test").dependsOn(tasks.findByPath(":lifecycle:lifecycle-compiler:uploadArchives"),
-        tasks.findByPath(":lifecycle:lifecycle-common:uploadArchives"),
-        tasks.findByPath(":annotation:uploadArchives"))
+tasks.findByPath("test").dependsOn(
+        tasks.findByPath(":room:room-common:uploadArchives"),
+        tasks.findByPath(":room:room-migration:uploadArchives"),
+        tasks.findByPath(":room:room-compiler:uploadArchives"),
+)
 
 uploadArchives.enabled = false
