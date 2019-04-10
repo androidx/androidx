@@ -20,13 +20,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.FragmentTestUtil.HostCallbacks
-import androidx.fragment.app.FragmentTestUtil.createController
-import androidx.fragment.app.FragmentTestUtil.destroy
-import androidx.fragment.app.FragmentTestUtil.restartFragmentController
-import androidx.fragment.app.FragmentTestUtil.resume
-import androidx.fragment.app.FragmentTestUtil.shutdownFragmentController
-import androidx.fragment.app.FragmentTestUtil.startupFragmentController
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.ViewModelStore
@@ -118,7 +111,7 @@ class SaveStateFragmentTest {
         // and then restore them to a second new FragmentManager.
         val viewModelStore = ViewModelStore()
         val fc1 = FragmentController.createController(
-            HostCallbacks(activityRule.activity, viewModelStore)
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
         )
 
         val fm1 = fc1.supportFragmentManager
@@ -191,7 +184,7 @@ class SaveStateFragmentTest {
 
         // Create the new controller and restore state
         val fc2 = FragmentController.createController(
-            HostCallbacks(activityRule.activity, viewModelStore)
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
         )
 
         val fm2 = fc2.supportFragmentManager
@@ -253,7 +246,7 @@ class SaveStateFragmentTest {
         // Test that the fragments are in the configuration we expect
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc2, viewModelStore)
+        fc2.shutdown(viewModelStore)
 
         assertWithMessage("grandparent not destroyed")
             .that(restoredGrandparent.calledOnDestroy).isTrue()
@@ -275,7 +268,7 @@ class SaveStateFragmentTest {
 
         val viewModelStore = ViewModelStore()
         val fc1 = FragmentController.createController(
-            HostCallbacks(activityRule.activity, viewModelStore)
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
         )
 
         val fm1 = fc1.supportFragmentManager
@@ -314,7 +307,7 @@ class SaveStateFragmentTest {
 
         // Create the new controller and restore state
         val fc2 = FragmentController.createController(
-            HostCallbacks(activityRule.activity, viewModelStore)
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
         )
 
         val fm2 = fc2.supportFragmentManager
@@ -336,7 +329,7 @@ class SaveStateFragmentTest {
         fc2.execPendingActions()
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc2, viewModelStore)
+        fc2.shutdown(viewModelStore)
     }
 
     @Test
@@ -344,8 +337,7 @@ class SaveStateFragmentTest {
     fun testSavedInstanceStateAfterRestore() {
 
         val viewModelStore = ViewModelStore()
-        val fc1 =
-            startupFragmentController(activityRule.activity, null, viewModelStore)
+        val fc1 = activityRule.startupFragmentController(viewModelStore)
         val fm1 = fc1.supportFragmentManager
 
         // Add the initial state
@@ -369,11 +361,7 @@ class SaveStateFragmentTest {
         fc1.dispatchDestroy()
 
         // Create the new controller and restore state
-        val fc2 = startupFragmentController(
-            activityRule.activity,
-            savedState,
-            viewModelStore
-        )
+        val fc2 = activityRule.startupFragmentController(viewModelStore, savedState)
         val fm2 = fc2.supportFragmentManager
 
         val restoredParentFragment = fm2.findFragmentByTag("parent") as StrictFragment
@@ -389,7 +377,7 @@ class SaveStateFragmentTest {
             .that(restoredChildFragment.lastSavedInstanceState).isNotNull()
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc2, viewModelStore)
+        fc2.shutdown(viewModelStore)
     }
 
     @Test
@@ -397,7 +385,7 @@ class SaveStateFragmentTest {
     fun restoreNestedFragmentsOnBackStack() {
         val viewModelStore = ViewModelStore()
         val fc1 = FragmentController.createController(
-            HostCallbacks(activityRule.activity, viewModelStore)
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
         )
 
         val fm1 = fc1.supportFragmentManager
@@ -436,7 +424,7 @@ class SaveStateFragmentTest {
 
         // Create the new controller and restore state
         val fc2 = FragmentController.createController(
-            HostCallbacks(activityRule.activity, viewModelStore)
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
         )
 
         val fm2 = fc2.supportFragmentManager
@@ -460,7 +448,7 @@ class SaveStateFragmentTest {
         fc2.execPendingActions()
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc2, viewModelStore)
+        fc2.shutdown(viewModelStore)
     }
 
     /**
@@ -470,8 +458,8 @@ class SaveStateFragmentTest {
     @Test
     @UiThreadTest
     fun saveRemovedFragment() {
-        var fc = createController(activityRule)
-        resume(activityRule, fc, null)
+        val viewModelStore = ViewModelStore()
+        var fc = activityRule.startupFragmentController(viewModelStore)
         var fm = fc.supportFragmentManager
 
         var fragment1 = SaveStateFragment.create(1)
@@ -486,10 +474,7 @@ class SaveStateFragmentTest {
             .commit()
         fm.executePendingTransactions()
 
-        val savedState = destroy(activityRule, fc)
-
-        fc = createController(activityRule)
-        resume(activityRule, fc, savedState)
+        fc = fc.restart(activityRule, viewModelStore)
         fm = fc.supportFragmentManager
         fragment2 = fm.findFragmentByTag("2") as SaveStateFragment
         assertThat(fragment2).isNotNull()
@@ -508,13 +493,12 @@ class SaveStateFragmentTest {
     @UiThreadTest
     fun noPrematureStateChange() {
         val viewModelStore = ViewModelStore()
-        var fc =
-            startupFragmentController(activityRule.activity, null, viewModelStore)
+        var fc = activityRule.startupFragmentController(viewModelStore)
         var fm = fc.supportFragmentManager
 
         fm.beginTransaction().add(StrictFragment(), "1").commitNow()
 
-        fc = restartFragmentController(activityRule.activity, fc, viewModelStore)
+        fc = fc.restart(activityRule, viewModelStore)
 
         fm = fc.supportFragmentManager
 
@@ -532,8 +516,7 @@ class SaveStateFragmentTest {
     @UiThreadTest
     fun testIsStateSaved() {
         val viewModelStore = ViewModelStore()
-        val fc =
-            startupFragmentController(activityRule.activity, null, viewModelStore)
+        val fc = activityRule.startupFragmentController(viewModelStore)
         val fm = fc.supportFragmentManager
 
         val f = StrictFragment()
@@ -564,10 +547,7 @@ class SaveStateFragmentTest {
     @UiThreadTest
     fun saveAnimationState() {
         val viewModelStore = ViewModelStore()
-        var fc = startupFragmentController(
-            activityRule.activity, null,
-            viewModelStore
-        )
+        var fc = activityRule.startupFragmentController(viewModelStore)
         var fm = fc.supportFragmentManager
 
         fm.beginTransaction()
@@ -580,7 +560,7 @@ class SaveStateFragmentTest {
         assertAnimationsMatch(fm, 0, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
 
         // Causes save and restore of fragments and back stack
-        fc = restartFragmentController(activityRule.activity, fc, viewModelStore)
+        fc = fc.restart(activityRule, viewModelStore)
         fm = fc.supportFragmentManager
 
         assertAnimationsMatch(fm, 0, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
@@ -595,7 +575,7 @@ class SaveStateFragmentTest {
         assertAnimationsMatch(fm, R.anim.fade_in, R.anim.fade_out, 0, 0)
 
         // Causes save and restore of fragments and back stack
-        fc = restartFragmentController(activityRule.activity, fc, viewModelStore)
+        fc = fc.restart(activityRule, viewModelStore)
         fm = fc.supportFragmentManager
 
         assertAnimationsMatch(fm, R.anim.fade_in, R.anim.fade_out, 0, 0)
@@ -604,7 +584,7 @@ class SaveStateFragmentTest {
 
         assertAnimationsMatch(fm, 0, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
 
-        shutdownFragmentController(fc, viewModelStore)
+        fc.shutdown(viewModelStore)
     }
 
     private fun executePendingTransactions(fm: FragmentManager) {

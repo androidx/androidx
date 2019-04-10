@@ -17,8 +17,6 @@
 package androidx.fragment.app
 
 import android.os.Parcel
-import androidx.fragment.app.FragmentTestUtil.shutdownFragmentController
-import androidx.fragment.app.FragmentTestUtil.startupFragmentController
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
@@ -66,11 +64,11 @@ class BackStackStateTest {
     @UiThreadTest
     fun testHideOnFragmentWithAManager() {
         val viewModelStore1 = ViewModelStore()
-        val fc1 = startupFragmentController(activityRule.activity, null, viewModelStore1)
+        val fc1 = activityRule.startupFragmentController(viewModelStore1)
         val fm1 = fc1.supportFragmentManager
 
         val viewModelStore2 = ViewModelStore()
-        val fc2 = startupFragmentController(activityRule.activity, null, viewModelStore2)
+        val fc2 = activityRule.startupFragmentController(viewModelStore2)
         val fm2 = fc2.supportFragmentManager
 
         val fragment1 = Fragment()
@@ -90,19 +88,19 @@ class BackStackStateTest {
         }
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc1, viewModelStore1)
-        shutdownFragmentController(fc2, viewModelStore2)
+        fc1.shutdown(viewModelStore1)
+        fc2.shutdown(viewModelStore2)
     }
 
     @Test
     @UiThreadTest
     fun testShowOnFragmentWithAManager() {
         val viewModelStore1 = ViewModelStore()
-        val fc1 = startupFragmentController(activityRule.activity, null, viewModelStore1)
+        val fc1 = activityRule.startupFragmentController(viewModelStore1)
         val fm1 = fc1.supportFragmentManager
 
         val viewModelStore2 = ViewModelStore()
-        val fc2 = startupFragmentController(activityRule.activity, null, viewModelStore2)
+        val fc2 = activityRule.startupFragmentController(viewModelStore2)
         val fm2 = fc2.supportFragmentManager
 
         val fragment1 = Fragment()
@@ -122,19 +120,19 @@ class BackStackStateTest {
         }
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc1, viewModelStore1)
-        shutdownFragmentController(fc2, viewModelStore2)
+        fc1.shutdown(viewModelStore1)
+        fc2.shutdown(viewModelStore2)
     }
 
     @Test
     @UiThreadTest
     fun testSetPrimaryNavigationFragmentOnFragmentWithAManager() {
         val viewModelStore1 = ViewModelStore()
-        val fc1 = startupFragmentController(activityRule.activity, null, viewModelStore1)
+        val fc1 = activityRule.startupFragmentController(viewModelStore1)
         val fm1 = fc1.supportFragmentManager
 
         val viewModelStore2 = ViewModelStore()
-        val fc2 = startupFragmentController(activityRule.activity, null, viewModelStore2)
+        val fc2 = activityRule.startupFragmentController(viewModelStore2)
         val fm2 = fc2.supportFragmentManager
 
         val fragment1 = Fragment()
@@ -154,19 +152,19 @@ class BackStackStateTest {
         }
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc1, viewModelStore1)
-        shutdownFragmentController(fc2, viewModelStore2)
+        fc1.shutdown(viewModelStore1)
+        fc2.shutdown(viewModelStore2)
     }
 
     @Test
     @UiThreadTest
     fun testDetachFragmentWithManager() {
         val viewModelStore1 = ViewModelStore()
-        val fc1 = startupFragmentController(activityRule.activity, null, viewModelStore1)
+        val fc1 = activityRule.startupFragmentController(viewModelStore1)
         val fm1 = fc1.supportFragmentManager
 
         val viewModelStore2 = ViewModelStore()
-        val fc2 = startupFragmentController(activityRule.activity, null, viewModelStore2)
+        val fc2 = activityRule.startupFragmentController(viewModelStore2)
         val fm2 = fc2.supportFragmentManager
 
         // Add the initial state
@@ -188,19 +186,19 @@ class BackStackStateTest {
         }
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc1, viewModelStore1)
-        shutdownFragmentController(fc2, viewModelStore2)
+        fc1.shutdown(viewModelStore1)
+        fc2.shutdown(viewModelStore2)
     }
 
     @Test
     @UiThreadTest
     fun testRemoveFragmentWithManager() {
         val viewModelStore1 = ViewModelStore()
-        val fc1 = startupFragmentController(activityRule.activity, null, viewModelStore1)
+        val fc1 = activityRule.startupFragmentController(viewModelStore1)
         val fm1 = fc1.supportFragmentManager
 
         val viewModelStore2 = ViewModelStore()
-        val fc2 = startupFragmentController(activityRule.activity, null, viewModelStore2)
+        val fc2 = activityRule.startupFragmentController(viewModelStore2)
         val fm2 = fc2.supportFragmentManager
 
         // Add the initial state
@@ -222,7 +220,7 @@ class BackStackStateTest {
         }
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc1, viewModelStore1)
-        shutdownFragmentController(fc2, viewModelStore2)
+        fc1.shutdown(viewModelStore1)
+        fc2.shutdown(viewModelStore2)
     }
 }
