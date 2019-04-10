@@ -36,10 +36,10 @@ dependencies {
     androidTestImplementation(project(":benchmark"))
     androidTestImplementation(RX_JAVA)
     androidTestImplementation(JUNIT)
-    androidTestImplementation(TEST_EXT_JUNIT)
-    androidTestImplementation(TEST_CORE)
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(KOTLIN_STDLIB)
 }
 
