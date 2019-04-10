@@ -79,13 +79,13 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         activityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                activity.finish();
+                activity.getSupportFragmentManager().beginTransaction().remove(fragment).commit();
             }
         });
-        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+        // wait one more cycle for fragment destroyed
+        activityTestRule.runOnUiThread(new Runnable() {
             @Override
-            public boolean canProceed() {
-                return fragment.mDestroyCalled;
+            public void run() {
             }
         });
         assertNull(glue.getHost());
@@ -517,7 +517,7 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            mGlue = new PlaybackTransportControlGlue<>(getContext(), new PlayerAdapterSample());
+            mGlue = new PlaybackTransportControlGlue<>(getActivity(), new PlayerAdapterSample());
             mGlue.setHost(mHost);
             mGlue.setControlsOverlayAutoHideEnabled(false);
         }
@@ -560,7 +560,7 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            mGlue = new PlaybackTransportControlGlue<>(getContext(), new PlayerAdapterSample());
+            mGlue = new PlaybackTransportControlGlue<>(getActivity(), new PlayerAdapterSample());
             mGlue.setHost(mHost);
             setShowOrHideControlsOverlayOnUserInteraction(false);
         }
