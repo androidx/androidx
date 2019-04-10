@@ -29,16 +29,16 @@ dependencies {
     implementation(project(":lifecycle:lifecycle-runtime-eap"))
     implementation(project(":activity"))
 
+    testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
-    testImplementation(TEST_RUNNER)
     testImplementation(TRUTH)
     testImplementation(KOTLIN_COROUTINES)
     testImplementation(KOTLIN_COROUTINES_TEST)
 
     androidTestImplementation(KOTLIN_COROUTINES)
-    androidTestImplementation(TEST_EXT_KTX)
+    androidTestImplementation(ANDROIDX_TEST_EXT_KTX)
     androidTestImplementation(TRUTH)
-    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
 }
 

@@ -43,9 +43,9 @@ dependencies {
 
     androidTestImplementation project(':concurrent:concurrent-futures')
     androidTestImplementation project(':work:work-testing')
-    androidTestImplementation(TEST_EXT_JUNIT)
-    androidTestImplementation(TEST_CORE)
-    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     testImplementation(JUNIT)
 }
