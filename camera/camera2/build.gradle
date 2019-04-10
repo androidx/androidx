@@ -32,19 +32,19 @@ dependencies {
 
     annotationProcessor(AUTO_VALUE)
 
-    testImplementation(TEST_CORE)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
-    testImplementation(TEST_RUNNER)
     testImplementation(TRUTH)
     testImplementation(ROBOLECTRIC)
     testImplementation(MOCKITO_CORE)
     testImplementation(project(":camera:camera-testing"))
 
     androidTestImplementation(ARCH_LIFECYCLE_LIVEDATA_CORE)
-    androidTestImplementation(TEST_EXT_JUNIT)
-    androidTestImplementation(TEST_CORE)
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it's own MockMaker
