@@ -120,7 +120,7 @@ final class LegacyTextClassifier extends TextClassifier {
     /** @inheritDoc */
     public TextLinks generateLinks(@NonNull TextLinks.Request request) {
         final Collection<String> entityTypes = request.getEntityConfig()
-                .resolveEntityTypes(DEFAULT_ENTITY_TYPES);
+                .resolveTypes(DEFAULT_ENTITY_TYPES);
         final String requestText = request.getText().toString();
         final TextLinks.Builder builder = new TextLinks.Builder(requestText);
         for (String entityType : entityTypes) {
