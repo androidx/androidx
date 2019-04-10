@@ -32,16 +32,16 @@ dependencies {
     implementation(KOTLIN_R4A_COROUTINES)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
-    testImplementation(TEST_RUNNER)
-    testImplementation(TEST_RULES)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(ANDROIDX_TEST_RULES)
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
     testImplementation(TRUTH)
     androidTestImplementation(JUNIT)
     androidTestImplementation(MOCKITO_CORE)
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
         exclude group: 'org.mockito' // to keep control on the mockito version

@@ -19,13 +19,13 @@ dependencies {
 
     implementation(KOTLIN_R4A_STDLIB)
     implementation(JUNIT)
-    implementation(TEST_RUNNER)
-    implementation(TEST_RULES)
+    implementation(ANDROIDX_TEST_RUNNER)
+    implementation(ANDROIDX_TEST_RULES)
 
     testImplementation(TRUTH)
     testImplementation(JUNIT)
-    testImplementation(TEST_RUNNER)
-    testImplementation(TEST_RULES)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(ANDROIDX_TEST_RULES)
 }
 
 androidx {
