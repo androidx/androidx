@@ -29,7 +29,6 @@ dependencies {
     implementation(project(":lifecycle:lifecycle-runtime-eap"))
     implementation(project(":activity"))
 
-    testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     testImplementation(KOTLIN_COROUTINES)

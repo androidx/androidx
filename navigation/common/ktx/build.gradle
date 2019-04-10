@@ -42,7 +42,6 @@ dependencies {
     implementation(ANDROIDX_COLLECTION)
 
     api(KOTLIN_STDLIB)
-    testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
