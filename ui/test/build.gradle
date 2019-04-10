@@ -15,9 +15,9 @@ dependencies {
     api project(":ui-framework")
     api project(":ui-intermediate")
     api project(":ui-animation")
-    api project(":compose-runtime")
 
     implementation(KOTLIN_R4A_STDLIB)
+    implementation(KOTLIN_R4A_RUNTIME)
     implementation(JUNIT)
     implementation(ANDROIDX_TEST_RUNNER)
     implementation(ANDROIDX_TEST_RULES)

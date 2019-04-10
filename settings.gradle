@@ -276,7 +276,6 @@ includeProject(":webview-support-interfaces", new File(externalRoot, "webview_su
 */
 ///// CRANE START
 
-includeProject(":compose-runtime", "compose/runtime")
 includeProject(":ui-android-text", "ui/android-text")
 includeProject(":ui-text", "ui/text")
 includeProject(":ui-core", "ui/core")

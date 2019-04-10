@@ -27,8 +27,8 @@ plugins {
 
 dependencies {
     api project(':ui-animation-core')
-    api project(':compose-runtime')
     api(KOTLIN_R4A_STDLIB)
+    api(KOTLIN_R4A_RUNTIME)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
