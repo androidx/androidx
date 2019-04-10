@@ -35,6 +35,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -420,6 +421,47 @@ class FragmentLifecycleTest {
 
         // Fully destroyed, so fragments have been removed.
         f.arguments = Bundle()
+    }
+
+    /**
+     * Ensure that FragmentManager rejects commit() and commitNow() prior to restoring
+     * saved instance state
+     */
+    @Test
+    @UiThreadTest
+    fun addRetainedBeforeRestoreSaveState() {
+        val viewModelStore = ViewModelStore()
+        var fc = activityRule.startupFragmentController(viewModelStore)
+        val fm = fc.supportFragmentManager
+
+        val fragment1 = StrictFragment()
+        fragment1.retainInstance = true
+        fm.beginTransaction()
+            .add(fragment1, "1")
+            .commitNow()
+
+        fc.shutdown(viewModelStore, false)
+
+        fc = FragmentController.createController(
+            ControllerHostCallbacks(activityRule.activity, viewModelStore))
+
+        // Now before we restoreSaveState, add a retained Fragment
+        val fragment2 = StrictFragment()
+        fragment2.retainInstance = true
+        try {
+            fc.supportFragmentManager.beginTransaction()
+                .add(fragment2, "2")
+                .commitNow()
+            fail("commitNow() should fail prior to onCreate")
+        } catch (expected: IllegalStateException) {
+        }
+        try {
+            fc.supportFragmentManager.beginTransaction()
+                .add(fragment2, "2")
+                .commit()
+            fail("commit() should fail prior to onCreate")
+        } catch (expected: IllegalStateException) {
+        }
     }
 
     /**
