@@ -798,6 +798,27 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         }
     }
 
+    @Test
+    fun test_swipe_noAdapter() {
+        val test = setUpTest(config.orientation)
+        assertThat(test.viewPager.adapter, nullValue())
+        assertThat(test.viewPager.currentItem, equalTo(0))
+
+        listOf(test::swipeForward, test::swipeBackward).forEach { swipe ->
+            val recorder = test.viewPager.addNewRecordingCallback()
+
+            val idleLatch = test.viewPager.addWaitForIdleLatch()
+            swipe(SwipeMethod.ESPRESSO)
+            idleLatch.await(2, SECONDS)
+
+            assertThat(recorder.allEvents, equalTo(listOf(
+                OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING) as Event,
+                OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE) as Event
+            )))
+            test.viewPager.unregisterOnPageChangeCallback(recorder)
+        }
+    }
+
     private fun test_setCurrentItem_outOfBounds(smoothScroll: Boolean) {
         val test = setUpTest(config.orientation)
         val n = 3
@@ -894,6 +915,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
     private class RecordingCallback : ViewPager2.OnPageChangeCallback() {
         private val events = mutableListOf<Event>()
 
+        val allEvents get() = events
         val scrollEvents get() = events.mapNotNull { it as? OnPageScrolledEvent }
         val scrollEventsBeforeSettling
             get() = events.subList(0, settlingIx).mapNotNull { it as? OnPageScrolledEvent }
