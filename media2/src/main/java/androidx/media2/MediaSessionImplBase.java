@@ -135,7 +135,8 @@ class MediaSessionImplBase implements MediaSessionImpl {
     private MediaBrowserServiceCompat mBrowserServiceLegacyStub;
 
     MediaSessionImplBase(MediaSession instance, Context context, String id, SessionPlayer player,
-            PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback) {
+            PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback,
+            Bundle tokenExtras) {
         mContext = context;
         mInstance = instance;
         mHandlerThread = new HandlerThread("MediaSession_Thread");
@@ -164,7 +165,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
         mSessionUri = new Uri.Builder().scheme(MediaSessionImplBase.class.getName()).appendPath(id)
                 .appendPath(String.valueOf(SystemClock.elapsedRealtime())).build();
         mSessionToken = new SessionToken(new SessionTokenImplBase(Process.myUid(),
-                TYPE_SESSION, context.getPackageName(), mSessionStub));
+                TYPE_SESSION, context.getPackageName(), mSessionStub, tokenExtras));
         String sessionCompatId = TextUtils.join(DEFAULT_MEDIA_SESSION_TAG_DELIM,
                 new String[] {DEFAULT_MEDIA_SESSION_TAG_PREFIX, id});
 
@@ -212,9 +213,8 @@ class MediaSessionImplBase implements MediaSessionImpl {
             mBroadcastReceiver = null;
         }
 
-        // TODO(b/130280379): Use SessionToken#getExtras() when the API is ready.
         mSessionCompat = new MediaSessionCompat(context, sessionCompatId, mbrComponent,
-                mMediaButtonIntent, null /* mSessionToken.getExtras() */, mSessionToken);
+                mMediaButtonIntent, mSessionToken.getExtras(), mSessionToken);
         // NOTE: mSessionLegacyStub should be created after mSessionCompat created.
         mSessionLegacyStub = new MediaSessionLegacyStub(this);
 

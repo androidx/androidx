@@ -23,7 +23,7 @@ import androidx.versionedparcelable.ParcelImpl;
 
 interface IRemoteMediaSession {
 
-    void create(String sessionId);
+    void create(String sessionId, in Bundle tokenExtras);
 
     // MediaSession Methods
     ParcelImpl getToken(String sessionId);

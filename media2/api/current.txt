@@ -213,6 +213,7 @@ package androidx.media2 {
   public static final class MediaLibraryService.MediaLibrarySession.Builder {
     ctor public MediaLibraryService.MediaLibrarySession.Builder(androidx.media2.MediaLibraryService, androidx.media2.SessionPlayer, java.util.concurrent.Executor, androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback);
     method public androidx.media2.MediaLibraryService.MediaLibrarySession build();
+    method public androidx.media2.MediaLibraryService.MediaLibrarySession.Builder setExtras(android.os.Bundle);
     method public androidx.media2.MediaLibraryService.MediaLibrarySession.Builder setId(String);
     method public androidx.media2.MediaLibraryService.MediaLibrarySession.Builder setSessionActivity(android.app.PendingIntent?);
   }
@@ -411,6 +412,7 @@ package androidx.media2 {
   public static final class MediaSession.Builder {
     ctor public MediaSession.Builder(android.content.Context, androidx.media2.SessionPlayer);
     method public androidx.media2.MediaSession build();
+    method public androidx.media2.MediaSession.Builder setExtras(android.os.Bundle);
     method public androidx.media2.MediaSession.Builder setId(String);
     method public androidx.media2.MediaSession.Builder setSessionActivity(android.app.PendingIntent?);
     method public androidx.media2.MediaSession.Builder setSessionCallback(java.util.concurrent.Executor, androidx.media2.MediaSession.SessionCallback);
@@ -701,6 +703,7 @@ package androidx.media2 {
 
   public final class SessionToken implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionToken(android.content.Context, android.content.ComponentName);
+    method public android.os.Bundle getExtras();
     method public String getPackageName();
     method public String? getServiceName();
     method public int getType();

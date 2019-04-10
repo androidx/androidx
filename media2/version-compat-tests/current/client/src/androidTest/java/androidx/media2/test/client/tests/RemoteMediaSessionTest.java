@@ -21,12 +21,15 @@ import static androidx.media2.test.common.CommonConstants.SERVICE_PACKAGE_NAME;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.os.Bundle;
 
 import androidx.media2.MediaController;
 import androidx.media2.SessionToken;
 import androidx.media2.test.client.RemoteMediaSession;
+import androidx.media2.test.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -44,11 +47,13 @@ public class RemoteMediaSessionTest {
 
     private Context mContext;
     private RemoteMediaSession mRemoteSession2;
+    private Bundle mTokenExtras;
 
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
-        mRemoteSession2 = new RemoteMediaSession(DEFAULT_TEST_NAME, mContext);
+        mTokenExtras = TestUtils.createTestBundle();
+        mRemoteSession2 = new RemoteMediaSession(DEFAULT_TEST_NAME, mContext, mTokenExtras);
     }
 
     @After
@@ -64,6 +69,7 @@ public class RemoteMediaSessionTest {
         SessionToken token = mRemoteSession2.getToken();
         assertNotNull(token);
         assertEquals(SERVICE_PACKAGE_NAME, token.getPackageName());
+        assertTrue(TestUtils.equals(mTokenExtras, token.getExtras()));
     }
 
     @Test

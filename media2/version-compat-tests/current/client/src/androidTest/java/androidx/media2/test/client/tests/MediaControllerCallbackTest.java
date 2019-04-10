@@ -870,7 +870,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     RemoteMediaSession createRemoteMediaSession(String id) {
-        RemoteMediaSession session = new RemoteMediaSession(id, mContext);
+        RemoteMediaSession session = new RemoteMediaSession(id, mContext, null);
         mRemoteSessionList.add(session);
         return session;
     }
