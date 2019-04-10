@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
+package androidx.paging
+
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.paging.Config
-import androidx.paging.DataSource
-import androidx.paging.PositionalDataSource
-import androidx.paging.toLiveData
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

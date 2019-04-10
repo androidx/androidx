@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.paging.Config
-import androidx.paging.PagedList
+package androidx.paging
+
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
