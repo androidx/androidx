@@ -30,34 +30,18 @@ import com.google.r4a.unaryPlus
 @Composable
 fun CraneWrapper(@Children children: () -> Unit) {
     val rootRef = +memo { Ref<AndroidCraneView>() }
-    var ambientsRef: Ambient.Reference? = null
 
-    val measure = { constraints: Constraints ->
-        val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
-        val context = rootRef.value?.context ?: composer.composer.context
-        R4a.composeInto(container = rootLayoutNode, context = context, parent = ambientsRef!!) {
-            <ContextAmbient.Provider value=context>
-                <DensityAmbient.Provider value=Density(context)>
-                    <children />
-                </DensityAmbient.Provider>
-            </ContextAmbient.Provider>
-        }
-        var width = IntPx.Zero
-        var height = IntPx.Zero
-        rootLayoutNode.childrenLayouts().forEach { measureBox ->
-            val layoutNode: LayoutNode
-            measureBox as ComplexLayoutState
-            measureBox.measure(constraints)
-            measureBox.placeChildren()
-            layoutNode = measureBox.layoutNode
-            width = max(width, layoutNode.width)
-            height = max(height, layoutNode.height)
-        }
-        rootLayoutNode.resize(width, height)
-    }
-    <AndroidCraneView ref=rootRef onMeasureRecompose=measure>
+    <AndroidCraneView ref=rootRef>
         <Ambient.Portal> reference ->
-            ambientsRef = reference
+            val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
+            val context = rootRef.value?.context ?: composer.composer.context
+            R4a.composeInto(container = rootLayoutNode, context = context, parent = reference!!) {
+                <ContextAmbient.Provider value=context>
+                    <DensityAmbient.Provider value=Density(context)>
+                        <children />
+                    </DensityAmbient.Provider>
+                </ContextAmbient.Provider>
+            }
         </Ambient.Portal>
     </AndroidCraneView>
 }

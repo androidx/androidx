@@ -32,7 +32,6 @@ import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.MultiChildLayout
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.ParentData
 import androidx.ui.core.Ref
 import androidx.ui.core.WithConstraints
@@ -40,6 +39,7 @@ import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.ipx
 import androidx.ui.core.max
 import androidx.ui.core.toRect
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -168,11 +168,98 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = blue, innerColor = blue, size = 30)
     }
 
+    // Components that aren't placed shouldn't be drawn.
+    @Test
+    fun noPlaceNoDraw() {
+        val green = Color(0xFF00FF00.toInt())
+        val white = Color(0xFFFFFFFF.toInt())
+        val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = white)
+
+        runOnUiThread {
+            activity.composeInto {
+                <CraneWrapper>
+                    <Layout layoutBlock={ measurables, constraints ->
+                        val placeables = measurables.map { it.measure(constraints) }
+                        layout(placeables[0].width, placeables[0].height) {
+                            placeables[0].place(0.ipx, 0.ipx)
+                        }
+                    }>
+                        <Padding size=(model.size * 3)>
+                            <Draw> canvas, parentSize ->
+                                drawLatch.countDown()
+                                val paint = Paint()
+                                paint.color = model.outerColor
+                                canvas.drawRect(parentSize.toRect(), paint)
+                                drawLatch.countDown()
+                            </Draw>
+                        </Padding>
+                        <Padding size=model.size>
+                            <Draw> canvas, parentSize ->
+                                drawLatch.countDown()
+                                val paint = Paint()
+                                paint.color = model.innerColor
+                                canvas.drawRect(parentSize.toRect(), paint)
+                            </Draw>
+                        </Padding>
+                    </Layout>
+                </CraneWrapper>
+            }
+        }
+        validateSquareColors(outerColor = green, innerColor = green, size = 20)
+    }
+
+    // Make sure that draws intersperse properly with sub-layouts
+    @Test
+    fun drawOrderWithChildren() {
+        val green = Color(0xFF00FF00.toInt())
+        val white = Color(0xFFFFFFFF.toInt())
+        val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = white)
+
+        runOnUiThread {
+            activity.composeInto {
+                <CraneWrapper>
+                    <Draw> canvas, parentSize ->
+                        // Fill the space with the outerColor
+                        val paint = Paint()
+                        paint.color = model.outerColor
+                        canvas.drawRect(parentSize.toRect(), paint)
+                        canvas.save()
+                        val offset = parentSize.width.value / 3
+                        // clip drawing to the inner rectangle
+                        canvas.clipRect(Rect(offset, offset, offset * 2, offset * 2))
+                    </Draw>
+                    <Padding size=(model.size * 3)>
+                        <Draw> canvas, parentSize ->
+                            // Fill top half with innerColor -- should be clipped
+                            drawLatch.countDown()
+                            val paint = Paint()
+                            paint.color = model.innerColor
+                            val paintRect = Rect(0f, 0f, parentSize.width.value,
+                                parentSize.height.value / 2f)
+                            canvas.drawRect(paintRect, paint)
+                        </Draw>
+                    </Padding>
+                    <Draw> canvas, parentSize ->
+                        // Fill bottom half with innerColor -- should be clipped
+                        val paint = Paint()
+                        paint.color = model.innerColor
+                        val paintRect = Rect(0f, parentSize.height.value / 2f,
+                            parentSize.width.value, parentSize.height.value)
+                        canvas.drawRect(paintRect, paint)
+                        // restore the canvas
+                        canvas.restore()
+                    </Draw>
+                </CraneWrapper>
+            }
+        }
+        validateSquareColors(outerColor = green, innerColor = white, size = 20)
+    }
+
     @Test
     fun withConstraintsTest() {
         val size = 20.ipx
 
-        val countDownLatch = CountDownLatch(2)
+        val countDownLatch = CountDownLatch(1)
         val topConstraints = Ref<Constraints>()
         val paddedConstraints = Ref<Constraints>()
         val firstChildConstraints = Ref<Constraints>()
@@ -185,22 +272,17 @@ class AndroidLayoutDrawTest {
                         <Padding size>
                             <WithConstraints> constraints ->
                                 paddedConstraints.value = constraints
-                                <OnChildPositioned onPositioned={
+                                <Layout layoutBlock={ _, constraints ->
+                                    firstChildConstraints.value = constraints
+                                    layout(size, size) {}
+                                } children={} />
+                                <Layout layoutBlock={ _, constraints ->
+                                    secondChildConstraints.value = constraints
+                                    layout(size, size) {}
+                                } children={} />
+                                <Draw> canvas, parentSize ->
                                     countDownLatch.countDown()
-                                }>
-                                    <Layout layoutBlock={ _, constraints ->
-                                        firstChildConstraints.value = constraints
-                                        layout(size, size) {}
-                                    } children={} />
-                                </OnChildPositioned>
-                                <OnChildPositioned onPositioned={
-                                    countDownLatch.countDown()
-                                }>
-                                    <Layout layoutBlock={ _, constraints ->
-                                        secondChildConstraints.value = constraints
-                                        layout(size, size) {}
-                                    } children={} />
-                                </OnChildPositioned>
+                                </Draw>
                             </WithConstraints>
                         </Padding>
                     </WithConstraints>
@@ -291,6 +373,60 @@ class AndroidLayoutDrawTest {
         }
     }
 
+    // When a child's measure() is done within the layout, it should not affect the parent's
+    // size. The parent's layout shouldn't be called when the child's size changes
+    @Test
+    fun measureInLayoutDoesNotAffectParentSize() {
+        val white = Color(0xFFFFFFFF.toInt())
+        val blue = Color(0xFF000080.toInt())
+        val model = SquareModel(outerColor = blue, innerColor = white)
+        var measureCalls = 0
+        var layoutCalls = 0
+
+        runOnUiThread {
+            activity.composeInto {
+                <CraneWrapper>
+                    <Draw> canvas, parentSize ->
+                        val paint = Paint()
+                        paint.color = model.outerColor
+                        canvas.drawRect(parentSize.toRect(), paint)
+                    </Draw>
+                    <Layout children=@Composable {
+                        <AtLeastSize size=model.size>
+                            <Draw> canvas, parentSize ->
+                                drawLatch.countDown()
+                                val paint = Paint()
+                                paint.color = model.innerColor
+                                canvas.drawRect(parentSize.toRect(), paint)
+                            </Draw>
+                        </AtLeastSize>
+                    } layoutBlock={ measurables, constraints ->
+                        measureCalls++
+                        layout(30.ipx, 30.ipx) {
+                            layoutCalls++
+                            val placeable = measurables[0].measure(constraints)
+                            placeable.place((30.ipx - placeable.width) / 2,
+                                (30.ipx - placeable.height) / 2)
+                        }
+                    }/>
+                </CraneWrapper>
+            }
+        }
+        validateSquareColors(outerColor = blue, innerColor = white, size = 10)
+
+        layoutCalls = 0
+        measureCalls = 0
+        drawLatch = CountDownLatch(1)
+
+        runOnUiThread {
+            model.size = 20.ipx
+        }
+
+        validateSquareColors(outerColor = blue, innerColor = white, size = 20, totalSize = 30)
+        assertEquals(0, measureCalls)
+        assertEquals(1, layoutCalls)
+    }
+
     // We only need this because IR compiler doesn't like converting lambdas to Runnables
     private fun runOnUiThread(block: () -> Unit) {
         val runnable: Runnable = object : Runnable {
@@ -328,25 +464,25 @@ class AndroidLayoutDrawTest {
     private fun validateSquareColors(
         outerColor: Color,
         innerColor: Color,
-        size: Int
+        size: Int,
+        totalSize: Int = size * 3
     ) {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val bitmap = waitAndScreenShot()
-        val totalSize = 3 * size
         assertEquals(totalSize, bitmap.width)
         assertEquals(totalSize, bitmap.height)
-        val squareStart = size
-        val squareEnd = size * 2
+        val squareStart = (totalSize - size) / 2
+        val squareEnd = totalSize - squareStart
         for (x in 0 until totalSize) {
             for (y in 0 until totalSize) {
                 val pixel = bitmap.getPixel(x, y)
                 val pixelString = Color(pixel).toString()
                 if (x < squareStart || x >= squareEnd || y < squareStart || y >= squareEnd) {
                     assertEquals("Pixel within drawn rect[$x, $y] is $outerColor, " +
-                            "but was ($pixelString)", outerColor.value, pixel)
+                            "but was $pixelString", outerColor.value, pixel)
                 } else {
                     assertEquals("Pixel within drawn rect[$x, $y] is $innerColor, " +
-                            "but was ($pixelString)", innerColor.value, pixel)
+                            "but was $pixelString", innerColor.value, pixel)
                 }
             }
         }
@@ -388,7 +524,7 @@ class AndroidLayoutDrawTest {
 
         val dest =
             Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val srcRect = android.graphics.Rect(0, 0, width, width)
+        val srcRect = android.graphics.Rect(0, 0, width, height)
         srcRect.offset(offset[0], offset[1])
         val latch = CountDownLatch(1)
         var copyResult = 0

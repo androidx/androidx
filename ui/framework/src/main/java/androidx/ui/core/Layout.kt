@@ -40,7 +40,7 @@ internal class ComplexLayoutState(
     internal var minIntrinsicHeightBlock: IntrinsicMeasurementBlock = IntrinsicMeasurementBlockStub,
     internal var maxIntrinsicHeightBlock: IntrinsicMeasurementBlock = IntrinsicMeasurementBlockStub,
     internal val density: Density
-) : Measurable, Placeable() {
+) : Measurable, Placeable(), MeasurableLayout {
     override val parentData: Any?
         get() = layoutNode.parentData
 
@@ -61,10 +61,20 @@ internal class ComplexLayoutState(
     internal val onChildPositioned = mutableListOf<(LayoutCoordinates) -> Unit>()
     internal val onPositioned = mutableListOf<(LayoutCoordinates) -> Unit>()
 
+    override fun callMeasure(constraints: Constraints) { measure(constraints) }
+    override fun callLayout() {
+        placeChildren()
+    }
+
     fun measure(constraints: Constraints): Placeable {
+        if (layoutNode.constraints == constraints && !layoutNode.needsRemeasure) {
+            layoutNode.resize(layoutNode.width, layoutNode.height)
+            return this // we're already measured to this size, don't do anything
+        }
+        layoutNode.startMeasure()
         layoutNode.constraints = constraints
-        childrenMeasurables.forEach { (it as ComplexLayoutState).layoutNode.visible = false }
         layoutBlockReceiver.layoutBlock(childrenMeasurables, constraints)
+        layoutNode.endMeasure()
         return this
     }
 
@@ -81,9 +91,10 @@ internal class ComplexLayoutState(
         maxIntrinsicHeightBlock(intrinsicMeasurementsReceiver, childrenMeasurables, w)
 
     internal fun placeChildren() {
-        layoutNode.visible = true
+        layoutNode.startLayout()
         positioningBlockReceiver.apply { positioningBlock() }
         dispatchOnPositionedCallbacks()
+        layoutNode.endLayout()
     }
 
     private fun dispatchOnPositionedCallbacks() {

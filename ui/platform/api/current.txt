@@ -5,21 +5,22 @@ package androidx.ui.core {
     ctor public AndroidCraneView(android.content.Context context);
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
     method public androidx.ui.core.Constraints getConstraints();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.Constraints,kotlin.Unit> getOnMeasureRecompose();
     method public androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? getRef();
     method public androidx.ui.core.LayoutNode getRoot();
     method public void onAttach(androidx.ui.core.ComponentNode node);
     method public void onDetach(androidx.ui.core.ComponentNode node);
+    method public void onEndLayout(androidx.ui.core.LayoutNode layoutNode);
+    method public void onEndMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
     method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
-    method public void onRequestLayout();
+    method public void onRequestLayout(androidx.ui.core.LayoutNode layoutNode);
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
+    method public void onStartMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void sendEvent(android.view.MotionEvent event);
     method public void setConstraints(androidx.ui.core.Constraints p);
-    method public void setOnMeasureRecompose(kotlin.jvm.functions.Function1<? super androidx.ui.core.Constraints,kotlin.Unit> p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? value);
     property public final androidx.ui.core.Constraints constraints;
-    property public final kotlin.jvm.functions.Function1<androidx.ui.core.Constraints,kotlin.Unit> onMeasureRecompose;
     property public final androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? ref;
     property public final androidx.ui.core.LayoutNode root;
   }
@@ -81,13 +82,17 @@ package androidx.ui.core {
   public final class LayoutNode extends androidx.ui.core.ComponentNode {
     ctor public LayoutNode();
     method public void emitMove(int from, int to, int count);
+    method public void endLayout();
+    method public void endMeasure();
     method public androidx.ui.core.ComponentNode get(int index);
+    method public boolean getAffectsParentSize();
     method public java.util.List<androidx.ui.core.ComponentNode> getChildren();
     method public androidx.ui.core.Constraints getConstraints();
     method public int getCount();
     method public androidx.ui.core.IntPx getHeight();
-    method public Object? getLayout();
+    method public androidx.ui.core.MeasurableLayout? getLayout();
     method public androidx.ui.core.LayoutNode getLayoutNode();
+    method public boolean getNeedsRemeasure();
     method public Object? getParentData();
     method public androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? getRef();
     method public boolean getVisible();
@@ -97,18 +102,23 @@ package androidx.ui.core {
     method public void moveTo(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
     method public kotlin.Unit? requestLayout();
     method public void resize(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height);
+    method public void setAffectsParentSize(boolean p);
     method public void setConstraints(androidx.ui.core.Constraints p);
-    method public void setLayout(Object? p);
+    method public void setLayout(androidx.ui.core.MeasurableLayout? p);
+    method public void setNeedsRemeasure$lintWithKotlin(boolean p);
     method public void setParentData(Object? p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
-    method public void setVisible(boolean p);
+    method public void startLayout();
+    method public void startMeasure();
     method public void visitChildren(boolean reverse, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    property public final boolean affectsParentSize;
     property public final java.util.List<androidx.ui.core.ComponentNode> children;
     property public final androidx.ui.core.Constraints constraints;
     property public int count;
     property public final androidx.ui.core.IntPx height;
-    property public final Object? layout;
+    property public final androidx.ui.core.MeasurableLayout? layout;
     property public androidx.ui.core.LayoutNode layoutNode;
+    property public final boolean needsRemeasure;
     property public final Object? parentData;
     property public final androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? ref;
     property public final boolean visible;
@@ -117,13 +127,22 @@ package androidx.ui.core {
     property public final androidx.ui.core.IntPx y;
   }
 
+  public interface MeasurableLayout {
+    method public void callLayout();
+    method public void callMeasure(androidx.ui.core.Constraints constraints);
+  }
+
   public interface Owner {
     method public void onAttach(androidx.ui.core.ComponentNode node);
     method public void onDetach(androidx.ui.core.ComponentNode node);
+    method public void onEndLayout(androidx.ui.core.LayoutNode layoutNode);
+    method public void onEndMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
     method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
-    method public void onRequestLayout();
+    method public void onRequestLayout(androidx.ui.core.LayoutNode layoutNode);
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
+    method public void onStartMeasure(androidx.ui.core.LayoutNode layoutNode);
   }
 
   public final class PointerInputNode extends androidx.ui.core.SingleChildComponentNode {

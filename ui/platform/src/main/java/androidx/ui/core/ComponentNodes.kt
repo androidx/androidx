@@ -51,7 +51,7 @@ interface Owner {
     /**
      * Called by [LayoutNode] to request the Owner a new measurement+layout.
      */
-    fun onRequestLayout()
+    fun onRequestLayout(layoutNode: LayoutNode)
 
     /**
      * Called by [ComponentNode] when it is attached to the view system and now has an owner.
@@ -67,6 +67,26 @@ interface Owner {
      * [ComponentNode.attach]ed.
      */
     fun onDetach(node: ComponentNode)
+
+    /**
+     * Called when measure starts.
+     */
+    fun onStartMeasure(layoutNode: LayoutNode)
+
+    /**
+     * Called when measure ends.
+     */
+    fun onEndMeasure(layoutNode: LayoutNode)
+
+    /**
+     * Called when layout (placement) starts.
+     */
+    fun onStartLayout(layoutNode: LayoutNode)
+
+    /**
+     * Called when layout (placement) ends.
+     */
+    fun onEndLayout(layoutNode: LayoutNode)
 }
 
 /**
@@ -409,6 +429,22 @@ class DrawNode : ComponentNode() {
 }
 
 /**
+ * ComplexMeasureBox component methods that must be called from here.
+ */
+interface MeasurableLayout {
+    /**
+     * Performs measurement. After completion, the owned [LayoutNode] should be
+     * properly sized.
+     */
+    fun callMeasure(constraints: Constraints)
+
+    /**
+     * Places all children that are to be part of the layout.
+     */
+    fun callLayout()
+}
+
+/**
  * Backing node for Layout component.
  */
 class LayoutNode : ComponentNode() {
@@ -430,7 +466,7 @@ class LayoutNode : ComponentNode() {
         }
 
     // This is a ComplexLayout, but we don't have access to that class from here.
-    var layout: Any? = null
+    var layout: MeasurableLayout? = null
 
     /**
      * The width of this layout
@@ -460,11 +496,29 @@ class LayoutNode : ComponentNode() {
      * Whether or not this has been placed in the hierarchy.
      */
     var visible = true
+        private set
 
     /**
      * Opaque data provided by the layout parent
      */
     var parentData: Any? = null
+
+    /**
+     * `true` when the parent's size depends on this LayoutNode's size
+     */
+    var affectsParentSize: Boolean = false
+
+    /**
+     * `true` when called between [startMeasure] and [endMeasure]
+     */
+    private var isInMeasure: Boolean = false
+
+    /**
+     * `true` when the layout has been dirtied by [requestLayout]. `false` after
+     * the measurement has been complete ([resize] has been called).
+     */
+    var needsRemeasure = true
+        internal set
 
     override val layoutNode: LayoutNode get() = this
 
@@ -514,6 +568,7 @@ class LayoutNode : ComponentNode() {
     }
 
     fun moveTo(x: IntPx, y: IntPx) {
+        visible = true
         if (x != this.x || y != this.y) {
             this.x = x
             this.y = y
@@ -522,6 +577,12 @@ class LayoutNode : ComponentNode() {
     }
 
     fun resize(width: IntPx, height: IntPx) {
+        visible = false
+        val parent = parentLayoutNode
+        needsRemeasure = false // we must have just finished measurement
+        if (parent != null && parent.isInMeasure) {
+            affectsParentSize = true
+        }
         if (width != this.width || height != this.height) {
             this.width = width
             this.height = height
@@ -530,9 +591,42 @@ class LayoutNode : ComponentNode() {
     }
 
     /**
+     * Must be called by the [MeasurableLayout] when the measurement starts.
+     */
+    fun startMeasure() {
+        isInMeasure = true
+        children.forEach { child ->
+            child.layoutNode?.layoutNode?.affectsParentSize = false
+        }
+        owner?.onStartMeasure(this)
+    }
+
+    /**
+     * Must be called by the [MeasurableLayout] when the measurement ends.
+     */
+    fun endMeasure() {
+        owner?.onEndMeasure(this)
+        isInMeasure = false
+    }
+
+    /**
+     * Must be called by the [MeasurableLayout] when the layout starts
+     */
+    fun startLayout() {
+        owner?.onStartLayout(this)
+    }
+
+    /**
+     * Must be called by the [MeasurableLayout] when the layout ends
+     */
+    fun endLayout() {
+        owner?.onEndLayout(this)
+    }
+
+    /**
      * Used by [ComplexLayoutState] to request a new measurement + layout pass from the owner.
      */
-    fun requestLayout() = owner?.onRequestLayout()
+    fun requestLayout() = owner?.onRequestLayout(this)
 }
 
 private class InvalidatingProperty<T>(private var value: T) :
