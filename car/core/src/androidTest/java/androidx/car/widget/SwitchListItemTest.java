@@ -183,7 +183,7 @@ public class SwitchListItemTest {
     public void testSwitchStatePersistsOnRebind() {
         SwitchListItem item0 = new SwitchListItem(mActivity);
         // Switch initially checked.
-        item0.setSwitchState(true);
+        item0.setChecked(true);
 
         setupPagedListView(Collections.singletonList(item0));
         SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
@@ -197,11 +197,11 @@ public class SwitchListItemTest {
     @Test
     public void testSetSwitchState() {
         SwitchListItem item0 = new SwitchListItem(mActivity);
-        item0.setSwitchState(true);
+        item0.setChecked(true);
 
         setupPagedListView(Arrays.asList(item0));
 
-        item0.setSwitchState(false);
+        item0.setChecked(false);
         refreshUi();
 
         SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
@@ -218,7 +218,7 @@ public class SwitchListItemTest {
 
         setupPagedListView(Collections.singletonList(item0));
 
-        item0.setSwitchState(true);
+        item0.setChecked(true);
         refreshUi();
         verify(listener).onCheckedChanged(any(CompoundButton.class), eq(true));
     }
@@ -242,7 +242,7 @@ public class SwitchListItemTest {
                 mock(CompoundButton.OnCheckedChangeListener.class);
         SwitchListItem item0 = new SwitchListItem(mActivity);
         item0.setSwitchOnCheckedChangeListener(listener);
-        item0.setSwitchState(true);
+        item0.setChecked(true);
 
         setupPagedListView(Collections.singletonList(item0));
 
@@ -270,12 +270,12 @@ public class SwitchListItemTest {
         CompoundButton.OnCheckedChangeListener listener =
                 mock(CompoundButton.OnCheckedChangeListener.class);
         SwitchListItem item0 = new SwitchListItem(mActivity);
-        item0.setSwitchState(true);
+        item0.setChecked(true);
         item0.setSwitchOnCheckedChangeListener(listener);
 
         setupPagedListView(Collections.singletonList(item0));
 
-        item0.setSwitchState(true);
+        item0.setChecked(true);
         refreshUi();
 
         verify(listener, never()).onCheckedChanged(any(CompoundButton.class), anyBoolean());
