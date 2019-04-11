@@ -364,13 +364,10 @@ package androidx.car.widget {
     method public void setMaxItems(int);
     method public void start();
     method public void stop();
-  }
-
-  public static final class ListItemAdapter.BackgroundStyle {
-    field public static final int CARD = 2; // 0x2
-    field public static final int NONE = 1; // 0x1
-    field public static final int PANEL = 3; // 0x3
-    field public static final int SOLID = 0; // 0x0
+    field public static final int BACKGROUND_STYLE_CARD = 2; // 0x2
+    field public static final int BACKGROUND_STYLE_NONE = 1; // 0x1
+    field public static final int BACKGROUND_STYLE_PANEL = 3; // 0x3
+    field public static final int BACKGROUND_STYLE_SOLID = 0; // 0x0
   }
 
   public abstract class ListItemProvider<VH extends androidx.car.widget.ListItem.ViewHolder> {
