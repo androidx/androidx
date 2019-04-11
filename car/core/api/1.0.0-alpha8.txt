@@ -598,6 +598,7 @@ package androidx.car.widget {
     method public void onBind(androidx.car.widget.SwitchListItem.ViewHolder!);
     method @CallSuper protected void resolveDirtyState();
     method public void setBody(CharSequence?);
+    method public void setChecked(boolean);
     method public void setClickable(boolean);
     method public void setEnabled(boolean);
     method public void setPrimaryActionEmptyIcon();
@@ -606,7 +607,7 @@ package androidx.car.widget {
     method public void setPrimaryActionNoIcon();
     method public void setShowSwitchDivider(boolean);
     method public void setSwitchOnCheckedChangeListener(android.widget.CompoundButton.OnCheckedChangeListener?);
-    method public void setSwitchState(boolean);
+    method @Deprecated public void setSwitchState(boolean);
     method public void setTitle(CharSequence?);
     field public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2; // 0x2
     field public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1; // 0x1
