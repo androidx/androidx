@@ -80,7 +80,7 @@ class FlexChildren internal constructor() {
  * unoccupied width.
  *
  * Example usage:
- *     <RowFlex> children ->
+ *     <FlexRow> children ->
  *         children.expanded(/*flex=*/2f) {
  *             <Center>
  *                 <SizedRectangle color=Color(0xFF0000FF.toInt()) width = 40.dp height = 40.dp />
@@ -92,7 +92,7 @@ class FlexChildren internal constructor() {
  *         children.expanded(/*flex=*/1f) {
  *             <SizedRectangle color=Color(0xFF00FF00.toInt()) />
  *         }
- *     </RowFlex>
+ *     </FlexRow>
  */
 @Composable
 fun FlexRow(
