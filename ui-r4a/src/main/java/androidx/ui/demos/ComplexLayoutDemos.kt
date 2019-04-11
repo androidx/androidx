@@ -25,6 +25,9 @@ import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.ComplexLayout
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.IntPxSize
+import androidx.ui.core.WithConstraints
+import androidx.ui.core.constrain
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.core.max
@@ -359,7 +362,8 @@ fun SingleCompositionRect() {
             </Draw>
         }
     <Layout layoutBlock = { measurables, constraints ->
-        layout(100.ipx, 100.ipx) {}
+        val size = constraints.constrain(IntPxSize(30.ipx, 30.ipx))
+        layout(size.width, size.height) {}
     } children=Rectangle />
 }
 
@@ -423,19 +427,37 @@ fun SingleCompositionRowWithIntrinsics(@Children children: () -> Unit) {
 }
 
 @Composable
+fun FillWithRectangles() {
+    <WithConstraints> constraints ->
+        val rectangles = (constraints.maxWidth / 50).value
+        <Row>
+            for (i in 0 until rectangles) {
+                <Padding padding=EdgeInsets(1.dp)>
+                    <SingleCompositionRect />
+                </Padding>
+            }
+        </Row>
+    </WithConstraints>
+}
+
+@Composable
 fun ComplexLayoutDemos() {
-    +runDelayed(3000) {
+    +runDelayed(3000, 6000, 9000, 12000, 15000) {
         rectColorModel.color = Color(0xFF0000FF.toInt())
         rectColorModel.cnt++
     }
     <CraneWrapper>
-        <Padding padding=EdgeInsets(50.dp)>
-            <SingleCompositionRect />
-        </Padding>
+        <Center>
+            val additionalConstraints =
+                Constraints.tightConstraintsForWidth(50.ipx * rectColorModel.cnt)
+            <ConstrainedBox additionalConstraints>
+                <FillWithRectangles />
+            </ConstrainedBox>
+        </Center>
     </CraneWrapper>
 }
 
-fun runDelayed(millis: Int, block: () -> Unit) = effectOf<Unit> {
+fun runDelayed(vararg millis: Int, block: () -> Unit) = effectOf<Unit> {
     val handler = +memo { Handler() }
     +onCommit {
         val runnable = object : Runnable {
@@ -443,7 +465,9 @@ fun runDelayed(millis: Int, block: () -> Unit) = effectOf<Unit> {
                 block()
             }
         }
-        handler.postDelayed(runnable, millis.toLong())
+        millis.forEach { millis ->
+            handler.postDelayed(runnable, millis.toLong())
+        }
         onDispose {
             handler.removeCallbacks(runnable)
         }

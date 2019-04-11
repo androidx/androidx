@@ -31,6 +31,8 @@ import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxPosition
+import androidx.ui.core.Ref
+import androidx.ui.core.WithConstraints
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.ipx
 import androidx.ui.core.max
@@ -192,6 +194,58 @@ class AndroidLayoutDrawTest {
         assertTrue(countDownLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(PxPosition(size * 3, size * 3), position)
+    }
+
+    @Test
+    fun withConstraintsTest() {
+        val size = 20.ipx
+
+        val countDownLatch = CountDownLatch(8)
+        val topConstraints = Ref<Constraints>()
+        val paddedConstraints = Ref<Constraints>()
+        val firstChildConstraints = Ref<Constraints>()
+        val secondChildConstraints = Ref<Constraints>()
+        runOnUiThread {
+            activity.composeInto {
+                <CraneWrapper>
+                    <WithConstraints> constraints ->
+                        topConstraints.value = constraints
+                        <Padding size>
+                            <WithConstraints> constraints ->
+                                paddedConstraints.value = constraints
+                                <OnChildPositioned onPositioned={
+                                    countDownLatch.countDown()
+                                }>
+                                    <Layout layoutBlock={ _, constraints ->
+                                        firstChildConstraints.value = constraints
+                                        layout(size, size) {}
+                                    } children={} />
+                                </OnChildPositioned>
+                                <OnChildPositioned onPositioned={
+                                    countDownLatch.countDown()
+                                }>
+                                    <Layout layoutBlock={ _, constraints ->
+                                        secondChildConstraints.value = constraints
+                                        layout(size, size) {}
+                                    } children={} />
+                                </OnChildPositioned>
+                            </WithConstraints>
+                        </Padding>
+                    </WithConstraints>
+                </CraneWrapper>
+            }
+        }
+        assertTrue(countDownLatch.await(1, TimeUnit.SECONDS))
+
+        val expectedPaddedConstraints = Constraints(
+            topConstraints.value!!.minWidth - size * 2,
+            topConstraints.value!!.maxWidth - size * 2,
+            topConstraints.value!!.minHeight - size * 2,
+            topConstraints.value!!.maxHeight - size * 2
+        )
+        assertEquals(expectedPaddedConstraints, paddedConstraints.value)
+        assertEquals(paddedConstraints.value, firstChildConstraints.value)
+        assertEquals(paddedConstraints.value, secondChildConstraints.value)
     }
 
     // We only need this because IR compiler doesn't like converting lambdas to Runnables
