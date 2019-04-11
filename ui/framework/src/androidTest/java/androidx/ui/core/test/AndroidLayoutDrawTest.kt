@@ -29,7 +29,9 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
+import androidx.ui.core.MultiChildLayout
 import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.ParentData
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Ref
 import androidx.ui.core.WithConstraints
@@ -246,6 +248,77 @@ class AndroidLayoutDrawTest {
         assertEquals(expectedPaddedConstraints, paddedConstraints.value)
         assertEquals(paddedConstraints.value, firstChildConstraints.value)
         assertEquals(paddedConstraints.value, secondChildConstraints.value)
+    }
+
+    @Test
+    fun multiChildLayoutTest() {
+        val childrenCount = 3
+        val childConstraints = arrayOf(
+            Constraints(),
+            Constraints.tightConstraintsForWidth(50.ipx),
+            Constraints.tightConstraintsForHeight(50.ipx)
+        )
+        val headerChildrenCount = 1
+        val footerChildrenCount = 2
+
+        runOnUiThread {
+            activity.composeInto {
+                <CraneWrapper>
+                    val header = @Composable {
+                        <Layout layoutBlock={ measurables, constraints ->
+                            assertEquals(childConstraints[0], constraints)
+                        } children={} />
+                    }
+                    val footer = @Composable {
+                        <Layout layoutBlock={ measurables, constraints ->
+                            assertEquals(childConstraints[1], constraints)
+                        } children={} />
+                        <Layout layoutBlock={ measurables, constraints ->
+                            assertEquals(childConstraints[2], constraints)
+                        } children={} />
+                    }
+
+                    <MultiChildLayout
+                        childrenArray=arrayOf(header, footer)> measurables, constraints ->
+                        assertEquals(childrenCount, measurables.size)
+                        measurables.forEachIndexed { index, measurable ->
+                            measurable.measure(childConstraints[index])
+                        }
+                        assertEquals(headerChildrenCount, measurables[header].size)
+                        measurables[header][0].measure(childConstraints[0])
+                        assertEquals(footerChildrenCount, measurables[footer].size)
+                        measurables[footer][0].measure(childConstraints[1])
+                        measurables[footer][1].measure(childConstraints[2])
+                    </MultiChildLayout>
+                </CraneWrapper>
+            }
+        }
+    }
+
+    @Test
+    fun multiChildLayoutTest_doesNotOverrideChildrenParentData() {
+        runOnUiThread {
+            activity.composeInto {
+                <CraneWrapper>
+                    val header = @Composable {
+                        <ParentData data=0>
+                            <Layout layoutBlock={ measurables, constraints -> } children={} />
+                        </ParentData>
+                    }
+                    val footer = @Composable {
+                        <ParentData data=1>
+                            <Layout layoutBlock={ measurables, constraints -> } children={} />
+                        </ParentData>
+                    }
+
+                    <MultiChildLayout
+                        childrenArray=arrayOf(header, footer)> measurables, constraints ->
+                        assertEquals(0, measurables[0].parentData)
+                        assertEquals(1, measurables[1].parentData)
+                    </MultiChildLayout>
+                </CraneWrapper>
+            }
+        }
     }
 
     // We only need this because IR compiler doesn't like converting lambdas to Runnables

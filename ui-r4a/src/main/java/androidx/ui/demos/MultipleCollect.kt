@@ -20,8 +20,9 @@ package androidx.ui.demos
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.Draw
 import androidx.ui.core.MeasureBox
+import androidx.ui.core.MultiChildLayout
+import androidx.ui.core.Draw
 import androidx.ui.core.ipx
 import androidx.ui.core.toRect
 import androidx.ui.painting.Color
@@ -49,35 +50,33 @@ fun ColoredRect(color: Color) {
 fun HeaderFooterLayout(
     header: () -> Unit,
     footer: () -> Unit,
-    @Children children: () -> Unit
+    @Children content: () -> Unit
 ) {
-    <MeasureBox> constraints ->
-        val headerMeasurable = collect { <header /> }.first()
-        val contentMeasurables = collect { <children /> }
-        val footerMeasurable = collect { <footer /> }.first()
+    <MultiChildLayout childrenArray=arrayOf(header, content, footer)> measurables, constraints ->
+        val headerPlaceable = measurables[header].first().measure(
+            Constraints.tightConstraints(constraints.maxWidth, 100.ipx)
+        )
+        val footerPadding = 50.ipx
+        val footerPlaceable = measurables[footer].first().measure(
+            Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.ipx)
+        )
+        val itemHeight =
+            (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
+                    measurables[content].size
+        val contentPlaceables = measurables[content].map { measurable ->
+            measurable.measure(Constraints.tightConstraints(constraints.maxWidth, itemHeight))
+        }
+
         layout(constraints.maxWidth, constraints.maxHeight) {
-            val headerPlaceable = headerMeasurable.measure(
-                    Constraints.tightConstraints(constraints.maxWidth, 100.ipx)
-            )
             headerPlaceable.place(0.ipx, 0.ipx)
-
-            val footerPadding = 50.ipx
-            val footerPlaceable = footerMeasurable.measure(
-                Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.ipx))
-            footerPlaceable.place(footerPadding,
-                constraints.maxHeight - footerPlaceable.height)
-
-            val itemHeight =
-                (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
-                        contentMeasurables.size
-            val itemConstraint = Constraints.tightConstraints(constraints.maxWidth, itemHeight)
+            footerPlaceable.place(footerPadding, constraints.maxHeight - footerPlaceable.height)
             var top = headerPlaceable.height
-            contentMeasurables.map { it.measure(itemConstraint) }.forEach {
-                it.place(0.ipx, top)
+            contentPlaceables.forEach { placeable ->
+                placeable.place(0.ipx, top)
                 top += itemHeight
             }
         }
-    </MeasureBox>
+    </MultiChildLayout>
 }
 
 @Composable

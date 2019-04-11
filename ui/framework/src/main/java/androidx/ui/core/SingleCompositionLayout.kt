@@ -63,13 +63,13 @@ internal class ComplexLayoutState(
         get() = layoutNodeRef.value!!
 
     internal val childrenMeasurables: List<Measurable>
-        get() = layoutNode.childrenMeasureBoxes().map {
+        get() = ComplexLayoutStateMeasurablesList(layoutNode.childrenMeasureBoxes().map {
             when (it) {
                 is ComplexLayoutState -> it as Measurable
                 is ComplexMeasureBox -> MeasurableImpl(it)
                 else -> error("Invalid child type in ComplexLayoutState#childrenMeasurables")
             }
-        }
+        })
 
     internal val onChildPositioned = mutableListOf<(LayoutCoordinates) -> Unit>()
     internal val onPositioned = mutableListOf<(LayoutCoordinates) -> Unit>()
@@ -134,6 +134,10 @@ internal class ComplexLayoutState(
     override val width: IntPx get() = layoutNode.width
     override val height: IntPx get() = layoutNode.height
 }
+
+internal class ComplexLayoutStateMeasurablesList(
+    internal val measurables: List<Measurable>
+) : List<Measurable> by (measurables.filter { it.parentData !is ChildrenEndParentData })
 
 /**
  * [ComplexMeasureBox] which composes its children during its own composition, so the tree of
@@ -280,6 +284,7 @@ fun Layout(
         layoutBlock(measureBoxReceiver, measurables, constraints)
         intrinsicHeight
     }
+
     val maxIntrinsicHeightBlock: IntrinsicMeasurementBlock = { measurables, w ->
         var intrinsicHeight = IntPx.Zero
         val measureBoxReceiver = SingleCompositionMeasureBoxReceiver(measureBox, { m, c ->
@@ -290,6 +295,7 @@ fun Layout(
         layoutBlock(measureBoxReceiver, measurables, constraints)
         intrinsicHeight
     }
+
     <ComplexLayout
         layoutBlock=complexLayoutBlock
         minIntrinsicWidthBlock
@@ -297,6 +303,51 @@ fun Layout(
         minIntrinsicHeightBlock
         maxIntrinsicHeightBlock
         children />
+}
+
+/**
+ * Used by [MultiChildLayout] as parent data for the dummy [Layout] instances that mark
+ * the end of the [Measurable]s sequence corresponding to a particular child.
+ */
+internal data class ChildrenEndParentData(val children: () -> Unit)
+
+/**
+ * Temporary component that allows composing and indexing measurables of multiple composables.
+ * The logic here will be moved back to Layout, which will accept vararg children argument.
+ * TODO(popam): remove this when the new syntax is available
+ * With the new syntax, the API should support both:
+ * Layout(children) { measurables, constraints ->
+ *     val placeables = measurables.map { it.measure(...) }
+ *     ...
+ * }
+ * and
+ * Layout(header, cardContent, footer) { measurables, constraints ->
+ *     val headerPlaceables = measurables[header].map { it.measure(...) }
+ *     val cardContentPlaceables = measurables[cardContent].map { ... }
+ *     val footerPlaceables = measurables[footer].map { ... }
+ *     ...
+ * }
+ */
+@Composable
+fun MultiChildLayout(
+    childrenArray: Array<() -> Unit>,
+    @Children(composable = false) layoutBlock: SingleCompositionMeasureBoxReceiver
+        .(measurables: List<Measurable>, constraints: Constraints) -> Unit
+) {
+    val ChildrenEndMarker = @Composable { children: () -> Unit ->
+        <ParentData data=ChildrenEndParentData(children)>
+            <Layout layoutBlock={ _, _ -> layout(0.ipx, 0.ipx) {}} children={} />
+        </ParentData>
+    }
+    val children = @Composable {
+        val addMarkers = childrenArray.size > 1
+        childrenArray.forEach { childrenComposable ->
+            <childrenComposable />
+            if (addMarkers) <ChildrenEndMarker p1 = childrenComposable />
+        }
+    }
+
+    <Layout children layoutBlock />
 }
 
 /**
@@ -310,11 +361,26 @@ class SingleCompositionMeasureBoxReceiver internal constructor(
     override val density: Density
 ) : DensityReceiver {
     /**
+     * Returns all the [Measurable]s emitted for a particular children lambda.
+     * TODO(popam): finding measurables for each individual composable is O(n^2), consider improving
+     */
+    operator fun List<Measurable>.get(children: () -> Unit): List<Measurable> {
+        if (this !is ComplexLayoutStateMeasurablesList) error("Invalid list of measurables")
+
+        val childrenMeasurablesEnd = measurables.indexOfFirst {
+            it.parentData is ChildrenEndParentData &&
+                    (it.parentData as ChildrenEndParentData).children == children
+        }
+        val childrenMeasurablesStart = measurables.take(childrenMeasurablesEnd).indexOfLast {
+            it.parentData is ChildrenEndParentData
+        } + 1
+        return measurables.subList(childrenMeasurablesStart, childrenMeasurablesEnd)
+    }
+    /**
      * Measure the child [Measurable] with a specific set of [Constraints]. The result
      * is a [Placeable], which can be used inside the [layout] method to position the child.
      */
     fun Measurable.measure(constraints: Constraints): Placeable = complexMeasure(this, constraints)
-
     /**
      * Sets the width and height of the current layout. The lambda is used to perform the
      * calls to [Placeable.place], defining the positions of the children relative to the current
