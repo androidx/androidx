@@ -27,10 +27,10 @@ import android.util.Size;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImmediateSurface;
-import androidx.camera.core.SessionConfiguration;
-import androidx.camera.core.UseCaseConfiguration;
+import androidx.camera.core.SessionConfig;
+import androidx.camera.core.UseCaseConfig;
 import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
+import androidx.camera.testing.fakes.FakeUseCaseConfig;
 
 import java.util.Map;
 
@@ -41,11 +41,10 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     private final ImageReader mImageReader =
             ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
 
-    public FakeRepeatingUseCase(FakeUseCaseConfiguration configuration) {
+    public FakeRepeatingUseCase(FakeUseCaseConfig configuration) {
         super(configuration);
 
-        FakeUseCaseConfiguration configWithDefaults =
-                (FakeUseCaseConfiguration) getUseCaseConfiguration();
+        FakeUseCaseConfig configWithDefaults = (FakeUseCaseConfig) getUseCaseConfig();
         mImageReader.setOnImageAvailableListener(
                 new ImageReader.OnImageAvailableListener() {
                     @Override
@@ -58,8 +57,7 @@ public class FakeRepeatingUseCase extends FakeUseCase {
                 },
                 new Handler(Looper.getMainLooper()));
 
-        SessionConfiguration.Builder builder =
-                SessionConfiguration.Builder.createFrom(configWithDefaults);
+        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(configWithDefaults);
         builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
         try {
             String cameraId = CameraX.getCameraWithLensFacing(configWithDefaults.getLensFacing());
@@ -73,14 +71,14 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     }
 
     @Override
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        return new FakeUseCaseConfiguration.Builder()
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+        return new FakeUseCaseConfig.Builder()
                 .setLensFacing(lensFacing)
                 .setOptionUnpacker(
-                        new SessionConfiguration.OptionUnpacker() {
+                        new SessionConfig.OptionUnpacker() {
                             @Override
-                            public void unpack(UseCaseConfiguration<?> useCaseConfig,
-                                    SessionConfiguration.Builder sessionConfigBuilder) {
+                            public void unpack(UseCaseConfig<?> useCaseConfig,
+                                    SessionConfig.Builder sessionConfigBuilder) {
                                 // Set the template since it is currently required by implementation
                                 sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
                             }

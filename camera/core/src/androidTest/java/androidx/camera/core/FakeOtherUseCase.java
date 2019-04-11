@@ -32,13 +32,13 @@ class FakeOtherUseCase extends UseCase {
     private volatile boolean mIsCleared = false;
 
     /** Creates a new instance of a {@link FakeOtherUseCase} with a given configuration. */
-    FakeOtherUseCase(FakeOtherUseCaseConfiguration configuration) {
-        super(configuration);
+    FakeOtherUseCase(FakeOtherUseCaseConfig config) {
+        super(config);
     }
 
     /** Creates a new instance of a {@link FakeOtherUseCase} with a default configuration. */
     FakeOtherUseCase() {
-        this(new FakeOtherUseCaseConfiguration.Builder().build());
+        this(new FakeOtherUseCaseConfig.Builder().build());
     }
 
     @Override
@@ -48,9 +48,8 @@ class FakeOtherUseCase extends UseCase {
     }
 
     @Override
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(
-            CameraX.LensFacing lensFacing) {
-        return new FakeOtherUseCaseConfiguration.Builder().setLensFacing(
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(CameraX.LensFacing lensFacing) {
+        return new FakeOtherUseCaseConfig.Builder().setLensFacing(
                 lensFacing == null ? CameraX.LensFacing.BACK : lensFacing);
     }
 

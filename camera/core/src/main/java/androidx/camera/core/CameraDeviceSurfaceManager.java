@@ -37,21 +37,21 @@ public interface CameraDeviceSurfaceManager {
      * Check whether the input surface configuration list is under the capability of any combination
      * of this object.
      *
-     * @param cameraId                 the camera id of the camera device to be compared
-     * @param surfaceConfigurationList the surface configuration list to be compared
+     * @param cameraId          the camera id of the camera device to be compared
+     * @param surfaceConfigList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
-    boolean checkSupported(String cameraId, List<SurfaceConfiguration> surfaceConfigurationList);
+    boolean checkSupported(String cameraId, List<SurfaceConfig> surfaceConfigList);
 
     /**
-     * Transform to a SurfaceConfiguration object with cameraId, image format and size info
+     * Transform to a SurfaceConfig object with cameraId, image format and size info
      *
      * @param cameraId    the camera id of the camera device to transform the object
      * @param imageFormat the image format info for the surface configuration object
      * @param size        the size info for the surface configuration object
-     * @return new {@link SurfaceConfiguration} object
+     * @return new {@link SurfaceConfig} object
      */
-    SurfaceConfiguration transformSurfaceConfiguration(String cameraId, int imageFormat, Size size);
+    SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size);
 
     /**
      * Get max supported output size for specific camera device and image format

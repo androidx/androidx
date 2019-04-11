@@ -27,7 +27,7 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.core.util.Preconditions;
 
 /** Implementation of the {@link CameraInfo} interface that exposes parameters through camera2. */

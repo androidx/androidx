@@ -24,7 +24,7 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.camera.core.CaptureProcessor;
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageProxyBundle;
 import androidx.camera.extensions.CaptureStage;
@@ -48,7 +48,7 @@ public class BokehImageCaptureExtender extends ImageCaptureExtender {
     private static final String TAG = "BokehICExtender";
     private static final int DEFAULT_STAGE_ID = 0;
 
-    public BokehImageCaptureExtender(ImageCaptureConfiguration.Builder builder) {
+    public BokehImageCaptureExtender(ImageCaptureConfig.Builder builder) {
         super(builder);
     }
 

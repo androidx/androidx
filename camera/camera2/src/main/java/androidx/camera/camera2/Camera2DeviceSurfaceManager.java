@@ -23,10 +23,10 @@ import android.media.CamcorderProfile;
 import android.util.Size;
 
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.CameraDeviceConfiguration;
+import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.SurfaceConfiguration;
+import androidx.camera.core.SurfaceConfig;
 import androidx.camera.core.UseCase;
 
 import java.util.ArrayList;
@@ -69,20 +69,20 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
      * Check whether the input surface configuration list is under the capability of any combination
      * of this object.
      *
-     * @param cameraId                 the camera id of the camera device to be compared
-     * @param surfaceConfigurationList the surface configuration list to be compared
+     * @param cameraId          the camera id of the camera device to be compared
+     * @param surfaceConfigList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
     @Override
     public boolean checkSupported(
-            String cameraId, List<SurfaceConfiguration> surfaceConfigurationList) {
+            String cameraId, List<SurfaceConfig> surfaceConfigList) {
         boolean isSupported = false;
 
         if (!mIsInitialized) {
             throw new IllegalStateException("Camera2DeviceSurfaceManager is not initialized.");
         }
 
-        if (surfaceConfigurationList == null || surfaceConfigurationList.isEmpty()) {
+        if (surfaceConfigList == null || surfaceConfigList.isEmpty()) {
             return true;
         }
 
@@ -90,24 +90,23 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
                 mCameraSupportedSurfaceCombinationMap.get(cameraId);
 
         if (supportedSurfaceCombination != null) {
-            isSupported = supportedSurfaceCombination.checkSupported(surfaceConfigurationList);
+            isSupported = supportedSurfaceCombination.checkSupported(surfaceConfigList);
         }
 
         return isSupported;
     }
 
     /**
-     * Transform to a SurfaceConfiguration object with cameraId, image format and size info
+     * Transform to a SurfaceConfig object with cameraId, image format and size info
      *
      * @param cameraId    the camera id of the camera device to transform the object
      * @param imageFormat the image format info for the surface configuration object
      * @param size        the size info for the surface configuration object
-     * @return new {@link SurfaceConfiguration} object
+     * @return new {@link SurfaceConfig} object
      */
     @Override
-    public SurfaceConfiguration transformSurfaceConfiguration(
-            String cameraId, int imageFormat, Size size) {
-        SurfaceConfiguration surfaceConfiguration = null;
+    public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {
+        SurfaceConfig surfaceConfig = null;
 
         if (!mIsInitialized) {
             throw new IllegalStateException("Camera2DeviceSurfaceManager is not initialized.");
@@ -117,11 +116,11 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
                 mCameraSupportedSurfaceCombinationMap.get(cameraId);
 
         if (supportedSurfaceCombination != null) {
-            surfaceConfiguration =
-                    supportedSurfaceCombination.transformSurfaceConfiguration(imageFormat, size);
+            surfaceConfig =
+                    supportedSurfaceCombination.transformSurfaceConfig(imageFormat, size);
         }
 
-        return surfaceConfiguration;
+        return surfaceConfig;
     }
 
     /**
@@ -144,39 +143,36 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
 
         // Use the small size (640x480) for new use cases to check whether there is any possible
         // supported combination first
-        List<SurfaceConfiguration> surfaceConfigurations = new ArrayList<>();
+        List<SurfaceConfig> surfaceConfigs = new ArrayList<>();
 
         if (originalUseCases != null) {
             for (UseCase useCase : originalUseCases) {
-                CameraDeviceConfiguration configuration =
-                        (CameraDeviceConfiguration) useCase.getUseCaseConfiguration();
+                CameraDeviceConfig config = (CameraDeviceConfig) useCase.getUseCaseConfig();
                 String useCaseCameraId;
                 try {
                     useCaseCameraId =
-                            CameraX.getCameraWithLensFacing(configuration.getLensFacing());
+                            CameraX.getCameraWithLensFacing(config.getLensFacing());
                 } catch (Exception e) {
                     throw new IllegalArgumentException(
                             "Unable to get camera ID for use case " + useCase.getName(), e);
                 }
                 Size resolution = useCase.getAttachedSurfaceResolution(useCaseCameraId);
 
-                surfaceConfigurations.add(
-                        transformSurfaceConfiguration(
-                                cameraId, useCase.getImageFormat(), resolution));
+                surfaceConfigs.add(
+                        transformSurfaceConfig(cameraId, useCase.getImageFormat(), resolution));
             }
         }
 
         for (UseCase useCase : newUseCases) {
-            surfaceConfigurations.add(
-                    transformSurfaceConfiguration(
-                            cameraId, useCase.getImageFormat(), new Size(640, 480)));
+            surfaceConfigs.add(
+                    transformSurfaceConfig(cameraId, useCase.getImageFormat(), new Size(640, 480)));
         }
 
         SupportedSurfaceCombination supportedSurfaceCombination =
                 mCameraSupportedSurfaceCombinationMap.get(cameraId);
 
         if (supportedSurfaceCombination == null
-                || !supportedSurfaceCombination.checkSupported(surfaceConfigurations)) {
+                || !supportedSurfaceCombination.checkSupported(surfaceConfigs)) {
             throw new IllegalArgumentException(
                     "No supported surface combination is found for camera device - Id : "
                             + cameraId + ".  May be attempting to bind too many use cases.");

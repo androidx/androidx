@@ -16,13 +16,13 @@
 
 package androidx.camera.extensions;
 
-import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.PreviewConfig;
 
 /**
  * Load the OEM extension Preview implementation for bokeh effect type.
  */
 public class BokehPreviewExtender extends PreviewExtender {
-    public BokehPreviewExtender(PreviewConfiguration.Builder builder) {
+    public BokehPreviewExtender(PreviewConfig.Builder builder) {
         super(builder);
         loadImplementation("androidx.camera.extensions.impl.BokehPreviewExtender");
     }

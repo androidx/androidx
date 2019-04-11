@@ -39,11 +39,11 @@ import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.CaptureRequestConfiguration;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
-import androidx.camera.core.SessionConfiguration;
-import androidx.camera.core.SessionConfiguration.ValidatingBuilder;
+import androidx.camera.core.SessionConfig;
+import androidx.camera.core.SessionConfig.ValidatingBuilder;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseAttachState;
 import androidx.core.os.BuildCompat;
@@ -102,8 +102,7 @@ final class Camera implements BaseCamera {
     /** The configured session which handles issuing capture requests. */
     private CaptureSession mCaptureSession = new CaptureSession(null);
     /** The session configuration of camera control. */
-    private SessionConfiguration mCameraControlSessionConfiguration =
-            SessionConfiguration.defaultEmptySessionConfiguration();
+    private SessionConfig mCameraControlSessionConfig = SessionConfig.defaultEmptySessionConfig();
 
     /**
      * Constructor for a camera.
@@ -194,7 +193,7 @@ final class Camera implements BaseCamera {
                 SurfaceTexture surfaceTexture = new SurfaceTexture(0);
                 surfaceTexture.setDefaultBufferSize(640, 480);
 
-                SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+                SessionConfig.Builder builder = new SessionConfig.Builder();
                 builder.addNonRepeatingSurface(new ImmediateSurface(new Surface(surfaceTexture)));
                 builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
                 builder.setSessionStateCallback(new CameraCaptureSession.StateCallback() {
@@ -301,7 +300,7 @@ final class Camera implements BaseCamera {
         synchronized (mAttachedUseCaseLock) {
             mUseCaseAttachState.setUseCaseActive(useCase);
         }
-        updateCaptureSessionConfiguration();
+        updateCaptureSessionConfig();
     }
 
     /** Removes the use case from a state of issuing capture requests. */
@@ -322,7 +321,7 @@ final class Camera implements BaseCamera {
             mUseCaseAttachState.setUseCaseInactive(useCase);
         }
 
-        updateCaptureSessionConfiguration();
+        updateCaptureSessionConfig();
     }
 
     /** Updates the capture requests based on the latest settings. */
@@ -343,7 +342,7 @@ final class Camera implements BaseCamera {
             mUseCaseAttachState.updateUseCase(useCase);
         }
 
-        updateCaptureSessionConfiguration();
+        updateCaptureSessionConfig();
     }
 
     @Override
@@ -363,7 +362,7 @@ final class Camera implements BaseCamera {
             mUseCaseAttachState.updateUseCase(useCase);
         }
 
-        updateCaptureSessionConfiguration();
+        updateCaptureSessionConfig();
         openCaptureSession();
     }
 
@@ -395,7 +394,7 @@ final class Camera implements BaseCamera {
         }
 
         open();
-        updateCaptureSessionConfiguration();
+        updateCaptureSessionConfig();
         openCaptureSession();
     }
 
@@ -449,7 +448,7 @@ final class Camera implements BaseCamera {
         }
 
         openCaptureSession();
-        updateCaptureSessionConfiguration();
+        updateCaptureSessionConfig();
     }
 
     /** Returns an interface to retrieve characteristics of the camera. */
@@ -482,19 +481,19 @@ final class Camera implements BaseCamera {
     }
 
     /** Updates the capture request configuration for the current capture session. */
-    private void updateCaptureSessionConfiguration() {
+    private void updateCaptureSessionConfig() {
         ValidatingBuilder validatingBuilder;
         synchronized (mAttachedUseCaseLock) {
             validatingBuilder = mUseCaseAttachState.getActiveAndOnlineBuilder();
         }
 
         if (validatingBuilder.isValid()) {
-            // Apply CameraControl's SessionConfiguration to let CameraControl be able to control
+            // Apply CameraControl's SessionConfig to let CameraControl be able to control
             // Repeating Request and process results.
-            validatingBuilder.add(mCameraControlSessionConfiguration);
+            validatingBuilder.add(mCameraControlSessionConfig);
 
-            SessionConfiguration sessionConfiguration = validatingBuilder.build();
-            mCaptureSession.setSessionConfiguration(sessionConfiguration);
+            SessionConfig sessionConfig = validatingBuilder.build();
+            mCaptureSession.setSessionConfig(sessionConfig);
         }
     }
 
@@ -535,40 +534,35 @@ final class Camera implements BaseCamera {
         Log.d(TAG, "Closing Capture Session");
 
         // Recreate an initialized (but not opened) capture session from the previous configuration
-        SessionConfiguration previousSessionConfiguration =
-                mCaptureSession.getSessionConfiguration();
+        SessionConfig previousSessionConfig = mCaptureSession.getSessionConfig();
 
         mCaptureSession.close();
 
-        List<CaptureRequestConfiguration> unissuedCaptureRequestConfigurations =
-                mCaptureSession.getCaptureRequestConfigurations();
+        List<CaptureConfig> unissuedCaptureConfigs = mCaptureSession.getCaptureConfigs();
         mCaptureSession = new CaptureSession(mHandler);
-        mCaptureSession.setSessionConfiguration(previousSessionConfiguration);
+        mCaptureSession.setSessionConfig(previousSessionConfig);
         // When the previous capture session has not reached the open state, the issued single
         // capture
         // requests will still be in request queue and will need to be passed to the next capture
         // session.
-        mCaptureSession.issueSingleCaptureRequests(unissuedCaptureRequestConfigurations);
+        mCaptureSession.issueSingleCaptureRequests(unissuedCaptureConfigs);
     }
 
     private CameraDevice.StateCallback createDeviceStateCallback() {
         synchronized (mAttachedUseCaseLock) {
-            SessionConfiguration configuration = mUseCaseAttachState.getOnlineBuilder().build();
+            SessionConfig config = mUseCaseAttachState.getOnlineBuilder().build();
             return CameraDeviceStateCallbacks.createComboCallback(
-                    mStateCallback, configuration.getDeviceStateCallback());
+                    mStateCallback, config.getDeviceStateCallback());
         }
     }
 
     /**
-     * Checks if there's valid repeating surface and attaches one to
-     * {@link CaptureRequestConfiguration.Builder}.
+     * Checks if there's valid repeating surface and attaches one to {@link CaptureConfig.Builder}.
      *
-     * @param captureRequestConfigurationBuilder the configuration builder to attach a repeating
-     *                                           surface
+     * @param captureConfigBuilder the configuration builder to attach a repeating surface
      * @return True if repeating surface has been successfully attached, otherwise false.
      */
-    private boolean checkAndAttachRepeatingSurface(
-            CaptureRequestConfiguration.Builder captureRequestConfigurationBuilder) {
+    private boolean checkAndAttachRepeatingSurface(CaptureConfig.Builder captureConfigBuilder) {
         Collection<UseCase> activeUseCases;
         synchronized (mAttachedUseCaseLock) {
             activeUseCases = mUseCaseAttachState.getActiveAndOnlineUseCases();
@@ -576,25 +570,22 @@ final class Camera implements BaseCamera {
 
         DeferrableSurface repeatingSurface = null;
         for (UseCase useCase : activeUseCases) {
-            SessionConfiguration sessionConfiguration = useCase.getSessionConfiguration(mCameraId);
-            List<DeferrableSurface> surfaces =
-                    sessionConfiguration.getCaptureRequestConfiguration().getSurfaces();
+            SessionConfig sessionConfig = useCase.getSessionConfig(mCameraId);
+            List<DeferrableSurface> surfaces = sessionConfig.getCaptureConfig().getSurfaces();
             if (!surfaces.isEmpty()) {
-                // When an use case is active, all surfaces in its CaptureRequestConfiguration are
-                // added to
-                // the repeating request. Choose the first one here as the repeating surface.
+                // When an use case is active, all surfaces in its CaptureConfig are added to the
+                // repeating request. Choose the first one here as the repeating surface.
                 repeatingSurface = surfaces.get(0);
                 break;
             }
         }
 
         if (repeatingSurface == null) {
-            Log.w(TAG,
-                    "Unable to find a repeating surface to attach to CaptureRequestConfiguration");
+            Log.w(TAG, "Unable to find a repeating surface to attach to CaptureConfig");
             return false;
         }
 
-        captureRequestConfigurationBuilder.addSurface(repeatingSurface);
+        captureConfigBuilder.addSurface(repeatingSurface);
         return true;
     }
 
@@ -607,27 +598,25 @@ final class Camera implements BaseCamera {
     /**
      * Submits single request
      *
-     * @param captureRequestConfiguration capture configuration used for creating CaptureRequest
+     * @param captureConfig capture configuration used for creating CaptureRequest
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void submitSingleRequest(final CaptureRequestConfiguration captureRequestConfiguration) {
+    public void submitSingleRequest(final CaptureConfig captureConfig) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera.this.submitSingleRequest(captureRequestConfiguration);
+                    Camera.this.submitSingleRequest(captureConfig);
                 }
             });
             return;
         }
 
         // Recreates the Builder to add extra config needed
-        CaptureRequestConfiguration.Builder builder =
-                CaptureRequestConfiguration.Builder.from(captureRequestConfiguration);
+        CaptureConfig.Builder builder = CaptureConfig.Builder.from(captureConfig);
 
-        if (captureRequestConfiguration.getSurfaces().isEmpty()
-                && captureRequestConfiguration.isUseRepeatingSurface()) {
+        if (captureConfig.getSurfaces().isEmpty() && captureConfig.isUseRepeatingSurface()) {
             // Checks and attaches if there's valid repeating surface. If there's no, skip this
             // single request.
             if (!checkAndAttachRepeatingSurface(builder)) {
@@ -642,17 +631,15 @@ final class Camera implements BaseCamera {
 
     /** {@inheritDoc} */
     @Override
-    public void onCameraControlUpdateSessionConfiguration(
-            SessionConfiguration sessionConfiguration) {
-        mCameraControlSessionConfiguration = sessionConfiguration;
-        updateCaptureSessionConfiguration();
+    public void onCameraControlUpdateSessionConfig(SessionConfig sessionConfig) {
+        mCameraControlSessionConfig = sessionConfig;
+        updateCaptureSessionConfig();
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onCameraControlSingleRequest(
-            CaptureRequestConfiguration captureRequestConfiguration) {
-        submitSingleRequest(captureRequestConfiguration);
+    public void onCameraControlSingleRequest(CaptureConfig captureConfig) {
+        submitSingleRequest(captureConfig);
     }
 
     enum State {

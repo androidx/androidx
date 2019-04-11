@@ -23,7 +23,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
 
-import androidx.camera.core.AppConfiguration;
+import androidx.camera.core.AppConfig;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
@@ -31,10 +31,10 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageReaderProxy;
 import androidx.camera.core.ImageReaderProxys;
 import androidx.camera.core.ImmediateSurface;
-import androidx.camera.core.SessionConfiguration;
+import androidx.camera.core.SessionConfig;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
+import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -76,7 +76,7 @@ public final class ImageReaderProxysTest {
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        AppConfiguration appConfig = Camera2AppConfiguration.create(context);
+        AppConfig appConfig = Camera2AppConfig.create(context);
         CameraFactory cameraFactory = appConfig.getCameraFactory(null);
         CameraX.init(context, appConfig);
         mCamera = cameraFactory.getCamera(CAMERA_ID);
@@ -106,9 +106,8 @@ public final class ImageReaderProxysTest {
             semaphores.add(semaphore);
         }
 
-        FakeUseCaseConfiguration configuration =
-                new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
-        UseCase useCase = new UseCase(configuration, readers);
+        FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName("UseCase").build();
+        UseCase useCase = new UseCase(config, readers);
         CameraUtil.openCameraWithUseCase(CAMERA_ID, mCamera, useCase);
 
         // Wait for a few frames to be observed.
@@ -132,9 +131,8 @@ public final class ImageReaderProxysTest {
             semaphores.add(semaphore);
         }
 
-        FakeUseCaseConfiguration configuration =
-                new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
-        UseCase useCase = new UseCase(configuration, readers);
+        FakeUseCaseConfig config = new FakeUseCaseConfig.Builder().setTargetName("UseCase").build();
+        UseCase useCase = new UseCase(config, readers);
         CameraUtil.openCameraWithUseCase(CAMERA_ID, mCamera, useCase);
 
         // Wait for a few frames to be observed.
@@ -146,8 +144,8 @@ public final class ImageReaderProxysTest {
     private static final class UseCase extends FakeUseCase {
         private final List<ImageReaderProxy> mImageReaders;
 
-        private UseCase(FakeUseCaseConfiguration configuration, List<ImageReaderProxy> readers) {
-            super(configuration);
+        private UseCase(FakeUseCaseConfig config, List<ImageReaderProxy> readers) {
+            super(config);
             mImageReaders = readers;
             Map<String, Size> suggestedResolutionMap = new HashMap<>();
             suggestedResolutionMap.put(CAMERA_ID, new Size(640, 480));
@@ -157,7 +155,7 @@ public final class ImageReaderProxysTest {
         @Override
         protected Map<String, Size> onSuggestedResolutionUpdated(
                 Map<String, Size> suggestedResolutionMap) {
-            SessionConfiguration.Builder sessionConfigBuilder = new SessionConfiguration.Builder();
+            SessionConfig.Builder sessionConfigBuilder = new SessionConfig.Builder();
             sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             for (ImageReaderProxy reader : mImageReaders) {
                 sessionConfigBuilder.addSurface(new ImmediateSurface(reader.getSurface()));

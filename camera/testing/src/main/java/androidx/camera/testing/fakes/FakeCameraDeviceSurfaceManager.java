@@ -20,28 +20,26 @@ import android.util.Size;
 
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraDeviceSurfaceManager;
-import androidx.camera.core.SurfaceConfiguration;
+import androidx.camera.core.SurfaceConfig;
 import androidx.camera.core.UseCase;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** A CameraDeviceSurfaceManager which has no supported SurfaceConfigurations. */
+/** A CameraDeviceSurfaceManager which has no supported SurfaceConfigs. */
 public class FakeCameraDeviceSurfaceManager implements CameraDeviceSurfaceManager {
 
     private static final Size MAX_OUTPUT_SIZE = new Size(0, 0);
     private static final Size PREVIEW_SIZE = new Size(1920, 1080);
 
     @Override
-    public boolean checkSupported(
-            String cameraId, List<SurfaceConfiguration> surfaceConfigurationList) {
+    public boolean checkSupported(String cameraId, List<SurfaceConfig> surfaceConfigList) {
         return false;
     }
 
     @Override
-    public SurfaceConfiguration transformSurfaceConfiguration(
-            String cameraId, int imageFormat, Size size) {
+    public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {
         return null;
     }
 

@@ -30,14 +30,14 @@ import android.os.HandlerThread;
 import android.util.Size;
 
 import androidx.camera.core.BaseCamera;
-import androidx.camera.core.CameraDeviceConfiguration;
+import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImmediateSurface;
-import androidx.camera.core.SessionConfiguration;
+import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
+import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -82,13 +82,13 @@ public final class CameraTest {
     @Before
     public void setup() {
         mMockOnImageAvailableListener = Mockito.mock(ImageReader.OnImageAvailableListener.class);
-        FakeUseCaseConfiguration configuration =
-                new FakeUseCaseConfiguration.Builder()
+        FakeUseCaseConfig config =
+                new FakeUseCaseConfig.Builder()
                         .setTargetName("UseCase")
                         .setLensFacing(DEFAULT_LENS_FACING)
                         .build();
         mCameraId = getCameraIdForLensFacingUnchecked(DEFAULT_LENS_FACING);
-        mFakeUseCase = new TestUseCase(configuration, mMockOnImageAvailableListener);
+        mFakeUseCase = new TestUseCase(config, mMockOnImageAvailableListener);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, new Size(640, 480));
         mFakeUseCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -210,14 +210,14 @@ public final class CameraTest {
         ImageReader mImageReader;
 
         TestUseCase(
-                FakeUseCaseConfiguration configuration,
+                FakeUseCaseConfig config,
                 ImageReader.OnImageAvailableListener listener) {
-            super(configuration);
+            super(config);
             mImageAvailableListener = listener;
             mHandlerThread.start();
             mHandler = new Handler(mHandlerThread.getLooper());
             Map<String, Size> suggestedResolutionMap = new HashMap<>();
-            String cameraId = getCameraIdForLensFacingUnchecked(configuration.getLensFacing());
+            String cameraId = getCameraIdForLensFacingUnchecked(config.getLensFacing());
             suggestedResolutionMap.put(cameraId, new Size(640, 480));
             updateSuggestedResolution(suggestedResolutionMap);
         }
@@ -233,11 +233,10 @@ public final class CameraTest {
         @Override
         protected Map<String, Size> onSuggestedResolutionUpdated(
                 Map<String, Size> suggestedResolutionMap) {
-            LensFacing lensFacing =
-                    ((CameraDeviceConfiguration) getUseCaseConfiguration()).getLensFacing();
+            LensFacing lensFacing = ((CameraDeviceConfig) getUseCaseConfig()).getLensFacing();
             String cameraId = getCameraIdForLensFacingUnchecked(lensFacing);
             Size resolution = suggestedResolutionMap.get(cameraId);
-            SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+            SessionConfig.Builder builder = new SessionConfig.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             mImageReader =
                     ImageReader.newInstance(

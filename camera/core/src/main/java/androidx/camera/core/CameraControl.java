@@ -27,12 +27,7 @@ import androidx.annotation.RestrictTo.Scope;
  * The CameraControl Interface.
  *
  * <p>CameraControl is used for global camera operations like zoom, focus, flash and triggering
- * AF/AE. To control the global camera status across different UseCases,
- * getSingleRequestImplOptions() is used to attach the common request parameter to all SINGLE
- * CaptureRequests and getControlSessionConfiguration() is used to hook a {@link
- * SessionConfiguration} alongside with other use cases to determine the final sessionConfiguration.
- * A CameraControl implementation can use getControlSessionConfiguration to modify parameter for
- * repeating request or add a listener to check the capture result.
+ * AF/AE.
  *
  * @hide
  */
@@ -63,7 +58,7 @@ public interface CameraControl {
     void focus(
             Rect focus,
             Rect metering,
-            @Nullable OnFocusCompletedListener listener,
+            @Nullable OnFocusListener listener,
             @Nullable Handler handler);
 
     /**
@@ -112,9 +107,9 @@ public interface CameraControl {
     /**
      * Performs a single capture request.
      *
-     * @param captureRequestConfiguration
+     * @param captureConfig
      */
-    void submitSingleRequest(CaptureRequestConfiguration captureRequestConfiguration);
+    void submitSingleRequest(CaptureConfig captureConfig);
 
     CameraControl DEFAULT_EMPTY_INSTANCE = new CameraControl() {
         @Override
@@ -122,7 +117,7 @@ public interface CameraControl {
         }
 
         @Override
-        public void focus(Rect focus, Rect metering, @Nullable OnFocusCompletedListener listener,
+        public void focus(Rect focus, Rect metering, @Nullable OnFocusListener listener,
                 @Nullable Handler handler) {
         }
 
@@ -167,8 +162,7 @@ public interface CameraControl {
         }
 
         @Override
-        public void submitSingleRequest(
-                CaptureRequestConfiguration captureRequestConfiguration) {
+        public void submitSingleRequest(CaptureConfig captureConfig) {
         }
     };
 
@@ -176,9 +170,9 @@ public interface CameraControl {
     interface ControlUpdateListener {
 
         /** Called when CameraControl has updated session configuration. */
-        void onCameraControlUpdateSessionConfiguration(SessionConfiguration sessionConfiguration);
+        void onCameraControlUpdateSessionConfig(SessionConfig sessionConfig);
 
         /** Called when CameraControl need to send single request. */
-        void onCameraControlSingleRequest(CaptureRequestConfiguration captureRequestConfiguration);
+        void onCameraControlSingleRequest(CaptureConfig captureConfig);
     }
 }

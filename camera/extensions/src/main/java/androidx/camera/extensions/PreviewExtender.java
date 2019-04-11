@@ -26,9 +26,9 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.Configuration;
-import androidx.camera.core.Configuration.Option;
-import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.Config;
+import androidx.camera.core.Config.Option;
+import androidx.camera.core.PreviewConfig;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -38,10 +38,10 @@ import java.lang.reflect.InvocationTargetException;
  */
 public abstract class PreviewExtender {
     private static final String TAG = "PreviewExtender";
-    private final PreviewConfiguration.Builder mBuilder;
+    private final PreviewConfig.Builder mBuilder;
     protected PreviewExtender mImpl;
 
-    public PreviewExtender(PreviewConfiguration.Builder builder) {
+    public PreviewExtender(PreviewConfig.Builder builder) {
         mBuilder = builder;
     }
 
@@ -49,7 +49,7 @@ public abstract class PreviewExtender {
         try {
             final Class<?> previewClass = Class.forName(className);
             Constructor<?> previewConstructor =
-                    previewClass.getDeclaredConstructor(PreviewConfiguration.Builder.class);
+                    previewClass.getDeclaredConstructor(PreviewConfig.Builder.class);
             mImpl = (PreviewExtender) previewConstructor.newInstance(mBuilder);
         } catch (ClassNotFoundException
                 | NoSuchMethodException
@@ -68,8 +68,7 @@ public abstract class PreviewExtender {
     }
 
     /**
-     * Indicates whether extension function can support with
-     * {@link PreviewConfiguration.Builder}
+     * Indicates whether extension function can support with {@link PreviewConfig.Builder}
      *
      * @return True if the specific extension function is supported for the camera device.
      */
@@ -108,13 +107,12 @@ public abstract class PreviewExtender {
     }
 
     protected void setCaptureStage(@NonNull CaptureStage captureStage) {
-        Configuration configuration =
-                captureStage.getCaptureRequestConfiguration().getImplementationOptions();
+        Config config = captureStage.getCaptureConfig().getImplementationOptions();
 
-        for (Option<?> option : configuration.listOptions()) {
+        for (Option<?> option : config.listOptions()) {
             @SuppressWarnings("unchecked") // Options/values are being copied directly
                     Option<Object> objectOpt = (Option<Object>) option;
-            mBuilder.insertOption(objectOpt, configuration.retrieveOption(objectOpt));
+            mBuilder.insertOption(objectOpt, config.retrieveOption(objectOpt));
         }
     }
 }

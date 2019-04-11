@@ -35,7 +35,7 @@ import androidx.camera.camera2.SemaphoreReleasingCamera2Callbacks.SessionCapture
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageAnalysisConfiguration;
+import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
@@ -92,7 +92,7 @@ public final class Camera2ImplCameraXTest {
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.init(context, Camera2AppConfiguration.create(context));
+        CameraX.init(context, Camera2AppConfig.create(context));
         mLifecycle = new FakeLifecycleOwner();
         mHandlerThread = new HandlerThread("ErrorHandlerThread");
         mHandlerThread.start();
@@ -116,11 +116,11 @@ public final class Camera2ImplCameraXTest {
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
-                ImageAnalysisConfiguration configuration =
-                        new ImageAnalysisConfiguration.Builder()
+                ImageAnalysisConfig config =
+                        new ImageAnalysisConfig.Builder()
                                 .setLensFacing(DEFAULT_LENS_FACING)
                                 .build();
-                ImageAnalysis useCase = new ImageAnalysis(configuration);
+                ImageAnalysis useCase = new ImageAnalysis(config);
                 CameraX.bindToLifecycle(mLifecycle, useCase);
 
                 useCase.setAnalyzer(mImageAnalyzer);
@@ -143,11 +143,11 @@ public final class Camera2ImplCameraXTest {
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
-                ImageAnalysisConfiguration configuration =
-                        new ImageAnalysisConfiguration.Builder()
+                ImageAnalysisConfig config =
+                        new ImageAnalysisConfig.Builder()
                                 .setLensFacing(DEFAULT_LENS_FACING)
                                 .build();
-                ImageAnalysis useCase = new ImageAnalysis(configuration);
+                ImageAnalysis useCase = new ImageAnalysis(config);
                 CameraX.bindToLifecycle(mLifecycle, useCase);
                 useCase.setAnalyzer(mImageAnalyzer);
                 mAnalysisResult.observe(mLifecycle, createCountIncrementingObserver(observedCount));
@@ -174,13 +174,12 @@ public final class Camera2ImplCameraXTest {
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
-                ImageAnalysisConfiguration.Builder configurationBuilder =
-                        new ImageAnalysisConfiguration.Builder().setLensFacing(
-                                DEFAULT_LENS_FACING);
-                new Camera2Configuration.Extender(configurationBuilder)
+                ImageAnalysisConfig.Builder configBuilder =
+                        new ImageAnalysisConfig.Builder().setLensFacing(DEFAULT_LENS_FACING);
+                new Camera2Config.Extender(configBuilder)
                         .setDeviceStateCallback(deviceStateCallback)
                         .setSessionCaptureCallback(sessionCaptureCallback);
-                ImageAnalysis useCase = new ImageAnalysis(configurationBuilder.build());
+                ImageAnalysis useCase = new ImageAnalysis(configBuilder.build());
                 CameraX.bindToLifecycle(mLifecycle, useCase);
                 useCase.setAnalyzer(mImageAnalyzer);
                 mAnalysisResult.observe(mLifecycle, createCountIncrementingObserver(observedCount));
@@ -215,11 +214,11 @@ public final class Camera2ImplCameraXTest {
 
     @Test
     public void bind_opensCamera() {
-        ImageAnalysisConfiguration.Builder builder =
-                new ImageAnalysisConfiguration.Builder().setLensFacing(DEFAULT_LENS_FACING);
-        new Camera2Configuration.Extender(builder).setDeviceStateCallback(mMockStateCallback);
-        ImageAnalysisConfiguration configuration = builder.build();
-        ImageAnalysis useCase = new ImageAnalysis(configuration);
+        ImageAnalysisConfig.Builder builder =
+                new ImageAnalysisConfig.Builder().setLensFacing(DEFAULT_LENS_FACING);
+        new Camera2Config.Extender(builder).setDeviceStateCallback(mMockStateCallback);
+        ImageAnalysisConfig config = builder.build();
+        ImageAnalysis useCase = new ImageAnalysis(config);
         CameraX.bindToLifecycle(mLifecycle, useCase);
         useCase.setAnalyzer(mImageAnalyzer);
         mLifecycle.startAndResume();
@@ -229,11 +228,11 @@ public final class Camera2ImplCameraXTest {
 
     @Test
     public void bind_opensCamera_withOutAnalyzer() {
-        ImageAnalysisConfiguration.Builder builder =
-                new ImageAnalysisConfiguration.Builder().setLensFacing(DEFAULT_LENS_FACING);
-        new Camera2Configuration.Extender(builder).setDeviceStateCallback(mMockStateCallback);
-        ImageAnalysisConfiguration configuration = builder.build();
-        ImageAnalysis useCase = new ImageAnalysis(configuration);
+        ImageAnalysisConfig.Builder builder =
+                new ImageAnalysisConfig.Builder().setLensFacing(DEFAULT_LENS_FACING);
+        new Camera2Config.Extender(builder).setDeviceStateCallback(mMockStateCallback);
+        ImageAnalysisConfig config = builder.build();
+        ImageAnalysis useCase = new ImageAnalysis(config);
         CameraX.bindToLifecycle(mLifecycle, useCase);
         mLifecycle.startAndResume();
 
@@ -242,14 +241,14 @@ public final class Camera2ImplCameraXTest {
 
     @Test
     public void bind_unbind_loopWithOutAnalyzer() {
-        ImageAnalysisConfiguration.Builder builder =
-                new ImageAnalysisConfiguration.Builder().setLensFacing(DEFAULT_LENS_FACING);
-        new Camera2Configuration.Extender(builder).setDeviceStateCallback(mMockStateCallback);
+        ImageAnalysisConfig.Builder builder =
+                new ImageAnalysisConfig.Builder().setLensFacing(DEFAULT_LENS_FACING);
+        new Camera2Config.Extender(builder).setDeviceStateCallback(mMockStateCallback);
         mLifecycle.startAndResume();
 
         for (int i = 0; i < 2; i++) {
-            ImageAnalysisConfiguration configuration = builder.build();
-            ImageAnalysis useCase = new ImageAnalysis(configuration);
+            ImageAnalysisConfig config = builder.build();
+            ImageAnalysis useCase = new ImageAnalysis(config);
             CameraX.bindToLifecycle(mLifecycle, useCase);
 
             verify(mMockStateCallback, timeout(5000)).onOpened(any(CameraDevice.class));
@@ -262,14 +261,14 @@ public final class Camera2ImplCameraXTest {
 
     @Test
     public void bind_unbind_loopWithAnalyzer() {
-        ImageAnalysisConfiguration.Builder builder =
-                new ImageAnalysisConfiguration.Builder().setLensFacing(DEFAULT_LENS_FACING);
-        new Camera2Configuration.Extender(builder).setDeviceStateCallback(mMockStateCallback);
+        ImageAnalysisConfig.Builder builder =
+                new ImageAnalysisConfig.Builder().setLensFacing(DEFAULT_LENS_FACING);
+        new Camera2Config.Extender(builder).setDeviceStateCallback(mMockStateCallback);
         mLifecycle.startAndResume();
 
         for (int i = 0; i < 2; i++) {
-            ImageAnalysisConfiguration configuration = builder.build();
-            ImageAnalysis useCase = new ImageAnalysis(configuration);
+            ImageAnalysisConfig config = builder.build();
+            ImageAnalysis useCase = new ImageAnalysis(config);
             CameraX.bindToLifecycle(mLifecycle, useCase);
             useCase.setAnalyzer(mImageAnalyzer);
 
@@ -283,11 +282,11 @@ public final class Camera2ImplCameraXTest {
 
     @Test
     public void unbindAll_closesAllCameras() {
-        ImageAnalysisConfiguration.Builder builder =
-                new ImageAnalysisConfiguration.Builder().setLensFacing(DEFAULT_LENS_FACING);
-        new Camera2Configuration.Extender(builder).setDeviceStateCallback(mMockStateCallback);
-        ImageAnalysisConfiguration configuration = builder.build();
-        ImageAnalysis useCase = new ImageAnalysis(configuration);
+        ImageAnalysisConfig.Builder builder =
+                new ImageAnalysisConfig.Builder().setLensFacing(DEFAULT_LENS_FACING);
+        new Camera2Config.Extender(builder).setDeviceStateCallback(mMockStateCallback);
+        ImageAnalysisConfig config = builder.build();
+        ImageAnalysis useCase = new ImageAnalysis(config);
         CameraX.bindToLifecycle(mLifecycle, useCase);
         mLifecycle.startAndResume();
 
@@ -300,11 +299,11 @@ public final class Camera2ImplCameraXTest {
 
     @Test
     public void unbindAllAssociatedUseCase_closesCamera() {
-        ImageAnalysisConfiguration.Builder builder =
-                new ImageAnalysisConfiguration.Builder().setLensFacing(DEFAULT_LENS_FACING);
-        new Camera2Configuration.Extender(builder).setDeviceStateCallback(mMockStateCallback);
-        ImageAnalysisConfiguration configuration = builder.build();
-        ImageAnalysis useCase = new ImageAnalysis(configuration);
+        ImageAnalysisConfig.Builder builder =
+                new ImageAnalysisConfig.Builder().setLensFacing(DEFAULT_LENS_FACING);
+        new Camera2Config.Extender(builder).setDeviceStateCallback(mMockStateCallback);
+        ImageAnalysisConfig config = builder.build();
+        ImageAnalysis useCase = new ImageAnalysis(config);
         CameraX.bindToLifecycle(mLifecycle, useCase);
         mLifecycle.startAndResume();
 
@@ -317,17 +316,17 @@ public final class Camera2ImplCameraXTest {
 
     @Test
     public void unbindPartialAssociatedUseCase_doesNotCloseCamera() throws InterruptedException {
-        ImageAnalysisConfiguration.Builder builder =
-                new ImageAnalysisConfiguration.Builder().setLensFacing(DEFAULT_LENS_FACING);
-        new Camera2Configuration.Extender(builder).setDeviceStateCallback(mMockStateCallback);
-        ImageAnalysisConfiguration configuration0 = builder.build();
-        ImageAnalysis useCase0 = new ImageAnalysis(configuration0);
+        ImageAnalysisConfig.Builder builder =
+                new ImageAnalysisConfig.Builder().setLensFacing(DEFAULT_LENS_FACING);
+        new Camera2Config.Extender(builder).setDeviceStateCallback(mMockStateCallback);
+        ImageAnalysisConfig config0 = builder.build();
+        ImageAnalysis useCase0 = new ImageAnalysis(config0);
 
-        ImageAnalysisConfiguration configuration1 =
-                new ImageAnalysisConfiguration.Builder()
+        ImageAnalysisConfig config1 =
+                new ImageAnalysisConfig.Builder()
                         .setLensFacing(DEFAULT_LENS_FACING)
                         .build();
-        ImageAnalysis useCase1 = new ImageAnalysis(configuration1);
+        ImageAnalysis useCase1 = new ImageAnalysis(config1);
 
         CameraX.bindToLifecycle(mLifecycle, useCase0, useCase1);
         mLifecycle.startAndResume();
@@ -343,17 +342,17 @@ public final class Camera2ImplCameraXTest {
 
     @Test
     public void unbindAllAssociatedUseCaseInParts_ClosesCamera() {
-        ImageAnalysisConfiguration.Builder builder =
-                new ImageAnalysisConfiguration.Builder().setLensFacing(DEFAULT_LENS_FACING);
-        new Camera2Configuration.Extender(builder).setDeviceStateCallback(mMockStateCallback);
-        ImageAnalysisConfiguration configuration0 = builder.build();
-        ImageAnalysis useCase0 = new ImageAnalysis(configuration0);
+        ImageAnalysisConfig.Builder builder =
+                new ImageAnalysisConfig.Builder().setLensFacing(DEFAULT_LENS_FACING);
+        new Camera2Config.Extender(builder).setDeviceStateCallback(mMockStateCallback);
+        ImageAnalysisConfig config0 = builder.build();
+        ImageAnalysis useCase0 = new ImageAnalysis(config0);
 
-        ImageAnalysisConfiguration configuration1 =
-                new ImageAnalysisConfiguration.Builder()
+        ImageAnalysisConfig config1 =
+                new ImageAnalysisConfig.Builder()
                         .setLensFacing(DEFAULT_LENS_FACING)
                         .build();
-        ImageAnalysis useCase1 = new ImageAnalysis(configuration1);
+        ImageAnalysis useCase1 = new ImageAnalysis(config1);
 
         CameraX.bindToLifecycle(mLifecycle, useCase0, useCase1);
         mLifecycle.startAndResume();

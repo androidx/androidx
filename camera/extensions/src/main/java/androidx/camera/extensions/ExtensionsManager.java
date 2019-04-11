@@ -17,9 +17,9 @@ package androidx.camera.extensions;
 
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.PreviewConfig;
 
 /**
  * Provides interfaces for third party app developers to get capabilities info of extension
@@ -76,7 +76,7 @@ public final class ExtensionsManager {
 
     private static boolean checkImageCaptureExtensionCapability(EffectMode effectMode,
             LensFacing lensFacing) {
-        ImageCaptureConfiguration.Builder builder = new ImageCaptureConfiguration.Builder();
+        ImageCaptureConfig.Builder builder = new ImageCaptureConfig.Builder();
         builder.setLensFacing(lensFacing);
         ImageCaptureExtender extender;
 
@@ -97,7 +97,7 @@ public final class ExtensionsManager {
 
     private static boolean checkPreviewExtensionCapability(EffectMode effectMode,
             LensFacing lensFacing) {
-        PreviewConfiguration.Builder builder = new PreviewConfiguration.Builder();
+        PreviewConfig.Builder builder = new PreviewConfig.Builder();
         builder.setLensFacing(lensFacing);
         PreviewExtender extender;
 

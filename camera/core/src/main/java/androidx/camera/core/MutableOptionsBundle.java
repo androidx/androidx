@@ -29,7 +29,7 @@ import java.util.TreeMap;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class MutableOptionsBundle extends OptionsBundle implements MutableConfiguration {
+public final class MutableOptionsBundle extends OptionsBundle implements MutableConfig {
 
     private static final Comparator<Option<?>> ID_COMPARE =
             new Comparator<Option<?>>() {
@@ -53,12 +53,12 @@ public final class MutableOptionsBundle extends OptionsBundle implements Mutable
     }
 
     /**
-     * Creates a MutableOptionsBundle from an existing immutable Configuration.
+     * Creates a MutableOptionsBundle from an existing immutable Config.
      *
      * @param otherConfig configuration options to insert.
      * @return a MutableOptionsBundle prepopulated with configuration options.
      */
-    public static MutableOptionsBundle from(Configuration otherConfig) {
+    public static MutableOptionsBundle from(Config otherConfig) {
         TreeMap<Option<?>, Object> persistentOptions = new TreeMap<>(ID_COMPARE);
         for (Option<?> opt : otherConfig.listOptions()) {
             persistentOptions.put(opt, otherConfig.retrieveOption(opt));

@@ -35,7 +35,7 @@ import java.util.List;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class SurfaceCombination {
 
-    private final List<SurfaceConfiguration> mSurfaceConfigurationList = new ArrayList<>();
+    private final List<SurfaceConfig> mSurfaceConfigList = new ArrayList<>();
 
     public SurfaceCombination() {
     }
@@ -64,64 +64,63 @@ public final class SurfaceCombination {
         }
     }
 
-    /** Adds a {@link SurfaceConfiguration} to the combination. */
-    public boolean addSurfaceConfiguration(SurfaceConfiguration surfaceConfiguration) {
-        if (surfaceConfiguration == null) {
+    /** Adds a {@link SurfaceConfig} to the combination. */
+    public boolean addSurfaceConfig(SurfaceConfig surfaceConfig) {
+        if (surfaceConfig == null) {
             return false;
         }
 
-        return mSurfaceConfigurationList.add(surfaceConfiguration);
+        return mSurfaceConfigList.add(surfaceConfig);
     }
 
-    /** Removes a {@link SurfaceConfiguration} from the combination. */
-    public boolean removeSurfaceConfiguration(SurfaceConfiguration surfaceConfiguration) {
-        if (surfaceConfiguration == null) {
+    /** Removes a {@link SurfaceConfig} from the combination. */
+    public boolean removeSurfaceConfig(SurfaceConfig surfaceConfig) {
+        if (surfaceConfig == null) {
             return false;
         }
 
-        return mSurfaceConfigurationList.remove(surfaceConfiguration);
+        return mSurfaceConfigList.remove(surfaceConfig);
     }
 
-    public List<SurfaceConfiguration> getSurfaceConfigurationList() {
-        return mSurfaceConfigurationList;
+    public List<SurfaceConfig> getSurfaceConfigList() {
+        return mSurfaceConfigList;
     }
 
     /**
      * Check whether the input surface configuration list is under the capability of the combination
      * of this object.
      *
-     * @param configurationList the surface configuration list to be compared
+     * @param configList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
-    public boolean isSupported(List<SurfaceConfiguration> configurationList) {
+    public boolean isSupported(List<SurfaceConfig> configList) {
         boolean isSupported = false;
 
-        if (configurationList == null || configurationList.isEmpty()) {
+        if (configList == null || configList.isEmpty()) {
             return true;
         }
 
         /**
-         * Sublist of this surfaceConfiguration may be able to support the desired configuration.
+         * Sublist of this surfaceConfig may be able to support the desired configuration.
          * For example, (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (JPEG, MAXIMUM) can supported by the
          * following level3 camera device combination - (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (JPEG,
          * MAXIMUM) + (RAW, MAXIMUM).
          */
-        if (configurationList.size() > mSurfaceConfigurationList.size()) {
+        if (configList.size() > mSurfaceConfigList.size()) {
             return false;
         }
 
-        List<int[]> elementsArrangements = getElementsArrangements(
-                mSurfaceConfigurationList.size());
+        List<int[]> elementsArrangements = getElementsArrangements(mSurfaceConfigList.size());
 
         for (int[] elementsArrangement : elementsArrangements) {
             boolean checkResult = true;
 
-            for (int index = 0; index < mSurfaceConfigurationList.size(); index++) {
-                if (elementsArrangement[index] < configurationList.size()) {
+            for (int index = 0; index < mSurfaceConfigList.size(); index++) {
+                if (elementsArrangement[index] < configList.size()) {
                     checkResult &=
-                            mSurfaceConfigurationList
+                            mSurfaceConfigList
                                     .get(index)
-                                    .isSupported(configurationList.get(elementsArrangement[index]));
+                                    .isSupported(configList.get(elementsArrangement[index]));
 
                     if (!checkResult) {
                         break;

@@ -41,20 +41,20 @@ import android.widget.Toast;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.CameraDeviceConfiguration;
+import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageAnalysisConfiguration;
+import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
-import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCaptureConfiguration;
+import androidx.camera.core.VideoCaptureConfig;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
@@ -151,13 +151,13 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void enablePreview() {
-        PreviewConfiguration configuration =
-                new PreviewConfiguration.Builder()
+        PreviewConfig config =
+                new PreviewConfig.Builder()
                         .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("Preview")
                         .build();
 
-        mPreview = new Preview(configuration);
+        mPreview = new Preview(config);
         TextureView textureView = findViewById(R.id.textureView);
         mPreview.setOnPreviewOutputUpdateListener(
                 new Preview.OnPreviewOutputUpdateListener() {
@@ -215,7 +215,7 @@ public class CameraXActivity extends AppCompatActivity
     void transformPreview() {
         String cameraId = null;
         LensFacing previewLensFacing =
-                ((CameraDeviceConfiguration) mPreview.getUseCaseConfiguration())
+                ((CameraDeviceConfig) mPreview.getUseCaseConfig())
                         .getLensFacing(/*valueIfMissing=*/ null);
         if (previewLensFacing != mCurrentCameraLensFacing) {
             throw new IllegalStateException(
@@ -380,14 +380,14 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void enableImageAnalysis() {
-        ImageAnalysisConfiguration configuration =
-                new ImageAnalysisConfiguration.Builder()
+        ImageAnalysisConfig config =
+                new ImageAnalysisConfig.Builder()
                         .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("ImageAnalysis")
                         .setCallbackHandler(new Handler(Looper.getMainLooper()))
                         .build();
 
-        mImageAnalysis = new ImageAnalysis(configuration);
+        mImageAnalysis = new ImageAnalysis(config);
         TextView textView = this.findViewById(R.id.textView);
         mAnalysisIdlingResource.increment();
 
@@ -457,13 +457,13 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void enableImageCapture() {
-        ImageCaptureConfiguration configuration =
-                new ImageCaptureConfiguration.Builder()
+        ImageCaptureConfig config =
+                new ImageCaptureConfig.Builder()
                         .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("ImageCapture")
                         .build();
 
-        mImageCapture = new ImageCapture(configuration);
+        mImageCapture = new ImageCapture(config);
 
         if (!bindToLifecycleSafely(mImageCapture, R.id.PhotoToggle)) {
             Button button = this.findViewById(R.id.Picture);
@@ -595,13 +595,13 @@ public class CameraXActivity extends AppCompatActivity
     }
 
     void enableVideoCapture() {
-        VideoCaptureConfiguration configuration =
-                new VideoCaptureConfiguration.Builder()
+        VideoCaptureConfig config =
+                new VideoCaptureConfig.Builder()
                         .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("VideoCapture")
                         .build();
 
-        mVideoCapture = new VideoCapture(configuration);
+        mVideoCapture = new VideoCapture(config);
 
         if (!bindToLifecycleSafely(mVideoCapture, R.id.VideoToggle)) {
             Button button = this.findViewById(R.id.Video);

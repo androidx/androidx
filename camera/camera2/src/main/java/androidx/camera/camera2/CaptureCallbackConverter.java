@@ -44,7 +44,7 @@ final class CaptureCallbackConverter {
         toCaptureCallback(cameraCaptureCallback, list);
         return list.size() == 1
                 ? list.get(0)
-                : Camera2CaptureSessionCaptureCallbacks.createComboCallback(list);
+                : Camera2CaptureCallbacks.createComboCallback(list);
     }
 
     /**
@@ -73,8 +73,8 @@ final class CaptureCallbackConverter {
                     (CaptureCallbackContainer) cameraCaptureCallback;
             captureCallbackList.add(callbackContainer.getCaptureCallback());
         } else {
-            // Create a CameraCaptureCallbackAdapter.
-            captureCallbackList.add(new CameraCaptureCallbackAdapter(cameraCaptureCallback));
+            // Create a CaptureCallbackAdapter.
+            captureCallbackList.add(new CaptureCallbackAdapter(cameraCaptureCallback));
         }
     }
 }

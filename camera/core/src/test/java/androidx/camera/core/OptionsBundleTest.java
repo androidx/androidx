@@ -20,14 +20,13 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
-import androidx.camera.core.Configuration.Option;
+import androidx.camera.core.Config.Option;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.Set;
@@ -37,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class OptionsBundleTest {
 
     private static final Option<Object> OPTION_1 = Option.create("option.1", Object.class);
@@ -105,7 +104,7 @@ public class OptionsBundleTest {
     public void canFindPartialIds() {
         mAllOpts.findOptions(
                 "option.1",
-                new Configuration.OptionMatcher() {
+                new Config.OptionMatcher() {
                     @Override
                     public boolean onOptionMatched(Option<?> option) {
                         assertThat(option).isAnyOf(OPTION_1, OPTION_1_A);
@@ -119,7 +118,7 @@ public class OptionsBundleTest {
         final AtomicInteger count = new AtomicInteger();
         mAllOpts.findOptions(
                 "option",
-                new Configuration.OptionMatcher() {
+                new Config.OptionMatcher() {
                     @Override
                     public boolean onOptionMatched(Option<?> option) {
                         count.getAndIncrement();
@@ -135,7 +134,7 @@ public class OptionsBundleTest {
         final AtomicInteger count = new AtomicInteger();
         mAllOpts.findOptions(
                 "invalid_find_string",
-                new Configuration.OptionMatcher() {
+                new Config.OptionMatcher() {
                     @Override
                     public boolean onOptionMatched(Option<?> option) {
                         count.getAndIncrement();
@@ -151,7 +150,7 @@ public class OptionsBundleTest {
         final AtomicReference<Object> value = new AtomicReference<>(VALUE_MISSING);
         mAllOpts.findOptions(
                 "option.2",
-                new Configuration.OptionMatcher() {
+                new Config.OptionMatcher() {
                     @Override
                     public boolean onOptionMatched(Option<?> option) {
                         value.set(mAllOpts.retrieveOption(option));

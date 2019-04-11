@@ -40,7 +40,7 @@ public final class Camera2Initializer extends ContentProvider {
     public boolean onCreate() {
         Log.d(TAG, "CameraX initializing with Camera2 ...");
 
-        CameraX.init(getContext(), Camera2AppConfiguration.create(getContext()));
+        CameraX.init(getContext(), Camera2AppConfig.create(getContext()));
         return false;
     }
 

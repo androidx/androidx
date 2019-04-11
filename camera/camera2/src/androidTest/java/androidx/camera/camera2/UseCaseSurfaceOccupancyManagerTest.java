@@ -18,13 +18,13 @@ package androidx.camera.camera2;
 
 import android.content.Context;
 
-import androidx.camera.core.AppConfiguration;
+import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
-import androidx.camera.core.VideoCaptureConfiguration;
+import androidx.camera.core.VideoCaptureConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -43,15 +43,15 @@ public final class UseCaseSurfaceOccupancyManagerTest {
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
-        AppConfiguration appConfig = Camera2AppConfiguration.create(context);
+        AppConfig appConfig = Camera2AppConfig.create(context);
         CameraX.init(context, appConfig);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void failedWhenBindTooManyImageCapture() {
-        ImageCaptureConfiguration configuration = new ImageCaptureConfiguration.Builder().build();
-        ImageCapture useCase1 = new ImageCapture(configuration);
-        ImageCapture useCase2 = new ImageCapture(configuration);
+        ImageCaptureConfig config = new ImageCaptureConfig.Builder().build();
+        ImageCapture useCase1 = new ImageCapture(config);
+        ImageCapture useCase2 = new ImageCapture(config);
 
         // Should throw IllegalArgumentException
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
@@ -61,9 +61,9 @@ public final class UseCaseSurfaceOccupancyManagerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void failedWhenBindTooManyVideoCapture() {
-        VideoCaptureConfiguration configuration = new VideoCaptureConfiguration.Builder().build();
-        VideoCapture useCase1 = new VideoCapture(configuration);
-        VideoCapture useCase2 = new VideoCapture(configuration);
+        VideoCaptureConfig config = new VideoCaptureConfig.Builder().build();
+        VideoCapture useCase1 = new VideoCapture(config);
+        VideoCapture useCase2 = new VideoCapture(config);
 
         // Should throw IllegalArgumentException
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
@@ -73,13 +73,11 @@ public final class UseCaseSurfaceOccupancyManagerTest {
 
     @Test
     public void passWhenNotBindTooManyImageVideoCapture() {
-        ImageCaptureConfiguration imageCaptureConfiguration =
-                new ImageCaptureConfiguration.Builder().build();
-        ImageCapture imageCapture = new ImageCapture(imageCaptureConfiguration);
+        ImageCaptureConfig imageCaptureConfig = new ImageCaptureConfig.Builder().build();
+        ImageCapture imageCapture = new ImageCapture(imageCaptureConfig);
 
-        VideoCaptureConfiguration videoCaptureConfiguration =
-                new VideoCaptureConfiguration.Builder().build();
-        VideoCapture videoCapture = new VideoCapture(videoCaptureConfiguration);
+        VideoCaptureConfig videoCaptureConfig = new VideoCaptureConfig.Builder().build();
+        VideoCapture videoCapture = new VideoCapture(videoCaptureConfig);
 
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
                 Collections.<UseCase>singletonList(imageCapture),

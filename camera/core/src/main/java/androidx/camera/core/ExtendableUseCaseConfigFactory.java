@@ -24,34 +24,29 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@link androidx.camera.core.UseCaseConfigurationFactory} that uses {@link
- * ConfigurationProvider}s to provide configurations.
+ * A {@link UseCaseConfigFactory} that uses {@link ConfigProvider}s to provide configurations.
  *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class ExtendableUseCaseConfigFactory implements UseCaseConfigurationFactory {
-    private final Map<Class<?>, ConfigurationProvider<?>> mDefaultProviders = new HashMap<>();
+public final class ExtendableUseCaseConfigFactory implements UseCaseConfigFactory {
+    private final Map<Class<?>, ConfigProvider<?>> mDefaultProviders = new HashMap<>();
 
-    /**
-     * Inserts or overrides the {@link androidx.camera.core.ConfigurationProvider} for the given
-     * config type.
-     */
-    public <C extends Configuration> void installDefaultProvider(
-            Class<C> configType, ConfigurationProvider<C> defaultProvider) {
+    /** Inserts or overrides the {@link ConfigProvider} for the given config type. */
+    public <C extends Config> void installDefaultProvider(
+            Class<C> configType, ConfigProvider<C> defaultProvider) {
         mDefaultProviders.put(configType, defaultProvider);
     }
 
     @Nullable
     @Override
-    public <C extends UseCaseConfiguration<?>> C getConfiguration(Class<C> configType,
+    public <C extends UseCaseConfig<?>> C getConfig(Class<C> configType,
             CameraX.LensFacing lensFacing) {
         @SuppressWarnings("unchecked") // Providers only could have been inserted with
                 // installDefaultProvider(), so the class should return the correct type.
-                ConfigurationProvider<C> provider =
-                (ConfigurationProvider<C>) mDefaultProviders.get(configType);
+                ConfigProvider<C> provider = (ConfigProvider<C>) mDefaultProviders.get(configType);
         if (provider != null) {
-            return provider.getConfiguration(lensFacing);
+            return provider.getConfig(lensFacing);
         }
         return null;
     }

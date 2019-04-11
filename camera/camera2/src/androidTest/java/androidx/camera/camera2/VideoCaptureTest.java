@@ -25,7 +25,7 @@ import android.Manifest;
 import android.content.Context;
 import android.util.Size;
 
-import androidx.camera.core.AppConfiguration;
+import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
@@ -33,7 +33,7 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCase.StateChangeListener;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedListener;
-import androidx.camera.core.VideoCaptureConfiguration;
+import androidx.camera.core.VideoCaptureConfig;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -68,7 +68,7 @@ public final class VideoCaptureTest {
     private final ArgumentCaptor<UseCase> mUseCaseCaptor = ArgumentCaptor.forClass(UseCase.class);
     private final OnVideoSavedListener mMockVideoSavedListener =
             Mockito.mock(OnVideoSavedListener.class);
-    private VideoCaptureConfiguration mDefaultConfiguration;
+    private VideoCaptureConfig mDefaultConfig;
     private String mCameraId;
 
     @Rule
@@ -77,22 +77,22 @@ public final class VideoCaptureTest {
 
     @Before
     public void setUp() {
-        mDefaultConfiguration = VideoCapture.DEFAULT_CONFIG.getConfiguration(null);
+        mDefaultConfig = VideoCapture.DEFAULT_CONFIG.getConfig(null);
         Context context = ApplicationProvider.getApplicationContext();
-        AppConfiguration appConfiguration = Camera2AppConfiguration.create(context);
-        CameraFactory cameraFactory = appConfiguration.getCameraFactory(/*valueIfMissing=*/ null);
+        AppConfig appConfig = Camera2AppConfig.create(context);
+        CameraFactory cameraFactory = appConfig.getCameraFactory(/*valueIfMissing=*/ null);
         try {
             mCameraId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
         } catch (Exception e) {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + LensFacing.BACK, e);
         }
-        CameraX.init(context, appConfiguration);
+        CameraX.init(context, appConfig);
     }
 
     @Test
     public void useCaseBecomesActive_whenStartingVideoRecording() {
-        VideoCapture useCase = new VideoCapture(mDefaultConfiguration);
+        VideoCapture useCase = new VideoCapture(mDefaultConfig);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -110,7 +110,7 @@ public final class VideoCaptureTest {
 
     @Test
     public void useCaseBecomesInactive_whenStoppingVideoRecording() {
-        VideoCapture useCase = new VideoCapture(mDefaultConfiguration);
+        VideoCapture useCase = new VideoCapture(mDefaultConfig);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -138,8 +138,8 @@ public final class VideoCaptureTest {
     }
 
     @Test
-    public void updateSessionConfigurationWithSuggestedResolution() {
-        VideoCapture useCase = new VideoCapture(mDefaultConfiguration);
+    public void updateSessionConfigWithSuggestedResolution() {
+        VideoCapture useCase = new VideoCapture(mDefaultConfig);
         // Create video encoder with default 1920x1080 resolution
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);

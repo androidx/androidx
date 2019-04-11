@@ -37,9 +37,9 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CaptureRequestConfiguration;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.FlashMode;
-import androidx.camera.core.SessionConfiguration;
+import androidx.camera.core.SessionConfig;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -55,10 +55,10 @@ public final class Camera2CameraControlTest {
 
     private Camera2CameraControl mCamera2CameraControl;
     private CameraControl.ControlUpdateListener mControlUpdateListener;
-    private ArgumentCaptor<SessionConfiguration> mSessionConfigurationArgumentCaptor =
-            ArgumentCaptor.forClass(SessionConfiguration.class);
-    private ArgumentCaptor<CaptureRequestConfiguration> mCaptureRequestConfigurationArgumentCaptor =
-            ArgumentCaptor.forClass(CaptureRequestConfiguration.class);
+    private ArgumentCaptor<SessionConfig> mSessionConfigArgumentCaptor =
+            ArgumentCaptor.forClass(SessionConfig.class);
+    private ArgumentCaptor<CaptureConfig> mCaptureConfigArgumentCaptor =
+            ArgumentCaptor.forClass(CaptureConfig.class);
 
     @Before
     @UiThreadTest
@@ -66,8 +66,8 @@ public final class Camera2CameraControlTest {
         mControlUpdateListener = mock(CameraControl.ControlUpdateListener.class);
         mCamera2CameraControl = new Camera2CameraControl(mControlUpdateListener, new Handler(
                 Looper.getMainLooper()));
-        // Reset the method call onCameraControlUpdateSessionConfiguration() in
-        // Camera2CameraControl constructor.
+        // Reset the method call onCameraControlUpdateSessionConfig() in Camera2CameraControl
+        // constructor.
         reset(mControlUpdateListener);
     }
 
@@ -77,16 +77,14 @@ public final class Camera2CameraControlTest {
         Rect rect = new Rect(0, 0, 10, 10);
 
         mCamera2CameraControl.setCropRegion(rect);
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfiguration(
-                mSessionConfigurationArgumentCaptor.capture());
-        SessionConfiguration sessionConfiguration = mSessionConfigurationArgumentCaptor.getValue();
-        Camera2Configuration repeatingConfig =
-                new Camera2Configuration(sessionConfiguration.getImplementationOptions());
+        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+                mSessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
+        Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
         assertThat(repeatingConfig.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null))
                 .isEqualTo(rect);
 
-        Camera2Configuration singleConfig =
-                new Camera2Configuration(mCamera2CameraControl.getSharedOptions());
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
         assertThat(singleConfig.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null))
                 .isEqualTo(rect);
     }
@@ -99,11 +97,10 @@ public final class Camera2CameraControlTest {
 
         mCamera2CameraControl.focus(focusRect, meteringRect);
 
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfiguration(
-                mSessionConfigurationArgumentCaptor.capture());
-        SessionConfiguration sessionConfiguration = mSessionConfigurationArgumentCaptor.getValue();
-        Camera2Configuration repeatingConfig =
-                new Camera2Configuration(sessionConfiguration.getImplementationOptions());
+        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+                mSessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
+        Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
 
         assertThat(
                 repeatingConfig.getCaptureRequestOption(
@@ -132,8 +129,7 @@ public final class Camera2CameraControlTest {
                                         meteringRect, MeteringRectangle.METERING_WEIGHT_MAX)
                         });
 
-        Camera2Configuration singleConfig =
-                new Camera2Configuration(mCamera2CameraControl.getSharedOptions());
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
         assertThat(
                 singleConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_REGIONS, null))
@@ -164,11 +160,10 @@ public final class Camera2CameraControlTest {
         assertThat(mCamera2CameraControl.isFocusLocked()).isTrue();
 
         verify(mControlUpdateListener).onCameraControlSingleRequest(
-                mCaptureRequestConfigurationArgumentCaptor.capture());
-        CaptureRequestConfiguration captureRequestConfiguration =
-                mCaptureRequestConfigurationArgumentCaptor.getValue();
-        Camera2Configuration resultCaptureConfig =
-                new Camera2Configuration(captureRequestConfiguration.getImplementationOptions());
+                mCaptureConfigArgumentCaptor.capture());
+        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue();
+        Camera2Config resultCaptureConfig =
+                new Camera2Config(captureConfig.getImplementationOptions());
 
         assertThat(resultCaptureConfig.getCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
                 null)).isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START);
@@ -183,12 +178,10 @@ public final class Camera2CameraControlTest {
         mCamera2CameraControl.focus(focusRect, meteringRect);
         mCamera2CameraControl.cancelFocus();
 
-        verify(mControlUpdateListener, times(2)).onCameraControlUpdateSessionConfiguration(
-                mSessionConfigurationArgumentCaptor.capture());
-        SessionConfiguration sessionConfiguration =
-                mSessionConfigurationArgumentCaptor.getAllValues().get(1);
-        Camera2Configuration repeatingConfig =
-                new Camera2Configuration(sessionConfiguration.getImplementationOptions());
+        verify(mControlUpdateListener, times(2)).onCameraControlUpdateSessionConfig(
+                mSessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getAllValues().get(1);
+        Camera2Config repeatingConfig = new Camera2Config(sessionConfig.getImplementationOptions());
         MeteringRectangle zeroRegion =
                 new MeteringRectangle(new Rect(), MeteringRectangle.METERING_WEIGHT_DONT_CARE);
 
@@ -205,8 +198,7 @@ public final class Camera2CameraControlTest {
                         CaptureRequest.CONTROL_AWB_REGIONS, null))
                 .isEqualTo(new MeteringRectangle[]{zeroRegion});
 
-        Camera2Configuration singleConfig =
-                new Camera2Configuration(mCamera2CameraControl.getSharedOptions());
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
         assertThat(
                 singleConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_REGIONS, null))
@@ -223,11 +215,10 @@ public final class Camera2CameraControlTest {
         assertThat(mCamera2CameraControl.isFocusLocked()).isFalse();
 
         verify(mControlUpdateListener, times(2)).onCameraControlSingleRequest(
-                mCaptureRequestConfigurationArgumentCaptor.capture());
-        CaptureRequestConfiguration captureRequestConfiguration =
-                mCaptureRequestConfigurationArgumentCaptor.getAllValues().get(1);
-        Camera2Configuration resultCaptureConfig =
-                new Camera2Configuration(captureRequestConfiguration.getImplementationOptions());
+                mCaptureConfigArgumentCaptor.capture());
+        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getAllValues().get(1);
+        Camera2Config resultCaptureConfig =
+                new Camera2Config(captureConfig.getImplementationOptions());
 
         assertThat(resultCaptureConfig.getCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
                 null)).isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
@@ -236,8 +227,7 @@ public final class Camera2CameraControlTest {
     @Test
     @UiThreadTest
     public void defaultAFAWBMode_ShouldBeCAFWhenNotFocusLocked() {
-        Camera2Configuration singleConfig =
-                new Camera2Configuration(mCamera2CameraControl.getSharedOptions());
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
         assertThat(
                 singleConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_OFF))
@@ -259,8 +249,7 @@ public final class Camera2CameraControlTest {
         Rect focusRect = new Rect(0, 0, 10, 10);
         mCamera2CameraControl.focus(focusRect, focusRect);
 
-        Camera2Configuration singleConfig =
-                new Camera2Configuration(mCamera2CameraControl.getSharedOptions());
+        Camera2Config singleConfig = new Camera2Config(mCamera2CameraControl.getSharedOptions());
         assertThat(
                 singleConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF))
@@ -268,8 +257,7 @@ public final class Camera2CameraControlTest {
 
         mCamera2CameraControl.cancelFocus();
 
-        Camera2Configuration singleConfig2 =
-                new Camera2Configuration(mCamera2CameraControl.getSharedOptions());
+        Camera2Config singleConfig2 = new Camera2Config(mCamera2CameraControl.getSharedOptions());
         assertThat(
                 singleConfig2.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF))
@@ -281,13 +269,12 @@ public final class Camera2CameraControlTest {
     public void setFlashModeAuto_aeModeSetAndRequestUpdated() {
         mCamera2CameraControl.setFlashMode(FlashMode.AUTO);
 
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfiguration(
-                mSessionConfigurationArgumentCaptor.capture());
-        SessionConfiguration sessionConfiguration = mSessionConfigurationArgumentCaptor.getValue();
-        Camera2Configuration camera2Configuration =
-                new Camera2Configuration(sessionConfiguration.getImplementationOptions());
+        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+                mSessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
+        Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
         assertThat(
-                camera2Configuration.getCaptureRequestOption(
+                camera2Config.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_MODE, CONTROL_AE_MODE_OFF))
                 .isEqualTo(CONTROL_AE_MODE_ON_AUTO_FLASH);
         assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(FlashMode.AUTO);
@@ -298,13 +285,12 @@ public final class Camera2CameraControlTest {
     public void setFlashModeOff_aeModeSetAndRequestUpdated() {
         mCamera2CameraControl.setFlashMode(FlashMode.OFF);
 
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfiguration(
-                mSessionConfigurationArgumentCaptor.capture());
-        SessionConfiguration sessionConfiguration = mSessionConfigurationArgumentCaptor.getValue();
-        Camera2Configuration camera2Configuration =
-                new Camera2Configuration(sessionConfiguration.getImplementationOptions());
+        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+                mSessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
+        Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
         assertThat(
-                camera2Configuration.getCaptureRequestOption(
+                camera2Config.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_MODE, CONTROL_AE_MODE_OFF))
                 .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON);
         assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(FlashMode.OFF);
@@ -315,13 +301,12 @@ public final class Camera2CameraControlTest {
     public void setFlashModeOn_aeModeSetAndRequestUpdated() {
         mCamera2CameraControl.setFlashMode(FlashMode.ON);
 
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfiguration(
-                mSessionConfigurationArgumentCaptor.capture());
-        SessionConfiguration sessionConfiguration = mSessionConfigurationArgumentCaptor.getValue();
-        Camera2Configuration camera2Configuration =
-                new Camera2Configuration(sessionConfiguration.getImplementationOptions());
+        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+                mSessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
+        Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
         assertThat(
-                camera2Configuration.getCaptureRequestOption(
+                camera2Config.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_MODE, CONTROL_AE_MODE_OFF))
                 .isEqualTo(CONTROL_AE_MODE_ON_ALWAYS_FLASH);
         assertThat(mCamera2CameraControl.getFlashMode()).isEqualTo(FlashMode.ON);
@@ -332,17 +317,16 @@ public final class Camera2CameraControlTest {
     public void enableTorch_aeModeSetAndRequestUpdated() {
         mCamera2CameraControl.enableTorch(true);
 
-        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfiguration(
-                mSessionConfigurationArgumentCaptor.capture());
-        SessionConfiguration sessionConfiguration = mSessionConfigurationArgumentCaptor.getValue();
-        Camera2Configuration camera2Configuration =
-                new Camera2Configuration(sessionConfiguration.getImplementationOptions());
+        verify(mControlUpdateListener, times(1)).onCameraControlUpdateSessionConfig(
+                mSessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getValue();
+        Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
         assertThat(
-                camera2Configuration.getCaptureRequestOption(
+                camera2Config.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_MODE, CONTROL_AE_MODE_OFF))
                 .isEqualTo(CONTROL_AE_MODE_ON);
         assertThat(
-                camera2Configuration.getCaptureRequestOption(
+                camera2Config.getCaptureRequestOption(
                         CaptureRequest.FLASH_MODE, FLASH_MODE_OFF))
                 .isEqualTo(FLASH_MODE_TORCH);
         assertThat(mCamera2CameraControl.isTorchOn()).isTrue();
@@ -354,26 +338,23 @@ public final class Camera2CameraControlTest {
         mCamera2CameraControl.setFlashMode(FlashMode.AUTO);
         mCamera2CameraControl.enableTorch(false);
 
-        verify(mControlUpdateListener, times(2)).onCameraControlUpdateSessionConfiguration(
-                mSessionConfigurationArgumentCaptor.capture());
-        SessionConfiguration sessionConfiguration =
-                mSessionConfigurationArgumentCaptor.getAllValues().get(0);
-        Camera2Configuration camera2Configuration =
-                new Camera2Configuration(sessionConfiguration.getImplementationOptions());
+        verify(mControlUpdateListener, times(2)).onCameraControlUpdateSessionConfig(
+                mSessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = mSessionConfigArgumentCaptor.getAllValues().get(0);
+        Camera2Config camera2Config = new Camera2Config(sessionConfig.getImplementationOptions());
         assertThat(
-                camera2Configuration.getCaptureRequestOption(
+                camera2Config.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_MODE, CONTROL_AE_MODE_OFF))
                 .isEqualTo(CONTROL_AE_MODE_ON_AUTO_FLASH);
-        assertThat(camera2Configuration.getCaptureRequestOption(CaptureRequest.FLASH_MODE, -1))
+        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.FLASH_MODE, -1))
                 .isEqualTo(-1);
         assertThat(mCamera2CameraControl.isTorchOn()).isFalse();
 
         verify(mControlUpdateListener, times(1)).onCameraControlSingleRequest(
-                mCaptureRequestConfigurationArgumentCaptor.capture());
-        CaptureRequestConfiguration captureRequestConfiguration =
-                mCaptureRequestConfigurationArgumentCaptor.getValue();
-        Camera2Configuration resultCaptureConfig =
-                new Camera2Configuration(captureRequestConfiguration.getImplementationOptions());
+                mCaptureConfigArgumentCaptor.capture());
+        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue();
+        Camera2Config resultCaptureConfig =
+                new Camera2Config(captureConfig.getImplementationOptions());
         assertThat(
                 resultCaptureConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_MODE, null))
@@ -386,11 +367,10 @@ public final class Camera2CameraControlTest {
         mCamera2CameraControl.triggerAf();
 
         verify(mControlUpdateListener).onCameraControlSingleRequest(
-                mCaptureRequestConfigurationArgumentCaptor.capture());
-        CaptureRequestConfiguration captureRequestConfiguration =
-                mCaptureRequestConfigurationArgumentCaptor.getValue();
-        Camera2Configuration resultCaptureConfig =
-                new Camera2Configuration(captureRequestConfiguration.getImplementationOptions());
+                mCaptureConfigArgumentCaptor.capture());
+        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue();
+        Camera2Config resultCaptureConfig =
+                new Camera2Config(captureConfig.getImplementationOptions());
         assertThat(
                 resultCaptureConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_TRIGGER, null))
@@ -403,11 +383,10 @@ public final class Camera2CameraControlTest {
         mCamera2CameraControl.triggerAePrecapture();
 
         verify(mControlUpdateListener).onCameraControlSingleRequest(
-                mCaptureRequestConfigurationArgumentCaptor.capture());
-        CaptureRequestConfiguration captureRequestConfiguration =
-                mCaptureRequestConfigurationArgumentCaptor.getValue();
-        Camera2Configuration resultCaptureConfig =
-                new Camera2Configuration(captureRequestConfiguration.getImplementationOptions());
+                mCaptureConfigArgumentCaptor.capture());
+        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue();
+        Camera2Config resultCaptureConfig =
+                new Camera2Config(captureConfig.getImplementationOptions());
         assertThat(
                 resultCaptureConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
@@ -420,11 +399,10 @@ public final class Camera2CameraControlTest {
         mCamera2CameraControl.cancelAfAeTrigger(true, true);
 
         verify(mControlUpdateListener).onCameraControlSingleRequest(
-                mCaptureRequestConfigurationArgumentCaptor.capture());
-        CaptureRequestConfiguration captureRequestConfiguration =
-                mCaptureRequestConfigurationArgumentCaptor.getValue();
-        Camera2Configuration resultCaptureConfig =
-                new Camera2Configuration(captureRequestConfiguration.getImplementationOptions());
+                mCaptureConfigArgumentCaptor.capture());
+        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue();
+        Camera2Config resultCaptureConfig =
+                new Camera2Config(captureConfig.getImplementationOptions());
         assertThat(
                 resultCaptureConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_TRIGGER, null))
@@ -441,11 +419,10 @@ public final class Camera2CameraControlTest {
         mCamera2CameraControl.cancelAfAeTrigger(true, false);
 
         verify(mControlUpdateListener).onCameraControlSingleRequest(
-                mCaptureRequestConfigurationArgumentCaptor.capture());
-        CaptureRequestConfiguration captureRequestConfiguration =
-                mCaptureRequestConfigurationArgumentCaptor.getValue();
-        Camera2Configuration resultCaptureConfig =
-                new Camera2Configuration(captureRequestConfiguration.getImplementationOptions());
+                mCaptureConfigArgumentCaptor.capture());
+        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue();
+        Camera2Config resultCaptureConfig =
+                new Camera2Config(captureConfig.getImplementationOptions());
         assertThat(
                 resultCaptureConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_TRIGGER, null))
@@ -462,11 +439,10 @@ public final class Camera2CameraControlTest {
         mCamera2CameraControl.cancelAfAeTrigger(false, true);
 
         verify(mControlUpdateListener).onCameraControlSingleRequest(
-                mCaptureRequestConfigurationArgumentCaptor.capture());
-        CaptureRequestConfiguration captureRequestConfiguration =
-                mCaptureRequestConfigurationArgumentCaptor.getValue();
-        Camera2Configuration resultCaptureConfig =
-                new Camera2Configuration(captureRequestConfiguration.getImplementationOptions());
+                mCaptureConfigArgumentCaptor.capture());
+        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue();
+        Camera2Config resultCaptureConfig =
+                new Camera2Config(captureConfig.getImplementationOptions());
 
         assertThat(
                 resultCaptureConfig.getCaptureRequestOption(
@@ -481,22 +457,21 @@ public final class Camera2CameraControlTest {
     @Test
     @UiThreadTest
     public void submitSingleRequest_overrideBySharedOptions() {
-        CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
-        Camera2Configuration.Builder configBuilder = new Camera2Configuration.Builder();
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
         configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE,
                 CaptureRequest.CONTROL_AF_MODE_MACRO);
         builder.setImplementationOptions(configBuilder.build());
         mCamera2CameraControl.submitSingleRequest(builder.build());
 
         verify(mControlUpdateListener).onCameraControlSingleRequest(
-                mCaptureRequestConfigurationArgumentCaptor.capture());
-        CaptureRequestConfiguration captureRequestConfiguration =
-                mCaptureRequestConfigurationArgumentCaptor.getValue();
-        Camera2Configuration resultCaptureConfig =
-                new Camera2Configuration(captureRequestConfiguration.getImplementationOptions());
+                mCaptureConfigArgumentCaptor.capture());
+        CaptureConfig captureConfig = mCaptureConfigArgumentCaptor.getValue();
+        Camera2Config resultCaptureConfig =
+                new Camera2Config(captureConfig.getImplementationOptions());
 
-        Camera2Configuration sharedOptions =
-                new Camera2Configuration(mCamera2CameraControl.getSharedOptions());
+        Camera2Config sharedOptions =
+                new Camera2Config(mCamera2CameraControl.getSharedOptions());
 
         assertThat(resultCaptureConfig.getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE,
                 null)).isEqualTo(

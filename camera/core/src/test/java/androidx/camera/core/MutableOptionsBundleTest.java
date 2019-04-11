@@ -20,19 +20,18 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
-import androidx.camera.core.Configuration.Option;
+import androidx.camera.core.Config.Option;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class MutableOptionsBundleTest {
 
     private static final Option<Object> OPTION_1 = Option.create("option.1", Object.class);
@@ -73,12 +72,12 @@ public class MutableOptionsBundleTest {
         mutOpts.insertOption(OPTION_1, VALUE_1);
         mutOpts.insertOption(OPTION_1_A, VALUE_1_A);
 
-        Configuration config = OptionsBundle.from(mutOpts);
+        Config config = OptionsBundle.from(mutOpts);
 
         MutableOptionsBundle mutOpts2 = MutableOptionsBundle.from(config);
         mutOpts2.insertOption(OPTION_2, VALUE_2);
 
-        Configuration config2 = OptionsBundle.from(mutOpts2);
+        Config config2 = OptionsBundle.from(mutOpts2);
 
         assertThat(config.listOptions()).containsExactly(OPTION_1, OPTION_1_A);
         assertThat(config2.listOptions()).containsExactly(OPTION_1, OPTION_1_A, OPTION_2);

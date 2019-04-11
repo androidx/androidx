@@ -21,7 +21,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.camera.core.ImageOutputConfig.RotationValue;
 
 /**
  * Information for a fake camera.

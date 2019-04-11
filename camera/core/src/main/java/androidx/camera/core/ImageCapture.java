@@ -44,7 +44,7 @@ import androidx.camera.core.CameraCaptureMetaData.AfState;
 import androidx.camera.core.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.CameraCaptureResult.EmptyCameraCaptureResult;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.AsyncFunction;
 import androidx.camera.core.impl.utils.futures.FluentFuture;
@@ -99,7 +99,7 @@ public class ImageCapture extends UseCase {
     final ArrayDeque<ImageCaptureRequest> mImageCaptureRequests = new ArrayDeque<>();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Handler mHandler;
-    private final SessionConfiguration.Builder mSessionConfigBuilder;
+    private final SessionConfig.Builder mSessionConfigBuilder;
     private final ExecutorService mExecutor =
             Executors.newFixedThreadPool(
                     1,
@@ -124,12 +124,12 @@ public class ImageCapture extends UseCase {
      * by {@link #takePicture(OnImageCapturedListener)}
      */
     private final CaptureProcessor mCaptureProcessor;
-    private final ImageCaptureConfiguration.Builder mUseCaseConfigBuilder;
+    private final ImageCaptureConfig.Builder mUseCaseConfigBuilder;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
             ImageReaderProxy mImageReader;
     /** Callback used to match the {@link ImageProxy} with the {@link ImageInfo}. */
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
-    private ImageCaptureConfiguration mConfiguration;
+    private ImageCaptureConfig mConfig;
     private DeferrableSurface mDeferrableSurface;
     /**
      * A flag to check 3A converged or not.
@@ -145,18 +145,17 @@ public class ImageCapture extends UseCase {
     /**
      * Creates a new image capture use case from the given configuration.
      *
-     * @param userConfiguration for this use case instance
+     * @param userConfig for this use case instance
      */
-    public ImageCapture(ImageCaptureConfiguration userConfiguration) {
-        super(userConfiguration);
-        mUseCaseConfigBuilder =
-                ImageCaptureConfiguration.Builder.fromConfig(userConfiguration);
+    public ImageCapture(ImageCaptureConfig userConfig) {
+        super(userConfig);
+        mUseCaseConfigBuilder = ImageCaptureConfig.Builder.fromConfig(userConfig);
         // Ensure we're using the combined configuration (user config + defaults)
-        mConfiguration = (ImageCaptureConfiguration) getUseCaseConfiguration();
-        mCaptureMode = mConfiguration.getCaptureMode();
-        mFlashMode = mConfiguration.getFlashMode();
+        mConfig = (ImageCaptureConfig) getUseCaseConfig();
+        mCaptureMode = mConfig.getCaptureMode();
+        mFlashMode = mConfig.getFlashMode();
 
-        mCaptureProcessor = mConfiguration.getCaptureProcessor(null);
+        mCaptureProcessor = mConfig.getCaptureProcessor(null);
 
         if (mCaptureProcessor != null) {
             setImageFormat(ImageFormat.YUV_420_888);
@@ -164,13 +163,11 @@ public class ImageCapture extends UseCase {
             setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageCaptureFormat());
         }
 
-        mCaptureBundle = mConfiguration.getCaptureBundle(
-                CaptureBundles.singleDefaultCaptureBundle());
+        mCaptureBundle = mConfig.getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
 
         if (mCaptureBundle.getCaptureStages().size() > 1 && mCaptureProcessor == null) {
             throw new IllegalArgumentException(
-                    "ImageCaptureConfiguration has no CaptureProcess set with "
-                            + "CaptureBundle size > 1.");
+                    "ImageCaptureConfig has no CaptureProcess set with CaptureBundle size > 1.");
         }
 
         if (mCaptureMode == CaptureMode.MAX_QUALITY) {
@@ -179,12 +176,12 @@ public class ImageCapture extends UseCase {
             mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
         }
 
-        mHandler = mConfiguration.getCallbackHandler(null);
+        mHandler = mConfig.getCallbackHandler(null);
         if (mHandler == null) {
             throw new IllegalStateException("No default handler specified.");
         }
 
-        mSessionConfigBuilder = SessionConfiguration.Builder.createFrom(mConfiguration);
+        mSessionConfigBuilder = SessionConfig.Builder.createFrom(mConfig);
         mSessionConfigBuilder.setCameraCaptureCallback(mSessionCallbackChecker);
     }
 
@@ -205,18 +202,18 @@ public class ImageCapture extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        ImageCaptureConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
-                ImageCaptureConfiguration.class, lensFacing);
+    protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
+        ImageCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(
+                ImageCaptureConfig.class, lensFacing);
         if (defaults != null) {
-            return ImageCaptureConfiguration.Builder.fromConfig(defaults);
+            return ImageCaptureConfig.Builder.fromConfig(defaults);
         }
 
         return null;
     }
 
     private CameraControl getCurrentCameraControl() {
-        String cameraId = getCameraIdUnchecked(mConfiguration.getLensFacing());
+        String cameraId = getCameraIdUnchecked(mConfig.getLensFacing());
         return getCameraControl(cameraId);
     }
 
@@ -251,12 +248,12 @@ public class ImageCapture extends UseCase {
      * @param aspectRatio New target aspect ratio.
      */
     public void setTargetAspectRatio(Rational aspectRatio) {
-        ImageOutputConfiguration oldconfig = (ImageOutputConfiguration) getUseCaseConfiguration();
-        Rational oldRatio = oldconfig.getTargetAspectRatio(null);
+        ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
+        Rational oldRatio = oldConfig.getTargetAspectRatio(null);
         if (!aspectRatio.equals(oldRatio)) {
             mUseCaseConfigBuilder.setTargetAspectRatio(aspectRatio);
-            updateUseCaseConfiguration(mUseCaseConfigBuilder.build());
-            mConfiguration = (ImageCaptureConfiguration) getUseCaseConfiguration();
+            updateUseCaseConfig(mUseCaseConfigBuilder.build());
+            mConfig = (ImageCaptureConfig) getUseCaseConfig();
 
             // TODO(b/122846516): Reconfigure capture session if the ratio is changed drastically.
         }
@@ -274,12 +271,12 @@ public class ImageCapture extends UseCase {
      * @param rotation Desired rotation of the output image.
      */
     public void setTargetRotation(@RotationValue int rotation) {
-        ImageOutputConfiguration oldconfig = (ImageOutputConfiguration) getUseCaseConfiguration();
-        int oldRotation = oldconfig.getTargetRotation(ImageOutputConfiguration.INVALID_ROTATION);
-        if (oldRotation == ImageOutputConfiguration.INVALID_ROTATION || oldRotation != rotation) {
+        ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
+        int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
+        if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
             mUseCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfiguration(mUseCaseConfigBuilder.build());
-            mConfiguration = (ImageCaptureConfiguration) getUseCaseConfiguration();
+            updateUseCaseConfig(mUseCaseConfigBuilder.build());
+            mConfig = (ImageCaptureConfig) getUseCaseConfig();
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
         }
@@ -426,7 +423,7 @@ public class ImageCapture extends UseCase {
     private void sendImageCaptureRequest(
             OnImageCapturedListener listener, @Nullable Handler listenerHandler) {
 
-        String cameraId = getCameraIdUnchecked(mConfiguration.getLensFacing());
+        String cameraId = getCameraIdUnchecked(mConfig.getLensFacing());
 
         // Get the relative rotation or default to 0 if the camera info is unavailable
         int relativeRotation = 0;
@@ -434,12 +431,12 @@ public class ImageCapture extends UseCase {
             CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
             relativeRotation =
                     cameraInfo.getSensorRotationDegrees(
-                            mConfiguration.getTargetRotation(Surface.ROTATION_0));
+                            mConfig.getTargetRotation(Surface.ROTATION_0));
         } catch (CameraInfoUnavailableException e) {
             Log.e(TAG, "Unable to retrieve camera sensor orientation.", e);
         }
 
-        Rational targetRatio = mConfiguration.getTargetAspectRatio(null);
+        Rational targetRatio = mConfig.getTargetAspectRatio(null);
         targetRatio = ImageUtil.rotate(targetRatio, relativeRotation);
 
         mImageCaptureRequests.offer(
@@ -539,7 +536,7 @@ public class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
-        String cameraId = getCameraIdUnchecked(mConfiguration.getLensFacing());
+        String cameraId = getCameraIdUnchecked(mConfig.getLensFacing());
         Size resolution = suggestedResolutionMap.get(cameraId);
         if (resolution == null) {
             throw new IllegalArgumentException(
@@ -802,7 +799,7 @@ public class ImageCapture extends UseCase {
     // TODO(b/123897971):  move the device specific code once we complete the device workaround
     // module.
     private void applyPixelHdrPlusChangeForCaptureMode(
-            CaptureMode captureMode, CaptureRequestConfiguration.Builder takePhotoRequestBuilder) {
+            CaptureMode captureMode, CaptureConfig.Builder takePhotoRequestBuilder) {
         if (Build.MANUFACTURER.equals("Google")
                 && (Build.MODEL.equals("Pixel 2") || Build.MODEL.equals("Pixel 3"))) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -827,17 +824,16 @@ public class ImageCapture extends UseCase {
         List<ListenableFuture<Void>> futureList = new ArrayList<>();
 
         for (CaptureStage captureStage : mCaptureBundle.getCaptureStages()) {
-            final CaptureRequestConfiguration.Builder builder =
-                    new CaptureRequestConfiguration.Builder();
+            final CaptureConfig.Builder builder = new CaptureConfig.Builder();
             builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
             builder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
 
             applyPixelHdrPlusChangeForCaptureMode(mCaptureMode, builder);
 
             builder.addImplementationOptions(
-                    captureStage.getCaptureRequestConfiguration().getImplementationOptions());
+                    captureStage.getCaptureConfig().getImplementationOptions());
 
-            builder.setTag(captureStage.getCaptureRequestConfiguration().getTag());
+            builder.setTag(captureStage.getCaptureConfig().getTag());
 
             final CameraCaptureCallback metadataMatchingCallback = mMetadataMatchingCaptureCallback;
             final CameraControl cameraControl = getCurrentCameraControl();
@@ -967,17 +963,17 @@ public class ImageCapture extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
-            implements ConfigurationProvider<ImageCaptureConfiguration> {
+            implements ConfigProvider<ImageCaptureConfig> {
         private static final CaptureMode DEFAULT_CAPTURE_MODE = CaptureMode.MIN_LATENCY;
         private static final FlashMode DEFAULT_FLASH_MODE = FlashMode.OFF;
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
 
-        private static final ImageCaptureConfiguration DEFAULT_CONFIG;
+        private static final ImageCaptureConfig DEFAULT_CONFIG;
 
         static {
-            ImageCaptureConfiguration.Builder builder =
-                    new ImageCaptureConfiguration.Builder()
+            ImageCaptureConfig.Builder builder =
+                    new ImageCaptureConfig.Builder()
                             .setCaptureMode(DEFAULT_CAPTURE_MODE)
                             .setFlashMode(DEFAULT_FLASH_MODE)
                             .setCallbackHandler(DEFAULT_HANDLER)
@@ -987,7 +983,7 @@ public class ImageCapture extends UseCase {
         }
 
         @Override
-        public ImageCaptureConfiguration getConfiguration(LensFacing lensFacing) {
+        public ImageCaptureConfig getConfig(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
         }
     }

@@ -27,15 +27,15 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * An immutable implementation of {@link Configuration}.
+ * An immutable implementation of {@link Config}.
  *
- * <p>OptionsBundle is a collection of {@link Configuration.Option}s and their values which can be
- * queried based on exact {@link Configuration.Option} objects or based on Option ids.
+ * <p>OptionsBundle is a collection of {@link Config.Option}s and their values which can be
+ * queried based on exact {@link Config.Option} objects or based on Option ids.
  *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public class OptionsBundle implements Configuration {
+public class OptionsBundle implements Config {
 
     private static final OptionsBundle EMPTY_BUNDLE =
             new OptionsBundle(new TreeMap<>(new Comparator<Option<?>>() {
@@ -59,7 +59,7 @@ public class OptionsBundle implements Configuration {
      * @param otherConfig Configuration containing options/values to be copied.
      * @return A new OptionsBundle pre-populated with options/values.
      */
-    public static OptionsBundle from(Configuration otherConfig) {
+    public static OptionsBundle from(Config otherConfig) {
         // No need to create another instance since OptionsBundle is immutable
         if (OptionsBundle.class.equals(otherConfig.getClass())) {
             return (OptionsBundle) otherConfig;
