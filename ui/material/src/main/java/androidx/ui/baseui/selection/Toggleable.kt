@@ -16,7 +16,7 @@
 
 package androidx.ui.baseui.selection
 
-import androidx.ui.core.adapter.PressGestureDetector
+import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.adapter.Semantics
 import com.google.r4a.Children
 import com.google.r4a.Composable
