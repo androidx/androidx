@@ -344,37 +344,37 @@ package androidx.fragment.app {
 
   public abstract class FragmentTransaction {
     ctor public FragmentTransaction();
-    method public abstract androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.Fragment, String?);
-    method public abstract androidx.fragment.app.FragmentTransaction add(@IdRes int, androidx.fragment.app.Fragment);
-    method public abstract androidx.fragment.app.FragmentTransaction add(@IdRes int, androidx.fragment.app.Fragment, String?);
-    method public abstract androidx.fragment.app.FragmentTransaction addSharedElement(android.view.View, String);
-    method public abstract androidx.fragment.app.FragmentTransaction addToBackStack(String?);
-    method public abstract androidx.fragment.app.FragmentTransaction attach(androidx.fragment.app.Fragment);
+    method public androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.Fragment, String?);
+    method public androidx.fragment.app.FragmentTransaction add(@IdRes int, androidx.fragment.app.Fragment);
+    method public androidx.fragment.app.FragmentTransaction add(@IdRes int, androidx.fragment.app.Fragment, String?);
+    method public androidx.fragment.app.FragmentTransaction addSharedElement(android.view.View, String);
+    method public androidx.fragment.app.FragmentTransaction addToBackStack(String?);
+    method public androidx.fragment.app.FragmentTransaction attach(androidx.fragment.app.Fragment);
     method public abstract int commit();
     method public abstract int commitAllowingStateLoss();
     method public abstract void commitNow();
     method public abstract void commitNowAllowingStateLoss();
-    method public abstract androidx.fragment.app.FragmentTransaction detach(androidx.fragment.app.Fragment);
-    method public abstract androidx.fragment.app.FragmentTransaction disallowAddToBackStack();
-    method public abstract androidx.fragment.app.FragmentTransaction hide(androidx.fragment.app.Fragment);
-    method public abstract boolean isAddToBackStackAllowed();
-    method public abstract boolean isEmpty();
-    method public abstract androidx.fragment.app.FragmentTransaction remove(androidx.fragment.app.Fragment);
-    method public abstract androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment);
-    method public abstract androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment, String?);
-    method public abstract androidx.fragment.app.FragmentTransaction runOnCommit(Runnable);
-    method @Deprecated public abstract androidx.fragment.app.FragmentTransaction setAllowOptimization(boolean);
-    method public abstract androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(@StringRes int);
-    method public abstract androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(CharSequence?);
-    method public abstract androidx.fragment.app.FragmentTransaction setBreadCrumbTitle(@StringRes int);
-    method public abstract androidx.fragment.app.FragmentTransaction setBreadCrumbTitle(CharSequence?);
-    method public abstract androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int);
-    method public abstract androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int);
-    method public abstract androidx.fragment.app.FragmentTransaction setPrimaryNavigationFragment(androidx.fragment.app.Fragment?);
-    method public abstract androidx.fragment.app.FragmentTransaction setReorderingAllowed(boolean);
-    method public abstract androidx.fragment.app.FragmentTransaction setTransition(int);
-    method public abstract androidx.fragment.app.FragmentTransaction setTransitionStyle(@StyleRes int);
-    method public abstract androidx.fragment.app.FragmentTransaction show(androidx.fragment.app.Fragment);
+    method public androidx.fragment.app.FragmentTransaction detach(androidx.fragment.app.Fragment);
+    method public androidx.fragment.app.FragmentTransaction disallowAddToBackStack();
+    method public androidx.fragment.app.FragmentTransaction hide(androidx.fragment.app.Fragment);
+    method public boolean isAddToBackStackAllowed();
+    method public boolean isEmpty();
+    method public androidx.fragment.app.FragmentTransaction remove(androidx.fragment.app.Fragment);
+    method public androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment);
+    method public androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment, String?);
+    method public androidx.fragment.app.FragmentTransaction runOnCommit(Runnable);
+    method @Deprecated public androidx.fragment.app.FragmentTransaction setAllowOptimization(boolean);
+    method public androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(@StringRes int);
+    method public androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(CharSequence?);
+    method public androidx.fragment.app.FragmentTransaction setBreadCrumbTitle(@StringRes int);
+    method public androidx.fragment.app.FragmentTransaction setBreadCrumbTitle(CharSequence?);
+    method public androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int);
+    method public androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int);
+    method public androidx.fragment.app.FragmentTransaction setPrimaryNavigationFragment(androidx.fragment.app.Fragment?);
+    method public androidx.fragment.app.FragmentTransaction setReorderingAllowed(boolean);
+    method public androidx.fragment.app.FragmentTransaction setTransition(int);
+    method public androidx.fragment.app.FragmentTransaction setTransitionStyle(@StyleRes int);
+    method public androidx.fragment.app.FragmentTransaction show(androidx.fragment.app.Fragment);
     field public static final int TRANSIT_ENTER_MASK = 4096; // 0x1000
     field public static final int TRANSIT_EXIT_MASK = 8192; // 0x2000
     field public static final int TRANSIT_FRAGMENT_CLOSE = 8194; // 0x2002
