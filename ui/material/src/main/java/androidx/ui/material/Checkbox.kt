@@ -23,8 +23,8 @@ import androidx.animation.transitionDefinition
 import androidx.ui.animation.Transition
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
-import androidx.ui.core.Layout
 import androidx.ui.core.Draw
+import androidx.ui.core.Layout
 import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Offset
@@ -32,6 +32,8 @@ import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Radius
 import androidx.ui.engine.geometry.shrink
 import androidx.ui.engine.geometry.withRadius
+import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.Padding
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
@@ -73,14 +75,16 @@ fun Checkbox(
     color: Color? = null
 ) {
     <Toggleable value onToggle>
-        <Layout layoutBlock={ _, constraints ->
-            val checkboxSizePx = CheckboxSizeWithDefaultPadding.toIntPx()
-            val height = checkboxSizePx.coerceIn(constraints.minHeight, constraints.maxHeight)
-            val width = checkboxSizePx.coerceIn(constraints.minWidth, constraints.maxWidth)
-            layout(width, height) {}
-        }>
-            <DrawCheckbox value color />
-        </Layout>
+        <Padding padding=EdgeInsets(CheckboxDefaultPadding)>
+            <Layout layoutBlock={ _, constraints ->
+                val checkboxSizePx = CheckboxSize.toIntPx()
+                val height = checkboxSizePx.coerceIn(constraints.minHeight, constraints.maxHeight)
+                val width = checkboxSizePx.coerceIn(constraints.minWidth, constraints.maxWidth)
+                layout(width, height) {}
+            }>
+                <DrawCheckbox value color />
+            </Layout>
+        </Padding>
     </Toggleable>
 }
 
@@ -102,17 +106,19 @@ private fun DrawCheckbox(value: ToggleableState, color: Color?) {
 
 @Composable
 private fun DrawBox(color: Color, innerRadiusFraction: Float) {
-    <Draw> canvas, _ ->
+    <Draw> canvas, parentSize ->
         val paint = Paint()
         paint.strokeWidth = StrokeWidth.toPx().value
         paint.isAntiAlias = true
         paint.color = color
 
+        val checkboxSize = CheckboxSize.toPx().value
+
         val outer = RRect(
             0f,
             0f,
-            CheckboxSize.toPx().value,
-            CheckboxSize.toPx().value,
+            checkboxSize,
+            checkboxSize,
             Radius.circular(RadiusSize.toPx().value)
         )
 
@@ -136,7 +142,7 @@ private fun DrawCheck(
     checkFraction: Float,
     crossCenterGravitation: Float
 ) {
-    <Draw> canvas, _ ->
+    <Draw> canvas, parentSize ->
         val paint = Paint()
         paint.isAntiAlias = true
         paint.style = PaintingStyle.stroke
@@ -144,8 +150,7 @@ private fun DrawCheck(
         paint.strokeWidth = StrokeWidth.toPx().value
         paint.color = CheckStrokeDefaultColor
 
-        val outer = RRect(0f, 0f, CheckboxSize.toPx().value, CheckboxSize.toPx().value)
-        val width = outer.width
+        val width = CheckboxSize.toPx().value
 
         val checkCrossX = 0.4f
         val checkCrossY = 0.7f
@@ -263,7 +268,7 @@ private fun TransitionSpec.boxTransitionToUnchecked() {
     }
 }
 
-private val CheckboxSizeWithDefaultPadding = 24.dp
+private val CheckboxDefaultPadding = 2.dp
 private val CheckboxSize = 20.dp
 private val StrokeWidth = 2.dp
 private val RadiusSize = 2.dp
