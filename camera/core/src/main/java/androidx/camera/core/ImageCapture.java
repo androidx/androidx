@@ -62,7 +62,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -821,9 +820,9 @@ public class ImageCapture extends UseCase {
 
     /** Issues a take picture request. */
     ListenableFuture<Void> issueTakePicture() {
-        List<ListenableFuture<Void>> futureList = new ArrayList<>();
+        final List<ListenableFuture<Void>> futureList = new ArrayList<>();
 
-        for (CaptureStage captureStage : mCaptureBundle.getCaptureStages()) {
+        for (final CaptureStage captureStage : mCaptureBundle.getCaptureStages()) {
             final CaptureConfig.Builder builder = new CaptureConfig.Builder();
             builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
             builder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
@@ -865,7 +864,7 @@ public class ImageCapture extends UseCase {
                                                     metadataMatchingCallback
                                             )));
                             cameraControl.submitSingleRequest(builder.build());
-                            return "issueTakePicture";
+                            return "issueTakePicture[stage=" + captureStage.getId() + "]";
                         }
                     });
 
@@ -873,14 +872,28 @@ public class ImageCapture extends UseCase {
 
         }
 
-        return com.google.common.util.concurrent.Futures.whenAllSucceed(futureList).call(
-                new Callable<Void>() {
+        return CallbackToFutureAdapter.getFuture(new CallbackToFutureAdapter.Resolver<Void>() {
+            @Override
+            public Object attachCompleter(
+                    @NonNull final CallbackToFutureAdapter.Completer<Void> completer) {
+                ListenableFuture<List<Void>> combinedFuture = Futures.successfulAsList(futureList);
+
+                Futures.addCallback(combinedFuture, new FutureCallback<List<Void>>() {
                     @Override
-                    public Void call() {
-                        return null;
+                    public void onSuccess(@Nullable List<Void> result) {
+                        completer.set(null);
                     }
-                },
-                mExecutor);
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        completer.setException(t);
+                    }
+                }, CameraXExecutors.directExecutor());
+
+
+                return "issueTakePicture";
+            }
+        });
     }
 
     /**

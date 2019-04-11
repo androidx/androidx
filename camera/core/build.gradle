@@ -32,8 +32,6 @@ dependencies {
 
     implementation(AUTO_VALUE_ANNOTATIONS)
     implementation(GUAVA_LISTENABLE_FUTURE)
-    implementation(GUAVA_ANDROID) // TODO(b/120832996): Remove once we've isolated needed Futures methods
-    implementation(TRUTH) // TODO(b/120832996): Needed to resolve a version conflict in tests with GUAVA_ANDROID. Remove once we've removed GUAVA_ANDROID.
 
     annotationProcessor(AUTO_VALUE)
 
