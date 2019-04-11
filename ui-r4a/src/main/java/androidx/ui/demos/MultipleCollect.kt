@@ -16,7 +16,7 @@
 
 @file:Suppress("PLUGIN_WARNING")
 
-package androidx.r4a
+package androidx.ui.demos
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper

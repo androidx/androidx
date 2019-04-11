@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package com.example.androidx.u
+package androidx.ui.demos
 
-import androidx.r4a.HelloWorldActivity
+import android.app.Activity
+import android.os.Bundle
+import com.google.r4a.setContent
+import com.google.r4a.composer
 
-class R4aActivity : HelloWorldActivity() {
-    // See superclass
+open class HelloWorldActivity : Activity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent { <HelloWorld /> }
+    }
 }

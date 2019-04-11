@@ -45,6 +45,7 @@ class MainActivity : ListActivity() {
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
+        @Suppress("UNCHECKED_CAST")
         val map = l.getItemAtPosition(position) as Map<String, Intent>
         startActivity(map["intent"])
     }
@@ -57,7 +58,7 @@ class MainActivity : ListActivity() {
 
         val entries = HashMap<String, Boolean>()
         val mainIntent = Intent(Intent.ACTION_MAIN, null).apply {
-            addCategory("com.example.android.ui.SAMPLE_CODE")
+            addCategory("androidx.ui.demos.SAMPLE_CODE")
         }
         val myData = ArrayList<Map<String, Any>>()
         val list = pm.queryIntentActivities(mainIntent, 0) ?: return myData

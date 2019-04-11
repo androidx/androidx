@@ -13,11 +13,74 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest package="androidx.ui.port" xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest package="androidx.ui.demos" xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
-        <activity android:name="androidx.ui.port.integration.ImageDrawTest$Companion$TestActivity"/>
+
+        <activity android:name=".HelloWorldActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Compose Hello World Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".CraneRectsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Crane Compose Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".RecomposeTestActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Recompose test">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".MultipleCollectActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Multiple collects measure">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ComplexLayoutActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Complex layout activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".VectorGraphicsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Vector Graphics Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".CraneTextActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Crane Text Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>
 

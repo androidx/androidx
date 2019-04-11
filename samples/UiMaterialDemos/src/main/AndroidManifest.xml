@@ -22,44 +22,44 @@
     <application>
         <activity android:name=".SelectionControlsActivity"
                   android:configChanges="orientation|screenSize"
-                  android:label="Material Selection Controls">
+                  android:label="Material/Selection Controls">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.material.demos.SAMPLE_CODE" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
         <activity android:name=".TextActivity"
                   android:configChanges="orientation|screenSize"
-                  android:label="Material Text">
+                  android:label="Material/Text">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.material.demos.SAMPLE_CODE" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.ui.material.demos.RippleActivity"
+        <activity android:name=".RippleActivity"
                   android:configChanges="orientation|screenSize"
-                  android:label="Ripple Activity">
+                  android:label="Material/Ripples">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.material.demos.SAMPLE_CODE" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.ui.material.demos.ButtonActivity"
+        <activity android:name=".ButtonActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Button">
+            android:label="Material/Buttons">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.material.demos.SAMPLE_CODE" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        <activity android:name="androidx.ui.material.demos.DividersActivity"
+        <activity android:name=".DividersActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Dividers">
+            android:label="Material/Dividers">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.material.demos.SAMPLE_CODE" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
     </application>

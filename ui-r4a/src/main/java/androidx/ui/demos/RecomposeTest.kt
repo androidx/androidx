@@ -30,7 +30,7 @@
  * limitations under the License.
  */
 
-package androidx.r4a
+package androidx.ui.demos
 
 import android.os.Handler
 import android.os.Looper

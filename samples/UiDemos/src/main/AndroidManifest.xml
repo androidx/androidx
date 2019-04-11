@@ -33,95 +33,12 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.r4a.HelloWorldActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="R4A Activity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="androidx.r4a.CraneRectsActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Crane R4A Activity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="androidx.r4a.CraneTextActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Crane Text Activity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="androidx.ui.material.demos.MainActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Material demos">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="androidx.ui.animation.demos.MainActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Animation Demos">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="androidx.r4a.RecomposeTestActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Recompose test">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="androidx.r4a.MultipleCollectActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Multiple collects measure">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="androidx.r4a.ComplexLayoutActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Complex layout activity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name="androidx.r4a.VectorGraphicsActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Vector Graphics Activity">
-            <!--we currently not support multiple FlutterViews, so lets not recreate activity
-                on a rotation as the view will also be recreated-->
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.example.android.ui.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
         <activity android:name="androidx.ui.androidview.WebComponentActivity"
             android:configChanges="orientation|screenSize"
             android:label="WebComponent Activity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.material.demos.SAMPLE_CODE" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.r4a
+package androidx.ui.demos
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -50,7 +50,7 @@ import kotlin.math.min
 @Composable
 fun FourQuadrants() {
     val resources = composer.composer.context.resources
-    val image = BitmapFactory.decodeResource(resources, androidx.ui.port.R.drawable.four_quadrants)
+    val image = BitmapFactory.decodeResource(resources, androidx.ui.demos.R.drawable.four_quadrants)
     <Layout layoutBlock = { _, constraints ->
         layout(constraints.maxWidth, constraints.maxHeight) {}
     }>

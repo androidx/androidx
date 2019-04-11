@@ -22,27 +22,27 @@
     <application>
         <activity android:name=".HelloAnimationActivity"
                   android:configChanges="orientation|screenSize"
-                  android:label="State Animation with Interruptions">
+                  android:label="Animation/State Animation with Interruptions">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.animation.demos.SAMPLE_CODE" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
         <activity android:name=".HelloGestureBasedAnimationActivity"
                   android:configChanges="orientation|screenSize"
-                  android:label="Gesture based Animation">
+                  android:label="Animation/Gesture based Animation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.animation.demos.SAMPLE_CODE" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 
-        <activity android:name="StateBasedRippleAnimation"
+        <activity android:name=".StateBasedRippleAnimation"
                   android:configChanges="orientation|screenSize"
-                  android:label="State Based Ripple">
+                  android:label="Animation/State Based Ripple">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.animation.demos.SAMPLE_CODE" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 

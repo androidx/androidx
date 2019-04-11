@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.r4a
+package androidx.ui.demos
 
 import android.app.Activity
 import android.os.Bundle
 import com.google.r4a.setContent
 import com.google.r4a.composer
 
-open class ComplexLayoutActivity : Activity() {
+open class MultipleCollectActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { <ComplexLayoutDemos /> }
+        setContent { <MultipleCollectTest /> }
     }
 }

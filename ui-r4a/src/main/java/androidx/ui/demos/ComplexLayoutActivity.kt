@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.r4a
+package androidx.ui.demos
 
 import android.app.Activity
 import android.os.Bundle
 import com.google.r4a.setContent
 import com.google.r4a.composer
 
-open class CraneRectsActivity : Activity() {
+open class ComplexLayoutActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { <CraneRects /> }
+        setContent { <ComplexLayoutDemos /> }
     }
 }
-

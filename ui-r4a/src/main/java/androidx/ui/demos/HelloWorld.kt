@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.r4a
+package androidx.ui.demos
 
-import android.app.Activity
-import android.os.Bundle
-import com.google.r4a.setContent
+import android.widget.TextView
+import com.google.r4a.Composable
 import com.google.r4a.composer
 
-
-open class MultipleCollectActivity : Activity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent { <MultipleCollectTest /> }
-    }
+@Composable
+fun HelloWorld() {
+    <TextView text="Hello World" />
 }
-
