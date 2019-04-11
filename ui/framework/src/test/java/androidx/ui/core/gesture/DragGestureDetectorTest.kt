@@ -676,6 +676,39 @@ class DragGestureDetectorTest {
     }
 
     @Test
+    fun pointerInputHandler_moveOccursObserverDoesNotOverrideOnDrag_distanceChangeNotConsumed() {
+        recognizer.canDrag = canDragMockTrue
+        recognizer.dragObserver = object : DragObserver {}
+
+        var change = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(change)
+        change = change.moveTo(
+            10L.millisecondsToTimestamp(),
+            TestTouchSlop.toFloat() + 1,
+            TestTouchSlop.toFloat() + 1
+        )
+        val result = recognizer.pointerInputHandler.invokeOverAllPasses(change)
+
+        assertThat(result.anyPositionChangeConsumed()).isFalse()
+    }
+
+    @Test
+    fun pointerInputHandler_moveOccursObserverNotSet_distanceChangeNotConsumed() {
+        recognizer.canDrag = canDragMockTrue
+
+        var change = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(change)
+        change = change.moveTo(
+            10L.millisecondsToTimestamp(),
+            TestTouchSlop.toFloat() + 1,
+            TestTouchSlop.toFloat() + 1
+        )
+        val result = recognizer.pointerInputHandler.invokeOverAllPasses(change)
+
+        assertThat(result.anyPositionChangeConsumed()).isFalse()
+    }
+
+    @Test
     fun pointerInputHandler_moveCallBackConsumes_changeDistanceConsumedByCorrectAmount() {
         val thirdTouchSlop = TestTouchSlop.toFloat() / 3
         val quarterTouchSlop = TestTouchSlop.toFloat() / 4
@@ -735,7 +768,7 @@ class DragGestureDetectorTest {
     class MockDragObserver(
         val log: MutableList<LogItem>,
         var dragConsume: PxPosition = PxPosition.Origin
-    ) : DragObserver() {
+    ) : DragObserver {
         override fun onStart() {
             log.add(LogItem("onStart"))
             super.onStart()

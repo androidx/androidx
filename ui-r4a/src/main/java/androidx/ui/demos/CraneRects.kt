@@ -163,7 +163,7 @@ fun CraneRects() {
                         }
                     }
 
-                    val dragObserver = object : DragObserver() {
+                    val dragObserver = object : DragObserver {
                         override fun onDrag(dragDistance: PxPosition): PxPosition {
                             var consumedDy = dragDistance.y.toDp()
                             verticalOffset += consumedDy

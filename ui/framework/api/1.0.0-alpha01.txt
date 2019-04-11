@@ -251,11 +251,10 @@ package androidx.ui.core.gesture {
     property public final androidx.ui.core.gesture.DragObserver? dragObserver;
   }
 
-  public class DragObserver {
-    ctor public DragObserver();
-    method public androidx.ui.core.PxPosition onDrag(androidx.ui.core.PxPosition dragDistance);
-    method public void onStart();
-    method public void onStop(androidx.ui.core.PxPosition velocity);
+  public interface DragObserver {
+    method public default androidx.ui.core.PxPosition onDrag(androidx.ui.core.PxPosition dragDistance);
+    method public default void onStart();
+    method public default void onStop(androidx.ui.core.PxPosition velocity);
   }
 
   public final class PressGestureDetectorKt {

@@ -37,15 +37,59 @@ import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.composer
 
-open class DragObserver {
-    open fun onStart() {}
-    open fun onDrag(dragDistance: PxPosition) = dragDistance
-    open fun onStop(velocity: PxPosition) {}
+interface DragObserver {
+
+    /**
+     * Override to be notified when a drag has started.
+     *
+     * This will occur when a pointer has moved far enough to surpass [TouchSlop] in a supported
+     * direction (as reported by [DragGestureDetector.canDrag]. Always called just before
+     * [onStart] and isn't called again until after [onStop].
+     *
+     * @see onStart
+     * @see onDrag
+     * @see DragGestureRecognizer.canDrag
+     */
+    fun onStart() {}
+
+    /**
+     * Override to be notified when a distance has been dragged.
+     *
+     * When overridden, return the amount of the [dragDistance] that has been consumed.
+     *
+     * Always called just after [onStart] (and for every subsequent drag).
+     *
+     * @param dragDistance The distance that has been dragged.  Reflects the average drag distance
+     * of all pointers currently on the first child [LayoutNode].
+     */
+    fun onDrag(dragDistance: PxPosition) = PxPosition.Origin
+
+    /**
+     * Override to be notified when a drag has stopped.
+     *
+     * This is called once all pointers have stopped interacting with this DragGestureDetector.
+     *
+     * Only called after [onStart], followed by one or more calls to [onDrag].
+     */
+    fun onStop(velocity: PxPosition) {}
 }
 
 // TODO(shepshapard): Convert to functional component with effects once effects are ready.
+// TODO(shepshapard): Should this calculate the drag distance as the average of all fingers
+// (Shep thinks this is better), or should it only track the most recent finger to have
+// touched the screen over the detector (this is how Android currently does it)?
 /**
+ * This gesture detector detects dragging in any direction.
  *
+ * Dragging begins when the touch slop distance is surpassed in a supported direction
+ * (see [onDrag]).  When dragging begins, [DragObserver.onStart] is called, followed immediately by
+ * a call to [DragObserver.onDrag].  [DragObserver.onDrag] is then continuously called whenever
+ * pointers have moved.  [DragObserver.onDrag] is called when the dragging ends due to all of the
+ * pointers no longer interacting with the DragGestureDetector (for example, the last finger has
+ * been lifted off of the DragGestureDetector).
+ *
+ * When multiple pointers are touching the detector, the drag distance is taken as the average of
+ * all of the pointers.
  */
 class DragGestureDetector(
     @Children var children: () -> Unit
@@ -53,6 +97,10 @@ class DragGestureDetector(
 
     private val recognizer = DragGestureRecognizer()
 
+    /**
+     * Set to limit the directions under which a drag can be started.  Return true if a you want
+     * a drag to be started due to the touch slop being surpased in given [Direction]
+     */
     var canDrag: ((Direction) -> Boolean)?
         get() = recognizer.canDrag
         set(value) {
