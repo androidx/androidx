@@ -11,6 +11,10 @@
 if [ -n "$OUT_DIR" ] ; then
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
     export LINT_PRINT_STACKTRACE=true
+else
+    SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
+    CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd)"
+    export OUT_DIR="$CHECKOUT_ROOT/out"
 fi
 
 # ----------------------------------------------------------------------------
