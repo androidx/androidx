@@ -48,6 +48,7 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseAttachState;
 import androidx.core.os.BuildCompat;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -196,7 +197,7 @@ final class Camera implements BaseCamera {
                 SessionConfig.Builder builder = new SessionConfig.Builder();
                 builder.addNonRepeatingSurface(new ImmediateSurface(new Surface(surfaceTexture)));
                 builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-                builder.setSessionStateCallback(new CameraCaptureSession.StateCallback() {
+                builder.addSessionStateCallback(new CameraCaptureSession.StateCallback() {
 
                     @Override
                     public void onConfigured(CameraCaptureSession session) {
@@ -551,8 +552,13 @@ final class Camera implements BaseCamera {
     private CameraDevice.StateCallback createDeviceStateCallback() {
         synchronized (mAttachedUseCaseLock) {
             SessionConfig config = mUseCaseAttachState.getOnlineBuilder().build();
-            return CameraDeviceStateCallbacks.createComboCallback(
-                    mStateCallback, config.getDeviceStateCallback());
+
+            List<CameraDevice.StateCallback> configuredStateCallbacks =
+                    config.getDeviceStateCallbacks();
+            List<CameraDevice.StateCallback> allStateCallbacks =
+                    new ArrayList<>(configuredStateCallbacks);
+            allStateCallbacks.add(mStateCallback);
+            return CameraDeviceStateCallbacks.createComboCallback(allStateCallbacks);
         }
     }
 

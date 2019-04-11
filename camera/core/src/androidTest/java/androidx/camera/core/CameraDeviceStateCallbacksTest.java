@@ -16,11 +16,15 @@
 
 package androidx.camera.core;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.hardware.camera2.CameraDevice;
 
+import androidx.camera.core.CameraDeviceStateCallbacks.NoOpDeviceStateCallback;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -56,5 +60,22 @@ public final class CameraDeviceStateCallbacksTest {
         comboCallback.onError(device, error);
         verify(callback0, times(1)).onError(device, error);
         verify(callback1, times(1)).onError(device, error);
+    }
+
+    @Test
+    public void comboCallbackOnSingle_returnsSingle() {
+        CameraDevice.StateCallback callback = mock(CameraDevice.StateCallback.class);
+
+        CameraDevice.StateCallback returnCallback =
+                CameraDeviceStateCallbacks.createComboCallback(callback);
+
+        assertThat(returnCallback).isEqualTo(callback);
+    }
+
+    @Test
+    public void comboCallbackOnEmpty_returnsNoOp() {
+        CameraDevice.StateCallback callback = CameraDeviceStateCallbacks.createComboCallback();
+
+        assertThat(callback).isInstanceOf(NoOpDeviceStateCallback.class);
     }
 }

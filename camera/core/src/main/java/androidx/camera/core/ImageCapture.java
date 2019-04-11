@@ -57,7 +57,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -181,7 +180,7 @@ public class ImageCapture extends UseCase {
         }
 
         mSessionConfigBuilder = SessionConfig.Builder.createFrom(mConfig);
-        mSessionConfigBuilder.setCameraCaptureCallback(mSessionCallbackChecker);
+        mSessionConfigBuilder.addCameraCaptureCallback(mSessionCallbackChecker);
     }
 
     private static String getCameraIdUnchecked(LensFacing lensFacing) {
@@ -833,8 +832,8 @@ public class ImageCapture extends UseCase {
                     captureStage.getCaptureConfig().getImplementationOptions());
 
             builder.setTag(captureStage.getCaptureConfig().getTag());
+            builder.addCameraCaptureCallback(mMetadataMatchingCaptureCallback);
 
-            final CameraCaptureCallback metadataMatchingCallback = mMetadataMatchingCaptureCallback;
             final CameraControl cameraControl = getCurrentCameraControl();
             ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(
                     new CallbackToFutureAdapter.Resolver<Void>() {
@@ -857,17 +856,12 @@ public class ImageCapture extends UseCase {
                                     completer.set(null);
                                 }
                             };
-                            builder.setCameraCaptureCallback(
-                                    new CameraCaptureCallbacks.ComboCameraCaptureCallback(
-                                            Arrays.asList(
-                                                    completerCallback,
-                                                    metadataMatchingCallback
-                                            )));
+                            builder.addCameraCaptureCallback(completerCallback);
+
                             cameraControl.submitSingleRequest(builder.build());
                             return "issueTakePicture[stage=" + captureStage.getId() + "]";
                         }
                     });
-
             futureList.add(future);
 
         }

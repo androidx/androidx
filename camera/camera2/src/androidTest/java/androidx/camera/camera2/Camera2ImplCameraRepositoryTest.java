@@ -142,8 +142,8 @@ public final class Camera2ImplCameraRepositoryTest {
             SessionConfig.Builder builder = new SessionConfig.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             builder.addSurface(new ImmediateSurface(new Surface(mSurfaceTexture)));
-            builder.setDeviceStateCallback(mDeviceStateCallback);
-            builder.setSessionStateCallback(mSessionStateCallback);
+            builder.addDeviceStateCallback(mDeviceStateCallback);
+            builder.addSessionStateCallback(mSessionStateCallback);
 
             attachToCamera(cameraId, builder.build());
         }

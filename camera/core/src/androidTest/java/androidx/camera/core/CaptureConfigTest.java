@@ -18,6 +18,8 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
+
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
@@ -27,10 +29,11 @@ import android.view.Surface;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import com.google.common.collect.Lists;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Map;
@@ -42,7 +45,7 @@ public class CaptureConfigTest {
 
     @Before
     public void setup() {
-        mMockSurface0 = Mockito.mock(DeferrableSurface.class);
+        mMockSurface0 = mock(DeferrableSurface.class);
     }
 
     @Test
@@ -133,4 +136,65 @@ public class CaptureConfigTest {
 
         assertThat(captureConfig.isUseRepeatingSurface()).isTrue();
     }
+
+    @Test
+    public void builderAddMultipleCameraCaptureCallbacks() {
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+        CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
+        CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);
+
+        builder.addCameraCaptureCallback(callback0);
+        builder.addCameraCaptureCallback(callback1);
+        CaptureConfig configuration = builder.build();
+
+        assertThat(configuration.getCameraCaptureCallbacks()).containsExactly(callback0, callback1);
+    }
+
+    @Test
+    public void builderAddAllCameraCaptureCallbacks() {
+        SessionConfig.Builder builder = new SessionConfig.Builder();
+        CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
+        CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);
+        List<CameraCaptureCallback> callbacks = Lists.newArrayList(callback0, callback1);
+
+        builder.addAllCameraCaptureCallbacks(callbacks);
+        SessionConfig configuration = builder.build();
+
+        assertThat(configuration.getCameraCaptureCallbacks()).containsExactly(callback0, callback1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void builderAddDuplicateCameraCaptureCallback_throwsException() {
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+        CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
+
+        builder.addCameraCaptureCallback(callback0);
+        builder.addCameraCaptureCallback(callback0);
+    }
+
+    @Test
+    public void builderFromPrevious_containsCameraCaptureCallbacks() {
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+        CameraCaptureCallback callback0 = mock(CameraCaptureCallback.class);
+        CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);
+        builder.addCameraCaptureCallback(callback0);
+        builder.addCameraCaptureCallback(callback1);
+        builder = CaptureConfig.Builder.from(builder.build());
+        CameraCaptureCallback callback2 = mock(CameraCaptureCallback.class);
+
+        builder.addCameraCaptureCallback(callback2);
+        CaptureConfig configuration = builder.build();
+
+        assertThat(configuration.getCameraCaptureCallbacks())
+                .containsExactly(callback0, callback1, callback2);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void cameraCaptureCallbacks_areImmutable() {
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+        CaptureConfig configuration = builder.build();
+
+        configuration.getCameraCaptureCallbacks().add(mock(CameraCaptureCallback.class));
+    }
+
 }
