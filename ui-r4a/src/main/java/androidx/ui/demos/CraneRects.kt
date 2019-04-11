@@ -26,7 +26,7 @@ import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.PxPosition
-import androidx.ui.core.adapter.PressGestureDetector
+import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.dp
 import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
