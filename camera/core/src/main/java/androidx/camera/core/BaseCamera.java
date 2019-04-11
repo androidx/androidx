@@ -27,7 +27,7 @@ import java.util.Collection;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public interface BaseCamera extends BaseUseCase.StateChangeListener,
+public interface BaseCamera extends UseCase.StateChangeListener,
         CameraControl.ControlUpdateListener {
     /**
      * Open the camera asynchronously.
@@ -57,13 +57,13 @@ public interface BaseCamera extends BaseUseCase.StateChangeListener,
      * Sets the use case to be in the state where the capture session will be configured to handle
      * capture requests from the use cases.
      */
-    void addOnlineUseCase(Collection<BaseUseCase> baseUseCases);
+    void addOnlineUseCase(Collection<UseCase> useCases);
 
     /**
      * Removes the use case to be in the state where the capture session will be configured to
      * handle capture requests from the use cases.
      */
-    void removeOnlineUseCase(Collection<BaseUseCase> baseUseCases);
+    void removeOnlineUseCase(Collection<UseCase> useCases);
 
     /** Returns the global CameraControl attached to this camera. */
     CameraControl getCameraControl();

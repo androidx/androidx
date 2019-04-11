@@ -38,21 +38,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Main interface for accessing CameraX library.
  *
  * <p>This is a singleton class that is responsible for managing the set of camera
- * instances and {@link BaseUseCase} instances that exist. A {@link BaseUseCase} is bound to {@link
+ * instances and {@link UseCase} instances that exist. A {@link UseCase} is bound to {@link
  * LifecycleOwner} so that the lifecycle is used to control the use case. There are 3 distinct sets
  * lifecycle states to be aware of.
  *
  * <p>When the lifecycle is in the STARTED or RESUMED states the cameras are opened asynchronously
- * and made ready for capturing. Data capture starts when triggered by the bound {@link
- * BaseUseCase}.
+ * and made ready for capturing. Data capture starts when triggered by the bound {@link UseCase}.
  *
- * <p>When the lifecycle is in the CREATED state any cameras with no {@link BaseUseCase} attached
+ * <p>When the lifecycle is in the CREATED state any cameras with no {@link UseCase} attached
  * will be closed asynchronously.
  *
- * <p>When the lifecycle transitions to the DESTROYED state the {@link BaseUseCase} will be unbound.
- * A {@link #bindToLifecycle(LifecycleOwner, BaseUseCase...)} when the lifecycle is already in the
- * DESTROYED state will fail. A call to {@link #bindToLifecycle(LifecycleOwner, BaseUseCase...)}
- * will need to be made with another lifecycle to rebind the {@link BaseUseCase} that has been
+ * <p>When the lifecycle transitions to the DESTROYED state the {@link UseCase} will be unbound.
+ * A {@link #bindToLifecycle(LifecycleOwner, UseCase...)} when the lifecycle is already in the
+ * DESTROYED state will fail. A call to {@link #bindToLifecycle(LifecycleOwner, UseCase...)}
+ * will need to be made with another lifecycle to rebind the {@link UseCase} that has been
  * unbound.
  *
  * <pre>{@code
@@ -101,20 +100,19 @@ public final class CameraX {
     }
 
     /**
-     * Binds the collection of {@link BaseUseCase} to a {@link LifecycleOwner}.
+     * Binds the collection of {@link UseCase} to a {@link LifecycleOwner}.
      *
      * <p>If the lifecycleOwner contains a {@link Lifecycle} that is already
      * in the STARTED state or greater than the created use cases will attach to the cameras and
      * trigger the appropriate notifications. This will generally cause a temporary glitch in the
      * camera as part of the reset process. This will also help to calculate suggested resolutions
-     * depending on the use cases bound to the {@link Lifecycle}. If the use
-     * cases are bound separately, it will find the supported resolution with the priority depending
-     * on the binding sequence. If the use cases are bound with a single call, it will find the
-     * supported resolution with the priority in sequence of ImageCaptureUseCase,
-     * VideoCaptureUseCase, ViewFinderUseCase and then ImageAnalysisUseCase. What resolutions can be
-     * supported will depend on the camera device hardware level that there are some default
-     * guaranteed resolutions listed in {@link
-     * android.hardware.camera2.CameraDevice#createCaptureSession}.
+     * depending on the use cases bound to the {@link Lifecycle}. If the use cases are bound
+     * separately, it will find the supported resolution with the priority depending on the
+     * binding sequence. If the use cases are bound with a single call, it will find the
+     * supported resolution with the priority in sequence of ImageCapture, VideoCapture, Preview
+     * and then ImageAnalysis. What resolutions can be supported will depend on the camera device
+     * hardware level that there are some default guaranteed resolutions listed in
+     * {@link android.hardware.camera2.CameraDevice#createCaptureSession}.
      *
      * <p> Currently up to 3 use cases may be bound at any time.  Exceeding this will throw an
      * IllegalArgumentException.
@@ -124,14 +122,14 @@ public final class CameraX {
      * @param useCases       The use cases to bind to a lifecycle.
      * @throws IllegalArgumentException If the use case has already been bound to another lifecycle.
      */
-    public static void bindToLifecycle(LifecycleOwner lifecycleOwner, BaseUseCase... useCases) {
+    public static void bindToLifecycle(LifecycleOwner lifecycleOwner, UseCase... useCases) {
         UseCaseGroupLifecycleController useCaseGroupLifecycleController =
                 INSTANCE.getOrCreateUseCaseGroup(lifecycleOwner);
         UseCaseGroup useCaseGroupToBind = useCaseGroupLifecycleController.getUseCaseGroup();
 
         Collection<UseCaseGroupLifecycleController> controllers =
                 INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
-        for (BaseUseCase useCase : useCases) {
+        for (UseCase useCase : useCases) {
             for (UseCaseGroupLifecycleController controller : controllers) {
                 UseCaseGroup useCaseGroup = controller.getUseCaseGroup();
                 if (useCaseGroup.contains(useCase) && useCaseGroup != useCaseGroupToBind) {
@@ -145,7 +143,7 @@ public final class CameraX {
 
         calculateSuggestedResolutions(useCases);
 
-        for (BaseUseCase useCase : useCases) {
+        for (UseCase useCase : useCases) {
             useCaseGroupToBind.addUseCase(useCase);
             for (String cameraId : useCase.getAttachedCameraIds()) {
                 attach(cameraId, useCase);
@@ -156,16 +154,16 @@ public final class CameraX {
     }
 
     /**
-     * Returns true if the {@link BaseUseCase} is bound to a lifecycle. Otherwise returns false.
+     * Returns true if the {@link UseCase} is bound to a lifecycle. Otherwise returns false.
      *
      * <p>It is not strictly necessary to check if a use case is bound or not. As long as the
      * lifecycle it was bound to has not entered a DESTROYED state or if it hasn't been unbound by
-     * {@link #unbind(BaseUseCase...)} or {@link #unbindAll()} then the use case will remain bound.
+     * {@link #unbind(UseCase...)} or {@link #unbindAll()} then the use case will remain bound.
      * A use case will not be unbound in the middle of a method call as long as it is running on the
      * main thread. This is because a lifecycle events will only automatically triggered on the main
      * thread.
      */
-    public static boolean isBound(BaseUseCase useCase) {
+    public static boolean isBound(UseCase useCase) {
         Collection<UseCaseGroupLifecycleController> controllers =
                 INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
 
@@ -182,26 +180,26 @@ public final class CameraX {
     /**
      * Unbinds all specified use cases from the lifecycle and removes them from CameraX.
      *
-     * <p>This will initiate a close of every open camera which has zero {@link BaseUseCase}
+     * <p>This will initiate a close of every open camera which has zero {@link UseCase}
      * associated with it at the end of this call.
      *
      * <p>If a use case in the argument list is not bound, then then it is simply ignored.
      *
      * @param useCases The collection of use cases to remove.
      */
-    public static void unbind(BaseUseCase... useCases) {
+    public static void unbind(UseCase... useCases) {
         Collection<UseCaseGroupLifecycleController> useCaseGroups =
                 INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
 
-        Map<String, List<BaseUseCase>> detachingUseCaseMap = new HashMap<>();
+        Map<String, List<UseCase>> detachingUseCaseMap = new HashMap<>();
 
-        for (BaseUseCase useCase : useCases) {
+        for (UseCase useCase : useCases) {
             for (UseCaseGroupLifecycleController useCaseGroupLifecycleController : useCaseGroups) {
                 UseCaseGroup useCaseGroup = useCaseGroupLifecycleController.getUseCaseGroup();
                 if (useCaseGroup.removeUseCase(useCase)) {
                     // Saves all detaching use cases and detach them at once.
                     for (String cameraId : useCase.getAttachedCameraIds()) {
-                        List<BaseUseCase> useCasesOnCameraId = detachingUseCaseMap.get(cameraId);
+                        List<UseCase> useCasesOnCameraId = detachingUseCaseMap.get(cameraId);
                         if (useCasesOnCameraId == null) {
                             useCasesOnCameraId = new ArrayList<>();
                             detachingUseCaseMap.put(cameraId, useCasesOnCameraId);
@@ -216,7 +214,7 @@ public final class CameraX {
             detach(cameraId, detachingUseCaseMap.get(cameraId));
         }
 
-        for (BaseUseCase useCase : useCases) {
+        for (UseCase useCase : useCases) {
             useCase.clear();
         }
     }
@@ -230,13 +228,13 @@ public final class CameraX {
         Collection<UseCaseGroupLifecycleController> useCaseGroups =
                 INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
 
-        List<BaseUseCase> useCases = new ArrayList<>();
+        List<UseCase> useCases = new ArrayList<>();
         for (UseCaseGroupLifecycleController useCaseGroupLifecycleController : useCaseGroups) {
             UseCaseGroup useCaseGroup = useCaseGroupLifecycleController.getUseCaseGroup();
             useCases.addAll(useCaseGroup.getUseCases());
         }
 
-        unbind(useCases.toArray(new BaseUseCase[0]));
+        unbind(useCases.toArray(new UseCase[0]));
     }
 
     /**
@@ -368,12 +366,12 @@ public final class CameraX {
     }
 
     /**
-     * Registers the callbacks for the {@link BaseCamera} to the {@link BaseUseCase}.
+     * Registers the callbacks for the {@link BaseCamera} to the {@link UseCase}.
      *
      * @param cameraId the id for the {@link BaseCamera}
      * @param useCase  the use case to register the callback for
      */
-    private static void attach(String cameraId, BaseUseCase useCase) {
+    private static void attach(String cameraId, UseCase useCase) {
         BaseCamera camera = INSTANCE.getCameraRepository().getCamera(cameraId);
         if (camera == null) {
             throw new IllegalArgumentException("Invalid camera: " + cameraId);
@@ -385,36 +383,36 @@ public final class CameraX {
     }
 
     /**
-     * Removes the callbacks registered by the {@link BaseCamera} to the {@link BaseUseCase}.
+     * Removes the callbacks registered by the {@link BaseCamera} to the {@link UseCase}.
      *
      * @param cameraId the id for the {@link BaseCamera}
      * @param useCases the list of use case to remove the callback from.
      */
-    private static void detach(String cameraId, List<BaseUseCase> useCases) {
+    private static void detach(String cameraId, List<UseCase> useCases) {
         BaseCamera camera = INSTANCE.getCameraRepository().getCamera(cameraId);
         if (camera == null) {
             throw new IllegalArgumentException("Invalid camera: " + cameraId);
         }
 
-        for (BaseUseCase useCase : useCases) {
+        for (UseCase useCase : useCases) {
             useCase.removeStateChangeListener(camera);
             useCase.detachCameraControl(cameraId);
         }
         camera.removeOnlineUseCase(useCases);
     }
 
-    private static void calculateSuggestedResolutions(BaseUseCase... useCases) {
+    private static void calculateSuggestedResolutions(UseCase... useCases) {
         Collection<UseCaseGroupLifecycleController> controllers =
                 INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
-        Map<String, List<BaseUseCase>> originalCameraIdUseCaseMap = new HashMap<>();
-        Map<String, List<BaseUseCase>> newCameraIdUseCaseMap = new HashMap<>();
+        Map<String, List<UseCase>> originalCameraIdUseCaseMap = new HashMap<>();
+        Map<String, List<UseCase>> newCameraIdUseCaseMap = new HashMap<>();
 
         // Collect original use cases for different camera devices
         for (UseCaseGroupLifecycleController controller : controllers) {
             UseCaseGroup useCaseGroup = controller.getUseCaseGroup();
-            for (BaseUseCase useCase : useCaseGroup.getUseCases()) {
+            for (UseCase useCase : useCaseGroup.getUseCases()) {
                 for (String cameraId : useCase.getAttachedCameraIds()) {
-                    List<BaseUseCase> useCaseList = originalCameraIdUseCaseMap.get(cameraId);
+                    List<UseCase> useCaseList = originalCameraIdUseCaseMap.get(cameraId);
                     if (useCaseList == null) {
                         useCaseList = new ArrayList<>();
                         originalCameraIdUseCaseMap.put(cameraId, useCaseList);
@@ -425,7 +423,7 @@ public final class CameraX {
         }
 
         // Collect new use cases for different camera devices
-        for (BaseUseCase useCase : useCases) {
+        for (UseCase useCase : useCases) {
             String cameraId = null;
             LensFacing lensFacing =
                     useCase.getUseCaseConfiguration()
@@ -436,7 +434,7 @@ public final class CameraX {
                 throw new IllegalArgumentException("Invalid camera lens facing: " + lensFacing, e);
             }
 
-            List<BaseUseCase> useCaseList = newCameraIdUseCaseMap.get(cameraId);
+            List<UseCase> useCaseList = newCameraIdUseCaseMap.get(cameraId);
             if (useCaseList == null) {
                 useCaseList = new ArrayList<>();
                 newCameraIdUseCaseMap.put(cameraId, useCaseList);
@@ -446,14 +444,14 @@ public final class CameraX {
 
         // Get suggested resolutions and update the use case session configuration
         for (String cameraId : newCameraIdUseCaseMap.keySet()) {
-            Map<BaseUseCase, Size> suggestResolutionsMap =
+            Map<UseCase, Size> suggestResolutionsMap =
                     getSurfaceManager()
                             .getSuggestedResolutions(
                                     cameraId,
                                     originalCameraIdUseCaseMap.get(cameraId),
                                     newCameraIdUseCaseMap.get(cameraId));
 
-            for (BaseUseCase useCase : useCases) {
+            for (UseCase useCase : useCases) {
                 Size resolution = suggestResolutionsMap.get(useCase);
                 Map<String, Size> suggestedCameraSurfaceResolutionMap = new HashMap<>();
                 suggestedCameraSurfaceResolutionMap.put(cameraId, resolution);
@@ -543,7 +541,7 @@ public final class CameraX {
     public enum ErrorCode {
         /** The camera has moved into an unexpected state from which it can not recover from. */
         CAMERA_STATE_INCONSISTENT,
-        /** A {@link BaseUseCase} has encountered an error from which it can not recover from. */
+        /** A {@link UseCase} has encountered an error from which it can not recover from. */
         USE_CASE_ERROR
     }
 

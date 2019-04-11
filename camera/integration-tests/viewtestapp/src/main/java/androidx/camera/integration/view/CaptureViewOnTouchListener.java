@@ -31,10 +31,10 @@ import android.view.ViewConfiguration;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.camera.core.ImageCaptureUseCase.OnImageSavedListener;
-import androidx.camera.core.ImageCaptureUseCase.UseCaseError;
-import androidx.camera.core.VideoCaptureUseCase;
-import androidx.camera.core.VideoCaptureUseCase.OnVideoSavedListener;
+import androidx.camera.core.ImageCapture.OnImageSavedListener;
+import androidx.camera.core.ImageCapture.UseCaseError;
+import androidx.camera.core.VideoCapture;
+import androidx.camera.core.VideoCapture.OnVideoSavedListener;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
 
@@ -204,7 +204,7 @@ class CaptureViewOnTouchListener
 
     @Override
     public void onError(
-            VideoCaptureUseCase.UseCaseError useCaseError,
+            VideoCapture.UseCaseError useCaseError,
             String message,
             @Nullable Throwable cause) {
         report("Failure");

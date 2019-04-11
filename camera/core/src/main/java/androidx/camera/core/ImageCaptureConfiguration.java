@@ -16,7 +16,6 @@
 
 package androidx.camera.core;
 
-import android.media.ImageReader;
 import android.os.Handler;
 import android.util.Rational;
 import android.util.Size;
@@ -24,109 +23,33 @@ import android.util.Size;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.ImageAnalysisUseCase.ImageReaderMode;
+import androidx.camera.core.ImageCapture.CaptureMode;
 
 import java.util.Set;
 import java.util.UUID;
 
-/** Configuration for an image analysis use case. */
-public final class ImageAnalysisUseCaseConfiguration
-        implements UseCaseConfiguration<ImageAnalysisUseCase>,
+/** Configuration for an image capture use case. */
+public final class ImageCaptureConfiguration
+        implements UseCaseConfiguration<ImageCapture>,
         ImageOutputConfiguration,
         CameraDeviceConfiguration,
         ThreadConfiguration {
 
     // Option Declarations:
     // *********************************************************************************************
-    static final Option<ImageReaderMode> OPTION_IMAGE_READER_MODE =
-            Option.create("camerax.core.imageAnalysis.imageReaderMode", ImageReaderMode.class);
-    static final Option<Integer> OPTION_IMAGE_QUEUE_DEPTH =
-            Option.create("camerax.core.imageAnalysis.imageQueueDepth", int.class);
+    static final Option<ImageCapture.CaptureMode> OPTION_IMAGE_CAPTURE_MODE =
+            Option.create("camerax.core.imageCapture.captureMode", ImageCapture.CaptureMode.class);
+    static final Option<FlashMode> OPTION_FLASH_MODE =
+            Option.create("camerax.core.imageCapture.flashMode", FlashMode.class);
+    static final Option<CaptureBundle> OPTION_CAPTURE_BUNDLE =
+            Option.create("camerax.core.imageCapture.captureBundle", CaptureBundle.class);
+    static final Option<CaptureProcessor> OPTION_CAPTURE_PROCESSOR =
+            Option.create("camerax.core.imageCapture.captureProcessor", CaptureProcessor.class);
     private final OptionsBundle mConfig;
 
-    ImageAnalysisUseCaseConfiguration(OptionsBundle config) {
+    /** Creates a new configuration instance. */
+    ImageCaptureConfiguration(OptionsBundle config) {
         mConfig = config;
-    }
-
-    /**
-     * Returns the mode that the image is acquired from {@link ImageReader}.
-     *
-     * <p>The available values are {@link ImageReaderMode#ACQUIRE_NEXT_IMAGE} and {@link
-     * ImageReaderMode#ACQUIRE_LATEST_IMAGE}.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
-    public ImageReaderMode getImageReaderMode(@Nullable ImageReaderMode valueIfMissing) {
-        return getConfiguration().retrieveOption(OPTION_IMAGE_READER_MODE, valueIfMissing);
-    }
-
-    /**
-     * Returns the mode that the image is acquired from {@link ImageReader}.
-     *
-     * <p>The available values are {@link ImageReaderMode#ACQUIRE_NEXT_IMAGE} and {@link
-     * ImageReaderMode#ACQUIRE_LATEST_IMAGE}.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    public ImageReaderMode getImageReaderMode() {
-        return getConfiguration().retrieveOption(OPTION_IMAGE_READER_MODE);
-    }
-
-    /**
-     * Returns the number of images available to the camera pipeline.
-     *
-     * <p>The image queue depth is the total number of images, including the image being analyzed,
-     * available to the camera pipeline. If analysis takes long enough, the image queue may become
-     * full and stall the camera pipeline.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    public int getImageQueueDepth(int valueIfMissing) {
-        return getConfiguration().retrieveOption(OPTION_IMAGE_QUEUE_DEPTH, valueIfMissing);
-    }
-
-    /**
-     * Returns the number of images available to the camera pipeline.
-     *
-     * <p>The image queue depth is the total number of images, including the image being analyzed,
-     * available to the camera pipeline. If analysis takes long enough, the image queue may become
-     * full and stall the camera pipeline.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    public int getImageQueueDepth() {
-        return getConfiguration().retrieveOption(OPTION_IMAGE_QUEUE_DEPTH);
-    }
-
-    /**
-     * Retrieves the resolution of the target intending to use from this configuration.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Override
-    public Size getTargetResolution(Size valueIfMissing) {
-        return getConfiguration()
-                .retrieveOption(ImageOutputConfiguration.OPTION_TARGET_RESOLUTION, valueIfMissing);
-    }
-
-    /**
-     * Retrieves the resolution of the target intending to use from this configuration.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @Override
-    public Size getTargetResolution() {
-        return getConfiguration().retrieveOption(ImageOutputConfiguration.OPTION_TARGET_RESOLUTION);
     }
 
     /**
@@ -140,14 +63,110 @@ public final class ImageAnalysisUseCaseConfiguration
         return mConfig;
     }
 
-    /** Builder for a {@link ImageAnalysisUseCaseConfiguration}. */
-    public static final class Builder
-            implements CameraDeviceConfiguration.Builder<
-            ImageAnalysisUseCaseConfiguration, Builder>,
-            ImageOutputConfiguration.Builder<ImageAnalysisUseCaseConfiguration, Builder>,
-            ThreadConfiguration.Builder<ImageAnalysisUseCaseConfiguration, Builder>,
-            UseCaseConfiguration.Builder<
-                    ImageAnalysisUseCase, ImageAnalysisUseCaseConfiguration, Builder> {
+    /**
+     * Returns the {@link ImageCapture.CaptureMode}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    public ImageCapture.CaptureMode getCaptureMode(
+            @Nullable ImageCapture.CaptureMode valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_IMAGE_CAPTURE_MODE, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link ImageCapture.CaptureMode}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    public ImageCapture.CaptureMode getCaptureMode() {
+        return getConfiguration().retrieveOption(OPTION_IMAGE_CAPTURE_MODE);
+    }
+
+    /**
+     * Returns the {@link FlashMode}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    public FlashMode getFlashMode(@Nullable FlashMode valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_FLASH_MODE, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link FlashMode}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    public FlashMode getFlashMode() {
+        return getConfiguration().retrieveOption(OPTION_FLASH_MODE);
+    }
+
+    /**
+     * Returns the {@link CaptureBundle}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public CaptureBundle getCaptureBundle(@Nullable CaptureBundle valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_CAPTURE_BUNDLE, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link CaptureBundle}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public CaptureBundle getCaptureBundle() {
+        return getConfiguration().retrieveOption(OPTION_CAPTURE_BUNDLE);
+    }
+
+    /**
+     * Returns the {@link CaptureProcessor}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public CaptureProcessor getCaptureProcessor(@Nullable CaptureProcessor valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_CAPTURE_PROCESSOR, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link CaptureProcessor}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public CaptureProcessor getCaptureProcessor() {
+        return getConfiguration().retrieveOption(OPTION_CAPTURE_PROCESSOR);
+    }
+
+    /** Builder for a {@link ImageCaptureConfiguration}. */
+    public static final class Builder implements
+            UseCaseConfiguration.Builder<ImageCapture, ImageCaptureConfiguration, Builder>,
+            ImageOutputConfiguration.Builder<ImageCaptureConfiguration, Builder>,
+            CameraDeviceConfiguration.Builder<ImageCaptureConfiguration, Builder>,
+            ThreadConfiguration.Builder<ImageCaptureConfiguration, Builder> {
+
         private final MutableOptionsBundle mMutableConfig;
 
         /** Creates a new Builder object. */
@@ -160,7 +179,7 @@ public final class ImageAnalysisUseCaseConfiguration
 
             Class<?> oldConfigClass =
                     mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
-            if (oldConfigClass != null && !oldConfigClass.equals(ImageAnalysisUseCase.class)) {
+            if (oldConfigClass != null && !oldConfigClass.equals(ImageCapture.class)) {
                 throw new IllegalArgumentException(
                         "Invalid target class configuration for "
                                 + Builder.this
@@ -168,77 +187,17 @@ public final class ImageAnalysisUseCaseConfiguration
                                 + oldConfigClass);
             }
 
-            setTargetClass(ImageAnalysisUseCase.class);
+            setTargetClass(ImageCapture.class);
         }
 
         /**
-         * Generates a Builder from another Configuration object.
+         * Generates a Builder from another Configuration object
          *
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
          */
-        public static Builder fromConfig(ImageAnalysisUseCaseConfiguration configuration) {
+        public static Builder fromConfig(ImageCaptureConfiguration configuration) {
             return new Builder(MutableOptionsBundle.from(configuration));
-        }
-
-        /**
-         * Sets the mode that the image is acquired from {@link ImageReader}.
-         *
-         * <p>The available values are {@link ImageReaderMode#ACQUIRE_NEXT_IMAGE} and {@link
-         * ImageReaderMode#ACQUIRE_LATEST_IMAGE}.
-         *
-         * @param mode The mode to set.
-         * @return The current Builder.
-         */
-        public Builder setImageReaderMode(ImageReaderMode mode) {
-            getMutableConfiguration().insertOption(OPTION_IMAGE_READER_MODE, mode);
-            return builder();
-        }
-
-        /**
-         * Sets the number of images available to the camera pipeline.
-         *
-         * <p>The image queue depth is the number of images available to the camera to fill with
-         * data. This includes the image currently being analyzed by {@link
-         * ImageAnalysisUseCase.Analyzer#analyze(ImageProxy, int)}. Increasing the image queue depth
-         * may make camera operation smoother, depending on the {@link ImageReaderMode}, at the cost
-         * of increased memory usage.
-         *
-         * <p>When the {@link ImageReaderMode} is set to {@link
-         * ImageReaderMode#ACQUIRE_LATEST_IMAGE}, increasing the image queue depth will increase the
-         * amount of time available to analyze an image before stalling the capture pipeline.
-         *
-         * <p>When the {@link ImageReaderMode} is set to {@link ImageReaderMode#ACQUIRE_NEXT_IMAGE},
-         * increasing the image queue depth may make the camera pipeline run smoother on systems
-         * under high load. However, the time spent analyzing an image should still be kept under a
-         * single frame period for the current frame rate, on average, to avoid stalling the camera
-         * pipeline.
-         *
-         * @param depth The total number of images available to the camera.
-         * @return The current Builder.
-         */
-        public Builder setImageQueueDepth(int depth) {
-            getMutableConfiguration().insertOption(OPTION_IMAGE_QUEUE_DEPTH, depth);
-            return builder();
-        }
-
-        /**
-         * Sets the resolution of the intended target from this configuration.
-         *
-         * <p>The target resolution attempts to establish a minimum bound for the image resolution.
-         * The actual image resolution will be the closest available resolution in size that is not
-         * smaller than the target resolution, as determined by the Camera implementation. However,
-         * if no resolution exists that is equal to or larger than the target resolution, the
-         * nearest available resolution smaller than the target resolution will be chosen.
-         *
-         * @param resolution The target resolution to choose from supported output sizes list.
-         * @return The current Builder.
-         */
-        @Override
-        public Builder setTargetResolution(Size resolution) {
-            getMutableConfiguration()
-                    .insertOption(ImageOutputConfiguration.OPTION_TARGET_RESOLUTION, resolution);
-            return builder();
         }
 
         /**
@@ -264,8 +223,60 @@ public final class ImageAnalysisUseCaseConfiguration
         }
 
         @Override
-        public ImageAnalysisUseCaseConfiguration build() {
-            return new ImageAnalysisUseCaseConfiguration(OptionsBundle.from(mMutableConfig));
+        public ImageCaptureConfiguration build() {
+            return new ImageCaptureConfiguration(OptionsBundle.from(mMutableConfig));
+        }
+
+        /**
+         * Sets the image capture mode.
+         *
+         * <p>Valid capture modes are {@link CaptureMode#MIN_LATENCY}, which prioritizes latency
+         * over image quality, or {@link CaptureMode#MAX_QUALITY}, which prioritizes image quality
+         * over latency.
+         *
+         * @param captureMode The requested image capture mode.
+         * @return The current Builder.
+         */
+        public Builder setCaptureMode(ImageCapture.CaptureMode captureMode) {
+            getMutableConfiguration().insertOption(OPTION_IMAGE_CAPTURE_MODE, captureMode);
+            return builder();
+        }
+
+        /**
+         * Sets the {@link FlashMode}.
+         *
+         * @param flashMode The requested flash mode.
+         * @return The current Builder.
+         */
+        public Builder setFlashMode(FlashMode flashMode) {
+            getMutableConfiguration().insertOption(OPTION_FLASH_MODE, flashMode);
+            return builder();
+        }
+
+        /**
+         * Sets the {@link CaptureBundle}.
+         *
+         * @param captureBundle The requested capture bundle for extension.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setCaptureBundle(CaptureBundle captureBundle) {
+            getMutableConfiguration().insertOption(OPTION_CAPTURE_BUNDLE, captureBundle);
+            return builder();
+        }
+
+        /**
+         * Sets the {@link CaptureProcessor}.
+         *
+         * @param captureProcessor The requested capture processor for extension.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setCaptureProcessor(CaptureProcessor captureProcessor) {
+            getMutableConfiguration().insertOption(OPTION_CAPTURE_PROCESSOR, captureProcessor);
+            return builder();
         }
 
         // Start of the default implementation of Configuration.Builder
@@ -295,7 +306,7 @@ public final class ImageAnalysisUseCaseConfiguration
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setTargetClass(Class<ImageAnalysisUseCase> targetClass) {
+        public Builder setTargetClass(Class<ImageCapture> targetClass) {
             getMutableConfiguration().insertOption(OPTION_TARGET_CLASS, targetClass);
 
             // If no name is set yet, then generate a unique name
@@ -332,6 +343,24 @@ public final class ImageAnalysisUseCaseConfiguration
         @Override
         public Builder setTargetRotation(@RotationValue int rotation) {
             getMutableConfiguration().insertOption(OPTION_TARGET_ROTATION, rotation);
+            return builder();
+        }
+
+        /**
+         * Sets the intended output target resolution.
+         *
+         * <p>The target resolution attempts to establish a minimum bound for the image resolution.
+         * The actual image resolution will be the closest available resolution in size that is not
+         * smaller than the target resolution, as determined by the Camera implementation. However,
+         * if no resolution exists that is equal to or larger than the target resolution, the
+         * nearest available resolution smaller than the target resolution will be chosen.
+         *
+         * @param resolution The target resolution to choose from supported output sizes list.
+         * @return The current Builder.
+         */
+        @Override
+        public Builder setTargetResolution(Size resolution) {
+            getMutableConfiguration().insertOption(OPTION_TARGET_RESOLUTION, resolution);
             return builder();
         }
 
@@ -427,21 +456,20 @@ public final class ImageAnalysisUseCaseConfiguration
 
     @Override
     @Nullable
-    public Class<ImageAnalysisUseCase> getTargetClass(
-            @Nullable Class<ImageAnalysisUseCase> valueIfMissing) {
+    public Class<ImageCapture> getTargetClass(@Nullable Class<ImageCapture> valueIfMissing) {
         @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<ImageAnalysisUseCase> storedClass =
-                (Class<ImageAnalysisUseCase>) retrieveOption(
+                Class<ImageCapture> storedClass =
+                (Class<ImageCapture>) retrieveOption(
                         OPTION_TARGET_CLASS,
                         valueIfMissing);
         return storedClass;
     }
 
     @Override
-    public Class<ImageAnalysisUseCase> getTargetClass() {
+    public Class<ImageCapture> getTargetClass() {
         @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<ImageAnalysisUseCase> storedClass =
-                (Class<ImageAnalysisUseCase>) retrieveOption(
+                Class<ImageCapture> storedClass =
+                (Class<ImageCapture>) retrieveOption(
                         OPTION_TARGET_CLASS);
         return storedClass;
     }
@@ -493,6 +521,29 @@ public final class ImageAnalysisUseCaseConfiguration
     @RotationValue
     public int getTargetRotation() {
         return retrieveOption(OPTION_TARGET_ROTATION);
+    }
+
+    /**
+     * Retrieves the resolution of the target intending to use from this configuration.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Override
+    public Size getTargetResolution(Size valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_RESOLUTION, valueIfMissing);
+    }
+
+    /**
+     * Retrieves the resolution of the target intending to use from this configuration.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @Override
+    public Size getTargetResolution() {
+        return retrieveOption(OPTION_TARGET_RESOLUTION);
     }
 
     /** @hide */
@@ -570,4 +621,5 @@ public final class ImageAnalysisUseCaseConfiguration
 
     // End of the default implementation of Configuration
     // *********************************************************************************************
+
 }

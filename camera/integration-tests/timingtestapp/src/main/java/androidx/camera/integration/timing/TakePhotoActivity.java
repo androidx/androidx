@@ -30,12 +30,12 @@ import android.widget.Button;
 import androidx.camera.camera2.Camera2Configuration;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ImageCaptureUseCase;
-import androidx.camera.core.ImageCaptureUseCase.CaptureMode;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.CaptureMode;
+import androidx.camera.core.ImageCaptureConfiguration;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.ViewFinderUseCase;
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.core.Preview;
+import androidx.camera.core.PreviewConfiguration;
 
 /** This Activity is used to run image capture performance test in mobileharness. */
 public class TakePhotoActivity extends BaseActivity {
@@ -97,8 +97,8 @@ public class TakePhotoActivity extends BaseActivity {
             };
     /** The default cameraId to use. */
     private LensFacing mCurrentCameraLensFacing = LensFacing.BACK;
-    private ImageCaptureUseCase mImageCaptureUseCase;
-    private ViewFinderUseCase mViewFinderUseCase;
+    private ImageCapture mImageCapture;
+    private Preview mPreview;
     private int mFrameCount;
     private long mPreviewSampleStartTime;
     private CaptureMode mCaptureMode = CaptureMode.MIN_LATENCY;
@@ -113,8 +113,8 @@ public class TakePhotoActivity extends BaseActivity {
         Thread.sleep(PREVIEW_FILL_BUFFER_TIME);
 
         startTime = System.currentTimeMillis();
-        mImageCaptureUseCase.takePicture(
-                new ImageCaptureUseCase.OnImageCapturedListener() {
+        mImageCapture.takePicture(
+                new ImageCapture.OnImageCapturedListener() {
                     @Override
                     public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
                         totalTime = System.currentTimeMillis() - startTime;
@@ -129,33 +129,33 @@ public class TakePhotoActivity extends BaseActivity {
 
     @Override
     public void prepareUseCase() {
-        createViewFinderUseCase();
-        createImageCaptureUseCase();
+        createPreview();
+        createImageCapture();
     }
 
-    void createViewFinderUseCase() {
-        ViewFinderUseCaseConfiguration.Builder configurationBuilder =
-                new ViewFinderUseCaseConfiguration.Builder()
+    void createPreview() {
+        PreviewConfiguration.Builder configurationBuilder =
+                new PreviewConfiguration.Builder()
                         .setLensFacing(mCurrentCameraLensFacing)
-                        .setTargetName("ViewFinder");
+                        .setTargetName("Preview");
 
         new Camera2Configuration.Extender(configurationBuilder)
                 .setDeviceStateCallback(mDeviceStateCallback)
                 .setSessionStateCallback(mCaptureSessionStateCallback);
 
-        mViewFinderUseCase = new ViewFinderUseCase(configurationBuilder.build());
+        mPreview = new Preview(configurationBuilder.build());
         openCameraStartTime = System.currentTimeMillis();
 
-        mViewFinderUseCase.setOnViewFinderOutputUpdateListener(
-                new ViewFinderUseCase.OnViewFinderOutputUpdateListener() {
+        mPreview.setOnPreviewOutputUpdateListener(
+                new Preview.OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(ViewFinderUseCase.ViewFinderOutput viewFinderOutput) {
+                    public void onUpdated(Preview.PreviewOutput previewOutput) {
                         TextureView textureView = TakePhotoActivity.this.findViewById(
                                 R.id.textureView);
                         ViewGroup viewGroup = (ViewGroup) textureView.getParent();
                         viewGroup.removeView(textureView);
                         viewGroup.addView(textureView);
-                        textureView.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
+                        textureView.setSurfaceTexture(previewOutput.getSurfaceTexture());
                         textureView.setSurfaceTextureListener(
                                 new SurfaceTextureListener() {
                                     @Override
@@ -201,19 +201,19 @@ public class TakePhotoActivity extends BaseActivity {
                     }
                 });
 
-        CameraX.bindToLifecycle(mCustomLifecycle, mViewFinderUseCase);
+        CameraX.bindToLifecycle(mCustomLifecycle, mPreview);
     }
 
-    void createImageCaptureUseCase() {
-        ImageCaptureUseCaseConfiguration configuration =
-                new ImageCaptureUseCaseConfiguration.Builder()
+    void createImageCapture() {
+        ImageCaptureConfiguration configuration =
+                new ImageCaptureConfiguration.Builder()
                         .setTargetName("ImageCapture")
                         .setLensFacing(mCurrentCameraLensFacing)
                         .setCaptureMode(mCaptureMode)
                         .build();
 
-        mImageCaptureUseCase = new ImageCaptureUseCase(configuration);
-        CameraX.bindToLifecycle(mCustomLifecycle, mImageCaptureUseCase);
+        mImageCapture = new ImageCapture(configuration);
+        CameraX.bindToLifecycle(mCustomLifecycle, mImageCapture);
 
         final Button button = this.findViewById(R.id.Picture);
         button.setOnClickListener(
@@ -221,8 +221,8 @@ public class TakePhotoActivity extends BaseActivity {
                     @Override
                     public void onClick(View view) {
                         startTime = System.currentTimeMillis();
-                        mImageCaptureUseCase.takePicture(
-                                new ImageCaptureUseCase.OnImageCapturedListener() {
+                        mImageCapture.takePicture(
+                                new ImageCapture.OnImageCapturedListener() {
                                     @Override
                                     public void onCaptureSuccess(
                                             ImageProxy image, int rotationDegrees) {

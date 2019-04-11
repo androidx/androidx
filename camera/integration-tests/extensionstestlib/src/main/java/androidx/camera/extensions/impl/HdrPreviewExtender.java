@@ -13,27 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.camera.extensions.impl;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Log;
 
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.core.PreviewConfiguration;
 import androidx.camera.extensions.CaptureStage;
-import androidx.camera.extensions.ViewFinderUseCaseExtender;
+import androidx.camera.extensions.PreviewExtender;
 
 /**
- * Implementation for bokeh view finder use case.
+ * Implementation for HDR view finder use case.
  *
  * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
  * don't need to implement this, unless this is used for related testing usage.
  */
-public final class BokehViewFinderExtender extends ViewFinderUseCaseExtender {
-    private static final String TAG = "BokehViewFinderExtender";
+public final class HdrPreviewExtender extends PreviewExtender {
+    private static final String TAG = "HdrPreviewExtender";
     private static final int DEFAULT_STAGE_ID = 0;
 
-    public BokehViewFinderExtender(ViewFinderUseCaseConfiguration.Builder builder) {
+    public HdrPreviewExtender(PreviewConfiguration.Builder builder) {
         super(builder);
     }
 

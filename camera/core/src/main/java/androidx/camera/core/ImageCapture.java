@@ -77,9 +77,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * saving the picture to a file.
  *
  * <p>The captured image is made available through an {@link ImageReader} which is passed to an
- * {@link ImageCaptureUseCase.OnImageCapturedListener}.
+ * {@link ImageCapture.OnImageCapturedListener}.
  */
-public class ImageCaptureUseCase extends BaseUseCase {
+public class ImageCapture extends UseCase {
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
@@ -87,7 +87,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
-    private static final String TAG = "ImageCaptureUseCase";
+    private static final String TAG = "ImageCapture";
     private static final long CHECK_3A_TIMEOUT_IN_MS = 1000L;
     private static final int MAX_IMAGES = 2;
     // Empty metadata object used as a placeholder for no user-supplied metadata.
@@ -124,12 +124,12 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * by {@link #takePicture(OnImageCapturedListener)}
      */
     private final CaptureProcessor mCaptureProcessor;
-    private final ImageCaptureUseCaseConfiguration.Builder mUseCaseConfigBuilder;
+    private final ImageCaptureConfiguration.Builder mUseCaseConfigBuilder;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
             ImageReaderProxy mImageReader;
     /** Callback used to match the {@link ImageProxy} with the {@link ImageInfo}. */
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
-    private ImageCaptureUseCaseConfiguration mConfiguration;
+    private ImageCaptureConfiguration mConfiguration;
     private DeferrableSurface mDeferrableSurface;
     /**
      * A flag to check 3A converged or not.
@@ -147,12 +147,12 @@ public class ImageCaptureUseCase extends BaseUseCase {
      *
      * @param userConfiguration for this use case instance
      */
-    public ImageCaptureUseCase(ImageCaptureUseCaseConfiguration userConfiguration) {
+    public ImageCapture(ImageCaptureConfiguration userConfiguration) {
         super(userConfiguration);
         mUseCaseConfigBuilder =
-                ImageCaptureUseCaseConfiguration.Builder.fromConfig(userConfiguration);
+                ImageCaptureConfiguration.Builder.fromConfig(userConfiguration);
         // Ensure we're using the combined configuration (user config + defaults)
-        mConfiguration = (ImageCaptureUseCaseConfiguration) getUseCaseConfiguration();
+        mConfiguration = (ImageCaptureConfiguration) getUseCaseConfiguration();
         mCaptureMode = mConfiguration.getCaptureMode();
         mFlashMode = mConfiguration.getFlashMode();
 
@@ -169,7 +169,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
 
         if (mCaptureBundle.getCaptureStages().size() > 1 && mCaptureProcessor == null) {
             throw new IllegalArgumentException(
-                    "ImageCaptureUseCaseConfiguration has no CaptureProcess set with "
+                    "ImageCaptureConfiguration has no CaptureProcess set with "
                             + "CaptureBundle size > 1.");
         }
 
@@ -206,10 +206,10 @@ public class ImageCaptureUseCase extends BaseUseCase {
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        ImageCaptureUseCaseConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
-                ImageCaptureUseCaseConfiguration.class, lensFacing);
+        ImageCaptureConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
+                ImageCaptureConfiguration.class, lensFacing);
         if (defaults != null) {
-            return ImageCaptureUseCaseConfiguration.Builder.fromConfig(defaults);
+            return ImageCaptureConfiguration.Builder.fromConfig(defaults);
         }
 
         return null;
@@ -256,7 +256,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
         if (!aspectRatio.equals(oldRatio)) {
             mUseCaseConfigBuilder.setTargetAspectRatio(aspectRatio);
             updateUseCaseConfiguration(mUseCaseConfigBuilder.build());
-            mConfiguration = (ImageCaptureUseCaseConfiguration) getUseCaseConfiguration();
+            mConfiguration = (ImageCaptureConfiguration) getUseCaseConfiguration();
 
             // TODO(b/122846516): Reconfigure capture session if the ratio is changed drastically.
         }
@@ -279,7 +279,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
         if (oldRotation == ImageOutputConfiguration.INVALID_ROTATION || oldRotation != rotation) {
             mUseCaseConfigBuilder.setTargetRotation(rotation);
             updateUseCaseConfiguration(mUseCaseConfigBuilder.build());
-            mConfiguration = (ImageCaptureUseCaseConfiguration) getUseCaseConfiguration();
+            mConfiguration = (ImageCaptureConfiguration) getUseCaseConfiguration();
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
         }
@@ -299,7 +299,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                     new Runnable() {
                         @Override
                         public void run() {
-                            ImageCaptureUseCase.this.takePicture(listener);
+                            ImageCapture.this.takePicture(listener);
                         }
                     });
             return;
@@ -339,7 +339,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                     new Runnable() {
                         @Override
                         public void run() {
-                            ImageCaptureUseCase.this.takePicture(saveLocation, imageSavedListener,
+                            ImageCapture.this.takePicture(saveLocation, imageSavedListener,
                                     metadata);
                         }
                     });
@@ -351,7 +351,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
          *
          * +-----------------------+
          * |                       |
-         * |ImageCaptureUseCase.   |
+         * |ImageCapture.          |
          * |OnImageCapturedListener|
          * |                       |
          * +-----------+-----------+
@@ -359,13 +359,13 @@ public class ImageCaptureUseCase extends BaseUseCase {
          *             |
          * +-----------v-----------+      +----------------------+
          * |                       |      |                      |
-         * | ImageSaver.           |      | ImageCaptureUseCase. |
+         * | ImageSaver.           |      | ImageCapture.        |
          * | OnImageSavedListener  +------> OnImageSavedListener |
          * |                       |      |                      |
          * +-----------------------+      +----------------------+
          */
 
-        // Convert the ImageSaver.OnImageSavedListener to ImageCaptureUseCase.OnImageSavedListener
+        // Convert the ImageSaver.OnImageSavedListener to ImageCapture.OnImageSavedListener
         final ImageSaver.OnImageSavedListener imageSavedListenerWrapper =
                 new ImageSaver.OnImageSavedListener() {
                     @Override
@@ -390,8 +390,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                     }
                 };
 
-        // Wrap the ImageCaptureUseCase.OnImageSavedListener with an OnImageCapturedListener so it
-        // can
+        // Wrap the ImageCapture.OnImageSavedListener with an OnImageCapturedListener so it can
         // be put into the capture request queue
         OnImageCapturedListener imageCaptureCallbackWrapper =
                 new OnImageCapturedListener() {
@@ -478,13 +477,13 @@ public class ImageCaptureUseCase extends BaseUseCase {
                 .transformAsync(new AsyncFunction<Void, Void>() {
                     @Override
                     public ListenableFuture<Void> apply(Void v) throws Exception {
-                        return ImageCaptureUseCase.this.issueTakePicture();
+                        return ImageCapture.this.issueTakePicture();
                     }
                 }, mExecutor)
                 .transformAsync(new AsyncFunction<Void, Void>() {
                     @Override
                     public ListenableFuture<Void> apply(Void v) throws Exception {
-                        return ImageCaptureUseCase.this.postTakePicture(state);
+                        return ImageCapture.this.postTakePicture(state);
                     }
                 }, mExecutor)
                 .addCallback(
@@ -593,7 +592,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                                     // Inform the listener
                                     imageCaptureRequest.dispatchImage(image);
 
-                                    ImageCaptureUseCase.this.issueImageCaptureRequests();
+                                    ImageCapture.this.issueImageCaptureRequests();
                                 }
                             }
                         } else {
@@ -640,13 +639,13 @@ public class ImageCaptureUseCase extends BaseUseCase {
                             public ListenableFuture<Boolean> apply(
                                     CameraCaptureResult captureResult) throws Exception {
                                 state.mPreCaptureState = captureResult;
-                                ImageCaptureUseCase.this.triggerAfIfNeeded(state);
+                                ImageCapture.this.triggerAfIfNeeded(state);
 
-                                if (ImageCaptureUseCase.this.isFlashRequired(state)) {
+                                if (ImageCapture.this.isFlashRequired(state)) {
                                     state.mIsFlashTriggered = true;
-                                    ImageCaptureUseCase.this.triggerAePrecapture(state);
+                                    ImageCapture.this.triggerAePrecapture(state);
                                 }
-                                return ImageCaptureUseCase.this.check3AConverged(state);
+                                return ImageCapture.this.check3AConverged(state);
                             }
                         },
                         mExecutor)
@@ -674,7 +673,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        ImageCaptureUseCase.this.cancelAfAeTrigger(state);
+                        ImageCapture.this.cancelAfAeTrigger(state);
                         completer.set(null);
                     }
                 });
@@ -890,10 +889,10 @@ public class ImageCaptureUseCase extends BaseUseCase {
 
     /**
      * Describes the error that occurred during an image capture operation (such as {@link
-     * ImageCaptureUseCase#takePicture(OnImageCapturedListener)}).
+     * ImageCapture#takePicture(OnImageCapturedListener)}).
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
-     * ImageCaptureUseCase.OnImageSavedListener#onError(UseCaseError, String, Throwable)}.
+     * ImageCapture.OnImageSavedListener#onError(UseCaseError, String, Throwable)}.
      */
     public enum UseCaseError {
         /**
@@ -910,7 +909,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
     }
 
     /**
-     * Capture mode options for ImageCaptureUseCase. A picture will always be taken regardless of
+     * Capture mode options for ImageCapture. A picture will always be taken regardless of
      * mode, and the mode will be used on devices that support it.
      */
     public enum CaptureMode {
@@ -959,7 +958,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
     }
 
     /**
-     * Provides a base static default configuration for the ImageCaptureUseCase
+     * Provides a base static default configuration for the ImageCapture
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
@@ -968,17 +967,17 @@ public class ImageCaptureUseCase extends BaseUseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
-            implements ConfigurationProvider<ImageCaptureUseCaseConfiguration> {
+            implements ConfigurationProvider<ImageCaptureConfiguration> {
         private static final CaptureMode DEFAULT_CAPTURE_MODE = CaptureMode.MIN_LATENCY;
         private static final FlashMode DEFAULT_FLASH_MODE = FlashMode.OFF;
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
 
-        private static final ImageCaptureUseCaseConfiguration DEFAULT_CONFIG;
+        private static final ImageCaptureConfiguration DEFAULT_CONFIG;
 
         static {
-            ImageCaptureUseCaseConfiguration.Builder builder =
-                    new ImageCaptureUseCaseConfiguration.Builder()
+            ImageCaptureConfiguration.Builder builder =
+                    new ImageCaptureConfiguration.Builder()
                             .setCaptureMode(DEFAULT_CAPTURE_MODE)
                             .setFlashMode(DEFAULT_FLASH_MODE)
                             .setCallbackHandler(DEFAULT_HANDLER)
@@ -988,7 +987,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
         }
 
         @Override
-        public ImageCaptureUseCaseConfiguration getConfiguration(LensFacing lensFacing) {
+        public ImageCaptureConfiguration getConfiguration(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
         }
     }

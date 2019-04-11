@@ -19,9 +19,9 @@ package androidx.camera.testing.fakes;
 import android.util.Size;
 
 import androidx.annotation.Nullable;
-import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.SurfaceConfiguration;
+import androidx.camera.core.UseCase;
 
 import java.util.HashMap;
 import java.util.List;
@@ -52,10 +52,10 @@ public class FakeCameraDeviceSurfaceManager implements CameraDeviceSurfaceManage
     }
 
     @Override
-    public Map<BaseUseCase, Size> getSuggestedResolutions(
-            String cameraId, List<BaseUseCase> originalUseCases, List<BaseUseCase> newUseCases) {
-        Map<BaseUseCase, Size> suggestedSizes = new HashMap<>();
-        for (BaseUseCase useCase : newUseCases) {
+    public Map<UseCase, Size> getSuggestedResolutions(
+            String cameraId, List<UseCase> originalUseCases, List<UseCase> newUseCases) {
+        Map<UseCase, Size> suggestedSizes = new HashMap<>();
+        for (UseCase useCase : newUseCases) {
             suggestedSizes.put(useCase, MAX_OUTPUT_SIZE);
         }
 

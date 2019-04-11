@@ -31,7 +31,6 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
 
-import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceConfiguration;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
@@ -42,6 +41,7 @@ import androidx.camera.core.SurfaceConfiguration;
 import androidx.camera.core.SurfaceConfiguration.ConfigurationSize;
 import androidx.camera.core.SurfaceConfiguration.ConfigurationType;
 import androidx.camera.core.SurfaceSizeDefinition;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfiguration;
 
 import java.util.ArrayList;
@@ -175,9 +175,9 @@ final class SupportedSurfaceCombination {
         return SurfaceConfiguration.create(configurationType, configurationSize);
     }
 
-    Map<BaseUseCase, Size> getSuggestedResolutions(
-            List<BaseUseCase> originalUseCases, List<BaseUseCase> newUseCases) {
-        Map<BaseUseCase, Size> suggestedResolutionsMap = new HashMap<>();
+    Map<UseCase, Size> getSuggestedResolutions(
+            List<UseCase> originalUseCases, List<UseCase> newUseCases) {
+        Map<UseCase, Size> suggestedResolutionsMap = new HashMap<>();
 
         // Get the index order list by the use case priority for finding stream configuration
         List<Integer> useCasesPriorityOrder = getUseCasesPriorityOrder(newUseCases);
@@ -201,7 +201,7 @@ final class SupportedSurfaceCombination {
             // Attach SurfaceConfiguration of original use cases since it will impact the new use
             // cases
             if (originalUseCases != null) {
-                for (BaseUseCase useCase : originalUseCases) {
+                for (UseCase useCase : originalUseCases) {
                     CameraDeviceConfiguration configuration =
                             (CameraDeviceConfiguration) useCase.getUseCaseConfiguration();
                     String useCaseCameraId;
@@ -221,7 +221,7 @@ final class SupportedSurfaceCombination {
 
             // Attach SurfaceConfiguration of new use cases
             for (Size size : possibleSizeList) {
-                BaseUseCase newUseCase =
+                UseCase newUseCase =
                         newUseCases.get(useCasesPriorityOrder.get(possibleSizeList.indexOf(size)));
                 surfaceConfigurationList.add(
                         transformSurfaceConfiguration(newUseCase.getImageFormat(), size));
@@ -229,7 +229,7 @@ final class SupportedSurfaceCombination {
 
             // Check whether the SurfaceConfiguration combination can be supported
             if (checkSupported(surfaceConfigurationList)) {
-                for (BaseUseCase useCase : newUseCases) {
+                for (UseCase useCase : newUseCases) {
                     suggestedResolutionsMap.put(
                             useCase,
                             possibleSizeList.get(
@@ -246,7 +246,7 @@ final class SupportedSurfaceCombination {
         return mSurfaceSizeDefinition;
     }
 
-    private List<Integer> getUseCasesPriorityOrder(List<BaseUseCase> newUseCases) {
+    private List<Integer> getUseCasesPriorityOrder(List<UseCase> newUseCases) {
         List<Integer> priorityOrder = new ArrayList<>();
 
         /**
@@ -257,7 +257,7 @@ final class SupportedSurfaceCombination {
          */
         List<Integer> priorityValueList = new ArrayList<>();
 
-        for (BaseUseCase useCase : newUseCases) {
+        for (UseCase useCase : newUseCases) {
             UseCaseConfiguration<?> configuration = useCase.getUseCaseConfiguration();
             int priority = configuration.getSurfaceOccupancyPriority(0);
             if (!priorityValueList.contains(priority)) {
@@ -271,7 +271,7 @@ final class SupportedSurfaceCombination {
         Collections.reverse(priorityValueList);
 
         for (int priorityValue : priorityValueList) {
-            for (BaseUseCase useCase : newUseCases) {
+            for (UseCase useCase : newUseCases) {
                 UseCaseConfiguration<?> configuration = useCase.getUseCaseConfiguration();
                 if (priorityValue == configuration.getSurfaceOccupancyPriority(0)) {
                     priorityOrder.add(newUseCases.indexOf(useCase));
@@ -282,7 +282,7 @@ final class SupportedSurfaceCombination {
         return priorityOrder;
     }
 
-    private List<Size> getSupportedOutputSizes(BaseUseCase useCase) {
+    private List<Size> getSupportedOutputSizes(UseCase useCase) {
         int imageFormat = useCase.getImageFormat();
         Size[] outputSizes = getAllOutputSizesByFormat(imageFormat);
         List<Size> outputSizeCandidates = new ArrayList<>();
@@ -913,7 +913,7 @@ final class SupportedSurfaceCombination {
          * StreamConfigurationMap.java. 0x22 is also the code for ImageFormat.PRIVATE that is public
          * after Android level 23.Before Android level 23, there is same internal code 0x22 for
          * internal defined format HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED. Therefore, using the
-         * code 0x22 to store maximum size for ViewFinder or VideCapture use cases since they will
+         * code 0x22 to store maximum size for Preview or VideoCapture use cases since they will
          * finally map to this code.
          */
         maximumSizeMap.put(

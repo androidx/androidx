@@ -16,9 +16,9 @@
 
 package androidx.camera.camera2;
 
-import androidx.camera.core.BaseUseCase;
-import androidx.camera.core.ImageCaptureUseCase;
-import androidx.camera.core.VideoCaptureUseCase;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.UseCase;
+import androidx.camera.core.VideoCapture;
 
 import java.util.List;
 
@@ -31,38 +31,38 @@ final class UseCaseSurfaceOccupancyManager {
     }
 
     static void checkUseCaseLimitNotExceeded(
-            List<BaseUseCase> originalUseCases, List<BaseUseCase> newUseCases) {
-        int imageCaptureUseCaseCount = 0;
-        int videoCaptureUseCaseCount = 0;
+            List<UseCase> originalUseCases, List<UseCase> newUseCases) {
+        int imageCaptureCount = 0;
+        int videoCaptureCount = 0;
 
         if (newUseCases == null || newUseCases.isEmpty()) {
             throw new IllegalArgumentException("No new use cases to be bound.");
         }
 
         if (originalUseCases != null) {
-            for (BaseUseCase useCase : originalUseCases) {
-                if (useCase instanceof ImageCaptureUseCase) {
-                    imageCaptureUseCaseCount++;
-                } else if (useCase instanceof VideoCaptureUseCase) {
-                    videoCaptureUseCaseCount++;
+            for (UseCase useCase : originalUseCases) {
+                if (useCase instanceof ImageCapture) {
+                    imageCaptureCount++;
+                } else if (useCase instanceof VideoCapture) {
+                    videoCaptureCount++;
                 }
             }
         }
 
-        for (BaseUseCase useCase : newUseCases) {
-            if (useCase instanceof ImageCaptureUseCase) {
-                imageCaptureUseCaseCount++;
-            } else if (useCase instanceof VideoCaptureUseCase) {
-                videoCaptureUseCaseCount++;
+        for (UseCase useCase : newUseCases) {
+            if (useCase instanceof ImageCapture) {
+                imageCaptureCount++;
+            } else if (useCase instanceof VideoCapture) {
+                videoCaptureCount++;
             }
         }
 
-        if (imageCaptureUseCaseCount > 1) {
+        if (imageCaptureCount > 1) {
             throw new IllegalArgumentException(
                     "Exceeded max simultaneously bound image capture use cases.");
         }
 
-        if (videoCaptureUseCaseCount > 1) {
+        if (videoCaptureCount > 1) {
             throw new IllegalArgumentException(
                     "Exceeded max simultaneously bound video capture use cases.");
         }

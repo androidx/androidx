@@ -28,8 +28,8 @@ import java.util.Set;
 import java.util.UUID;
 
 /** Configuration for an image capture use case. */
-public final class ViewFinderUseCaseConfiguration
-        implements UseCaseConfiguration<ViewFinderUseCase>,
+public final class PreviewConfiguration
+        implements UseCaseConfiguration<Preview>,
         ImageOutputConfiguration,
         CameraDeviceConfiguration,
         ThreadConfiguration {
@@ -37,7 +37,7 @@ public final class ViewFinderUseCaseConfiguration
     private final OptionsBundle mConfig;
 
     /** Creates a new configuration instance. */
-    ViewFinderUseCaseConfiguration(OptionsBundle config) {
+    PreviewConfiguration(OptionsBundle config) {
         mConfig = config;
     }
 
@@ -76,13 +76,12 @@ public final class ViewFinderUseCaseConfiguration
         return mConfig;
     }
 
-    /** Builder for a {@link ViewFinderUseCaseConfiguration}. */
-    public static final class Builder
-            implements UseCaseConfiguration.Builder<
-            ViewFinderUseCase, ViewFinderUseCaseConfiguration, Builder>,
-            ImageOutputConfiguration.Builder<ViewFinderUseCaseConfiguration, Builder>,
-            CameraDeviceConfiguration.Builder<ViewFinderUseCaseConfiguration, Builder>,
-            ThreadConfiguration.Builder<ViewFinderUseCaseConfiguration, Builder> {
+    /** Builder for a {@link PreviewConfiguration}. */
+    public static final class Builder implements
+            UseCaseConfiguration.Builder<Preview, PreviewConfiguration, Builder>,
+            ImageOutputConfiguration.Builder<PreviewConfiguration, Builder>,
+            CameraDeviceConfiguration.Builder<PreviewConfiguration, Builder>,
+            ThreadConfiguration.Builder<PreviewConfiguration, Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
 
@@ -96,7 +95,7 @@ public final class ViewFinderUseCaseConfiguration
 
             Class<?> oldConfigClass =
                     mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
-            if (oldConfigClass != null && !oldConfigClass.equals(ViewFinderUseCase.class)) {
+            if (oldConfigClass != null && !oldConfigClass.equals(Preview.class)) {
                 throw new IllegalArgumentException(
                         "Invalid target class configuration for "
                                 + Builder.this
@@ -104,7 +103,7 @@ public final class ViewFinderUseCaseConfiguration
                                 + oldConfigClass);
             }
 
-            setTargetClass(ViewFinderUseCase.class);
+            setTargetClass(Preview.class);
         }
 
         /**
@@ -113,7 +112,7 @@ public final class ViewFinderUseCaseConfiguration
          * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
          */
-        public static Builder fromConfig(ViewFinderUseCaseConfiguration configuration) {
+        public static Builder fromConfig(PreviewConfiguration configuration) {
             return new Builder(MutableOptionsBundle.from(configuration));
         }
 
@@ -160,8 +159,8 @@ public final class ViewFinderUseCaseConfiguration
         }
 
         @Override
-        public ViewFinderUseCaseConfiguration build() {
-            return new ViewFinderUseCaseConfiguration(OptionsBundle.from(mMutableConfig));
+        public PreviewConfiguration build() {
+            return new PreviewConfiguration(OptionsBundle.from(mMutableConfig));
         }
 
         // Start of the default implementation of Configuration.Builder
@@ -191,7 +190,7 @@ public final class ViewFinderUseCaseConfiguration
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setTargetClass(Class<ViewFinderUseCase> targetClass) {
+        public Builder setTargetClass(Class<Preview> targetClass) {
             getMutableConfiguration().insertOption(OPTION_TARGET_CLASS, targetClass);
 
             // If no name is set yet, then generate a unique name
@@ -324,19 +323,18 @@ public final class ViewFinderUseCaseConfiguration
 
     @Override
     @Nullable
-    public Class<ViewFinderUseCase> getTargetClass(
-            @Nullable Class<ViewFinderUseCase> valueIfMissing) {
+    public Class<Preview> getTargetClass(@Nullable Class<Preview> valueIfMissing) {
         @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<ViewFinderUseCase> storedClass = (Class<ViewFinderUseCase>) retrieveOption(
+                Class<Preview> storedClass = (Class<Preview>) retrieveOption(
                 OPTION_TARGET_CLASS,
                 valueIfMissing);
         return storedClass;
     }
 
     @Override
-    public Class<ViewFinderUseCase> getTargetClass() {
+    public Class<Preview> getTargetClass() {
         @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<ViewFinderUseCase> storedClass = (Class<ViewFinderUseCase>) retrieveOption(
+                Class<Preview> storedClass = (Class<Preview>) retrieveOption(
                 OPTION_TARGET_CLASS);
         return storedClass;
     }

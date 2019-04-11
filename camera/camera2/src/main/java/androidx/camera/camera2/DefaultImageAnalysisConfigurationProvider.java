@@ -26,18 +26,18 @@ import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ConfigurationProvider;
-import androidx.camera.core.ImageAnalysisUseCase;
-import androidx.camera.core.ImageAnalysisUseCaseConfiguration;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageAnalysisConfiguration;
 import androidx.camera.core.SessionConfiguration;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Provides defaults for {@link ImageAnalysisUseCaseConfiguration} in the Camera2 implementation.
+ * Provides defaults for {@link ImageAnalysisConfiguration} in the Camera2 implementation.
  */
 final class DefaultImageAnalysisConfigurationProvider
-        implements ConfigurationProvider<ImageAnalysisUseCaseConfiguration> {
+        implements ConfigurationProvider<ImageAnalysisConfiguration> {
     private static final String TAG = "DefImgAnalysisProvider";
     private static final Rational DEFAULT_ASPECT_RATIO_4_3 = new Rational(4, 3);
     private static final Rational DEFAULT_ASPECT_RATIO_3_4 = new Rational(3, 4);
@@ -51,12 +51,12 @@ final class DefaultImageAnalysisConfigurationProvider
     }
 
     @Override
-    public ImageAnalysisUseCaseConfiguration getConfiguration(LensFacing lensFacing) {
-        ImageAnalysisUseCaseConfiguration.Builder builder =
-                ImageAnalysisUseCaseConfiguration.Builder.fromConfig(
-                        ImageAnalysisUseCase.DEFAULT_CONFIG.getConfiguration(lensFacing));
+    public ImageAnalysisConfiguration getConfiguration(LensFacing lensFacing) {
+        ImageAnalysisConfiguration.Builder builder =
+                ImageAnalysisConfiguration.Builder.fromConfig(
+                        ImageAnalysis.DEFAULT_CONFIG.getConfiguration(lensFacing));
 
-        // SessionConfiguration containing all intrinsic properties needed for ImageAnalysisUseCase
+        // SessionConfiguration containing all intrinsic properties needed for ImageAnalysis
         SessionConfiguration.Builder sessionBuilder = new SessionConfiguration.Builder();
         // TODO(b/114762170): Must set to preview here until we allow for multiple template types
         sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -93,7 +93,7 @@ final class DefaultImageAnalysisConfigurationProvider
             builder.setTargetAspectRatio(
                     isRotateNeeded ? DEFAULT_ASPECT_RATIO_3_4 : DEFAULT_ASPECT_RATIO_4_3);
         } catch (Exception e) {
-            Log.w(TAG, "Unable to determine default lens facing for ImageAnalysisUseCase.", e);
+            Log.w(TAG, "Unable to determine default lens facing for ImageAnalysis.", e);
         }
 
         return builder.build();

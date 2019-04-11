@@ -27,7 +27,7 @@ import android.os.HandlerThread;
 
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.BaseCamera;
-import androidx.camera.core.BaseUseCase;
+import androidx.camera.core.UseCase;
 import androidx.test.core.app.ApplicationProvider;
 
 import java.util.Arrays;
@@ -135,9 +135,9 @@ public final class CameraUtil {
      * @param useCases to associate with
      */
     public static void openCameraWithUseCase(String cameraId, BaseCamera camera,
-            BaseUseCase... useCases) {
+            UseCase... useCases) {
         camera.addOnlineUseCase(Arrays.asList(useCases));
-        for (BaseUseCase useCase : useCases) {
+        for (UseCase useCase : useCases) {
             useCase.attachCameraControl(cameraId, camera.getCameraControl());
             camera.onUseCaseActive(useCase);
         }
@@ -151,8 +151,8 @@ public final class CameraUtil {
      * @param camera   to detach from
      * @param useCases to be detached
      */
-    public static void detachUseCaseFromCamera(BaseCamera camera, BaseUseCase... useCases) {
-        for (BaseUseCase useCase : useCases) {
+    public static void detachUseCaseFromCamera(BaseCamera camera, UseCase... useCases) {
+        for (UseCase useCase : useCases) {
             camera.onUseCaseInactive(useCase);
         }
         camera.removeOnlineUseCase(Arrays.asList(useCases));

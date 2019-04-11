@@ -40,13 +40,13 @@ import java.util.concurrent.atomic.AtomicReference;
  * A use case providing CPU accessible images for an app to perform image analysis on.
  *
  * <p>Newly available images are acquired from the camera using an {@link ImageReader}. Each image
- * is analyzed with an {@link ImageAnalysisUseCase.Analyzer} to produce a result. Then, the image is
+ * is analyzed with an {@link ImageAnalysis.Analyzer} to produce a result. Then, the image is
  * closed.
  *
  * <p>The result type, as well as distribution of the result, are left up to the implementation of
  * the {@link Analyzer}.
  */
-public final class ImageAnalysisUseCase extends BaseUseCase {
+public final class ImageAnalysis extends UseCase {
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
@@ -54,11 +54,11 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
-    private static final String TAG = "ImageAnalysisUseCase";
+    private static final String TAG = "ImageAnalysis";
     final AtomicReference<Analyzer> mSubscribedAnalyzer;
     final AtomicInteger mRelativeRotation = new AtomicInteger();
     private final Handler mHandler;
-    private final ImageAnalysisUseCaseConfiguration.Builder mUseCaseConfigBuilder;
+    private final ImageAnalysisConfiguration.Builder mUseCaseConfigBuilder;
     @Nullable
     ImageReaderProxy mImageReader;
     @Nullable
@@ -69,13 +69,13 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
      *
      * @param configuration for this use case instance
      */
-    public ImageAnalysisUseCase(ImageAnalysisUseCaseConfiguration configuration) {
+    public ImageAnalysis(ImageAnalysisConfiguration configuration) {
         super(configuration);
-        mUseCaseConfigBuilder = ImageAnalysisUseCaseConfiguration.Builder.fromConfig(configuration);
+        mUseCaseConfigBuilder = ImageAnalysisConfiguration.Builder.fromConfig(configuration);
 
         // Get the combined configuration with defaults
-        ImageAnalysisUseCaseConfiguration combinedConfig =
-                (ImageAnalysisUseCaseConfiguration) getUseCaseConfiguration();
+        ImageAnalysisConfiguration combinedConfig =
+                (ImageAnalysisConfiguration) getUseCaseConfiguration();
         mSubscribedAnalyzer = new AtomicReference<>();
         mHandler = combinedConfig.getCallbackHandler(null);
         if (mHandler == null) {
@@ -107,8 +107,8 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
      * @param rotation Desired rotation of the output image.
      */
     public void setTargetRotation(@RotationValue int rotation) {
-        ImageAnalysisUseCaseConfiguration oldconfig =
-                (ImageAnalysisUseCaseConfiguration) getUseCaseConfiguration();
+        ImageAnalysisConfiguration oldconfig =
+                (ImageAnalysisConfiguration) getUseCaseConfiguration();
         int oldRotation = oldconfig.getTargetRotation(ImageOutputConfiguration.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfiguration.INVALID_ROTATION || oldRotation != rotation) {
             mUseCaseConfigBuilder.setTargetRotation(rotation);
@@ -204,10 +204,10 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        ImageAnalysisUseCaseConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
-                ImageAnalysisUseCaseConfiguration.class, lensFacing);
+        ImageAnalysisConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
+                ImageAnalysisConfiguration.class, lensFacing);
         if (defaults != null) {
-            return ImageAnalysisUseCaseConfiguration.Builder.fromConfig(defaults);
+            return ImageAnalysisConfiguration.Builder.fromConfig(defaults);
         }
 
         return null;
@@ -222,8 +222,8 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
-        final ImageAnalysisUseCaseConfiguration configuration =
-                (ImageAnalysisUseCaseConfiguration) getUseCaseConfiguration();
+        final ImageAnalysisConfiguration configuration =
+                (ImageAnalysisConfiguration) getUseCaseConfiguration();
 
         String cameraId;
         LensFacing lensFacing = configuration.getLensFacing();
@@ -339,7 +339,7 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
     }
 
     /**
-     * Provides a base static default configuration for the ImageAnalysisUseCase
+     * Provides a base static default configuration for the ImageAnalysis
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
@@ -348,7 +348,7 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
-            implements ConfigurationProvider<ImageAnalysisUseCaseConfiguration> {
+            implements ConfigurationProvider<ImageAnalysisConfiguration> {
         private static final ImageReaderMode DEFAULT_IMAGE_READER_MODE =
                 ImageReaderMode.ACQUIRE_NEXT_IMAGE;
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
@@ -357,11 +357,11 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
         private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 1;
 
-        private static final ImageAnalysisUseCaseConfiguration DEFAULT_CONFIG;
+        private static final ImageAnalysisConfiguration DEFAULT_CONFIG;
 
         static {
-            ImageAnalysisUseCaseConfiguration.Builder builder =
-                    new ImageAnalysisUseCaseConfiguration.Builder()
+            ImageAnalysisConfiguration.Builder builder =
+                    new ImageAnalysisConfiguration.Builder()
                             .setImageReaderMode(DEFAULT_IMAGE_READER_MODE)
                             .setCallbackHandler(DEFAULT_HANDLER)
                             .setImageQueueDepth(DEFAULT_IMAGE_QUEUE_DEPTH)
@@ -373,7 +373,7 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
         }
 
         @Override
-        public ImageAnalysisUseCaseConfiguration getConfiguration(LensFacing lensFacing) {
+        public ImageAnalysisConfiguration getConfiguration(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
         }
     }

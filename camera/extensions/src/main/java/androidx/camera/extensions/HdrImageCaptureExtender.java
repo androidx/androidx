@@ -16,13 +16,13 @@
 
 package androidx.camera.extensions;
 
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
+import androidx.camera.core.ImageCaptureConfiguration;
 
 /**
  * Load the OEM extension implementation for HDR effect type.
  */
-public class HdrImageCaptureExtender extends ImageCaptureUseCaseExtender {
-    public HdrImageCaptureExtender(ImageCaptureUseCaseConfiguration.Builder builder) {
+public class HdrImageCaptureExtender extends ImageCaptureExtender {
+    public HdrImageCaptureExtender(ImageCaptureConfiguration.Builder builder) {
         super(builder);
         loadImplementation("androidx.camera.extensions.impl.HdrImageCaptureExtender");
     }

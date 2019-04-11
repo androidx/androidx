@@ -17,11 +17,11 @@
 package androidx.camera.testing.fakes;
 
 import androidx.camera.core.BaseCamera;
-import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CaptureRequestConfiguration;
 import androidx.camera.core.SessionConfiguration;
+import androidx.camera.core.UseCase;
 
 import java.util.Collection;
 
@@ -53,27 +53,27 @@ public class FakeCamera implements BaseCamera {
     }
 
     @Override
-    public void addOnlineUseCase(Collection<BaseUseCase> baseUseCases) {
+    public void addOnlineUseCase(Collection<UseCase> useCases) {
     }
 
     @Override
-    public void removeOnlineUseCase(Collection<BaseUseCase> baseUseCases) {
+    public void removeOnlineUseCase(Collection<UseCase> useCases) {
     }
 
     @Override
-    public void onUseCaseActive(BaseUseCase useCase) {
+    public void onUseCaseActive(UseCase useCase) {
     }
 
     @Override
-    public void onUseCaseInactive(BaseUseCase useCase) {
+    public void onUseCaseInactive(UseCase useCase) {
     }
 
     @Override
-    public void onUseCaseUpdated(BaseUseCase useCase) {
+    public void onUseCaseUpdated(UseCase useCase) {
     }
 
     @Override
-    public void onUseCaseReset(BaseUseCase useCase) {
+    public void onUseCaseReset(UseCase useCase) {
     }
 
     // Returns fixed CameraControl instance in order to verify the instance is correctly attached.

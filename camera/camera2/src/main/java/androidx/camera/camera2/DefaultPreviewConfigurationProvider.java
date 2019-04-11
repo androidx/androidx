@@ -24,33 +24,33 @@ import android.view.WindowManager;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ConfigurationProvider;
+import androidx.camera.core.Preview;
+import androidx.camera.core.PreviewConfiguration;
 import androidx.camera.core.SessionConfiguration;
-import androidx.camera.core.ViewFinderUseCase;
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
 
 import java.util.Arrays;
 import java.util.List;
 
-/** Provides defaults for {@link ViewFinderUseCaseConfiguration} in the Camera2 implementation. */
-final class DefaultViewFinderConfigurationProvider
-        implements ConfigurationProvider<ViewFinderUseCaseConfiguration> {
-    private static final String TAG = "DefViewFinderProvider";
+/** Provides defaults for {@link PreviewConfiguration} in the Camera2 implementation. */
+final class DefaultPreviewConfigurationProvider
+        implements ConfigurationProvider<PreviewConfiguration> {
+    private static final String TAG = "DefPreviewProvider";
 
     private final CameraFactory mCameraFactory;
     private final WindowManager mWindowManager;
 
-    DefaultViewFinderConfigurationProvider(CameraFactory cameraFactory, Context context) {
+    DefaultPreviewConfigurationProvider(CameraFactory cameraFactory, Context context) {
         mCameraFactory = cameraFactory;
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     }
 
     @Override
-    public ViewFinderUseCaseConfiguration getConfiguration(LensFacing lensFacing) {
-        ViewFinderUseCaseConfiguration.Builder builder =
-                ViewFinderUseCaseConfiguration.Builder.fromConfig(
-                        ViewFinderUseCase.DEFAULT_CONFIG.getConfiguration(lensFacing));
+    public PreviewConfiguration getConfiguration(LensFacing lensFacing) {
+        PreviewConfiguration.Builder builder =
+                PreviewConfiguration.Builder.fromConfig(
+                        Preview.DEFAULT_CONFIG.getConfiguration(lensFacing));
 
-        // SessionConfiguration containing all intrinsic properties needed for ViewFinderUseCase
+        // SessionConfiguration containing all intrinsic properties needed for Preview
         SessionConfiguration.Builder sessionBuilder = new SessionConfiguration.Builder();
         sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
 
@@ -81,7 +81,7 @@ final class DefaultViewFinderConfigurationProvider
             int targetRotation = mWindowManager.getDefaultDisplay().getRotation();
             builder.setTargetRotation(targetRotation);
         } catch (Exception e) {
-            Log.w(TAG, "Unable to determine default lens facing for ViewFinderUseCase.", e);
+            Log.w(TAG, "Unable to determine default lens facing for Preview.", e);
         }
 
         return builder.build();

@@ -40,12 +40,12 @@ import java.util.Set;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class BaseUseCaseTest {
-    private BaseUseCase.StateChangeListener mMockUseCaseListener;
+public class UseCaseTest {
+    private UseCase.StateChangeListener mMockUseCaseListener;
 
     @Before
     public void setup() {
-        mMockUseCaseListener = Mockito.mock(BaseUseCase.StateChangeListener.class);
+        mMockUseCaseListener = Mockito.mock(UseCase.StateChangeListener.class);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class BaseUseCaseTest {
 
         testUseCase.activate();
 
-        verify(mMockUseCaseListener, never()).onUseCaseActive(any(BaseUseCase.class));
+        verify(mMockUseCaseListener, never()).onUseCaseActive(any(UseCase.class));
     }
 
     @Test
@@ -96,7 +96,7 @@ public class BaseUseCaseTest {
         testUseCase.clear();
 
         testUseCase.activate();
-        verify(mMockUseCaseListener, never()).onUseCaseActive(any(BaseUseCase.class));
+        verify(mMockUseCaseListener, never()).onUseCaseActive(any(UseCase.class));
     }
 
     @Test

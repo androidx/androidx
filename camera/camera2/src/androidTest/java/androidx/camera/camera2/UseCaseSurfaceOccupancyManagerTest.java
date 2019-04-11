@@ -19,12 +19,12 @@ package androidx.camera.camera2;
 import android.content.Context;
 
 import androidx.camera.core.AppConfiguration;
-import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.ImageCaptureUseCase;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
-import androidx.camera.core.VideoCaptureUseCase;
-import androidx.camera.core.VideoCaptureUseCaseConfiguration;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureConfiguration;
+import androidx.camera.core.UseCase;
+import androidx.camera.core.VideoCapture;
+import androidx.camera.core.VideoCaptureConfiguration;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -48,45 +48,41 @@ public final class UseCaseSurfaceOccupancyManagerTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void failedWhenBindTooManyImageCaptureUseCase() {
-        ImageCaptureUseCaseConfiguration configuration =
-                new ImageCaptureUseCaseConfiguration.Builder().build();
-        ImageCaptureUseCase useCase1 = new ImageCaptureUseCase(configuration);
-        ImageCaptureUseCase useCase2 = new ImageCaptureUseCase(configuration);
+    public void failedWhenBindTooManyImageCapture() {
+        ImageCaptureConfiguration configuration = new ImageCaptureConfiguration.Builder().build();
+        ImageCapture useCase1 = new ImageCapture(configuration);
+        ImageCapture useCase2 = new ImageCapture(configuration);
 
         // Should throw IllegalArgumentException
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
-                Collections.<BaseUseCase>singletonList(useCase1),
-                Collections.<BaseUseCase>singletonList(useCase2));
+                Collections.<UseCase>singletonList(useCase1),
+                Collections.<UseCase>singletonList(useCase2));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void failedWhenBindTooManyVideoCaptureUseCase() {
-        VideoCaptureUseCaseConfiguration configuration =
-                new VideoCaptureUseCaseConfiguration.Builder().build();
-        VideoCaptureUseCase useCase1 = new VideoCaptureUseCase(configuration);
-        VideoCaptureUseCase useCase2 = new VideoCaptureUseCase(configuration);
+    public void failedWhenBindTooManyVideoCapture() {
+        VideoCaptureConfiguration configuration = new VideoCaptureConfiguration.Builder().build();
+        VideoCapture useCase1 = new VideoCapture(configuration);
+        VideoCapture useCase2 = new VideoCapture(configuration);
 
         // Should throw IllegalArgumentException
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
-                Collections.<BaseUseCase>singletonList(useCase1),
-                Collections.<BaseUseCase>singletonList(useCase2));
+                Collections.<UseCase>singletonList(useCase1),
+                Collections.<UseCase>singletonList(useCase2));
     }
 
     @Test
-    public void passWhenNotBindTooManyImageVideoCaptureUseCase() {
-        ImageCaptureUseCaseConfiguration imageCaptureConfiguration =
-                new ImageCaptureUseCaseConfiguration.Builder().build();
-        ImageCaptureUseCase imageCaptureUseCase =
-                new ImageCaptureUseCase(imageCaptureConfiguration);
+    public void passWhenNotBindTooManyImageVideoCapture() {
+        ImageCaptureConfiguration imageCaptureConfiguration =
+                new ImageCaptureConfiguration.Builder().build();
+        ImageCapture imageCapture = new ImageCapture(imageCaptureConfiguration);
 
-        VideoCaptureUseCaseConfiguration videoCaptureConfiguration =
-                new VideoCaptureUseCaseConfiguration.Builder().build();
-        VideoCaptureUseCase videoCaptureUseCase =
-                new VideoCaptureUseCase(videoCaptureConfiguration);
+        VideoCaptureConfiguration videoCaptureConfiguration =
+                new VideoCaptureConfiguration.Builder().build();
+        VideoCapture videoCapture = new VideoCapture(videoCaptureConfiguration);
 
         UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
-                Collections.<BaseUseCase>singletonList(imageCaptureUseCase),
-                Collections.<BaseUseCase>singletonList(videoCaptureUseCase));
+                Collections.<UseCase>singletonList(imageCapture),
+                Collections.<UseCase>singletonList(videoCapture));
     }
 }

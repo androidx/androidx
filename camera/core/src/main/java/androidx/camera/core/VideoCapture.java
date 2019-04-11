@@ -56,10 +56,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>This class is designed for simple video capturing. It gives basic configuration of the
  * recorded video such as resolution and file format.
  *
- * @hide In the earlier stage, the VideoCaptureUseCase is deprioritized.
+ * @hide In the earlier stage, the VideoCapture is deprioritized.
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public class VideoCaptureUseCase extends BaseUseCase {
+public class VideoCapture extends UseCase {
 
     /**
      * Provides a static configuration with implementation-agnostic options.
@@ -69,7 +69,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final Metadata EMPTY_METADATA = new Metadata();
-    private static final String TAG = "VideoCaptureUseCase";
+    private static final String TAG = "VideoCapture";
     /** Amount of time to wait for dequeuing a buffer from the videoEncoder. */
     private static final int DEQUE_TIMEOUT_USEC = 10000;
     /** Android preferred mime type for AVC video. */
@@ -109,7 +109,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
     /** For record the first sample written time. */
     private final AtomicBoolean mIsFirstVideoSampleWrite = new AtomicBoolean(false);
     private final AtomicBoolean mIsFirstAudioSampleWrite = new AtomicBoolean(false);
-    private final VideoCaptureUseCaseConfiguration.Builder mUseCaseConfigBuilder;
+    private final VideoCaptureConfiguration.Builder mUseCaseConfigBuilder;
     @NonNull
     MediaCodec mVideoEncoder;
     @NonNull
@@ -139,9 +139,9 @@ public class VideoCaptureUseCase extends BaseUseCase {
      *
      * @param configuration for this use case instance
      */
-    public VideoCaptureUseCase(VideoCaptureUseCaseConfiguration configuration) {
+    public VideoCapture(VideoCaptureConfiguration configuration) {
         super(configuration);
-        mUseCaseConfigBuilder = VideoCaptureUseCaseConfiguration.Builder.fromConfig(configuration);
+        mUseCaseConfigBuilder = VideoCaptureConfiguration.Builder.fromConfig(configuration);
 
         // video thread start
         mVideoHandlerThread.start();
@@ -154,7 +154,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
 
     /** Creates a {@link MediaFormat} using parameters from the configuration */
     private static MediaFormat createMediaFormat(
-            VideoCaptureUseCaseConfiguration configuration, Size resolution) {
+            VideoCaptureConfiguration configuration, Size resolution) {
         MediaFormat format =
                 MediaFormat.createVideoFormat(
                         VIDEO_MIME_TYPE, resolution.getWidth(), resolution.getHeight());
@@ -184,10 +184,10 @@ public class VideoCaptureUseCase extends BaseUseCase {
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
-        VideoCaptureUseCaseConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
-                VideoCaptureUseCaseConfiguration.class, lensFacing);
+        VideoCaptureConfiguration defaults = CameraX.getDefaultUseCaseConfiguration(
+                VideoCaptureConfiguration.class, lensFacing);
         if (defaults != null) {
-            return VideoCaptureUseCaseConfiguration.Builder.fromConfig(defaults);
+            return VideoCaptureConfiguration.Builder.fromConfig(defaults);
         }
 
         return null;
@@ -202,8 +202,8 @@ public class VideoCaptureUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
-        VideoCaptureUseCaseConfiguration configuration =
-                (VideoCaptureUseCaseConfiguration) getUseCaseConfiguration();
+        VideoCaptureConfiguration configuration =
+                (VideoCaptureConfiguration) getUseCaseConfiguration();
         if (mCameraSurface != null) {
             mVideoEncoder.stop();
             mVideoEncoder.release();
@@ -231,7 +231,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
     }
 
     /**
-     * Starts recording video, which continues until {@link VideoCaptureUseCase#stopRecording()} is
+     * Starts recording video, which continues until {@link VideoCapture#stopRecording()} is
      * called.
      *
      * <p>StartRecording() is asynchronous. User needs to check if any error occurs by setting the
@@ -247,7 +247,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
     }
 
     /**
-     * Starts recording video, which continues until {@link VideoCaptureUseCase#stopRecording()} is
+     * Starts recording video, which continues until {@link VideoCapture#stopRecording()} is
      * called.
      *
      * <p>StartRecording() is asynchronous. User needs to check if any error occurs by setting the
@@ -334,7 +334,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
                 new Runnable() {
                     @Override
                     public void run() {
-                        VideoCaptureUseCase.this.audioEncode(listener);
+                        VideoCapture.this.audioEncode(listener);
                     }
                 });
 
@@ -342,7 +342,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
                 new Runnable() {
                     @Override
                     public void run() {
-                        boolean errorOccurred = VideoCaptureUseCase.this.videoEncode(listener);
+                        boolean errorOccurred = VideoCapture.this.videoEncode(listener);
                         if (!errorOccurred) {
                             listener.onVideoSaved(saveLocation);
                         }
@@ -352,7 +352,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
 
     /**
      * Stops recording video, this must be called after {@link
-     * VideoCaptureUseCase#startRecording(File, OnVideoSavedListener, Metadata)} is called.
+     * VideoCapture#startRecording(File, OnVideoSavedListener, Metadata)} is called.
      *
      * <p>stopRecording() is asynchronous API. User need to check if {@link
      * OnVideoSavedListener#onVideoSaved(File)} or {@link OnVideoSavedListener#onError(UseCaseError,
@@ -447,8 +447,8 @@ public class VideoCaptureUseCase extends BaseUseCase {
      * audio from selected audio source.
      */
     private void setupEncoder(Size resolution) {
-        VideoCaptureUseCaseConfiguration configuration =
-                (VideoCaptureUseCaseConfiguration) getUseCaseConfiguration();
+        VideoCaptureConfiguration configuration =
+                (VideoCaptureConfiguration) getUseCaseConfiguration();
 
         // video encoder setup
         mVideoEncoder.reset();
@@ -572,8 +572,8 @@ public class VideoCaptureUseCase extends BaseUseCase {
      * @return returns {@code true} if an error condition occurred, otherwise returns {@code false}
      */
     boolean videoEncode(OnVideoSavedListener videoSavedListener) {
-        VideoCaptureUseCaseConfiguration configuration =
-                (VideoCaptureUseCaseConfiguration) getUseCaseConfiguration();
+        VideoCaptureConfiguration configuration =
+                (VideoCaptureConfiguration) getUseCaseConfiguration();
         // Main encoding loop. Exits on end of stream.
         boolean errorOccurred = false;
         boolean videoEos = false;
@@ -752,7 +752,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
 
     /** Create a AudioRecord object to get raw data */
     private AudioRecord autoConfigAudioRecordSource(
-            VideoCaptureUseCaseConfiguration configuration) {
+            VideoCaptureConfiguration configuration) {
         for (short audioFormat : sAudioEncoding) {
 
             // Use channel count to determine stereo vs mono
@@ -822,10 +822,10 @@ public class VideoCaptureUseCase extends BaseUseCase {
         }
 
         // In case no corresponding camcorder profile can be founded, * get default value from
-        // VideoCaptureUseCaseConfiguration.
+        // VideoCaptureConfiguration.
         if (!isCamcorderProfileFound) {
-            VideoCaptureUseCaseConfiguration config =
-                    (VideoCaptureUseCaseConfiguration) getUseCaseConfiguration();
+            VideoCaptureConfiguration config =
+                    (VideoCaptureConfiguration) getUseCaseConfiguration();
             mAudioChannelCount = config.getAudioChannelCount();
             mAudioSampleRate = config.getAudioSampleRate();
             mAudioBitRate = config.getAudioBitRate();
@@ -836,7 +836,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
      * Describes the error that occurred during video capture operations.
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
-     * VideoCaptureUseCase.OnVideoSavedListener#onError(UseCaseError, String, Throwable)}.
+     * VideoCapture.OnVideoSavedListener#onError(UseCaseError, String, Throwable)}.
      *
      * <p>See message parameter in onError callback or log for more details.
      */
@@ -870,7 +870,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
     }
 
     /**
-     * Provides a base static default configuration for the VideoCaptureUseCase
+     * Provides a base static default configuration for the VideoCapture
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
@@ -879,7 +879,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
-            implements ConfigurationProvider<VideoCaptureUseCaseConfiguration> {
+            implements ConfigurationProvider<VideoCaptureConfiguration> {
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final int DEFAULT_VIDEO_FRAME_RATE = 30;
         /** 8Mb/s the recommend rate for 30fps 1080p */
@@ -896,16 +896,16 @@ public class VideoCaptureUseCase extends BaseUseCase {
         private static final int DEFAULT_AUDIO_RECORD_SOURCE = AudioSource.MIC;
         /** audio default minimum buffer size */
         private static final int DEFAULT_AUDIO_MIN_BUFFER_SIZE = 1024;
-        /** Current max resolution of VideoCaptureUseCase is set as FHD */
+        /** Current max resolution of VideoCapture is set as FHD */
         private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
         /** Surface occupancy prioirty to this use case */
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 3;
 
-        private static final VideoCaptureUseCaseConfiguration DEFAULT_CONFIG;
+        private static final VideoCaptureConfiguration DEFAULT_CONFIG;
 
         static {
-            VideoCaptureUseCaseConfiguration.Builder builder =
-                    new VideoCaptureUseCaseConfiguration.Builder()
+            VideoCaptureConfiguration.Builder builder =
+                    new VideoCaptureConfiguration.Builder()
                             .setCallbackHandler(DEFAULT_HANDLER)
                             .setVideoFrameRate(DEFAULT_VIDEO_FRAME_RATE)
                             .setBitRate(DEFAULT_BIT_RATE)
@@ -922,7 +922,7 @@ public class VideoCaptureUseCase extends BaseUseCase {
         }
 
         @Override
-        public VideoCaptureUseCaseConfiguration getConfiguration(LensFacing lensFacing) {
+        public VideoCaptureConfiguration getConfiguration(LensFacing lensFacing) {
             return DEFAULT_CONFIG;
         }
     }

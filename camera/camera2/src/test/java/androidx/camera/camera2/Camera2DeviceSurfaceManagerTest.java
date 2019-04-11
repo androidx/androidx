@@ -34,24 +34,24 @@ import android.util.Size;
 import android.view.WindowManager;
 
 import androidx.camera.core.AppConfiguration;
-import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.ImageAnalysisUseCaseConfiguration;
-import androidx.camera.core.ImageCaptureUseCase;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
+import androidx.camera.core.ImageAnalysisConfiguration;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureConfiguration;
 import androidx.camera.core.ImageFormatConstants;
+import androidx.camera.core.Preview;
+import androidx.camera.core.PreviewConfiguration;
 import androidx.camera.core.SurfaceCombination;
 import androidx.camera.core.SurfaceConfiguration;
 import androidx.camera.core.SurfaceConfiguration.ConfigurationSize;
 import androidx.camera.core.SurfaceConfiguration.ConfigurationType;
-import androidx.camera.core.VideoCaptureUseCase;
-import androidx.camera.core.VideoCaptureUseCaseConfiguration;
-import androidx.camera.core.ViewFinderUseCase;
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.core.UseCase;
+import androidx.camera.core.VideoCapture;
+import androidx.camera.core.VideoCaptureConfiguration;
 import androidx.camera.testing.StreamConfigurationMapUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
@@ -305,31 +305,27 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
         Rational aspectRatio = new Rational(16, 9);
-        ViewFinderUseCaseConfiguration.Builder viewFinderConfigBuilder =
-                new ViewFinderUseCaseConfiguration.Builder();
-        VideoCaptureUseCaseConfiguration.Builder videoCaptureConfigBuilder =
-                new VideoCaptureUseCaseConfiguration.Builder();
-        ImageCaptureUseCaseConfiguration.Builder imageCaptureConfigBuilder =
-                new ImageCaptureUseCaseConfiguration.Builder();
+        PreviewConfiguration.Builder previewConfigBuilder = new PreviewConfiguration.Builder();
+        VideoCaptureConfiguration.Builder videoCaptureConfigBuilder =
+                new VideoCaptureConfiguration.Builder();
+        ImageCaptureConfiguration.Builder imageCaptureConfigBuilder =
+                new ImageCaptureConfiguration.Builder();
 
-        viewFinderConfigBuilder.setTargetAspectRatio(aspectRatio);
+        previewConfigBuilder.setTargetAspectRatio(aspectRatio);
         videoCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
         imageCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
 
         imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
-        ImageCaptureUseCase imageCaptureUseCase =
-                new ImageCaptureUseCase(imageCaptureConfigBuilder.build());
+        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
         videoCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
-        VideoCaptureUseCase videoCaptureUseCase =
-                new VideoCaptureUseCase(videoCaptureConfigBuilder.build());
-        viewFinderConfigBuilder.setLensFacing(LensFacing.BACK);
-        ViewFinderUseCase viewFinderUseCase =
-                new ViewFinderUseCase(viewFinderConfigBuilder.build());
+        VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
+        previewConfigBuilder.setLensFacing(LensFacing.BACK);
+        Preview preview = new Preview(previewConfigBuilder.build());
 
-        List<BaseUseCase> useCases = new ArrayList<>();
-        useCases.add(imageCaptureUseCase);
-        useCases.add(videoCaptureUseCase);
-        useCases.add(viewFinderUseCase);
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(imageCapture);
+        useCases.add(videoCapture);
+        useCases.add(preview);
 
         boolean exceptionHappened = false;
 
@@ -346,38 +342,34 @@ public final class Camera2DeviceSurfaceManagerTest {
     @Test
     public void getSuggestedResolutionsForMixedUseCaseInLimitedDevice() {
         Rational aspectRatio = new Rational(16, 9);
-        ViewFinderUseCaseConfiguration.Builder viewFinderConfigBuilder =
-                new ViewFinderUseCaseConfiguration.Builder();
-        VideoCaptureUseCaseConfiguration.Builder videoCaptureConfigBuilder =
-                new VideoCaptureUseCaseConfiguration.Builder();
-        ImageCaptureUseCaseConfiguration.Builder imageCaptureConfigBuilder =
-                new ImageCaptureUseCaseConfiguration.Builder();
+        PreviewConfiguration.Builder previewConfigBuilder = new PreviewConfiguration.Builder();
+        VideoCaptureConfiguration.Builder videoCaptureConfigBuilder =
+                new VideoCaptureConfiguration.Builder();
+        ImageCaptureConfiguration.Builder imageCaptureConfigBuilder =
+                new ImageCaptureConfiguration.Builder();
 
-        viewFinderConfigBuilder.setTargetAspectRatio(aspectRatio);
+        previewConfigBuilder.setTargetAspectRatio(aspectRatio);
         videoCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
         imageCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
 
         imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
-        ImageCaptureUseCase imageCaptureUseCase =
-                new ImageCaptureUseCase(imageCaptureConfigBuilder.build());
+        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
         videoCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
-        VideoCaptureUseCase videoCaptureUseCase =
-                new VideoCaptureUseCase(videoCaptureConfigBuilder.build());
-        viewFinderConfigBuilder.setLensFacing(LensFacing.BACK);
-        ViewFinderUseCase viewFinderUseCase =
-                new ViewFinderUseCase(viewFinderConfigBuilder.build());
+        VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
+        previewConfigBuilder.setLensFacing(LensFacing.BACK);
+        Preview preview = new Preview(previewConfigBuilder.build());
 
-        List<BaseUseCase> useCases = new ArrayList<>();
-        useCases.add(imageCaptureUseCase);
-        useCases.add(videoCaptureUseCase);
-        useCases.add(viewFinderUseCase);
-        Map<BaseUseCase, Size> suggestedResolutionMap =
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(imageCapture);
+        useCases.add(videoCapture);
+        useCases.add(preview);
+        Map<UseCase, Size> suggestedResolutionMap =
                 mSurfaceManager.getSuggestedResolutions(LIMITED_CAMERA_ID, null, useCases);
 
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        assertThat(suggestedResolutionMap).containsEntry(imageCaptureUseCase, mRecordSize);
-        assertThat(suggestedResolutionMap).containsEntry(videoCaptureUseCase, mMaximumVideoSize);
-        assertThat(suggestedResolutionMap).containsEntry(viewFinderUseCase, mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mRecordSize);
+        assertThat(suggestedResolutionMap).containsEntry(videoCapture, mMaximumVideoSize);
+        assertThat(suggestedResolutionMap).containsEntry(preview, mPreviewSize);
     }
 
     @Test
@@ -556,17 +548,17 @@ public final class Camera2DeviceSurfaceManagerTest {
         // Create default configuration factory
         ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
         configFactory.installDefaultProvider(
-                ImageAnalysisUseCaseConfiguration.class,
+                ImageAnalysisConfiguration.class,
                 new DefaultImageAnalysisConfigurationProvider(cameraFactory, mContext));
         configFactory.installDefaultProvider(
-                ImageCaptureUseCaseConfiguration.class,
+                ImageCaptureConfiguration.class,
                 new DefaultImageCaptureConfigurationProvider(cameraFactory, mContext));
         configFactory.installDefaultProvider(
-                VideoCaptureUseCaseConfiguration.class,
+                VideoCaptureConfiguration.class,
                 new DefaultVideoCaptureConfigurationProvider(cameraFactory, mContext));
         configFactory.installDefaultProvider(
-                ViewFinderUseCaseConfiguration.class,
-                new DefaultViewFinderConfigurationProvider(cameraFactory, mContext));
+                PreviewConfiguration.class,
+                new DefaultPreviewConfigurationProvider(cameraFactory, mContext));
 
         AppConfiguration.Builder appConfigBuilder =
                 new AppConfiguration.Builder()

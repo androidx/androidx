@@ -105,9 +105,8 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
     @Override
     public void onGroupActive(UseCaseGroup useCaseGroup) {
         synchronized (mCamerasLock) {
-            Map<String, Set<BaseUseCase>> cameraIdToUseCaseMap =
-                    useCaseGroup.getCameraIdToUseCaseMap();
-            for (Map.Entry<String, Set<BaseUseCase>> cameraUseCaseEntry :
+            Map<String, Set<UseCase>> cameraIdToUseCaseMap = useCaseGroup.getCameraIdToUseCaseMap();
+            for (Map.Entry<String, Set<UseCase>> cameraUseCaseEntry :
                     cameraIdToUseCaseMap.entrySet()) {
                 BaseCamera camera = getCamera(cameraUseCaseEntry.getKey());
                 attachUseCasesToCamera(camera, cameraUseCaseEntry.getValue());
@@ -117,8 +116,8 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
 
     /** Attaches a set of use cases to a camera. */
     @GuardedBy("mCamerasLock")
-    private void attachUseCasesToCamera(BaseCamera camera, Set<BaseUseCase> baseUseCases) {
-        camera.addOnlineUseCase(baseUseCases);
+    private void attachUseCasesToCamera(BaseCamera camera, Set<UseCase> useCases) {
+        camera.addOnlineUseCase(useCases);
     }
 
     /**
@@ -128,9 +127,8 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
     @Override
     public void onGroupInactive(UseCaseGroup useCaseGroup) {
         synchronized (mCamerasLock) {
-            Map<String, Set<BaseUseCase>> cameraIdToUseCaseMap =
-                    useCaseGroup.getCameraIdToUseCaseMap();
-            for (Map.Entry<String, Set<BaseUseCase>> cameraUseCaseEntry :
+            Map<String, Set<UseCase>> cameraIdToUseCaseMap = useCaseGroup.getCameraIdToUseCaseMap();
+            for (Map.Entry<String, Set<UseCase>> cameraUseCaseEntry :
                     cameraIdToUseCaseMap.entrySet()) {
                 BaseCamera camera = getCamera(cameraUseCaseEntry.getKey());
                 detachUseCasesFromCamera(camera, cameraUseCaseEntry.getValue());
@@ -140,7 +138,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
 
     /** Detaches a set of use cases from a camera. */
     @GuardedBy("mCamerasLock")
-    private void detachUseCasesFromCamera(BaseCamera camera, Set<BaseUseCase> baseUseCases) {
-        camera.removeOnlineUseCase(baseUseCases);
+    private void detachUseCasesFromCamera(BaseCamera camera, Set<UseCase> useCases) {
+        camera.removeOnlineUseCase(useCases);
     }
 }

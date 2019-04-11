@@ -60,7 +60,7 @@ public class CheckedSurfaceTextureTest {
     }
 
     @Test
-    public void viewFinderOutputUpdatesWhenReset() {
+    public void previewOutputUpdatesWhenReset() {
         // Create the initial surface texture
         mCheckedSurfaceTexture.resetSurfaceTexture();
 

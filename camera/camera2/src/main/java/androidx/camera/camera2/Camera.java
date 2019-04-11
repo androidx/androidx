@@ -34,7 +34,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.BaseCamera;
-import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.CameraInfo;
@@ -45,6 +44,7 @@ import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfiguration;
 import androidx.camera.core.SessionConfiguration.ValidatingBuilder;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseAttachState;
 import androidx.core.os.BuildCompat;
 
@@ -285,7 +285,7 @@ final class Camera implements BaseCamera {
      * <p>The use case must also be online in order for it to issue capture requests.
      */
     @Override
-    public void onUseCaseActive(final BaseUseCase useCase) {
+    public void onUseCaseActive(final UseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -306,7 +306,7 @@ final class Camera implements BaseCamera {
 
     /** Removes the use case from a state of issuing capture requests. */
     @Override
-    public void onUseCaseInactive(final BaseUseCase useCase) {
+    public void onUseCaseInactive(final UseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -327,7 +327,7 @@ final class Camera implements BaseCamera {
 
     /** Updates the capture requests based on the latest settings. */
     @Override
-    public void onUseCaseUpdated(final BaseUseCase useCase) {
+    public void onUseCaseUpdated(final UseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -347,7 +347,7 @@ final class Camera implements BaseCamera {
     }
 
     @Override
-    public void onUseCaseReset(final BaseUseCase useCase) {
+    public void onUseCaseReset(final UseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -372,7 +372,7 @@ final class Camera implements BaseCamera {
      * capture requests from the use case.
      */
     @Override
-    public void addOnlineUseCase(final Collection<BaseUseCase> useCases) {
+    public void addOnlineUseCase(final Collection<UseCase> useCases) {
         if (useCases.isEmpty()) {
             return;
         }
@@ -389,7 +389,7 @@ final class Camera implements BaseCamera {
 
         Log.d(TAG, "Use cases " + useCases + " ONLINE for camera " + mCameraId);
         synchronized (mAttachedUseCaseLock) {
-            for (BaseUseCase useCase : useCases) {
+            for (UseCase useCase : useCases) {
                 mUseCaseAttachState.setUseCaseOnline(useCase);
             }
         }
@@ -404,7 +404,7 @@ final class Camera implements BaseCamera {
      * handle capture requests from the use case.
      */
     @Override
-    public void removeOnlineUseCase(final Collection<BaseUseCase> useCases) {
+    public void removeOnlineUseCase(final Collection<UseCase> useCases) {
         if (useCases.isEmpty()) {
             return;
         }
@@ -421,7 +421,7 @@ final class Camera implements BaseCamera {
 
         Log.d(TAG, "Use cases " + useCases + " OFFLINE for camera " + mCameraId);
         synchronized (mAttachedUseCaseLock) {
-            for (BaseUseCase useCase : useCases) {
+            for (UseCase useCase : useCases) {
                 mUseCaseAttachState.setUseCaseOffline(useCase);
             }
 
@@ -569,13 +569,13 @@ final class Camera implements BaseCamera {
      */
     private boolean checkAndAttachRepeatingSurface(
             CaptureRequestConfiguration.Builder captureRequestConfigurationBuilder) {
-        Collection<BaseUseCase> activeUseCases;
+        Collection<UseCase> activeUseCases;
         synchronized (mAttachedUseCaseLock) {
             activeUseCases = mUseCaseAttachState.getActiveAndOnlineUseCases();
         }
 
         DeferrableSurface repeatingSurface = null;
-        for (BaseUseCase useCase : activeUseCases) {
+        for (UseCase useCase : activeUseCases) {
             SessionConfiguration sessionConfiguration = useCase.getSessionConfiguration(mCameraId);
             List<DeferrableSurface> surfaces =
                     sessionConfiguration.getCaptureRequestConfiguration().getSurfaces();

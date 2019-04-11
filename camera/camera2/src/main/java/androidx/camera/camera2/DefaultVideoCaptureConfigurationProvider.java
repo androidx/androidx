@@ -27,15 +27,15 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ConfigurationProvider;
 import androidx.camera.core.SessionConfiguration;
-import androidx.camera.core.VideoCaptureUseCase;
-import androidx.camera.core.VideoCaptureUseCaseConfiguration;
+import androidx.camera.core.VideoCapture;
+import androidx.camera.core.VideoCaptureConfiguration;
 
 import java.util.Arrays;
 import java.util.List;
 
-/** Provides defaults for {@link VideoCaptureUseCaseConfiguration} in the Camera2 implementation. */
+/** Provides defaults for {@link VideoCaptureConfiguration} in the Camera2 implementation. */
 final class DefaultVideoCaptureConfigurationProvider
-        implements ConfigurationProvider<VideoCaptureUseCaseConfiguration> {
+        implements ConfigurationProvider<VideoCaptureConfiguration> {
     private static final String TAG = "DefVideoCapProvider";
     private static final Rational DEFAULT_ASPECT_RATIO_16_9 = new Rational(16, 9);
     private static final Rational DEFAULT_ASPECT_RATIO_9_16 = new Rational(9, 16);
@@ -49,12 +49,12 @@ final class DefaultVideoCaptureConfigurationProvider
     }
 
     @Override
-    public VideoCaptureUseCaseConfiguration getConfiguration(LensFacing lensFacing) {
-        VideoCaptureUseCaseConfiguration.Builder builder =
-                VideoCaptureUseCaseConfiguration.Builder.fromConfig(
-                        VideoCaptureUseCase.DEFAULT_CONFIG.getConfiguration(lensFacing));
+    public VideoCaptureConfiguration getConfiguration(LensFacing lensFacing) {
+        VideoCaptureConfiguration.Builder builder =
+                VideoCaptureConfiguration.Builder.fromConfig(
+                        VideoCapture.DEFAULT_CONFIG.getConfiguration(lensFacing));
 
-        // SessionConfiguration containing all intrinsic properties needed for VideoCaptureUseCase
+        // SessionConfiguration containing all intrinsic properties needed for VideoCapture
         SessionConfiguration.Builder sessionBuilder = new SessionConfiguration.Builder();
         // TODO(b/114762170): Must set to preview here until we allow for multiple template types
         sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -91,7 +91,7 @@ final class DefaultVideoCaptureConfigurationProvider
             builder.setTargetAspectRatio(
                     isRotateNeeded ? DEFAULT_ASPECT_RATIO_9_16 : DEFAULT_ASPECT_RATIO_16_9);
         } catch (Exception e) {
-            Log.w(TAG, "Unable to determine default lens facing for VideoCaptureUseCase.", e);
+            Log.w(TAG, "Unable to determine default lens facing for VideoCapture.", e);
         }
 
         return builder.build();

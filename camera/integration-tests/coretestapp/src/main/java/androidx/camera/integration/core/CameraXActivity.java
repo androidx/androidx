@@ -41,20 +41,20 @@ import android.widget.Toast;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceConfiguration;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.FlashMode;
-import androidx.camera.core.ImageAnalysisUseCase;
-import androidx.camera.core.ImageAnalysisUseCaseConfiguration;
-import androidx.camera.core.ImageCaptureUseCase;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageAnalysisConfiguration;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureConfiguration;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.VideoCaptureUseCase;
-import androidx.camera.core.VideoCaptureUseCaseConfiguration;
-import androidx.camera.core.ViewFinderUseCase;
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
+import androidx.camera.core.Preview;
+import androidx.camera.core.PreviewConfiguration;
+import androidx.camera.core.UseCase;
+import androidx.camera.core.VideoCapture;
+import androidx.camera.core.VideoCaptureConfiguration;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
@@ -100,10 +100,10 @@ public class CameraXActivity extends AppCompatActivity
     // TODO: Move the analysis processing, capture processing to separate threads, so
     // there is smaller impact on the preview.
     private String mCurrentCameraDirection = "BACKWARD";
-    private ViewFinderUseCase mViewFinderUseCase;
-    private ImageAnalysisUseCase mImageAnalysisUseCase;
-    private ImageCaptureUseCase mImageCaptureUseCase;
-    private VideoCaptureUseCase mVideoCaptureUseCase;
+    private Preview mPreview;
+    private ImageAnalysis mImageAnalysis;
+    private ImageCapture mImageCapture;
+    private VideoCapture mVideoCapture;
 
     // Espresso testing variables
     @VisibleForTesting
@@ -123,52 +123,52 @@ public class CameraXActivity extends AppCompatActivity
      * <p>This use case observes a {@link SurfaceTexture}. The texture is connected to a {@link
      * TextureView} to display a camera preview.
      */
-    private void createViewFinderUseCase() {
+    private void createPreview() {
         Button button = this.findViewById(R.id.PreviewToggle);
         button.setBackgroundColor(Color.LTGRAY);
-        enableViewFinderUseCase();
+        enablePreview();
 
         button.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Button buttonView = (Button) view;
-                        if (mViewFinderUseCase != null) {
+                        if (mPreview != null) {
                             // Remove the use case
                             buttonView.setBackgroundColor(Color.RED);
-                            CameraX.unbind(mViewFinderUseCase);
-                            mViewFinderUseCase = null;
+                            CameraX.unbind(mPreview);
+                            mPreview = null;
                         } else {
                             // Add the use case
                             buttonView.setBackgroundColor(Color.LTGRAY);
 
-                            CameraXActivity.this.enableViewFinderUseCase();
+                            CameraXActivity.this.enablePreview();
                         }
                     }
                 });
 
-        Log.i(TAG, "Got UseCase: " + mViewFinderUseCase);
+        Log.i(TAG, "Got UseCase: " + mPreview);
     }
 
-    void enableViewFinderUseCase() {
-        ViewFinderUseCaseConfiguration configuration =
-                new ViewFinderUseCaseConfiguration.Builder()
+    void enablePreview() {
+        PreviewConfiguration configuration =
+                new PreviewConfiguration.Builder()
                         .setLensFacing(mCurrentCameraLensFacing)
-                        .setTargetName("ViewFinder")
+                        .setTargetName("Preview")
                         .build();
 
-        mViewFinderUseCase = new ViewFinderUseCase(configuration);
+        mPreview = new Preview(configuration);
         TextureView textureView = findViewById(R.id.textureView);
-        mViewFinderUseCase.setOnViewFinderOutputUpdateListener(
-                new ViewFinderUseCase.OnViewFinderOutputUpdateListener() {
+        mPreview.setOnPreviewOutputUpdateListener(
+                new Preview.OnPreviewOutputUpdateListener() {
                     @Override
-                    public void onUpdated(ViewFinderUseCase.ViewFinderOutput viewFinderOutput) {
+                    public void onUpdated(Preview.PreviewOutput previewOutput) {
                         // If TextureView was already created, need to re-add it to change the
                         // SurfaceTexture.
                         ViewGroup viewGroup = (ViewGroup) textureView.getParent();
                         viewGroup.removeView(textureView);
                         viewGroup.addView(textureView);
-                        textureView.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
+                        textureView.setSurfaceTexture(previewOutput.getSurfaceTexture());
                     }
                 });
 
@@ -178,8 +178,8 @@ public class CameraXActivity extends AppCompatActivity
             mViewIdlingResource.increment();
         }
 
-        if (!bindToLifecycleSafely(mViewFinderUseCase, R.id.PreviewToggle)) {
-            mViewFinderUseCase = null;
+        if (!bindToLifecycleSafely(mPreview, R.id.PreviewToggle)) {
+            mPreview = null;
             return;
         }
 
@@ -214,23 +214,23 @@ public class CameraXActivity extends AppCompatActivity
 
     void transformPreview() {
         String cameraId = null;
-        LensFacing viewFinderLensFacing =
-                ((CameraDeviceConfiguration) mViewFinderUseCase.getUseCaseConfiguration())
+        LensFacing previewLensFacing =
+                ((CameraDeviceConfiguration) mPreview.getUseCaseConfiguration())
                         .getLensFacing(/*valueIfMissing=*/ null);
-        if (viewFinderLensFacing != mCurrentCameraLensFacing) {
+        if (previewLensFacing != mCurrentCameraLensFacing) {
             throw new IllegalStateException(
                     "Invalid view finder lens facing: "
-                            + viewFinderLensFacing
+                            + previewLensFacing
                             + " Should be: "
                             + mCurrentCameraLensFacing);
         }
         try {
-            cameraId = CameraX.getCameraWithLensFacing(viewFinderLensFacing);
+            cameraId = CameraX.getCameraWithLensFacing(previewLensFacing);
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                    "Unable to get camera id for lens facing " + viewFinderLensFacing, e);
+                    "Unable to get camera id for lens facing " + previewLensFacing, e);
         }
-        Size srcResolution = mViewFinderUseCase.getAttachedSurfaceResolution(cameraId);
+        Size srcResolution = mPreview.getAttachedSurfaceResolution(cameraId);
 
         if (srcResolution.getWidth() == 0 || srcResolution.getHeight() == 0) {
             return;
@@ -249,13 +249,13 @@ public class CameraXActivity extends AppCompatActivity
         int top = textureView.getTop();
         int bottom = textureView.getBottom();
 
-        // Compute the viewfinder ui size based on the available width, height, and ui orientation.
+        // Compute the preview ui size based on the available width, height, and ui orientation.
         int viewWidth = (right - left);
         int viewHeight = (bottom - top);
 
         int displayRotation = getDisplayRotation();
         Size scaled =
-                calculateViewfinderViewDimens(
+                calculatePreviewViewDimens(
                         srcResolution, viewWidth, viewHeight, displayRotation);
 
         // Compute the center of the view.
@@ -319,7 +319,7 @@ public class CameraXActivity extends AppCompatActivity
         return displayRotation;
     }
 
-    private Size calculateViewfinderViewDimens(
+    private Size calculatePreviewViewDimens(
             Size srcSize, int parentWidth, int parentHeight, int displayRotation) {
         int inWidth = srcSize.getWidth();
         int inHeight = srcSize.getHeight();
@@ -353,51 +353,51 @@ public class CameraXActivity extends AppCompatActivity
      *
      * <p>This use case observes a stream of analysis results computed from the frames.
      */
-    private void createImageAnalysisUseCase() {
+    private void createImageAnalysis() {
         Button button = this.findViewById(R.id.AnalysisToggle);
         button.setBackgroundColor(Color.LTGRAY);
-        enableImageAnalysisUseCase();
+        enableImageAnalysis();
 
         button.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Button buttonView = (Button) view;
-                        if (mImageAnalysisUseCase != null) {
+                        if (mImageAnalysis != null) {
                             // Remove the use case
                             buttonView.setBackgroundColor(Color.RED);
-                            CameraX.unbind(mImageAnalysisUseCase);
-                            mImageAnalysisUseCase = null;
+                            CameraX.unbind(mImageAnalysis);
+                            mImageAnalysis = null;
                         } else {
                             // Add the use case
                             buttonView.setBackgroundColor(Color.LTGRAY);
-                            CameraXActivity.this.enableImageAnalysisUseCase();
+                            CameraXActivity.this.enableImageAnalysis();
                         }
                     }
                 });
 
-        Log.i(TAG, "Got UseCase: " + mImageAnalysisUseCase);
+        Log.i(TAG, "Got UseCase: " + mImageAnalysis);
     }
 
-    void enableImageAnalysisUseCase() {
-        ImageAnalysisUseCaseConfiguration configuration =
-                new ImageAnalysisUseCaseConfiguration.Builder()
+    void enableImageAnalysis() {
+        ImageAnalysisConfiguration configuration =
+                new ImageAnalysisConfiguration.Builder()
                         .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("ImageAnalysis")
                         .setCallbackHandler(new Handler(Looper.getMainLooper()))
                         .build();
 
-        mImageAnalysisUseCase = new ImageAnalysisUseCase(configuration);
+        mImageAnalysis = new ImageAnalysis(configuration);
         TextView textView = this.findViewById(R.id.textView);
         mAnalysisIdlingResource.increment();
 
-        if (!bindToLifecycleSafely(mImageAnalysisUseCase, R.id.AnalysisToggle)) {
-            mImageAnalysisUseCase = null;
+        if (!bindToLifecycleSafely(mImageAnalysis, R.id.AnalysisToggle)) {
+            mImageAnalysis = null;
             return;
         }
 
-        mImageAnalysisUseCase.setAnalyzer(
-                new ImageAnalysisUseCase.Analyzer() {
+        mImageAnalysis.setAnalyzer(
+                new ImageAnalysis.Analyzer() {
                     @Override
                     public void analyze(ImageProxy image, int rotationDegrees) {
                         // Since we set the callback handler to a main thread handler, we can call
@@ -430,45 +430,45 @@ public class CameraXActivity extends AppCompatActivity
      *
      * <p>This use case takes a picture and saves it to a file, whenever the user clicks a button.
      */
-    private void createImageCaptureUseCase() {
+    private void createImageCapture() {
 
         Button button = this.findViewById(R.id.PhotoToggle);
         button.setBackgroundColor(Color.LTGRAY);
-        enableImageCaptureUseCase();
+        enableImageCapture();
 
         button.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Button buttonView = (Button) view;
-                        if (mImageCaptureUseCase != null) {
+                        if (mImageCapture != null) {
                             // Remove the use case
                             buttonView.setBackgroundColor(Color.RED);
-                            CameraXActivity.this.disableImageCaptureUseCase();
+                            CameraXActivity.this.disableImageCapture();
                         } else {
                             // Add the use case
                             buttonView.setBackgroundColor(Color.LTGRAY);
-                            CameraXActivity.this.enableImageCaptureUseCase();
+                            CameraXActivity.this.enableImageCapture();
                         }
                     }
                 });
 
-        Log.i(TAG, "Got UseCase: " + mImageCaptureUseCase);
+        Log.i(TAG, "Got UseCase: " + mImageCapture);
     }
 
-    void enableImageCaptureUseCase() {
-        ImageCaptureUseCaseConfiguration configuration =
-                new ImageCaptureUseCaseConfiguration.Builder()
+    void enableImageCapture() {
+        ImageCaptureConfiguration configuration =
+                new ImageCaptureConfiguration.Builder()
                         .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("ImageCapture")
                         .build();
 
-        mImageCaptureUseCase = new ImageCaptureUseCase(configuration);
+        mImageCapture = new ImageCapture(configuration);
 
-        if (!bindToLifecycleSafely(mImageCaptureUseCase, R.id.PhotoToggle)) {
+        if (!bindToLifecycleSafely(mImageCapture, R.id.PhotoToggle)) {
             Button button = this.findViewById(R.id.Picture);
             button.setOnClickListener(null);
-            mImageCaptureUseCase = null;
+            mImageCapture = null;
             return;
         }
 
@@ -481,12 +481,12 @@ public class CameraXActivity extends AppCompatActivity
                     public void onClick(View view) {
                         mImageSavedIdlingResource.increment();
 
-                        mImageCaptureUseCase.takePicture(
+                        mImageCapture.takePicture(
                                 new File(
                                         dir,
                                         formatter.format(Calendar.getInstance().getTime())
                                                 + ".jpg"),
-                                new ImageCaptureUseCase.OnImageSavedListener() {
+                                new ImageCapture.OnImageSavedListener() {
                                     @Override
                                     public void onImageSaved(File file) {
                                         Log.d(TAG, "Saved image to " + file);
@@ -497,7 +497,7 @@ public class CameraXActivity extends AppCompatActivity
 
                                     @Override
                                     public void onError(
-                                            ImageCaptureUseCase.UseCaseError useCaseError,
+                                            ImageCapture.UseCaseError useCaseError,
                                             String message,
                                             Throwable cause) {
                                         Log.e(TAG, "Failed to save image.", cause);
@@ -512,10 +512,10 @@ public class CameraXActivity extends AppCompatActivity
         refreshFlashButtonIcon();
     }
 
-    void disableImageCaptureUseCase() {
-        CameraX.unbind(mImageCaptureUseCase);
+    void disableImageCapture() {
+        CameraX.unbind(mImageCapture);
 
-        mImageCaptureUseCase = null;
+        mImageCapture = null;
         Button button = this.findViewById(R.id.Picture);
         button.setOnClickListener(null);
 
@@ -524,23 +524,23 @@ public class CameraXActivity extends AppCompatActivity
 
     private void refreshFlashButtonIcon() {
         ImageButton flashToggle = findViewById(R.id.flash_toggle);
-        if (mImageCaptureUseCase != null) {
+        if (mImageCapture != null) {
             flashToggle.setVisibility(View.VISIBLE);
             flashToggle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FlashMode flashMode = mImageCaptureUseCase.getFlashMode();
+                    FlashMode flashMode = mImageCapture.getFlashMode();
                     if (flashMode == FlashMode.ON) {
-                        mImageCaptureUseCase.setFlashMode(FlashMode.OFF);
+                        mImageCapture.setFlashMode(FlashMode.OFF);
                     } else if (flashMode == FlashMode.OFF) {
-                        mImageCaptureUseCase.setFlashMode(FlashMode.AUTO);
+                        mImageCapture.setFlashMode(FlashMode.AUTO);
                     } else if (flashMode == FlashMode.AUTO) {
-                        mImageCaptureUseCase.setFlashMode(FlashMode.ON);
+                        mImageCapture.setFlashMode(FlashMode.ON);
                     }
                     refreshFlashButtonIcon();
                 }
             });
-            FlashMode flashMode = mImageCaptureUseCase.getFlashMode();
+            FlashMode flashMode = mImageCapture.getFlashMode();
             switch (flashMode) {
                 case ON:
                     flashToggle.setImageResource(R.drawable.ic_flash_on);
@@ -565,10 +565,10 @@ public class CameraXActivity extends AppCompatActivity
      * <p>This use case records a video segment and saves it to a file, in response to user button
      * clicks.
      */
-    private void createVideoCaptureUseCase() {
+    private void createVideoCapture() {
         Button button = this.findViewById(R.id.VideoToggle);
         button.setBackgroundColor(Color.LTGRAY);
-        enableVideoCaptureUseCase();
+        enableVideoCapture();
 
         mVideoFileSaver = new VideoFileSaver();
         mVideoFileSaver.setRootDirectory(
@@ -579,34 +579,34 @@ public class CameraXActivity extends AppCompatActivity
                     @Override
                     public void onClick(View view) {
                         Button buttonView = (Button) view;
-                        if (mVideoCaptureUseCase != null) {
+                        if (mVideoCapture != null) {
                             // Remove the use case
                             buttonView.setBackgroundColor(Color.RED);
-                            CameraXActivity.this.disableVideoCaptureUseCase();
+                            CameraXActivity.this.disableVideoCapture();
                         } else {
                             // Add the use case
                             buttonView.setBackgroundColor(Color.LTGRAY);
-                            CameraXActivity.this.enableVideoCaptureUseCase();
+                            CameraXActivity.this.enableVideoCapture();
                         }
                     }
                 });
 
-        Log.i(TAG, "Got UseCase: " + mVideoCaptureUseCase);
+        Log.i(TAG, "Got UseCase: " + mVideoCapture);
     }
 
-    void enableVideoCaptureUseCase() {
-        VideoCaptureUseCaseConfiguration configuration =
-                new VideoCaptureUseCaseConfiguration.Builder()
+    void enableVideoCapture() {
+        VideoCaptureConfiguration configuration =
+                new VideoCaptureConfiguration.Builder()
                         .setLensFacing(mCurrentCameraLensFacing)
                         .setTargetName("VideoCapture")
                         .build();
 
-        mVideoCaptureUseCase = new VideoCaptureUseCase(configuration);
+        mVideoCapture = new VideoCapture(configuration);
 
-        if (!bindToLifecycleSafely(mVideoCaptureUseCase, R.id.VideoToggle)) {
+        if (!bindToLifecycleSafely(mVideoCapture, R.id.VideoToggle)) {
             Button button = this.findViewById(R.id.Video);
             button.setOnClickListener(null);
-            mVideoCaptureUseCase = null;
+            mVideoCapture = null;
             return;
         }
 
@@ -618,13 +618,13 @@ public class CameraXActivity extends AppCompatActivity
                         Button buttonView = (Button) view;
                         String text = button.getText().toString();
                         if (text.equals("Record") && !mVideoFileSaver.isSaving()) {
-                            mVideoCaptureUseCase.startRecording(
+                            mVideoCapture.startRecording(
                                     mVideoFileSaver.getNewVideoFile(), mVideoFileSaver);
                             mVideoFileSaver.setSaving();
                             buttonView.setText("Stop");
                         } else if (text.equals("Stop") && mVideoFileSaver.isSaving()) {
                             buttonView.setText("Record");
-                            mVideoCaptureUseCase.stopRecording();
+                            mVideoCapture.stopRecording();
                         } else if (text.equals("Record") && mVideoFileSaver.isSaving()) {
                             buttonView.setText("Stop");
                             mVideoFileSaver.setSaving();
@@ -635,20 +635,20 @@ public class CameraXActivity extends AppCompatActivity
                 });
     }
 
-    void disableVideoCaptureUseCase() {
+    void disableVideoCapture() {
         Button button = this.findViewById(R.id.Video);
         button.setOnClickListener(null);
-        CameraX.unbind(mVideoCaptureUseCase);
+        CameraX.unbind(mVideoCapture);
 
-        mVideoCaptureUseCase = null;
+        mVideoCapture = null;
     }
 
     /** Creates all the use cases. */
     private void createUseCases() {
-        createImageCaptureUseCase();
-        createViewFinderUseCase();
-        createImageAnalysisUseCase();
-        createVideoCaptureUseCase();
+        createImageCapture();
+        createPreview();
+        createImageAnalysis();
+        createVideoCapture();
     }
 
     @Override
@@ -723,17 +723,17 @@ public class CameraXActivity extends AppCompatActivity
 
                                 // Rebind all use cases.
                                 CameraX.unbindAll();
-                                if (mImageCaptureUseCase != null) {
-                                    enableImageCaptureUseCase();
+                                if (mImageCapture != null) {
+                                    enableImageCapture();
                                 }
-                                if (mViewFinderUseCase != null) {
-                                    enableViewFinderUseCase();
+                                if (mPreview != null) {
+                                    enablePreview();
                                 }
-                                if (mImageAnalysisUseCase != null) {
-                                    enableImageAnalysisUseCase();
+                                if (mImageAnalysis != null) {
+                                    enableImageAnalysis();
                                 }
-                                if (mVideoCaptureUseCase != null) {
-                                    enableVideoCaptureUseCase();
+                                if (mVideoCapture != null) {
+                                    enableVideoCapture();
                                 }
                             }
                         });
@@ -743,10 +743,10 @@ public class CameraXActivity extends AppCompatActivity
                         torchToggle.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (mViewFinderUseCase != null) {
-                                    boolean toggledState = !mViewFinderUseCase.isTorchOn();
+                                if (mPreview != null) {
+                                    boolean toggledState = !mPreview.isTorchOn();
                                     Log.d(TAG, "Set camera torch: " + toggledState);
-                                    mViewFinderUseCase.enableTorch(toggledState);
+                                    mPreview.enableTorch(toggledState);
                                 }
                             }
                         });
@@ -820,7 +820,7 @@ public class CameraXActivity extends AppCompatActivity
         }
     }
 
-    private boolean bindToLifecycleSafely(BaseUseCase useCase, int buttonViewId) {
+    private boolean bindToLifecycleSafely(UseCase useCase, int buttonViewId) {
         try {
             CameraX.bindToLifecycle(this, useCase);
         } catch (IllegalArgumentException e) {
@@ -855,19 +855,19 @@ public class CameraXActivity extends AppCompatActivity
         }
     }
 
-    ViewFinderUseCase getViewFinderUseCase() {
-        return mViewFinderUseCase;
+    Preview getPreview() {
+        return mPreview;
     }
 
-    ImageAnalysisUseCase getImageAnalysisUseCase() {
-        return mImageAnalysisUseCase;
+    ImageAnalysis getImageAnalysis() {
+        return mImageAnalysis;
     }
 
-    ImageCaptureUseCase getImageCaptureUseCase() {
-        return mImageCaptureUseCase;
+    ImageCapture getImageCapture() {
+        return mImageCapture;
     }
 
-    VideoCaptureUseCase getVideoCaptureUseCase() {
-        return mVideoCaptureUseCase;
+    VideoCapture getVideoCapture() {
+        return mVideoCapture;
     }
 }

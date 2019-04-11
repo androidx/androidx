@@ -45,7 +45,7 @@ public final class UseCaseAttachState {
     /** The name of the camera the use cases are attached to. */
     private final String mCameraId;
     /** A map of the use cases to the corresponding state information. */
-    private final Map<BaseUseCase, UseCaseAttachInfo> mAttachedUseCasesToInfoMap = new HashMap<>();
+    private final Map<UseCase, UseCaseAttachInfo> mAttachedUseCasesToInfoMap = new HashMap<>();
 
     /** Constructs an instance of the attach state which corresponds to the named camera. */
     public UseCaseAttachState(String cameraId) {
@@ -57,7 +57,7 @@ public final class UseCaseAttachState {
      *
      * <p>Adds the use case to the collection if not already in it.
      */
-    public void setUseCaseActive(BaseUseCase useCase) {
+    public void setUseCaseActive(UseCase useCase) {
         UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCase);
         useCaseAttachInfo.setActive(true);
     }
@@ -67,7 +67,7 @@ public final class UseCaseAttachState {
      *
      * <p>Removes the use case from the collection if also offline.
      */
-    public void setUseCaseInactive(BaseUseCase useCase) {
+    public void setUseCaseInactive(UseCase useCase) {
         if (!mAttachedUseCasesToInfoMap.containsKey(useCase)) {
             return;
         }
@@ -84,7 +84,7 @@ public final class UseCaseAttachState {
      *
      * <p>Adds the use case to the collection if not already in it.
      */
-    public void setUseCaseOnline(BaseUseCase useCase) {
+    public void setUseCaseOnline(UseCase useCase) {
         UseCaseAttachInfo useCaseAttachInfo = getOrCreateUseCaseAttachInfo(useCase);
         useCaseAttachInfo.setOnline(true);
     }
@@ -94,7 +94,7 @@ public final class UseCaseAttachState {
      *
      * <p>Removes the use case from the collection if also inactive.
      */
-    public void setUseCaseOffline(BaseUseCase useCase) {
+    public void setUseCaseOffline(UseCase useCase) {
         if (!mAttachedUseCasesToInfoMap.containsKey(useCase)) {
             return;
         }
@@ -105,7 +105,7 @@ public final class UseCaseAttachState {
         }
     }
 
-    public Collection<BaseUseCase> getOnlineUseCases() {
+    public Collection<UseCase> getOnlineUseCases() {
         return Collections.unmodifiableCollection(
                 getUseCases(new AttachStateFilter() {
                     @Override
@@ -115,7 +115,7 @@ public final class UseCaseAttachState {
                 }));
     }
 
-    public Collection<BaseUseCase> getActiveAndOnlineUseCases() {
+    public Collection<UseCase> getActiveAndOnlineUseCases() {
         return Collections.unmodifiableCollection(
                 getUseCases(
                         new AttachStateFilter() {
@@ -132,7 +132,7 @@ public final class UseCaseAttachState {
      *
      * <p>If the use case is not already in the collection, nothing is done.
      */
-    public void updateUseCase(BaseUseCase useCase) {
+    public void updateUseCase(UseCase useCase) {
         if (!mAttachedUseCasesToInfoMap.containsKey(useCase)) {
             return;
         }
@@ -154,13 +154,13 @@ public final class UseCaseAttachState {
                 new SessionConfiguration.ValidatingBuilder();
 
         List<String> list = new ArrayList<>();
-        for (Entry<BaseUseCase, UseCaseAttachInfo> attachedUseCase :
+        for (Entry<UseCase, UseCaseAttachInfo> attachedUseCase :
                 mAttachedUseCasesToInfoMap.entrySet()) {
             UseCaseAttachInfo useCaseAttachInfo = attachedUseCase.getValue();
             if (useCaseAttachInfo.getActive() && useCaseAttachInfo.getOnline()) {
-                BaseUseCase baseUseCase = attachedUseCase.getKey();
+                UseCase useCase = attachedUseCase.getKey();
                 validatingBuilder.add(useCaseAttachInfo.getSessionConfiguration());
-                list.add(baseUseCase.getName());
+                list.add(useCase.getName());
             }
         }
         Log.d(TAG, "Active and online use case: " + list + " for camera: " + mCameraId);
@@ -172,20 +172,20 @@ public final class UseCaseAttachState {
         SessionConfiguration.ValidatingBuilder validatingBuilder =
                 new SessionConfiguration.ValidatingBuilder();
         List<String> list = new ArrayList<>();
-        for (Entry<BaseUseCase, UseCaseAttachInfo> attachedUseCase :
+        for (Entry<UseCase, UseCaseAttachInfo> attachedUseCase :
                 mAttachedUseCasesToInfoMap.entrySet()) {
             UseCaseAttachInfo useCaseAttachInfo = attachedUseCase.getValue();
             if (useCaseAttachInfo.getOnline()) {
                 validatingBuilder.add(useCaseAttachInfo.getSessionConfiguration());
-                BaseUseCase baseUseCase = attachedUseCase.getKey();
-                list.add(baseUseCase.getName());
+                UseCase useCase = attachedUseCase.getKey();
+                list.add(useCase.getName());
             }
         }
         Log.d(TAG, "All use case: " + list + " for camera: " + mCameraId);
         return validatingBuilder;
     }
 
-    private UseCaseAttachInfo getOrCreateUseCaseAttachInfo(BaseUseCase useCase) {
+    private UseCaseAttachInfo getOrCreateUseCaseAttachInfo(UseCase useCase) {
         UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCase);
         if (useCaseAttachInfo == null) {
             useCaseAttachInfo = new UseCaseAttachInfo(useCase.getSessionConfiguration(mCameraId));
@@ -194,9 +194,9 @@ public final class UseCaseAttachState {
         return useCaseAttachInfo;
     }
 
-    private Collection<BaseUseCase> getUseCases(AttachStateFilter attachStateFilter) {
-        List<BaseUseCase> useCases = new ArrayList<>();
-        for (Entry<BaseUseCase, UseCaseAttachInfo> attachedUseCase :
+    private Collection<UseCase> getUseCases(AttachStateFilter attachStateFilter) {
+        List<UseCase> useCases = new ArrayList<>();
+        for (Entry<UseCase, UseCaseAttachInfo> attachedUseCase :
                 mAttachedUseCasesToInfoMap.entrySet()) {
             if (attachStateFilter == null || attachStateFilter.filter(attachedUseCase.getValue())) {
                 useCases.add(attachedUseCase.getKey());

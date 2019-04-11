@@ -79,7 +79,7 @@ final class UseCaseGroupLifecycleController implements LifecycleObserver {
             if (mLifecycle.getCurrentState().isAtLeast(State.STARTED)) {
                 mUseCaseGroup.start();
             }
-            for (BaseUseCase useCase : mUseCaseGroup.getUseCases()) {
+            for (UseCase useCase : mUseCaseGroup.getUseCases()) {
                 useCase.notifyState();
             }
         }

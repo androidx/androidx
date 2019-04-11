@@ -32,16 +32,16 @@ import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraRepository;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
-import androidx.camera.core.ImageAnalysisUseCase;
-import androidx.camera.core.ImageAnalysisUseCaseConfiguration;
-import androidx.camera.core.ImageCaptureUseCase;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageAnalysisConfiguration;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureConfiguration;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImmediateSurface;
+import androidx.camera.core.Preview;
+import androidx.camera.core.PreviewConfiguration;
 import androidx.camera.core.SessionConfiguration;
 import androidx.camera.core.UseCaseGroup;
-import androidx.camera.core.ViewFinderUseCase;
-import androidx.camera.core.ViewFinderUseCaseConfiguration;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -77,10 +77,10 @@ public final class UseCaseCombinationTest {
     private FakeLifecycleOwner mLifecycle;
     private HandlerThread mHandlerThread;
     private Handler mMainThreadHandler;
-    private CallbackAttachingImageCaptureUseCase mImageCaptureUseCase;
-    private ImageAnalysisUseCase mImageAnalysisUseCase;
-    private ViewFinderUseCase mViewFinderUseCase;
-    private ImageAnalysisUseCase.Analyzer mImageAnalyzer;
+    private CallbackAttachingImageCapture mImageCapture;
+    private ImageAnalysis mImageAnalysis;
+    private Preview mPreview;
+    private ImageAnalysis.Analyzer mImageAnalyzer;
     private CameraRepository mCameraRepository;
     private CameraFactory mCameraFactory;
     private UseCaseGroup mUseCaseGroup;
@@ -117,47 +117,47 @@ public final class UseCaseCombinationTest {
     }
 
     /**
-     * Test Combination: ViewFinder + ImageCaptureUseCase
+     * Test Combination: Preview + ImageCapture
      */
     @Test
-    public void viewFinderCombinesImageCapture() throws InterruptedException {
-        initViewFinderUseCase();
-        initImageCaptureUseCase();
+    public void previewCombinesImageCapture() throws InterruptedException {
+        initPreview();
+        initImageCapture();
 
-        mUseCaseGroup.addUseCase(mImageCaptureUseCase);
-        mUseCaseGroup.addUseCase(mViewFinderUseCase);
+        mUseCaseGroup.addUseCase(mImageCapture);
+        mUseCaseGroup.addUseCase(mPreview);
 
-        CameraX.bindToLifecycle(mLifecycle, mViewFinderUseCase, mImageCaptureUseCase);
+        CameraX.bindToLifecycle(mLifecycle, mPreview, mImageCapture);
         mLifecycle.startAndResume();
 
-        mImageCaptureUseCase.doNotifyActive();
+        mImageCapture.doNotifyActive();
         mCameraRepository.onGroupActive(mUseCaseGroup);
 
         // Wait for the CameraCaptureSession.onConfigured callback.
-        mImageCaptureUseCase.mSessionStateCallback.waitForOnConfigured(1);
+        mImageCapture.mSessionStateCallback.waitForOnConfigured(1);
 
         assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
-        assertThat(CameraX.isBound(mViewFinderUseCase)).isTrue();
-        assertThat(CameraX.isBound(mImageCaptureUseCase)).isTrue();
+        assertThat(CameraX.isBound(mPreview)).isTrue();
+        assertThat(CameraX.isBound(mImageCapture)).isTrue();
     }
 
     /**
-     * Test Combination: ViewFinder + ImageAnalysisUseCase
+     * Test Combination: Preview + ImageAnalysis
      */
     @Test
-    public void viewFinderCombinesImageAnalysis() throws InterruptedException {
-        initImageAnalysisUseCase();
-        initViewFinderUseCase();
+    public void previewCombinesImageAnalysis() throws InterruptedException {
+        initImageAnalysis();
+        initPreview();
 
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
-                mImageAnalysisUseCase.setAnalyzer(mImageAnalyzer);
+                mImageAnalysis.setAnalyzer(mImageAnalyzer);
 
                 mAnalysisResult.observe(mLifecycle,
                         createCountIncrementingObserver());
 
-                CameraX.bindToLifecycle(mLifecycle, mViewFinderUseCase, mImageAnalysisUseCase);
+                CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis);
                 mLifecycle.startAndResume();
             }
         });
@@ -165,38 +165,37 @@ public final class UseCaseCombinationTest {
         // Wait for 10 frames to be analyzed.
         mSemaphore.acquire(10);
 
-        assertThat(CameraX.isBound(mViewFinderUseCase)).isTrue();
-        assertThat(CameraX.isBound(mImageAnalysisUseCase)).isTrue();
+        assertThat(CameraX.isBound(mPreview)).isTrue();
+        assertThat(CameraX.isBound(mImageAnalysis)).isTrue();
     }
 
     /**
-     * Test Combination: ViewFinder + ImageAnalysis + ImageCaptureUseCase
+     * Test Combination: Preview + ImageAnalysis + ImageCapture
      */
     @Test
-    public void viewFinderCombinesImageAnalysisAndImageCapture() throws InterruptedException {
-        initViewFinderUseCase();
-        initImageAnalysisUseCase();
-        initImageCaptureUseCase();
+    public void previewCombinesImageAnalysisAndImageCapture() throws InterruptedException {
+        initPreview();
+        initImageAnalysis();
+        initImageCapture();
 
-        mUseCaseGroup.addUseCase(mImageCaptureUseCase);
-        mUseCaseGroup.addUseCase(mImageAnalysisUseCase);
-        mUseCaseGroup.addUseCase(mViewFinderUseCase);
+        mUseCaseGroup.addUseCase(mImageCapture);
+        mUseCaseGroup.addUseCase(mImageAnalysis);
+        mUseCaseGroup.addUseCase(mPreview);
 
-        mImageCaptureUseCase.doNotifyActive();
+        mImageCapture.doNotifyActive();
         mCameraRepository.onGroupActive(mUseCaseGroup);
 
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
-                mImageAnalysisUseCase.setAnalyzer(mImageAnalyzer);
+                mImageAnalysis.setAnalyzer(mImageAnalyzer);
 
                 mAnalysisResult.observe(mLifecycle,
                         createCountIncrementingObserver());
             }
         });
 
-        CameraX.bindToLifecycle(mLifecycle, mViewFinderUseCase, mImageAnalysisUseCase,
-                mImageCaptureUseCase);
+        CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis, mImageCapture);
         mLifecycle.startAndResume();
 
         // Wait for 10 frames to be analyzed.
@@ -204,61 +203,60 @@ public final class UseCaseCombinationTest {
 
         // Wait for the CameraCaptureSession.onConfigured callback.
         try {
-            mImageCaptureUseCase.mSessionStateCallback.waitForOnConfigured(1);
+            mImageCapture.mSessionStateCallback.waitForOnConfigured(1);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        assertThat(CameraX.isBound(mViewFinderUseCase)).isTrue();
-        assertThat(CameraX.isBound(mImageAnalysisUseCase)).isTrue();
-        assertThat(CameraX.isBound(mImageCaptureUseCase)).isTrue();
+        assertThat(CameraX.isBound(mPreview)).isTrue();
+        assertThat(CameraX.isBound(mImageAnalysis)).isTrue();
+        assertThat(CameraX.isBound(mImageCapture)).isTrue();
     }
 
-    private void initImageAnalysisUseCase() {
-        ImageAnalysisUseCaseConfiguration imageAnalysisUseCaseConfiguration =
-                new ImageAnalysisUseCaseConfiguration.Builder()
+    private void initImageAnalysis() {
+        ImageAnalysisConfiguration imageAnalysisConfiguration =
+                new ImageAnalysisConfiguration.Builder()
                         .setLensFacing(DEFAULT_LENS_FACING)
                         .setTargetName("ImageAnalysis")
                         .setCallbackHandler(new Handler(Looper.getMainLooper()))
                         .build();
         mImageAnalyzer =
-                new ImageAnalysisUseCase.Analyzer() {
+                new ImageAnalysis.Analyzer() {
                     @Override
                     public void analyze(ImageProxy image, int rotationDegrees) {
                         mAnalysisResult.postValue(image.getTimestamp());
                     }
                 };
-        mImageAnalysisUseCase = new ImageAnalysisUseCase(imageAnalysisUseCaseConfiguration);
+        mImageAnalysis = new ImageAnalysis(imageAnalysisConfiguration);
     }
 
-    private void initImageCaptureUseCase() {
+    private void initImageCapture() {
         mCameraRepository = new CameraRepository();
         mCameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext());
         mCameraRepository.init(mCameraFactory);
         mUseCaseGroup = new UseCaseGroup();
 
-        ImageCaptureUseCaseConfiguration imageCaptureUseCaseConfiguration =
-                new ImageCaptureUseCaseConfiguration.Builder().setLensFacing(
+        ImageCaptureConfiguration imageCaptureConfiguration =
+                new ImageCaptureConfiguration.Builder().setLensFacing(
                         LensFacing.BACK).build();
         String cameraId = getCameraIdForLensFacingUnchecked(
-                imageCaptureUseCaseConfiguration.getLensFacing());
-        mImageCaptureUseCase = new CallbackAttachingImageCaptureUseCase(
-                imageCaptureUseCaseConfiguration, cameraId);
+                imageCaptureConfiguration.getLensFacing());
+        mImageCapture = new CallbackAttachingImageCapture(imageCaptureConfiguration, cameraId);
 
-        mImageCaptureUseCase.addStateChangeListener(
+        mImageCapture.addStateChangeListener(
                 mCameraRepository.getCamera(
                         getCameraIdForLensFacingUnchecked(
-                                imageCaptureUseCaseConfiguration.getLensFacing())));
+                                imageCaptureConfiguration.getLensFacing())));
     }
 
-    private void initViewFinderUseCase() {
-        ViewFinderUseCaseConfiguration viewFinderUseCaseConfiguration =
-                new ViewFinderUseCaseConfiguration.Builder()
+    private void initPreview() {
+        PreviewConfiguration previewConfiguration =
+                new PreviewConfiguration.Builder()
                         .setLensFacing(DEFAULT_LENS_FACING)
-                        .setTargetName("ViewFinder")
+                        .setTargetName("Preview")
                         .build();
 
-        mViewFinderUseCase = new ViewFinderUseCase(viewFinderUseCaseConfiguration);
+        mPreview = new Preview(previewConfiguration);
     }
 
     private String getCameraIdForLensFacingUnchecked(LensFacing lensFacing) {
@@ -271,14 +269,13 @@ public final class UseCaseCombinationTest {
     }
 
     /** A use case which attaches to a camera with various callbacks. */
-    private static class CallbackAttachingImageCaptureUseCase extends ImageCaptureUseCase {
+    private static class CallbackAttachingImageCapture extends ImageCapture {
         private final SemaphoreReleasingCamera2Callbacks.SessionStateCallback
                 mSessionStateCallback =
                 new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
         private final SurfaceTexture mSurfaceTexture = new SurfaceTexture(0);
 
-        CallbackAttachingImageCaptureUseCase(ImageCaptureUseCaseConfiguration configuration,
-                String cameraId) {
+        CallbackAttachingImageCapture(ImageCaptureConfiguration configuration, String cameraId) {
             super(configuration);
 
             SessionConfiguration.Builder builder = new SessionConfiguration.Builder();

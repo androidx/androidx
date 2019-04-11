@@ -23,11 +23,11 @@ import android.media.CamcorderProfile;
 import android.util.Size;
 
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceConfiguration;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.SurfaceConfiguration;
+import androidx.camera.core.UseCase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -133,8 +133,8 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
      * @return map of suggested resolutions for given use cases
      */
     @Override
-    public Map<BaseUseCase, Size> getSuggestedResolutions(
-            String cameraId, List<BaseUseCase> originalUseCases, List<BaseUseCase> newUseCases) {
+    public Map<UseCase, Size> getSuggestedResolutions(
+            String cameraId, List<UseCase> originalUseCases, List<UseCase> newUseCases) {
 
         if (newUseCases == null || newUseCases.isEmpty()) {
             throw new IllegalArgumentException("No new use cases to be bound.");
@@ -147,7 +147,7 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
         List<SurfaceConfiguration> surfaceConfigurations = new ArrayList<>();
 
         if (originalUseCases != null) {
-            for (BaseUseCase useCase : originalUseCases) {
+            for (UseCase useCase : originalUseCases) {
                 CameraDeviceConfiguration configuration =
                         (CameraDeviceConfiguration) useCase.getUseCaseConfiguration();
                 String useCaseCameraId;
@@ -166,7 +166,7 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
             }
         }
 
-        for (BaseUseCase useCase : newUseCases) {
+        for (UseCase useCase : newUseCases) {
             surfaceConfigurations.add(
                     transformSurfaceConfiguration(
                             cameraId, useCase.getImageFormat(), new Size(640, 480)));

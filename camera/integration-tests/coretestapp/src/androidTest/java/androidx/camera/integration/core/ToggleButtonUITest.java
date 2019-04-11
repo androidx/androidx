@@ -26,8 +26,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import androidx.camera.core.FlashMode;
-import androidx.camera.core.ImageCaptureUseCase;
-import androidx.camera.core.ViewFinderUseCase;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Preview;
 import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
 import androidx.camera.integration.core.idlingresource.WaitForViewToShow;
 import androidx.test.espresso.Espresso;
@@ -82,7 +82,7 @@ public final class ToggleButtonUITest {
     public void testFlashToggleButton() {
         waitFor(new WaitForViewToShow(R.id.flash_toggle));
 
-        ImageCaptureUseCase useCase = mActivityRule.getActivity().getImageCaptureUseCase();
+        ImageCapture useCase = mActivityRule.getActivity().getImageCapture();
         assertNotNull(useCase);
 
         // There are 3 different states of flash mode: ON, OFF and AUTO.
@@ -108,7 +108,7 @@ public final class ToggleButtonUITest {
     public void testTorchToggleButton() {
         waitFor(new WaitForViewToShow(R.id.torch_toggle));
 
-        ViewFinderUseCase useCase = mActivityRule.getActivity().getViewFinderUseCase();
+        Preview useCase = mActivityRule.getActivity().getPreview();
         assertNotNull(useCase);
         boolean isTorchOn = useCase.isTorchOn();
 
@@ -126,26 +126,25 @@ public final class ToggleButtonUITest {
     public void testSwitchCameraToggleButton() {
         waitFor(new WaitForViewToShow(R.id.direction_toggle));
 
-        boolean isViewFinderExist = mActivityRule.getActivity().getViewFinderUseCase() != null;
-        boolean isImageCaptureExist = mActivityRule.getActivity().getImageCaptureUseCase() != null;
-        boolean isVideoCaptureExist = mActivityRule.getActivity().getVideoCaptureUseCase() != null;
-        boolean isImageAnalysisExist =
-                mActivityRule.getActivity().getImageAnalysisUseCase() != null;
+        boolean isPreviewExist = mActivityRule.getActivity().getPreview() != null;
+        boolean isImageCaptureExist = mActivityRule.getActivity().getImageCapture() != null;
+        boolean isVideoCaptureExist = mActivityRule.getActivity().getVideoCapture() != null;
+        boolean isImageAnalysisExist = mActivityRule.getActivity().getImageAnalysis() != null;
 
         for (int i = 0; i < 2; i++) {
             onView(withId(R.id.direction_toggle)).perform(click());
             waitFor(new ElapsedTimeIdlingResource(2000));
             if (isImageCaptureExist) {
-                assertNotNull(mActivityRule.getActivity().getImageCaptureUseCase());
+                assertNotNull(mActivityRule.getActivity().getImageCapture());
             }
             if (isImageAnalysisExist) {
-                assertNotNull(mActivityRule.getActivity().getImageAnalysisUseCase());
+                assertNotNull(mActivityRule.getActivity().getImageAnalysis());
             }
             if (isVideoCaptureExist) {
-                assertNotNull(mActivityRule.getActivity().getVideoCaptureUseCase());
+                assertNotNull(mActivityRule.getActivity().getVideoCapture());
             }
-            if (isViewFinderExist) {
-                assertNotNull(mActivityRule.getActivity().getViewFinderUseCase());
+            if (isPreviewExist) {
+                assertNotNull(mActivityRule.getActivity().getPreview());
             }
         }
 

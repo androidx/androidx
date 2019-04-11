@@ -40,12 +40,12 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.Exif;
-import androidx.camera.core.ImageCaptureUseCase;
-import androidx.camera.core.ImageCaptureUseCase.Metadata;
-import androidx.camera.core.ImageCaptureUseCase.OnImageCapturedListener;
-import androidx.camera.core.ImageCaptureUseCase.OnImageSavedListener;
-import androidx.camera.core.ImageCaptureUseCase.UseCaseError;
-import androidx.camera.core.ImageCaptureUseCaseConfiguration;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.Metadata;
+import androidx.camera.core.ImageCapture.OnImageCapturedListener;
+import androidx.camera.core.ImageCapture.OnImageSavedListener;
+import androidx.camera.core.ImageCapture.UseCaseError;
+import androidx.camera.core.ImageCaptureConfiguration;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeUseCaseConfiguration;
@@ -67,25 +67,25 @@ import java.util.concurrent.Semaphore;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public final class ImageCaptureUseCaseTest {
+public final class ImageCaptureTest {
     private static final Size DEFAULT_RESOLUTION = new Size(1920, 1080);
     private static final LensFacing BACK_LENS_FACING = LensFacing.BACK;
 
     private HandlerThread mHandlerThread;
     private Handler mHandler;
     private BaseCamera mCamera;
-    private ImageCaptureUseCaseConfiguration mDefaultConfiguration;
-    private ImageCaptureUseCase.OnImageCapturedListener mOnImageCapturedListener;
-    private ImageCaptureUseCase.OnImageCapturedListener mMockImageCapturedListener;
-    private ImageCaptureUseCase.OnImageSavedListener mOnImageSavedListener;
-    private ImageCaptureUseCase.OnImageSavedListener mMockImageSavedListener;
+    private ImageCaptureConfiguration mDefaultConfiguration;
+    private ImageCapture.OnImageCapturedListener mOnImageCapturedListener;
+    private ImageCapture.OnImageCapturedListener mMockImageCapturedListener;
+    private ImageCapture.OnImageSavedListener mOnImageSavedListener;
+    private ImageCapture.OnImageSavedListener mMockImageSavedListener;
     private ImageProxy mCapturedImage;
     private Semaphore mSemaphore;
     private FakeRepeatingUseCase mRepeatingUseCase;
     private FakeUseCaseConfiguration mFakeUseCaseConfiguration;
     private String mCameraId;
 
-    private ImageCaptureUseCaseConfiguration createNonRotatedConfiguration()
+    private ImageCaptureConfiguration createNonRotatedConfiguration()
             throws CameraInfoUnavailableException {
         // Create a configuration with target rotation that matches the sensor rotation.
         // This assumes a back-facing camera (facing away from screen)
@@ -110,7 +110,7 @@ public final class ImageCaptureUseCaseTest {
                 throw new IllegalStateException("Invalid sensor rotation: " + sensorRotation);
         }
 
-        return new ImageCaptureUseCaseConfiguration.Builder()
+        return new ImageCaptureConfiguration.Builder()
                 .setLensFacing(BACK_LENS_FACING)
                 .setTargetRotation(surfaceRotation)
                 .build();
@@ -131,7 +131,7 @@ public final class ImageCaptureUseCaseTest {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + BACK_LENS_FACING, e);
         }
-        mDefaultConfiguration = new ImageCaptureUseCaseConfiguration.Builder().build();
+        mDefaultConfiguration = new ImageCaptureConfiguration.Builder().build();
 
         mCamera = cameraFactory.getCamera(mCameraId);
         mCapturedImage = null;
@@ -180,9 +180,9 @@ public final class ImageCaptureUseCaseTest {
 
     @Test
     public void capturedImageHasCorrectProperties() throws InterruptedException {
-        ImageCaptureUseCaseConfiguration configuration =
-                new ImageCaptureUseCaseConfiguration.Builder().setCallbackHandler(mHandler).build();
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(configuration);
+        ImageCaptureConfiguration configuration =
+                new ImageCaptureConfiguration.Builder().setCallbackHandler(mHandler).build();
+        ImageCapture useCase = new ImageCapture(configuration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -200,7 +200,7 @@ public final class ImageCaptureUseCaseTest {
 
     @Test
     public void canCaptureMultipleImages() throws InterruptedException {
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
+        ImageCapture useCase = new ImageCapture(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -210,7 +210,7 @@ public final class ImageCaptureUseCaseTest {
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
             useCase.takePicture(
-                    new ImageCaptureUseCase.OnImageCapturedListener() {
+                    new ImageCapture.OnImageCapturedListener() {
                         @Override
                         public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
                             mMockImageCapturedListener.onCaptureSuccess(image, rotationDegrees);
@@ -231,11 +231,11 @@ public final class ImageCaptureUseCaseTest {
 
     @Test
     public void canCaptureMultipleImagesWithMaxQuality() throws InterruptedException {
-        ImageCaptureUseCaseConfiguration configuration =
-                new ImageCaptureUseCaseConfiguration.Builder()
-                        .setCaptureMode(ImageCaptureUseCase.CaptureMode.MAX_QUALITY)
+        ImageCaptureConfiguration configuration =
+                new ImageCaptureConfiguration.Builder()
+                        .setCaptureMode(ImageCapture.CaptureMode.MAX_QUALITY)
                         .build();
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(configuration);
+        ImageCapture useCase = new ImageCapture(configuration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -245,7 +245,7 @@ public final class ImageCaptureUseCaseTest {
         int numImages = 5;
         for (int i = 0; i < numImages; ++i) {
             useCase.takePicture(
-                    new ImageCaptureUseCase.OnImageCapturedListener() {
+                    new ImageCapture.OnImageCapturedListener() {
                         @Override
                         public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
                             mMockImageCapturedListener.onCaptureSuccess(image, rotationDegrees);
@@ -266,7 +266,7 @@ public final class ImageCaptureUseCaseTest {
 
     @Test
     public void saveCanSucceed() throws InterruptedException, IOException {
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
+        ImageCapture useCase = new ImageCapture(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -286,7 +286,7 @@ public final class ImageCaptureUseCaseTest {
     @Test
     public void canSaveFile_withRotation()
             throws InterruptedException, IOException, CameraInfoUnavailableException {
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
+        ImageCapture useCase = new ImageCapture(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -315,7 +315,7 @@ public final class ImageCaptureUseCaseTest {
         // Use a non-rotated configuration since some combinations of rotation + flipping vertically
         // can
         // be equivalent to flipping horizontally
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(createNonRotatedConfiguration());
+        ImageCapture useCase = new ImageCapture(createNonRotatedConfiguration());
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -342,7 +342,7 @@ public final class ImageCaptureUseCaseTest {
         // Use a non-rotated configuration since some combinations of rotation + flipping
         // horizontally
         // can be equivalent to flipping vertically
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(createNonRotatedConfiguration());
+        ImageCapture useCase = new ImageCapture(createNonRotatedConfiguration());
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -365,7 +365,7 @@ public final class ImageCaptureUseCaseTest {
 
     @Test
     public void canSaveFile_withAttachedLocation() throws InterruptedException, IOException {
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
+        ImageCapture useCase = new ImageCapture(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -374,7 +374,7 @@ public final class ImageCaptureUseCaseTest {
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
-        Location location = new Location("ImageCaptureUseCaseTest");
+        Location location = new Location("ImageCaptureTest");
         Metadata metadata = new Metadata();
         metadata.location = location;
         useCase.takePicture(saveLocation, mOnImageSavedListener, metadata);
@@ -389,7 +389,7 @@ public final class ImageCaptureUseCaseTest {
 
     @Test
     public void canSaveMultipleFiles() throws InterruptedException, IOException {
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
+        ImageCapture useCase = new ImageCapture(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -412,7 +412,7 @@ public final class ImageCaptureUseCaseTest {
 
     @Test
     public void saveWillFail_whenInvalidFilePathIsUsed() throws InterruptedException {
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(mDefaultConfiguration);
+        ImageCapture useCase = new ImageCapture(mDefaultConfiguration);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
@@ -432,9 +432,9 @@ public final class ImageCaptureUseCaseTest {
 
     @Test
     public void updateSessionConfigurationWithSuggestedResolution() throws InterruptedException {
-        ImageCaptureUseCaseConfiguration configuration =
-                new ImageCaptureUseCaseConfiguration.Builder().setCallbackHandler(mHandler).build();
-        ImageCaptureUseCase useCase = new ImageCaptureUseCase(configuration);
+        ImageCaptureConfiguration configuration =
+                new ImageCaptureConfiguration.Builder().setCallbackHandler(mHandler).build();
+        ImageCapture useCase = new ImageCapture(configuration);
         useCase.addStateChangeListener(mCamera);
         final Size[] sizes = {new Size(1920, 1080), new Size(640, 480)};
 

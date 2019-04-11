@@ -71,10 +71,10 @@
 }
 
 # Keep constructors for UseCase classes. They are used in reflection.
--keepclassmembers class androidx.camera.core.BaseUseCase {
+-keepclassmembers class androidx.camera.core.UseCase {
    protected <init>(...);
 }
--keepclassmembers class * extends androidx.camera.core.BaseUseCase {
+-keepclassmembers class * extends androidx.camera.core.UseCase {
   public <init>(...);
 }
 
