@@ -61,7 +61,9 @@ import java.util.Map;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class VideoCaptureTest {
-    private static final Size DEFAULT_RESOLUTION = new Size(1920, 1080);
+    // Use most supported resolution for different supported hardware level devices,
+    // especially for legacy devices.
+    private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
 
     private final Context mContext = InstrumentationRegistry.getTargetContext();
     private final StateChangeListener mListener = Mockito.mock(StateChangeListener.class);

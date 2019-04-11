@@ -70,8 +70,10 @@ import java.util.concurrent.atomic.AtomicReference;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class PreviewTest {
-    private static final Size DEFAULT_RESOLUTION = new Size(1920, 1080);
-    private static final Size SECONDARY_RESOLUTION = new Size(1280, 720);
+    // Use most supported resolution for different supported hardware level devices,
+    // especially for legacy devices.
+    private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
+    private static final Size SECONDARY_RESOLUTION = new Size(320, 240);
 
     private PreviewConfig mDefaultConfig;
     @Mock
@@ -292,7 +294,7 @@ public final class PreviewTest {
         PreviewConfig config = new PreviewConfig.Builder().setLensFacing(LensFacing.BACK).build();
         Preview useCase = new Preview(config);
 
-        final Size[] sizes = {new Size(1920, 1080), new Size(640, 480)};
+        final Size[] sizes = {DEFAULT_RESOLUTION, SECONDARY_RESOLUTION};
 
         for (Size size : sizes) {
             useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, size));
