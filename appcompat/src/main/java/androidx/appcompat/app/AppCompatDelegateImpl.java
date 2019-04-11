@@ -502,14 +502,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         if (ab != null) {
             ab.setShowHideAnimationEnabled(false);
         }
-
-        // Make sure we clean up any receivers setup for AUTO mode
-        if (mAutoTimeNightModeManager != null) {
-            mAutoTimeNightModeManager.cleanup();
-        }
-        if (mAutoBatteryNightModeManager != null) {
-            mAutoBatteryNightModeManager.cleanup();
-        }
     }
 
     @Override
