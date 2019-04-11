@@ -49,7 +49,8 @@ fun <T> Transition(
     @Children children: @Composable() (state: TransitionState) -> Unit
 ) {
     if (transitionsEnabled) {
-        val model = +memo(definition) { TransitionModel(definition) }
+        // TODO: Remove the second parameter that works around b/130349879 once this code is updated to the DSL syntax
+        val model = +memo(definition, null) { TransitionModel(definition) }
         model.anim.toState(toState)
         <children state=model />
     } else {
