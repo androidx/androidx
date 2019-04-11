@@ -567,7 +567,7 @@ fun TextDemoTextScaleFactor() {
         <CraneWrapper>
             <Text
                 text=textSpan
-                textScaleFactor=2.0.toFloat() />
+                textScaleFactor=2.0f />
         </CraneWrapper>
     </LinearLayout>
 }

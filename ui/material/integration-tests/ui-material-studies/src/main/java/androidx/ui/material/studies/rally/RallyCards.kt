@@ -59,9 +59,10 @@ fun RallyAlertCard() {
                 </Padding>
                 <FlexRow>
                     expanded(flex = 1.0f) {
+                        val text = "Heads up, you've used up 90% of your " +
+                                "Shopping budget for this month."
                         <StyledText style=+themeTextStyle { body1 }
-                                    text=("Heads up, you've used up 90% of your " +
-                                            "Shopping budget for this month.")/>
+                                    text />
                     }
                     inflexible {
                         // TODO: icons still don't work
