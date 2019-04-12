@@ -19,16 +19,19 @@ package androidx.lifecycle
 import androidx.annotation.MainThread
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.experimental.ExperimentalTypeInference
 
 internal const val DEFAULT_TIMEOUT = 5000L
+
 /**
  * Interface that allows controlling a [LiveData] from a coroutine block.
  *
@@ -58,7 +61,7 @@ interface LiveDataScope<T> {
      * @see MediatorLiveData.addSource
      * @see MediatorLiveData.removeSource
      */
-    suspend fun emitSource(source: LiveData<T>)
+    suspend fun emitSource(source: LiveData<T>): DisposableHandle
 
     /**
      * Denotes the value of the [LiveData] when this block is started.
@@ -73,7 +76,7 @@ interface LiveDataScope<T> {
 }
 
 internal class LiveDataScopeImpl<T>(
-    private var target: CoroutineLiveData<T>,
+    internal var target: CoroutineLiveData<T>,
     context: CoroutineContext,
     override val initialValue: T? = target.value
 ) : LiveDataScope<T> {
@@ -81,13 +84,36 @@ internal class LiveDataScopeImpl<T>(
     // LiveData. This gives us main thread safety as well as cancellation cooperation
     private val coroutineContext = context + Dispatchers.Main
 
-    override suspend fun emitSource(source: LiveData<T>) = withContext(coroutineContext) {
-        target.yieldSource(source)
-    }
+    override suspend fun emitSource(source: LiveData<T>): DisposableHandle =
+        withContext(coroutineContext) {
+            return@withContext target.emitSource(source)
+        }
 
     override suspend fun emit(value: T) = withContext(coroutineContext) {
-        target.clearYieldedSource()
+        target.clearSource()
         target.value = value
+    }
+}
+
+internal fun <T> MediatorLiveData<T>.addDisposableSource(
+    source: LiveData<T>
+): DisposableHandle {
+    val disposed = AtomicBoolean(false)
+    addSource(source) {
+        if (!disposed.get()) {
+            value = it
+        } else {
+            removeSource(source)
+        }
+    }
+    return object : DisposableHandle {
+        override fun dispose() {
+            if (disposed.compareAndSet(false, true)) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    removeSource(source)
+                }
+            }
+        }
     }
 }
 
@@ -146,6 +172,7 @@ internal class CoroutineLiveData<T>(
     block: Block<T>
 ) : MediatorLiveData<T>() {
     private var blockRunner: BlockRunner<T>?
+    private var emittedSource: DisposableHandle? = null
 
     init {
         // use an intermediate supervisor job so that if we cancel individual block runs due to losing
@@ -167,27 +194,18 @@ internal class CoroutineLiveData<T>(
         }
     }
 
-    // The source we are delegated to, sent from LiveDataScope#emitSource
-    // TODO We track this specifically since [MediatorLiveData] does not provide access to it.
-    // We should eventually get rid of this and provide the internal API from MediatorLiveData after
-    // the EAP.
-    private var yieldedSource: LiveData<T>? = null
-
     @MainThread
-    internal fun yieldSource(source: LiveData<T>) {
-        clearYieldedSource()
-        yieldedSource = source
-        addSource(source) {
-            value = it
-        }
+    internal fun emitSource(source: LiveData<T>): DisposableHandle {
+        clearSource()
+        val newSource = addDisposableSource(source)
+        emittedSource = newSource
+        return newSource
     }
 
     @MainThread
-    internal fun clearYieldedSource() {
-        yieldedSource?.let {
-            removeSource(it)
-            yieldedSource = null
-        }
+    internal fun clearSource() {
+        emittedSource?.dispose()
+        emittedSource = null
     }
 
     override fun onActive() {
