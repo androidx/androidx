@@ -67,7 +67,6 @@ package androidx.ui.engine.text {
 
   public final class Paragraph {
     method public float getAlphabeticBaseline();
-    method public java.util.List<androidx.ui.engine.text.TextBox> getBoxesForRange(int start, int end);
     method public boolean getDidExceedMaxLines();
     method public float getHeight();
     method public float getIdeographicBaseline();
@@ -81,9 +80,7 @@ package androidx.ui.engine.text {
     method public androidx.ui.painting.Path getPathForRange(int start, int end);
     method public androidx.ui.engine.text.TextPosition getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public StringBuilder getText();
-    method public java.util.List<androidx.ui.engine.text.ParagraphBuilder.TextStyleIndex> getTextStyles();
     method public float getWidth();
-    method public java.util.List<java.lang.Integer> getWordBoundary(int offset);
     method public void layout(androidx.ui.engine.text.ParagraphConstraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, float x, float y);
     property public final float alphabeticBaseline;
@@ -416,11 +413,8 @@ package androidx.ui.painting {
   public final class TextPainter {
     ctor public TextPainter(androidx.ui.painting.TextSpan? text, androidx.ui.engine.text.TextAlign textAlign, androidx.ui.engine.text.TextDirection? textDirection, float textScaleFactor, Integer? maxLines, Boolean? ellipsis, androidx.ui.engine.window.Locale? locale);
     ctor public TextPainter();
-    method public androidx.ui.engine.geometry.Offset _getOffsetFromDownstream(int offset, androidx.ui.engine.geometry.Rect caretPrototype);
-    method public androidx.ui.engine.geometry.Offset _getOffsetFromUpstream(int offset, androidx.ui.engine.geometry.Rect caretPrototype);
     method public float computeDistanceToActualBaseline(androidx.ui.engine.text.TextBaseline baseline);
     method public androidx.ui.engine.text.ParagraphStyle createParagraphStyle(androidx.ui.engine.text.TextDirection? defaultTextDirection = null);
-    method public java.util.List<androidx.ui.engine.text.TextBox> getBoxesForSelection(androidx.ui.services.text_editing.TextSelection selection);
     method public boolean getDidExceedMaxLines();
     method public Boolean? getEllipsis();
     method public float getHeight();
@@ -430,9 +424,6 @@ package androidx.ui.painting {
     method public Integer? getMaxLines();
     method public float getMinIntrinsicWidth();
     method public boolean getNeedsLayout();
-    method public int getOffsetAfter(int offset);
-    method public int getOffsetBefore(int offset);
-    method public androidx.ui.engine.geometry.Offset getOffsetForCaret(androidx.ui.engine.text.TextPosition position, androidx.ui.engine.geometry.Rect caretPrototype);
     method public androidx.ui.engine.text.Paragraph? getParagraph();
     method public androidx.ui.painting.Path getPathForSelection(androidx.ui.services.text_editing.TextSelection selection);
     method public androidx.ui.engine.text.TextPosition getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
@@ -443,8 +434,6 @@ package androidx.ui.painting {
     method public androidx.ui.engine.text.TextDirection? getTextDirection();
     method public float getTextScaleFactor();
     method public float getWidth();
-    method public androidx.ui.services.text_editing.TextRange getWordBoundary(androidx.ui.engine.text.TextPosition position);
-    method public androidx.ui.engine.geometry.Offset get_emptyOffset();
     method public void layout(float minWidth = 0.0f, float maxWidth = Float.POSITIVE_INFINITY);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void setEllipsis(Boolean? value);
@@ -457,8 +446,6 @@ package androidx.ui.painting {
     method public void setTextAlign(androidx.ui.engine.text.TextAlign value);
     method public void setTextDirection(androidx.ui.engine.text.TextDirection? value);
     method public void setTextScaleFactor(float value);
-    method public void set_emptyOffset(androidx.ui.engine.geometry.Offset p);
-    property public final androidx.ui.engine.geometry.Offset _emptyOffset;
     property public final boolean didExceedMaxLines;
     property public final Boolean? ellipsis;
     property public final float height;
@@ -581,13 +568,11 @@ package androidx.ui.rendering.paragraph {
     ctor public RenderParagraph(androidx.ui.painting.TextSpan text, androidx.ui.engine.text.TextAlign textAlign, androidx.ui.engine.text.TextDirection textDirection, boolean softWrap, androidx.ui.rendering.paragraph.TextOverflow overflow, float textScaleFactor, Integer? maxLines, androidx.ui.painting.Color selectionColor);
     method public float computeDistanceToActualBaseline(androidx.ui.engine.text.TextBaseline baseline);
     method public float computeMaxIntrinsicHeight(float width);
-    method public float computeMaxIntrinsicWidth(float height);
+    method public float computeMaxIntrinsicWidth();
     method public float computeMinIntrinsicHeight(float width);
-    method public float computeMinIntrinsicWidth(float height);
-    method public java.util.List<androidx.ui.engine.text.TextBox> getBoxesForSelection(androidx.ui.services.text_editing.TextSelection selection);
+    method public float computeMinIntrinsicWidth();
     method public float getHeight();
     method public Integer? getMaxLines();
-    method public androidx.ui.engine.geometry.Offset getOffsetForCaret(androidx.ui.engine.text.TextPosition position, androidx.ui.engine.geometry.Rect caretPrototype);
     method public androidx.ui.rendering.paragraph.TextOverflow getOverflow();
     method public androidx.ui.engine.text.TextPosition getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public androidx.ui.engine.geometry.Size getSize();
@@ -599,7 +584,6 @@ package androidx.ui.rendering.paragraph {
     method public float getTextScaleFactor();
     method public androidx.ui.engine.geometry.Size getTextSize();
     method public float getWidth();
-    method public androidx.ui.services.text_editing.TextRange getWordBoundary(androidx.ui.engine.text.TextPosition position);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void paintSelection(androidx.ui.painting.Canvas canvas, androidx.ui.services.text_editing.TextSelection selection);
     method public void performLayout(androidx.ui.core.Constraints constraints);

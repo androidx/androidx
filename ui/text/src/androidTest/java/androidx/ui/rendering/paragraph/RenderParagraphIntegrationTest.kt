@@ -65,7 +65,7 @@ class RenderParagraphIntegrationTest {
         val textSpan = TextSpan(text = text, style = textStyle)
         val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
 
-        assertThat(paragraph.computeMinIntrinsicWidth(0.0f)).isEqualTo(0.0f)
+        assertThat(paragraph.computeMinIntrinsicWidth()).isEqualTo(0.0f)
     }
 
     @Test
@@ -76,7 +76,7 @@ class RenderParagraphIntegrationTest {
         val textSpan = TextSpan(text = text, style = textStyle)
         val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
 
-        assertThat(paragraph.computeMaxIntrinsicWidth(0.0f)).isEqualTo(fontSize * text.length)
+        assertThat(paragraph.computeMaxIntrinsicWidth()).isEqualTo(fontSize * text.length)
     }
 
     @Test

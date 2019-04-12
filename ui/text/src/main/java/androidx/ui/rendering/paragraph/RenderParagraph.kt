@@ -23,11 +23,9 @@ import androidx.ui.core.constrain
 import androidx.ui.core.px
 import androidx.ui.core.round
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextBaseline
-import androidx.ui.engine.text.TextBox
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.painting.BlendMode
@@ -41,7 +39,6 @@ import androidx.ui.painting.TextPainter
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.basictypes.RenderComparison
 /*import androidx.ui.semantics.SemanticsConfiguration*/
-import androidx.ui.services.text_editing.TextRange
 import androidx.ui.services.text_editing.TextSelection
 
 /** The default selection color if none is specified. */
@@ -214,12 +211,12 @@ class RenderParagraph(
         )
     }
 
-    fun computeMinIntrinsicWidth(height: Float): Float {
+    fun computeMinIntrinsicWidth(): Float {
         layoutText()
         return textPainter.minIntrinsicWidth
     }
 
-    fun computeMaxIntrinsicWidth(height: Float): Float {
+    fun computeMaxIntrinsicWidth(): Float {
         layoutText()
         return textPainter.maxIntrinsicWidth
     }
@@ -389,29 +386,6 @@ class RenderParagraph(
     }
 
     /**
-     * Returns the offset at which to paint the caret.
-     *
-     * Valid only after [layout].
-     */
-    fun getOffsetForCaret(position: TextPosition, caretPrototype: Rect): Offset {
-        layoutTextWithConstraints(constraints!!)
-        return textPainter.getOffsetForCaret(position, caretPrototype)
-    }
-
-    /**
-     * Returns a list of rects that bound the given selection.
-     *
-     * A given selection might have more than one rect if this text painter contains bidirectional
-     * text because logically contiguous text might not be visually contiguous.
-     *
-     * Valid only after [layout].
-     */
-    fun getBoxesForSelection(selection: TextSelection): List<TextBox> {
-        layoutTextWithConstraints(constraints!!)
-        return textPainter.getBoxesForSelection(selection)
-    }
-
-    /**
      * Returns the position within the text for the given pixel offset.
      *
      * Valid only after [layout].
@@ -419,21 +393,6 @@ class RenderParagraph(
     fun getPositionForOffset(offset: Offset): TextPosition {
         layoutTextWithConstraints(constraints!!)
         return textPainter.getPositionForOffset(offset)
-    }
-
-    /**
-     * Returns the text range of the word at the given offset. Characters not part of a word, such
-     * as spaces, symbols, and punctuation, have word breaks on both sides. In such cases, this
-     * method will return a text range that contains the given text position.
-     *
-     * Word boundaries are defined more precisely in Unicode Standard Annex #29
-     * <http://www.unicode.org/reports/tr29/#Word_Boundaries>.
-     *
-     * Valid only after [layout].
-     */
-    fun getWordBoundary(position: TextPosition): TextRange {
-        layoutTextWithConstraints(constraints!!)
-        return textPainter.getWordBoundary(position)
     }
 
     /**
