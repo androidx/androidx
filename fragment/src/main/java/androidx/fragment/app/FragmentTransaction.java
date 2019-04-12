@@ -30,9 +30,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
+import androidx.core.view.ViewCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 
 /**
  * Static library support version of the framework's {@link android.app.FragmentTransaction}.
@@ -42,17 +45,82 @@ import java.lang.annotation.RetentionPolicy;
  * documentation for a class overview.
  */
 public abstract class FragmentTransaction {
+
+    static final int OP_NULL = 0;
+    static final int OP_ADD = 1;
+    static final int OP_REPLACE = 2;
+    static final int OP_REMOVE = 3;
+    static final int OP_HIDE = 4;
+    static final int OP_SHOW = 5;
+    static final int OP_DETACH = 6;
+    static final int OP_ATTACH = 7;
+    static final int OP_SET_PRIMARY_NAV = 8;
+    static final int OP_UNSET_PRIMARY_NAV = 9;
+
+    static final class Op {
+        int mCmd;
+        Fragment mFragment;
+        int mEnterAnim;
+        int mExitAnim;
+        int mPopEnterAnim;
+        int mPopExitAnim;
+
+        Op() {
+        }
+
+        Op(int cmd, Fragment fragment) {
+            this.mCmd = cmd;
+            this.mFragment = fragment;
+        }
+    }
+
+    ArrayList<Op> mOps = new ArrayList<>();
+    int mEnterAnim;
+    int mExitAnim;
+    int mPopEnterAnim;
+    int mPopExitAnim;
+    int mTransition;
+    int mTransitionStyle;
+    boolean mAddToBackStack;
+    boolean mAllowAddToBackStack = true;
+    @Nullable String mName;
+
+    int mBreadCrumbTitleRes;
+    CharSequence mBreadCrumbTitleText;
+    int mBreadCrumbShortTitleRes;
+    CharSequence mBreadCrumbShortTitleText;
+
+    ArrayList<String> mSharedElementSourceNames;
+    ArrayList<String> mSharedElementTargetNames;
+    boolean mReorderingAllowed = false;
+
+    ArrayList<Runnable> mCommitRunnables;
+
+    void addOp(Op op) {
+        mOps.add(op);
+        op.mEnterAnim = mEnterAnim;
+        op.mExitAnim = mExitAnim;
+        op.mPopEnterAnim = mPopEnterAnim;
+        op.mPopExitAnim = mPopExitAnim;
+    }
+
     /**
      * Calls {@link #add(int, Fragment, String)} with a 0 containerViewId.
      */
     @NonNull
-    public abstract FragmentTransaction add(@NonNull Fragment fragment, @Nullable String tag);
+    public FragmentTransaction add(@NonNull Fragment fragment, @Nullable String tag)  {
+        doAddOp(0, fragment, tag, OP_ADD);
+        return this;
+    }
 
     /**
      * Calls {@link #add(int, Fragment, String)} with a null tag.
      */
     @NonNull
-    public abstract FragmentTransaction add(@IdRes int containerViewId, @NonNull Fragment fragment);
+    public FragmentTransaction add(@IdRes int containerViewId, @NonNull Fragment fragment) {
+        doAddOp(containerViewId, fragment, null, OP_ADD);
+        return this;
+    }
 
     /**
      * Add a fragment to the activity state.  This fragment may optionally
@@ -70,15 +138,54 @@ public abstract class FragmentTransaction {
      * @return Returns the same FragmentTransaction instance.
      */
     @NonNull
-    public abstract FragmentTransaction add(@IdRes int containerViewId, @NonNull Fragment fragment,
-            @Nullable String tag);
+    public FragmentTransaction add(@IdRes int containerViewId, @NonNull Fragment fragment,
+            @Nullable String tag) {
+        doAddOp(containerViewId, fragment, tag, OP_ADD);
+        return this;
+    }
+
+    void doAddOp(int containerViewId, Fragment fragment, @Nullable String tag, int opcmd) {
+        final Class fragmentClass = fragment.getClass();
+        final int modifiers = fragmentClass.getModifiers();
+        if (fragmentClass.isAnonymousClass() || !Modifier.isPublic(modifiers)
+                || (fragmentClass.isMemberClass() && !Modifier.isStatic(modifiers))) {
+            throw new IllegalStateException("Fragment " + fragmentClass.getCanonicalName()
+                    + " must be a public static class to be  properly recreated from"
+                    + " instance state.");
+        }
+
+        if (tag != null) {
+            if (fragment.mTag != null && !tag.equals(fragment.mTag)) {
+                throw new IllegalStateException("Can't change tag of fragment "
+                        + fragment + ": was " + fragment.mTag
+                        + " now " + tag);
+            }
+            fragment.mTag = tag;
+        }
+
+        if (containerViewId != 0) {
+            if (containerViewId == View.NO_ID) {
+                throw new IllegalArgumentException("Can't add fragment "
+                        + fragment + " with tag " + tag + " to container view with no id");
+            }
+            if (fragment.mFragmentId != 0 && fragment.mFragmentId != containerViewId) {
+                throw new IllegalStateException("Can't change container ID of fragment "
+                        + fragment + ": was " + fragment.mFragmentId
+                        + " now " + containerViewId);
+            }
+            fragment.mContainerId = fragment.mFragmentId = containerViewId;
+        }
+
+        addOp(new Op(opcmd, fragment));
+    }
 
     /**
      * Calls {@link #replace(int, Fragment, String)} with a null tag.
      */
     @NonNull
-    public abstract FragmentTransaction replace(@IdRes int containerViewId,
-            @NonNull Fragment fragment);
+    public FragmentTransaction replace(@IdRes int containerViewId, @NonNull Fragment fragment) {
+        return replace(containerViewId, fragment, null);
+    }
 
     /**
      * Replace an existing fragment that was added to a container.  This is
@@ -97,8 +204,14 @@ public abstract class FragmentTransaction {
      * @return Returns the same FragmentTransaction instance.
      */
     @NonNull
-    public abstract FragmentTransaction replace(@IdRes int containerViewId,
-            @NonNull Fragment fragment, @Nullable String tag);
+    public FragmentTransaction replace(@IdRes int containerViewId, @NonNull Fragment fragment,
+            @Nullable String tag)  {
+        if (containerViewId == 0) {
+            throw new IllegalArgumentException("Must use non-zero containerViewId");
+        }
+        doAddOp(containerViewId, fragment, tag, OP_REPLACE);
+        return this;
+    }
 
     /**
      * Remove an existing fragment.  If it was added to a container, its view
@@ -109,7 +222,11 @@ public abstract class FragmentTransaction {
      * @return Returns the same FragmentTransaction instance.
      */
     @NonNull
-    public abstract FragmentTransaction remove(@NonNull Fragment fragment);
+    public FragmentTransaction remove(@NonNull Fragment fragment) {
+        addOp(new Op(OP_REMOVE, fragment));
+
+        return this;
+    }
 
     /**
      * Hides an existing fragment.  This is only relevant for fragments whose
@@ -121,7 +238,11 @@ public abstract class FragmentTransaction {
      * @return Returns the same FragmentTransaction instance.
      */
     @NonNull
-    public abstract FragmentTransaction hide(@NonNull Fragment fragment);
+    public FragmentTransaction hide(@NonNull Fragment fragment) {
+        addOp(new Op(OP_HIDE, fragment));
+
+        return this;
+    }
 
     /**
      * Shows a previously hidden fragment.  This is only relevant for fragments whose
@@ -133,7 +254,11 @@ public abstract class FragmentTransaction {
      * @return Returns the same FragmentTransaction instance.
      */
     @NonNull
-    public abstract FragmentTransaction show(@NonNull Fragment fragment);
+    public FragmentTransaction show(@NonNull Fragment fragment) {
+        addOp(new Op(OP_SHOW, fragment));
+
+        return this;
+    }
 
     /**
      * Detach the given fragment from the UI.  This is the same state as
@@ -147,7 +272,11 @@ public abstract class FragmentTransaction {
      * @return Returns the same FragmentTransaction instance.
      */
     @NonNull
-    public abstract FragmentTransaction detach(@NonNull Fragment fragment);
+    public FragmentTransaction detach(@NonNull Fragment fragment) {
+        addOp(new Op(OP_DETACH, fragment));
+
+        return this;
+    }
 
     /**
      * Re-attach a fragment after it had previously been detached from
@@ -160,7 +289,11 @@ public abstract class FragmentTransaction {
      * @return Returns the same FragmentTransaction instance.
      */
     @NonNull
-    public abstract FragmentTransaction attach(@NonNull Fragment fragment);
+    public FragmentTransaction attach(@NonNull Fragment fragment) {
+        addOp(new Op(OP_ATTACH, fragment));
+
+        return this;
+    }
 
     /**
      * Set a currently active fragment in this FragmentManager as the primary navigation fragment.
@@ -179,13 +312,19 @@ public abstract class FragmentTransaction {
      * @return the same FragmentTransaction instance
      */
     @NonNull
-    public abstract FragmentTransaction setPrimaryNavigationFragment(@Nullable Fragment fragment);
+    public FragmentTransaction setPrimaryNavigationFragment(@Nullable Fragment fragment) {
+        addOp(new Op(OP_SET_PRIMARY_NAV, fragment));
+
+        return this;
+    }
 
     /**
      * @return <code>true</code> if this transaction contains no operations,
      * <code>false</code> otherwise.
      */
-    public abstract boolean isEmpty();
+    public boolean isEmpty() {
+        return mOps.isEmpty();
+    }
 
     /**
      * Bit mask that is set for all enter transitions.
@@ -226,8 +365,10 @@ public abstract class FragmentTransaction {
      *             view of the fragment being removed or detached.
      */
     @NonNull
-    public abstract FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int enter,
-            @AnimatorRes @AnimRes int exit);
+    public FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int enter,
+            @AnimatorRes @AnimRes int exit) {
+        return setCustomAnimations(enter, exit, 0, 0);
+    }
 
     /**
      * Set specific animation resources to run for the fragments that are
@@ -247,9 +388,15 @@ public abstract class FragmentTransaction {
      *                {@link FragmentManager#popBackStack()} or similar methods.
      */
     @NonNull
-    public abstract FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int enter,
+    public FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int enter,
             @AnimatorRes @AnimRes int exit, @AnimatorRes @AnimRes int popEnter,
-            @AnimatorRes @AnimRes int popExit);
+            @AnimatorRes @AnimRes int popExit) {
+        mEnterAnim = enter;
+        mExitAnim = exit;
+        mPopEnterAnim = popEnter;
+        mPopExitAnim = popExit;
+        return this;
+    }
 
     /**
      * Used with custom Transitions to map a View from a removed or hidden
@@ -264,8 +411,29 @@ public abstract class FragmentTransaction {
      * @see Fragment#setSharedElementEnterTransition(Object)
      */
     @NonNull
-    public abstract FragmentTransaction addSharedElement(@NonNull View sharedElement,
-            @NonNull String name);
+    public FragmentTransaction addSharedElement(@NonNull View sharedElement, @NonNull String name) {
+        if (FragmentTransition.supportsTransition()) {
+            String transitionName = ViewCompat.getTransitionName(sharedElement);
+            if (transitionName == null) {
+                throw new IllegalArgumentException("Unique transitionNames are required for all"
+                        + " sharedElements");
+            }
+            if (mSharedElementSourceNames == null) {
+                mSharedElementSourceNames = new ArrayList<String>();
+                mSharedElementTargetNames = new ArrayList<String>();
+            } else if (mSharedElementTargetNames.contains(name)) {
+                throw new IllegalArgumentException("A shared element with the target name '"
+                        + name + "' has already been added to the transaction.");
+            } else if (mSharedElementSourceNames.contains(transitionName)) {
+                throw new IllegalArgumentException("A shared element with the source name '"
+                        + transitionName + "' has already been added to the transaction.");
+            }
+
+            mSharedElementSourceNames.add(transitionName);
+            mSharedElementTargetNames.add(name);
+        }
+        return this;
+    }
 
     /**
      * Select a standard transition animation for this transaction.  May be
@@ -273,14 +441,20 @@ public abstract class FragmentTransaction {
      * {@link #TRANSIT_FRAGMENT_CLOSE}, or {@link #TRANSIT_FRAGMENT_FADE}.
      */
     @NonNull
-    public abstract FragmentTransaction setTransition(@Transit int transit);
+    public FragmentTransaction setTransition(@Transit int transition) {
+        mTransition = transition;
+        return this;
+    }
 
     /**
      * Set a custom style resource that will be used for resolving transit
      * animations.
      */
     @NonNull
-    public abstract FragmentTransaction setTransitionStyle(@StyleRes int styleRes);
+    public FragmentTransaction setTransitionStyle(@StyleRes int styleRes) {
+        mTransitionStyle = styleRes;
+        return this;
+    }
 
     /**
      * Add this transaction to the back stack.  This means that the transaction
@@ -290,7 +464,15 @@ public abstract class FragmentTransaction {
      * @param name An optional name for this back stack state, or null.
      */
     @NonNull
-    public abstract FragmentTransaction addToBackStack(@Nullable String name);
+    public FragmentTransaction addToBackStack(@Nullable String name) {
+        if (!mAllowAddToBackStack) {
+            throw new IllegalStateException(
+                    "This FragmentTransaction is not allowed to be added to the back stack.");
+        }
+        mAddToBackStack = true;
+        mName = name;
+        return this;
+    }
 
     /**
      * Returns true if this FragmentTransaction is allowed to be added to the back
@@ -299,7 +481,9 @@ public abstract class FragmentTransaction {
      *
      * @return True if {@link #addToBackStack(String)} is permitted on this transaction.
      */
-    public abstract boolean isAddToBackStackAllowed();
+    public boolean isAddToBackStackAllowed() {
+        return mAllowAddToBackStack;
+    }
 
     /**
      * Disallow calls to {@link #addToBackStack(String)}. Any future calls to
@@ -307,7 +491,14 @@ public abstract class FragmentTransaction {
      * has already been called, this method will throw IllegalStateException.
      */
     @NonNull
-    public abstract FragmentTransaction disallowAddToBackStack();
+    public FragmentTransaction disallowAddToBackStack() {
+        if (mAddToBackStack) {
+            throw new IllegalStateException(
+                    "This transaction is already being added to the back stack");
+        }
+        mAllowAddToBackStack = false;
+        return this;
+    }
 
     /**
      * Set the full title to show as a bread crumb when this transaction
@@ -316,7 +507,11 @@ public abstract class FragmentTransaction {
      * @param res A string resource containing the title.
      */
     @NonNull
-    public abstract FragmentTransaction setBreadCrumbTitle(@StringRes int res);
+    public FragmentTransaction setBreadCrumbTitle(@StringRes int res) {
+        mBreadCrumbTitleRes = res;
+        mBreadCrumbTitleText = null;
+        return this;
+    }
 
     /**
      * Like {@link #setBreadCrumbTitle(int)} but taking a raw string; this
@@ -324,7 +519,11 @@ public abstract class FragmentTransaction {
      * later if the locale changes.
      */
     @NonNull
-    public abstract FragmentTransaction setBreadCrumbTitle(@Nullable CharSequence text);
+    public FragmentTransaction setBreadCrumbTitle(@Nullable CharSequence text) {
+        mBreadCrumbTitleRes = 0;
+        mBreadCrumbTitleText = text;
+        return this;
+    }
 
     /**
      * Set the short title to show as a bread crumb when this transaction
@@ -333,7 +532,11 @@ public abstract class FragmentTransaction {
      * @param res A string resource containing the title.
      */
     @NonNull
-    public abstract FragmentTransaction setBreadCrumbShortTitle(@StringRes int res);
+    public FragmentTransaction setBreadCrumbShortTitle(@StringRes int res) {
+        mBreadCrumbShortTitleRes = res;
+        mBreadCrumbShortTitleText = null;
+        return this;
+    }
 
     /**
      * Like {@link #setBreadCrumbShortTitle(int)} but taking a raw string; this
@@ -341,7 +544,11 @@ public abstract class FragmentTransaction {
      * later if the locale changes.
      */
     @NonNull
-    public abstract FragmentTransaction setBreadCrumbShortTitle(@Nullable CharSequence text);
+    public FragmentTransaction setBreadCrumbShortTitle(@Nullable CharSequence text) {
+        mBreadCrumbShortTitleRes = 0;
+        mBreadCrumbShortTitleText = text;
+        return this;
+    }
 
     /**
      * Sets whether or not to allow optimizing operations within and across
@@ -372,14 +579,19 @@ public abstract class FragmentTransaction {
      *                          operations on this transaction.
      */
     @NonNull
-    public abstract FragmentTransaction setReorderingAllowed(boolean reorderingAllowed);
+    public FragmentTransaction setReorderingAllowed(boolean reorderingAllowed) {
+        mReorderingAllowed = reorderingAllowed;
+        return this;
+    }
 
     /**
      * @deprecated This has been renamed {@link #setReorderingAllowed(boolean)}.
      */
     @Deprecated
     @NonNull
-    public abstract FragmentTransaction setAllowOptimization(boolean allowOptimization);
+    public FragmentTransaction setAllowOptimization(boolean allowOptimization) {
+        return setReorderingAllowed(allowOptimization);
+    }
 
     /**
      * Add a Runnable to this transaction that will be run after this transaction has
@@ -403,7 +615,14 @@ public abstract class FragmentTransaction {
      * @throws IllegalStateException if {@link #addToBackStack(String)} has been called
      */
     @NonNull
-    public abstract FragmentTransaction runOnCommit(@NonNull Runnable runnable);
+    public FragmentTransaction runOnCommit(@NonNull Runnable runnable) {
+        disallowAddToBackStack();
+        if (mCommitRunnables == null) {
+            mCommitRunnables = new ArrayList<>();
+        }
+        mCommitRunnables.add(runnable);
+        return this;
+    }
 
     /**
      * Schedules a commit of this transaction.  The commit does
