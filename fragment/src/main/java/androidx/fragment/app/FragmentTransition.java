@@ -1121,7 +1121,7 @@ class FragmentTransition {
     private static void addToFirstInLastOut(BackStackRecord transaction, BackStackRecord.Op op,
             SparseArray<FragmentContainerTransition> transitioningFragments, boolean isPop,
             boolean isReorderedTransaction) {
-        final Fragment fragment = op.fragment;
+        final Fragment fragment = op.mFragment;
         if (fragment == null) {
             return; // no fragment, no transition
         }
@@ -1129,7 +1129,7 @@ class FragmentTransition {
         if (containerId == 0) {
             return; // no container, no transition
         }
-        final int command = isPop ? INVERSE_OPS[op.cmd] : op.cmd;
+        final int command = isPop ? INVERSE_OPS[op.mCmd] : op.mCmd;
         boolean setLastIn = false;
         boolean wasRemoved = false;
         boolean setFirstOut = false;
