@@ -31,6 +31,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
 import androidx.annotation.StyleRes;
 import androidx.core.view.ViewCompat;
+import androidx.lifecycle.Lifecycle;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -56,6 +57,8 @@ public abstract class FragmentTransaction {
     static final int OP_ATTACH = 7;
     static final int OP_SET_PRIMARY_NAV = 8;
     static final int OP_UNSET_PRIMARY_NAV = 9;
+    static final int OP_SET_MAX_LIFECYCLE = 10;
+    static final int OP_UNSET_MAX_LIFECYCLE = 11;
 
     static final class Op {
         int mCmd;
@@ -64,6 +67,7 @@ public abstract class FragmentTransaction {
         int mExitAnim;
         int mPopEnterAnim;
         int mPopExitAnim;
+        Lifecycle.State mState;
 
         Op() {
         }
@@ -71,6 +75,13 @@ public abstract class FragmentTransaction {
         Op(int cmd, Fragment fragment) {
             this.mCmd = cmd;
             this.mFragment = fragment;
+            this.mState = Lifecycle.State.RESUMED;
+        }
+
+        Op(int cmd, Fragment fragment, Lifecycle.State state) {
+            this.mCmd = cmd;
+            this.mFragment = fragment;
+            this.mState = state;
         }
     }
 
@@ -315,6 +326,26 @@ public abstract class FragmentTransaction {
     public FragmentTransaction setPrimaryNavigationFragment(@Nullable Fragment fragment) {
         addOp(new Op(OP_SET_PRIMARY_NAV, fragment));
 
+        return this;
+    }
+
+    /**
+     * Set a ceiling for the state of an active fragment in this FragmentManager. If fragment is
+     * already above the received state, it will be forced down to the correct state.
+     *
+     * <p>The fragment provided must currently be added to the FragmentManager to have it's
+     * Lifecycle state capped, or previously added as part of this transaction. The
+     * {@link Lifecycle.State} passed in must at least be {@link Lifecycle.State#CREATED}, otherwise
+     * an {@link IllegalArgumentException} will be thrown.</p>
+     *
+     * @param fragment the fragment to have it's state capped.
+     * @param state the ceiling state for the fragment.
+     * @return the same FragmentTransaction instance
+     */
+    @NonNull
+    public FragmentTransaction setMaxLifecycle(@NonNull Fragment fragment,
+            @NonNull Lifecycle.State state) {
+        addOp(new Op(OP_SET_MAX_LIFECYCLE, fragment, state));
         return this;
     }
 

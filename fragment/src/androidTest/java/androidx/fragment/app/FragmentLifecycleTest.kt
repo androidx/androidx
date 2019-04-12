@@ -245,6 +245,103 @@ class FragmentLifecycleTest {
             .that(ViewCompat.isAttachedToWindow(newView1)).isTrue()
     }
 
+    @Test
+    @UiThreadTest
+    fun setMaxLifecycle() {
+        val viewModelStore = ViewModelStore()
+        val fc = FragmentController.createController(
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
+        )
+        fc.attachHost(null)
+        fc.dispatchCreate()
+
+        val fm = fc.supportFragmentManager
+
+        val fragment = StrictViewFragment()
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment)
+            .setMaxLifecycle(fragment, Lifecycle.State.STARTED)
+            .commitNow()
+
+        fc.dispatchActivityCreated()
+        fc.dispatchStart()
+        fc.dispatchResume()
+
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+    }
+
+    @Test
+    @UiThreadTest
+    fun setMaxLifecycleForceState() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+
+        val fm = fc.supportFragmentManager
+
+        val fragment = StrictViewFragment()
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment)
+            .commitNow()
+
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        fm.beginTransaction()
+            .setMaxLifecycle(fragment, Lifecycle.State.CREATED)
+            .commitNow()
+
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+    }
+
+    @Test
+    @UiThreadTest
+    fun setMaxLifecyclePop() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+
+        val fm = fc.supportFragmentManager
+
+        val fragment = StrictViewFragment()
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment)
+            .setMaxLifecycle(fragment, Lifecycle.State.CREATED)
+            .commitNow()
+
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+
+        fm.beginTransaction()
+            .setMaxLifecycle(fragment, Lifecycle.State.STARTED)
+            .addToBackStack(null)
+            .commit()
+        executePendingTransactions(fm)
+
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+
+        fm.popBackStackImmediate()
+
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+    }
+
+    @Test
+    @UiThreadTest
+    fun setMaxLifecycleOnDifferentFragments() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+
+        val fm = fc.supportFragmentManager
+
+        val fragment1 = StrictViewFragment()
+        val fragment2 = StrictViewFragment()
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment1)
+            .add(android.R.id.content, fragment2)
+            .setMaxLifecycle(fragment1, Lifecycle.State.STARTED)
+            .setMaxLifecycle(fragment2, Lifecycle.State.CREATED)
+            .commitNow()
+
+        assertThat(fragment1.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(fragment2.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+    }
+
     /**
      * This test confirms that as long as a parent fragment has called super.onCreate,
      * any child fragments added, committed and with transactions executed will be brought
