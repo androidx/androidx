@@ -692,7 +692,9 @@ package androidx.core.app {
     method public static android.content.ComponentName! getCallingActivity(android.app.Activity!);
     method public static String! getCallingPackage(android.app.Activity!);
     field public static final String EXTRA_CALLING_ACTIVITY = "androidx.core.app.EXTRA_CALLING_ACTIVITY";
+    field public static final String EXTRA_CALLING_ACTIVITY_INTEROP = "android.support.v4.app.EXTRA_CALLING_ACTIVITY";
     field public static final String EXTRA_CALLING_PACKAGE = "androidx.core.app.EXTRA_CALLING_PACKAGE";
+    field public static final String EXTRA_CALLING_PACKAGE_INTEROP = "android.support.v4.app.EXTRA_CALLING_PACKAGE";
   }
 
   public static class ShareCompat.IntentBuilder {
