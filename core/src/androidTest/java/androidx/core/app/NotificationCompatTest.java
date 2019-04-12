@@ -1019,6 +1019,103 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertFalse(NotificationCompat.getAllowSystemGeneratedContextualActions(notification));
     }
 
+    @Test
+    public void setBubbleMetadata() {
+        IconCompat icon = IconCompat.createWithAdaptiveBitmap(BitmapFactory.decodeResource(
+                mContext.getResources(),
+                R.drawable.notification_bg_normal));
+
+        PendingIntent intent =
+                PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+
+        PendingIntent deleteIntent =
+                PendingIntent.getActivity(mContext, 1, new Intent(), 0);
+
+        NotificationCompat.BubbleMetadata originalBubble =
+                new NotificationCompat.BubbleMetadata.Builder()
+                        .setAutoExpandBubble(true)
+                        .setDeleteIntent(deleteIntent)
+                        .setDesiredHeight(600)
+                        .setIcon(icon)
+                        .setIntent(intent)
+                        .setSuppressInitialNotification(true)
+                        .build();
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .setBubbleMetadata(originalBubble)
+                .build();
+
+        NotificationCompat.BubbleMetadata roundtripBubble =
+                NotificationCompat.getBubbleMetadata(notification);
+
+        // Bubbles are only supported on Q and above; on P and earlier, simply verify that the above
+        // code does not crash.
+        if (!BuildCompat.isAtLeastQ()) {
+            return;
+        }
+
+        // TODO: Check notification itself.
+
+        assertNotNull(roundtripBubble);
+
+        assertEquals(originalBubble.getAutoExpandBubble(), roundtripBubble.getAutoExpandBubble());
+        assertEquals(originalBubble.getDeleteIntent(), roundtripBubble.getDeleteIntent());
+        assertEquals(originalBubble.getDesiredHeight(), roundtripBubble.getDesiredHeight());
+        // TODO: Check getIcon().
+        /* assertEquals(originalBubble.getIcon().toIcon(), roundtripBubble.getIcon().toIcon()); */
+        assertEquals(originalBubble.getIntent(), roundtripBubble.getIntent());
+        assertEquals(
+                originalBubble.getSuppressInitialNotification(),
+                roundtripBubble.getSuppressInitialNotification());
+    }
+
+    @Test
+    public void setBubbleMetadataDesiredHeightResId() {
+        IconCompat icon = IconCompat.createWithAdaptiveBitmap(BitmapFactory.decodeResource(
+                mContext.getResources(),
+                R.drawable.notification_bg_normal));
+
+        PendingIntent intent =
+                PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+
+        NotificationCompat.BubbleMetadata originalBubble =
+                new NotificationCompat.BubbleMetadata.Builder()
+                        .setDesiredHeightResId(R.dimen.compat_notification_large_icon_max_height)
+                        .setIcon(icon)
+                        .setIntent(intent)
+                        .build();
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .setBubbleMetadata(originalBubble)
+                .build();
+
+        NotificationCompat.BubbleMetadata roundtripBubble =
+                NotificationCompat.getBubbleMetadata(notification);
+
+        // Bubbles are only supported on Q and above; on P and earlier, simply verify that the above
+        // code does not crash.
+        if (!BuildCompat.isAtLeastQ()) {
+            return;
+        }
+
+        // TODO: Check notification itself.
+
+        assertNotNull(roundtripBubble);
+
+        assertEquals(
+                originalBubble.getDesiredHeightResId(),
+                roundtripBubble.getDesiredHeightResId());
+    }
+
+    @Test
+    public void setBubbleMetadataToNull() {
+        Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .setBubbleMetadata(null)
+                .build();
+
+        assertNull(NotificationCompat.getBubbleMetadata(notification));
+    }
+
     // Add the @Test annotation to enable this test. This test is disabled by default as it's not a
     // unit test. This will simply create 4 MessagingStyle notifications so a developer may see what
     // the end result will look like on a physical device (or emulator).

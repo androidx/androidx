@@ -209,6 +209,9 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         if (BuildCompat.isAtLeastQ()) {
             mBuilder.setAllowSystemGeneratedContextualActions(
                     b.mAllowSystemGeneratedContextualActions);
+            // TODO: Consider roundtripping NotificationCompat.BubbleMetadata on pre-Q platforms.
+            mBuilder.setBubbleMetadata(
+                    NotificationCompat.BubbleMetadata.toPlatform(b.mBubbleMetadata));
         }
     }
 
@@ -298,6 +301,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         }
     }
 
+    @SuppressWarnings("deprecation")
     protected Notification buildInternal() {
         if (Build.VERSION.SDK_INT >= 26) {
             return mBuilder.build();
@@ -418,7 +422,6 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             }
             return notification;
         } else {
-            //noinspection deprecation
             return mBuilder.getNotification();
         }
     }

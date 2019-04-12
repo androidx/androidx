@@ -182,6 +182,7 @@ package androidx.core.app {
     method public static int getActionCount(android.app.Notification!);
     method public static boolean getAllowSystemGeneratedContextualActions(android.app.Notification!);
     method public static int getBadgeIconType(android.app.Notification!);
+    method public static androidx.core.app.NotificationCompat.BubbleMetadata? getBubbleMetadata(android.app.Notification!);
     method public static String! getCategory(android.app.Notification!);
     method public static String! getChannelId(android.app.Notification!);
     method @RequiresApi(19) public static CharSequence! getContentTitle(android.app.Notification!);
@@ -357,6 +358,30 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.BigTextStyle! setSummaryText(CharSequence!);
   }
 
+  public static final class NotificationCompat.BubbleMetadata {
+    method @RequiresApi(29) protected static androidx.core.app.NotificationCompat.BubbleMetadata! fromPlatform(android.app.Notification.BubbleMetadata!);
+    method public boolean getAutoExpandBubble();
+    method public android.app.PendingIntent? getDeleteIntent();
+    method @Dimension(unit=androidx.annotation.Dimension.DP) public int getDesiredHeight();
+    method @DimenRes public int getDesiredHeightResId();
+    method public androidx.core.graphics.drawable.IconCompat getIcon();
+    method public android.app.PendingIntent getIntent();
+    method public boolean getSuppressInitialNotification();
+    method @RequiresApi(29) protected static android.app.Notification.BubbleMetadata! toPlatform(androidx.core.app.NotificationCompat.BubbleMetadata!);
+  }
+
+  public static final class NotificationCompat.BubbleMetadata.Builder {
+    ctor public NotificationCompat.BubbleMetadata.Builder();
+    method public androidx.core.app.NotificationCompat.BubbleMetadata build();
+    method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setAutoExpandBubble(boolean);
+    method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setDeleteIntent(android.app.PendingIntent?);
+    method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setDesiredHeight(@Dimension(unit=androidx.annotation.Dimension.DP) int);
+    method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setDesiredHeightResId(@DimenRes int);
+    method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setIcon(androidx.core.graphics.drawable.IconCompat);
+    method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setIntent(android.app.PendingIntent);
+    method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setSuppressInitialNotification(boolean);
+  }
+
   public static class NotificationCompat.Builder {
     ctor public NotificationCompat.Builder(android.content.Context, String);
     ctor @Deprecated public NotificationCompat.Builder(android.content.Context!);
@@ -374,6 +399,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setAllowSystemGeneratedContextualActions(boolean);
     method public androidx.core.app.NotificationCompat.Builder! setAutoCancel(boolean);
     method public androidx.core.app.NotificationCompat.Builder! setBadgeIconType(int);
+    method public androidx.core.app.NotificationCompat.Builder setBubbleMetadata(androidx.core.app.NotificationCompat.BubbleMetadata?);
     method public androidx.core.app.NotificationCompat.Builder! setCategory(String!);
     method public androidx.core.app.NotificationCompat.Builder! setChannelId(String);
     method public androidx.core.app.NotificationCompat.Builder! setColor(@ColorInt int);
