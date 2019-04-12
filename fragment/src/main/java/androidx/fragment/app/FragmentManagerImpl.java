@@ -318,11 +318,17 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     void addRetainedFragment(@NonNull Fragment f) {
-        mNonConfig.addRetainedFragment(f);
+        boolean added = mNonConfig.addRetainedFragment(f);
+        if (added && FragmentManagerImpl.DEBUG) {
+            Log.v(TAG, "Updating retained Fragments: Added " + f);
+        }
     }
 
     void removeRetainedFragment(@NonNull Fragment f) {
-        mNonConfig.removeRetainedFragment(f);
+        boolean removed = mNonConfig.removeRetainedFragment(f);
+        if (removed && FragmentManagerImpl.DEBUG) {
+            Log.v(TAG, "Updating retained Fragments: Removed " + f);
+        }
     }
 
     /**
@@ -2330,7 +2336,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         // First re-attach any non-config instances we are retaining back
         // to their saved state, so we don't try to instantiate them again.
         for (Fragment f : mNonConfig.getRetainedFragments()) {
-            if (DEBUG) Log.v(TAG, "restoreAllState: re-attaching retained " + f);
+            if (DEBUG) Log.v(TAG, "restoreSaveState: re-attaching retained " + f);
             FragmentState fs = null;
             for (FragmentState fragmentState : fms.mActive) {
                 if (fragmentState.mWho.equals(f.mWho)) {
