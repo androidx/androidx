@@ -19,13 +19,12 @@ package androidx.ui.material.demos
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.baseui.selection.ToggleableState.Checked
 import androidx.ui.baseui.selection.ToggleableState.Unchecked
-import androidx.ui.core.Text
 import androidx.ui.core.dp
-import androidx.ui.layout.Alignment
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
+import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.MainAxisAlignment
+import androidx.ui.layout.MainAxisSize
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.material.Checkbox
@@ -33,114 +32,157 @@ import androidx.ui.material.RadioButton
 import androidx.ui.material.RadioGroup
 import androidx.ui.material.StyledText
 import androidx.ui.material.Switch
-import androidx.ui.material.Typography
 import androidx.ui.material.parentCheckboxState
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
-import androidx.ui.painting.TextSpan
 import com.google.r4a.Composable
 import com.google.r4a.Model
-import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.state
 import com.google.r4a.unaryPlus
 
 @Model
-class CheckboxState(
-    var color: Color? = null,
-    var value: ToggleableState = Checked
-) {
+class CheckboxState(var value: ToggleableState) {
     fun toggle() {
         value = if (value == Checked) Unchecked else Checked
     }
-
-    fun isChecked(): Boolean = value == Checked
 }
+
+private val customColor = Color(0xFFFF5722.toInt())
+private val customColor2 = Color(0xFFE91E63.toInt())
+private val customColor3 = Color(0xFF607D8B.toInt())
 
 @Composable
 fun SelectionsControlsDemo() {
 
-    val checkboxState = CheckboxState(value = Checked)
-    val checkboxState2 = CheckboxState(value = Checked)
-    val checkboxState3 = CheckboxState(value = Checked)
+    val headerStyle = +themeTextStyle { h6 }
+    val padding = EdgeInsets(10.dp)
 
-    val customColor = Color(0xffff0000.toInt())
-    val customColor2 = Color(0xFFE91E63.toInt())
-    val customColor3 = Color(0xFF607D8B.toInt())
-    val customColor4 = Color(0xFFFF5722.toInt())
-    val typography = +ambient(Typography)
+    <Padding padding>
+        <Column crossAxisAlignment=CrossAxisAlignment.Start>
+            <StyledText text="Checkbox" style=headerStyle />
+            <Padding padding>
+                <CheckboxDemo />
+            </Padding>
+            <StyledText text="Switch" style=headerStyle />
+            <Padding padding>
+                <SwitchDemo />
+            </Padding>
+            <StyledText text="RadioButton" style=headerStyle />
+            <Padding padding>
+                <RadioButtonDemo />
+            </Padding>
+            <StyledText text="Radio group :: Default usage" style=headerStyle />
+            <Padding padding>
+                <DefaultRadioGroup />
+            </Padding>
+            <StyledText text="Radio group :: Custom usage" style=headerStyle />
+            <Padding padding>
+                <CustomRadioGroup />
+            </Padding>
+        </Column>
+    </Padding>
+}
 
-    <Column mainAxisAlignment=MainAxisAlignment.Start>
-        val radioOptions = listOf("Calls", "Missed", "Friends")
-        val (selectedOption, onOptionSelected) = +state { radioOptions[0] }
-        <Container padding=EdgeInsets(10.dp) alignment=Alignment.Center>
-            <RadioGroup
-                options=radioOptions
-                selectedOption
-                onOptionSelected
-                radioColor=customColor2 />
-        </Container>
-        <Padding padding=EdgeInsets(10.dp)>
-            <RadioGroup>
-                val textStyle = +themeTextStyle { subtitle1 }
-                <Row mainAxisAlignment=MainAxisAlignment.SpaceEvenly> radioOptions.forEach { text ->
-                    val selected = text == selectedOption
-                    <RadioGroupItem
-                        selected=selected
-                        onSelected={ onOptionSelected(text) }>
-                        <Column>
-                            <RadioButton selected />
-                            <StyledText text=text style=textStyle />
-                        </Column>
-                    </RadioGroupItem>
-                }
-                </Row>
-            </RadioGroup>
-        </Padding>
-        <Row mainAxisAlignment=MainAxisAlignment.SpaceAround>
-            val parent = parentCheckboxState(
-                checkboxState.value,
-                checkboxState2.value,
-                checkboxState3.value
-            )
-            <Checkbox value=checkboxState.value onToggle={ checkboxState.toggle() } />
-            <Checkbox
-                value=checkboxState2.value
-                onToggle={ checkboxState2.toggle() }
-                color=customColor2 />
-            <Checkbox
-                value=checkboxState3.value
-                onToggle={ checkboxState3.toggle() }
-                color=customColor3 />
-            <Column>
-                <Text text=TextSpan(text = "Parent", style = typography.h3) />
+@Composable
+fun DefaultRadioGroup() {
+    val radioOptions = listOf("Calls", "Missed", "Friends")
+    val (selectedOption, onOptionSelected) = +state { radioOptions[0] }
+    <RadioGroup
+        options=radioOptions
+        selectedOption
+        onOptionSelected
+        radioColor=customColor2 />
+}
+
+@Composable
+fun CustomRadioGroup() {
+    val radioOptions = listOf("Disagree", "Neutral", "Agree")
+    val (selectedOption, onOptionSelected) = +state { radioOptions[0] }
+    val textStyle = +themeTextStyle { subtitle1 }
+
+    <RadioGroup>
+        <Row mainAxisSize=MainAxisSize.Min> radioOptions.forEach { text ->
+            val selected = text == selectedOption
+            <RadioGroupItem
+                selected
+                onSelected={ onOptionSelected(text) }>
+                <Padding padding=EdgeInsets(10.dp)>
+                    <Column>
+                        <RadioButton selected />
+                        <StyledText text=text style=textStyle />
+                    </Column>
+                </Padding>
+            </RadioGroupItem>
+        }
+        </Row>
+    </RadioGroup>
+}
+
+@Composable
+fun CheckboxDemo() {
+    <Column crossAxisAlignment=CrossAxisAlignment.Start>
+        val state = CheckboxState(Checked)
+        val state2 = CheckboxState(Checked)
+        val state3 = CheckboxState(Checked)
+        fun calcParentState() = parentCheckboxState(state.value, state2.value, state3.value)
+        val onParentClick = {
+            val s = if (calcParentState() == Checked) {
+                Unchecked
+            } else {
+                Checked
+            }
+            state.value = s
+            state2.value = s
+            state3.value = s
+        }
+        <Row>
+            <Checkbox value=calcParentState() onToggle=onParentClick />
+            <StyledText text="This is parent" style=+themeTextStyle { body1 } />
+        </Row>
+        <Padding padding=EdgeInsets(left = 10.dp)>
+            <Column crossAxisAlignment=CrossAxisAlignment.Start>
                 <Checkbox
-                    value=parent
-                    color=customColor4
-                    onToggle={
-                        val s = if (parent == Checked) Unchecked
-                        else Checked
-                        checkboxState.value = s
-                        checkboxState2.value = s
-                        checkboxState3.value = s
-                    } />
+                    value=state.value
+                    color=customColor
+                    onToggle={ state.toggle() } />
+                <Checkbox
+                    value=state2.value
+                    onToggle={ state2.toggle() }
+                    color=customColor2 />
+                <Checkbox
+                    value=state3.value
+                    onToggle={ state3.toggle() }
+                    color=customColor3 />
             </Column>
-        </Row>
-        <Row mainAxisAlignment=MainAxisAlignment.SpaceAround>
-            val (c, onC) = +state { true }
-            val (c2, onC2) = +state { false }
-            val (c3, onC3) = +state { true }
-            val (c4, onC4) = +state { false }
-            <Switch checked=c onChecked=onC />
-            <Switch checked=c2 onChecked=onC2 color=customColor2 />
-            <Switch checked=c3 onChecked=onC3 color=customColor3 />
-            <Switch checked=c4 onChecked=onC4 color=customColor4 />
-        </Row>
-        <Row mainAxisAlignment=MainAxisAlignment.SpaceAround>
-            <RadioButton selected=true />
-            <RadioButton selected=false />
-            <RadioButton selected=true color=customColor />
-            <RadioButton selected=false color=customColor />
-        </Row>
+        </Padding>
     </Column>
+}
+
+@Composable
+fun SwitchDemo() {
+    <Row
+        mainAxisAlignment=MainAxisAlignment.SpaceAround
+        mainAxisSize=MainAxisSize.Min>
+        val (checked, onChecked) = +state { false }
+        val (checked2, onChecked2) = +state { false }
+        val (checked3, onChecked3) = +state { true }
+        val (checked4, onChecked4) = +state { true }
+        <Switch checked onChecked />
+        <Switch checked=checked2 onChecked=onChecked2 color=customColor />
+        <Switch checked=checked3 onChecked=onChecked3 color=customColor2 />
+        <Switch checked=checked4 onChecked=onChecked4 color=customColor3 />
+    </Row>
+}
+
+@Composable
+fun RadioButtonDemo() {
+    <Row
+        mainAxisAlignment=MainAxisAlignment.SpaceAround
+        mainAxisSize=MainAxisSize.Min>
+        <RadioButton selected=true />
+        <RadioButton selected=false />
+        <RadioButton selected=true color=customColor />
+        <RadioButton selected=false color=customColor />
+    </Row>
 }
