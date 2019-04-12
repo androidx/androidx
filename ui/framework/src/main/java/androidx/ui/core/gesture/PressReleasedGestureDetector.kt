@@ -27,6 +27,7 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.composer
 
 // TODO(shepshapard): Convert to functional component with effects once effects are ready.
@@ -48,7 +49,7 @@ import com.google.r4a.composer
  * via [consumeDownOnStart].
  */
 class PressReleasedGestureDetector(
-    @Children var children: () -> Unit
+    @Children var children: @Composable() () -> Unit
 ) : Component() {
     private val recognizer = PressReleaseGestureRecognizer()
     var onRelease: (() -> Unit)?

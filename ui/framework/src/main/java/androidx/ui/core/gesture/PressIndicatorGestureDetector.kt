@@ -29,6 +29,7 @@ import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.composer
 
 // TODO(shepshapard): Convert to functional component with effects once effects are ready.
@@ -46,12 +47,10 @@ import com.google.r4a.composer
  * [PointerEventPass.PostDown] pass, indicating that the press gesture indication should end because
  * something moved.
  *
- * By default, this gesture detector also consumes the down change during the
- * [PointerEventPass.PostUp] pass if it has not already been consumed. That behavior can be changed
- * via [consumeDownOnStart].
+ * This gesture detector always consumes the down change during the [PointerEventPass.PostUp] pass.
  */
 class PressIndicatorGestureDetector(
-    @Children var children: () -> Unit
+    @Children var children: @Composable() () -> Unit
 ) : Component() {
     var onStart: ((PxPosition) -> Unit)? = null
     var onStop: (() -> Unit)?

@@ -70,7 +70,7 @@ private class PointerInputChangeEventProducer {
  * incoming pointerInputChange is new and has not yet been processed by
  * [PointerInputChangeOffsetManager].
  */
-private class PointerInputChangeOffsetManager() {
+private class PointerInputChangeOffsetManager {
     private val positionZero = PxPosition(0.px, 0.px)
     private val nodeGlobalOffsets: MutableMap<PointerInputNode, Offset> = mutableMapOf()
     private val changeOffsets: MutableMap<Int, Offset> = mutableMapOf()
@@ -144,8 +144,9 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
     }
 
     private fun removeDetachedReceivers() {
-        targetNodeSequences.keys.forEach {
-            targetNodeSequences[it] = targetNodeSequences[it]!!.filter { it.isAttached() }
+        targetNodeSequences.keys.forEach { pointerId ->
+            targetNodeSequences[pointerId] =
+                targetNodeSequences[pointerId]!!.filter { it.isAttached() }
         }
     }
 
@@ -159,8 +160,9 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                 targetNodeSequences[pointerInputChange.id] ?: return@forEach
 
             // Forwards is from child to parent
+            @Suppress("UnnecessaryVariable")
             val parentToChild = targetNodeSequence
-            val childtoParent = parentToChild.reversed()
+            val childToParent = parentToChild.reversed()
             var change = pointerInputChange
 
             // TODO(b/124523868): PointerInputNodes should opt into passes prevent having to visit
@@ -169,11 +171,11 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
             // Down from parent to child
             change = parentToChild.dispatchChange(change, PointerEventPass.InitialDown)
             // PrePass up (hacky up path of onNestedPreScroll)
-            change = childtoParent.dispatchChange(change, PointerEventPass.PreUp)
+            change = childToParent.dispatchChange(change, PointerEventPass.PreUp)
             // Pre-pass down (onNestedPreScroll)
             change = parentToChild.dispatchChange(change, PointerEventPass.PreDown)
             // Post-pass up (onNestedScroll)
-            change = childtoParent.dispatchChange(change, PointerEventPass.PostUp)
+            change = childToParent.dispatchChange(change, PointerEventPass.PostUp)
             // Post-pass down (hacky down path of onNestedScroll)
             parentToChild.dispatchChange(change, PointerEventPass.PostDown)
         }

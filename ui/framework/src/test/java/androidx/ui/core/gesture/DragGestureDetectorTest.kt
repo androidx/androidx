@@ -291,7 +291,6 @@ class DragGestureDetectorTest {
     @Test
     fun pointerInputHandler_moveAroundWithinSlop_onStartAndOnDragNotCalled() {
         val slop = TestTouchSlop.toFloat()
-        val doubleSlop = slop * 2
         recognizer.canDrag = canDragMockTrue
         recognizer.dragObserver = MockDragObserver(log)
 
@@ -750,7 +749,7 @@ class DragGestureDetectorTest {
 
     class MockCanDrag(
         private val directionsToReturnTrue: Array<Direction>,
-        val log: MutableList<LogItem>
+        private val log: MutableList<LogItem>
     ) :
             (Direction) -> Boolean {
         override fun invoke(direction: Direction): Boolean {
@@ -766,8 +765,8 @@ class DragGestureDetectorTest {
     )
 
     class MockDragObserver(
-        val log: MutableList<LogItem>,
-        var dragConsume: PxPosition = PxPosition.Origin
+        private val log: MutableList<LogItem>,
+        private var dragConsume: PxPosition = PxPosition.Origin
     ) : DragObserver {
         override fun onStart() {
             log.add(LogItem("onStart"))

@@ -18,10 +18,11 @@ package androidx.ui.core
 
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.composer
 
 class PointerInput(
-    @Children var children: () -> Unit
+    @Children var children: @Composable() () -> Unit
 ) : Component() {
     var pointerInputHandler: PointerInputHandler = { event, _ -> event }
 

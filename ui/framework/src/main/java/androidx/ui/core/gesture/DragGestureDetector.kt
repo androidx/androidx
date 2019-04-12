@@ -35,6 +35,7 @@ import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.composer
 
 interface DragObserver {
@@ -60,7 +61,7 @@ interface DragObserver {
      * Always called just after [onStart] (and for every subsequent drag).
      *
      * @param dragDistance The distance that has been dragged.  Reflects the average drag distance
-     * of all pointers currently on the first child [LayoutNode].
+     * of all pointers.
      */
     fun onDrag(dragDistance: PxPosition) = PxPosition.Origin
 
@@ -82,17 +83,17 @@ interface DragObserver {
  * This gesture detector detects dragging in any direction.
  *
  * Dragging begins when the touch slop distance is surpassed in a supported direction
- * (see [onDrag]).  When dragging begins, [DragObserver.onStart] is called, followed immediately by
- * a call to [DragObserver.onDrag].  [DragObserver.onDrag] is then continuously called whenever
- * pointers have moved.  [DragObserver.onDrag] is called when the dragging ends due to all of the
- * pointers no longer interacting with the DragGestureDetector (for example, the last finger has
- * been lifted off of the DragGestureDetector).
+ * (see [DragObserver.onDrag]).  When dragging begins, [DragObserver.onStart] is called, followed
+ * immediately by a call to [DragObserver.onDrag].  [DragObserver.onDrag] is then continuously
+ * called whenever pointers have moved.  [DragObserver.onDrag] is called when the dragging ends due
+ * to all of the pointers no longer interacting with the DragGestureDetector (for example, the last
+ * finger has been lifted off of the DragGestureDetector).
  *
  * When multiple pointers are touching the detector, the drag distance is taken as the average of
  * all of the pointers.
  */
 class DragGestureDetector(
-    @Children var children: () -> Unit
+    @Children var children: @Composable() () -> Unit
 ) : Component() {
 
     private val recognizer = DragGestureRecognizer()
@@ -115,7 +116,7 @@ class DragGestureDetector(
 
     override fun compose() {
         <DensityAmbient.Consumer> density ->
-            withDensity(density) {
+            withDensity(density) @Composable {
                 recognizer.touchSlop = TouchSlop.toIntPx()
                 <PointerInput pointerInputHandler=recognizer.pointerInputHandler>
                     <children />
