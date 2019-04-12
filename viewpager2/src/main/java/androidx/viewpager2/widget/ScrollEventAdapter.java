@@ -126,9 +126,13 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             boolean dispatchIdle = false;
             updateScrollEventValues();
             if (!mScrollHappened) {
-                // Pages didn't move during drag, so must be at the start or end of the list
-                // ViewPager's contract requires at least one scroll event though
-                dispatchScrolled(getPosition(), 0f, 0);
+                // Pages didn't move during drag, so either we're at the start or end of the list,
+                // or there are no pages at all.
+                // In the first case, ViewPager's contract requires at least one scroll event.
+                // In the second case, don't send that scroll event
+                if (mScrollValues.mPosition != RecyclerView.NO_POSITION) {
+                    dispatchScrolled(mScrollValues.mPosition, 0f, 0);
+                }
                 dispatchIdle = true;
             } else if (mScrollValues.mOffsetPx == 0) {
                 // Normally we dispatch the selected page and go to idle in onScrolled when
