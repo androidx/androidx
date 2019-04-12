@@ -17,14 +17,12 @@
 package androidx.navigation.testing
 
 import android.os.Bundle
-import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@SmallTest
 class TestNavigatorTest {
 
     @Test

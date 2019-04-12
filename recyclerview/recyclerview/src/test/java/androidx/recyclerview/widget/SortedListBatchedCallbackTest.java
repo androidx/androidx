@@ -20,8 +20,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,10 +28,10 @@ import org.mockito.Mockito;
 
 @SuppressWarnings("unchecked")
 @RunWith(JUnit4.class)
-@SmallTest
 public class SortedListBatchedCallbackTest {
     SortedList.BatchedCallback mBatchedCallback;
     SortedList.Callback mMockCallback;
+
     @Before
     public void init() {
         mMockCallback = Mockito.mock(SortedList.Callback.class);

@@ -39,9 +39,6 @@ dependencies {
     api(project(":navigation:navigation-runtime"))
     api(MATERIAL)
 
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
-
     androidTestImplementation(project(":navigation:navigation-runtime-ktx"))
     androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(KOTLIN_STDLIB)

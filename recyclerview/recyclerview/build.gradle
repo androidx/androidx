@@ -25,7 +25,6 @@ dependencies {
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(project(":internal-testutils"))
 
-    testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
 }

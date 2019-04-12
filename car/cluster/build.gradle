@@ -35,8 +35,6 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
 
-    testImplementation(JUNIT)
-
     compileOnly fileTree(dir: '../stubs', include: ['android.car.jar'])
     androidTestCompileOnly fileTree(dir: '../stubs', include: ['android.car.jar'])
 }
