@@ -18,7 +18,6 @@ package androidx.viewpager2.widget
 
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.widget.BaseTest.SortOrder.ASC
 import androidx.viewpager2.widget.BaseTest.SortOrder.DESC
@@ -181,7 +180,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
     }
 
     private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {
-        val layoutManager = (getChildAt(0) as RecyclerView).layoutManager as LinearLayoutManager
+        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
         return RecordingCallback(layoutManager).also {
             setPageTransformer(it)
             registerOnPageChangeCallback(it)
