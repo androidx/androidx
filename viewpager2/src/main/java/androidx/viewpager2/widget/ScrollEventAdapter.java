@@ -176,6 +176,10 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             if (mDragStartPosition != mTarget) {
                 dispatchSelected(mTarget);
             }
+        } else if (mAdapterState == STATE_IDLE) {
+            // onScrolled while IDLE means RV has just been populated after an adapter has been set.
+            // Contract requires us to fire onPageSelected as well.
+            dispatchSelected(mScrollValues.mPosition);
         }
 
         dispatchScrolled(mScrollValues.mPosition, mScrollValues.mOffset, mScrollValues.mOffsetPx);
@@ -269,16 +273,6 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         dispatchStateChanged(SCROLL_STATE_SETTLING);
         if (hasNewTarget) {
             dispatchSelected(target);
-        }
-    }
-
-    /**
-     * Let the adapter know that mCurrentItem was restored in onRestoreInstanceState.
-     */
-    void notifyRestoreCurrentItem(int currentItem) {
-        // Don't send page selected event for page 0 for consistency with ViewPager
-        if (currentItem != 0) {
-            dispatchSelected(currentItem);
         }
     }
 
