@@ -17,7 +17,8 @@ dependencies {
     api project(":compose-runtime")
     api project(":ui-core")
     api project(":ui-intermediate")
-    implementation project(":ui-platform")
+    //implementation project(":ui-platform")
+    api project(":ui-platform")
 
     implementation(KOTLIN_R4A_STDLIB)
     testImplementation(JUNIT)

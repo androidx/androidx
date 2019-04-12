@@ -41,9 +41,9 @@ open class LayoutTest {
     val activityTestRule = ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
-    private lateinit var activity: TestActivity
+    lateinit var activity: TestActivity
     private lateinit var instrumentation: Instrumentation
-    private lateinit var handler: Handler
+    lateinit var handler: Handler
     internal lateinit var density: Density
 
     @Before
