@@ -318,6 +318,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     void addRetainedFragment(@NonNull Fragment f) {
+        if (isStateSaved()) {
+            if (FragmentManagerImpl.DEBUG) {
+                Log.v(TAG, "Ignoring addRetainedFragment as the state is already saved");
+            }
+            return;
+        }
         boolean added = mNonConfig.addRetainedFragment(f);
         if (added && FragmentManagerImpl.DEBUG) {
             Log.v(TAG, "Updating retained Fragments: Added " + f);
@@ -325,6 +331,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     void removeRetainedFragment(@NonNull Fragment f) {
+        if (isStateSaved()) {
+            if (FragmentManagerImpl.DEBUG) {
+                Log.v(TAG, "Ignoring removeRetainedFragment as the state is already saved");
+            }
+            return;
+        }
         boolean removed = mNonConfig.removeRetainedFragment(f);
         if (removed && FragmentManagerImpl.DEBUG) {
             Log.v(TAG, "Updating retained Fragments: Removed " + f);
