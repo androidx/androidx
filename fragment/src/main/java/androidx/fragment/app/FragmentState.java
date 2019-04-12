@@ -104,6 +104,20 @@ final class FragmentState implements Parcelable {
         return mInstance;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(128);
+        sb.append("FragmentState{");
+        sb.append(mClassName);
+        sb.append(" (");
+        sb.append(mWho);
+        sb.append(")}:");
+        sb.append(" retainInstance=");
+        sb.append(mRetainInstance);
+        return sb.toString();
+    }
+
     @Override
     public int describeContents() {
         return 0;
