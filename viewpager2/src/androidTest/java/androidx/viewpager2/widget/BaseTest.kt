@@ -64,6 +64,7 @@ import org.hamcrest.Matchers.lessThan
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.After
 import org.junit.Assert.assertThat
+import org.junit.Assume.assumeThat
 import org.junit.Before
 import org.junit.Rule
 import java.util.concurrent.CountDownLatch
@@ -107,6 +108,14 @@ open class BaseTest {
         }
 
         return Context(activityTestRule)
+    }
+
+    /**
+     * Temporary workaround while we're stabilizing tests on the API 29 emulator.
+     * TODO(b/130160918): remove the workaround
+     */
+    protected fun assumeApiPre29() {
+        assumeThat(Build.VERSION.SDK_INT, lessThan(29))
     }
 
     data class Context(val activityTestRule: ActivityTestRule<TestActivity>) {
