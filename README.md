@@ -51,7 +51,7 @@ You can build maven artifacts locally, and test them directly in your app:
 
 And put in your **project** `build.gradle` file:
 
-    handler.maven { url '/path/to/checkout/out/host/gradle/frameworks/support/build/support_repo' }
+    handler.maven { url '/path/to/checkout/out/support/build/support_repo/' }
 
 ## Running Tests
 
