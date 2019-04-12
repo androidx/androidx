@@ -19,6 +19,7 @@ package androidx.ui.material.demos
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.baseui.selection.ToggleableState.Checked
 import androidx.ui.baseui.selection.ToggleableState.Unchecked
+import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
@@ -30,7 +31,6 @@ import androidx.ui.layout.Row
 import androidx.ui.material.Checkbox
 import androidx.ui.material.RadioButton
 import androidx.ui.material.RadioGroup
-import androidx.ui.material.StyledText
 import androidx.ui.material.Switch
 import androidx.ui.material.parentCheckboxState
 import androidx.ui.material.themeTextStyle
@@ -60,23 +60,23 @@ fun SelectionsControlsDemo() {
 
     <Padding padding>
         <Column crossAxisAlignment=CrossAxisAlignment.Start>
-            <StyledText text="Checkbox" style=headerStyle />
+            <Text text="Checkbox" style=headerStyle />
             <Padding padding>
                 <CheckboxDemo />
             </Padding>
-            <StyledText text="Switch" style=headerStyle />
+            <Text text="Switch" style=headerStyle />
             <Padding padding>
                 <SwitchDemo />
             </Padding>
-            <StyledText text="RadioButton" style=headerStyle />
+            <Text text="RadioButton" style=headerStyle />
             <Padding padding>
                 <RadioButtonDemo />
             </Padding>
-            <StyledText text="Radio group :: Default usage" style=headerStyle />
+            <Text text="Radio group :: Default usage" style=headerStyle />
             <Padding padding>
                 <DefaultRadioGroup />
             </Padding>
-            <StyledText text="Radio group :: Custom usage" style=headerStyle />
+            <Text text="Radio group :: Custom usage" style=headerStyle />
             <Padding padding>
                 <CustomRadioGroup />
             </Padding>
@@ -110,7 +110,7 @@ fun CustomRadioGroup() {
                 <Padding padding=EdgeInsets(10.dp)>
                     <Column>
                         <RadioButton selected />
-                        <StyledText text=text style=textStyle />
+                        <Text text=text style=textStyle />
                     </Column>
                 </Padding>
             </RadioGroupItem>
@@ -138,7 +138,7 @@ fun CheckboxDemo() {
         }
         <Row>
             <Checkbox value=calcParentState() onToggle=onParentClick />
-            <StyledText text="This is parent" style=+themeTextStyle { body1 } />
+            <Text text="This is parent" style=+themeTextStyle { body1 } />
         </Row>
         <Padding padding=EdgeInsets(left = 10.dp)>
             <Column crossAxisAlignment=CrossAxisAlignment.Start>

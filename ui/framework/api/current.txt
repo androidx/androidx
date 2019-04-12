@@ -162,45 +162,11 @@ package androidx.ui.core {
     method public static com.google.r4a.Ambient<java.lang.String> getTestTagAmbient();
   }
 
-  public final class Text extends com.google.r4a.Component {
-    ctor public Text();
-    method public void compose();
-    method public Integer? getMaxLines();
-    method public androidx.ui.rendering.paragraph.TextOverflow getOverflow();
-    method public androidx.ui.services.text_editing.TextSelection? getSelection();
-    method public androidx.ui.painting.Color getSelectionColor();
-    method public kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset>? getSelectionPosition();
-    method public boolean getSoftWrap();
-    method public androidx.ui.painting.TextSpan getText();
-    method public androidx.ui.engine.text.TextAlign getTextAlign();
-    method public androidx.ui.engine.text.TextDirection getTextDirection();
-    method public float getTextScaleFactor();
-    method public void setMaxLines(Integer? p);
-    method public void setOverflow(androidx.ui.rendering.paragraph.TextOverflow p);
-    method public void setSelection(androidx.ui.services.text_editing.TextSelection? p);
-    method public void setSelectionColor(androidx.ui.painting.Color p);
-    method public void setSelectionPosition(kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset>? p);
-    method public void setSoftWrap(boolean p);
-    method public void setText(androidx.ui.painting.TextSpan p);
-    method public void setTextAlign(androidx.ui.engine.text.TextAlign p);
-    method public void setTextDirection(androidx.ui.engine.text.TextDirection p);
-    method public void setTextScaleFactor(float p);
-    property public final Integer? maxLines;
-    property public final androidx.ui.rendering.paragraph.TextOverflow overflow;
-    property public final androidx.ui.services.text_editing.TextSelection? selection;
-    property public final androidx.ui.painting.Color selectionColor;
-    property public final kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset>? selectionPosition;
-    property public final boolean softWrap;
-    property public final androidx.ui.painting.TextSpan text;
-    property public final androidx.ui.engine.text.TextAlign textAlign;
-    property public final androidx.ui.engine.text.TextDirection textDirection;
-    property public final float textScaleFactor;
-    field public androidx.ui.painting.TextSpan text;
-  }
-
   public final class TextKt {
     ctor public TextKt();
     method public static void CurrentTextStyleProvider(androidx.ui.painting.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Text(androidx.ui.painting.TextSpan text, androidx.ui.engine.text.TextAlign textAlign = androidx.ui.core.TextKt.DefaultTextAlign, androidx.ui.engine.text.TextDirection textDirection = androidx.ui.core.TextKt.DefaultTextDirection, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, float textScaleFactor = 1.0f, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.services.text_editing.TextSelection? selection = null, kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset>? selectionPosition = null, androidx.ui.painting.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor);
+    method public static void Text(String text, androidx.ui.painting.TextStyle? style = null, androidx.ui.engine.text.TextAlign textAlign = androidx.ui.core.TextKt.DefaultTextAlign, androidx.ui.engine.text.TextDirection textDirection = androidx.ui.core.TextKt.DefaultTextDirection, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines);
     method public static com.google.r4a.Effect<androidx.ui.painting.TextStyle> currentTextStyle();
   }
 

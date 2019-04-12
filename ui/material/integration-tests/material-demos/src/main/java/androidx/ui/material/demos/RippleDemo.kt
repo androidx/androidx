@@ -18,10 +18,10 @@ package androidx.ui.material.demos
 
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.dp
+import androidx.ui.core.Text
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.StyledText
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BorderSide
 import androidx.ui.material.borders.RoundedRectangleBorder
@@ -47,7 +47,7 @@ fun RippleDemo() {
                         <Container expanded=true>
                             <BoundedRipple>
                                 <Container width=100.dp height=50.dp>
-                                    <StyledText text="inner" style=+themeTextStyle { body1 } />
+                                    <Text text="inner" style=+themeTextStyle { body1 } />
                                 </Container>
                             </BoundedRipple>
                         </Container>

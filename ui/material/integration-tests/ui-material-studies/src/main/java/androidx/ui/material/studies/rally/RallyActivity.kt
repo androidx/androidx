@@ -19,12 +19,12 @@ package androidx.ui.material.studies.rally
 import android.app.Activity
 import android.os.Bundle
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
-import androidx.ui.material.StyledText
 import androidx.ui.material.studies.Orientation
 import androidx.ui.material.studies.Scaffold
 import androidx.ui.material.studies.Spacer
@@ -62,7 +62,7 @@ class RallyActivity : Activity() {
         // TODO: Transform to tabs
         <Row>
             // <Icon />
-            <StyledText text="Overview" style=+themeTextStyle { h4 } />
+            <Text text="Overview" style=+themeTextStyle { h4 } />
             // TODO: Other items
         </Row>
     }

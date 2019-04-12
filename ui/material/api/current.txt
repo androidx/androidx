@@ -157,7 +157,6 @@ package androidx.ui.material {
 
   public final class TextKt {
     ctor public TextKt();
-    method public static void StyledText(String text, androidx.ui.painting.TextStyle style);
     method public static com.google.r4a.Effect<androidx.ui.painting.Color> textColorForBackground(androidx.ui.painting.Color background);
   }
 

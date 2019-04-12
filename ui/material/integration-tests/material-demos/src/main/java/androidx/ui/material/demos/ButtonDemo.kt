@@ -35,7 +35,6 @@ import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.themeColor
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
-import androidx.ui.painting.TextSpan
 import com.google.r4a.Composable
 import com.google.r4a.composer
 import com.google.r4a.unaryPlus
@@ -80,7 +79,7 @@ fun ButtonDemo() {
 
                     <Button onClick>
                         <Padding padding=EdgeInsets(16.dp)>
-                            <Text text=TextSpan(text = "CUSTOM BUTTON!") />
+                            <Text text="CUSTOM BUTTON!" />
                         </Padding>
                     </Button>
 
