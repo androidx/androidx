@@ -201,13 +201,13 @@ public class KeyedAppStatesReporter {
      * <p>EMMs can access these states either directly in a custom DPC (device policy manager), via
      * Android Management APIs, or via Play EMM APIs.
      *
-     * @see #setImmediate(Collection) to request that states are uploaded immediately
+     * @see #setStatesImmediate(Collection) to request that states are uploaded immediately
      */
-    public void set(@NonNull Collection<KeyedAppState> states) {
-        set(states, false);
+    public void setStates(@NonNull Collection<KeyedAppState> states) {
+        setStates(states, false);
     }
 
-    private void set(final Collection<KeyedAppState> states, final boolean immediate) {
+    private void setStates(final Collection<KeyedAppState> states, final boolean immediate) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -224,15 +224,15 @@ public class KeyedAppStatesReporter {
     }
 
     /**
-     * Performs the same function as {@link #set(Collection)}, except it also
+     * Performs the same function as {@link #setStates(Collection)}, except it also
      * requests
      * that the states are immediately uploaded to be accessible via server APIs.
      *
      * <p>The receiver is not obligated to meet this immediate upload request. For example, Play and
      * Android Management APIs have daily quotas.
      */
-    public void setImmediate(@NonNull Collection<KeyedAppState> states) {
-        set(states, true);
+    public void setStatesImmediate(@NonNull Collection<KeyedAppState> states) {
+        setStates(states, true);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
