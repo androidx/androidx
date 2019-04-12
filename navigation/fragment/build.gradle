@@ -35,9 +35,6 @@ dependencies {
     api(project(":fragment"))
     api(project(":navigation:navigation-runtime"))
 
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
-
     androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(project(":navigation:navigation-runtime-ktx"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

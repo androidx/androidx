@@ -39,7 +39,6 @@ android {
 dependencies {
     api(project(":navigation:navigation-common-ktx"))
 
-    testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
 

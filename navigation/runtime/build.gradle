@@ -35,9 +35,6 @@ dependencies {
     api(project(":navigation:navigation-common"))
     api(project(":lifecycle:lifecycle-viewmodel"))
 
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
-
     androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
