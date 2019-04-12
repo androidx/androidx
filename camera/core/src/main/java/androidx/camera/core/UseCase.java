@@ -164,13 +164,15 @@ public abstract class UseCase {
         for (Option<?> opt : userConfig.listOptions()) {
             @SuppressWarnings("unchecked") // Options/values are being copied directly
                     Option<Object> objectOpt = (Option<Object>) opt;
-            defaultConfigBuilder.insertOption(objectOpt, userConfig.retrieveOption(objectOpt));
+
+            defaultConfigBuilder.getMutableConfig().insertOption(
+                    objectOpt, userConfig.retrieveOption(objectOpt));
         }
 
         @SuppressWarnings(
                 "unchecked") // Since builder is a UseCaseConfig.Builder, it should produce a
                 // UseCaseConfig
-                UseCaseConfig<?> defaultConfig = (UseCaseConfig<?>) defaultConfigBuilder.build();
+                UseCaseConfig<?> defaultConfig = defaultConfigBuilder.build();
         return defaultConfig;
     }
 

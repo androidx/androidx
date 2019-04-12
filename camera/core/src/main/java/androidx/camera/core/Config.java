@@ -26,11 +26,11 @@ import com.google.auto.value.extension.memoized.Memoized;
 import java.util.Set;
 
 /**
- * A Config is a collection of options and values.
+ * A Configuration is a collection of options and values.
  *
- * <p>Config object hold pairs of Options/Values and offer methods for querying whether Options
- * are contained in the configuration along with methods for retrieving the associated values for
- * options.
+ * <p>Configuration object hold pairs of Options/Values and offer methods for querying whether
+ * Options are contained in the configuration along with methods for retrieving the associated
+ * values for options.
  */
 public interface Config {
 
@@ -104,97 +104,9 @@ public interface Config {
     Set<Option<?>> listOptions();
 
     /**
-     * A callback for retrieving results of a {@link Config.Option} search.
-     *
-     * @hide
+     * Extendable builders are used to add externally defined options to a configuration.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    interface OptionMatcher {
-        /**
-         * Receives results from {@link Config#findOptions(String, OptionMatcher)}.
-         *
-         * <p>When searching for a specific option in a {@link Config}, {@link Option}s will be
-         * sent to {@link #onOptionMatched(Option)} in the order in which they are found.
-         *
-         * @param option The matched option.
-         * @return <code>false</code> if no further results are needed; <code>true</code> otherwise.
-         */
-        boolean onOptionMatched(Option<?> option);
-    }
-
-    /**
-     * The Reader interface can be extended to create APIs for reading specific options.
-     *
-     * <p>Reader objects are also {@link Config} objects, so can be passed to any method that
-     * expects a {@link Config}.
-     */
-    interface Reader extends Config {
-
-        /**
-         * Returns the underlying immutable {@link Config} object.
-         *
-         * @return The underlying {@link Config} object.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        Config getConfig();
-
-        /**
-         * {@inheritDoc}
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        boolean containsOption(Option<?> id);
-
-        /**
-         * {@inheritDoc}
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @Nullable
-        <ValueT> ValueT retrieveOption(Option<ValueT> id);
-
-        /**
-         * {@inheritDoc}
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @Nullable
-        <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing);
-
-        /**
-         * {@inheritDoc}
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        void findOptions(String idStem, OptionMatcher matcher);
-
-        /**
-         * {@inheritDoc}
-         *
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        Set<Option<?>> listOptions();
-
-    }
-
-    /**
-     * Builders are used to generate immutable {@link Config} objects.
-     *
-     * @param <C> The top-level type of the {@link Config} being generated.
-     * @param <T> The top-level {@link Builder} type for this Builder.
-     */
-    interface Builder<C extends Config, T extends Builder<C, T>> {
+    interface ExtendableBuilder {
 
         /**
          * Returns the underlying {@link MutableConfig} being modified by this builder.
@@ -204,47 +116,25 @@ public interface Config {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         MutableConfig getMutableConfig();
+    }
 
+    /**
+     * A callback for retrieving results of a {@link Config.Option} search.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    interface OptionMatcher {
         /**
-         * The solution for the unchecked cast warning.
+         * Receives results from {@link Config#findOptions(String, OptionMatcher)}.
          *
-         * @hide
+         * <p>When searching for a specific option in a {@link Config}, {@link Option}s will
+         * be sent to {@link #onOptionMatched(Option)} in the order in which they are found.
+         *
+         * @param option The matched option.
+         * @return <code>false</code> if no further results are needed; <code>true</code> otherwise.
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        T builder();
-
-        /**
-         * Inserts a Option/Value pair into the configuration.
-         *
-         * <p>If the option already exists in this configuration, it will be replaced.
-         *
-         * @param opt      The option to be added or modified
-         * @param value    The value to insert for this option.
-         * @param <ValueT> The type of the value being inserted.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        <ValueT> T insertOption(Option<ValueT> opt, ValueT value);
-
-        /**
-         * Removes an option from the configuration if it exists.
-         *
-         * @param opt      The option to remove from the configuration.
-         * @param <ValueT> The type of the value being removed.
-         * @return The value that previously existed for <code>opt</code>, or <code>null</code> if
-         * the option did not exist in this configuration.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Nullable
-        <ValueT> T removeOption(Option<ValueT> opt);
-
-        /**
-         * Creates an immutable {@link Config} object from the current state of this builder.
-         *
-         * @return The {@link Config} generated from the current state.
-         */
-        C build();
+        boolean onOptionMatched(Option<?> option);
     }
 
     /**
