@@ -43,6 +43,7 @@ class HelloGestureBasedAnimationActivity : Activity() {
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 fun HelloGesture() {
     <CraneWrapper>
@@ -53,7 +54,7 @@ fun HelloGesture() {
 private val scale = FloatPropKey()
 private val color = ColorPropKey()
 
-private val definition = transitionDefinition<String> {
+private val definition = transitionDefinition {
     state("released") {
         this[scale] = 1f
         this[color] = Color.fromARGB(255, 0, 200, 0)
@@ -64,6 +65,7 @@ private val definition = transitionDefinition<String> {
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 fun TransitionExample() {
     var toState = "released"
@@ -92,6 +94,7 @@ fun TransitionExample() {
 val paint: Paint = Paint()
 const val halfSize = 200f
 
+@Suppress("FunctionName")
 @Composable
 fun DrawScaledRect(scale: Float, color: Color) {
     <Draw> canvas, parentSize ->
