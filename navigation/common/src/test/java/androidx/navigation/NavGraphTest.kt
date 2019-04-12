@@ -17,7 +17,6 @@
 package androidx.navigation
 
 import androidx.annotation.IdRes
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -27,7 +26,6 @@ import java.util.Arrays
 import java.util.NoSuchElementException
 
 @RunWith(JUnit4::class)
-@SmallTest
 class NavGraphTest {
 
     companion object {

@@ -17,22 +17,22 @@
 package androidx.lifecycle
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 
-@SmallTest
 class LiveDataTest {
 
     @get:Rule
     val mInstantTaskExecutorRule = InstantTaskExecutorRule()
 
-    @Test fun observe() {
+    @Test
+    fun observe() {
         val lifecycleOwner = object : LifecycleOwner {
             private val registry = LifecycleRegistry(this).apply {
                 currentState = Lifecycle.State.STARTED
             }
+
             override fun getLifecycle() = registry
         }
 
