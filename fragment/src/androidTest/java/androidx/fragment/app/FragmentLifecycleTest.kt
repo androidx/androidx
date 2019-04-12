@@ -465,6 +465,44 @@ class FragmentLifecycleTest {
     }
 
     /**
+     * Ensure that FragmentManager
+     */
+    @Test
+    @UiThreadTest
+    fun addRetainedAfterSaveState() {
+        val viewModelStore = ViewModelStore()
+        var fc = activityRule.startupFragmentController(viewModelStore)
+        var fm = fc.supportFragmentManager
+
+        val fragment1 = StrictFragment()
+        fragment1.retainInstance = true
+        fm.beginTransaction()
+            .add(fragment1, "1")
+            .commitNow()
+
+        // Now save the state of the FragmentManager
+        fc.dispatchPause()
+        val savedState = fc.saveAllState()
+
+        val fragment2 = StrictFragment()
+        fragment2.retainInstance = true
+        fm.beginTransaction()
+            .add(fragment2, "2")
+            .commitNowAllowingStateLoss()
+
+        fc.dispatchStop()
+        fc.dispatchDestroy()
+
+        fc = activityRule.startupFragmentController(viewModelStore, savedState)
+        fm = fc.supportFragmentManager
+
+        assertThat(fm.findFragmentByTag("1"))
+            .isSameAs(fragment1)
+        assertThat(fm.findFragmentByTag("2"))
+            .isNull()
+    }
+
+    /**
      * When a fragment is saved in non-config, it should be restored to the same index.
      */
     @Test
