@@ -844,6 +844,9 @@ abstract class ColorSpace internal constructor(
                     named.colorSpace.id = index
                 }
             }
+
+            // See static initialization block next to #get(Named)
+            internal val ColorSpaces = Named.values().map { it.colorSpace }.toList()
         }
     }
 
@@ -3023,9 +3026,6 @@ abstract class ColorSpace internal constructor(
         internal val SrgbTransferParameters =
             Rgb.TransferParameters(1 / 1.055, 0.055 / 1.055, 1 / 12.92, 0.04045, 2.4)
 
-        // See static initialization block next to #get(Named)
-        private val NamedColorSpaces = Named.values().map { it.colorSpace }.toList()
-
         /**
          *
          * Connects two color spaces to allow conversion from the source color
@@ -3173,7 +3173,7 @@ abstract class ColorSpace internal constructor(
                 throw IllegalArgumentException(
                     "Invalid ID, must be in the range [0..${Named.values().size}])")
             }
-            return NamedColorSpaces[index]
+            return Named.ColorSpaces[index]
         }
 
         /**
@@ -3189,7 +3189,7 @@ abstract class ColorSpace internal constructor(
          * @return A non-null [ColorSpace] instance
          */
         operator fun get(name: Named): ColorSpace {
-            return NamedColorSpaces[name.ordinal]
+            return Named.ColorSpaces[name.ordinal]
         }
 
         /**
@@ -3209,7 +3209,7 @@ abstract class ColorSpace internal constructor(
             @Size(9) toXYZD50: FloatArray,
             function: Rgb.TransferParameters
         ): ColorSpace? {
-            for (colorSpace in NamedColorSpaces) {
+            for (colorSpace in Named.ColorSpaces) {
                 if (colorSpace.model == Model.Rgb) {
                     val rgb = adapt(colorSpace, IlluminantD50Xyz) as ColorSpace.Rgb
                     if ((compare(toXYZD50, rgb.transform) && compare(
