@@ -101,8 +101,8 @@ object PagingTypeNames {
 }
 
 object LifecyclesTypeNames {
-    val LIVE_DATA: ClassName = ClassName.get("androidx.lifecycle", "LiveData")
-    val COMPUTABLE_LIVE_DATA: ClassName = ClassName.get("androidx.lifecycle",
+    val LIVE_DATA: ClassName = ClassName.get(LIFECYCLE_PACKAGE, "LiveData")
+    val COMPUTABLE_LIVE_DATA: ClassName = ClassName.get(LIFECYCLE_PACKAGE,
             "ComputableLiveData")
 }
 
