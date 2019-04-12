@@ -41,8 +41,8 @@ limitations under the License.
     <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"எதையும் மீண்டும் இயக்காதே"</string>
     <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"அனைத்தையும் மீண்டும் இயக்கு"</string>
     <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"ஒன்றை மட்டும் மீண்டும் இயக்கு"</string>
-    <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"வரிசை மாற்றி இயக்கு"</string>
-    <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"வரிசை மாற்றி இயக்குவதை நிறுத்து"</string>
+    <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"கலைத்து இயக்கு"</string>
+    <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"கலைக்காமல் இயக்கு"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"உயர்தரத்தை இயக்கு"</string>
     <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"உயர்தரத்தை முடக்கு"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="3934392140182327163">"விரிவான வசனங்களை இயக்கு"</string>

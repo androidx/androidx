@@ -24,6 +24,5 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"မည်သည့် လက်ဗွေကိုမျှ ထည့်သွင်းမထားပါ။"</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"ဤစက်ပစ္စည်းတွင် လက်ဗွေအာရုံခံကိရိယာ မရှိပါ"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"လက်ဗွေဖြင့် အထောက်အထားစိစစ်ခြင်းကို အသုံးပြုသူက ပယ်ဖျက်ထားသည်။"</string>
-    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"အကြိမ်များစွာ စမ်းပြီးပါပြီ။ နောက်မှ ထပ်စမ်းကြည့်ပါ။"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"အမျိုးအမည်မသိ အမှား"</string>
 </resources>
