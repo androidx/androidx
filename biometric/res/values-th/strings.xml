@@ -24,6 +24,5 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"ไม่มีลายนิ้วมือที่ลงทะเบียน"</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"อุปกรณ์นี้ไม่มีเซ็นเซอร์ลายนิ้วมือ"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ผู้ใช้ยกเลิกการทำงานของลายนิ้วมือ"</string>
-    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"ลองหลายครั้งเกินไป โปรดลองอีกครั้งภายหลัง"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"ข้อผิดพลาดที่ไม่รู้จัก"</string>
 </resources>

@@ -16,13 +16,13 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="5568050657313893478">"Имэйл бичих"</string>
+    <string name="email" msgid="5568050657313893478">"Имэйл"</string>
     <string name="email_desc" msgid="6941280589171810022">"Сонгосон хаяг руу имэйл илгээх"</string>
     <string name="dial" msgid="7317293545368448453">"Залгах"</string>
     <string name="dial_desc" msgid="5129451396208040332">"Сонгосон утасны дугаар руу залгах"</string>
     <string name="browse" msgid="3733970143542020945">"Нээх"</string>
     <string name="browse_desc" msgid="3898254913938219011">"Сонгосон URL-г нээх"</string>
-    <string name="sms" msgid="5495416906312064886">"Мессеж бичих"</string>
+    <string name="sms" msgid="5495416906312064886">"Мессеж"</string>
     <string name="sms_desc" msgid="8293660783374489324">"Сонгосон утасны дугаар руу мессеж илгээх"</string>
     <string name="add_contact" msgid="9005634177208282449">"Нэмэх"</string>
     <string name="add_contact_desc" msgid="2475604767309086575">"Харилцагчид нэмэх"</string>

@@ -17,14 +17,14 @@ limitations under the License.
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="email" msgid="5568050657313893478">"E-pochta"</string>
-    <string name="email_desc" msgid="6941280589171810022">"Belgilangan e-pochta manziliga xat yuborish"</string>
+    <string name="email_desc" msgid="6941280589171810022">"Belgilangan manzilga xat yuborish"</string>
     <string name="dial" msgid="7317293545368448453">"Chaqiruv"</string>
     <string name="dial_desc" msgid="5129451396208040332">"Belgilangan raqamga telefon qilish"</string>
     <string name="browse" msgid="3733970143542020945">"Ochish"</string>
     <string name="browse_desc" msgid="3898254913938219011">"Belgilangan URL manzilini ochish"</string>
-    <string name="sms" msgid="5495416906312064886">"SMS yozish"</string>
+    <string name="sms" msgid="5495416906312064886">"Xabar"</string>
     <string name="sms_desc" msgid="8293660783374489324">"Belgilangan telefon raqamiga SMS yuborish"</string>
-    <string name="add_contact" msgid="9005634177208282449">"Saqlab olish"</string>
+    <string name="add_contact" msgid="9005634177208282449">"Qo‘shish"</string>
     <string name="add_contact_desc" msgid="2475604767309086575">"Kontaktlarga saqlash"</string>
     <string name="floating_toolbar_open_overflow_description" msgid="1187148927509077545">"Yana"</string>
     <string name="floating_toolbar_close_overflow_description" msgid="6243666280435354232">"Qalqib turuvchi asboblar panelini yopish"</string>

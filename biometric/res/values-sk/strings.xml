@@ -24,6 +24,5 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Neregistrovali ste žiadne odtlačky prstov."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Toto zariadenie nemá senzor odtlačkov prstov"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Overenie odtlačku prsta zrušil používateľ."</string>
-    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Príliš veľa pokusov. Skúste to znova neskôr."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Neznáma chyba"</string>
 </resources>

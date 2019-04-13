@@ -24,6 +24,5 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"등록된 지문이 없습니다."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"기기에 지문 센서가 없습니다."</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"사용자가 지문 인식 작업을 취소했습니다."</string>
-    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"시도 횟수가 너무 많습니다. 나중에 다시 시도해 주세요."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"알 수 없는 오류"</string>
 </resources>

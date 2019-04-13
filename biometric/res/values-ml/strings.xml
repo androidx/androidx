@@ -24,6 +24,5 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"ഫിംഗർപ്രിന്റുകളൊന്നും എൻറോൾ ചെയ്‌തിട്ടില്ല."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"ഈ ഉപകരണത്തിൽ വിരലടയാള സെൻസർ ഇല്ല"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ഫിംഗർപ്രിന്റിന്റെ പ്രവർത്തനം ഉപയോക്താവ് റദ്ദാക്കി."</string>
-    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"നിരവധി ശ്രമങ്ങൾ. പിന്നീട് വീണ്ടും ശ്രമിക്കുക."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"അജ്ഞാത പിശക്"</string>
 </resources>
