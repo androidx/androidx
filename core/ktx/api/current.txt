@@ -53,7 +53,7 @@ package androidx.core.content.res {
     method public static int getIntegerOrThrow(android.content.res.TypedArray, @StyleableRes int index);
     method @AnyRes public static int getResourceIdOrThrow(android.content.res.TypedArray, @StyleableRes int index);
     method public static String getStringOrThrow(android.content.res.TypedArray, @StyleableRes int index);
-    method public static CharSequence[] getTextArrayOrThrow(android.content.res.TypedArray, @StyleableRes int index);
+    method public static CharSequence![] getTextArrayOrThrow(android.content.res.TypedArray, @StyleableRes int index);
     method public static CharSequence getTextOrThrow(android.content.res.TypedArray, @StyleableRes int index);
     method public static inline <R> R! use(android.content.res.TypedArray, kotlin.jvm.functions.Function1<? super android.content.res.TypedArray,? extends R> block);
   }
@@ -116,42 +116,42 @@ package androidx.core.graphics {
   public final class ColorKt {
     ctor public ColorKt();
     method @RequiresApi(26) public static inline operator float component1(android.graphics.Color);
-    method public static inline operator int component1(int);
-    method @RequiresApi(26) public static inline operator float component1(long);
+    method public static inline operator int component1(@ColorInt int);
+    method @RequiresApi(26) public static inline operator float component1(@ColorLong long);
     method @RequiresApi(26) public static inline operator float component2(android.graphics.Color);
-    method public static inline operator int component2(int);
-    method @RequiresApi(26) public static inline operator float component2(long);
+    method public static inline operator int component2(@ColorInt int);
+    method @RequiresApi(26) public static inline operator float component2(@ColorLong long);
     method @RequiresApi(26) public static inline operator float component3(android.graphics.Color);
-    method public static inline operator int component3(int);
-    method @RequiresApi(26) public static inline operator float component3(long);
+    method public static inline operator int component3(@ColorInt int);
+    method @RequiresApi(26) public static inline operator float component3(@ColorLong long);
     method @RequiresApi(26) public static inline operator float component4(android.graphics.Color);
-    method public static inline operator int component4(int);
-    method @RequiresApi(26) public static inline operator float component4(long);
-    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(int, android.graphics.ColorSpace.Named colorSpace);
-    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(int, android.graphics.ColorSpace colorSpace);
-    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(long, android.graphics.ColorSpace.Named colorSpace);
-    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(long, android.graphics.ColorSpace colorSpace);
+    method public static inline operator int component4(@ColorInt int);
+    method @RequiresApi(26) public static inline operator float component4(@ColorLong long);
+    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorInt int, android.graphics.ColorSpace.Named colorSpace);
+    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorInt int, android.graphics.ColorSpace colorSpace);
+    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorLong long, android.graphics.ColorSpace.Named colorSpace);
+    method @ColorLong @RequiresApi(26) public static inline infix long convertTo(@ColorLong long, android.graphics.ColorSpace colorSpace);
     method @RequiresApi(26) public static inline infix android.graphics.Color! convertTo(android.graphics.Color, android.graphics.ColorSpace.Named colorSpace);
     method @RequiresApi(26) public static inline infix android.graphics.Color! convertTo(android.graphics.Color, android.graphics.ColorSpace colorSpace);
-    method public static inline int getAlpha(int);
-    method @RequiresApi(26) public static inline float getAlpha(long);
-    method public static inline int getBlue(int);
-    method @RequiresApi(26) public static inline float getBlue(long);
-    method @RequiresApi(26) public static inline android.graphics.ColorSpace getColorSpace(long);
-    method public static inline int getGreen(int);
-    method @RequiresApi(26) public static inline float getGreen(long);
-    method @RequiresApi(26) public static inline float getLuminance(int);
-    method @RequiresApi(26) public static inline float getLuminance(long);
-    method public static inline int getRed(int);
-    method @RequiresApi(26) public static inline float getRed(long);
-    method @RequiresApi(26) public static inline boolean isSrgb(long);
-    method @RequiresApi(26) public static inline boolean isWideGamut(long);
+    method public static inline int getAlpha(@ColorInt int);
+    method @RequiresApi(26) public static inline float getAlpha(@ColorLong long);
+    method public static inline int getBlue(@ColorInt int);
+    method @RequiresApi(26) public static inline float getBlue(@ColorLong long);
+    method @RequiresApi(26) public static inline android.graphics.ColorSpace getColorSpace(@ColorLong long);
+    method public static inline int getGreen(@ColorInt int);
+    method @RequiresApi(26) public static inline float getGreen(@ColorLong long);
+    method @RequiresApi(26) public static inline float getLuminance(@ColorInt int);
+    method @RequiresApi(26) public static inline float getLuminance(@ColorLong long);
+    method public static inline int getRed(@ColorInt int);
+    method @RequiresApi(26) public static inline float getRed(@ColorLong long);
+    method @RequiresApi(26) public static inline boolean isSrgb(@ColorLong long);
+    method @RequiresApi(26) public static inline boolean isWideGamut(@ColorLong long);
     method @RequiresApi(26) public static operator android.graphics.Color plus(android.graphics.Color, android.graphics.Color c);
-    method @RequiresApi(26) public static inline android.graphics.Color toColor(int);
-    method @RequiresApi(26) public static inline android.graphics.Color toColor(long);
-    method @ColorInt @RequiresApi(26) public static inline int toColorInt(long);
+    method @RequiresApi(26) public static inline android.graphics.Color toColor(@ColorInt int);
+    method @RequiresApi(26) public static inline android.graphics.Color toColor(@ColorLong long);
+    method @ColorInt @RequiresApi(26) public static inline int toColorInt(@ColorLong long);
     method @ColorInt public static inline int toColorInt(String);
-    method @ColorLong @RequiresApi(26) public static inline long toColorLong(int);
+    method @ColorLong @RequiresApi(26) public static inline long toColorLong(@ColorInt int);
   }
 
   public final class ImageDecoderKt {
@@ -282,7 +282,7 @@ package androidx.core.graphics.drawable {
 
   public final class ColorDrawableKt {
     ctor public ColorDrawableKt();
-    method public static inline android.graphics.drawable.ColorDrawable toDrawable(int);
+    method public static inline android.graphics.drawable.ColorDrawable toDrawable(@ColorInt int);
     method @RequiresApi(26) public static inline android.graphics.drawable.ColorDrawable toDrawable(android.graphics.Color);
   }
 
@@ -373,7 +373,7 @@ package androidx.core.text {
     method public static inline android.text.SpannableStringBuilder bold(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannedString buildSpannedString(kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder color(android.text.SpannableStringBuilder, @ColorInt int color, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
-    method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object[] spans, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
+    method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object![] spans, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder inSpans(android.text.SpannableStringBuilder, Object span, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder italic(android.text.SpannableStringBuilder, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
     method public static inline android.text.SpannableStringBuilder scale(android.text.SpannableStringBuilder, float proportion, kotlin.jvm.functions.Function1<? super android.text.SpannableStringBuilder,kotlin.Unit> builderAction);
@@ -393,7 +393,7 @@ package androidx.core.text {
 
   public final class SpannedStringKt {
     ctor public SpannedStringKt();
-    method public static inline <reified T> T[]! getSpans(android.text.Spanned, int start = 0, int end = length);
+    method public static inline <reified T> T![] getSpans(android.text.Spanned, int start = 0, int end = length);
     method public static inline android.text.Spanned toSpanned(CharSequence);
   }
 
@@ -431,7 +431,7 @@ package androidx.core.util {
 
   public final class HalfKt {
     ctor public HalfKt();
-    method @RequiresApi(26) public static inline android.util.Half toHalf(short);
+    method @RequiresApi(26) public static inline android.util.Half toHalf(@HalfFloat short);
     method @RequiresApi(26) public static inline android.util.Half toHalf(float);
     method @RequiresApi(26) public static inline android.util.Half toHalf(double);
     method @RequiresApi(26) public static inline android.util.Half toHalf(String);
@@ -441,9 +441,9 @@ package androidx.core.util {
     ctor public LongSparseArrayKt();
     method @RequiresApi(16) public static inline operator <T> boolean contains(android.util.LongSparseArray<T>, long key);
     method @RequiresApi(16) public static inline <T> boolean containsKey(android.util.LongSparseArray<T>, long key);
-    method @RequiresApi(16) public static inline <T> boolean containsValue(android.util.LongSparseArray<T>, T! value);
+    method @RequiresApi(16) public static inline <T> boolean containsValue(android.util.LongSparseArray<T>, T? value);
     method @RequiresApi(16) public static inline <T> void forEach(android.util.LongSparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Long,? super T,kotlin.Unit> action);
-    method @RequiresApi(16) public static inline <T> T! getOrDefault(android.util.LongSparseArray<T>, long key, T! defaultValue);
+    method @RequiresApi(16) public static inline <T> T! getOrDefault(android.util.LongSparseArray<T>, long key, T? defaultValue);
     method @RequiresApi(16) public static inline <T> T! getOrElse(android.util.LongSparseArray<T>, long key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method @RequiresApi(16) public static inline <T> int getSize(android.util.LongSparseArray<T>);
     method @RequiresApi(16) public static inline <T> boolean isEmpty(android.util.LongSparseArray<T>);
@@ -451,14 +451,14 @@ package androidx.core.util {
     method @RequiresApi(16) public static <T> kotlin.collections.LongIterator keyIterator(android.util.LongSparseArray<T>);
     method @RequiresApi(16) public static operator <T> android.util.LongSparseArray<T> plus(android.util.LongSparseArray<T>, android.util.LongSparseArray<T> other);
     method @RequiresApi(16) public static <T> void putAll(android.util.LongSparseArray<T>, android.util.LongSparseArray<T> other);
-    method @RequiresApi(16) public static <T> boolean remove(android.util.LongSparseArray<T>, long key, T! value);
-    method @RequiresApi(16) public static inline operator <T> void set(android.util.LongSparseArray<T>, long key, T! value);
+    method @RequiresApi(16) public static <T> boolean remove(android.util.LongSparseArray<T>, long key, T? value);
+    method @RequiresApi(16) public static inline operator <T> void set(android.util.LongSparseArray<T>, long key, T? value);
     method @RequiresApi(16) public static <T> java.util.Iterator<T> valueIterator(android.util.LongSparseArray<T>);
   }
 
   public final class LruCacheKt {
     ctor public LruCacheKt();
-    method public static inline <K, V> android.util.LruCache<K,V> lruCache(int maxSize, kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf = { _, _ -> 1 }, kotlin.jvm.functions.Function1<? super K,? extends V> create = { (V)null }, kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved = { _, _, _, _ ->  });
+    method public static inline <K, V> android.util.LruCache<K,V> lruCache(int maxSize, kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf = { _, _ -> 1 }, kotlin.jvm.functions.Function1<? super K,? extends V> create = { (java.lang.Object)null }, kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved = { _, _, _, _ ->  });
   }
 
   public final class PairKt {
@@ -491,9 +491,9 @@ package androidx.core.util {
     ctor public SparseArrayKt();
     method public static inline operator <T> boolean contains(android.util.SparseArray<T>, int key);
     method public static inline <T> boolean containsKey(android.util.SparseArray<T>, int key);
-    method public static inline <T> boolean containsValue(android.util.SparseArray<T>, T! value);
+    method public static inline <T> boolean containsValue(android.util.SparseArray<T>, T? value);
     method public static inline <T> void forEach(android.util.SparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> action);
-    method public static inline <T> T! getOrDefault(android.util.SparseArray<T>, int key, T! defaultValue);
+    method public static inline <T> T! getOrDefault(android.util.SparseArray<T>, int key, T? defaultValue);
     method public static inline <T> T! getOrElse(android.util.SparseArray<T>, int key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method public static inline <T> int getSize(android.util.SparseArray<T>);
     method public static inline <T> boolean isEmpty(android.util.SparseArray<T>);
@@ -501,8 +501,8 @@ package androidx.core.util {
     method public static <T> kotlin.collections.IntIterator keyIterator(android.util.SparseArray<T>);
     method public static operator <T> android.util.SparseArray<T> plus(android.util.SparseArray<T>, android.util.SparseArray<T> other);
     method public static <T> void putAll(android.util.SparseArray<T>, android.util.SparseArray<T> other);
-    method public static <T> boolean remove(android.util.SparseArray<T>, int key, T! value);
-    method public static inline operator <T> void set(android.util.SparseArray<T>, int key, T! value);
+    method public static <T> boolean remove(android.util.SparseArray<T>, int key, T? value);
+    method public static inline operator <T> void set(android.util.SparseArray<T>, int key, T? value);
     method public static <T> java.util.Iterator<T> valueIterator(android.util.SparseArray<T>);
   }
 
@@ -621,7 +621,7 @@ package androidx.core.view {
     method public static inline void setPadding(android.view.View, @Px int size);
     method public static inline void setVisible(android.view.View, boolean value);
     method public static inline void updateLayoutParams(android.view.View, kotlin.jvm.functions.Function1<? super android.view.ViewGroup.LayoutParams,kotlin.Unit> block);
-    method public static inline <reified T extends android.view.ViewGroup.LayoutParams> void updateLayoutParamsTyped(android.view.View, kotlin.jvm.functions.Function1<? super T,kotlin.Unit>! block);
+    method public static inline <reified T extends android.view.ViewGroup.LayoutParams> void updateLayoutParamsTyped(android.view.View, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
     method public static inline void updatePadding(android.view.View, @Px int left = paddingLeft, @Px int top = paddingTop, @Px int right = paddingRight, @Px int bottom = paddingBottom);
     method @RequiresApi(17) public static inline void updatePaddingRelative(android.view.View, @Px int start = paddingStart, @Px int top = paddingTop, @Px int end = paddingEnd, @Px int bottom = paddingBottom);
   }

@@ -1,8 +1,6 @@
 // Signature format: 3.0
 package androidx.slice.builders {
 
-  @RestrictTo({LIBRARY}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) public @interface SliceMarker {
-  }
 
 }
 

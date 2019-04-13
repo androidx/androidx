@@ -42,7 +42,7 @@ package androidx.leanback.app {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PermissionHelper {
-    method public static void requestPermissions(android.app.Fragment!, String[]!, int);
+    method public static void requestPermissions(android.app.Fragment!, String![]!, int);
   }
 
   @Deprecated public class PlaybackFragment extends android.app.Fragment {
@@ -268,9 +268,9 @@ package androidx.leanback.widget {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class GuidedActionAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter {
-    ctor public GuidedActionAdapter(java.util.List<androidx.leanback.widget.GuidedAction>!, androidx.leanback.widget.GuidedActionAdapter.ClickListener!, androidx.leanback.widget.GuidedActionAdapter.FocusListener!, androidx.leanback.widget.GuidedActionsStylist!, boolean);
+    ctor public GuidedActionAdapter(java.util.List<androidx.leanback.widget.GuidedAction!>!, androidx.leanback.widget.GuidedActionAdapter.ClickListener!, androidx.leanback.widget.GuidedActionAdapter.FocusListener!, androidx.leanback.widget.GuidedActionsStylist!, boolean);
     method public androidx.leanback.widget.GuidedActionsStylist.ViewHolder! findSubChildViewHolder(android.view.View!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.leanback.widget.GuidedAction>! getActions();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.leanback.widget.GuidedAction!>! getActions();
     method public int getCount();
     method public androidx.leanback.widget.GuidedActionsStylist! getGuidedActionsStylist();
     method public androidx.leanback.widget.GuidedAction! getItem(int);
@@ -280,9 +280,9 @@ package androidx.leanback.widget {
     method public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder!, int);
     method public androidx.recyclerview.widget.RecyclerView.ViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);
     method public void performOnActionClick(androidx.leanback.widget.GuidedActionsStylist.ViewHolder!);
-    method public void setActions(java.util.List<androidx.leanback.widget.GuidedAction>!);
+    method public void setActions(java.util.List<androidx.leanback.widget.GuidedAction!>!);
     method public void setClickListener(androidx.leanback.widget.GuidedActionAdapter.ClickListener!);
-    method public void setDiffCallback(androidx.leanback.widget.DiffCallback<androidx.leanback.widget.GuidedAction>!);
+    method public void setDiffCallback(androidx.leanback.widget.DiffCallback<androidx.leanback.widget.GuidedAction!>!);
     method public void setFocusListener(androidx.leanback.widget.GuidedActionAdapter.FocusListener!);
   }
 

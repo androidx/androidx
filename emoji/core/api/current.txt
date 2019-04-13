@@ -39,7 +39,7 @@ package androidx.emoji.text {
     method public androidx.emoji.text.EmojiCompat.Config! setMetadataLoadStrategy(int);
     method public androidx.emoji.text.EmojiCompat.Config! setReplaceAll(boolean);
     method public androidx.emoji.text.EmojiCompat.Config! setUseEmojiAsDefaultStyle(boolean);
-    method public androidx.emoji.text.EmojiCompat.Config! setUseEmojiAsDefaultStyle(boolean, java.util.List<java.lang.Integer>?);
+    method public androidx.emoji.text.EmojiCompat.Config! setUseEmojiAsDefaultStyle(boolean, java.util.List<java.lang.Integer!>?);
     method public androidx.emoji.text.EmojiCompat.Config! unregisterInitCallback(androidx.emoji.text.EmojiCompat.InitCallback);
   }
 
@@ -132,7 +132,7 @@ package androidx.emoji.widget {
 
   public final class EmojiTextViewHelper {
     ctor public EmojiTextViewHelper(android.widget.TextView);
-    method public android.text.InputFilter[] getFilters(android.text.InputFilter[]);
+    method public android.text.InputFilter![] getFilters(android.text.InputFilter![]);
     method public void setAllCaps(boolean);
     method public void updateTransformationMethod();
     method public android.text.method.TransformationMethod? wrapTransformationMethod(android.text.method.TransformationMethod?);

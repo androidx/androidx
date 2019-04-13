@@ -20,7 +20,7 @@ package androidx.versionedparcelable {
     method public int describeContents();
     method public <T extends androidx.versionedparcelable.VersionedParcelable> T! getVersionedParcel();
     method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<androidx.versionedparcelable.ParcelImpl>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.versionedparcelable.ParcelImpl!>! CREATOR;
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ParcelUtils {
@@ -36,8 +36,8 @@ package androidx.versionedparcelable {
     method protected abstract androidx.versionedparcelable.VersionedParcel! createSubParcel();
     method protected static Throwable getRootCause(Throwable);
     method public boolean isStream();
-    method public <T> T[]! readArray(T[]!, int);
-    method protected <T> T[]! readArray(T[]!);
+    method public <T> T![]! readArray(T[]!, int);
+    method protected <T> T![]! readArray(T[]!);
     method protected abstract boolean readBoolean();
     method public boolean readBoolean(boolean, int);
     method public boolean[]! readBooleanArray(boolean[]!, int);
@@ -63,7 +63,7 @@ package androidx.versionedparcelable {
     method public int readInt(int, int);
     method public int[]! readIntArray(int[]!, int);
     method protected int[]! readIntArray();
-    method public <T> java.util.List<T>! readList(java.util.List<T>!, int);
+    method public <T> java.util.List<T!>! readList(java.util.List<T>!, int);
     method protected abstract long readLong();
     method public long readLong(long, int);
     method public long[]! readLongArray(long[]!, int);
@@ -71,7 +71,7 @@ package androidx.versionedparcelable {
     method protected abstract <T extends > T! readParcelable();
     method public <T extends > T! readParcelable(T!, int);
     method protected java.io.Serializable! readSerializable();
-    method public <T> java.util.Set<T>! readSet(java.util.Set<T>!, int);
+    method public <T> java.util.Set<T!>! readSet(java.util.Set<T>!, int);
     method @RequiresApi(api=21) public android.util.Size! readSize(android.util.Size!, int);
     method @RequiresApi(api=21) public android.util.SizeF! readSizeF(android.util.SizeF!, int);
     method public android.util.SparseBooleanArray! readSparseBooleanArray(android.util.SparseBooleanArray!, int);

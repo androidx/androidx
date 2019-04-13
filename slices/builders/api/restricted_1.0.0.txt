@@ -4,7 +4,7 @@ package androidx.slice.builders {
   @RequiresApi(19) public class GridRowBuilder {
     ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public GridRowBuilder(androidx.slice.builders.ListBuilder);
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.GridRowBuilder addCell(androidx.core.util.Consumer<androidx.slice.builders.GridRowBuilder.CellBuilder>);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<androidx.slice.builders.GridRowBuilder.CellBuilder>! getCells();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<androidx.slice.builders.GridRowBuilder.CellBuilder!>! getCells();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getDescription();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getLayoutDirection();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.SliceAction! getPrimaryAction();
@@ -18,11 +18,11 @@ package androidx.slice.builders {
     ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public GridRowBuilder.CellBuilder(androidx.slice.builders.GridRowBuilder, android.net.Uri);
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getCellDescription();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public android.app.PendingIntent! getContentIntent();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Boolean>! getLoadings();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Object>! getObjects();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Boolean!>! getLoadings();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Object!>! getObjects();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence? getSubtitle();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence? getTitle();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Integer>! getTypes();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Integer!>! getTypes();
     field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static final int TYPE_IMAGE = 2; // 0x2
     field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static final int TYPE_TEXT = 0; // 0x0
     field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static final int TYPE_TITLE = 1; // 0x1
@@ -96,9 +96,9 @@ package androidx.slice.builders {
     ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public ListBuilder.RowBuilder(androidx.slice.builders.ListBuilder, android.net.Uri);
     ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public ListBuilder.RowBuilder(android.content.Context, android.net.Uri);
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getContentDescription();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Object>! getEndItems();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Boolean>! getEndLoads();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Integer>! getEndTypes();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Object!>! getEndItems();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Boolean!>! getEndLoads();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public java.util.List<java.lang.Integer!>! getEndTypes();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public int getLayoutDirection();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.builders.SliceAction! getPrimaryAction();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public CharSequence! getSubtitle();

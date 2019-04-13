@@ -25,7 +25,7 @@ package androidx.leanback.preference {
   }
 
   @Deprecated public class LeanbackListPreferenceDialogFragment.AdapterMulti extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder> implements androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener {
-    ctor @Deprecated public LeanbackListPreferenceDialogFragment.AdapterMulti(CharSequence[]!, CharSequence[]!, java.util.Set<java.lang.String>!);
+    ctor @Deprecated public LeanbackListPreferenceDialogFragment.AdapterMulti(CharSequence![]!, CharSequence![]!, java.util.Set<java.lang.String!>!);
     method @Deprecated public int getItemCount();
     method @Deprecated public void onBindViewHolder(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder!, int);
     method @Deprecated public androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);
@@ -33,7 +33,7 @@ package androidx.leanback.preference {
   }
 
   @Deprecated public class LeanbackListPreferenceDialogFragment.AdapterSingle extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder> implements androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener {
-    ctor @Deprecated public LeanbackListPreferenceDialogFragment.AdapterSingle(CharSequence[]!, CharSequence[]!, CharSequence!);
+    ctor @Deprecated public LeanbackListPreferenceDialogFragment.AdapterSingle(CharSequence![]!, CharSequence![]!, CharSequence!);
     method @Deprecated public int getItemCount();
     method @Deprecated public void onBindViewHolder(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder!, int);
     method @Deprecated public androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);

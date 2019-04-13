@@ -114,7 +114,7 @@ package androidx.viewpager.widget {
 
   public static class ViewPager.SavedState extends androidx.customview.view.AbsSavedState {
     ctor public ViewPager.SavedState(android.os.Parcelable);
-    field public static final android.os.Parcelable.Creator<androidx.viewpager.widget.ViewPager.SavedState>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.viewpager.widget.ViewPager.SavedState!>! CREATOR;
   }
 
   public static class ViewPager.SimpleOnPageChangeListener implements androidx.viewpager.widget.ViewPager.OnPageChangeListener {

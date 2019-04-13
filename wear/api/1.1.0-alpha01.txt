@@ -125,7 +125,7 @@ package androidx.wear.widget {
     method public long getTotalTime();
     method public boolean isIndeterminate();
     method public boolean isTimerRunning();
-    method public void setColorSchemeColors(int...!);
+    method public void setColorSchemeColors(int...);
     method public void setIndeterminate(boolean);
     method public void setOnTimerFinishedListener(androidx.wear.widget.CircularProgressLayout.OnTimerFinishedListener?);
     method public void setStartingRotation(float);

@@ -5,7 +5,7 @@ package androidx.lifecycle {
     ctor public ComputableLiveData();
     ctor public ComputableLiveData(java.util.concurrent.Executor);
     method @WorkerThread protected abstract T! compute();
-    method public androidx.lifecycle.LiveData<T> getLiveData();
+    method public androidx.lifecycle.LiveData<T!> getLiveData();
     method public void invalidate();
   }
 

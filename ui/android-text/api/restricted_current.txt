@@ -54,32 +54,6 @@ package androidx.text {
 
 
 
-  @RestrictTo({RestrictTo.Scope.LIBRARY}) public final class TextLayout {
-    ctor public TextLayout(CharSequence charSequence, float width, android.text.TextPaint textPaint, @androidx.text.LayoutCompat.TextLayoutAlignment int alignment, android.text.TextUtils.TruncateAt? ellipsize, @androidx.text.LayoutCompat.TextDirection int textDirectionHeuristic, float lineSpacingMultiplier, float lineSpacingExtra, boolean includePadding, int maxLines, @androidx.text.LayoutCompat.BreakStrategy int breakStrategy, @androidx.text.LayoutCompat.HyphenationFrequency int hyphenationFrequency, @androidx.text.LayoutCompat.JustificationMode int justificationMode, int[]? leftIndents, int[]? rightIndents);
-    method public boolean getDidExceedMaxLines();
-    method public android.text.Layout getLayout();
-    method public float getLineBottom(int line);
-    method public int getLineCount();
-    method public int getLineForOffset(int offset);
-    method public int getLineForVertical(int vertical);
-    method public float getLineHeight(int lineIndex);
-    method public float getLineLeft(int lineIndex);
-    method public float getLineRight(int lineIndex);
-    method public float getLineTop(int line);
-    method public float getLineWidth(int lineIndex);
-    method public float getMaxIntrinsicWidth();
-    method public int getOffsetForHorizontal(int line, float horizontal);
-    method public float getPrimaryHorizontal(int offset);
-    method public void getSelectionPath(int start, int end, android.graphics.Path dest);
-    method public CharSequence getText();
-    method public boolean isEllipsisApplied(int lineIndex);
-    method public void paint(android.graphics.Canvas canvas);
-    property public final boolean didExceedMaxLines;
-    property public final android.text.Layout layout;
-    property public final int lineCount;
-    property public final float maxIntrinsicWidth;
-    property public final CharSequence text;
-  }
 
 }
 

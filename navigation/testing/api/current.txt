@@ -5,11 +5,11 @@ package androidx.navigation.testing {
     ctor public TestNavigator();
     method public androidx.navigation.testing.TestNavigator.Destination createDestination();
     method public final java.util.ArrayDeque<kotlin.Pair<androidx.navigation.testing.TestNavigator.Destination,android.os.Bundle>> getBackStack();
-    method public final kotlin.Pair<androidx.navigation.testing.TestNavigator.Destination,android.os.Bundle> getCurrent();
+    method public final kotlin.Pair<androidx.navigation.testing.TestNavigator.Destination,android.os.Bundle>! getCurrent();
     method public androidx.navigation.testing.TestNavigator.Destination? navigate(androidx.navigation.testing.TestNavigator.Destination destination, android.os.Bundle? args, androidx.navigation.NavOptions? navOptions, androidx.navigation.Navigator.Extras? navigatorExtras);
     method public boolean popBackStack();
     property public final java.util.ArrayDeque<kotlin.Pair<androidx.navigation.testing.TestNavigator.Destination,android.os.Bundle>> backStack;
-    property public final kotlin.Pair<androidx.navigation.testing.TestNavigator.Destination,android.os.Bundle> current;
+    property public final kotlin.Pair<androidx.navigation.testing.TestNavigator.Destination,android.os.Bundle>! current;
   }
 
   public static final class TestNavigator.Destination extends androidx.navigation.NavDestination {

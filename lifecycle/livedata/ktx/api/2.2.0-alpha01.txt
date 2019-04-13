@@ -3,12 +3,12 @@ package androidx.lifecycle {
 
   public final class CoroutineLiveDataKt {
     ctor public CoroutineLiveDataKt();
-    method public static <T> androidx.lifecycle.LiveData<T> liveData(kotlin.coroutines.CoroutineContext context = EmptyCoroutineContext, long timeoutInMs = 5000L, kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.experimental.Continuation<? super kotlin.Unit>,?> block);
+    method public static <T> androidx.lifecycle.LiveData<T> liveData(kotlin.coroutines.CoroutineContext context = EmptyCoroutineContext, long timeoutInMs = 5000L, kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
   }
 
   public interface LiveDataScope<T> {
-    method public suspend Object? emit(T! value, kotlin.coroutines.experimental.Continuation<? super kotlin.Unit> p);
-    method public suspend Object? emitSource(androidx.lifecycle.LiveData<T> source, kotlin.coroutines.experimental.Continuation<? super kotlinx.coroutines.DisposableHandle> p);
+    method public suspend Object! emit(T? value, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public suspend Object emitSource(androidx.lifecycle.LiveData<T> source, kotlin.coroutines.Continuation<? super kotlinx.coroutines.DisposableHandle> p);
     method public T? getInitialValue();
     property public abstract T? initialValue;
   }

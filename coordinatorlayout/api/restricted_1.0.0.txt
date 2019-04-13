@@ -15,8 +15,8 @@ package androidx.coordinatorlayout.widget {
     method public void clear();
     method public boolean contains(T);
     method public java.util.List? getIncomingEdges(T);
-    method public java.util.List<T>? getOutgoingEdges(T);
-    method public java.util.ArrayList<T> getSortedList();
+    method public java.util.List<T!>? getOutgoingEdges(T);
+    method public java.util.ArrayList<T!> getSortedList();
     method public boolean hasOutgoingEdges(T);
   }
 

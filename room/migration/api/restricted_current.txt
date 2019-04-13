@@ -7,14 +7,14 @@ package androidx.room.migration.bundle {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DatabaseBundle {
-    ctor public DatabaseBundle(int, String!, java.util.List<androidx.room.migration.bundle.EntityBundle>!, java.util.List<androidx.room.migration.bundle.DatabaseViewBundle>!, java.util.List<java.lang.String>!);
+    ctor public DatabaseBundle(int, String!, java.util.List<androidx.room.migration.bundle.EntityBundle!>!, java.util.List<androidx.room.migration.bundle.DatabaseViewBundle!>!, java.util.List<java.lang.String!>!);
     ctor public DatabaseBundle();
-    method public java.util.List<java.lang.String>! buildCreateQueries();
-    method public java.util.List<androidx.room.migration.bundle.EntityBundle>! getEntities();
-    method public java.util.Map<java.lang.String,androidx.room.migration.bundle.EntityBundle>! getEntitiesByTableName();
+    method public java.util.List<java.lang.String!>! buildCreateQueries();
+    method public java.util.List<androidx.room.migration.bundle.EntityBundle!>! getEntities();
+    method public java.util.Map<java.lang.String!,androidx.room.migration.bundle.EntityBundle!>! getEntitiesByTableName();
     method public String! getIdentityHash();
     method public int getVersion();
-    method public java.util.List<androidx.room.migration.bundle.DatabaseViewBundle>! getViews();
+    method public java.util.List<androidx.room.migration.bundle.DatabaseViewBundle!>! getViews();
     method public boolean isSchemaEqual(androidx.room.migration.bundle.DatabaseBundle!);
   }
 
@@ -27,15 +27,15 @@ package androidx.room.migration.bundle {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class EntityBundle {
-    ctor public EntityBundle(String!, String!, java.util.List<androidx.room.migration.bundle.FieldBundle>!, androidx.room.migration.bundle.PrimaryKeyBundle!, java.util.List<androidx.room.migration.bundle.IndexBundle>!, java.util.List<androidx.room.migration.bundle.ForeignKeyBundle>!);
-    method public java.util.Collection<java.lang.String>! buildCreateQueries();
+    ctor public EntityBundle(String!, String!, java.util.List<androidx.room.migration.bundle.FieldBundle!>!, androidx.room.migration.bundle.PrimaryKeyBundle!, java.util.List<androidx.room.migration.bundle.IndexBundle!>!, java.util.List<androidx.room.migration.bundle.ForeignKeyBundle!>!);
+    method public java.util.Collection<java.lang.String!>! buildCreateQueries();
     method public String! createNewTable();
     method public String! createTable();
     method public String! getCreateSql();
-    method public java.util.List<androidx.room.migration.bundle.FieldBundle>! getFields();
-    method public java.util.Map<java.lang.String,androidx.room.migration.bundle.FieldBundle>! getFieldsByColumnName();
-    method public java.util.List<androidx.room.migration.bundle.ForeignKeyBundle>! getForeignKeys();
-    method public java.util.List<androidx.room.migration.bundle.IndexBundle>! getIndices();
+    method public java.util.List<androidx.room.migration.bundle.FieldBundle!>! getFields();
+    method public java.util.Map<java.lang.String!,androidx.room.migration.bundle.FieldBundle!>! getFieldsByColumnName();
+    method public java.util.List<androidx.room.migration.bundle.ForeignKeyBundle!>! getForeignKeys();
+    method public java.util.List<androidx.room.migration.bundle.IndexBundle!>! getIndices();
     method public String! getNewTableName();
     method public androidx.room.migration.bundle.PrimaryKeyBundle! getPrimaryKey();
     method public String! getTableName();
@@ -53,31 +53,31 @@ package androidx.room.migration.bundle {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ForeignKeyBundle {
-    ctor public ForeignKeyBundle(String!, String!, String!, java.util.List<java.lang.String>!, java.util.List<java.lang.String>!);
-    method public java.util.List<java.lang.String>! getColumns();
+    ctor public ForeignKeyBundle(String!, String!, String!, java.util.List<java.lang.String!>!, java.util.List<java.lang.String!>!);
+    method public java.util.List<java.lang.String!>! getColumns();
     method public String! getOnDelete();
     method public String! getOnUpdate();
-    method public java.util.List<java.lang.String>! getReferencedColumns();
+    method public java.util.List<java.lang.String!>! getReferencedColumns();
     method public String! getTable();
     method public boolean isSchemaEqual(androidx.room.migration.bundle.ForeignKeyBundle!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FtsEntityBundle extends androidx.room.migration.bundle.EntityBundle {
-    ctor public FtsEntityBundle(String!, String!, java.util.List<androidx.room.migration.bundle.FieldBundle>!, androidx.room.migration.bundle.PrimaryKeyBundle!, String!, androidx.room.migration.bundle.FtsOptionsBundle!, java.util.List<java.lang.String>!);
+    ctor public FtsEntityBundle(String!, String!, java.util.List<androidx.room.migration.bundle.FieldBundle!>!, androidx.room.migration.bundle.PrimaryKeyBundle!, String!, androidx.room.migration.bundle.FtsOptionsBundle!, java.util.List<java.lang.String!>!);
     method public androidx.room.migration.bundle.FtsOptionsBundle! getFtsOptions();
-    method public java.util.List<java.lang.String>! getShadowTableNames();
+    method public java.util.List<java.lang.String!>! getShadowTableNames();
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FtsOptionsBundle {
-    ctor public FtsOptionsBundle(String!, java.util.List<java.lang.String>!, String!, String!, String!, java.util.List<java.lang.String>!, java.util.List<java.lang.Integer>!, String!);
+    ctor public FtsOptionsBundle(String!, java.util.List<java.lang.String!>!, String!, String!, String!, java.util.List<java.lang.String!>!, java.util.List<java.lang.Integer!>!, String!);
     method public String! getContentTable();
     method public boolean isSchemaEqual(androidx.room.migration.bundle.FtsOptionsBundle!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class IndexBundle {
-    ctor public IndexBundle(String!, boolean, java.util.List<java.lang.String>!, String!);
+    ctor public IndexBundle(String!, boolean, java.util.List<java.lang.String!>!, String!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String! create(String!);
-    method public java.util.List<java.lang.String>! getColumnNames();
+    method public java.util.List<java.lang.String!>! getColumnNames();
     method public String! getName();
     method public boolean isSchemaEqual(androidx.room.migration.bundle.IndexBundle!);
     method public boolean isUnique();
@@ -85,8 +85,8 @@ package androidx.room.migration.bundle {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PrimaryKeyBundle {
-    ctor public PrimaryKeyBundle(boolean, java.util.List<java.lang.String>!);
-    method public java.util.List<java.lang.String>! getColumnNames();
+    ctor public PrimaryKeyBundle(boolean, java.util.List<java.lang.String!>!);
+    method public java.util.List<java.lang.String!>! getColumnNames();
     method public boolean isAutoGenerate();
     method public boolean isSchemaEqual(androidx.room.migration.bundle.PrimaryKeyBundle!);
   }

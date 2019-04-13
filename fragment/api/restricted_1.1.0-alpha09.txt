@@ -23,9 +23,9 @@ package androidx.fragment.app {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class FragmentTransitionImpl {
     ctor public FragmentTransitionImpl();
     method public abstract void addTarget(Object!, android.view.View!);
-    method public abstract void addTargets(Object!, java.util.ArrayList<android.view.View>!);
+    method public abstract void addTargets(Object!, java.util.ArrayList<android.view.View!>!);
     method public abstract void beginDelayedTransition(android.view.ViewGroup!, Object!);
-    method protected static void bfsAddViewChildren(java.util.List<android.view.View>!, android.view.View!);
+    method protected static void bfsAddViewChildren(java.util.List<android.view.View!>!, android.view.View!);
     method public abstract boolean canHandle(Object!);
     method public abstract Object! cloneTransition(Object!);
     method protected void getBoundsOnScreen(android.view.View!, android.graphics.Rect!);
@@ -33,13 +33,13 @@ package androidx.fragment.app {
     method public abstract Object! mergeTransitionsInSequence(Object!, Object!, Object!);
     method public abstract Object! mergeTransitionsTogether(Object!, Object!, Object!);
     method public abstract void removeTarget(Object!, android.view.View!);
-    method public abstract void replaceTargets(Object!, java.util.ArrayList<android.view.View>!, java.util.ArrayList<android.view.View>!);
-    method public abstract void scheduleHideFragmentView(Object!, android.view.View!, java.util.ArrayList<android.view.View>!);
-    method public abstract void scheduleRemoveTargets(Object!, Object!, java.util.ArrayList<android.view.View>!, Object!, java.util.ArrayList<android.view.View>!, Object!, java.util.ArrayList<android.view.View>!);
+    method public abstract void replaceTargets(Object!, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
+    method public abstract void scheduleHideFragmentView(Object!, android.view.View!, java.util.ArrayList<android.view.View!>!);
+    method public abstract void scheduleRemoveTargets(Object!, Object!, java.util.ArrayList<android.view.View!>!, Object!, java.util.ArrayList<android.view.View!>!, Object!, java.util.ArrayList<android.view.View!>!);
     method public abstract void setEpicenter(Object!, android.view.View!);
     method public abstract void setEpicenter(Object!, android.graphics.Rect!);
-    method public abstract void setSharedElementTargets(Object!, android.view.View!, java.util.ArrayList<android.view.View>!);
-    method public abstract void swapSharedElementTargets(Object!, java.util.ArrayList<android.view.View>!, java.util.ArrayList<android.view.View>!);
+    method public abstract void setSharedElementTargets(Object!, android.view.View!, java.util.ArrayList<android.view.View!>!);
+    method public abstract void swapSharedElementTargets(Object!, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
     method public abstract Object! wrapTransitionInSet(Object!);
   }
 
