@@ -30,6 +30,7 @@ import androidx.room.RoomProcessor
  * androidx.sqlite = android.arch.persistence
  * androidx.room = android.arch.persistence.room
  * androidx.paging = android.arch.paging
+ * androidx.lifecycle = android.arch.lifecycle
  * androidx.collection = com.android.support
  * ```
  */
@@ -48,6 +49,7 @@ private val PACKAGE_NAME_OVERRIDES: Map<String, String> by lazy {
 val SQLITE_PACKAGE = getOrDefault("androidx.sqlite")
 val ROOM_PACKAGE = getOrDefault("androidx.room")
 val PAGING_PACKAGE = getOrDefault("androidx.paging")
+val LIFECYCLE_PACKAGE = getOrDefault("androidx.lifecycle")
 val COLLECTION_PACKAGE = getOrDefault("androidx.collection")
 
 private fun getOrDefault(key: String) = PACKAGE_NAME_OVERRIDES.getOrDefault(key, key)
