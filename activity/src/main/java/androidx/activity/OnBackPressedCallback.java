@@ -17,6 +17,7 @@
 package androidx.activity;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.arch.core.util.Cancellable;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -33,6 +34,10 @@ import java.util.ArrayList;
  * {@link androidx.lifecycle.LifecycleOwner} passed to
  * {@link OnBackPressedDispatcher#addCallback(LifecycleOwner, OnBackPressedCallback)}
  * which controls when the callback is added and removed to the dispatcher.
+ * <p>
+ * By calling {@link #removeCallback()}, this callback will be removed from any
+ * {@link OnBackPressedDispatcher} it has been added to. It is strongly recommended
+ * to instead disable this callback to handle temporary changes in state.
  *
  * @see ComponentActivity#getOnBackPressedDispatcher()
  */
@@ -79,8 +84,27 @@ public abstract class OnBackPressedCallback {
     }
 
     /**
+     * Removes this callback from any {@link OnBackPressedDispatcher} it is currently
+     * added to.
+     */
+    @MainThread
+    public void removeCallback() {
+        for (Cancellable cancellable: mCancellables) {
+            cancellable.cancel();
+        }
+    }
+
+    /**
      * Callback for handling the {@link OnBackPressedDispatcher#onBackPressed()} event.
      */
     @MainThread
     public abstract void handleOnBackPressed();
+
+    void addCancellable(@NonNull Cancellable cancellable) {
+        mCancellables.add(cancellable);
+    }
+
+    void removeCancellable(@NonNull Cancellable cancellable) {
+        mCancellables.remove(cancellable);
+    }
 }
