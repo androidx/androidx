@@ -71,7 +71,7 @@ data class DpConstraints(
  * Whether or not the upper bound on the maximum height.
  * @see hasBoundedWidth
  */
-val DpConstraints.hasBoundedHeight get() = maxHeight != Dp.Infinity
+val DpConstraints.hasBoundedHeight get() = maxHeight.isFinite()
 
 /**
  * Whether or not the upper bound on the maximum width.

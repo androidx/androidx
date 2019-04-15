@@ -196,7 +196,7 @@ data /*inline*/ class Dp(val value: Float) {
  *
  * Return whether `true` when it is finite or `false` when it is [Dp.Infinity]
  */
-/*inline*/ fun Dp.isFinite(): Boolean = value != Float.MAX_VALUE
+/*inline*/ fun Dp.isFinite(): Boolean = value != Float.POSITIVE_INFINITY
 
 /**
  * Linearly interpolate between two [Dp]s.
