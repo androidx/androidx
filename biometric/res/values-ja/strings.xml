@@ -22,8 +22,7 @@
     <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"ヘルプ メッセージ領域"</string>
     <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"指紋認証ハードウェアは使用できません。"</string>
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"指紋が登録されていません。"</string>
-    <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"このデバイスには指紋認証センサーがありません"</string>
+    <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"この端末には指紋認証センサーがありません"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"指紋認証操作がユーザーによりキャンセルされました。"</string>
-    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"入力回数が上限を超えました。しばらくしてからもう一度お試しください。"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"不明なエラーです"</string>
 </resources>

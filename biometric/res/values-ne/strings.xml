@@ -24,6 +24,5 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"कुनै पनि फिंगरप्रिन्ट दर्ता गरिएको छैन।"</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"यो यन्त्रमा कुनै फिंगरप्रिन्ट सेन्सर छैन"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"प्रयोगकर्ताले फिंगरप्रिन्टसम्बन्धी कारबाही रद्द गर्नुभयो।"</string>
-    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"अत्यधिक पटक प्रयासहरू गरिए। कृपया पछि फेरि प्रयास गर्नुहोस्।"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"अज्ञात त्रुटि"</string>
 </resources>

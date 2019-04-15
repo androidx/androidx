@@ -24,6 +24,5 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Geen vingerafdrukke is geregistreer nie."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Hierdie toetstel het nie \'n vingerafdruksensor nie"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Vingerafdrukhandeling is deur gebruiker gekanselleer."</string>
-    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Te veel pogings. Probeer later weer."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Onbekende fout"</string>
 </resources>

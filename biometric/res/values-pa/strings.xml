@@ -24,6 +24,5 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"ਕੋਈ ਫਿੰਗਰਪ੍ਰਿੰਟ ਦਰਜ ਨਹੀਂ ਕੀਤਾ ਗਿਆ।"</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"ਇਸ ਡੀਵਾਈਸ ਵਿੱਚ ਫਿੰਗਰਪ੍ਰਿੰਟ ਸੈਂਸਰ ਨਹੀਂ ਹੈ"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ਫਿੰਗਰਪ੍ਰਿੰਟ ਦੇ ਪੁਸ਼ਟੀਕਰਨ ਦੀ ਕਾਰਵਾਈ ਵਰਤੋਂਕਾਰ ਵੱਲੋਂ ਰੱਦ ਕੀਤੀ ਗਈ।"</string>
-    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"ਬਹੁਤ ਜ਼ਿਆਦਾ ਕੋਸ਼ਿਸ਼ਾਂ। ਕਿਰਪਾ ਕਰਕੇ ਬਾਅਦ ਵਿੱਚ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"ਅਗਿਆਤ ਗੜਬੜ"</string>
 </resources>

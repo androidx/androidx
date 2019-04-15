@@ -24,6 +24,5 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Nessuna impronta digitale registrata."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Questo dispositivo non è dotato di sensore di impronte digitali"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Operazione di autenticazione dell\'impronta digitale annullata dall\'utente."</string>
-    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"È stato effettuato un numero eccessivo di tentativi. Riprova più tardi."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Errore sconosciuto"</string>
 </resources>
