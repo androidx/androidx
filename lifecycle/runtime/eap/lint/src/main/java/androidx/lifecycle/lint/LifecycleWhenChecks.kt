@@ -167,7 +167,7 @@ internal class LifecycleWhenVisitor(
         // because only `callsInPlace` lambdas inherit coroutine scope. But contracts aren't stable
         // yet =(
         // if lambda is suspending it means something else defined its scope
-        return node.isSuspendLambda(context) || super.visitLambdaExpression(node)
+        return node.isSuspendLambda() || super.visitLambdaExpression(node)
     }
 
     // ignore classes defined inline
@@ -202,7 +202,7 @@ private fun PsiMethod.isLifecycleIsAtLeastMethod(context: JavaContext): Boolean 
 }
 
 // TODO: find a better way!
-private fun ULambdaExpression.isSuspendLambda(context: JavaContext): Boolean {
+private fun ULambdaExpression.isSuspendLambda(): Boolean {
     val expressionClass = getExpressionType() as? PsiClassType ?: return false
     val params = expressionClass.parameters
     // suspend functions are FunctionN<*, Continuation, Obj>
@@ -211,7 +211,7 @@ private fun ULambdaExpression.isSuspendLambda(context: JavaContext): Boolean {
     }
     val superBound = (params[params.size - 2] as? PsiWildcardType)?.superBound as? PsiClassType
     return if (superBound != null) {
-        context.evaluator.getQualifiedName(superBound) in CONTINUATION_NAMES
+        superBound.canonicalText in CONTINUATION_NAMES
     } else {
         false
     }
