@@ -24,7 +24,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
-import junit.framework.Assert.fail
+import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -73,7 +73,7 @@ class BackStackStateTest {
 
         val fragment1 = Fragment()
 
-        fm1.beginTransaction().attach(fragment1).commitNow()
+        fm1.beginTransaction().add(fragment1, "1").commitNow()
         try {
             fm2.beginTransaction().hide(fragment1).commitNow()
             fail("Fragment associated with another" +
@@ -105,7 +105,7 @@ class BackStackStateTest {
 
         val fragment1 = Fragment()
 
-        fm1.beginTransaction().attach(fragment1).commitNow()
+        fm1.beginTransaction().add(fragment1, "1").commitNow()
         try {
             fm2.beginTransaction().show(fragment1).commitNow()
             fail("Fragment associated with another" +
@@ -137,7 +137,7 @@ class BackStackStateTest {
 
         val fragment1 = Fragment()
 
-        fm1.beginTransaction().attach(fragment1).commitNow()
+        fm1.beginTransaction().add(fragment1, "1").commitNow()
         try {
             fm2.beginTransaction().setPrimaryNavigationFragment(fragment1).commitNow()
             fail("Fragment associated with another" +
@@ -170,7 +170,7 @@ class BackStackStateTest {
         // Add the initial state
         val fragment1 = StrictFragment()
 
-        fm1.beginTransaction().attach(fragment1).commitNow()
+        fm1.beginTransaction().add(fragment1, "1").commitNow()
 
         try {
             fm2.beginTransaction().detach(fragment1).commitNow()
@@ -204,7 +204,7 @@ class BackStackStateTest {
         // Add the initial state
         val fragment1 = StrictFragment()
 
-        fm1.beginTransaction().attach(fragment1).commitNow()
+        fm1.beginTransaction().add(fragment1, "1").commitNow()
 
         try {
             fm2.beginTransaction().remove(fragment1).commitNow()
