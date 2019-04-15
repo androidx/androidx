@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.filters.RequiresDevice
 import androidx.testutils.PollingCheck
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.LocaleTestUtils
@@ -55,6 +56,7 @@ import kotlin.math.roundToInt
 
 @RunWith(Parameterized::class)
 @LargeTest
+@RequiresDevice
 class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
     data class TestConfig(
         @ViewPager2.Orientation val orientation: Int,
@@ -70,7 +72,6 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
 
     override fun setUp() {
         super.setUp()
-        assumeApiPre29()
         if (config.rtl) {
             localeUtil.resetLocale()
             localeUtil.setLocale(LocaleTestUtils.RTL_LANGUAGE)

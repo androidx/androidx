@@ -22,6 +22,7 @@ import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.test.filters.LargeTest
+import androidx.test.filters.RequiresDevice
 import androidx.viewpager2.LocaleTestUtils
 import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
 import androidx.viewpager2.widget.FakeDragTest.Event.OnPageScrollStateChangedEvent
@@ -50,6 +51,7 @@ import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING as SETTLING
 
 @RunWith(Parameterized::class)
 @LargeTest
+@RequiresDevice
 class FakeDragTest(private val config: TestConfig) : BaseTest() {
     data class TestConfig(
         @ViewPager2.Orientation val orientation: Int,
@@ -70,7 +72,6 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
 
     override fun setUp() {
         super.setUp()
-        assumeApiPre29()
         if (config.rtl) {
             localeUtil.resetLocale()
             localeUtil.setLocale(LocaleTestUtils.RTL_LANGUAGE)
