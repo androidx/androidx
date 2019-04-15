@@ -19,6 +19,7 @@ package androidx.ui.androidview
 import android.print.PrintDocumentAdapter
 import android.util.Log
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
@@ -52,7 +53,7 @@ class WebContext {
     internal var webView: WebView? = null
 }
 
-private fun WebView.setRef(ref: (WebView)->Unit) {
+private fun WebView.setRef(ref: (WebView) -> Unit) {
     ref(this)
 }
 
@@ -66,12 +67,17 @@ private fun WebView.setUrl(url: String) {
 }
 
 @Composable
-fun WebComponent(url: String, webContext: WebContext) {
+fun WebComponent(
+    url: String,
+    webViewClient: WebViewClient = WebViewClient(),
+    webContext: WebContext
+) {
     if (WebContext.debug) {
         Log.d("WebComponent", "WebComponent compose " + url)
     }
 
     <WebView
-        ref={webContext.webView = it}
-        url=url/>
+        ref={ webContext.webView = it }
+        url=url
+        webViewClient=webViewClient />
 }
