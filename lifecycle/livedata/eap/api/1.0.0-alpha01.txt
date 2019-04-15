@@ -7,9 +7,9 @@ package androidx.lifecycle {
   }
 
   public interface LiveDataScope<T> {
+    method public suspend Object? emit(T! value, kotlin.coroutines.experimental.Continuation<? super kotlin.Unit> p);
+    method public suspend Object? emitSource(androidx.lifecycle.LiveData<T> source, kotlin.coroutines.experimental.Continuation<? super kotlin.Unit> p);
     method public T? getInitialValue();
-    method public suspend Object? yield(T! value, kotlin.coroutines.experimental.Continuation<? super kotlin.Unit> p);
-    method public suspend Object? yieldSource(androidx.lifecycle.LiveData<T> source, kotlin.coroutines.experimental.Continuation<? super kotlin.Unit> p);
     property public abstract T? initialValue;
   }
 
