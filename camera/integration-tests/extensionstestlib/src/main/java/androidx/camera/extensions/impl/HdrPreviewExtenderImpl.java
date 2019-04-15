@@ -13,38 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.camera.extensions.impl;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
-import android.util.Log;
-
-import androidx.camera.core.PreviewConfig;
-import androidx.camera.extensions.CaptureStage;
-import androidx.camera.extensions.PreviewExtender;
 
 /**
- * Implementation for bokeh view finder use case.
+ * Implementation for HDR view finder use case.
  *
  * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
  * don't need to implement this, unless this is used for related testing usage.
  */
-public final class BokehPreviewExtender extends PreviewExtender {
-    private static final String TAG = "BokehPreviewExtender";
+public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     private static final int DEFAULT_STAGE_ID = 0;
 
-    public BokehPreviewExtender(PreviewConfig.Builder builder) {
-        super(builder);
-    }
+    public HdrPreviewExtenderImpl() { }
 
     @Override
-    public void enableExtension() {
-        Log.d(TAG, "Adding effects to the view finder");
-        // Sets necessary CaptureRequest parameters via CaptureStage
-        CaptureStage captureStage = new CaptureStage(DEFAULT_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_SEPIA);
-        setCaptureStage(captureStage);
+    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {
     }
 
     @Override
@@ -52,5 +39,16 @@ public final class BokehPreviewExtender extends PreviewExtender {
             CameraCharacteristics cameraCharacteristics) {
         // Implement the logic to check whether the extension function is supported or not.
         return true;
+    }
+
+    @Override
+    public CaptureStageImpl getCaptureStage() {
+        // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
+        // placeholder set of CaptureRequest.Key values
+        SettableCaptureStage captureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
+                CaptureRequest.CONTROL_EFFECT_MODE_SEPIA);
+
+        return captureStage;
     }
 }
