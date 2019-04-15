@@ -21,6 +21,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -304,6 +305,9 @@ class FragmentViewTest {
         val fragment = StrictViewFragment()
         fm.beginTransaction().remove(fragment).commit()
         activityRule.executePendingTransactions()
+        assertWithMessage("Fragment should not go through lifecycle changes until it is added")
+            .that(fragment.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.INITIALIZED)
     }
 
     // Hide a fragment and its View should be GONE. Then pop it and the View should be VISIBLE
@@ -359,6 +363,9 @@ class FragmentViewTest {
             .hide(fragment)
             .commit()
         activityRule.executePendingTransactions()
+        assertWithMessage("Fragment should not go through lifecycle changes until it is added")
+            .that(fragment.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.INITIALIZED)
     }
 
     // Show a hidden fragment and its View should be VISIBLE. Then pop it and the View should be
@@ -415,6 +422,9 @@ class FragmentViewTest {
             .show(fragment)
             .commit()
         activityRule.executePendingTransactions()
+        assertWithMessage("Fragment should not go through lifecycle changes until it is added")
+            .that(fragment.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.INITIALIZED)
     }
 
     // Detaching a fragment should remove the View from the hierarchy. Then popping it should
@@ -504,6 +514,9 @@ class FragmentViewTest {
             .detach(fragment)
             .commit()
         activityRule.executePendingTransactions()
+        assertWithMessage("Fragment should not go through lifecycle changes until it is added")
+            .that(fragment.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.INITIALIZED)
     }
 
     // Attaching a fragment should add the View back into the hierarchy. Then popping it should
@@ -594,6 +607,9 @@ class FragmentViewTest {
             .attach(fragment)
             .commit()
         activityRule.executePendingTransactions()
+        assertWithMessage("Fragment should not go through lifecycle changes until it is added")
+            .that(fragment.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.INITIALIZED)
     }
 
     // Simple replace of one fragment in a container. Popping should replace it back again
