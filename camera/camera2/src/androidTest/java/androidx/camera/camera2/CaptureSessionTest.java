@@ -52,6 +52,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -206,7 +207,7 @@ public final class CaptureSessionTest {
     }
 
     @Test
-    public void issueSingleCaptureRequest() throws CameraAccessException, InterruptedException {
+    public void issueCaptureRequest() throws CameraAccessException, InterruptedException {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
@@ -215,7 +216,8 @@ public final class CaptureSessionTest {
 
         assertThat(captureSession.getState()).isEqualTo(State.OPENED);
 
-        captureSession.issueSingleCaptureRequest(mTestParameters0.mCaptureConfig);
+        captureSession.issueCaptureRequests(
+                Collections.singletonList(mTestParameters0.mCaptureConfig));
 
         mTestParameters0.waitForCameraCaptureCallback();
 
@@ -225,12 +227,13 @@ public final class CaptureSessionTest {
     }
 
     @Test
-    public void issueSingleCaptureRequestBeforeCaptureSessionOpened()
+    public void issueCaptureRequestBeforeCaptureSessionOpened()
             throws CameraAccessException, InterruptedException {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
-        captureSession.issueSingleCaptureRequest(mTestParameters0.mCaptureConfig);
+        captureSession.issueCaptureRequests(
+                Collections.singletonList(mTestParameters0.mCaptureConfig));
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
 
         mTestParameters0.waitForCameraCaptureCallback();
@@ -241,13 +244,14 @@ public final class CaptureSessionTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void issueSingleCaptureRequestOnClosedSession_throwsException() {
+    public void issueCaptureRequestOnClosedSession_throwsException() {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
 
         captureSession.close();
 
         // Should throw IllegalStateException
-        captureSession.issueSingleCaptureRequest(mTestParameters0.mCaptureConfig);
+        captureSession.issueCaptureRequests(
+                Collections.singletonList(mTestParameters0.mCaptureConfig));
     }
 
     @Test

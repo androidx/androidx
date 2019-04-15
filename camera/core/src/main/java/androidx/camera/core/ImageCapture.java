@@ -820,6 +820,7 @@ public class ImageCapture extends UseCase {
     /** Issues a take picture request. */
     ListenableFuture<Void> issueTakePicture() {
         final List<ListenableFuture<Void>> futureList = new ArrayList<>();
+        final List<CaptureConfig> captureConfigs = new ArrayList<>();
 
         for (final CaptureStage captureStage : mCaptureBundle.getCaptureStages()) {
             final CaptureConfig.Builder builder = new CaptureConfig.Builder();
@@ -834,7 +835,6 @@ public class ImageCapture extends UseCase {
             builder.setTag(captureStage.getCaptureConfig().getTag());
             builder.addCameraCaptureCallback(mMetadataMatchingCaptureCallback);
 
-            final CameraControl cameraControl = getCurrentCameraControl();
             ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(
                     new CallbackToFutureAdapter.Resolver<Void>() {
                         @Override
@@ -858,7 +858,7 @@ public class ImageCapture extends UseCase {
                             };
                             builder.addCameraCaptureCallback(completerCallback);
 
-                            cameraControl.submitSingleRequest(builder.build());
+                            captureConfigs.add(builder.build());
                             return "issueTakePicture[stage=" + captureStage.getId() + "]";
                         }
                     });
@@ -866,6 +866,7 @@ public class ImageCapture extends UseCase {
 
         }
 
+        getCurrentCameraControl().submitCaptureRequests(captureConfigs);
         return CallbackToFutureAdapter.getFuture(new CallbackToFutureAdapter.Resolver<Void>() {
             @Override
             public Object attachCompleter(
