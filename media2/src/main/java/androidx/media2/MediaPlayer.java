@@ -1914,22 +1914,21 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     /**
-     * Returns the index of the audio, video, or subtitle track currently selected for playback,
+     * Returns the index of the audio or video track currently selected for playback,
      * The return value is an index into the array returned by {@link #getTrackInfo()}, and can
-     * be used in calls to {@link #selectTrack(TrackInfo)} or {@link #deselectTrack(TrackInfo)}.
+     * be used in calls to {@link #selectTrack(TrackInfo)}.
      *
-     * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO},
-     * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}, or
-     * {@link TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE}
-     * @return metadata corresponding to the audio, video, or subtitle track currently selected for
+     * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO} or
+     * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}
+     * @return metadata corresponding to the audio or video track currently selected for
      * playback; {@code null} is returned when there is no selected track for {@code trackType} or
-     * when {@code trackType} is not one of audio, video, or subtitle.
+     * when {@code trackType} is not one of audio or video.
      * @throws IllegalStateException if called after {@link #close()}
      *
      * @see #getTrackInfo()
      * @see #selectTrack(TrackInfo)
-     * @see #deselectTrack(TrackInfo)
      */
+    // TODO: revise the method document once subtitle track support is re-enabled. (b/130312596)
     @Nullable
     public TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
         final int ret = mPlayer.getSelectedTrack(trackType);
@@ -1939,22 +1938,22 @@ public class MediaPlayer extends SessionPlayer {
     /**
      * Selects a track.
      * <p>
-     * If the player is in invalid state, {@link androidx.media2.SessionPlayer.PlayerResult#RESULT_ERROR_INVALID_STATE} will be
+     * If the player is in invalid state,
+     * {@link androidx.media2.SessionPlayer.PlayerResult#RESULT_ERROR_INVALID_STATE} will be
      * reported with {@link androidx.media2.SessionPlayer.PlayerResult}.
      * If a player is in <em>Playing</em> state, the selected track is presented immediately.
      * If a player is not in Playing state, it just marks the track to be played.
      * </p>
      * <p>
      * In any valid state, if it is called multiple times on the same type of track (ie. Video,
-     * Audio, Timed Text), the most recent one will be chosen.
+     * Audio), the most recent one will be chosen.
      * </p>
      * <p>
      * The first audio and video tracks are selected by default if available, even though
-     * this method is not called. However, no timed text track will be selected until
-     * this function is called.
+     * this method is not called.
      * </p>
      * <p>
-     * Currently, only timed text tracks or audio tracks can be selected via this method.
+     * Currently, audio tracks can be selected via this method.
      * </p>
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
      * object can be obtained from {@link #getTrackInfo()}.
@@ -1967,6 +1966,7 @@ public class MediaPlayer extends SessionPlayer {
      * {@link androidx.media2.SessionPlayer.PlayerResult} will be delivered when the command
      * completed.
      */
+    // TODO: support subtitle track selection  (b/130312596)
     @NonNull
     public ListenableFuture<PlayerResult> selectTrack(@NonNull final TrackInfo trackInfo) {
         final int trackId = trackInfo.mId;
@@ -2004,7 +2004,10 @@ public class MediaPlayer extends SessionPlayer {
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link androidx.media2.SessionPlayer.PlayerResult} will be delivered when the command
      * completed.
+     *
+     * @hide  TODO: unhide this when we support subtitle track selection (b/130312596)
      */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     public ListenableFuture<PlayerResult> deselectTrack(@NonNull final TrackInfo trackInfo) {
         final int trackId = trackInfo.mId;
@@ -2836,7 +2839,10 @@ public class MediaPlayer extends SessionPlayer {
          * @param mp the player that reports the new subtitle data
          * @param item the MediaItem of this media item
          * @param data the subtitle data
+         *
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public void onSubtitleData(@NonNull MediaPlayer mp,
                 @NonNull MediaItem item, @NonNull SubtitleData data) { }
 
