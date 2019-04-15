@@ -16,6 +16,7 @@
 
 package androidx.activity;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.util.Cancellable;
@@ -72,11 +73,10 @@ public final class OnBackPressedDispatcher {
      *
      * @see #onBackPressed()
      */
+    @MainThread
     @NonNull
     public Cancellable addCallback(@NonNull OnBackPressedCallback onBackPressedCallback) {
-        synchronized (mOnBackPressedCallbacks) {
-            mOnBackPressedCallbacks.add(onBackPressedCallback);
-        }
+        mOnBackPressedCallbacks.add(onBackPressedCallback);
         return new OnBackPressedCancellable(onBackPressedCallback);
     }
 
@@ -110,6 +110,7 @@ public final class OnBackPressedDispatcher {
      *
      * @see #onBackPressed()
      */
+    @MainThread
     @NonNull
     public Cancellable addCallback(@NonNull LifecycleOwner owner,
             @NonNull OnBackPressedCallback onBackPressedCallback) {
@@ -128,17 +129,16 @@ public final class OnBackPressedDispatcher {
      *
      * @return True if an added {@link OnBackPressedCallback} handled the back button.
      */
+    @MainThread
     public boolean onBackPressed() {
-        synchronized (mOnBackPressedCallbacks) {
-            Iterator<OnBackPressedCallback> iterator =
-                    mOnBackPressedCallbacks.descendingIterator();
-            while (iterator.hasNext()) {
-                if (iterator.next().handleOnBackPressed()) {
-                    return true;
-                }
+        Iterator<OnBackPressedCallback> iterator =
+                mOnBackPressedCallbacks.descendingIterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().handleOnBackPressed()) {
+                return true;
             }
-            return false;
         }
+        return false;
     }
 
     private class OnBackPressedCancellable implements Cancellable {
@@ -151,10 +151,8 @@ public final class OnBackPressedDispatcher {
 
         @Override
         public void cancel() {
-            synchronized (mOnBackPressedCallbacks) {
-                mOnBackPressedCallbacks.remove(mOnBackPressedCallback);
-                mCancelled = true;
-            }
+            mOnBackPressedCallbacks.remove(mOnBackPressedCallback);
+            mCancelled = true;
         }
 
         @Override

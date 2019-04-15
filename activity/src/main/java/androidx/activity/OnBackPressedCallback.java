@@ -16,6 +16,8 @@
 
 package androidx.activity;
 
+import androidx.annotation.MainThread;
+
 /**
  * Interface for handling {@link OnBackPressedDispatcher#onBackPressed()} callbacks without
  * strongly coupling that implementation to a subclass of {@link ComponentActivity}.
@@ -29,5 +31,6 @@ public interface OnBackPressedCallback {
      * @return True if you handled the {@link OnBackPressedDispatcher#onBackPressed()} event. No
      * further {@link OnBackPressedCallback} instances will be called if you return true.
      */
+    @MainThread
     boolean handleOnBackPressed();
 }

@@ -17,13 +17,13 @@ package androidx.activity {
   }
 
   public interface OnBackPressedCallback {
-    method public boolean handleOnBackPressed();
+    method @MainThread public boolean handleOnBackPressed();
   }
 
   public final class OnBackPressedDispatcher {
-    method public androidx.arch.core.util.Cancellable addCallback(androidx.activity.OnBackPressedCallback);
-    method public androidx.arch.core.util.Cancellable addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
-    method public boolean onBackPressed();
+    method @MainThread public androidx.arch.core.util.Cancellable addCallback(androidx.activity.OnBackPressedCallback);
+    method @MainThread public androidx.arch.core.util.Cancellable addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
+    method @MainThread public boolean onBackPressed();
   }
 
 }
