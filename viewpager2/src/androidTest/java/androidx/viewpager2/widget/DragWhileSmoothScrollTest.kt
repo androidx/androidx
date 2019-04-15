@@ -21,6 +21,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.LargeTest
+import androidx.test.filters.RequiresDevice
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.SwipeToLocation.flingToCenter
 import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
@@ -50,6 +51,7 @@ import kotlin.math.max
  */
 @RunWith(Parameterized::class)
 @LargeTest
+@RequiresDevice
 class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
     data class TestConfig(
         val title: String,
