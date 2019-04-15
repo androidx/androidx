@@ -1137,6 +1137,13 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (f == null) {
             return;
         }
+        if (!mActive.containsKey(f.mWho)) {
+            if (DEBUG) {
+                Log.v(TAG, "Ignoring moving " + f + " to state " + mCurState
+                        + "since it is not added to " + this);
+            }
+            return;
+        }
         int nextState = mCurState;
         if (f.mRemoving) {
             if (f.isInBackStack()) {
