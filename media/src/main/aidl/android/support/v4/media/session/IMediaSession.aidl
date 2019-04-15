@@ -34,7 +34,7 @@ import java.util.List;
  * @hide
  */
 interface IMediaSession {
-    // Next ID: 49
+    // Next ID: 50
     void sendCommand(String command, in Bundle args, in MediaSessionCompat.ResultReceiverWrapper cb) = 0;
     boolean sendMediaButton(in KeyEvent mediaButton) = 1;
     void registerCallbackListener(in IMediaControllerCallback cb) = 2;
@@ -61,6 +61,7 @@ interface IMediaSession {
     void addQueueItemAt(in MediaDescriptionCompat description, int index) = 41;
     void removeQueueItem(in MediaDescriptionCompat description) = 42;
     void removeQueueItemAt(int index) = 43;
+    Bundle getSessionInfo() = 49;
 
     // These commands are for the TransportControls
     void prepare() = 32;

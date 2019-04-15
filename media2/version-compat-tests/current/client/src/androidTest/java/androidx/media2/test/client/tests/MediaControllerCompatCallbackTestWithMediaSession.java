@@ -71,7 +71,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        mSession = new RemoteMediaSession(TAG, mContext);
+        mSession = new RemoteMediaSession(TAG, mContext, null);
         mControllerCompat = new MediaControllerCompat(mContext, mSession.getCompatToken());
     }
 

@@ -1076,7 +1076,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
             final PendingIntent sessionActivity,
             final int currentMediaItemIndex,
             final int previousMediaItemIndex,
-            final int nextMediaItemIndex) {
+            final int nextMediaItemIndex,
+            final Bundle tokenExtras) {
         if (DEBUG) {
             Log.d(TAG, "onConnectedNotLocked sessionBinder=" + sessionBinder
                     + ", allowedCommands=" + allowedCommands);
@@ -1127,7 +1128,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
                     return;
                 }
                 mConnectedToken = new SessionToken(new SessionTokenImplBase(
-                        mToken.getUid(), TYPE_SESSION, mToken.getPackageName(), sessionBinder));
+                        mToken.getUid(), TYPE_SESSION, mToken.getPackageName(), sessionBinder,
+                        tokenExtras));
             }
             mCallbackExecutor.execute(new Runnable() {
                 @Override
