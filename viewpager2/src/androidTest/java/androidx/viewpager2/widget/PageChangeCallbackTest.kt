@@ -70,7 +70,6 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
 
     override fun setUp() {
         super.setUp()
-        assumeApiPre29()
         if (config.rtl) {
             localeUtil.resetLocale()
             localeUtil.setLocale(LocaleTestUtils.RTL_LANGUAGE)
