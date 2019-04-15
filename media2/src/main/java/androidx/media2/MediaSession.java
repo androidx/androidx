@@ -141,21 +141,23 @@ public class MediaSession implements AutoCloseable {
     private final MediaSessionImpl mImpl;
 
     MediaSession(Context context, String id, SessionPlayer player,
-            PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback) {
+            PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback,
+            Bundle tokenExtras) {
         synchronized (STATIC_LOCK) {
             if (SESSION_ID_TO_SESSION_MAP.containsKey(id)) {
                 throw new IllegalStateException("Session ID must be unique. ID=" + id);
             }
             SESSION_ID_TO_SESSION_MAP.put(id, this);
         }
-        mImpl = createImpl(context, id, player, sessionActivity, callbackExecutor,
-                callback);
+        mImpl = createImpl(context, id, player, sessionActivity, callbackExecutor, callback,
+                tokenExtras);
     }
 
     MediaSessionImpl createImpl(Context context, String id, SessionPlayer player,
-            PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback) {
+            PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback,
+            Bundle tokenExtras) {
         return new MediaSessionImplBase(this, context, id, player, sessionActivity,
-                callbackExecutor, callback);
+                callbackExecutor, callback, tokenExtras);
     }
 
     /**
@@ -826,6 +828,12 @@ public class MediaSession implements AutoCloseable {
             return super.setSessionCallback(executor, callback);
         }
 
+        @NonNull
+        @Override
+        public Builder setExtras(@NonNull Bundle extras) {
+            return super.setExtras(extras);
+        }
+
         @Override
         public @NonNull MediaSession build() {
             if (mCallbackExecutor == null) {
@@ -835,7 +843,7 @@ public class MediaSession implements AutoCloseable {
                 mCallback = new SessionCallback() {};
             }
             return new MediaSession(mContext, mId, mPlayer, mSessionActivity,
-                    mCallbackExecutor, mCallback);
+                    mCallbackExecutor, mCallback, mExtras);
         }
     }
 
@@ -1194,6 +1202,7 @@ public class MediaSession implements AutoCloseable {
         Executor mCallbackExecutor;
         C mCallback;
         PendingIntent mSessionActivity;
+        Bundle mExtras;
 
         BuilderBase(@NonNull Context context, @NonNull SessionPlayer player) {
             if (context == null) {
@@ -1254,6 +1263,22 @@ public class MediaSession implements AutoCloseable {
             }
             mCallbackExecutor = executor;
             mCallback = callback;
+            return (U) this;
+        }
+
+        /**
+         * Set extras for the session token.  If not set, {@link SessionToken#getExtras()}
+         * will return {@link Bundle#EMPTY}.
+         *
+         * @return The Builder to allow chaining
+         * @see SessionToken#getExtras()
+         */
+        @NonNull
+        public U setExtras(@NonNull Bundle extras) {
+            if (extras == null) {
+                throw new IllegalArgumentException("extras shouldn't be null");
+            }
+            mExtras = extras;
             return (U) this;
         }
 

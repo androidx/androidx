@@ -282,6 +282,12 @@ public abstract class MediaLibraryService extends MediaSessionService {
                 return super.setId(id);
             }
 
+            @NonNull
+            @Override
+            public Builder setExtras(@NonNull Bundle extras) {
+                return super.setExtras(extras);
+            }
+
             @Override
             public @NonNull MediaLibrarySession build() {
                 if (mCallbackExecutor == null) {
@@ -291,22 +297,22 @@ public abstract class MediaLibraryService extends MediaSessionService {
                     mCallback = new MediaLibrarySession.MediaLibrarySessionCallback() {};
                 }
                 return new MediaLibrarySession(mContext, mId, mPlayer, mSessionActivity,
-                        mCallbackExecutor, mCallback);
+                        mCallbackExecutor, mCallback, mExtras);
             }
         }
 
         MediaLibrarySession(Context context, String id, SessionPlayer player,
                 PendingIntent sessionActivity, Executor callbackExecutor,
-                MediaSession.SessionCallback callback) {
-            super(context, id, player, sessionActivity, callbackExecutor, callback);
+                MediaSession.SessionCallback callback, Bundle tokenExtras) {
+            super(context, id, player, sessionActivity, callbackExecutor, callback, tokenExtras);
         }
 
         @Override
         MediaLibrarySessionImpl createImpl(Context context, String id, SessionPlayer player,
                 PendingIntent sessionActivity, Executor callbackExecutor,
-                MediaSession.SessionCallback callback) {
+                MediaSession.SessionCallback callback, Bundle tokenExtras) {
             return new MediaLibrarySessionImplBase(this, context, id, player, sessionActivity,
-                    callbackExecutor, callback);
+                    callbackExecutor, callback, tokenExtras);
         }
 
         @Override

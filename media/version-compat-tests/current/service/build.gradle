@@ -30,12 +30,6 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
 }
 
-android {
-    defaultConfig {
-        minSdkVersion 19
-    }
-}
-
 androidx {
     toolingProject = true
 }

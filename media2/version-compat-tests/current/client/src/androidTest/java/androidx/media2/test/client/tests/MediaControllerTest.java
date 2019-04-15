@@ -41,9 +41,11 @@ import androidx.media2.MediaController;
 import androidx.media2.MediaController.PlaybackInfo;
 import androidx.media2.MediaItem;
 import androidx.media2.SessionPlayer;
+import androidx.media2.SessionToken;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.PollingCheck;
+import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -78,7 +80,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     public void setUp() throws Exception {
         super.setUp();
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        mRemoteSession2 = createRemoteMediaSession(DEFAULT_TEST_NAME);
+        mRemoteSession2 = createRemoteMediaSession(DEFAULT_TEST_NAME, null);
     }
 
     @After
@@ -114,7 +116,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     @Test
     public void testGetSessionActivity() throws InterruptedException {
         prepareLooper();
-        RemoteMediaSession session = createRemoteMediaSession(TEST_GET_SESSION_ACTIVITY);
+        RemoteMediaSession session = createRemoteMediaSession(TEST_GET_SESSION_ACTIVITY, null);
 
         MediaController controller = createController(session.getToken());
         PendingIntent sessionActivity = controller.getSessionActivity();
@@ -228,6 +230,18 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
+    public void testGetTokenExtras() throws Exception {
+        prepareLooper();
+        Bundle testTokenExtras = TestUtils.createTestBundle();
+        RemoteMediaSession session = createRemoteMediaSession("testGetExtras", testTokenExtras);
+
+        MediaController controller = createController(session.getToken());
+        SessionToken connectedToken = controller.getConnectedSessionToken();
+        assertNotNull(connectedToken);
+        assertTrue(TestUtils.equals(testTokenExtras, connectedToken.getExtras()));
+    }
+
+    @Test
     public void testIsConnected() throws InterruptedException {
         prepareLooper();
         MediaController controller = createController(mRemoteSession2.getToken());
@@ -309,8 +323,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 info.getCurrentVolume());
     }
 
-    RemoteMediaSession createRemoteMediaSession(String id) {
-        RemoteMediaSession session = new RemoteMediaSession(id, mContext);
+    RemoteMediaSession createRemoteMediaSession(String id, Bundle tokenExtras) {
+        RemoteMediaSession session = new RemoteMediaSession(id, mContext, tokenExtras);
         mRemoteSessionList.add(session);
         return session;
     }

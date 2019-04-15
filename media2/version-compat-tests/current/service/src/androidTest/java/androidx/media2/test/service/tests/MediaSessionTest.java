@@ -112,6 +112,13 @@ public class MediaSessionTest extends MediaSessionTestBase {
         } catch (IllegalArgumentException e) {
             // expected. pass-through
         }
+        try {
+            builder = new MediaSession.Builder(mContext, mPlayer);
+            builder.setExtras(null);
+            fail("null extras shouldn't be allowed");
+        } catch (IllegalArgumentException e) {
+            // expected. pass-through
+        }
     }
 
     @Test

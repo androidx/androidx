@@ -77,6 +77,7 @@ public class RemoteMediaSession {
 
     private final Context mContext;
     private final String mSessionId;
+    private final Bundle mTokenExtras;
 
     private ServiceConnection mServiceConnection;
     private IRemoteMediaSession mBinder;
@@ -87,11 +88,13 @@ public class RemoteMediaSession {
      * Create a {@link MediaSession} in the service app.
      * Should NOT be called in main thread.
      */
-    public RemoteMediaSession(@NonNull String sessionId, Context context) {
+    public RemoteMediaSession(@NonNull String sessionId, @NonNull Context context,
+            @Nullable Bundle tokenExtras) {
         mSessionId = sessionId;
         mContext = context;
         mCountDownLatch = new CountDownLatch(1);
         mServiceConnection = new MyServiceConnection();
+        mTokenExtras = tokenExtras;
 
         if (!connect()) {
             fail("Failed to connect to the MediaSessionProviderService.");
@@ -532,7 +535,7 @@ public class RemoteMediaSession {
      */
     private void create() {
         try {
-            mBinder.create(mSessionId);
+            mBinder.create(mSessionId, mTokenExtras);
             mRemotePlayer = new RemoteMockPlayer();
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to get session token. sessionId=" + mSessionId);

@@ -26,6 +26,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -222,6 +223,15 @@ public final class SessionToken implements VersionedParcelable {
     }
 
     /**
+     * @return extras of the token
+     * @see MediaSession.Builder#setExtras(Bundle)
+     */
+    @NonNull
+    public Bundle getExtras() {
+        return mImpl.getExtras();
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -283,6 +293,9 @@ public final class SessionToken implements VersionedParcelable {
                             // token for framework session.
                             controller.unregisterCallback((MediaControllerCompat.Callback) msg.obj);
                             tokenCompat.setSession2Token(token2ForLegacySession);
+
+                            // TODO(b/130282718): From android Q, use fwk controller#getSessionInfo
+                            // and create a new Session2Token with it.
                             notifySessionTokenCreated(executor, listener, tokenCompat,
                                     token2ForLegacySession);
                             if (Build.VERSION.SDK_INT >= 18) {
@@ -393,6 +406,7 @@ public final class SessionToken implements VersionedParcelable {
         @Nullable String getServiceName();
         @Nullable ComponentName getComponentName();
         @TokenType int getType();
+        @NonNull Bundle getExtras();
         Object getBinder();
     }
 }

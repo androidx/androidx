@@ -17,6 +17,7 @@
 package androidx.media2;
 
 import android.app.PendingIntent;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 
@@ -75,6 +76,8 @@ class ConnectionResult extends CustomVersionedParcelable {
     int mPreviousMediaItemIndex;
     @ParcelField(16)
     int mNextMediaItemIndex;
+    @ParcelField(17)
+    Bundle mTokenExtras;
 
     // For versioned parcelable
     ConnectionResult() {
@@ -97,6 +100,7 @@ class ConnectionResult extends CustomVersionedParcelable {
         mCurrentMediaItemIndex = sessionImpl.getCurrentMediaItemIndex();
         mPreviousMediaItemIndex = sessionImpl.getPreviousMediaItemIndex();
         mNextMediaItemIndex = sessionImpl.getNextMediaItemIndex();
+        mTokenExtras = sessionImpl.getToken().getExtras();
         if (allowedCommands != null
                 && allowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST)) {
             List<MediaItem> playlist = sessionImpl.getPlaylist();
@@ -174,6 +178,10 @@ class ConnectionResult extends CustomVersionedParcelable {
 
     public int getNextMediaItemIndex() {
         return mNextMediaItemIndex;
+    }
+
+    public Bundle getTokenExtras() {
+        return mTokenExtras;
     }
 
     @Override

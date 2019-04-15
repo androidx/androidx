@@ -115,10 +115,15 @@ public class MediaSessionProviderService extends Service {
 
     private class RemoteMediaSessionStub extends IRemoteMediaSession.Stub {
         @Override
-        public void create(final String sessionId) throws RemoteException {
+        public void create(final String sessionId, final Bundle tokenExtras)
+                throws RemoteException {
             final MediaSession.Builder builder =
                     new MediaSession.Builder(MediaSessionProviderService.this, new MockPlayer(0))
                             .setId(sessionId);
+
+            if (tokenExtras != null) {
+                builder.setExtras(tokenExtras);
+            }
 
             switch (sessionId) {
                 case TEST_GET_SESSION_ACTIVITY: {
