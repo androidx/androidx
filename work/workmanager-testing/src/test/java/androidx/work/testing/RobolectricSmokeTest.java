@@ -22,7 +22,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.LargeTest;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
@@ -41,7 +40,6 @@ import java.util.concurrent.ExecutionException;
 
 @Config(manifest = Config.NONE)
 @RunWith(RobolectricTestRunner.class)
-@LargeTest
 @DoNotInstrument
 public class RobolectricSmokeTest {
 

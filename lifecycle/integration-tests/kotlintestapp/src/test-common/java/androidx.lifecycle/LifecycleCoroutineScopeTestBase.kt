@@ -16,7 +16,6 @@
 
 package androidx.lifecycle
 
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,7 +28,6 @@ import kotlinx.coroutines.withContext
 import org.junit.Test
 import java.util.concurrent.CancellationException
 
-@SmallTest
 @ExperimentalCoroutinesApi
 abstract class LifecycleCoroutineScopeTestBase {
     @Test

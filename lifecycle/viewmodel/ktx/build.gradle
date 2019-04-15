@@ -37,7 +37,6 @@ dependencies {
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES)
 
-    testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(TRUTH)
 

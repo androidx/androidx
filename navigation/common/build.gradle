@@ -35,7 +35,6 @@ dependencies {
     api("androidx.core:core:1.0.1")
     implementation(ANDROIDX_COLLECTION)
 
-    testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TRUTH)

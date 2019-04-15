@@ -37,7 +37,6 @@ dependencies {
     api(KOTLIN_STDLIB)
     testImplementation(project(":lifecycle:lifecycle-runtime"))
     testImplementation(project(":arch:core-testing"))
-    testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(TRUTH)
 }
