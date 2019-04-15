@@ -21,6 +21,7 @@ import static androidx.media2.LibraryResult.RESULT_SUCCESS;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.media.session.MediaSessionCompat.Token;
 import android.text.TextUtils;
@@ -49,8 +50,9 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements MediaL
 
     MediaLibrarySessionImplBase(MediaSession instance, Context context, String id,
             SessionPlayer player, PendingIntent sessionActivity, Executor callbackExecutor,
-            SessionCallback callback) {
-        super(instance, context, id, player, sessionActivity, callbackExecutor, callback);
+            SessionCallback callback, Bundle tokenExtras) {
+        super(instance, context, id, player, sessionActivity, callbackExecutor, callback,
+                tokenExtras);
     }
 
     @Override

@@ -55,6 +55,8 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
     ComponentName mComponentName;
     @ParcelField(5)
     String mPackageName;
+    @ParcelField(6)
+    Bundle mExtras;
 
     SessionTokenImplLegacy(MediaSessionCompat.Token token, String packageName, int uid) {
         if (token == null) {
@@ -69,6 +71,7 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
         mPackageName = packageName;
         mComponentName = null;
         mType = TYPE_SESSION_LEGACY;
+        mExtras = null;
     }
 
     SessionTokenImplLegacy(ComponentName serviceComponent, int uid) {
@@ -81,6 +84,7 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
         mType = TYPE_BROWSER_SERVICE_LEGACY;
         mPackageName = serviceComponent.getPackageName();
         mComponentName = serviceComponent;
+        mExtras = null;
     }
 
     /**
@@ -154,6 +158,12 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
                 return TYPE_LIBRARY_SERVICE;
         }
         return TYPE_SESSION;
+    }
+
+    @NonNull
+    @Override
+    public Bundle getExtras() {
+        return mExtras == null ? Bundle.EMPTY : new Bundle(mExtras);
     }
 
     @Override

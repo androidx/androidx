@@ -261,7 +261,8 @@ class MediaControllerStub extends IMediaController.Stub {
                     result.getBufferedPositionMs(), result.getPlaybackInfo(),
                     result.getRepeatMode(), result.getShuffleMode(), itemList,
                     result.getSessionActivity(), result.getCurrentMediaItemIndex(),
-                    result.getPreviousMediaItemIndex(), result.getNextMediaItemIndex());
+                    result.getPreviousMediaItemIndex(), result.getNextMediaItemIndex(),
+                    result.getTokenExtras());
         } finally {
             Binder.restoreCallingIdentity(token);
         }

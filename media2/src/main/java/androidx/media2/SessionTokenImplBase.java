@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ComponentName;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.text.TextUtils;
 
@@ -46,6 +47,8 @@ final class SessionTokenImplBase implements SessionTokenImpl {
     IBinder mISession;
     @ParcelField(6)
     ComponentName mComponentName;
+    @ParcelField(7)
+    Bundle mExtras;
 
     /**
      * Constructor for the token. You can only create token for session service or library service
@@ -63,19 +66,22 @@ final class SessionTokenImplBase implements SessionTokenImpl {
         mUid = uid;
         mType = type;
         mISession = null;
+        mExtras = null;
     }
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    SessionTokenImplBase(int uid, int type, String packageName, IMediaSession iSession) {
+    SessionTokenImplBase(int uid, int type, String packageName, IMediaSession iSession,
+            Bundle tokenExtras) {
         mUid = uid;
         mType = type;
         mPackageName = packageName;
         mServiceName = null;
         mComponentName = null;
         mISession = iSession.asBinder();
+        mExtras = tokenExtras;
     }
 
     /**
@@ -108,7 +114,8 @@ final class SessionTokenImplBase implements SessionTokenImpl {
     @Override
     public String toString() {
         return "SessionToken {pkg=" + mPackageName + " type=" + mType
-                + " service=" + mServiceName + " IMediaSession=" + mISession + "}";
+                + " service=" + mServiceName + " IMediaSession=" + mISession
+                + " extras=" + mExtras + "}";
     }
 
     @Override
@@ -144,6 +151,12 @@ final class SessionTokenImplBase implements SessionTokenImpl {
     @Override
     public @TokenType int getType() {
         return mType;
+    }
+
+    @NonNull
+    @Override
+    public Bundle getExtras() {
+        return mExtras == null ? Bundle.EMPTY : new Bundle(mExtras);
     }
 
     @Override
