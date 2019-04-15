@@ -17,4 +17,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.compat.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+
+    <application>
+        <!-- Dummy main activity to provide a "android.app.shortcuts" meta-data entry -->
+        <activity android:name="android.app.Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+        </activity>
+    </application>
 </manifest>
