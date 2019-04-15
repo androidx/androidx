@@ -19,9 +19,9 @@ package androidx.recyclerview.selection;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -65,8 +65,8 @@ public class Selection<K> implements Iterable<K> {
     final Set<K> mProvisionalSelection;
 
     Selection() {
-        mSelection = new HashSet<>();
-        mProvisionalSelection = new HashSet<>();
+        mSelection = new LinkedHashSet<>();
+        mProvisionalSelection = new LinkedHashSet<>();
     }
 
     /**
@@ -74,7 +74,7 @@ public class Selection<K> implements Iterable<K> {
      */
     Selection(@NonNull Set<K> selection) {
         mSelection = selection;
-        mProvisionalSelection = new HashSet<>();
+        mProvisionalSelection = new LinkedHashSet<>();
     }
 
     /**
@@ -117,7 +117,7 @@ public class Selection<K> implements Iterable<K> {
      * @return Map of ids added or removed. Added ids have a value of true, removed are false.
      */
     Map<K, Boolean> setProvisionalSelection(@NonNull Set<K> newSelection) {
-        Map<K, Boolean> delta = new HashMap<>();
+        Map<K, Boolean> delta = new LinkedHashMap<>();
 
         for (K key: mProvisionalSelection) {
             // Mark each item that used to be in the provisional selection
@@ -128,7 +128,7 @@ public class Selection<K> implements Iterable<K> {
         }
 
         for (K key: mSelection) {
-            // Mark each item that used to be in the selection but is unsaved and not in the new
+            // Mark each item that in the selection but is not in the new
             // provisional selection.
             if (!newSelection.contains(key)) {
                 delta.put(key, false);
