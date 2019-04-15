@@ -17,10 +17,13 @@
 package androidx.ui.androidview
 
 import android.app.Activity
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -46,6 +49,8 @@ class WebParams {
 
 open class WebComponentActivity : Activity() {
 
+    val webContext = WebContext()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -55,19 +60,33 @@ open class WebComponentActivity : Activity() {
             }
 
             <FrameLayout>
-                <renderViews />
+                <renderViews webContext=webContext />
             </FrameLayout>
+        }
+    }
+
+    override fun onBackPressed() {
+        if (webContext.canGoBack()) {
+            webContext.goBack()
+        } else {
+            super.onBackPressed()
         }
     }
 }
 
 @Composable
-fun renderViews(webParams: WebParams = WebParams(), webContext: WebContext = WebContext()) {
+fun renderViews(webParams: WebParams = WebParams(), webContext: WebContext) {
     if (WebContext.debug) {
         Log.d("WebCompAct", "renderViews")
     }
 
-    val textContents = +state { "https://www.google.com" }
+    val displayedUrl = +state { "https://www.google.com" }
+
+    fun updateDisplayedUrl(newValue: String?) {
+        if (!newValue.isNullOrBlank() && newValue != displayedUrl.value) {
+            displayedUrl.value = newValue
+        }
+    }
 
     <LinearLayout
         orientation=LinearLayout.VERTICAL
@@ -97,20 +116,20 @@ fun renderViews(webParams: WebParams = WebParams(), webContext: WebContext = Web
                 layoutHeight=WRAP_CONTENT
                 layoutWeight=1f
                 singleLine=true
-                controlledText=textContents.value
+                controlledText=displayedUrl.value
                 onTextChanged={ s: CharSequence?, _, _, _ ->
-                    textContents.value = s.toString()
+                    displayedUrl.value = s.toString()
                 } />
             <Button
                 layoutWidth=WRAP_CONTENT
                 layoutHeight=WRAP_CONTENT
                 text="Go"
                 onClick={
-                    if (textContents.value.isNotBlank()) {
+                    if (displayedUrl.value.isNotBlank()) {
                         if (WebContext.debug) {
-                            Log.d("WebCompAct", "setting url to " + textContents.value)
+                            Log.d("WebCompAct", "setting url to " + displayedUrl.value)
                         }
-                        webParams.url = textContents.value
+                        webParams.url = displayedUrl.value
                     }
                 } />
         </LinearLayout>
@@ -119,7 +138,25 @@ fun renderViews(webParams: WebParams = WebParams(), webContext: WebContext = Web
             Log.d("WebCompAct", "webComponent: start")
         }
 
-        <WebComponent url=webParams.url webContext />
+        <WebComponent
+            url=webParams.url
+            webViewClient=object : WebViewClient() {
+
+                override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                    updateDisplayedUrl(url)
+                }
+
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    updateDisplayedUrl(url)
+                }
+
+                // We support API 21 and above, so we're using the deprecated version.
+                override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+                    updateDisplayedUrl(url)
+                    return false
+                }
+            }
+            webContext />
 
         if (WebContext.debug) {
             Log.d("WebCompAct", "webComponent: end")
