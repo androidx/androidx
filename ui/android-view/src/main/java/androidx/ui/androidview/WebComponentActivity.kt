@@ -98,7 +98,7 @@ fun renderViews(webParams: WebParams = WebParams(), webContext: WebContext = Web
                 layoutWeight=1f
                 singleLine=true
                 controlledText=textContents.value
-                onTextChanged={ s: CharSequence?, _, _, count ->
+                onTextChanged={ s: CharSequence?, _, _, _ ->
                     textContents.value = s.toString()
                 } />
             <Button
