@@ -22,7 +22,9 @@
     <string name="paged_list_view_shrink_title">PagedListViewShrinkDemo</string>
     <string name="text_list_item_title">TextListItem</string>
     <string name="seekbar_list_item_title">SeekbarListItem</string>
+    <string name="radio_button_list_item_title">RadioButtonListItem</string>
     <string name="switch_list_item_title">SwitchListItem</string>
+    <string name="checkbox_list_item_title">CheckBoxListItem</string>
     <string name="sub_header_list_item_title">SubheaderListItem</string>
     <string name="alpha_jump_title">Alpha Jump Demo</string>
     <string name="single_selection_dialog_title">CarSingleChoiceDialog Demo</string>

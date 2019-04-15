@@ -57,16 +57,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title" />
 
-    <!-- A barrier between the text and switch. -->
+    <!-- A barrier between the text and checkbox. -->
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:barrierAllowsGoneWidgets="false"
         app:barrierDirection="start"
-        app:constraint_referenced_ids="switch_divider,switch_widget" />
+        app:constraint_referenced_ids="checkbox_divider,checkbox_widget" />
 
-    <!-- Guideline that the switch is centered upon. -->
+    <!-- Guideline that the checkbox is centered upon. -->
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/supplemental_actions_guideline"
         android:layout_width="wrap_content"
@@ -74,19 +74,19 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.5" />
 
-    <!-- Switch with divider. -->
+    <!-- Checkbox with divider. -->
     <View
-        android:id="@+id/switch_divider"
+        android:id="@+id/checkbox_divider"
         style="@style/CarListVerticalDivider"
         android:layout_marginEnd="@dimen/car_padding_4"
         android:background="?attr/listItemActionDividerColor"
         app:layout_constraintBottom_toBottomOf="@+id/supplemental_actions_guideline"
-        app:layout_constraintEnd_toStartOf="@+id/switch_widget"
+        app:layout_constraintEnd_toStartOf="@+id/checkbox_widget"
         app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline" />
 
-    <Switch
-        android:id="@+id/switch_widget"
-        style="?attr/switchStyle"
+    <CheckBox
+        android:id="@+id/checkbox_widget"
+        style="?attr/checkboxStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/car_keyline_1"

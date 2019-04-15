@@ -23,19 +23,19 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.car.widget.CarToolbar;
+import androidx.car.widget.CheckBoxListItem;
 import androidx.car.widget.ListItem;
 import androidx.car.widget.ListItemAdapter;
 import androidx.car.widget.ListItemProvider;
 import androidx.car.widget.PagedListView;
-import androidx.car.widget.SwitchListItem;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Demo activity for {@link androidx.car.widget.SwitchListItem}.
+ * Demo activity for {@link androidx.car.widget.CheckBoxListItem}.
  */
-public class SwitchListItemActivity extends Activity {
+public class CheckBoxListItemActivity extends Activity {
 
     private PagedListView mPagedListView;
 
@@ -45,7 +45,7 @@ public class SwitchListItemActivity extends Activity {
         setContentView(R.layout.activity_paged_list_view);
 
         CarToolbar toolbar = findViewById(R.id.car_toolbar);
-        toolbar.setTitle(R.string.switch_list_item_title);
+        toolbar.setTitle(R.string.checkbox_list_item_title);
         toolbar.setNavigationIconOnClickListener(v -> finish());
 
         mPagedListView = findViewById(R.id.paged_list_view);
@@ -56,12 +56,12 @@ public class SwitchListItemActivity extends Activity {
         mPagedListView.setAdapter(adapter);
         mPagedListView.setMaxPages(PagedListView.UNLIMITED_PAGES);
 
-        SwitchListItem item = new SwitchListItem(this);
+        CheckBoxListItem item = new CheckBoxListItem(this);
         item.setTitle("Clicking me to set checked state of item above");
         item.setOnCheckedChangeListener((buttonView, isChecked) -> {
             int size = adapter.getItemCount();
             // -2 to get second to last item (the one above).
-            ((SwitchListItem) provider.mItems.get(size - 2)).setChecked(isChecked);
+            ((CheckBoxListItem) provider.mItems.get(size - 2)).setChecked(isChecked);
             adapter.notifyDataSetChanged();
         });
         provider.mItems.add(item);
@@ -75,7 +75,7 @@ public class SwitchListItemActivity extends Activity {
                 new ListItemProvider.ListProvider(mItems);
         private final CompoundButton.OnCheckedChangeListener mListener = (button, isChecked) ->
                 Toast.makeText(mContext,
-                        "Switch is " + (isChecked ? "checked" : "unchecked"),
+                        "Checkbox is " + (isChecked ? "checked" : "unchecked"),
                         Toast.LENGTH_SHORT).show();
 
         SampleProvider(Context context) {
@@ -83,49 +83,49 @@ public class SwitchListItemActivity extends Activity {
 
             String longText = mContext.getString(R.string.long_text);
 
-            SwitchListItem item;
+            CheckBoxListItem item;
 
-            item = new SwitchListItem(mContext);
+            item = new CheckBoxListItem(mContext);
             item.setTitle("Title - show divider");
             item.setShowCompoundButtonDivider(true);
             item.setOnCheckedChangeListener(mListener);
             mItems.add(item);
 
-            item = new SwitchListItem(mContext);
+            item = new CheckBoxListItem(mContext);
             item.setBody("Body text");
             item.setOnCheckedChangeListener(mListener);
             mItems.add(item);
 
-            item = new SwitchListItem(mContext);
+            item = new CheckBoxListItem(mContext);
             item.setTitle("Long body text");
             item.setBody(longText);
             item.setOnCheckedChangeListener(mListener);
             mItems.add(item);
 
-            item = new SwitchListItem(mContext);
+            item = new CheckBoxListItem(mContext);
             item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
-                    SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
-            item.setTitle("Switch with Icon");
+                    CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+            item.setTitle("CheckBox with Icon");
             item.setBody(longText);
             item.setOnCheckedChangeListener(mListener);
             mItems.add(item);
 
-            item = new SwitchListItem(mContext);
-            item.setTitle("Switch with Drawable");
+            item = new CheckBoxListItem(mContext);
+            item.setTitle("CheckBox with Drawable");
             item.setPrimaryActionIcon(
                     mContext.getDrawable(android.R.drawable.sym_def_app_icon),
-                    SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+                    CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
             item.setBody(longText);
             item.setOnCheckedChangeListener(mListener);
             mItems.add(item);
 
-            item = new SwitchListItem(mContext);
-            item.setTitle("Clicking item toggles switch");
+            item = new CheckBoxListItem(mContext);
+            item.setTitle("Clicking item toggles checkbox");
             item.setClickable(true);
             item.setOnCheckedChangeListener(mListener);
             mItems.add(item);
 
-            item = new SwitchListItem(mContext);
+            item = new CheckBoxListItem(mContext);
             item.setTitle("Disabled item");
             item.setEnabled(false);
             item.setOnCheckedChangeListener(mListener);

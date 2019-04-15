@@ -227,10 +227,10 @@ public final class CarSingleChoiceDialog extends Dialog {
         RadioButtonListItem item = new RadioButtonListItem(getContext());
         item.setTitle(selectionItem.mTitle);
         item.setBody(selectionItem.mBody);
-        item.setShowRadioButtonDivider(false);
+        item.setShowCompoundButtonDivider(false);
         item.addViewBinder(vh -> {
-            vh.getRadioButton().setChecked(mSelectedItem == position);
-            vh.getRadioButton().setOnCheckedChangeListener(
+            vh.getCompoundButton().setChecked(mSelectedItem == position);
+            vh.getCompoundButton().setOnCheckedChangeListener(
                     (buttonView, isChecked) -> {
                         mSelectedItem = position;
                         // Refresh other radio button list items.

@@ -21,6 +21,7 @@ import android.content.Context;
 import android.os.Bundle;
 
 import androidx.car.app.CarListDialog;
+import androidx.car.widget.CarToolbar;
 import androidx.car.widget.ListItem;
 import androidx.car.widget.ListItemAdapter;
 import androidx.car.widget.ListItemProvider;
@@ -44,6 +45,9 @@ public class RadioButtonListItemActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_paged_list_view);
 
+        CarToolbar toolbar = findViewById(R.id.car_toolbar);
+        toolbar.setTitle(R.string.radio_button_list_item_title);
+        toolbar.setNavigationIconOnClickListener(v -> finish());
 
         mPagedListView = findViewById(R.id.paged_list_view);
         RadioButtonSelectionAdapter adapter = new RadioButtonSelectionAdapter(
@@ -67,7 +71,6 @@ public class RadioButtonListItemActivity extends Activity {
 
         item = new RadioButtonListItem(this);
         item.setPrimaryActionNoIcon();
-        item.setTextStartMargin(R.dimen.car_keyline_3);
         item.setTitle("No icon");
         items.add(item);
 
@@ -75,7 +78,7 @@ public class RadioButtonListItemActivity extends Activity {
         item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
                 RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item.setTitle("Small icon - with action divider");
-        item.setShowRadioButtonDivider(true);
+        item.setShowCompoundButtonDivider(true);
         items.add(item);
 
         item = new RadioButtonListItem(this);
@@ -83,7 +86,7 @@ public class RadioButtonListItemActivity extends Activity {
                 RadioButtonListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
         item.setTitle("Medium icon - with body text");
         item.setBody("Sample body text");
-        item.setShowRadioButtonDivider(true);
+        item.setShowCompoundButtonDivider(true);
         items.add(item);
 
         item = new RadioButtonListItem(this);
@@ -162,8 +165,8 @@ public class RadioButtonListItemActivity extends Activity {
 
             RadioButtonListItem.ViewHolder viewHolder = (RadioButtonListItem.ViewHolder) vh;
 
-            viewHolder.getRadioButton().setChecked(mSelectionController.isChecked(position));
-            viewHolder.getRadioButton().setOnCheckedChangeListener((buttonView, isChecked) -> {
+            viewHolder.getCompoundButton().setChecked(mSelectionController.isChecked(position));
+            viewHolder.getCompoundButton().setOnCheckedChangeListener((buttonView, isChecked) -> {
                 mSelectionController.setChecked(position);
                 // Refresh other radio button list items.
                 notifyDataSetChanged();
