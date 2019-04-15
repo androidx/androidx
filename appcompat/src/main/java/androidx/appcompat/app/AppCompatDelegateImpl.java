@@ -2927,7 +2927,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         void cleanup() {
             if (mReceiver != null) {
-                mContext.unregisterReceiver(mReceiver);
+                try {
+                    mContext.unregisterReceiver(mReceiver);
+                } catch (IllegalArgumentException e) {
+                    // If the receiver has already been unregistered, unregisterReceiver() will
+                    // throw an exception. Just ignore and carry-on...
+                }
                 mReceiver = null;
             }
         }
