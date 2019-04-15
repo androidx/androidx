@@ -17,6 +17,7 @@
 import androidx.room.DatabaseView
 import androidx.room.Entity
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
@@ -142,6 +143,21 @@ object COMMON {
     val GUAVA_ROOM by lazy {
         loadJavaCode("common/input/GuavaRoom.java",
             RoomGuavaTypeNames.GUAVA_ROOM.toString())
+    }
+
+    val CHANNEL by lazy {
+        loadJavaCode("common/input/coroutines/Channel.java",
+            KotlinTypeNames.CHANNEL.toString())
+    }
+
+    val SEND_CHANNEL by lazy {
+        loadJavaCode("common/input/coroutines/SendChannel.java",
+            KotlinTypeNames.SEND_CHANNEL.toString())
+    }
+
+    val RECEIVE_CHANNEL by lazy {
+        loadJavaCode("common/input/coroutines/ReceiveChannel.java",
+            KotlinTypeNames.RECEIVE_CHANNEL.toString())
     }
 }
 fun testCodeGenScope(): CodeGenScope {

@@ -165,6 +165,10 @@ object KotlinTypeNames {
     val UNIT = ClassName.get("kotlin", "Unit")
     val CONTINUATION = ClassName.get("kotlin.coroutines", "Continuation")
     val COROUTINE_SCOPE = ClassName.get("kotlinx.coroutines", "CoroutineScope")
+    val CHANNEL = ClassName.get("kotlinx.coroutines.channels", "Channel")
+    val RECEIVE_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "ReceiveChannel")
+    val SEND_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "SendChannel")
+    val FLOW = ClassName.get("kotlinx.coroutines.flow", "Flow")
 }
 
 fun TypeName.defaultValue(): String {
