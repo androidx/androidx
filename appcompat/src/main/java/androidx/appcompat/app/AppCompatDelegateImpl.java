@@ -2358,7 +2358,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             try {
                 final ActivityInfo info = pm.getActivityInfo(
                         new ComponentName(mContext, mHost.getClass()), 0);
-                mActivityHandlesUiMode = (info.configChanges & ActivityInfo.CONFIG_UI_MODE) != 0;
+                mActivityHandlesUiMode = info != null
+                        && (info.configChanges & ActivityInfo.CONFIG_UI_MODE) != 0;
             } catch (PackageManager.NameNotFoundException e) {
                 // This shouldn't happen but let's not crash because of it, we'll just log and
                 // return false (since most apps won't be handling it)
