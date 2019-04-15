@@ -137,11 +137,40 @@ public class FragmentActivity extends ComponentActivity implements
 
     private void init() {
         // Route onBackPressed() callbacks to the FragmentManager
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
-            public boolean handleOnBackPressed() {
+            public boolean isEnabled() {
                 FragmentManager fragmentManager = mFragments.getSupportFragmentManager();
-                return fragmentManager.popBackStackImmediate();
+                // Either this FragmentManager needs to have a back stack
+                // or its primary navigation Fragment needs to have one
+                return fragmentManager.getBackStackEntryCount() > 0
+                        || hasPrimaryNavigationBackStack(fragmentManager);
+            }
+
+            /**
+             * Recursively check down the FragmentManager hierarchy of primary
+             * navigation Fragments for a FragmentManager that has a back stack
+             * that can be popped.
+             */
+            private boolean hasPrimaryNavigationBackStack(
+                    @NonNull FragmentManager fragmentManager) {
+                Fragment primaryNavFragment = fragmentManager.getPrimaryNavigationFragment();
+                if (primaryNavFragment == null) {
+                    return false;
+                }
+                FragmentManager primaryNavFragmentManager =
+                        primaryNavFragment.peekChildFragmentManager();
+                if (primaryNavFragmentManager == null) {
+                    return false;
+                }
+                return primaryNavFragmentManager.getBackStackEntryCount() > 0
+                        || hasPrimaryNavigationBackStack(primaryNavFragmentManager);
+            }
+
+            @Override
+            public void handleOnBackPressed() {
+                FragmentManager fragmentManager = mFragments.getSupportFragmentManager();
+                fragmentManager.popBackStackImmediate();
             }
         });
     }

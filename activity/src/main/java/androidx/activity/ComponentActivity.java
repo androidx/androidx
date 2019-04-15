@@ -280,7 +280,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     public void onBackPressed() {
-        if (mOnBackPressedDispatcher.onBackPressed()) {
+        if (mOnBackPressedDispatcher.hasEnabledCallbacks()) {
+            mOnBackPressedDispatcher.onBackPressed();
             return;
         }
         // If the OnBackPressedDispatcher doesn't handle the back button,
