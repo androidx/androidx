@@ -23,7 +23,9 @@ import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Row
 import androidx.ui.material.Divider
+import androidx.ui.material.HeightSpacer
 import androidx.ui.material.StyledText
+import androidx.ui.material.WidthSpacer
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
 import com.google.r4a.Composable
@@ -50,7 +52,9 @@ fun DividersDemo() {
             }
         }
         </Column>
+        <HeightSpacer height=30.dp />
         <Divider height=2.dp color=blackColor />
+        <HeightSpacer height=10.dp />
         <Column> items.forEach { text ->
             <Item text />
             <Divider color=dividerColor height=0.5.dp />
@@ -69,9 +73,8 @@ fun Item(text: String, color: Color? = null) {
                 <Container
                     width=avatarSize
                     height=avatarSize
-                    color
-                    margin=EdgeInsets(right = ItemPadding)>
-                </Container>
+                    color />
+                <WidthSpacer width=ItemPadding />
             }
             <StyledText text style=textStyle />
         </Row>
