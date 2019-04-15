@@ -23,7 +23,7 @@ import androidx.ui.material.MaterialTheme
 import com.google.r4a.composer
 import com.google.r4a.setContent
 
-class DividersActivity : Activity() {
+class DividersSpacersActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

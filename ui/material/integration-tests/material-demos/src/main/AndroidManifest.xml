@@ -54,9 +54,9 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        <activity android:name=".DividersActivity"
+        <activity android:name=".DividersSpacersActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Material/Dividers">
+            android:label="Material/Dividers And Spacers">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
