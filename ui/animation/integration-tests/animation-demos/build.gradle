@@ -1,6 +1,7 @@
-import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -10,12 +11,13 @@ plugins {
 }
 
 dependencies {
-    api "androidx.annotation:annotation:1.0.0"
-    api "androidx.activity:activity:1.0.0-alpha01"
+    implementation "androidx.annotation:annotation:1.0.0"
+    implementation "androidx.activity:activity:1.0.0-alpha01"
+
     api(KOTLIN_R4A_STDLIB)
     api project(":compose-runtime")
     api project(':ui-animation')
-    implementation project(":ui-framework-adapter")
+    api project(":ui-framework")
 }
 
 android {

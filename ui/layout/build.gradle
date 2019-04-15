@@ -15,7 +15,8 @@ plugins {
 dependencies {
     api project(":ui-core")
     api project(":ui-framework")
-    api project(":ui-framework-adapter")
+    api(KOTLIN_R4A_STDLIB)
+
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)

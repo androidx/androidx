@@ -18,7 +18,6 @@ dependencies {
     api project(":compose-runtime")
     api project(':ui-material')
     api project(':ui-android-view-non-ir')
-    implementation project(":ui-framework-adapter")
     implementation project(":ui-layout")
 }
 

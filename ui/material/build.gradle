@@ -33,7 +33,6 @@ dependencies {
     api project(":compose-runtime")
     api project(":ui-core")
     api project(':ui-framework')
-    api project(':ui-framework-adapter')
     api project(':ui-layout')
     api project(':ui-text')
     api project(':ui-animation')

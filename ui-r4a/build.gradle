@@ -16,7 +16,6 @@ dependencies {
     api "androidx.activity:activity:1.0.0-alpha01"
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
-    implementation project(':ui-framework-adapter')
     // TODO: remove this dependency after CraneRects is cleaned up
     implementation project(':ui-layout')
     implementation project(':ui-framework')
