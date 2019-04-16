@@ -19,7 +19,6 @@ package androidx.activity;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.arch.core.util.Cancellable;
 import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -176,7 +175,6 @@ public final class OnBackPressedDispatcher {
 
     private class OnBackPressedCancellable implements Cancellable {
         private final OnBackPressedCallback mOnBackPressedCallback;
-        private boolean mCancelled;
         OnBackPressedCancellable(OnBackPressedCallback onBackPressedCallback) {
             mOnBackPressedCallback = onBackPressedCallback;
         }
@@ -185,12 +183,6 @@ public final class OnBackPressedDispatcher {
         public void cancel() {
             mOnBackPressedCallbacks.remove(mOnBackPressedCallback);
             mOnBackPressedCallback.removeCancellable(this);
-            mCancelled = true;
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return mCancelled;
         }
     }
 
@@ -201,7 +193,6 @@ public final class OnBackPressedDispatcher {
 
         @Nullable
         private Cancellable mCurrentCancellable;
-        private boolean mCancelled = false;
 
         LifecycleOnBackPressedCancellable(@NonNull Lifecycle lifecycle,
                 @NonNull OnBackPressedCallback onBackPressedCallback) {
@@ -233,12 +224,6 @@ public final class OnBackPressedDispatcher {
                 mCurrentCancellable.cancel();
                 mCurrentCancellable = null;
             }
-            mCancelled = true;
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return mCancelled;
         }
     }
 }

@@ -20,12 +20,16 @@ import androidx.annotation.NonNull;
 
 /**
  * Token representing a cancellable operation.
+ * @deprecated Consider using <code>Disposable</code>.
  */
+@Deprecated
 public interface Cancellable {
     /**
      * An instance of Cancellable that is always cancelled - i.e., {@link #isCancelled()} will
      * always return true.
+     * @deprecated Deprecated along with {@link Cancellable} itself.
      */
+    @Deprecated
     @NonNull
     Cancellable CANCELLED = new Cancellable() {
         @Override
@@ -41,7 +45,9 @@ public interface Cancellable {
     /**
      * Cancel the subscription. This call should be idempotent, making it safe to
      * call multiple times.
+     * @deprecated Deprecated along with {@link Cancellable} itself.
      */
+    @Deprecated
     void cancel();
 
     /**
@@ -50,6 +56,8 @@ public interface Cancellable {
      * should be treated as a 'best effort' signal.
      *
      * @return Whether the subscription has been cancelled.
+     * @deprecated Deprecated along with {@link Cancellable} itself.
      */
+    @Deprecated
     boolean isCancelled();
 }
