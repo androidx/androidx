@@ -329,6 +329,27 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     /**
+     * <p>Set a new adapter to provide page views on demand.</p>
+     *
+     * <p>If you're planning to use {@link androidx.fragment.app.Fragment Fragments} as pages,
+     * implement {@link androidx.viewpager2.adapter.FragmentStateAdapter FragmentStateAdapter}. If
+     * your pages are Views, implement {@link RecyclerView.Adapter} as usual.</p>
+     *
+     * <p>If your pages contain LayoutTransitions, then those LayoutTransitions <em>must</em> have
+     * {@code animateParentHierarchy} set to {@code false}. Note that if you have a ViewGroup with
+     * {@code animateLayoutChanges="true"} in your layout xml file, a LayoutTransition is added
+     * automatically to that ViewGroup. You will need to manually call {@link
+     * android.animation.LayoutTransition#setAnimateParentHierarchy(boolean)
+     * getLayoutTransition().setAnimateParentHierarchy(false)} on that ViewGroup after you inflated
+     * the xml layout, like this:</p>
+     *
+     * <pre>
+     * View view = layoutInflater.inflate(R.layout.page, parent, false);
+     * ViewGroup viewGroup = view.findViewById(R.id.animated_viewgroup);
+     * viewGroup.getLayoutTransition().setAnimateParentHierarchy(false);
+     * </pre>
+     *
+     * @param adapter The adapter to use, or {@code null} to remove the current adapter
      * @see androidx.viewpager2.adapter.FragmentStateAdapter
      * @see RecyclerView#setAdapter(Adapter)
      */
