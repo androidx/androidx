@@ -113,7 +113,16 @@ fun VerticalScroller(
     <VerticalDragGestureDetector
         max=maxPosition.value
         offsetChange={ newOffset -> onScrollChanged(newOffset, maxPosition.value) }>
-        <Layout layoutBlock={ measurables, constraints ->
+        <Layout children = {
+            <Draw> canvas, parentSize ->
+                canvas.save()
+                canvas.clipRect(parentSize.toRect())
+            </Draw>
+            <child />
+            <Draw> canvas, _ ->
+                canvas.restore()
+            </Draw>
+        }> measurables, constraints ->
             if (measurables.size > 1) {
                 throw IllegalStateException("Only one child is allowed in a VerticalScroller")
             }
@@ -138,15 +147,6 @@ fun VerticalScroller(
             layout(width, height) {
                 placeable?.place(0.ipx, -scrollerPosition.position.round())
             }
-        }>
-            <Draw> canvas, parentSize ->
-                canvas.save()
-                canvas.clipRect(parentSize.toRect())
-            </Draw>
-            <child />
-            <Draw> canvas, _ ->
-                canvas.restore()
-            </Draw>
         </Layout>
     </VerticalDragGestureDetector>
 }

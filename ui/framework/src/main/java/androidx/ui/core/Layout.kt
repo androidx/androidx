@@ -235,9 +235,9 @@ internal class DummyPlaceable(override val width: IntPx, override val height: In
  */
 @Composable
 fun Layout(
-    layoutBlock: LayoutReceiver
-        .(measurables: List<Measurable>, constraints: Constraints) -> Unit,
-    @Children children: () -> Unit
+    children: @Composable() () -> Unit,
+    @Children(composable = false) layoutBlock: LayoutReceiver
+        .(measurables: List<Measurable>, constraints: Constraints) -> Unit
 ) {
     val complexLayoutBlock: LayoutBlock = { measurables, constraints: Constraints ->
         val layoutReceiver = LayoutReceiver(
@@ -344,7 +344,7 @@ fun MultiChildLayout(
         }
     }
 
-    <Layout children layoutBlock />
+    <Layout layoutBlock children />
 }
 
 /**

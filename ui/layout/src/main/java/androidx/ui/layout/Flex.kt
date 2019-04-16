@@ -475,9 +475,14 @@ private fun Flex(
     fun Placeable.mainAxisSize() = if (orientation == FlexOrientation.Horizontal) width else height
     fun Placeable.crossAxisSize() = if (orientation == FlexOrientation.Horizontal) height else width
 
-    val flexChildren = FlexChildren()
-    flexChildren.block()
-    <Layout layoutBlock={ children, outerConstraints ->
+    val flexChildren = with(FlexChildren()) {
+        block()
+        val composable = @Composable {
+            childrenList.forEach { <it/> }
+        }
+        composable
+    }
+    <Layout children=flexChildren> children, outerConstraints ->
 
         val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
 
@@ -577,7 +582,5 @@ private fun Flex(
                 }
             }
         }
-    }>
-        flexChildren.childrenList.forEach { <it/> }
     </Layout>
 }

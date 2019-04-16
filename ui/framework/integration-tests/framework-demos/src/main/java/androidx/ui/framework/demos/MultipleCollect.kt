@@ -37,15 +37,13 @@ import com.google.r4a.composer
 
 @Composable
 fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
-    <Layout layoutBlock={ _, constraints ->
+    <Layout children={<DrawFillRect brush />}> _, constraints ->
         layout(
             width?.toIntPx()?.coerceIn(constraints.minWidth, constraints.maxWidth)
                 ?: constraints.maxWidth,
             height?.toIntPx()?.coerceIn(constraints.minHeight, constraints.maxHeight)
                 ?: constraints.maxHeight
         ){}
-    }>
-        <DrawFillRect brush />
     </Layout>
 }
 

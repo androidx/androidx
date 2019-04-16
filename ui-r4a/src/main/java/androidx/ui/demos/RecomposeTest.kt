@@ -52,14 +52,14 @@ import com.google.r4a.composer
 
 @Composable
 fun GrayRect() {
-    <Layout layoutBlock = { _, constraints ->
-        layout(constraints.maxWidth, constraints.maxHeight) {}
-    }>
+    <Layout children = {
         val paint = Paint()
         paint.color = Color(android.graphics.Color.GRAY)
         <Draw> canvas, parentSize ->
             canvas.drawRect(parentSize.toRect(), paint)
         </Draw>
+    }> _, constraints ->
+        layout(constraints.maxWidth, constraints.maxHeight) {}
     </Layout>
 }
 
@@ -69,7 +69,11 @@ fun ListWithOffset(
     offset: Dp,
     @Children item: () -> Unit
 ) {
-    <Layout layoutBlock = { measurables, constraints ->
+    <Layout children = {
+        repeat(itemsCount) {
+            <item />
+        }
+    }> measurables, constraints ->
         val offsetPx = offset.toIntPx()
         val itemHeight = (constraints.maxHeight - offsetPx * (itemsCount - 1)) / itemsCount
         val itemConstraint = Constraints.tightConstraints(constraints.maxWidth, itemHeight)
@@ -79,10 +83,6 @@ fun ListWithOffset(
                 it.place(0.ipx, top)
                 top += itemHeight + offsetPx
             }
-        }
-    }>
-        repeat(itemsCount) {
-            <item />
         }
     </Layout>
 }

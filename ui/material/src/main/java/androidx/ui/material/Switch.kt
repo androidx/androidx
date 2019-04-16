@@ -64,7 +64,8 @@ fun Switch(
     val value = if (checked) ToggleableState.Checked else ToggleableState.Unchecked
     val onToggle = onChecked?.let { { it(!checked) } }
     <Toggleable value onToggle>
-        <Layout layoutBlock = { measurables, constraints ->
+        val children = @Composable { <DrawSwitch checked color /> }
+        <Layout children> measurables, constraints ->
             val height =
                 MinHeight.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
             val width =
@@ -73,8 +74,6 @@ fun Switch(
                 m.measure(Constraints.tightConstraints(width, height))
             }
             layout(width, height) { ps.forEach { it.place(0.ipx, 0.ipx) } }
-        }>
-            <DrawSwitch checked color />
         </Layout>
     </Toggleable>
 }

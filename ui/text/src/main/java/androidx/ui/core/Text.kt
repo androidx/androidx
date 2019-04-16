@@ -126,7 +126,13 @@ fun Text(
             // system is resolved.
             attachContextToFont(styledText, context)
 
-            <Layout layoutBlock={ _, constraints ->
+            val children = @Composable {
+                <Draw> canvas, _ ->
+                    internalSelection?.let { renderParagraph.paintSelection(canvas, it) }
+                    renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
+                </Draw>
+            }
+            <Layout children> _, constraints ->
                 renderParagraph.performLayout(constraints)
                 // Convert the selection's start and end offset to a TextSelection object.
                 selectionPosition?.let {
@@ -138,11 +144,6 @@ fun Text(
                 }
 
                 layout(renderParagraph.width.px.round(), renderParagraph.height.px.round()) {}
-            }>
-                <Draw> canvas, _ ->
-                    internalSelection?.let { renderParagraph.paintSelection(canvas, it) }
-                    renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
-                </Draw>
             </Layout>
         </Semantics>
     </CurrentTextStyleAmbient.Consumer>

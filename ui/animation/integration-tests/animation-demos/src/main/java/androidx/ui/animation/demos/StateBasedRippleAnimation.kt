@@ -55,15 +55,16 @@ class StateBasedRippleAnimation : Activity() {
 @Composable
 fun StateBasedRippleDemo() {
     <CraneWrapper>
-        <Layout layoutBlock = { measurables, constraints ->
+        val children = @Composable {
+            <WithConstraints> constraints ->
+                <RippleRect width=constraints.maxWidth height=constraints.maxHeight />
+            </WithConstraints>
+        }
+        <Layout children> measurables, constraints ->
             val placeable = measurables.firstOrNull()?.measure(constraints)
             layout(constraints.maxWidth, constraints.maxHeight) {
                 placeable?.place(0.ipx, 0.ipx)
             }
-        }>
-            <WithConstraints> constraints ->
-                <RippleRect width=constraints.maxWidth height=constraints.maxHeight />
-            </WithConstraints>
         </Layout>
     </CraneWrapper>
 }
@@ -92,12 +93,13 @@ fun RippleRect(width: IntPx, height: IntPx) {
             recompose()
         }
         <PressGestureDetector onPress onRelease>
-            <Layout layoutBlock = { _, constraints ->
-                layout(constraints.maxWidth, constraints.maxHeight) {}
-            }>
+            val children = @Composable {
                 <Transition definition=rippleTransDef toState> state ->
                     <RippleRectFromState state />
                 </Transition>
+            }
+            <Layout children> _, constraints ->
+                layout(constraints.maxWidth, constraints.maxHeight) { }
             </Layout>
         </PressGestureDetector>
     </Recompose>

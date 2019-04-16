@@ -51,10 +51,8 @@ import kotlin.math.min
 fun FourQuadrants() {
     val resources = composer.composer.context.resources
     val image = BitmapFactory.decodeResource(resources, androidx.ui.demos.R.drawable.four_quadrants)
-    <Layout layoutBlock = { _, constraints ->
-        layout(constraints.maxWidth, constraints.maxHeight) {}
-    }>
-        <DrawImage bitmap=image />
+    <Layout children = { <DrawImage bitmap=image /> }> _, constraints ->
+        layout(constraints.maxWidth, constraints.maxHeight) { }
     </Layout>
 }
 
@@ -83,16 +81,22 @@ fun DrawRectangle(color: Color) {
 
 @Composable
 fun Rectangle(color: Color) {
-    <Layout layoutBlock = { _, constraints ->
-        layout(constraints.maxWidth, constraints.maxHeight) {}
-    }>
-        <DrawRectangle color />
+    <Layout children = { <DrawRectangle color /> }> _, constraints ->
+        layout(constraints.maxWidth, constraints.maxHeight) { }
     </Layout>
 }
 
 @Composable
 fun Rectangles() {
-    <Layout layoutBlock = { measurables, constraints ->
+    <Layout children = {
+        val green = Color(0xFF00FF00.toInt())
+        <Rectangle color=green />
+        val red = Color(0xFFFF0000.toInt())
+        <Rectangle color=red />
+        val blue = Color(0xFF0000FF.toInt())
+        <Rectangle color=blue />
+        <FourQuadrants />
+    }> measurables, constraints ->
         val width = if (constraints.hasBoundedWidth) {
             constraints.maxWidth
         } else {
@@ -116,14 +120,6 @@ fun Rectangles() {
             placeables[2].place(IntPx.Zero, rectSize)
             placeables[3].place(rectSize, rectSize)
         }
-    }>
-        val green = Color(0xFF00FF00.toInt())
-        <Rectangle color=green />
-        val red = Color(0xFFFF0000.toInt())
-        <Rectangle color=red />
-        val blue = Color(0xFF0000FF.toInt())
-        <Rectangle color=blue />
-        <FourQuadrants />
     </Layout>
 }
 

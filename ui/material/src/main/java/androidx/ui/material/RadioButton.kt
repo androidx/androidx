@@ -199,14 +199,7 @@ fun RadioButton(
     selected: Boolean,
     color: Color? = null
 ) {
-    <Layout layoutBlock={ _, constraints ->
-        val size = RadioRadius.toIntPx() * 2
-        val w = max(constraints.minWidth, min(constraints.maxWidth, size))
-        val h = max(constraints.minHeight, min(constraints.maxHeight, size))
-        layout(w, h) {
-            // no children to place
-        }
-    }>
+    <Layout children={
         val activeColor = +color.orFromTheme { primary }
         val definition = +memo(activeColor) {
             generateTransitionDefinition(activeColor)
@@ -218,6 +211,13 @@ fun RadioButton(
                 innerRadius=state[InnerRadiusProp]
                 gap=state[GapProp] />
         </Transition>
+    }> _, constraints ->
+        val size = RadioRadius.toIntPx() * 2
+        val w = max(constraints.minWidth, min(constraints.maxWidth, size))
+        val h = max(constraints.minHeight, min(constraints.maxHeight, size))
+        layout(w, h) {
+            // no children to place
+        }
     </Layout>
 }
 

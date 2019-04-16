@@ -80,12 +80,13 @@ fun TransitionExample() {
             recompose()
         }
         <PressGestureDetector onPress onRelease onCancel=onRelease>
-            <Layout layoutBlock = { _, constraints ->
-                layout(constraints.maxWidth, constraints.maxHeight) {}
-            }>
+            val children = @Composable {
                 <Transition definition toState> state ->
                     <DrawScaledRect scale=state[scale] color=state[color] />
                 </Transition>
+            }
+            <Layout children> _, constraints ->
+                layout(constraints.maxWidth, constraints.maxHeight) {}
             </Layout>
         </PressGestureDetector>
     </Recompose>

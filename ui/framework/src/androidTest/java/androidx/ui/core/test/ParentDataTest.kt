@@ -66,7 +66,7 @@ class ParentDataTest {
         runOnUiThread {
             activity.composeInto {
                 <CraneWrapper>
-                    <Layout layoutBlock={ measurables, constraints ->
+                    <Layout children={ <SimpleDrawChild drawLatch/> }> measurables, constraints ->
                         assertEquals(1, measurables.size)
                         parentData.value = measurables[0].parentData
 
@@ -74,8 +74,6 @@ class ParentDataTest {
                         layout(placeable.width, placeable.height) {
                             placeable.place(0.ipx, 0.ipx)
                         }
-                    }>
-                        <SimpleDrawChild drawLatch/>
                     </Layout>
                 </CraneWrapper>
             }
@@ -91,7 +89,11 @@ class ParentDataTest {
         runOnUiThread {
             activity.composeInto {
                 <CraneWrapper>
-                    <Layout layoutBlock={ measurables, constraints ->
+                    <Layout children={
+                        <ParentData data="Hello">
+                            <SimpleDrawChild drawLatch/>
+                        </ParentData>
+                    }> measurables, constraints ->
                         assertEquals(1, measurables.size)
                         parentData.value = measurables[0].parentData
 
@@ -99,10 +101,6 @@ class ParentDataTest {
                         layout(placeable.width, placeable.height) {
                             placeable.place(0.ipx, 0.ipx)
                         }
-                    }>
-                        <ParentData data="Hello">
-                            <SimpleDrawChild drawLatch/>
-                        </ParentData>
                     </Layout>
                 </CraneWrapper>
             }
@@ -120,7 +118,9 @@ class ParentDataTest {
             activity.composeInto {
                 <CraneWrapper>
                     <ParentData data="Hello">
-                        <Layout layoutBlock={ measurables, constraints ->
+                        <Layout children={
+                            <SimpleDrawChild drawLatch/>
+                        }> measurables, constraints ->
                             assertEquals(1, measurables.size)
                             parentData.value = measurables[0].parentData
 
@@ -128,8 +128,6 @@ class ParentDataTest {
                             layout(placeable.width, placeable.height) {
                                 placeable.place(0.ipx, 0.ipx)
                             }
-                        }>
-                            <SimpleDrawChild drawLatch/>
                         </Layout>
                     </ParentData>
                 </CraneWrapper>

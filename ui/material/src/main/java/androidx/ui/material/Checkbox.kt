@@ -76,13 +76,11 @@ fun Checkbox(
 ) {
     <Toggleable value onToggle>
         <Padding padding=EdgeInsets(CheckboxDefaultPadding)>
-            <Layout layoutBlock={ _, constraints ->
+            <Layout children=@Composable { <DrawCheckbox value color /> }> _, constraints ->
                 val checkboxSizePx = CheckboxSize.toIntPx()
                 val height = checkboxSizePx.coerceIn(constraints.minHeight, constraints.maxHeight)
                 val width = checkboxSizePx.coerceIn(constraints.minWidth, constraints.maxWidth)
                 layout(width, height) {}
-            }>
-                <DrawCheckbox value color />
             </Layout>
         </Padding>
     </Toggleable>

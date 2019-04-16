@@ -60,12 +60,10 @@ import com.google.r4a.unaryPlus
  */
 @Composable
 fun SizedRectangle(color: Color, width: Dp? = null, height: Dp? = null) {
-    <Layout layoutBlock = { _, constraints ->
+    <Layout children={ <DrawRectangle color /> }> _, constraints ->
         val widthPx = width?.toIntPx() ?: constraints.maxWidth
         val heightPx = height?.toIntPx() ?: constraints.maxHeight
         layout(widthPx, heightPx) {}
-    }>
-        <DrawRectangle color />
     </Layout>
 }
 

@@ -48,10 +48,8 @@ class HelloAnimationActivity : Activity() {
 @Composable
 fun HelloAnimation() {
     <CraneWrapper>
-        <Layout layoutBlock = { _, constraints ->
+        <Layout children = { <ColorRect /> }> _, constraints ->
             layout(constraints.maxWidth, constraints.maxHeight) {}
-        }>
-            <ColorRect />
         </Layout>
     </CraneWrapper>
 }

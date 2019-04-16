@@ -99,7 +99,16 @@ fun Stack(
     defaultAlignment: Alignment = Alignment.Center,
     @Children(composable = false) block: StackChildren.() -> Unit
 ) {
-    <Layout layoutBlock = { measurables, constraints ->
+    val children = with(StackChildren()) {
+        apply(block)
+        val composable = @Composable {
+            stackChildren.forEach {
+                <it />
+            }
+        }
+        composable
+    }
+    <Layout children> measurables, constraints ->
         val placeables = arrayOfNulls<Placeable>(measurables.size)
         // First measure aligned children to get the size of the layout.
         (0 until measurables.size).filter { i -> !measurables[i].positioned }.forEach { i ->
@@ -191,14 +200,6 @@ fun Stack(
                 }
             }
         }
-    }>
-    val children = with(StackChildren()) {
-        apply(block)
-        stackChildren
-    }
-    children.forEach {
-        <it />
-    }
     </Layout>
 }
 

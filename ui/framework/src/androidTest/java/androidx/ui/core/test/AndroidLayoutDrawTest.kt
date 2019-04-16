@@ -185,12 +185,7 @@ class AndroidLayoutDrawTest {
         runOnUiThread {
             activity.composeInto {
                 <CraneWrapper>
-                    <Layout layoutBlock={ measurables, constraints ->
-                        val placeables = measurables.map { it.measure(constraints) }
-                        layout(placeables[0].width, placeables[0].height) {
-                            placeables[0].place(0.ipx, 0.ipx)
-                        }
-                    }>
+                    <Layout children={
                         <Padding size=(model.size * 3)>
                             <Draw> canvas, parentSize ->
                                 drawLatch.countDown()
@@ -208,6 +203,11 @@ class AndroidLayoutDrawTest {
                                 canvas.drawRect(parentSize.toRect(), paint)
                             </Draw>
                         </Padding>
+                    }> measurables, constraints ->
+                        val placeables = measurables.map { it.measure(constraints) }
+                        layout(placeables[0].width, placeables[0].height) {
+                            placeables[0].place(0.ipx, 0.ipx)
+                        }
                     </Layout>
                 </CraneWrapper>
             }
