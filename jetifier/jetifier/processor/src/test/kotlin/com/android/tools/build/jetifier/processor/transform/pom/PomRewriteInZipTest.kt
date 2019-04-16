@@ -53,6 +53,7 @@ class PomRewriteInZipTest {
     @Test fun rewritePomInZip_rewritingSL_shouldRewrite() {
         val inputZipPath = "/pomRefactorTest/pomTest.zip"
 
+        @Suppress("deprecation")
         val processor = Processor.createProcessor(
             TEST_CONFIG,
             rewritingSupportLib = true,
@@ -63,6 +64,7 @@ class PomRewriteInZipTest {
         val tempDir = createTempDir()
         val expectedFile = File(createTempDir(), "test.zip")
 
+        @Suppress("deprecation")
         val resultFiles = processor.transform(setOf(FileMapping(inputFile, expectedFile)))
 
         Truth.assertThat(resultFiles).hasSize(1)
@@ -87,6 +89,7 @@ class PomRewriteInZipTest {
     @Test fun rewritePomInZip_notRewritingSL_shouldStillRewrite() {
         val inputZipPath = "/pomRefactorTest/pomTest.zip"
 
+        @Suppress("deprecation")
         val processor = Processor.createProcessor(
             TEST_CONFIG,
             rewritingSupportLib = false,
@@ -97,6 +100,7 @@ class PomRewriteInZipTest {
         val tempDir = createTempDir()
         val expectedFile = File(createTempDir(), "test.zip")
 
+        @Suppress("deprecation")
         val resultFiles = processor.transform(setOf(FileMapping(inputFile, expectedFile)))
 
         Truth.assertThat(resultFiles).hasSize(1)

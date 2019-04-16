@@ -45,7 +45,7 @@ class SQLiteDatabaseTest {
                 insert("test", null, ContentValues().apply { put("name", "Alice") })
                 throw exception
             }
-        }.isSameAs(exception)
+        }.isSameInstanceAs(exception)
 
         val query = db.rawQuery("SELECT COUNT(*) FROM test", emptyArray())
         query.moveToFirst()

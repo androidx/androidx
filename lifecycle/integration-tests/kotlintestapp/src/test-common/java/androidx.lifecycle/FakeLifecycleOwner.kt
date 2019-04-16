@@ -16,11 +16,6 @@
 
 package androidx.lifecycle
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
-
 class FakeLifecycleOwner(initialState: Lifecycle.State? = null) : LifecycleOwner {
     private val registry: LifecycleRegistry = LifecycleRegistry(this)
 
@@ -33,21 +28,6 @@ class FakeLifecycleOwner(initialState: Lifecycle.State? = null) : LifecycleOwner
     override fun getLifecycle(): Lifecycle = registry
 
     fun setState(state: Lifecycle.State) {
-        registry.markState(state)
-    }
-
-    suspend fun awaitExactObserverCount(count: Int, timeout: Long = 1000L): Boolean =
-    // just give job some time to start
-        withTimeoutOrNull(timeout) {
-            while (getObserverCount(count) != count) {
-                delay(50)
-            }
-            true
-        } ?: false
-
-    private suspend fun getObserverCount(count: Int): Int {
-        return withContext(Dispatchers.Main) {
-            registry.observerCount
-        }
+        registry.currentState = state
     }
 }

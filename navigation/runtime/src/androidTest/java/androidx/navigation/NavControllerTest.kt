@@ -801,7 +801,7 @@ class NavControllerTest {
 
         assertWithMessage("Restored NavController should return the same ViewModelStore")
             .that(restoredNavController.getViewModelStore(navGraph.id))
-            .isSameAs(store)
+            .isSameInstanceAs(store)
     }
 
     @Test
@@ -839,7 +839,7 @@ class NavControllerTest {
         val viewStore = navController.getViewModelStore(graph.id)
 
         assertThat(viewStore).isNotNull()
-        assertThat(navController.getViewModelStore(graph.id)).isSameAs(viewStore)
+        assertThat(navController.getViewModelStore(graph.id)).isSameInstanceAs(viewStore)
     }
 
     private fun createNavController(): NavController {

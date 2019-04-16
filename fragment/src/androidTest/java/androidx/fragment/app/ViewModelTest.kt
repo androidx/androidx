@@ -45,23 +45,23 @@ class ViewModelTest {
         with(ActivityScenario.launch(ViewModelActivity::class.java)) {
             val activityModel = withActivity { activityModel }
             val defaultActivityModel = withActivity { defaultActivityModel }
-            assertThat(defaultActivityModel).isNotSameAs(activityModel)
+            assertThat(defaultActivityModel).isNotSameInstanceAs(activityModel)
 
             var fragment1 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_1) }
             var fragment2 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_2) }
             assertThat(fragment1).isNotNull()
             assertThat(fragment2).isNotNull()
 
-            assertThat(fragment1.activityModel).isSameAs(activityModel)
-            assertThat(fragment2.activityModel).isSameAs(activityModel)
+            assertThat(fragment1.activityModel).isSameInstanceAs(activityModel)
+            assertThat(fragment2.activityModel).isSameInstanceAs(activityModel)
 
-            assertThat(fragment1.defaultActivityModel).isSameAs(defaultActivityModel)
-            assertThat(fragment2.defaultActivityModel).isSameAs(defaultActivityModel)
+            assertThat(fragment1.defaultActivityModel).isSameInstanceAs(defaultActivityModel)
+            assertThat(fragment2.defaultActivityModel).isSameInstanceAs(defaultActivityModel)
 
             recreate()
 
-            assertThat(withActivity { activityModel }).isSameAs(activityModel)
-            assertThat(withActivity { defaultActivityModel }).isSameAs(defaultActivityModel)
+            assertThat(withActivity { activityModel }).isSameInstanceAs(activityModel)
+            assertThat(withActivity { defaultActivityModel }).isSameInstanceAs(defaultActivityModel)
 
             fragment1 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_1) }
             fragment2 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_2) }
@@ -69,11 +69,11 @@ class ViewModelTest {
             assertThat(fragment1).isNotNull()
             assertThat(fragment2).isNotNull()
 
-            assertThat(fragment1.activityModel).isSameAs(activityModel)
-            assertThat(fragment2.activityModel).isSameAs(activityModel)
+            assertThat(fragment1.activityModel).isSameInstanceAs(activityModel)
+            assertThat(fragment2.activityModel).isSameInstanceAs(activityModel)
 
-            assertThat(fragment1.defaultActivityModel).isSameAs(defaultActivityModel)
-            assertThat(fragment2.defaultActivityModel).isSameAs(defaultActivityModel)
+            assertThat(fragment1.defaultActivityModel).isSameInstanceAs(defaultActivityModel)
+            assertThat(fragment2.defaultActivityModel).isSameInstanceAs(defaultActivityModel)
         }
     }
 
@@ -85,7 +85,7 @@ class ViewModelTest {
             assertThat(fragment1).isNotNull()
             assertThat(fragment2).isNotNull()
 
-            assertThat(fragment1.fragmentModel).isNotSameAs(fragment2.fragmentModel)
+            assertThat(fragment1.fragmentModel).isNotSameInstanceAs(fragment2.fragmentModel)
             val fragment1Model = fragment1.fragmentModel
             val fragment2Model = fragment2.fragmentModel
 
@@ -96,8 +96,8 @@ class ViewModelTest {
             assertThat(fragment1).isNotNull()
             assertThat(fragment2).isNotNull()
 
-            assertThat(fragment1.fragmentModel).isSameAs(fragment1Model)
-            assertThat(fragment2.fragmentModel).isSameAs(fragment2Model)
+            assertThat(fragment1.fragmentModel).isSameInstanceAs(fragment1Model)
+            assertThat(fragment2.fragmentModel).isSameInstanceAs(fragment2Model)
         }
     }
 
