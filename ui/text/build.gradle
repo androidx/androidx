@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
@@ -34,8 +33,13 @@ dependencies {
     api project(":ui-core")
     api project(":ui-framework")
     api project(":compose-runtime")
+    api(KOTLIN_R4A_STDLIB)
 
-    implementation(KOTLIN_R4A_STDLIB)
+    // TODO: Non-Kotlin dependency, move to Android-specific code
+    implementation "androidx.collection:collection:1.0.0-alpha01"
+    // TODO: Non-Kotlin dependency, move to Android-specific code
+    implementation "androidx.core:core:1.0.0-alpha01"
+
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)

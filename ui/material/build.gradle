@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
@@ -30,7 +29,6 @@ plugins {
 dependencies {
     kotlinPlugin project(":compose-plugin-cli")
 
-    api "androidx.annotation:annotation:1.0.0"
     api project(":compose-runtime")
     api project(":ui-core")
     api project(':ui-framework')
