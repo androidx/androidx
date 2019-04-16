@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -818,6 +819,45 @@ public class NavController {
                     + " is unknown to this NavController");
         }
         navigate(node, combinedArgs, navOptions, navigatorExtras);
+    }
+
+    /**
+     * Navigate to a destination via the given deep link {@link Uri}.
+     *
+     * @param deepLink deepLink to the destination reachable from the current NavGraph
+     */
+    public void navigate(@NonNull Uri deepLink) {
+        navigate(deepLink, null);
+    }
+
+    /**
+     * Navigate to a destination via the given deep link {@link Uri}.
+     *
+     * @param deepLink deepLink to the destination reachable from the current NavGraph
+     * @param navOptions special options for this navigation operation
+     */
+    public void navigate(@NonNull Uri deepLink, @Nullable NavOptions navOptions) {
+        navigate(deepLink, navOptions, null);
+    }
+
+    /**
+     * Navigate to a destination via the given deep link {@link Uri}.
+     *
+     * @param deepLink deepLink to the destination reachable from the current NavGraph
+     * @param navOptions special options for this navigation operation
+     * @param navigatorExtras extras to pass to the Navigator
+     */
+    public void navigate(@NonNull Uri deepLink, @Nullable NavOptions navOptions,
+            @Nullable Navigator.Extras navigatorExtras) {
+        NavDestination.DeepLinkMatch deepLinkMatch = mGraph.matchDeepLink(deepLink);
+        if (deepLinkMatch != null) {
+            Bundle args = deepLinkMatch.getMatchingArgs();
+            NavDestination node = deepLinkMatch.getDestination();
+            navigate(node, args, navOptions, navigatorExtras);
+        } else {
+            throw new IllegalArgumentException("navigation destination with deepLink "
+                    + deepLink + " is unknown to this NavController");
+        }
     }
 
     private void navigate(@NonNull NavDestination node, @Nullable Bundle args,
