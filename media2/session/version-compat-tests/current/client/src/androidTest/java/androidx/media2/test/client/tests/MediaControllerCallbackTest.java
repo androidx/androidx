@@ -763,9 +763,10 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     @Test
     public void testOnAllowedCommandsChanged() throws InterruptedException {
         prepareLooper();
-        final SessionCommandGroup commands = new SessionCommandGroup();
-        commands.addCommand(SessionCommand.COMMAND_CODE_PLAYER_PLAY);
-        commands.addCommand(SessionCommand.COMMAND_CODE_PLAYER_PAUSE);
+        final SessionCommandGroup.Builder builder = new SessionCommandGroup.Builder();
+        builder.addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_PLAY));
+        builder.addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_PAUSE));
+        final SessionCommandGroup commands = builder.build();
 
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController.ControllerCallback callback =
@@ -795,8 +796,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     @Test
     public void testOnCustomCommand() throws InterruptedException {
         prepareLooper();
-        final SessionCommand testCommand = new SessionCommand(
-                SessionCommand.COMMAND_CODE_PLAYER_PREPARE);
+        final String testCommandAction = "test_action";
+        final SessionCommand testCommand = new SessionCommand(testCommandAction, null);
         final Bundle testArgs = TestUtils.createTestBundle();
 
         final CountDownLatch latch = new CountDownLatch(2);

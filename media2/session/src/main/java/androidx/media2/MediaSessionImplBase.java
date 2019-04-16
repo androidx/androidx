@@ -355,7 +355,8 @@ class MediaSessionImplBase implements MediaSessionImpl {
                 return;
             }
             if (DEBUG) {
-                Log.d(TAG, "Closing session, id=" + getId() + ", token=" + getToken());
+                Log.d(TAG, "Closing session, id=" + getId() + ", token="
+                        + getToken());
             }
             mPlayer.unregisterPlayerCallback(mPlayerCallback);
             mSessionCompat.release();

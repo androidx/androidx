@@ -99,7 +99,7 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements MediaB
                     // callback handler to this looper.
                     Bundle rootHints = MediaUtils.convertToRootHints(params);
                     MediaBrowserCompat newBrowser = new MediaBrowserCompat(getContext(),
-                            getConnectedSessionToken().getComponentName(),
+                            getConnectedToken().getComponentName(),
                             new GetLibraryRootCallback(result, params), rootHints);
                     synchronized (mLock) {
                         mBrowserCompats.put(params, newBrowser);

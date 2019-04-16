@@ -980,7 +980,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     public void testGetPackageName() {
         prepareLooper();
         assertEquals(mContext.getPackageName(),
-                mController.getConnectedSessionToken().getPackageName());
+                mController.getConnectedToken().getPackageName());
     }
 
     @Test
@@ -1008,7 +1008,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
             public SessionResult onCustomCommand(MediaSession session,
                     ControllerInfo controller, SessionCommand customCommand, Bundle args) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
-                assertEquals(command, customCommand.getCustomCommand());
+                assertEquals(command, customCommand.getCustomAction());
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
                 return new SessionResult(RESULT_SUCCESS, null);
