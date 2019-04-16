@@ -2355,6 +2355,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     private boolean isActivityManifestHandlingUiMode() {
         if (!mActivityHandlesUiModeChecked && mHost instanceof Activity) {
             final PackageManager pm = mContext.getPackageManager();
+            if (pm == null) {
+                // If we don't have a PackageManager, return false. Don't set
+                // the checked flag though so we still check again later
+                return false;
+            }
             try {
                 final ActivityInfo info = pm.getActivityInfo(
                         new ComponentName(mContext, mHost.getClass()), 0);
