@@ -66,12 +66,13 @@ package androidx.ui.core {
     method public static void ParentData(Object data, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public class Placeable {
-    ctor public Placeable(internal kotlin.jvm.functions.Function2<? super androidx.ui.core.IntPx,? super androidx.ui.core.IntPx,kotlin.Unit> placeBlock);
-    method public androidx.ui.core.IntPx getHeight();
-    method public androidx.ui.core.IntPx getWidth();
-    property public androidx.ui.core.IntPx height;
-    property public androidx.ui.core.IntPx width;
+  public abstract class Placeable {
+    ctor public Placeable();
+    method public abstract androidx.ui.core.IntPx getHeight();
+    method public abstract androidx.ui.core.IntPx getWidth();
+    method protected abstract void place(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
+    property public abstract androidx.ui.core.IntPx height;
+    property public abstract androidx.ui.core.IntPx width;
   }
 
   public final class PointerInput extends com.google.r4a.Component {

@@ -21,10 +21,10 @@ package androidx.ui.core
  */
 class PositioningBlockReceiver {
     fun Placeable.place(x: IntPx, y: IntPx) {
-        this.placeBlock(x, y)
+        this.placeInternal(x, y)
     }
 
     fun Placeable.place(x: Px, y: Px) {
-        this.placeBlock(x.round(), y.round())
+        this.placeInternal(x.round(), y.round())
     }
 }

@@ -19,9 +19,13 @@ package androidx.ui.core
  * A [Placeable] corresponds to a child which can be positioned by its parent container.
  * Most [Placeable]s are the result of a [Measureable.measure] call.
  */
-// TODO(popam): investigate if this interface is really needed, as it blocks making
+// TODO(popam): investigate if this class is really needed, as it blocks making
 //              MeasuredPlaceable an inline class
-open class Placeable(internal var placeBlock: (IntPx, IntPx) -> Unit) {
-    open val width: IntPx get() = IntPx.Zero
-    open val height: IntPx get() = IntPx.Zero
+abstract class Placeable {
+    abstract val width: IntPx
+    abstract val height: IntPx
+    protected abstract fun place(x: IntPx, y: IntPx)
+    internal fun placeInternal(x: IntPx, y: IntPx) {
+        place(x, y)
+    }
 }
