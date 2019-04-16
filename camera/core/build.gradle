@@ -28,7 +28,7 @@ dependencies {
     implementation("androidx.exifinterface:exifinterface:1.0.0")
     implementation("androidx.annotation:annotation:1.0.0")
     implementation(project(":core"))
-    implementation(project(":concurrent:concurrent-futures"))
+    implementation("androidx.concurrent:concurrent-futures:1.0.0-alpha03")
 
     implementation(AUTO_VALUE_ANNOTATIONS)
     implementation(GUAVA_LISTENABLE_FUTURE)
