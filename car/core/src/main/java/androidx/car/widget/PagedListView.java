@@ -353,7 +353,7 @@ public class PagedListView extends FrameLayout {
 
             @Override
             public void onAlphaJump() {
-                showAlphaJump();
+                setAlphaJumpVisible(true);
             }
         });
 
@@ -1304,24 +1304,24 @@ public class PagedListView extends FrameLayout {
         return mAlphaJumpView != null && mAlphaJumpView.getVisibility() == VISIBLE;
     }
 
-    /**
-     * Show the Alpha Jump Overlay.
-     */
-    public void showAlphaJump() {
+    private void ensureAlphaJumpViewIsChildView() {
         if (mAlphaJumpView == null && mAdapter instanceof AlphaJumpAdapter) {
             mAlphaJumpView = new AlphaJumpOverlayView(getContext());
             mAlphaJumpView.init(this, (AlphaJumpAdapter) mAdapter);
             addView(mAlphaJumpView);
         }
-
-        mAlphaJumpView.show();
     }
 
     /**
-     * Hide the Alpha Jump Overlay.
+     * Sets whether the Alpha Jump Overlay is visible.
+     *
+     * @param visible {@code true} to show the Alpha Jump Overlay or {@code false} to hide it.
      */
-    public void hideAlphaJump() {
-        if (mAlphaJumpView != null) {
+    public void setAlphaJumpVisible(boolean visible) {
+        if (visible) {
+            ensureAlphaJumpViewIsChildView();
+            mAlphaJumpView.show();
+        } else if (mAlphaJumpView != null) {
             mAlphaJumpView.hide();
         }
     }
