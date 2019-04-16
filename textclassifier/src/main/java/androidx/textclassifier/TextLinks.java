@@ -309,6 +309,11 @@ public final class TextLinks {
             return bundle;
         }
 
+        @NonNull
+        EntityConfidence getEntityScores() {
+            return mEntityScores;
+        }
+
         /**
          * Extracts a TextLink from a bundle that was added using {@link #toBundle()}.
          */
@@ -518,6 +523,19 @@ public final class TextLinks {
             return new android.view.textclassifier.TextLinks.Request.Builder(getText())
                     .setDefaultLocales(unwrapLocalListCompat(getDefaultLocales()))
                     .setEntityConfig(toPlatformEntityConfig(getEntityConfig()))
+                    .build();
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(28)
+        @NonNull
+        static TextLinks.Request fromPlatform(
+                @NonNull android.view.textclassifier.TextLinks.Request request) {
+            return new TextLinks.Request.Builder(request.getText())
+                    .setDefaultLocales(ConvertUtils.wrapLocalList(request.getDefaultLocales()))
+                    .setEntityConfig(
+                            TextClassifier.EntityConfig.fromPlatform(request.getEntityConfig()))
                     .build();
         }
     }
@@ -830,6 +848,22 @@ public final class TextLinks {
         for (android.view.textclassifier.TextLinks.TextLink link : links) {
             builder.addLink(link.getStart(), link.getEnd(),
                     ConvertUtils.createFloatMapFromTextLinks(link));
+        }
+        return builder.build();
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresApi(28)
+    @NonNull
+    android.view.textclassifier.TextLinks toPlatform() {
+        android.view.textclassifier.TextLinks.Builder builder =
+                new android.view.textclassifier.TextLinks.Builder((String) getText());
+        for (TextLink textLink : getLinks()) {
+            builder.addLink(
+                    textLink.getStart(),
+                    textLink.getEnd(),
+                    textLink.getEntityScores().getConfidenceMap());
         }
         return builder.build();
     }
