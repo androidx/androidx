@@ -29,6 +29,9 @@ import androidx.annotation.Nullable;
 
 import com.google.auto.value.AutoValue;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * A keyed app state to be sent to an EMM (enterprise mobility management), with the intention that
  * it is displayed to the management organization.
@@ -40,6 +43,7 @@ public abstract class KeyedAppState {
     KeyedAppState() {}
 
     @IntDef({SEVERITY_INFO, SEVERITY_ERROR})
+    @Retention(RetentionPolicy.SOURCE)
     @interface Severity {
     }
 
