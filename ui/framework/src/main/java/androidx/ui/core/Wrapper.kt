@@ -44,7 +44,7 @@ fun CraneWrapper(@Children children: () -> Unit) {
         }
         var width = IntPx.Zero
         var height = IntPx.Zero
-        rootLayoutNode.childrenMeasureBoxes().forEach { measureBox ->
+        rootLayoutNode.childrenLayouts().forEach { measureBox ->
             val layoutNode: LayoutNode
             when (measureBox) {
                 is ComplexMeasureBox -> {

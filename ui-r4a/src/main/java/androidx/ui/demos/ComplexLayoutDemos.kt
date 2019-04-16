@@ -18,7 +18,6 @@ package androidx.ui.demos
 
 import android.os.Handler
 import androidx.ui.core.Constraints
-import androidx.ui.core.ComplexMeasureBox
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
@@ -107,25 +106,6 @@ fun IntrinsicWidth(@Children() children: () -> Unit) {
             measurables.first().maxIntrinsicHeight(w)
         }
         children />
-}
-
-@Composable
-fun Wrapper(@Children() children: () -> Unit) {
-    <ComplexMeasureBox>
-        val child = collect(children).first()
-        layout { constraints ->
-            // Check the default intrinsic methods used by MeasureBoxes.
-            // TODO(popam): make this a proper test instead
-            require(child.minIntrinsicWidth(IntPx.Infinity) == 90.ipx)
-            require(child.maxIntrinsicWidth(IntPx.Infinity) == 450.ipx)
-            require(child.minIntrinsicHeight(IntPx.Infinity) == 30.ipx)
-            require(child.maxIntrinsicHeight(IntPx.Infinity) == 150.ipx)
-            val placeable = child.measure(constraints)
-            layoutResult(placeable.width, placeable.height) {
-                placeable.place(IntPx.Zero, IntPx.Zero)
-            }
-        }
-    </ComplexMeasureBox>
 }
 
 /**
