@@ -1,6 +1,10 @@
 // Signature format: 3.0
 package androidx.benchmark {
 
+  public final class AndroidBenchmarkRunner extends androidx.test.runner.AndroidJUnitRunner {
+    ctor public AndroidBenchmarkRunner();
+  }
+
   public final class BenchmarkRule implements org.junit.rules.TestRule {
     ctor public BenchmarkRule();
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);

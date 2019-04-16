@@ -23,6 +23,8 @@ plugins {
     id("kotlin-android")
 }
 
+android.defaultConfig.testInstrumentationRunner "androidx.benchmark.AndroidBenchmarkRunner"
+
 dependencies {
     androidTestImplementation(project(":benchmark"))
     androidTestImplementation(project(":navigation:navigation-runtime"))
