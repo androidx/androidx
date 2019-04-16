@@ -16,13 +16,9 @@
 
 package androidx.ui.material.studies
 
-import androidx.ui.core.Dp
-import androidx.ui.core.dp
-import androidx.ui.layout.Container
 import androidx.ui.layout.FlexColumn
 import androidx.ui.material.surface.Surface
 import androidx.ui.material.themeColor
-import androidx.ui.painting.Color
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -46,15 +42,4 @@ fun Scaffold(appBar: @Composable() () -> Unit, @Children children: () -> Unit) {
             </Surface>
         }
     </FlexColumn>
-}
-
-@Composable
-fun Spacer(size: Dp, orientation: Orientation) {
-    if (orientation == Orientation.Horizontal) <Container expanded=true width=size />
-    else <Container expanded=true height=size />
-}
-
-@Composable
-fun Divider(color: Color, size: Dp = 2.dp) {
-    <Container expanded=true height=size color />
 }

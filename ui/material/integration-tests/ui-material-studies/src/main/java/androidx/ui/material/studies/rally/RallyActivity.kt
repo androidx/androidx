@@ -25,9 +25,8 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
-import androidx.ui.material.studies.Orientation
+import androidx.ui.material.HeightSpacer
 import androidx.ui.material.studies.Scaffold
-import androidx.ui.material.studies.Spacer
 import androidx.ui.material.themeTextStyle
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -42,7 +41,7 @@ class RallyActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            <CraneWrapper >
+            <CraneWrapper>
                 <RallyApp />
             </CraneWrapper>
         }
@@ -51,7 +50,7 @@ class RallyActivity : Activity() {
     @Composable
     fun RallyApp() {
         <RallyTheme>
-            <Scaffold appBar={<RallyAppBar />}>
+            <Scaffold appBar={ <RallyAppBar /> }>
                 <RallyBody />
             </Scaffold>
         </RallyTheme>
@@ -74,9 +73,9 @@ fun RallyBody() {
         <Column>
             // TODO: scrolling container
             <RallyAlertCard />
-            <Spacer size=10.dp orientation=Orientation.Vertical/>
+            <HeightSpacer height=10.dp />
             <RallyAccountsCard />
-            <Spacer size=10.dp orientation=Orientation.Vertical />
+            <HeightSpacer height=10.dp />
             <RallyBillsCard />
         </Column>
     </Padding>
