@@ -817,6 +817,7 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
                 mSession.close();
                 mPlayer = new MockPlayer(1);
                 mSession = new MediaSession.Builder(mContext, mPlayer)
+                        .setId("testOnCommandCallback")
                         .setSessionCallback(sHandlerExecutor, callback).build();
             }
         });
