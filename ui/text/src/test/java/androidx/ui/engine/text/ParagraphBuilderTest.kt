@@ -196,6 +196,40 @@ class ParagraphBuilderTest {
     }
 
     @Test
+    fun `pushStyle with multiple nested styles should return styles in same order`() {
+        val paragraphStyle = createParagraphStyle()
+        val styles = arrayOf(
+            TextStyle(color = Color.fromARGB(1, 2, 3, 4)),
+            TextStyle(fontStyle = FontStyle.italic),
+            TextStyle(fontWeight = FontWeight.bold),
+            TextStyle(letterSpacing = 1.0f)
+        )
+
+        val paragraphBuilder = ParagraphBuilder(paragraphStyle)
+        paragraphBuilder.pushStyle(styles[0])
+        paragraphBuilder.addText("layer1-1")
+        paragraphBuilder.pushStyle(styles[1])
+        paragraphBuilder.addText("layer2-1")
+        paragraphBuilder.pop()
+        paragraphBuilder.pushStyle(styles[2])
+        paragraphBuilder.addText("layer2-2")
+        paragraphBuilder.pushStyle(styles[3])
+        paragraphBuilder.addText("layer3-1")
+        paragraphBuilder.pop()
+        paragraphBuilder.addText("layer2-3")
+        paragraphBuilder.pop()
+        paragraphBuilder.addText("layer1-2")
+        paragraphBuilder.pop()
+
+        val paragraph = paragraphBuilder.build()
+
+        assertThat(paragraph.textStyles.size, equalTo(4))
+        styles.forEachIndexed { index, textStyle ->
+            assertThat(paragraph.textStyles[index].textStyle, equalTo(textStyle))
+        }
+    }
+
+    @Test
     fun `pop when empty does not throw exception`() {
         val paragraphStyle = createParagraphStyle()
         val paragraphBuilder = ParagraphBuilder(paragraphStyle)
