@@ -113,8 +113,26 @@ final class FragmentState implements Parcelable {
         sb.append(" (");
         sb.append(mWho);
         sb.append(")}:");
-        sb.append(" retainInstance=");
-        sb.append(mRetainInstance);
+        if (mFromLayout) {
+            sb.append(" fromLayout");
+        }
+        if (mContainerId != 0) {
+            sb.append(" id=0x");
+            sb.append(Integer.toHexString(mContainerId));
+        }
+        if (mTag != null && !mTag.isEmpty()) {
+            sb.append(" tag=");
+            sb.append(mTag);
+        }
+        if (mRetainInstance) {
+            sb.append(" retainInstance");
+        }
+        if (mDetached) {
+            sb.append(" detached");
+        }
+        if (mHidden) {
+            sb.append(" hidden");
+        }
         return sb.toString();
     }
 
