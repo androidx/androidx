@@ -16,6 +16,7 @@
 
 package androidx.ui.material.demos
 
+import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -24,7 +25,6 @@ import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Row
 import androidx.ui.material.Divider
 import androidx.ui.material.HeightSpacer
-import androidx.ui.material.StyledText
 import androidx.ui.material.WidthSpacer
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
@@ -76,7 +76,7 @@ fun Item(text: String, color: Color? = null) {
                     color />
                 <WidthSpacer width=ItemPadding />
             }
-            <StyledText text style=textStyle />
+            <Text text style=textStyle />
         </Row>
     </Container>
 }

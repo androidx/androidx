@@ -27,14 +27,20 @@ import androidx.ui.rendering.paragraph.TextOverflow
 import androidx.ui.services.text_editing.TextSelection
 import com.google.r4a.Ambient
 import com.google.r4a.Children
-import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.effectOf
 
+private val DefaultTextAlign: TextAlign = TextAlign.START
+private val DefaultTextDirection: TextDirection = TextDirection.LTR
+private val DefaultSoftWrap: Boolean = true
+private val DefaultOverflow: TextOverflow = TextOverflow.CLIP
+private val DefaultMaxLines: Int? = null
+
 /** The default selection color if none is specified. */
-private val DEFAULT_SELECTION_COLOR = Color(0x6633B5E5)
+private val DefaultSelectionColor = Color(0x6633B5E5)
+
 /**
  * Text Widget Crane version.
  *
@@ -44,94 +50,51 @@ private val DEFAULT_SELECTION_COLOR = Color(0x6633B5E5)
  * same line depending on the layout constraints.
  */
 // TODO(migration/qqd): Add tests when text widget system is mature and testable.
-class Text() : Component() {
+@Composable
+fun Text(
     /** The text to display. */
-    lateinit var text: TextSpan
+    text: TextSpan,
     /** How the text should be aligned horizontally. */
-    var textAlign: TextAlign = TextAlign.START
+    textAlign: TextAlign = DefaultTextAlign,
     /** The directionality of the text. */
-    var textDirection: TextDirection = TextDirection.LTR
+    textDirection: TextDirection = DefaultTextDirection,
     /**
      *  Whether the text should break at soft line breaks.
      *  If false, the glyphs in the text will be positioned as if there was unlimited horizontal
      *  space.
      *  If [softWrap] is false, [overflow] and [textAlign] may have unexpected effects.
      */
-    var softWrap: Boolean = true
+    softWrap: Boolean = DefaultSoftWrap,
     /** How visual overflow should be handled. */
-    var overflow: TextOverflow = TextOverflow.CLIP
+    overflow: TextOverflow = DefaultOverflow,
     /** The number of font pixels for each logical pixel. */
-    var textScaleFactor: Float = 1.0f
+    textScaleFactor: Float = 1.0f,
     /**
      *  An optional maximum number of lines for the text to span, wrapping if necessary.
      *  If the text exceeds the given number of lines, it will be truncated according to [overflow]
      *  and [softWrap].
      *  The value may be null. If it is not null, then it must be greater than zero.
      */
-    var maxLines: Int? = null
+    maxLines: Int? = DefaultMaxLines,
     // TODO(qqd): Make variable selection private in future.
     /**
      *  The selection of the text.
      */
-    var selection: TextSelection? = null
+    selection: TextSelection? = null,
     /**
      *  The selection's start and end offset. In this pair, the first is start, and the second is
      *  end.
      */
-    var selectionPosition: Pair<Offset, Offset>? = null
+    selectionPosition: Pair<Offset, Offset>? = null,
     /**
      *  The color used to draw selected region.
      */
-    var selectionColor: Color = DEFAULT_SELECTION_COLOR
+    selectionColor: Color = DefaultSelectionColor
+) {
+    val context = composer.composer.context
+    var internalSelection = selection
 
-    override fun compose() {
-        val context = composer.composer.context
-
-        <CurrentTextStyleAmbient.Consumer> style ->
-            val mergedStyle = style.merge(text.style)
-            // Make a wrapper to avoid modifying the style on the original element
-            val styledText = TextSpan(style = mergedStyle, children = listOf(text))
-            <Semantics
-                label=text.toString()>
-
-                val renderParagraph = RenderParagraph(
-                    text = styledText,
-                    textAlign = textAlign,
-                    textDirection = textDirection,
-                    softWrap = softWrap,
-                    overflow = overflow,
-                    textScaleFactor = textScaleFactor,
-                    maxLines = maxLines,
-                    selectionColor = selectionColor
-                )
-                // TODO(Migration/siyamed): This is temporary and should be removed when resource
-                // system is resolved.
-                attachContextToFont(styledText, context)
-
-                <Layout layoutBlock = { _, constraints ->
-                    renderParagraph.performLayout(constraints)
-                    // Convert the selection's start and end offset to a TextSelection object.
-                    selectionPosition?.let {
-                        var selectionStart = renderParagraph.getPositionForOffset(it.first).offset
-                        var selectionEnd = renderParagraph.getPositionForOffset(it.second).offset
-
-                        if (selectionEnd == selectionStart) selectionEnd = selectionStart + 1
-                        selection = TextSelection(selectionStart, selectionEnd)
-                    }
-
-                    layout(renderParagraph.width.px.round(), renderParagraph.height.px.round()) {}
-                }>
-                    <Draw> canvas, _ ->
-                        selection?.let { renderParagraph.paintSelection(canvas, it) }
-                        renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
-                    </Draw>
-                </Layout>
-
-            </Semantics>
-        </CurrentTextStyleAmbient.Consumer>
-    }
-
-    private fun attachContextToFont(
+    fun attachContextToFont(
         text: TextSpan,
         context: Context
     ) {
@@ -142,6 +105,72 @@ class Text() : Component() {
             true
         }
     }
+
+    <CurrentTextStyleAmbient.Consumer> style ->
+        val mergedStyle = style.merge(text.style)
+        // Make a wrapper to avoid modifying the style on the original element
+        val styledText = TextSpan(style = mergedStyle, children = listOf(text))
+        <Semantics
+            label=text.toString()>
+            val renderParagraph = RenderParagraph(
+                text = styledText,
+                textAlign = textAlign,
+                textDirection = textDirection,
+                softWrap = softWrap,
+                overflow = overflow,
+                textScaleFactor = textScaleFactor,
+                maxLines = maxLines,
+                selectionColor = selectionColor
+            )
+            // TODO(Migration/siyamed): This is temporary and should be removed when resource
+            // system is resolved.
+            attachContextToFont(styledText, context)
+
+            <Layout layoutBlock={ _, constraints ->
+                renderParagraph.performLayout(constraints)
+                // Convert the selection's start and end offset to a TextSelection object.
+                selectionPosition?.let {
+                    var selectionStart = renderParagraph.getPositionForOffset(it.first).offset
+                    var selectionEnd = renderParagraph.getPositionForOffset(it.second).offset
+
+                    if (selectionEnd == selectionStart) selectionEnd = selectionStart + 1
+                    internalSelection = TextSelection(selectionStart, selectionEnd)
+                }
+
+                layout(renderParagraph.width.px.round(), renderParagraph.height.px.round()) {}
+            }>
+                <Draw> canvas, _ ->
+                    internalSelection?.let { renderParagraph.paintSelection(canvas, it) }
+                    renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
+                </Draw>
+            </Layout>
+        </Semantics>
+    </CurrentTextStyleAmbient.Consumer>
+}
+
+/**
+ * Simplified version of [Text] component with minimal set of customizations.
+ *
+ * @param text The text to display.
+ * @param style The text style for the text.
+ */
+@Composable
+fun Text(
+    text: String,
+    style: TextStyle? = null,
+    textAlign: TextAlign = DefaultTextAlign,
+    textDirection: TextDirection = DefaultTextDirection,
+    softWrap: Boolean = DefaultSoftWrap,
+    overflow: TextOverflow = DefaultOverflow,
+    maxLines: Int? = DefaultMaxLines
+) {
+    <Text
+        text=TextSpan(text = text, style = style)
+        textAlign
+        textDirection
+        softWrap
+        overflow
+        maxLines />
 }
 
 internal val CurrentTextStyleAmbient = Ambient<TextStyle>("current text style") {

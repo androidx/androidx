@@ -176,7 +176,7 @@ class RadioGroupScope internal constructor() {
                 <Row mainAxisSize=MainAxisSize.Max mainAxisAlignment=MainAxisAlignment.Start>
                     <RadioButton selected color=radioColor />
                     <Padding padding=EdgeInsets(left = DefaultRadioLabelOffset)>
-                        <StyledText text style=+themeTextStyle { body1.merge(textStyle) } />
+                        <Text text style=+themeTextStyle { body1.merge(textStyle) } />
                     </Padding>
                 </Row>
             </Padding>

@@ -16,6 +16,7 @@
 
 package androidx.ui.material.studies.rally
 
+import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -25,7 +26,6 @@ import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.material.Colors
-import androidx.ui.material.StyledText
 import androidx.ui.material.TransparentButton
 import androidx.ui.material.studies.Divider
 import androidx.ui.material.studies.Orientation
@@ -50,7 +50,7 @@ fun RallyAlertCard() {
         <Padding padding=EdgeInsets(12.dp)>
             <Column>
                 <Row mainAxisAlignment=MainAxisAlignment.SpaceBetween>
-                    <StyledText text="Alerts" style=+themeTextStyle { subtitle2 }/>
+                    <Text text="Alerts" style=+themeTextStyle { subtitle2 }/>
                     <TransparentButton text="See All" onClick={} />
                 </Row>
                 <Padding padding=EdgeInsets(0.dp, 12.dp, 0.dp, 12.dp)>
@@ -61,8 +61,8 @@ fun RallyAlertCard() {
                     expanded(flex = 1.0f) {
                         val text = "Heads up, you've used up 90% of your " +
                                 "Shopping budget for this month."
-                        <StyledText style=+themeTextStyle { body1 }
-                                    text />
+                        <Text style=+themeTextStyle { body1 }
+                            text />
                     }
                     inflexible {
                         // TODO: icons still don't work
@@ -85,8 +85,8 @@ fun RallyAccountsCard() {
         <Column>
             <Padding padding=EdgeInsets(12.dp)>
                 <Column>
-                    <StyledText text="Accounts" style=+themeTextStyle { body1 }/>
-                    <StyledText text="$12,132.49" style=+themeTextStyle { h3 }/>
+                    <Text text="Accounts" style=+themeTextStyle { body1 }/>
+                    <Text text="$12,132.49" style=+themeTextStyle { h3 }/>
                 </Column>
             </Padding>
             <Divider color=rallyGreen size=1.dp/>
@@ -120,15 +120,15 @@ fun RallyAccountRow(name: String, number: String, amount: String, color: Color) 
                 <AccountIndicator color=color/>
                 <Spacer size=8.dp orientation=Orientation.Horizontal/>
                 <Column crossAxisAlignment=MainAxisAlignment.Start>
-                    <StyledText text=name style=+themeTextStyle { body1 }/>
-                    <StyledText text="•••••$number" style=+themeTextStyle { subtitle1 }/>
+                    <Text text=name style=+themeTextStyle { body1 }/>
+                    <Text text="•••••$number" style=+themeTextStyle { subtitle1 }/>
                 </Column>
             }
             expanded(flex = 1.0f) {
                 <Container />
             }
             inflexible {
-                <StyledText text="$ $amount" style=+themeTextStyle { h6 }/>
+                <Text text="$ $amount" style=+themeTextStyle { h6 }/>
             }
         </FlexRow>
     </Padding>
@@ -151,8 +151,8 @@ fun RallyBillsCard() {
         <Column>
             <Padding padding=EdgeInsets(12.dp)>
                 <Column>
-                    <StyledText text="Bills" style=+themeTextStyle { subtitle2 }/>
-                    <StyledText text="$1,810.00" style=+themeTextStyle { h1 } />
+                    <Text text="Bills" style=+themeTextStyle { subtitle2 }/>
+                    <Text text="$1,810.00" style=+themeTextStyle { h1 } />
                 </Column>
             </Padding>
         </Column>

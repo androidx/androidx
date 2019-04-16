@@ -29,7 +29,6 @@ import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.ripple.BoundedRipple
 import androidx.ui.material.surface.Surface
 import androidx.ui.painting.Color
-import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -147,7 +146,7 @@ fun Button(
             .tightConstraintsForHeight(ButtonHeight)
             .copy(minWidth = ButtonMinWidth)
         <Container padding=EdgeInsets(left = horPaddings, right = horPaddings) constraints>
-            <Text text=TextSpan(text = text, style = textStyle) />
+            <Text text=text style=textStyle />
         </Container>
     </Button>
 }
