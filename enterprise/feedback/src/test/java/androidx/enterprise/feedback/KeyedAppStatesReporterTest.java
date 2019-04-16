@@ -16,8 +16,8 @@
 
 package androidx.enterprise.feedback;
 
+import static androidx.enterprise.feedback.KeyedAppStatesReporter.ACTION_APP_STATES;
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATES;
-import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATES_ACTION;
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATE_DATA;
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATE_KEY;
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATE_MESSAGE;
@@ -468,7 +468,7 @@ public class KeyedAppStatesReporterTest {
         resolveInfo.serviceInfo.packageName = componentName.getPackageName();
         resolveInfo.serviceInfo.name = componentName.getClassName();
 
-        Intent appStatesIntent = new Intent(APP_STATES_ACTION);
+        Intent appStatesIntent = new Intent(ACTION_APP_STATES);
 
         shadowOf(mPackageManager).addResolveInfoForIntent(appStatesIntent, resolveInfo);
     }

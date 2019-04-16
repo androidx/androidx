@@ -27,7 +27,7 @@ package androidx.enterprise.feedback {
     method public static void initialize(android.content.Context, java.util.concurrent.Executor);
     method public void set(java.util.Collection<androidx.enterprise.feedback.KeyedAppState>);
     method public void setImmediate(java.util.Collection<androidx.enterprise.feedback.KeyedAppState>);
-    field public static final String APP_STATES_ACTION = "androidx.enterprise.feedback.action.APP_STATES";
+    field public static final String ACTION_APP_STATES = "androidx.enterprise.feedback.action.APP_STATES";
   }
 
   public abstract class KeyedAppStatesService extends android.app.Service {
