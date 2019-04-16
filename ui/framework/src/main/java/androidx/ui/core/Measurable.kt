@@ -16,7 +16,7 @@
 package androidx.ui.core
 
 /**
- * A part of the composition that can be measured. This represents a [ComplexMeasureBox] somewhere
+ * A part of the composition that can be measured. This represents a [Layout] somewhere
  * down the hierarchy.
  *
  * @return a [Placeable] that can be used within a [layoutResult] block

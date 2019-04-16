@@ -409,7 +409,7 @@ class DrawNode : ComponentNode() {
 }
 
 /**
- * Backing node for MeasureBox component.
+ * Backing node for Layout component.
  */
 class LayoutNode : ComponentNode() {
     /**
@@ -429,8 +429,8 @@ class LayoutNode : ComponentNode() {
             value?.value = this
         }
 
-    // This is a ComplexMeasureBox, but we don't have access to that class from here.
-    var measureBox: Any? = null
+    // This is a ComplexLayout, but we don't have access to that class from here.
+    var layout: Any? = null
 
     /**
      * The width of this layout
@@ -770,10 +770,10 @@ class SemanticsComponentNode(
 }
 
 /**
- * The list of child MeasureBoxes. It can contain zero or more entries.
+ * The list of child Layouts. It can contain zero or more entries.
  */
-fun LayoutNode.childrenMeasureBoxes(): List<Any> {
-    return children.mapNotNull { it.layoutNode?.measureBox }
+fun LayoutNode.childrenLayouts(): List<Any> {
+    return children.mapNotNull { it.layoutNode?.layout }
 }
 
 /**

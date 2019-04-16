@@ -29,8 +29,9 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.Layout
 import androidx.ui.core.PxPosition
+import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.ipx
 import androidx.ui.engine.geometry.Offset
@@ -54,14 +55,16 @@ class StateBasedRippleAnimation : Activity() {
 @Composable
 fun StateBasedRippleDemo() {
     <CraneWrapper>
-        <MeasureBox> constraints ->
-            val placeable = collect {
-                <RippleRect width=constraints.maxWidth height=constraints.maxHeight />
-            }.firstOrNull()?.measure(constraints)
+        <Layout layoutBlock = { measurables, constraints ->
+            val placeable = measurables.firstOrNull()?.measure(constraints)
             layout(constraints.maxWidth, constraints.maxHeight) {
                 placeable?.place(0.ipx, 0.ipx)
             }
-        </MeasureBox>
+        }>
+            <WithConstraints> constraints ->
+                <RippleRect width=constraints.maxWidth height=constraints.maxHeight />
+            </WithConstraints>
+        </Layout>
     </CraneWrapper>
 }
 

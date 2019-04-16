@@ -186,7 +186,7 @@ class ComplexMeasureBox(
             ambients = reference
             density = reference.getAmbient(DensityAmbient)
             val parentData = reference.getAmbient(ParentDataAmbient)
-            <LayoutNode ref measureBox=this parentData/>
+            <LayoutNode ref layout=this parentData/>
         </Ambient.Portal>
         if (recomposeComplexMeasureBox == null) {
             recomposeComplexMeasureBox = this
@@ -219,7 +219,7 @@ class ComplexMeasureBox(
         // b) when the child of the MeasureBox is positioned - `onChildPositioned`
         // To create LayoutNodeCoordinates only once here we will call callbacks from
         // both `onPositioned` and our parent MeasureBox's `onChildPositioned`.
-        val parentMeasureBox = layoutNode.parentLayoutNode?.measureBox
+        val parentMeasureBox = layoutNode.parentLayoutNode?.layout
         val parentOnChildPositioned = when (parentMeasureBox) {
             is ComplexLayoutState -> parentMeasureBox.onChildPositioned
             is ComplexMeasureBox -> parentMeasureBox.onChildPositioned
@@ -279,7 +279,7 @@ class ComplexMeasureBoxReceiver internal constructor(
     fun collect(@Children children: () -> Unit): List<Measurable> {
         val layoutNode = measureBox.layoutNode
         val boxesSoFar = if (collectedComposables.isEmpty()) 0 else
-            layoutNode.childrenMeasureBoxes().size
+            layoutNode.childrenLayouts().size
         collectedComposables.add(children)
 
         val ambients = measureBox.ambients!!
@@ -293,7 +293,7 @@ class ComplexMeasureBoxReceiver internal constructor(
             </OnChildPositionedAmbient.Provider>
         }
 
-        return layoutNode.childrenMeasureBoxes()
+        return layoutNode.childrenLayouts()
             .drop(boxesSoFar)
             .map { measureBox ->
                 when (measureBox) {

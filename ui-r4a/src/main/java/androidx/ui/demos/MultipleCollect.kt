@@ -20,9 +20,9 @@ package androidx.ui.demos
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.MeasureBox
 import androidx.ui.core.MultiChildLayout
 import androidx.ui.core.Draw
+import androidx.ui.core.Layout
 import androidx.ui.core.ipx
 import androidx.ui.core.toRect
 import androidx.ui.painting.Color
@@ -33,17 +33,15 @@ import com.google.r4a.composer
 
 @Composable
 fun ColoredRect(color: Color) {
-    <MeasureBox> constraints ->
-        collect {
-            val paint = Paint()
-            paint.color = color
-            <Draw> canvas, parentSize ->
-                canvas.drawRect(parentSize.toRect(), paint)
-            </Draw>
-        }
-        layout(constraints.maxWidth, constraints.maxHeight) {
-        }
-    </MeasureBox>
+    <Layout layoutBlock = { _, constraints ->
+        layout(constraints.maxWidth, constraints.maxHeight) { }
+    }>
+        val paint = Paint()
+        paint.color = color
+        <Draw> canvas, parentSize ->
+            canvas.drawRect(parentSize.toRect(), paint)
+        </Draw>
+    </Layout>
 }
 
 @Composable

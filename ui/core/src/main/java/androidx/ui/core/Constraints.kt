@@ -17,7 +17,7 @@
 package androidx.ui.core
 
 /**
- * Immutable constraints used for measuring child [MeasureBox]es. A parent [MeasureBox]
+ * Immutable constraints used for measuring child [Layout]s. A parent [Layout]
  * can measure their children using the [measure] method on the corresponding [Measurable]s,
  * method which takes the [Constraints] the child has to follow. A [measure]d child is then
  * responsible to choose for themselves and return a size which satisfies the received set
