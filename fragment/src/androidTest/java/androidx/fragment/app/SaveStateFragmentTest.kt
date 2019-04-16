@@ -42,6 +42,7 @@ class SaveStateFragmentTest {
 
     @Test
     @UiThreadTest
+    @SuppressWarnings("deprecation")
     fun setInitialSavedState() {
         val fm = activityRule.activity.supportFragmentManager
 
@@ -74,6 +75,7 @@ class SaveStateFragmentTest {
 
     @Test
     @UiThreadTest
+    @SuppressWarnings("deprecation")
     fun setInitialSavedStateWithSetUserVisibleHint() {
         val fm = activityRule.activity.supportFragmentManager
 
