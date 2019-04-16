@@ -44,6 +44,11 @@ class WebContext {
         webView!!.goBack()
     }
 
+    fun canGoBack(): Boolean {
+        validateWebView()
+        return webView!!.canGoBack()
+    }
+
     private fun validateWebView() {
         if (webView == null) {
             throw IllegalStateException("The WebView is not initialized yet.")
