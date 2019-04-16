@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.ui.material
+package androidx.ui.layout
 
 import androidx.ui.core.Dp
-import androidx.ui.layout.Container
 import com.google.r4a.Composable
 import com.google.r4a.composer
 

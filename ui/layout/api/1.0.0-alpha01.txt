@@ -168,6 +168,13 @@ package androidx.ui.layout {
     method public static void Padding(androidx.ui.layout.EdgeInsets padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public final class SpacerKt {
+    ctor public SpacerKt();
+    method public static void FixedSpacer(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
+    method public static void HeightSpacer(androidx.ui.core.Dp height);
+    method public static void WidthSpacer(androidx.ui.core.Dp width);
+  }
+
   public final class StackChildren {
     ctor public StackChildren();
     method public void aligned(androidx.ui.layout.Alignment alignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);

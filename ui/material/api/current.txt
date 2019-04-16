@@ -149,13 +149,6 @@ package androidx.ui.material {
     method public androidx.ui.material.borders.ShapeBorder getButton();
   }
 
-  public final class SpacerKt {
-    ctor public SpacerKt();
-    method public static void FixedSpacer(androidx.ui.core.Dp width, androidx.ui.core.Dp height);
-    method public static void HeightSpacer(androidx.ui.core.Dp height);
-    method public static void WidthSpacer(androidx.ui.core.Dp width);
-  }
-
   public final class SwitchKt {
     ctor public SwitchKt();
     method public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onChecked = null, androidx.ui.painting.Color? color = null);

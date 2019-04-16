@@ -23,9 +23,9 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
-import androidx.ui.material.HeightSpacer
 import androidx.ui.material.studies.Scaffold
 import androidx.ui.material.themeTextStyle
 import com.google.r4a.Composable

@@ -26,10 +26,10 @@ import androidx.ui.layout.FlexRow
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
+import androidx.ui.layout.WidthSpacer
 import androidx.ui.material.Colors
 import androidx.ui.material.Divider
 import androidx.ui.material.TransparentButton
-import androidx.ui.material.WidthSpacer
 import androidx.ui.material.surface.Card
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color

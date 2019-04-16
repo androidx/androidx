@@ -25,8 +25,10 @@ import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
+import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
+import androidx.ui.layout.WidthSpacer
 import androidx.ui.layout.Wrap
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
@@ -74,34 +76,35 @@ fun LayoutDemo() {
                 <CyanSquare />
             </Row>
         </ContainerWithBackground>
-        <ColumnSpacer />
+        <HeightSpacer height=24.dp />
         <ContainerWithBackground width=ExampleSize color=lightGrey>
             <Row mainAxisAlignment=MainAxisAlignment.Center>
                 <PurpleSquare />
                 <CyanSquare />
             </Row>
         </ContainerWithBackground>
-        <ColumnSpacer />
+        <HeightSpacer height=24.dp />
         <ContainerWithBackground width=ExampleSize color=lightGrey>
             <Row mainAxisAlignment=MainAxisAlignment.End>
                 <PurpleSquare />
                 <CyanSquare />
             </Row>
         </ContainerWithBackground>
-        <ColumnSpacer />
+        <HeightSpacer height=24.dp />
         <ContainerWithBackground width=ExampleSize color=lightGrey>
             <Row crossAxisAlignment=CrossAxisAlignment.Start>
                 <PurpleSquare />
                 <CyanSquare />
             </Row>
         </ContainerWithBackground>
-        <ColumnSpacer />
+        <HeightSpacer height=24.dp />
         <ContainerWithBackground width=ExampleSize color=lightGrey>
             <Row crossAxisAlignment=CrossAxisAlignment.End>
                 <PurpleSquare />
                 <CyanSquare />
             </Row>
         </ContainerWithBackground>
+        <HeightSpacer height=24.dp />
         <Text text=TextSpan(text = "Column", style = TextStyle(fontSize = 48f)) />
         <Row>
             <ContainerWithBackground height=ExampleSize color=lightGrey>
@@ -110,28 +113,28 @@ fun LayoutDemo() {
                     <CyanSquare />
                 </Column>
             </ContainerWithBackground>
-            <RowSpacer />
+            <WidthSpacer width=24.dp />
             <ContainerWithBackground height=ExampleSize color=lightGrey>
                 <Column mainAxisAlignment=MainAxisAlignment.Center>
                     <PurpleSquare />
                     <CyanSquare />
                 </Column>
             </ContainerWithBackground>
-            <RowSpacer />
+            <WidthSpacer width=24.dp />
             <ContainerWithBackground height=ExampleSize color=lightGrey>
                 <Column mainAxisAlignment=MainAxisAlignment.End>
                     <PurpleSquare />
                     <CyanSquare />
                 </Column>
             </ContainerWithBackground>
-            <RowSpacer />
+            <WidthSpacer width=24.dp />
             <ContainerWithBackground height=ExampleSize color=lightGrey>
                 <Column crossAxisAlignment=CrossAxisAlignment.Start>
                     <PurpleSquare />
                     <CyanSquare />
                 </Column>
             </ContainerWithBackground>
-            <RowSpacer />
+            <WidthSpacer width=24.dp />
             <ContainerWithBackground height=ExampleSize color=lightGrey>
                 <Column crossAxisAlignment=CrossAxisAlignment.End>
                     <PurpleSquare />
@@ -140,16 +143,6 @@ fun LayoutDemo() {
             </ContainerWithBackground>
         </Row>
     </Column>
-}
-
-@Composable
-fun ColumnSpacer() {
-    <Container height=SmallSize />
-}
-
-@Composable
-fun RowSpacer() {
-    <Container width=SmallSize />
 }
 
 @Composable

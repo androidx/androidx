@@ -23,10 +23,10 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.Row
+import androidx.ui.layout.WidthSpacer
 import androidx.ui.material.Divider
-import androidx.ui.material.HeightSpacer
-import androidx.ui.material.WidthSpacer
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
 import com.google.r4a.Composable
