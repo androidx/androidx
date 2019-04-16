@@ -55,7 +55,11 @@
         </activity>
         <activity-alias
             android:name="androidx.core.app.NavUtilsAliasActivity"
-            android:targetActivity="androidx.core.app.NavUtilsActivity" />
+            android:targetActivity="androidx.core.app.NavUtilsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="androidx.core.app.NavUtilsParentActivity" />
+        </activity-alias>
 
         <activity android:name="androidx.core.app.TestActivity"
                   android:icon="@drawable/test_drawable_blue"/>
