@@ -55,8 +55,7 @@ fun CraneWrapper(@Children children: () -> Unit) {
         }
         rootLayoutNode.resize(width, height)
     }
-    // TODO(popam): make requestLayoutOnNodesLayoutChange=false when old measure boxes disappear
-    <AndroidCraneView ref=rootRef requestLayoutOnNodesLayoutChange=true onMeasureRecompose=measure>
+    <AndroidCraneView ref=rootRef onMeasureRecompose=measure>
         <Ambient.Portal> reference ->
             ambientsRef = reference
         </Ambient.Portal>
