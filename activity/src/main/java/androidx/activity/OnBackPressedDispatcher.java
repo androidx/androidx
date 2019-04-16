@@ -65,22 +65,36 @@ public final class OnBackPressedDispatcher {
      * <p>
      * This method is <strong>not</strong> {@link Lifecycle} aware - if you'd like to ensure that
      * you only get callbacks when at least {@link Lifecycle.State#STARTED started}, use
-     * {@link #addCallback(LifecycleOwner, OnBackPressedCallback)}.
+     * {@link #addCallback(LifecycleOwner, OnBackPressedCallback)}. It is expected that you
+     * call {@link OnBackPressedCallback#removeCallback()} to manually remove your callback.
      *
      * @param onBackPressedCallback The callback to add
-     * @return a {@link Cancellable} which can be used to {@link Cancellable#cancel() cancel}
-     * the callback and remove it from the set of OnBackPressedCallbacks. The callback won't be
-     * called for any future {@link #onBackPressed()} calls, but may still receive a
-     * callback if {@link Cancellable#cancel()} is called during the dispatch of an ongoing
-     * {@link #onBackPressed()} call.
      *
      * @see #onBackPressed()
      */
     @MainThread
+    public void addCallback(@NonNull OnBackPressedCallback onBackPressedCallback) {
+        addCancellableCallback(onBackPressedCallback);
+    }
+
+    /**
+     * Internal implementation of {@link #addCallback(OnBackPressedCallback)} that gives
+     * access to the {@link Cancellable} that specifically removes this callback from
+     * the dispatcher without relying on {@link OnBackPressedCallback#removeCallback()} which
+     * is what external developers should be using.
+     *
+     * @param onBackPressedCallback The callback to add
+     * @return a {@link Cancellable} which can be used to {@link Cancellable#cancel() cancel}
+     * the callback and remove it from the set of OnBackPressedCallbacks.
+     */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @MainThread
     @NonNull
-    public Cancellable addCallback(@NonNull OnBackPressedCallback onBackPressedCallback) {
+    Cancellable addCancellableCallback(@NonNull OnBackPressedCallback onBackPressedCallback) {
         mOnBackPressedCallbacks.add(onBackPressedCallback);
-        return new OnBackPressedCancellable(onBackPressedCallback);
+        OnBackPressedCancellable cancellable = new OnBackPressedCancellable(onBackPressedCallback);
+        onBackPressedCallback.addCancellable(cancellable);
+        return cancellable;
     }
 
     /**
@@ -88,40 +102,35 @@ public final class OnBackPressedDispatcher {
      * {@link LifecycleOwner} is at least {@link Lifecycle.State#STARTED started}.
      * <p>
      * This will automatically call {@link #addCallback(OnBackPressedCallback)} and
-     * {@link Cancellable#cancel()} as the lifecycle state changes.
+     * remove the callback as the lifecycle state changes.
      * As a corollary, if your lifecycle is already at least
      * {@link Lifecycle.State#STARTED started}, calling this method will result in an immediate
      * call to {@link #addCallback(OnBackPressedCallback)}.
      * <p>
      * When the {@link LifecycleOwner} is {@link Lifecycle.State#DESTROYED destroyed}, it will
      * automatically be removed from the list of callbacks. The only time you would need to
-     * manually call {@link Cancellable#cancel()} on the returned {@link Cancellable} is if
+     * manually call {@link OnBackPressedCallback#removeCallback()} is if
      * you'd like to remove the callback prior to destruction of the associated lifecycle.
      *
-     * <p>If the Lifecycle is already
-     * {@link Lifecycle.State#DESTROYED destroyed} when this method is called, this will
-     * return{@link Cancellable#CANCELLED} and the callback will not be added.
+     * <p>
+     * If the Lifecycle is already {@link Lifecycle.State#DESTROYED destroyed}
+     * when this method is called, the callback will not be added.
      *
      * @param owner The LifecycleOwner which controls when the callback should be invoked
      * @param onBackPressedCallback The callback to add
-     * @return a {@link Cancellable} which can be used to {@link Cancellable#cancel() cancel}
-     * the callback and remove the associated {@link androidx.lifecycle.LifecycleObserver}
-     * and the OnBackPressedCallback. The callback won't be called for any future
-     * {@link #onBackPressed()} calls, but may still receive a callback if
-     * {@link Cancellable#cancel()} is called during the dispatch of an ongoing
-     * {@link #onBackPressed()} call.
      *
      * @see #onBackPressed()
      */
     @MainThread
-    @NonNull
-    public Cancellable addCallback(@NonNull LifecycleOwner owner,
+    public void addCallback(@NonNull LifecycleOwner owner,
             @NonNull OnBackPressedCallback onBackPressedCallback) {
         Lifecycle lifecycle = owner.getLifecycle();
         if (lifecycle.getCurrentState() == Lifecycle.State.DESTROYED) {
-            return Cancellable.CANCELLED;
+            return;
         }
-        return new LifecycleOnBackPressedCancellable(lifecycle, onBackPressedCallback);
+
+        onBackPressedCallback.addCancellable(
+                new LifecycleOnBackPressedCancellable(lifecycle, onBackPressedCallback));
     }
 
     /**
@@ -175,6 +184,7 @@ public final class OnBackPressedDispatcher {
         @Override
         public void cancel() {
             mOnBackPressedCallbacks.remove(mOnBackPressedCallback);
+            mOnBackPressedCallback.removeCancellable(this);
             mCancelled = true;
         }
 
@@ -204,7 +214,7 @@ public final class OnBackPressedDispatcher {
         public void onStateChanged(@NonNull LifecycleOwner source,
                 @NonNull Lifecycle.Event event) {
             if (event == Lifecycle.Event.ON_START) {
-                mCurrentCancellable = addCallback(mOnBackPressedCallback);
+                mCurrentCancellable = addCancellableCallback(mOnBackPressedCallback);
             } else if (event == Lifecycle.Event.ON_STOP) {
                 // Should always be non-null
                 if (mCurrentCancellable != null) {
@@ -218,6 +228,7 @@ public final class OnBackPressedDispatcher {
         @Override
         public void cancel() {
             mLifecycle.removeObserver(this);
+            mOnBackPressedCallback.removeCancellable(this);
             if (mCurrentCancellable != null) {
                 mCurrentCancellable.cancel();
                 mCurrentCancellable = null;

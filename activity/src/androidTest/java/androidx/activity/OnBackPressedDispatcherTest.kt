@@ -55,10 +55,10 @@ class OnBackPressedHandlerTest {
 
     @UiThreadTest
     @Test
-    fun testCancelSubscription() {
+    fun testRemoveCallback() {
         val onBackPressedCallback = CountingOnBackPressedCallback()
 
-        val subscription = dispatcher.addCallback(onBackPressedCallback)
+        dispatcher.addCallback(onBackPressedCallback)
         assertWithMessage("Handler should return true once a callback is added")
             .that(dispatcher.hasEnabledCallbacks())
             .isTrue()
@@ -67,10 +67,37 @@ class OnBackPressedHandlerTest {
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
 
-        subscription.cancel()
-        assertWithMessage("Cancellable should be cancelled after cancel()")
-            .that(subscription.isCancelled)
+        onBackPressedCallback.removeCallback()
+        assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
+                "are registered")
+            .that(dispatcher.hasEnabledCallbacks())
+            .isFalse()
+        dispatcher.onBackPressed()
+        // Check that the count still equals 1
+        assertWithMessage("Count shouldn't be incremented after removal")
+            .that(onBackPressedCallback.count)
+            .isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testRemoveCallbackInCallback() {
+        val onBackPressedCallback = object : CountingOnBackPressedCallback() {
+            override fun handleOnBackPressed() {
+                super.handleOnBackPressed()
+                removeCallback()
+            }
+        }
+
+        dispatcher.addCallback(onBackPressedCallback)
+        assertWithMessage("Handler should return true once a callback is added")
+            .that(dispatcher.hasEnabledCallbacks())
             .isTrue()
+        dispatcher.onBackPressed()
+        assertWithMessage("Count should be incremented after onBackPressed")
+            .that(onBackPressedCallback.count)
+            .isEqualTo(1)
+
         assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
                 "are registered")
             .that(dispatcher.hasEnabledCallbacks())
