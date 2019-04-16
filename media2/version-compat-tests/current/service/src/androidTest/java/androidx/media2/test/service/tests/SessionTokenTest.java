@@ -97,8 +97,10 @@ public class SessionTokenTest extends MediaTestBase {
         prepareLooper();
         Bundle testTokenExtras = TestUtils.createTestBundle();
         MediaSession session = new MediaSession.Builder(mContext, new MockPlayer(0))
+                .setId("testGetters_whenCreatedBySession")
                 .setExtras(testTokenExtras)
                 .build();
+        mSessions.add(session);
         SessionToken token = session.getToken();
 
         assertEquals(mContext.getPackageName(), token.getPackageName());
