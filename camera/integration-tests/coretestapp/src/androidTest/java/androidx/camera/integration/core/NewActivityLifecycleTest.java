@@ -84,9 +84,7 @@ public final class NewActivityLifecycleTest {
         returnHomeScreen();
     }
 
-    // Starts the activity, returns to the home screen to pause the activity, starts the activity
-    // with a flag which generates the new instance of the activity.
-    // Remove @Test first until the solution is ready
+    @Test
     public void startCoreTestTwiceAlwaysWithNewInstance() {
         mContext.startActivity(mIntent);
         waitUntilTextureViewIsReady();
