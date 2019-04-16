@@ -468,15 +468,26 @@ class SaveStateFragmentTest {
             .commit()
         fm.executePendingTransactions()
 
+        // fragment on backstack should be in CREATED state and removed
+        assertThat(fragment1.currentState).isEqualTo(StrictFragment.State.CREATED)
+        assertThat(fragment1.isRemoving).isTrue()
+
         fc = fc.restart(activityRule, viewModelStore)
         fm = fc.supportFragmentManager
+
         fragment2 = fm.findFragmentByTag("2") as StateSaveFragment
         assertThat(fragment2).isNotNull()
         assertThat(fragment2.savedState).isEqualTo("2")
-        fm.popBackStackImmediate()
+
         fragment1 = fm.findFragmentByTag("1") as StateSaveFragment
+        // make sure fragment is same as when it was saved
+        assertThat(fragment1.currentState).isEqualTo(StrictFragment.State.CREATED)
+        assertThat(fragment1.isRemoving).isTrue()
+
+        fm.popBackStackImmediate()
         assertThat(fragment1).isNotNull()
         assertThat(fragment1.savedState).isEqualTo("1")
+        assertThat(fragment1.isRemoving).isFalse()
     }
 
     /**
