@@ -148,11 +148,11 @@ class OnBackPressedDispatcherTest {
 
     @UiThreadTest
     @Test
-    fun testRemoveCallbackWithinCallback() {
+    fun testRemoveWithinCallback() {
         var count = 0
         dispatcher.addCallback {
             count++
-            removeCallback()
+            remove()
         }
 
         dispatcher.onBackPressed()
@@ -160,7 +160,7 @@ class OnBackPressedDispatcherTest {
         assertWithMessage("Count should be incremented after onBackPressed")
             .that(count)
             .isEqualTo(1)
-        assertWithMessage("Dispatcher should have no enabled callbacks after removeCallback")
+        assertWithMessage("Dispatcher should have no enabled callbacks after remove")
             .that(dispatcher.hasEnabledCallbacks())
             .isFalse()
     }
