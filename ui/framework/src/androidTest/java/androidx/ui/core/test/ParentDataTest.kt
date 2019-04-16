@@ -152,12 +152,12 @@ class ParentDataTest {
 
 @Composable
 fun SimpleDrawChild(drawLatch: CountDownLatch) {
-    <SingleCompositionAtLeastSize size=10.ipx>
+    <AtLeastSize size=10.ipx>
         <Draw> canvas, parentSize ->
             val paint = Paint()
             paint.color = Color(0xFF008000.toInt())
             canvas.drawRect(parentSize.toRect(), paint)
             drawLatch.countDown()
         </Draw>
-    </SingleCompositionAtLeastSize>
+    </AtLeastSize>
 }

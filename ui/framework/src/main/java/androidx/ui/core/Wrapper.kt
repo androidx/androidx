@@ -46,20 +46,10 @@ fun CraneWrapper(@Children children: () -> Unit) {
         var height = IntPx.Zero
         rootLayoutNode.childrenLayouts().forEach { measureBox ->
             val layoutNode: LayoutNode
-            when (measureBox) {
-                is ComplexMeasureBox -> {
-                    measureBox.runBlock()
-                    measureBox.measure(constraints)
-                    measureBox.placeChildren()
-                    layoutNode = measureBox.layoutNode
-                }
-                is ComplexLayoutState -> {
-                    measureBox.measure(constraints)
-                    measureBox.placeChildren()
-                    layoutNode = measureBox.layoutNode
-                }
-                else -> error("Invalid CraneWrapper child found.")
-            }
+            measureBox as ComplexLayoutState
+            measureBox.measure(constraints)
+            measureBox.placeChildren()
+            layoutNode = measureBox.layoutNode
             width = max(width, layoutNode.width)
             height = max(height, layoutNode.height)
         }
