@@ -78,6 +78,13 @@ public final class ViewPager2 extends ViewGroup {
     public static final int SCROLL_STATE_DRAGGING = 1;
     public static final int SCROLL_STATE_SETTLING = 2;
 
+    /**
+     * Value to indicate that the default caching mechanism of RecyclerView should be used instead
+     * of explicitly prefetch and retain pages to either side of the current page.
+     * @see #setOffscreenPageLimit(int)
+     */
+    public static final int OFFSCREEN_PAGE_LIMIT_DEFAULT = 0;
+
     // reused in layout(...)
     private final Rect mTmpContainerRect = new Rect();
     private final Rect mTmpChildRect = new Rect();
@@ -95,6 +102,7 @@ public final class ViewPager2 extends ViewGroup {
     private FakeDrag mFakeDragger;
     private PageTransformerAdapter mPageTransformerAdapter;
     private boolean mUserInputEnabled = true;
+    private int mOffscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT;
 
     public ViewPager2(@NonNull Context context) {
         super(context);
@@ -387,6 +395,12 @@ public final class ViewPager2 extends ViewGroup {
                 mTmpChildRect.bottom);
     }
 
+    int getPageSize() {
+        return getOrientation() == ORIENTATION_HORIZONTAL
+                ? getWidth() - getPaddingLeft() - getPaddingRight()
+                : getHeight() - getPaddingTop() - getPaddingBottom();
+    }
+
     /**
      * @param orientation {@link ViewPager2.Orientation}
      */
@@ -619,6 +633,50 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     /**
+     * <p>Set the number of pages that should be retained to either side of the currently visible
+     * page(s). Pages beyond this limit will be recreated from the adapter when needed. Set this to
+     * {@link #OFFSCREEN_PAGE_LIMIT_DEFAULT} to use RecyclerView's caching strategy. The given value
+     * must either be larger than 0, or {@link #OFFSCREEN_PAGE_LIMIT_DEFAULT}.</p>
+     *
+     * <p>Pages within {@code limit} pages away from the current page are created and added to the
+     * view hierarchy, even though they are not visible on the screen. Pages outside this limit will
+     * be removed from the view hierarchy, but the {@code ViewHolder}s will be recycled as usual by
+     * {@link RecyclerView}.</p>
+     *
+     * <p>This is offered as an optimization. If you know in advance the number of pages you will
+     * need to support or have lazy-loading mechanisms in place on your pages, tweaking this setting
+     * can have benefits in perceived smoothness of paging animations and interaction. If you have a
+     * small number of pages (3-4) that you can keep active all at once, less time will be spent in
+     * layout for newly created view subtrees as the user pages back and forth.</p>
+     *
+     * <p>You should keep this limit low, especially if your pages have complex layouts. By default
+     * it is set to {@code OFFSCREEN_PAGE_LIMIT_DEFAULT}.</p>
+     *
+     * @param limit How many pages will be kept offscreen on either side
+     * @see #getOffscreenPageLimit()
+     */
+    public void setOffscreenPageLimit(int limit) {
+        if (limit < 1 && limit != OFFSCREEN_PAGE_LIMIT_DEFAULT) {
+            throw new IllegalArgumentException(
+                    "Offscreen page limit must be OFFSCREEN_PAGE_LIMIT_DEFAULT or a number > 0");
+        }
+        mOffscreenPageLimit = limit;
+        // Trigger layout so prefetch happens through getExtraLayoutSize()
+        mRecyclerView.requestLayout();
+    }
+
+    /**
+     * Returns the number of pages that will be retained to either side of the current page in the
+     * view hierarchy in an idle state. Defaults to {@link #OFFSCREEN_PAGE_LIMIT_DEFAULT}.
+     *
+     * @return How many pages will be kept offscreen on either side
+     * @see #setOffscreenPageLimit(int)
+     */
+    public int getOffscreenPageLimit() {
+        return mOffscreenPageLimit;
+    }
+
+    /**
      * Add a callback that will be invoked whenever the page changes or is incrementally
      * scrolled. See {@link OnPageChangeCallback}.
      *
@@ -650,7 +708,28 @@ public final class ViewPager2 extends ViewGroup {
     public void setPageTransformer(@Nullable PageTransformer transformer) {
         // TODO: add support for reverseDrawingOrder: b/112892792
         // TODO: add support for pageLayerType: b/112893074
+        if (transformer == mPageTransformerAdapter.getPageTransformer()) {
+            return;
+        }
         mPageTransformerAdapter.setPageTransformer(transformer);
+        requestTransform();
+    }
+
+    /**
+     * Trigger a call to the registered {@link PageTransformer PageTransformer}'s {@link
+     * PageTransformer#transformPage(View, float) transformPage} method. Call this when something
+     * has changed which has invalidated the transformations defined by the {@code PageTransformer}
+     * that did not trigger a page scroll.
+     */
+    public void requestTransform() {
+        if (mPageTransformerAdapter.getPageTransformer() == null) {
+            return;
+        }
+        float relativePosition = mScrollEventAdapter.getRelativeScrollPosition();
+        int position = (int) relativePosition;
+        float positionOffset = relativePosition - position;
+        int positionOffsetPx = Math.round(getPageSize() * positionOffset);
+        mPageTransformerAdapter.onPageScrolled(position, positionOffset, positionOffsetPx);
     }
 
     /**
@@ -718,6 +797,20 @@ public final class ViewPager2 extends ViewGroup {
                 info.removeAction(AccessibilityActionCompat.ACTION_SCROLL_FORWARD);
                 info.setScrollable(false);
             }
+        }
+
+        @Override
+        protected void calculateExtraLayoutSpace(@NonNull RecyclerView.State state,
+                @NonNull int[] extraLayoutSpace) {
+            int pageLimit = getOffscreenPageLimit();
+            if (pageLimit == OFFSCREEN_PAGE_LIMIT_DEFAULT) {
+                // Only do custom prefetching of offscreen pages if requested
+                super.calculateExtraLayoutSpace(state, extraLayoutSpace);
+                return;
+            }
+            final int offscreenSpace = getPageSize() * pageLimit;
+            extraLayoutSpace[0] = offscreenSpace;
+            extraLayoutSpace[1] = offscreenSpace;
         }
     }
 
