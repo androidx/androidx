@@ -18,7 +18,6 @@ package androidx.activity;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.arch.core.util.Cancellable;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.ArrayList;
