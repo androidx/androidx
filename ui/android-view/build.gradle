@@ -7,10 +7,11 @@ plugins {
     id("com.android.library")
     id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
-    id("r4a")
 }
 
 dependencies {
+    kotlinPlugin project(":compose-plugin-cli")
+
     api "androidx.annotation:annotation:1.0.0"
     api "androidx.activity:activity:1.0.0-alpha01"
     api project(":ui-core")
@@ -18,6 +19,7 @@ dependencies {
     api project(":ui-android-view-non-ir")
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
+
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
@@ -52,4 +54,3 @@ androidx {
     inceptionYear = "2019"
     description = "AndroidX UI View wrappers."
 }
-

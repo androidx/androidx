@@ -22,10 +22,11 @@ plugins {
     id("com.android.library")
     id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
-    id("r4a")
 }
 
 dependencies {
+    kotlinPlugin project(":compose-plugin-cli")
+
     api project(':ui-animation-core')
     api project(':compose-runtime')
     api(KOTLIN_R4A_STDLIB)
