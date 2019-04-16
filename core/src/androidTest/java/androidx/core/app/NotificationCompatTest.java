@@ -482,8 +482,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .setSound(Uri.EMPTY, AudioManager.STREAM_RING)
                 .build();
         assertNotNull(n.audioAttributes);
-        assertEquals(AudioAttributes.CONTENT_TYPE_SONIFICATION,
-                n.audioAttributes.getContentType());
+        assertEquals(AudioAttributes.USAGE_NOTIFICATION_RINGTONE, n.audioAttributes.getUsage());
         assertEquals(-1, n.audioStreamType);
         assertEquals(Uri.EMPTY, n.sound);
     }
