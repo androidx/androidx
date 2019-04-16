@@ -20,28 +20,40 @@ package androidx.ui.demos
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.MultiChildLayout
+import androidx.ui.core.Dp
 import androidx.ui.core.Draw
-import androidx.ui.core.Layout
+import androidx.ui.core.MultiChildLayout
 import androidx.ui.core.ipx
 import androidx.ui.core.toRect
+import androidx.ui.core.vectorgraphics.Brush
+import androidx.ui.core.vectorgraphics.SolidColor
+import androidx.ui.layout.Container
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
+// TODO(malkov): for now it's copypasted ColoredRect from material, remove later
 @Composable
-fun ColoredRect(color: Color) {
-    <Layout layoutBlock = { _, constraints ->
-        layout(constraints.maxWidth, constraints.maxHeight) { }
-    }>
+fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
+    <Container width height>
+        <DrawFillRect brush />
+    </Container>
+}
+
+@Composable
+fun ColoredRect(color: Color, width: Dp? = null, height: Dp? = null) {
+    <ColoredRect brush=SolidColor(color) width height />
+}
+
+@Composable
+private fun DrawFillRect(brush: Brush) {
+    <Draw> canvas, parentSize ->
         val paint = Paint()
-        paint.color = color
-        <Draw> canvas, parentSize ->
-            canvas.drawRect(parentSize.toRect(), paint)
-        </Draw>
-    </Layout>
+        brush.applyBrush(paint)
+        canvas.drawRect(parentSize.toRect(), paint)
+    </Draw>
 }
 
 @Composable
@@ -87,7 +99,7 @@ fun MultipleCollectTest() {
             <ColoredRect color=Color(android.graphics.Color.BLUE) />
         }
         <HeaderFooterLayout header footer>
-            <ColoredRect color=Color(android.graphics.Color.GREEN)/>
+            <ColoredRect color=Color(android.graphics.Color.GREEN) />
             <ColoredRect color=Color(android.graphics.Color.YELLOW) />
         </HeaderFooterLayout>
     </CraneWrapper>

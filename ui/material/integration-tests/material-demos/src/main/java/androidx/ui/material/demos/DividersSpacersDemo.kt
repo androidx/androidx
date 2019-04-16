@@ -16,6 +16,7 @@
 
 package androidx.ui.material.demos
 
+import androidx.ui.baseui.ColoredRect
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
@@ -70,7 +71,7 @@ fun Item(text: String, color: Color? = null) {
     <Container height=ItemSize padding=EdgeInsets(ItemPadding)>
         <Row crossAxisAlignment=CrossAxisAlignment.Center>
             if (color != null) {
-                <Container
+                <ColoredRect
                     width=avatarSize
                     height=avatarSize
                     color />

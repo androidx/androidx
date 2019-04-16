@@ -17,6 +17,7 @@
 package androidx.ui.material.studies.rally
 
 import androidx.ui.core.Text
+import androidx.ui.baseui.ColoredRect
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -146,7 +147,7 @@ fun RallyAccountRow(name: String, number: String, amount: String, color: Color) 
  */
 @Composable
 fun AccountIndicator(color: Color) {
-    <Container color width=4.dp height=36.dp />
+    <ColoredRect color width=4.dp height=36.dp />
 }
 
 /**

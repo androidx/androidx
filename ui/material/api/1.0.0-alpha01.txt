@@ -6,6 +6,12 @@ package androidx.ui.baseui {
     method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, boolean consumeDownOnStart = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public final class ColoredRectKt {
+    ctor public ColoredRectKt();
+    method public static void ColoredRect(androidx.ui.core.vectorgraphics.Brush brush, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
+    method public static void ColoredRect(androidx.ui.painting.Color color, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
+  }
+
 }
 
 package androidx.ui.baseui.selection {

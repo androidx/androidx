@@ -19,6 +19,7 @@ package androidx.ui.layout.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.Dp
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
@@ -26,9 +27,11 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
+import androidx.ui.layout.Wrap
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
+import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
 import com.google.r4a.setContent
@@ -46,100 +49,123 @@ class LayoutActivity : Activity() {
 }
 
 @Composable
+fun ContainerWithBackground(
+    width: Dp? = null,
+    height: Dp? = null,
+    color: Color,
+    @Children children: () -> Unit
+) {
+    <Wrap>
+        <DrawRectangle color />
+        <Container width height>
+            <children />
+        </Container>
+    </Wrap>
+}
+
+@Composable
 fun LayoutDemo() {
     val lightGrey = Color(0xFFCFD8DC.toInt())
     <Column mainAxisAlignment=MainAxisAlignment.Start crossAxisAlignment=CrossAxisAlignment.Start>
-        <Text text=TextSpan(text="Row", style = TextStyle(fontSize = 48f)) />
-        <Container width=140.dp color=lightGrey>
+        <Text text=TextSpan(text = "Row", style = TextStyle(fontSize = 48f)) />
+        <ContainerWithBackground width=ExampleSize color=lightGrey>
             <Row>
                 <PurpleSquare />
                 <CyanSquare />
             </Row>
-        </Container>
+        </ContainerWithBackground>
         <ColumnSpacer />
-        <Container width=140.dp color=lightGrey>
+        <ContainerWithBackground width=ExampleSize color=lightGrey>
             <Row mainAxisAlignment=MainAxisAlignment.Center>
                 <PurpleSquare />
                 <CyanSquare />
             </Row>
-        </Container>
+        </ContainerWithBackground>
         <ColumnSpacer />
-        <Container width=140.dp color=lightGrey>
+        <ContainerWithBackground width=ExampleSize color=lightGrey>
             <Row mainAxisAlignment=MainAxisAlignment.End>
                 <PurpleSquare />
                 <CyanSquare />
             </Row>
-        </Container>
+        </ContainerWithBackground>
         <ColumnSpacer />
-        <Container width=140.dp color=lightGrey>
+        <ContainerWithBackground width=ExampleSize color=lightGrey>
             <Row crossAxisAlignment=CrossAxisAlignment.Start>
                 <PurpleSquare />
                 <CyanSquare />
             </Row>
-        </Container>
+        </ContainerWithBackground>
         <ColumnSpacer />
-        <Container width=140.dp color=lightGrey>
+        <ContainerWithBackground width=ExampleSize color=lightGrey>
             <Row crossAxisAlignment=CrossAxisAlignment.End>
                 <PurpleSquare />
                 <CyanSquare />
             </Row>
-        </Container>
-        <Text text=TextSpan(text="Column", style = TextStyle(fontSize = 48f)) />
+        </ContainerWithBackground>
+        <Text text=TextSpan(text = "Column", style = TextStyle(fontSize = 48f)) />
         <Row>
-            <Container height=140.dp color=lightGrey>
+            <ContainerWithBackground height=ExampleSize color=lightGrey>
                 <Column>
                     <PurpleSquare />
                     <CyanSquare />
                 </Column>
-            </Container>
+            </ContainerWithBackground>
             <RowSpacer />
-            <Container height=140.dp color=lightGrey>
+            <ContainerWithBackground height=ExampleSize color=lightGrey>
                 <Column mainAxisAlignment=MainAxisAlignment.Center>
                     <PurpleSquare />
                     <CyanSquare />
                 </Column>
-            </Container>
+            </ContainerWithBackground>
             <RowSpacer />
-            <Container height=140.dp color=lightGrey>
+            <ContainerWithBackground height=ExampleSize color=lightGrey>
                 <Column mainAxisAlignment=MainAxisAlignment.End>
                     <PurpleSquare />
                     <CyanSquare />
                 </Column>
-            </Container>
+            </ContainerWithBackground>
             <RowSpacer />
-            <Container height=140.dp color=lightGrey>
+            <ContainerWithBackground height=ExampleSize color=lightGrey>
                 <Column crossAxisAlignment=CrossAxisAlignment.Start>
                     <PurpleSquare />
                     <CyanSquare />
                 </Column>
-            </Container>
+            </ContainerWithBackground>
             <RowSpacer />
-            <Container height=140.dp color=lightGrey>
+            <ContainerWithBackground height=ExampleSize color=lightGrey>
                 <Column crossAxisAlignment=CrossAxisAlignment.End>
                     <PurpleSquare />
                     <CyanSquare />
                 </Column>
-            </Container>
+            </ContainerWithBackground>
         </Row>
     </Column>
 }
 
 @Composable
 fun ColumnSpacer() {
-    <Container height=24.dp />
+    <Container height=SmallSize />
 }
 
 @Composable
 fun RowSpacer() {
-    <Container width=24.dp />
+    <Container width=SmallSize />
 }
 
 @Composable
 fun PurpleSquare() {
-    <Container width=48.dp height=48.dp color=Color(0xFF6200EE.toInt()) />
+    <Container width=BigSize height=BigSize>
+        <DrawRectangle color=Color(0xFF6200EE.toInt()) />
+    </Container>
 }
 
 @Composable
 fun CyanSquare() {
-    <Container width=24.dp height=24.dp color=Color(0xFF03DAC6.toInt()) />
+    <Container width=SmallSize height=SmallSize>
+        <DrawRectangle color=Color(0xFF03DAC6.toInt()) />
+    </Container>
 }
+
+private val SmallSize = 24.dp
+private val BigSize = 48.dp
+private val ExampleSize = 140.dp

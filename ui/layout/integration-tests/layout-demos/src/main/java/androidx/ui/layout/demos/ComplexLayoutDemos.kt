@@ -17,14 +17,14 @@
 package androidx.ui.layout.demos
 
 import android.os.Handler
+import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Constraints
+import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
-import androidx.ui.core.Layout
-import androidx.ui.core.ComplexLayout
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.IntPxSize
+import androidx.ui.core.Layout
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.constrain
 import androidx.ui.core.dp
@@ -36,14 +36,10 @@ import androidx.ui.layout.Alignment
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.ConstrainedBox
-import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
-import androidx.ui.layout.MainAxisAlignment
-import androidx.ui.layout.MainAxisSize
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
@@ -234,66 +230,6 @@ fun PaddingUsage() {
             <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height=20.dp />
         </Padding>
     </Row>
-}
-
-@Composable
-fun ContainerUsage() {
-    <Align alignment=Alignment.Center>
-        <Container
-            color=Color(0xFF0000FF.toInt())
-            alignment=Alignment.BottomRight
-            width=100.dp
-            height=100.dp
-            margin=EdgeInsets(20.dp)>
-            <Container
-                padding=EdgeInsets(20.dp)
-                color=Color(0xFF000000.toInt())
-                alignment=Alignment.BottomRight
-                width=50.dp
-                height=50.dp>
-                <SizedRectangle color=Color(0xFFFFFFFF.toInt()) />
-            </Container>
-        </Container>
-    </Align>
-}
-
-@Composable
-fun RowWithCrossAxisAlignmentUsage() {
-    <Center>
-        <Row crossAxisAlignment=CrossAxisAlignment.Start>
-            <Container color=Color(0xFF00FF00.toInt()) width=50.dp height=50.dp/>
-            <Container color=Color(0xFF0000FF.toInt()) width=80.dp height=80.dp/>
-            <Container color=Color(0xFFFF0000.toInt()) width=70.dp height=70.dp/>
-            <Container color=Color(0xFF00FF00.toInt()) width=100.dp height=100.dp/>
-            <Container color=Color(0xFF0000FF.toInt()) width=20.dp height=20.dp/>
-        </Row>
-    </Center>
-}
-
-@Composable
-fun RowWithMainAxisAlignmentUsage() {
-    <Center>
-        <Row mainAxisAlignment=MainAxisAlignment.SpaceBetween>
-            <Container color=Color(0xFF00FF00.toInt()) width=50.dp height=50.dp/>
-            <Container color=Color(0xFF0000FF.toInt()) width=80.dp height=80.dp/>
-            <Container color=Color(0xFFFF0000.toInt()) width=70.dp height=70.dp/>
-            <Container color=Color(0xFF00FF00.toInt()) width=100.dp height=100.dp/>
-            <Container color=Color(0xFF0000FF.toInt()) width=20.dp height=20.dp/>
-        </Row>
-    </Center>
-}
-
-@Composable
-fun RowWithMainAxisSizeUsage() {
-    <Center>
-        <Row mainAxisSize=MainAxisSize.Min mainAxisAlignment=MainAxisAlignment.SpaceBetween>
-            <Container color=Color(0xFF00FF00.toInt()) width=50.dp height=50.dp/>
-            <Container color=Color(0xFF0000FF.toInt()) width=80.dp height=80.dp/>
-            <Container color=Color(0xFFFF0000.toInt()) width=70.dp height=70.dp/>
-            <Container color=Color(0xFF00FF00.toInt()) width=100.dp height=100.dp/>
-            <Container color=Color(0xFF0000FF.toInt()) width=20.dp height=20.dp/>
-        </Row>
-    </Center>
 }
 
 @Composable

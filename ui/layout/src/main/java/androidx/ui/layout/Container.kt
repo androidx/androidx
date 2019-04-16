@@ -18,13 +18,7 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
-import androidx.ui.core.Draw
-import androidx.ui.core.toRect
 import androidx.ui.core.withDensity
-import androidx.ui.core.withTight
-import androidx.ui.painting.Color
-import androidx.ui.painting.Paint
-import androidx.ui.painting.PaintingStyle
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -33,14 +27,10 @@ import com.google.r4a.unaryPlus
 /**
  * A convenience widget that combines common layout and painting widgets for one child:
  * - padding: the padding to be applied to the child
- * - color: the background color drawn under the padded child
  * - alignment: how to position the padded child if the [Container] is larger than the child
  * - constraints: additional Constraints to be enforced when measuring the Container
  * - width: the width to be used for the Container
  * - height: the height to be used for the Container
- * - margin: padding to be applied to the [Container] itself (the margin is not applied to the
- *   child). Note that the margin is not part of the given constraints, width
- *   or height arguments.
  *
  * When constraints, width and/or height are provided, these will be applied to the constraints
  * incoming from the [Container]'s parent, and might not always be satisfied if this is impossible.
@@ -57,10 +47,7 @@ import com.google.r4a.unaryPlus
 @Composable
 fun Container(
     padding: EdgeInsets? = null,
-    // TODO(popam): remove color to make Container a layout-only component
-    color: Color? = null,
     alignment: Alignment = Alignment.Center,
-    margin: EdgeInsets? = null,
     expanded: Boolean = false,
     constraints: DpConstraints? = null,
     width: Dp? = null,
@@ -75,20 +62,6 @@ fun Container(
             <Padding padding>
                 <childContainer />
             </Padding>
-        }
-    }
-
-    if (color != null) {
-        val childContainer = container
-        container = @Composable {
-            <Draw> canvas, parentSize ->
-                val paint = Paint()
-                paint.color = color
-                paint.style = PaintingStyle.fill
-                canvas.drawRect(parentSize.toRect(), paint)
-            </Draw>
-
-            <childContainer />
         }
     }
 
@@ -121,15 +94,6 @@ fun Container(
                     <childContainer />
                 </ConstrainedBox>
             }
-        }
-    }
-
-    if (margin != null) {
-        val childContainer = container
-        container = @Composable {
-            <Padding padding=margin>
-                <childContainer />
-            </Padding>
         }
     }
 

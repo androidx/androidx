@@ -16,10 +16,11 @@
 
 package androidx.ui.material
 
+import androidx.ui.baseui.ColoredRect
 import androidx.ui.core.Dp
 import androidx.ui.core.dp
-import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.Padding
 import androidx.ui.painting.Color
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -39,9 +40,7 @@ fun Divider(
     indent: Dp = 0.dp
 ) {
     val dividerColor = +color.orFromTheme { onSurface }
-    <Container
-        height
-        expanded=true
-        color=dividerColor
-        margin=EdgeInsets(left = indent) />
+    <Padding padding=EdgeInsets(left = indent)>
+        <ColoredRect height color=dividerColor />
+    </Padding>
 }
