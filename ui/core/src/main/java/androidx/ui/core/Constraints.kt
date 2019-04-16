@@ -81,7 +81,7 @@ data class Constraints(
  * Whether or not the upper bound on the maximum height.
  * @see hasBoundedWidth
  */
-val Constraints.hasBoundedHeight get() = maxHeight != IntPx.Infinity
+val Constraints.hasBoundedHeight get() = maxHeight.isFinite()
 
 /**
  * Whether or not the upper bound on the maximum width.
