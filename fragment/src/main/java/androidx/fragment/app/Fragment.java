@@ -241,6 +241,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // track it separately.
     boolean mIsCreated;
 
+    // Max Lifecycle state this Fragment can achieve.
+    Lifecycle.State mMaxState = Lifecycle.State.RESUMED;
+
     LifecycleRegistry mLifecycleRegistry;
 
     // This is initialized in performCreateView and unavailable outside of the
