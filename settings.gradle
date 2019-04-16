@@ -230,7 +230,6 @@ includeProject(":support-app-navigation", new File(samplesRoot, "SupportAppNavig
 includeProject(":support-biometric-demos", new File(samplesRoot, "BiometricDemos"))
 includeProject(":support-car-demos", new File(samplesRoot, "SupportCarDemos"))
 includeProject(":support-content-demos", new File(samplesRoot, "SupportContentDemos"))
-includeProject(":support-design-demos", new File(samplesRoot, "SupportDesignDemos"))
 includeProject(":support-emoji-demos", new File(samplesRoot, "SupportEmojiDemos"))
 includeProject(":support-leanback-demos", new File(samplesRoot, "SupportLeanbackDemos"))
 includeProject(":support-media-demos", new File(samplesRoot, "SupportMediaDemos"))
