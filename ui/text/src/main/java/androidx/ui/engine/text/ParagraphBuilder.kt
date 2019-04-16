@@ -53,7 +53,9 @@ class ParagraphBuilder constructor(val paragraphStyle: ParagraphStyle) {
      */
     // TODO(Migration/siyamed): this would better if it returned a builder instance. change it.
     fun pushStyle(textStyle: TextStyle) {
-        textStyleStack.push(TextStyleIndex(textStyle = textStyle, start = text.length))
+        val textStyleIndex = TextStyleIndex(textStyle = textStyle, start = text.length)
+        textStyleStack.push(textStyleIndex)
+        textStyles.add(textStyleIndex)
     }
 
     /**
@@ -69,11 +71,6 @@ class ParagraphBuilder constructor(val paragraphStyle: ParagraphStyle) {
         if (textStyleStack.isEmpty()) return
         val styleIndex = textStyleStack.pop()
         styleIndex.end = text.length
-        if (!textStyles.isEmpty() && styleIndex.start <= textStyles.first.start) {
-            textStyles.addFirst(styleIndex)
-        } else {
-            textStyles.add(styleIndex)
-        }
     }
 
     /**
@@ -88,9 +85,7 @@ class ParagraphBuilder constructor(val paragraphStyle: ParagraphStyle) {
 
     private fun consumeStyleIndexStack() {
         while (!textStyleStack.empty()) {
-            val styleIndex = textStyleStack.pop()
-            styleIndex.end = text.length
-            textStyles.addFirst(styleIndex)
+            pop()
         }
     }
 
