@@ -26,10 +26,10 @@ import androidx.ui.layout.hasTightHeight
 import androidx.ui.layout.hasTightWidth
 import androidx.ui.layout.isTight
 import androidx.ui.layout.isZero
-import androidx.ui.layout.satisfiable
 import androidx.ui.layout.withTight
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -89,18 +89,6 @@ class DpConstraintsTest {
     }
 
     @Test
-    fun satisfiable() {
-        val satisfiable = DpConstraints(1.dp, 2.dp, 1.dp, 2.dp)
-        assertTrue(satisfiable.satisfiable)
-
-        val nonSatisfiable1 = DpConstraints(2.dp, 1.dp, 0.dp, 1.dp)
-        assertFalse(nonSatisfiable1.satisfiable)
-
-        val nonSatisfiable2 = DpConstraints(0.dp, 1.dp, 2.dp, 1.dp)
-        assertFalse(nonSatisfiable2.satisfiable)
-    }
-
-    @Test
     fun enforce() {
         val DpConstraints = DpConstraints(5.dp, 10.dp, 5.dp, 10.dp)
         DpConstraints.enforce(DpConstraints(4.dp, 11.dp, 4.dp, 11.dp)).assertEquals(
@@ -124,6 +112,22 @@ class DpConstraintsTest {
         DpConstraints.withTight(7.dp, 8.dp).assertEquals(7.dp, 7.dp, 8.dp, 8.dp)
     }
 
+    @Test
+    fun validity() {
+        assertInvalid(minWidth = Dp.Infinity)
+        assertInvalid(minHeight = Dp.Infinity)
+        assertInvalid(minWidth = Float.NaN.dp)
+        assertInvalid(maxWidth = Float.NaN.dp)
+        assertInvalid(minHeight = Float.NaN.dp)
+        assertInvalid(maxHeight = Float.NaN.dp)
+        assertInvalid(minWidth = 3.dp, maxWidth = 2.dp)
+        assertInvalid(minHeight = 3.dp, maxHeight = 2.dp)
+        assertInvalid(minWidth = -1.dp)
+        assertInvalid(maxWidth = -1.dp)
+        assertInvalid(minHeight = -1.dp)
+        assertInvalid(maxHeight = -1.dp)
+    }
+
     private fun DpConstraints.assertEquals(
         minWidth: Dp,
         maxWidth: Dp,
@@ -132,5 +136,20 @@ class DpConstraintsTest {
     ): Boolean {
         return this.minWidth == minWidth && this.maxWidth == maxWidth &&
                 this.minHeight == minHeight && this.maxHeight == maxHeight
+    }
+
+    private fun assertInvalid(
+        minWidth: Dp = 0.dp,
+        maxWidth: Dp = 0.dp,
+        minHeight: Dp = 0.dp,
+        maxHeight: Dp = 0.dp
+    ) {
+        val constraints: DpConstraints
+        try {
+            constraints = DpConstraints(minWidth, maxWidth, minHeight, maxHeight)
+        } catch (_: IllegalArgumentException) {
+            return
+        }
+        fail("Invalid constraints $constraints are considered valid")
     }
 }
