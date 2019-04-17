@@ -65,7 +65,7 @@ public final class OnBackPressedDispatcher {
      * This method is <strong>not</strong> {@link Lifecycle} aware - if you'd like to ensure that
      * you only get callbacks when at least {@link Lifecycle.State#STARTED started}, use
      * {@link #addCallback(LifecycleOwner, OnBackPressedCallback)}. It is expected that you
-     * call {@link OnBackPressedCallback#removeCallback()} to manually remove your callback.
+     * call {@link OnBackPressedCallback#remove()} to manually remove your callback.
      *
      * @param onBackPressedCallback The callback to add
      *
@@ -79,7 +79,7 @@ public final class OnBackPressedDispatcher {
     /**
      * Internal implementation of {@link #addCallback(OnBackPressedCallback)} that gives
      * access to the {@link Cancellable} that specifically removes this callback from
-     * the dispatcher without relying on {@link OnBackPressedCallback#removeCallback()} which
+     * the dispatcher without relying on {@link OnBackPressedCallback#remove()} which
      * is what external developers should be using.
      *
      * @param onBackPressedCallback The callback to add
@@ -108,7 +108,7 @@ public final class OnBackPressedDispatcher {
      * <p>
      * When the {@link LifecycleOwner} is {@link Lifecycle.State#DESTROYED destroyed}, it will
      * automatically be removed from the list of callbacks. The only time you would need to
-     * manually call {@link OnBackPressedCallback#removeCallback()} is if
+     * manually call {@link OnBackPressedCallback#remove()} is if
      * you'd like to remove the callback prior to destruction of the associated lifecycle.
      *
      * <p>

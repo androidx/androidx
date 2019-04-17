@@ -358,11 +358,11 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      *
      * @param onBackPressedCallback The callback to remove
      * @see #addOnBackPressedCallback(LifecycleOwner, OnBackPressedCallback)
-     * @deprecated Use {@link OnBackPressedCallback#removeCallback()}
+     * @deprecated Use {@link OnBackPressedCallback#remove()}
      */
     @Deprecated
     public void removeOnBackPressedCallback(@NonNull OnBackPressedCallback onBackPressedCallback) {
-        onBackPressedCallback.removeCallback();
+        onBackPressedCallback.remove();
     }
 
     @NonNull
