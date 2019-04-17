@@ -19,6 +19,7 @@ package androidx.fragment.app
 import android.os.Bundle
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -476,6 +477,32 @@ class SaveStateFragmentTest {
         fragment1 = fm.findFragmentByTag("1") as StateSaveFragment
         assertThat(fragment1).isNotNull()
         assertThat(fragment1.savedState).isEqualTo("1")
+    }
+
+    /**
+     * Test to ensure that the maxLifecycleState is of a fragment is saved and restored properly.
+     */
+    @Test
+    @UiThreadTest
+    fun saveFragmentMaxLifecycle() {
+        val viewModelStore = ViewModelStore()
+        var fc = activityRule.startupFragmentController(viewModelStore)
+        var fm = fc.supportFragmentManager
+
+        var fragment1 = StateSaveFragment("1")
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment1, "1")
+            .addToBackStack(null)
+            .setMaxLifecycle(fragment1, Lifecycle.State.CREATED)
+            .commit()
+        fm.executePendingTransactions()
+
+        fc = fc.restart(activityRule, viewModelStore)
+        fm = fc.supportFragmentManager
+        fragment1 = fm.findFragmentByTag("1") as StateSaveFragment
+        assertThat(fragment1).isNotNull()
+        assertThat(fragment1.savedState).isEqualTo("1")
+        assertThat(fragment1.mMaxState).isEqualTo(Lifecycle.State.CREATED)
     }
 
     /**
