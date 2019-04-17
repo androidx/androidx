@@ -93,6 +93,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
@@ -150,7 +151,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     }
 
     @Override
-    @SuppressWarnings("ReferenceEquality")
+    @SuppressWarnings({"ReferenceEquality", "deprecation"})
     public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         Fragment fragment = (Fragment)object;
         if (fragment != mCurrentPrimaryItem) {
