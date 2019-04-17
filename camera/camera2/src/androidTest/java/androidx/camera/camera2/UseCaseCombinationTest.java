@@ -47,6 +47,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -117,6 +118,7 @@ public final class UseCaseCombinationTest {
     /**
      * Test Combination: Preview + ImageCapture
      */
+    @FlakyTest
     @Test
     public void previewCombinesImageCapture() throws InterruptedException {
         initPreview();
