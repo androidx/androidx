@@ -2367,8 +2367,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 }
             }
             if (fs == null) {
-                throwException(new IllegalStateException("Could not find active fragment "
-                        + "with unique id " + f.mWho));
+                throwException(new IllegalStateException("Could not find retained Fragment "
+                        + f + " in the set of active Fragments " + fms.mActive));
             }
             fs.mInstance = f;
             f.mSavedViewState = null;
@@ -2393,7 +2393,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 Fragment f = fs.instantiate(mHost.getContext().getClassLoader(),
                         getFragmentFactory());
                 f.mFragmentManager = this;
-                if (DEBUG) Log.v(TAG, "restoreAllState: active (" + f.mWho + "): " + f);
+                if (DEBUG) Log.v(TAG, "restoreSaveState: active (" + f.mWho + "): " + f);
                 mActive.put(f.mWho, f);
                 // Now that the fragment is instantiated (or came from being
                 // retained above), clear mInstance in case we end up re-restoring
@@ -2412,9 +2412,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             "No instantiated fragment for (" + who + ")"));
                 }
                 f.mAdded = true;
-                if (DEBUG) Log.v(TAG, "restoreAllState: added (" + who + "): " + f);
+                if (DEBUG) Log.v(TAG, "restoreSaveState: added (" + who + "): " + f);
                 if (mAdded.contains(f)) {
-                    throw new IllegalStateException("Already added!");
+                    throw new IllegalStateException("Already added " + f);
                 }
                 synchronized (mAdded) {
                     mAdded.add(f);
