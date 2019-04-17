@@ -170,6 +170,12 @@ public class MockControllerCallback extends MediaController.ControllerCallback
     }
 
     @Override
+    public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
+            @NonNull VideoSize videoSize) {
+        mCallbackProxy.onVideoSizeChanged(controller, item, videoSize);
+    }
+
+    @Override
     public void setRunnableForOnCustomCommand(Runnable runnable) {
         synchronized (this) {
             mOnCustomCommandRunnable = runnable;

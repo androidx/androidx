@@ -33,6 +33,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
@@ -480,6 +481,12 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         @Override
         final void onDisconnected(int seq) throws RemoteException {
             // No-op. BrowserCompat doesn't have concept of receiving release of a session.
+        }
+
+        @Override
+        final void onVideoSizeChanged(int seq, @NonNull MediaItem item,
+                @NonNull VideoSize videoSize) {
+            // No-op. BrowserCompat doesn't understand Controller features.
         }
     }
 

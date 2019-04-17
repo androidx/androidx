@@ -837,6 +837,16 @@ class MediaSessionImplBase implements MediaSessionImpl {
         });
     }
 
+    @Override
+    public VideoSize getVideoSize() {
+        return dispatchPlayerTask(new PlayerTask<VideoSize>() {
+            @Override
+            public VideoSize run(@NonNull SessionPlayer player) {
+                return player.getVideoSize();
+            }
+        }, new VideoSize(0, 0));
+    }
+
     ///////////////////////////////////////////////////
     // package private and private methods
     ///////////////////////////////////////////////////
@@ -1416,6 +1426,17 @@ class MediaSessionImplBase implements MediaSessionImpl {
             if (!ObjectsCompat.equals(newInfo, oldInfo)) {
                 session.notifyPlaybackInfoChangedNotLocked(newInfo);
             }
+        }
+
+        @Override
+        public void onVideoSizeChanged(final @NonNull SessionPlayer player,
+                final @NonNull MediaItem item, final @NonNull VideoSize videoSize) {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
+                @Override
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onVideoSizeChanged(seq, item, videoSize);
+                }
+            });
         }
 
         private MediaSessionImplBase getSession() {
