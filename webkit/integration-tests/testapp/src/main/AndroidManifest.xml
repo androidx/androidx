@@ -37,6 +37,8 @@
         </activity>
         <activity android:name=".SafeBrowsingActivity"
           android:exported="true" />
+        <activity android:name=".SmallInterstitialActivity"
+          android:exported="true" />
         <activity android:name=".ProxyOverrideActivity"
           android:exported="true" />
         <activity android:name=".AssetLoaderListActivity"

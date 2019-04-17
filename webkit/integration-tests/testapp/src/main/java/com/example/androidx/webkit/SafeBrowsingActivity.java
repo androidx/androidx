@@ -17,10 +17,16 @@
 package com.example.androidx.webkit;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.webkit.ValueCallback;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.webkit.WebViewCompat;
+import androidx.webkit.WebViewFeature;
 
 /**
  * An {@link Activity} to exercise Safe Browsing functionality.
@@ -31,9 +37,37 @@ public class SafeBrowsingActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO(ntfschr): actually do something eventually.
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.START_SAFE_BROWSING)) {
+            WebViewCompat.startSafeBrowsing(this.getApplicationContext(),
+                    new ValueCallback<Boolean>() {
+                        @Override
+                        public void onReceiveValue(@NonNull Boolean value) {
+                            if (value) {
+                                setupLayout();
+                            } else {
+                                WebkitHelpers.showMessageInActivity(SafeBrowsingActivity.this,
+                                        R.string.cannot_start_safe_browsing);
+                            }
+                        }
+                    });
+        } else {
+            WebkitHelpers.showMessageInActivity(SafeBrowsingActivity.this,
+                    R.string.webkit_api_not_available);
+        }
+    }
+
+    private void setupLayout() {
         setContentView(R.layout.activity_safe_browsing);
         setTitle(R.string.safebrowsing_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
+
+        final Context activityContext = this;
+        MenuListView listView = findViewById(R.id.safe_browsing_list);
+        MenuListView.MenuItem[] menuItems = new MenuListView.MenuItem[] {
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.small_interstitial_activity_title),
+                        new Intent(activityContext, SmallInterstitialActivity.class)),
+        };
+        listView.setItems(menuItems);
     }
 }
