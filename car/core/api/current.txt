@@ -397,7 +397,6 @@ package androidx.car.widget {
     method public int getPage(int);
     method public androidx.recyclerview.widget.RecyclerView getRecyclerView();
     method public int getRowsPerPage();
-    method public void hideAlphaJump();
     method public boolean isAlphaJumpShown();
     method public boolean isAtEnd();
     method public boolean isAtStart();
@@ -414,6 +413,7 @@ package androidx.car.widget {
     method public void removeOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
     method public void scrollToPosition(int);
     method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
+    method public void setAlphaJumpVisible(boolean);
     method public void setDividerColor(@ColorRes int);
     method public void setDividerVisibilityManager(androidx.car.widget.PagedListView.DividerVisibilityManager!);
     method public void setDownButtonIcon(android.graphics.drawable.Drawable!);
@@ -428,7 +428,6 @@ package androidx.car.widget {
     method public void setScrollBarTopMargin(int);
     method public void setScrollbarThumbEnabled(boolean);
     method public void setUpButtonIcon(android.graphics.drawable.Drawable!);
-    method public void showAlphaJump();
     method public void snapToPosition(int);
     method public void unregisterCallback(androidx.car.widget.PagedListView.Callback);
     field public static final int UNLIMITED_PAGES = -1; // 0xffffffff
