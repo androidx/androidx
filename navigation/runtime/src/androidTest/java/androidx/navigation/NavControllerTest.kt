@@ -359,6 +359,24 @@ class NavControllerTest {
     }
 
     @Test
+    fun testNavigateArgs() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_arguments)
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        val returnedArgs = navigator.current.second
+        assertThat(returnedArgs).isNotNull()
+        assertThat(returnedArgs!!["test_start_default"])
+            .isEqualTo("default")
+
+        navController.addOnDestinationChangedListener { _, _, arguments ->
+            assertThat(arguments).isNotNull()
+            assertThat(arguments!!["test_start_default"])
+                .isEqualTo("default")
+        }
+    }
+
+    @Test
     fun testNavigateWithNoDefaultValue() {
         val returnedArgs = navigateWithArgs(null)
 
