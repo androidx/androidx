@@ -2363,6 +2363,7 @@ package androidx.core.view.accessibility {
     method public boolean isScrollable();
     method public boolean isSelected();
     method public boolean isShowingHintText();
+    method public boolean isTextEntryKey();
     method public boolean isVisibleToUser();
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat! obtain(android.view.View!);
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat! obtain(android.view.View!, int);
@@ -2422,6 +2423,7 @@ package androidx.core.view.accessibility {
     method public void setSource(android.view.View!);
     method public void setSource(android.view.View!, int);
     method public void setText(CharSequence!);
+    method public void setTextEntryKey(boolean);
     method public void setTextSelection(int, int);
     method public void setTooltipText(CharSequence?);
     method public void setTraversalAfter(android.view.View!);
