@@ -35,14 +35,17 @@ import java.util.Iterator;
  *     {@literal @}Override
  *     public void onAttach({@literal @}NonNull Context context) {
  *         super.onAttach(context);
- *         requireActivity().getOnBackPressedDispatcher().addCallback(this,
- *                 new OnBackPressedCallback() {
- *                     {@literal @}Override
- *                     public boolean handleOnBackPressed() {
- *                         showAreYouSureDialog();
- *                         return true;
- *                     }
- *                 });
+ *         OnBackPressedCallback callback = new OnBackPressedCallback(
+ *             true // default to enabled
+ *         ) {
+ *             {@literal @}Override
+ *             public void handleOnBackPressed() {
+ *                 showAreYouSureDialog();
+ *             }
+ *         };
+ *         requireActivity().getOnBackPressedDispatcher().addCallback(
+ *             this, // LifecycleOwner
+ *             callback);
  *     }
  * }
  * </pre>
@@ -122,29 +125,49 @@ public final class OnBackPressedDispatcher {
     }
 
     /**
-     * Trigger a call to the currently added {@link OnBackPressedCallback callbacks} in reverse
-     * order in which they were added. Only if the most recently added callback returns
-     * <code>false</code> from its {@link OnBackPressedCallback#handleOnBackPressed()}
-     * will any previously added callback be called.
+     * Checks if there is at least one {@link OnBackPressedCallback#isEnabled enabled}
+     * callback registered with this dispatcher.
      *
-     * @return True if an added {@link OnBackPressedCallback} handled the back button.
+     * @return True if there is at least one enabled callback.
      */
     @MainThread
-    public boolean onBackPressed() {
+    public boolean hasEnabledCallbacks() {
         Iterator<OnBackPressedCallback> iterator =
                 mOnBackPressedCallbacks.descendingIterator();
         while (iterator.hasNext()) {
-            if (iterator.next().handleOnBackPressed()) {
+            if (iterator.next().isEnabled()) {
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * Trigger a call to the currently added {@link OnBackPressedCallback callbacks} in reverse
+     * order in which they were added. Only if the most recently added callback is not
+     * {@link OnBackPressedCallback#isEnabled() enabled}
+     * will any previously added callback be called.
+     * <p>
+     * It is strongly recommended to call {@link #hasEnabledCallbacks()} prior to calling
+     * this method to determine if there are any enabled callbacks that will be triggered
+     * by this method as calling this method.
+     */
+    @MainThread
+    public void onBackPressed() {
+        Iterator<OnBackPressedCallback> iterator =
+                mOnBackPressedCallbacks.descendingIterator();
+        while (iterator.hasNext()) {
+            OnBackPressedCallback callback = iterator.next();
+            if (callback.isEnabled()) {
+                callback.handleOnBackPressed();
+                return;
+            }
+        }
+    }
+
     private class OnBackPressedCancellable implements Cancellable {
         private final OnBackPressedCallback mOnBackPressedCallback;
         private boolean mCancelled;
-
         OnBackPressedCancellable(OnBackPressedCallback onBackPressedCallback) {
             mOnBackPressedCallback = onBackPressedCallback;
         }

@@ -147,12 +147,10 @@ class OnBackPressedCallbackTest {
     }
 }
 
-class CountingOnBackPressedCallback(val returnValue: Boolean = true) :
-    OnBackPressedCallback {
+class CountingOnBackPressedCallback(enabled: Boolean = true) : OnBackPressedCallback(enabled) {
     var count = 0
 
-    override fun handleOnBackPressed(): Boolean {
+    override fun handleOnBackPressed() {
         count++
-        return returnValue
     }
 }
