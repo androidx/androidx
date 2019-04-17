@@ -42,7 +42,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 // Tests basic UI operation when using CoreTest app.
-@FlakyTest
+@FlakyTest(bugId = 130580574)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public final class BasicUITest {
