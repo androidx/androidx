@@ -324,42 +324,21 @@ class PointerInputNode : SingleChildComponentNode() {
     var pointerInputHandler: PointerInputHandler = { event, _ -> event }
 }
 
+interface DrawNodeScope : DensityReceiver {
+    fun drawChildren()
+}
+
 /**
  * Backing node for the Draw component.
  */
-class DrawNode : ComponentNode() {
-    var onPaint: DensityReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit = { _, _ -> }
+class DrawNode : SingleChildComponentNode() {
+    var onPaint: DrawNodeScope.(canvas: Canvas, parentSize: PxSize) -> Unit = { _, _ -> }
         set(value) {
             field = value
             invalidate()
         }
 
-    override val count: Int
-        get() = 0
-
     var needsPaint = true
-
-    override val layoutNode: LayoutNode? get() = null // no children
-
-    override fun visitChildren(reverse: Boolean, block: (ComponentNode) -> Unit) {
-        // no children
-    }
-
-    override fun emitMove(from: Int, to: Int, count: Int) {
-        ErrorMessages.ChildrenUnsupported.unsupported()
-    }
-
-    override fun get(index: Int): ComponentNode {
-        ErrorMessages.ChildrenUnsupported.unsupported()
-    }
-
-    override fun emitInsertAt(index: Int, instance: Emittable) {
-        ErrorMessages.ChildrenUnsupported.unsupported()
-    }
-
-    override fun emitRemoveAt(index: Int, count: Int) {
-        ErrorMessages.ChildrenUnsupported.unsupported()
-    }
 
     override fun attach(owner: Owner) {
         super.attach(owner)

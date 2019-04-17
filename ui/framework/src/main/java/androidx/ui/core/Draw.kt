@@ -17,25 +17,57 @@ package androidx.ui.core
 
 import androidx.ui.painting.Canvas
 import com.google.r4a.Children
-import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.composer
 
 /**
  * Use Draw to get a [Canvas] to paint into the parent.
  *
- *     <Draw> canvas, parentSize ->
+ *     Draw { canvas, parentSize ->
  *         val paint = Paint()
  *         paint.color = Color(0xFF000000.toInt())
  *         canvas.drawRect(Rect(0.0f, 0.0f, parentSize.width, parentSize.height, paint)
- *     </Draw>
+ *     }
+ *
+ * Draw also accepts children as an argument. By default the children are drawn
+ * after the draw commands. If it is important to order canvas operations in a
+ * different way, use [DrawScope.drawChildren]:
+ *
+ *     Draw(children) { canvas, parentSize ->
+ *         canvas.save()
+ *         val circle = Path()
+ *         circle.addOval(parentSize.toRect())
+ *         canvas.clipPath(circle)
+ *         drawChildren()
+ *         canvas.restore()
+ *     }
  */
-class Draw(
+@Composable
+fun Draw(
+    children: @Composable() () -> Unit = {},
     @Children(composable = false)
-    var onPaint: DensityReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
-) : Component() {
+    onPaint: DrawScope.(canvas: Canvas, parentSize: PxSize) -> Unit
+) {
+    // Hide the internals of DrawNode
+    <DrawNode onPaint={ canvas, parentSize ->
+        DrawScope(this).onPaint(canvas, parentSize)
+    } >
+        <children/>
+    </DrawNode>
+}
 
-    override fun compose() {
-        // Hide the internals of DrawNode
-        <DrawNode onPaint />
+/**
+ * Receiver scope for [Draw] lamda that allows ordering the child drawing between
+ * canvas operations.
+ */
+class DrawScope internal constructor(private val drawNodeScope: DrawNodeScope) : DensityReceiver {
+    /**
+     * Causes child drawing operations to run.
+     */
+    fun drawChildren() {
+        drawNodeScope.drawChildren()
     }
+
+    override val density: Density
+        get() = drawNodeScope.density
 }

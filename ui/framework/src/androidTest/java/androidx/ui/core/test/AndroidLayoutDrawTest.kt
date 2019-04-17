@@ -91,6 +91,17 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = yellow, innerColor = red, size = 10)
     }
 
+    // Tests that simple drawing works with draw with nested children
+    @Test
+    fun nestedDrawTest() {
+        val yellow = Color(0xFFFFFF00.toInt())
+        val red = Color(0xFF800000.toInt())
+        val model = SquareModel(outerColor = yellow, innerColor = red, size = 10.ipx)
+        composeNestedSquares(model)
+
+        validateSquareColors(outerColor = yellow, innerColor = red, size = 10)
+    }
+
     // Tests that recomposition works with models used within Draw components
     @Test
     fun recomposeDrawTest() {
@@ -452,6 +463,42 @@ class AndroidLayoutDrawTest {
                             </Draw>
                         </AtLeastSize>
                     </Padding>
+                </CraneWrapper>
+            }
+        }
+    }
+
+    private fun composeNestedSquares(model: SquareModel) {
+        runOnUiThread {
+            activity.composeInto {
+                <CraneWrapper>
+                    <Draw children=@Composable {
+                        <AtLeastSize size=(model.size * 3)>
+                            <Draw children=@Composable {
+                                <Draw> canvas, parentSize ->
+                                    val paint = Paint()
+                                    paint.color = model.innerColor
+                                    canvas.drawRect(parentSize.toRect(), paint)
+                                    drawLatch.countDown()
+                                </Draw>
+                            }> canvas, parentSize ->
+                                val paint = Paint()
+                                paint.color = model.outerColor
+                                canvas.drawRect(parentSize.toRect(), paint)
+                                val start = model.size.value.toFloat()
+                                val end = start * 2
+                                canvas.save()
+                                canvas.clipRect(Rect(start, start, end, end))
+                                drawChildren()
+                                canvas.restore()
+                            </Draw>
+                        </AtLeastSize>
+                    }> canvas, parentSize ->
+                        val paint = Paint()
+                        paint.color = Color(0xFF000000.toInt())
+                        canvas.drawRect(parentSize.toRect(), paint)
+                    </Draw>
+
                 </CraneWrapper>
             }
         }
