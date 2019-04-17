@@ -17,9 +17,6 @@
 package androidx.fragment.app
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.ViewModelStore
@@ -548,7 +545,7 @@ class SaveStateFragmentTest {
 
         fm.beginTransaction()
             .setCustomAnimations(0, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
-            .add(android.R.id.content, SimpleFragment.create(R.layout.fragment_a))
+            .add(android.R.id.content, StrictViewFragment(R.layout.fragment_a))
             .addToBackStack(null)
             .commit()
         fm.executePendingTransactions()
@@ -563,7 +560,7 @@ class SaveStateFragmentTest {
 
         fm.beginTransaction()
             .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, 0, 0)
-            .replace(android.R.id.content, SimpleFragment.create(R.layout.fragment_b))
+            .replace(android.R.id.content, StrictViewFragment(R.layout.fragment_b))
             .addToBackStack(null)
             .commit()
         fm.executePendingTransactions()
@@ -601,38 +598,6 @@ class SaveStateFragmentTest {
         assertThat(record.mExitAnim).isEqualTo(exit)
         assertThat(record.mPopEnterAnim).isEqualTo(popEnter)
         assertThat(record.mPopExitAnim).isEqualTo(popExit)
-    }
-
-    class SimpleFragment : Fragment() {
-        private var layoutId: Int = 0
-
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            if (savedInstanceState != null) {
-                layoutId = savedInstanceState.getInt(LAYOUT_ID, layoutId)
-            }
-        }
-
-        override fun onSaveInstanceState(outState: Bundle) {
-            super.onSaveInstanceState(outState)
-            outState.putInt(LAYOUT_ID, layoutId)
-        }
-
-        override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-        ): View = inflater.inflate(layoutId, container, false)
-
-        companion object {
-            private const val LAYOUT_ID = "layoutId"
-
-            fun create(layoutId: Int): SimpleFragment {
-                val fragment = SimpleFragment()
-                fragment.layoutId = layoutId
-                return fragment
-            }
-        }
     }
 
     class StateSaveFragment(
