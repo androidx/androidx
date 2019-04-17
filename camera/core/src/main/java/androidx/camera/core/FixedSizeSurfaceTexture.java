@@ -21,6 +21,7 @@ import android.os.Build.VERSION_CODES;
 import android.util.Size;
 
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 
 /**
  * An implementation of {@link SurfaceTexture} with a fixed default buffer size.
@@ -30,6 +31,21 @@ import androidx.annotation.RequiresApi;
  */
 final class FixedSizeSurfaceTexture extends SurfaceTexture {
 
+    private final Owner mOwner;
+
+    // For testing purpose, cannot find a better way to verify super.release() is called.
+    // SurfaceTexture.isRelease() is not a good way to check since it is not supported in some
+    // api levels.
+    @VisibleForTesting
+    boolean mIsSuperReleased = false;
+
+    private static final Owner SELF_OWNER = new Owner() {
+        @Override
+        public boolean requestRelease() {
+            return true;
+        }
+    };
+
     /**
      * Construct a new SurfaceTexture to stream images to a given OpenGL texture.
      *
@@ -38,8 +54,21 @@ final class FixedSizeSurfaceTexture extends SurfaceTexture {
      * @throws android.view.Surface.OutOfResourcesException If the SurfaceTexture cannot be created.
      */
     FixedSizeSurfaceTexture(int texName, Size fixedSize) {
+        this(texName, fixedSize, SELF_OWNER);
+    }
+
+    /**
+     * Construct a new SurfaceTexture to stream images to a given OpenGL texture.
+     *
+     * @param texName   the OpenGL texture object name (e.g. generated via glGenTextures)
+     * @param fixedSize the fixed default buffer size
+     * @param owner     the {@link Owner} which owns this instance.
+     * @throws android.view.Surface.OutOfResourcesException If the SurfaceTexture cannot be created.
+     */
+    FixedSizeSurfaceTexture(int texName, Size fixedSize, Owner owner) {
         super(texName);
         super.setDefaultBufferSize(fixedSize.getWidth(), fixedSize.getHeight());
+        mOwner = owner;
     }
 
     /**
@@ -62,6 +91,7 @@ final class FixedSizeSurfaceTexture extends SurfaceTexture {
     FixedSizeSurfaceTexture(int texName, boolean singleBufferMode, Size fixedSize) {
         super(texName, singleBufferMode);
         super.setDefaultBufferSize(fixedSize.getWidth(), fixedSize.getHeight());
+        mOwner = SELF_OWNER;
     }
 
     /**
@@ -89,6 +119,7 @@ final class FixedSizeSurfaceTexture extends SurfaceTexture {
     FixedSizeSurfaceTexture(boolean singleBufferMode, Size fixedSize) {
         super(singleBufferMode);
         super.setDefaultBufferSize(fixedSize.getWidth(), fixedSize.getHeight());
+        mOwner = SELF_OWNER;
     }
 
     /**
@@ -104,4 +135,30 @@ final class FixedSizeSurfaceTexture extends SurfaceTexture {
     public void setDefaultBufferSize(int width, int height) {
         // No-op
     }
+
+    /*
+     * Overrides the release() to request Owner's permission before releasing it.
+     */
+    @Override
+    public void release() {
+        if (mOwner.requestRelease()) {
+            super.release();
+            mIsSuperReleased = true;
+        }
+    }
+
+    /**
+     * An interface for specifying the ownership of a resource.
+     *
+     * It is used in condition that some resource cannot be released by itself and would like to be
+     * controlled by a OWNER. The resource can only be release()'d when Owner's requestRelease
+     * returns
+     * true.
+     */
+    interface Owner {
+        /** request release permission from owner */
+        boolean requestRelease();
+    }
+
+
 }

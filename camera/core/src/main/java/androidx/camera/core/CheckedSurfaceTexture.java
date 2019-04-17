@@ -22,15 +22,21 @@ import android.os.Looper;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -40,21 +46,36 @@ import java.util.concurrent.Executor;
 final class CheckedSurfaceTexture extends DeferrableSurface {
     private final OnTextureChangedListener mOutputChangedListener;
     @Nullable
-    SurfaceTexture mSurfaceTexture;
+    FixedSizeSurfaceTexture mSurfaceTexture;
     @Nullable
     Surface mSurface;
     @Nullable
     private Size mResolution;
 
-    CheckedSurfaceTexture(OnTextureChangedListener outputChangedListener) {
+    Object mLock = new Object();
+
+    @VisibleForTesting
+    @GuardedBy("mLock")
+    final Map<SurfaceTexture, Resource> mResourceMap = new HashMap<>();
+
+    CheckedSurfaceTexture(
+            OnTextureChangedListener outputChangedListener) {
         mOutputChangedListener = outputChangedListener;
     }
 
-    private static SurfaceTexture createDetachedSurfaceTexture(Size resolution) {
+    private FixedSizeSurfaceTexture createDetachedSurfaceTexture(Size resolution) {
         IntBuffer buffer = IntBuffer.allocate(1);
         GLES20.glGenTextures(1, buffer);
-        SurfaceTexture surfaceTexture = new FixedSizeSurfaceTexture(buffer.get(), resolution);
+        Resource resource = new Resource();
+        FixedSizeSurfaceTexture surfaceTexture = new FixedSizeSurfaceTexture(buffer.get(),
+                resolution, resource);
         surfaceTexture.detachFromGLContext();
+        resource.setSurfaceTexture(surfaceTexture);
+
+        synchronized (mLock) {
+            mResourceMap.put(surfaceTexture, resource);
+        }
+
         return surfaceTexture;
     }
 
@@ -71,40 +92,22 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
         }
 
         release();
+
         mSurfaceTexture = createDetachedSurfaceTexture(mResolution);
         mOutputChangedListener.onTextureChanged(mSurfaceTexture, mResolution);
     }
 
+
     @UiThread
-    boolean surfaceTextureReleased(SurfaceTexture surfaceTexture) {
-        boolean released = false;
-
-        // TODO(b/121196683) Refactor workaround into a compatibility module
-        if (26 <= android.os.Build.VERSION.SDK_INT) {
-            released = surfaceTexture.isReleased();
-        } else {
-            // WARNING: This relies on some implementation details of the PreviewOutput native code.
-            // If the PreviewOutput is released, we should get a RuntimeException. If not, we
-            // should get an IllegalStateException since we are not in the same EGL context as the
-            // consumer.
-            Exception exception = null;
-            try {
-                // TODO(b/121198329) Make sure updateTexImage() isn't called on consumer EGL context
-                surfaceTexture.updateTexImage();
-            } catch (IllegalStateException e) {
-                exception = e;
-                released = false;
-            } catch (RuntimeException e) {
-                exception = e;
-                released = true;
+    boolean isSurfaceTextureReleasing(FixedSizeSurfaceTexture surfaceTexture) {
+        synchronized (mLock) {
+            Resource resource = mResourceMap.get(surfaceTexture);
+            if (resource == null) {
+                return true;
             }
 
-            if (!released && exception == null) {
-                throw new RuntimeException("Unable to determine if PreviewOutput is released");
-            }
+            return resource.isReleasing();
         }
-
-        return released;
     }
 
     /**
@@ -124,14 +127,13 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        if (CheckedSurfaceTexture.this.surfaceTextureReleased(
-                                                mSurfaceTexture)) {
+                                        if (isSurfaceTextureReleasing(mSurfaceTexture)) {
                                             // Reset the surface texture and notify the listener
                                             CheckedSurfaceTexture.this.resetSurfaceTexture();
                                         }
 
                                         if (mSurface == null) {
-                                            mSurface = new Surface(mSurfaceTexture);
+                                            mSurface = createSurfaceFrom(mSurfaceTexture);
                                         }
                                         completer.set(mSurface);
                                     }
@@ -142,33 +144,87 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
                 });
     }
 
+    @UiThread
+    Surface createSurfaceFrom(FixedSizeSurfaceTexture surfaceTexture) {
+        Surface surface = new Surface(surfaceTexture);
+
+        synchronized (mLock) {
+            Resource resource = mResourceMap.get(surfaceTexture);
+            if (resource == null) {
+                resource = new Resource();
+                resource.setSurfaceTexture(surfaceTexture);
+                mResourceMap.put(surfaceTexture, resource);
+            }
+
+            resource.setSurface(surface);
+        }
+        return surface;
+    }
+
     @Override
     public void refresh() {
         runOnMainThread(new Runnable() {
             @Override
             public void run() {
-                if (CheckedSurfaceTexture.this.surfaceTextureReleased(mSurfaceTexture)) {
+                if (isSurfaceTextureReleasing(mSurfaceTexture)) {
                     // Reset the surface texture and notify the listener
                     CheckedSurfaceTexture.this.resetSurfaceTexture();
                 }
                 // To fix the incorrect preview orientation for devices running on legacy camera,
                 // it needs to attach a new Surface instance to the newly created camera capture
                 // session.
-                mSurface = new Surface(mSurfaceTexture);
+                mSurface = createSurfaceFrom(mSurfaceTexture);
             }
         });
     }
 
     @UiThread
     void release() {
-        if (mSurface != null) {
-            // Release surface will also release surface texture.
-            mSurface.release();
-        } else if (mSurfaceTexture != null) {
-            mSurfaceTexture.release();
+        if (mSurface == null && mSurfaceTexture == null) {
+            return;
         }
-        mSurface = null;
+
+        Resource resource;
+        synchronized (mLock) {
+            resource = mResourceMap.get(mSurfaceTexture);
+        }
+
+        if (resource != null) {
+            releaseResourceWhenDetached(resource);
+        }
         mSurfaceTexture = null;
+        mSurface = null;
+    }
+
+    void releaseResourceWhenDetached(final Resource resource) {
+        synchronized (mLock) {
+            resource.setReleasing(true);
+        }
+
+        setOnSurfaceDetachedListener(CameraXExecutors.mainThreadExecutor(),
+                new OnSurfaceDetachedListener() {
+                    @Override
+                    public void onSurfaceDetached() {
+                        List<Resource> resourcesToRelease = new ArrayList<>();
+
+                        synchronized (mLock) {
+                            for (Resource resource : mResourceMap.values()) {
+                                if (resource.isReleasing()) {
+                                    resourcesToRelease.add(resource);
+                                }
+                            }
+
+                            // Removes the resource from the map since it is of no use.
+                            for (Resource resourceToRemove : resourcesToRelease) {
+                                mResourceMap.remove(resourceToRemove.mSurfaceTexture);
+                            }
+                        }
+
+                        for (Resource resource : resourcesToRelease) {
+                            resource.release();
+                        }
+                    }
+                });
     }
 
     void runOnMainThread(Runnable runnable) {
@@ -181,5 +237,60 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
 
     interface OnTextureChangedListener {
         void onTextureChanged(SurfaceTexture newOutput, Size newResolution);
+    }
+
+    /**
+     * Contains a pair of SurfaceTexture and Surface and also implements
+     * FixedSizeSurfaceTexture.Owner interface to control the release timing of
+     * FixedSizeSurfaceTexture.
+     */
+    class Resource implements FixedSizeSurfaceTexture.Owner {
+        FixedSizeSurfaceTexture mSurfaceTexture;
+        Surface mSurface;
+        boolean mIsReleasing = false;
+        boolean mIsReadyToRelease = false;
+
+        @UiThread
+        public void setSurfaceTexture(FixedSizeSurfaceTexture surfaceTexture) {
+            mSurfaceTexture = surfaceTexture;
+        }
+
+        @UiThread
+        public void setSurface(Surface surface) {
+            mSurface = surface;
+        }
+
+        public synchronized boolean isReleasing() {
+            return mIsReleasing;
+        }
+
+        public synchronized void setReleasing(boolean releasing) {
+            mIsReleasing = releasing;
+        }
+
+        @Override
+        public synchronized boolean requestRelease() {
+            if (mIsReadyToRelease) {
+                return true;
+            }
+
+            releaseResourceWhenDetached(this);
+            return false;
+        }
+
+        @UiThread
+        public synchronized void release() {
+            mIsReadyToRelease = true;
+
+            if (mSurfaceTexture != null) {
+                mSurfaceTexture.release();
+                mSurfaceTexture = null;
+            }
+
+            if (mSurface != null) {
+                mSurface.release();
+                mSurface = null;
+            }
+        }
     }
 }
