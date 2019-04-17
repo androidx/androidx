@@ -17,6 +17,7 @@
 package androidx.navigation
 
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
@@ -176,6 +177,75 @@ class NavControllerTest {
         navController.navigate(R.id.second_test)
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
         assertEquals(2, navigator.backStack.size)
+    }
+
+    @Test
+    fun testInvalidNavigateViaDeepLink() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/invalid")
+
+        try {
+            navController.navigate(deepLink)
+            fail("navController.navigate must throw")
+        } catch (e: IllegalArgumentException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "navigation destination with deepLink $deepLink is unknown to this" +
+                            " NavController"
+                )
+        }
+    }
+
+    @Test
+    fun testNavigateViaDeepLink() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
+
+        navController.navigate(deepLink)
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @Test
+    fun testNavigationViaDeepLinkPopUpTo() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
+
+        navController.navigate(deepLink, navOptions {
+            popUpTo(0) { inclusive = true }
+        })
+        assertThat(navController.currentDestination?.id ?: 0).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @Test
+    fun testNavigateToDifferentGraphViaDeepLink() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
+
+        navController.navigate(deepLink)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.deep_link_child_second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val popped = navController.popBackStack()
+        assertWithMessage("NavController should return true when popping a non-root destination")
+            .that(popped)
+            .isTrue()
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @Test
