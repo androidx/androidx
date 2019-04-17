@@ -32,7 +32,6 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
-import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import com.google.auto.value.AutoValue;
 
@@ -265,14 +264,8 @@ public class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
-        mCheckedSurfaceTexture.setOnSurfaceDetachedListener(
-                CameraXExecutors.mainThreadExecutor(),
-                new DeferrableSurface.OnSurfaceDetachedListener() {
-                    @Override
-                    public void onSurfaceDetached() {
-                        mCheckedSurfaceTexture.release();
-                    }
-                });
+        mCheckedSurfaceTexture.release();
+
         removePreviewOutputListener();
         notifyInactive();
 
