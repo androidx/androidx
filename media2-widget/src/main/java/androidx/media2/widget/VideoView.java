@@ -16,7 +16,6 @@
 
 package androidx.media2.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.SessionResult.RESULT_ERROR_INVALID_STATE;
 import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
@@ -41,7 +40,6 @@ import android.view.View;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.FileMediaItem;
@@ -128,14 +126,12 @@ import java.util.concurrent.Executor;
  * {@link androidx.media2.widget.R.attr#viewType}
  */
 public class VideoView extends SelectiveLayout {
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({
             VIEW_TYPE_TEXTUREVIEW,
             VIEW_TYPE_SURFACEVIEW
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ViewType {}
+    /* package */ @interface ViewType {}
 
     /**
      * Indicates video is rendering on SurfaceView.
