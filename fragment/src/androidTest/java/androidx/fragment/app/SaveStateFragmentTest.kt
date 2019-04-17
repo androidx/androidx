@@ -123,15 +123,13 @@ class SaveStateFragmentTest {
 
         // This retained fragment will be added, then removed. After being removed, it
         // should no longer be retained by the FragmentManager
-        val removedFragment = StateSaveFragment("Removed", "UnsavedRemoved")
-        removedFragment.retainInstance = true
+        val removedFragment = StateSaveFragment("Removed", "UnsavedRemoved", true)
         fm1.beginTransaction().add(removedFragment, "tag:removed").commitNow()
         fm1.beginTransaction().remove(removedFragment).commitNow()
 
         // This retained fragment will be added, then detached. After being detached, it
         // should continue to be retained by the FragmentManager
-        val detachedFragment = StateSaveFragment("Detached", "UnsavedDetached")
-        removedFragment.retainInstance = true
+        val detachedFragment = StateSaveFragment("Detached", "UnsavedDetached", true)
         fm1.beginTransaction().add(detachedFragment, "tag:detached").commitNow()
         fm1.beginTransaction().detach(detachedFragment).commitNow()
 
@@ -144,12 +142,11 @@ class SaveStateFragmentTest {
         fm1.beginTransaction().add(grandparentFragment, "tag:grandparent").commitNow()
 
         // Parent fragment will retain instance
-        val parentFragment = StateSaveFragment("Parent", "UnsavedParent")
+        val parentFragment = StateSaveFragment("Parent", "UnsavedParent", true)
         assertWithMessage("parent fragment saved state not initialized")
             .that(parentFragment.savedState).isNotNull()
         assertWithMessage("parent fragment unsaved state not initialized")
             .that(parentFragment.unsavedState).isNotNull()
-        parentFragment.retainInstance = true
         grandparentFragment.childFragmentManager.beginTransaction()
             .add(parentFragment, "tag:parent").commitNow()
         assertWithMessage("parent fragment is not a child of grandparent")
@@ -277,8 +274,7 @@ class SaveStateFragmentTest {
         fc1.dispatchCreate()
 
         // Add the retained Fragment
-        val retainedFragment = StateSaveFragment("Retained", "UnsavedRetained")
-        retainedFragment.retainInstance = true
+        val retainedFragment = StateSaveFragment("Retained", "UnsavedRetained", true)
         fm1.beginTransaction().add(retainedFragment, "tag:retained").commitNow()
 
         // Move the activity to resumed
@@ -462,12 +458,12 @@ class SaveStateFragmentTest {
         var fc = activityRule.startupFragmentController(viewModelStore)
         var fm = fc.supportFragmentManager
 
-        var fragment1 = SaveStateFragment.create(1)
+        var fragment1 = StateSaveFragment("1")
         fm.beginTransaction()
             .add(android.R.id.content, fragment1, "1")
             .addToBackStack(null)
             .commit()
-        var fragment2 = SaveStateFragment.create(2)
+        var fragment2 = StateSaveFragment("2")
         fm.beginTransaction()
             .replace(android.R.id.content, fragment2, "2")
             .addToBackStack(null)
@@ -476,13 +472,13 @@ class SaveStateFragmentTest {
 
         fc = fc.restart(activityRule, viewModelStore)
         fm = fc.supportFragmentManager
-        fragment2 = fm.findFragmentByTag("2") as SaveStateFragment
+        fragment2 = fm.findFragmentByTag("2") as StateSaveFragment
         assertThat(fragment2).isNotNull()
-        assertThat(fragment2.value).isEqualTo(2)
+        assertThat(fragment2.savedState).isEqualTo("2")
         fm.popBackStackImmediate()
-        fragment1 = fm.findFragmentByTag("1") as SaveStateFragment
+        fragment1 = fm.findFragmentByTag("1") as StateSaveFragment
         assertThat(fragment1).isNotNull()
-        assertThat(fragment1.value).isEqualTo(1)
+        assertThat(fragment1.savedState).isEqualTo("1")
     }
 
     /**
@@ -639,50 +635,19 @@ class SaveStateFragmentTest {
         }
     }
 
-    class SaveStateFragment : Fragment() {
-        var value: Int = 0
-            private set
-
-        override fun onSaveInstanceState(outState: Bundle) {
-            super.onSaveInstanceState(outState)
-            outState.putInt(VALUE_KEY, value)
-        }
-
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            if (savedInstanceState != null) {
-                value = savedInstanceState.getInt(VALUE_KEY, value)
-            }
-        }
-
-        companion object {
-            private const val VALUE_KEY = "SaveStateFragment.mValue"
-
-            fun create(value: Int): SaveStateFragment {
-                val saveStateFragment = SaveStateFragment()
-                saveStateFragment.value = value
-                return saveStateFragment
-            }
-        }
-    }
-
-    class StateSaveFragment : StrictFragment {
-
-        var savedState: String? = null
-            private set
-        var unsavedState: String? = null
-
-        constructor()
-
-        constructor(savedState: String, unsavedState: String) {
-            this.savedState = savedState
-            this.unsavedState = unsavedState
-        }
+    class StateSaveFragment(
+        var savedState: String? = null,
+        val unsavedState: String? = null,
+        val retain: Boolean = false
+    ) : StrictFragment() {
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             if (savedInstanceState != null) {
                 savedState = savedInstanceState.getString(STATE_KEY)
+            }
+            if (retain) {
+                retainInstance = true
             }
         }
 
