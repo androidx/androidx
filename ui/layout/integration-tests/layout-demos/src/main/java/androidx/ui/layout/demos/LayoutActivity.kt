@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.demos
+package androidx.ui.layout.demos
 
 import android.app.Activity
 import android.os.Bundle
