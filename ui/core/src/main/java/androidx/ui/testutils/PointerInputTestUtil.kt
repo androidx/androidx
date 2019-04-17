@@ -22,9 +22,10 @@ import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputHandler
+import androidx.ui.core.PxPosition
 import androidx.ui.core.Timestamp
 import androidx.ui.core.millisecondsToTimestamp
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.core.px
 
 fun down(
     id: Int = 0,
@@ -34,15 +35,15 @@ fun down(
 ): PointerInputChange =
     PointerInputChange(
         id,
-        PointerInputData(timestamp, Offset(x, y), true),
+        PointerInputData(timestamp, PxPosition(x.px, y.px), true),
         PointerInputData(null, null, false),
-        ConsumedData(Offset(0f, 0f), false)
+        ConsumedData(PxPosition.Origin, false)
     )
 
 fun PointerInputChange.moveTo(timestamp: Timestamp, x: Float = 0f, y: Float = 0f) =
     copy(
         previous = current,
-        current = PointerInputData(timestamp, Offset(x, y), true),
+        current = PointerInputData(timestamp, PxPosition(x.px, y.px), true),
         consumed = ConsumedData()
     )
 
@@ -51,7 +52,7 @@ fun PointerInputChange.moveBy(duration: Duration, dx: Float = 0f, dy: Float = 0f
         previous = current,
         current = PointerInputData(
             current.timestamp!! + duration,
-            Offset(current.position!!.dx + dx, current.position.dy + dy),
+            PxPosition(current.position!!.x + dx.px, current.position.y + dy.px),
             true
         ),
         consumed = ConsumedData()
@@ -67,9 +68,9 @@ fun PointerInputChange.up(timestamp: Timestamp) =
 fun PointerInputChange.consume(dx: Float = 0f, dy: Float = 0f, downChange: Boolean = false) =
     copy(
         consumed = consumed.copy(
-            positionChange = Offset(
-                consumed.positionChange.dx + dx,
-                consumed.positionChange.dy + dy
+            positionChange = PxPosition(
+                consumed.positionChange.x + dx.px,
+                consumed.positionChange.y + dy.px
             ), downChange = consumed.downChange || downChange
         )
     )

@@ -19,10 +19,11 @@ package androidx.ui.core.pointerinput
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
-import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.PointerInputData
+import androidx.ui.core.PxPosition
 import androidx.ui.core.Timestamp
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.core.millisecondsToTimestamp
+import androidx.ui.core.px
 
 /**
  * Converts Android framework [MotionEvent]s into [PointerInputEvent]s.
@@ -77,7 +78,7 @@ private fun PointerInputData(
 ): PointerInputData {
     val pointerCoords = MotionEvent.PointerCoords()
     motionEvent.getPointerCoords(index, pointerCoords)
-    val offset = Offset(pointerCoords.x, pointerCoords.y)
+    val offset = PxPosition(pointerCoords.x.px, pointerCoords.y.px)
 
     return PointerInputData(
         timestamp,

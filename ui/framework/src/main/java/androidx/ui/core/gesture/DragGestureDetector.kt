@@ -182,10 +182,7 @@ internal class DragGestureRecognizer {
                     .apply {
                         velocityTracker.addPosition(
                             change.current.timestamp!!,
-                            PxPosition(
-                                change.current.position!!.dx.px,
-                                change.current.position!!.dy.px
-                            )
+                            change.current.position!!
                         )
                     }
             } else if (change.current.down) {
@@ -197,14 +194,11 @@ internal class DragGestureRecognizer {
                     // If the pointer is currently down, we should track its velocity.
                     pointerTracker.velocityTracker.addPosition(
                         change.current.timestamp!!,
-                        PxPosition(
-                            change.current.position!!.dx.px,
-                            change.current.position!!.dy.px
-                        )
+                        change.current.position!!
                     )
 
-                    val dx = change.positionChange().dx
-                    val dy = change.positionChange().dy
+                    val dx = change.positionChange().x.value
+                    val dy = change.positionChange().y.value
 
                     // If we aren't passed slop, calculate things related to slop, and start drag
                     // if we do pass touch slop.
@@ -273,8 +267,8 @@ internal class DragGestureRecognizer {
                                 )
                             )
                             pointerInputChange.consumePositionChange(
-                                consumedDx.value,
-                                consumedDy.value
+                                consumedDx,
+                                consumedDy
                             )
                         } ?: pointerInputChange
                     }

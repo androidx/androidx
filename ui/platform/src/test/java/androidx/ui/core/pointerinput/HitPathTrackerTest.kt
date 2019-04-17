@@ -26,6 +26,7 @@ import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
 import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.positionChange
+import androidx.ui.core.px
 import androidx.ui.testutils.down
 import androidx.ui.testutils.moveTo
 import com.google.common.truth.Truth.assertThat
@@ -454,19 +455,19 @@ class HitPathTrackerTest {
         pin1.pointerInputHandler = spy(MyPointerInputHandler().apply {
             modifyBlock = { change, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 64f
-                change.consumePositionChange(0f, yConsume)
+                change.consumePositionChange(0.px, yConsume.px)
             }
         })
         pin2.pointerInputHandler = spy(MyPointerInputHandler().apply {
             modifyBlock = { change, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 4f else 32f
-                change.consumePositionChange(0f, yConsume)
+                change.consumePositionChange(0.px, yConsume.px)
             }
         })
         pin3.pointerInputHandler = spy(MyPointerInputHandler().apply {
             modifyBlock = { change, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 8f else 16f
-                change.consumePositionChange(0f, yConsume)
+                change.consumePositionChange(0.px, yConsume.px)
             }
         })
         hitResult.addHitPath(13, listOf(pin1, pin2, pin3))
@@ -482,27 +483,27 @@ class HitPathTrackerTest {
             change, PointerEventPass.InitialDown
         )
         verify(pin2.pointerInputHandler).invoke(
-            change.consumePositionChange(0f, 2f),
+            change.consumePositionChange(0.px, 2.px),
             PointerEventPass.InitialDown
         )
         verify(pin3.pointerInputHandler).invoke(
-            change.consumePositionChange(0f, 6f), // 2 + 4
+            change.consumePositionChange(0.px, 6.px), // 2 + 4
             PointerEventPass.InitialDown
         )
         verify(pin3.pointerInputHandler).invoke(
-            change.consumePositionChange(0f, 14f), // 2 + 4 + 8
+            change.consumePositionChange(0.px, 14.px), // 2 + 4 + 8
             PointerEventPass.PreUp
         )
         verify(pin2.pointerInputHandler).invoke(
-            change.consumePositionChange(0f, 30f), // 2 + 4 + 8 + 16
+            change.consumePositionChange(0.px, 30.px), // 2 + 4 + 8 + 16
             PointerEventPass.PreUp
         )
         verify(pin1.pointerInputHandler).invoke(
-            change.consumePositionChange(0f, 62f), // 2 + 4 + 8 + 16 + 32
+            change.consumePositionChange(0.px, 62.px), // 2 + 4 + 8 + 16 + 32
             PointerEventPass.PreUp
         )
         assertThat(result)
-            .isEqualTo(listOf(change.consumePositionChange(0f, 126f))) // 2 + 4 + 8 + 16 + 32 + 64
+            .isEqualTo(listOf(change.consumePositionChange(0.px, 126.px))) // 2 + 4 + 8 + 16 + 32 + 64
     }
 
     @Test
@@ -514,25 +515,25 @@ class HitPathTrackerTest {
         pin1.pointerInputHandler = spy(MyPointerInputHandler().apply {
             modifyBlock = { change, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 12f
-                change.consumePositionChange(0f, yConsume)
+                change.consumePositionChange(0.px, yConsume.px)
             }
         })
         pin2.pointerInputHandler = spy(MyPointerInputHandler().apply {
             modifyBlock = { change, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 3f else 6f
-                change.consumePositionChange(0f, yConsume)
+                change.consumePositionChange(0.px, yConsume.px)
             }
         })
         pin3.pointerInputHandler = spy(MyPointerInputHandler().apply {
             modifyBlock = { change, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) -2f else -12f
-                change.consumePositionChange(0f, yConsume)
+                change.consumePositionChange(0.px, yConsume.px)
             }
         })
         pin4.pointerInputHandler = spy(MyPointerInputHandler().apply {
             modifyBlock = { change, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) -3f else -6f
-                change.consumePositionChange(0f, yConsume)
+                change.consumePositionChange(0.px, yConsume.px)
             }
         })
         hitResult.addHitPath(3, listOf(pin1, pin2))
@@ -551,15 +552,15 @@ class HitPathTrackerTest {
             PointerEventPass.InitialDown
         )
         verify(pin2.pointerInputHandler).invoke(
-            event1.consumePositionChange(0f, 2f),
+            event1.consumePositionChange(0.px, 2.px),
             PointerEventPass.InitialDown
         )
         verify(pin2.pointerInputHandler).invoke(
-            event1.consumePositionChange(0f, 5f),
+            event1.consumePositionChange(0.px, 5.px),
             PointerEventPass.PreUp
         )
         verify(pin1.pointerInputHandler).invoke(
-            event1.consumePositionChange(0f, 11f),
+            event1.consumePositionChange(0.px, 11.px),
             PointerEventPass.PreUp
         )
 
@@ -568,21 +569,21 @@ class HitPathTrackerTest {
             PointerEventPass.InitialDown
         )
         verify(pin4.pointerInputHandler).invoke(
-            event2.consumePositionChange(0f, -2f),
+            event2.consumePositionChange(0.px, -2.px),
             PointerEventPass.InitialDown
         )
         verify(pin4.pointerInputHandler).invoke(
-            event2.consumePositionChange(0f, -5f),
+            event2.consumePositionChange(0.px, -5.px),
             PointerEventPass.PreUp
         )
         verify(pin3.pointerInputHandler).invoke(
-            event2.consumePositionChange(0f, -11f),
+            event2.consumePositionChange(0.px, (-11).px),
             PointerEventPass.PreUp
         )
 
         assertThat(result).hasSize(2)
-        assertThat(result).contains(event1.consumePositionChange(0f, 23f))
-        assertThat(result).contains(event2.consumePositionChange(0f, -23f))
+        assertThat(result).contains(event1.consumePositionChange(0.px, 23.px))
+        assertThat(result).contains(event2.consumePositionChange(0.px, (-23).px))
     }
 
     @Test
@@ -594,8 +595,8 @@ class HitPathTrackerTest {
             modifyBlock = { change, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
                 change.consumePositionChange(
-                    0f,
-                    (change.positionChange().dy.toInt() / yConsume).toFloat()
+                    0.px,
+                    (change.positionChange().y.value.toInt() / yConsume).px
                 )
             }
         })
@@ -603,8 +604,8 @@ class HitPathTrackerTest {
             modifyBlock = { change, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
                 change.consumePositionChange(
-                    0f,
-                    (change.positionChange().dy.toInt() / yConsume).toFloat()
+                    0.px,
+                    (change.positionChange().y.value.toInt() / yConsume).px
                 )
             }
         })
@@ -612,8 +613,8 @@ class HitPathTrackerTest {
             modifyBlock = { change, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 11 else 13
                 change.consumePositionChange(
-                    0f,
-                    (change.positionChange().dy.toInt() / yConsume).toFloat()
+                    0.px,
+                    (change.positionChange().y.value.toInt() / yConsume).px
                 )
             }
         })
@@ -633,15 +634,15 @@ class HitPathTrackerTest {
             PointerEventPass.InitialDown
         )
         verify(child1.pointerInputHandler).invoke(
-            event1.consumePositionChange(0f, 500f),
+            event1.consumePositionChange(0.px, 500.px),
             PointerEventPass.InitialDown
         )
         verify(child1.pointerInputHandler).invoke(
-            event1.consumePositionChange(0f, 600f),
+            event1.consumePositionChange(0.px, 600.px),
             PointerEventPass.PreUp
         )
         verify(parent.pointerInputHandler).invoke(
-            event1.consumePositionChange(0f, 657f),
+            event1.consumePositionChange(0.px, 657.px),
             PointerEventPass.PreUp
         )
 
@@ -650,21 +651,21 @@ class HitPathTrackerTest {
             PointerEventPass.InitialDown
         )
         verify(child2.pointerInputHandler).invoke(
-            event2.consumePositionChange(0f, -500f),
+            event2.consumePositionChange(0.px, -500.px),
             PointerEventPass.InitialDown
         )
         verify(child2.pointerInputHandler).invoke(
-            event2.consumePositionChange(0f, -545f),
+            event2.consumePositionChange(0.px, -545.px),
             PointerEventPass.PreUp
         )
         verify(parent.pointerInputHandler).invoke(
-            event2.consumePositionChange(0f, -580f),
+            event2.consumePositionChange(0.px, -580.px),
             PointerEventPass.PreUp
         )
 
         assertThat(result).hasSize(2)
-        assertThat(result).contains(event1.consumePositionChange(0f, 771f))
-        assertThat(result).contains(event2.consumePositionChange(0f, -720f))
+        assertThat(result).contains(event1.consumePositionChange(0.px, 771.px))
+        assertThat(result).contains(event2.consumePositionChange(0.px, -720.px))
     }
 
     @Test
@@ -675,8 +676,8 @@ class HitPathTrackerTest {
             modifyBlock = { change, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
                 change.consumePositionChange(
-                    0f,
-                    (change.positionChange().dy.toInt() / yConsume).toFloat()
+                    0.px,
+                    (change.positionChange().y.value.toInt() / yConsume).px
                 )
             }
         })
@@ -684,8 +685,8 @@ class HitPathTrackerTest {
             modifyBlock = { change, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
                 change.consumePositionChange(
-                    0f,
-                    (change.positionChange().dy.toInt() / yConsume).toFloat()
+                    0.px,
+                    (change.positionChange().y.value.toInt() / yConsume).px
                 )
             }
         })
@@ -709,34 +710,34 @@ class HitPathTrackerTest {
             PointerEventPass.InitialDown
         )
         verify(child2.pointerInputHandler).invoke(
-            event1.consumePositionChange(0f, 500f),
+            event1.consumePositionChange(0.px, 500.px),
             PointerEventPass.InitialDown
         )
         verify(child2.pointerInputHandler).invoke(
-            event2.consumePositionChange(0f, -500f),
+            event2.consumePositionChange(0.px, -500.px),
             PointerEventPass.InitialDown
         )
 
         verify(child2.pointerInputHandler).invoke(
-            event1.consumePositionChange(0f, 600f),
+            event1.consumePositionChange(0.px, 600.px),
             PointerEventPass.PreUp
         )
         verify(child2.pointerInputHandler).invoke(
-            event2.consumePositionChange(0f, -600f),
+            event2.consumePositionChange(0.px, -600.px),
             PointerEventPass.PreUp
         )
         verify(child1.pointerInputHandler).invoke(
-            event1.consumePositionChange(0f, 657f),
+            event1.consumePositionChange(0.px, 657.px),
             PointerEventPass.PreUp
         )
         verify(child1.pointerInputHandler).invoke(
-            event2.consumePositionChange(0f, -657f),
+            event2.consumePositionChange(0.px, -657.px),
             PointerEventPass.PreUp
         )
 
         assertThat(result).hasSize(2)
-        assertThat(result).contains(event1.consumePositionChange(0f, 771f))
-        assertThat(result).contains(event2.consumePositionChange(0f, -771f))
+        assertThat(result).contains(event1.consumePositionChange(0.px, 771.px))
+        assertThat(result).contains(event2.consumePositionChange(0.px, -771.px))
     }
 
     @Test

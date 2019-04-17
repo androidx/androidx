@@ -17,9 +17,10 @@
 package androidx.ui.core.gesture
 
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PxPosition
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.millisecondsToTimestamp
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.core.px
 import androidx.ui.testutils.consume
 import androidx.ui.testutils.down
 import androidx.ui.testutils.invokeOverAllPasses
@@ -243,6 +244,6 @@ class PressIndicatorGestureDetectorTest {
     @Test
     fun pointerInputHandler_down_downPositionIsCorrect() {
         recognizer.pointerInputHandler.invokeOverAllPasses(down(x = 13f, y = 17f))
-        verify(recognizer.onStart!!).invoke(Offset(13f, 17f))
+        verify(recognizer.onStart!!).invoke(PxPosition(13.px, 17f.px))
     }
 }

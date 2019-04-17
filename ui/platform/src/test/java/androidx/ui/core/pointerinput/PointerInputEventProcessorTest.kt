@@ -27,11 +27,12 @@ import androidx.ui.core.PointerEventPass.PreUp
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
+import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsComponentNode
 import androidx.ui.core.Timestamp
 import androidx.ui.core.ipx
 import androidx.ui.core.millisecondsToTimestamp
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.core.px
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.inOrder
@@ -99,8 +100,8 @@ class PointerInputEventProcessorTest {
         }
         root.emitInsertAt(0, pointerInputNode)
 
-        val offset = Offset(100f, 200f)
-        val offset2 = Offset(300f, 400f)
+        val offset = PxPosition(100.px, 200.px)
+        val offset2 = PxPosition(300.px, 400.px)
 
         val events = arrayOf(
             PointerInputEvent(8712, 3L.millisecondsToTimestamp(), offset, true),
@@ -149,7 +150,7 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
-        val childOffset = Offset(dx = 100f, dy = 200f)
+        val childOffset = PxPosition(100.px, 200.px)
         val pointerInputNode: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, LayoutNode(100, 200, 301, 401))
             pointerInputHandler = spy(MyPointerInputHandler())
@@ -157,10 +158,10 @@ class PointerInputEventProcessorTest {
         root.emitInsertAt(0, pointerInputNode)
 
         val offsets = arrayOf(
-            Offset(100f, 200f),
-            Offset(300f, 200f),
-            Offset(100f, 400f),
-            Offset(300f, 400f)
+            PxPosition(100.px, 200.px),
+            PxPosition(300.px, 200.px),
+            PxPosition(100.px, 400.px),
+            PxPosition(300.px, 400.px)
         )
 
         val events = Array(4) { index ->
@@ -206,14 +207,14 @@ class PointerInputEventProcessorTest {
         root.emitInsertAt(0, pointerInputNode)
 
         val offsets = arrayOf(
-            Offset(99f, 200f),
-            Offset(99f, 400f),
-            Offset(100f, 199f),
-            Offset(100f, 401f),
-            Offset(300f, 199f),
-            Offset(300f, 401f),
-            Offset(301f, 200f),
-            Offset(301f, 400f)
+            PxPosition(99.px, 200.px),
+            PxPosition(99.px, 400.px),
+            PxPosition(100.px, 199.px),
+            PxPosition(100.px, 401.px),
+            PxPosition(300.px, 199.px),
+            PxPosition(300.px, 401.px),
+            PxPosition(301.px, 200.px),
+            PxPosition(301.px, 400.px)
         )
 
         val events = Array(8) { index ->
@@ -271,9 +272,9 @@ class PointerInputEventProcessorTest {
         root.emitInsertAt(0, parentPointerInputNode)
 
         val offset = when (numberOfChildrenHit) {
-            3 -> Offset(250f, 250f)
-            2 -> Offset(150f, 150f)
-            1 -> Offset(50f, 50f)
+            3 -> PxPosition(250.px, 250.px)
+            2 -> PxPosition(150.px, 150.px)
+            1 -> PxPosition(50.px, 50.px)
             else -> throw IllegalStateException()
         }
 
@@ -312,15 +313,23 @@ class PointerInputEventProcessorTest {
 
         val input = PointerInputChange(
             id = 0,
-            current = PointerInputData(5L.millisecondsToTimestamp(), Offset(100f, 0f), true),
-            previous = PointerInputData(3L.millisecondsToTimestamp(), Offset(0f, 0f), true),
-            consumed = ConsumedData(positionChange = Offset(0f, 0f))
+            current = PointerInputData(
+                5L.millisecondsToTimestamp(),
+                PxPosition(100.px, 0.px),
+                true
+            ),
+            previous = PointerInputData(3L.millisecondsToTimestamp(), PxPosition(0.px, 0.px), true),
+            consumed = ConsumedData(positionChange = PxPosition(0.px, 0.px))
         )
         val output = PointerInputChange(
             id = 0,
-            current = PointerInputData(5L.millisecondsToTimestamp(), Offset(100f, 0f), true),
-            previous = PointerInputData(3L.millisecondsToTimestamp(), Offset(0f, 0f), true),
-            consumed = ConsumedData(positionChange = Offset(13f, 0f))
+            current = PointerInputData(
+                5L.millisecondsToTimestamp(),
+                PxPosition(100.px, 0.px),
+                true
+            ),
+            previous = PointerInputData(3L.millisecondsToTimestamp(), PxPosition(0.px, 0.px), true),
+            consumed = ConsumedData(positionChange = PxPosition(13.px, 0.px))
         )
 
         val pointerInputNode: PointerInputNode = PointerInputNode().apply {
@@ -333,13 +342,13 @@ class PointerInputEventProcessorTest {
         val down = PointerInputEvent(
             0,
             3L.millisecondsToTimestamp(),
-            Offset(0f, 0f),
+            PxPosition(0.px, 0.px),
             true
         )
         val move = PointerInputEvent(
             0,
             5L.millisecondsToTimestamp(),
-            Offset(100f, 0f),
+            PxPosition(100.px, 0.px),
             true
         )
 
@@ -403,13 +412,13 @@ class PointerInputEventProcessorTest {
 
         // Arrange
 
-        val childOffset = Offset(dx = cX1.toFloat(), dy = cY1.toFloat())
+        val childOffset = PxPosition(cX1.px, cY1.px)
         val childLayoutNode = LayoutNode(cX1, cY1, cX2, cY2)
         val childPointerInputNode: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, childLayoutNode)
             pointerInputHandler = spy(MyPointerInputHandler())
         }
-        val middleOffset = Offset(dx = mX1.toFloat(), dy = mY1.toFloat())
+        val middleOffset = PxPosition(mX1.px, mY1.px)
         val middleLayoutNode: LayoutNode = LayoutNode(mX1, mY1, mX2, mY2).apply {
             emitInsertAt(0, childPointerInputNode)
         }
@@ -426,7 +435,7 @@ class PointerInputEventProcessorTest {
         }
         root.emitInsertAt(0, parentPointerInputNode)
 
-        val offset = Offset(pointerX.toFloat(), pointerY.toFloat())
+        val offset = PxPosition(pointerX.px, pointerY.px)
 
         val down = PointerInputEvent(0, 7L.millisecondsToTimestamp(), offset, true)
 
@@ -517,8 +526,8 @@ class PointerInputEventProcessorTest {
             emitInsertAt(0, childPointerInputNode2)
         }
 
-        val offset1 = Offset(25f, 25f)
-        val offset2 = Offset(75f, 75f)
+        val offset1 = PxPosition(25.px, 25.px)
+        val offset2 = PxPosition(75.px, 75.px)
 
         val down = PointerInputEvent(
             5L.millisecondsToTimestamp(),
@@ -538,7 +547,7 @@ class PointerInputEventProcessorTest {
             id = 1,
             current = PointerInputData(
                 5L.millisecondsToTimestamp(),
-                offset2 - Offset(50f, 50f),
+                offset2 - PxPosition(50.px, 50.px),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -601,9 +610,9 @@ class PointerInputEventProcessorTest {
             emitInsertAt(2, childPointerInputNode3)
         }
 
-        val offset1 = Offset(25f, 25f)
-        val offset2 = Offset(75f, 75f)
-        val offset3 = Offset(125f, 125f)
+        val offset1 = PxPosition(25.px, 25.px)
+        val offset2 = PxPosition(75.px, 75.px)
+        val offset3 = PxPosition(125.px, 125.px)
 
         val down = PointerInputEvent(
             5L.millisecondsToTimestamp(),
@@ -624,7 +633,7 @@ class PointerInputEventProcessorTest {
             id = 1,
             current = PointerInputData(
                 5L.millisecondsToTimestamp(),
-                offset2 - Offset(50f, 50f),
+                offset2 - PxPosition(50.px, 50.px),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -634,7 +643,7 @@ class PointerInputEventProcessorTest {
             id = 2,
             current = PointerInputData(
                 5L.millisecondsToTimestamp(),
-                offset3 - Offset(100f, 100f),
+                offset3 - PxPosition(100.px, 100.px),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -698,9 +707,9 @@ class PointerInputEventProcessorTest {
             emitInsertAt(1, childPointerInputNode2)
         }
 
-        val offset1 = Offset(50f, 25f)
-        val offset2 = Offset(50f, 75f)
-        val offset3 = Offset(50f, 125f)
+        val offset1 = PxPosition(50.px, 25.px)
+        val offset2 = PxPosition(50.px, 75.px)
+        val offset3 = PxPosition(50.px, 125.px)
 
         val down = PointerInputEvent(
             7L.millisecondsToTimestamp(),
@@ -721,7 +730,7 @@ class PointerInputEventProcessorTest {
             id = 1,
             current = PointerInputData(
                 7L.millisecondsToTimestamp(),
-                offset2 - Offset(25f, 50f),
+                offset2 - PxPosition(25.px, 50.px),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -786,9 +795,9 @@ class PointerInputEventProcessorTest {
             emitInsertAt(1, childPointerInputNode2)
         }
 
-        val offset1 = Offset(25f, 50f)
-        val offset2 = Offset(75f, 50f)
-        val offset3 = Offset(125f, 50f)
+        val offset1 = PxPosition(25.px, 50.px)
+        val offset2 = PxPosition(75.px, 50.px)
+        val offset3 = PxPosition(125.px, 50.px)
 
         val down = PointerInputEvent(
             11L.millisecondsToTimestamp(),
@@ -809,7 +818,7 @@ class PointerInputEventProcessorTest {
             id = 1,
             current = PointerInputData(
                 11L.millisecondsToTimestamp(),
-                offset2 - Offset(50f, 25f),
+                offset2 - PxPosition(50.px, 25.px),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -860,7 +869,7 @@ class PointerInputEventProcessorTest {
             emitInsertAt(0, childPointerInputNode3)
         }
 
-        val offset1 = Offset(50f, 75f)
+        val offset1 = PxPosition(50.px, 75.px)
 
         val down = PointerInputEvent(
             7L.millisecondsToTimestamp(),
@@ -873,7 +882,7 @@ class PointerInputEventProcessorTest {
             id = 0,
             current = PointerInputData(
                 7L.millisecondsToTimestamp(),
-                offset1 - Offset(25f, 50f),
+                offset1 - PxPosition(25.px, 50.px),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -919,7 +928,7 @@ class PointerInputEventProcessorTest {
             emitInsertAt(0, layoutNode4)
         }
 
-        val offset1 = Offset(499f, 499f)
+        val offset1 = PxPosition(499.px, 499.px)
 
         val downEvent = PointerInputEvent(
             7L.millisecondsToTimestamp(),
@@ -932,7 +941,7 @@ class PointerInputEventProcessorTest {
             id = 0,
             current = PointerInputData(
                 7L.millisecondsToTimestamp(),
-                offset1 - Offset(1f + 2f + 3f + 4f, 5f + 6f + 7f + 8f),
+                offset1 - PxPosition(1.px + 2.px + 3.px + 4.px, 5.px + 6.px + 7.px + 8.px),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -987,7 +996,7 @@ class PointerInputEventProcessorTest {
             emitInsertAt(0, layoutNode5)
         }
 
-        val offset1 = Offset(499f, 499f)
+        val offset1 = PxPosition(499.px, 499.px)
 
         val downEvent = PointerInputEvent(
             3L.millisecondsToTimestamp(),
@@ -1000,7 +1009,10 @@ class PointerInputEventProcessorTest {
             id = 0,
             current = PointerInputData(
                 3L.millisecondsToTimestamp(),
-                offset1 - Offset(1f + 2f + 3f + 4f + 5f, 6f + 7f + 8f + 9f + 10f),
+                offset1 - PxPosition(
+                    1.px + 2.px + 3.px + 4.px + 5.px,
+                    6.px + 7.px + 8.px + 9.px + 10.px
+                ),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -1011,7 +1023,7 @@ class PointerInputEventProcessorTest {
             id = 0,
             current = PointerInputData(
                 3L.millisecondsToTimestamp(),
-                offset1 - Offset(3f + 4f + 5f, 8f + 9f + 10f),
+                offset1 - PxPosition(3.px + 4.px + 5.px, 8.px + 9.px + 10.px),
                 true
             ),
             previous = PointerInputData(null, null, false),
@@ -1056,7 +1068,7 @@ class PointerInputEventProcessorTest {
         }
 
         val down = PointerInputEvent(
-            1, 0L.millisecondsToTimestamp(), Offset(50f, 50f), true
+            1, 0L.millisecondsToTimestamp(), PxPosition(50.px, 50.px), true
         )
 
         // Act
@@ -1086,7 +1098,7 @@ class PointerInputEventProcessorTest {
         }
 
         val down = PointerInputEvent(
-            1, 0L.millisecondsToTimestamp(), Offset(50f, 50f), true
+            1, 0L.millisecondsToTimestamp(), PxPosition(50.px, 50.px), true
         )
 
         // Act
@@ -1108,7 +1120,7 @@ class PointerInputEventProcessorTest {
         }
 
         val down = PointerInputEvent(
-            1, 0L.millisecondsToTimestamp(), Offset(50f, 50f), true
+            1, 0L.millisecondsToTimestamp(), PxPosition(50.px, 50.px), true
         )
 
         // Act
@@ -1135,7 +1147,7 @@ class PointerInputEventProcessorTest {
         }
 
         val down = PointerInputEvent(
-            1, 0L.millisecondsToTimestamp(), Offset(50f, 50f), true
+            1, 0L.millisecondsToTimestamp(), PxPosition(50.px, 50.px), true
         )
 
         // Act
@@ -1157,7 +1169,7 @@ class PointerInputEventProcessorTest {
         }
 
         val down = PointerInputEvent(
-            1, 0L.millisecondsToTimestamp(), Offset(50f, 50f), true
+            1, 0L.millisecondsToTimestamp(), PxPosition(50.px, 50.px), true
         )
 
         // Act
@@ -1187,7 +1199,7 @@ class PointerInputEventProcessorTest {
         }
         root.emitInsertAt(0, parentPointerInputNode)
 
-        val offset = Offset(50f, 50f)
+        val offset = PxPosition(50.px, 50.px)
 
         val down = PointerInputEvent(0, 7L.millisecondsToTimestamp(), offset, true)
         val up = PointerInputEvent(0, 11L.millisecondsToTimestamp(), null, false)
@@ -1239,7 +1251,7 @@ class PointerInputEventProcessorTest {
     private fun PointerInputEventData(
         id: Int,
         timestamp: Timestamp,
-        position: Offset?,
+        position: PxPosition?,
         down: Boolean
     ): PointerInputEventData {
         val pointerInputData = PointerInputData(timestamp, position, down)
@@ -1250,7 +1262,7 @@ class PointerInputEventProcessorTest {
     private fun PointerInputEvent(
         id: Int,
         timestamp: Timestamp,
-        position: Offset?,
+        position: PxPosition?,
         down: Boolean
     ): PointerInputEvent {
         return PointerInputEvent(

@@ -64,6 +64,18 @@ class PxTest {
 
     @Test
     fun addOperator() {
+        assertEquals(2.5f, (1.5.px + 1.ipx).value)
+        assertEquals(10.25f, (6.25.px + 4.ipx).value)
+    }
+
+    @Test
+    fun subtractIntPxOperator() {
+        assertEquals(-.5f, (3.5.px - 4.ipx).value)
+        assertEquals(1.25f, (10.25.px - 9.ipx).value)
+    }
+
+    @Test
+    fun addIntPxOperator() {
         assertEquals(2f, (1.px + 1.px).value, 0f)
         assertEquals(10f, (6.px + 4.px).value, 0f)
     }
