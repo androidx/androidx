@@ -32,7 +32,7 @@ import java.util.Set;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class FakeConfig implements Config.Reader {
+public final class FakeConfig implements Config {
 
     private final Config mConfig;
 
@@ -40,13 +40,53 @@ public final class FakeConfig implements Config.Reader {
         mConfig = config;
     }
 
+    // Start of the default implementation of Config
+    // *********************************************************************************************
+
+    // Implementations of Config default methods
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public Config getConfig() {
-        return mConfig;
+    public boolean containsOption(Option<?> id) {
+        return mConfig.containsOption(id);
     }
 
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
+        return mConfig.retrieveOption(id);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
+        return mConfig.retrieveOption(id, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void findOptions(String idStem, OptionMatcher matcher) {
+        mConfig.findOptions(idStem, matcher);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Set<Option<?>> listOptions() {
+        return mConfig.listOptions();
+    }
+
+    // End of the default implementation of Config
+    // *********************************************************************************************
+
     /** Builder for an empty Config */
-    public static final class Builder implements Config.Builder<FakeConfig, Builder> {
+    public static final class Builder implements ExtendableBuilder {
 
         private final MutableOptionsBundle mOptionsBundle;
 
@@ -59,84 +99,13 @@ public final class FakeConfig implements Config.Reader {
             return mOptionsBundle;
         }
 
-        @Override
-        public Builder builder() {
-            return this;
-        }
-
-        @Override
+        /**
+         * Builds an immutable {@link FakeConfig} from the current state.
+         *
+         * @return A {@link FakeConfig} populated with the current state.
+         */
         public FakeConfig build() {
             return new FakeConfig(OptionsBundle.from(mOptionsBundle));
         }
-
-        // Start of the default implementation of Config.Builder
-        // *****************************************************************************************
-
-        // Implementations of Config.Builder default methods
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        public <ValueT> Builder insertOption(Option<ValueT> opt, ValueT value) {
-            getMutableConfig().insertOption(opt, value);
-            return builder();
-        }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @Nullable
-        public <ValueT> Builder removeOption(Option<ValueT> opt) {
-            getMutableConfig().removeOption(opt);
-            return builder();
-        }
-
-        // End of the default implementation of Config.Builder
-        // *****************************************************************************************
     }
-
-    // Start of the default implementation of Config
-    // *********************************************************************************************
-
-    // Implementations of Config.Reader default methods
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public boolean containsOption(Option<?> id) {
-        return getConfig().containsOption(id);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
-        return getConfig().retrieveOption(id);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
-        return getConfig().retrieveOption(id, valueIfMissing);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public void findOptions(String idStem, OptionMatcher matcher) {
-        getConfig().findOptions(idStem, matcher);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public Set<Option<?>> listOptions() {
-        return getConfig().listOptions();
-    }
-
-    // End of the default implementation of Config
-    // *********************************************************************************************
 }

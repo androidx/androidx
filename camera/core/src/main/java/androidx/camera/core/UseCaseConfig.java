@@ -25,8 +25,12 @@ import androidx.camera.core.SessionConfig.OptionUnpacker;
  * Configuration containing options for use cases.
  *
  * @param <T> The use case being configured.
+ * @hide
  */
-public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T> {
+@RestrictTo(Scope.LIBRARY_GROUP)
+public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Config {
+    // Option Declarations:
+    // *********************************************************************************************
 
     /**
      * Option: camerax.core.useCase.defaultSessionConfig
@@ -55,6 +59,8 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T> {
     @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Integer> OPTION_SURFACE_OCCUPANCY_PRIORITY =
             Option.create("camerax.core.useCase.surfaceOccupancyPriority", int.class);
+
+    // *********************************************************************************************
 
     /**
      * Retrieves the default session configuration for this use case.
@@ -117,9 +123,6 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T> {
     @RestrictTo(Scope.LIBRARY_GROUP)
     SessionConfig.OptionUnpacker getOptionUnpacker();
 
-    // Option Declarations:
-    // *********************************************************************************************
-
     /**
      * Retrieves the surface occupancy priority of the target intending to use from this
      * configuration.
@@ -152,8 +155,8 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T> {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    interface Builder<T, C extends Config, B extends Builder<T, C, B>>
-            extends TargetConfig.Builder<T, C, B> {
+    interface Builder<T extends UseCase, C extends UseCaseConfig<T>, B> extends
+            TargetConfig.Builder<T, B>, ExtendableBuilder {
 
         /**
          * Sets the default session configuration for this use case.
@@ -193,5 +196,13 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T> {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         B setSurfaceOccupancyPriority(int priority);
+
+        /**
+         * Builds the configuration for the target use case.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        C build();
     }
 }

@@ -112,7 +112,7 @@ public abstract class PreviewExtender {
         for (Option<?> option : config.listOptions()) {
             @SuppressWarnings("unchecked") // Options/values are being copied directly
                     Option<Object> objectOpt = (Option<Object>) option;
-            mBuilder.insertOption(objectOpt, config.retrieveOption(objectOpt));
+            mBuilder.getMutableConfig().insertOption(objectOpt, config.retrieveOption(objectOpt));
         }
     }
 }
