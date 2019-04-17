@@ -18,6 +18,7 @@ package com.example.androidx.webkit;
 
 import android.app.Activity;
 import android.content.pm.PackageInfo;
+import android.widget.TextView;
 
 import androidx.webkit.WebViewCompat;
 
@@ -40,6 +41,18 @@ public final class WebkitHelpers {
         final String oldTitle = activity.getTitle().toString();
         final String newTitle = oldTitle + " (" + webViewVersion + ")";
         activity.setTitle(newTitle);
+    }
+
+    /**
+     * Replaces the entire view hierachy of this {@link Activity} to show an error message.
+     *
+     * @param activity the Activity to show the message in.
+     * @param messageResourceId the resource ID of the message to show.
+     */
+    public static void showMessageInActivity(Activity activity, int messageResourceId) {
+        TextView errorMessage = new TextView(activity);
+        errorMessage.setText(messageResourceId);
+        activity.setContentView(errorMessage);
     }
 
     // Do not instantiate this class.
