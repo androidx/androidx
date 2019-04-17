@@ -51,6 +51,7 @@ import androidx.collection.ArraySet;
 import androidx.core.util.DebugUtils;
 import androidx.core.util.LogWriter;
 import androidx.core.view.OneShotPreDrawListener;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 
@@ -661,6 +662,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (f.mDeferStart && f.mState < Fragment.STARTED && newState > Fragment.ACTIVITY_CREATED) {
             newState = Fragment.ACTIVITY_CREATED;
         }
+        // Don't allow the Fragment to go above its max lifecycle state
+        newState = Math.min(newState, f.mMaxState.ordinal());
         if (f.mState <= newState) {
             // For fragments that are created from a layout, when restoring from
             // state we don't want to allow them to be created until they are
@@ -2684,6 +2687,15 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     @Nullable
     public Fragment getPrimaryNavigationFragment() {
         return mPrimaryNav;
+    }
+
+    public void setMaxLifecycle(Fragment f, Lifecycle.State state) {
+        if ((mActive.get(f.mWho) != f
+                || (f.mHost != null && f.getFragmentManager() != this))) {
+            throw new IllegalArgumentException("Fragment " + f
+                    + " is not an active fragment of FragmentManager " + this);
+        }
+        f.mMaxState = state;
     }
 
     @Override
