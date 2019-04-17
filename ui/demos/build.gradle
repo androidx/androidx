@@ -10,6 +10,7 @@ dependencies {
     implementation(project(":ui-android-view"))
     implementation(project(":ui-r4a"))
     implementation(project(":ui-animation:integration-tests:ui-animation-demos"))
+    implementation(project(":ui-framework:integration-tests:ui-framework-demos"))
     implementation(project(":ui-layout:integration-tests:ui-layout-demos"))
     implementation(project(":ui-material:integration-tests:ui-material-demos"))
     api(KOTLIN_R4A_STDLIB)

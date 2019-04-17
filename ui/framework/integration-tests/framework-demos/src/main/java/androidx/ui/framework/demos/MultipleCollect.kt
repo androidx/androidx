@@ -16,30 +16,37 @@
 
 @file:Suppress("PLUGIN_WARNING")
 
-package androidx.ui.demos
+package androidx.ui.framework.demos
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
+import androidx.ui.core.Layout
 import androidx.ui.core.MultiChildLayout
+import androidx.ui.core.coerceIn
 import androidx.ui.core.ipx
 import androidx.ui.core.toRect
 import androidx.ui.core.vectorgraphics.Brush
 import androidx.ui.core.vectorgraphics.SolidColor
-import androidx.ui.layout.Container
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
-// TODO(malkov): for now it's copypasted ColoredRect from material, remove later
 @Composable
 fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
-    <Container width height>
+    <Layout layoutBlock={ _, constraints ->
+        layout(
+            width?.toIntPx()?.coerceIn(constraints.minWidth, constraints.maxWidth)
+                ?: constraints.maxWidth,
+            height?.toIntPx()?.coerceIn(constraints.minHeight, constraints.maxHeight)
+                ?: constraints.maxHeight
+        ){}
+    }>
         <DrawFillRect brush />
-    </Container>
+    </Layout>
 }
 
 @Composable

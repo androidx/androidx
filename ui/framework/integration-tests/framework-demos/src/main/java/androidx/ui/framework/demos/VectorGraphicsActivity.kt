@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.demos
+package androidx.ui.framework.demos
 
 import android.app.Activity
 import android.graphics.Color
@@ -44,7 +44,8 @@ class VectorGraphicsActivity : Activity() {
             }
 
             <LinearLayout orientation=LinearLayout.VERTICAL>
-                <vectorResource res resId=androidx.ui.demos.R.drawable.ic_crane_logo_text />
+                <vectorResource res
+                    resId=androidx.ui.framework.demos.R.drawable.ic_crane_logo_text />
                 <vectorShape />
             </LinearLayout>
         }

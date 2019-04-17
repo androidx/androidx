@@ -45,24 +45,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MultipleCollectActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Multiple collects measure">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".VectorGraphicsActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Vector Graphics Activity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".CraneTextActivity"
             android:configChanges="orientation|screenSize"
             android:label="Crane Text Activity">
