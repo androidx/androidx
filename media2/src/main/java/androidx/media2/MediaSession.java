@@ -1241,6 +1241,9 @@ public class MediaSession implements AutoCloseable {
          * @throws IllegalArgumentException if id is {@code null}.
          * @return
          */
+        // Note: This ID is not visible to the controllers. ID is introduced in order to prevent
+        // apps from creating multiple sessions without any clear reasons. If they create two
+        // sessions with the same ID in a process, then an IllegalStateException will be thrown.
         @NonNull U setId(@NonNull String id) {
             if (id == null) {
                 throw new IllegalArgumentException("id shouldn't be null");
