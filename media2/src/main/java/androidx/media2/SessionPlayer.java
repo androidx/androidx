@@ -425,6 +425,17 @@ public abstract class SessionPlayer implements AutoCloseable {
     public abstract float getPlaybackSpeed();
 
     /**
+     * Returns the size of the video.
+     *
+     * @return the size of the video. The width and height of size could be 0 if there is no video
+     * or the size has not been determined yet.
+     * The {@link PlayerCallback} can be registered via {@link #registerPlayerCallback} to
+     * receive a notification {@link PlayerCallback#onVideoSizeChanged} when the size
+     * is available.
+     */
+    public abstract @NonNull VideoSize getVideoSize();
+
+    /**
      * Sets a list of {@link MediaItem} with metadata. Use this or {@link #setMediaItem} to specify
      * which items to play.
      * <p>
@@ -948,6 +959,21 @@ public abstract class SessionPlayer implements AutoCloseable {
          */
         public void onAudioAttributesChanged(@NonNull SessionPlayer player,
                 @Nullable AudioAttributesCompat attributes) {
+        }
+
+        /**
+         * Called to indicate the video size
+         * <p>
+         * The video size (width and height) could be 0 if there was no video,
+         * no display surface was set, or the value was not determined yet.
+         *
+         * @param player the player associated with this callback
+         * @param item the MediaItem of this media item
+         * @param size the size of the video
+         * @see #getVideoSize()
+         */
+        public void onVideoSizeChanged(
+                @NonNull SessionPlayer player, @NonNull MediaItem item, @NonNull VideoSize size) {
         }
     }
 
