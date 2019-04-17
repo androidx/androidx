@@ -186,7 +186,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final TestUtils.Monitor onVideoRenderingStartCalled = new TestUtils.Monitor();
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
-            public void onVideoSizeChanged(MediaPlayer mp, MediaItem dsd, VideoSize size) {
+            public void onVideoSizeChanged(SessionPlayer mp, MediaItem dsd, VideoSize size) {
                 if (size.getWidth() == 0 && size.getHeight() == 0) {
                     // A size of 0x0 can be sent initially one time when using NuPlayer.
                     assertFalse(onVideoSizeChangedCalled.isSignalled());
@@ -286,7 +286,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final TestUtils.Monitor onVideoRenderingStartCalled = new TestUtils.Monitor();
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
-            public void onVideoSizeChanged(MediaPlayer mp, MediaItem dsd, VideoSize size) {
+            public void onVideoSizeChanged(SessionPlayer mp, MediaItem dsd, VideoSize size) {
                 if (size.getWidth() == 0 && size.getHeight() == 0) {
                     // A size of 0x0 can be sent initially one time when using NuPlayer.
                     assertFalse(onVideoSizeChangedCalled.isSignalled());

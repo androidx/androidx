@@ -380,7 +380,6 @@ package androidx.media2 {
     method public void onInfo(androidx.media2.MediaPlayer, androidx.media2.MediaItem, int, int);
     method public void onMediaTimeDiscontinuity(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.MediaTimestamp);
     method public void onTimedMetaDataAvailable(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.TimedMetaData);
-    method public void onVideoSizeChanged(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.VideoSize);
   }
 
   public static final class MediaPlayer.TrackInfo {
@@ -608,6 +607,7 @@ package androidx.media2 {
     method @IntRange(from=androidx.media2.SessionPlayer.INVALID_ITEM_INDEX) public abstract int getPreviousMediaItemIndex();
     method public abstract int getRepeatMode();
     method public abstract int getShuffleMode();
+    method public abstract androidx.media2.VideoSize getVideoSize();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> pause();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> play();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> prepare();
@@ -658,6 +658,7 @@ package androidx.media2 {
     method public void onRepeatModeChanged(androidx.media2.SessionPlayer, int);
     method public void onSeekCompleted(androidx.media2.SessionPlayer, long);
     method public void onShuffleModeChanged(androidx.media2.SessionPlayer, int);
+    method public void onVideoSizeChanged(androidx.media2.SessionPlayer, androidx.media2.MediaItem, androidx.media2.VideoSize);
   }
 
   public static class SessionPlayer.PlayerResult {
@@ -746,9 +747,10 @@ package androidx.media2 {
     method public androidx.media2.UriMediaItem.Builder setStartPosition(long);
   }
 
-  public final class VideoSize {
-    method public int getHeight();
-    method public int getWidth();
+  public final class VideoSize implements androidx.versionedparcelable.VersionedParcelable {
+    ctor public VideoSize(@IntRange(from=0) int, @IntRange(from=0) int);
+    method @IntRange(from=0) public int getHeight();
+    method @IntRange(from=0) public int getWidth();
   }
 
 }
