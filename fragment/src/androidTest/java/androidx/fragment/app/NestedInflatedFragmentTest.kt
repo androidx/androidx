@@ -84,6 +84,7 @@ class NestedInflatedFragmentTest {
 
     open class ParentFragment : Fragment(R.layout.nested_inflated_fragment_parent)
 
+    @SuppressWarnings("deprecation")
     class UserVisibleHintParentFragment : ParentFragment() {
         override fun setUserVisibleHint(isVisibleToUser: Boolean) {
             super.setUserVisibleHint(isVisibleToUser)

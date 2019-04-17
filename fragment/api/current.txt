@@ -58,7 +58,7 @@ package androidx.fragment.app {
     method public final androidx.fragment.app.Fragment? getTargetFragment();
     method public final int getTargetRequestCode();
     method public final CharSequence getText(@StringRes int);
-    method public boolean getUserVisibleHint();
+    method @Deprecated public boolean getUserVisibleHint();
     method public android.view.View? getView();
     method @MainThread public androidx.lifecycle.LifecycleOwner getViewLifecycleOwner();
     method public androidx.lifecycle.LiveData<androidx.lifecycle.LifecycleOwner> getViewLifecycleOwnerLiveData();
@@ -135,7 +135,7 @@ package androidx.fragment.app {
     method public void setSharedElementEnterTransition(Object?);
     method public void setSharedElementReturnTransition(Object?);
     method public void setTargetFragment(androidx.fragment.app.Fragment?, int);
-    method public void setUserVisibleHint(boolean);
+    method @Deprecated public void setUserVisibleHint(boolean);
     method public boolean shouldShowRequestPermissionRationale(String);
     method public void startActivity(android.content.Intent!);
     method public void startActivity(android.content.Intent!, android.os.Bundle?);
