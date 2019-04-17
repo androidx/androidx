@@ -7,7 +7,6 @@ package androidx.ui.core {
     method public androidx.ui.core.Constraints getConstraints();
     method public kotlin.jvm.functions.Function1<androidx.ui.core.Constraints,kotlin.Unit> getOnMeasureRecompose();
     method public androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? getRef();
-    method public boolean getRequestLayoutOnNodesLayoutChange();
     method public androidx.ui.core.LayoutNode getRoot();
     method public void onAttach(androidx.ui.core.ComponentNode node);
     method public void onDetach(androidx.ui.core.ComponentNode node);
@@ -19,11 +18,9 @@ package androidx.ui.core {
     method public void setConstraints(androidx.ui.core.Constraints p);
     method public void setOnMeasureRecompose(kotlin.jvm.functions.Function1<? super androidx.ui.core.Constraints,kotlin.Unit> p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? value);
-    method public void setRequestLayoutOnNodesLayoutChange(boolean p);
     property public final androidx.ui.core.Constraints constraints;
     property public final kotlin.jvm.functions.Function1<androidx.ui.core.Constraints,kotlin.Unit> onMeasureRecompose;
     property public final androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? ref;
-    property public final boolean requestLayoutOnNodesLayoutChange;
     property public final androidx.ui.core.LayoutNode root;
   }
 

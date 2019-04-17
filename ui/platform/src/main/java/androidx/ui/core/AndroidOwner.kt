@@ -49,7 +49,6 @@ class AndroidCraneView constructor(context: Context)
     private val modelToDrawNodes = mutableMapOf<Any, MutableSet<DrawNode>>()
     private val drawNodeToModels = mutableMapOf<DrawNode, MutableSet<Any>>()
 
-    var requestLayoutOnNodesLayoutChange = true
     var onMeasureRecompose: (Constraints) -> Unit = {}
     var ref: Ref<AndroidCraneView>? = null
         set(value) {
@@ -118,19 +117,10 @@ class AndroidCraneView constructor(context: Context)
     }
 
     override fun onSizeChange(layoutNode: LayoutNode) {
-        // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
-//        ownerScope.launch {
-        if (requestLayoutOnNodesLayoutChange) requestLayout()
-//        }
-
         adjustedLayouts.add(layoutNode)
     }
 
     override fun onPositionChange(layoutNode: LayoutNode) {
-        // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
-//        ownerScope.launch {
-        if (requestLayoutOnNodesLayoutChange) requestLayout()
-//        }
         adjustedLayouts.add(layoutNode)
     }
 
