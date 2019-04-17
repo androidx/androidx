@@ -40,17 +40,9 @@ internal class ComplexLayoutState(
     internal var minIntrinsicHeightBlock: IntrinsicMeasurementBlock = IntrinsicMeasurementBlockStub,
     internal var maxIntrinsicHeightBlock: IntrinsicMeasurementBlock = IntrinsicMeasurementBlockStub,
     internal val density: Density
-) : Measurable, Placeable({ _, _ -> }) {
+) : Measurable, Placeable() {
     override val parentData: Any?
         get() = layoutNode.parentData
-
-    init {
-        // TODO(popam): redefine API of Placeable when ComplexMeasureBox is gone
-        placeBlock = { x: IntPx, y: IntPx ->
-            moveTo(x, y)
-            placeChildren()
-        }
-    }
 
     internal var positioningBlock: PositioningBlockReceiver.() -> Unit = {}
 
@@ -119,6 +111,10 @@ internal class ComplexLayoutState(
 
     override val width: IntPx get() = layoutNode.width
     override val height: IntPx get() = layoutNode.height
+    override fun place(x: IntPx, y: IntPx) {
+        moveTo(x, y)
+        placeChildren()
+    }
 }
 
 internal class ComplexLayoutStateMeasurablesList(
@@ -217,8 +213,9 @@ class LayoutBlockReceiver internal constructor(
         (this as ComplexLayoutState).maxIntrinsicHeight(w)
 }
 
-internal class DummyPlaceable(override val width: IntPx, override val height: IntPx) :
-    Placeable({ _, _ -> })
+internal class DummyPlaceable(override val width: IntPx, override val height: IntPx) : Placeable() {
+    override fun place(x: IntPx, y: IntPx) { }
+}
 
 /**
  * A simpler version of [ComplexLayout], intrinsic dimensions do not need to be defined.
