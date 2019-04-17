@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.ui.demos
+package androidx.ui.layout.demos
 
 import android.app.Activity
 import android.os.Bundle
 import com.google.r4a.setContent
 import com.google.r4a.composer
 
-open class ComplexLayoutActivity : Activity() {
+class ComplexLayoutActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

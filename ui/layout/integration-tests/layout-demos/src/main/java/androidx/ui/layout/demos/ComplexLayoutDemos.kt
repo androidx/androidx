@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.demos
+package androidx.ui.layout.demos
 
 import android.os.Handler
 import androidx.ui.core.Constraints
@@ -468,4 +468,13 @@ fun Collection<IntPx>.max(): IntPx {
         result = max(result, item)
     }
     return result
+}
+
+@Composable
+fun DrawRectangle(color: Color) {
+    val paint = Paint()
+    paint.color = color
+    <Draw> canvas, parentSize ->
+        canvas.drawRect(parentSize.toRect(), paint)
+    </Draw>
 }

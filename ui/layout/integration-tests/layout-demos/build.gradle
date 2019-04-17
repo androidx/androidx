@@ -15,10 +15,9 @@ dependencies {
     api "androidx.activity:activity:1.0.0-alpha01"
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
-    implementation project(':ui-framework-adapter')
-    // TODO: remove this dependency after CraneRects is cleaned up
-    implementation project(':ui-layout')
-    implementation project(':ui-framework')
+    implementation project(":compose-runtime")
+    implementation project(":ui-framework")
+    implementation project(":ui-layout")
 }
 
 android {
@@ -28,13 +27,3 @@ android {
         }
     }
 }
-
-androidx {
-    name = "Crane R4A Composables"
-    publish = true
-    mavenVersion = LibraryVersions.UI
-    mavenGroup = LibraryGroups.UI
-    inceptionYear = "2018"
-    description = "This is a temporary project for R4A composables."
-}
-

@@ -54,15 +54,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ComplexLayoutActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Complex layout activity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".VectorGraphicsActivity"
             android:configChanges="orientation|screenSize"
             android:label="Vector Graphics Activity">
@@ -75,15 +66,6 @@
         <activity android:name=".CraneTextActivity"
             android:configChanges="orientation|screenSize"
             android:label="Crane Text Activity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".LayoutActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Layouts">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
