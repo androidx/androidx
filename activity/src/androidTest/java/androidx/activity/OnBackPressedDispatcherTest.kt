@@ -55,7 +55,7 @@ class OnBackPressedHandlerTest {
 
     @UiThreadTest
     @Test
-    fun testRemoveCallback() {
+    fun testRemove() {
         val onBackPressedCallback = CountingOnBackPressedCallback()
 
         dispatcher.addCallback(onBackPressedCallback)
@@ -67,7 +67,7 @@ class OnBackPressedHandlerTest {
             .that(onBackPressedCallback.count)
             .isEqualTo(1)
 
-        onBackPressedCallback.removeCallback()
+        onBackPressedCallback.remove()
         assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
                 "are registered")
             .that(dispatcher.hasEnabledCallbacks())
@@ -81,11 +81,11 @@ class OnBackPressedHandlerTest {
 
     @UiThreadTest
     @Test
-    fun testRemoveCallbackInCallback() {
+    fun testRemoveInCallback() {
         val onBackPressedCallback = object : CountingOnBackPressedCallback() {
             override fun handleOnBackPressed() {
                 super.handleOnBackPressed()
-                removeCallback()
+                remove()
             }
         }
 

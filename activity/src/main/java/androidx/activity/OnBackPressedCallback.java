@@ -34,7 +34,7 @@ import java.util.ArrayList;
  * {@link OnBackPressedDispatcher#addCallback(LifecycleOwner, OnBackPressedCallback)}
  * which controls when the callback is added and removed to the dispatcher.
  * <p>
- * By calling {@link #removeCallback()}, this callback will be removed from any
+ * By calling {@link #remove()}, this callback will be removed from any
  * {@link OnBackPressedDispatcher} it has been added to. It is strongly recommended
  * to instead disable this callback to handle temporary changes in state.
  *
@@ -87,7 +87,7 @@ public abstract class OnBackPressedCallback {
      * added to.
      */
     @MainThread
-    public void removeCallback() {
+    public void remove() {
         for (Cancellable cancellable: mCancellables) {
             cancellable.cancel();
         }
