@@ -1987,16 +1987,21 @@ public abstract class Transition implements Cloneable {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     void forceToEnd(ViewGroup sceneRoot) {
-        ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
+        final ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
         int numOldAnims = runningAnimators.size();
-        if (sceneRoot != null) {
-            WindowIdImpl windowId = ViewUtils.getWindowId(sceneRoot);
-            for (int i = numOldAnims - 1; i >= 0; i--) {
-                AnimationInfo info = runningAnimators.valueAt(i);
-                if (info.mView != null && windowId != null && windowId.equals(info.mWindowId)) {
-                    Animator anim = runningAnimators.keyAt(i);
-                    anim.end();
-                }
+        if (sceneRoot == null || numOldAnims == 0) {
+            return;
+        }
+
+        WindowIdImpl windowId = ViewUtils.getWindowId(sceneRoot);
+        final ArrayMap<Animator, AnimationInfo> oldAnimators = new ArrayMap(runningAnimators);
+        runningAnimators.clear();
+
+        for (int i = numOldAnims - 1; i >= 0; i--) {
+            AnimationInfo info = oldAnimators.valueAt(i);
+            if (info.mView != null && windowId != null && windowId.equals(info.mWindowId)) {
+                Animator anim = oldAnimators.keyAt(i);
+                anim.end();
             }
         }
     }
