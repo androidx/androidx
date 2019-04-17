@@ -19,9 +19,11 @@ package androidx.ui.core
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.IllegalArgumentException
 
 @RunWith(JUnit4::class)
 class ConstraintsTest {
@@ -78,18 +80,6 @@ class ConstraintsTest {
     }
 
     @Test
-    fun satisfiable() {
-        val satisfiable = Constraints(1.ipx, 2.ipx, 1.ipx, 2.ipx)
-        assertTrue(satisfiable.satisfiable)
-
-        val nonSatisfiable1 = Constraints(2.ipx, 1.ipx, 0.ipx, 1.ipx)
-        assertFalse(nonSatisfiable1.satisfiable)
-
-        val nonSatisfiable2 = Constraints(0.ipx, 1.ipx, 2.ipx, 1.ipx)
-        assertFalse(nonSatisfiable2.satisfiable)
-    }
-
-    @Test
     fun enforce() {
         val constraints = Constraints(5.ipx, 10.ipx, 5.ipx, 10.ipx)
         constraints.enforce(Constraints(4.ipx, 11.ipx, 4.ipx, 11.ipx)).assertEquals(
@@ -121,6 +111,18 @@ class ConstraintsTest {
         assertEquals(IntPxSize(5.ipx, 5.ipx), constraints.constrain(IntPxSize(7.ipx, 7.ipx)))
     }
 
+    @Test
+    fun validity() {
+        assertInvalid(minWidth = IntPx.Infinity)
+        assertInvalid(minHeight = IntPx.Infinity)
+        assertInvalid(minWidth = 3.ipx, maxWidth = 2.ipx)
+        assertInvalid(minHeight = 3.ipx, maxHeight = 2.ipx)
+        assertInvalid(minWidth = -1.ipx)
+        assertInvalid(maxWidth = -1.ipx)
+        assertInvalid(minHeight = -1.ipx)
+        assertInvalid(maxHeight = -1.ipx)
+    }
+
     private fun Constraints.assertEquals(
         minWidth: IntPx,
         maxWidth: IntPx,
@@ -129,5 +131,20 @@ class ConstraintsTest {
     ): Boolean {
         return this.minWidth == minWidth && this.maxWidth == maxWidth &&
                 this.minHeight == minHeight && this.maxHeight == maxHeight
+    }
+
+    private fun assertInvalid(
+        minWidth: IntPx = IntPx.Zero,
+        maxWidth: IntPx = IntPx.Infinity,
+        minHeight: IntPx = IntPx.Zero,
+        maxHeight: IntPx = IntPx.Infinity
+    ) {
+        val constraints: Constraints
+        try {
+            constraints = Constraints(minWidth, maxWidth, minHeight, maxHeight)
+        } catch (_: IllegalArgumentException) {
+            return
+        }
+        fail("Invalid constraints $constraints are considered valid")
     }
 }

@@ -35,8 +35,22 @@ data class DpConstraints(
     val maxHeight: Dp = Dp.Infinity
 ) {
     init {
-        assert(minWidth.isFinite())
-        assert(minHeight.isFinite())
+        require(minWidth.isFinite()) { "Constraints#minWidth should be finite" }
+        require(minHeight.isFinite()) { "Constraints#minHeight should be finite" }
+        require(!minWidth.value.isNaN()) { "Constraints#minWidth should not be NaN" }
+        require(!maxWidth.value.isNaN()) { "Constraints#maxWidth should not be NaN" }
+        require(!minHeight.value.isNaN()) { "Constraints#minHeight should not be NaN" }
+        require(!maxHeight.value.isNaN()) { "Constraints#maxHeight should not be NaN" }
+        require(minWidth <= maxWidth) {
+            "Constraints should be satisfiable, but minWidth > maxWidth"
+        }
+        require(minHeight <= maxHeight) {
+            "Constraints should be satisfiable, but minHeight > maxHeight"
+        }
+        require(minWidth >= 0.dp) { "Constraints#minWidth should be non-negative" }
+        require(maxWidth >= 0.dp) { "Constraints#maxWidth should be non-negative" }
+        require(minHeight >= 0.dp) { "Constraints#minHeight should be non-negative" }
+        require(maxHeight >= 0.dp) { "Constraints#maxHeight should be non-negative" }
     }
 
     companion object {

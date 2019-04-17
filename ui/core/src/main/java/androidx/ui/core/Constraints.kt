@@ -44,8 +44,18 @@ data class Constraints(
     val maxHeight: IntPx = IntPx.Infinity
 ) {
     init {
-        assert(minWidth.isFinite())
-        assert(minHeight.isFinite())
+        require(minWidth.isFinite()) { "Constraints#minWidth should be finite" }
+        require(minHeight.isFinite()) { "Constraints#minHeight should be finite" }
+        require(minWidth <= maxWidth) {
+            "Constraints should be satisfiable, but minWidth > maxWidth"
+        }
+        require(minHeight <= maxHeight) {
+            "Constraints should be satisfiable, but minHeight > maxHeight"
+        }
+        require(minWidth >= IntPx.Zero) { "Constraints#minWidth should be non-negative" }
+        require(maxWidth >= IntPx.Zero) { "Constraints#maxWidth should be non-negative" }
+        require(minHeight >= IntPx.Zero) { "Constraints#minHeight should be non-negative" }
+        require(maxHeight >= IntPx.Zero) { "Constraints#maxHeight should be non-negative" }
     }
 
     companion object {
@@ -110,11 +120,6 @@ val Constraints.hasTightHeight get() = maxHeight == minHeight
  * Whether there is exactly one height value that satisfies the constraints.
  */
 val Constraints.isZero get() = maxWidth == IntPx.Zero || maxHeight == IntPx.Zero
-
-/**
- * Whether there is any size that satisfies the current constraints.
- */
-val Constraints.satisfiable get() = minWidth <= maxWidth && minHeight <= maxHeight
 
 /**
  * Returns the result of coercing the current constraints in a different set of constraints.
