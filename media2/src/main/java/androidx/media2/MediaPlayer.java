@@ -1629,15 +1629,7 @@ public class MediaPlayer extends SessionPlayer {
     }
 
 
-    /**
-     * Returns the size of the video.
-     *
-     * @return the size of the video. The width and height of size could be 0 if there is no video
-     * or the size has not been determined yet.
-     * The {@link PlayerCallback} can be registered via {@link #registerPlayerCallback} to
-     * receive a notification {@link PlayerCallback#onVideoSizeChanged} when the size
-     * is available.
-     */
+    @Override
     @NonNull
     public VideoSize getVideoSize() {
         return new VideoSize(mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
@@ -2647,9 +2639,9 @@ public class MediaPlayer extends SessionPlayer {
         public void onVideoSizeChanged(
                 MediaPlayer2 mp, final MediaItem item, final int width, final int height) {
             final VideoSize size = new VideoSize(width, height);
-            notifyMediaPlayerCallback(new MediaPlayerCallbackNotifier() {
+            notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                 @Override
-                public void callCallback(PlayerCallback callback) {
+                public void callCallback(SessionPlayer.PlayerCallback callback) {
                     callback.onVideoSizeChanged(MediaPlayer.this, item, size);
                 }
             });
@@ -2754,19 +2746,6 @@ public class MediaPlayer extends SessionPlayer {
      * events.
      */
     public abstract static class PlayerCallback extends SessionPlayer.PlayerCallback {
-        /**
-         * Called to indicate the video size
-         * <p>
-         * The video size (width and height) could be 0 if there was no video,
-         * no display surface was set, or the value was not determined yet.
-         *
-         * @param mp the player associated with this callback
-         * @param item the MediaItem of this media item
-         * @param size the size of the video
-         */
-        public void onVideoSizeChanged(
-                @NonNull MediaPlayer mp, @NonNull MediaItem item, @NonNull VideoSize size) { }
-
         /**
          * Called to indicate available timed metadata
          * <p>

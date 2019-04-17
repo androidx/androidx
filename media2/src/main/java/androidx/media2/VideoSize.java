@@ -16,38 +16,55 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
-import androidx.annotation.RestrictTo;
+import androidx.annotation.IntRange;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * Immutable class for describing video size.
  */
-public final class VideoSize {
+@VersionedParcelize
+public final class VideoSize implements VersionedParcelable {
+    @ParcelField(1)
+    int mWidth;
+    @ParcelField(2)
+    int mHeight;
+
     /**
      * Creates a new immutable VideoSize instance.
      *
      * @param width The width of the video
      * @param height The height of the video
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public VideoSize(int width, int height) {
+    public VideoSize(@IntRange(from = 0) int width, @IntRange(from = 0) int height) {
+        if (width < 0) {
+            throw new IllegalArgumentException("width can not be negative");
+        }
+        if (height < 0) {
+            throw new IllegalArgumentException("height can not be negative");
+        }
         mWidth = width;
         mHeight = height;
     }
 
     /**
+     * Used for VersionedParcelable
+     */
+    VideoSize() {
+    }
+
+    /**
      * Returns the width of the video.
      */
-    public int getWidth() {
+    public @IntRange(from = 0) int getWidth() {
         return mWidth;
     }
 
     /**
      * Returns the height of the video.
      */
-    public int getHeight() {
+    public @IntRange(from = 0) int getHeight() {
         return mHeight;
     }
 
@@ -93,7 +110,4 @@ public final class VideoSize {
         // assuming most sizes are <2^16, doing a rotate will give us perfect hashing
         return mHeight ^ ((mWidth << (Integer.SIZE / 2)) | (mWidth >>> (Integer.SIZE / 2)));
     }
-
-    private final int mWidth;
-    private final int mHeight;
 }
