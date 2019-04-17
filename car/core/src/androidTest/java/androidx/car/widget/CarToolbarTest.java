@@ -551,7 +551,7 @@ public class CarToolbarTest {
 
         // Since overflow items are set in onMeasure, need to wait for the views to be laid out.
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
-        mActivityRule.runOnUiThread(() -> mToolbar.showOverflowMenu());
+        mActivityRule.runOnUiThread(() -> mToolbar.setOverflowMenuShown(true));
 
         onView(withText(overflowItemText)).inRoot(isDialog()).check(matches(isDisplayed()));
     }
@@ -567,8 +567,8 @@ public class CarToolbarTest {
 
         mActivityRule.runOnUiThread(() -> {
             mToolbar.setMenuItems(Collections.singletonList(overflowItem));
-            mToolbar.showOverflowMenu();
-            mToolbar.hideOverflowMenu();
+            mToolbar.setOverflowMenuShown(true);
+            mToolbar.setOverflowMenuShown(false);
         });
 
         onView(withText(overflowItemText)).check(doesNotExist());
@@ -692,7 +692,7 @@ public class CarToolbarTest {
 
         onView(withText(ifRoomItemText)).check(doesNotExist());
 
-        mActivityRule.runOnUiThread(() -> mToolbar.showOverflowMenu());
+        mActivityRule.runOnUiThread(() -> mToolbar.setOverflowMenuShown(true));
 
         onView(withText(ifRoomItemText)).check(matches(isDisplayed()));
     }
