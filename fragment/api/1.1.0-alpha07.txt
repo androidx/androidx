@@ -322,6 +322,7 @@ package androidx.fragment.app {
 
   public abstract class FragmentPagerAdapter extends androidx.viewpager.widget.PagerAdapter {
     ctor public FragmentPagerAdapter(androidx.fragment.app.FragmentManager);
+    ctor public FragmentPagerAdapter(androidx.fragment.app.FragmentManager, boolean);
     method public abstract androidx.fragment.app.Fragment getItem(int);
     method public long getItemId(int);
     method public boolean isViewFromObject(android.view.View, Object);
@@ -329,6 +330,7 @@ package androidx.fragment.app {
 
   public abstract class FragmentStatePagerAdapter extends androidx.viewpager.widget.PagerAdapter {
     ctor public FragmentStatePagerAdapter(androidx.fragment.app.FragmentManager);
+    ctor public FragmentStatePagerAdapter(androidx.fragment.app.FragmentManager, boolean);
     method public abstract androidx.fragment.app.Fragment getItem(int);
     method public boolean isViewFromObject(android.view.View, Object);
   }
