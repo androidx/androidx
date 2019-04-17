@@ -37,6 +37,10 @@ final class PageTransformerAdapter extends OnPageChangeCallback {
         mLayoutManager = layoutManager;
     }
 
+    PageTransformer getPageTransformer() {
+        return mPageTransformer;
+    }
+
     /**
      * Sets the PageTransformer. The page transformer will be called for each attached page whenever
      * the scroll position is changed.

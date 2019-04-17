@@ -357,9 +357,10 @@ open class BaseTest {
     }
 
     fun Context.setAdapterSync(adapterProvider: AdapterProvider) {
-        val waitForRenderLatch = viewPager.addWaitForLayoutChangeLatch()
+        lateinit var waitForRenderLatch: CountDownLatch
 
-        runOnUiThread {
+        activityTestRule.runOnUiThread {
+            waitForRenderLatch = viewPager.addWaitForLayoutChangeLatch()
             viewPager.adapter = adapterProvider(activity)
         }
 
@@ -416,15 +417,6 @@ open class BaseTest {
         return latch
     }
 
-    val ViewPager2.pageSize: Int
-        get() {
-            return if (orientation == ORIENTATION_HORIZONTAL) {
-                measuredWidth - paddingLeft - paddingRight
-            } else {
-                measuredHeight - paddingTop - paddingBottom
-            }
-        }
-
     val ViewPager2.recyclerView: RecyclerView
         get() {
             return getChildAt(0) as RecyclerView
@@ -443,7 +435,11 @@ open class BaseTest {
      * 3. Expected text is displayed
      * 4. Internal activity state is valid (as per activity self-test)
      */
-    fun Context.assertBasicState(pageIx: Int, value: String = pageIx.toString()) {
+    fun Context.assertBasicState(
+        pageIx: Int,
+        value: String = pageIx.toString(),
+        performSelfCheck: Boolean = true
+    ) {
         assertThat<Int>(
             "viewPager.getCurrentItem() should return $pageIx",
             viewPager.currentItem, equalTo(pageIx)
@@ -453,7 +449,8 @@ open class BaseTest {
             matches(withText(value))
         )
 
-        if (viewPager.adapter is SelfChecking) {
+        // TODO(b/130153109): Wire offscreenPageLimit into FragmentAdapter, remove performSelfCheck
+        if (performSelfCheck && viewPager.adapter is SelfChecking) {
             (viewPager.adapter as SelfChecking).selfCheck()
         }
         assertPageActions()

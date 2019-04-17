@@ -89,6 +89,10 @@ abstract class BaseCardActivity : FragmentActivity() {
             val smoothScroll = smoothScrollCheckBox.isChecked
             viewPager.setCurrentItem(card, smoothScroll)
         }
+
+        rotateCheckBox.setOnClickListener { viewPager.requestTransform() }
+        translateCheckBox.setOnClickListener { viewPager.requestTransform() }
+        scaleCheckBox.setOnClickListener { viewPager.requestTransform() }
     }
 
     private fun createCardAdapter(): SpinnerAdapter {
