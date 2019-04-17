@@ -23,6 +23,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
 
 @SuppressLint("BanParcelableUsage")
 final class FragmentState implements Parcelable {
@@ -36,6 +37,7 @@ final class FragmentState implements Parcelable {
     final boolean mDetached;
     final Bundle mArguments;
     final boolean mHidden;
+    final String mLifecycleState;
 
     Bundle mSavedFragmentState;
 
@@ -52,6 +54,7 @@ final class FragmentState implements Parcelable {
         mDetached = frag.mDetached;
         mArguments = frag.mArguments;
         mHidden = frag.mHidden;
+        mLifecycleState = frag.mMaxState.name();
     }
 
     FragmentState(Parcel in) {
@@ -66,6 +69,7 @@ final class FragmentState implements Parcelable {
         mArguments = in.readBundle();
         mHidden = in.readInt() != 0;
         mSavedFragmentState = in.readBundle();
+        mLifecycleState = in.readString();
     }
 
     public Fragment instantiate(@NonNull ClassLoader classLoader,
@@ -96,6 +100,7 @@ final class FragmentState implements Parcelable {
             mInstance.mRetainInstance = mRetainInstance;
             mInstance.mDetached = mDetached;
             mInstance.mHidden = mHidden;
+            mInstance.mMaxState = Lifecycle.State.valueOf(mLifecycleState);
 
             if (FragmentManagerImpl.DEBUG) {
                 Log.v(FragmentManagerImpl.TAG, "Instantiated fragment " + mInstance);
@@ -154,6 +159,7 @@ final class FragmentState implements Parcelable {
         dest.writeBundle(mArguments);
         dest.writeInt(mHidden ? 1 : 0);
         dest.writeBundle(mSavedFragmentState);
+        dest.writeString(mLifecycleState);
     }
 
     public static final Parcelable.Creator<FragmentState> CREATOR =
