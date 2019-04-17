@@ -37,6 +37,7 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaController;
 import androidx.media2.MediaController.PlaybackInfo;
@@ -49,6 +50,7 @@ import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionPlayer;
 import androidx.media2.SessionResult;
 import androidx.media2.SessionToken;
+import androidx.media2.VideoSize;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.TestUtils;
@@ -831,6 +833,27 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController controller =
                 createController(mRemoteSession2.getToken(), true, callback);
         mRemoteSession2.setCustomLayout(TEST_CONTROLLER_INFO, buttons);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnVideoSizeChanged() throws InterruptedException {
+        prepareLooper();
+
+        final VideoSize testSize = new VideoSize(100, 42);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController.ControllerCallback callback =
+                new MediaController.ControllerCallback() {
+                    @Override
+                    public void onVideoSizeChanged(@NonNull MediaController controller,
+                            @NonNull MediaItem item, @NonNull VideoSize videoSize) {
+                        assertEquals(testSize, videoSize);
+                        latch.countDown();
+                    }
+                };
+
+        MediaController controller = createController(mRemoteSession2.getToken(), true, callback);
+        mRemoteSession2.getMockPlayer().notifyVideoSizeChanged(testSize);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 

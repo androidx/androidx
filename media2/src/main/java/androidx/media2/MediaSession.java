@@ -1135,6 +1135,8 @@ public class MediaSession implements AutoCloseable {
                 int currentIdx, int previousIdx, int nextIdx) throws RemoteException;
         abstract void onPlaybackCompleted(int seq) throws RemoteException;
         abstract void onDisconnected(int seq) throws RemoteException;
+        abstract void onVideoSizeChanged(int seq, @NonNull MediaItem item,
+                @NonNull VideoSize videoSize) throws RemoteException;
 
         // Mostly matched with the methods in MediaBrowser.BrowserCallback.
         abstract void onChildrenChanged(int seq, @NonNull String parentId, int itemCount,

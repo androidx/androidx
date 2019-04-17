@@ -23,6 +23,7 @@ import android.os.Bundle;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.media2.MediaBrowser.BrowserCallback;
 import androidx.media2.MediaController.ControllerCallback;
 import androidx.media2.MediaLibraryService.LibraryParams;
@@ -164,6 +165,12 @@ public class MockBrowserCallback extends BrowserCallback
     @Override
     public void onRepeatModeChanged(MediaController controller, int repeatMode) {
         mCallbackProxy.onRepeatModeChanged(controller, repeatMode);
+    }
+
+    @Override
+    public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
+            @NonNull VideoSize videoSize) {
+        mCallbackProxy.onVideoSizeChanged(controller, item, videoSize);
     }
 
     @Override

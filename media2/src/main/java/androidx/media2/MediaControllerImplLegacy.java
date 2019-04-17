@@ -799,6 +799,12 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
+    public @NonNull VideoSize getVideoSize() {
+        Log.w(TAG, "Session doesn't support getting VideoSize");
+        return new VideoSize(0, 0);
+    }
+
+    @Override
     public @NonNull Context getContext() {
         return mContext;
     }
