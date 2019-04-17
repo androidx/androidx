@@ -87,7 +87,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         }
     }
 
-    @SuppressWarnings("ReferenceEquality")
+    @SuppressWarnings({"ReferenceEquality", "deprecation"})
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
@@ -127,7 +127,7 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         mCurTransaction.detach((Fragment)object);
     }
 
-    @SuppressWarnings("ReferenceEquality")
+    @SuppressWarnings({"ReferenceEquality", "deprecation"})
     @Override
     public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         Fragment fragment = (Fragment)object;
