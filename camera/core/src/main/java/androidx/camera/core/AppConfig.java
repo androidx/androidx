@@ -26,12 +26,15 @@ import java.util.UUID;
 /**
  * Configuration for adding implementation and user-specific behavior to CameraX.
  *
- * <p>The AppConfig
+ * <p>The AppConfiguration
  *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class AppConfig implements TargetConfig<CameraX> {
+public final class AppConfig implements TargetConfig<CameraX>, Config {
+
+    // Option Declarations:
+    // *********************************************************************************************
 
     static final Option<CameraFactory> OPTION_CAMERA_FACTORY =
             Option.create("camerax.core.appConfig.cameraFactory", CameraFactory.class);
@@ -43,6 +46,9 @@ public final class AppConfig implements TargetConfig<CameraX> {
             Option.create(
                     "camerax.core.appConfig.useCaseConfigFactory",
                     UseCaseConfigFactory.class);
+
+    // *********************************************************************************************
+
     private final OptionsBundle mConfig;
 
     AppConfig(OptionsBundle options) {
@@ -56,7 +62,7 @@ public final class AppConfig implements TargetConfig<CameraX> {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public CameraFactory getCameraFactory(@Nullable CameraFactory valueIfMissing) {
-        return getConfig().retrieveOption(OPTION_CAMERA_FACTORY, valueIfMissing);
+        return mConfig.retrieveOption(OPTION_CAMERA_FACTORY, valueIfMissing);
     }
 
     /**
@@ -67,11 +73,8 @@ public final class AppConfig implements TargetConfig<CameraX> {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public CameraDeviceSurfaceManager getDeviceSurfaceManager(
             @Nullable CameraDeviceSurfaceManager valueIfMissing) {
-        return getConfig().retrieveOption(OPTION_DEVICE_SURFACE_MANAGER, valueIfMissing);
+        return mConfig.retrieveOption(OPTION_DEVICE_SURFACE_MANAGER, valueIfMissing);
     }
-
-    // Option Declarations:
-    // *********************************************************************************************
 
     /**
      * Returns the {@link UseCaseConfigFactory} implementation for the application.
@@ -83,17 +86,99 @@ public final class AppConfig implements TargetConfig<CameraX> {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public UseCaseConfigFactory getUseCaseConfigRepository(
             @Nullable UseCaseConfigFactory valueIfMissing) {
-        return getConfig().retrieveOption(OPTION_USECASE_CONFIG_FACTORY, valueIfMissing);
+        return mConfig.retrieveOption(OPTION_USECASE_CONFIG_FACTORY, valueIfMissing);
     }
 
+    // Start of the default implementation of Config
+    // *********************************************************************************************
+
+    // Implementations of Config default methods
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public Config getConfig() {
-        return mConfig;
+    public boolean containsOption(Option<?> id) {
+        return mConfig.containsOption(id);
     }
+
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
+        return mConfig.retrieveOption(id);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
+        return mConfig.retrieveOption(id, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void findOptions(String idStem, OptionMatcher matcher) {
+        mConfig.findOptions(idStem, matcher);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Set<Option<?>> listOptions() {
+        return mConfig.listOptions();
+    }
+
+    // Implementations of TargetConfig default methods
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public Class<CameraX> getTargetClass(
+            @Nullable Class<CameraX> valueIfMissing) {
+        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
+                Class<CameraX> storedClass = (Class<CameraX>) retrieveOption(
+                OPTION_TARGET_CLASS,
+                valueIfMissing);
+        return storedClass;
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Class<CameraX> getTargetClass() {
+        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
+                Class<CameraX> storedClass = (Class<CameraX>) retrieveOption(
+                OPTION_TARGET_CLASS);
+        return storedClass;
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public String getTargetName(@Nullable String valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_NAME, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public String getTargetName() {
+        return retrieveOption(OPTION_TARGET_NAME);
+    }
+
+    // End of the default implementation of Config
+    // *********************************************************************************************
 
     /** A builder for generating {@link AppConfig} objects. */
     public static final class Builder
-            implements TargetConfig.Builder<CameraX, AppConfig, Builder> {
+            implements TargetConfig.Builder<CameraX, AppConfig.Builder>,
+            ExtendableBuilder {
 
         private final MutableOptionsBundle mMutableConfig;
 
@@ -119,13 +204,13 @@ public final class AppConfig implements TargetConfig<CameraX> {
         }
 
         /**
-         * Generates a Builder from another Config object
+         * Generates a Builder from another {@link Config} object
          *
-         * @param config An immutable configuration to pre-populate this builder.
+         * @param configuration An immutable configuration to pre-populate this builder.
          * @return The new Builder.
          */
-        public static Builder fromConfig(Config config) {
-            return new Builder(MutableOptionsBundle.from(config));
+        public static Builder fromConfig(Config configuration) {
+            return new Builder(MutableOptionsBundle.from(configuration));
         }
 
         /**
@@ -136,7 +221,7 @@ public final class AppConfig implements TargetConfig<CameraX> {
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setCameraFactory(CameraFactory cameraFactory) {
             getMutableConfig().insertOption(OPTION_CAMERA_FACTORY, cameraFactory);
-            return builder();
+            return this;
         }
 
         /**
@@ -147,7 +232,7 @@ public final class AppConfig implements TargetConfig<CameraX> {
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setDeviceSurfaceManager(CameraDeviceSurfaceManager repository) {
             getMutableConfig().insertOption(OPTION_DEVICE_SURFACE_MANAGER, repository);
-            return builder();
+            return this;
         }
 
         /**
@@ -161,46 +246,27 @@ public final class AppConfig implements TargetConfig<CameraX> {
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setUseCaseConfigFactory(UseCaseConfigFactory repository) {
             getMutableConfig().insertOption(OPTION_USECASE_CONFIG_FACTORY, repository);
-            return builder();
+            return this;
         }
 
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public MutableConfig getMutableConfig() {
             return mMutableConfig;
         }
 
-        /** The solution for the unchecked cast warning. */
-        @Override
-        public Builder builder() {
-            return this;
-        }
-
-        @Override
+        /**
+         * Builds an immutable {@link AppConfig} from the current state.
+         *
+         * @return A {@link AppConfig} populated with the current state.
+         */
         public AppConfig build() {
             return new AppConfig(OptionsBundle.from(mMutableConfig));
-        }
-
-
-        // Start of the default implementation of Config.Builder
-        // *****************************************************************************************
-
-        // Implementations of Config.Builder default methods
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        public <ValueT> Builder insertOption(Option<ValueT> opt, ValueT value) {
-            getMutableConfig().insertOption(opt, value);
-            return builder();
-        }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @Nullable
-        public <ValueT> Builder removeOption(Option<ValueT> opt) {
-            getMutableConfig().removeOption(opt);
-            return builder();
         }
 
         // Implementations of TargetConfig.Builder default methods
@@ -217,94 +283,15 @@ public final class AppConfig implements TargetConfig<CameraX> {
                 setTargetName(targetName);
             }
 
-            return builder();
+            return this;
         }
 
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public Builder setTargetName(String targetName) {
             getMutableConfig().insertOption(OPTION_TARGET_NAME, targetName);
-            return builder();
+            return this;
         }
-
-        // End of the default implementation of Config.Builder
-        // *****************************************************************************************
     }
-
-
-    // Start of the default implementation of Config
-    // *********************************************************************************************
-
-    // Implementations of Config.Reader default methods
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public boolean containsOption(Option<?> id) {
-        return getConfig().containsOption(id);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id) {
-        return getConfig().retrieveOption(id);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public <ValueT> ValueT retrieveOption(Option<ValueT> id, @Nullable ValueT valueIfMissing) {
-        return getConfig().retrieveOption(id, valueIfMissing);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public void findOptions(String idStem, OptionMatcher matcher) {
-        getConfig().findOptions(idStem, matcher);
-    }
-
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public Set<Option<?>> listOptions() {
-        return getConfig().listOptions();
-    }
-
-    // Implementations of TargetConfig default methods
-
-    @Override
-    @Nullable
-    public Class<CameraX> getTargetClass(
-            @Nullable Class<CameraX> valueIfMissing) {
-        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<CameraX> storedClass = (Class<CameraX>) retrieveOption(
-                OPTION_TARGET_CLASS,
-                valueIfMissing);
-        return storedClass;
-    }
-
-    @Override
-    public Class<CameraX> getTargetClass() {
-        @SuppressWarnings("unchecked") // Value should only be added via Builder#setTargetClass()
-                Class<CameraX> storedClass = (Class<CameraX>) retrieveOption(
-                OPTION_TARGET_CLASS);
-        return storedClass;
-    }
-
-    @Override
-    @Nullable
-    public String getTargetName(@Nullable String valueIfMissing) {
-        return retrieveOption(OPTION_TARGET_NAME, valueIfMissing);
-    }
-
-    @Override
-    public String getTargetName() {
-        return retrieveOption(OPTION_TARGET_NAME);
-    }
-
-    // End of the default implementation of Config
-    // *********************************************************************************************
 }
