@@ -20,7 +20,6 @@ import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -60,7 +59,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -133,24 +131,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
             mController = null;
         }
         TestServiceRegistry.getInstance().cleanUp();
-    }
-
-    /**
-     * Test if the {@link MockControllerCallback} wraps the callback proxy
-     * without missing any method.
-     */
-    @Test
-    public void testTestControllerCallback() {
-        prepareLooper();
-        Method[] methods = MockControllerCallback.class.getMethods();
-        assertNotNull(methods);
-        for (int i = 0; i < methods.length; i++) {
-            // For any methods in the controller callback, TestControllerCallback should have
-            // overriden the method and call matching API in the callback proxy.
-            assertNotEquals("TestControllerCallback should override " + methods[i]
-                            + " and call callback proxy",
-                    ControllerCallback.class, methods[i].getDeclaringClass());
-        }
     }
 
     @Test

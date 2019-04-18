@@ -19,6 +19,7 @@ package androidx.media2.test.client;
 import static androidx.media2.test.common.CommonConstants.ACTION_MEDIA2_CONTROLLER;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -102,13 +103,18 @@ public class MediaControllerProviderService extends Service {
                 mHandler.postAndSync(new Runnable() {
                     @Override
                     public void run() {
+                        Context context = MediaControllerProviderService.this;
                         MediaController controller;
                         if (isBrowser) {
-                            controller = new MediaBrowser(MediaControllerProviderService.this,
-                                    token, mExecutor, callback);
+                            controller = new MediaBrowser.Builder(context)
+                                    .setSessionToken(token)
+                                    .setControllerCallback(mExecutor, callback)
+                                    .build();
                         } else {
-                            controller = new MediaController(MediaControllerProviderService.this,
-                                    token, mExecutor, callback);
+                            controller = new MediaController.Builder(context)
+                                    .setSessionToken(token)
+                                    .setControllerCallback(mExecutor, callback)
+                                    .build();
                         }
                         mMediaControllerMap.put(controllerId, controller);
                     }
