@@ -45,6 +45,9 @@ import android.view.animation.Interpolator;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArraySet;
@@ -52,6 +55,7 @@ import androidx.core.util.DebugUtils;
 import androidx.core.util.LogWriter;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 
@@ -2463,11 +2467,54 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     public void attachController(@NonNull FragmentHostCallback host,
-                                 @NonNull FragmentContainer container, @Nullable Fragment parent) {
+            @NonNull FragmentContainer container, @Nullable final Fragment parent) {
         if (mHost != null) throw new IllegalStateException("Already attached");
         mHost = host;
         mContainer = container;
         mParent = parent;
+        // Set up the OnBackPressedCallback
+        if (host instanceof OnBackPressedDispatcherOwner) {
+            OnBackPressedDispatcherOwner dispatcherOwner = ((OnBackPressedDispatcherOwner) host);
+            OnBackPressedDispatcher dispatcher = dispatcherOwner.getOnBackPressedDispatcher();
+            LifecycleOwner owner = parent != null ? parent : dispatcherOwner;
+            dispatcher.addCallback(owner, new OnBackPressedCallback(true) {
+                @Override
+                public boolean isEnabled() {
+                    // This FragmentManager needs to have a back stack for this to be enabled
+                    // and the parent fragment, if it exists, needs to be the primary navigation
+                    // fragment.
+                    return getBackStackEntryCount() > 0 && isPrimaryNavigation(parent);
+                }
+
+                /**
+                 * Recursively check up the FragmentManager hierarchy of primary
+                 * navigation Fragments to ensure that all of the parent Fragments are the
+                 * primary navigation Fragment for their associated FragmentManager
+                 */
+                private boolean isPrimaryNavigation(@Nullable Fragment parent) {
+                    // If the parent is null, then we're at the root host
+                    // and we're always the primary navigation
+                    if (parent == null) {
+                        return true;
+                    }
+                    FragmentManagerImpl parentFragmentManager = parent.mFragmentManager;
+                    Fragment primaryNavigationFragment = parentFragmentManager
+                            .getPrimaryNavigationFragment();
+                    // The parent Fragment needs to be the primary navigation Fragment
+                    // and, if it has a parent itself, that parent also needs to be
+                    // the primary navigation fragment, recursively up the stack
+                    return parent == primaryNavigationFragment
+                            && isPrimaryNavigation(parentFragmentManager.mParent);
+                }
+
+                @Override
+                public void handleOnBackPressed() {
+                    popBackStackImmediate();
+                }
+            });
+        }
+
+        // Get the FragmentManagerViewModel
         if (parent != null) {
             mNonConfig = parent.mFragmentManager.getChildNonConfig(parent);
         } else if (host instanceof ViewModelStoreOwner) {
