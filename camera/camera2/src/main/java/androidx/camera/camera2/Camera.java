@@ -588,7 +588,8 @@ final class Camera implements BaseCamera {
         DeferrableSurface repeatingSurface = null;
         for (UseCase useCase : activeUseCases) {
             SessionConfig sessionConfig = useCase.getSessionConfig(mCameraId);
-            List<DeferrableSurface> surfaces = sessionConfig.getCaptureConfig().getSurfaces();
+            List<DeferrableSurface> surfaces =
+                    sessionConfig.getRepeatingCaptureConfig().getSurfaces();
             if (!surfaces.isEmpty()) {
                 // When an use case is active, all surfaces in its CaptureConfig are added to the
                 // repeating request. Choose the first one here as the repeating surface.

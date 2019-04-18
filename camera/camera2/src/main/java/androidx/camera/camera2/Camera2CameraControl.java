@@ -94,7 +94,7 @@ public final class Camera2CameraControl implements CameraControl {
         mHandler = handler;
 
         mSessionConfigBuilder.setTemplateType(getDefaultTemplate());
-        mSessionConfigBuilder.addCameraCaptureCallback(
+        mSessionConfigBuilder.addRepeatingCameraCaptureCallback(
                 CaptureCallbackContainer.create(mSessionCallback));
         updateSessionConfig();
     }
