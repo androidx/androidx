@@ -436,7 +436,7 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
-    public @NonNull Parcelable saveState() {
+    public final @NonNull Parcelable saveState() {
         /** TODO(b/122670461): use custom {@link Parcelable} instead of Bundle to save space */
         Bundle savedState = new Bundle(mFragments.size() + mSavedStates.size());
 
@@ -463,7 +463,7 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
-    public void restoreState(@NonNull Parcelable savedState) {
+    public final void restoreState(@NonNull Parcelable savedState) {
         if (!mSavedStates.isEmpty() || !mFragments.isEmpty()) {
             throw new IllegalStateException(
                     "Expected the adapter to be 'fresh' while restoring state.");
