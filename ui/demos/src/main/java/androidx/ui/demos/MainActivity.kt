@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.androidx.ui
+package androidx.ui.demos
 
 import android.app.ListActivity
 import android.content.Intent
