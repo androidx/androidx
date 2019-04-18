@@ -897,8 +897,9 @@ public class NavController {
             // Add all of the remaining parent NavGraphs that aren't
             // already on the back stack
             mBackStack.addAll(hierarchy);
-            // And finally, add the new destination
-            NavBackStackEntry newBackStackEntry = new NavBackStackEntry(newDest, finalArgs);
+            // And finally, add the new destination with its default args
+            NavBackStackEntry newBackStackEntry = new NavBackStackEntry(newDest,
+                    newDest.addInDefaultArgs(finalArgs));
             mBackStack.add(newBackStackEntry);
         }
         if (popped || newDest != null) {
