@@ -229,7 +229,12 @@ class AndroidCraneView constructor(context: Context)
                 val onPaint = node.onPaint
                 currentNode = node
                 clearNodeModels(node)
-                densityReceiver.onPaint(canvas, parentSize)
+                val receiver = DrawNodeScopeImpl(node.child, canvas, parentSize,
+                    densityReceiver.density)
+                receiver.onPaint(canvas, parentSize)
+                if (!receiver.childDrawn) {
+                    receiver.drawChildren()
+                }
                 node.needsPaint = false
                 currentNode = null
             }
@@ -316,6 +321,25 @@ class AndroidCraneView constructor(context: Context)
         if (models != null) {
             models.forEach { model ->
                 modelToNodes[model]!! -= node
+            }
+        }
+    }
+
+    private inner class DrawNodeScopeImpl(
+        private val child: ComponentNode?,
+        private val canvas: Canvas,
+        private val parentSize: PxSize,
+        override val density: Density
+    ) : DensityReceiver, DrawNodeScope {
+        var childDrawn = child == null
+
+        override fun drawChildren() {
+            if (childDrawn) {
+                throw IllegalStateException("Cannot call drawChildren() twice within Draw element")
+            }
+            childDrawn = true
+            if (child != null) {
+                callDraw(canvas, child, parentSize, this)
             }
         }
     }

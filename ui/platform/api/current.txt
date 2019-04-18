@@ -61,22 +61,19 @@ package androidx.ui.core {
     method public static androidx.ui.core.PxPosition localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition local);
   }
 
-  public final class DrawNode extends androidx.ui.core.ComponentNode {
+  public final class DrawNode extends androidx.ui.core.SingleChildComponentNode {
     ctor public DrawNode();
-    method public void emitMove(int from, int to, int count);
-    method public androidx.ui.core.ComponentNode get(int index);
-    method public int getCount();
-    method public androidx.ui.core.LayoutNode? getLayoutNode();
     method public boolean getNeedsPaint();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit> getOnPaint();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.DrawNodeScope,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit> getOnPaint();
     method public void invalidate();
     method public void setNeedsPaint(boolean p);
-    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> value);
-    method public void visitChildren(boolean reverse, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
-    property public int count;
-    property public androidx.ui.core.LayoutNode? layoutNode;
+    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawNodeScope,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> value);
     property public final boolean needsPaint;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit> onPaint;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DrawNodeScope,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit> onPaint;
+  }
+
+  public interface DrawNodeScope extends androidx.ui.core.DensityReceiver {
+    method public void drawChildren();
   }
 
   public final class LayoutNode extends androidx.ui.core.ComponentNode {

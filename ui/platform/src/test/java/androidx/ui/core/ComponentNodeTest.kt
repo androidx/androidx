@@ -29,7 +29,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
-import java.lang.IllegalArgumentException
+import kotlin.IllegalArgumentException
 
 @RunWith(JUnit4::class)
 class ComponentNodeTest {
@@ -187,16 +187,18 @@ class ComponentNodeTest {
 
     @Test
     fun drawNodeGet() {
-        thrown.expect(UnsupportedOperationException::class.java)
+        thrown.expect(IllegalArgumentException::class.java)
         val node = DrawNode()
         node[0]
     }
 
     @Test
     fun drawNodeAdd() {
-        thrown.expect(UnsupportedOperationException::class.java)
         val node = DrawNode()
-        node.emitInsertAt(0, DrawNode())
+        val child = DrawNode()
+        node.emitInsertAt(0, child)
+        assertEquals(1, node.count)
+        assertEquals(child, node[0])
     }
 
     @Test
@@ -208,7 +210,7 @@ class ComponentNodeTest {
 
     @Test
     fun drawNodeRemove() {
-        thrown.expect(UnsupportedOperationException::class.java)
+        thrown.expect(IllegalArgumentException::class.java)
         val node = DrawNode()
         node.emitRemoveAt(index = 0, count = 0)
     }
