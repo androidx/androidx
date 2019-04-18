@@ -18,7 +18,6 @@ package androidx.ui.painting
 
 import android.graphics.BlurMaskFilter
 import android.graphics.PorterDuffColorFilter
-import java.nio.ByteBuffer
 
 class Paint {
 
@@ -28,72 +27,6 @@ class Paint {
     private var blurRadius = 0.0f
     private var internalShader: Shader? = null
     private var internalColorFilter: ColorFilter? = null
-
-    companion object {
-        // Paint objects are encoded in two buffers:
-        //
-        // * _data is binary data in four-byte fields, each of which is either a
-        //   uint32_t or a float. The default value for each field is encoded as
-        //   zero to make initialization trivial. Most values already have a default
-        //   value of zero, but some, such as color, have a non-zero default value.
-        //   To encode or decode these values, XOR the value with the default value.
-        //
-        // * _objects is a list of unencodable objects, typically wrappers for native
-        //   objects. The objects are simply stored in the list without any additional
-        //   encoding.
-        //
-        // The binary format must match the deserialization code in paint.cc.
-
-        // If you add more fields, remember to update DATA_BYTE_COUNT.
-        const val DATA_BYTE_COUNT = 75
-
-        val _data = ByteBuffer.allocate(DATA_BYTE_COUNT)
-        const val IS_ANTI_ALIAS_INDEX: Int = 0
-        const val COLOR_INDEX = 1
-        const val BLENDMODE_INDEX = 2
-        const val STYLE_INDEX = 3
-        const val STROKE_WIDTH_INDEX = 4
-        const val STROKE_CAP_INDEX = 5
-        const val STROKE_JOIN_INDEX = 6
-        const val STROKE_MITER_LIMIT_INDEX = 7
-        const val FILTER_QUALITY_INDEX = 8
-        const val COLOR_FILTER_INDEX = 9
-        const val COLOR_FILTER_COLOR_INDEX = 10
-        const val COLOR_FILTER_BLENDMODE_INDEX = 11
-        const val MASK_FILTER_INDEX = 12
-        const val MASK_FILTER_BLUR_STYLE_INDEX = 13
-        const val MASK_FILTER_SIGMA_INDEX = 14
-
-        const val IS_ANTIALIAS_OFFSET = IS_ANTI_ALIAS_INDEX.shl(2)
-        const val COLOR_OFFSET = COLOR_INDEX.shl(2)
-        const val BLENDMODE_OFFSET = BLENDMODE_INDEX.shl(2)
-        const val STYLE_OFFSET = STYLE_INDEX.shl(2)
-        const val STROKEWIDTH_OFFSET = STROKE_WIDTH_INDEX.shl(2)
-        const val STROKE_CAP_OFFSET = STROKE_CAP_INDEX.shl(2)
-        const val STROKE_JOIN_OFFSET = STROKE_JOIN_INDEX.shl(2)
-        const val STROKE_MITER_LIMIT_OFFSET = STROKE_MITER_LIMIT_INDEX.shl(2)
-        const val FILTER_QUALITY_OFFSET = FILTER_QUALITY_INDEX.shl(2)
-        const val COLOR_FILTER_OFFSET = COLOR_FILTER_INDEX.shl(2)
-        const val COLOR_FILTER_COLOR_OFFSET = COLOR_FILTER_COLOR_INDEX.shl(2)
-        const val COLOR_FILTER_BLENDMODE_OFFSET = COLOR_FILTER_BLENDMODE_INDEX.shl(2)
-        const val MASK_FILTER_OFFSET = MASK_FILTER_INDEX.shl(2)
-        const val MASK_FILTER_BLUR_STYLE_OFFSET = MASK_FILTER_BLUR_STYLE_INDEX.shl(2)
-        const val MASK_FILTER_SIGMA_OFFSET = MASK_FILTER_SIGMA_INDEX.shl(2)
-
-        // // Binary format must match the deserialization code in paint.cc.
-        // val List<dynamic> _objects;
-        const val SHADER_INDEX = 0
-        const val OBJECT_COUNT = 1 // Must be one larger than the largest index.
-
-        // Must be kept in sync with the default in paint.cc.
-        const val COLOR_DEFAULT = 0xFF000000
-
-        //  Must be kept in sync with the default in paint.cc.
-        val BLENDMODE_DEFAULT = BlendMode.srcOver.ordinal
-
-        // Must be kept in sync with the default in paint.cc.
-        const val STROKE_MITER_LIMIT_DEFAULT = 4.0
-    }
 
     internal fun toFrameworkPaint(): android.graphics.Paint = internalPaint
 
@@ -362,58 +295,4 @@ class Paint {
                 internalPaint.colorFilter = null
             }
         }
-
-//    @override
-//    String toString() {
-//        final StringBuffer result = new StringBuffer();
-//        String semicolon = '';
-//        result.write('Paint(');
-//        if (style == PaintingStyle.stroke) {
-//            result.write('$style');
-//            if (strokeWidth != 0.0)
-//                result.write(' ${strokeWidth.toStringAsFixed(1)}');
-//            else
-//                result.write(' hairline');
-//            if (strokeCap != StrokeCap.butt)
-//                result.write(' $strokeCap');
-//            if (strokeJoin == StrokeJoin.miter) {
-//                if (strokeMiterLimit != STROKE_MITER_LIMIT_DEFAULT)
-//                    result.write(' $strokeJoin up to ${strokeMiterLimit.toStringAsFixed(1)}');
-//            } else {
-//                result.write(' $strokeJoin');
-//            }
-//            semicolon = '; ';
-//        }
-//        if (isAntiAlias != true) {
-//            result.write('${semicolon}antialias off');
-//            semicolon = '; ';
-//        }
-//        if (color != const Color(COLOR_DEFAULT)) {
-//            if (color != null)
-//                result.write('$semicolon$color');
-//            else
-//                result.write('${semicolon}no color');
-//            semicolon = '; ';
-//        }
-//        if (blendMode.index != BLENDMODE_DEFAULT) {
-//            result.write('$semicolon$blendMode');
-//            semicolon = '; ';
-//        }
-//        if (colorFilter != null) {
-//            result.write('${semicolon}colorFilter: $colorFilter');
-//            semicolon = '; ';
-//        }
-//        if (maskFilter != null) {
-//            result.write('${semicolon}maskFilter: $maskFilter');
-//            semicolon = '; ';
-//        }
-//        if (filterQuality != FilterQuality.none) {
-//            result.write('${semicolon}filterQuality: $filterQuality');
-//            semicolon = '; ';
-//        }
-//        if (shader != null)
-//            result.write('${semicolon}shader: $shader');
-//        result.write(')');
-//        return result.toString();
-//    }
 }
