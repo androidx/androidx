@@ -29,6 +29,7 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
+import org.hamcrest.Matchers.notNullValue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -101,5 +102,17 @@ class TestWorkerBuilderTest {
         val worker = TestWorkerBuilder.from(context, request, singleThreadedExecutor).build()
         val result = worker.doWork()
         assertThat(result, `is`(Result.success()))
+    }
+
+    @Test
+    fun testWorkerBuilder_returnsExpectedType() {
+        val listenableWorker: TestListenableWorker =
+            TestListenableWorkerBuilder.from(context, TestListenableWorker::class.java).build()
+
+        val worker: TestWorker =
+            TestWorkerBuilder.from(context, TestWorker::class.java, executor).build()
+
+        assertThat(listenableWorker, notNullValue())
+        assertThat(worker, notNullValue())
     }
 }
