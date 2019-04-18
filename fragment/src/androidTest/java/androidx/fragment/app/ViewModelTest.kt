@@ -105,9 +105,24 @@ class ViewModelTest {
     @Test
     fun testFragmentOnClearedWhenFinished() {
         with(ActivityScenario.launch(ViewModelActivity::class.java)) {
-            val fragment = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_1) }
+            val fragmentModel = withActivity {
+                getFragment(ViewModelActivity.FRAGMENT_TAG_1).fragmentModel
+            }
+            val backStackFragmentModel = withActivity {
+                getFragment(ViewModelActivity.FRAGMENT_TAG_BACK_STACK).fragmentModel
+            }
+            assertThat(fragmentModel.cleared).isFalse()
+            assertThat(backStackFragmentModel.cleared).isFalse()
+
+            recreate()
+            // recreate shouldn't clear the ViewModels
+            assertThat(fragmentModel.cleared).isFalse()
+            assertThat(backStackFragmentModel.cleared).isFalse()
+
             moveToState(Lifecycle.State.DESTROYED)
-            assertThat(fragment.fragmentModel.cleared).isTrue()
+            // But destroying the Activity should
+            assertThat(fragmentModel.cleared).isTrue()
+            assertThat(backStackFragmentModel.cleared).isTrue()
         }
     }
 
