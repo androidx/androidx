@@ -35,7 +35,8 @@ import android.view.View;
 import android.view.Window;
 
 import androidx.activity.ComponentActivity;
-import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
@@ -116,7 +117,6 @@ public class FragmentActivity extends ComponentActivity implements
      */
     public FragmentActivity() {
         super();
-        init();
     }
 
     /**
@@ -132,47 +132,6 @@ public class FragmentActivity extends ComponentActivity implements
     @ContentView
     public FragmentActivity(@LayoutRes int contentLayoutId) {
         super(contentLayoutId);
-        init();
-    }
-
-    private void init() {
-        // Route onBackPressed() callbacks to the FragmentManager
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public boolean isEnabled() {
-                FragmentManager fragmentManager = mFragments.getSupportFragmentManager();
-                // Either this FragmentManager needs to have a back stack
-                // or its primary navigation Fragment needs to have one
-                return fragmentManager.getBackStackEntryCount() > 0
-                        || hasPrimaryNavigationBackStack(fragmentManager);
-            }
-
-            /**
-             * Recursively check down the FragmentManager hierarchy of primary
-             * navigation Fragments for a FragmentManager that has a back stack
-             * that can be popped.
-             */
-            private boolean hasPrimaryNavigationBackStack(
-                    @NonNull FragmentManager fragmentManager) {
-                Fragment primaryNavFragment = fragmentManager.getPrimaryNavigationFragment();
-                if (primaryNavFragment == null) {
-                    return false;
-                }
-                FragmentManager primaryNavFragmentManager =
-                        primaryNavFragment.peekChildFragmentManager();
-                if (primaryNavFragmentManager == null) {
-                    return false;
-                }
-                return primaryNavFragmentManager.getBackStackEntryCount() > 0
-                        || hasPrimaryNavigationBackStack(primaryNavFragmentManager);
-            }
-
-            @Override
-            public void handleOnBackPressed() {
-                FragmentManager fragmentManager = mFragments.getSupportFragmentManager();
-                fragmentManager.popBackStackImmediate();
-            }
-        });
     }
 
     // ------------------------------------------------------------------------
@@ -891,16 +850,29 @@ public class FragmentActivity extends ComponentActivity implements
         }
     }
 
-    class HostCallbacks extends FragmentHostCallback<FragmentActivity>
-            implements ViewModelStoreOwner {
+    class HostCallbacks extends FragmentHostCallback<FragmentActivity> implements
+            ViewModelStoreOwner,
+            OnBackPressedDispatcherOwner {
         public HostCallbacks() {
             super(FragmentActivity.this /*fragmentActivity*/);
         }
 
         @NonNull
         @Override
+        public Lifecycle getLifecycle() {
+            return FragmentActivity.this.getLifecycle();
+        }
+
+        @NonNull
+        @Override
         public ViewModelStore getViewModelStore() {
             return FragmentActivity.this.getViewModelStore();
+        }
+
+        @NonNull
+        @Override
+        public OnBackPressedDispatcher getOnBackPressedDispatcher() {
+            return FragmentActivity.this.getOnBackPressedDispatcher();
         }
 
         @Override
