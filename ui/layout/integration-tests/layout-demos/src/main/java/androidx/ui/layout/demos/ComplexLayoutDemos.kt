@@ -72,8 +72,8 @@ fun SizedRectangle(color: Color, width: Dp? = null, height: Dp? = null) {
  */
 @Composable
 fun IntrinsicWidth(@Children() children: () -> Unit) {
-    <ComplexLayout
-        layoutBlock = { measurables, constraints ->
+    <ComplexLayout children>
+        layout { measurables, constraints ->
             // Force child be as wide as its min intrinsic width.
             val width = measurables.first().minIntrinsicWidth(constraints.minHeight)
             val childConstraints = Constraints(
@@ -87,19 +87,19 @@ fun IntrinsicWidth(@Children() children: () -> Unit) {
                 childPlaceable.place(IntPx.Zero, IntPx.Zero)
             }
         }
-        minIntrinsicWidthBlock = { measurables, h ->
+        minIntrinsicWidth { measurables, h ->
             measurables.first().minIntrinsicWidth(h)
         }
-        maxIntrinsicWidthBlock = { measurables, h ->
+        maxIntrinsicWidth { measurables, h ->
             measurables.first().minIntrinsicWidth(h)
         }
-        minIntrinsicHeightBlock = { measurables, w ->
+        minIntrinsicHeight { measurables, w ->
             measurables.first().minIntrinsicHeight(w)
         }
-        maxIntrinsicHeightBlock = { measurables, w ->
+        maxIntrinsicHeight { measurables, w ->
             measurables.first().maxIntrinsicHeight(w)
         }
-        children />
+    </ComplexLayout>
 }
 
 /**
@@ -107,15 +107,14 @@ fun IntrinsicWidth(@Children() children: () -> Unit) {
  */
 @Composable
 fun RectangleWithIntrinsics(color: Color) {
-    <ComplexLayout
-        layoutBlock = { _, _ ->
+    <ComplexLayout children = { <DrawRectangle color /> }>
+        layout { _, _ ->
             layoutResult(80.ipx, 80.ipx) {}
         }
-        minIntrinsicWidthBlock = { _, _ -> 30.ipx }
-        maxIntrinsicWidthBlock = { _, _ -> 150.ipx }
-        minIntrinsicHeightBlock = { _, _ -> 30.ipx }
-        maxIntrinsicHeightBlock = { _, _ -> 150.ipx }>
-        <DrawRectangle color />
+        minIntrinsicWidth { _, _ -> 30.ipx }
+        maxIntrinsicWidth { _, _ -> 150.ipx }
+        minIntrinsicHeight { _, _ -> 30.ipx }
+        maxIntrinsicHeight { _, _ -> 150.ipx }
     </ComplexLayout>
 }
 
@@ -294,21 +293,21 @@ fun SingleCompositionRectWithIntrinsics() {
             canvas.drawRect(parentSize.toRect(), paint)
         </Draw>
     }
-    <ComplexLayout
-        layoutBlock={ _, constraints ->
+    <ComplexLayout children=Rectangle>
+        layout { _, constraints ->
             layoutResult(50.ipx, 50.ipx) {}
         }
-        minIntrinsicWidthBlock={ _, _ -> 50.ipx }
-        maxIntrinsicWidthBlock={ _, _ -> 50.ipx }
-        minIntrinsicHeightBlock={ _, _ -> 50.ipx }
-        maxIntrinsicHeightBlock={ _, _ -> 50.ipx }
-        children=Rectangle />
+        minIntrinsicWidth { _, _ -> 50.ipx }
+        maxIntrinsicWidth { _, _ -> 50.ipx }
+        minIntrinsicHeight { _, _ -> 50.ipx }
+        maxIntrinsicHeight { _, _ -> 50.ipx }
+    </ComplexLayout>
 }
 
 @Composable
 fun SingleCompositionRowWithIntrinsics(@Children children: () -> Unit) {
-    <ComplexLayout
-        layoutBlock={ measurables, constraints ->
+    <ComplexLayout children>
+        layout { measurables, constraints ->
             val placeables = measurables.map { measurable ->
                 val childWidth = measurable.maxIntrinsicWidth(constraints.maxHeight)
                 measurable.measure(Constraints(
@@ -326,19 +325,19 @@ fun SingleCompositionRowWithIntrinsics(@Children children: () -> Unit) {
                 }
             }
         }
-        minIntrinsicWidthBlock={ measurables, h ->
+        minIntrinsicWidth { measurables, h ->
             measurables.map { it.minIntrinsicWidth(h) }.sum()
         }
-        maxIntrinsicWidthBlock={ measurables, h ->
+        maxIntrinsicWidth { measurables, h ->
             measurables.map { it.maxIntrinsicWidth(h) }.sum()
         }
-        minIntrinsicHeightBlock={ measurables, w ->
+        minIntrinsicHeight { measurables, w ->
             measurables.map { it.minIntrinsicHeight(w) }.max()
         }
-        maxIntrinsicHeightBlock={ measurables, w ->
+        maxIntrinsicHeight { measurables, w ->
             measurables.map { it.maxIntrinsicHeight(w) }.max()
         }
-        children />
+    </ComplexLayout>
 }
 
 @Composable
