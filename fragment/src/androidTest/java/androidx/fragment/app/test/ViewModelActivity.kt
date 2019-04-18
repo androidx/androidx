@@ -36,9 +36,15 @@ class ViewModelActivity : FragmentActivity() {
         postOnCreateViewModelStore = viewModelStore
         setContentView(R.layout.activity_view_model)
         if (savedInstanceState == null) {
+            val backStackFragment = ViewModelFragment()
             supportFragmentManager.beginTransaction()
                 .add(R.id.fragment_container, ViewModelFragment(), FRAGMENT_TAG_1)
                 .add(ViewModelFragment(), FRAGMENT_TAG_2)
+                .add(backStackFragment, FRAGMENT_TAG_BACK_STACK)
+                .commit()
+            supportFragmentManager.beginTransaction()
+                .remove(backStackFragment)
+                .addToBackStack(FRAGMENT_TAG_BACK_STACK)
                 .commit()
         }
 
@@ -82,5 +88,6 @@ class ViewModelActivity : FragmentActivity() {
         const val KEY_FRAGMENT_MODEL = "fragment-model"
         const val FRAGMENT_TAG_1 = "f1"
         const val FRAGMENT_TAG_2 = "f2"
+        const val FRAGMENT_TAG_BACK_STACK = "back_stack"
     }
 }
