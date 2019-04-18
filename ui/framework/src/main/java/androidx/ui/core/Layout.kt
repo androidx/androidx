@@ -346,7 +346,7 @@ fun Layout(
 }
 
 /**
- * Used by [MultiChildLayout] as parent data for the dummy [Layout] instances that mark
+ * Used by multi child [Layout] as parent data for the dummy [Layout] instances that mark
  * the end of the [Measurable]s sequence corresponding to a particular child.
  */
 internal data class ChildrenEndParentData(val children: () -> Unit)
@@ -369,7 +369,7 @@ internal data class ChildrenEndParentData(val children: () -> Unit)
  * }
  */
 @Composable
-fun MultiChildLayout(
+fun Layout(
     childrenArray: Array<@Composable() () -> Unit>,
     @Children(composable = false) layoutBlock: LayoutReceiver
         .(measurables: List<Measurable>, constraints: Constraints) -> Unit

@@ -29,7 +29,6 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
-import androidx.ui.core.MultiChildLayout
 import androidx.ui.core.ParentData
 import androidx.ui.core.Ref
 import androidx.ui.core.WithConstraints
@@ -338,8 +337,7 @@ class AndroidLayoutDrawTest {
                         } children={} />
                     }
 
-                    <MultiChildLayout
-                        childrenArray=arrayOf(header, footer)> measurables, _ ->
+                    <Layout childrenArray=arrayOf(header, footer)> measurables, _ ->
                         assertEquals(childrenCount, measurables.size)
                         measurables.forEachIndexed { index, measurable ->
                             measurable.measure(childConstraints[index])
@@ -349,7 +347,7 @@ class AndroidLayoutDrawTest {
                         assertEquals(footerChildrenCount, measurables[footer].size)
                         measurables[footer][0].measure(childConstraints[1])
                         measurables[footer][1].measure(childConstraints[2])
-                    </MultiChildLayout>
+                    </Layout>
                 </CraneWrapper>
             }
         }
@@ -371,11 +369,10 @@ class AndroidLayoutDrawTest {
                         </ParentData>
                     }
 
-                    <MultiChildLayout
-                        childrenArray=arrayOf(header, footer)> measurables, _ ->
+                    <Layout childrenArray=arrayOf(header, footer)> measurables, _ ->
                         assertEquals(0, measurables[0].parentData)
                         assertEquals(1, measurables[1].parentData)
-                    </MultiChildLayout>
+                    </Layout>
                 </CraneWrapper>
             }
         }
