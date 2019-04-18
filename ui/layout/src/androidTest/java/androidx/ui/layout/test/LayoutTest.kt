@@ -17,12 +17,10 @@
 package androidx.ui.layout.test
 
 import android.app.Activity
-import android.app.Instrumentation
 import android.os.Handler
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import androidx.test.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.CraneWrapper
@@ -42,7 +40,6 @@ open class LayoutTest {
         TestActivity::class.java
     )
     lateinit var activity: TestActivity
-    private lateinit var instrumentation: Instrumentation
     lateinit var handler: Handler
     internal lateinit var density: Density
 
@@ -51,7 +48,6 @@ open class LayoutTest {
         activity = activityTestRule.activity
         density = Density(activity)
         activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
-        instrumentation = InstrumentationRegistry.getInstrumentation()
 
         // Kotlin IR compiler doesn't seem too happy with auto-conversion from
         // lambda to Runnable, so separate it here

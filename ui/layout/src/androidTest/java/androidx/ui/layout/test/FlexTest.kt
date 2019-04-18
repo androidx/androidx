@@ -666,7 +666,6 @@ class FlexTest : LayoutTest() {
     @Test
     fun testRow_withMaxMainAxisSize() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(1)
         lateinit var rowSize: PxSize
@@ -728,7 +727,6 @@ class FlexTest : LayoutTest() {
     @Test
     fun testRow_withMinMainAxisSize_respectsMinWidthConstraint() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx()
         val rowWidthDp = 250.dp
         val rowWidth = rowWidthDp.toIntPx()
 
@@ -810,7 +808,6 @@ class FlexTest : LayoutTest() {
     @Test
     fun testColumn_withMaxMainAxisSize() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx()
 
         val drawLatch = CountDownLatch(1)
         lateinit var columnSize: PxSize
@@ -919,7 +916,6 @@ class FlexTest : LayoutTest() {
     @Test
     fun testColumn_withMinMainAxisSize_respectsMinHeightConstraint() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx()
         val columnHeightDp = 250.dp
         val columnHeight = columnHeightDp.toIntPx()
 
@@ -1466,7 +1462,6 @@ class FlexTest : LayoutTest() {
     @Test
     fun testRow_doesNotUseMinConstraintsOnChildren() = withDensity(density) {
         val sizeDp = 50.dp
-        val size = sizeDp.toIntPx()
         val childSizeDp = 30.dp
         val childSize = childSizeDp.toIntPx()
 

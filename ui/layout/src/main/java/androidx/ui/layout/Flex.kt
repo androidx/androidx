@@ -40,12 +40,12 @@ private data class FlexInfo(val flex: Float, val fit: Int)
  * when its body is executed with a [FlexChildren] instance as argument.
  */
 class FlexChildren internal constructor() {
-    internal val childrenList = mutableListOf<() -> Unit>()
+    internal val childrenList = mutableListOf<@Composable() () -> Unit>()
     fun expanded(@FloatRange(from = 0.0) flex: Float, children: @Composable() () -> Unit) {
         if (flex < 0) {
             throw IllegalArgumentException("flex must be >= 0")
         }
-        childrenList += {
+        childrenList += @Composable {
             <ParentData data=FlexInfo(flex = flex, fit = FlexFit.Tight) children/>
         }
     }
@@ -54,13 +54,13 @@ class FlexChildren internal constructor() {
         if (flex < 0) {
             throw IllegalArgumentException("flex must be >= 0")
         }
-        childrenList += {
+        childrenList += @Composable {
             <ParentData data=FlexInfo(flex = flex, fit = FlexFit.Loose) children/>
         }
     }
 
     fun inflexible(children: @Composable() () -> Unit) {
-        childrenList += {
+        childrenList += @Composable {
             <ParentData data=FlexInfo(flex = 0f, fit = FlexFit.Loose) children/>
         }
     }
@@ -94,6 +94,7 @@ class FlexChildren internal constructor() {
  *         }
  *     </FlexRow>
  */
+@Suppress("FunctionName")
 @Composable
 fun FlexRow(
     mainAxisAlignment: Int = MainAxisAlignment.Start,
@@ -137,6 +138,7 @@ fun FlexRow(
  *         }
  *     </ColumnFlex>
  */
+@Suppress("FunctionName")
 @Composable
 fun FlexColumn(
     mainAxisAlignment: Int = MainAxisAlignment.Start,
@@ -162,6 +164,7 @@ fun FlexColumn(
  *       <SizedRectangle color=Color(0xFF00FF00.toInt()) width=80.dp height=70.dp />
  *   </Row>
  */
+@Suppress("FunctionName")
 @Composable
 fun Row(
     mainAxisAlignment: Int = MainAxisAlignment.Start,
@@ -186,6 +189,7 @@ fun Row(
  *       <SizedRectangle color=Color(0xFF00FF00.toInt()) width=80.dp height=70.dp />
  *   </Column>
  */
+@Suppress("FunctionName")
 @Composable
 fun Column(
     mainAxisAlignment: Int = MainAxisAlignment.Start,
@@ -338,7 +342,7 @@ class MainAxisAlignment {
         internal class MainAxisSpaceAroundAligner : Aligner {
             override fun align(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
                 val consumedSize = size.fold(0.ipx) { a, b -> a + b }
-                val gapSize = if (!size.isEmpty()) {
+                val gapSize = if (size.isNotEmpty()) {
                     (totalSize - consumedSize) / size.size
                 } else {
                     0.ipx
@@ -459,6 +463,7 @@ private val Measurable.fit: Int get() = (parentData as FlexInfo).fit
  * Layout model that places its children in a horizontal or vertical sequence, according to the
  * specified orientation, while also looking at the flex weights of the children.
  */
+@Suppress("FunctionName")
 @Composable
 private fun Flex(
     orientation: Int /*FlexOrientation*/,
@@ -472,9 +477,9 @@ private fun Flex(
 
     val flexChildren = FlexChildren()
     flexChildren.block()
-    <Layout layoutBlock={ children, constraints ->
+    <Layout layoutBlock={ children, outerConstraints ->
 
-        val constraints = OrientationIndependentConstraints(constraints, orientation)
+        val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
 
         val totalFlex = children.sumByDouble { it.flex.toDouble() }.toFloat()
 

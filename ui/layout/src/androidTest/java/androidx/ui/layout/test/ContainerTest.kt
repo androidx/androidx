@@ -113,7 +113,6 @@ class ContainerTest : LayoutTest() {
     @Test
     fun testContainer_passesConstraintsToChild() = withDensity(density) {
         val sizeDp = 100.dp
-        val size = sizeDp.toIntPx()
         val childWidthDp = 20.dp
         val childWidth = childWidthDp.toIntPx()
         val childHeightDp = 30.dp
