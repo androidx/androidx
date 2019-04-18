@@ -18,14 +18,19 @@ package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
 import android.location.Location;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -58,7 +63,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
+import org.mockito.ArgumentCaptor;
 
 import java.io.File;
 import java.io.IOException;
@@ -150,8 +155,8 @@ public final class ImageCaptureTest {
                         mSemaphore.release();
                     }
                 };
-        mMockImageCapturedListener = Mockito.mock(OnImageCapturedListener.class);
-        mMockImageSavedListener = Mockito.mock(OnImageSavedListener.class);
+        mMockImageCapturedListener = mock(OnImageCapturedListener.class);
+        mMockImageSavedListener = mock(OnImageSavedListener.class);
         mOnImageSavedListener =
                 new OnImageSavedListener() {
                     @Override
@@ -458,5 +463,35 @@ public final class ImageCaptureTest {
             // Detach use case from camera device to run next resolution setting
             CameraUtil.detachUseCaseFromCamera(mCamera, useCase);
         }
+    }
+
+    @Test
+    public void camera2InteropCaptureSessionCallbacks() throws InterruptedException {
+        ImageCaptureConfig.Builder configBuilder =
+                new ImageCaptureConfig.Builder().setCallbackHandler(mHandler);
+        CameraCaptureSession.CaptureCallback captureCallback =
+                mock(CameraCaptureSession.CaptureCallback.class);
+        new Camera2Config.Extender(configBuilder).setSessionCaptureCallback(captureCallback);
+        ImageCapture useCase = new ImageCapture(configBuilder.build());
+        Map<String, Size> suggestedResolutionMap = new HashMap<>();
+        suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
+        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
+        useCase.addStateChangeListener(mCamera);
+
+        useCase.takePicture(mOnImageCapturedListener);
+        // Wait for the signal that the image has been captured.
+        mSemaphore.acquire();
+
+        ArgumentCaptor<CaptureRequest> requestCaptor =
+                ArgumentCaptor.forClass(CaptureRequest.class);
+        // Note: preview callbacks also fire on interop listener.
+        verify(captureCallback, atLeastOnce()).onCaptureCompleted(
+                any(CameraCaptureSession.class),
+                requestCaptor.capture(),
+                any(TotalCaptureResult.class));
+        CaptureRequest captureRequest = requestCaptor.getValue(); // Obtains the last value.
+        assertThat(captureRequest.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
+                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE);
     }
 }

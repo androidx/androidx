@@ -47,7 +47,8 @@ final class Camera2OptionUnpacker implements SessionConfig.OptionUnpacker {
             templateType = defaultSessionConfig.getTemplateType();
             builder.addAllDeviceStateCallbacks(defaultSessionConfig.getDeviceStateCallbacks());
             builder.addAllSessionStateCallbacks(defaultSessionConfig.getSessionStateCallbacks());
-            builder.addAllCameraCaptureCallbacks(defaultSessionConfig.getCameraCaptureCallbacks());
+            builder.addAllRepeatingCameraCaptureCallbacks(
+                    defaultSessionConfig.getRepeatingCameraCaptureCallbacks());
             implOptions = defaultSessionConfig.getImplementationOptions();
 
             // Add all default camera characteristics
