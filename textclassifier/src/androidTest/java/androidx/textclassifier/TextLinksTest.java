@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.LocaleList;
 import android.text.Spannable;
 import android.text.SpannableString;
 
@@ -150,6 +151,28 @@ public final class TextLinksTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
+    public void testFromPlatformRequest() {
+        android.view.textclassifier.TextClassifier.EntityConfig entityConfig =
+                android.view.textclassifier.TextClassifier.EntityConfig.create(
+                        Collections.singleton("hints"),
+                        Collections.singleton("include"),
+                        Collections.singleton("exclude"));
+        android.view.textclassifier.TextLinks.Request platformRequest =
+                new android.view.textclassifier.TextLinks.Request.Builder(FULL_TEXT)
+                        .setDefaultLocales(LocaleList.forLanguageTags(LANGUAGE_TAGS))
+                        .setEntityConfig(entityConfig)
+                        .build();
+
+        TextLinks.Request request = TextLinks.Request.fromPlatform(platformRequest);
+        assertThat(request.getText()).isEqualTo(FULL_TEXT);
+        assertThat(request.getDefaultLocales().toLanguageTags()).isEqualTo(LANGUAGE_TAGS);
+        assertThat(request.getEntityConfig().getHints()).containsExactly("hints");
+        assertThat(request.getEntityConfig().resolveTypes(Arrays.asList("default", "exclude")))
+                .containsExactly("include", "default");
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void testConvertFromPlatformTextLinks() {
         final android.view.textclassifier.TextLinks platformTextLinks =
                 new android.view.textclassifier.TextLinks.Builder(FULL_TEXT.toString())
@@ -159,6 +182,21 @@ public final class TextLinksTest {
 
         TextLinks textLinks = TextLinks.fromPlatform(platformTextLinks, FULL_TEXT);
         assertTextLinks(textLinks);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void testConvertToPlatformTextLinks() {
+        final TextLinks textLinks =
+                new TextLinks.Builder(FULL_TEXT.toString())
+                        .addLink(0, 4, getEntityScores(0.f, 0.f, 1.f))
+                        .addLink(5, 12, getEntityScores(.8f, .1f, .5f))
+                        .build();
+
+        android.view.textclassifier.TextLinks platformTextLinks = textLinks.toPlatform();
+        TextLinks recovered = TextLinks.fromPlatform(platformTextLinks, FULL_TEXT);
+
+        assertTextLinks(recovered);
     }
 
     @Test
