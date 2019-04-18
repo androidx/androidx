@@ -44,6 +44,7 @@ import com.google.r4a.unaryPlus
  * information passed for the [Container] (constraints, width and height) will not be satisfied
  * if the incoming [Constraints] do not allow it.
  */
+@Suppress("FunctionName")
 @Composable
 fun Container(
     padding: EdgeInsets? = null,
@@ -52,7 +53,7 @@ fun Container(
     constraints: DpConstraints? = null,
     width: Dp? = null,
     height: Dp? = null,
-    @Children() children: () -> Unit = {}
+    @Children() children: @Composable() () -> Unit = {}
 ) {
     var container = children
 
@@ -89,7 +90,7 @@ fun Container(
         }
         val childContainer = container
         container = @Composable {
-            +withDensity {
+            +withDensity @Composable {
                 <ConstrainedBox constraints=containerConstraints>
                     <childContainer />
                 </ConstrainedBox>

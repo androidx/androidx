@@ -34,8 +34,8 @@ import com.google.r4a.composer
  * with a [StackChildren] instance as argument.
  */
 class StackChildren {
-    internal val _stackChildren = mutableListOf<() -> Unit>()
-    internal val stackChildren: List<() -> Unit>
+    private val _stackChildren = mutableListOf<@Composable() () -> Unit>()
+    internal val stackChildren: List<@Composable() () -> Unit>
         get() = _stackChildren
 
     fun positioned(
@@ -53,12 +53,12 @@ class StackChildren {
             leftInset = leftInset, topInset = topInset,
             rightInset = rightInset, bottomInset = bottomInset
         )
-        _stackChildren.add(@Composable { <ParentData data children /> })
+        _stackChildren += @Composable { <ParentData data children /> }
     }
 
     fun aligned(alignment: Alignment, children: @Composable() () -> Unit) {
         val data = StackChildData(alignment = alignment)
-        _stackChildren.add(@Composable { <ParentData data children /> })
+        _stackChildren += @Composable { <ParentData data children /> }
     }
 }
 
@@ -93,6 +93,7 @@ class StackChildren {
  *         }
  *     </Stack>
  */
+@Suppress("FunctionName")
 @Composable
 fun Stack(
     defaultAlignment: Alignment = Alignment.Center,
