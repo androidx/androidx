@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import android.app.Activity
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -58,10 +59,7 @@ class PrimaryNavFragmentTest {
             .that(cfm.backStackEntryCount)
             .isEqualTo(1)
 
-        // Should execute the pop for the child fragmentmanager
-        assertWithMessage("popBackStackImmediate returned no action performed")
-            .that(popBackStackImmediate(fm))
-            .isTrue()
+        activityRule.onBackPressed()
 
         assertWithMessage("child transaction still on back stack")
             .that(cfm.backStackEntryCount)
@@ -93,7 +91,7 @@ class PrimaryNavFragmentTest {
             .that(fm.primaryNavigationFragment)
             .isNull()
 
-        popBackStackImmediate(fm)
+        activityRule.onBackPressed()
 
         assertWithMessage("primary nav fragment was not restored on pop")
             .that(fm.primaryNavigationFragment)
@@ -112,7 +110,7 @@ class PrimaryNavFragmentTest {
             .that(fm.primaryNavigationFragment)
             .isSameAs(strictFragment2)
 
-        popBackStackImmediate(fm)
+        activityRule.onBackPressed()
 
         assertWithMessage("primary nav fragment not restored on pop")
             .that(fm.primaryNavigationFragment)
@@ -127,7 +125,7 @@ class PrimaryNavFragmentTest {
         assertWithMessage("primary nav fragment not retained when set again in new transaction")
             .that(fm.primaryNavigationFragment)
             .isSameAs(strictFragment1)
-        popBackStackImmediate(fm)
+        activityRule.onBackPressed()
 
         assertWithMessage(
             "same primary nav fragment not retained when set primary nav transaction popped")
@@ -162,7 +160,7 @@ class PrimaryNavFragmentTest {
             .that(fm.primaryNavigationFragment)
             .isNull()
 
-        popBackStackImmediate(fm)
+        activityRule.onBackPressed()
 
         assertWithMessage("primary nav fragment not restored after popping replace")
             .that(fm.primaryNavigationFragment)
@@ -188,7 +186,7 @@ class PrimaryNavFragmentTest {
             .that(fm.primaryNavigationFragment)
             .isSameAs(strictFragment2)
 
-        popBackStackImmediate(fm)
+        activityRule.onBackPressed()
 
         assertWithMessage("primary nav fragment not null after popping replace")
             .that(fm.primaryNavigationFragment)
@@ -199,9 +197,7 @@ class PrimaryNavFragmentTest {
         activityRule.runOnUiThread { fm.executePendingTransactions() }
     }
 
-    private fun popBackStackImmediate(fm: FragmentManager): Boolean {
-        var popped = false
-        activityRule.runOnUiThread { popped = fm.popBackStackImmediate() }
-        return popped
+    private fun ActivityTestRule<out Activity>.onBackPressed() = runOnUiThread {
+        activity.onBackPressed()
     }
 }

@@ -49,7 +49,8 @@ import androidx.savedstate.SavedStateRegistryOwner;
 public class ComponentActivity extends androidx.core.app.ComponentActivity implements
         LifecycleOwner,
         ViewModelStoreOwner,
-        SavedStateRegistryOwner {
+        SavedStateRegistryOwner,
+        OnBackPressedDispatcherOwner {
 
     static final class NonConfigurationInstances {
         Object custom;
@@ -287,6 +288,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * @return The {@link OnBackPressedDispatcher} associated with this ComponentActivity.
      */
     @NonNull
+    @Override
     public final OnBackPressedDispatcher getOnBackPressedDispatcher() {
         return mOnBackPressedDispatcher;
     }
