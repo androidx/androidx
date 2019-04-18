@@ -216,6 +216,7 @@ class Canvas {
         if (bounds == null) {
             TODO("Migration/njawad framework does not have quivalent for saveLayerWithoutBounds")
         } else {
+            @Suppress("DEPRECATION")
             internalCanvas.saveLayer(
                     bounds.left,
                     bounds.top,
@@ -343,6 +344,7 @@ class Canvas {
     @SuppressWarnings("deprecation")
     fun clipRect(rect: Rect, clipOp: ClipOp = ClipOp.intersect) {
         val frameworkRect = rect.toFrameworkRect()
+        @Suppress("DEPRECATION")
         when (clipOp) {
             ClipOp.intersect -> internalCanvas.clipRect(frameworkRect)
             ClipOp.difference -> internalCanvas.clipRect(frameworkRect,
@@ -555,49 +557,6 @@ class Canvas {
         )
     }
 
-//    /// Draws the given [Image] into the canvas using the given [Paint].
-//    ///
-//    /// The image is drawn in nine portions described by splitting the image by
-//    /// drawing two horizontal lines and two vertical lines, where the `center`
-//    /// argument describes the rectangle formed by the four points where these
-//    /// four lines intersect each other. (This forms a 3-by-3 grid of regions,
-//    /// the center region being described by the `center` argument.)
-//    ///
-//    /// The four regions in the corners are drawn, without scaling, in the four
-//    /// corners of the destination rectangle described by `dst`. The remaining
-//    /// five regions are drawn by stretching them to fit such that they exactly
-//    /// cover the destination rectangle while maintaining their relative
-//    /// positions.
-    fun drawImageNine(image: Image, center: Rect, dst: Rect, paint: Paint) {
-        TODO("Migration/njawad implement drawImageNine after porting Image w/ Bitmap wrapper")
-//        assert(image != null); // image is checked on the engine side
-//        assert(_rectIsValid(center));
-//        assert(_rectIsValid(dst));
-//        assert(paint != null);
-//        _drawImageNine(image,
-//                center.left,
-//                center.top,
-//                center.right,
-//                center.bottom,
-//                dst.left,
-//                dst.top,
-//                dst.right,
-//                dst.bottom,
-//                paint._objects,
-//                paint._data);
-    }
-//    void _drawImageNine(Image image,
-//    double centerLeft,
-//    double centerTop,
-//    double centerRight,
-//    double centerBottom,
-//    double dstLeft,
-//    double dstTop,
-//    double dstRight,
-//    double dstBottom,
-//    List<dynamic> paintObjects,
-//    ByteData paintData) native 'Canvas_drawImageNine';
-
     /**
      * Draw the given picture onto the canvas. To create a picture, see
      * [PictureRecorder].
@@ -766,7 +725,11 @@ class Canvas {
 //    ByteData paintData,
 //    int pointMode,
 //    Float32List points) native 'Canvas_drawPoints';
-    fun drawVertices(vertices: Vertices, blendMode: BlendMode, paint: Paint) {
+    fun drawVertices(
+        vertices: Vertices,
+        @Suppress("UNUSED_PARAMETER") blendMode: BlendMode,
+        paint: Paint
+    ) {
         // TODO(Migration/njawad align drawVertices blendMode parameter usage with framework
         // android.graphics.Canvas#drawVertices does not consume a blendmode argument
         internalCanvas.drawVertices(

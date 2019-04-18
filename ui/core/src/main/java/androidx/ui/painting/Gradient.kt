@@ -58,13 +58,13 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
         ): Gradient {
             _validateColorStops(colors, colorStops)
             val linearGradient = android.graphics.LinearGradient(
-                    from.dx,
-                    from.dy,
-                    to.dx,
-                    to.dy,
-                    toIntArray(colors),
-                    toFloatArray(colorStops),
-                    toFrameworkTileMode(tileMode)
+                from.dx,
+                from.dy,
+                to.dx,
+                to.dy,
+                toIntArray(colors),
+                toFloatArray(colorStops),
+                toFrameworkTileMode(tileMode)
             )
             return Gradient(linearGradient)
         }
@@ -109,7 +109,7 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
             color: List<Color>,
             colorStops: List<Float>?,
             tileMode: TileMode = TileMode.clamp,
-            matrix4: Matrix4,
+            @Suppress("UNUSED_PARAMETER") matrix4: Matrix4,
             focal: Offset?,
             focalRadius: Float
         ): Gradient {
@@ -122,9 +122,9 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
                     center.dx,
                     center.dy,
                     radius,
-                        toIntArray(color),
-                        toFloatArray(colorStops),
-                        toFrameworkTileMode(tileMode)
+                    toIntArray(color),
+                    toFloatArray(colorStops),
+                    toFrameworkTileMode(tileMode)
                 )
                 return Gradient(radial)
             }
@@ -160,6 +160,7 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
          */
         // TODO(Migration/njawad change matrix4 parameter to Float64List to match Flutter implementation)
         // TODO(Migration/njawad remove annotation after b/113119778 is fixed/deployed)
+        @Suppress("UNUSED_PARAMETER")
         @SuppressWarnings("SyntheticAccessor")
         fun sweep(
             center: Offset,
@@ -199,25 +200,29 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
         }
 
         private fun toIntArray(colors: List<Color>): IntArray {
-            return IntArray(colors.size) {
-                i -> colors[i].value
+            return IntArray(colors.size) { i ->
+                colors[i].value
             }
         }
 
         private fun _validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
             if (colorStops == null) {
                 if (colors.size != 2) {
-                    throw IllegalArgumentException("colors must have length 2 if colorStops " +
-                            "is omitted.")
+                    throw IllegalArgumentException(
+                        "colors must have length 2 if colorStops " +
+                                "is omitted."
+                    )
                 }
-            } else if (colors.size != colorStops?.size) {
-                throw IllegalArgumentException("colors and colorStops arguments must have" +
-                        " equal length.")
+            } else if (colors.size != colorStops.size) {
+                throw IllegalArgumentException(
+                    "colors and colorStops arguments must have" +
+                            " equal length."
+                )
             }
         }
     }
 
-    internal override fun toFrameworkShader(): android.graphics.Shader {
+    override fun toFrameworkShader(): android.graphics.Shader {
         return shader
     }
 }

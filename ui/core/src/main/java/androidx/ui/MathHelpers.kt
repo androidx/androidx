@@ -31,5 +31,5 @@ fun lerp(a: Int, b: Int, t: Float): Float {
 
 fun Float.toStringAsFixed(digits: Int) = String.format("%.${digits}f", this)
 
-@ExperimentalUnsignedTypes
+@UseExperimental(kotlin.ExperimentalUnsignedTypes::class)
 fun Int.toHexString() = "0x${toUInt().toString(16).padStart(8, '0')}"

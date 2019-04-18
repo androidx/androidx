@@ -137,6 +137,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * hyperbola; if the weight equals 1, it's a parabola; and if it is
      * less than 1, it is an ellipse.
      */
+    @Suppress("UNUSED_PARAMETER")
     fun conicTo(x1: Float, y1: Float, x2: Float, y2: Float, w: Float) {
         // TODO(Migration/njawad) figure out how to handle unsupported framework Path operations
         throw UnsupportedOperationException("conicTo not supported in framework Path")
@@ -150,6 +151,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * a hyperbola; if the weight equals 1, it's a parabola; and if it
      * is less than 1, it is an ellipse.
      */
+    @Suppress("UNUSED_PARAMETER")
     fun relativeConicTo(x1: Float, y1: Float, x2: Float, y2: Float, w: Float) {
         // TODO(Migration/njawad) figure out how to handle unsupported framework Path operations
         throw UnsupportedOperationException("relativeConicTo not supported in framework Path")
@@ -201,6 +203,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * point if both are greater than zero but too small to describe an arc.
      *
      */
+    @Suppress("UNUSED_PARAMETER")
     fun arcToPoint(
         arcEnd: Offset,
         radius: Radius = Radius.zero,
@@ -212,6 +215,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
         throw UnsupportedOperationException("arcToPoint not supported in framework Path")
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun _arcToPoint(
         arcEndX: Float,
         arcEndY: Float,
@@ -261,6 +265,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
         )
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun _relativeArcToPoint(
         arcEndX: Float,
         arcEndY: Float,
@@ -289,6 +294,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
     }
 
     // Not necessary as wrapping platform Path
+    @Suppress("UNUSED_PARAMETER")
     fun _addRect(left: Float, top: Float, right: Float, bottom: Float) {
         TODO()
         // Flutter calls into native Path logic here
@@ -311,6 +317,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
     }
 
     // Not necessary as wrapping platform Path
+    @Suppress("UNUSED_PARAMETER")
     private fun _addOval(left: Float, top: Float, right: Float, bottom: Float) {
         TODO()
         // Flutter calls into native Path logic here
@@ -334,6 +341,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
     }
 
     // Not necessary as wrapping platform Path
+    @Suppress("UNUSED_PARAMETER")
     private fun _addArc(left: Float, top: Float, right: Float, bottom: Float) {
         TODO()
         // Flutter calls into native Path logic here
@@ -349,11 +357,13 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      *
      * The `points` argument is interpreted as offsets from the origin.
      */
+    @Suppress("UNUSED_PARAMETER")
     fun addPolygon(points: List<Offset>, close: Boolean) {
         // TODO(Migration/njawad) implement with sequence of "lineTo" calls
         TODO()
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun _addPolygon(points: FloatArray, close: Boolean) {
         // TODO(Migration/njawad: implement with sequence of "lineTo" calls)
         TODO()
@@ -378,6 +388,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
     }
 
     // Not necessary as wrapping platform Path
+    @Suppress("UNUSED_PARAMETER")
     private fun _addRRect(rrect: FloatArray) {
         TODO()
         // Flutter calls into native Path logic here
@@ -404,6 +415,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
     }
 
     // Not necessary as wrapping platform Path
+    @Suppress("UNUSED_PARAMETER")
     private fun _addPath(path: Path, dx: Float, dy: Float) {
         TODO()
         // Flutter calls into native Path logic here
@@ -411,6 +423,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
     }
 
     // Not necessary as wrapping platform Path
+    @Suppress("UNUSED_PARAMETER")
     private fun _addPathWithMatrix(path: Path, dx: Float, dy: Float, matrix4: Matrix4) {
         TODO()
         // Flutter calls into native Path logic here
@@ -427,6 +440,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
 //        }
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun _extendWithPath(path: Path, dx: Float, dy: Float) {
         // TODO(Migration/njawad: figure out how to handle unsupported framework Path operations)
         TODO()
@@ -434,6 +448,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
         // native 'Path_extendWithPath';
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun _extendWithPathAndMatrix(path: Path, dx: Float, dy: Float, matrix: Matrix4) {
         // TODO(Migration/njawad: figure out how to handle unsupported framework Path operations)
         TODO()
@@ -509,14 +524,16 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * Returns a copy of the path with all the segments of every
      * subpath transformed by the given matrix.
      */
+    @Suppress("UNUSED_PARAMETER")
     fun transform(matrix: Matrix4): Path {
         // TODO(Migration/njawad: Update implementation with Matrix4 -> android.graphics.Matrix)
         TODO("Update implementation with Matrix4 -> android.graphics.Matrix conversion")
         // internalPath.transform(matrix);
-        return clone()
+//        return clone()
     }
 
     // Not necessary as ported implementation with public transform method
+    @Suppress("UNUSED_PARAMETER")
     private fun _transform(matrix: Matrix4) {
         TODO()
         // Flutter calls into native code here
@@ -555,7 +572,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
         TODO()
         // Flutter calls into native code here
         // native 'Path_getBounds';
-        return Rect(0.0f, 0.0f, 0.0f, 0.0f)
+//        return Rect(0.0f, 0.0f, 0.0f, 0.0f)
     }
 
     companion object {
@@ -640,6 +657,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
         return true
     }
 
+    @Suppress("UNUSED_PARAMETER")
     private fun _matrixIsValid(matrix: Matrix4): Boolean {
         return true
     }
