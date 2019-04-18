@@ -61,6 +61,7 @@ private const val _defaultFontSize: Float = 14.0f
  * @param decoration The decorations to paint near the text (e.g., an underline).
  * @param fontFamily The name of the font to use when painting the text (e.g., Roboto).
  * @param textIndent Specify how much a paragraph is indented.
+ * @param textAlign Specify how a paragraph is aligned.
  * @param shadow The shadow effect applied on the text.
  * @param debugLabel A human-readable description of this text style.
  */
@@ -81,6 +82,7 @@ data class TextStyle(
     val decoration: TextDecoration? = null,
     var fontFamily: FontFamily? = null,
     val textIndent: TextIndent? = null,
+    val textAlign: TextAlign? = null,
     val shadow: Shadow? = null,
     val debugLabel: String? = null
 ) {
@@ -125,6 +127,7 @@ data class TextStyle(
             background = other.background ?: this.background,
             decoration = other.decoration ?: this.decoration,
             textIndent = other.textIndent ?: this.textIndent,
+            textAlign = other.textAlign ?: this.textAlign,
             shadow = other.shadow ?: this.shadow,
             debugLabel = mergedDebugLabel
         )
@@ -233,6 +236,7 @@ data class TextStyle(
                     b.textIndent ?: TextIndent.NONE,
                     t
                 ),
+                textAlign = if (t < 0.5) a.textAlign else b.textAlign,
                 shadow = lerp(
                     a.shadow ?: Shadow(),
                     b.shadow ?: Shadow(),
@@ -258,6 +262,7 @@ data class TextStyle(
             wordSpacing = wordSpacing,
             baselineShift = baselineShift,
             textGeometricTransform = textGeometricTransform,
+            textAlign = textAlign,
             height = height,
             locale = locale,
             background = background,

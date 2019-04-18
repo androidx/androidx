@@ -54,6 +54,14 @@ package androidx.text {
 
 
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TextAlignmentAdapter {
+    method public android.text.Layout.Alignment get(@androidx.text.LayoutCompat.TextLayoutAlignment int value);
+    method public android.text.Layout.Alignment getALIGN_LEFT_FRAMEWORK();
+    method public android.text.Layout.Alignment getALIGN_RIGHT_FRAMEWORK();
+    property public final android.text.Layout.Alignment ALIGN_LEFT_FRAMEWORK;
+    property public final android.text.Layout.Alignment ALIGN_RIGHT_FRAMEWORK;
+  }
+
 
 }
 

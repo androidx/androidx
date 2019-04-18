@@ -15,6 +15,8 @@
  */
 package androidx.text
 
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+
 import android.graphics.Canvas
 import android.graphics.Path
 import android.os.Build
@@ -207,7 +209,9 @@ internal fun getTextDirectionHeuristic(@TextDirection textDirectionHeuristic: In
     }
 }
 
-internal object TextAlignmentAdapter {
+/** @hide */
+@RestrictTo(LIBRARY_GROUP)
+public object TextAlignmentAdapter {
     val ALIGN_LEFT_FRAMEWORK: Layout.Alignment
     val ALIGN_RIGHT_FRAMEWORK: Layout.Alignment
 
