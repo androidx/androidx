@@ -42,8 +42,8 @@ public class TextClassifierTest {
                 TextClassifier.EntityConfig.createFromBundle(entityConfig.toBundle());
 
         assertThat(entityConfig.getHints()).containsExactly("a", "b");
-        assertThat(entityConfig.shouldIncludeDefaultEntityTypes()).isTrue();
-        assertThat(entityConfigFromBundle.resolveEntityTypes(Arrays.asList("default")))
+        assertThat(entityConfig.shouldIncludeTypesFromTextClassifier()).isTrue();
+        assertThat(entityConfigFromBundle.resolveTypes(Arrays.asList("default")))
                 .containsExactly("default");
     }
 
@@ -51,32 +51,32 @@ public class TextClassifierTest {
     public void testEntityConfig_withIncludedExcludedAndHints() {
         TextClassifier.EntityConfig entityConfig = new Builder()
                 .setHints(Arrays.asList("hints"))
-                .setIncludedEntityTypes(Arrays.asList("included", "overlap"))
-                .setExcludedEntityTypes(Arrays.asList("excluded", "overlap"))
+                .setIncludedTypes(Arrays.asList("included", "overlap"))
+                .setExcludedTypes(Arrays.asList("excluded", "overlap"))
                 .build();
 
         TextClassifier.EntityConfig entityConfigFromBundle =
                 TextClassifier.EntityConfig.createFromBundle(entityConfig.toBundle());
 
         assertThat(entityConfigFromBundle.getHints()).containsExactly("hints");
-        assertThat(entityConfigFromBundle.shouldIncludeDefaultEntityTypes()).isTrue();
-        assertThat(entityConfigFromBundle.resolveEntityTypes(Arrays.asList("default", "excluded")))
+        assertThat(entityConfigFromBundle.shouldIncludeTypesFromTextClassifier()).isTrue();
+        assertThat(entityConfigFromBundle.resolveTypes(Arrays.asList("default", "excluded")))
                 .containsExactly("default", "included");
     }
 
     @Test
     public void testEntityConfig_setUseDefaultEntityTypes() {
         TextClassifier.EntityConfig entityConfig = new Builder()
-                .setIncludeDefaultEntityTypes(false)
-                .setIncludedEntityTypes(Arrays.asList("included"))
+                .includeTypesFromTextClassifier(false)
+                .setIncludedTypes(Arrays.asList("included"))
                 .build();
 
         TextClassifier.EntityConfig entityConfigFromBundle =
                 TextClassifier.EntityConfig.createFromBundle(entityConfig.toBundle());
 
         assertThat(entityConfig.getHints()).isEmpty();
-        assertThat(entityConfig.shouldIncludeDefaultEntityTypes()).isFalse();
-        assertThat(entityConfigFromBundle.resolveEntityTypes(
+        assertThat(entityConfig.shouldIncludeTypesFromTextClassifier()).isFalse();
+        assertThat(entityConfigFromBundle.resolveTypes(
                 Arrays.asList("default"))).containsExactly("included");
     }
 
@@ -84,9 +84,9 @@ public class TextClassifierTest {
     @SdkSuppress(minSdkVersion = 28)
     public void testEntityConfig_toPlatform_explicit() {
         TextClassifier.EntityConfig entityConfig = new Builder()
-                .setIncludeDefaultEntityTypes(false)
-                .setIncludedEntityTypes(Arrays.asList("included", "excluded"))
-                .setExcludedEntityTypes(Arrays.asList("excluded"))
+                .includeTypesFromTextClassifier(false)
+                .setIncludedTypes(Arrays.asList("included", "excluded"))
+                .setExcludedTypes(Arrays.asList("excluded"))
                 .build();
 
         android.view.textclassifier.TextClassifier.EntityConfig platformEntityConfig =
@@ -101,8 +101,8 @@ public class TextClassifierTest {
     @SdkSuppress(minSdkVersion = 28)
     public void testEntityConfig_toPlatform_withDefault() {
         TextClassifier.EntityConfig entityConfig = new Builder()
-                .setIncludedEntityTypes(Arrays.asList("included", "excluded"))
-                .setExcludedEntityTypes(Arrays.asList("excluded"))
+                .setIncludedTypes(Arrays.asList("included", "excluded"))
+                .setExcludedTypes(Arrays.asList("excluded"))
                 .setHints(Arrays.asList("hint"))
                 .build();
 

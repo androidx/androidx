@@ -117,7 +117,7 @@ public final class TextLinksTest {
         assertEquals(FULL_TEXT, result.getText());
         assertEquals(LANGUAGE_TAGS, result.getDefaultLocales().toLanguageTags());
         assertThat(result.getEntityConfig().getHints()).containsExactly("hints");
-        assertThat(result.getEntityConfig().resolveEntityTypes(
+        assertThat(result.getEntityConfig().resolveTypes(
                 Arrays.asList("default", "excluded")))
                 .containsExactly("included", "default");
         assertThat(result.getReferenceTime()).isEqualTo(REFERENCE_TIME);
@@ -204,8 +204,8 @@ public final class TextLinksTest {
 
     private TextLinks.Request.Builder createTextLinksRequest() {
         EntityConfig entityConfig = new EntityConfig.Builder()
-                .setIncludedEntityTypes(Arrays.asList("included"))
-                .setExcludedEntityTypes(Arrays.asList("excluded"))
+                .setIncludedTypes(Arrays.asList("included"))
+                .setExcludedTypes(Arrays.asList("excluded"))
                 .setHints(Arrays.asList("hints"))
                 .build();
 
