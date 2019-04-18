@@ -567,8 +567,12 @@ public class BiometricPrompt implements BiometricConstants {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             mPausedOnce = false;
 
-            // Create the fragment that wraps BiometricPrompt once.
-            if (mBiometricFragment == null) {
+            BiometricFragment biometricFragment =
+                    (BiometricFragment) fragmentManager.findFragmentByTag(
+                            BIOMETRIC_FRAGMENT_TAG);
+            if (biometricFragment != null) {
+                mBiometricFragment = biometricFragment;
+            } else {
                 mBiometricFragment = BiometricFragment.newInstance();
             }
             mBiometricFragment.setCallbacks(mExecutor, mNegativeButtonListener,
@@ -577,28 +581,44 @@ public class BiometricPrompt implements BiometricConstants {
             mBiometricFragment.setCryptoObject(crypto);
             mBiometricFragment.setBundle(bundle);
 
-            if (fragmentManager.findFragmentByTag(BIOMETRIC_FRAGMENT_TAG) == null) {
+            if (biometricFragment == null) {
                 // If the fragment hasn't been added before, add it. It will also start the
                 // authentication.
                 fragmentManager.beginTransaction().add(mBiometricFragment, BIOMETRIC_FRAGMENT_TAG)
                         .commit();
-            } else {
+            } else if (mBiometricFragment.isDetached()) {
                 // If it's been added before, just re-attach it.
                 fragmentManager.beginTransaction().attach(mBiometricFragment).commit();
             }
         } else {
             // Create the UI
-            if (mFingerprintDialogFragment == null) {
+            FingerprintDialogFragment fingerprintDialogFragment =
+                    (FingerprintDialogFragment) fragmentManager.findFragmentByTag(
+                            DIALOG_FRAGMENT_TAG);
+            if (fingerprintDialogFragment != null) {
+                mFingerprintDialogFragment = fingerprintDialogFragment;
+            } else {
                 mFingerprintDialogFragment = FingerprintDialogFragment.newInstance();
             }
+
             mFingerprintDialogFragment.setNegativeButtonListener(mNegativeButtonListener);
             mFingerprintDialogFragment.setBundle(bundle);
-            mFingerprintDialogFragment.show(fragmentManager, DIALOG_FRAGMENT_TAG);
+            if (fingerprintDialogFragment == null) {
+                mFingerprintDialogFragment.show(fragmentManager, DIALOG_FRAGMENT_TAG);
+            } else if (mFingerprintDialogFragment.isDetached()) {
+                fragmentManager.beginTransaction().attach(mFingerprintDialogFragment).commit();
+            }
 
             // Create the connection to FingerprintManager
-            if (mFingerprintHelperFragment == null) {
+            FingerprintHelperFragment fingerprintHelperFragment =
+                    (FingerprintHelperFragment) fragmentManager.findFragmentByTag(
+                            FINGERPRINT_HELPER_FRAGMENT_TAG);
+            if (fingerprintHelperFragment != null) {
+                mFingerprintHelperFragment = fingerprintHelperFragment;
+            } else {
                 mFingerprintHelperFragment = FingerprintHelperFragment.newInstance();
             }
+
             mFingerprintHelperFragment.setCallback(mExecutor, mAuthenticationCallback);
             final Handler fingerprintDialogHandler = mFingerprintDialogFragment.getHandler();
             mFingerprintHelperFragment.setHandler(fingerprintDialogHandler);
@@ -607,12 +627,12 @@ public class BiometricPrompt implements BiometricConstants {
                     fingerprintDialogHandler.obtainMessage(
                             FingerprintDialogFragment.DISPLAYED_FOR_500_MS), DELAY_MILLIS);
 
-            if (fragmentManager.findFragmentByTag(FINGERPRINT_HELPER_FRAGMENT_TAG) == null) {
+            if (fingerprintHelperFragment == null) {
                 // If the fragment hasn't been added before, add it. It will also start the
                 // authentication.
                 fragmentManager.beginTransaction()
                         .add(mFingerprintHelperFragment, FINGERPRINT_HELPER_FRAGMENT_TAG).commit();
-            } else {
+            } else if (mFingerprintHelperFragment.isDetached()) {
                 // If it's been added before, just re-attach it.
                 fragmentManager.beginTransaction().attach(mFingerprintHelperFragment).commit();
             }
