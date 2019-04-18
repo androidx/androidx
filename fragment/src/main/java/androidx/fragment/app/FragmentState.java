@@ -34,6 +34,7 @@ final class FragmentState implements Parcelable {
     final int mContainerId;
     final String mTag;
     final boolean mRetainInstance;
+    final boolean mRemoving;
     final boolean mDetached;
     final Bundle mArguments;
     final boolean mHidden;
@@ -51,6 +52,7 @@ final class FragmentState implements Parcelable {
         mContainerId = frag.mContainerId;
         mTag = frag.mTag;
         mRetainInstance = frag.mRetainInstance;
+        mRemoving = frag.mRemoving;
         mDetached = frag.mDetached;
         mArguments = frag.mArguments;
         mHidden = frag.mHidden;
@@ -65,6 +67,7 @@ final class FragmentState implements Parcelable {
         mContainerId = in.readInt();
         mTag = in.readString();
         mRetainInstance = in.readInt() != 0;
+        mRemoving = in.readInt() != 0;
         mDetached = in.readInt() != 0;
         mArguments = in.readBundle();
         mHidden = in.readInt() != 0;
@@ -98,6 +101,7 @@ final class FragmentState implements Parcelable {
             mInstance.mContainerId = mContainerId;
             mInstance.mTag = mTag;
             mInstance.mRetainInstance = mRetainInstance;
+            mInstance.mRemoving = mRemoving;
             mInstance.mDetached = mDetached;
             mInstance.mHidden = mHidden;
             mInstance.mMaxState = Lifecycle.State.valueOf(mLifecycleState);
@@ -132,6 +136,9 @@ final class FragmentState implements Parcelable {
         if (mRetainInstance) {
             sb.append(" retainInstance");
         }
+        if (mRemoving) {
+            sb.append(" removing");
+        }
         if (mDetached) {
             sb.append(" detached");
         }
@@ -155,6 +162,7 @@ final class FragmentState implements Parcelable {
         dest.writeInt(mContainerId);
         dest.writeString(mTag);
         dest.writeInt(mRetainInstance ? 1 : 0);
+        dest.writeInt(mRemoving ? 1 : 0);
         dest.writeInt(mDetached ? 1 : 0);
         dest.writeBundle(mArguments);
         dest.writeInt(mHidden ? 1 : 0);
