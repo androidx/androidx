@@ -297,6 +297,10 @@ class SaveStateFragmentTest {
         fc1.execPendingActions()
         fc1.dispatchStart()
 
+        // Add another Fragment while we're started
+        val retainedOnStartFragment = StateSaveFragment("onStart", "onStart", true)
+        fm1.beginTransaction().add(retainedOnStartFragment, "tag:onStart").commitNow()
+
         // Finish the transparent activity, causing a config change
         fc1.dispatchStop()
         fc1.dispatchDestroy()
@@ -316,6 +320,13 @@ class SaveStateFragmentTest {
         assertWithMessage("retained fragment not restored").that(restoredFragment).isNotNull()
         assertWithMessage("The retained Fragment shouldn't be recreated")
             .that(restoredFragment).isEqualTo(retainedFragment)
+        val restoredOnStartFragment = fm2.findFragmentByTag("tag:onStart") as StateSaveFragment?
+        assertWithMessage("Retained Fragment added after saved state shouldn't be restored")
+            .that(restoredOnStartFragment)
+            .isNull()
+        assertWithMessage("Retained Fragment added after saved state should be destroyed")
+            .that(retainedOnStartFragment.calledOnDestroy)
+            .isTrue()
 
         fc2.dispatchActivityCreated()
         fc2.noteStateNotSaved()
