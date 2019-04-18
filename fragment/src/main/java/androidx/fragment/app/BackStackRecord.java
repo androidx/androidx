@@ -426,10 +426,10 @@ final class BackStackRecord extends FragmentTransaction implements
                     mManager.setPrimaryNavigationFragment(null);
                     break;
                 case OP_SET_MAX_LIFECYCLE:
-                    mManager.setMaxLifecycle(f, op.mState);
+                    mManager.setMaxLifecycle(f, op.mMaxState);
                     break;
                 case OP_UNSET_MAX_LIFECYCLE:
-                    mManager.setMaxLifecycle(f, op.mState);
+                    mManager.setMaxLifecycle(f, op.mMaxState);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown cmd: " + op.mCmd);
@@ -491,10 +491,10 @@ final class BackStackRecord extends FragmentTransaction implements
                     mManager.setPrimaryNavigationFragment(f);
                     break;
                 case OP_SET_MAX_LIFECYCLE:
-                    mManager.setMaxLifecycle(f, op.mState);
+                    mManager.setMaxLifecycle(f, op.mMaxState);
                     break;
                 case OP_UNSET_MAX_LIFECYCLE:
-                    mManager.setMaxLifecycle(f, op.mState);
+                    mManager.setMaxLifecycle(f, op.mMaxState);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown cmd: " + op.mCmd);
@@ -639,10 +639,10 @@ final class BackStackRecord extends FragmentTransaction implements
                     oldPrimaryNav = null;
                     break;
                 case OP_UNSET_MAX_LIFECYCLE:
-                    op.mFragment.mMaxState = op.mState;
+                    op.mFragment.mMaxState = op.mMaxState;
                     break;
                 case OP_SET_MAX_LIFECYCLE:
-                    op.mState = op.mFragment.mMaxState;
+                    op.mMaxState = op.mFragment.mMaxState;
                     break;
             }
         }
