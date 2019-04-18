@@ -24,6 +24,7 @@ import static androidx.build.dependencies.DependenciesKt.*
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
@@ -32,6 +33,9 @@ dependencies {
     implementation(ARCH_ROOM_RUNTIME)
     annotationProcessor(ARCH_ROOM_COMPILER)
 
+    androidTestImplementation(project(':work:work-runtime-ktx'))
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(KOTLIN_COROUTINES)
     androidTestImplementation(WORK_ARCH_CORE_TESTING)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
