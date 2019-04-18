@@ -347,7 +347,7 @@ public final class CaptureSessionTest {
             mDeferrableSurface = new ImmediateSurface(mImageReader.getSurface());
             builder.addSurface(mDeferrableSurface);
             builder.addSessionStateCallback(mSessionStateCallback);
-            builder.addCameraCaptureCallback(mSessionCameraCaptureCallback);
+            builder.addRepeatingCameraCaptureCallback(mSessionCameraCaptureCallback);
 
             mSessionConfig = builder.build();
 

@@ -180,7 +180,7 @@ public class ImageCapture extends UseCase {
         }
 
         mSessionConfigBuilder = SessionConfig.Builder.createFrom(mConfig);
-        mSessionConfigBuilder.addCameraCaptureCallback(mSessionCallbackChecker);
+        mSessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
     }
 
     private static String getCameraIdUnchecked(LensFacing lensFacing) {
@@ -823,6 +823,8 @@ public class ImageCapture extends UseCase {
 
         for (final CaptureStage captureStage : mCaptureBundle.getCaptureStages()) {
             final CaptureConfig.Builder builder = new CaptureConfig.Builder();
+            builder.addAllCameraCaptureCallbacks(
+                    mSessionConfigBuilder.getSingleCameraCaptureCallbacks());
             builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
             builder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
 
@@ -830,7 +832,6 @@ public class ImageCapture extends UseCase {
 
             builder.addImplementationOptions(
                     captureStage.getCaptureConfig().getImplementationOptions());
-
             builder.setTag(captureStage.getCaptureConfig().getTag());
             builder.addCameraCaptureCallback(mMetadataMatchingCaptureCallback);
 

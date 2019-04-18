@@ -157,10 +157,11 @@ public class CaptureConfigTest {
         CameraCaptureCallback callback1 = mock(CameraCaptureCallback.class);
         List<CameraCaptureCallback> callbacks = Lists.newArrayList(callback0, callback1);
 
-        builder.addAllCameraCaptureCallbacks(callbacks);
+        builder.addAllRepeatingCameraCaptureCallbacks(callbacks);
         SessionConfig configuration = builder.build();
 
-        assertThat(configuration.getCameraCaptureCallbacks()).containsExactly(callback0, callback1);
+        assertThat(configuration.getRepeatingCameraCaptureCallbacks())
+                .containsExactly(callback0, callback1);
     }
 
     @Test(expected = IllegalArgumentException.class)
