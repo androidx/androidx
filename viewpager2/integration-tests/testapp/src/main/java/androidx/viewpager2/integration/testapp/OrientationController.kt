@@ -52,7 +52,7 @@ class OrientationController(private val viewPager: ViewPager2, private val spinn
         }
     }
 
-    private fun orientationToString(@ViewPager2.Orientation orientation: Int): String {
+    private fun orientationToString(orientation: Int): String {
         return when (orientation) {
             ViewPager2.ORIENTATION_HORIZONTAL -> HORIZONTAL
             ViewPager2.ORIENTATION_VERTICAL -> VERTICAL
@@ -60,7 +60,6 @@ class OrientationController(private val viewPager: ViewPager2, private val spinn
         }
     }
 
-    @ViewPager2.Orientation
     internal fun stringToOrientation(string: String): Int {
         return when (string) {
             HORIZONTAL -> ViewPager2.ORIENTATION_HORIZONTAL
