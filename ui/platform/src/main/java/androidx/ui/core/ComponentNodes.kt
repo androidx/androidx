@@ -317,58 +317,6 @@ sealed class SingleChildComponentNode : ComponentNode() {
     }
 }
 
-internal abstract sealed class MultiChildComponentNode : ComponentNode() {
-    /**
-     * The list of child ComponentNodes that this ComponentNode has. It can contain zero or
-     * more entries.
-     */
-    val children = mutableListOf<ComponentNode>()
-
-    override val count: Int
-        get() = children.size
-
-    override fun get(index: Int): ComponentNode = children.get(index)
-
-    override fun emitInsertAt(index: Int, instance: Emittable) {
-        // TODO(mount): Allow inserting Views
-        if (instance !is ComponentNode) {
-            ErrorMessages.OnlyComponents.state()
-        }
-        children.add(index, instance)
-        super.emitInsertAt(index, instance)
-    }
-
-    override fun emitRemoveAt(index: Int, count: Int) {
-        super.emitRemoveAt(index, count)
-        for (i in index + count - 1 downTo index) {
-            val child = children.removeAt(i)
-            child.parentLayoutNode = null
-        }
-    }
-
-    override fun emitMove(from: Int, to: Int, count: Int) {
-        ErrorMessages.IllegalMoveOperation.validateArgs(
-            from >= 0 && to >= 0 && count > 0,
-            count, from, to
-        )
-        // Do the simple thing for now. We can improve efficiency later if we need to
-        val removed = ArrayList<ComponentNode>(count)
-        for (i in from until from + count) {
-            removed += children[i]
-        }
-        children.removeAll(removed)
-
-        children.addAll(to, removed)
-    }
-
-    override fun visitChildren(reverse: Boolean, block: (ComponentNode) -> Unit) {
-        val children = if (reverse) children.reversed() else children
-        children.forEach { child ->
-            block(child)
-        }
-    }
-}
-
 /**
  * Backing node for handling pointer events.
  */
