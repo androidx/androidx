@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Lifecycle;
 import androidx.viewpager.widget.PagerAdapter;
 
 /**
@@ -66,11 +67,39 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     private static final boolean DEBUG = false;
 
     private final FragmentManager mFragmentManager;
+    private final boolean mResumeOnlyCurrentFragment;
     private FragmentTransaction mCurTransaction = null;
     private Fragment mCurrentPrimaryItem = null;
 
+    /**
+     * Constructor for {@link FragmentPagerAdapter} that sets the fragment manager for the adapter.
+     * This is the equivalent of calling {@link #FragmentPagerAdapter(FragmentManager, boolean)} and
+     * passing in <code>false</code>.
+     *
+     * <p>Fragments will have {@link Fragment#setUserVisibleHint(boolean)} called whenever the
+     * current Fragment changes.</p>
+     *
+     * @param fm fragment manager that will interact with this adapter
+     */
     public FragmentPagerAdapter(@NonNull FragmentManager fm) {
+        this(fm, false);
+    }
+
+    /**
+     * Secondary constructor for {@link FragmentPagerAdapter}.
+     *
+     * If <code>true</code> is passed in, then only the current Fragment
+     * is in the {@link Lifecycle.State#RESUMED} state. All other fragments are capped at
+     * {@link Lifecycle.State#STARTED}. If <code>false</code> is passed, all fragments are in the
+     * {@link Lifecycle.State#RESUMED} state and there will be callbacks to
+     * {@link Fragment#setUserVisibleHint(boolean)}.
+     *
+     * @param fm fragment manager that will interact with this adapter
+     * @param resumeOnlyCurrentFragment determines if only current fragments are in a resumed state
+     */
+    public FragmentPagerAdapter(@NonNull FragmentManager fm, boolean resumeOnlyCurrentFragment) {
         mFragmentManager = fm;
+        mResumeOnlyCurrentFragment = resumeOnlyCurrentFragment;
     }
 
     /**
@@ -111,7 +140,11 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
         }
         if (fragment != mCurrentPrimaryItem) {
             fragment.setMenuVisibility(false);
-            fragment.setUserVisibleHint(false);
+            if (mResumeOnlyCurrentFragment) {
+                mCurTransaction.setMaxLifecycle(fragment, Lifecycle.State.STARTED);
+            } else {
+                fragment.setUserVisibleHint(false);
+            }
         }
 
         return fragment;
@@ -130,14 +163,27 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     @SuppressWarnings({"ReferenceEquality", "deprecation"})
     @Override
     public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+        if (mCurTransaction == null) {
+            mCurTransaction = mFragmentManager.beginTransaction();
+        }
+
         Fragment fragment = (Fragment)object;
         if (fragment != mCurrentPrimaryItem) {
             if (mCurrentPrimaryItem != null) {
                 mCurrentPrimaryItem.setMenuVisibility(false);
-                mCurrentPrimaryItem.setUserVisibleHint(false);
+                if (mResumeOnlyCurrentFragment) {
+                    mCurTransaction.setMaxLifecycle(mCurrentPrimaryItem, Lifecycle.State.STARTED);
+                } else {
+                    fragment.setUserVisibleHint(false);
+                }
             }
             fragment.setMenuVisibility(true);
-            fragment.setUserVisibleHint(true);
+            if (mResumeOnlyCurrentFragment) {
+                mCurTransaction.setMaxLifecycle(fragment, Lifecycle.State.RESUMED);
+            } else {
+                fragment.setUserVisibleHint(true);
+            }
+
             mCurrentPrimaryItem = fragment;
         }
     }

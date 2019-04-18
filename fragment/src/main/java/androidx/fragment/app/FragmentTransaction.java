@@ -67,7 +67,7 @@ public abstract class FragmentTransaction {
         int mExitAnim;
         int mPopEnterAnim;
         int mPopExitAnim;
-        Lifecycle.State mState;
+        Lifecycle.State mMaxState;
 
         Op() {
         }
@@ -75,13 +75,13 @@ public abstract class FragmentTransaction {
         Op(int cmd, Fragment fragment) {
             this.mCmd = cmd;
             this.mFragment = fragment;
-            this.mState = Lifecycle.State.RESUMED;
+            this.mMaxState = Lifecycle.State.RESUMED;
         }
 
         Op(int cmd, Fragment fragment, Lifecycle.State state) {
             this.mCmd = cmd;
             this.mFragment = fragment;
-            this.mState = state;
+            this.mMaxState = state;
         }
     }
 
