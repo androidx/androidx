@@ -30,7 +30,7 @@ import java.util.ArrayList;
 final class BackStackState implements Parcelable {
     final int[] mOps;
     final ArrayList<String> mFragmentWhos;
-    final ArrayList<String> mLifecycleStates;
+    final int[] mMaxLifecycleStates;
     final int mTransition;
     final int mTransitionStyle;
     final String mName;
@@ -52,7 +52,7 @@ final class BackStackState implements Parcelable {
         }
 
         mFragmentWhos = new ArrayList<>(numOps);
-        mLifecycleStates = new ArrayList<>(numOps);
+        mMaxLifecycleStates = new int[numOps];
         int pos = 0;
         for (int opNum = 0; opNum < numOps; opNum++) {
             final BackStackRecord.Op op = bse.mOps.get(opNum);
@@ -62,7 +62,7 @@ final class BackStackState implements Parcelable {
             mOps[pos++] = op.mExitAnim;
             mOps[pos++] = op.mPopEnterAnim;
             mOps[pos++] = op.mPopExitAnim;
-            mLifecycleStates.add(op.mMaxState.name());
+            mMaxLifecycleStates[opNum] = op.mMaxState.ordinal();
         }
         mTransition = bse.mTransition;
         mTransitionStyle = bse.mTransitionStyle;
@@ -80,7 +80,7 @@ final class BackStackState implements Parcelable {
     public BackStackState(Parcel in) {
         mOps = in.createIntArray();
         mFragmentWhos = in.createStringArrayList();
-        mLifecycleStates = in.createStringArrayList();
+        mMaxLifecycleStates = in.createIntArray();
         mTransition = in.readInt();
         mTransitionStyle = in.readInt();
         mName = in.readString();
@@ -110,7 +110,7 @@ final class BackStackState implements Parcelable {
             } else {
                 op.mFragment = null;
             }
-            op.mMaxState = Lifecycle.State.valueOf(mLifecycleStates.get(num));
+            op.mMaxState = Lifecycle.State.values()[mMaxLifecycleStates[num]];
             op.mEnterAnim = mOps[pos++];
             op.mExitAnim = mOps[pos++];
             op.mPopEnterAnim = mOps[pos++];
@@ -147,7 +147,7 @@ final class BackStackState implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeIntArray(mOps);
         dest.writeStringList(mFragmentWhos);
-        dest.writeStringList(mLifecycleStates);
+        dest.writeIntArray(mMaxLifecycleStates);
         dest.writeInt(mTransition);
         dest.writeInt(mTransitionStyle);
         dest.writeString(mName);
