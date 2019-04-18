@@ -63,6 +63,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
 
     @Override
     MediaController onCreateController(final @NonNull SessionToken token,
+            final @Nullable Bundle connectionHints,
             final @Nullable TestBrowserCallback callback) throws InterruptedException {
         final AtomicReference<MediaController> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
@@ -71,24 +72,28 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
                 // Create controller on the test handler, for changing MediaBrowserCompat's Handler
                 // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
                 // and commands wouldn't be run if tests codes waits on the test handler.
-                controller.set(new MediaBrowser.Builder(mContext)
+                MediaBrowser.Builder builder = new MediaBrowser.Builder(mContext)
                         .setSessionToken(token)
-                        .setControllerCallback(sHandlerExecutor, callback)
-                        .build());
+                        .setControllerCallback(sHandlerExecutor, callback);
+                if (connectionHints != null) {
+                    builder.setConnectionHints(connectionHints);
+                }
+                controller.set(builder.build());
             }
         });
         return controller.get();
     }
 
     private MediaBrowser createBrowser(BrowserCallback callback) {
-        return createBrowser(true, callback);
+        return createBrowser(true, null, callback);
     }
 
-    private MediaBrowser createBrowser(boolean waitForConnect, BrowserCallback callback) {
+    private MediaBrowser createBrowser(boolean waitForConnect, Bundle connectionHints,
+            BrowserCallback callback) {
         SessionToken token = new SessionToken(mContext,
                 new ComponentName(mContext, MockMediaBrowserServiceCompat.class));
         try {
-            return (MediaBrowser) createController(token, waitForConnect, callback);
+            return (MediaBrowser) createController(token, waitForConnect, null, callback);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -129,7 +134,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         });
 
         final CountDownLatch latch = new CountDownLatch(1);
-        MediaBrowser browser = createBrowser(false, new MediaBrowser.BrowserCallback() {
+        MediaBrowser browser = createBrowser(false, null, new MediaBrowser.BrowserCallback() {
             @Override
             public void onConnected(MediaController controller,
                     SessionCommandGroup allowedCommands) {

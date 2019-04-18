@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Tests {@link MediaSession.SessionCallback}.
@@ -517,6 +518,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     @Test
     public void testOnConnect() throws InterruptedException {
         prepareLooper();
+        final AtomicReference<Bundle> connectionHints = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
                 .setId("testOnConnect")
@@ -528,13 +530,18 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
                         if (!CLIENT_PACKAGE_NAME.equals(controller.getPackageName())) {
                             return null;
                         }
+                        connectionHints.set(controller.getConnectionHints());
                         latch.countDown();
                         return super.onConnect(session, controller);
                     }
                 }).build()) {
+            Bundle testConnectionHints = new Bundle();
+            testConnectionHints.putString("test_key", "test_value");
+
             RemoteMediaController controller = createRemoteController(
-                    session.getToken(), false /* waitForConnection */);
+                    session.getToken(), false  /* waitForConnection */, testConnectionHints);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            assertTrue(TestUtils.equals(testConnectionHints, connectionHints.get()));
         }
     }
 

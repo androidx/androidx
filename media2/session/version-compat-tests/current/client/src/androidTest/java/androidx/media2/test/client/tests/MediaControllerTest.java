@@ -282,7 +282,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     public void testClose_beforeConnected() throws InterruptedException {
         prepareLooper();
         MediaController controller = createController(mRemoteSession.getToken(),
-                false /* waitForConnect */, null /* callback */);
+                false /* waitForConnect */, null, null /* callback */);
         controller.close();
     }
 

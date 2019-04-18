@@ -24,7 +24,7 @@ import androidx.versionedparcelable.ParcelImpl;
 interface IRemoteMediaController {
 
     void create(boolean isBrowser, String controllerId, in ParcelImpl token,
-            boolean waitForConnection);
+            in Bundle connectionHints, boolean waitForConnection);
 
     // MediaController Methods
     ParcelImpl getConnectedSessionToken(String controllerId);

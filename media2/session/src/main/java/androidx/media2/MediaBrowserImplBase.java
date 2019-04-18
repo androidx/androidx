@@ -28,9 +28,11 @@ import static androidx.media2.SessionCommand.COMMAND_CODE_LIBRARY_SUBSCRIBE;
 import static androidx.media2.SessionCommand.COMMAND_CODE_LIBRARY_UNSUBSCRIBE;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.media2.MediaBrowser.BrowserCallback;
 import androidx.media2.MediaLibraryService.LibraryParams;
 import androidx.media2.SequencedFutureManager.SequencedFuture;
@@ -48,8 +50,8 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
             new LibraryResult(RESULT_INFO_SKIPPED);
 
     MediaBrowserImplBase(Context context, MediaController instance, SessionToken token,
-            Executor executor, BrowserCallback callback) {
-        super(context, instance, token, executor, callback);
+            @Nullable Bundle connectionHints, Executor executor, BrowserCallback callback) {
+        super(context, instance, token, connectionHints, executor, callback);
     }
 
     @Override

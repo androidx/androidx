@@ -20,6 +20,7 @@ import static android.app.Service.START_STICKY;
 
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -29,6 +30,9 @@ import android.view.KeyEvent;
 import androidx.annotation.GuardedBy;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaBrowserServiceCompat;
+import androidx.media.MediaSessionManager;
+import androidx.media.MediaSessionManager.RemoteUserInfo;
+import androidx.media2.MediaSession.ControllerInfo;
 import androidx.media2.MediaSessionService.MediaNotification;
 import androidx.media2.MediaSessionService.MediaSessionServiceImpl;
 import androidx.versionedparcelable.ParcelImpl;
@@ -79,7 +83,21 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                 return getServiceBinder();
             }
             case MediaBrowserServiceCompat.SERVICE_INTERFACE: {
-                final MediaSession session = service.onGetPrimarySession();
+                String packageName = MediaBrowserServiceCompat.SERVICE_INTERFACE;
+                RemoteUserInfo remoteUserInfo = new RemoteUserInfo(packageName,
+                        0 /* pid */, 0 /* uid */);
+                ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
+                        false /* isTrusted */, null /* ControllerCb */,
+                        null /* connectionHints */);
+                final MediaSession session = service.onGetSession(controllerInfo);
+                if (session == null) {
+                    // Legacy MediaBrowser(Compat) cannot connect to this service.
+                    if (DEBUG) {
+                        Log.d(TAG, "Rejecting incoming connection request from"
+                                + " legacy media browsers.");
+                    }
+                    return null;
+                }
                 addSession(session);
                 // Return a specific session's legacy binder although the Android framework caches
                 // the returned binder here and next binding request may reuse cached binder even
@@ -111,7 +129,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
             old = mSessions.get(session.getId());
             if (old != null && old != session) {
                 // TODO(b/112114183): Also check the uniqueness before sessions're returned by
-                //                    onGetPrimarySession.
+                //                    onGetSession.
                 throw new IllegalArgumentException("Session ID should be unique.");
             }
             mSessions.put(session.getId(), session);
@@ -148,10 +166,18 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                 }
                 MediaSession session = MediaSession.getSession(intent.getData());
                 if (session == null) {
-                    session = instance.onGetPrimarySession();
+                    String packageName = Intent.ACTION_MEDIA_BUTTON;
+                    RemoteUserInfo remoteUserInfo = new RemoteUserInfo(packageName,
+                            0 /* pid */, 0 /* uid */);
+                    ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
+                            false /* isTrusted */, null /* ControllerCb */,
+                            null /* connectionHints */);
+                    session = instance.onGetSession(controllerInfo);
                 }
                 if (session == null) {
-                    Log.w(TAG, "No session for handling media key");
+                    if (DEBUG) {
+                        Log.d(TAG, "Rejecting wake-up of the service from media key events.");
+                    }
                     break;
                 }
                 KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
@@ -204,10 +230,13 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
         final WeakReference<MediaSessionServiceImplBase> mServiceImpl;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         final Handler mHandler;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        final MediaSessionManager mMediaSessionManager;
 
         MediaSessionServiceStub(final MediaSessionServiceImplBase serviceImpl) {
             mServiceImpl = new WeakReference<>(serviceImpl);
             mHandler = new Handler(serviceImpl.getInstance().getMainLooper());
+            mMediaSessionManager = MediaSessionManager.getSessionManager(serviceImpl.getInstance());
         }
 
         @Override
@@ -225,6 +254,8 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
             final ConnectionRequest request = MediaParcelUtils.fromParcelable(connectionRequest);
             final int pid = (callingPid != 0) ? callingPid : request.getPid();
             final String packageName = connectionRequest == null ? null : request.getPackageName();
+            final Bundle connectionHints = connectionRequest == null ? null :
+                    request.getConnectionHints();
             try {
                 mHandler.post(new Runnable() {
                     @Override
@@ -245,19 +276,34 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                                 }
                                 return;
                             }
+
+                            RemoteUserInfo remoteUserInfo = new RemoteUserInfo(
+                                    packageName, pid, uid);
+                            boolean isTrusted = mMediaSessionManager.isTrustedForMediaControl(
+                                    remoteUserInfo);
+                            ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
+                                    isTrusted, null /* controllerCb */, connectionHints);
+
                             if (DEBUG) {
                                 Log.d(TAG, "Handling incoming connection request from the"
-                                        + " controller, controller=" + packageName);
-
+                                        + " controller=" + controllerInfo);
                             }
                             final MediaSession session;
                             try {
-                                session = service.onGetPrimarySession();
+                                session = service.onGetSession(controllerInfo);
+                                if (session == null) {
+                                    if (DEBUG) {
+                                        Log.w(TAG, "Rejecting incoming connection request from the"
+                                                + " controller=" + controllerInfo);
+                                    }
+                                    return;
+                                }
+
                                 service.addSession(session);
                                 shouldNotifyDisconnected = false;
 
                                 session.handleControllerConnectionFromService(caller, packageName,
-                                        pid, uid);
+                                        pid, uid, connectionHints);
                             } catch (Exception e) {
                                 // Don't propagate exception in service to the controller.
                                 Log.w(TAG, "Failed to add a session to session service", e);
@@ -266,8 +312,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                             // Trick to call onDisconnected() in one place.
                             if (shouldNotifyDisconnected) {
                                 if (DEBUG) {
-                                    Log.d(TAG, "Service has destroyed prematurely."
-                                            + " Rejecting connection");
+                                    Log.d(TAG, "Notifying the controller of its disconnection");
                                 }
                                 try {
                                     caller.onDisconnected(0);

@@ -33,6 +33,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Process;
 
 import androidx.annotation.NonNull;
@@ -70,7 +71,8 @@ public class MediaBrowserTest extends MediaControllerTest {
 
     @Override
     MediaController onCreateController(final @NonNull SessionToken token,
-            final @Nullable TestBrowserCallback callback) throws InterruptedException {
+            final @Nullable Bundle connectionHints, final @Nullable TestBrowserCallback callback)
+            throws InterruptedException {
         final AtomicReference<MediaController> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
             @Override
@@ -78,10 +80,13 @@ public class MediaBrowserTest extends MediaControllerTest {
                 // Create controller on the test handler, for changing MediaBrowserCompat's Handler
                 // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
                 // and commands wouldn't be run if tests codes waits on the test handler.
-                controller.set(new MediaBrowser.Builder(mContext)
+                MediaBrowser.Builder builder = new MediaBrowser.Builder(mContext)
                         .setSessionToken(token)
-                        .setControllerCallback(sHandlerExecutor, callback)
-                        .build());
+                        .setControllerCallback(sHandlerExecutor, callback);
+                if (connectionHints != null) {
+                    builder.setConnectionHints(connectionHints);
+                }
+                controller.set(builder.build());
             }
         });
         return controller.get();
@@ -94,7 +99,7 @@ public class MediaBrowserTest extends MediaControllerTest {
     final MediaBrowser createBrowser(@Nullable BrowserCallback callback)
             throws InterruptedException {
         return (MediaBrowser) createController(MockMediaLibraryService.getToken(mContext),
-                true, callback);
+                true, null, callback);
     }
 
     /**

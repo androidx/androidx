@@ -17,6 +17,7 @@
 package androidx.media2.test.service;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -39,9 +40,11 @@ public class RemoteMediaBrowser extends RemoteMediaController {
      *
      * @param waitForConnection true if the remote browser needs to wait for the connection,
      *                          false otherwise.
+     * @param connectionHints connection hints
      */
-    public RemoteMediaBrowser(Context context, SessionToken token, boolean waitForConnection) {
-        super(context, token, waitForConnection);
+    public RemoteMediaBrowser(Context context, SessionToken token, boolean waitForConnection,
+            Bundle connectionHints) {
+        super(context, token, connectionHints, waitForConnection);
     }
 
     /**
@@ -116,13 +119,13 @@ public class RemoteMediaBrowser extends RemoteMediaController {
      * Create a {@link MediaBrowser} in the client app.
      * Should be used after successful connection through {@link #connect()}.
      *
+     * @param connectionHints connection hints
      * @param waitForConnection true if this method needs to wait for the connection,
-     *                          false otherwise.
      */
-    void create(SessionToken token, boolean waitForConnection) {
+    void create(SessionToken token, Bundle connectionHints, boolean waitForConnection) {
         try {
             mBinder.create(true /* isBrowser */, mControllerId,
-                    MediaParcelUtils.toParcelable(token), waitForConnection);
+                    MediaParcelUtils.toParcelable(token), connectionHints, waitForConnection);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to create default browser with given token.");
         }
