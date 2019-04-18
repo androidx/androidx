@@ -441,7 +441,7 @@ class MotionEventAdapterTest {
         val pointerInputData = actual.pointerInputData
         assertThat(actual.id, `is`(id))
         assertThat(pointerInputData.down, `is`(isDown))
-        assertThat(pointerInputData.position!!.dx, `is`(x))
-        assertThat(pointerInputData.position!!.dy, `is`(y))
+        assertThat(pointerInputData.position!!.x.value, `is`(x))
+        assertThat(pointerInputData.position!!.y.value, `is`(y))
     }
 }

@@ -465,19 +465,19 @@ class DragGestureDetectorTest {
         change = change.moveBy(Duration(milliseconds = 100), -3f, 7f)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
         change = change.moveBy(Duration(milliseconds = 100), 11f, 13f)
-            .consumePositionChange(5f, 3f)
+            .consumePositionChange(5.px, 3.px)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
         change = change.moveBy(Duration(milliseconds = 100), -13f, -11f)
-            .consumePositionChange(-3f, -5f)
+            .consumePositionChange(-3.px, -5.px)
         recognizer.pointerInputHandler.invokeOverAllPasses(change)
 
         val onDragLog = log.filter { it.methodName == "onDrag" }
         assertThat(onDragLog).hasSize(5)
         assertThat(onDragLog[0].pxPosition).isEqualTo(PxPosition(11.px, 0.px))
-        assertThat(onDragLog[1].pxPosition).isEqualTo(PxPosition(3.px, (-5).px))
-        assertThat(onDragLog[2].pxPosition).isEqualTo(PxPosition((-3).px, 7.px))
+        assertThat(onDragLog[1].pxPosition).isEqualTo(PxPosition(3.px, -5.px))
+        assertThat(onDragLog[2].pxPosition).isEqualTo(PxPosition(-3.px, 7.px))
         assertThat(onDragLog[3].pxPosition).isEqualTo(PxPosition(6.px, 10.px))
-        assertThat(onDragLog[4].pxPosition).isEqualTo(PxPosition((-10).px, (-6).px))
+        assertThat(onDragLog[4].pxPosition).isEqualTo(PxPosition((-10).px, -6.px))
     }
 
     // onStop not called verification
@@ -724,8 +724,8 @@ class DragGestureDetectorTest {
         )
         val result = recognizer.pointerInputHandler.invokeOverAllPasses(change)
 
-        assertThat(result.consumed.positionChange.dx).isEqualTo(thirdTouchSlop)
-        assertThat(result.consumed.positionChange.dy).isEqualTo(quarterTouchSlop)
+        assertThat(result.consumed.positionChange.x.value).isEqualTo(thirdTouchSlop)
+        assertThat(result.consumed.positionChange.y.value).isEqualTo(quarterTouchSlop)
     }
 
     @Test

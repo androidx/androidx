@@ -96,9 +96,21 @@ data /*inline*/ class Px(val value: Float) {
         PxCubed(value = value * other.value)
 
     /**
-     * Support comparing Dimensions with comparison operators.
+     * Compare [Px] with another [Px].
      */
     /*inline*/ operator fun compareTo(other: Px) = value.compareTo(other.value)
+
+    /**
+     * Add an [IntPx] to this [Px].
+     */
+    /*inline*/ operator fun plus(other: IntPx) =
+        Px(value = this.value + other.value)
+
+    /**
+     * Subtract an [IntPx] from this [Px].
+     */
+    /*inline*/ operator fun minus(other: IntPx) =
+        Px(value = this.value - other.value)
 
     companion object {
         /**

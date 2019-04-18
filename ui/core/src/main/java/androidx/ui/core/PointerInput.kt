@@ -16,8 +16,6 @@
 
 package androidx.ui.core
 
-import androidx.ui.engine.geometry.Offset
-
 /**
  * Describes a change that has occurred for a particular pointer, as well as how much of the change
  * has been consumed (meaning, used by a node in the UI)
@@ -34,7 +32,7 @@ data class PointerInputChange(
  */
 data class PointerInputData(
     val timestamp: Timestamp? = null,
-    val position: Offset? = null,
+    val position: PxPosition? = null,
     val down: Boolean = false
 )
 
@@ -42,7 +40,7 @@ data class PointerInputData(
  * Describes what aspects of, and how much of, a change has been consumed.
  */
 data class ConsumedData(
-    val positionChange: Offset = Offset.zero,
+    val positionChange: PxPosition = PxPosition.Origin,
     val downChange: Boolean = false
 )
 /**
@@ -70,18 +68,18 @@ fun PointerInputChange.positionChange() = this.positionChangeInternal(false)
 
 fun PointerInputChange.positionChangeIgnoreConsumed() = this.positionChangeInternal(true)
 
-fun PointerInputChange.positionChanged() = this.positionChangeInternal(false) != Offset.zero
+fun PointerInputChange.positionChanged() = this.positionChangeInternal(false) != PxPosition.Origin
 
 fun PointerInputChange.positionChangedIgnoreConsumed() =
-    this.positionChangeInternal(true) != Offset.zero
+    this.positionChangeInternal(true) != PxPosition.Origin
 
-private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = false): Offset {
+private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = false): PxPosition {
     val previousPosition = previous.position
     val currentPosition = current.position
 
     val offset =
         if (previousPosition == null || currentPosition == null) {
-            Offset(0f, 0f)
+            PxPosition(0.px, 0.px)
         } else {
             currentPosition - previousPosition
         }
@@ -96,7 +94,7 @@ private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = 
 // Consumption querying functions
 
 fun PointerInputChange.anyPositionChangeConsumed() =
-    consumed.positionChange.dx != 0f || consumed.positionChange.dy != 0f
+    consumed.positionChange.x.value != 0f || consumed.positionChange.y.value != 0f
 
 // Consume functions
 
@@ -104,16 +102,16 @@ fun PointerInputChange.consumeDownChange() =
     copy(consumed = this.consumed.copy(downChange = true))
 
 fun PointerInputChange.consumePositionChange(
-    consumedDx: Float,
-    consumedDy: Float
+    consumedDx: Px,
+    consumedDy: Px
 ): PointerInputChange {
-    val newConsumedDx = consumedDx + consumed.positionChange.dx
-    val newConsumedDy = consumedDy + consumed.positionChange.dy
+    val newConsumedDx = consumedDx + consumed.positionChange.x
+    val newConsumedDy = consumedDy + consumed.positionChange.y
     // TODO(shepshapard): Handle case where consumption would make the consumption total to be
     // less than the total change.
     return copy(
         consumed = this.consumed.copy(
-            positionChange = Offset(
+            positionChange = PxPosition(
                 newConsumedDx,
                 newConsumedDy
             )
@@ -123,13 +121,13 @@ fun PointerInputChange.consumePositionChange(
 
 // Offset modification functions
 
-fun PointerInputChange.subtractOffset(offset: Offset): PointerInputChange {
-    return if (offset == Offset.zero) {
+fun PointerInputChange.subtractOffset(pxPosition: PxPosition): PointerInputChange {
+    return if (pxPosition == PxPosition.Origin) {
         this
     } else {
         this.copy(
-            current = current.copy(position = this.current.position?.minus(offset)),
-            previous = previous.copy(position = this.previous.position?.minus(offset))
+            current = current.copy(position = this.current.position?.minus(pxPosition)),
+            previous = previous.copy(position = this.previous.position?.minus(pxPosition))
         )
     }
 }

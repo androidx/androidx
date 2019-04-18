@@ -25,7 +25,6 @@ import androidx.ui.core.changedToDown
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
-import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
 import com.google.r4a.Children
 import com.google.r4a.Component
@@ -52,7 +51,11 @@ import com.google.r4a.composer
 class PressIndicatorGestureDetector(
     @Children var children: @Composable() () -> Unit
 ) : Component() {
-    var onStart: ((PxPosition) -> Unit)? = null
+    var onStart: ((PxPosition) -> Unit)?
+        get() = recognizer.onStart
+        set(value) {
+            recognizer.onStart = value
+        }
     var onStop: (() -> Unit)?
         get() = recognizer.onStop
         set(value) {
@@ -67,15 +70,6 @@ class PressIndicatorGestureDetector(
     private val recognizer = PressIndicatorGestureRecognizer()
 
     override fun compose() {
-
-        // TODO(shepshapard): This logic needs to be tested.
-        // TODO(shepshapard): Once effects are ready, remove this mutation in compose and access
-        // the density with an effect.
-        recognizer.onStart = onStart?.run {
-            { offset ->
-                invoke(PxPosition(offset.dx.px, offset.dy.px))
-            }
-        }
         <PointerInput pointerInputHandler=recognizer.pointerInputHandler>
             <children />
         </PointerInput>
@@ -90,7 +84,7 @@ internal class PressIndicatorGestureRecognizer {
      * This callback should be used to indicate that the press state should be shown.  An [Offset]
      * is provided to indicate where the first pointer made contact with this gesrure detector.
      */
-    var onStart: ((Offset) -> Unit)? = null
+    var onStart: ((PxPosition) -> Unit)? = null
 
     /**
      * Called if onStart was attempted to be called (it may have been null), no pointer movement

@@ -178,7 +178,7 @@ package androidx.ui.core.gesture {
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnStop();
     method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setOnCancel(kotlin.jvm.functions.Function0<kotlin.Unit>? value);
-    method public void setOnStart(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit>? p);
+    method public void setOnStart(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit>? value);
     method public void setOnStop(kotlin.jvm.functions.Function0<kotlin.Unit>? value);
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel;
     property public final kotlin.jvm.functions.Function1<androidx.ui.core.PxPosition,kotlin.Unit>? onStart;

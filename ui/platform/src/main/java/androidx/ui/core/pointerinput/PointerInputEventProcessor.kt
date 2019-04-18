@@ -30,9 +30,7 @@ import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.isAttached
 import androidx.ui.core.localToGlobal
-import androidx.ui.core.px
 import androidx.ui.core.subtractOffset
-import androidx.ui.engine.geometry.Offset
 
 /**
  * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
@@ -71,9 +69,8 @@ private class PointerInputChangeEventProducer {
  * [PointerInputChangeOffsetManager].
  */
 private class PointerInputChangeOffsetManager {
-    private val positionZero = PxPosition(0.px, 0.px)
-    private val nodeGlobalOffsets: MutableMap<PointerInputNode, Offset> = mutableMapOf()
-    private val changeOffsets: MutableMap<Int, Offset> = mutableMapOf()
+    private val nodeGlobalOffsets: MutableMap<PointerInputNode, PxPosition> = mutableMapOf()
+    private val changeOffsets: MutableMap<Int, PxPosition> = mutableMapOf()
 
     fun reset(targetNodeSequences: Collection<List<PointerInputNode>>) {
         changeOffsets.clear()
@@ -86,9 +83,8 @@ private class PointerInputChangeOffsetManager {
                 val layoutNode = it.layoutNode
                 nodeGlobalOffsets[it] =
                     layoutNode?.run {
-                        val position = layoutNode.localToGlobal(positionZero)
-                        Offset(position.x.value, position.y.value)
-                    } ?: Offset.zero
+                        layoutNode.localToGlobal(PxPosition.Origin)
+                    } ?: PxPosition.Origin
             }
         }
     }
@@ -99,11 +95,11 @@ private class PointerInputChangeOffsetManager {
     ): PointerInputChange {
         val newOffset = nodeGlobalOffsets[node]!!
         val oldOffset = changeOffsets.getOrPut(change.id) {
-            Offset.zero
+            PxPosition.Origin
         }
         val offsetDiff = newOffset - oldOffset
         changeOffsets[change.id] = newOffset
-        if (offsetDiff != Offset.zero) {
+        if (offsetDiff != PxPosition.Origin) {
             return change.subtractOffset(offsetDiff)
         }
         return change
@@ -211,7 +207,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
      */
     private fun hitTestOnDescendants(
         parent: ComponentNode,
-        offset: Offset,
+        offset: PxPosition,
         hitPointerInputNodes: MutableList<PointerInputNode>
     ) {
         var done = false
@@ -225,7 +221,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                     }
                     is LayoutNode -> {
                         val newOffset =
-                            Offset(offset.dx - child.x.value, offset.dy - child.y.value)
+                            PxPosition(offset.x - child.x, offset.y - child.y)
                         hitTestOnDescendants(child, newOffset, hitPointerInputNodes)
                     }
                     else ->
@@ -245,7 +241,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
      */
     private fun hitTest(
         pointerInputNode: PointerInputNode,
-        offset: Offset,
+        offset: PxPosition,
         hitPointerInputNodes: MutableList<PointerInputNode>
     ): Boolean {
         val pointerInputNodes = mutableSetOf(pointerInputNode)
@@ -258,16 +254,20 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                     child.child
                 }
                 is LayoutNode -> {
-                    if (offset.dx >= child.x.value &&
-                        offset.dx < child.x.value + child.width.value &&
-                        offset.dy >= child.y.value &&
-                        offset.dy < child.y.value + child.height.value
+                    val offsetX = offset.x.value
+                    val offsetY = offset.y.value
+                    val childX = child.x.value
+                    val childY = child.y.value
+                    if (offsetX >= childX &&
+                        offsetX < childX + child.width.value &&
+                        offsetY >= childY &&
+                        offsetY < childY + child.height.value
                     ) {
                         nodeHit = true
                         hitPointerInputNodes.addAll(pointerInputNodes)
                     }
                     val newOffset =
-                        Offset(offset.dx - child.x.value, offset.dy - child.y.value)
+                        PxPosition(offset.x - child.x, offset.y - child.y)
                     hitTestOnDescendants(child, newOffset, hitPointerInputNodes)
                     null
                 }

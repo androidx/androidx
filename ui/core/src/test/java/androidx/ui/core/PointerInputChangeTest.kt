@@ -17,7 +17,6 @@
 package androidx.ui.core
 
 import androidx.test.filters.SmallTest
-import androidx.ui.engine.geometry.Offset
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.core.IsEqual.equalTo
 import org.junit.Assert.assertThat
@@ -182,7 +181,7 @@ class PointerInputChangeTest {
             createPointerInputChange(11f, 13f, true, 11f, 13f, true, 0f, 0f, false)
         assertThat(
             pointerInputChange.positionChange(),
-            `is`(equalTo(Offset(0f, 0f)))
+            `is`(equalTo(PxPosition.Origin))
         )
     }
 
@@ -192,7 +191,7 @@ class PointerInputChangeTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
         assertThat(
             pointerInputChange.positionChange(),
-            `is`(equalTo(Offset(6f, 12f)))
+            `is`(equalTo(PxPosition(6.px, 12.px)))
         )
     }
 
@@ -202,7 +201,7 @@ class PointerInputChangeTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 5f, 9f, false)
         assertThat(
             pointerInputChange.positionChange(),
-            `is`(equalTo(Offset(1f, 3f)))
+            `is`(equalTo(PxPosition(1.px, 3.px)))
         )
     }
 
@@ -212,7 +211,7 @@ class PointerInputChangeTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 6f, 12f, false)
         assertThat(
             pointerInputChange.positionChange(),
-            `is`(equalTo(Offset(0f, 0f)))
+            `is`(equalTo(PxPosition.Origin))
         )
     }
 
@@ -222,7 +221,7 @@ class PointerInputChangeTest {
             createPointerInputChange(11f, 13f, true, 11f, 13f, true, 0f, 0f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(Offset(0f, 0f)))
+            `is`(equalTo(PxPosition.Origin))
         )
     }
 
@@ -232,7 +231,7 @@ class PointerInputChangeTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(Offset(6f, 12f)))
+            `is`(equalTo(PxPosition(6.px, 12.px)))
         )
     }
 
@@ -242,7 +241,7 @@ class PointerInputChangeTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 5f, 9f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(Offset(6f, 12f)))
+            `is`(equalTo(PxPosition(6.px, 12.px)))
         )
     }
 
@@ -252,7 +251,7 @@ class PointerInputChangeTest {
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 6f, 12f, false)
         assertThat(
             pointerInputChange.positionChangeIgnoreConsumed(),
-            `is`(equalTo(Offset(6f, 12f)))
+            `is`(equalTo(PxPosition(6.px, 12.px)))
         )
     }
 
@@ -373,7 +372,7 @@ class PointerInputChangeTest {
         val pointerInputChange1 =
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
 
-        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(0f, 0f)
+        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(0.px, 0.px)
 
         assertThat(pointerInputChangeResult1, `is`(equalTo(pointerInputChange1)))
     }
@@ -383,9 +382,9 @@ class PointerInputChangeTest {
         val pointerInputChange1 =
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
 
-        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(5f, 0f)
-        val pointerInputChangeResult2 = pointerInputChange1.consumePositionChange(0f, 3f)
-        val pointerInputChangeResult3 = pointerInputChange1.consumePositionChange(5f, 3f)
+        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(5.px, 0.px)
+        val pointerInputChangeResult2 = pointerInputChange1.consumePositionChange(0.px, 3.px)
+        val pointerInputChangeResult3 = pointerInputChange1.consumePositionChange(5.px, 3.px)
 
         assertThat(
             pointerInputChangeResult1,
@@ -406,9 +405,9 @@ class PointerInputChangeTest {
         val pointerInputChange1 =
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 0f, 0f, false)
 
-        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(6f, 0f)
-        val pointerInputChangeResult2 = pointerInputChange1.consumePositionChange(0f, 12f)
-        val pointerInputChangeResult3 = pointerInputChange1.consumePositionChange(6f, 12f)
+        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(6.px, 0.px)
+        val pointerInputChangeResult2 = pointerInputChange1.consumePositionChange(0.px, 12.px)
+        val pointerInputChangeResult3 = pointerInputChange1.consumePositionChange(6.px, 12.px)
 
         assertThat(
             pointerInputChangeResult1,
@@ -429,9 +428,9 @@ class PointerInputChangeTest {
         val pointerInputChange1 =
             createPointerInputChange(8f, 16f, true, 2f, 4f, true, 1f, 5f, false)
 
-        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(2f, 0f)
-        val pointerInputChangeResult2 = pointerInputChange1.consumePositionChange(0f, 3f)
-        val pointerInputChangeResult3 = pointerInputChange1.consumePositionChange(2f, 3f)
+        val pointerInputChangeResult1 = pointerInputChange1.consumePositionChange(2.px, 0.px)
+        val pointerInputChangeResult2 = pointerInputChange1.consumePositionChange(0.px, 3.px)
+        val pointerInputChangeResult3 = pointerInputChange1.consumePositionChange(2.px, 3.px)
 
         assertThat(
             pointerInputChangeResult1,
@@ -464,15 +463,15 @@ class PointerInputChangeTest {
             0,
             PointerInputData(
                 100L.millisecondsToTimestamp(),
-                Offset(currentX, currentY),
+                PxPosition(currentX.px, currentY.px),
                 currentDown
             ),
             PointerInputData(
                 0L.millisecondsToTimestamp(),
-                Offset(previousX, previousY),
+                PxPosition(previousX.px, previousY.px),
                 previousDown
             ),
-            ConsumedData(Offset(consumedX, consumedY), consumedDown)
+            ConsumedData(PxPosition(consumedX.px, consumedY.px), consumedDown)
         )
     }
 }
