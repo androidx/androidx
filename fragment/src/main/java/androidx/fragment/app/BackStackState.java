@@ -62,7 +62,7 @@ final class BackStackState implements Parcelable {
             mOps[pos++] = op.mExitAnim;
             mOps[pos++] = op.mPopEnterAnim;
             mOps[pos++] = op.mPopExitAnim;
-            mLifecycleStates.add(op.mState.name());
+            mLifecycleStates.add(op.mMaxState.name());
         }
         mTransition = bse.mTransition;
         mTransitionStyle = bse.mTransitionStyle;
@@ -110,7 +110,7 @@ final class BackStackState implements Parcelable {
             } else {
                 op.mFragment = null;
             }
-            op.mState = Lifecycle.State.valueOf(mLifecycleStates.get(num));
+            op.mMaxState = Lifecycle.State.valueOf(mLifecycleStates.get(num));
             op.mEnterAnim = mOps[pos++];
             op.mExitAnim = mOps[pos++];
             op.mPopEnterAnim = mOps[pos++];
