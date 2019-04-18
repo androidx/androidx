@@ -95,6 +95,12 @@ open class BaseTest {
             intent.putExtra(TestActivity.EXTRA_LANGUAGE, localeUtil.getLocale().toString())
         }
         activityTestRule.launchActivity(intent)
+        // TODO(b/130801606): replace waitForActivityDrawn with correct tool
+        // waitForActivityDrawn waits until the first frame is drawn, not until the window
+        // transitions are completed. Usually, two invocations of waitForActivityDrawn are enough
+        // for the window transitions to complete, but it's a horrible solution.
+        // See also other invocations of waitForActivityDrawn
+        waitForActivityDrawn(activityTestRule.activity)
         waitForActivityDrawn(activityTestRule.activity)
 
         val viewPager: ViewPager2 = activityTestRule.activity.findViewById(R.id.view_pager)
@@ -125,6 +131,7 @@ open class BaseTest {
             }
             activity = AppCompatActivityUtils.recreateActivity(activityTestRule, activity)
             TestActivity.onCreateCallback = { }
+            waitForActivityDrawn(activity)
             waitForActivityDrawn(activity)
         }
 
