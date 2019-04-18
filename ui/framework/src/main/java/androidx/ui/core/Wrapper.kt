@@ -35,7 +35,7 @@ fun CraneWrapper(@Children children: () -> Unit) {
         <Ambient.Portal> reference ->
             val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
             val context = rootRef.value?.context ?: composer.composer.context
-            R4a.composeInto(container = rootLayoutNode, context = context, parent = reference!!) {
+            R4a.composeInto(container = rootLayoutNode, context = context, parent = reference) {
                 <ContextAmbient.Provider value=context>
                     <DensityAmbient.Provider value=Density(context)>
                         <children />

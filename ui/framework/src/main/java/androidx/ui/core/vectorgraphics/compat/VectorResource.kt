@@ -83,7 +83,7 @@ private fun getStrokeLineJoin(id: Int, defValue: StrokeJoin = StrokeJoin.miter):
 private fun inflateGroup(
     a: TypedArray,
     parser: XmlPullParser,
-    theme: Resources.Theme?,
+    @Suppress("UNUSED_PARAMETER") theme: Resources.Theme?,
     @Children childNodes: () -> Unit
 ) {
     // Account for any configuration changes.
@@ -154,6 +154,7 @@ private fun inflateGroup(
     </group>
 }
 
+@Suppress("UNUSED_PARAMETER")
 @Composable
 private fun inflateClip(
     a: TypedArray,
@@ -161,13 +162,13 @@ private fun inflateClip(
     theme: Resources.Theme?,
     @Children childNodes: () -> Unit
 ) {
-    var pathName: String? =
-        a.getString(AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_NAME)
-    if (pathName == null) {
-        pathName = ""
-    }
+//    var pathName: String? =
+//        a.getString(AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_NAME)
+//    if (pathName == null) {
+//        pathName = ""
+//    }
+//    val pathData = a.getString(AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_PATH_DATA)
 
-    val pathData = a.getString(AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_PATH_DATA)
     // TODO (njawad) finish parsing clip paths from xml resources
 }
 
@@ -192,7 +193,8 @@ private fun inflatePath(a: TypedArray, parser: XmlPullParser, theme: Resources.T
         a, parser, theme, "fillColor",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_FILL_COLOR, 0
     )
-    val fillAlpha = TypedArrayUtils.getNamedFloat(
+    // TODO(njawad): restore these when they are used
+/*    val fillAlpha = TypedArrayUtils.getNamedFloat(
         a, parser, "fillAlpha",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_FILL_ALPHA, 1.0f
     )
@@ -212,7 +214,7 @@ private fun inflatePath(a: TypedArray, parser: XmlPullParser, theme: Resources.T
         a, parser, "strokeMiterLimit",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_STROKE_MITER_LIMIT,
         1.0f
-    )
+    )*/
     val strokeColor = TypedArrayUtils.getNamedComplexColor(
         a, parser, theme, "strokeColor",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_STROKE_COLOR, 0
@@ -225,7 +227,7 @@ private fun inflatePath(a: TypedArray, parser: XmlPullParser, theme: Resources.T
         a, parser, "strokeWidth",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_STROKE_WIDTH, 1.0f
     )
-    val trimPathEnd = TypedArrayUtils.getNamedFloat(
+    /*val trimPathEnd = TypedArrayUtils.getNamedFloat(
         a, parser, "trimPathEnd",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_END, 1.0f
     )
@@ -243,7 +245,7 @@ private fun inflatePath(a: TypedArray, parser: XmlPullParser, theme: Resources.T
         a, parser, "fillType",
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_FILLTYPE,
         FILL_TYPE_WINDING
-    )
+    )*/
 
     // TODO update path with additional params
     <path

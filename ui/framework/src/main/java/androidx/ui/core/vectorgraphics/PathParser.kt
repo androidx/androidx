@@ -288,8 +288,8 @@ class PathParser {
         start: Double,
         sweep: Double
     ) {
-        var e1x = e1x
-        var e1y = e1y
+        var eta1x = e1x
+        var eta1y = e1y
         // Taken from equations at: http://spaceroots.org/documents/ellipse/node8.html
         // and http://www.spaceroots.org/documents/ellipse/node22.html
 
@@ -315,8 +315,8 @@ class PathParser {
             val ep2y = (-a * sinTheta * sinEta2) + (b * cosTheta * cosEta2)
             val tanDiff2 = Math.tan((eta2 - eta1) / 2)
             val alpha = Math.sin(eta2 - eta1) * (Math.sqrt(4 + 3.0 * tanDiff2 * tanDiff2) - 1) / 3
-            val q1x = e1x + alpha * ep1x
-            val q1y = e1y + alpha * ep1y
+            val q1x = eta1x + alpha * ep1x
+            val q1y = eta1y + alpha * ep1y
             val q2x = e2x - alpha * ep2x
             val q2y = e2y - alpha * ep2y
 
@@ -331,8 +331,8 @@ class PathParser {
                     e2x.toFloat(),
                     e2y.toFloat())
             eta1 = eta2
-            e1x = e2x
-            e1y = e2y
+            eta1x = e2x
+            eta1y = e2y
             ep1x = ep2x
             ep1y = ep2y
         }
@@ -679,7 +679,7 @@ class PathParser {
         val results = FloatArray(s.length)
         var count = 0
         var startPosition = 1
-        var endPosition = 0
+        var endPosition: Int
 
         val result = ExtractFloatResult()
         val totalLength = s.length

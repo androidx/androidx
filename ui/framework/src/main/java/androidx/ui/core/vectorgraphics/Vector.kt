@@ -134,17 +134,16 @@ fun path(
     strokeLineJoin: StrokeJoin = DefaultStrokeLineJoin,
     strokeLineMiter: Float = DefaultStrokeLineMiter
 ) {
-
     val pathNodes = createPath(pathData)
-    val fill: Brush = obtainBrush(fill)
-    val stroke: Brush = obtainBrush(stroke)
+    val fillBrush: Brush = obtainBrush(fill)
+    val strokeBrush: Brush = obtainBrush(stroke)
 
     <Path
         name
         pathNodes
-        fill
+        fill=fillBrush
         fillAlpha
-        stroke
+        stroke=strokeBrush
         strokeAlpha
         strokeLineWidth
         strokeLineCap
@@ -223,7 +222,7 @@ private class Path(val name: String) : VNode(), Emittable {
         set(value) {
             field = value
             updateFillPaint {
-                field?.applyBrush(this)
+                field.applyBrush(this)
             }
         }
 
@@ -261,7 +260,7 @@ private class Path(val name: String) : VNode(), Emittable {
         set(value) {
             field = value
             updateStrokePaint {
-                field?.applyBrush(this)
+                field.applyBrush(this)
             }
         }
 
@@ -299,13 +298,10 @@ private class Path(val name: String) : VNode(), Emittable {
     private val parser = PathParser()
 
     private fun updateStrokePaint(strokePaintUpdater: Paint.() -> Unit) {
-        val targetStroke = stroke
-        if (targetStroke != null) {
-            if (strokePaint == null) {
-                strokePaint = createStrokePaint()
-            } else {
-                strokePaint?.strokePaintUpdater()
-            }
+        if (strokePaint == null) {
+            strokePaint = createStrokePaint()
+        } else {
+            strokePaint?.strokePaintUpdater()
         }
     }
 
@@ -317,17 +313,14 @@ private class Path(val name: String) : VNode(), Emittable {
         strokeCap = strokeLineCap
         strokeJoin = strokeLineJoin
         strokeMiterLimit = strokeLineMiter
-        stroke?.applyBrush(this)
+        stroke.applyBrush(this)
     }
 
     private fun updateFillPaint(fillPaintUpdater: Paint.() -> Unit) {
-        val targetFill = fill
-        if (targetFill != null) {
-            if (fillPaint == null) {
-                fillPaint = createFillPaint()
-            } else {
-                fillPaint?.fillPaintUpdater()
-            }
+        if (fillPaint == null) {
+            fillPaint = createFillPaint()
+        } else {
+            fillPaint?.fillPaintUpdater()
         }
     }
 
@@ -335,7 +328,7 @@ private class Path(val name: String) : VNode(), Emittable {
         isAntiAlias = true
         alpha = fillAlpha
         style = PaintingStyle.fill
-        fill?.applyBrush(this)
+        fill.applyBrush(this)
     }
 
     private fun updatePath() {

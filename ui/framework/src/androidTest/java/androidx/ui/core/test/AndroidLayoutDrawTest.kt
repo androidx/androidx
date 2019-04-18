@@ -15,14 +15,12 @@
  */
 package androidx.ui.core.test
 
-import android.app.Instrumentation
 import android.graphics.Bitmap
 import android.os.Handler
 import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidCraneView
@@ -71,7 +69,6 @@ class AndroidLayoutDrawTest {
         TestActivity::class.java
     )
     private lateinit var activity: TestActivity
-    private lateinit var instrumentation: Instrumentation
     private lateinit var handler: Handler
     private lateinit var drawLatch: CountDownLatch
 
@@ -79,7 +76,6 @@ class AndroidLayoutDrawTest {
     fun setup() {
         activity = activityTestRule.activity
         activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
-        instrumentation = InstrumentationRegistry.getInstrumentation()
         runOnUiThread { handler = Handler() }
         drawLatch = CountDownLatch(1)
     }
@@ -272,15 +268,15 @@ class AndroidLayoutDrawTest {
                         <Padding size>
                             <WithConstraints> constraints ->
                                 paddedConstraints.value = constraints
-                                <Layout layoutBlock={ _, constraints ->
-                                    firstChildConstraints.value = constraints
+                                <Layout layoutBlock={ _, childConstraints ->
+                                    firstChildConstraints.value = childConstraints
                                     layout(size, size) {}
                                 } children={} />
-                                <Layout layoutBlock={ _, constraints ->
-                                    secondChildConstraints.value = constraints
+                                <Layout layoutBlock={ _, chilConstraints ->
+                                    secondChildConstraints.value = chilConstraints
                                     layout(size, size) {}
                                 } children={} />
-                                <Draw> canvas, parentSize ->
+                                <Draw> _, _ ->
                                     countDownLatch.countDown()
                                 </Draw>
                             </WithConstraints>
@@ -317,21 +313,21 @@ class AndroidLayoutDrawTest {
             activity.composeInto {
                 <CraneWrapper>
                     val header = @Composable {
-                        <Layout layoutBlock={ measurables, constraints ->
+                        <Layout layoutBlock={ _, constraints ->
                             assertEquals(childConstraints[0], constraints)
                         } children={} />
                     }
                     val footer = @Composable {
-                        <Layout layoutBlock={ measurables, constraints ->
+                        <Layout layoutBlock={ _, constraints ->
                             assertEquals(childConstraints[1], constraints)
                         } children={} />
-                        <Layout layoutBlock={ measurables, constraints ->
+                        <Layout layoutBlock={ _, constraints ->
                             assertEquals(childConstraints[2], constraints)
                         } children={} />
                     }
 
                     <MultiChildLayout
-                        childrenArray=arrayOf(header, footer)> measurables, constraints ->
+                        childrenArray=arrayOf(header, footer)> measurables, _ ->
                         assertEquals(childrenCount, measurables.size)
                         measurables.forEachIndexed { index, measurable ->
                             measurable.measure(childConstraints[index])
@@ -354,17 +350,17 @@ class AndroidLayoutDrawTest {
                 <CraneWrapper>
                     val header = @Composable {
                         <ParentData data=0>
-                            <Layout layoutBlock={ measurables, constraints -> } children={} />
+                            <Layout layoutBlock={ _, _ -> } children={} />
                         </ParentData>
                     }
                     val footer = @Composable {
                         <ParentData data=1>
-                            <Layout layoutBlock={ measurables, constraints -> } children={} />
+                            <Layout layoutBlock={ _, _ -> } children={} />
                         </ParentData>
                     }
 
                     <MultiChildLayout
-                        childrenArray=arrayOf(header, footer)> measurables, constraints ->
+                        childrenArray=arrayOf(header, footer)> measurables, _ ->
                         assertEquals(0, measurables[0].parentData)
                         assertEquals(1, measurables[1].parentData)
                     </MultiChildLayout>
@@ -541,6 +537,7 @@ class AndroidLayoutDrawTest {
     }
 }
 
+@Suppress("TestFunctionName")
 @Composable
 fun AtLeastSize(size: IntPx, @Children children: @Composable() () -> Unit) {
     <Layout layoutBlock = { measurables, constraints ->
@@ -567,6 +564,7 @@ fun AtLeastSize(size: IntPx, @Children children: @Composable() () -> Unit) {
     } children />
 }
 
+@Suppress("TestFunctionName")
 @Composable
 fun Padding(size: IntPx, @Children children: @Composable() () -> Unit) {
     <Layout layoutBlock = { measurables, constraints ->
@@ -603,7 +601,7 @@ class DrawCounterListener(private val view: View) :
         if (latch.count > 0) {
             view.postInvalidate()
         } else {
-            view.getViewTreeObserver().removeOnPreDrawListener(this)
+            view.viewTreeObserver.removeOnPreDrawListener(this)
         }
         return true
     }

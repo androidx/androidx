@@ -327,7 +327,7 @@ internal data class ChildrenEndParentData(val children: () -> Unit)
  */
 @Composable
 fun MultiChildLayout(
-    childrenArray: Array<() -> Unit>,
+    childrenArray: Array<@Composable() () -> Unit>,
     @Children(composable = false) layoutBlock: LayoutReceiver
         .(measurables: List<Measurable>, constraints: Constraints) -> Unit
 ) {
