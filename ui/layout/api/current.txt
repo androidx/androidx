@@ -166,6 +166,8 @@ package androidx.ui.layout {
   public final class PaddingKt {
     ctor public PaddingKt();
     method public static void Padding(androidx.ui.layout.EdgeInsets padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Padding(androidx.ui.core.Dp left = 0.dp, androidx.ui.core.Dp top = 0.dp, androidx.ui.core.Dp right = 0.dp, androidx.ui.core.Dp bottom = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Padding(androidx.ui.core.Dp padding, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ScrollerKt {

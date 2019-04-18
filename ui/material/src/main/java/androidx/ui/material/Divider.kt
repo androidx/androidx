@@ -19,7 +19,6 @@ package androidx.ui.material
 import androidx.ui.baseui.ColoredRect
 import androidx.ui.core.Dp
 import androidx.ui.core.dp
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.ui.painting.Color
 import com.google.r4a.Composable
@@ -40,7 +39,7 @@ fun Divider(
     indent: Dp = 0.dp
 ) {
     val dividerColor = +color.orFromTheme { onSurface }
-    <Padding padding=EdgeInsets(left = indent)>
+    <Padding left = indent>
         <ColoredRect height color=dividerColor />
     </Padding>
 }

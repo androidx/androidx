@@ -23,7 +23,6 @@ import androidx.ui.core.dp
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Padding
 import androidx.ui.material.Button
@@ -47,11 +46,8 @@ fun ButtonDemo() {
             <Center>
                 <Column mainAxisAlignment=MainAxisAlignment.SpaceEvenly>
                     <Button onClick text="LONG TEXT" />
-
                     <Button onClick text="SH" />
-
                     <TransparentButton onClick text="NO BACKGROUND" />
-
                     <Button
                         onClick
                         color=+themeColor { secondary }
@@ -76,9 +72,8 @@ fun ButtonDemo() {
                         onClick
                         text="CUSTOM STYLE"
                         textStyle=+themeTextStyle { body2.copy(color = customColor) } />
-
                     <Button onClick>
-                        <Padding padding=EdgeInsets(16.dp)>
+                        <Padding padding=16.dp>
                             <Text text="CUSTOM BUTTON!" />
                         </Padding>
                     </Button>

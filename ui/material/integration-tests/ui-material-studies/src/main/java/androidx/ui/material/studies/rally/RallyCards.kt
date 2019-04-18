@@ -16,8 +16,8 @@
 
 package androidx.ui.material.studies.rally
 
-import androidx.ui.core.Text
 import androidx.ui.baseui.ColoredRect
+import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
@@ -47,7 +47,7 @@ internal val cardInternalColor = Color(0xFF33333D.toInt())
 @Composable
 fun RallyAlertCard() {
     <Card color=cardInternalColor>
-        <Padding padding=EdgeInsets(12.dp)>
+        <Padding padding=12.dp>
             <Column>
                 <Row mainAxisAlignment=MainAxisAlignment.SpaceBetween>
                     <Text text="Alerts" style=+themeTextStyle { subtitle2 } />
@@ -83,14 +83,14 @@ fun RallyAlertCard() {
 fun RallyAccountsCard() {
     <Card color=cardInternalColor>
         <Column>
-            <Padding padding=EdgeInsets(12.dp)>
+            <Padding padding=12.dp>
                 <Column>
                     <Text text="Accounts" style=+themeTextStyle { body1 } />
                     <Text text="$12,132.49" style=+themeTextStyle { h3 } />
                 </Column>
             </Padding>
             <Divider color=rallyGreen height=1.dp />
-            <Padding padding=EdgeInsets(12.dp)>
+            <Padding padding=12.dp>
                 <Column>
                     val colors = +ambient(Colors)
                     <RallyAccountRow
@@ -157,7 +157,7 @@ fun AccountIndicator(color: Color) {
 fun RallyBillsCard() {
     <Card color=cardInternalColor>
         <Column>
-            <Padding padding=EdgeInsets(12.dp)>
+            <Padding padding=12.dp>
                 <Column>
                     <Text text="Bills" style=+themeTextStyle { subtitle2 } />
                     <Text text="$1,810.00" style=+themeTextStyle { h1 } />

@@ -37,7 +37,6 @@ import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Padding
@@ -221,10 +220,10 @@ fun ConstrainedBoxUsage() {
 
 fun PaddingUsage() {
     <Row>
-        <Padding padding=EdgeInsets(20.dp)>
+        <Padding padding=20.dp>
             <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height=20.dp />
         </Padding>
-        <Padding padding=EdgeInsets(20.dp)>
+        <Padding padding=20.dp>
             <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height=20.dp />
         </Padding>
     </Row>
@@ -347,7 +346,7 @@ fun FillWithRectangles() {
         val rectangles = (constraints.maxWidth / 50).value
         <Row>
             for (i in 0 until rectangles) {
-                <Padding padding=EdgeInsets(1.dp)>
+                <Padding padding=1.dp>
                     <SingleCompositionRect />
                 </Padding>
             }

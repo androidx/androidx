@@ -22,7 +22,6 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
@@ -69,7 +68,7 @@ class RallyActivity : Activity() {
 
 @Composable
 fun RallyBody() {
-    <Padding padding=EdgeInsets(16.dp)>
+    <Padding padding=16.dp>
         <Column>
             // TODO: scrolling container
             <RallyAlertCard />

@@ -17,6 +17,7 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Dp
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
@@ -43,11 +44,106 @@ import java.util.concurrent.TimeUnit
 @SmallTest
 @RunWith(JUnit4::class)
 class PaddingTest : LayoutTest() {
+
     @Test
-    fun testPaddingIsApplied() = withDensity(density) {
+    fun testPadding_IsApplied() = withDensity(density) {
+        val padding = 10.dp
+        testPaddingIsAppliedImplementation(padding) { child: @Composable() () -> Unit ->
+            <Padding padding=EdgeInsets(padding)>
+                <child />
+            </Padding>
+        }
+    }
+
+    @Test
+    fun testPadding_overloadAll_IsApplied() = withDensity(density) {
+        val padding = 10.dp
+        testPaddingIsAppliedImplementation(padding) { child: @Composable() () -> Unit ->
+            <Padding padding>
+                <child />
+            </Padding>
+        }
+    }
+
+    @Test
+    fun testPadding_overloadSides_IsApplied() = withDensity(density) {
+        val padding = 10.dp
+        testPaddingIsAppliedImplementation(padding) { child: @Composable() () -> Unit ->
+            <Padding left=padding top=padding right=padding bottom=padding>
+                <child />
+            </Padding>
+        }
+    }
+
+    @Test
+    fun testPadding_differentInsets() {
+        val padding = EdgeInsets(10.dp, 15.dp, 20.dp, 30.dp)
+        testPaddingWithDifferentInsetsImplementation(
+            padding.left,
+            padding.top,
+            padding.right,
+            padding.bottom
+        ) { child: @Composable() () -> Unit ->
+            <Padding padding>
+                <child />
+            </Padding>
+        }
+    }
+
+    @Test
+    fun testPadding_overloadSides_differentInsets() {
+        val left = 10.dp
+        val top = 15.dp
+        val right = 20.dp
+        val bottom = 30.dp
+        testPaddingWithDifferentInsetsImplementation(
+            left,
+            top,
+            right,
+            bottom
+        ) { child: @Composable() () -> Unit ->
+            <Padding left top right bottom>
+                <child />
+            </Padding>
+        }
+    }
+
+    @Test
+    fun testPadding_withInsufficientSpace() = withDensity(density) {
+        val padding = 30.dp
+        testPaddingWithInsufficientSpaceImplementation(padding) { child: @Composable() () -> Unit ->
+            <Padding padding=EdgeInsets(padding)>
+                <child />
+            </Padding>
+        }
+    }
+
+    @Test
+    fun testPadding_overloadAll_withInsufficientSpace() = withDensity(density) {
+        val padding = 30.dp
+        testPaddingWithInsufficientSpaceImplementation(padding) { child: @Composable() () -> Unit ->
+            <Padding padding=padding>
+                <child />
+            </Padding>
+        }
+    }
+
+    @Test
+    fun testPadding_overloadSides_withInsufficientSpace() = withDensity(density) {
+        val padding = 30.dp
+        testPaddingWithInsufficientSpaceImplementation(padding) { child: @Composable() () -> Unit ->
+            <Padding left=30.dp right=30.dp top=30.dp bottom=30.dp>
+                <child />
+            </Padding>
+        }
+    }
+
+    private fun testPaddingIsAppliedImplementation(
+        padding: Dp,
+        paddingContainer: @Composable() (() -> Unit) -> Unit
+    ) = withDensity(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
-        val padding = 10.dp
         val paddingPx = padding.toIntPx()
 
         val drawLatch = CountDownLatch(1)
@@ -56,7 +152,7 @@ class PaddingTest : LayoutTest() {
         show @Composable {
             <Center>
                 <ConstrainedBox constraints=DpConstraints.tightConstraints(sizeDp, sizeDp)>
-                    <Padding padding=EdgeInsets(padding)>
+                    val children = @Composable {
                         <Container>
                             <OnPositioned onPositioned={ coordinates ->
                                 childSize = coordinates.size
@@ -65,7 +161,8 @@ class PaddingTest : LayoutTest() {
                                 drawLatch.countDown()
                             } />
                         </Container>
-                    </Padding>
+                    }
+                    <paddingContainer p1=children />
                 </ConstrainedBox>
             </Center>
         }
@@ -84,11 +181,15 @@ class PaddingTest : LayoutTest() {
         )
     }
 
-    @Test
-    fun testPaddingIsApplied_withDifferentInsets() = withDensity(density) {
+    private fun testPaddingWithDifferentInsetsImplementation(
+        left: Dp,
+        top: Dp,
+        right: Dp,
+        bottom: Dp,
+        paddingContainer: @Composable() ((() -> Unit) -> Unit)
+    ) = withDensity(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
-        val padding = EdgeInsets(10.dp, 15.dp, 20.dp, 30.dp)
 
         val drawLatch = CountDownLatch(1)
         var childSize = PxSize(-1.px, -1.px)
@@ -96,7 +197,7 @@ class PaddingTest : LayoutTest() {
         show @Composable {
             <Center>
                 <ConstrainedBox constraints=DpConstraints.tightConstraints(sizeDp, sizeDp)>
-                    <Padding padding>
+                    val children = @Composable {
                         <Container>
                             <OnPositioned onPositioned={ coordinates ->
                                 childSize = coordinates.size
@@ -105,7 +206,8 @@ class PaddingTest : LayoutTest() {
                                 drawLatch.countDown()
                             } />
                         </Container>
-                    </Padding>
+                    }
+                    <paddingContainer p1=children />
                 </ConstrainedBox>
             </Center>
         }
@@ -114,10 +216,10 @@ class PaddingTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val paddingLeft = padding.left.toIntPx()
-        val paddingRight = padding.right.toIntPx()
-        val paddingTop = padding.top.toIntPx()
-        val paddingBottom = padding.bottom.toIntPx()
+        val paddingLeft = left.toIntPx()
+        val paddingRight = right.toIntPx()
+        val paddingTop = top.toIntPx()
+        val paddingBottom = bottom.toIntPx()
         assertEquals(
             PxSize(
                 size - paddingLeft - paddingRight,
@@ -125,47 +227,51 @@ class PaddingTest : LayoutTest() {
             ),
             childSize
         )
-        val left = ((root.width.ipx - size) / 2) + paddingLeft
-        val top = ((root.height.ipx - size) / 2) + paddingTop
+        val viewLeft = ((root.width.ipx - size) / 2) + paddingLeft
+        val viewTop = ((root.height.ipx - size) / 2) + paddingTop
         assertEquals(
-            PxPosition(left.toPx(), top.toPx()),
+            PxPosition(viewLeft.toPx(), viewTop.toPx()),
             childPosition
         )
     }
 
-    @Test
-    fun testPadding_withInsufficientSpace() = withDensity(density) {
-        val sizeDp = 50.dp
-        val size = sizeDp.toIntPx()
-        val padding = 30.dp
-        val paddingPx = padding.toIntPx()
+    private fun testPaddingWithInsufficientSpaceImplementation(
+        padding: Dp,
+        paddingContainer: @Composable() ((() -> Unit) -> Unit)
+    ) =
+        withDensity(density) {
+            val sizeDp = 50.dp
+            val size = sizeDp.toIntPx()
+            val paddingPx = padding.toIntPx()
 
-        val drawLatch = CountDownLatch(1)
-        var childSize = PxSize(-1.px, -1.px)
-        var childPosition = PxPosition(-1.px, -1.px)
-        show @Composable {
-            <Center>
-                <ConstrainedBox constraints=DpConstraints.tightConstraints(sizeDp, sizeDp)>
-                    <Padding padding=EdgeInsets(padding)>
-                        <Container>
-                            <OnPositioned onPositioned={ coordinates ->
-                                childSize = coordinates.size
-                                childPosition = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-                                drawLatch.countDown()
-                            } />
-                        </Container>
-                    </Padding>
-                </ConstrainedBox>
-            </Center>
+            val drawLatch = CountDownLatch(1)
+            var childSize = PxSize(-1.px, -1.px)
+            var childPosition = PxPosition(-1.px, -1.px)
+            show @Composable {
+                <Center>
+                    <ConstrainedBox constraints=DpConstraints.tightConstraints(sizeDp, sizeDp)>
+                        val children = @Composable {
+                            <Container>
+                                <OnPositioned onPositioned={ coordinates ->
+                                    childSize = coordinates.size
+                                    childPosition = coordinates
+                                        .localToGlobal(PxPosition(0.px, 0.px))
+                                    drawLatch.countDown()
+                                } />
+                            </Container>
+                        }
+                        <paddingContainer p1=children />
+                    </ConstrainedBox>
+                </Center>
+            }
+            drawLatch.await(1, TimeUnit.SECONDS)
+
+            val root = findAndroidCraneView()
+            waitForDraw(root)
+
+            assertEquals(PxSize(0.px, 0.px), childSize)
+            val left = ((root.width.ipx - size) / 2) + paddingPx
+            val top = ((root.height.ipx - size) / 2) + paddingPx
+            assertEquals(PxPosition(left.toPx(), top.toPx()), childPosition)
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
-
-        val root = findAndroidCraneView()
-        waitForDraw(root)
-
-        assertEquals(PxSize(0.px, 0.px), childSize)
-        val left = ((root.width.ipx - size) / 2) + paddingPx
-        val top = ((root.height.ipx - size) / 2) + paddingPx
-        assertEquals(PxPosition(left.toPx(), top.toPx()), childPosition)
-    }
 }
