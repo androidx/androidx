@@ -2367,8 +2367,17 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 }
             }
             if (fs == null) {
-                throwException(new IllegalStateException("Could not find retained Fragment "
-                        + f + " in the set of active Fragments " + fms.mActive));
+                if (DEBUG) {
+                    Log.v(TAG, "Discarding retained Fragment " + f
+                            + " that was not found in the set of active Fragments " + fms.mActive);
+                }
+                // We need to ensure that onDestroy and any other clean up is done
+                // so move the Fragment up to CREATED, then mark it as being removed, then
+                // destroy it.
+                moveToState(f, Fragment.CREATED, 0, 0, false);
+                f.mRemoving = true;
+                moveToState(f, Fragment.INITIALIZING, 0, 0, false);
+                continue;
             }
             fs.mInstance = f;
             f.mSavedViewState = null;
