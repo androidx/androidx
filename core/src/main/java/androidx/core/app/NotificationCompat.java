@@ -16,10 +16,14 @@
 
 package androidx.core.app;
 
+import static android.graphics.drawable.Icon.TYPE_BITMAP;
+
+import static androidx.annotation.Dimension.DP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -50,12 +54,15 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.DimenRes;
+import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.BuildCompat;
 import androidx.core.text.BidiFormatter;
 import androidx.core.view.GravityCompat;
@@ -717,6 +724,7 @@ public class NotificationCompat {
         long mTimeout;
         @GroupAlertBehavior int mGroupAlertBehavior = GROUP_ALERT_ALL;
         boolean mAllowSystemGeneratedContextualActions;
+        BubbleMetadata mBubbleMetadata;
         Notification mNotification = new Notification();
 
         /**
@@ -1569,6 +1577,22 @@ public class NotificationCompat {
         }
 
         /**
+         * Sets the {@link BubbleMetadata} that will be used to display app content in a floating
+         * window over the existing foreground activity.
+         *
+         * <p>This data will be ignored unless the notification is posted to a channel that
+         * allows {@link android.app.NotificationChannel#canBubble() bubbles}.</p>
+         *
+         * <p>Notifications allowed to bubble that have valid bubble metadata will display in
+         * collapsed state outside of the notification shade on unlocked devices. When a user
+         * interacts with the collapsed state, the bubble intent will be invoked and displayed.</p>
+         */
+        public @NonNull Builder setBubbleMetadata(@Nullable BubbleMetadata data) {
+            mBubbleMetadata = data;
+            return this;
+        }
+
+        /**
          * Apply an extender to this notification builder. Extenders may be used to add
          * metadata or change options on this builder.
          */
@@ -1663,6 +1687,16 @@ public class NotificationCompat {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public int getColor() {
             return mColor;
+        }
+
+        /**
+         * @return the {@link BubbleMetadata} of the notification
+         *
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        public BubbleMetadata getBubbleMetadata() {
+            return mBubbleMetadata;
         }
     }
 
@@ -5180,6 +5214,371 @@ public class NotificationCompat {
 
 
     /**
+     * Encapsulates the information needed to display a notification as a bubble.
+     *
+     * <p>A bubble is used to display app content in a floating window over the existing
+     * foreground activity. A bubble has a collapsed state represented by an icon,
+     * {@link BubbleMetadata.Builder#setIcon(IconCompat)} and an expanded state which is populated
+     * via {@link BubbleMetadata.Builder#setIntent(PendingIntent)}.</p>
+     *
+     * <b>Notifications with a valid and allowed bubble will display in collapsed state
+     * outside of the notification shade on unlocked devices. When a user interacts with the
+     * collapsed bubble, the bubble intent will be invoked and displayed.</b>
+     *
+     * @see NotificationCompat.Builder#setBubbleMetadata(BubbleMetadata)
+     */
+    public static final class BubbleMetadata {
+
+        private PendingIntent mPendingIntent;
+        private PendingIntent mDeleteIntent;
+        private IconCompat mIcon;
+        private int mDesiredHeight;
+        @DimenRes
+        private int mDesiredHeightResId;
+        private int mFlags;
+
+        /**
+         * If set and the app creating the bubble is in the foreground, the bubble will be posted
+         * in its expanded state, with the contents of {@link #getIntent()} in a floating window.
+         *
+         * <p>If the app creating the bubble is not in the foreground this flag has no effect.</p>
+         *
+         * <p>Generally this flag should only be set if the user has performed an action to request
+         * or create a bubble.</p>
+         */
+        private static final int FLAG_AUTO_EXPAND_BUBBLE = 0x00000001;
+
+        /**
+         * If set and the app creating the bubble is in the foreground, the bubble will be posted
+         * <b>without</b> the associated notification in the notification shade. Subsequent update
+         * notifications to this bubble will post a notification in the shade.
+         *
+         * <p>If the app creating the bubble is not in the foreground this flag has no effect.</p>
+         *
+         * <p>Generally this flag should only be set if the user has performed an action to request
+         * or create a bubble.</p>
+         */
+        private static final int FLAG_SUPPRESS_INITIAL_NOTIFICATION = 0x00000002;
+
+        private BubbleMetadata(PendingIntent expandIntent, PendingIntent deleteIntent,
+                IconCompat icon, int height, @DimenRes int heightResId, int flags) {
+            mPendingIntent = expandIntent;
+            mIcon = icon;
+            mDesiredHeight = height;
+            mDesiredHeightResId = heightResId;
+            mDeleteIntent = deleteIntent;
+            mFlags = flags;
+        }
+
+        /**
+         * @return the pending intent used to populate the floating window for this bubble.
+         */
+        @NonNull
+        public PendingIntent getIntent() {
+            return mPendingIntent;
+        }
+
+        /**
+         * @return the pending intent to send when the bubble is dismissed by a user, if one exists.
+         */
+        @Nullable
+        public PendingIntent getDeleteIntent() {
+            return mDeleteIntent;
+        }
+
+        /**
+         * @return the icon that will be displayed for this bubble when it is collapsed.
+         */
+        @NonNull
+        public IconCompat getIcon() {
+            return mIcon;
+        }
+
+        /**
+         * @return the ideal height, in DPs, for the floating window that app content defined by
+         * {@link #getIntent()} for this bubble. A value of 0 indicates a desired height has not
+         * been set.
+         */
+        @Dimension(unit = DP)
+        public int getDesiredHeight() {
+            return mDesiredHeight;
+        }
+
+        /**
+         * @return the resId of ideal height for the floating window that app content defined by
+         * {@link #getIntent()} for this bubble. A value of 0 indicates a res value has not
+         * been provided for the desired height.
+         */
+        @DimenRes
+        public int getDesiredHeightResId() {
+            return mDesiredHeightResId;
+        }
+
+        /**
+         * @return whether this bubble should auto expand when it is posted.
+         *
+         * @see BubbleMetadata.Builder#setAutoExpandBubble(boolean)
+         */
+        public boolean getAutoExpandBubble() {
+            return (mFlags & FLAG_AUTO_EXPAND_BUBBLE) != 0;
+        }
+
+        /**
+         * @return whether this bubble should suppress the initial notification when it is posted.
+         *
+         * @see BubbleMetadata.Builder#setSuppressInitialNotification(boolean)
+         */
+        public boolean getSuppressInitialNotification() {
+            return (mFlags & FLAG_SUPPRESS_INITIAL_NOTIFICATION) != 0;
+        }
+
+        /**
+         * Converts a {@link NotificationCompat.BubbleMetadata} to a platform-level
+         * {@link Notification.BubbleMetadata}.
+         *
+         * @param compatMetadata the NotificationCompat.BubbleMetadata to convert
+         * @return a {@link Notification.BubbleMetadata} containing the same data if compatMetadata
+         * is non-null, otherwise null.
+         */
+        @RequiresApi(29)
+        protected static android.app.Notification.BubbleMetadata toPlatform(
+                BubbleMetadata compatMetadata) {
+            if (compatMetadata == null) {
+                return null;
+            }
+
+            android.app.Notification.BubbleMetadata.Builder platformMetadataBuilder =
+                    new android.app.Notification.BubbleMetadata.Builder()
+                            .setAutoExpandBubble(compatMetadata.getAutoExpandBubble())
+                            .setDeleteIntent(compatMetadata.getDeleteIntent())
+                            .setIcon(compatMetadata.getIcon().toIcon())
+                            .setIntent(compatMetadata.getIntent())
+                            .setSuppressInitialNotification(
+                                    compatMetadata.getSuppressInitialNotification());
+
+            if (compatMetadata.getDesiredHeight() != 0) {
+                platformMetadataBuilder.setDesiredHeight(compatMetadata.getDesiredHeight());
+            }
+
+            if (compatMetadata.getDesiredHeightResId() != 0) {
+                platformMetadataBuilder.setDesiredHeightResId(
+                        compatMetadata.getDesiredHeightResId());
+            }
+
+            return platformMetadataBuilder.build();
+        }
+
+        /**
+         * Converts a platform-level {@link Notification.BubbleMetadata} to a
+         * {@link NotificationCompat.BubbleMetadata}.
+         *
+         * @param platformMetadata the {@link Notification.BubbleMetadata} to convert
+         * @return a {@link NotificationCompat.BubbleMetadata} containing the same data if
+         * platformMetadata is non-null, otherwise null.
+         */
+        @RequiresApi(29)
+        protected static BubbleMetadata fromPlatform(
+                android.app.Notification.BubbleMetadata platformMetadata) {
+            if (platformMetadata == null) {
+                return null;
+            }
+
+            BubbleMetadata.Builder compatBuilder = new BubbleMetadata.Builder()
+                    .setAutoExpandBubble(platformMetadata.getAutoExpandBubble())
+                    .setDeleteIntent(platformMetadata.getDeleteIntent())
+                    .setIcon(IconCompat.createFromIcon(platformMetadata.getIcon()))
+                    .setIntent(platformMetadata.getIntent())
+                    .setSuppressInitialNotification(
+                            platformMetadata.getSuppressInitialNotification());
+
+            if (platformMetadata.getDesiredHeight() != 0) {
+                compatBuilder.setDesiredHeight(platformMetadata.getDesiredHeight());
+            }
+
+            if (platformMetadata.getDesiredHeightResId() != 0) {
+                compatBuilder.setDesiredHeightResId(platformMetadata.getDesiredHeightResId());
+            }
+
+            return compatBuilder.build();
+        }
+
+        private void setFlags(int flags) {
+            mFlags = flags;
+        }
+
+        /**
+         * Builder to construct a {@link BubbleMetadata} object.
+         */
+        public static final class Builder {
+
+            private PendingIntent mPendingIntent;
+            private IconCompat mIcon;
+            private int mDesiredHeight;
+            @DimenRes private int mDesiredHeightResId;
+            private int mFlags;
+            private PendingIntent mDeleteIntent;
+
+            /**
+             * Constructs a new builder object.
+             */
+            public Builder() {
+            }
+
+            /**
+             * Sets the intent that will be used when the bubble is expanded. This will display the
+             * app content in a floating window over the existing foreground activity.
+             */
+            @NonNull
+            public BubbleMetadata.Builder setIntent(@NonNull PendingIntent intent) {
+                if (intent == null) {
+                    throw new IllegalArgumentException("Bubble requires non-null pending intent");
+                }
+                mPendingIntent = intent;
+                return this;
+            }
+            /**
+             * Sets the icon that will represent the bubble when it is collapsed.
+             *
+             * <p>An icon is required and should be representative of the content within the bubble.
+             * If your app produces multiple bubbles, the image should be unique for each of them.
+             * </p>
+             *
+             * <p>The shape of a bubble icon is adaptive and can match the device theme.
+             *
+             * If your icon is bitmap-based, you should create it using
+             * {@link IconCompat#createWithAdaptiveBitmap(Bitmap)}, otherwise this method will
+             * throw.
+             *
+             * If your icon is not bitmap-based, you should expect that the icon will be tinted.
+             * </p>
+             */
+            @NonNull
+            public BubbleMetadata.Builder setIcon(@NonNull IconCompat icon) {
+                if (icon == null) {
+                    throw new IllegalArgumentException("Bubbles require non-null icon");
+                }
+                if (icon.getType() == TYPE_BITMAP) {
+                    throw new IllegalArgumentException("When using bitmap based icons, Bubbles "
+                            + "require TYPE_ADAPTIVE_BITMAP, please use"
+                            + " IconCompat#createWithAdaptiveBitmap instead");
+                }
+                mIcon = icon;
+                return this;
+            }
+
+            /**
+             * Sets the desired height in DPs for the app content defined by
+             * {@link #setIntent(PendingIntent)}, this height may not be respected if there is not
+             * enough space on the screen or if the provided height is too small to be useful.
+             * <p>
+             * If {@link #setDesiredHeightResId(int)} was previously called on this builder, the
+             * previous value set will be cleared after calling this method, and this value will
+             * be used instead.
+             */
+            @NonNull
+            public BubbleMetadata.Builder setDesiredHeight(@Dimension(unit = DP) int height) {
+                mDesiredHeight = Math.max(height, 0);
+                mDesiredHeightResId = 0;
+                return this;
+            }
+
+
+            /**
+             * Sets the desired height via resId for the app content defined by
+             * {@link #setIntent(PendingIntent)}, this height may not be respected if there is not
+             * enough space on the screen or if the provided height is too small to be useful.
+             * <p>
+             * If {@link #setDesiredHeight(int)} was previously called on this builder, the
+             * previous value set will be cleared after calling this method, and this value will
+             * be used instead.
+             */
+            @NonNull
+            public BubbleMetadata.Builder setDesiredHeightResId(@DimenRes int heightResId) {
+                mDesiredHeightResId = heightResId;
+                mDesiredHeight = 0;
+                return this;
+            }
+
+            /**
+             * If set and the app creating the bubble is in the foreground, the bubble will be
+             * posted in its expanded state, with the contents of {@link #getIntent()} in a
+             * floating window.
+             *
+             * <p>If the app creating the bubble is not in the foreground this flag has no effect.
+             * </p>
+             *
+             * <p>Generally this flag should only be set if the user has performed an action to
+             * request or create a bubble.</p>
+             */
+            @NonNull
+            public BubbleMetadata.Builder setAutoExpandBubble(boolean shouldExpand) {
+                setFlag(FLAG_AUTO_EXPAND_BUBBLE, shouldExpand);
+                return this;
+            }
+
+            /**
+             * If set and the app creating the bubble is in the foreground, the bubble will be
+             * posted <b>without</b> the associated notification in the notification shade.
+             * Subsequent update notifications to this bubble will post a notification in the shade.
+             *
+             * <p>If the app creating the bubble is not in the foreground this flag has no effect.
+             * </p>
+             *
+             * <p>Generally this flag should only be set if the user has performed an action to
+             * request or create a bubble.</p>
+             */
+            @NonNull
+            public BubbleMetadata.Builder setSuppressInitialNotification(
+                    boolean shouldSupressNotif) {
+                setFlag(FLAG_SUPPRESS_INITIAL_NOTIFICATION, shouldSupressNotif);
+                return this;
+            }
+
+            /**
+             * Sets an optional intent to send when this bubble is explicitly removed by the user.
+             */
+            @NonNull
+            public BubbleMetadata.Builder setDeleteIntent(@Nullable PendingIntent deleteIntent) {
+                mDeleteIntent = deleteIntent;
+                return this;
+            }
+
+            /**
+             * Creates the {@link BubbleMetadata} defined by this builder.
+             * <p>Will throw {@link IllegalStateException} if required fields have not been set
+             * on this builder.</p>
+             */
+            @NonNull
+            @SuppressLint("SyntheticAccessor")
+            public BubbleMetadata build() {
+                if (mPendingIntent == null) {
+                    throw new IllegalStateException("Must supply pending intent to bubble");
+                }
+                if (mIcon == null) {
+                    throw new IllegalStateException("Must supply an icon for the bubble");
+                }
+                BubbleMetadata data = new BubbleMetadata(mPendingIntent, mDeleteIntent,
+                        mIcon, mDesiredHeight, mDesiredHeightResId, mFlags);
+                return data;
+            }
+
+            /**
+             * @hide
+             */
+            @RestrictTo(LIBRARY_GROUP_PREFIX)
+            public BubbleMetadata.Builder setFlag(int mask, boolean value) {
+                if (value) {
+                    mFlags |= mask;
+                } else {
+                    mFlags &= ~mask;
+                }
+                return this;
+            }
+        }
+    }
+
+
+    /**
      * Get an array of Notification objects from a parcelable array bundle field.
      * Update the bundle to have a typed array so fetches in the future don't need
      * to do an array copy.
@@ -5248,6 +5647,19 @@ public class NotificationCompat {
                     action.actionIntent, actionExtras);
         } else if (Build.VERSION.SDK_INT >= 16) {
             return NotificationCompatJellybean.getAction(notification, actionIndex);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get the bubble metadata that will be used to display app content in a floating window
+     * over the existing foreground activity.
+     * @param notification the notification to inspect.
+     */
+    public static @Nullable BubbleMetadata getBubbleMetadata(Notification notification) {
+        if (BuildCompat.isAtLeastQ()) {
+            return BubbleMetadata.fromPlatform(notification.getBubbleMetadata());
         } else {
             return null;
         }
