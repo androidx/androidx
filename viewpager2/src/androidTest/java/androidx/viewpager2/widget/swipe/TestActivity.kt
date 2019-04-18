@@ -32,6 +32,16 @@ class TestActivity : RecreatedAppCompatActivity() {
 
         /** hacky way of configuring this instance from test code */
         onCreateCallback(this)
+
+        // disable enter animation.
+        overridePendingTransition(0, 0)
+    }
+
+    override fun finish() {
+        super.finish()
+
+        // disable exit animation
+        overridePendingTransition(0, 0)
     }
 
     companion object {
