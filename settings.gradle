@@ -120,8 +120,10 @@ includeProject(":lifecycle:lifecycle-viewmodel-savedstate","lifecycle/viewmodel-
 includeProject(":loader", "loader")
 includeProject(":localbroadcastmanager", "localbroadcastmanager")
 includeProject(":media", "media")
-includeProject(":media2", "media2")
-includeProject(":media2-exoplayer", "media2/media2-exoplayer")
+includeProject(":media2:media2-common", "media2/common")
+includeProject(":media2:media2-session", "media2/session")
+includeProject(":media2:media2-player", "media2/player")
+includeProject(":media2:media2-exoplayer", "media2/media2-exoplayer")
 includeProject(":media2-widget", "media2-widget")
 includeProject(":mediarouter", "mediarouter")
 includeProject(":navigation:navigation-benchmark", "navigation/benchmark")
@@ -267,9 +269,9 @@ includeProject(":support-media-compat-test-service", "media/version-compat-tests
 includeProject(":support-media-compat-test-service-previous", "media/version-compat-tests/previous/service")
 includeProject(":support-media-compat-test-lib", "media/version-compat-tests/lib")
 
-includeProject(":support-media2-test-client", "media2/version-compat-tests/current/client")
-includeProject(":support-media2-test-service", "media2/version-compat-tests/current/service")
-includeProject(":support-media2-test-common", "media2/version-compat-tests/common")
+includeProject(":support-media2-test-client", "media2/session/version-compat-tests/current/client")
+includeProject(":support-media2-test-service", "media2/session/version-compat-tests/current/service")
+includeProject(":support-media2-test-common", "media2/session/version-compat-tests/common")
 
 /////////////////////////////
 //
