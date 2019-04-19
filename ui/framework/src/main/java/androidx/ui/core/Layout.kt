@@ -25,6 +25,7 @@ import com.google.r4a.composer
 import com.google.r4a.compositionReference
 import com.google.r4a.memo
 import com.google.r4a.onCommit
+import com.google.r4a.onPreCommit
 import com.google.r4a.unaryPlus
 
 internal typealias LayoutBlock =
@@ -159,7 +160,7 @@ fun ComplexLayout(
         this.maxIntrinsicHeightBlock = maxIntrinsicHeightBlock
     }
 
-    +onCommit {
+    +onPreCommit {
         layoutState.layoutNode.requestLayout()
     }
 
@@ -472,7 +473,7 @@ fun OnPositioned(
     onPositioned: (coordinates: LayoutCoordinates) -> Unit
 ) {
     val coordinatesCallbacks = +ambient(OnPositionedAmbient)
-    +onCommit(onPositioned) {
+    +onPreCommit(onPositioned) {
         coordinatesCallbacks.add(onPositioned)
         onDispose {
             coordinatesCallbacks.remove(onPositioned)
@@ -500,7 +501,7 @@ fun OnChildPositioned(
     @Children children: () -> Unit
 ) {
     val coordinatesCallbacks = +ambient(OnChildPositionedAmbient)
-    +onCommit(onPositioned) {
+    +onPreCommit(onPositioned) {
         coordinatesCallbacks.add(onPositioned)
         onDispose {
             coordinatesCallbacks.remove(onPositioned)
