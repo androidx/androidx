@@ -23,6 +23,7 @@ import com.google.r4a.Composable
 import com.google.r4a.R4a
 import com.google.r4a.ambient
 import com.google.r4a.composer
+import com.google.r4a.compositionReference
 import com.google.r4a.effectOf
 import com.google.r4a.memo
 import com.google.r4a.unaryPlus
@@ -32,17 +33,16 @@ fun CraneWrapper(@Children children: () -> Unit) {
     val rootRef = +memo { Ref<AndroidCraneView>() }
 
     <AndroidCraneView ref=rootRef>
-        <Ambient.Portal> reference ->
-            val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
-            val context = rootRef.value?.context ?: composer.composer.context
-            R4a.composeInto(container = rootLayoutNode, context = context, parent = reference) {
-                <ContextAmbient.Provider value=context>
-                    <DensityAmbient.Provider value=Density(context)>
-                        <children />
-                    </DensityAmbient.Provider>
-                </ContextAmbient.Provider>
-            }
-        </Ambient.Portal>
+        val reference = +compositionReference()
+        val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
+        val context = rootRef.value?.context ?: composer.composer.context
+        R4a.composeInto(container = rootLayoutNode, context = context, parent = reference) {
+            <ContextAmbient.Provider value=context>
+                <DensityAmbient.Provider value=Density(context)>
+                    <children />
+                </DensityAmbient.Provider>
+            </ContextAmbient.Provider>
+        }
     </AndroidCraneView>
 }
 
