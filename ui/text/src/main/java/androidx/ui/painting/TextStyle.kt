@@ -71,7 +71,6 @@ private const val _defaultFontSize: Float = 14.0f
 // TODO(Migration/qqd): Implement immutable.
 // @immutable
 data class TextStyle(
-    val inherit: Boolean? = true,
     val color: Color? = null,
     val fontSize: Float? = null,
     val fontWeight: FontWeight? = null,
@@ -96,10 +95,6 @@ data class TextStyle(
     val debugLabel: String? = null
 ) /*: Diagnosticable*/ {
 
-    init {
-        assert(inherit != null)
-    }
-
     /**
      * Returns a new text style that is a combination of this style and the given [other] style.
      *
@@ -115,7 +110,6 @@ data class TextStyle(
      */
     fun merge(other: TextStyle? = null): TextStyle {
         if (other == null) return this
-        if (!other.inherit!!) return other
 
         // TODO(siyamed) remove debug labels
         var mergedDebugLabel = ""
@@ -125,7 +119,6 @@ data class TextStyle(
         }
 
         return TextStyle(
-            inherit = inherit,
             color = other.color ?: this.color,
             fontFamily = other.fontFamily ?: this.fontFamily,
             fontSize = other.fontSize ?: this.fontSize,
@@ -168,8 +161,7 @@ data class TextStyle(
         fun lerp(a: TextStyle? = null, b: TextStyle? = null, t: Float): TextStyle? {
             val aIsNull = a == null
             val bIsNull = b == null
-            val inheritEqual = a?.inherit == b?.inherit
-            assert(aIsNull || bIsNull || inheritEqual)
+
             if (aIsNull && bIsNull) return null
             // TODO(siyamed) remove debug labels
             val lerpDebugLabel = "lerp(${a?.debugLabel
@@ -181,7 +173,6 @@ data class TextStyle(
                     b?.copy(debugLabel = lerpDebugLabel)?: TextStyle(debugLabel = lerpDebugLabel)
                 return if (t < 0.5) {
                     TextStyle(
-                        inherit = newB.inherit,
                         color = Color.lerp(null, newB.color, t),
                         fontWeight = FontWeight.lerp(null, newB.fontWeight, t),
                         debugLabel = lerpDebugLabel
@@ -203,7 +194,6 @@ data class TextStyle(
                     )
                 } else {
                     TextStyle(
-                        inherit = a.inherit,
                         color = Color.lerp(a.color, null, t),
                         fontWeight = FontWeight.lerp(a.fontWeight, null, t),
                         debugLabel = lerpDebugLabel
@@ -216,7 +206,6 @@ data class TextStyle(
             // [lerp(Float, Float, Float)] API cannot take null parameters. We could have a
             // workaround by using 0.0, but for now let's keep it this way.
             return TextStyle(
-                inherit = b.inherit,
                 color = Color.lerp(a.color, b.color, t),
                 fontFamily = if (t < 0.5) a.fontFamily else b.fontFamily,
                 fontSize = lerp(a.fontSize ?: b.fontSize!!, b.fontSize ?: a.fontSize!!, t),
@@ -332,8 +321,7 @@ data class TextStyle(
         if (this == other) {
             return RenderComparison.IDENTICAL
         }
-        if (inherit != other.inherit ||
-            fontFamily != other.fontFamily ||
+        if (fontFamily != other.fontFamily ||
             fontSize != other.fontSize ||
             fontWeight != other.fontWeight ||
             fontStyle != other.fontStyle ||
