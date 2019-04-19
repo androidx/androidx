@@ -38,6 +38,17 @@ public class MediaStubActivity extends Activity {
 
         SurfaceView surfaceV2 = (SurfaceView) findViewById(R.id.surface2);
         mHolder2 = surfaceV2.getHolder();
+
+        // disable enter animation.
+        overridePendingTransition(0, 0);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+
+        // disable exit animation.
+        overridePendingTransition(0, 0);
     }
 
     @Override
