@@ -24,8 +24,10 @@ plugins {
 }
 
 dependencies {
-    api(project(":media2"))
-    api(project(":mediarouter"))
+    api(project(":media2:media2-common"))
+    api(project(":media2:media2-player"))
+    api(project(":media2:media2-session"))
+    implementation(project(":mediarouter"))
     implementation("androidx.appcompat:appcompat:1.0.2")
     implementation("androidx.palette:palette:1.0.0")
     implementation(project(":concurrent:concurrent-futures"))
@@ -47,12 +49,13 @@ android {
 }
 
 androidx {
-    name = "AndroidX Media2 Widget library"
+    name = "AndroidX media2 widget library"
     publish = true
     mavenVersion = LibraryVersions.MEDIA2_WIDGET
     mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"
     description = "AndroidX Media2 Widget"
+    // TODO: Remove these (b/130838274)
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }
