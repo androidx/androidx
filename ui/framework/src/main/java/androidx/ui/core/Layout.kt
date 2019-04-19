@@ -22,6 +22,7 @@ import com.google.r4a.Composable
 import com.google.r4a.R4a
 import com.google.r4a.ambient
 import com.google.r4a.composer
+import com.google.r4a.compositionReference
 import com.google.r4a.memo
 import com.google.r4a.onCommit
 import com.google.r4a.unaryPlus
@@ -413,10 +414,8 @@ class LayoutReceiver internal constructor(
  */
 @Composable
 fun WithConstraints(@Children children: (Constraints) -> Unit) {
-    var ambients: Ambient.Reference? = null
-    <Ambient.Portal> value ->
-        ambients = value
-    </Ambient.Portal>
+    val ref = +compositionReference()
+    val context = +ambient(ContextAmbient)
 
     <Layout
         layoutBlock = { _, constraints ->
@@ -424,8 +423,8 @@ fun WithConstraints(@Children children: (Constraints) -> Unit) {
             // Start subcomposition from the current node.
             R4a.composeInto(
                 root,
-                ambients!!.getAmbient(ContextAmbient),
-                ambients
+                context,
+                ref
             ) {
                 <children p1=constraints />
             }
