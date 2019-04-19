@@ -25,10 +25,11 @@ plugins {
     id("com.android.library")
     id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
-    id("r4a")
 }
 
 dependencies {
+    kotlinPlugin project(":compose-plugin-cli")
+
     api "androidx.annotation:annotation:1.0.0"
     api project(":compose-runtime")
     api project(":ui-core")
