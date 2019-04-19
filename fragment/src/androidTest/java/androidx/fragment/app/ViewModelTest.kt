@@ -16,7 +16,6 @@
 
 package androidx.fragment.app
 
-import android.app.Activity
 import androidx.fragment.app.test.TestViewModel
 import androidx.fragment.app.test.ViewModelActivity
 import androidx.fragment.app.test.ViewModelActivity.ViewModelFragment
@@ -150,13 +149,3 @@ class ViewModelTest {
 
 private fun FragmentActivity.getFragment(tag: String) =
     supportFragmentManager.findFragmentByTag(tag) as ViewModelFragment
-
-private inline fun <reified A : Activity, T : Any> ActivityScenario<A>.withActivity(
-    crossinline block: A.() -> T
-): T {
-    lateinit var value: T
-    onActivity { activity ->
-        value = block(activity)
-    }
-    return value
-}
