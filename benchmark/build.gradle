@@ -24,12 +24,16 @@ plugins {
     id("kotlin-android")
 }
 
+android.defaultConfig.testInstrumentationRunner "androidx.benchmark.AndroidBenchmarkRunner"
+
 dependencies {
     implementation(SUPPORT_ANNOTATIONS)
+    implementation(ANDROIDX_TEST_CORE)
     implementation(ANDROIDX_TEST_RUNNER)
+    implementation(KOTLIN_STDLIB)
 
     androidTestImplementation(JUNIT)
-    implementation(KOTLIN_STDLIB)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
 }
 
 androidx {
