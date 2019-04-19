@@ -40,10 +40,12 @@ import java.util.concurrent.Executor;
 /**
  * Builds instances of {@link androidx.work.ListenableWorker} which can be used for testing.
  *
- * @param <B> The actual {@link TestListenableWorkerBuilder} subtype being built.
+ * @param <W> The actual {@link ListenableWorker} subtype being built.
  */
-public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> {
+public class TestListenableWorkerBuilder<W extends ListenableWorker> {
+
     private Context mContext;
+    private Class<W> mWorkerClass;
     private String mWorkerName;
     private UUID mId;
     private Data mInputData;
@@ -54,9 +56,10 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
     private TaskExecutor mTaskExecutor;
     private Executor mExecutor;
 
-    TestListenableWorkerBuilder(@NonNull Context applicationContext, @NonNull String workerName) {
-        mContext = applicationContext;
-        mWorkerName = workerName;
+    TestListenableWorkerBuilder(@NonNull Context context, @NonNull Class<W> workerClass) {
+        mContext = context;
+        mWorkerClass = workerClass;
+        mWorkerName = mWorkerClass.getName();
         mId = UUID.randomUUID();
         mInputData = Data.EMPTY;
         mTags = Collections.emptyList();
@@ -73,6 +76,13 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
     @NonNull
     Context getApplicationContext() {
         return mContext;
+    }
+
+    /**
+     * @return The type of {@link ListenableWorker}.
+     */
+    Class<W> getWorkerClass() {
+        return mWorkerClass;
     }
 
     /**
@@ -150,25 +160,15 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
     }
 
     /**
-     * @return The instance thats being built.
-     */
-    @NonNull
-    @SuppressWarnings("unchecked")
-    B getThis() {
-        // B = TestListenableWorkerBuilder here. Java :(
-        return (B) this;
-    }
-
-    /**
      * Sets the id for this unit of work.
      *
      * @param id The {@link UUID}
      * @return The current {@link TestListenableWorkerBuilder}
      */
     @NonNull
-    public B setId(@NonNull UUID id) {
+    public TestListenableWorkerBuilder setId(@NonNull UUID id) {
         mId = id;
-        return getThis();
+        return this;
     }
 
     /**
@@ -178,9 +178,9 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
      * @return The current {@link TestListenableWorkerBuilder}
      */
     @NonNull
-    public B setInputData(@NonNull Data inputData) {
+    public TestListenableWorkerBuilder setInputData(@NonNull Data inputData) {
         mInputData = inputData;
-        return getThis();
+        return this;
     }
 
     /**
@@ -190,9 +190,9 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
      * @return The current {@link TestListenableWorkerBuilder}
      */
     @NonNull
-    public B setTags(@NonNull List<String> tags) {
+    public TestListenableWorkerBuilder setTags(@NonNull List<String> tags) {
         mTags = tags;
-        return getThis();
+        return this;
     }
 
     /**
@@ -202,9 +202,9 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
      * @return The current {@link TestListenableWorkerBuilder}
      */
     @NonNull
-    public B setRunAttemptCount(int runAttemptCount) {
+    public TestListenableWorkerBuilder setRunAttemptCount(int runAttemptCount) {
         mRunAttemptCount = runAttemptCount;
-        return getThis();
+        return this;
     }
 
     /**
@@ -215,9 +215,9 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
      */
     @RequiresApi(24)
     @NonNull
-    public B setTriggeredContentUris(@NonNull List<Uri> contentUris) {
+    public TestListenableWorkerBuilder setTriggeredContentUris(@NonNull List<Uri> contentUris) {
         mRuntimeExtras.triggeredContentUris = contentUris;
-        return getThis();
+        return this;
     }
 
     /**
@@ -228,10 +228,10 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
      */
     @RequiresApi(24)
     @NonNull
-    public B setTriggeredContentAuthorities(
+    public TestListenableWorkerBuilder setTriggeredContentAuthorities(
             @NonNull List<String> authorities) {
         mRuntimeExtras.triggeredContentAuthorities = authorities;
-        return getThis();
+        return this;
     }
 
     /**
@@ -242,9 +242,9 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
      */
     @RequiresApi(28)
     @NonNull
-    public B setNetwork(@NonNull Network network) {
+    public TestListenableWorkerBuilder setNetwork(@NonNull Network network) {
         mRuntimeExtras.network = network;
-        return getThis();
+        return this;
     }
 
     /**
@@ -256,9 +256,9 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
      * @return The current {@link TestListenableWorkerBuilder}
      */
     @NonNull
-    public B setWorkerFactory(@NonNull WorkerFactory workerFactory) {
+    public TestListenableWorkerBuilder setWorkerFactory(@NonNull WorkerFactory workerFactory) {
         mWorkerFactory = workerFactory;
-        return getThis();
+        return this;
     }
 
     /**
@@ -268,9 +268,9 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
      * @return The current {@link TestListenableWorkerBuilder}
      */
     @NonNull
-    B setExecutor(@NonNull Executor executor) {
+    TestListenableWorkerBuilder setExecutor(@NonNull Executor executor) {
         mExecutor = executor;
-        return getThis();
+        return this;
     }
 
     /**
@@ -279,7 +279,8 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
      * @return the instance of a {@link ListenableWorker}.
      */
     @NonNull
-    public ListenableWorker build() {
+    @SuppressWarnings("unchecked")
+    public W build() {
         WorkerParameters parameters =
                 new WorkerParameters(
                         getId(),
@@ -305,7 +306,16 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
                     String.format("Could not create an instance of ListenableWorker %s",
                             getWorkerName()));
         }
-        return worker;
+
+        // This won't do much for the case of the from(Context, WorkRequest) as we lose the
+        // type. However when using from(Class<W>) it will do the right thing. The benefits
+        // also carry over to Kotlin extensions.
+        if (!getWorkerClass().isAssignableFrom(worker.getClass())) {
+            throw new IllegalStateException(
+                    String.format("Unexpected worker type %s (expected %s)", worker.getClass(),
+                            getWorkerClass()));
+        }
+        return (W) worker;
     }
 
     /**
@@ -316,16 +326,36 @@ public class TestListenableWorkerBuilder<B extends TestListenableWorkerBuilder> 
      * @return The new instance of a {@link ListenableWorker}
      */
     @NonNull
+    @SuppressWarnings("unchecked")
     public static TestListenableWorkerBuilder from(
             @NonNull Context context,
             @NonNull WorkRequest workRequest) {
         WorkSpec workSpec = workRequest.getWorkSpec();
         String name = workSpec.workerClassName;
-        List<String> tags = new ArrayList<>(workRequest.getTags().size());
-        tags.addAll(workRequest.getTags());
-        return new TestListenableWorkerBuilder(context.getApplicationContext(), name)
-                .setId(workRequest.getId())
-                .setTags(tags)
-                .setInputData(workSpec.input);
+        try {
+            Class<?> workerClass = Class.forName(name);
+            List<String> tags = new ArrayList<>(workRequest.getTags().size());
+            tags.addAll(workRequest.getTags());
+            return new TestListenableWorkerBuilder(context.getApplicationContext(), workerClass)
+                    .setId(workRequest.getId())
+                    .setTags(tags)
+                    .setInputData(workSpec.input);
+        } catch (ClassNotFoundException exception) {
+            throw new RuntimeException("Cannot find class", exception);
+        }
+    }
+
+    /**
+     * Creates a new instance of a {@link TestListenableWorkerBuilder} the worker {@link Class}.
+     *
+     * @param context     The {@link Context}
+     * @param workerClass The subtype of {@link ListenableWorker} being built
+     * @return The new instance of a {@link ListenableWorker}
+     */
+    @NonNull
+    public static <W extends ListenableWorker> TestListenableWorkerBuilder<W> from(
+            @NonNull Context context,
+            @NonNull Class<W> workerClass) {
+        return new TestListenableWorkerBuilder<>(context, workerClass);
     }
 }

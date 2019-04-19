@@ -30,33 +30,19 @@ import java.util.concurrent.Executor;
 
 /**
  * Builds instances of {@link Worker} which can be used for testing.
+ *
+ * @param <W> The actual subtype of {@link Worker}
  */
-public class TestWorkerBuilder extends TestListenableWorkerBuilder<TestWorkerBuilder> {
+public class TestWorkerBuilder<W extends Worker> extends TestListenableWorkerBuilder<W> {
 
     private TestWorkerBuilder(
             @NonNull Context context,
-            @NonNull String workerName,
+            @NonNull Class<W> workerClass,
             @Nullable Executor executor) {
-        super(context, workerName);
+        super(context, workerClass);
         if (executor != null) {
             setExecutor(executor);
         }
-    }
-
-    @NonNull
-    @Override
-    TestWorkerBuilder getThis() {
-        return this;
-    }
-
-    /**
-     * Builds the {@link Worker}.
-     *
-     * @return the instance of a {@link Worker}.
-     */
-    @NonNull
-    public Worker build() {
-        return (Worker) super.build();
     }
 
     /**
@@ -74,18 +60,6 @@ public class TestWorkerBuilder extends TestListenableWorkerBuilder<TestWorkerBui
     }
 
     /**
-     * Sets the {@link Executor} that can be used to execute this unit of work.
-     *
-     * @param executor The {@link Executor}
-     * @return The current {@link TestWorkerBuilder}
-     */
-    @NonNull
-    @Override
-    public TestWorkerBuilder setExecutor(@NonNull Executor executor) {
-        return super.setExecutor(executor);
-    }
-
-    /**
      * Creates a new instance of a {@link TestWorkerBuilder} from a {@link WorkRequest} that runs on
      * the given {@link Executor}.
      *
@@ -95,31 +69,61 @@ public class TestWorkerBuilder extends TestListenableWorkerBuilder<TestWorkerBui
      * @return The new instance of a {@link TestWorkerBuilder}
      */
     @NonNull
-    public static TestWorkerBuilder from(
+    public static TestWorkerBuilder<? extends Worker> from(
             @NonNull Context context,
             @NonNull WorkRequest workRequest,
             @Nullable Executor executor) {
         WorkSpec workSpec = workRequest.getWorkSpec();
         String name = workSpec.workerClassName;
-        if (!isValidWorker(name)) {
+
+        Class<Worker> workerClass = getWorkerClass(name);
+        if (workerClass == null) {
             throw new IllegalArgumentException(
                     String.format("Invalid worker class name or class does not extend Worker (%s)",
                             name));
         }
+
         List<String> tags = new ArrayList<>(workRequest.getTags().size());
         tags.addAll(workRequest.getTags());
-        return new TestWorkerBuilder(context, name, executor)
-                .setId(workRequest.getId())
+
+        TestWorkerBuilder<Worker> builder =
+                new TestWorkerBuilder<>(context, workerClass, executor);
+
+        builder.setId(workRequest.getId())
                 .setTags(tags)
                 .setInputData(workSpec.input);
+
+        return builder;
     }
 
-    private static boolean isValidWorker(@NonNull String className) {
+    /**
+     * Creates a new instance of a {@link TestWorkerBuilder} with the worker {@link Class} that
+     * runs on the given {@link Executor}.
+     *
+     * @param context     The {@link Context}
+     * @param workerClass The subtype of {@link Worker} being built
+     * @param executor    The {@link Executor}
+     * @return The new instance of a {@link TestWorkerBuilder}
+     */
+    @NonNull
+    public static <W extends Worker> TestWorkerBuilder<W> from(
+            @NonNull Context context,
+            @NonNull Class<W> workerClass,
+            @Nullable Executor executor) {
+        return new TestWorkerBuilder<>(context, workerClass, executor);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Class<Worker> getWorkerClass(String className) {
         try {
             Class<?> klass = Class.forName(className);
-            return Worker.class.isAssignableFrom(klass);
+            if (!Worker.class.isAssignableFrom(klass)) {
+                return null;
+            } else {
+                return (Class<Worker>) klass;
+            }
         } catch (Throwable ignore) {
-            return false;
+            return null;
         }
     }
 }
