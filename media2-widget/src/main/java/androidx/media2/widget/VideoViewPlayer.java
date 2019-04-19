@@ -18,7 +18,7 @@ package androidx.media2.widget;
 
 import android.content.Context;
 
-import androidx.media2.MediaPlayer;
+import androidx.media2.player.MediaPlayer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

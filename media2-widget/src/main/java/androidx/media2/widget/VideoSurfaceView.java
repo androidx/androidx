@@ -26,7 +26,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import androidx.core.content.ContextCompat;
-import androidx.media2.MediaPlayer;
+import androidx.media2.player.MediaPlayer;
 
 class VideoSurfaceView extends SurfaceView
         implements VideoViewInterface, SurfaceHolder.Callback {

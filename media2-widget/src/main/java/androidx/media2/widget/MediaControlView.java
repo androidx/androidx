@@ -16,8 +16,8 @@
 
 package androidx.media2.widget;
 
-import static androidx.media2.SessionResult.RESULT_ERROR_NOT_SUPPORTED;
-import static androidx.media2.SessionResult.RESULT_SUCCESS;
+import static androidx.media2.session.SessionResult.RESULT_ERROR_NOT_SUPPORTED;
+import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -55,17 +55,17 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.media2.MediaController;
-import androidx.media2.MediaItem;
-import androidx.media2.MediaMetadata;
-import androidx.media2.MediaPlayer;
-import androidx.media2.MediaSession;
-import androidx.media2.SessionCommand;
-import androidx.media2.SessionCommandGroup;
-import androidx.media2.SessionPlayer;
-import androidx.media2.SessionResult;
-import androidx.media2.SessionToken;
-import androidx.media2.UriMediaItem;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.UriMediaItem;
+import androidx.media2.player.MediaPlayer;
+import androidx.media2.session.MediaController;
+import androidx.media2.session.MediaSession;
+import androidx.media2.session.SessionCommand;
+import androidx.media2.session.SessionCommandGroup;
+import androidx.media2.session.SessionResult;
+import androidx.media2.session.SessionToken;
 import androidx.mediarouter.app.MediaRouteButton;
 import androidx.mediarouter.media.MediaRouteSelector;
 

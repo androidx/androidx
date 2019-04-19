@@ -26,8 +26,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.media2.MediaSessionManager;
-import androidx.media2.SessionToken;
+import androidx.media2.session.MediaSessionManager;
+import androidx.media2.session.SessionToken;
 import androidx.media2.test.service.MockMediaBrowserServiceCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

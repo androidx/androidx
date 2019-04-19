@@ -31,12 +31,12 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
-import androidx.media2.FileMediaItem;
-import androidx.media2.MediaItem;
-import androidx.media2.MediaMetadata;
-import androidx.media2.MediaSession;
-import androidx.media2.MediaUtils;
-import androidx.media2.SessionPlayer;
+import androidx.media2.common.FileMediaItem;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.SessionPlayer;
+import androidx.media2.session.MediaSession;
+import androidx.media2.session.MediaUtils;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.TestUtils;

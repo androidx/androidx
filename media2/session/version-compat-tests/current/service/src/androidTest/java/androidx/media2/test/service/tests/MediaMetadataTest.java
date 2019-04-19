@@ -16,7 +16,7 @@
 
 package androidx.media2.test.service.tests;
 
-import static androidx.media2.MediaMetadata.METADATA_KEY_RATING;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_RATING;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -33,13 +33,13 @@ import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
 
-import androidx.media2.HeartRating;
-import androidx.media2.MediaItem;
-import androidx.media2.MediaMetadata;
-import androidx.media2.MediaMetadata.Builder;
-import androidx.media2.MediaUtils;
-import androidx.media2.Rating;
-import androidx.media2.ThumbRating;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.MediaMetadata.Builder;
+import androidx.media2.common.Rating;
+import androidx.media2.session.HeartRating;
+import androidx.media2.session.MediaUtils;
+import androidx.media2.session.ThumbRating;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
