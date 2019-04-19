@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2;
+package androidx.media2.test.client.tests;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -24,35 +24,40 @@ import android.os.Bundle;
 import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.media2.MediaBrowser;
 import androidx.media2.MediaBrowser.BrowserCallback;
+import androidx.media2.MediaController;
 import androidx.media2.MediaController.ControllerCallback;
-import androidx.media2.MediaLibraryService.LibraryParams;
+import androidx.media2.MediaItem;
+import androidx.media2.MediaLibraryService;
+import androidx.media2.MediaMetadata;
 import androidx.media2.MediaSession.CommandButton;
-import androidx.media2.MediaSessionTestBase.TestControllerCallbackInterface;
+import androidx.media2.SessionCommand;
+import androidx.media2.SessionCommandGroup;
+import androidx.media2.SessionResult;
+import androidx.media2.VideoSize;
+import androidx.media2.test.client.tests.MediaSessionTestBase.TestControllerCallbackInterface;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Mock {@link MediaBrowser.BrowserCallback} that implements
- * {@link TestControllerCallbackInterface}
+ * A proxy class for {@link BrowserCallback} which implements
+ * {@link TestControllerCallbackInterface}.
  */
-public class MockBrowserCallback extends BrowserCallback
+public class TestBrowserCallback extends BrowserCallback
         implements TestControllerCallbackInterface {
 
-    private final ControllerCallback mCallbackProxy;
+    public final ControllerCallback mCallbackProxy;
     public final CountDownLatch connectLatch = new CountDownLatch(1);
     public final CountDownLatch disconnectLatch = new CountDownLatch(1);
     @GuardedBy("this")
     private Runnable mOnCustomCommandRunnable;
 
-    MockBrowserCallback(ControllerCallback callbackProxy) {
-        if (callbackProxy == null) {
-            callbackProxy = new BrowserCallback() {
-            };
-        }
-        mCallbackProxy = callbackProxy;
+    TestBrowserCallback(@Nullable ControllerCallback callbackProxy) {
+        mCallbackProxy = callbackProxy == null ? new BrowserCallback() {} : callbackProxy;
     }
 
     @CallSuper
@@ -92,20 +97,20 @@ public class MockBrowserCallback extends BrowserCallback
     }
 
     @Override
-    public void onPlaybackInfoChanged(MediaController controller,
-            MediaController.PlaybackInfo info) {
-        mCallbackProxy.onPlaybackInfoChanged(controller, info);
-    }
-
-    @Override
-    public SessionResult onCustomCommand(
-            MediaController controller, SessionCommand command, Bundle args) {
+    public SessionResult onCustomCommand(MediaController controller,
+            SessionCommand command, Bundle args) {
         synchronized (this) {
             if (mOnCustomCommandRunnable != null) {
                 mOnCustomCommandRunnable.run();
             }
         }
         return mCallbackProxy.onCustomCommand(controller, command, args);
+    }
+
+    @Override
+    public void onPlaybackInfoChanged(MediaController controller,
+            MediaController.PlaybackInfo info) {
+        mCallbackProxy.onPlaybackInfoChanged(controller, info);
     }
 
     @Override
@@ -168,29 +173,28 @@ public class MockBrowserCallback extends BrowserCallback
     }
 
     @Override
+    public void onPlaybackCompleted(MediaController controller) {
+        mCallbackProxy.onPlaybackCompleted(controller);
+    }
+
+    @Override
     public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
             @NonNull VideoSize videoSize) {
         mCallbackProxy.onVideoSizeChanged(controller, item, videoSize);
     }
 
     @Override
-    public void onSearchResultChanged(MediaBrowser browser, String query, int itemCount,
-            LibraryParams params) {
-        super.onSearchResultChanged(browser, query, itemCount, params);
-        if (mCallbackProxy instanceof BrowserCallback) {
-            ((BrowserCallback) mCallbackProxy)
-                    .onSearchResultChanged(browser, query, itemCount, params);
-        }
+    public void onChildrenChanged(@NonNull MediaBrowser browser, @NonNull String parentId,
+            int itemCount, @Nullable MediaLibraryService.LibraryParams params) {
+        ((BrowserCallback) mCallbackProxy).onChildrenChanged(
+                browser, parentId, itemCount, params);
     }
 
     @Override
-    public void onChildrenChanged(MediaBrowser browser, String parentId, int itemCount,
-            LibraryParams params) {
-        super.onChildrenChanged(browser, parentId, itemCount, params);
-        if (mCallbackProxy instanceof BrowserCallback) {
-            ((BrowserCallback) mCallbackProxy)
-                    .onChildrenChanged(browser, parentId, itemCount, params);
-        }
+    public void onSearchResultChanged(@NonNull MediaBrowser browser, @NonNull String query,
+            int itemCount, @Nullable MediaLibraryService.LibraryParams params) {
+        ((BrowserCallback) mCallbackProxy).onSearchResultChanged(
+                browser, query, itemCount, params);
     }
 
     @Override
