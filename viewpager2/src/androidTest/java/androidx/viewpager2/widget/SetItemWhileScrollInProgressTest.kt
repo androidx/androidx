@@ -18,7 +18,6 @@ package androidx.viewpager2.widget
 
 import android.os.SystemClock
 import androidx.test.filters.LargeTest
-import androidx.test.filters.RequiresDevice
 import androidx.testutils.PollingCheck
 import androidx.viewpager2.widget.SetItemWhileScrollInProgressTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.SetItemWhileScrollInProgressTest.Event.OnPageScrolledEvent
@@ -119,7 +118,6 @@ private const val RANDOM_TESTS_PER_CONFIG = 0 // increase to have random tests g
  */
 @RunWith(Parameterized::class)
 @LargeTest
-@RequiresDevice
 class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTest() {
     data class TestConfig(
         val title: String,
