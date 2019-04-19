@@ -24,15 +24,14 @@ import static androidx.media2.TestUtils.assertMediaItemWithId;
 import static androidx.media2.TestUtils.createLibraryParams;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.Process;
 
@@ -70,17 +69,19 @@ public class MediaBrowserTest extends MediaControllerTest {
     private static final String TAG = "MediaBrowserTest";
 
     @Override
-    TestControllerInterface onCreateController(final @NonNull SessionToken token,
-            final @Nullable ControllerCallback callback) throws InterruptedException {
-        final AtomicReference<TestControllerInterface> controller = new AtomicReference<>();
+    MediaController onCreateController(final @NonNull SessionToken token,
+            final @Nullable TestBrowserCallback callback) throws InterruptedException {
+        final AtomicReference<MediaController> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
             @Override
             public void run() {
                 // Create controller on the test handler, for changing MediaBrowserCompat's Handler
                 // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
                 // and commands wouldn't be run if tests codes waits on the test handler.
-                controller.set(new TestMediaBrowser(
-                        mContext, token, new MockBrowserCallback(callback)));
+                controller.set(new MediaBrowser.Builder(mContext)
+                        .setSessionToken(token)
+                        .setControllerCallback(sHandlerExecutor, callback)
+                        .build());
             }
         });
         return controller.get();
@@ -97,19 +98,22 @@ public class MediaBrowserTest extends MediaControllerTest {
     }
 
     /**
-     * Test if the {@link MockBrowserCallback} wraps the callback proxy without missing any method.
+     * Test if the {@link TestBrowserCallback} wraps the callback proxy without missing any method.
      */
     @Test
     public void testTestBrowserCallback() {
         prepareLooper();
-        Method[] methods = MockBrowserCallback.class.getMethods();
+        Method[] methods = TestBrowserCallback.class.getMethods();
         assertNotNull(methods);
         for (int i = 0; i < methods.length; i++) {
-            // For any methods in the controller callback, TestControllerCallback should have
-            // overriden the method and call matching API in the callback proxy.
+            // For any methods in the controller callback, TestBrowserCallback should have
+            // overridden the method and call matching API in the callback proxy.
             assertNotEquals("TestBrowserCallback should override " + methods[i]
                             + " and call callback proxy",
                     BrowserCallback.class, methods[i].getDeclaringClass());
+            assertNotEquals("TestBrowserCallback should override " + methods[i]
+                            + " and call callback proxy",
+                    ControllerCallback.class, methods[i].getDeclaringClass());
         }
     }
 
@@ -531,20 +535,5 @@ public class MediaBrowserTest extends MediaControllerTest {
 
         // onChildrenChanged() should be called.
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-    }
-
-    public class TestMediaBrowser extends MediaBrowser implements TestControllerInterface {
-        private final BrowserCallback mCallback;
-
-        public TestMediaBrowser(@NonNull Context context, @NonNull SessionToken token,
-                @NonNull BrowserCallback callback) {
-            super(context, token, sHandlerExecutor, callback);
-            mCallback = callback;
-        }
-
-        @Override
-        public BrowserCallback getCallback() {
-            return mCallback;
-        }
     }
 }

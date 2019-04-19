@@ -137,8 +137,10 @@ public class VideoPlayerActivity extends FragmentActivity {
             SessionToken token = mVideoView.getSessionToken();
 
             Executor executor = ContextCompat.getMainExecutor(this);
-            mMediaController = new MediaController(
-                    this, token, executor, new ControllerCallback());
+            mMediaController = new MediaController.Builder(this)
+                    .setSessionToken(token)
+                    .setControllerCallback(executor, new ControllerCallback())
+                    .build();
         }
         if (errorString != null) {
             showErrorDialog(errorString);

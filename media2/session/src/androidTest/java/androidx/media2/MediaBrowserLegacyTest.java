@@ -28,7 +28,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.content.ComponentName;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -39,7 +38,6 @@ import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.MediaBrowserServiceCompat.Result;
 import androidx.media2.MediaBrowser.BrowserCallback;
-import androidx.media2.MediaController.ControllerCallback;
 import androidx.media2.MediaLibraryService.LibraryParams;
 import androidx.media2.MockMediaBrowserServiceCompat.Proxy;
 import androidx.test.filters.LargeTest;
@@ -64,17 +62,19 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     private static final String TAG = "MediaBrowserLegacyTest";
 
     @Override
-    TestControllerInterface onCreateController(final @NonNull SessionToken token,
-            final @Nullable ControllerCallback callback) throws InterruptedException {
-        final AtomicReference<TestControllerInterface> controller = new AtomicReference<>();
+    MediaController onCreateController(final @NonNull SessionToken token,
+            final @Nullable TestBrowserCallback callback) throws InterruptedException {
+        final AtomicReference<MediaController> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
             @Override
             public void run() {
                 // Create controller on the test handler, for changing MediaBrowserCompat's Handler
                 // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
                 // and commands wouldn't be run if tests codes waits on the test handler.
-                controller.set(new TestMediaBrowser(
-                        mContext, token, new MockBrowserCallback(callback)));
+                controller.set(new MediaBrowser.Builder(mContext)
+                        .setSessionToken(token)
+                        .setControllerCallback(sHandlerExecutor, callback)
+                        .build());
             }
         });
         return controller.get();
@@ -524,21 +524,6 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         assertEquals(itemList.size(), item2List.size());
         for (int i = 0; i < itemList.size(); i++) {
             assertItemEquals(itemList.get(i), item2List.get(i));
-        }
-    }
-
-    public class TestMediaBrowser extends MediaBrowser implements TestControllerInterface {
-        private final BrowserCallback mCallback;
-
-        public TestMediaBrowser(@NonNull Context context, @NonNull SessionToken token,
-                @NonNull BrowserCallback callback) {
-            super(context, token, sHandlerExecutor, callback);
-            mCallback = callback;
-        }
-
-        @Override
-        public BrowserCallback getCallback() {
-            return mCallback;
         }
     }
 }

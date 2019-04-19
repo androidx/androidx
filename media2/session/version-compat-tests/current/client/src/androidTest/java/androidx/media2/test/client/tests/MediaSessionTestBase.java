@@ -16,41 +16,27 @@
 
 package androidx.media2.test.client.tests;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-
 import android.content.Context;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.util.ArrayMap;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.MediaController;
 import androidx.media2.MediaController.ControllerCallback;
-import androidx.media2.MediaItem;
-import androidx.media2.MediaMetadata;
-import androidx.media2.MediaSession.CommandButton;
-import androidx.media2.SessionCommand;
-import androidx.media2.SessionCommandGroup;
-import androidx.media2.SessionResult;
 import androidx.media2.SessionToken;
-import androidx.media2.VideoSize;
 import androidx.media2.test.common.TestUtils.SyncHandler;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
+import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -67,11 +53,7 @@ abstract class MediaSessionTestBase {
     static Executor sHandlerExecutor;
 
     Context mContext;
-    private List<MediaController> mControllers = new ArrayList<>();
-
-    interface TestControllerInterface {
-        ControllerCallback getCallback();
-    }
+    private Map<MediaController, TestBrowserCallback> mControllers = new ArrayMap<>();
 
     interface TestControllerCallbackInterface {
         void waitForConnect(boolean expect) throws InterruptedException;
@@ -144,9 +126,10 @@ abstract class MediaSessionTestBase {
 
     @CallSuper
     public void cleanUp() throws Exception {
-        for (int i = 0; i < mControllers.size(); i++) {
-            mControllers.get(i).close();
+        for (MediaController controller : mControllers.keySet()) {
+            controller.close();
         }
+        mControllers.clear();
     }
 
     final MediaController createController(@NonNull MediaSessionCompat.Token token)
@@ -157,13 +140,9 @@ abstract class MediaSessionTestBase {
     final MediaController createController(@NonNull MediaSessionCompat.Token token,
             boolean waitForConnect, @Nullable ControllerCallback callback)
             throws InterruptedException {
-        TestControllerInterface instance = onCreateController(token, callback);
-        if (!(instance instanceof MediaController)) {
-            throw new RuntimeException("Test has a bug. Expected MediaController but returned "
-                    + instance);
-        }
-        MediaController controller = (MediaController) instance;
-        mControllers.add(controller);
+        TestBrowserCallback testCallback = new TestBrowserCallback(callback);
+        MediaController controller = onCreateController(token, testCallback);
+        mControllers.put(controller, testCallback);
         if (waitForConnect) {
             waitForConnect(controller, true);
         }
@@ -178,53 +157,38 @@ abstract class MediaSessionTestBase {
     final MediaController createController(@NonNull SessionToken token,
             boolean waitForConnect, @Nullable ControllerCallback callback)
             throws InterruptedException {
-        TestControllerInterface instance = onCreateController(token, callback);
-        if (!(instance instanceof MediaController)) {
-            throw new RuntimeException("Test has a bug. Expected MediaController but returned "
-                    + instance);
-        }
-        MediaController controller = (MediaController) instance;
-        mControllers.add(controller);
+        TestBrowserCallback testCallback = new TestBrowserCallback(callback);
+        MediaController controller = onCreateController(token, testCallback);
+        mControllers.put(controller, testCallback);
         if (waitForConnect) {
             waitForConnect(controller, true);
         }
         return controller;
     }
 
-    private static TestControllerCallbackInterface getTestControllerCallbackInterface(
+    final TestControllerCallbackInterface getTestControllerCallbackInterface(
             MediaController controller) {
-        if (!(controller instanceof TestControllerInterface)) {
-            throw new RuntimeException("Test has a bug. Expected controller implemented"
-                    + " TestControllerInterface but got " + controller);
-        }
-        ControllerCallback callback = ((TestControllerInterface) controller).getCallback();
-        if (!(callback instanceof TestControllerCallbackInterface)) {
-            throw new RuntimeException("Test has a bug. Expected controller with callback "
-                    + " implemented TestControllerCallbackInterface but got " + controller);
-        }
-        return (TestControllerCallbackInterface) callback;
+        return mControllers.get(controller);
     }
 
-    public static void waitForConnect(MediaController controller, boolean expected)
+    final void waitForConnect(MediaController controller, boolean expected)
             throws InterruptedException {
         getTestControllerCallbackInterface(controller).waitForConnect(expected);
     }
 
-    public static void waitForDisconnect(MediaController controller, boolean expected)
+    final void waitForDisconnect(MediaController controller, boolean expected)
             throws InterruptedException {
         getTestControllerCallbackInterface(controller).waitForDisconnect(expected);
     }
 
-    public static void setRunnableForOnCustomCommand(MediaController controller,
+    final void setRunnableForOnCustomCommand(MediaController controller,
             Runnable runnable) {
         getTestControllerCallbackInterface(controller).setRunnableForOnCustomCommand(runnable);
     }
 
-    TestControllerInterface onCreateController(final @NonNull MediaSessionCompat.Token token,
-            @Nullable ControllerCallback callback) throws InterruptedException {
-        final ControllerCallback controllerCallback =
-                callback != null ? callback : new ControllerCallback() {};
-        final AtomicReference<TestControllerInterface> controller = new AtomicReference<>();
+    MediaController onCreateController(final @NonNull MediaSessionCompat.Token token,
+            final @NonNull TestBrowserCallback callback) throws InterruptedException {
+        final AtomicReference<MediaController> controller = new AtomicReference<>();
 
         sHandler.postAndSync(new Runnable() {
             @Override
@@ -232,190 +196,30 @@ abstract class MediaSessionTestBase {
                 // Create controller on the test handler, for changing MediaBrowserCompat's Handler
                 // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
                 // and commands wouldn't be run if tests codes waits on the test handler.
-                controller.set(new TestMediaController(
-                        mContext, token, new TestControllerCallback(controllerCallback)));
+                controller.set(new MediaController.Builder(mContext)
+                        .setSessionCompatToken(token)
+                        .setControllerCallback(sHandlerExecutor, callback)
+                        .build());
             }
         });
         return controller.get();
     }
 
-    TestControllerInterface onCreateController(final @NonNull SessionToken token,
-            @Nullable ControllerCallback callback) throws InterruptedException {
-        final ControllerCallback controllerCallback =
-                callback != null ? callback : new ControllerCallback() {};
-        final AtomicReference<TestControllerInterface> controller = new AtomicReference<>();
+    MediaController onCreateController(final @NonNull SessionToken token,
+            final @NonNull TestBrowserCallback callback) throws InterruptedException {
+        final AtomicReference<MediaController> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
             @Override
             public void run() {
                 // Create controller on the test handler, for changing MediaBrowserCompat's Handler
                 // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
                 // and commands wouldn't be run if tests codes waits on the test handler.
-                controller.set(new TestMediaController(
-                        mContext, token, new TestControllerCallback(controllerCallback)));
+                controller.set(new MediaController.Builder(mContext)
+                        .setSessionToken(token)
+                        .setControllerCallback(sHandlerExecutor, callback)
+                        .build());
             }
         });
         return controller.get();
-    }
-
-    // TODO(jaewan): (Can be Post-P): Deprecate this
-    public static class TestControllerCallback extends MediaController.ControllerCallback
-            implements TestControllerCallbackInterface {
-        public final ControllerCallback mCallbackProxy;
-        public final CountDownLatch connectLatch = new CountDownLatch(1);
-        public final CountDownLatch disconnectLatch = new CountDownLatch(1);
-        @GuardedBy("this")
-        private Runnable mOnCustomCommandRunnable;
-
-        TestControllerCallback(@NonNull ControllerCallback callbackProxy) {
-            if (callbackProxy == null) {
-                throw new IllegalArgumentException("Callback proxy shouldn't be null. Test bug");
-            }
-            mCallbackProxy = callbackProxy;
-        }
-
-        @CallSuper
-        @Override
-        public void onConnected(MediaController controller, SessionCommandGroup commands) {
-            connectLatch.countDown();
-        }
-
-        @CallSuper
-        @Override
-        public void onDisconnected(MediaController controller) {
-            disconnectLatch.countDown();
-        }
-
-        @Override
-        public void waitForConnect(boolean expect) throws InterruptedException {
-            if (expect) {
-                assertTrue(connectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-            } else {
-                assertFalse(connectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-            }
-        }
-
-        @Override
-        public void waitForDisconnect(boolean expect) throws InterruptedException {
-            if (expect) {
-                assertTrue(disconnectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-            } else {
-                assertFalse(disconnectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-            }
-        }
-
-        @Override
-        public SessionResult onCustomCommand(MediaController controller,
-                SessionCommand command, Bundle args) {
-            synchronized (this) {
-                if (mOnCustomCommandRunnable != null) {
-                    mOnCustomCommandRunnable.run();
-                }
-            }
-            return mCallbackProxy.onCustomCommand(controller, command, args);
-        }
-
-        @Override
-        public void onPlaybackInfoChanged(MediaController controller,
-                MediaController.PlaybackInfo info) {
-            mCallbackProxy.onPlaybackInfoChanged(controller, info);
-        }
-
-        @Override
-        public int onSetCustomLayout(MediaController controller, List<CommandButton> layout) {
-            return mCallbackProxy.onSetCustomLayout(controller, layout);
-        }
-
-        @Override
-        public void onAllowedCommandsChanged(MediaController controller,
-                SessionCommandGroup commands) {
-            mCallbackProxy.onAllowedCommandsChanged(controller, commands);
-        }
-
-        @Override
-        public void onPlayerStateChanged(MediaController controller, int state) {
-            mCallbackProxy.onPlayerStateChanged(controller, state);
-        }
-
-        @Override
-        public void onSeekCompleted(MediaController controller, long position) {
-            mCallbackProxy.onSeekCompleted(controller, position);
-        }
-
-        @Override
-        public void onPlaybackSpeedChanged(MediaController controller, float speed) {
-            mCallbackProxy.onPlaybackSpeedChanged(controller, speed);
-        }
-
-        @Override
-        public void onBufferingStateChanged(MediaController controller, MediaItem item,
-                int state) {
-            mCallbackProxy.onBufferingStateChanged(controller, item, state);
-        }
-
-        @Override
-        public void onCurrentMediaItemChanged(MediaController controller, MediaItem item) {
-            mCallbackProxy.onCurrentMediaItemChanged(controller, item);
-        }
-
-        @Override
-        public void onPlaylistChanged(MediaController controller,
-                List<MediaItem> list, MediaMetadata metadata) {
-            mCallbackProxy.onPlaylistChanged(controller, list, metadata);
-        }
-
-        @Override
-        public void onPlaylistMetadataChanged(MediaController controller,
-                MediaMetadata metadata) {
-            mCallbackProxy.onPlaylistMetadataChanged(controller, metadata);
-        }
-
-        @Override
-        public void onShuffleModeChanged(MediaController controller, int shuffleMode) {
-            mCallbackProxy.onShuffleModeChanged(controller, shuffleMode);
-        }
-
-        @Override
-        public void onRepeatModeChanged(MediaController controller, int repeatMode) {
-            mCallbackProxy.onRepeatModeChanged(controller, repeatMode);
-        }
-
-        @Override
-        public void onPlaybackCompleted(MediaController controller) {
-            mCallbackProxy.onPlaybackCompleted(controller);
-        }
-
-        @Override
-        public void setRunnableForOnCustomCommand(Runnable runnable) {
-            synchronized (this) {
-                mOnCustomCommandRunnable = runnable;
-            }
-        }
-
-        @Override
-        public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
-                @NonNull VideoSize videoSize) {
-            mCallbackProxy.onVideoSizeChanged(controller, item, videoSize);
-        }
-    }
-
-    public class TestMediaController extends MediaController implements TestControllerInterface {
-        private final ControllerCallback mCallback;
-
-        TestMediaController(@NonNull Context context, @NonNull MediaSessionCompat.Token token,
-                @NonNull ControllerCallback callback) {
-            super(context, token, sHandlerExecutor, callback);
-            mCallback = callback;
-        }
-
-        TestMediaController(@NonNull Context context, @NonNull SessionToken token,
-                @NonNull ControllerCallback callback) {
-            super(context, token, sHandlerExecutor, callback);
-            mCallback = callback;
-        }
-
-        @Override
-        public ControllerCallback getCallback() {
-            return mCallback;
-        }
     }
 }

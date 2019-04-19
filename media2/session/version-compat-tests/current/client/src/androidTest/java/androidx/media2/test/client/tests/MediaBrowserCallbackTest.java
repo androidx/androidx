@@ -39,28 +39,21 @@ import static junit.framework.Assert.fail;
 
 import static org.junit.Assert.assertNotEquals;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.CallSuper;
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.LibraryResult;
 import androidx.media2.MediaBrowser;
 import androidx.media2.MediaBrowser.BrowserCallback;
 import androidx.media2.MediaController;
-import androidx.media2.MediaController.ControllerCallback;
 import androidx.media2.MediaItem;
 import androidx.media2.MediaLibraryService.LibraryParams;
 import androidx.media2.MediaMetadata;
-import androidx.media2.MediaSession.CommandButton;
 import androidx.media2.SessionCommand;
-import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionResult;
 import androidx.media2.SessionToken;
-import androidx.media2.VideoSize;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.common.MediaBrowserConstants;
 import androidx.media2.test.common.TestUtils;
@@ -73,7 +66,6 @@ import androidx.versionedparcelable.ParcelUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -94,18 +86,20 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     private static final String TAG = "MediaBrowserCallbackTest";
 
     @Override
-    TestControllerInterface onCreateController(final @NonNull SessionToken token,
-            final @Nullable ControllerCallback callback) throws InterruptedException {
+    MediaController onCreateController(final @NonNull SessionToken token,
+            final @Nullable TestBrowserCallback callback) throws InterruptedException {
         assertNotNull("Test bug", token);
-        final AtomicReference<TestControllerInterface> controller = new AtomicReference<>();
+        final AtomicReference<MediaController> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
             @Override
             public void run() {
                 // Create controller on the test handler, for changing MediaBrowserCompat's Handler
                 // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
                 // and commands wouldn't be run if tests codes waits on the test handler.
-                controller.set(new TestMediaBrowser(
-                        mContext, token, new TestBrowserCallback(callback)));
+                controller.set(new MediaBrowser.Builder(mContext)
+                        .setSessionToken(token)
+                        .setControllerCallback(sHandlerExecutor, callback)
+                        .build());
             }
         });
         return controller.get();
@@ -119,26 +113,6 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
             throws InterruptedException {
         final SessionToken token = new SessionToken(mContext, MOCK_MEDIA2_LIBRARY_SERVICE);
         return (MediaBrowser) createController(token, true, callback);
-    }
-
-    /**
-     * Test if the {@link TestBrowserCallback} wraps the callback proxy without missing any method.
-     */
-    @Test
-    public void testTestBrowserCallback() {
-        prepareLooper();
-        Method[] methods = TestBrowserCallback.class.getMethods();
-        assertNotNull(methods);
-        for (int i = 0; i < methods.length; i++) {
-            // For any methods in the controller callback, TestControllerCallback should have
-            // overriden the method and call matching API in the callback proxy.
-            assertNotEquals("TestBrowserCallback should override " + methods[i]
-                            + " and call callback proxy",
-                    BrowserCallback.class, methods[i].getDeclaringClass());
-            assertNotEquals("TestBrowserCallback should override " + methods[i]
-                            + " and call callback proxy",
-                    ControllerCallback.class, methods[i].getDeclaringClass());
-        }
     }
 
     @Test
@@ -537,180 +511,5 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         SessionResult result = browser.sendCustomCommand(command, args)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(SessionResult.RESULT_SUCCESS, result.getResultCode());
-    }
-
-    public static class TestBrowserCallback extends BrowserCallback
-            implements TestControllerCallbackInterface {
-        private final ControllerCallback mCallbackProxy;
-        public final CountDownLatch connectLatch = new CountDownLatch(1);
-        public final CountDownLatch disconnectLatch = new CountDownLatch(1);
-        @GuardedBy("this")
-        private Runnable mOnCustomCommandRunnable;
-
-        TestBrowserCallback(ControllerCallback callbackProxy) {
-            if (callbackProxy == null) {
-                callbackProxy = new BrowserCallback() {};
-            }
-            mCallbackProxy = callbackProxy;
-        }
-
-        @CallSuper
-        @Override
-        public void onConnected(MediaController controller, SessionCommandGroup commands) {
-            connectLatch.countDown();
-        }
-
-        @CallSuper
-        @Override
-        public void onDisconnected(MediaController controller) {
-            disconnectLatch.countDown();
-        }
-
-        @Override
-        public void waitForConnect(boolean expect) throws InterruptedException {
-            if (expect) {
-                assertTrue(connectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-            } else {
-                assertFalse(connectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-            }
-        }
-
-        @Override
-        public void waitForDisconnect(boolean expect) throws InterruptedException {
-            if (expect) {
-                assertTrue(disconnectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-            } else {
-                assertFalse(disconnectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-            }
-        }
-
-        @Override
-        public void onPlaybackInfoChanged(MediaController controller,
-                MediaController.PlaybackInfo info) {
-            mCallbackProxy.onPlaybackInfoChanged(controller, info);
-        }
-
-        @Override
-        public SessionResult onCustomCommand(MediaController controller,
-                SessionCommand command, Bundle args) {
-            synchronized (this) {
-                if (mOnCustomCommandRunnable != null) {
-                    mOnCustomCommandRunnable.run();
-                }
-            }
-            return mCallbackProxy.onCustomCommand(controller, command, args);
-        }
-
-        @Override
-        public int onSetCustomLayout(MediaController controller, List<CommandButton> layout) {
-            return mCallbackProxy.onSetCustomLayout(controller, layout);
-        }
-
-        @Override
-        public void onAllowedCommandsChanged(MediaController controller,
-                SessionCommandGroup commands) {
-            mCallbackProxy.onAllowedCommandsChanged(controller, commands);
-        }
-
-        @Override
-        public void onPlayerStateChanged(MediaController controller, int state) {
-            mCallbackProxy.onPlayerStateChanged(controller, state);
-        }
-
-        @Override
-        public void onSeekCompleted(MediaController controller, long position) {
-            mCallbackProxy.onSeekCompleted(controller, position);
-        }
-
-        @Override
-        public void onPlaybackSpeedChanged(MediaController controller, float speed) {
-            mCallbackProxy.onPlaybackSpeedChanged(controller, speed);
-        }
-
-        @Override
-        public void onBufferingStateChanged(MediaController controller, MediaItem item,
-                int state) {
-            mCallbackProxy.onBufferingStateChanged(controller, item, state);
-        }
-
-        @Override
-        public void onCurrentMediaItemChanged(MediaController controller, MediaItem item) {
-            mCallbackProxy.onCurrentMediaItemChanged(controller, item);
-        }
-
-        @Override
-        public void onPlaylistChanged(MediaController controller,
-                List<MediaItem> list, MediaMetadata metadata) {
-            mCallbackProxy.onPlaylistChanged(controller, list, metadata);
-        }
-
-        @Override
-        public void onPlaylistMetadataChanged(MediaController controller,
-                MediaMetadata metadata) {
-            mCallbackProxy.onPlaylistMetadataChanged(controller, metadata);
-        }
-
-        @Override
-        public void onShuffleModeChanged(MediaController controller, int shuffleMode) {
-            mCallbackProxy.onShuffleModeChanged(controller, shuffleMode);
-        }
-
-        @Override
-        public void onRepeatModeChanged(MediaController controller, int repeatMode) {
-            mCallbackProxy.onRepeatModeChanged(controller, repeatMode);
-        }
-
-        @Override
-        public void onPlaybackCompleted(MediaController controller) {
-            mCallbackProxy.onPlaybackCompleted(controller);
-        }
-
-        @Override
-        public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
-                @NonNull VideoSize videoSize) {
-            mCallbackProxy.onVideoSizeChanged(controller, item, videoSize);
-        }
-
-        @Override
-        public void onSearchResultChanged(MediaBrowser browser, String query, int itemCount,
-                LibraryParams params) {
-            super.onSearchResultChanged(browser, query, itemCount, params);
-            if (mCallbackProxy instanceof BrowserCallback) {
-                ((BrowserCallback) mCallbackProxy)
-                        .onSearchResultChanged(browser, query, itemCount, params);
-            }
-        }
-
-        @Override
-        public void onChildrenChanged(MediaBrowser browser, String parentId, int itemCount,
-                LibraryParams params) {
-            super.onChildrenChanged(browser, parentId, itemCount, params);
-            if (mCallbackProxy instanceof BrowserCallback) {
-                ((BrowserCallback) mCallbackProxy)
-                        .onChildrenChanged(browser, parentId, itemCount, params);
-            }
-        }
-
-        @Override
-        public void setRunnableForOnCustomCommand(Runnable runnable) {
-            synchronized (this) {
-                mOnCustomCommandRunnable = runnable;
-            }
-        }
-    }
-
-    public class TestMediaBrowser extends MediaBrowser implements TestControllerInterface {
-        private final BrowserCallback mCallback;
-
-        public TestMediaBrowser(@NonNull Context context, @NonNull SessionToken token,
-                @NonNull BrowserCallback callback) {
-            super(context, token, sHandlerExecutor, callback);
-            mCallback = callback;
-        }
-
-        @Override
-        public BrowserCallback getCallback() {
-            return mCallback;
-        }
     }
 }

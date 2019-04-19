@@ -126,47 +126,14 @@ public class MediaController implements AutoCloseable {
     Long mTimeDiff;
 
     /**
-     * Create a {@link MediaController} from the {@link SessionToken}. Detailed behavior differs
-     * according to the type of the token as follows.
-     * <p>
-     * <ol>
-     * <li>Connected to a {@link SessionToken#TYPE_SESSION} token
-     * <p>
-     * The controller connects to the specified session directly. It's recommended when you're sure
-     * which session to control, or a you've got token directly from the session app.
-     * <p>
-     * This can be used only when the session for the token is running. Once the session is closed,
-     * the token becomes unusable.</li>
-     * <li>Connected to a {@link SessionToken#TYPE_SESSION_SERVICE} or
-     * {@link SessionToken#TYPE_LIBRARY_SERVICE}
-     * <p>The controller connects to the session provided by the
-     * {@link MediaSessionService#onGetPrimarySession()}. It's up to the service's decision which
-     * session would be returned for the connection. Use the {@link #getConnectedSessionToken()} to
-     * know the connected session.
-     * <p>
-     * This can be used regardless of the session app is running or not. The controller would bind
-     * to the service while connected to wake up and keep the service process running.</li>
-     * </ol>
-     *
-     * @param context Context
-     * @param token token to connect to
-     */
-    public MediaController(@NonNull final Context context, @NonNull final SessionToken token) {
-        this(context, token, ContextCompat.getMainExecutor(context), new ControllerCallback() {});
-    }
-
-    /**
      * Create a {@link MediaController} from the {@link SessionToken}.
-     * This connects to the session and may wake up the service if it's not available.
      *
      * @param context Context
      * @param token token to connect to
      * @param executor executor to run callbacks on.
      * @param callback controller callback to receive changes in
-     * @see MediaSessionService#onGetPrimarySession()
-     * @see #getConnectedSessionToken()
      */
-    public MediaController(@NonNull final Context context, @NonNull final SessionToken token,
+    MediaController(@NonNull final Context context, @NonNull final SessionToken token,
             @NonNull Executor executor, @NonNull ControllerCallback callback) {
         if (context == null) {
             throw new IllegalArgumentException("context shouldn't be null");
@@ -190,21 +157,10 @@ public class MediaController implements AutoCloseable {
      *
      * @param context Context
      * @param token token to connect to
-     */
-    public MediaController(@NonNull final Context context,
-            @NonNull final MediaSessionCompat.Token token) {
-        this(context, token, ContextCompat.getMainExecutor(context), new ControllerCallback() {});
-    }
-
-    /**
-     * Create a {@link MediaController} from the {@link MediaSessionCompat.Token}.
-     *
-     * @param context Context
-     * @param token token to connect to
      * @param executor executor to run callbacks on.
      * @param callback controller callback to receive changes in
      */
-    public MediaController(@NonNull final Context context,
+    MediaController(@NonNull final Context context,
             @NonNull final MediaSessionCompat.Token token,
             @NonNull final Executor executor, @NonNull final ControllerCallback callback) {
         if (context == null) {
@@ -1203,6 +1159,200 @@ public class MediaController implements AutoCloseable {
         @NonNull ControllerCallback getCallback();
         @NonNull Executor getCallbackExecutor();
         @Nullable MediaBrowserCompat getBrowserCompat();
+    }
+
+
+    /**
+     * Builder for {@link MediaController}.
+     * <p>
+     * To set the token of the session for the controller to connect to, one of the
+     * {@link #setSessionToken(SessionToken)} or
+     * {@link #setSessionCompatToken(MediaSessionCompat.Token)} should be called.
+     * Otherwise, the {@link #build()} will throw an {@link IllegalArgumentException}.
+     * <p>
+     * Any incoming event from the {@link MediaSession} will be handled on the callback
+     * executor. If it's not set, {@link ContextCompat#getMainExecutor} will be used by default.
+     */
+    public static final class Builder extends BuilderBase<MediaController, Builder,
+            ControllerCallback> {
+        public Builder(@NonNull Context context) {
+            super(context);
+        }
+
+        @Override
+        @NonNull
+        public Builder setSessionToken(@NonNull SessionToken token) {
+            return super.setSessionToken(token);
+        }
+
+        @Override
+        @NonNull
+        public Builder setSessionCompatToken(@NonNull MediaSessionCompat.Token compatToken) {
+            return super.setSessionCompatToken(compatToken);
+        }
+
+        @Override
+        @NonNull
+        public Builder setControllerCallback(@NonNull Executor executor,
+                @NonNull ControllerCallback callback) {
+            return super.setControllerCallback(executor, callback);
+        }
+
+        /**
+         * Build {@link MediaController}.
+         * <p>
+         * It will throw an {@link IllegalArgumentException} if both {@link SessionToken} and
+         * {@link MediaSessionCompat.Token} are not set.
+         *
+         * @return a new controller
+         */
+        @Override
+        @NonNull
+        public MediaController build() {
+            if (mToken == null && mCompatToken == null) {
+                throw new IllegalArgumentException("token and compat token shouldn't be both null");
+            }
+            if (mCallbackExecutor == null) {
+                mCallbackExecutor = ContextCompat.getMainExecutor(mContext);
+            }
+            if (mCallback == null) {
+                mCallback = new ControllerCallback() {};
+            }
+
+            if (mToken != null) {
+                return new MediaController(mContext, mToken, mCallbackExecutor, mCallback);
+            } else {
+                return new MediaController(mContext, mCompatToken, mCallbackExecutor, mCallback);
+            }
+        }
+    }
+
+    /**
+     * Base builder class for MediaController and its subclass. Any change in this class should be
+     * also applied to the subclasses {@link MediaController.Builder} and
+     * {@link MediaBrowser.Builder}.
+     * <p>
+     * APIs here should be package private, but should have documentations for developers.
+     * Otherwise, javadoc will generate documentation with the generic types such as follows.
+     * <pre>U extends BuilderBase<T, U, C> setControllerCallback(Executor executor,
+     * C callback)</pre>
+     * <p>
+     * This class is hidden to prevent from generating test stub, which fails with
+     * 'unexpected bound' because it tries to auto generate stub class as follows.
+     * <pre>abstract static class BuilderBase<
+     *      T extends androidx.media2.MediaController,
+     *      U extends androidx.media2.MediaController.BuilderBase<
+     *              T, U, C extends androidx.media2.MediaController.ControllerCallback>, C></pre>
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    abstract static class BuilderBase<T extends MediaController, U extends BuilderBase<T, U, C>,
+            C extends ControllerCallback> {
+        final Context mContext;
+        SessionToken mToken;
+        MediaSessionCompat.Token mCompatToken;
+        Executor mCallbackExecutor;
+        ControllerCallback mCallback;
+
+        /**
+         * Creates a builder for {@link MediaController}.
+         *
+         * @param context context
+         */
+        BuilderBase(@NonNull Context context) {
+            if (context == null) {
+                throw new IllegalArgumentException("context shouldn't be null");
+            }
+            mContext = context;
+        }
+
+        /**
+         * Set the {@link SessionToken} for the controller to connect to.
+         * <p>
+         * When this method is called, the {@link MediaSessionCompat.Token} which was set by calling
+         * {@link #setSessionCompatToken} is removed.
+         * <p>
+         * Detailed behavior of the {@link MediaController} differs according to the type of the
+         * token as follows.
+         * <p>
+         * <ol>
+         * <li>Connected to a {@link SessionToken#TYPE_SESSION} token
+         * <p>
+         * The controller connects to the specified session directly. It's recommended when you're
+         * sure which session to control, or a you've got token directly from the session app.
+         * <p>
+         * This can be used only when the session for the token is running. Once the session is
+         * closed, the token becomes unusable.
+         * </li>
+         * <li>Connected to a {@link SessionToken#TYPE_SESSION_SERVICE} or
+         * {@link SessionToken#TYPE_LIBRARY_SERVICE}
+         * <p>
+         * The controller connects to the session provided by the
+         * {@link MediaSessionService#onGetPrimarySession()}. It's up to the service's decision
+         * which session would be returned for the connection. Use the
+         * {@link #getConnectedSessionToken()} to know the connected session.
+         * <p>
+         * This can be used regardless of the session app is running or not. The controller would
+         * bind to the service while connected to wake up and keep the service process running.
+         * </li>
+         * </ol>
+         *
+         * @param token token to connect to
+         * @return The Builder to allow chaining
+         * @see MediaSessionService#onGetPrimarySession()
+         * @see #getConnectedSessionToken()
+         */
+        @NonNull
+        public U setSessionToken(@NonNull SessionToken token) {
+            if (token == null) {
+                throw new IllegalArgumentException("token shouldn't be null");
+            }
+            mToken = token;
+            mCompatToken = null;
+            return (U) this;
+        }
+
+        /**
+         * Set the {@link MediaSessionCompat.Token} for the controller to connect to.
+         * <p>
+         * When this method is called, the {@link SessionToken} which was set by calling
+         * {@link #setSessionToken(SessionToken)} is removed.
+         *
+         * @param compatToken token to connect to
+         * @return The Builder to allow chaining
+         */
+        @NonNull
+        public U setSessionCompatToken(@NonNull MediaSessionCompat.Token compatToken) {
+            if (compatToken == null) {
+                throw new IllegalArgumentException("compatToken shouldn't be null");
+            }
+            mCompatToken = compatToken;
+            mToken = null;
+            return (U) this;
+        }
+
+        /**
+         * Set callback for the controller and its executor.
+         *
+         * @param executor callback executor
+         * @param callback controller callback.
+         * @return The Builder to allow chaining
+         */
+        @NonNull
+        public U setControllerCallback(@NonNull Executor executor, @NonNull C callback) {
+            if (executor == null) {
+                throw new IllegalArgumentException("executor shouldn't be null");
+            }
+            if (callback == null) {
+                throw new IllegalArgumentException("callback shouldn't be null");
+            }
+            mCallbackExecutor = executor;
+            mCallback = callback;
+            return (U) this;
+        }
+
+        @NonNull
+        abstract T build();
     }
 
     /**

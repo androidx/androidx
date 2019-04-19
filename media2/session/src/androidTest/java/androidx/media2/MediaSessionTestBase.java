@@ -19,6 +19,7 @@ package androidx.media2;
 import android.content.Context;
 import android.os.Build;
 import android.os.HandlerThread;
+import android.util.ArrayMap;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -30,8 +31,7 @@ import androidx.test.core.app.ApplicationProvider;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -48,11 +48,7 @@ abstract class MediaSessionTestBase extends MediaTestBase {
     static Executor sHandlerExecutor;
 
     Context mContext;
-    private List<MediaController> mControllers = new ArrayList<>();
-
-    interface TestControllerInterface {
-        ControllerCallback getCallback();
-    }
+    private Map<MediaController, TestBrowserCallback> mControllers = new ArrayMap<>();
 
     interface TestControllerCallbackInterface {
         void waitForConnect(boolean expect) throws InterruptedException;
@@ -108,9 +104,10 @@ abstract class MediaSessionTestBase extends MediaTestBase {
 
     @CallSuper
     public void cleanUp() throws Exception {
-        for (int i = 0; i < mControllers.size(); i++) {
-            mControllers.get(i).close();
+        for (MediaController controller : mControllers.keySet()) {
+            controller.close();
         }
+        mControllers.clear();
     }
 
     final MediaController createController(SessionToken token) throws InterruptedException {
@@ -120,78 +117,50 @@ abstract class MediaSessionTestBase extends MediaTestBase {
     final MediaController createController(@NonNull SessionToken token,
             boolean waitForConnect, @Nullable ControllerCallback callback)
             throws InterruptedException {
-        TestControllerInterface instance = onCreateController(token, callback);
-        if (!(instance instanceof MediaController)) {
-            throw new RuntimeException("Test has a bug. Expected MediaController but returned "
-                    + instance);
-        }
-        MediaController controller = (MediaController) instance;
-        mControllers.add(controller);
+        TestBrowserCallback testCallback = new TestBrowserCallback(callback);
+        MediaController controller = onCreateController(token, testCallback);
+        mControllers.put(controller, testCallback);
         if (waitForConnect) {
             waitForConnect(controller, true);
         }
         return controller;
     }
 
-    private static TestControllerCallbackInterface getTestControllerCallbackInterface(
+    final TestControllerCallbackInterface getTestControllerCallbackInterface(
             MediaController controller) {
-        if (!(controller instanceof TestControllerInterface)) {
-            throw new RuntimeException("Test has a bug. Expected controller implemented"
-                    + " TestControllerInterface but got " + controller);
-        }
-        ControllerCallback callback = ((TestControllerInterface) controller).getCallback();
-        if (!(callback instanceof TestControllerCallbackInterface)) {
-            throw new RuntimeException("Test has a bug. Expected controller with callback "
-                    + " implemented TestControllerCallbackInterface but got " + controller);
-        }
-        return (TestControllerCallbackInterface) callback;
+        return mControllers.get(controller);
     }
 
-    public static void waitForConnect(MediaController controller, boolean expected)
+    final void waitForConnect(MediaController controller, boolean expected)
             throws InterruptedException {
         getTestControllerCallbackInterface(controller).waitForConnect(expected);
     }
 
-    public static void waitForDisconnect(MediaController controller, boolean expected)
+    final void waitForDisconnect(MediaController controller, boolean expected)
             throws InterruptedException {
         getTestControllerCallbackInterface(controller).waitForDisconnect(expected);
     }
 
-    public static void setRunnableForOnCustomCommand(MediaController controller,
+    final void setRunnableForOnCustomCommand(MediaController controller,
             Runnable runnable) {
         getTestControllerCallbackInterface(controller).setRunnableForOnCustomCommand(runnable);
     }
 
-    TestControllerInterface onCreateController(final @NonNull SessionToken token,
-            @Nullable ControllerCallback callback) throws InterruptedException {
-        final ControllerCallback controllerCallback =
-                callback != null ? callback : new ControllerCallback() {};
-        final AtomicReference<TestControllerInterface> controller = new AtomicReference<>();
+    MediaController onCreateController(final @NonNull SessionToken token,
+            final @Nullable TestBrowserCallback callback) throws InterruptedException {
+        final AtomicReference<MediaController> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
             @Override
             public void run() {
                 // Create controller on the test handler, for changing MediaBrowserCompat's Handler
                 // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
                 // and commands wouldn't be run if tests codes waits on the test handler.
-                controller.set(new TestMediaController(
-                        mContext, token, new MockControllerCallback(controllerCallback)));
+                controller.set(new MediaController.Builder(mContext)
+                        .setSessionToken(token)
+                        .setControllerCallback(sHandlerExecutor, callback)
+                        .build());
             }
         });
         return controller.get();
-    }
-
-    public class TestMediaController extends MediaController implements TestControllerInterface {
-        private final ControllerCallback mCallback;
-
-        TestMediaController(@NonNull Context context, @NonNull SessionToken token,
-                @NonNull ControllerCallback callback) {
-            super(context, token, sHandlerExecutor, callback);
-            mCallback = callback;
-        }
-
-        @Override
-        public ControllerCallback getCallback() {
-            return mCallback;
-        }
     }
 }
