@@ -825,7 +825,7 @@ public abstract class SessionPlayer implements AutoCloseable {
          *
          * @param player the player whose state has changed.
          * @param playerState the new state of the player.
-         * @see #getPlayerState() ()
+         * @see #getPlayerState()
          */
         public void onPlayerStateChanged(@NonNull SessionPlayer player,
                 @PlayerState int playerState) {
