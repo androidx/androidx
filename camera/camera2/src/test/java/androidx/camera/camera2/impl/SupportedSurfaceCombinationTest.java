@@ -439,6 +439,41 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
+    public void checkTargetAspectRatioForPreviewInLegacyDevice() {
+        setupCamera(/* supportsRaw= */ false);
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
+
+        Rational targetAspectRatio = new Rational(9, 16);
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+
+        previewConfigBuilder.setTargetAspectRatio(targetAspectRatio);
+        previewConfigBuilder.setLensFacing(LensFacing.FRONT);
+        Preview preview = new Preview(previewConfigBuilder.build());
+
+        PreviewConfig config = (PreviewConfig) preview.getUseCaseConfig();
+        Rational previewAspectRatio = config.getTargetAspectRatio();
+
+        Rational resultAspectRatio = supportedSurfaceCombination.getCorrectedAspectRatio(config);
+
+        Size maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG);
+        Rational maxJpegAspectRatio = new Rational(maxJpegSize.getHeight(), maxJpegSize.getWidth());
+
+        if (Build.VERSION.SDK_INT == 21) {
+            // Checks targetAspectRatio and maxJpegAspectRatio, which is the ratio of maximum size
+            // in the mSupportedSizes, are not equal to make sure this test case is valid.
+            assertFalse(targetAspectRatio.equals(maxJpegAspectRatio));
+            assertTrue(previewAspectRatio.equals(maxJpegAspectRatio));
+            assertTrue(resultAspectRatio.equals(maxJpegAspectRatio));
+        } else {
+            // Checks no correction is needed.
+            assertThat(resultAspectRatio).isNull();
+            assertTrue(previewAspectRatio.equals(targetAspectRatio));
+        }
+    }
+
+    @Test
     public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
         setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
@@ -454,11 +489,11 @@ public final class SupportedSurfaceCombinationTest {
         videoCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
         imageCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
 
-        imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
+        imageCaptureConfigBuilder.setLensFacing(LensFacing.FRONT);
         ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        videoCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
+        videoCaptureConfigBuilder.setLensFacing(LensFacing.FRONT);
         VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
-        previewConfigBuilder.setLensFacing(LensFacing.BACK);
+        previewConfigBuilder.setLensFacing(LensFacing.FRONT);
         Preview preview = new Preview(previewConfigBuilder.build());
 
         List<UseCase> useCases = new ArrayList<>();
@@ -528,7 +563,7 @@ public final class SupportedSurfaceCombinationTest {
         imageCaptureConfigBuilder.setTargetResolution(mDisplaySize);
         ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
         previewConfigBuilder.setTargetAspectRatio(new Rational(3, 4)).setTargetResolution(
-                mDisplaySize);
+                mDisplaySize).setLensFacing(LensFacing.BACK);
         Preview preview = new Preview(previewConfigBuilder.build());
         ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfigBuilder.build());
 
@@ -701,34 +736,38 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     private void setupCamera(boolean supportsRaw) {
-        addBackFacingCamera(
-                LEGACY_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null);
-        addBackFacingCamera(
+        addCamera(
+                LEGACY_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null,
+                CameraCharacteristics.LENS_FACING_FRONT);
+        addCamera(
                 LIMITED_CAMERA_ID,
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
-                null);
-        addBackFacingCamera(
-                FULL_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, null);
+                null, CameraCharacteristics.LENS_FACING_BACK);
+        addCamera(
+                FULL_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, null,
+                CameraCharacteristics.LENS_FACING_BACK);
         if (supportsRaw) {
-            addBackFacingCamera(
+            addCamera(
                     RAW_CAMERA_ID,
                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
-                    new int[] {
+                    new int[]{
                             CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW
-                    });
+                    },
+                    CameraCharacteristics.LENS_FACING_BACK);
         }
-        addBackFacingCamera(
-                LEVEL3_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3, null);
+        addCamera(
+                LEVEL3_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3, null,
+                CameraCharacteristics.LENS_FACING_BACK);
         initCameraX();
     }
 
-    private void addBackFacingCamera(String cameraId, int hardwareLevel, int[] capabilities) {
+    private void addCamera(String cameraId, int hardwareLevel, int[] capabilities, int lensFacing) {
         CameraCharacteristics characteristics =
                 ShadowCameraCharacteristics.newCameraCharacteristics();
 
         ShadowCameraCharacteristics shadowCharacteristics = Shadow.extract(characteristics);
         shadowCharacteristics.set(
-                CameraCharacteristics.LENS_FACING, CameraCharacteristics.LENS_FACING_BACK);
+                CameraCharacteristics.LENS_FACING, lensFacing);
 
         shadowCharacteristics.set(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, hardwareLevel);

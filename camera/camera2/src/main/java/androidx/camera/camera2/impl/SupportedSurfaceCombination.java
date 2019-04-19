@@ -239,6 +239,34 @@ final class SupportedSurfaceCombination {
         return suggestedResolutionsMap;
     }
 
+    // If the device is LEGACY + Android 5.0, the aspect ratio need to be corrected, because
+    // there is a bug which was fixed in L MR1.
+    boolean requiresCorrectedAspectRatio() {
+        return mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+                && Build.VERSION.SDK_INT == 21;
+    }
+
+    // Gets the corrected aspect ratio due to device constraints or null if no correction is needed.
+    Rational getCorrectedAspectRatio(UseCaseConfig<?> useCaseConfig) {
+        Rational outputRatio = null;
+        /**
+         * If the device is LEGACY + Android 5.0, then return the same aspect ratio as maximum JPEG
+         * resolution. The Camera2 LEGACY mode API always sends the HAL a configure call with the
+         * same aspect ratio as the maximum JPEG resolution, and do the cropping/scaling before
+         * returning the output. There is a bug because of a flipped scaling factor in the
+         * intermediate texture transform matrix, and it was fixed in L MR1.
+         */
+        if (mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+                && Build.VERSION.SDK_INT == 21) {
+            Size maxJpegSize = fetchMaxSize(ImageFormat.JPEG);
+            outputRatio = new Rational(maxJpegSize.getWidth(), maxJpegSize.getHeight());
+            ImageOutputConfig config = (ImageOutputConfig) useCaseConfig;
+            int targetRotation = config.getTargetRotation(Surface.ROTATION_0);
+            outputRatio = rotateAspectRatioByRotation(outputRatio, targetRotation);
+        }
+        return outputRatio;
+    }
+
     SurfaceSizeDefinition getSurfaceSizeDefinition() {
         return mSurfaceSizeDefinition;
     }
@@ -351,25 +379,9 @@ final class SupportedSurfaceCombination {
         List<Size> sizesMatchAspectRatio = new ArrayList<>();
         List<Size> sizesNotMatchAspectRatio = new ArrayList<>();
 
-        // Get target rotation value to calibrate the target resolution and aspect ratio
-        int sensorRotationDegrees = 0;
-
-        try {
-            int targetRotation = config.getTargetRotation(Surface.ROTATION_0);
-            sensorRotationDegrees = CameraX.getCameraInfo(
-                    mCameraId).getSensorRotationDegrees(targetRotation);
-        } catch (CameraInfoUnavailableException e) {
-            throw new IllegalArgumentException("Unable to retrieve camera sensor orientation.", e);
-        }
-
         Rational aspectRatio = config.getTargetAspectRatio(null);
-
-        // Calibrates the target aspect ratio with the display and sensor rotation degrees values
-        // . Otherwise, retrieves default aspect ratio for the target use case.
-        if (aspectRatio != null && (sensorRotationDegrees == 90 || sensorRotationDegrees == 270)) {
-            aspectRatio = new Rational(aspectRatio.getDenominator(),
-                    aspectRatio.getNumerator());
-        }
+        int targetRotation = config.getTargetRotation(Surface.ROTATION_0);
+        aspectRatio = rotateAspectRatioByRotation(aspectRatio, targetRotation);
 
         for (Size outputSize : outputSizeCandidates) {
             // If target aspect ratio is set, moves the matched results to the front of the list.
@@ -394,6 +406,25 @@ final class SupportedSurfaceCombination {
         }
 
         return supportedResolutions;
+    }
+
+    // Use target rotation to calibrate the aspect ratio.
+    private Rational rotateAspectRatioByRotation(Rational aspectRatio, int targetRotation) {
+        Rational outputRatio = aspectRatio;
+        int sensorRotationDegrees;
+        try {
+            sensorRotationDegrees = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees(
+                    targetRotation);
+        } catch (CameraInfoUnavailableException e) {
+            throw new IllegalArgumentException("Unable to retrieve camera sensor orientation.", e);
+        }
+        // Calibrates the aspect ratio with the display and sensor rotation degrees values.
+        // Otherwise, retrieves default aspect ratio for the target use case.
+        if (aspectRatio != null && (sensorRotationDegrees == 90 || sensorRotationDegrees == 270)) {
+            outputRatio = new Rational(aspectRatio.getDenominator(),
+                    aspectRatio.getNumerator());
+        }
+        return outputRatio;
     }
 
     private List<List<Size>> getAllPossibleSizeArrangements(

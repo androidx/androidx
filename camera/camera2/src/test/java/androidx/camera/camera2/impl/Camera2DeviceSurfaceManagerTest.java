@@ -313,11 +313,11 @@ public final class Camera2DeviceSurfaceManagerTest {
         videoCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
         imageCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
 
-        imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
+        imageCaptureConfigBuilder.setLensFacing(LensFacing.FRONT);
         ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
-        videoCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
+        videoCaptureConfigBuilder.setLensFacing(LensFacing.FRONT);
         VideoCapture videoCapture = new VideoCapture(videoCaptureConfigBuilder.build());
-        previewConfigBuilder.setLensFacing(LensFacing.BACK);
+        previewConfigBuilder.setLensFacing(LensFacing.FRONT);
         Preview preview = new Preview(previewConfigBuilder.build());
 
         List<UseCase> useCases = new ArrayList<>();
@@ -476,28 +476,60 @@ public final class Camera2DeviceSurfaceManagerTest {
         assertEquals(mMaximumSize, maximumJPEGSize);
     }
 
+    @Test
+    public void checkPreviewAspectRatioInLegacyDevice() {
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
+
+        Rational targetAspectRatio = new Rational(9, 16);
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+
+        previewConfigBuilder.setTargetAspectRatio(targetAspectRatio);
+        previewConfigBuilder.setLensFacing(LensFacing.FRONT);
+        PreviewConfig previewConfig = previewConfigBuilder.build();
+
+        Rational resultAspectRatio = mSurfaceManager.getCorrectedAspectRatio(previewConfig);
+
+        Size maxJpegSize = supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG);
+        Rational maxJpegAspectRatio = new Rational(maxJpegSize.getHeight(), maxJpegSize.getWidth());
+
+        if (Build.VERSION.SDK_INT == 21) {
+            // Checks targetAspectRatio and maxJpegAspectRatio, which is the ratio of maximum size
+            // in the mSupportedSizes, are not equal to make sure this test case is valid.
+            assertFalse(targetAspectRatio.equals(maxJpegAspectRatio));
+            assertTrue(resultAspectRatio.equals(maxJpegAspectRatio));
+        } else {
+            // Checks no correction is needed.
+            assertThat(resultAspectRatio).isNull();
+        }
+    }
+
     private void setupCamera() {
-        addBackFacingCamera(
-                LEGACY_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null);
-        addBackFacingCamera(
-                LIMITED_CAMERA_ID,
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
-                null);
-        addBackFacingCamera(
-                FULL_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, null);
-        addBackFacingCamera(
-                LEVEL3_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3, null);
+        addCamera(
+                LEGACY_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null,
+                CameraCharacteristics.LENS_FACING_FRONT);
+        addCamera(
+                LIMITED_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+                null,
+                CameraCharacteristics.LENS_FACING_BACK);
+        addCamera(
+                FULL_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, null,
+                CameraCharacteristics.LENS_FACING_BACK);
+        addCamera(
+                LEVEL3_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3, null,
+                CameraCharacteristics.LENS_FACING_BACK);
         initCameraX();
     }
 
-    private void addBackFacingCamera(String cameraId, int hardwareLevel, int[] capabilities) {
+    private void addCamera(String cameraId, int hardwareLevel, int[] capabilities, int lensFacing) {
         CameraCharacteristics characteristics =
                 ShadowCameraCharacteristics.newCameraCharacteristics();
 
         ShadowCameraCharacteristics shadowCharacteristics = Shadow.extract(characteristics);
 
         shadowCharacteristics.set(
-                CameraCharacteristics.LENS_FACING, CameraCharacteristics.LENS_FACING_BACK);
+                CameraCharacteristics.LENS_FACING, lensFacing);
 
         shadowCharacteristics.set(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, hardwareLevel);
