@@ -24,8 +24,8 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.google.r4a.adapters.dp
-import com.google.r4a.adapters.setPadding
+import androidx.ui.androidview.adapters.dp
+import androidx.ui.androidview.adapters.setPadding
 import com.google.r4a.composer
 import com.google.r4a.setContent
 

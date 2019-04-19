@@ -15,6 +15,7 @@ dependencies {
     api "androidx.activity:activity:1.0.0-alpha01"
     api project(":ui-core")
     api project(":compose-runtime")
+    api project(":ui-android-view-non-ir")
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
     testImplementation(JUNIT)
