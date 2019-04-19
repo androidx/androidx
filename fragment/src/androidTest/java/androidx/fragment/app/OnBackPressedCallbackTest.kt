@@ -16,6 +16,8 @@
 
 package androidx.fragment.app
 
+import android.content.Context
+import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
@@ -154,6 +156,25 @@ class OnBackPressedCallbackTest {
                 .isSameAs(fragment)
         }
     }
+
+    @Test
+    fun testBackPressWithFragmentCallbackOverFragmentManager() {
+        with(ActivityScenario.launch(OnBackPressedFragmentActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+            val fragment = withActivity { fragment }
+            val fragmentCallback = fragment.onBackPressedCallback
+
+            withActivity {
+                onBackPressed()
+            }
+
+            assertWithMessage("Fragment callback should be called before FragmentManager")
+                .that(fragmentCallback.count)
+                .isEqualTo(1)
+            assertThat(fragmentManager.findFragmentById(R.id.content))
+                .isSameAs(fragment)
+        }
+    }
 }
 
 class CountingOnBackPressedCallback(enabled: Boolean = true) : OnBackPressedCallback(enabled) {
@@ -161,5 +182,28 @@ class CountingOnBackPressedCallback(enabled: Boolean = true) : OnBackPressedCall
 
     override fun handleOnBackPressed() {
         count++
+    }
+}
+
+class OnBackPressedStrictFragment : StrictFragment() {
+    val onBackPressedCallback = CountingOnBackPressedCallback()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+    }
+}
+
+class OnBackPressedFragmentActivity : FragmentActivity(R.layout.activity_content) {
+    val fragment: OnBackPressedStrictFragment get() =
+        supportFragmentManager.findFragmentById(R.id.content) as OnBackPressedStrictFragment
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val fragment = OnBackPressedStrictFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.content, fragment)
+            .addToBackStack("back_stack")
+            .commit()
     }
 }
