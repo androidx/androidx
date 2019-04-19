@@ -1539,7 +1539,6 @@ public class MediaPlayer extends SessionPlayer {
      * Sets the {@link Surface} to be used as the sink for the video portion of
      * the media.
      * <p>
-     * Setting a Surface will un-set any Surface or SurfaceHolder that was previously set.
      * A null surface will result in only the audio track being played.
      * <p>
      * If the Surface sends frames to a {@link SurfaceTexture}, the timestamps
