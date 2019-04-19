@@ -225,22 +225,21 @@ data class MaterialTypography(
  */
 @Composable
 fun MaterialRippleTheme(@Children children: () -> Unit) {
-    <Colors.Consumer> materialColors ->
-        val defaultTheme = RippleTheme(
-            factory = DefaultRippleEffectFactory,
-            colorCallback = { background ->
-                if (background == null || background.alpha == 0 ||
-                    background.computeLuminance() >= 0.5) { // light bg
-                    materialColors.primary.withAlphaPercent(12f)
-                } else { // dark bg
-                    Color(0xFFFFFFFF.toInt()).withAlphaPercent(24f)
-                }
+    val materialColors = +ambient(Colors)
+    val defaultTheme = RippleTheme(
+        factory = DefaultRippleEffectFactory,
+        colorCallback = { background ->
+            if (background == null || background.alpha == 0 ||
+                background.computeLuminance() >= 0.5) { // light bg
+                materialColors.primary.withAlphaPercent(12f)
+            } else { // dark bg
+                Color(0xFFFFFFFF.toInt()).withAlphaPercent(24f)
             }
-        )
-        <CurrentRippleTheme.Provider value=defaultTheme>
-            <children />
-        </CurrentRippleTheme.Provider>
-    </Colors.Consumer>
+        }
+    )
+    <CurrentRippleTheme.Provider value=defaultTheme>
+        <children />
+    </CurrentRippleTheme.Provider>
 }
 
 /**

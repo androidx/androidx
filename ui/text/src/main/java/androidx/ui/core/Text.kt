@@ -31,6 +31,7 @@ import com.google.r4a.Composable
 import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.effectOf
+import com.google.r4a.unaryPlus
 
 private val DefaultTextAlign: TextAlign = TextAlign.START
 private val DefaultTextDirection: TextDirection = TextDirection.LTR
@@ -106,7 +107,7 @@ fun Text(
         }
     }
 
-    <CurrentTextStyleAmbient.Consumer> style ->
+        val style = +ambient(CurrentTextStyleAmbient)
         val mergedStyle = style.merge(text.style)
         // Make a wrapper to avoid modifying the style on the original element
         val styledText = TextSpan(style = mergedStyle, children = listOf(text))
@@ -146,7 +147,6 @@ fun Text(
                 layout(renderParagraph.width.px.round(), renderParagraph.height.px.round()) {}
             </Layout>
         </Semantics>
-    </CurrentTextStyleAmbient.Consumer>
 }
 
 /**
@@ -186,12 +186,11 @@ internal val CurrentTextStyleAmbient = Ambient<TextStyle>("current text style") 
  */
 @Composable
 fun CurrentTextStyleProvider(value: TextStyle, @Children children: () -> Unit) {
-    <CurrentTextStyleAmbient.Consumer> style ->
-        val mergedStyle = style.merge(value)
-        <CurrentTextStyleAmbient.Provider value=mergedStyle>
-            <children />
-        </CurrentTextStyleAmbient.Provider>
-    </CurrentTextStyleAmbient.Consumer>
+    val style = +ambient(CurrentTextStyleAmbient)
+    val mergedStyle = style.merge(value)
+    <CurrentTextStyleAmbient.Provider value=mergedStyle>
+        <children />
+    </CurrentTextStyleAmbient.Provider>
 }
 
 /**

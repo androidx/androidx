@@ -163,17 +163,17 @@ fun ComplexLayout(
         layoutState.layoutNode.requestLayout()
     }
 
-    <ParentDataAmbient.Consumer> parentData ->
-        <LayoutNode ref=layoutState.layoutNodeRef layout=layoutState parentData>
-            <OnChildPositionedAmbient.Provider value=layoutState.onChildPositioned>
-                <OnPositionedAmbient.Provider value=layoutState.onPositioned>
-                    <ParentDataAmbient.Provider value=null>
-                        <children />
-                    </ParentDataAmbient.Provider>
-                </OnPositionedAmbient.Provider>
-            </OnChildPositionedAmbient.Provider>
-        </LayoutNode>
-    </ParentDataAmbient.Consumer>
+    val parentData = +ambient(ParentDataAmbient)
+
+    <LayoutNode ref=layoutState.layoutNodeRef layout=layoutState parentData>
+        <OnChildPositionedAmbient.Provider value=layoutState.onChildPositioned>
+            <OnPositionedAmbient.Provider value=layoutState.onPositioned>
+                <ParentDataAmbient.Provider value=null>
+                    <children />
+                </ParentDataAmbient.Provider>
+            </OnPositionedAmbient.Provider>
+        </OnChildPositionedAmbient.Provider>
+    </LayoutNode>
 }
 
 /**
