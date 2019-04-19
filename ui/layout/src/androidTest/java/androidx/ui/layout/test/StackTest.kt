@@ -18,7 +18,6 @@ package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
@@ -239,18 +238,5 @@ class StackTest : LayoutTest() {
         assertEquals(PxPosition(size - inset - halfSize, halfSize), childPosition[5].value)
         assertEquals(PxSize(halfSize, halfSize), childSize[6].value)
         assertEquals(PxPosition(halfSize, size - inset - halfSize), childPosition[6].value)
-    }
-
-    @Composable
-    fun SaveLayoutInfo(
-        size: Ref<PxSize>,
-        position: Ref<PxPosition>,
-        positionedLatch: CountDownLatch
-    ) {
-        <OnPositioned onPositioned = { coordinates ->
-            size.value = PxSize(coordinates.size.width, coordinates.size.height)
-            position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-            positionedLatch.countDown()
-        } />
     }
 }

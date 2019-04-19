@@ -25,7 +25,13 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Density
+import androidx.ui.core.OnPositioned
+import androidx.ui.core.PxPosition
+import androidx.ui.core.PxSize
+import androidx.ui.core.Ref
+import androidx.ui.core.px
 import com.google.r4a.Children
+import com.google.r4a.Composable
 import com.google.r4a.composeInto
 import com.google.r4a.composer
 import org.junit.Assert.assertTrue
@@ -106,5 +112,18 @@ open class LayoutTest {
         view.viewTreeObserver.addOnDrawListener(listener)
         view.invalidate()
         assertTrue(viewDrawLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    @Composable
+    internal fun SaveLayoutInfo(
+        size: Ref<PxSize>,
+        position: Ref<PxPosition>,
+        positionedLatch: CountDownLatch
+    ) {
+        <OnPositioned onPositioned = { coordinates ->
+            size.value = PxSize(coordinates.size.width, coordinates.size.height)
+            position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+            positionedLatch.countDown()
+        } />
     }
 }

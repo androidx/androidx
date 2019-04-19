@@ -29,7 +29,6 @@ import androidx.ui.layout.Alignment
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.Wrap
 import com.google.r4a.Composable
 import com.google.r4a.composer
 import org.junit.Assert.assertEquals
@@ -41,114 +40,94 @@ import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
-class WrapTest : LayoutTest() {
+class ConstrainedBoxTest : LayoutTest() {
     @Test
-    fun testWrap() = withDensity(density) {
+    fun testConstrainedBox() = withDensity(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val wrapSize = Ref<PxSize>()
+        val constrainedBoxSize = Ref<PxSize>()
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show @Composable {
             <Align alignment=Alignment.TopLeft>
                 <OnChildPositioned onPositioned = { coordinates ->
-                    wrapSize.value = coordinates.size
+                    constrainedBoxSize.value = coordinates.size
                     positionedLatch.countDown()
                 }>
-                    <Wrap>
-                        <Container width=sizeDp height=sizeDp>
+                    <ConstrainedBox constraints=DpConstraints.tightConstraints(sizeDp, sizeDp)>
+                        <Container expanded=true>
                             <SaveLayoutInfo size=childSize position=childPosition positionedLatch />
                         </Container>
-                    </Wrap>
-                </OnChildPositioned>
-            </Align>
-        }
-        positionedLatch.await(1, TimeUnit.SECONDS)
-
-        assertEquals(PxSize(size, size), wrapSize.value)
-        assertEquals(PxSize(size, size), childSize.value)
-        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
-    }
-
-    @Test
-    fun testWrap_respectsMinConstraints() = withDensity(density) {
-        val sizeDp = 50.dp
-        val size = sizeDp.toIntPx()
-        val doubleSizeDp = sizeDp * 2
-        val doubleSize = doubleSizeDp.toIntPx()
-
-        val positionedLatch = CountDownLatch(2)
-        val wrapSize = Ref<PxSize>()
-        val childSize = Ref<PxSize>()
-        val childPosition = Ref<PxPosition>()
-        show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
-                    wrapSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }>
-                    val constraints =
-                        DpConstraints(minWidth = doubleSizeDp, minHeight = doubleSizeDp)
-                    <ConstrainedBox constraints>
-                        <Wrap>
-                            <Container width=sizeDp height=sizeDp>
-                                <SaveLayoutInfo
-                                    size=childSize
-                                    position=childPosition
-                                    positionedLatch />
-                            </Container>
-                        </Wrap>
                     </ConstrainedBox>
                 </OnChildPositioned>
             </Align>
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(doubleSize, doubleSize), wrapSize.value)
+        assertEquals(PxSize(size, size), constrainedBoxSize.value)
         assertEquals(PxSize(size, size), childSize.value)
         assertEquals(PxPosition(0.px, 0.px), childPosition.value)
     }
 
     @Test
-    fun testWrap_respectsMinConstraintsAndAlignment() = withDensity(density) {
+    fun testConstrainedBox_respectsMaxIncomingConstraints() = withDensity(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()
-        val doubleSizeDp = sizeDp * 2
-        val doubleSize = doubleSizeDp.toIntPx()
 
         val positionedLatch = CountDownLatch(2)
-        val wrapSize = Ref<PxSize>()
+        val constrainedBoxSize = Ref<PxSize>()
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show @Composable {
             <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
-                    wrapSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }>
-                    val constraints = DpConstraints(
-                        minWidth = doubleSizeDp,
-                        minHeight = doubleSizeDp
-                    )
-                    <ConstrainedBox constraints>
-                        <Wrap alignment=Alignment.Center>
-                            <Container width=sizeDp height=sizeDp>
+                <Container width=sizeDp height=sizeDp>
+                    <OnChildPositioned onPositioned = { coordinates ->
+                        constrainedBoxSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }>
+                        <ConstrainedBox
+                            constraints=DpConstraints.tightConstraints(sizeDp * 2, sizeDp * 2)>
+                            <Container expanded=true>
                                 <SaveLayoutInfo
                                     size=childSize
                                     position=childPosition
                                     positionedLatch />
                             </Container>
-                        </Wrap>
+                        </ConstrainedBox>
+                    </OnChildPositioned>
+                    </Container>
+            </Align>
+        }
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(PxSize(size, size), constrainedBoxSize.value)
+        assertEquals(PxSize(size, size), childSize.value)
+        assertEquals(PxPosition(0.px, 0.px), childPosition.value)
+    }
+
+    @Test
+    fun testConstrainedBox_withNoChildren_sizesToChildMinConstraints() = withDensity(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+
+        val positionedLatch = CountDownLatch(1)
+        val constrainedBoxSize = Ref<PxSize>()
+        show @Composable {
+            <Align alignment=Alignment.TopLeft>
+                <OnChildPositioned onPositioned = { coordinates ->
+                    constrainedBoxSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }>
+                    val constraints = DpConstraints(sizeDp, sizeDp * 2, sizeDp, sizeDp * 2)
+                    <ConstrainedBox constraints>
                     </ConstrainedBox>
                 </OnChildPositioned>
             </Align>
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
-        assertEquals(PxSize(doubleSize, doubleSize), wrapSize.value)
-        assertEquals(PxSize(size, size), childSize.value)
-        assertEquals(PxPosition(size / 2, size / 2), childPosition.value)
+        assertEquals(PxSize(size, size), constrainedBoxSize.value)
     }
 }

@@ -21,7 +21,6 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
@@ -127,18 +126,5 @@ class AlignTest : LayoutTest() {
         assertEquals(IntPxPosition(0.ipx, 2.ipx), Alignment.BottomLeft.align(size))
         assertEquals(IntPxPosition(1.ipx, 2.ipx), Alignment.BottomCenter.align(size))
         assertEquals(IntPxPosition(2.ipx, 2.ipx), Alignment.BottomRight.align(size))
-    }
-
-    @Composable
-    fun SaveLayoutInfo(
-        size: Ref<PxSize>,
-        position: Ref<PxPosition>,
-        positionedLatch: CountDownLatch
-    ) {
-        <OnPositioned onPositioned = { coordinates ->
-            size.value = PxSize(coordinates.size.width, coordinates.size.height)
-            position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
-            positionedLatch.countDown()
-        } />
     }
 }
