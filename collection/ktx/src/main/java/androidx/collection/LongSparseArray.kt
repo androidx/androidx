@@ -22,7 +22,7 @@ package androidx.collection
 inline val <T> LongSparseArray<T>.size get() = size()
 
 /** Returns true if the collection contains [key]. */
-inline operator fun <T> LongSparseArray<T>.contains(key: Long) = indexOfKey(key) >= 0
+inline operator fun <T> LongSparseArray<T>.contains(key: Long) = containsKey(key)
 
 /** Allows the use of the index operator for storing values in the collection. */
 inline operator fun <T> LongSparseArray<T>.set(key: Long, value: T) = put(key, value)
@@ -44,7 +44,7 @@ inline fun <T> LongSparseArray<T>.getOrElse(key: Long, defaultValue: () -> T) =
     get(key) ?: defaultValue()
 
 /** Return true when the collection contains elements. */
-inline fun <T> LongSparseArray<T>.isNotEmpty() = size() != 0
+inline fun <T> LongSparseArray<T>.isNotEmpty() = !isEmpty
 
 /** Removes the entry for [key] only if it is mapped to [value]. */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER") // Binary API compatibility.
