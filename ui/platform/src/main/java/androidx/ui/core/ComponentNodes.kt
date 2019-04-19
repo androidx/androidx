@@ -504,7 +504,6 @@ class LayoutNode : ComponentNode() {
     }
 
     fun resize(width: IntPx, height: IntPx) {
-        visible = false
         val parent = parentLayoutNode
         needsRemeasure = false // we must have just finished measurement
         if (parent != null && parent.isInMeasure) {
@@ -524,6 +523,7 @@ class LayoutNode : ComponentNode() {
         isInMeasure = true
         children.forEach { child ->
             child.layoutNode?.layoutNode?.affectsParentSize = false
+            child.layoutNode?.visible = false
         }
         owner?.onStartMeasure(this)
     }
