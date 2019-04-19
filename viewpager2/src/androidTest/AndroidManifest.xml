@@ -20,6 +20,6 @@
 
     <application android:supportsRtl="true">
         <activity android:name="androidx.viewpager2.widget.swipe.TestActivity"
-                  android:theme="@style/TestActivityTheme"/>
+                  android:theme="@style/Theme.AppCompat"/>
     </application>
 </manifest>
