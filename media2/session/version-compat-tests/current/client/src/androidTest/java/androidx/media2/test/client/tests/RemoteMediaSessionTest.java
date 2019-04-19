@@ -77,11 +77,14 @@ public class RemoteMediaSessionTest {
     public void testCreatingController() {
         SessionToken token = mRemoteSession2.getToken();
         assertNotNull(token);
-        MediaController controller = new MediaController(mContext, token, new Executor() {
-            @Override
-            public void execute(Runnable command) {
-                command.run();
-            }
-        }, new MediaController.ControllerCallback() {});
+        MediaController controller = new MediaController.Builder(mContext)
+                .setSessionToken(token)
+                .setControllerCallback(new Executor() {
+                    @Override
+                    public void execute(Runnable command) {
+                        command.run();
+                    }
+                }, new MediaController.ControllerCallback() {})
+                .build();
     }
 }

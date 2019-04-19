@@ -188,15 +188,17 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         mRemoteSession2.getMockPlayer().createAndSetDummyPlaylist(playlistSize);
 
         final CountDownLatch latch = new CountDownLatch(1);
-        MediaController controller = new MediaController(mContext, mRemoteSession2.getToken(),
-                sHandlerExecutor, new MediaController.ControllerCallback() {
+        MediaController controller = new MediaController.Builder(mContext)
+                .setSessionToken(mRemoteSession2.getToken())
+                .setControllerCallback(sHandlerExecutor, new MediaController.ControllerCallback() {
                     @Override
                     public void onConnected(MediaController controller,
                             SessionCommandGroup allowedCommands) {
                         super.onConnected(controller, allowedCommands);
                         latch.countDown();
                     }
-                });
+                })
+                .build();
         assertNotNull(controller);
         assertTrue(latch.await(10, TimeUnit.SECONDS));
 
