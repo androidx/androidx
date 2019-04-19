@@ -16,14 +16,55 @@
 
 package androidx.camera.extensions;
 
-import androidx.camera.core.ImageCaptureConfig;
+import android.util.Log;
 
+import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
 /**
  * Load the OEM extension implementation for HDR effect type.
  */
 public class HdrImageCaptureExtender extends ImageCaptureExtender {
-    public HdrImageCaptureExtender(ImageCaptureConfig.Builder builder) {
-        super(builder);
-        loadImplementation("androidx.camera.extensions.impl.HdrImageCaptureExtender");
+    private static final String TAG = "HdrImageCaptureExtender";
+
+    /**
+     * Create a new instance of the HDR extender.
+     *
+     * @param builder Builder that will be used to create the configurations for the
+     * {@link androidx.camera.core.ImageCapture}.
+     */
+    public static HdrImageCaptureExtender create(ImageCaptureConfig.Builder builder) {
+        try {
+            return new VendorHdrImageCaptureExtender(builder);
+        } catch (NoClassDefFoundError e) {
+            Log.d(TAG, "No HDR image capture extender found. Falling back to default.");
+            return new DefaultHdrImageCaptureExtender();
+        }
     }
+
+    /** Empty implementation of HDR extender which does nothing. */
+    static class DefaultHdrImageCaptureExtender extends HdrImageCaptureExtender {
+        DefaultHdrImageCaptureExtender() {
+        }
+
+        @Override
+        public boolean isExtensionAvailable() {
+            return false;
+        }
+
+        @Override
+        public void enableExtension() {
+        }
+    }
+
+    /** HDR extender that calls into the vendor provided implementation. */
+    static class VendorHdrImageCaptureExtender extends HdrImageCaptureExtender {
+        private final HdrImageCaptureExtenderImpl mImpl;
+
+        VendorHdrImageCaptureExtender(ImageCaptureConfig.Builder builder) {
+            mImpl = new HdrImageCaptureExtenderImpl();
+            init(builder, mImpl);
+        }
+    }
+
+    private HdrImageCaptureExtender() {}
 }

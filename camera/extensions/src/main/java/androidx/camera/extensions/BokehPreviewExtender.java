@@ -16,14 +16,56 @@
 
 package androidx.camera.extensions;
 
+import android.util.Log;
+
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
 
 /**
  * Load the OEM extension Preview implementation for bokeh effect type.
  */
 public class BokehPreviewExtender extends PreviewExtender {
-    public BokehPreviewExtender(PreviewConfig.Builder builder) {
-        super(builder);
-        loadImplementation("androidx.camera.extensions.impl.BokehPreviewExtender");
+    private static final String TAG = "BokehPreviewExtender";
+
+    /**
+     * Create a new instance of the bokeh extender.
+     *
+     * @param builder Builder that will be used to create the configurations for the
+     * {@link androidx.camera.core.Preview}.
+     */
+    public static BokehPreviewExtender create(PreviewConfig.Builder builder) {
+        try {
+            return new VendorBokehPreviewExtender(builder);
+        } catch (NoClassDefFoundError e) {
+            Log.d(TAG, "No bokeh view finder extender found. Falling back to default.");
+            return new DefaultBokehPreviewExtender();
+        }
     }
+
+    /** Empty implementation of bokeh extender which does nothing. */
+    private static class DefaultBokehPreviewExtender extends BokehPreviewExtender {
+        DefaultBokehPreviewExtender() {
+        }
+
+        @Override
+        public boolean isExtensionAvailable() {
+            return false;
+        }
+
+        @Override
+        public void enableExtension() {
+        }
+    }
+
+    /** Bokeh extender that calls into the vendor provided implementation. */
+    private static class VendorBokehPreviewExtender extends BokehPreviewExtender {
+        private final BokehPreviewExtenderImpl mImpl;
+
+        VendorBokehPreviewExtender(PreviewConfig.Builder builder) {
+            mImpl = new BokehPreviewExtenderImpl();
+            init(builder, mImpl);
+        }
+    }
+
+    private BokehPreviewExtender() {}
 }
