@@ -24,6 +24,7 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,6 +42,10 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
     /** Map of id to {@link ImageProxy} Future. */
     @GuardedBy("mLock")
     private final SparseArray<ListenableFuture<ImageProxy>> mFutureResults = new SparseArray<>();
+
+    @GuardedBy("mLock")
+    private final List<ImageProxy> mOwnedImageProxies = new ArrayList<>();
+
     private final List<Integer> mCaptureIdList;
     // Whether or not the bundle has been closed or not
     @GuardedBy("mLock")
@@ -98,6 +103,7 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
             CallbackToFutureAdapter.Completer<ImageProxy> completer = mCompleters.get(captureId);
             if (completer != null) {
                 completer.set(imageProxy);
+                mOwnedImageProxies.add(imageProxy);
             } else {
                 throw new IllegalArgumentException(
                         "ImageProxyBundle does not contain this id: " + captureId);
@@ -113,6 +119,10 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
             if (mClosed) {
                 return;
             }
+            for (ImageProxy imageProxy : mOwnedImageProxies) {
+                imageProxy.close();
+            }
+            mOwnedImageProxies.clear();
             mFutureResults.clear();
             mCompleters.clear();
             mClosed = true;
@@ -127,7 +137,10 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
             if (mClosed) {
                 return;
             }
-
+            for (ImageProxy imageProxy : mOwnedImageProxies) {
+                imageProxy.close();
+            }
+            mOwnedImageProxies.clear();
             mFutureResults.clear();
             mCompleters.clear();
             setup();

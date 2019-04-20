@@ -100,14 +100,14 @@ public class CameraExtensionsActivity extends AppCompatActivity
         if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_BOKEH) {
             Log.d(TAG, "Enabling the extended view finder in bokeh mode.");
 
-            BokehPreviewExtender extender = new BokehPreviewExtender(builder);
+            BokehPreviewExtender extender = BokehPreviewExtender.create(builder);
             if (extender.isExtensionAvailable()) {
                 extender.enableExtension();
             }
         } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR) {
             Log.d(TAG, "Enabling the extended view finder in HDR mode.");
 
-            HdrPreviewExtender extender = new HdrPreviewExtender(builder);
+            HdrPreviewExtender extender = HdrPreviewExtender.create(builder);
             if (extender.isExtensionAvailable()) {
                 extender.enableExtension();
             }
@@ -188,14 +188,14 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         switch (imageCaptureType) {
             case IMAGE_CAPTURE_TYPE_HDR:
-                HdrImageCaptureExtender hdrImageCaptureExtender = new HdrImageCaptureExtender(
+                HdrImageCaptureExtender hdrImageCaptureExtender = HdrImageCaptureExtender.create(
                         builder);
                 if (hdrImageCaptureExtender.isExtensionAvailable()) {
                     hdrImageCaptureExtender.enableExtension();
                 }
                 break;
             case IMAGE_CAPTURE_TYPE_BOKEH:
-                BokehImageCaptureExtender bokehImageCapture = new BokehImageCaptureExtender(
+                BokehImageCaptureExtender bokehImageCapture = BokehImageCaptureExtender.create(
                         builder);
                 if (bokehImageCapture.isExtensionAvailable()) {
                     bokehImageCapture.enableExtension();

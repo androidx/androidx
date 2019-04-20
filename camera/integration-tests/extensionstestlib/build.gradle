@@ -24,16 +24,24 @@ plugins {
 }
 
 dependencies {
-    api(project(":camera:camera-core"))
-    api(project(":camera:camera-camera2"))
-    api(project(":camera:camera-extensions"))
-    implementation("androidx.core:core:1.0.0")
-
-    implementation(GUAVA_LISTENABLE_FUTURE)
+    api(project(":annotation"))
 }
 
 android {
     defaultConfig {
         minSdkVersion 21
+        versionCode 1
+        multiDexEnabled true
     }
+}
+
+androidx {
+    name = "Jetpack Camera Extensions Example Library"
+    publish = false
+    mavenVersion = LibraryVersions.CAMERA
+    mavenGroup = LibraryGroups.CAMERA
+    inceptionYear = "2019"
+    description = "Example extension implementation for the Jetpack Camera Library, a library providing a " +
+            "consistent and reliable camera foundation that enables great camera driven " +
+            "experiences across all of Android."
 }

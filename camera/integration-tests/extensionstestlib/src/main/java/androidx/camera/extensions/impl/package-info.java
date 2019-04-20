@@ -14,27 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.camera.extensions;
-
-import android.hardware.camera2.CameraCharacteristics;
-
-import androidx.camera.core.PreviewConfig;
-
 /**
- * Default implementation for PreviewExtender.
+ * @hide
  */
-public final class DefaultPreviewExtender extends PreviewExtender {
-    DefaultPreviewExtender(PreviewConfig.Builder builder) {
-        super(builder);
-    }
+@RestrictTo(LIBRARY_GROUP)
+package androidx.camera.extensions.impl;
 
-    @Override
-    public void enableExtension() {
-    }
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-    @Override
-    protected boolean isExtensionAvailable(String cameraId,
-            CameraCharacteristics cameraCharacteristics) {
-        return false;
-    }
-}
+import androidx.annotation.RestrictTo;

@@ -82,14 +82,15 @@ public final class ExtensionsManager {
 
         switch (effectMode) {
             case BOKEH:
-                extender = new BokehImageCaptureExtender(builder);
+                extender = BokehImageCaptureExtender.create(builder);
                 break;
             case HDR:
-                extender = new HdrImageCaptureExtender(builder);
+                extender = HdrImageCaptureExtender.create(builder);
                 break;
+            case NORMAL:
+                return true;
             default:
-                extender = new DefaultImageCaptureExtender(builder);
-                break;
+                return false;
         }
 
         return extender.isExtensionAvailable();
@@ -103,14 +104,15 @@ public final class ExtensionsManager {
 
         switch (effectMode) {
             case BOKEH:
-                extender = new BokehPreviewExtender(builder);
+                extender = BokehPreviewExtender.create(builder);
                 break;
             case HDR:
-                extender = new HdrPreviewExtender(builder);
+                extender = HdrPreviewExtender.create(builder);
                 break;
+            case NORMAL:
+                return true;
             default:
-                extender = new DefaultPreviewExtender(builder);
-                break;
+                return false;
         }
 
         return extender.isExtensionAvailable();
