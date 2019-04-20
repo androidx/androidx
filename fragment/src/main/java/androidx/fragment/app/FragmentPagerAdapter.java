@@ -163,15 +163,14 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
     @SuppressWarnings({"ReferenceEquality", "deprecation"})
     @Override
     public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-        if (mCurTransaction == null) {
-            mCurTransaction = mFragmentManager.beginTransaction();
-        }
-
         Fragment fragment = (Fragment)object;
         if (fragment != mCurrentPrimaryItem) {
             if (mCurrentPrimaryItem != null) {
                 mCurrentPrimaryItem.setMenuVisibility(false);
                 if (mResumeOnlyCurrentFragment) {
+                    if (mCurTransaction == null) {
+                        mCurTransaction = mFragmentManager.beginTransaction();
+                    }
                     mCurTransaction.setMaxLifecycle(mCurrentPrimaryItem, Lifecycle.State.STARTED);
                 } else {
                     fragment.setUserVisibleHint(false);
@@ -179,6 +178,9 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
             }
             fragment.setMenuVisibility(true);
             if (mResumeOnlyCurrentFragment) {
+                if (mCurTransaction == null) {
+                    mCurTransaction = mFragmentManager.beginTransaction();
+                }
                 mCurTransaction.setMaxLifecycle(fragment, Lifecycle.State.RESUMED);
             } else {
                 fragment.setUserVisibleHint(true);
