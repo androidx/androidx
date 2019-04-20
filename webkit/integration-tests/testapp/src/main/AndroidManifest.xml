@@ -39,6 +39,8 @@
           android:exported="true" />
         <activity android:name=".SmallInterstitialActivity"
           android:exported="true" />
+        <activity android:name=".MediumInterstitialActivity"
+          android:exported="true" />
         <activity android:name=".ProxyOverrideActivity"
           android:exported="true" />
         <activity android:name=".AssetLoaderListActivity"

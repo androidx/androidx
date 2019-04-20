@@ -24,8 +24,9 @@ import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewFeature;
 
 /**
- * An {@link Activity} to demonstrate small ("Quiet") interstitials. WebView displays a grey error
- * page with very little text when it is sufficiently small (and loads a malicious resource).
+ * An {@link android.app.Activity} to demonstrate small ("Quiet") interstitials. WebView displays a
+ * grey error page with very little text when it is sufficiently small (and loads a malicious
+ * resource).
  */
 public class SmallInterstitialActivity extends AppCompatActivity {
 

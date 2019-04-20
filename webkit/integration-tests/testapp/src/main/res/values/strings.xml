@@ -25,5 +25,7 @@
     <string name="asset_loader_list_activity_title">WebView Asset Loader Demos</string>
     <string name="asset_loader_simple_activity_title">Simple Asset Loader</string>
     <string name="small_interstitial_activity_title">Small Interstitial</string>
+    <string name="medium_tall_interstitial_activity_title">Medium (Tall) Interstitials</string>
+    <string name="medium_wide_interstitial_activity_title">Medium (Wide) Interstitials</string>
     <string name="cannot_start_safe_browsing">Unable to start Safe Browsing, this is unexpected.</string>
 </resources>
