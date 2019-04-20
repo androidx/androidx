@@ -19,6 +19,7 @@ import android.app.Activity
 import android.os.Looper
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
+import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertWithMessage
@@ -106,4 +107,14 @@ fun assertChildren(container: ViewGroup, vararg fragments: Fragment) {
             .that(fragment.requireView())
             .isSameAs(container.getChildAt(index))
     }
+}
+
+inline fun <reified A : Activity, T : Any> ActivityScenario<A>.withActivity(
+    crossinline block: A.() -> T
+): T {
+    lateinit var value: T
+    onActivity { activity ->
+        value = block(activity)
+    }
+    return value
 }
