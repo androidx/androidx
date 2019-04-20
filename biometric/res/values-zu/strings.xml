@@ -24,5 +24,6 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Azikho izigxivizo zeminwe ezibhalisiwe."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Le divayisi ayinayo inzwa yezigxivizo zeminwe"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Umsebenzi wesigxivizo somunwe sikhanselwe umsebenzisi."</string>
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Imizamo eminingi kakhulu. Sicela uzame futhi ngokuhamba kwesikhathi."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Iphutha elingaziwe"</string>
 </resources>
