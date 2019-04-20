@@ -16,15 +16,56 @@
 
 package androidx.camera.extensions;
 
+import android.util.Log;
 
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
 
 /**
  * Load the OEM extension Preview implementation for HDR effect type.
  */
 public class HdrPreviewExtender extends PreviewExtender {
-    public HdrPreviewExtender(PreviewConfig.Builder builder) {
-        super(builder);
-        loadImplementation("androidx.camera.extensions.impl.HdrPreviewExtender");
+    private static final String TAG = "HdrPreviewExtender";
+
+    /**
+     * Create a new instance of the HDR extender.
+     *
+     * @param builder Builder that will be used to create the configurations for the
+     * {@link androidx.camera.core.Preview}.
+     */
+    public static HdrPreviewExtender create(PreviewConfig.Builder builder) {
+        try {
+            return new VendorHdrPreviewExtender(builder);
+        } catch (NoClassDefFoundError e) {
+            Log.d(TAG, "No HDR view finder extender found. Falling back to default.");
+            return new DefaultHdrPreviewExtender();
+        }
     }
+
+    /** Empty implementation of HDR extender which does nothing. */
+    static class DefaultHdrPreviewExtender extends HdrPreviewExtender {
+        DefaultHdrPreviewExtender() {
+        }
+
+        @Override
+        public boolean isExtensionAvailable() {
+            return false;
+        }
+
+        @Override
+        public void enableExtension() {
+        }
+    }
+
+    /** HDR extender that calls into the vendor provided implementation. */
+    static class VendorHdrPreviewExtender extends HdrPreviewExtender {
+        private final HdrPreviewExtenderImpl mImpl;
+
+        VendorHdrPreviewExtender(PreviewConfig.Builder builder) {
+            mImpl = new HdrPreviewExtenderImpl();
+            init(builder, mImpl);
+        }
+    }
+
+    private HdrPreviewExtender() {}
 }

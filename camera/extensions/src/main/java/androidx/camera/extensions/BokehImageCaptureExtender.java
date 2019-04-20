@@ -16,14 +16,56 @@
 
 package androidx.camera.extensions;
 
+import android.util.Log;
+
 import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.extensions.impl.BokehImageCaptureExtenderImpl;
 
 /**
- * Load the OEM extension implementation for bokeh effect type.
+ * Loads the OEM extension implementation for bokeh effect type.
  */
 public class BokehImageCaptureExtender extends ImageCaptureExtender {
-    public BokehImageCaptureExtender(ImageCaptureConfig.Builder builder) {
-        super(builder);
-        loadImplementation("androidx.camera.extensions.impl.BokehImageCaptureExtender");
+    private static final String TAG = "BokehImgCaptureExtender";
+
+    /**
+     * Creates a new instance of the bokeh extender.
+     *
+     * @param builder Builder that will be used to create the configurations for the
+     * {@link androidx.camera.core.ImageCapture}.
+     */
+    public static BokehImageCaptureExtender create(ImageCaptureConfig.Builder builder) {
+        try {
+            return new VendorBokehImageCaptureExtender(builder);
+        } catch (NoClassDefFoundError e) {
+            Log.d(TAG, "No bokeh image capture extender found. Falling back to default.");
+            return new DefaultBokehImageCaptureExtender();
+        }
     }
+
+    /** Empty implementation of bokeh extender which does nothing. */
+    private static class DefaultBokehImageCaptureExtender extends BokehImageCaptureExtender {
+        DefaultBokehImageCaptureExtender() {
+        }
+
+        @Override
+        public boolean isExtensionAvailable() {
+            return false;
+        }
+
+        @Override
+        public void enableExtension() {
+        }
+    }
+
+    /** Bokeh extender that calls into the vendor provided implementation. */
+    private static class VendorBokehImageCaptureExtender extends BokehImageCaptureExtender {
+        private final BokehImageCaptureExtenderImpl mImpl;
+
+        VendorBokehImageCaptureExtender(ImageCaptureConfig.Builder builder) {
+            mImpl = new BokehImageCaptureExtenderImpl();
+            init(builder, mImpl);
+        }
+    }
+
+    private BokehImageCaptureExtender() {}
 }

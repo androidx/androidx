@@ -23,20 +23,10 @@ import android.os.Build;
 import android.util.Log;
 import android.view.Surface;
 
-import androidx.camera.core.CaptureProcessor;
-import androidx.camera.core.ImageCaptureConfig;
-import androidx.camera.core.ImageProxy;
-import androidx.camera.core.ImageProxyBundle;
-import androidx.camera.extensions.CaptureStage;
-import androidx.camera.extensions.ImageCaptureExtender;
-
-import com.google.common.util.concurrent.ListenableFuture;
-
 import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implementation for bokeh image capture use case.
@@ -44,24 +34,41 @@ import java.util.concurrent.TimeoutException;
  * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
  * don't need to implement this, unless this is used for related testing usage.
  */
-public class BokehImageCaptureExtender extends ImageCaptureExtender {
+public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtenderImpl {
     private static final String TAG = "BokehICExtender";
     private static final int DEFAULT_STAGE_ID = 0;
 
-    public BokehImageCaptureExtender(ImageCaptureConfig.Builder builder) {
-        super(builder);
+    public BokehImageCaptureExtenderImpl() {
     }
 
     @Override
-    public void enableExtension() {
-        // 1. Sets necessary CaptureStage settings
-        CaptureStage captureStage = new CaptureStage(DEFAULT_STAGE_ID);
+    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {
+    }
+
+    @Override
+    public boolean isExtensionAvailable(String cameraId,
+            CameraCharacteristics cameraCharacteristics) {
+        // Requires API 23 for ImageWriter
+        return android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M;
+    }
+
+    @Override
+    public List<CaptureStageImpl> getCaptureStages() {
+        // Placeholder set of CaptureRequest.Key values
+        SettableCaptureStage captureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
         captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
                 CaptureRequest.CONTROL_EFFECT_MODE_SEPIA);
+        List<CaptureStageImpl> captureStages = new ArrayList<>();
+        captureStages.add(captureStage);
+        return captureStages;
+    }
 
-        // 2. Sets CaptureProcess if necessary...
-        CaptureProcessor captureProcessor =
-                new CaptureProcessor() {
+    @Override
+    public CaptureProcessorImpl getCaptureProcessor() {
+        CaptureProcessorImpl captureProcessor =
+                new CaptureProcessorImpl() {
+                    private ImageWriter mImageWriter;
+
                     @Override
                     public void onOutputSurface(Surface surface, int imageFormat) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -70,21 +77,19 @@ public class BokehImageCaptureExtender extends ImageCaptureExtender {
                     }
 
                     @Override
-                    public void process(ImageProxyBundle bundle) {
+                    public void process(Map<Integer, Image> images) {
                         Log.d(TAG, "Started bokeh CaptureProcessor");
 
-                        ListenableFuture<ImageProxy> resultFuture = bundle.getImageProxy(
-                                DEFAULT_STAGE_ID);
+                        Image result = images.get(DEFAULT_STAGE_ID);
 
-                        ImageProxy result = null;
-
-                        try {
-                            result = resultFuture.get(5, TimeUnit.SECONDS);
-
-                            Image image = null;
+                        if (result == null) {
+                            Log.w(TAG,
+                                    "Unable to process since images does not contain all stages.");
+                            return;
+                        } else {
                             if (android.os.Build.VERSION.SDK_INT
                                     >= android.os.Build.VERSION_CODES.M) {
-                                image = mImageWriter.dequeueInputImage();
+                                Image image = mImageWriter.dequeueInputImage();
 
                                 // Do processing here
                                 ByteBuffer yByteBuffer = image.getPlanes()[0].getBuffer();
@@ -98,26 +103,11 @@ public class BokehImageCaptureExtender extends ImageCaptureExtender {
 
                                 mImageWriter.queueInputImage(image);
                             }
-                        } catch (ExecutionException | InterruptedException | TimeoutException e) {
-                            Log.e(TAG, "Failed to obtain result: " + e);
-                        } finally {
-                            result.close();
                         }
 
                         Log.d(TAG, "Completed bokeh CaptureProcessor");
                     }
-
-                    ImageWriter mImageWriter;
                 };
-
-        setCaptureStages(Arrays.asList(captureStage));
-        setCaptureProcessor(captureProcessor);
-    }
-
-    @Override
-    public boolean isExtensionAvailable(String cameraId,
-            CameraCharacteristics cameraCharacteristics) {
-        // Implement the logic to check whether the extension function is supported or not.
-        return true;
+        return captureProcessor;
     }
 }
