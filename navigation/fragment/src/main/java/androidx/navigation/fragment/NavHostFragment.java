@@ -205,7 +205,7 @@ public class NavHostFragment extends Fragment implements NavHost {
 
         mNavController = new NavController(context);
         mNavController.setHostViewModelStore(getViewModelStore());
-        mNavController.getNavigatorProvider().addNavigator(createFragmentNavigator());
+        onCreateNavController(mNavController);
 
         Bundle navState = null;
         if (savedInstanceState != null) {
@@ -239,13 +239,34 @@ public class NavHostFragment extends Fragment implements NavHost {
     }
 
     /**
+     * Callback for when the {@link #getNavController() NavController} is created. If you
+     * support any custom destination types, their {@link Navigator} should be added here to
+     * ensure it is available before the navigation graph is inflated / set.
+     * <p>
+     * By default, this adds a {@link FragmentNavigator}.
+     * <p>
+     * This is only called once in {@link #onCreate(Bundle)} and should not be called directly by
+     * subclasses.
+     *
+     * @param navController The newly created {@link NavController}.
+     */
+    @SuppressWarnings({"WeakerAccess", "deprecation"})
+    @CallSuper
+    protected void onCreateNavController(@NonNull NavController navController) {
+        navController.getNavigatorProvider().addNavigator(createFragmentNavigator());
+    }
+
+    /**
      * Create the FragmentNavigator that this NavHostFragment will use. By default, this uses
      * {@link FragmentNavigator}, which replaces the entire contents of the NavHostFragment.
      * <p>
      * This is only called once in {@link #onCreate(Bundle)} and should not be called directly by
      * subclasses.
      * @return a new instance of a FragmentNavigator
+     * @deprecated Use {@link #onCreateNavController(NavController)}
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated
     @NonNull
     protected Navigator<? extends FragmentNavigator.Destination> createFragmentNavigator() {
         return new FragmentNavigator(requireContext(), getChildFragmentManager(), getId());
