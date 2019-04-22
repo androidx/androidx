@@ -252,7 +252,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     public void testGetPackageName() throws Exception {
         prepareLooper();
         MediaController controller = createController(mRemoteSession.getToken());
-        assertEquals(SERVICE_PACKAGE_NAME, controller.getConnectedSessionToken().getPackageName());
+        assertEquals(SERVICE_PACKAGE_NAME, controller.getConnectedToken().getPackageName());
     }
 
     @Test
@@ -262,7 +262,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         RemoteMediaSession session = createRemoteMediaSession("testGetExtras", testTokenExtras);
 
         MediaController controller = createController(session.getToken());
-        SessionToken connectedToken = controller.getConnectedSessionToken();
+        SessionToken connectedToken = controller.getConnectedToken();
         assertNotNull(connectedToken);
         assertTrue(TestUtils.equals(testTokenExtras, connectedToken.getExtras()));
     }

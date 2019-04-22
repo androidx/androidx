@@ -16,13 +16,11 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand.COMMAND_VERSION_1;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.media2.SessionCommand.CommandCode;
 import androidx.media2.SessionCommand.CommandVersion;
@@ -58,40 +56,6 @@ public final class SessionCommandGroup implements VersionedParcelable {
     public SessionCommandGroup(@Nullable Collection<SessionCommand> commands) {
         if (commands != null) {
             mCommands.addAll(commands);
-        }
-    }
-
-    /**
-     * Adds a command to this command group.
-     *
-     * @param command A command to add. Shouldn't be {@code null}.
-     * @hide TODO remove this method
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public void addCommand(@NonNull SessionCommand command) {
-        if (command == null) {
-            throw new IllegalArgumentException("command shouldn't be null");
-        }
-        if (!hasCommand(command)) {
-            mCommands.add(command);
-        }
-    }
-
-    /**
-     * Adds a predefined command with given {@code commandCode} to this command group.
-     *
-     * @param commandCode A command code to add.
-     *                    Shouldn't be {@link SessionCommand#COMMAND_CODE_CUSTOM}.
-     * @hide TODO remove this method
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public void addCommand(@CommandCode int commandCode) {
-        if (commandCode == COMMAND_CODE_CUSTOM) {
-            throw new IllegalArgumentException(
-                    "Use addCommand(SessionCommand) for COMMAND_CODE_CUSTOM.");
-        }
-        if (!hasCommand(commandCode)) {
-            mCommands.add(new SessionCommand(commandCode));
         }
     }
 

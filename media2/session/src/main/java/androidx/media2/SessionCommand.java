@@ -44,7 +44,7 @@ import java.util.List;
  * <p>
  * If {@link #getCommandCode()} isn't {@link #COMMAND_CODE_CUSTOM}), it's predefined command.
  * If {@link #getCommandCode()} is {@link #COMMAND_CODE_CUSTOM}), it's custom command and
- * {@link #getCustomCommand()} shouldn't be {@code null}.
+ * {@link #getCustomAction()} shouldn't be {@code null}.
  */
 @VersionedParcelize
 public final class SessionCommand implements VersionedParcelable {
@@ -544,9 +544,9 @@ public final class SessionCommand implements VersionedParcelable {
     @CommandCode int mCommandCode;
     // Nonnull if it's custom command
     @ParcelField(2)
-    String mCustomCommand;
+    String mCustomAction;
     @ParcelField(3)
-    Bundle mExtras;
+    Bundle mCustomExtras;
 
     /**
      * Used for VersionedParcelable.
@@ -564,8 +564,8 @@ public final class SessionCommand implements VersionedParcelable {
             throw new IllegalArgumentException("commandCode shouldn't be COMMAND_CODE_CUSTOM");
         }
         mCommandCode = commandCode;
-        mCustomCommand = null;
-        mExtras = null;
+        mCustomAction = null;
+        mCustomExtras = null;
     }
 
     /**
@@ -579,8 +579,8 @@ public final class SessionCommand implements VersionedParcelable {
             throw new IllegalArgumentException("action shouldn't be null");
         }
         mCommandCode = COMMAND_CODE_CUSTOM;
-        mCustomCommand = action;
-        mExtras = extras;
+        mCustomAction = action;
+        mCustomExtras = extras;
     }
 
     /**
@@ -595,16 +595,16 @@ public final class SessionCommand implements VersionedParcelable {
      * Gets the action of a custom command.
      * This will return {@code null} for a predefined command.
      */
-    public @Nullable String getCustomCommand() {
-        return mCustomCommand;
+    public @Nullable String getCustomAction() {
+        return mCustomAction;
     }
 
     /**
      * Gets the extra bundle of a custom command.
      * This will return {@code null} for a predefined command.
      */
-    public @Nullable Bundle getExtras() {
-        return mExtras;
+    public @Nullable Bundle getCustomExtras() {
+        return mCustomExtras;
     }
 
     @Override
@@ -614,12 +614,12 @@ public final class SessionCommand implements VersionedParcelable {
         }
         SessionCommand other = (SessionCommand) obj;
         return mCommandCode == other.mCommandCode
-                && TextUtils.equals(mCustomCommand, other.mCustomCommand);
+                && TextUtils.equals(mCustomAction, other.mCustomAction);
     }
 
     @Override
     public int hashCode() {
-        return ObjectsCompat.hash(mCustomCommand, mCommandCode);
+        return ObjectsCompat.hash(mCustomAction, mCommandCode);
     }
 
     static final class Range {

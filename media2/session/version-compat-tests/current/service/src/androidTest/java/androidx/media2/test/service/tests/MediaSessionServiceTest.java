@@ -204,7 +204,7 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
 
         // MediaController2.ControllerCallback#onDisconnected() should be called.
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        assertNull(controller.getConnectedSessionToken());
+        assertNull(controller.getConnectedToken());
         controller.close();
     }
 

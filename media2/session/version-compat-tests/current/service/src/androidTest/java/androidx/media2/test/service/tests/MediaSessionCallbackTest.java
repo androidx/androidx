@@ -218,10 +218,10 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
 
             @Override
             public SessionResult onCustomCommand(MediaSession session,
-                    MediaSession.ControllerInfo controller, SessionCommand customCommand,
+                    MediaSession.ControllerInfo controller, SessionCommand sessionCommand,
                     Bundle args) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(testCommand, customCommand);
+                assertEquals(testCommand, sessionCommand);
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
                 return new SessionResult(RESULT_SUCCESS, null);

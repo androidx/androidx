@@ -2138,7 +2138,7 @@ public class MediaControlView extends ViewGroup {
                 if (DEBUG) {
                     Log.d(TAG, "onCustomCommand(): command: " + command);
                 }
-                switch (command.getCustomCommand()) {
+                switch (command.getCustomAction()) {
                     case EVENT_UPDATE_TRACK_STATUS:
                         mVideoTrackCount = (args != null) ? args.getInt(KEY_VIDEO_TRACK_COUNT) : 0;
                         // If there is one or more audio tracks, and this information has not been

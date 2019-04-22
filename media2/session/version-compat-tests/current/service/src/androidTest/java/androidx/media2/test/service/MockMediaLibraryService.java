@@ -186,9 +186,10 @@ public class MockMediaLibraryService extends MediaLibraryService {
                 return null;
             }
             SessionCommandGroup group = super.onConnect(session, controller);
-            group.addCommand(new SessionCommand(CUSTOM_ACTION, null));
-            group.addCommand(new SessionCommand(CUSTOM_ACTION_ASSERT_PARAMS, null));
-            return group;
+            SessionCommandGroup.Builder builder = new SessionCommandGroup.Builder(group);
+            builder.addCommand(new SessionCommand(CUSTOM_ACTION, null));
+            builder.addCommand(new SessionCommand(CUSTOM_ACTION_ASSERT_PARAMS, null));
+            return builder.build();
         }
 
         @Override
@@ -335,8 +336,8 @@ public class MockMediaLibraryService extends MediaLibraryService {
 
         @Override
         public SessionResult onCustomCommand(MediaSession session,
-                ControllerInfo controller, SessionCommand customCommand, Bundle args) {
-            switch (customCommand.getCustomCommand()) {
+                ControllerInfo controller, SessionCommand sessionCommand, Bundle args) {
+            switch (sessionCommand.getCustomAction()) {
                 case CUSTOM_ACTION:
                     return new SessionResult(
                             RESULT_SUCCESS, CUSTOM_ACTION_EXTRAS);
