@@ -16,13 +16,11 @@
 
 package androidx.media2.test.service;
 
-import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaItem;
 import androidx.media2.MediaMetadata;
 import androidx.media2.SessionPlayer;
-import androidx.media2.VideoSize;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -60,7 +58,6 @@ public class MockPlayer extends SessionPlayer {
     public int mIndex = -1;
     public @RepeatMode int mRepeatMode = -1;
     public @ShuffleMode int mShuffleMode = -1;
-    public VideoSize mVideoSize = new VideoSize(0, 0);
 
     public boolean mSetPlaylistCalled;
     public boolean mUpdatePlaylistMetadataCalled;
@@ -498,10 +495,5 @@ public class MockPlayer extends SessionPlayer {
                 }
             });
         }
-    }
-
-    @Override
-    public @NonNull VideoSize getVideoSize() {
-        return mVideoSize;
     }
 }
