@@ -17,20 +17,11 @@
 package androidx.media2;
 
 import androidx.annotation.IntRange;
-import androidx.versionedparcelable.ParcelField;
-import androidx.versionedparcelable.VersionedParcelable;
-import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * Immutable class for describing video size.
  */
-@VersionedParcelize
-public final class VideoSize implements VersionedParcelable {
-    @ParcelField(1)
-    int mWidth;
-    @ParcelField(2)
-    int mHeight;
-
+public final class VideoSize {
     /**
      * Creates a new immutable VideoSize instance.
      *
@@ -46,12 +37,6 @@ public final class VideoSize implements VersionedParcelable {
         }
         mWidth = width;
         mHeight = height;
-    }
-
-    /**
-     * Used for VersionedParcelable
-     */
-    VideoSize() {
     }
 
     /**
@@ -110,4 +95,7 @@ public final class VideoSize implements VersionedParcelable {
         // assuming most sizes are <2^16, doing a rotate will give us perfect hashing
         return mHeight ^ ((mWidth << (Integer.SIZE / 2)) | (mWidth >>> (Integer.SIZE / 2)));
     }
+
+    private final int mWidth;
+    private final int mHeight;
 }

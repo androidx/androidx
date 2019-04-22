@@ -229,7 +229,7 @@ package androidx.media2 {
     method public androidx.media2.UriMediaItem.Builder setStartPosition(long);
   }
 
-  public final class VideoSize implements androidx.versionedparcelable.VersionedParcelable {
+  public final class VideoSize {
     ctor public VideoSize(@IntRange(from=0) int, @IntRange(from=0) int);
     method @IntRange(from=0) public int getHeight();
     method @IntRange(from=0) public int getWidth();
