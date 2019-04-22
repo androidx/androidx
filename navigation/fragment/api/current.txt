@@ -31,9 +31,10 @@ package androidx.navigation.fragment {
     ctor public NavHostFragment();
     method public static androidx.navigation.fragment.NavHostFragment create(@NavigationRes int);
     method public static androidx.navigation.fragment.NavHostFragment create(@NavigationRes int, android.os.Bundle?);
-    method protected androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> createFragmentNavigator();
+    method @Deprecated protected androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> createFragmentNavigator();
     method public static androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment);
     method public final androidx.navigation.NavController getNavController();
+    method @CallSuper protected void onCreateNavController(androidx.navigation.NavController);
   }
 
 }
