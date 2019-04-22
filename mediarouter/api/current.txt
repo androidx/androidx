@@ -235,6 +235,7 @@ package androidx.mediarouter.media {
     method public final void setCallback(androidx.mediarouter.media.MediaRouteProvider.Callback?);
     method public final void setDescriptor(androidx.mediarouter.media.MediaRouteProviderDescriptor?);
     method public final void setDiscoveryRequest(androidx.mediarouter.media.MediaRouteDiscoveryRequest!);
+    method public final void setDynamicRouteDescriptors(androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController, java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor>);
   }
 
   public abstract static class MediaRouteProvider.Callback {
@@ -249,7 +250,6 @@ package androidx.mediarouter.media {
     method public abstract void onAddMemberRoute(String);
     method public abstract void onRemoveMemberRoute(String!);
     method public abstract void onUpdateMemberRoutes(java.util.List<java.lang.String>?);
-    method public abstract void setOnDynamicRoutesChangedListener(java.util.concurrent.Executor, androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.OnDynamicRoutesChangedListener);
   }
 
   public static final class MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor {
@@ -272,10 +272,6 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder! setIsTransferable(boolean);
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder! setIsUnselectable(boolean);
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder! setSelectionState(int);
-  }
-
-  public static interface MediaRouteProvider.DynamicGroupRouteController.OnDynamicRoutesChangedListener {
-    method public void onRoutesChanged(androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController!, java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor>!);
   }
 
   public static final class MediaRouteProvider.ProviderMetadata {
