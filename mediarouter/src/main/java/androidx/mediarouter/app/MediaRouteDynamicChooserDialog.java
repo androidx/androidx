@@ -16,7 +16,7 @@
 
 package androidx.mediarouter.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -60,9 +60,9 @@ import java.util.List;
  * @see MediaRouteActionProvider
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-public class MediaRouteDevicePickerDialog extends AppCompatDialog {
-    private static final String TAG = "MediaRouteDevicePickerDialog";
+@RestrictTo(LIBRARY_GROUP)
+public class MediaRouteDynamicChooserDialog extends AppCompatDialog {
+    private static final String TAG = "MediaRouteChooserDialog";
 
     private static final int ITEM_TYPE_NONE = 0;
     private static final int ITEM_TYPE_HEADER = 1;
@@ -72,9 +72,7 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
     private static final int MSG_UPDATE_ROUTES = 1;
 
     final MediaRouter mRouter;
-    private final MediaRouteDevicePickerDialog.MediaRouterCallback mCallback;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    boolean mIsSelectingDynamicRoute;
+    private final MediaRouteDynamicChooserDialog.MediaRouterCallback mCallback;
 
     Context mContext;
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
@@ -96,17 +94,17 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
         }
     };
 
-    public MediaRouteDevicePickerDialog(Context context) {
+    public MediaRouteDynamicChooserDialog(Context context) {
         this(context, 0);
     }
 
-    public MediaRouteDevicePickerDialog(Context context, int theme) {
+    public MediaRouteDynamicChooserDialog(Context context, int theme) {
         super(context = MediaRouterThemeHelper.createThemedDialogContext(context, theme, false),
                 MediaRouterThemeHelper.createThemedDialogStyle(context));
         context = getContext();
 
         mRouter = MediaRouter.getInstance(context);
-        mCallback = new MediaRouteDevicePickerDialog.MediaRouterCallback();
+        mCallback = new MediaRouteDynamicChooserDialog.MediaRouterCallback();
         mContext = context;
         mUpdateRoutesDelayMs = context.getResources().getInteger(
                 R.integer.mr_update_routes_delay_ms);
@@ -236,7 +234,7 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
         if (mAttachedToWindow) {
             ArrayList<MediaRouter.RouteInfo> routes = new ArrayList<>(mRouter.getRoutes());
             onFilterRoutes(routes);
-            Collections.sort(routes, MediaRouteDevicePickerDialog.RouteComparator.sInstance);
+            Collections.sort(routes, MediaRouteDynamicChooserDialog.RouteComparator.sInstance);
             if (SystemClock.uptimeMillis() - mLastUpdateTime >= mUpdateRoutesDelayMs) {
                 updateRoutes(routes);
             } else {
@@ -477,9 +475,6 @@ public class MediaRouteDevicePickerDialog extends AppCompatDialog {
                 mItemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (route.isDynamicRoute()) {
-                            mIsSelectingDynamicRoute = true;
-                        }
                         route.select();
                         mImageView.setVisibility(View.INVISIBLE);
                         mProgressBar.setVisibility(View.VISIBLE);
