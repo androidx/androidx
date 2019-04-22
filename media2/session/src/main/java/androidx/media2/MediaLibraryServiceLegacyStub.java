@@ -67,9 +67,9 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         super(context, session, token);
         mLibrarySessionImpl = session;
         mControllersForAll = new ControllerInfo(new RemoteUserInfo(
-                        RemoteUserInfo.LEGACY_CONTROLLER, Process.myPid(), Process.myUid()),
+                RemoteUserInfo.LEGACY_CONTROLLER, Process.myPid(), Process.myUid()),
                 false /* trusted */,
-                new BrowserLegacyCbForAll(this));
+                new BrowserLegacyCbForAll(this), null /* connectionHints */);
     }
 
     @Override
@@ -349,7 +349,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
     ControllerInfo createControllerInfo(RemoteUserInfo remoteUserInfo) {
         return new ControllerInfo(remoteUserInfo,
                 mManager.isTrustedForMediaControl(remoteUserInfo),
-                new BrowserLegacyCb(remoteUserInfo));
+                new BrowserLegacyCb(remoteUserInfo), null /* connectionHints */);
     }
 
     ControllerInfo getControllersForAll() {

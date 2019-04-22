@@ -95,7 +95,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
             }
         });
 
-        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true);
+        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true, null);
         browser.getLibraryRoot(testParams);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
@@ -115,7 +115,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
             }
         });
 
-        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true);
+        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true, null);
         browser.getItem(testMediaId);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
@@ -137,7 +137,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
                 latch.countDown();
             }
         });
-        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true);
+        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true, null);
         browser.getChildren(testParentId, testPage, testPageSize, null);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
@@ -167,7 +167,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
                 latch.countDown();
             }
         });
-        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true);
+        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true, null);
         browser.getChildren(testParentId, testPage, testPageSize, null);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
@@ -188,7 +188,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
                 subscribeLatch.countDown();
             }
         });
-        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true);
+        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true, null);
         browser.subscribe(testParentId, testParams);
         assertTrue(subscribeLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
@@ -214,7 +214,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
             }
         });
 
-        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true);
+        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true, null);
         browser.search(testQuery, testParams);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
@@ -240,7 +240,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser extends Media
             }
         });
 
-        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true);
+        RemoteMediaBrowser browser = new RemoteMediaBrowser(mContext, mToken, true, null);
         browser.getSearchResult(testQuery, testPage, testPageSize, testParams);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }

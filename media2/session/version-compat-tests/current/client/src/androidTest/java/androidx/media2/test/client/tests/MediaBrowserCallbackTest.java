@@ -87,7 +87,8 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
 
     @Override
     MediaController onCreateController(final @NonNull SessionToken token,
-            final @Nullable TestBrowserCallback callback) throws InterruptedException {
+            final @Nullable Bundle connectionHints, final @Nullable TestBrowserCallback callback)
+            throws InterruptedException {
         assertNotNull("Test bug", token);
         final AtomicReference<MediaController> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
@@ -96,23 +97,26 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
                 // Create controller on the test handler, for changing MediaBrowserCompat's Handler
                 // Looper. Otherwise, MediaBrowserCompat will post all the commands to the handler
                 // and commands wouldn't be run if tests codes waits on the test handler.
-                controller.set(new MediaBrowser.Builder(mContext)
+                MediaBrowser.Builder builder = new MediaBrowser.Builder(mContext)
                         .setSessionToken(token)
-                        .setControllerCallback(sHandlerExecutor, callback)
-                        .build());
+                        .setControllerCallback(sHandlerExecutor, callback);
+                if (connectionHints != null) {
+                    builder.setConnectionHints(connectionHints);
+                }
+                controller.set(builder.build());
             }
         });
         return controller.get();
     }
 
     final MediaBrowser createBrowser() throws InterruptedException {
-        return createBrowser(null);
+        return createBrowser(null, null);
     }
 
-    final MediaBrowser createBrowser(@Nullable BrowserCallback callback)
-            throws InterruptedException {
+    final MediaBrowser createBrowser(@Nullable Bundle connectionHints,
+            @Nullable BrowserCallback callback) throws InterruptedException {
         final SessionToken token = new SessionToken(mContext, MOCK_MEDIA2_LIBRARY_SERVICE);
-        return (MediaBrowser) createController(token, true, callback);
+        return (MediaBrowser) createController(token, true, connectionHints, callback);
     }
 
     @Test
@@ -285,7 +289,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         };
 
         // Request the search.
-        MediaBrowser browser = createBrowser(callback);
+        MediaBrowser browser = createBrowser(null, callback);
         setExpectedLibraryParam(browser, testParams);
         LibraryResult result = browser.search(query, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
@@ -320,7 +324,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
             }
         };
 
-        MediaBrowser browser = createBrowser(callback);
+        MediaBrowser browser = createBrowser(null, callback);
         setExpectedLibraryParam(browser, testParams);
         LibraryResult result = browser.search(query, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
@@ -354,7 +358,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
             }
         };
 
-        MediaBrowser browser = createBrowser(callback);
+        MediaBrowser browser = createBrowser(null, callback);
         setExpectedLibraryParam(browser, testParams);
         LibraryResult result = browser.search(query, testParams)
                 .get(MediaBrowserConstants.SEARCH_TIME_IN_MS + TIMEOUT_MS,
@@ -380,7 +384,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
             }
         };
 
-        MediaBrowser browser = createBrowser(callback);
+        MediaBrowser browser = createBrowser(null, callback);
         setExpectedLibraryParam(browser, testParams);
         LibraryResult result = browser.search(query, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
@@ -405,7 +409,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
             }
         };
 
-        LibraryResult result = createBrowser(controllerCallbackProxy)
+        LibraryResult result = createBrowser(null, controllerCallbackProxy)
                 .subscribe(expectedParentId, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_SUCCESS, result.getResultCode());
@@ -433,7 +437,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
             }
         };
 
-        LibraryResult result = createBrowser(controllerCallbackProxy)
+        LibraryResult result = createBrowser(null, controllerCallbackProxy)
                 .subscribe(expectedParentId, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_SUCCESS, result.getResultCode());
@@ -462,7 +466,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
             }
         };
 
-        LibraryResult result = createBrowser(controllerCallbackProxy)
+        LibraryResult result = createBrowser(null, controllerCallbackProxy)
                 .subscribe(subscribedMediaId, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_SUCCESS, result.getResultCode());
@@ -491,7 +495,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
             }
         };
 
-        LibraryResult result = createBrowser(controllerCallbackProxy)
+        LibraryResult result = createBrowser(null, controllerCallbackProxy)
                 .subscribe(subscribedMediaId, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_SUCCESS, result.getResultCode());

@@ -66,10 +66,11 @@ public class RemoteMediaController {
      * Create a {@link MediaController} in the client app.
      * Should NOT be called main thread.
      *
+     * @param connectionHints connection hints
      * @param waitForConnection true if the remote controller needs to wait for the connection,
-     *                          false otherwise.
      */
-    public RemoteMediaController(Context context, SessionToken token, boolean waitForConnection) {
+    public RemoteMediaController(Context context, SessionToken token,
+            Bundle connectionHints, boolean waitForConnection) {
         mContext = context;
         mControllerId = UUID.randomUUID().toString();
         mCountDownLatch = new CountDownLatch(1);
@@ -77,7 +78,7 @@ public class RemoteMediaController {
         if (!connect()) {
             fail("Failed to connect to the MediaControllerProviderService.");
         }
-        create(token, waitForConnection);
+        create(token, connectionHints, waitForConnection);
     }
 
     public void cleanUp() {
@@ -407,13 +408,13 @@ public class RemoteMediaController {
      * Create a {@link MediaController} in the client app.
      * Should be used after successful connection through {@link #connect()}.
      *
+     * @param connectionHints connection hints
      * @param waitForConnection true if this method needs to wait for the connection,
-     *                          false otherwise.
      */
-    void create(SessionToken token, boolean waitForConnection) {
+    void create(SessionToken token, Bundle connectionHints, boolean waitForConnection) {
         try {
             mBinder.create(false /* isBrowser */, mControllerId,
-                    MediaParcelUtils.toParcelable(token), waitForConnection);
+                    MediaParcelUtils.toParcelable(token), connectionHints, waitForConnection);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to create default controller with given token.");
         }

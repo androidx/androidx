@@ -24,6 +24,7 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media2.MediaSession;
+import androidx.media2.MediaSession.ControllerInfo;
 import androidx.media2.MediaSessionService;
 import androidx.media2.test.common.TestUtils.SyncHandler;
 
@@ -178,6 +179,6 @@ public class TestServiceRegistry {
     }
 
     public interface OnGetSessionHandler {
-        MediaSession onGetSession();
+        MediaSession onGetSession(ControllerInfo controllerInfo);
     }
 }

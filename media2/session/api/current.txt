@@ -54,6 +54,7 @@ package androidx.media2 {
   public static final class MediaBrowser.Builder {
     ctor public MediaBrowser.Builder(android.content.Context);
     method public androidx.media2.MediaBrowser build();
+    method public androidx.media2.MediaBrowser.Builder setConnectionHints(android.os.Bundle);
     method public androidx.media2.MediaBrowser.Builder setControllerCallback(java.util.concurrent.Executor, androidx.media2.MediaBrowser.BrowserCallback);
     method public androidx.media2.MediaBrowser.Builder setSessionCompatToken(android.support.v4.media.session.MediaSessionCompat.Token);
     method public androidx.media2.MediaBrowser.Builder setSessionToken(androidx.media2.SessionToken);
@@ -147,7 +148,7 @@ package androidx.media2 {
 
   public abstract class MediaLibraryService extends androidx.media2.MediaSessionService {
     ctor public MediaLibraryService();
-    method public abstract androidx.media2.MediaLibraryService.MediaLibrarySession onGetPrimarySession();
+    method public abstract androidx.media2.MediaLibraryService.MediaLibrarySession? onGetSession(androidx.media2.MediaSession.ControllerInfo);
     field public static final String SERVICE_INTERFACE = "androidx.media2.MediaLibraryService";
   }
 
@@ -233,6 +234,7 @@ package androidx.media2 {
   }
 
   public static final class MediaSession.ControllerInfo {
+    method public android.os.Bundle getConnectionHints();
     method public String getPackageName();
     method public int getUid();
   }
@@ -262,7 +264,7 @@ package androidx.media2 {
     method public final void addSession(androidx.media2.MediaSession);
     method public final java.util.List<androidx.media2.MediaSession> getSessions();
     method @CallSuper public android.os.IBinder? onBind(android.content.Intent);
-    method public abstract androidx.media2.MediaSession onGetPrimarySession();
+    method public abstract androidx.media2.MediaSession? onGetSession(androidx.media2.MediaSession.ControllerInfo);
     method public androidx.media2.MediaSessionService.MediaNotification? onUpdateNotification(androidx.media2.MediaSession);
     method public final void removeSession(androidx.media2.MediaSession);
     field public static final String SERVICE_INTERFACE = "androidx.media2.MediaSessionService";

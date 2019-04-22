@@ -125,7 +125,7 @@ public class MediaSessionCompatCallbackTestWithMediaController extends MediaSess
                     }
                 });
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-        return createRemoteController(sessionToken2.get(), true);
+        return createRemoteController(sessionToken2.get(), true, null);
     }
 
     @Test

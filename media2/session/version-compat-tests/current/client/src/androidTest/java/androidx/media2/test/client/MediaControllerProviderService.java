@@ -95,7 +95,8 @@ public class MediaControllerProviderService extends Service {
     private class RemoteMediaControllerStub extends IRemoteMediaController.Stub {
         @Override
         public void create(final boolean isBrowser, final String controllerId,
-                ParcelImpl tokenParcelable, boolean waitForConnection) throws RemoteException {
+                ParcelImpl tokenParcelable, final Bundle connectionHints, boolean waitForConnection)
+                throws RemoteException {
             final SessionToken token = MediaParcelUtils.fromParcelable(tokenParcelable);
             final TestControllerCallback callback = new TestControllerCallback();
 
@@ -106,15 +107,22 @@ public class MediaControllerProviderService extends Service {
                         Context context = MediaControllerProviderService.this;
                         MediaController controller;
                         if (isBrowser) {
-                            controller = new MediaBrowser.Builder(context)
+                            MediaBrowser.Builder builder = new MediaBrowser.Builder(context)
                                     .setSessionToken(token)
-                                    .setControllerCallback(mExecutor, callback)
-                                    .build();
+                                    .setControllerCallback(mExecutor, callback);
+                            if (connectionHints != null) {
+                                builder.setConnectionHints(connectionHints);
+                            }
+                            controller = builder.build();
                         } else {
-                            controller = new MediaController.Builder(context)
+                            MediaController.Builder builder = new MediaController.Builder(context)
                                     .setSessionToken(token)
-                                    .setControllerCallback(mExecutor, callback)
-                                    .build();
+                                    .setControllerCallback(mExecutor, callback);
+                            if (connectionHints != null) {
+                                builder.setConnectionHints(connectionHints);
+                            }
+                            controller = builder.build();
+
                         }
                         mMediaControllerMap.put(controllerId, controller);
                     }
