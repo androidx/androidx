@@ -22,11 +22,14 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 import androidx.viewpager.widget.PagerAdapter;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 
 /**
@@ -65,12 +68,37 @@ import java.util.ArrayList;
  * {@sample frameworks/support/samples/Support4Demos/src/main/res/layout/fragment_pager_list.xml
  *      complete}
  */
+@SuppressWarnings("deprecation")
 public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     private static final String TAG = "FragmentStatePagerAdapt";
     private static final boolean DEBUG = false;
 
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({USE_SET_USER_VISIBLE_HINT, RESUME_ONLY_CURRENT_FRAGMENT})
+    public @interface Behavior { }
+
+    /**
+     * Indicates that {@link Fragment#setUserVisibleHint(boolean)} will be called when the current
+     * fragment changes.
+     *
+     * @deprecated This behavior relies on the deprecated
+     * {@link Fragment#setUserVisibleHint(boolean)} API. Use {@link #RESUME_ONLY_CURRENT_FRAGMENT}
+     * to switch to its replacement, {@link FragmentTransaction#setMaxLifecycle}.
+     * @see #FragmentStatePagerAdapter(FragmentManager, int)
+     */
+    @Deprecated
+    public static final int USE_SET_USER_VISIBLE_HINT = 0;
+
+    /**
+     * Indicates that only the current fragment will be in the {@link Lifecycle.State#RESUMED}
+     * state. All other Fragments are capped at {@link Lifecycle.State#STARTED}.
+     *
+     * @see #FragmentStatePagerAdapter(FragmentManager, int)
+     */
+    public static final int RESUME_ONLY_CURRENT_FRAGMENT = 1;
+
     private final FragmentManager mFragmentManager;
-    private final boolean mResumeOnlyCurrentFragment;
+    private final int mBehavior;
     private FragmentTransaction mCurTransaction = null;
 
     private ArrayList<Fragment.SavedState> mSavedState = new ArrayList<Fragment.SavedState>();
@@ -80,34 +108,37 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     /**
      * Constructor for {@link FragmentStatePagerAdapter} that sets the fragment manager for the
      * adapter. This is the equivalent of calling
-     * {@link #FragmentStatePagerAdapter(FragmentManager, boolean)} and passing in
-     * <code>false</code>.
+     * {@link #FragmentStatePagerAdapter(FragmentManager, int)} and passing in
+     * {@link #USE_SET_USER_VISIBLE_HINT}.
      *
      * <p>Fragments will have {@link Fragment#setUserVisibleHint(boolean)} called whenever the
      * current Fragment changes.</p>
      *
      * @param fm fragment manager that will interact with this adapter
+     * @deprecated use {@link #FragmentStatePagerAdapter(FragmentManager, int)} with
+     * {@link #RESUME_ONLY_CURRENT_FRAGMENT}
      */
+    @Deprecated
     public FragmentStatePagerAdapter(@NonNull FragmentManager fm) {
-        this(fm, false);
+        this(fm, USE_SET_USER_VISIBLE_HINT);
     }
 
     /**
-     * Secondary constructor for {@link FragmentStatePagerAdapter}.
+     * Constructor for {@link FragmentStatePagerAdapter}.
      *
-     * If <code>true</code> is passed in, then only the current Fragment
-     * is in the {@link Lifecycle.State#RESUMED} state, while all other fragments are capped at
-     * {@link Lifecycle.State#STARTED}. If <code>false</code> is passed, all fragments are in the
-     * {@link Lifecycle.State#RESUMED} state and there will be callbacks to
+     * If {@link #RESUME_ONLY_CURRENT_FRAGMENT} is passed in, then only the current Fragment is in
+     * the {@link Lifecycle.State#RESUMED} state, while all other fragments are capped at
+     * {@link Lifecycle.State#STARTED}. If {@link #USE_SET_USER_VISIBLE_HINT} is passed, all
+     * fragments are in the {@link Lifecycle.State#RESUMED} state and there will be callbacks to
      * {@link Fragment#setUserVisibleHint(boolean)}.
      *
      * @param fm fragment manager that will interact with this adapter
-     * @param resumeOnlyCurrentFragment determines if only current fragments are in a resumed state
+     * @param behavior determines if only current fragments are in a resumed state
      */
     public FragmentStatePagerAdapter(@NonNull FragmentManager fm,
-            boolean resumeOnlyCurrentFragment) {
+            @Behavior int behavior) {
         mFragmentManager = fm;
-        mResumeOnlyCurrentFragment = resumeOnlyCurrentFragment;
+        mBehavior = behavior;
     }
 
     /**
@@ -155,14 +186,14 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
             mFragments.add(null);
         }
         fragment.setMenuVisibility(false);
-        if (!mResumeOnlyCurrentFragment) {
+        if (mBehavior == USE_SET_USER_VISIBLE_HINT) {
             fragment.setUserVisibleHint(false);
         }
 
         mFragments.set(position, fragment);
         mCurTransaction.add(container.getId(), fragment);
 
-        if (mResumeOnlyCurrentFragment) {
+        if (mBehavior == RESUME_ONLY_CURRENT_FRAGMENT) {
             mCurTransaction.setMaxLifecycle(fragment, Lifecycle.State.STARTED);
         }
 
@@ -195,7 +226,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
         if (fragment != mCurrentPrimaryItem) {
             if (mCurrentPrimaryItem != null) {
                 mCurrentPrimaryItem.setMenuVisibility(false);
-                if (mResumeOnlyCurrentFragment) {
+                if (mBehavior == RESUME_ONLY_CURRENT_FRAGMENT) {
                     if (mCurTransaction == null) {
                         mCurTransaction = mFragmentManager.beginTransaction();
                     }
@@ -205,7 +236,7 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
                 }
             }
             fragment.setMenuVisibility(true);
-            if (mResumeOnlyCurrentFragment) {
+            if (mBehavior == RESUME_ONLY_CURRENT_FRAGMENT) {
                 if (mCurTransaction == null) {
                     mCurTransaction = mFragmentManager.beginTransaction();
                 }

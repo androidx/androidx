@@ -74,7 +74,7 @@ public class FragmentStatePagerSupport extends FragmentActivity {
 
     public static class MyAdapter extends FragmentStatePagerAdapter {
         public MyAdapter(FragmentManager fm) {
-            super(fm, true);
+            super(fm, RESUME_ONLY_CURRENT_FRAGMENT);
         }
 
         @Override
