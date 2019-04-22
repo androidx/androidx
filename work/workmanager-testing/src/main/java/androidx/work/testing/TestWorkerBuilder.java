@@ -46,20 +46,6 @@ public class TestWorkerBuilder<W extends Worker> extends TestListenableWorkerBui
     }
 
     /**
-     * Creates a new instance of a {@link TestWorkerBuilder} from a {@link WorkRequest}.
-     *
-     * @param context     The {@link Context}
-     * @param workRequest The {@link WorkRequest}
-     * @return The new instance of a {@link TestWorkerBuilder}
-     */
-    @NonNull
-    public static TestWorkerBuilder from(
-            @NonNull Context context,
-            @NonNull WorkRequest workRequest) {
-        return from(context, workRequest, null);
-    }
-
-    /**
      * Creates a new instance of a {@link TestWorkerBuilder} from a {@link WorkRequest} that runs on
      * the given {@link Executor}.
      *
@@ -72,7 +58,7 @@ public class TestWorkerBuilder<W extends Worker> extends TestListenableWorkerBui
     public static TestWorkerBuilder<? extends Worker> from(
             @NonNull Context context,
             @NonNull WorkRequest workRequest,
-            @Nullable Executor executor) {
+            @NonNull Executor executor) {
         WorkSpec workSpec = workRequest.getWorkSpec();
         String name = workSpec.workerClassName;
 
@@ -109,7 +95,7 @@ public class TestWorkerBuilder<W extends Worker> extends TestListenableWorkerBui
     public static <W extends Worker> TestWorkerBuilder<W> from(
             @NonNull Context context,
             @NonNull Class<W> workerClass,
-            @Nullable Executor executor) {
+            @NonNull Executor executor) {
         return new TestWorkerBuilder<>(context, workerClass, executor);
     }
 
