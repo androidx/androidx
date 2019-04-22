@@ -37,4 +37,7 @@
     <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"कोई मीडिया नहीं चुना गया"</string>
     <string name="mr_controller_no_info_available" msgid="7299368841849988218">"कोई जानकारी मौजूद नहीं है"</string>
     <string name="mr_controller_casting_screen" msgid="5286734709674025661">"स्क्रीन कास्ट की जा रही है"</string>
+    <string name="mr_dialog_groupable_header" msgid="470815817763403488">"कोई डिवाइस जोड़ें"</string>
+    <string name="mr_dialog_transferable_header" msgid="8242946697267839296">"समूह में खेलें"</string>
+    <string name="mr_cast_dialog_title_view_placeholder" msgid="6167045754274068030">"कोई जानकारी मौजूद नहीं है"</string>
 </resources>

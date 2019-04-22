@@ -22,7 +22,7 @@
     <string name="mr_cast_button_disconnected" msgid="5501231066847739632">"Кнопка трансляції. Від’єднано"</string>
     <string name="mr_cast_button_connecting" msgid="8959304318293841992">"Кнопка трансляції. Під’єднання"</string>
     <string name="mr_cast_button_connected" msgid="1350095112462806159">"Кнопка трансляції. Під’єднано"</string>
-    <string name="mr_chooser_title" msgid="7548226170787476564">"Транслювати на пристрій"</string>
+    <string name="mr_chooser_title" msgid="7548226170787476564">"Транслювати на…"</string>
     <string name="mr_chooser_searching" msgid="5504553798429329689">"Пошук пристроїв"</string>
     <string name="mr_controller_disconnect" msgid="1370654436555555647">"Від’єднати"</string>
     <string name="mr_controller_stop_casting" msgid="7617024847862349259">"Припинити трансляцію"</string>
@@ -37,4 +37,7 @@
     <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"Не вибрано медіа-вміст"</string>
     <string name="mr_controller_no_info_available" msgid="7299368841849988218">"Немає даних"</string>
     <string name="mr_controller_casting_screen" msgid="5286734709674025661">"Трансляція екрана"</string>
+    <string name="mr_dialog_groupable_header" msgid="470815817763403488">"Додати пристрій"</string>
+    <string name="mr_dialog_transferable_header" msgid="8242946697267839296">"Увімкнути на групі пристроїв"</string>
+    <string name="mr_cast_dialog_title_view_placeholder" msgid="6167045754274068030">"Немає інформації"</string>
 </resources>
