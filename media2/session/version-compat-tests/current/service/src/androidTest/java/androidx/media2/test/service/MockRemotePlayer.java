@@ -16,12 +16,10 @@
 
 package androidx.media2.test.service;
 
-import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaItem;
 import androidx.media2.MediaMetadata;
 import androidx.media2.RemoteSessionPlayer;
-import androidx.media2.VideoSize;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -240,11 +238,6 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
     @Override
     public int getNextMediaItemIndex() {
         return ITEM_NONE;
-    }
-
-    @Override
-    public @NonNull VideoSize getVideoSize() {
-        return new VideoSize(0, 0);
     }
 
     @Override

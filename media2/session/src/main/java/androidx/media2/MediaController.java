@@ -1063,17 +1063,6 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Gets the cached video size from the {@link ControllerCallback#onVideoSizeChanged}.
-     * If it is not connected yet, it returns {@code new VideoSize(0, 0)}.
-     *
-     * @return The video size
-     */
-    @NonNull
-    public VideoSize getVideoSize() {
-        return isConnected() ? getImpl().getVideoSize() : new VideoSize(0, 0);
-    }
-
-    /**
      * Sets the time diff forcefully when calculating current position.
      * @param timeDiff {@code null} for reset.
      *
@@ -1157,7 +1146,6 @@ public class MediaController implements AutoCloseable {
         ListenableFuture<SessionResult> setRepeatMode(@RepeatMode int repeatMode);
         @ShuffleMode int getShuffleMode();
         ListenableFuture<SessionResult> setShuffleMode(@ShuffleMode int shuffleMode);
-        @NonNull VideoSize getVideoSize();
 
         // Internally used methods
         @NonNull MediaController getInstance();
@@ -1588,16 +1576,6 @@ public class MediaController implements AutoCloseable {
          * @param controller the controller for this event
          */
         public void onPlaybackCompleted(@NonNull MediaController controller) {}
-
-        /**
-         * Called when video size is changed.
-         *
-         * @param controller the controller for this event
-         * @param item the media item for which the video size changed
-         * @param videoSize the size of video
-         */
-        public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
-                @NonNull VideoSize videoSize) {}
     }
 
     /**

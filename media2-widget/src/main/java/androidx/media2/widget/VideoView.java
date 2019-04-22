@@ -832,19 +832,18 @@ public class VideoView extends SelectiveLayout {
             new MediaPlayer.PlayerCallback() {
                 @Override
                 public void onVideoSizeChanged(
-                        @NonNull SessionPlayer player, @NonNull MediaItem item,
-                        @NonNull VideoSize size) {
+                        @NonNull MediaPlayer mp, @NonNull MediaItem dsd, @NonNull VideoSize size) {
                     if (DEBUG) {
                         Log.d(TAG, "onVideoSizeChanged(): size: " + size.getWidth() + "/"
                                 + size.getHeight());
                     }
-                    if (player != mMediaPlayer) {
+                    if (mp != mMediaPlayer) {
                         if (DEBUG) {
                             Log.w(TAG, "onVideoSizeChanged() is ignored. mp is already gone.");
                         }
                         return;
                     }
-                    if (item != mMediaItem) {
+                    if (dsd != mMediaItem) {
                         if (DEBUG) {
                             Log.w(TAG, "onVideoSizeChanged() is ignored. Media item is changed.");
                         }

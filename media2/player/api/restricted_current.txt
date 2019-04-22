@@ -395,6 +395,10 @@ package androidx.media2 {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public TimedMetaData(long, byte[]!);
   }
 
+  public final class VideoSize {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public VideoSize(int, int);
+  }
+
 }
 
 package androidx.media2.common {
