@@ -18,7 +18,11 @@ package androidx.benchmark
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnitRunner
 
 /**
@@ -64,10 +68,17 @@ import androidx.test.runner.AndroidJUnitRunner
  */
 @Suppress("unused") // Note: not referenced by code
 class AndroidBenchmarkRunner : AndroidJUnitRunner() {
+
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
 
-        if (Clocks.lockState == Clocks.LockState.SUSTAINED_PERFORMANCE_MODE) {
+        // Because these values are used by WarningState, it's important to set this flag as early
+        // as possible, before WarningState gets lazily initialized. Otherwise we may print false
+        // warnings about needing the runner, when the runner simply hasn't initialized yet.
+        runnerInUse = true
+        sustainedPerformanceModeInUse = !Clocks.areLocked && isSustainedPerformanceModeSupported()
+
+        if (sustainedPerformanceModeInUse) {
             // Keep at least one core busy. Together with a single threaded benchmark, this makes
             // the process get multi-threaded setSustainedPerformanceMode.
             //
@@ -87,8 +98,8 @@ class AndroidBenchmarkRunner : AndroidJUnitRunner() {
     override fun callActivityOnStart(activity: Activity) {
         super.callActivityOnStart(activity)
 
-        @SuppressLint("NewApi") // window API guarded by [Clocks.lockState]
-        if (Clocks.lockState == Clocks.LockState.SUSTAINED_PERFORMANCE_MODE) {
+        @SuppressLint("NewApi") // window API guarded by [sustainedPerfMode]
+        if (sustainedPerformanceModeInUse) {
             activity.window.setSustainedPerformanceMode(true)
         }
     }
@@ -116,5 +127,27 @@ class AndroidBenchmarkRunner : AndroidJUnitRunner() {
         IsolationActivity.finishSingleton()
         super.waitForActivitiesToComplete()
         super.onDestroy()
+    }
+
+    internal companion object {
+        /**
+         * Tracks whether Runner is in use.
+         */
+        var runnerInUse = false
+
+        /**
+         * Tracks whether Runner is using [android.view.Window.setSustainedPerformanceMode] to
+         * prevent thermal throttling.
+         */
+        var sustainedPerformanceModeInUse = false
+
+        fun isSustainedPerformanceModeSupported(): Boolean =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val context = InstrumentationRegistry.getInstrumentation().targetContext
+                val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+                powerManager.isSustainedPerformanceModeSupported
+            } else {
+                false
+            }
     }
 }
