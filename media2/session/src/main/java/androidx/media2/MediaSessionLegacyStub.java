@@ -702,11 +702,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onVideoSizeChanged(int seq, @NonNull MediaItem item, @NonNull VideoSize videoSize) {
-            // no-op
-        }
-
-        @Override
         public int hashCode() {
             return ObjectsCompat.hash(mRemoteUserInfo);
         }
@@ -890,11 +885,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onDisconnected(int seq) throws RemoteException {
             // no-op. Calling MediaSessionCompat#release() is already done in close().
-        }
-
-        @Override
-        void onVideoSizeChanged(int seq, @NonNull MediaItem item, @NonNull VideoSize videoSize) {
-            // no-op
         }
     }
 }

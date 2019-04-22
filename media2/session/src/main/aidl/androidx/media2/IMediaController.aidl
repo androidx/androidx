@@ -46,7 +46,6 @@ oneway interface IMediaController {
             int nextIdx) = 8;
     void onPlaybackCompleted(int seq) = 9;
     void onSeekCompleted(int seq, long eventTimeMs, long positionMs, long seekPositionMs) = 10;
-    void onVideoSizeChanged(int seq, in ParcelImpl item, in ParcelImpl videoSize) = 20;
 
     void onConnected(int seq, in ParcelImpl connectionResult) = 11;
     void onDisconnected(int seq) = 12;
@@ -65,5 +64,5 @@ oneway interface IMediaController {
             in ParcelImpl libraryParams) = 18;
     void onSearchResultChanged(int seq, String query, int itemCount,
             in ParcelImpl libraryParams) = 19;
-    // Next Id : 21
+    // Next Id : 20
 }
