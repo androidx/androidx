@@ -30,6 +30,24 @@ public final class SafeBrowsingHelpers {
             .path("/s/malware.html")
             .build()
             .toString();
+    public static final String PHISHING_URL = new Uri.Builder()
+            .scheme("http")
+            .authority(TEST_SAFE_BROWSING_DOMAIN)
+            .path("/s/phishing.html")
+            .build()
+            .toString();
+    public static final String UNWANTED_SOFTWARE_URL = new Uri.Builder()
+            .scheme("http")
+            .authority(TEST_SAFE_BROWSING_DOMAIN)
+            .path("/s/unwanted.html")
+            .build()
+            .toString();
+    public static final String BILLING_URL = new Uri.Builder()
+            .scheme("http")
+            .authority(TEST_SAFE_BROWSING_DOMAIN)
+            .path("/s/trick_to_bill.html")
+            .build()
+            .toString();
 
     // Do not instantiate this class.
     private SafeBrowsingHelpers() {}
