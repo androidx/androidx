@@ -58,7 +58,8 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
     @ParcelField(6)
     Bundle mExtras;
 
-    SessionTokenImplLegacy(MediaSessionCompat.Token token, String packageName, int uid) {
+    SessionTokenImplLegacy(MediaSessionCompat.Token token, String packageName, int uid,
+            Bundle sessionInfo) {
         if (token == null) {
             throw new NullPointerException("token shouldn't be null");
         }
@@ -73,7 +74,7 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
         mPackageName = packageName;
         mComponentName = null;
         mType = TYPE_SESSION_LEGACY;
-        mExtras = null;
+        mExtras = sessionInfo;
     }
 
     SessionTokenImplLegacy(ComponentName serviceComponent, int uid) {
