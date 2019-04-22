@@ -42,4 +42,14 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     public CaptureStageImpl getCaptureStage() {
         throw new RuntimeException("Stub, replace with implementation.");
     }
+
+    @Override
+    public ProcessorType getProcessorType() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
 }
