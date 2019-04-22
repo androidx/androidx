@@ -317,7 +317,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void attachBaseContext(Context context) {
-        applyDayNight();
+        // Activity.recreate() cannot be called before attach is complete.
+        applyDayNight(false);
         mBaseContextAttached = true;
     }
 
@@ -327,7 +328,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // Dialogs, etc
         mBaseContextAttached = true;
 
-        applyDayNight();
+        // Calling Activity.recreate() if we fail to apply the configuration during create() is
+        // likely to cause a loop, especially if the Activity is touching Resources or Assets prior
+        // to calling super.onCreate().
+        applyDayNight(false);
 
         // We lazily fetch the Window for Activities, to allow DayNight to apply in
         // attachBaseContext
@@ -2213,12 +2217,13 @@ class AppCompatDelegateImpl extends AppCompatDelegate
      * chosen {@code UI_MODE_NIGHT} value.
      *
      * @param mode The new night mode to apply
-     * @param config The configuration which triggered this update
+     * @param allowRecreation whether to attempt activity recreate
      * @return true if an action has been taken (recreation, resources updating, etc)
      */
     private boolean updateForNightMode(@ApplyableNightMode final int mode,
             final boolean allowRecreation) {
         boolean handled = false;
+        Exception exception = null;
 
         final int applicationNightMode = mContext.getApplicationContext()
                 .getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -2255,9 +2260,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 ((android.view.ContextThemeWrapper) mHost).applyOverrideConfiguration(conf);
                 handled = true;
             } catch (IllegalStateException e) {
-                // applyOverrideConfiguration throws an IllegalStateException if it's resources
+                // applyOverrideConfiguration throws an IllegalStateException if its resources
                 // have already been created. Since there's no way to check this beforehand we
-                // just have to try it and catch the exception
+                // just have to try it and catch the exception.
+                exception = e;
                 handled = false;
             }
         }
@@ -2297,6 +2303,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // or the Activity is set to handle uiMode changes
         if ((handled || activityHandlingUiMode) && mHost instanceof AppCompatActivity) {
             ((AppCompatActivity) mHost).onNightModeChanged(mode);
+        }
+
+        if (!handled && exception != null) {
+            Log.e(TAG, "updateForNightMode failed due to exception", exception);
         }
 
         return handled;
