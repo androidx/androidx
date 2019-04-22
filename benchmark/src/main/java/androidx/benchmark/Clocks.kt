@@ -16,13 +16,23 @@
 
 package androidx.benchmark
 
+import android.content.Context
+import android.os.Build
+import android.os.PowerManager
 import android.util.Log
+import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
 internal object Clocks {
     private const val TAG = "Benchmark"
 
-    val areLocked: Boolean
+    val lockState: LockState
+
+    enum class LockState {
+        LOCKED,
+        SUSTAINED_PERFORMANCE_MODE,
+        UNLOCKED
+    }
 
     /**
      * Representation of clock info in `/sys/devices/system/cpu/cpu#/`
@@ -67,13 +77,27 @@ internal object Clocks {
             )
         }
 
-        areLocked = isCpuLocked(coreDirs)
-        if (!areLocked) {
+        lockState = when {
+            isCpuLocked(coreDirs) -> LockState.LOCKED
+            isSustainedPerformanceModeSupported() -> LockState.SUSTAINED_PERFORMANCE_MODE
+            else -> LockState.UNLOCKED
+        }
+
+        if (lockState != LockState.LOCKED) {
             coreDirs.map {
                 Log.d(TAG, "$it")
             }
         }
     }
+
+    private fun isSustainedPerformanceModeSupported(): Boolean =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val context = InstrumentationRegistry.getInstrumentation().targetContext
+            val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+            powerManager.isSustainedPerformanceModeSupported
+        } else {
+            false
+        }
 
     fun isCpuLocked(coreDirs: List<CoreDir>): Boolean {
         val onlineCores = coreDirs.filter { it.online }

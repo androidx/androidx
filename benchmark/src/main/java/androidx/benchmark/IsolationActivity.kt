@@ -42,7 +42,7 @@ class IsolationActivity : android.app.Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // disable launch animation, for faster launch
+        // disable launch animation
         overridePendingTransition(0, 0)
 
         val old = singleton.getAndSet(this)
@@ -66,6 +66,8 @@ class IsolationActivity : android.app.Activity() {
     }
 
     fun actuallyFinish() {
+        // disable close animation
+        overridePendingTransition(0, 0)
         super.finish()
     }
 
@@ -76,7 +78,7 @@ class IsolationActivity : android.app.Activity() {
         @WorkerThread
         fun launchSingleton() {
             val intent = Intent(Intent.ACTION_MAIN).apply {
-                Log.d(AndroidBenchmarkRunner.TAG, "launching Benchmark IsolationActivity")
+                Log.d(TAG, "launching Benchmark IsolationActivity")
                 setClassName(
                     InstrumentationRegistry.getInstrumentation().targetContext.packageName,
                     IsolationActivity::class.java.name

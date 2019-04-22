@@ -94,14 +94,14 @@ internal object WarningState {
             """.trimMarginWrapNewlines()
         }
 
-        if (isDeviceRooted && !Clocks.areLocked) {
+        if (isDeviceRooted && Clocks.lockState != Clocks.LockState.LOCKED) {
             warningPrefix += "UNLOCKED_"
             warningString += """
-                |WARNING: Unstable CPU clocks
+                |WARNING: Unlocked CPU clocks
                 |    Benchmark appears to be running on a rooted device with unlocked CPU
                 |    clocks. Unlocked CPU clocks can lead to inconsistent results due to
-                |    dynamic frequency scaling, and thermal throttling. On a rooted
-                |    device, lock your device clocks to a stable frequency with lockClocks.sh
+                |    dynamic frequency scaling, and thermal throttling. On a rooted device,
+                |    lock your device clocks to a stable frequency with `./gradlew lockClocks`
             """.trimMarginWrapNewlines()
         }
 
