@@ -259,27 +259,6 @@ public abstract class MediaRouteProvider {
     }
 
     /**
-     * Sets the dynamic route descriptors for routes published by the provider.
-     * <p>
-     * The provider or a dynamic group controller must call this method to notify the current
-     * dynamic group state of routes.
-     * </p>
-     * @param controller The controller managing dynamic group.
-     * @param routes The dynamic route descriptors for published routes.
-     */
-    public final void setDynamicRouteDescriptors(
-            @NonNull DynamicGroupRouteController controller,
-            @NonNull Collection<DynamicGroupRouteController.DynamicRouteDescriptor> routes) {
-        if (controller == null) {
-            throw new NullPointerException("Controller shouldn't be null.");
-        }
-        if (routes == null) {
-            throw new NullPointerException("Routes shouldn't be null.");
-        }
-        controller.notifyDynamicRoutesChanged(routes);
-    }
-
-    /**
      * Called by the media router to obtain a route controller for a particular route.
      * <p>
      * The media router will invoke the {@link RouteController#onRelease} method of the route
@@ -556,9 +535,14 @@ public abstract class MediaRouteProvider {
         }
 
         /**
-         * Sets the dynamic descriptors of routes published by the provider.
+         * Sets the dynamic route descriptors for routes.
+         * <p>
+         * The dynamic group controller must call this method to notify the current
+         * dynamic group state of routes.
+         * </p>
+         * @param routes The dynamic route descriptors for published routes.
          */
-        final void notifyDynamicRoutesChanged(
+        public final void notifyDynamicRoutesChanged(
                 final Collection<DynamicRouteDescriptor> routes) {
             synchronized (mLock) {
                 if (mExecutor != null) {
