@@ -74,7 +74,7 @@ public class FragmentStatePagerSupport extends FragmentActivity {
 
     public static class MyAdapter extends FragmentStatePagerAdapter {
         public MyAdapter(FragmentManager fm) {
-            super(fm);
+            super(fm, true);
         }
 
         @Override

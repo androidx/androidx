@@ -155,14 +155,16 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
             mFragments.add(null);
         }
         fragment.setMenuVisibility(false);
-        if (mResumeOnlyCurrentFragment) {
-            mCurTransaction.setMaxLifecycle(fragment, Lifecycle.State.STARTED);
-        } else {
+        if (!mResumeOnlyCurrentFragment) {
             fragment.setUserVisibleHint(false);
         }
 
         mFragments.set(position, fragment);
         mCurTransaction.add(container.getId(), fragment);
+
+        if (mResumeOnlyCurrentFragment) {
+            mCurTransaction.setMaxLifecycle(fragment, Lifecycle.State.STARTED);
+        }
 
         return fragment;
     }
