@@ -16,16 +16,24 @@
 
 package androidx.media2.test.service.tests;
 
+import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.ComponentName;
+import android.os.Bundle;
 
+import androidx.media2.MediaController;
 import androidx.media2.MediaSession;
+import androidx.media2.MediaSession.ControllerInfo;
 import androidx.media2.MediaSessionService;
+import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionToken;
+import androidx.media2.test.common.TestUtils;
 import androidx.media2.test.service.MockMediaSessionService;
 import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaController;
@@ -64,31 +72,140 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
         TestServiceRegistry.getInstance().cleanUp();
     }
 
+
+    /**
+     * Tests whether {@link MediaSessionService#onGetSession(ControllerInfo)}
+     * is called when controller tries to connect, with the proper arguments.
+     */
     @Test
-    public void testOnGetSession() throws InterruptedException {
+    public void testOnGetSessionIsCalled() throws InterruptedException {
+        final List<ControllerInfo> controllerInfoList = new ArrayList<>();
+        final CountDownLatch latch = new CountDownLatch(1);
+        TestServiceRegistry.getInstance().setOnGetSessionHandler(
+                new TestServiceRegistry.OnGetSessionHandler() {
+                    @Override
+                    public MediaSession onGetSession(ControllerInfo controllerInfo) {
+                        controllerInfoList.add(controllerInfo);
+                        latch.countDown();
+                        return null;
+                    }
+                });
+
+        Bundle testHints = new Bundle();
+        testHints.putString("test_key", "test_value");
+        RemoteMediaController controller = createRemoteController(mToken, true, testHints);
+
+        // onGetSession() should be called.
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(CLIENT_PACKAGE_NAME, controllerInfoList.get(0).getPackageName());
+        assertTrue(TestUtils.equals(controllerInfoList.get(0).getConnectionHints(), testHints));
+    }
+
+
+    /**
+     * Tests whether the controller is connected to the session which is returned from
+     * {@link MediaSessionService#onGetSession(ControllerInfo)}.
+     * Also checks whether the connection hints are properly passed to
+     * {@link MediaSession.SessionCallback#onConnect(MediaSession, ControllerInfo)}.
+     */
+    @Test
+    public void testOnGetSession_returnsSession() throws InterruptedException {
+        final List<ControllerInfo> controllerInfoList = new ArrayList<>();
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        try (MediaSession testSession = new MediaSession.Builder(mContext, new MockPlayer(0))
+                .setId("testOnGetSession_returnsSession")
+                .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
+                    @Override
+                    public SessionCommandGroup onConnect(MediaSession session,
+                            ControllerInfo controller) {
+                        controllerInfoList.add(controller);
+                        latch.countDown();
+                        return new SessionCommandGroup.Builder().build();
+                    }
+                }).build()) {
+
+            TestServiceRegistry.getInstance().setOnGetSessionHandler(
+                    new TestServiceRegistry.OnGetSessionHandler() {
+                        @Override
+                        public MediaSession onGetSession(ControllerInfo controllerInfo) {
+                            return testSession;
+                        }
+                    });
+
+            Bundle testHints = new Bundle();
+            testHints.putString("test_key", "test_value");
+            RemoteMediaController controller = createRemoteController(mToken, true, testHints);
+
+            // MediaSession.SessionCallback#onConnect() should be called.
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            assertEquals(CLIENT_PACKAGE_NAME, controllerInfoList.get(0).getPackageName());
+            assertTrue(TestUtils.equals(controllerInfoList.get(0).getConnectionHints(), testHints));
+
+            // The controller should be connected to the right session.
+            assertNotEquals(mToken, controller.getConnectedSessionToken());
+            assertEquals(testSession.getToken(), controller.getConnectedSessionToken());
+        }
+    }
+
+    /**
+     * Tests whether {@link MediaSessionService#onGetSession(ControllerInfo)}
+     * can return different sessions for different controllers.
+     */
+    @Test
+    public void testOnGetSession_returnsDifferentSessions() {
         prepareLooper();
         final List<SessionToken> tokens = new ArrayList<>();
         TestServiceRegistry.getInstance().setOnGetSessionHandler(
                 new TestServiceRegistry.OnGetSessionHandler() {
                     @Override
-                    public MediaSession onGetSession() {
-                        MockPlayer player = new MockPlayer(1);
-                        MediaSession session = new MediaSession.Builder(mContext, player)
-                                .setSessionCallback(sHandlerExecutor,
-                                        new MediaSession.SessionCallback() {})
-                                .setId("testOnGetSession" + System.currentTimeMillis()).build();
+                    public MediaSession onGetSession(ControllerInfo controllerInfo) {
+                        MediaSession session = createMediaSession(
+                                "testOnGetSession_returnsDifferentSessions"
+                                        + System.currentTimeMillis());
                         tokens.add(session.getToken());
                         return session;
                     }
                 });
 
-        RemoteMediaController controller1 = createRemoteController(mToken, true);
-        RemoteMediaController controller2 = createRemoteController(mToken, true);
+        RemoteMediaController controller1 = createRemoteController(mToken, true, null);
+        RemoteMediaController controller2 = createRemoteController(mToken, true, null);
 
         assertNotEquals(controller1.getConnectedSessionToken(),
                 controller2.getConnectedSessionToken());
         assertEquals(tokens.get(0), controller1.getConnectedSessionToken());
         assertEquals(tokens.get(1), controller2.getConnectedSessionToken());
+    }
+
+
+    /**
+     * Tests whether {@link MediaSessionService#onGetSession(ControllerInfo)}
+     * can reject incoming connection by returning null.
+     */
+    @Test
+    public void testOnGetSession_rejectsConnection() throws InterruptedException {
+        TestServiceRegistry.getInstance().setOnGetSessionHandler(
+                new TestServiceRegistry.OnGetSessionHandler() {
+                    @Override
+                    public MediaSession onGetSession(ControllerInfo controllerInfo) {
+                        return null;
+                    }
+                });
+        final CountDownLatch latch = new CountDownLatch(1);
+        MediaController controller = new MediaController.Builder(mContext)
+                .setSessionToken(mToken)
+                .setControllerCallback(sHandlerExecutor, new MediaController.ControllerCallback() {
+                    @Override
+                    public void onDisconnected(MediaController controller) {
+                        latch.countDown();
+                    }
+                })
+                .build();
+
+        // MediaController2.ControllerCallback#onDisconnected() should be called.
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertNull(controller.getConnectedSessionToken());
+        controller.close();
     }
 
     @Test
@@ -108,8 +225,8 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
                     }
                 });
 
-        RemoteMediaController controller1 = createRemoteController(mToken, true);
-        RemoteMediaController controller2 = createRemoteController(mToken, true);
+        RemoteMediaController controller1 = createRemoteController(mToken, true, null);
+        RemoteMediaController controller2 = createRemoteController(mToken, true, null);
         controller1.close();
         controller2.close();
 
@@ -117,19 +234,14 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testAllControllersDisconnected_multipleSession() throws InterruptedException {
+    public void testAllControllersDisconnected_multipleSessions() throws InterruptedException {
         prepareLooper();
         TestServiceRegistry.getInstance().setOnGetSessionHandler(
                 new TestServiceRegistry.OnGetSessionHandler() {
                     @Override
-                    public MediaSession onGetSession() {
-                        MockPlayer player = new MockPlayer(1);
-                        MediaSession session = new MediaSession.Builder(mContext, player)
-                                .setSessionCallback(sHandlerExecutor,
-                                        new MediaSession.SessionCallback() {})
-                                .setId("testAllControllersDisconnected"
-                                        + System.currentTimeMillis()).build();
-                        return session;
+                    public MediaSession onGetSession(ControllerInfo controllerInfo) {
+                        return createMediaSession("testAllControllersDisconnected"
+                                + System.currentTimeMillis());
                     }
                 });
         final CountDownLatch latch = new CountDownLatch(1);
@@ -146,23 +258,23 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
                     }
                 });
 
-        RemoteMediaController controller1 = createRemoteController(mToken, true);
-        RemoteMediaController controller2 = createRemoteController(mToken, true);
-        controller1.close();
-        controller2.close();
+        RemoteMediaController controller1 = createRemoteController(mToken, true, null);
+        RemoteMediaController controller2 = createRemoteController(mToken, true, null);
 
+        controller1.close();
+        assertFalse(latch.await(WAIT_TIME_FOR_NO_RESPONSE_MS, TimeUnit.MILLISECONDS));
+
+        // Service should be closed only when all controllers are closed.
+        controller2.close();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
     public void testGetSessions() throws InterruptedException {
         prepareLooper();
-        RemoteMediaController controller = createRemoteController(mToken, true);
+        RemoteMediaController controller = createRemoteController(mToken, true, null);
         MediaSessionService service = TestServiceRegistry.getInstance().getServiceInstance();
-        try (MediaSession session = new MediaSession.Builder(mContext, new MockPlayer(0))
-                .setId("testGetSessions")
-                .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() { })
-                .build()) {
+        try (MediaSession session = createMediaSession("testGetSessions")) {
             service.addSession(session);
             List<MediaSession> sessions = service.getSessions();
             assertTrue(sessions.contains(session));
@@ -177,12 +289,9 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
     @Test
     public void testAddSessions_removedWhenClose() throws InterruptedException {
         prepareLooper();
-        RemoteMediaController controller = createRemoteController(mToken, true);
+        RemoteMediaController controller = createRemoteController(mToken, true, null);
         MediaSessionService service = TestServiceRegistry.getInstance().getServiceInstance();
-        try (MediaSession session = new MediaSession.Builder(mContext, new MockPlayer(0))
-                .setId("testAddSessions_removedWhenClose")
-                .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() { })
-                .build()) {
+        try (MediaSession session = createMediaSession("testAddSessions_removedWhenClose")) {
             service.addSession(session);
             List<MediaSession> sessions = service.getSessions();
             assertTrue(sessions.contains(session));
@@ -192,5 +301,12 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
             sessions = service.getSessions();
             assertFalse(sessions.contains(session));
         }
+    }
+
+    private MediaSession createMediaSession(String id) {
+        return new MediaSession.Builder(mContext, new MockPlayer(0))
+                .setId(id)
+                .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {})
+                .build();
     }
 }

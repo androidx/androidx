@@ -95,7 +95,7 @@ public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
                 service, mPlayer, sHandlerExecutor, sessionCallback)
                 .setId("testOnSubscribe")
                 .build()) {
-            RemoteMediaBrowser browser = createRemoteBrowser2(session.getToken());
+            RemoteMediaBrowser browser = createRemoteBrowser(session.getToken());
             browser.subscribe(testParentId, testParams);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
@@ -125,7 +125,7 @@ public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
                 service, mPlayer, sHandlerExecutor, sessionCallback)
                 .setId("testOnUnsubscribe")
                 .build()) {
-            RemoteMediaBrowser browser = createRemoteBrowser2(session.getToken());
+            RemoteMediaBrowser browser = createRemoteBrowser(session.getToken());
             browser.unsubscribe(testParentId);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }

@@ -178,7 +178,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
         mSession.updatePlayer(player);
 
-        final MediaController controller = createController(mSession.getToken(), true, callback);
+        final MediaController controller = createController(mSession.getToken(), true, null,
+                callback);
         PlaybackInfo info = controller.getPlaybackInfo();
         assertNotNull(info);
         assertEquals(PlaybackInfo.PLAYBACK_TYPE_LOCAL, info.getPlaybackType());
@@ -464,7 +465,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
                         .setSessionCallback(sHandlerExecutor, sessionCallback).build();
             }
         });
-        MediaController controller = createController(mSession.getToken(), false, null);
+        MediaController controller = createController(mSession.getToken(), false, null, null);
         assertNotNull(controller);
         waitForConnect(controller, false);
         waitForDisconnect(controller, true);
@@ -529,7 +530,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
                     return RESULT_SUCCESS;
                 }
             };
-            MediaController controller = createController(session.getToken(), true, callback);
+            MediaController controller = createController(session.getToken(), true, null, callback);
             session.setCustomLayout(mTestControllerInfo, customLayout);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
@@ -561,7 +562,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
             }
         };
 
-        final MediaController controller = createController(mSession.getToken(), true, callback);
+        final MediaController controller = createController(mSession.getToken(), true, null,
+                callback);
         ControllerInfo controllerInfo = getTestControllerInfo();
         assertNotNull(controllerInfo);
 
@@ -589,7 +591,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
             }
         };
         final MediaController controller =
-                createController(mSession.getToken(), true, callback);
+                createController(mSession.getToken(), true, null, callback);
         // TODO(jaewan): Test with multiple controllers
         mSession.broadcastCustomCommand(testCommand, testArgs);
 
@@ -631,7 +633,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, testSessionCallback).build()) {
             MediaController controller = createController(session.getToken(), true,
-                    testControllerCallback);
+                    null, testControllerCallback);
             assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -675,7 +677,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, testSessionCallback).build()) {
             MediaController controller = createController(session.getToken(), true,
-                    testControllerCallback);
+                    null, testControllerCallback);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }

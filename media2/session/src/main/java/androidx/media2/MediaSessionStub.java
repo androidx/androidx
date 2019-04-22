@@ -311,12 +311,12 @@ class MediaSessionStub extends IMediaSession.Stub {
     }
 
     void connect(final IMediaController caller, final String callingPackage, final int pid,
-            final int uid) {
+            final int uid, @Nullable Bundle connectionHints) {
         MediaSessionManager.RemoteUserInfo remoteUserInfo =
                 new MediaSessionManager.RemoteUserInfo(callingPackage, pid, uid);
         final ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
                 mSessionManager.isTrustedForMediaControl(remoteUserInfo),
-                new Controller2Cb(caller));
+                new Controller2Cb(caller), connectionHints);
         mSessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
@@ -430,7 +430,7 @@ class MediaSessionStub extends IMediaSession.Stub {
         // If it's the case, use PID from the ConnectionRequest.
         final int pid = (callingPid != 0) ? callingPid : request.getPid();
         try {
-            connect(caller, request.getPackageName(), pid, uid);
+            connect(caller, request.getPackageName(), pid, uid, request.getConnectionHints());
         } finally {
             Binder.restoreCallingIdentity(token);
         }

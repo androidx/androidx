@@ -94,7 +94,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new RemoteUserInfo(
                         RemoteUserInfo.LEGACY_CONTROLLER, Process.myPid(), Process.myUid()),
                 false /* trusted */,
-                new ControllerLegacyCbForAll());
+                new ControllerLegacyCbForAll(), null /* connectionHints */);
         mConnectedControllersManager = new ConnectedControllersManager<>(session);
     }
 
@@ -515,7 +515,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                     controller = new ControllerInfo(
                             remoteUserInfo,
                             mSessionManager.isTrustedForMediaControl(remoteUserInfo),
-                            new ControllerLegacyCb(remoteUserInfo));
+                            new ControllerLegacyCb(remoteUserInfo), null /* connectionHints */);
                 }
 
                 if (!mConnectedControllersManager.isConnected(controller)) {

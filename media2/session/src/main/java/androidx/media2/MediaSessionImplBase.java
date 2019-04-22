@@ -929,8 +929,9 @@ class MediaSessionImplBase implements MediaSessionImpl {
     }
 
     @Override
-    public void connectFromService(IMediaController caller, String packageName, int pid, int uid) {
-        mSessionStub.connect(caller, packageName, pid, uid);
+    public void connectFromService(IMediaController caller, String packageName, int pid, int uid,
+            @Nullable Bundle connectionHints) {
+        mSessionStub.connect(caller, packageName, pid, uid, connectionHints);
     }
 
     /**

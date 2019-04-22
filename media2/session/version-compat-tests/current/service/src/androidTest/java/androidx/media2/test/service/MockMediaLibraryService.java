@@ -137,12 +137,12 @@ public class MockMediaLibraryService extends MediaLibraryService {
     }
 
     @Override
-    public MediaLibrarySession onGetPrimarySession() {
+    public MediaLibrarySession onGetSession(ControllerInfo controllerInfo) {
         TestServiceRegistry registry = TestServiceRegistry.getInstance();
         TestServiceRegistry.OnGetSessionHandler onGetSessionHandler =
                 registry.getOnGetSessionHandler();
         if (onGetSessionHandler != null) {
-            return (MediaLibrarySession) onGetSessionHandler.onGetSession();
+            return (MediaLibrarySession) onGetSessionHandler.onGetSession(controllerInfo);
         }
 
         final MockPlayer player = new MockPlayer(1);

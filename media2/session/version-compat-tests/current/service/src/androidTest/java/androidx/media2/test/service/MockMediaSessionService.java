@@ -21,6 +21,7 @@ import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 import android.text.TextUtils;
 
 import androidx.media2.MediaSession;
+import androidx.media2.MediaSession.ControllerInfo;
 import androidx.media2.MediaSessionService;
 import androidx.media2.SessionCommandGroup;
 
@@ -46,12 +47,12 @@ public class MockMediaSessionService extends MediaSessionService {
     }
 
     @Override
-    public MediaSession onGetPrimarySession() {
+    public MediaSession onGetSession(ControllerInfo controllerInfo) {
         TestServiceRegistry registry = TestServiceRegistry.getInstance();
         TestServiceRegistry.OnGetSessionHandler onGetSessionHandler =
                 registry.getOnGetSessionHandler();
         if (onGetSessionHandler != null) {
-            return onGetSessionHandler.onGetSession();
+            return onGetSessionHandler.onGetSession(controllerInfo);
         }
 
         if (mSession2 == null) {
