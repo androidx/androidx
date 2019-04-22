@@ -330,7 +330,7 @@ public class VideoViewTest {
 
         @Override
         public boolean matches(SessionCommand command) {
-            return mExpectedCommand.equals(command.getCustomCommand());
+            return mExpectedCommand.equals(command.getCustomAction());
         }
     }
 

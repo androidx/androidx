@@ -240,7 +240,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public @Nullable SessionToken getConnectedSessionToken() {
+    public @Nullable SessionToken getConnectedToken() {
         synchronized (mLock) {
             return mConnected ? mToken : null;
         }
@@ -585,7 +585,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             }
             if (mAllowedCommands.hasCommand(command)) {
                 mControllerCompat.getTransportControls().sendCustomAction(
-                        command.getCustomCommand(), args);
+                        command.getCustomAction(), args);
                 return createFutureWithResult(RESULT_SUCCESS);
             }
             final ResolvableFuture<SessionResult> result = ResolvableFuture.create();
@@ -595,7 +595,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                     result.set(new SessionResult(resultCode, resultData));
                 }
             };
-            mControllerCompat.sendCommand(command.getCustomCommand(), args, cb);
+            mControllerCompat.sendCommand(command.getCustomAction(), args, cb);
             return result;
         }
     }
