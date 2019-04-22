@@ -1364,14 +1364,6 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onVideoSizeChanged(int seq, @NonNull MediaItem item, @NonNull VideoSize videoSize)
-                throws RemoteException {
-            ParcelImpl itemParcel = MediaParcelUtils.toParcelable(item);
-            ParcelImpl videoSizeParcel = MediaParcelUtils.toParcelable(videoSize);
-            mIControllerCallback.onVideoSizeChanged(seq, itemParcel, videoSizeParcel);
-        }
-
-        @Override
         public int hashCode() {
             return ObjectsCompat.hash(getCallbackBinder());
         }

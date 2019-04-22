@@ -72,6 +72,5 @@ class MediaInterface {
 
     // Common interface for session and controller
     interface SessionPlayer extends SessionPlaybackControl, SessionPlaylistControl {
-        VideoSize getVideoSize();
     }
 }

@@ -236,18 +236,6 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onVideoSizeChanged(int seq, final ParcelImpl item, final ParcelImpl videoSize) {
-        dispatchControllerTask(new ControllerTask() {
-            @Override
-            public void run(MediaControllerImplBase controller) {
-                MediaItem itemObj = MediaParcelUtils.fromParcelable(item);
-                VideoSize size = MediaParcelUtils.fromParcelable(videoSize);
-                controller.notifyVideoSizeChanged(itemObj, size);
-            }
-        });
-    }
-
-    @Override
     public void onConnected(int seq, ParcelImpl connectionResult) {
         if (connectionResult == null) {
             // disconnected
@@ -274,7 +262,7 @@ class MediaControllerStub extends IMediaController.Stub {
                     result.getRepeatMode(), result.getShuffleMode(), itemList,
                     result.getSessionActivity(), result.getCurrentMediaItemIndex(),
                     result.getPreviousMediaItemIndex(), result.getNextMediaItemIndex(),
-                    result.getTokenExtras(), result.getVideoSize());
+                    result.getTokenExtras());
         } finally {
             Binder.restoreCallingIdentity(token);
         }
