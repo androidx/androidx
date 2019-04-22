@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,6 +35,7 @@ import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -257,6 +259,27 @@ public abstract class MediaRouteProvider {
     }
 
     /**
+     * Sets the dynamic route descriptors for routes published by the provider.
+     * <p>
+     * The provider or a dynamic group controller must call this method to notify the current
+     * dynamic group state of routes.
+     * </p>
+     * @param controller The controller managing dynamic group.
+     * @param routes The dynamic route descriptors for published routes.
+     */
+    public final void setDynamicRouteDescriptors(
+            @NonNull DynamicGroupRouteController controller,
+            @NonNull Collection<DynamicGroupRouteController.DynamicRouteDescriptor> routes) {
+        if (controller == null) {
+            throw new NullPointerException("Controller shouldn't be null.");
+        }
+        if (routes == null) {
+            throw new NullPointerException("Routes shouldn't be null.");
+        }
+        controller.notifyDynamicRoutesChanged(routes);
+    }
+
+    /**
      * Called by the media router to obtain a route controller for a particular route.
      * <p>
      * The media router will invoke the {@link RouteController#onRelease} method of the route
@@ -457,6 +480,15 @@ public abstract class MediaRouteProvider {
      * from the group by the user dynamically.
      */
     public abstract static class DynamicGroupRouteController extends RouteController {
+        private final Object mLock = new Object();
+
+        @GuardedBy("mLock")
+        Executor mExecutor;
+        @GuardedBy("mLock")
+        OnDynamicRoutesChangedListener mListener;
+        @GuardedBy("mLock")
+        Collection<DynamicRouteDescriptor> mPendingRoutes;
+
         /**
          * Gets the title of the groupable routes section which will be shown to the user.
          * It is provided by {@link MediaRouteProvider}.
@@ -496,9 +528,52 @@ public abstract class MediaRouteProvider {
         /**
          * Called by {@link MediaRouter} to set the listener.
          */
-        public abstract void setOnDynamicRoutesChangedListener(
+        void setOnDynamicRoutesChangedListener(
                 @NonNull Executor executor,
-                @NonNull OnDynamicRoutesChangedListener listener);
+                @NonNull OnDynamicRoutesChangedListener listener) {
+            synchronized (mLock) {
+                if (executor == null) {
+                    throw new NullPointerException("Executor shouldn't be null.");
+                }
+                if (listener == null) {
+                    throw new NullPointerException("Listener shouldn't be null.");
+                }
+                mExecutor = executor;
+                mListener = listener;
+
+                if (mPendingRoutes != null && !mPendingRoutes.isEmpty()) {
+                    final Collection<DynamicRouteDescriptor> routes = mPendingRoutes;
+                    mPendingRoutes = null;
+                    mExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mListener.onRoutesChanged(DynamicGroupRouteController.this,
+                                    routes);
+                        }
+                    });
+                }
+            }
+        }
+
+        /**
+         * Sets the dynamic descriptors of routes published by the provider.
+         */
+        final void notifyDynamicRoutesChanged(
+                final Collection<DynamicRouteDescriptor> routes) {
+            synchronized (mLock) {
+                if (mExecutor != null) {
+                    mExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mListener.onRoutesChanged(
+                                    DynamicGroupRouteController.this, routes);
+                        }
+                    });
+                } else {
+                    mPendingRoutes = new ArrayList<>(routes);
+                }
+            }
+        }
 
         /**
          * Used to notify media router each route's property changes regarding this
@@ -515,7 +590,7 @@ public abstract class MediaRouteProvider {
          * </ul>
          * </p>
          */
-        public interface OnDynamicRoutesChangedListener {
+        interface OnDynamicRoutesChangedListener {
             /**
              * The provider should call this method when routes' properties change.
              * (e.g. when a route becomes ungroupable)
@@ -532,7 +607,6 @@ public abstract class MediaRouteProvider {
 
         /**
          * Contains a route, its selection state and its capabilities.
-         * This is used in {@link OnDynamicRoutesChangedListener}.
          */
         public static final class DynamicRouteDescriptor {
             static final String KEY_MEDIA_ROUTE_DESCRIPTOR = "mrDescriptor";

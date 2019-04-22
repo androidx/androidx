@@ -580,30 +580,11 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             }
         }
 
-        @Override
-        public void setOnDynamicRoutesChangedListener(
-                @NonNull Executor executor,
-                @NonNull OnDynamicRoutesChangedListener listener) {
-            mDynamicRoutesChangedListener = listener;
-            mListenerExecutor = executor;
-        }
-
         ////////////////////////////////////
         // Other methods
         void onDynamicRoutesChanged(
                 final List<DynamicRouteDescriptor> routes) {
-            if (mDynamicRoutesChangedListener == null || mListenerExecutor == null) {
-                Log.d(TAG, "No listener exists. Ignore changes: " + routes);
-                return;
-            }
-            mListenerExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    mDynamicRoutesChangedListener.onRoutesChanged(
-                            RegisteredDynamicController.this,
-                            routes);
-                }
-            });
+            notifyDynamicRoutesChanged(routes);
         }
     }
 
