@@ -24,7 +24,7 @@ import android.os.Looper;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
-import androidx.media2.SessionToken;
+import androidx.media2.session.SessionToken;
 import androidx.media2.test.common.TestUtils.SyncHandler;
 import androidx.media2.test.service.RemoteMediaBrowser;
 import androidx.media2.test.service.RemoteMediaController;

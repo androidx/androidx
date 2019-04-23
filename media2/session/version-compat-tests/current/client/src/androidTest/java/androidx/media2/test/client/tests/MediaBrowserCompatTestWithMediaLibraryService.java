@@ -52,7 +52,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SearchCallback;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 
-import androidx.media2.MediaLibraryService;
+import androidx.media2.session.MediaLibraryService;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.filters.LargeTest;
 

@@ -24,11 +24,11 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media2.MediaBrowser;
-import androidx.media2.MediaBrowser.BrowserCallback;
-import androidx.media2.MediaController;
-import androidx.media2.MediaController.ControllerCallback;
-import androidx.media2.SessionToken;
+import androidx.media2.session.MediaBrowser;
+import androidx.media2.session.MediaBrowser.BrowserCallback;
+import androidx.media2.session.MediaController;
+import androidx.media2.session.MediaController.ControllerCallback;
+import androidx.media2.session.SessionToken;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;

@@ -24,9 +24,9 @@ import static org.junit.Assert.assertTrue;
 import android.media.AudioManager;
 import android.os.Build;
 
-import androidx.media2.MediaSession;
-import androidx.media2.RemoteSessionPlayer;
-import androidx.media2.SessionCommandGroup;
+import androidx.media2.session.MediaSession;
+import androidx.media2.session.RemoteSessionPlayer;
+import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.MockRemotePlayer;
 import androidx.media2.test.service.RemoteMediaController;
@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Tests whether the methods of {@link androidx.media2.RemoteSessionPlayer} are triggered by the
+ * Tests whether the methods of {@link RemoteSessionPlayer} are triggered by the
  * controller.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)

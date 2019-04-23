@@ -16,10 +16,10 @@
 
 package androidx.media2.test.service;
 
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_SUCCESS;
+import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 
-import androidx.media2.MediaItem;
-import androidx.media2.SessionPlayer;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

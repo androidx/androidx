@@ -16,13 +16,13 @@
 
 package androidx.media2.test.service.tests;
 
-import static androidx.media2.MediaMetadata.BROWSABLE_TYPE_NONE;
-import static androidx.media2.MediaMetadata.METADATA_KEY_ALBUM_ART;
-import static androidx.media2.MediaMetadata.METADATA_KEY_ARTIST;
-import static androidx.media2.MediaMetadata.METADATA_KEY_BROWSABLE;
-import static androidx.media2.MediaMetadata.METADATA_KEY_DISPLAY_TITLE;
-import static androidx.media2.MediaMetadata.METADATA_KEY_MEDIA_ID;
-import static androidx.media2.MediaMetadata.METADATA_KEY_PLAYABLE;
+import static androidx.media2.common.MediaMetadata.BROWSABLE_TYPE_NONE;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_ALBUM_ART;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_ARTIST;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_BROWSABLE;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_DISPLAY_TITLE;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_ID;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_PLAYABLE;
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 import static androidx.media2.test.common.CommonConstants.MOCK_MEDIA2_SESSION_SERVICE;
 
@@ -31,15 +31,15 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.media2.MediaItem;
-import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
-import androidx.media2.MediaMetadata;
-import androidx.media2.MediaSession;
-import androidx.media2.MediaSession.ControllerInfo;
-import androidx.media2.MediaSessionService;
-import androidx.media2.SessionCommandGroup;
-import androidx.media2.SessionPlayer;
-import androidx.media2.SessionToken;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.SessionPlayer;
+import androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media2.session.MediaSession;
+import androidx.media2.session.MediaSession.ControllerInfo;
+import androidx.media2.session.MediaSessionService;
+import androidx.media2.session.SessionCommandGroup;
+import androidx.media2.session.SessionToken;
 import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.media2.test.service.TestServiceRegistry;

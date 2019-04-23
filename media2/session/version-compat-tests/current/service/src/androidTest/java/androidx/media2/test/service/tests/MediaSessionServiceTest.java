@@ -27,12 +27,12 @@ import static org.junit.Assert.assertTrue;
 import android.content.ComponentName;
 import android.os.Bundle;
 
-import androidx.media2.MediaController;
-import androidx.media2.MediaSession;
-import androidx.media2.MediaSession.ControllerInfo;
-import androidx.media2.MediaSessionService;
-import androidx.media2.SessionCommandGroup;
-import androidx.media2.SessionToken;
+import androidx.media2.session.MediaController;
+import androidx.media2.session.MediaSession;
+import androidx.media2.session.MediaSession.ControllerInfo;
+import androidx.media2.session.MediaSessionService;
+import androidx.media2.session.SessionCommandGroup;
+import androidx.media2.session.SessionToken;
 import androidx.media2.test.common.TestUtils;
 import androidx.media2.test.service.MockMediaSessionService;
 import androidx.media2.test.service.MockPlayer;

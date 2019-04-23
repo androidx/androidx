@@ -25,7 +25,7 @@ import android.view.Surface;
 import android.view.TextureView;
 
 import androidx.core.content.ContextCompat;
-import androidx.media2.MediaPlayer;
+import androidx.media2.player.MediaPlayer;
 
 class VideoTextureView extends TextureView
         implements VideoViewInterface, TextureView.SurfaceTextureListener {

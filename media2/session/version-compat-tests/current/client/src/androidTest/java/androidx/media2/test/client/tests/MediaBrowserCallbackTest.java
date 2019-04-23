@@ -16,8 +16,8 @@
 
 package androidx.media2.test.client.tests;
 
-import static androidx.media2.LibraryResult.RESULT_ERROR_BAD_VALUE;
-import static androidx.media2.LibraryResult.RESULT_SUCCESS;
+import static androidx.media2.session.LibraryResult.RESULT_ERROR_BAD_VALUE;
+import static androidx.media2.session.LibraryResult.RESULT_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.MOCK_MEDIA2_LIBRARY_SERVICE;
 import static androidx.media2.test.common.MediaBrowserConstants.CUSTOM_ACTION_ASSERT_PARAMS;
 import static androidx.media2.test.common.MediaBrowserConstants.LONG_LIST_COUNT;
@@ -44,16 +44,16 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media2.LibraryResult;
-import androidx.media2.MediaBrowser;
-import androidx.media2.MediaBrowser.BrowserCallback;
-import androidx.media2.MediaController;
-import androidx.media2.MediaItem;
-import androidx.media2.MediaLibraryService.LibraryParams;
-import androidx.media2.MediaMetadata;
-import androidx.media2.SessionCommand;
-import androidx.media2.SessionResult;
-import androidx.media2.SessionToken;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
+import androidx.media2.session.LibraryResult;
+import androidx.media2.session.MediaBrowser;
+import androidx.media2.session.MediaBrowser.BrowserCallback;
+import androidx.media2.session.MediaController;
+import androidx.media2.session.MediaLibraryService.LibraryParams;
+import androidx.media2.session.SessionCommand;
+import androidx.media2.session.SessionResult;
+import androidx.media2.session.SessionToken;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.common.MediaBrowserConstants;
 import androidx.media2.test.common.TestUtils;
