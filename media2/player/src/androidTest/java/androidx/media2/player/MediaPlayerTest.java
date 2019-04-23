@@ -135,8 +135,9 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
         try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
             mPlayer.setMediaItem(new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
-                    afd.getStartOffset(), afd.getLength())
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd.getStartOffset())
+                    .setFileDescriptorLength(afd.getLength())
                     .build());
         }
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
@@ -888,8 +889,9 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         MediaItem dsd1;
         try (AssetFileDescriptor afd1 = mResources.openRawResourceFd(resid1)) {
             dsd1 = new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd1.getFileDescriptor()),
-                    afd1.getStartOffset(), afd1.getLength())
+                    ParcelFileDescriptor.dup(afd1.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd1.getStartOffset())
+                    .setFileDescriptorLength(afd1.getLength())
                     .setStartPosition(start1)
                     .setEndPosition(end1)
                     .build();
@@ -901,8 +903,9 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         MediaItem dsd2;
         try (AssetFileDescriptor afd2 = mResources.openRawResourceFd(resid2)) {
             dsd2 = new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd2.getFileDescriptor()),
-                    afd2.getStartOffset(), afd2.getLength())
+                    ParcelFileDescriptor.dup(afd2.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd2.getStartOffset())
+                    .setFileDescriptorLength(afd2.getLength())
                     .setStartPosition(start2)
                     .setEndPosition(end2)
                     .build();
@@ -1613,8 +1616,10 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     private MediaItem createMediaItem(int key) throws Exception {
         try (AssetFileDescriptor afd = mResources.openRawResourceFd(R.raw.testvideo)) {
             return new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
-                    afd.getStartOffset(), afd.getLength()).build();
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd.getStartOffset())
+                    .setFileDescriptorLength(afd.getLength())
+                    .build();
         }
     }
 
