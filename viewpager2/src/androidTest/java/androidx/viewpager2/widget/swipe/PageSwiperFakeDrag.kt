@@ -32,6 +32,8 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
         // 60 fps
         private const val FRAME_LENGTH_MS = 1000L / 60
         private const val FLING_DURATION_MS = 100L
+        // VelocityTracker only considers evens in the last 100 ms
+        private const val COOL_DOWN_TIME_MS = 100L
     }
 
     private val needsRtlModifier
@@ -39,17 +41,18 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
                 ViewCompat.getLayoutDirection(viewPager) == ViewCompat.LAYOUT_DIRECTION_RTL
 
     override fun swipeNext() {
-        fakeDrag(.5f, interpolator = AccelerateInterpolator())
+        fakeDrag(.5f, FLING_DURATION_MS, interpolator = AccelerateInterpolator())
     }
 
     override fun swipePrevious() {
-        fakeDrag(-.5f, interpolator = AccelerateInterpolator())
+        fakeDrag(-.5f, FLING_DURATION_MS, interpolator = AccelerateInterpolator())
     }
 
     fun fakeDrag(
         relativeDragDistance: Float,
-        duration: Long = FLING_DURATION_MS,
-        interpolator: Interpolator = LinearInterpolator()
+        duration: Long,
+        interpolator: Interpolator = LinearInterpolator(),
+        suppressFling: Boolean = false
     ) {
         // Generate the deltas to feed to fakeDragBy()
         val rtlModifier = if (needsRtlModifier) -1 else 1
@@ -62,14 +65,54 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
         }
 
         // Send the fakeDrag events
-        var eventTime = SystemClock.uptimeMillis()
-        val delayMs = { eventTime - SystemClock.uptimeMillis() }
-        viewPager.post { viewPager.beginFakeDrag() }
-        for (delta in deltas) {
-            eventTime += FRAME_LENGTH_MS
-            viewPager.postDelayed({ viewPager.fakeDragBy(delta) }, delayMs())
+        viewPager.post {
+            viewPager.beginFakeDrag()
+            viewPager.postDelayed(FakeDragExecutor(deltas, suppressFling), FRAME_LENGTH_MS)
         }
-        eventTime++
-        viewPager.postDelayed({ viewPager.endFakeDrag() }, delayMs())
+    }
+
+    private inner class FakeDragExecutor(
+        private val deltas: List<Float>,
+        private val suppressFling: Boolean
+    ) : Runnable {
+        private var nextStep = 0
+        private val stepsLeft get() = nextStep < deltas.size
+        // If suppressFling, end with cool down period to make sure VelocityTracker has 0 velocity
+        private var coolingDown = false
+        private var coolDownStart = 0L
+
+        override fun run() {
+            if (coolingDown) {
+                doCoolDownStep()
+            } else {
+                doFakeDragStep()
+            }
+        }
+
+        private fun doFakeDragStep() {
+            viewPager.fakeDragBy(deltas[nextStep])
+            nextStep++
+
+            when {
+                stepsLeft -> viewPager.postDelayed(this, FRAME_LENGTH_MS)
+                suppressFling -> startCoolDown()
+                else -> viewPager.endFakeDrag()
+            }
+        }
+
+        private fun startCoolDown() {
+            coolingDown = true
+            coolDownStart = SystemClock.uptimeMillis()
+            viewPager.postDelayed(this, FRAME_LENGTH_MS)
+        }
+
+        private fun doCoolDownStep() {
+            viewPager.fakeDragBy(0f)
+            if (SystemClock.uptimeMillis() <= coolDownStart + COOL_DOWN_TIME_MS) {
+                viewPager.postDelayed(this, FRAME_LENGTH_MS)
+            } else {
+                viewPager.endFakeDrag()
+            }
+        }
     }
 }
