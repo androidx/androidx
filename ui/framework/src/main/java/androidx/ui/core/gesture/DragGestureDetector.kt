@@ -37,6 +37,7 @@ import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
+import com.google.r4a.unaryPlus
 
 interface DragObserver {
 
@@ -115,14 +116,12 @@ class DragGestureDetector(
         }
 
     override fun compose() {
-        <DensityAmbient.Consumer> density ->
-            withDensity(density) @Composable {
-                recognizer.touchSlop = TouchSlop.toIntPx()
-                <PointerInput pointerInputHandler=recognizer.pointerInputHandler>
-                    <children />
-                </PointerInput>
-            }
-        </DensityAmbient.Consumer>
+        +withDensity @Composable {
+            recognizer.touchSlop = TouchSlop.toIntPx()
+            <PointerInput pointerInputHandler=recognizer.pointerInputHandler>
+                <children />
+            </PointerInput>
+        }
     }
 }
 
