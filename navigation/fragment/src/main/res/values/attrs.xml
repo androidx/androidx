@@ -18,6 +18,9 @@
     <declare-styleable name="FragmentNavigator">
         <attr name="android:name" />
     </declare-styleable>
+    <declare-styleable name="DialogFragmentNavigator">
+        <attr name="android:name" />
+    </declare-styleable>
 
     <declare-styleable name="NavHostFragment">
         <attr name="navGraph" format="reference" />
