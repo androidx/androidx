@@ -16,6 +16,9 @@
 
 package androidx.benchmark
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.os.Bundle
 import androidx.test.runner.AndroidJUnitRunner
 
 /**
@@ -31,10 +34,64 @@ import androidx.test.runner.AndroidJUnitRunner
  *     }
  * }
  * ```
+ *
+ * ## Minimizing Interference
+ *
+ * This runner launches a simple opaque activity used to reduce benchmark interference from other
+ * windows. Launching other activities is supported e.g. via ActivityTestRule and ActivityScenario -
+ * the opaque activity will be relaunched if not actively running before each test, and after each
+ * test's cleanup is complete.
+ *
+ * For example, sources of potential interference:
+ * - live wallpaper rendering
+ * - homescreen widget updates
+ * - hotword detection
+ * - status bar repaints
+ * - running in background (some cores may be foreground-app only)
+ *
+ * ## Clock Stability
+ *
+ * While it is better for performance stability to lock clocks with the `./gradlew lockClocks` task
+ * provided by the gradle plugin, this is not possible on most devices. The runner provides a
+ * fallback mode for preventing thermal throttling.
+ *
+ * On devices that support [android.view.Window.setSustainedPerformanceMode], the runner will set
+ * this mode on the window of every Activity launched (including the opaque Activity mentioned
+ * above). The runner will also launch a continuously spinning Thread. Together, these ensure that
+ * the app runs in the multithreaded stable performance mode, which locks the maximum clock
+ * frequency to prevent thermal throttling. This ensures stable clock levels across all benchmarks,
+ * even if a continuous suite of benchmarks runs for many minutes on end.
  */
 @Suppress("unused") // Note: not referenced by code
 class AndroidBenchmarkRunner : AndroidJUnitRunner() {
-    private var firstWaitForActivities = false
+    override fun onCreate(arguments: Bundle?) {
+        super.onCreate(arguments)
+
+        if (Clocks.lockState == Clocks.LockState.SUSTAINED_PERFORMANCE_MODE) {
+            // Keep at least one core busy. Together with a single threaded benchmark, this makes
+            // the process get multi-threaded setSustainedPerformanceMode.
+            //
+            // We want to keep to the relatively lower clocks of the multi-threaded benchmark mode
+            // to avoid any benchmarks running at higher clocks than any others.
+            //
+            // Note, thread names have 15 char max in Systrace
+            object : Thread("BenchSpinThread") {
+                override fun run() {
+                    android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_LOWEST)
+                    while (true) {}
+                }
+            }.start()
+        }
+    }
+
+    override fun callActivityOnStart(activity: Activity) {
+        super.callActivityOnStart(activity)
+
+        @SuppressLint("NewApi") // window API guarded by [Clocks.lockState]
+        if (Clocks.lockState == Clocks.LockState.SUSTAINED_PERFORMANCE_MODE) {
+            activity.window.setSustainedPerformanceMode(true)
+        }
+    }
 
     override fun waitForActivitiesToComplete() {
         // We don't call the super method here, since we have
@@ -59,12 +116,5 @@ class AndroidBenchmarkRunner : AndroidJUnitRunner() {
         IsolationActivity.finishSingleton()
         super.waitForActivitiesToComplete()
         super.onDestroy()
-    }
-
-    /**
-     * @hide
-     */
-    companion object {
-        internal val TAG = "Benchmark"
     }
 }
