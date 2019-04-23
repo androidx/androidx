@@ -28,10 +28,26 @@ import java.util.List;
 import java.util.Map;
 
 /** A CameraDeviceSurfaceManager which has no supported SurfaceConfigs. */
-public class FakeCameraDeviceSurfaceManager implements CameraDeviceSurfaceManager {
+public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurfaceManager {
 
-    private static final Size MAX_OUTPUT_SIZE = new Size(0, 0);
+    private static final Size MAX_OUTPUT_SIZE = new Size(4032, 3024); // 12.2 MP
     private static final Size PREVIEW_SIZE = new Size(1920, 1080);
+
+    private Map<String, Map<Class<? extends UseCase>, Size>> mDefinedResolutions = new HashMap<>();
+
+    /**
+     * Sets the given suggested resolutions for the specified camera Id and use case type.
+     */
+    public void setSuggestedResolution(String cameraId, Class<? extends UseCase> type, Size size) {
+        Map<Class<? extends UseCase>, Size> useCaseTypeToSizeMap =
+                mDefinedResolutions.get(cameraId);
+        if (useCaseTypeToSizeMap == null) {
+            useCaseTypeToSizeMap = new HashMap<>();
+            mDefinedResolutions.put(cameraId, useCaseTypeToSizeMap);
+        }
+
+        useCaseTypeToSizeMap.put(type, size);
+    }
 
     @Override
     public boolean checkSupported(String cameraId, List<SurfaceConfig> surfaceConfigList) {
@@ -54,7 +70,17 @@ public class FakeCameraDeviceSurfaceManager implements CameraDeviceSurfaceManage
             String cameraId, List<UseCase> originalUseCases, List<UseCase> newUseCases) {
         Map<UseCase, Size> suggestedSizes = new HashMap<>();
         for (UseCase useCase : newUseCases) {
-            suggestedSizes.put(useCase, MAX_OUTPUT_SIZE);
+            Size resolution = MAX_OUTPUT_SIZE;
+            Map<Class<? extends UseCase>, Size> definedResolutions =
+                    mDefinedResolutions.get(cameraId);
+            if (definedResolutions != null) {
+                Size definedResolution = definedResolutions.get(useCase.getClass());
+                if (definedResolution != null) {
+                    resolution = definedResolution;
+                }
+            }
+
+            suggestedSizes.put(useCase, resolution);
         }
 
         return suggestedSizes;

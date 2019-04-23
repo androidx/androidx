@@ -20,6 +20,7 @@ import android.view.Surface;
 
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 
@@ -28,7 +29,7 @@ import androidx.camera.core.ImageOutputConfig.RotationValue;
  *
  * <p>This camera info can be constructed with fake values.
  */
-public class FakeCameraInfo implements CameraInfo {
+public final class FakeCameraInfo implements CameraInfo {
 
     private final int mSensorRotation;
     private final LensFacing mLensFacing;
@@ -50,7 +51,16 @@ public class FakeCameraInfo implements CameraInfo {
 
     @Override
     public int getSensorRotationDegrees(@RotationValue int relativeRotation) {
-        return mSensorRotation;
+        int relativeRotationDegrees =
+                CameraOrientationUtil.surfaceRotationToDegrees(relativeRotation);
+        // Currently this assumes that a back-facing camera is always opposite to the screen.
+        // This may not be the case for all devices, so in the future we may need to handle that
+        // scenario.
+        boolean isOppositeFacingScreen = LensFacing.BACK.equals(getLensFacing());
+        return CameraOrientationUtil.getRelativeImageRotation(
+                relativeRotationDegrees,
+                mSensorRotation,
+                isOppositeFacingScreen);
     }
 
     @Override
