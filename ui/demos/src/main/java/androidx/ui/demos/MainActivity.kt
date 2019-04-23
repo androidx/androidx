@@ -59,6 +59,7 @@ class MainActivity : ListActivity() {
         val entries = HashMap<String, Boolean>()
         val mainIntent = Intent(Intent.ACTION_MAIN, null).apply {
             addCategory("androidx.ui.demos.SAMPLE_CODE")
+            setPackage(applicationContext.packageName)
         }
         val myData = ArrayList<Map<String, Any>>()
         val list = pm.queryIntentActivities(mainIntent, 0) ?: return myData
