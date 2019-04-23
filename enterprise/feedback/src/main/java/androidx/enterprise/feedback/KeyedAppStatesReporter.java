@@ -73,28 +73,28 @@ public class KeyedAppStatesReporter {
     /**
      * The name for the keyed app state key for a given bundle in {@link #APP_STATES}.
      *
-     * @see KeyedAppState#key()
+     * @see KeyedAppState#getKey()
      */
     static final String APP_STATE_KEY = "androidx.enterprise.feedback.APP_STATE_KEY";
 
     /**
      * The name for the severity of the app state.
      *
-     * @see KeyedAppState#severity()
+     * @see KeyedAppState#getSeverity()
      */
     static final String APP_STATE_SEVERITY = "androidx.enterprise.feedback.APP_STATE_SEVERITY";
 
     /**
      * The name for the optional app state message for a given bundle in {@link #APP_STATES}.
      *
-     * @see KeyedAppState#message()
+     * @see KeyedAppState#getMessage()
      */
     static final String APP_STATE_MESSAGE = "androidx.enterprise.feedback.APP_STATE_MESSAGE";
 
     /**
      * The name for the optional app state data for a given bundle in {@link #APP_STATES}.
      *
-     * @see KeyedAppState#data()
+     * @see KeyedAppState#getData()
      */
     static final String APP_STATE_DATA = "androidx.enterprise.feedback.APP_STATE_DATA";
 
@@ -182,14 +182,12 @@ public class KeyedAppStatesReporter {
 
     /**
      * Set app states to be sent to an EMM (enterprise mobility management). The EMM can then
-     * display
-     * this information to the management organization.
+     * display this information to the management organization.
      *
      * <p>Do not send personally-identifiable information with this method.
      *
      * <p>Each provided keyed app state will replace any previously set keyed app states with the
-     * same
-     * key for this package name.
+     * same key for this package name.
      *
      * <p>If multiple keyed app states are set with the same key, only one will be received by the
      * EMM. Which will be received is not defined.
@@ -201,7 +199,7 @@ public class KeyedAppStatesReporter {
      * <p>EMMs can access these states either directly in a custom DPC (device policy manager), via
      * Android Management APIs, or via Play EMM APIs.
      *
-     * @see #setStatesImmediate(Collection) to request that states are uploaded immediately
+     * @see #setStatesImmediate(Collection)
      */
     public void setStates(@NonNull Collection<KeyedAppState> states) {
         setStates(states, false);
@@ -224,12 +222,12 @@ public class KeyedAppStatesReporter {
     }
 
     /**
-     * Performs the same function as {@link #setStates(Collection)}, except it also
-     * requests
-     * that the states are immediately uploaded to be accessible via server APIs.
+     * Performs the same function as {@link #setStates(Collection)}, except it
+     * also requests that the states are immediately uploaded to be accessible
+     * via server APIs.
      *
-     * <p>The receiver is not obligated to meet this immediate upload request. For example, Play and
-     * Android Management APIs have daily quotas.
+     * <p>The receiver is not obligated to meet this immediate upload request.
+     * For example, Play and Android Management APIs have daily quotas.
      */
     public void setStatesImmediate(@NonNull Collection<KeyedAppState> states) {
         setStates(states, true);
