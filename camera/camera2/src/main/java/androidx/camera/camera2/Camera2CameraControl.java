@@ -39,7 +39,10 @@ import androidx.camera.core.FlashMode;
 import androidx.camera.core.OnFocusListener;
 import androidx.camera.core.SessionConfig;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -241,7 +244,7 @@ public final class Camera2CameraControl implements CameraControl {
         configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
                 CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
         singleRequestBuilder.addImplementationOptions(configBuilder.build());
-        notifySingleRequest(singleRequestBuilder.build());
+        notifyCaptureRequests(Collections.singletonList(singleRequestBuilder.build()));
 
         mIsFocusLocked = false;
         updateSessionConfig();
@@ -288,7 +291,7 @@ public final class Camera2CameraControl implements CameraControl {
             configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
                     CaptureRequest.CONTROL_AE_MODE_ON);
             singleRequestBuilder.addImplementationOptions(configBuilder.build());
-            notifySingleRequest(singleRequestBuilder.build());
+            notifyCaptureRequests(Collections.singletonList(singleRequestBuilder.build()));
         }
         updateSessionConfig();
     }
@@ -326,7 +329,7 @@ public final class Camera2CameraControl implements CameraControl {
         configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
                 CaptureRequest.CONTROL_AF_TRIGGER_START);
         builder.addImplementationOptions(configBuilder.build());
-        notifySingleRequest(builder.build());
+        notifyCaptureRequests(Collections.singletonList(builder.build()));
     }
 
     /**
@@ -352,7 +355,7 @@ public final class Camera2CameraControl implements CameraControl {
         configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
         builder.addImplementationOptions(configBuilder.build());
-        notifySingleRequest(builder.build());
+        notifyCaptureRequests(Collections.singletonList(builder.build()));
     }
 
     /**
@@ -387,24 +390,24 @@ public final class Camera2CameraControl implements CameraControl {
                     CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);
         }
         builder.addImplementationOptions(configBuilder.build());
-        notifySingleRequest(builder.build());
+        notifyCaptureRequests(Collections.singletonList(builder.build()));
     }
 
     private int getDefaultTemplate() {
         return CameraDevice.TEMPLATE_PREVIEW;
     }
 
-    void notifySingleRequest(final CaptureConfig captureConfig) {
+    void notifyCaptureRequests(final List<CaptureConfig> captureConfigs) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera2CameraControl.this.notifySingleRequest(captureConfig);
+                    Camera2CameraControl.this.notifyCaptureRequests(captureConfigs);
                 }
             });
             return;
         }
-        mControlUpdateListener.onCameraControlSingleRequest(captureConfig);
+        mControlUpdateListener.onCameraControlCaptureRequests(captureConfigs);
     }
 
     void updateSessionConfig() {
@@ -423,21 +426,25 @@ public final class Camera2CameraControl implements CameraControl {
 
     /** {@inheritDoc} */
     @Override
-    public void submitSingleRequest(final CaptureConfig captureConfig) {
+    public void submitCaptureRequests(final List<CaptureConfig> captureConfigs) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Camera2CameraControl.this.submitSingleRequest(captureConfig);
+                    Camera2CameraControl.this.submitCaptureRequests(captureConfigs);
                 }
             });
             return;
         }
 
-        CaptureConfig.Builder builder = CaptureConfig.Builder.from(captureConfig);
-        // Always override options by shared options for the single request from outside.
-        builder.addImplementationOptions(getSharedOptions());
-        notifySingleRequest(builder.build());
+        List<CaptureConfig> captureConfigsWithImpl = new ArrayList<>();
+        for (CaptureConfig captureConfig : captureConfigs) {
+            CaptureConfig.Builder builder = CaptureConfig.Builder.from(captureConfig);
+            // Always override options by shared options for the capture request from outside.
+            builder.addImplementationOptions(getSharedOptions());
+            captureConfigsWithImpl.add(builder.build());
+        }
+        notifyCaptureRequests(captureConfigsWithImpl);
     }
 
     /**

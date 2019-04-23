@@ -23,6 +23,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
+import java.util.List;
+
 /**
  * The CameraControl Interface.
  *
@@ -105,11 +107,11 @@ public interface CameraControl {
     void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger);
 
     /**
-     * Performs a single capture request.
+     * Performs capture requests.
      *
-     * @param captureConfig
+     * @param captureConfigs
      */
-    void submitSingleRequest(CaptureConfig captureConfig);
+    void submitCaptureRequests(List<CaptureConfig> captureConfigs);
 
     CameraControl DEFAULT_EMPTY_INSTANCE = new CameraControl() {
         @Override
@@ -162,7 +164,7 @@ public interface CameraControl {
         }
 
         @Override
-        public void submitSingleRequest(CaptureConfig captureConfig) {
+        public void submitCaptureRequests(List<CaptureConfig> captureConfigs) {
         }
     };
 
@@ -172,7 +174,7 @@ public interface CameraControl {
         /** Called when CameraControl has updated session configuration. */
         void onCameraControlUpdateSessionConfig(SessionConfig sessionConfig);
 
-        /** Called when CameraControl need to send single request. */
-        void onCameraControlSingleRequest(CaptureConfig captureConfig);
+        /** Called when CameraControl need to send capture requests. */
+        void onCameraControlCaptureRequests(List<CaptureConfig> captureConfigs);
     }
 }
