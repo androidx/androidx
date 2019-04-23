@@ -16,7 +16,6 @@ android {
 
 dependencies {
     api(project(":annotation"))
-    api(project(":arch:core-common"))
     api(project(":core")) {
         exclude group: 'androidx.annotation'
         exclude group: 'com.google.guava', module: 'listenablefuture'
