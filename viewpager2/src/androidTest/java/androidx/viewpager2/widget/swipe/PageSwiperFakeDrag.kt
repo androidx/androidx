@@ -26,21 +26,13 @@ import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-class PageSwiperFakeDrag(private val viewPager: ViewPager2) : PageSwiper {
+class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize: () -> Int) :
+    PageSwiper {
     companion object {
         // 60 fps
         private const val FRAME_LENGTH_MS = 1000L / 60
         private const val FLING_DURATION_MS = 100L
     }
-
-    private val ViewPager2.pageSize: Int
-        get() {
-            return if (orientation == ORIENTATION_HORIZONTAL) {
-                measuredWidth - paddingLeft - paddingRight
-            } else {
-                measuredHeight - paddingTop - paddingBottom
-            }
-        }
 
     private val needsRtlModifier
         get() = viewPager.orientation == ORIENTATION_HORIZONTAL &&
@@ -62,7 +54,7 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2) : PageSwiper {
         // Generate the deltas to feed to fakeDragBy()
         val rtlModifier = if (needsRtlModifier) -1 else 1
         val steps = max(1, (duration / FRAME_LENGTH_MS.toFloat()).roundToInt())
-        val distancePx = viewPager.pageSize * -relativeDragDistance * rtlModifier
+        val distancePx = pageSize() * -relativeDragDistance * rtlModifier
         val deltas = List(steps) { i ->
             val currDistance = interpolator.getInterpolation((i + 1f) / steps) * distancePx
             val prevDistance = interpolator.getInterpolation((i + 0f) / steps) * distancePx
