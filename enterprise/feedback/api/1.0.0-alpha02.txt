@@ -25,8 +25,8 @@ package androidx.enterprise.feedback {
   public class KeyedAppStatesReporter {
     method public static androidx.enterprise.feedback.KeyedAppStatesReporter getInstance(android.content.Context);
     method public static void initialize(android.content.Context, java.util.concurrent.Executor);
-    method public void set(java.util.Collection<androidx.enterprise.feedback.KeyedAppState>);
-    method public void setImmediate(java.util.Collection<androidx.enterprise.feedback.KeyedAppState>);
+    method public void setStates(java.util.Collection<androidx.enterprise.feedback.KeyedAppState>);
+    method public void setStatesImmediate(java.util.Collection<androidx.enterprise.feedback.KeyedAppState>);
     field public static final String ACTION_APP_STATES = "androidx.enterprise.feedback.action.APP_STATES";
   }
 
