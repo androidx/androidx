@@ -172,7 +172,7 @@ public abstract class KeyedAppStatesService extends Service {
                 Collection<ReceivedKeyedAppState> keyedAppStates) {
             Map<String, ReceivedKeyedAppState> mappedStates = new HashMap<>();
             for (ReceivedKeyedAppState state : keyedAppStates) {
-                mappedStates.put(state.key(), state);
+                mappedStates.put(state.getKey(), state);
             }
 
             return mappedStates.values();
@@ -190,9 +190,8 @@ public abstract class KeyedAppStatesService extends Service {
      * Called when an app sends states. States are key/value, so new values should replace existing
      * ones for the same key.
      *
-     * @param states      The states sent by an app. Every state will have the same {@link
-     *                    ReceivedKeyedAppState#packageName()} and
-     *                    {@link ReceivedKeyedAppState#timestamp()}.
+     * @param states      The states sent by an app. Every state will have the same packageName
+     *                    and timestamp.
      * @param requestSync {@code true} if the app requests an immediate upload for access by server
      *                    APIs. This immediate upload request does not have to be respected if a
      *                    quota that you have defined has been exceeded.
