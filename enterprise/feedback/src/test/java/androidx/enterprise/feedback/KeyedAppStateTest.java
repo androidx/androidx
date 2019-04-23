@@ -173,10 +173,10 @@ public class KeyedAppStateTest {
 
         KeyedAppState keyedAppState = KeyedAppState.fromBundle(bundle);
 
-        assertThat(keyedAppState.key()).isEqualTo(KEY);
-        assertThat(keyedAppState.message()).isEqualTo(MESSAGE);
-        assertThat(keyedAppState.severity()).isEqualTo(SEVERITY);
-        assertThat(keyedAppState.data()).isEqualTo(DATA);
+        assertThat(keyedAppState.getKey()).isEqualTo(KEY);
+        assertThat(keyedAppState.getMessage()).isEqualTo(MESSAGE);
+        assertThat(keyedAppState.getSeverity()).isEqualTo(SEVERITY);
+        assertThat(keyedAppState.getData()).isEqualTo(DATA);
     }
 
     @Test
@@ -196,7 +196,7 @@ public class KeyedAppStateTest {
     public void severityDefaultsToInfo() {
         KeyedAppState keyedAppState = KeyedAppState.builder().setKey(KEY).build();
 
-        assertThat(keyedAppState.severity()).isEqualTo(SEVERITY_INFO);
+        assertThat(keyedAppState.getSeverity()).isEqualTo(SEVERITY_INFO);
     }
 
     @Test
@@ -204,7 +204,7 @@ public class KeyedAppStateTest {
     public void messageDefaultsToNull() {
         KeyedAppState keyedAppState = KeyedAppState.builder().setKey(KEY).build();
 
-        assertThat(keyedAppState.message()).isNull();
+        assertThat(keyedAppState.getMessage()).isNull();
     }
 
     @Test
@@ -212,7 +212,7 @@ public class KeyedAppStateTest {
     public void dataDefaultsToNull() {
         KeyedAppState keyedAppState = KeyedAppState.builder().setKey(KEY).build();
 
-        assertThat(keyedAppState.data()).isNull();
+        assertThat(keyedAppState.getData()).isNull();
     }
 
     @Test
