@@ -2489,6 +2489,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             dispatcher.addCallback(owner, new OnBackPressedCallback(true) {
                 @Override
                 public boolean isEnabled() {
+                    // First, execute any pending actions to make sure we're in an
+                    // up to date view of the world
+                    execPendingActions();
                     // This FragmentManager needs to have a back stack for this to be enabled
                     // and the parent fragment, if it exists, needs to be the primary navigation
                     // fragment.
