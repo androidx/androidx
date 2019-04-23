@@ -17,6 +17,7 @@
 package androidx.viewpager2.widget
 
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.testutils.FragmentActivityUtils.waitForCycles
@@ -39,6 +40,7 @@ import kotlin.math.roundToInt
 /**
  * Tests what happens when a smooth scroll is interrupted by a drag
  */
+@FlakyTest(bugId = 131158288)
 @RunWith(Parameterized::class)
 @LargeTest
 class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
