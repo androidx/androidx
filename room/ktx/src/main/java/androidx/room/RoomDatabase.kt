@@ -17,10 +17,8 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asContextElement
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -43,7 +41,7 @@ import kotlin.coroutines.resume
  *
  * The dispatcher used to execute the given [block] will utilize threads from Room's query executor.
  */
-suspend fun <R> RoomDatabase.withTransaction(block: suspend CoroutineScope.() -> R): R {
+suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R {
     // Use inherited transaction context if available, this allows nested suspending transactions.
     val transactionContext =
         coroutineContext[TransactionElement]?.transactionDispatcher ?: createTransactionContext()
@@ -54,10 +52,7 @@ suspend fun <R> RoomDatabase.withTransaction(block: suspend CoroutineScope.() ->
             @Suppress("DEPRECATION")
             beginTransaction()
             try {
-                // Wrap suspending block in a new scope to wait for any child coroutine.
-                val result = coroutineScope {
-                    block.invoke(this)
-                }
+                val result = block.invoke()
                 @Suppress("DEPRECATION")
                 setTransactionSuccessful()
                 return@withContext result
