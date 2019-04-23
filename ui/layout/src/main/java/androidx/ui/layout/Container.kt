@@ -18,11 +18,19 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
-import androidx.ui.core.withDensity
+import androidx.ui.core.IntPx
+import androidx.ui.core.IntPxSize
+import androidx.ui.core.Layout
+import androidx.ui.core.coerceAtLeast
+import androidx.ui.core.dp
+import androidx.ui.core.enforce
+import androidx.ui.core.ipx
+import androidx.ui.core.isFinite
+import androidx.ui.core.max
+import androidx.ui.core.withTight
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
-import com.google.r4a.unaryPlus
 
 /**
  * A convenience widget that combines common layout and painting widgets for one child:
@@ -47,56 +55,63 @@ import com.google.r4a.unaryPlus
 @Suppress("FunctionName")
 @Composable
 fun Container(
-    padding: EdgeInsets? = null,
+    padding: EdgeInsets = EdgeInsets(0.dp),
     alignment: Alignment = Alignment.Center,
     expanded: Boolean = false,
-    constraints: DpConstraints? = null,
+    constraints: DpConstraints = DpConstraints(),
     width: Dp? = null,
     height: Dp? = null,
     @Children() children: @Composable() () -> Unit = {}
 ) {
-    var container = children
-
-    if (padding != null) {
-        val childContainer = container
-        container = @Composable {
-            <Padding padding>
-                <childContainer />
-            </Padding>
-        }
-    }
-
-    run {
-        // Center child in Container.
-        val childContainer = container
-        container = if (!expanded) {
-            @Composable {
-                <Wrap alignment>
-                    <childContainer />
-                </Wrap>
+    <Layout children> measurables, incomingConstraints ->
+        val containerConstraints = Constraints(constraints)
+            .withTight(width?.toIntPx(), height?.toIntPx())
+            .enforce(incomingConstraints)
+        val childConstraints = containerConstraints
+            .loose() // No min constraints.
+            .let { // Reserve space for padding.
+                it.offset(-padding.horizontal.toIntPx(), -padding.vertical.toIntPx())
             }
+        val placeable = with(measurables.firstOrNull()) { this?.measure(childConstraints) }
+        val containerWidth = if (!expanded || !containerConstraints.maxWidth.isFinite()) {
+            max(
+                (placeable?.width ?: 0.ipx) + padding.horizontal.toIntPx(),
+                containerConstraints.minWidth
+            )
         } else {
-            @Composable {
-                <Align alignment>
-                    <childContainer />
-                </Align>
+            containerConstraints.maxWidth
+        }
+        val containerHeight = if (!expanded || !containerConstraints.maxHeight.isFinite()) {
+            max(
+                (placeable?.height ?: 0.ipx) + padding.horizontal.toIntPx(),
+                containerConstraints.minHeight
+            )
+        } else {
+            containerConstraints.maxHeight
+        }
+        layout(containerWidth, containerHeight) {
+            if (placeable != null) {
+                val position = alignment.align(
+                    IntPxSize(
+                        containerWidth - placeable.width - padding.horizontal.toIntPx(),
+                        containerHeight - placeable.height - padding.vertical.toIntPx()
+                    )
+                )
+                placeable.place(
+                    padding.left.toIntPx() + position.x,
+                    padding.top.toIntPx() + position.y
+                )
             }
         }
-    }
-
-    if (constraints != null || width != null || height != null) {
-        val containerConstraints = +withDensity {
-            (constraints ?: DpConstraints()).withTight(width, height)
-        }
-        val childContainer = container
-        container = @Composable {
-            +withDensity @Composable {
-                <ConstrainedBox constraints=containerConstraints>
-                    <childContainer />
-                </ConstrainedBox>
-            }
-        }
-    }
-
-    <container />
+    </Layout>
 }
+
+private fun Constraints.loose() = this.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+private fun Constraints.offset(horizontal: IntPx, vertical: IntPx) = Constraints(
+    (minWidth + horizontal).coerceAtLeast(0.ipx),
+    (maxWidth + horizontal).coerceAtLeast(0.ipx),
+    (minHeight + vertical).coerceAtLeast(0.ipx),
+    (maxHeight + vertical).coerceAtLeast(0.ipx)
+)
+private val EdgeInsets.horizontal: Dp get() = left + right
+private val EdgeInsets.vertical: Dp get() = top + bottom
