@@ -284,26 +284,17 @@ final class CaptureSession {
         }
     }
 
-    /**
-     * Issues a single capture request.
-     *
-     * @param captureConfig which is used to construct a {@link CaptureRequest}.
-     */
-    void issueSingleCaptureRequest(CaptureConfig captureConfig) {
-        issueSingleCaptureRequests(Collections.singletonList(captureConfig));
-    }
-
-    /**
-     * Issues single capture requests.
+     /**
+     * Issues capture requests.
      *
      * @param captureConfigs which is used to construct {@link CaptureRequest}.
      */
-    void issueSingleCaptureRequests(List<CaptureConfig> captureConfigs) {
+    void issueCaptureRequests(List<CaptureConfig> captureConfigs) {
         synchronized (mStateLock) {
             switch (mState) {
                 case UNINITIALIZED:
                     throw new IllegalStateException(
-                            "issueSingleCaptureRequests() should not be possible in state: "
+                            "issueCaptureRequests() should not be possible in state: "
                                     + mState);
                 case INITIALIZED:
                 case OPENING:
@@ -311,7 +302,7 @@ final class CaptureSession {
                     break;
                 case OPENED:
                     mCaptureConfigs.addAll(captureConfigs);
-                    issueCaptureRequests();
+                    issueBurstCaptureRequest();
                     break;
                 case CLOSED:
                 case RELEASING:
@@ -401,32 +392,38 @@ final class CaptureSession {
     }
 
     /** Issues mCaptureConfigs to {@link CameraCaptureSession}. */
-    void issueCaptureRequests() {
+    void issueBurstCaptureRequest() {
         if (mCaptureConfigs.isEmpty()) {
             return;
         }
+        try {
+            CameraBurstCaptureCallback callbackAggregator = new CameraBurstCaptureCallback();
+            List<CaptureRequest> captureRequests = new ArrayList<>();
+            Log.d(TAG, "Issuing capture request.");
+            for (CaptureConfig captureConfig : mCaptureConfigs) {
+                if (captureConfig.getSurfaces().isEmpty()) {
+                    Log.d(TAG, "Skipping issuing empty capture request.");
+                    continue;
+                }
 
-        for (CaptureConfig captureConfig : mCaptureConfigs) {
-            if (captureConfig.getSurfaces().isEmpty()) {
-                Log.d(TAG, "Skipping issuing empty capture request.");
-                continue;
-            }
-            try {
-                Log.d(TAG, "Issuing capture request.");
                 CaptureRequest.Builder builder =
                         captureConfig.buildCaptureRequest(mCameraCaptureSession.getDevice());
 
                 applyImplementationOptionTCaptureBuilder(
                         builder, captureConfig.getImplementationOptions());
 
-                mCameraCaptureSession.capture(
-                        builder.build(),
-                        createCamera2CaptureCallback(captureConfig.getCameraCaptureCallbacks()),
-                        mHandler);
-            } catch (CameraAccessException e) {
-                Log.e(TAG, "Unable to access camera: " + e.getMessage());
-                Thread.dumpStack();
+                CaptureRequest captureRequest = builder.build();
+                callbackAggregator.addCallback(captureRequest,
+                        captureConfig.getCameraCaptureCallbacks());
+                captureRequests.add(captureRequest);
+
             }
+            mCameraCaptureSession.captureBurst(captureRequests,
+                    callbackAggregator,
+                    mHandler);
+        } catch (CameraAccessException e) {
+            Log.e(TAG, "Unable to access camera: " + e.getMessage());
+            Thread.dumpStack();
         }
         mCaptureConfigs.clear();
     }
@@ -505,7 +502,7 @@ final class CaptureSession {
                         mCameraCaptureSession = session;
                         Log.d(TAG, "Attempting to send capture request onConfigured");
                         issueRepeatingCaptureRequests();
-                        issueCaptureRequests();
+                        issueBurstCaptureRequest();
                         break;
                     case CLOSED:
                         mCameraCaptureSession = session;

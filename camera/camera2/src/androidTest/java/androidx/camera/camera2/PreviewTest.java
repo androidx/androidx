@@ -491,7 +491,8 @@ public final class PreviewTest {
                     }
 
                     @Override
-                    public void onCameraControlSingleRequest(CaptureConfig captureConfig) {
+                    public void onCameraControlCaptureRequests(List<CaptureConfig> captureConfigs) {
+
                     }
                 },
                 new Handler());
