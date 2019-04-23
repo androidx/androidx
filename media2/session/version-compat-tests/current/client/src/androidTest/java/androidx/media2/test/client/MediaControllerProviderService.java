@@ -154,7 +154,7 @@ public class MediaControllerProviderService extends Service {
         @Override
         public ParcelImpl getConnectedSessionToken(String controllerId) throws RemoteException {
             MediaController controller = mMediaControllerMap.get(controllerId);
-            return MediaParcelUtils.toParcelable(controller.getConnectedSessionToken());
+            return MediaParcelUtils.toParcelable(controller.getConnectedToken());
         }
 
         @Override

@@ -324,6 +324,8 @@ public class MediaSession implements AutoCloseable {
      * <p>
      * This is synchronous call and doesn't wait for result from the controller. Use
      * {@link #sendCustomCommand(ControllerInfo, SessionCommand, Bundle)} for getting the result.
+     * <p>
+     * A command is not accepted if it is not a custom command.
      *
      * @param command a command
      * @param args optional argument
@@ -331,13 +333,18 @@ public class MediaSession implements AutoCloseable {
      */
     public void broadcastCustomCommand(@NonNull SessionCommand command, @Nullable Bundle args) {
         if (command == null) {
-            throw new IllegalArgumentException("command shouldn't be null");
+            throw new NullPointerException("command shouldn't be null");
+        }
+        if (command.getCommandCode() != SessionCommand.COMMAND_CODE_CUSTOM) {
+            throw new IllegalArgumentException("command should be a custom command");
         }
         mImpl.broadcastCustomCommand(command, args);
     }
 
     /**
      * Send custom command to a specific controller.
+     * <p>
+     * A command is not accepted if it is not a custom command.
      *
      * @param command a command
      * @param args optional argument
@@ -351,6 +358,9 @@ public class MediaSession implements AutoCloseable {
         }
         if (command == null) {
             throw new IllegalArgumentException("command shouldn't be null");
+        }
+        if (command.getCommandCode() != SessionCommand.COMMAND_CODE_CUSTOM) {
+            throw new IllegalArgumentException("command should be a custom command");
         }
         return mImpl.sendCustomCommand(controller, command, args);
     }

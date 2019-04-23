@@ -497,15 +497,16 @@ public class MediaSessionCallbackTestWithMediaControllerCompat extends MediaSess
             public SessionCommandGroup onConnect(@NonNull MediaSession session,
                     @NonNull ControllerInfo controller) {
                 SessionCommandGroup commands = super.onConnect(session, controller);
-                commands.addCommand(new SessionCommand(testCommand, null));
-                return commands;
+                SessionCommandGroup.Builder builder = new SessionCommandGroup.Builder(commands);
+                builder.addCommand(new SessionCommand(testCommand, null));
+                return builder.build();
             }
 
             @Override
             public SessionResult onCustomCommand(MediaSession session,
-                    ControllerInfo controller, SessionCommand customCommand, Bundle args) {
+                    ControllerInfo controller, SessionCommand sessionCommand, Bundle args) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
-                assertEquals(testCommand, customCommand.getCustomCommand());
+                assertEquals(testCommand, sessionCommand.getCustomAction());
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
                 return new SessionResult(RESULT_SUCCESS, null);

@@ -259,7 +259,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
                             .setId("testDeadlock").build();
                 }
             });
-            final RemoteMediaController controller = createRemoteController(mSession.getToken());
+            final RemoteMediaController controller = createRemoteController(
+                    mSession.getToken());
             testHandler.post(new Runnable() {
                 @Override
                 public void run() {

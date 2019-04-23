@@ -81,7 +81,7 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
 //        for (int i = 0; i < tokens.size(); i++) {
 //            SessionToken token = tokens.get(i);
 //            if (mContext.getPackageName().equals(token.getPackageName())
-//                    && TAG.equals(token.getSessionId())) {
+//                    && TAG.equals(token.getId())) {
 //                assertNull(controller);
 //                controller = createController(token);
 //            }
@@ -122,7 +122,7 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
 //        for (int i = 0; i < tokens.size(); i++) {
 //            SessionToken token = tokens.get(i);
 //            if (mContext.getPackageName().equals(token.getPackageName())
-//                    && TAG.equals(token.getSessionId())) {
+//                    && TAG.equals(token.getId())) {
 //                assertFalse(foundSession);
 //                foundSession = true;
 //            }
@@ -142,7 +142,7 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
 //        for (int i = 0; i < tokens.size(); i++) {
 //            SessionToken token = tokens.get(i);
 //            assertFalse(mContext.getPackageName().equals(token.getPackageName())
-//                    && TAG.equals(token.getSessionId()));
+//                    && TAG.equals(token.getId()));
 //        }
     }
 
@@ -156,12 +156,12 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
 //        for (int i = 0; i < tokens.size(); i++) {
 //            SessionToken token = tokens.get(i);
 //            if (mContext.getPackageName().equals(token.getPackageName())
-//                    && MockMediaSessionService.ID.equals(token.getSessionId())) {
+//                    && MockMediaSessionService.ID.equals(token.getId())) {
 //                assertFalse(foundTestSessionService);
 //                assertEquals(SessionToken.TYPE_SESSION_SERVICE, token.getType());
 //                foundTestSessionService = true;
 //            } else if (mContext.getPackageName().equals(token.getPackageName())
-//                    && MockMediaLibraryService.ID.equals(token.getSessionId())) {
+//                    && MockMediaLibraryService.ID.equals(token.getId())) {
 //                assertFalse(foundTestLibraryService);
 //                assertEquals(SessionToken.TYPE_LIBRARY_SERVICE, token.getType());
 //                foundTestLibraryService = true;
@@ -184,7 +184,7 @@ public class MediaSessionManager_MediaSessionTest extends MediaSessionTestBase {
 //            if (!mContext.getPackageName().equals(token.getPackageName())) {
 //                continue;
 //            }
-//            switch (token.getSessionId()) {
+//            switch (token.getId()) {
 //                case TAG:
 //                    assertFalse(foundTestSession);
 //                    foundTestSession = true;

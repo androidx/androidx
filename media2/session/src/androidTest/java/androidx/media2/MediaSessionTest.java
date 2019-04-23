@@ -574,8 +574,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
     @Test
     public void testSendCustomCommand() throws InterruptedException {
         prepareLooper();
-        final SessionCommand testCommand = new SessionCommand(
-                SessionCommand.COMMAND_CODE_PLAYER_PREPARE);
+        final SessionCommand testCommand = new SessionCommand("test_command_code", null);
         final Bundle testArgs = new Bundle();
         testArgs.putString("args", "testSendCustomAction");
 
@@ -603,7 +602,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
     }
 
     /**
-     * Test expected failure of sendCustomCommand() when it's called in SessionCallback#onConnect().
+     * Test expected failure of sendCustomCommand() when it's called in
+     * SessionCallback#onConnect().
      */
     @Test
     public void testSendCustomCommand_onConnect() throws InterruptedException {
@@ -624,7 +624,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
             @Override
             public SessionResult onCustomCommand(@NonNull MediaController controller,
                     @NonNull SessionCommand command, @Nullable Bundle args) {
-                if (TextUtils.equals(testCommand.getCustomCommand(), command.getCustomCommand())) {
+                if (TextUtils.equals(testCommand.getCustomAction(), command.getCustomAction())) {
                     latch.countDown();
                 }
                 return super.onCustomCommand(controller, command, args);
@@ -668,7 +668,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
             @Override
             public SessionResult onCustomCommand(@NonNull MediaController controller,
                     @NonNull SessionCommand command, @Nullable Bundle args) {
-                if (TextUtils.equals(testCommand.getCustomCommand(), command.getCustomCommand())) {
+                if (TextUtils.equals(testCommand.getCustomAction(), command.getCustomAction())) {
                     latch.countDown();
                 }
                 return super.onCustomCommand(controller, command, args);

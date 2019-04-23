@@ -249,8 +249,8 @@ public class MediaController implements AutoCloseable {
      * @return SessionToken of the connected session, or {@code null} if not connected
      */
     @Nullable
-    public SessionToken getConnectedSessionToken() {
-        return isConnected() ? getImpl().getConnectedSessionToken() : null;
+    public SessionToken getConnectedToken() {
+        return isConnected() ? getImpl().getConnectedToken() : null;
     }
 
     /**
@@ -704,6 +704,8 @@ public class MediaController implements AutoCloseable {
      * {@link SessionResult#getResultCode()} will return the custom result code from the
      * {@link ResultReceiver#onReceiveResult(int, Bundle)} instead of the standard result codes
      * defined in the {@link SessionResult}.
+     * <p>
+     * A command is not accepted if it is not a custom command.
      *
      * @param command custom command
      * @param args optional argument
@@ -712,7 +714,7 @@ public class MediaController implements AutoCloseable {
     public ListenableFuture<SessionResult> sendCustomCommand(@NonNull SessionCommand command,
             @Nullable Bundle args) {
         if (command == null) {
-            throw new IllegalArgumentException("command shouldn't be null");
+            throw new NullPointerException("command shouldn't be null");
         }
         if (command.getCommandCode() != SessionCommand.COMMAND_CODE_CUSTOM) {
             throw new IllegalArgumentException("command should be a custom command");
@@ -1096,7 +1098,7 @@ public class MediaController implements AutoCloseable {
     }
 
     interface MediaControllerImpl extends AutoCloseable {
-        @Nullable SessionToken getConnectedSessionToken();
+        @Nullable SessionToken getConnectedToken();
         boolean isConnected();
         ListenableFuture<SessionResult> play();
         ListenableFuture<SessionResult> pause();
