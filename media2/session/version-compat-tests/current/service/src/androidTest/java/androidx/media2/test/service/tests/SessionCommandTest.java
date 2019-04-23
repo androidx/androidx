@@ -22,8 +22,8 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
 
-import androidx.media2.SessionCommand;
-import androidx.media2.SessionCommandGroup;
+import androidx.media2.session.SessionCommand;
+import androidx.media2.session.SessionCommandGroup;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;

@@ -15,7 +15,7 @@
    limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.media2.test">
+          package="androidx.media2.player.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -23,7 +23,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application android:usesCleartextTraffic="true">
-        <activity android:name="androidx.media2.MediaStubActivity"
+        <activity android:name="androidx.media2.player.MediaStubActivity"
                   android:label="MediaStubActivity"
                   android:screenOrientation="nosensor"
                   android:configChanges="keyboard|keyboardHidden|orientation|screenSize">

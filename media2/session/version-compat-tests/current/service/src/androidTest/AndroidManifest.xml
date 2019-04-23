@@ -39,13 +39,13 @@
 
         <service android:name="androidx.media2.test.service.MockMediaSessionService">
             <intent-filter>
-                <action android:name="androidx.media2.MediaSessionService" />
+                <action android:name="androidx.media2.session.MediaSessionService" />
             </intent-filter>
         </service>
 
         <service android:name="androidx.media2.test.service.MockMediaLibraryService">
             <intent-filter>
-                <action android:name="androidx.media2.MediaLibraryService" />
+                <action android:name="androidx.media2.session.MediaLibraryService" />
             </intent-filter>
         </service>
 

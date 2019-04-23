@@ -16,10 +16,10 @@
 
 package androidx.media2.widget;
 
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_BAD_VALUE;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_INVALID_STATE;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_UNKNOWN;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_SUCCESS;
+import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_ERROR_BAD_VALUE;
+import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_ERROR_INVALID_STATE;
+import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_ERROR_UNKNOWN;
+import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -30,11 +30,11 @@ import android.util.Log;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.MediaItem;
-import androidx.media2.MediaMetadata;
-import androidx.media2.RemoteSessionPlayer;
-import androidx.media2.SessionPlayer;
-import androidx.media2.UriMediaItem;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.UriMediaItem;
+import androidx.media2.session.RemoteSessionPlayer;
 import androidx.mediarouter.media.MediaItemStatus;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;

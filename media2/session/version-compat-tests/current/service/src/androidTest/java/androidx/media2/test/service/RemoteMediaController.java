@@ -34,12 +34,12 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media2.MediaController;
-import androidx.media2.MediaMetadata;
-import androidx.media2.MediaParcelUtils;
-import androidx.media2.Rating;
-import androidx.media2.SessionCommand;
-import androidx.media2.SessionToken;
+import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.MediaParcelUtils;
+import androidx.media2.common.Rating;
+import androidx.media2.session.MediaController;
+import androidx.media2.session.SessionCommand;
+import androidx.media2.session.SessionToken;
 import androidx.media2.test.common.IRemoteMediaController;
 import androidx.media2.test.common.TestUtils;
 

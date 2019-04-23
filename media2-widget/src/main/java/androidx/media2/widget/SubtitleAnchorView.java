@@ -23,8 +23,8 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.media2.subtitle.SubtitleController.Anchor;
-import androidx.media2.subtitle.SubtitleTrack.RenderingWidget;
+import androidx.media2.player.subtitle.SubtitleController.Anchor;
+import androidx.media2.player.subtitle.SubtitleTrack.RenderingWidget;
 
 class SubtitleAnchorView extends View implements Anchor {
     private static final String TAG = "SubtitleAnchorView";

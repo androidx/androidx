@@ -17,7 +17,7 @@
 package androidx.media2.test.service.tests;
 
 import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
-import static androidx.media2.SessionResult.RESULT_SUCCESS;
+import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.SERVICE_PACKAGE_NAME;
 
 import static org.junit.Assert.assertFalse;
@@ -30,10 +30,10 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Build;
 import android.view.KeyEvent;
 
-import androidx.media2.MediaSession;
-import androidx.media2.MediaSession.ControllerInfo;
-import androidx.media2.SessionCommandGroup;
-import androidx.media2.SessionPlayer;
+import androidx.media2.common.SessionPlayer;
+import androidx.media2.session.MediaSession;
+import androidx.media2.session.MediaSession.ControllerInfo;
+import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

@@ -16,16 +16,16 @@
 
 package androidx.media2.test.service.tests;
 
-import static androidx.media2.LibraryResult.RESULT_SUCCESS;
+import static androidx.media2.session.LibraryResult.RESULT_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
 
-import androidx.media2.MediaLibraryService.LibraryParams;
-import androidx.media2.MediaLibraryService.MediaLibrarySession;
-import androidx.media2.MediaSession;
+import androidx.media2.session.MediaLibraryService.LibraryParams;
+import androidx.media2.session.MediaLibraryService.MediaLibrarySession;
+import androidx.media2.session.MediaSession;
 import androidx.media2.test.service.MediaTestUtils;
 import androidx.media2.test.service.MockMediaLibraryService;
 import androidx.media2.test.service.MockPlayer;

@@ -37,12 +37,12 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.MediaController;
-import androidx.media2.MediaController.ControllerCallback;
-import androidx.media2.MediaController.PlaybackInfo;
-import androidx.media2.MediaItem;
-import androidx.media2.SessionPlayer;
-import androidx.media2.SessionToken;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer;
+import androidx.media2.session.MediaController;
+import androidx.media2.session.MediaController.ControllerCallback;
+import androidx.media2.session.MediaController.PlaybackInfo;
+import androidx.media2.session.SessionToken;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.PollingCheck;

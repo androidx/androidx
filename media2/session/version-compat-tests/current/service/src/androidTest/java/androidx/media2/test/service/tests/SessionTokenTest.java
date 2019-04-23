@@ -27,8 +27,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 
-import androidx.media2.MediaSession;
-import androidx.media2.SessionToken;
+import androidx.media2.session.MediaSession;
+import androidx.media2.session.SessionToken;
 import androidx.media2.test.common.TestUtils;
 import androidx.media2.test.service.MockMediaLibraryService;
 import androidx.media2.test.service.MockMediaSessionService;

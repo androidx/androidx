@@ -15,7 +15,7 @@
    limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.media2.test">
+          package="androidx.media2.session.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -23,24 +23,24 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application android:usesCleartextTraffic="true">
-        <activity android:name="androidx.media2.MockActivity" />
+        <activity android:name="androidx.media2.session.MockActivity" />
 
         <!-- Keep the test services synced together with the MockMediaSessionService -->
-        <service android:name="androidx.media2.MockMediaSessionService">
+        <service android:name="androidx.media2.session.MockMediaSessionService">
             <intent-filter>
-                <action android:name="androidx.media2.MediaSessionService" />
+                <action android:name="androidx.media2.session.MediaSessionService" />
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
         <!-- Keep the test services synced together with the MockMediaLibraryService -->
-        <service android:name="androidx.media2.MockMediaLibraryService">
+        <service android:name="androidx.media2.session.MockMediaLibraryService">
             <intent-filter>
-                <action android:name="androidx.media2.MediaLibraryService" />
+                <action android:name="androidx.media2.session.MediaLibraryService" />
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
         <!-- Keep the test services synced together with the MockMediaSessionService -->
-        <service android:name="androidx.media2.MockMediaBrowserServiceCompat">
+        <service android:name="androidx.media2.session.MockMediaBrowserServiceCompat">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>

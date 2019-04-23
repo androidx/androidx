@@ -20,10 +20,10 @@ import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 
 import android.text.TextUtils;
 
-import androidx.media2.MediaSession;
-import androidx.media2.MediaSession.ControllerInfo;
-import androidx.media2.MediaSessionService;
-import androidx.media2.SessionCommandGroup;
+import androidx.media2.session.MediaSession;
+import androidx.media2.session.MediaSession.ControllerInfo;
+import androidx.media2.session.MediaSessionService;
+import androidx.media2.session.SessionCommandGroup;
 
 import java.util.concurrent.Executors;
 
