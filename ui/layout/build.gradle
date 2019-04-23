@@ -35,7 +35,7 @@ dependencies {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
     androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
-    androidTestCompile project(path: ':ui-platform')
+    androidTestImplementation project(path: ':ui-platform')
     androidTestImplementation(TRUTH)
 }
 

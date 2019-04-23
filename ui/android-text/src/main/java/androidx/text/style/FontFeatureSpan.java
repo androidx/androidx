@@ -16,6 +16,8 @@
 
 package androidx.text.style;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
 
@@ -27,7 +29,7 @@ import androidx.text.Preconditions;
  * Span that change font feature settings for font.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(LIBRARY_GROUP)
 public class FontFeatureSpan extends MetricAffectingSpan {
     private String mFontFeatureSettings;
     public FontFeatureSpan(@NonNull String fontFeatureSettings) {

@@ -16,6 +16,8 @@
 
 package androidx.text.style;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.graphics.Paint;
 import android.os.Build;
 import android.text.TextPaint;
@@ -35,7 +37,7 @@ import java.lang.reflect.Method;
  */
 
 @RequiresApi(26)
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(LIBRARY_GROUP)
 public class WordSpacingSpan extends MetricAffectingSpan {
     private static final String TAG = "WordSpacingSpan";
     private static boolean sInitialized = false;

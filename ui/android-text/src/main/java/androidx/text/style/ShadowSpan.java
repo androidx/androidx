@@ -16,6 +16,8 @@
 
 package androidx.text.style;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.text.TextPaint;
 import android.text.style.CharacterStyle;
 
@@ -26,7 +28,7 @@ import androidx.annotation.RestrictTo;
  * A span which applies a shadow effect to the covered text.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(LIBRARY_GROUP)
 public class ShadowSpan extends CharacterStyle {
     private final int mColor;
     private final float mOffsetX;

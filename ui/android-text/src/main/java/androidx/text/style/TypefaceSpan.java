@@ -16,6 +16,8 @@
 
 package androidx.text.style;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.TextPaint;
@@ -30,7 +32,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(LIBRARY_GROUP)
 public class TypefaceSpan extends MetricAffectingSpan {
 
     @NonNull

@@ -97,7 +97,7 @@ function checkLicenseAgreement() {
 
 function updateStudio() {
   # skip if already up-to-date
-  if stat "${studioZipPath}" >/dev/null 2>/dev/null; then
+  if stat "${studioUnzippedPath}" >/dev/null 2>/dev/null; then
     # already up-to-date
     return
   fi

@@ -16,6 +16,8 @@
 
 package androidx.text.style;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
 
@@ -27,7 +29,7 @@ import androidx.annotation.RestrictTo;
  * Span used to adjust the letter spacing.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(LIBRARY_GROUP)
 public class LetterSpacingSpan extends MetricAffectingSpan {
     private final float mLetterSpacing;
 
