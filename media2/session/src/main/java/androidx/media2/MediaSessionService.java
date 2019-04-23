@@ -25,6 +25,7 @@ import android.os.IBinder;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.media.MediaBrowserServiceCompat;
 import androidx.media2.MediaSession.ControllerInfo;
 
 import java.util.List;
@@ -72,8 +73,8 @@ import java.util.List;
  * <h3>Service Lifecycle</h3>
  * <p>
  * Session service is bound service. When a {@link MediaController} is created for the
- * session service, the controller binds to the session service. {@link #onGetPrimarySession()}
- * would be called inside of the {@link #onBind(Intent)}.
+ * session service, the controller binds to the session service.
+ * {@link #onGetSession(ControllerInfo)} would be called inside of the {@link #onBind(Intent)}.
  * <p>
  * After the binding, session's
  * {@link MediaSession.SessionCallback#onConnect(MediaSession, ControllerInfo)}
@@ -102,9 +103,10 @@ import java.util.List;
  * sessions and add to this service with {@link #addSession(MediaSession)}.
  * <p>
  * Note that {@link MediaController} can be created with {@link SessionToken} for
- * connecting any session in this service. In that case, {@link #onGetPrimarySession()} will be
- * called to know which session to handle incoming connection request. Pick the best session among
- * added sessions, or create new one and return from the {@link #onGetPrimarySession()}.
+ * connecting any session in this service. In that case, {@link #onGetSession(ControllerInfo)} will
+ * be called to know which session to handle incoming connection request. Pick the best session
+ * among added sessions, or create new one and return from the
+ * {@link #onGetSession(ControllerInfo)}.
  * </div>
  */
 public abstract class MediaSessionService extends Service {
@@ -140,33 +142,40 @@ public abstract class MediaSessionService extends Service {
 
     /**
      * Called when a {@link MediaController} is created with the this service's
-     * {@link SessionToken}. Return the primary session for telling the controller which session to
-     * connect.
-     * <p>
-     * Primary session is the highest priority session that this service manages. Here's some
-     * recommendations of the primary session.
-     * <ol>
-     * <li>When there's no {@link MediaSession}, create and return a new session. Resume the
-     * playback that the app has the lastly played with the new session. The behavior is what
-     * framework expects when the framework sends key events to the service.</li>
-     * <li>When there's multiple {@link MediaSession}s, pick the session that has the lastly started
-     * the playback. This is the same way as the framework prioritize sessions to receive media key
-     * events.</li>
-     * </ol>
+     * {@link SessionToken}. Return the session for telling the controller which session to
+     * connect. Return {@code null} to reject the connection from this controller.
      * <p>
      * Session returned here will be added to this service automatically. You don't need to call
      * {@link #addSession(MediaSession)} for that.
      * <p>
-     * Session service will accept or reject the connection with the
-     * {@link MediaSession.SessionCallback} in the session returned here.
+     * There are two special cases where the {@link ControllerInfo#getPackageName()} returns
+     * non-existent package name:
+     * <ul>
+     *     <li>
+     *         When the service is being started through the media button intent, the method will
+     *         return {@link Intent#ACTION_MEDIA_BUTTON}. If you want to allow the service being
+     *         started by the media button events, do not return {@code null}.
+     *     </li>
+     *     <li>
+     *         When the legacy {@link android.media.browse.MediaBrowser} or
+     *         {@link android.support.v4.media.MediaBrowserCompat} tries to connect, the method will
+     *         return {@link MediaBrowserServiceCompat#SERVICE_INTERFACE}. If you want to allow the
+     *         service being bound by the legacy media browsers, do not return {@code null}.
+     *     </li>
+     * </ul>
+     * For those special cases, the values returned by {@link ControllerInfo#getUid()} and
+     * {@link ControllerInfo#getConnectionHints()} have no meaning.
      * <p>
      * This method is always called on the main thread.
      *
-     * @return a new session
+     * @param controllerInfo information of the controller which is trying to connect.
+     * @return a {@link MediaSession} instance for the controller to connect to, or {@code null}
+     *         to reject connection
      * @see MediaSession.Builder
      * @see #getSessions()
      */
-    public @NonNull abstract MediaSession onGetPrimarySession();
+    @Nullable
+    public abstract MediaSession onGetSession(@NonNull ControllerInfo controllerInfo);
 
     /**
      * Adds a session to this service.

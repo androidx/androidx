@@ -259,7 +259,7 @@ class MediaControllerStub extends IMediaController.Stub {
             final MediaControllerImplBase controller = mController.get();
             if (controller == null) {
                 if (DEBUG) {
-                    Log.d(TAG, "onConnected after MediaController2.close()");
+                    Log.d(TAG, "onConnected after MediaController.close()");
                 }
                 return;
             }
@@ -287,7 +287,7 @@ class MediaControllerStub extends IMediaController.Stub {
             final MediaControllerImplBase controller = mController.get();
             if (controller == null) {
                 if (DEBUG) {
-                    Log.d(TAG, "onDisconnected after MediaController2.close()");
+                    Log.d(TAG, "onDisconnected after MediaController.close()");
                 }
                 return;
             }

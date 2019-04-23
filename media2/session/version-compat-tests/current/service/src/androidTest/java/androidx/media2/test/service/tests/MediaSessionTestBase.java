@@ -18,6 +18,7 @@ package androidx.media2.test.service.tests;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.Looper;
 
@@ -44,6 +45,7 @@ import java.util.concurrent.Executor;
  */
 abstract class MediaSessionTestBase extends MediaTestBase {
     static final int TIMEOUT_MS = 1000;
+    static final int WAIT_TIME_FOR_NO_RESPONSE_MS = 500;
 
     static SyncHandler sHandler;
     static Executor sHandlerExecutor;
@@ -121,23 +123,21 @@ abstract class MediaSessionTestBase extends MediaTestBase {
         }
     }
 
-    final RemoteMediaController createRemoteController(SessionToken token)
-            throws InterruptedException {
-        return createRemoteController(token, true);
+    final RemoteMediaController createRemoteController(SessionToken token) {
+        return createRemoteController(token, true, null);
     }
 
     final RemoteMediaController createRemoteController(@NonNull SessionToken token,
-            boolean waitForConnection) throws InterruptedException {
-        RemoteMediaController controller =
-                new RemoteMediaController(mContext, token, waitForConnection);
+            boolean waitForConnection, Bundle connectionHints) {
+        RemoteMediaController controller = new RemoteMediaController(
+                mContext, token, connectionHints, waitForConnection);
         mControllers.add(controller);
         return controller;
     }
 
-    final RemoteMediaBrowser createRemoteBrowser2(SessionToken token)
-            throws InterruptedException {
-        RemoteMediaBrowser browser =
-                new RemoteMediaBrowser(mContext, token, true /* waitForConnection */);
+    final RemoteMediaBrowser createRemoteBrowser(@NonNull SessionToken token) {
+        RemoteMediaBrowser browser = new RemoteMediaBrowser(
+                mContext, token, true /* waitForConnection */, null /* connectionHints */);
         mControllers.add(browser);
         return browser;
     }

@@ -102,7 +102,7 @@ public class MediaSessionServiceNotificationTest extends MediaSessionTestBase {
 
         // Create a controller to start the service.
         RemoteMediaController controller = createRemoteController(
-                new SessionToken(mContext, MOCK_MEDIA2_SESSION_SERVICE), true);
+                new SessionToken(mContext, MOCK_MEDIA2_SESSION_SERVICE), true, null);
 
         // Set current media item.
         final String mediaId = "testMediaId";

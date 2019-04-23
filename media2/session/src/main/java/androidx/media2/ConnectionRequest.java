@@ -16,6 +16,9 @@
 
 package androidx.media2;
 
+import android.os.Bundle;
+
+import androidx.annotation.Nullable;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
@@ -34,16 +37,19 @@ class ConnectionRequest implements VersionedParcelable {
     String mPackageName;
     @ParcelField(2)
     int mPid;
+    @ParcelField(3)
+    Bundle mConnectionHints;
 
     // For versioned parcelable.
     ConnectionRequest() {
         // no-op
     }
 
-    ConnectionRequest(String packageName, int pid) {
+    ConnectionRequest(String packageName, int pid, @Nullable Bundle connectionHints) {
         mVersion = MediaUtils.CURRENT_VERSION;
         mPackageName = packageName;
         mPid = pid;
+        mConnectionHints = connectionHints;
     }
 
     public String getPackageName() {
@@ -56,5 +62,9 @@ class ConnectionRequest implements VersionedParcelable {
 
     public int getPid() {
         return mPid;
+    }
+
+    public Bundle getConnectionHints() {
+        return mConnectionHints;
     }
 }

@@ -17,6 +17,7 @@
 package androidx.media2;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -84,24 +85,27 @@ public class MediaBrowser extends MediaController {
      * @param callback controller callback to receive changes in
      */
     MediaBrowser(@NonNull Context context, @NonNull SessionToken token,
-            @NonNull Executor executor, @NonNull BrowserCallback callback) {
-        super(context, token, executor, callback);
+            @Nullable Bundle connectionHints, @NonNull Executor executor,
+            @NonNull BrowserCallback callback) {
+        super(context, token, connectionHints, executor, callback);
     }
 
     MediaBrowser(@NonNull Context context, @NonNull MediaSessionCompat.Token token,
-            @NonNull Executor executor, @NonNull BrowserCallback callback) {
-        super(context, token, executor, callback);
+            @Nullable Bundle connectionHints, @NonNull Executor executor,
+            @NonNull BrowserCallback callback) {
+        super(context, token, connectionHints, executor, callback);
     }
 
     @Override
     MediaBrowserImpl createImpl(@NonNull Context context, @NonNull SessionToken token,
-            @NonNull Executor executor, @NonNull MediaController.ControllerCallback callback) {
+            @Nullable Bundle connectionHints, @NonNull Executor executor,
+            @NonNull ControllerCallback callback) {
         if (token.isLegacySession()) {
             return new MediaBrowserImplLegacy(
                     context, this, token, executor, (BrowserCallback) callback);
         } else {
-            return new MediaBrowserImplBase(
-                    context, this, token, executor, (BrowserCallback) callback);
+            return new MediaBrowserImplBase(context, this, token, connectionHints,
+                    executor, (BrowserCallback) callback);
         }
     }
 
@@ -312,6 +316,12 @@ public class MediaBrowser extends MediaController {
             return super.setControllerCallback(executor, callback);
         }
 
+        @Override
+        @NonNull
+        public Builder setConnectionHints(@NonNull Bundle connectionHints) {
+            return super.setConnectionHints(connectionHints);
+        }
+
         /**
          * Build {@link MediaBrowser}.
          * <p>
@@ -333,11 +343,11 @@ public class MediaBrowser extends MediaController {
                 mCallback = new BrowserCallback() {};
             }
             if (mToken != null) {
-                return new MediaBrowser(mContext, mToken, mCallbackExecutor,
-                        (BrowserCallback) mCallback);
+                return new MediaBrowser(mContext, mToken, mConnectionHints,
+                        mCallbackExecutor, (BrowserCallback) mCallback);
             } else {
-                return new MediaBrowser(mContext, mCompatToken, mCallbackExecutor,
-                        (BrowserCallback) mCallback);
+                return new MediaBrowser(mContext, mCompatToken, mConnectionHints,
+                        mCallbackExecutor, (BrowserCallback) mCallback);
             }
         }
     }

@@ -134,7 +134,8 @@ public class MediaController implements AutoCloseable {
      * @param callback controller callback to receive changes in
      */
     MediaController(@NonNull final Context context, @NonNull final SessionToken token,
-            @NonNull Executor executor, @NonNull ControllerCallback callback) {
+            @NonNull Bundle connectionHints, @NonNull Executor executor,
+            @NonNull ControllerCallback callback) {
         if (context == null) {
             throw new IllegalArgumentException("context shouldn't be null");
         }
@@ -148,7 +149,7 @@ public class MediaController implements AutoCloseable {
             throw new IllegalArgumentException("executor shouldn't be null");
         }
         synchronized (mLock) {
-            mImpl = createImpl(context, token, executor, callback);
+            mImpl = createImpl(context, token, connectionHints, executor, callback);
         }
     }
 
@@ -160,9 +161,9 @@ public class MediaController implements AutoCloseable {
      * @param executor executor to run callbacks on.
      * @param callback controller callback to receive changes in
      */
-    MediaController(@NonNull final Context context,
-            @NonNull final MediaSessionCompat.Token token,
-            @NonNull final Executor executor, @NonNull final ControllerCallback callback) {
+    MediaController(@NonNull final Context context, @NonNull final MediaSessionCompat.Token token,
+            @NonNull final Bundle connectionHints, @NonNull final Executor executor,
+            @NonNull final ControllerCallback callback) {
         if (context == null) {
             throw new IllegalArgumentException("context shouldn't be null");
         }
@@ -182,7 +183,8 @@ public class MediaController implements AutoCloseable {
                             SessionToken token2) {
                         synchronized (mLock) {
                             if (!mClosed) {
-                                mImpl = createImpl(context, token2, executor, callback);
+                                mImpl = createImpl(context, token2, connectionHints, executor,
+                                        callback);
                             } else {
                                 executor.execute(new Runnable() {
                                     @Override
@@ -197,11 +199,13 @@ public class MediaController implements AutoCloseable {
     }
 
     MediaControllerImpl createImpl(@NonNull Context context, @NonNull SessionToken token,
-            @NonNull Executor executor, @NonNull ControllerCallback callback) {
+            @Nullable Bundle connectionHints, @NonNull Executor executor,
+            @NonNull ControllerCallback callback) {
         if (token.isLegacySession()) {
             return new MediaControllerImplLegacy(context, this, token, executor, callback);
         } else {
-            return new MediaControllerImplBase(context, this, token, executor, callback);
+            return new MediaControllerImplBase(context, this, token, connectionHints, executor,
+                    callback);
         }
     }
 
@@ -1220,9 +1224,11 @@ public class MediaController implements AutoCloseable {
             }
 
             if (mToken != null) {
-                return new MediaController(mContext, mToken, mCallbackExecutor, mCallback);
+                return new MediaController(mContext, mToken, mConnectionHints,
+                        mCallbackExecutor, mCallback);
             } else {
-                return new MediaController(mContext, mCompatToken, mCallbackExecutor, mCallback);
+                return new MediaController(mContext, mCompatToken, mConnectionHints,
+                        mCallbackExecutor, mCallback);
             }
         }
     }
@@ -1251,6 +1257,7 @@ public class MediaController implements AutoCloseable {
         final Context mContext;
         SessionToken mToken;
         MediaSessionCompat.Token mCompatToken;
+        Bundle mConnectionHints;
         Executor mCallbackExecutor;
         ControllerCallback mCallback;
 
@@ -1288,9 +1295,9 @@ public class MediaController implements AutoCloseable {
          * {@link SessionToken#TYPE_LIBRARY_SERVICE}
          * <p>
          * The controller connects to the session provided by the
-         * {@link MediaSessionService#onGetPrimarySession()}. It's up to the service's decision
-         * which session would be returned for the connection. Use the
-         * {@link #getConnectedSessionToken()} to know the connected session.
+         * {@link MediaSessionService#onGetSession(ControllerInfo)}.
+         * It's up to the service's decision which session would be returned for the connection.
+         * Use the {@link #getConnectedSessionToken()} to know the connected session.
          * <p>
          * This can be used regardless of the session app is running or not. The controller would
          * bind to the service while connected to wake up and keep the service process running.
@@ -1299,8 +1306,9 @@ public class MediaController implements AutoCloseable {
          *
          * @param token token to connect to
          * @return The Builder to allow chaining
-         * @see MediaSessionService#onGetPrimarySession()
+         * @see MediaSessionService#onGetSession(ControllerInfo)
          * @see #getConnectedSessionToken()
+         * @see #setConnectionHints(Bundle)
          */
         @NonNull
         public U setSessionToken(@NonNull SessionToken token) {
@@ -1328,6 +1336,27 @@ public class MediaController implements AutoCloseable {
             }
             mCompatToken = compatToken;
             mToken = null;
+            return (U) this;
+        }
+
+        /**
+         * Set the connection hints for the controller.
+         * <p>
+         * {@code connectionHints} is a session-specific argument to send to the session when
+         * connecting. The contents of this bundle may affect the connection result.
+         * <p>
+         * The hints specified here are only used when when connecting to the {@link MediaSession}.
+         * They will be ignored when connecting to {@link MediaSessionCompat}.
+         *
+         * @param connectionHints a bundle which contains the connection hints
+         * @return The Builder to allow chaining
+         */
+        @NonNull
+        public U setConnectionHints(@NonNull Bundle connectionHints) {
+            if (connectionHints == null) {
+                throw new IllegalArgumentException("connectionHints shouldn't be null");
+            }
+            mConnectionHints = new Bundle(connectionHints);
             return (U) this;
         }
 
