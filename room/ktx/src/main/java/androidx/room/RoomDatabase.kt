@@ -37,6 +37,9 @@ import kotlin.coroutines.resume
  * marked as successful unless an exception is thrown in the suspending [block] or the coroutine
  * is cancelled.
  *
+ * Room will only perform at most one transaction at a time, additional transactions are queued
+ * and executed on a first come, first serve order.
+ *
  * Performing blocking database operations is not permitted in a coroutine scope other than the
  * one received by the suspending block. It is recommended that all [Dao] function invoked within
  * the [block] be suspending functions.
