@@ -253,6 +253,8 @@ public class NavHostFragment extends Fragment implements NavHost {
     @SuppressWarnings({"WeakerAccess", "deprecation"})
     @CallSuper
     protected void onCreateNavController(@NonNull NavController navController) {
+        navController.getNavigatorProvider().addNavigator(
+                new DialogFragmentNavigator(requireContext(), getChildFragmentManager()));
         navController.getNavigatorProvider().addNavigator(createFragmentNavigator());
     }
 
