@@ -21,6 +21,7 @@ import android.os.Build
 import android.view.View
 import android.view.View.OVER_SCROLL_NEVER
 import android.view.accessibility.AccessibilityNodeInfo
+import androidx.core.os.BuildCompat.isAtLeastQ
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_RIGHT
@@ -72,6 +73,7 @@ import org.hamcrest.Matchers.lessThan
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.After
 import org.junit.Assert.assertThat
+import org.junit.Assume.assumeThat
 import org.junit.Before
 import org.junit.Rule
 import java.util.concurrent.CountDownLatch
@@ -121,6 +123,14 @@ open class BaseTest {
         }
 
         return Context(activityTestRule)
+    }
+
+    /**
+     * Temporary workaround while we're stabilizing tests on the API 29 emulator.
+     * TODO(b/130160918): remove the workaround
+     */
+    protected fun assumeApiBeforeQ() {
+        assumeThat(isAtLeastQ(), equalTo(false))
     }
 
     data class Context(val activityTestRule: ActivityTestRule<TestActivity>) {
