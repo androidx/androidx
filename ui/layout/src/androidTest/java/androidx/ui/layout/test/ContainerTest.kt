@@ -41,6 +41,7 @@ import androidx.ui.layout.Row
 import com.google.r4a.Composable
 import com.google.r4a.composer
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -104,7 +105,7 @@ class ContainerTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(size + paddingDp.toIntPx() * 2, size + paddingDp.toIntPx() * 2),
+            PxSize(size + (paddingDp * 2).toIntPx(), size + (paddingDp * 2).toIntPx()),
             containerSize.value
         )
         assertEquals(PxPosition(padding, padding), childPosition.value)
@@ -297,6 +298,28 @@ class ContainerTest : LayoutTest() {
 
         assertEquals(PxSize(size, size), minSizeContainerSize.value)
         assertEquals(PxSize(size, size), maxSizeContainerSize.value)
+    }
+
+    @Test
+    fun testContainer_hasTheRightSize_withPaddingAndNoChildren() = withDensity(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+
+        val containerSize = Ref<PxSize>()
+        val latch = CountDownLatch(1)
+        show @Composable {
+            <Align alignment=Alignment.TopLeft>
+                <Container width=sizeDp height=sizeDp padding=EdgeInsets(10.dp)>
+                    <OnPositioned onPositioned = { coordinates ->
+                        containerSize.value = coordinates.size
+                        latch.countDown()
+                    } />
+                </Container>
+            </Align>
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(PxSize(size, size), containerSize.value)
     }
 
     @Composable
