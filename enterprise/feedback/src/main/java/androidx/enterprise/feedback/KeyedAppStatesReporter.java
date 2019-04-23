@@ -99,7 +99,7 @@ public class KeyedAppStatesReporter {
     static final String APP_STATE_DATA = "androidx.enterprise.feedback.APP_STATE_DATA";
 
     /** The intent action for reporting app states. */
-    public static final String APP_STATES_ACTION = "androidx.enterprise.feedback.action.APP_STATES";
+    public static final String ACTION_APP_STATES = "androidx.enterprise.feedback.action.APP_STATES";
 
     private final Context mContext;
 
@@ -256,7 +256,7 @@ public class KeyedAppStatesReporter {
         }
 
         Collection<ServiceInfo> serviceInfos =
-                getServiceInfoInPackages(new Intent(APP_STATES_ACTION), filteredPackageNames);
+                getServiceInfoInPackages(new Intent(ACTION_APP_STATES), filteredPackageNames);
 
         for (ServiceInfo serviceInfo : serviceInfos) {
             Intent bindIntent = new Intent();
