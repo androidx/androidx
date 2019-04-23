@@ -26,7 +26,7 @@ import android.content.ComponentName;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 
-import androidx.media2.MediaSessionService;
+import androidx.media2.session.MediaSessionService;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;

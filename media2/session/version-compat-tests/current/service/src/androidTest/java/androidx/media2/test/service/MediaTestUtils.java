@@ -26,13 +26,13 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
-import androidx.media2.FileMediaItem;
-import androidx.media2.MediaItem;
-import androidx.media2.MediaLibraryService.LibraryParams;
-import androidx.media2.MediaMetadata;
-import androidx.media2.MediaParcelUtils;
-import androidx.media2.MediaSession;
-import androidx.media2.MediaSession.ControllerInfo;
+import androidx.media2.common.FileMediaItem;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.MediaParcelUtils;
+import androidx.media2.session.MediaLibraryService.LibraryParams;
+import androidx.media2.session.MediaSession;
+import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.test.common.TestUtils;
 import androidx.versionedparcelable.ParcelImpl;
 

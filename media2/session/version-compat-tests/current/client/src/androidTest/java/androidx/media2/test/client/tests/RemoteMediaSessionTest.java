@@ -26,8 +26,8 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.os.Bundle;
 
-import androidx.media2.MediaController;
-import androidx.media2.SessionToken;
+import androidx.media2.session.MediaController;
+import androidx.media2.session.SessionToken;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;

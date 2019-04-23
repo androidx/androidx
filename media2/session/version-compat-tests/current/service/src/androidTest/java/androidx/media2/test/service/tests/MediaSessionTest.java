@@ -27,12 +27,12 @@ import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
 
-import androidx.media2.MediaItem;
-import androidx.media2.MediaMetadata;
-import androidx.media2.MediaSession;
-import androidx.media2.MediaSession.SessionCallback;
-import androidx.media2.SessionCommandGroup;
-import androidx.media2.SessionPlayer;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.SessionPlayer;
+import androidx.media2.session.MediaSession;
+import androidx.media2.session.MediaSession.SessionCallback;
+import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.test.common.TestUtils.SyncHandler;
 import androidx.media2.test.service.MediaTestUtils;
 import androidx.media2.test.service.MockPlayer;

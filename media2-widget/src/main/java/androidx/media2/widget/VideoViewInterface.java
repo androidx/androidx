@@ -18,7 +18,7 @@ package androidx.media2.widget;
 
 import android.view.View;
 
-import androidx.media2.MediaPlayer;
+import androidx.media2.player.MediaPlayer;
 
 interface VideoViewInterface {
     /**

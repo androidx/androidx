@@ -17,8 +17,8 @@
 package androidx.media2.test.service.tests;
 
 import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
-import static androidx.media2.SessionResult.RESULT_ERROR_INVALID_STATE;
-import static androidx.media2.SessionResult.RESULT_SUCCESS;
+import static androidx.media2.session.SessionResult.RESULT_ERROR_INVALID_STATE;
+import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 
 import static org.junit.Assert.assertEquals;
@@ -44,16 +44,16 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
-import androidx.media2.MediaItem;
-import androidx.media2.MediaSession;
-import androidx.media2.MediaSession.ControllerInfo;
-import androidx.media2.MediaSession.SessionCallback;
-import androidx.media2.MediaUtils;
-import androidx.media2.Rating;
-import androidx.media2.SessionCommand;
-import androidx.media2.SessionCommandGroup;
-import androidx.media2.SessionPlayer;
-import androidx.media2.SessionResult;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.Rating;
+import androidx.media2.common.SessionPlayer;
+import androidx.media2.session.MediaSession;
+import androidx.media2.session.MediaSession.ControllerInfo;
+import androidx.media2.session.MediaSession.SessionCallback;
+import androidx.media2.session.MediaUtils;
+import androidx.media2.session.SessionCommand;
+import androidx.media2.session.SessionCommandGroup;
+import androidx.media2.session.SessionResult;
 import androidx.media2.test.common.MockActivity;
 import androidx.media2.test.common.PollingCheck;
 import androidx.media2.test.common.TestUtils;

@@ -16,13 +16,13 @@
 
 package androidx.media2.test.service;
 
-import static androidx.media2.LibraryResult.RESULT_ERROR_BAD_VALUE;
-import static androidx.media2.LibraryResult.RESULT_SUCCESS;
-import static androidx.media2.MediaMetadata.BROWSABLE_TYPE_MIXED;
-import static androidx.media2.MediaMetadata.BROWSABLE_TYPE_NONE;
-import static androidx.media2.MediaMetadata.METADATA_KEY_BROWSABLE;
-import static androidx.media2.MediaMetadata.METADATA_KEY_MEDIA_ID;
-import static androidx.media2.MediaMetadata.METADATA_KEY_PLAYABLE;
+import static androidx.media2.common.MediaMetadata.BROWSABLE_TYPE_MIXED;
+import static androidx.media2.common.MediaMetadata.BROWSABLE_TYPE_NONE;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_BROWSABLE;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_ID;
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_PLAYABLE;
+import static androidx.media2.session.LibraryResult.RESULT_ERROR_BAD_VALUE;
+import static androidx.media2.session.LibraryResult.RESULT_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 import static androidx.media2.test.common.MediaBrowserConstants.CUSTOM_ACTION;
 import static androidx.media2.test.common.MediaBrowserConstants.CUSTOM_ACTION_ASSERT_PARAMS;
@@ -64,16 +64,16 @@ import android.os.HandlerThread;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
-import androidx.media2.LibraryResult;
-import androidx.media2.MediaItem;
-import androidx.media2.MediaLibraryService;
-import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
-import androidx.media2.MediaMetadata;
-import androidx.media2.MediaSession;
-import androidx.media2.MediaSession.ControllerInfo;
-import androidx.media2.SessionCommand;
-import androidx.media2.SessionCommandGroup;
-import androidx.media2.SessionResult;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
+import androidx.media2.session.LibraryResult;
+import androidx.media2.session.MediaLibraryService;
+import androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media2.session.MediaSession;
+import androidx.media2.session.MediaSession.ControllerInfo;
+import androidx.media2.session.SessionCommand;
+import androidx.media2.session.SessionCommandGroup;
+import androidx.media2.session.SessionResult;
 import androidx.media2.test.common.TestUtils;
 import androidx.media2.test.common.TestUtils.SyncHandler;
 import androidx.versionedparcelable.ParcelUtils;

@@ -17,9 +17,9 @@
 package androidx.media2.test.service;
 
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.MediaItem;
-import androidx.media2.MediaMetadata;
-import androidx.media2.RemoteSessionPlayer;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
+import androidx.media2.session.RemoteSessionPlayer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

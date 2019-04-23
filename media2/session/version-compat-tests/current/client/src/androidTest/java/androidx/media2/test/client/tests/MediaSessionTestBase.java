@@ -27,9 +27,9 @@ import android.util.ArrayMap;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media2.MediaController;
-import androidx.media2.MediaController.ControllerCallback;
-import androidx.media2.SessionToken;
+import androidx.media2.session.MediaController;
+import androidx.media2.session.MediaController.ControllerCallback;
+import androidx.media2.session.SessionToken;
 import androidx.media2.test.common.TestUtils.SyncHandler;
 import androidx.test.core.app.ApplicationProvider;
 
