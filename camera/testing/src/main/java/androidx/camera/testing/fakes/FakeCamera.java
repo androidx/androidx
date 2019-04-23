@@ -24,6 +24,7 @@ import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 
 import java.util.Collection;
+import java.util.List;
 
 /** A fake camera which will not produce any data. */
 public class FakeCamera implements BaseCamera {
@@ -92,6 +93,6 @@ public class FakeCamera implements BaseCamera {
     }
 
     @Override
-    public void onCameraControlSingleRequest(CaptureConfig captureConfig) {
+    public void onCameraControlCaptureRequests(List<CaptureConfig> captureConfigs) {
     }
 }
