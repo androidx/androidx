@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.pm.PackageInfo;
 import android.widget.TextView;
 
+import androidx.annotation.StringRes;
 import androidx.webkit.WebViewCompat;
 
 /**
@@ -49,7 +50,7 @@ public final class WebkitHelpers {
      * @param activity the Activity to show the message in.
      * @param messageResourceId the resource ID of the message to show.
      */
-    public static void showMessageInActivity(Activity activity, int messageResourceId) {
+    public static void showMessageInActivity(Activity activity, @StringRes int messageResourceId) {
         TextView errorMessage = new TextView(activity);
         errorMessage.setText(messageResourceId);
         activity.setContentView(errorMessage);
