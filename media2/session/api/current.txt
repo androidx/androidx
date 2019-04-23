@@ -82,7 +82,6 @@ package androidx.media2 {
     method @androidx.media2.SessionPlayer.RepeatMode public int getRepeatMode();
     method public android.app.PendingIntent? getSessionActivity();
     method @androidx.media2.SessionPlayer.ShuffleMode public int getShuffleMode();
-    method public androidx.media2.VideoSize getVideoSize();
     method public boolean isConnected();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionResult> pause();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionResult> play();
@@ -133,7 +132,6 @@ package androidx.media2 {
     method public void onSeekCompleted(androidx.media2.MediaController, long);
     method public int onSetCustomLayout(androidx.media2.MediaController, java.util.List<androidx.media2.MediaSession.CommandButton>);
     method public void onShuffleModeChanged(androidx.media2.MediaController, @androidx.media2.SessionPlayer.ShuffleMode int);
-    method public void onVideoSizeChanged(androidx.media2.MediaController, androidx.media2.MediaItem, androidx.media2.VideoSize);
   }
 
   public static final class MediaController.PlaybackInfo implements androidx.versionedparcelable.VersionedParcelable {

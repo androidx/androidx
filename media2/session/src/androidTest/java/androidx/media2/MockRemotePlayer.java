@@ -16,7 +16,6 @@
 
 package androidx.media2;
 
-import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -133,12 +132,6 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
     @Override
     public float getPlaybackSpeed() {
         return 0;
-    }
-
-    @Override
-    @NonNull
-    public VideoSize getVideoSize() {
-        return new VideoSize(0, 0);
     }
 
     @Override

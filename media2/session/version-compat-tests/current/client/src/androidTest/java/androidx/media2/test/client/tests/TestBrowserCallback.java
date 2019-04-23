@@ -36,7 +36,6 @@ import androidx.media2.MediaSession.CommandButton;
 import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionResult;
-import androidx.media2.VideoSize;
 import androidx.media2.test.client.tests.MediaSessionTestBase.TestControllerCallbackInterface;
 
 import java.util.List;
@@ -175,12 +174,6 @@ public class TestBrowserCallback extends BrowserCallback
     @Override
     public void onPlaybackCompleted(MediaController controller) {
         mCallbackProxy.onPlaybackCompleted(controller);
-    }
-
-    @Override
-    public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
-            @NonNull VideoSize videoSize) {
-        mCallbackProxy.onVideoSizeChanged(controller, item, videoSize);
     }
 
     @Override

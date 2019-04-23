@@ -81,6 +81,7 @@ package androidx.media2 {
     method public void onInfo(androidx.media2.MediaPlayer, androidx.media2.MediaItem, int, int);
     method public void onMediaTimeDiscontinuity(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.MediaTimestamp);
     method public void onTimedMetaDataAvailable(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.TimedMetaData);
+    method public void onVideoSizeChanged(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.VideoSize);
   }
 
   public static final class MediaPlayer.TrackInfo {
@@ -122,6 +123,11 @@ package androidx.media2 {
   public class TimedMetaData {
     method public byte[]! getMetaData();
     method public long getTimestamp();
+  }
+
+  public final class VideoSize {
+    method public int getHeight();
+    method public int getWidth();
   }
 
 }
