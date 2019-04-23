@@ -558,7 +558,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                     mDynamicRouteDescriptors.put(routeId, builder.build());
                 }
             }
-            setDynamicRouteDescriptors(this, mDynamicRouteDescriptors.values());
+            notifyDynamicRoutesChanged(mDynamicRouteDescriptors.values());
         }
 
         private int countTvFromRoute(MediaRouteDescriptor routeDescriptor) {
