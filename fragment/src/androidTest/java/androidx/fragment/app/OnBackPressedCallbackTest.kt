@@ -33,6 +33,19 @@ import org.junit.runner.RunWith
 @SmallTest
 class OnBackPressedCallbackTest {
 
+    @Test
+    fun testBackPressFinishesActivity() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            withActivity {
+                onBackPressed()
+                assertWithMessage("Activity should be finishing after onBackPressed() " +
+                        "on an empty back stack")
+                    .that(isFinishing)
+                    .isTrue()
+            }
+        }
+    }
+
     @Suppress("DEPRECATION")
     @Test
     fun testBackPressWithFrameworkFragment() {
@@ -154,6 +167,36 @@ class OnBackPressedCallbackTest {
                 .isEqualTo(1)
             assertThat(fragmentManager.findFragmentById(R.id.content))
                 .isSameAs(fragment)
+        }
+    }
+
+    @Test
+    fun testBackPressFinishesActivityAfterFragmentPop() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+            val fragment = StrictFragment()
+            fragmentManager.beginTransaction()
+                .replace(R.id.content, fragment)
+                .addToBackStack("back_stack")
+                .commit()
+            onActivity {
+                fragmentManager.executePendingTransactions()
+            }
+            assertThat(fragmentManager.findFragmentById(R.id.content))
+                .isSameAs(fragment)
+
+            withActivity {
+                fragmentManager.popBackStack()
+
+                onBackPressed()
+
+                assertThat(fragmentManager.findFragmentById(R.id.content))
+                    .isNull()
+                assertWithMessage("Activity should be finishing after onBackPressed() " +
+                        "on an empty back stack")
+                    .that(isFinishing)
+                    .isTrue()
+            }
         }
     }
 
