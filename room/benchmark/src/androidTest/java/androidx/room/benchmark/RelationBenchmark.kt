@@ -90,7 +90,7 @@ class RelationBenchmark(private val parentSampleSize: Int, private val childSamp
         @JvmStatic
         @Parameterized.Parameters(name = "parentSampleSize={0}, childSampleSize={1}")
         fun data() = arrayOf(100, 500, 1000).flatMap { parentSampleSize ->
-            arrayOf(10, 100, 500).map { childSampleSize ->
+            arrayOf(10, 100).map { childSampleSize ->
                 arrayOf(parentSampleSize, childSampleSize)
             }
         }
