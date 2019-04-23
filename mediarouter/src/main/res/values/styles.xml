@@ -33,7 +33,7 @@
 
     <style name="TextAppearance.MediaRouter.SecondaryText" parent="TextAppearance.AppCompat.Body1" />
 
-    <!-- TextAppearance for top metadata section of MediaRouteCastDialog -->
+    <!-- TextAppearance for top metadata section of MediaRouteDynamicControllerDialog -->
     <style name="TextAppearance.MediaRouter.Dynamic.Metadata.PrimaryText" parent="TextAppearance.AppCompat.Body2">
         <item name="android:textColor">@color/mr_cast_meta_default_text_color</item>
     </style>
@@ -42,7 +42,7 @@
         <item name="android:textSize">@dimen/mr_cast_meta_subtitle_text_size</item>
     </style>
 
-    <!-- TextAppearance for header item of MediaRouteDevicePickerDialog/MediaRouteCastDialog-->
+    <!-- TextAppearance for header item of MediaRouteDynamicChooserDialog/MediaRouteDynamicControllerDialog-->
     <style name="TextAppearance.MediaRouter.Dynamic.Header" parent="TextAppearance.AppCompat.Body2">
         <item name="android:textSize">@dimen/mr_dynamic_dialog_header_text_size</item>
         <item name="android:textColor">@color/mr_dynamic_dialog_header_text_color_dark</item>
@@ -54,7 +54,7 @@
         <item name="android:textColor">@color/mr_dynamic_dialog_header_text_color_light</item>
     </style>
 
-    <!-- TextAppearance for route item of MediaRouteDevicePickerDialog/MediaRouteCastDialog-->
+    <!-- TextAppearance for route item of MediaRouteDynamicChooserDialog/MediaRouteDynamicControllerDialog-->
     <style name="TextAppearance.MediaRouter.Dynamic.Body" parent="TextAppearance.AppCompat.Body1">
         <item name="android:textSize">@dimen/mr_dynamic_dialog_route_text_size</item>
         <item name="android:textColor">@color/mr_dynamic_dialog_route_text_color_dark</item>
