@@ -25,12 +25,10 @@ import android.media.AudioManager;
 import android.media.MediaRouter;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.mediarouter.media.MediaRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteProviderDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
-import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
 import com.example.android.supportv7.R;
 
@@ -39,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.Executor;
 
 /**
  * Demonstrates how to create a custom media route provider.
@@ -257,9 +254,6 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
         private List<String> mMemberRouteIds = new ArrayList<>();
         private Map<String, DynamicRouteDescriptor> mDynamicRouteDescriptors = new HashMap<>();
-        private DynamicGroupRouteController.OnDynamicRoutesChangedListener
-                mDynamicRoutesChangedListener;
-        private Executor mListenerExecutor;
         private int mTvSelectedCount;
 
         SampleDynamicGroupRouteController(String dynamicGroupRouteId,
@@ -372,11 +366,6 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
             mRouteDescriptors.put(mRouteId, groupDescriptor);
             updateDynamicRouteDescriptors();
             publishRoutes();
-            if (mListenerExecutor != null) {
-                mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
-                        SampleDynamicGroupRouteController.this,
-                        mDynamicRouteDescriptors.values()));
-            }
         }
 
         private void onAddMemberRoutes(List<String> memberRouteIds) {
@@ -412,13 +401,8 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
             MediaRouteDescriptor groupDescriptor = builder.build();
             mRouteDescriptors.put(mRouteId, groupDescriptor);
-            updateDynamicRouteDescriptors();
             publishRoutes();
-            if (mListenerExecutor != null) {
-                mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
-                        SampleDynamicGroupRouteController.this,
-                        mDynamicRouteDescriptors.values()));
-            }
+            updateDynamicRouteDescriptors();
         }
 
         @Override
@@ -449,37 +433,8 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                             .removeGroupMemberId(routeId)
                             .build();
             mRouteDescriptors.put(mRouteId, groupDescriptor);
+            publishRoutes();
             updateDynamicRouteDescriptors();
-            publishRoutes();
-            if (mListenerExecutor != null) {
-                mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
-                        SampleDynamicGroupRouteController.this,
-                        mDynamicRouteDescriptors.values()));
-            }
-        }
-
-        @Override
-        public void setOnDynamicRoutesChangedListener(
-                @NonNull Executor executor, OnDynamicRoutesChangedListener listener) {
-            if (executor == null) {
-                throw new IllegalArgumentException("Executor shouldn't be null.");
-            }
-            mDynamicRoutesChangedListener = listener;
-            mListenerExecutor = executor;
-            if (mDynamicRoutesChangedListener == null) {
-                return;
-            }
-            mListenerExecutor.execute(() -> mDynamicRoutesChangedListener.onRoutesChanged(
-                    SampleDynamicGroupRouteController.this,
-                    mDynamicRouteDescriptors.values()));
-
-            MediaRouteDescriptor groupDescriptor =
-                    new MediaRouteDescriptor.Builder(mRouteDescriptors.get(mRouteId))
-                            .setConnectionState(RouteInfo.CONNECTION_STATE_CONNECTED)
-                            .setVolume(mVolume)
-                            .build();
-            mRouteDescriptors.put(mRouteId, groupDescriptor);
-            publishRoutes();
         }
 
         //////////////////////////////////////////////
@@ -603,6 +558,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                     mDynamicRouteDescriptors.put(routeId, builder.build());
                 }
             }
+            setDynamicRouteDescriptors(this, mDynamicRouteDescriptors.values());
         }
 
         private int countTvFromRoute(MediaRouteDescriptor routeDescriptor) {
