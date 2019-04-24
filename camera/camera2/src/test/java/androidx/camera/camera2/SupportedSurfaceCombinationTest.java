@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraMetadata;
 import android.os.Build;
 import android.util.Rational;
 import android.util.Size;
@@ -78,7 +79,8 @@ public final class SupportedSurfaceCombinationTest {
     private static final String LEGACY_CAMERA_ID = "0";
     private static final String LIMITED_CAMERA_ID = "1";
     private static final String FULL_CAMERA_ID = "2";
-    private static final String LEVEL3_CAMERA_ID = "3";
+    private static final String RAW_CAMERA_ID = "3";
+    private static final String LEVEL3_CAMERA_ID = "4";
     private static final int DEFAULT_SENSOR_ORIENTATION = 90;
     private final Size mDisplaySize = new Size(1280, 720);
     private final Size mAnalysisSize = new Size(640, 480);
@@ -90,17 +92,25 @@ public final class SupportedSurfaceCombinationTest {
             Mockito.mock(CamcorderProfileHelper.class);
 
     /**
-     * Except for ImageFormat.JPEG or ImageFormat.YUV, other image formats will be mapped to
-     * ImageFormat.PRIVATE (0x22) including SurfaceTexture or MediaCodec classes. Before Android
-     * level 23, there is no ImageFormat.PRIVATE. But there is same internal code 0x22 for internal
-     * corresponding format HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED. Therefore, set 0x22 as default
-     * image formate.
+     * Except for ImageFormat.JPEG, ImageFormat.YUV, and ImageFormat.RAW_SENSOR, other image formats
+     * will be mapped to ImageFormat.PRIVATE (0x22) including SurfaceTexture or MediaCodec classes.
+     * Before Android level 23, there is no ImageFormat.PRIVATE. But there is same internal code
+     * 0x22 for internal corresponding format HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED. Therefore,
+     * set 0x22 as default image format.
      */
     private final int[] mSupportedFormats =
             new int[]{
                     ImageFormat.YUV_420_888,
                     ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_JPEG,
                     ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+            };
+
+    private final int[] mSupportedFormatsWithRaw =
+            new int[]{
+                    ImageFormat.YUV_420_888,
+                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_JPEG,
+                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+                    ImageFormat.RAW_SENSOR
             };
 
     private final Size[] mSupportedSizes =
@@ -124,12 +134,11 @@ public final class SupportedSurfaceCombinationTest {
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setRealHeight(mDisplaySize.getHeight());
 
         when(mMockCamcorderProfileHelper.hasProfile(anyInt(), anyInt())).thenReturn(true);
-
-        setupCamera();
     }
 
     @Test
     public void checkLegacySurfaceCombinationSupportedInLegacyDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -146,6 +155,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkLegacySurfaceCombinationSubListSupportedInLegacyDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -160,6 +170,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkLimitedSurfaceCombinationNotSupportedInLegacyDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -176,6 +187,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkFullSurfaceCombinationNotSupportedInLegacyDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -192,6 +204,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkLevel3SurfaceCombinationNotSupportedInLegacyDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -208,6 +221,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkLimitedSurfaceCombinationSupportedInLimitedDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -224,6 +238,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkLimitedSurfaceCombinationSubListSupportedInLimited3Device() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -238,6 +253,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkFullSurfaceCombinationNotSupportedInLimitedDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -254,6 +270,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkLevel3SurfaceCombinationNotSupportedInLimitedDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -270,6 +287,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkFullSurfaceCombinationSupportedInFullDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, FULL_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -286,6 +304,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkFullSurfaceCombinationSubListSupportedInFullDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, FULL_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -300,6 +319,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkLevel3SurfaceCombinationNotSupportedInFullDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, FULL_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -315,7 +335,76 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
+    public void checkLimitedSurfaceCombinationSupportedInRawDevice() {
+        setupCamera(/* supportsRaw= */ true);
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, RAW_CAMERA_ID, mMockCamcorderProfileHelper);
+
+        List<SurfaceCombination> combinationList =
+                supportedSurfaceCombination.getLimitedSupportedCombinationList();
+
+        for (SurfaceCombination combination : combinationList) {
+            boolean isSupported =
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
+            assertTrue(isSupported);
+        }
+    }
+
+    @Test
+    public void checkLegacySurfaceCombinationSupportedInRawDevice() {
+        setupCamera(/* supportsRaw= */ true);
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, RAW_CAMERA_ID, mMockCamcorderProfileHelper);
+
+        List<SurfaceCombination> combinationList =
+                supportedSurfaceCombination.getLegacySupportedCombinationList();
+
+        for (SurfaceCombination combination : combinationList) {
+            boolean isSupported =
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
+            assertTrue(isSupported);
+        }
+    }
+
+    @Test
+    public void checkFullSurfaceCombinationSupportedInRawDevice() {
+        setupCamera(/* supportsRaw= */ true);
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, RAW_CAMERA_ID, mMockCamcorderProfileHelper);
+
+        List<SurfaceCombination> combinationList =
+                supportedSurfaceCombination.getFullSupportedCombinationList();
+
+        for (SurfaceCombination combination : combinationList) {
+            boolean isSupported =
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
+            assertTrue(isSupported);
+        }
+    }
+
+    @Test
+    public void checkRawSurfaceCombinationSupportedInRawDevice() {
+        setupCamera(/* supportsRaw= */ true);
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, RAW_CAMERA_ID, mMockCamcorderProfileHelper);
+
+        List<SurfaceCombination> combinationList =
+                supportedSurfaceCombination.getRAWSupportedCombinationList();
+
+        for (SurfaceCombination combination : combinationList) {
+            boolean isSupported =
+                    supportedSurfaceCombination.checkSupported(combination.getSurfaceConfigList());
+            assertTrue(isSupported);
+        }
+    }
+
+    @Test
     public void checkLevel3SurfaceCombinationSupportedInLevel3Device() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEVEL3_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -332,6 +421,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkLevel3SurfaceCombinationSubListSupportedInLevel3Device() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEVEL3_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -346,6 +436,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -378,6 +469,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void getSuggestedResolutionsForMixedUseCaseInLimitedDevice() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -413,6 +505,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void transformSurfaceConfigWithYUVAnalysisSize() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -426,6 +519,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void transformSurfaceConfigWithYUVPreviewSize() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -439,6 +533,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void transformSurfaceConfigWithYUVRecordSize() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -452,6 +547,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void transformSurfaceConfigWithYUVMaximumSize() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -465,6 +561,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void transformSurfaceConfigWithYUVNotSupportSize() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -479,6 +576,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void transformSurfaceConfigWithJPEGAnalysisSize() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -492,6 +590,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void transformSurfaceConfigWithJPEGPreviewSize() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -505,6 +604,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void transformSurfaceConfigWithJPEGRecordSize() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -518,6 +618,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void transformSurfaceConfigWithJPEGMaximumSize() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -531,6 +632,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void transformSurfaceConfigWithJPEGNotSupportSize() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -545,6 +647,7 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void getMaximumSizeForImageFormat() {
+        setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
                         mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
@@ -556,7 +659,7 @@ public final class SupportedSurfaceCombinationTest {
         assertEquals(mMaximumSize, maximumJPEGSize);
     }
 
-    private void setupCamera() {
+    private void setupCamera(boolean supportsRaw) {
         addBackFacingCamera(
                 LEGACY_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null);
         addBackFacingCamera(
@@ -565,6 +668,14 @@ public final class SupportedSurfaceCombinationTest {
                 null);
         addBackFacingCamera(
                 FULL_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL, null);
+        if (supportsRaw) {
+            addBackFacingCamera(
+                    RAW_CAMERA_ID,
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                    new int[] {
+                            CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW
+                    });
+        }
         addBackFacingCamera(
                 LEVEL3_CAMERA_ID, CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3, null);
         initCameraX();
@@ -594,15 +705,30 @@ public final class SupportedSurfaceCombinationTest {
                         Context.CAMERA_SERVICE)))
                 .addCamera(cameraId, characteristics);
 
+        int[] supportedFormats = isRawSupported(capabilities)
+                ? mSupportedFormatsWithRaw : mSupportedFormats;
+
         shadowCharacteristics.set(
                 CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
                 StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(
-                        mSupportedFormats, mSupportedSizes));
+                        supportedFormats, mSupportedSizes));
     }
 
     private void initCameraX() {
         AppConfig appConfig = Camera2AppConfig.create(mContext);
         CameraX.init(mContext, appConfig);
+    }
+
+    private boolean isRawSupported(int[] capabilities) {
+        if (capabilities == null) {
+            return false;
+        }
+        for (int capability : capabilities) {
+            if (capability == CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isAllSubConfigListSupported(
