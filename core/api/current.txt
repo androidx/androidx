@@ -1072,8 +1072,8 @@ package androidx.core.graphics {
 
   public final class PaintCompat {
     method public static boolean hasGlyph(android.graphics.Paint, String);
-    method public static void setBlendMode(android.graphics.Paint, androidx.core.graphics.BlendModeCompat?);
-    method public static void setBlendModeColorFilter(android.graphics.Paint, @ColorInt int, androidx.core.graphics.BlendModeCompat?);
+    method public static boolean setBlendMode(android.graphics.Paint, androidx.core.graphics.BlendModeCompat?);
+    method public static boolean setBlendModeColorFilter(android.graphics.Paint, @ColorInt int, androidx.core.graphics.BlendModeCompat?);
   }
 
   public final class PathSegment {
