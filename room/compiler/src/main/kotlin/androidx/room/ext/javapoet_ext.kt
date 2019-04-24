@@ -189,25 +189,21 @@ fun CallableTypeSpecBuilder(
     }.build())
 }
 
-fun Function2TypeSpecBuilder(
-    parameter1: Pair<TypeName, String>,
-    parameter2: Pair<TypeName, String>,
+fun Function1TypeSpecBuilder(
+    parameterTypeName: TypeName,
+    parameterName: String,
     returnTypeName: TypeName,
     callBody: MethodSpec.Builder.() -> Unit
 ) = TypeSpec.anonymousClassBuilder("").apply {
-    val (param1TypeName, param1Name) = parameter1
-    val (param2TypeName, param2Name) = parameter2
     superclass(
         ParameterizedTypeName.get(
-            Function2::class.typeName(),
-            param1TypeName,
-            param2TypeName,
+            Function1::class.typeName(),
+            parameterTypeName,
             returnTypeName
         )
     )
     addMethod(MethodSpec.methodBuilder("invoke").apply {
-        addParameter(param1TypeName, param1Name)
-        addParameter(param2TypeName, param2Name)
+        addParameter(parameterTypeName, parameterName)
         returns(returnTypeName)
         addModifiers(Modifier.PUBLIC)
         addAnnotation(Override::class.java)

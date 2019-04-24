@@ -31,10 +31,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newSingleThreadContext
@@ -377,9 +377,11 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     TestUtil.PUBLISHER.publisherId,
                     TestUtil.PUBLISHER.name
                 )
-                launch {
-                    booksDao.insertBookSuspend(TestUtil.BOOK_1)
-                    booksDao.insertBookSuspend(TestUtil.BOOK_2)
+                coroutineScope {
+                    launch {
+                        booksDao.insertBookSuspend(TestUtil.BOOK_1)
+                        booksDao.insertBookSuspend(TestUtil.BOOK_2)
+                    }
                 }
             }
             assertThat(booksDao.getBooksSuspend())
@@ -395,9 +397,11 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     TestUtil.PUBLISHER.publisherId,
                     TestUtil.PUBLISHER.name
                 )
-                launch(Dispatchers.IO) {
-                    booksDao.insertBookSuspend(TestUtil.BOOK_1)
-                    booksDao.insertBookSuspend(TestUtil.BOOK_2)
+                coroutineScope {
+                    launch(Dispatchers.IO) {
+                        booksDao.insertBookSuspend(TestUtil.BOOK_1)
+                        booksDao.insertBookSuspend(TestUtil.BOOK_2)
+                    }
                 }
             }
             assertThat(booksDao.getBooksSuspend())
@@ -528,14 +532,16 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     TestUtil.PUBLISHER.name
                 )
 
-                async {
-                    booksDao.insertBookSuspend(TestUtil.BOOK_1)
-                }
-                async(Dispatchers.Default) {
-                    booksDao.insertBookSuspend(TestUtil.BOOK_2)
-                }
-                async(Dispatchers.IO) {
-                    booksDao.insertBookSuspend(TestUtil.BOOK_3)
+                coroutineScope {
+                    async {
+                        booksDao.insertBookSuspend(TestUtil.BOOK_1)
+                    }
+                    async(Dispatchers.Default) {
+                        booksDao.insertBookSuspend(TestUtil.BOOK_2)
+                    }
+                    async(Dispatchers.IO) {
+                        booksDao.insertBookSuspend(TestUtil.BOOK_3)
+                    }
                 }
             }
 
@@ -678,69 +684,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
         }
 
         wrappedExecutor.awaitTermination(1, TimeUnit.SECONDS)
-    }
-
-    @Test
-    @Suppress("DeferredResultUnused")
-    fun withTransaction_leakTransactionContext_async() {
-        runBlocking {
-            val leakedContext = database.withTransaction {
-                coroutineContext
-            }
-
-            async(leakedContext) {
-                fail("This coroutine should never run.")
-            }
-        }
-    }
-
-    @Test
-    fun withTransaction_leakTransactionContext_launch() {
-        runBlocking {
-            val leakedContext = database.withTransaction {
-                coroutineContext
-            }
-
-            launch(leakedContext) {
-                fail("This coroutine should never run.")
-            }
-        }
-    }
-
-    @Test
-    fun withTransaction_leakTransactionContext_withContext() {
-        runBlocking {
-            val leakedContext = database.withTransaction {
-                coroutineContext
-            }
-
-            try {
-                withContext(leakedContext) {
-                    fail("This coroutine should never run.")
-                }
-                fail("An exception should have been thrown by withContext")
-            } catch (ex: CancellationException) {
-                // Ignored on-purpose
-            }
-        }
-    }
-
-    @Test
-    fun withTransaction_leakTransactionContext_runBlocking() {
-        runBlocking {
-            val leakedContext = database.withTransaction {
-                coroutineContext
-            }
-
-            try {
-                runBlocking(leakedContext) {
-                    fail("This coroutine should never run.")
-                }
-                fail("An exception should have been thrown by runBlocking")
-            } catch (ex: CancellationException) {
-                // Ignored on-purpose
-            }
-        }
     }
 
     @Test
