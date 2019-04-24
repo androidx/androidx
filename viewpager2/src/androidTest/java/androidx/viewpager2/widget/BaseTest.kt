@@ -218,7 +218,7 @@ open class BaseTest {
             return when (method) {
                 SwipeMethod.ESPRESSO -> PageSwiperEspresso(viewPager.orientation, isRtl)
                 SwipeMethod.MANUAL -> PageSwiperManual(viewPager, isRtl)
-                SwipeMethod.FAKE_DRAG -> PageSwiperFakeDrag(viewPager)
+                SwipeMethod.FAKE_DRAG -> PageSwiperFakeDrag(viewPager) { viewPager.pageSize }
             }
         }
 
