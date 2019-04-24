@@ -33,6 +33,7 @@ android {
 
 dependencies {
     api(project(":navigation:navigation-common"))
+    api(project(":activity"))
     api(project(":lifecycle:lifecycle-viewmodel"))
 
     androidTestImplementation(project(":navigation:navigation-testing"))
