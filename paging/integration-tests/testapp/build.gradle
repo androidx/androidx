@@ -34,7 +34,7 @@ dependencies {
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
-    annotationProcessor(ARCH_ROOM_COMPILER)
+    kapt(ARCH_ROOM_COMPILER)
 
     implementation(MULTIDEX)
     implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
