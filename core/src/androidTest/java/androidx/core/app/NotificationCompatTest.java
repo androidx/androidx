@@ -263,6 +263,26 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertFalse(result.getShowsUserInterface());
     }
 
+    @SdkSuppress(minSdkVersion = 20)
+    @Test
+    public void testGetActionCompatFromAction_withRemoteInputs_doesntCrash() {
+        NotificationCompat.Action action = newActionBuilder()
+                .addRemoteInput(new RemoteInput(
+                        "a",
+                        "b",
+                        null /* choices */,
+                        false /* allowFreeFormTextInput */,
+                        RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO,
+                        null /* extras */,
+                        null /* allowedDataTypes */)).build();
+        Notification notification = newNotificationBuilder().addAction(action).build();
+
+        NotificationCompat.Action result =
+                NotificationCompat.getActionCompatFromAction(notification.actions[0]);
+
+        assertEquals(1, result.getRemoteInputs().length);
+    }
+
     @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testNotificationWearableExtenderAction_setAllowGeneratedRepliesTrue()
