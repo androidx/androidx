@@ -72,7 +72,3 @@ dependencies {
 
     testImplementation(JUNIT)
 }
-
-tasks['check'].dependsOn(tasks['connectedCheck'])
-
-uploadArchives.enabled = false
