@@ -19,9 +19,15 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputConnection
+import androidx.annotation.RestrictTo
+import androidx.ui.core.input.TextInputServiceAndroid
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.toPointerInputEvent
+import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
 import com.google.r4a.frames.FrameCommitObserver
 import com.google.r4a.frames.FrameReadObserver
@@ -86,6 +92,12 @@ class AndroidCraneView constructor(context: Context)
         setWillNotDraw(false)
         // TODO(mount): How do I unregister?
         registerCommitObserver(commitObserver)
+
+        isFocusable = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            focusable = View.FOCUSABLE
+        }
+        isFocusableInTouchMode = true
     }
 
     override fun onInvalidate(drawNode: DrawNode) {
@@ -299,6 +311,23 @@ class AndroidCraneView constructor(context: Context)
     override fun sendEvent(event: MotionEvent) {
         onTouchEvent(event)
     }
+
+    /**
+     * @hide
+     */
+    val textInputService: TextInputService
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        get() = textInputServiceAndroid
+
+    private val textInputServiceAndroid = TextInputServiceAndroid(this)
+
+    override fun onCheckIsTextEditor(): Boolean = textInputServiceAndroid.isEditorFocused()
+
+    override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? =
+        textInputServiceAndroid.createInputConnection(outAttrs)
 
     private fun callMeasure(constraints: Constraints) {
         var maxWidth = 0.ipx

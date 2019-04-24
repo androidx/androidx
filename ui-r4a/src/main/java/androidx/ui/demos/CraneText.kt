@@ -20,16 +20,19 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Text
+import androidx.ui.core.EditableText
+import androidx.ui.core.EditorStyle
+import androidx.ui.core.px
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.core.px
-import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
+import androidx.ui.input.EditorState
 import androidx.ui.painting.Color
 import androidx.ui.painting.Shadow
 import androidx.ui.painting.TextSpan
@@ -37,6 +40,8 @@ import androidx.ui.painting.TextStyle
 import androidx.ui.rendering.paragraph.TextOverflow
 import com.google.r4a.Composable
 import com.google.r4a.composer
+import com.google.r4a.state
+import com.google.r4a.unaryPlus
 
 val displayText = "Text Demo"
 val displayTextChinese = "文本演示"
@@ -87,6 +92,8 @@ fun TextDemo() {
                 <TexDemoTextOverflowFade />
                 <TagLine tag="shadow" />
                 <TextDemoShadowEffect />
+                <TagLine tag="editing" />
+                <EditLine />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -619,5 +626,16 @@ fun TextDemoShadowEffect() {
     )
     <CraneWrapper>
         <Text text = textSpan />
+    </CraneWrapper>
+}
+
+@Composable
+fun EditLine() {
+    var state = +state{ EditorState() }
+    <CraneWrapper>
+        <EditableText
+            value=state.value
+            onValueChange={state.value = it}
+            editorStyle=EditorStyle(textStyle = TextStyle(fontSize = fontSize8)) />
     </CraneWrapper>
 }
