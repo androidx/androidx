@@ -92,7 +92,6 @@ final class AdaptingCaptureProcessor implements CaptureProcessor {
                 Pair<Image, TotalCaptureResult> imageCapturePair = new Pair<>(imageProxy.getImage(),
                         totalCaptureResult);
                 bundleMap.put(id, imageCapturePair);
-
             } catch (TimeoutException | ExecutionException | InterruptedException e) {
                 return;
             }
