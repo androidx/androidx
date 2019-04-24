@@ -23,7 +23,6 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
-import androidx.ui.core.MultiChildLayout
 import androidx.ui.core.coerceIn
 import androidx.ui.core.ipx
 import androidx.ui.core.toRect
@@ -67,7 +66,7 @@ fun HeaderFooterLayout(
     footer: () -> Unit,
     @Children content: () -> Unit
 ) {
-    <MultiChildLayout childrenArray=arrayOf(header, content, footer)> measurables, constraints ->
+    <Layout childrenArray=arrayOf(header, content, footer)> measurables, constraints ->
         val headerPlaceable = measurables[header].first().measure(
             Constraints.tightConstraints(constraints.maxWidth, 100.ipx)
         )
@@ -91,7 +90,7 @@ fun HeaderFooterLayout(
                 top += itemHeight
             }
         }
-    </MultiChildLayout>
+    </Layout>
 }
 
 @Composable
