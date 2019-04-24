@@ -16,12 +16,18 @@
 
 package androidx.camera.core.impl.utils.executor;
 
+import androidx.annotation.NonNull;
+
 import java.util.concurrent.Executor;
 
 /**
  * Utility class for generating specific implementations of {@link Executor}.
  */
 public final class CameraXExecutors {
+
+    // Should not be instantiated
+    private CameraXExecutors() {
+    }
 
     /** Returns a cached {@link Executor} which posts to the main thread. */
     public static Executor mainThreadExecutor() {
@@ -38,6 +44,16 @@ public final class CameraXExecutors {
         return DirectExecutor.getInstance();
     }
 
-    // Should not be instantiated
-    private CameraXExecutors() {}
+    /**
+     * Returns a new executor which will perform all tasks sequentially.
+     *
+     * <p>The returned executor delegates all tasks to the provided delegate Executor, but will
+     * ensure all tasks are run in order and without overlapping. Note this can only be
+     * guaranteed for tasks that are submitted via the same sequential executor. Tasks submitted
+     * directly to the delegate or to different instances of the sequential executor do not have
+     * any ordering guarantees.
+     */
+    public static Executor newSequentialExecutor(@NonNull Executor delegate) {
+        return new SequentialExecutor(delegate);
+    }
 }
