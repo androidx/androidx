@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Pair;
 
 /**
@@ -123,7 +124,7 @@ public final class PaintCompat {
      *                  it to the default
      */
     public static void setBlendMode(@NonNull Paint paint, @Nullable BlendModeCompat blendMode) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (BuildCompat.isAtLeastQ()) {
             paint.setBlendMode(obtainBlendModeFromCompat(blendMode));
         } else {
             PorterDuff.Mode mode = obtainPorterDuffFromCompat(blendMode);
@@ -147,7 +148,7 @@ public final class PaintCompat {
      */
     public static void setBlendModeColorFilter(@NonNull Paint paint, @ColorInt int color,
                                                      @Nullable BlendModeCompat blendModeCompat) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (BuildCompat.isAtLeastQ()) {
             BlendMode blendMode = obtainBlendModeFromCompat(blendModeCompat);
             if (blendMode != null) {
                 paint.setColorFilter(new BlendModeColorFilter(color, blendMode));
@@ -164,7 +165,7 @@ public final class PaintCompat {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
+    @RequiresApi(29)
     @VisibleForTesting
     /* package */ static @Nullable BlendMode obtainBlendModeFromCompat(
             @Nullable BlendModeCompat blendModeCompat) {
