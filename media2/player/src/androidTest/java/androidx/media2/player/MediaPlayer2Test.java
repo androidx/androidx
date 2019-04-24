@@ -321,8 +321,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             // test stop and restart
             mp.reset();
             mp.setMediaItem(new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
-                    afd.getStartOffset(), afd.getLength())
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd.getStartOffset())
+                    .setFileDescriptorLength(afd.getLength())
                     .build());
 
             mp.setEventCallback(mExecutor, ecb);
@@ -536,8 +537,10 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             // test stop and restart
             mp.reset();
             mp.setMediaItem(new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
-                    afd.getStartOffset(), afd.getLength()).build());
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd.getStartOffset())
+                    .setFileDescriptorLength(afd.getLength())
+                    .build());
 
             mp.setEventCallback(mExecutor, ecb);
             onPrepareCalled.reset();
@@ -1020,13 +1023,15 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
         final MediaItem item2 = createDataSourceDesc(R.raw.testvideo);
         final MediaItem item3 = new FileMediaItem.Builder(
-                ((FileMediaItem) item1).getParcelFileDescriptor().dup(),
-                ((FileMediaItem) item1).getFileDescriptorOffset(),
-                ((FileMediaItem) item1).getFileDescriptorLength()).build();
+                ((FileMediaItem) item1).getParcelFileDescriptor().dup())
+                .setFileDescriptorOffset(((FileMediaItem) item1).getFileDescriptorOffset())
+                .setFileDescriptorLength(((FileMediaItem) item1).getFileDescriptorLength())
+                .build();
         final MediaItem item4 = new FileMediaItem.Builder(
-                ((FileMediaItem) item2).getParcelFileDescriptor().dup(),
-                ((FileMediaItem) item2).getFileDescriptorOffset(),
-                ((FileMediaItem) item2).getFileDescriptorLength()).build();
+                ((FileMediaItem) item2).getParcelFileDescriptor().dup())
+                .setFileDescriptorOffset(((FileMediaItem) item1).getFileDescriptorOffset())
+                .setFileDescriptorLength(((FileMediaItem) item1).getFileDescriptorLength())
+                .build();
 
         final Monitor onPlaybackCompletedCalled = new Monitor();
         final List<MediaItem> playedDSDs = new ArrayList<>();
@@ -2646,8 +2651,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         MediaItem item1;
         try (AssetFileDescriptor afd1 = mResources.openRawResourceFd(resid1)) {
             item1 = new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd1.getFileDescriptor()),
-                    afd1.getStartOffset(), afd1.getLength())
+                    ParcelFileDescriptor.dup(afd1.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd1.getStartOffset())
+                    .setFileDescriptorLength(afd1.getLength())
                     .setStartPosition(start1)
                     .setEndPosition(end1)
                     .build();
@@ -2660,8 +2666,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         MediaItem item2;
         try (AssetFileDescriptor afd2 = mResources.openRawResourceFd(resid2)) {
             item2 = new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd2.getFileDescriptor()),
-                    afd2.getStartOffset(), afd2.getLength())
+                    ParcelFileDescriptor.dup(afd2.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd2.getStartOffset())
+                    .setFileDescriptorLength(afd2.getLength())
                     .setStartPosition(start2)
                     .setEndPosition(end2)
                     .build();
@@ -2739,8 +2746,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         MediaItem item;
         try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
             item = new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
-                    afd.getStartOffset(), afd.getLength())
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd.getStartOffset())
+                    .setFileDescriptorLength(afd.getLength())
                     .setStartPosition(start)
                     .setEndPosition(end)
                     .build();
@@ -2813,8 +2821,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         MediaItem item1;
         try (AssetFileDescriptor afd1 = mResources.openRawResourceFd(resid1)) {
             item1 = new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd1.getFileDescriptor()),
-                    afd1.getStartOffset(), afd1.getLength())
+                    ParcelFileDescriptor.dup(afd1.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd1.getStartOffset())
+                    .setFileDescriptorLength(afd1.getLength())
                     .setStartPosition(start1)
                     .setEndPosition(end1)
                     .build();
@@ -2826,8 +2835,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         MediaItem item2;
         try (AssetFileDescriptor afd2 = mResources.openRawResourceFd(resid2)) {
             item2 = new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd2.getFileDescriptor()),
-                    afd2.getStartOffset(), afd2.getLength())
+                    ParcelFileDescriptor.dup(afd2.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd2.getStartOffset())
+                    .setFileDescriptorLength(afd2.getLength())
                     .setStartPosition(start2)
                     .setEndPosition(end2)
                     .build();

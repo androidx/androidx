@@ -127,8 +127,10 @@ abstract class MediaPlayerTestBase extends MediaTestBase {
     boolean loadResource(int resid) throws Exception {
         try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
             mPlayer.setMediaItem(new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
-                    afd.getStartOffset(), afd.getLength()).build());
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd.getStartOffset())
+                    .setFileDescriptorLength(afd.getLength())
+                    .build());
         }
         return true;
     }
