@@ -823,6 +823,10 @@ public class NavController {
 
     /**
      * Navigate to a destination via the given deep link {@link Uri}.
+     * {@link NavDestination#hasDeepLink(Uri)} should be called on
+     * {@link #getGraph() the navigation graph} prior to calling this method to check if the deep
+     * link is valid. If an invalid deep link is given, an {@link IllegalArgumentException} will be
+     * thrown.
      *
      * @param deepLink deepLink to the destination reachable from the current NavGraph
      */
@@ -832,6 +836,10 @@ public class NavController {
 
     /**
      * Navigate to a destination via the given deep link {@link Uri}.
+     * {@link NavDestination#hasDeepLink(Uri)} should be called on
+     * {@link #getGraph() the navigation graph} prior to calling this method to check if the deep
+     * link is valid. If an invalid deep link is given, an {@link IllegalArgumentException} will be
+     * thrown.
      *
      * @param deepLink deepLink to the destination reachable from the current NavGraph
      * @param navOptions special options for this navigation operation
@@ -842,6 +850,10 @@ public class NavController {
 
     /**
      * Navigate to a destination via the given deep link {@link Uri}.
+     * {@link NavDestination#hasDeepLink(Uri)} should be called on
+     * {@link #getGraph() the navigation graph} prior to calling this method to check if the deep
+     * link is valid. If an invalid deep link is given, an {@link IllegalArgumentException} will be
+     * thrown.
      *
      * @param deepLink deepLink to the destination reachable from the current NavGraph
      * @param navOptions special options for this navigation operation

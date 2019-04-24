@@ -296,8 +296,28 @@ public class NavDestination {
     }
 
     /**
+     * Checks the given deep link {@link Uri}, and determines whether it matches a Uri pattern added
+     * to the destination by a call to {@link #addDeepLink(String)} . It returns <code>true</code>
+     * if the deep link is a valid match, and <code>false</code> otherwise.
+     *
+     * <p>
+     * This should be called prior to {@link NavController#navigate(Uri)} to ensure the deep link
+     * can be navigated to.
+     * </p>
+     *
+     * @param deepLink to the destination reachable from the current NavGraph
+     * @return True if the deepLink exists for the destination.
+     * @see #addDeepLink(String)
+     * @see NavController#navigate(Uri)
+     */
+    public boolean hasDeepLink(@NonNull Uri deepLink) {
+        return matchDeepLink(deepLink) != null;
+    }
+
+    /**
      * Add a deep link to this destination. Matching Uris sent to
-     * {@link NavController#handleDeepLink(Intent)} will trigger navigating to this destination.
+     * {@link NavController#handleDeepLink(Intent)} or {@link NavController#navigate(Uri)} will
+     * trigger navigating to this destination.
      * <p>
      * In addition to a direct Uri match, the following features are supported:
      * <ul>
@@ -321,6 +341,7 @@ public class NavDestination {
      * when constructing the uriPattern.
      * @param uriPattern The uri pattern to add as a deep link
      * @see NavController#handleDeepLink(Intent)
+     * @see NavController#navigate(Uri)
      */
     public final void addDeepLink(@NonNull String uriPattern) {
         if (mDeepLinks == null) {
