@@ -19,6 +19,7 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.platform.ParagraphAndroid
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
+import androidx.ui.services.text_editing.TextRange
 
 /**
  * A paragraph of text.
@@ -162,6 +163,18 @@ class Paragraph internal constructor(
     /** Returns the text position closest to the given offset. */
     fun getPositionForOffset(offset: Offset): TextPosition {
         return paragraphImpl.getPositionForOffset(offset)
+    }
+
+    /**
+     * Returns the TextRange of the word at the given offset. Characters not
+     * part of a word, such as spaces, symbols, and punctuation, have word breaks
+     * on both sides. In such cases, this method will return TextRange(offset, offset+1).
+     * Word boundaries are defined more precisely in Unicode Standard Annex #29
+     * http://www.unicode.org/reports/tr29/#Word_Boundaries
+     */
+    fun getWordBoundary(offset: Int): TextRange {
+        val (start, end) = paragraphImpl.getWordBoundary(offset)
+        return TextRange(start, end)
     }
 
     // Redirecting the paint function in this way solves some dependency problems

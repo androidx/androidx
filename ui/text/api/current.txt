@@ -93,6 +93,7 @@ package androidx.ui.engine.text {
     method public androidx.ui.engine.text.TextPosition getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public StringBuilder getText();
     method public float getWidth();
+    method public androidx.ui.services.text_editing.TextRange getWordBoundary(int offset);
     method public void layout(androidx.ui.engine.text.ParagraphConstraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, float x, float y);
     property public final float alphabeticBaseline;
@@ -425,6 +426,7 @@ package androidx.ui.painting {
     method public androidx.ui.engine.text.TextDirection? getTextDirection();
     method public float getTextScaleFactor();
     method public float getWidth();
+    method public androidx.ui.services.text_editing.TextRange getWordBoundary(androidx.ui.engine.text.TextPosition position);
     method public void layout(float minWidth = 0.0f, float maxWidth = Float.POSITIVE_INFINITY);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void setEllipsis(Boolean? value);
@@ -574,6 +576,7 @@ package androidx.ui.rendering.paragraph {
     method public float getTextScaleFactor();
     method public androidx.ui.engine.geometry.Size getTextSize();
     method public float getWidth();
+    method public androidx.ui.services.text_editing.TextRange getWordBoundary(androidx.ui.engine.text.TextPosition position);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void paintSelection(androidx.ui.painting.Canvas canvas, androidx.ui.services.text_editing.TextSelection selection);
     method public void performLayout(androidx.ui.core.Constraints constraints);

@@ -38,6 +38,7 @@ import androidx.ui.painting.Shader
 import androidx.ui.painting.TextPainter
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.basictypes.RenderComparison
+import androidx.ui.services.text_editing.TextRange
 /*import androidx.ui.semantics.SemanticsConfiguration*/
 import androidx.ui.services.text_editing.TextSelection
 
@@ -395,6 +396,21 @@ class RenderParagraph(
     fun getPositionForOffset(offset: Offset): TextPosition {
         layoutTextWithConstraints(constraints!!)
         return textPainter.getPositionForOffset(offset)
+    }
+
+    /**
+     * Returns the text range of the word at the given offset. Characters not part of a word, such
+     * as spaces, symbols, and punctuation, have word breaks on both sides. In such cases, this
+     * method will return a text range that contains the given text position.
+     *
+     * Word boundaries are defined more precisely in Unicode Standard Annex #29
+     * <http://www.unicode.org/reports/tr29/#Word_Boundaries>.
+     *
+     * Valid only after [layout].
+     */
+    fun getWordBoundary(position: TextPosition): TextRange {
+        layoutTextWithConstraints(constraints!!)
+        return textPainter.getWordBoundary(position)
     }
 
     /**
