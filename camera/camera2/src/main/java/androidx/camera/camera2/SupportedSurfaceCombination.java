@@ -70,6 +70,7 @@ final class SupportedSurfaceCombination {
     private static final Size QUALITY_720P_SIZE = new Size(1280, 720);
     private static final Size QUALITY_480P_SIZE = new Size(720, 480);
     private final List<SurfaceCombination> mSurfaceCombinations = new ArrayList<>();
+    private final Map<Integer, Size> mMaxSizeCache = new HashMap<>();
     private String mCameraId;
     private CameraCharacteristics mCharacteristics;
     private int mHardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
@@ -153,7 +154,7 @@ final class SupportedSurfaceCombination {
             configType = ConfigType.PRIV;
         }
 
-        Size maxSize = mSurfaceSizeDefinition.getMaximumSizeMap().get(imageFormat);
+        Size maxSize = fetchMaxSize(imageFormat);
 
         // Compare with surface size definition to determine the surface configuration size
         if (size.getWidth() * size.getHeight()
@@ -239,6 +240,16 @@ final class SupportedSurfaceCombination {
 
     SurfaceSizeDefinition getSurfaceSizeDefinition() {
         return mSurfaceSizeDefinition;
+    }
+
+    private Size fetchMaxSize(int imageFormat) {
+        Size size = mMaxSizeCache.get(imageFormat);
+        if (size != null) {
+            return size;
+        }
+        Size maxSize = getMaxOutputSizeByFormat(imageFormat);
+        mMaxSizeCache.put(imageFormat, maxSize);
+        return maxSize;
     }
 
     private List<Integer> getUseCasesPriorityOrder(List<UseCase> newUseCases) {
@@ -895,28 +906,8 @@ final class SupportedSurfaceCombination {
         Size analysisSize = new Size(640, 480);
         Size previewSize = getPreviewSize(windowManager);
         Size recordSize = getRecordSize();
-
-        Map<Integer, Size> maximumSizeMap = new HashMap<>();
-        maximumSizeMap.put(ImageFormat.JPEG, getMaxOutputSizeByFormat(ImageFormat.JPEG));
-        maximumSizeMap.put(
-                ImageFormat.YUV_420_888, getMaxOutputSizeByFormat(ImageFormat.YUV_420_888));
-        /**
-         * Except for ImageFormat.JPEG or ImageFormat.YUV, other image formats like {@link
-         * android.graphics.SurfaceTexture} or {@link android.media.MediaCodec} classes will be
-         * mapped to internal defined format HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED (0x22) in
-         * StreamConfigurationMap.java. 0x22 is also the code for ImageFormat.PRIVATE that is public
-         * after Android level 23.Before Android level 23, there is same internal code 0x22 for
-         * internal defined format HAL_PIXEL_FORMAT_IMPLEMENTATION_DEFINED. Therefore, using the
-         * code 0x22 to store maximum size for Preview or VideoCapture use cases since they will
-         * finally map to this code.
-         */
-        maximumSizeMap.put(
-                ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
-                getMaxOutputSizeByFormat(
-                        ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE));
-
         mSurfaceSizeDefinition =
-                SurfaceSizeDefinition.create(analysisSize, previewSize, recordSize, maximumSizeMap);
+                SurfaceSizeDefinition.create(analysisSize, previewSize, recordSize);
     }
 
     /**

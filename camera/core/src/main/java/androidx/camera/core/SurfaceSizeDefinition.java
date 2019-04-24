@@ -23,8 +23,6 @@ import androidx.annotation.RestrictTo.Scope;
 
 import com.google.auto.value.AutoValue;
 
-import java.util.Map;
-
 /**
  * Camera device surface size definition
  *
@@ -51,17 +49,13 @@ public abstract class SurfaceSizeDefinition {
      *                       or to 1080p * (1920x1080), whichever is smaller.
      * @param recordSize     RECORD refers to the camera device's maximum supported * recording
      *                       resolution, as determined by CamcorderProfile.
-     * @param maximumSizeMap MAXIMUM refers to the camera * device's maximum output resolution for
-     *                       that format or target from * StreamConfigurationMap.getOutputSizes(int)
      * @return new {@link SurfaceSizeDefinition} object
      */
     public static SurfaceSizeDefinition create(
             Size analysisSize,
             Size previewSize,
-            Size recordSize,
-            Map<Integer, Size> maximumSizeMap) {
-        return new AutoValue_SurfaceSizeDefinition(
-                analysisSize, previewSize, recordSize, maximumSizeMap);
+            Size recordSize) {
+        return new AutoValue_SurfaceSizeDefinition(analysisSize, previewSize, recordSize);
     }
 
     /** Returns the size of an ANALYSIS stream. */
@@ -72,10 +66,4 @@ public abstract class SurfaceSizeDefinition {
 
     /** Returns the size of a RECORD stream*/
     public abstract Size getRecordSize();
-
-    /**
-     * Returns a map of image format to resolution.
-     * @return a map with the image format as the key and resolution as the value.
-     */
-    public abstract Map<Integer, Size> getMaximumSizeMap();
 }
