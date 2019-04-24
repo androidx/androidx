@@ -16,13 +16,11 @@
 
 package androidx.ui.layout
 
-import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
-import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
-import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.dp
 import androidx.ui.core.min
+import androidx.ui.core.offset
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -41,8 +39,16 @@ data class EdgeInsets(
 }
 
 /**
+ * The total amount of horizontal inset in the current instance.
+ */
+val EdgeInsets.totalHorizontal: Dp get() = left + right
+/**
+ * The total amount of vertical inset in the current instance.
+ */
+val EdgeInsets.totalVertical: Dp get() = top + bottom
+
+/**
  * Layout widget that takes a child composable and applies whitespace padding around it.
- *
  * When passing layout constraints to its child, [Padding] shrinks the constraints by the
  * requested padding, causing the child to layout at a smaller size.
  *
@@ -70,12 +76,7 @@ fun Padding(
             val horizontalPadding = (paddingLeft + paddingRight)
             val verticalPadding = (paddingTop + paddingBottom)
 
-            val newConstraints = Constraints(
-                minWidth = (constraints.minWidth - horizontalPadding).coerceAtLeast(IntPx.Zero),
-                maxWidth = (constraints.maxWidth - horizontalPadding).coerceAtLeast(IntPx.Zero),
-                minHeight = (constraints.minHeight - verticalPadding).coerceAtLeast(IntPx.Zero),
-                maxHeight = (constraints.maxHeight - verticalPadding).coerceAtLeast(IntPx.Zero)
-            )
+            val newConstraints = constraints.offset(-horizontalPadding, -verticalPadding)
             val placeable = measurable.measure(newConstraints)
             val width =
                 min(placeable.width + horizontalPadding, constraints.maxWidth)

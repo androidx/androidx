@@ -19,6 +19,7 @@ package androidx.ui.layout
 import androidx.ui.core.Constraints
 import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Dp
+import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
 import androidx.ui.core.isFinite
@@ -138,6 +139,26 @@ fun DpConstraints.withTight(width: Dp? = null, height: Dp? = null) = DpConstrain
     maxWidth = width ?: this.maxWidth,
     minHeight = height ?: this.minHeight,
     maxHeight = height ?: this.maxHeight
+)
+
+/**
+ * Returns a copy of the current instance, with no min constraints.
+ */
+fun DpConstraints.looseMin() = this.copy(minWidth = 0.dp, minHeight = 0.dp)
+
+/**
+ * Returns a copy of the current instance, with no max constraints.
+ */
+fun DpConstraints.looseMax() = this.copy(maxWidth = Dp.Infinity, maxHeight = Dp.Infinity)
+
+/**
+ * Returns the DpConstraints obtained by offsetting the current instance with the given values.
+ */
+fun DpConstraints.offset(horizontal: Dp = 0.dp, vertical: Dp = 0.dp) = DpConstraints(
+    (minWidth + horizontal).coerceAtLeast(0.dp),
+    (maxWidth + horizontal).coerceAtLeast(0.dp),
+    (minHeight + vertical).coerceAtLeast(0.dp),
+    (maxHeight + vertical).coerceAtLeast(0.dp)
 )
 
 /**

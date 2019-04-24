@@ -24,6 +24,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Measurable
 import androidx.ui.core.ParentData
 import androidx.ui.core.Placeable
+import androidx.ui.core.looseMin
 import androidx.ui.core.max
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -112,9 +113,7 @@ fun Stack(
         val placeables = arrayOfNulls<Placeable>(measurables.size)
         // First measure aligned children to get the size of the layout.
         (0 until measurables.size).filter { i -> !measurables[i].positioned }.forEach { i ->
-            placeables[i] = measurables[i].measure(
-                Constraints(IntPx.Zero, constraints.maxWidth, IntPx.Zero, constraints.maxHeight)
-            )
+            placeables[i] = measurables[i].measure(constraints.looseMin())
         }
 
         val (stackWidth, stackHeight) = with(placeables.filterNotNull()) {

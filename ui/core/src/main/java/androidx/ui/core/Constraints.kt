@@ -148,3 +148,23 @@ fun Constraints.constrain(size: IntPxSize) = IntPxSize(
     size.width.coerceIn(minWidth, maxWidth),
     size.height.coerceIn(minHeight, maxHeight)
 )
+
+/**
+ * Returns a copy of the current instance, with no min constraints.
+ */
+fun Constraints.looseMin() = this.copy(minWidth = 0.ipx, minHeight = 0.ipx)
+
+/**
+ * Returns a copy of the current instance, with no max constraints.
+ */
+fun Constraints.looseMax() = this.copy(maxWidth = IntPx.Infinity, maxHeight = IntPx.Infinity)
+
+/**
+ * Returns the Constraints obtained by offsetting the current instance with the given values.
+ */
+fun Constraints.offset(horizontal: IntPx = 0.ipx, vertical: IntPx = 0.ipx) = Constraints(
+    (minWidth + horizontal).coerceAtLeast(0.ipx),
+    (maxWidth + horizontal).coerceAtLeast(0.ipx),
+    (minHeight + vertical).coerceAtLeast(0.ipx),
+    (maxHeight + vertical).coerceAtLeast(0.ipx)
+)

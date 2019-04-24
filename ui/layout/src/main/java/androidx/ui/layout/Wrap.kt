@@ -16,10 +16,10 @@
 
 package androidx.ui.layout
 
-import androidx.ui.core.Constraints
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.ipx
+import androidx.ui.core.looseMin
 import androidx.ui.core.max
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -39,11 +39,7 @@ fun Wrap(alignment: Alignment = Alignment.TopLeft, @Children children: () -> Uni
     <Layout layoutBlock = { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
-        val childConstraints = Constraints(
-            maxWidth = constraints.maxWidth,
-            maxHeight = constraints.maxHeight
-        )
-        val placeable = measurable?.measure(childConstraints)
+        val placeable = measurable?.measure(constraints.looseMin())
 
         // Try to be as small as possible.
         val layoutWidth = max(placeable?.width ?: 0.ipx, constraints.minWidth)
