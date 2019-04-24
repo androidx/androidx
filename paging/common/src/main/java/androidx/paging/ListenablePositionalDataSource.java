@@ -220,4 +220,117 @@ public abstract class ListenablePositionalDataSource<T> extends DataSource<Integ
             super(data, null, null, 0, 0, 0, false);
         }
     }
+
+    /**
+     * Helper for computing an initial position in
+     * {@link #loadInitial(LoadInitialParams)} when total data set size can be
+     * computed ahead of loading.
+     * <p>
+     * The value computed by this function will do bounds checking, page alignment, and positioning
+     * based on initial load size requested.
+     * <p>
+     * Example usage in a PositionalDataSource subclass:
+     * <pre>
+     * class ItemDataSource extends PositionalDataSource&lt;Item> {
+     *     private int computeCount() {
+     *         // actual count code here
+     *     }
+     *
+     *     private List&lt;Item> loadRangeInternal(int startPosition, int loadCount) {
+     *         // actual load code here
+     *     }
+     *
+     *     {@literal @}Override
+     *     public void loadInitial({@literal @}NonNull LoadInitialParams params,
+     *             {@literal @}NonNull LoadInitialCallback&lt;Item> callback) {
+     *         int totalCount = computeCount();
+     *         int position = computeInitialLoadPosition(params, totalCount);
+     *         int loadSize = computeInitialLoadSize(params, position, totalCount);
+     *         callback.onResult(loadRangeInternal(position, loadSize), position, totalCount);
+     *     }
+     *
+     *     {@literal @}Override
+     *     public void loadRange({@literal @}NonNull LoadRangeParams params,
+     *             {@literal @}NonNull LoadRangeCallback&lt;Item> callback) {
+     *         callback.onResult(loadRangeInternal(params.startPosition, params.loadSize));
+     *     }
+     * }</pre>
+     *
+     * @param params Params passed to {@link #loadInitial(LoadInitialParams)},
+     *               including page size, and requested start/loadSize.
+     * @param totalCount Total size of the data set.
+     * @return Position to start loading at.
+     *
+     *
+     * @see #computeInitialLoadSize(ListenablePositionalDataSource.LoadInitialParams, int, int)
+     */
+    public static int computeInitialLoadPosition(
+            @NonNull ListenablePositionalDataSource.LoadInitialParams params,
+            int totalCount) {
+        int position = params.requestedStartPosition;
+        int initialLoadSize = params.requestedLoadSize;
+        int pageSize = params.pageSize;
+
+        int pageStart = position / pageSize * pageSize;
+
+        // maximum start pos is that which will encompass end of list
+        int maximumLoadPage = ((totalCount - initialLoadSize + pageSize - 1) / pageSize) * pageSize;
+        pageStart = Math.min(maximumLoadPage, pageStart);
+
+        // minimum start position is 0
+        pageStart = Math.max(0, pageStart);
+
+        return pageStart;
+    }
+
+    /**
+     * Helper for computing an initial load size in
+     * {@link #loadInitial(LoadInitialParams)} when total data set size can be
+     * computed ahead of loading.
+     * <p>
+     * This function takes the requested load size, and bounds checks it against the value returned
+     * by
+     * {@link #computeInitialLoadPosition(ListenablePositionalDataSource.LoadInitialParams, int)}.
+     * <p>
+     * Example usage in a PositionalDataSource subclass:
+     * <pre>
+     * class ItemDataSource extends PositionalDataSource&lt;Item> {
+     *     private int computeCount() {
+     *         // actual count code here
+     *     }
+     *
+     *     private List&lt;Item> loadRangeInternal(int startPosition, int loadCount) {
+     *         // actual load code here
+     *     }
+     *
+     *     {@literal @}Override
+     *     public void loadInitial({@literal @}NonNull LoadInitialParams params,
+     *             {@literal @}NonNull LoadInitialCallback&lt;Item> callback) {
+     *         int totalCount = computeCount();
+     *         int position = computeInitialLoadPosition(params, totalCount);
+     *         int loadSize = computeInitialLoadSize(params, position, totalCount);
+     *         callback.onResult(loadRangeInternal(position, loadSize), position, totalCount);
+     *     }
+     *
+     *     {@literal @}Override
+     *     public void loadRange({@literal @}NonNull LoadRangeParams params,
+     *             {@literal @}NonNull LoadRangeCallback&lt;Item> callback) {
+     *         callback.onResult(loadRangeInternal(params.startPosition, params.loadSize));
+     *     }
+     * }</pre>
+     *
+     * @param params Params passed to {@link #loadInitial(LoadInitialParams)},
+     *               including page size, and requested start/loadSize.
+     * @param initialLoadPosition Value returned by
+     *   {@link #computeInitialLoadPosition(ListenablePositionalDataSource.LoadInitialParams, int)}
+     * @param totalCount Total size of the data set.
+     * @return Number of items to load.
+     *
+     * @see #computeInitialLoadPosition(ListenablePositionalDataSource.LoadInitialParams, int)
+     */
+    public static int computeInitialLoadSize(@NonNull
+            ListenablePositionalDataSource.LoadInitialParams params,
+            int initialLoadPosition, int totalCount) {
+        return Math.min(totalCount - initialLoadPosition, params.requestedLoadSize);
+    }
 }

@@ -117,6 +117,8 @@ package androidx.paging {
 
   public abstract class ListenablePositionalDataSource<T> extends androidx.paging.DataSource<java.lang.Integer,T> {
     ctor public ListenablePositionalDataSource();
+    method public static int computeInitialLoadPosition(androidx.paging.ListenablePositionalDataSource.LoadInitialParams, int);
+    method public static int computeInitialLoadSize(androidx.paging.ListenablePositionalDataSource.LoadInitialParams, int, int);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePositionalDataSource.InitialResult<T>> loadInitial(androidx.paging.ListenablePositionalDataSource.LoadInitialParams);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePositionalDataSource.RangeResult<T>> loadRange(androidx.paging.ListenablePositionalDataSource.LoadRangeParams);
   }
@@ -263,8 +265,8 @@ package androidx.paging {
 
   public abstract class PositionalDataSource<T> extends androidx.paging.ListenablePositionalDataSource<T> {
     ctor public PositionalDataSource();
-    method public static int computeInitialLoadPosition(androidx.paging.ListenablePositionalDataSource.LoadInitialParams, int);
-    method public static int computeInitialLoadSize(androidx.paging.ListenablePositionalDataSource.LoadInitialParams, int, int);
+    method public static int computeInitialLoadPosition(androidx.paging.PositionalDataSource.LoadInitialParams, int);
+    method public static int computeInitialLoadSize(androidx.paging.PositionalDataSource.LoadInitialParams, int, int);
     method public final com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePositionalDataSource.InitialResult<T>> loadInitial(androidx.paging.ListenablePositionalDataSource.LoadInitialParams);
     method @WorkerThread public abstract void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T>);
     method public final com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePositionalDataSource.RangeResult<T>> loadRange(androidx.paging.ListenablePositionalDataSource.LoadRangeParams);
