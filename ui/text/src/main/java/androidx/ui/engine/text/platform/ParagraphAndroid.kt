@@ -211,18 +211,29 @@ internal class ParagraphAndroid constructor(
         this.width = floorWidth
     }
 
+    // TODO(qqd): TextAffinity in TextPosition is not implemented. We need to clean it up in future.
     fun getPositionForOffset(offset: Offset): TextPosition {
-        val line = ensureLayout.layout.getLineForVertical(offset.dy.toInt())
+        val line = ensureLayout.getLineForVertical(offset.dy.toInt())
         return TextPosition(
-            offset = ensureLayout.layout.getOffsetForHorizontal(line, offset.dx),
+            offset = ensureLayout.getOffsetForHorizontal(line, offset.dx),
             // TODO(Migration/siyamed): we provide a default value
             affinity = TextAffinity.upstream
         )
     }
 
+    fun getCaretForTextPosition(textPosition: TextPosition): Pair<Offset, Offset> {
+        val horizontal = ensureLayout.getPrimaryHorizontal(textPosition.offset)
+
+        val line = ensureLayout.getLineForOffset(textPosition.offset)
+        val top = ensureLayout.getLineTop(line).toFloat()
+        val bottom = ensureLayout.getLineBottom(line).toFloat()
+
+        return Pair(Offset(horizontal, top), Offset(horizontal, bottom))
+    }
+
     fun getPathForRange(start: Int, end: Int): Path {
         val path = android.graphics.Path()
-        ensureLayout.layout.getSelectionPath(start, end, path)
+        ensureLayout.getSelectionPath(start, end, path)
         return Path(path)
     }
 

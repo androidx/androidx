@@ -16,6 +16,7 @@
 package androidx.text
 
 import android.graphics.Canvas
+import android.graphics.Path
 import android.os.Build
 import android.text.Layout
 import android.text.Spanned
@@ -165,6 +166,22 @@ class TextLayout constructor(
         (layout.getLineBottom(lineIndex) - layout.getLineTop(lineIndex)).toFloat()
 
     fun getLineWidth(lineIndex: Int): Float = layout.getLineWidth(lineIndex)
+
+    fun getLineForVertical(vertical: Int): Int = layout.getLineForVertical(vertical)
+
+    fun getOffsetForHorizontal(line: Int, horizontal: Float): Int =
+        layout.getOffsetForHorizontal(line, horizontal)
+
+    fun getPrimaryHorizontal(offset: Int): Float = layout.getPrimaryHorizontal(offset)
+
+    fun getLineForOffset(offset: Int): Int = layout.getLineForOffset(offset)
+
+    fun getLineTop(line: Int): Int = layout.getLineTop(line)
+
+    fun getLineBottom(line: Int): Int = layout.getLineBottom(line)
+
+    fun getSelectionPath(start: Int, end: Int, dest: Path) =
+        layout.getSelectionPath(start, end, dest)
 
     /**
      * @return true if the given line is ellipsized, else false.

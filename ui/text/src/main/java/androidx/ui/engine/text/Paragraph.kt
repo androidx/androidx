@@ -166,6 +166,15 @@ class Paragraph internal constructor(
     }
 
     /**
+     * Returns the coordinates of top and bottom end of the Caret for given TextPosition. The Caret
+     * is on the left side of the character at the given TextPosition for LTR text, and on the right
+     * side of the character at the given TextPosition for RTL text.
+     */
+    fun getCaretForTextPosition(textPosition: TextPosition): Pair<Offset, Offset> {
+        return paragraphImpl.getCaretForTextPosition(textPosition)
+    }
+
+    /**
      * Returns the TextRange of the word at the given offset. Characters not
      * part of a word, such as spaces, symbols, and punctuation, have word breaks
      * on both sides. In such cases, this method will return TextRange(offset, offset+1).
