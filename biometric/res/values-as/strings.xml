@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright (C) 2017 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"ফিংগাৰপ্ৰিণ্ট ছেন্সৰটো স্পৰ্শ কৰক"</string>
+    <string name="fingerprint_not_recognized" msgid="5491287833813257925">"চিনাক্ত কৰিব পৰা নাই"</string>
+    <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"সহায় বাৰ্তাৰ ক্ষেত্ৰ"</string>
+    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"ফিংগাৰপ্ৰিণ্ট হাৰ্ডৱেৰ নাই।"</string>
+    <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"কোনো ফিংগাৰপ্ৰিণ্ট যোগ কৰা নহ\'ল।"</string>
+    <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"এই ডিভাইচটোত ফিংগাৰপ্ৰিণ্ট ছেন্সৰ নাই"</string>
+    <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ব্যৱহাৰকাৰীয়ে ফিংগাৰপ্ৰিণ্টৰ দ্বাৰা বিশ্বাসযোগ্যতা প্ৰমাণীকৰণ কাৰ্য বাতিল কৰিছে।"</string>
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"অতি বেছি চেষ্টা অনুগ্ৰহ কৰি পিছত আকৌ চেষ্টা কৰক।"</string>
+    <string name="default_error_msg" msgid="7497355367608150274">"অজ্ঞাত আসোঁৱাহ"</string>
+</resources>
