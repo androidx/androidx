@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -69,6 +70,8 @@ import java.util.List;
 @SuppressWarnings("PrivateApi")
 final class ActivityRecreator {
     private ActivityRecreator() {}
+
+    private static final String LOG_TAG = "ActivityRecreator";
 
     // android.app.ActivityThread
     protected static final Class<?> activityThreadClass;
@@ -164,7 +167,6 @@ final class ActivityRecreator {
                 });
             }
         } catch (Throwable t) {
-            handleReflectiveException(t);
             return false;
         }
     }
@@ -259,26 +261,24 @@ final class ActivityRecreator {
                                     token, false);
                         }
                     } catch (RuntimeException e) {
-                        // If an mActivity throws from onStop, don't swallow it
+                        // If an Activity throws from onStop, don't swallow it
                         if (e.getClass() == RuntimeException.class
                                 && e.getMessage() != null
                                 && e.getMessage().startsWith("Unable to stop")) {
                             throw e;
-                        } else {
-                            handleReflectiveException(e);
                         }
                         // Otherwise just swallow it - we're calling random private methods,
-                        // there's no
-                        // guarantee on how they'll behave.
+                        // there's no guarantee on how they'll behave.
                     } catch (Throwable t) {
-                        handleReflectiveException(t);
+                        Log.e(LOG_TAG, "Exception while invoking performStopActivity", t);
                     }
                 }
             });
+            return true;
         } catch (Throwable t) {
-            handleReflectiveException(t);
+            Log.e(LOG_TAG, "Exception while fetching field values", t);
+            return false;
         }
-        return true;
     }
 
     private static Method getPerformStopActivity3Params(Class<?> activityThreadClass) {
@@ -291,7 +291,6 @@ final class ActivityRecreator {
             performStop.setAccessible(true);
             return performStop;
         } catch (Throwable t) {
-            handleReflectiveException(t);
             return null;
         }
     }
@@ -306,7 +305,6 @@ final class ActivityRecreator {
             performStop.setAccessible(true);
             return performStop;
         } catch (Throwable t) {
-            handleReflectiveException(t);
             return null;
         }
     }
@@ -334,7 +332,6 @@ final class ActivityRecreator {
             relaunch.setAccessible(true);
             return relaunch;
         } catch (Throwable t) {
-            handleReflectiveException(t);
             return null;
         }
     }
@@ -345,7 +342,6 @@ final class ActivityRecreator {
             mainThreadField.setAccessible(true);
             return mainThreadField;
         } catch (Throwable t) {
-            handleReflectiveException(t);
             return null;
         }
     }
@@ -356,7 +352,6 @@ final class ActivityRecreator {
             tokenField.setAccessible(true);
             return tokenField;
         } catch (Throwable t) {
-            handleReflectiveException(t);
             return null;
         }
     }
@@ -365,12 +360,7 @@ final class ActivityRecreator {
         try {
             return Class.forName("android.app.ActivityThread");
         } catch (Throwable t) {
-            handleReflectiveException(t);
             return null;
         }
-    }
-
-    protected static void handleReflectiveException(Throwable t) {
-        t.printStackTrace();
     }
 }
