@@ -24,6 +24,7 @@ import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertSemanticsIsEqualTo
+import androidx.ui.test.copyWith
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
@@ -48,12 +49,11 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
 
     private val unselectedRadioGroupItemSemantics = createFullSemantics(
         inMutuallyExclusiveGroup = true,
-        selected = false
+        isSelected = false
     )
-    private val selectedRadioGroupItemSemantics = createFullSemantics(
-        inMutuallyExclusiveGroup = true,
-        selected = true
-    )
+    private val selectedRadioGroupItemSemantics = unselectedRadioGroupItemSemantics.copyWith {
+        isSelected = true
+    }
     private val options = listOf(itemOne, itemTwo, itemThree)
 
     @Composable

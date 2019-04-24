@@ -25,6 +25,7 @@ import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertIsChecked
 import androidx.ui.test.assertIsNotChecked
 import androidx.ui.test.assertSemanticsIsEqualTo
+import androidx.ui.test.copyWith
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
@@ -44,13 +45,12 @@ class SwitchUiTest : AndroidUiTestRunner() {
     val disableTransitions = DisableTransitions()
 
     private val defaultUncheckedSwitchSemantics = createFullSemantics(
-        enabled = true,
-        checked = false
+        isEnabled = true,
+        isChecked = false
     )
-    private val defaultCheckedSwitchSemantics = createFullSemantics(
-        enabled = true,
-        checked = true
-    )
+    private val defaultCheckedSwitchSemantics = defaultUncheckedSwitchSemantics.copyWith {
+        isChecked = true
+    }
     private val defaultSwitchTag = "switch"
 
     @Test

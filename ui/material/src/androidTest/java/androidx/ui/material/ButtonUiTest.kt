@@ -38,8 +38,8 @@ import org.junit.runners.JUnit4
 class ButtonUiTest : AndroidUiTestRunner() {
 
     private val defaultButtonSemantics = createFullSemantics(
-        enabled = true,
-        button = true
+        isEnabled = true,
+        isButton = true
     )
 
     @Test
