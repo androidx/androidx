@@ -1,0 +1,9 @@
+# Files ignored by Google Cloud
+
+.gcloudignore
+.git
+.gitignore
+
+# Node.js dependencies:
+node_modules/
+.nvmrc
