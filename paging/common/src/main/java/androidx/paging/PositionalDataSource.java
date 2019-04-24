@@ -345,25 +345,11 @@ public abstract class PositionalDataSource<T> extends ListenablePositionalDataSo
      * @return Position to start loading at.
      *
      *
-     * @see #computeInitialLoadSize(ListenablePositionalDataSource.LoadInitialParams, int, int)
+     * @see #computeInitialLoadSize(LoadInitialParams, int, int)
      */
     public static int computeInitialLoadPosition(
-            @NonNull ListenablePositionalDataSource.LoadInitialParams params,
-            int totalCount) {
-        int position = params.requestedStartPosition;
-        int initialLoadSize = params.requestedLoadSize;
-        int pageSize = params.pageSize;
-
-        int pageStart = position / pageSize * pageSize;
-
-        // maximum start pos is that which will encompass end of list
-        int maximumLoadPage = ((totalCount - initialLoadSize + pageSize - 1) / pageSize) * pageSize;
-        pageStart = Math.min(maximumLoadPage, pageStart);
-
-        // minimum start position is 0
-        pageStart = Math.max(0, pageStart);
-
-        return pageStart;
+            @NonNull LoadInitialParams params, int totalCount) {
+        return ListenablePositionalDataSource.computeInitialLoadPosition(params, totalCount);
     }
 
     /**
@@ -373,7 +359,7 @@ public abstract class PositionalDataSource<T> extends ListenablePositionalDataSo
      * <p>
      * This function takes the requested load size, and bounds checks it against the value returned
      * by
-     * {@link #computeInitialLoadPosition(ListenablePositionalDataSource.LoadInitialParams, int)}.
+     * {@link #computeInitialLoadPosition(LoadInitialParams, int)}.
      * <p>
      * Example usage in a PositionalDataSource subclass:
      * <pre>
@@ -405,16 +391,16 @@ public abstract class PositionalDataSource<T> extends ListenablePositionalDataSo
      * @param params Params passed to {@link #loadInitial(LoadInitialParams, LoadInitialCallback)},
      *               including page size, and requested start/loadSize.
      * @param initialLoadPosition Value returned by
-     *   {@link #computeInitialLoadPosition(ListenablePositionalDataSource.LoadInitialParams, int)}
+     *   {@link #computeInitialLoadPosition(LoadInitialParams, int)}
      * @param totalCount Total size of the data set.
      * @return Number of items to load.
      *
-     * @see #computeInitialLoadPosition(ListenablePositionalDataSource.LoadInitialParams, int)
+     * @see #computeInitialLoadPosition(LoadInitialParams, int)
      */
-    public static int computeInitialLoadSize(@NonNull
-            ListenablePositionalDataSource.LoadInitialParams params,
-            int initialLoadPosition, int totalCount) {
-        return Math.min(totalCount - initialLoadPosition, params.requestedLoadSize);
+    public static int computeInitialLoadSize(
+            @NonNull LoadInitialParams params, int initialLoadPosition, int totalCount) {
+        return ListenablePositionalDataSource.computeInitialLoadSize(params, initialLoadPosition,
+                totalCount);
     }
 
     @NonNull
