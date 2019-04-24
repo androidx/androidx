@@ -19,17 +19,25 @@ package androidx.ui.test.android
 import android.app.Activity
 import android.app.Instrumentation
 import android.os.Looper
-import android.view.Choreographer
+import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
+import android.widget.FrameLayout
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.Compose
+import androidx.compose.CompositionContext
+import androidx.compose.composer
+import androidx.compose.setContent
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Density
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.test.UiTestRunner
-import androidx.compose.Composable
-import androidx.compose.setContent
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import java.util.concurrent.CountDownLatch
@@ -44,12 +52,17 @@ import java.util.concurrent.TimeUnit
 // TODO(pavlis): Move this to android specific directory
 open class AndroidUiTestRunner : UiTestRunner {
 
+    // we should not wait more than two frames, but two frames can be much more
+    // than 32ms when we skip a few, so "better" 10x number should work here
+    private val defaultRecomposeWaitTimeMs = 320L
+
     @get:Rule
     val activityTestRule = ActivityTestRule<DefaultTestActivity>(DefaultTestActivity::class.java)
 
     private lateinit var activity: DefaultTestActivity
     private lateinit var instrumentation: Instrumentation
     private lateinit var rootProvider: SemanticsTreeProvider
+    private var compositionContext: CompositionContext? = null
 
     val density: Density get() = Density(activity)
 
@@ -61,27 +74,52 @@ open class AndroidUiTestRunner : UiTestRunner {
         instrumentation = InstrumentationRegistry.getInstrumentation()
     }
 
-    private fun runOnUiThread(runnable: () -> Unit) {
-        activity.runOnUiThread {
-            runnable.invoke()
-        }
+    @After
+    fun teardown() {
+        compositionContext = null
     }
 
-    private fun onNextFrame(action: (time: Long) -> Unit) {
-        Choreographer.getInstance().postFrameCallback {
-            action.invoke(it)
-        }
-    }
-
-    private fun runAfterCompose(action: (time: Long) -> Unit) {
-        runOnUiThread {
-            // TODO(catalintudor):  will change after public APIs for checking composition is done
-            // will be added
-            onNextFrame {
-                onNextFrame {
-                    action.invoke(it)
-                }
+    private fun runOnUiThread(action: () -> Unit) {
+        activity.runOnUiThread(object : Runnable {
+            override fun run() {
+                action.invoke()
             }
+        })
+    }
+
+    @Composable
+    fun TestWrapper(@Children children: @Composable() () -> Unit) {
+        CraneWrapper {
+            children()
+        }
+    }
+
+    private fun runOnUiAndWaitForRecompose(runnable: () -> Unit) {
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            throw Exception("Cannot be run on UI thread.")
+        }
+        val latch = CountDownLatch(1)
+        runOnUiThread {
+            runWithCompositionContext {
+                addPostRecomposeObserver {
+                    latch.countDown()
+                }
+                runnable.invoke()
+            }
+        }
+        latch.await(defaultRecomposeWaitTimeMs, TimeUnit.MILLISECONDS)
+    }
+
+    private fun <T> runWithCompositionContext(action: CompositionContext.() -> T): T {
+        val cc = compositionContext
+        if (cc != null) {
+            return cc.run(action)
+        } else {
+            // forcing exception here as we don't want to work here without context
+            throw IllegalAccessException(
+                "Cannot find composition context to wait for recompose. Did you substitute" +
+                        "CraneWrapper for TestWrapper in your tests?"
+            )
         }
     }
 
@@ -112,9 +150,18 @@ open class AndroidUiTestRunner : UiTestRunner {
     @SuppressWarnings("SyntheticAccessor")
     fun setContent(composable: @Composable() () -> Unit) {
         val drawLatch = CountDownLatch(1)
+        val listener = object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                drawLatch.countDown()
+                val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
+                contentViewGroup.viewTreeObserver.removeOnGlobalLayoutListener(this)
+            }
+        }
         val runnable: Runnable = object : Runnable {
             override fun run() {
-                activity.setContent(composable)
+                setContentInternal(composable)
+                val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
+                contentViewGroup.viewTreeObserver.addOnGlobalLayoutListener(listener)
             }
         }
         activityTestRule.runOnUiThread(runnable)
@@ -127,34 +174,46 @@ open class AndroidUiTestRunner : UiTestRunner {
         rootProvider = findCompositionRootProvider()
     }
 
-    override fun findSemantics(
-        selector: (SemanticsTreeNode) -> Boolean
-    ): List<SemanticsTreeNode> {
+    private fun setContentInternal(composable: @Composable() () -> Unit) {
+        activity.setContentView(FrameLayout(activity).apply {
+            compositionContext = Compose.composeInto(this, null, composable = @Composable {
+                TestWrapper {
+                    composable()
+                }
+            })
+        })
+    }
+
+    override fun findSemantics(selector: (SemanticsTreeNode) -> Boolean): List<SemanticsTreeNode> {
         return rootProvider.getAllSemanticNodes().filter { selector(it) }.toList()
     }
 
-    override fun sendEvent(event: MotionEvent) {
-        var isDone = false
+    override fun performClick(x: Float, y: Float) {
+        runOnUiAndWaitForRecompose {
+            val eventDown = MotionEvent.obtain(
+                SystemClock.uptimeMillis(), 10,
+                MotionEvent.ACTION_DOWN, x, y, 0
+            )
+            rootProvider.sendEvent(eventDown)
+            eventDown.recycle()
 
-        runOnUiThread {
+            val eventUp = MotionEvent.obtain(
+                SystemClock.uptimeMillis(),
+                10,
+                MotionEvent.ACTION_UP,
+                x,
+                y,
+                0
+            )
+            rootProvider.sendEvent(eventUp)
+            eventUp.recycle()
+        }
+    }
+
+    override fun sendEvent(event: MotionEvent) {
+        runOnUiAndWaitForRecompose {
             rootProvider.sendEvent(event)
         }
-
-        runAfterCompose {
-            synchronized(this) {
-                isDone = true
-            }
-        }
-
-        if (Looper.getMainLooper() == Looper.myLooper()) {
-            throw Exception("Test cannot be run on UI thread.")
-        }
-
-        doPollingCheck({
-            synchronized(this) {
-                isDone
-            }
-        })
     }
 }
 

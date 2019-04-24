@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
@@ -43,16 +42,12 @@ class DividerUiTest : AndroidUiTestRunner() {
     @Test
     fun divider_DefaultSizes() {
         var size: PxSize? = null
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Container(constraints = bigConstraints) {
-                        OnChildPositioned(onPositioned = { position ->
-                            size = position.size
-                        }) {
-                            Divider()
-                        }
-                    }
+        setMaterialContent {
+            Container(constraints = bigConstraints) {
+                OnChildPositioned(onPositioned = { position ->
+                    size = position.size
+                }) {
+                    Divider()
                 }
             }
         }
@@ -67,16 +62,13 @@ class DividerUiTest : AndroidUiTestRunner() {
     fun divider_CustomSizes() {
         var size: PxSize? = null
         val height = 20.dp
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Container(constraints = bigConstraints) {
-                        OnChildPositioned(onPositioned = { position ->
-                            size = position.size
-                        }) {
-                            Divider(height = height)
-                        }
-                    }
+
+        setMaterialContent {
+            Container(constraints = bigConstraints) {
+                OnChildPositioned(onPositioned = { position ->
+                    size = position.size
+                }) {
+                    Divider(height = height)
                 }
             }
         }
@@ -92,16 +84,13 @@ class DividerUiTest : AndroidUiTestRunner() {
         var size: PxSize? = null
         val indent = 75.dp
         val height = 21.dp
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Container(constraints = bigConstraints) {
-                        OnChildPositioned(onPositioned = { position ->
-                            size = position.size
-                        }) {
-                            Divider(indent = indent, height = height)
-                        }
-                    }
+
+        setMaterialContent {
+            Container(constraints = bigConstraints) {
+                OnChildPositioned(onPositioned = { position ->
+                    size = position.size
+                }) {
+                    Divider(indent = indent, height = height)
                 }
             }
         }

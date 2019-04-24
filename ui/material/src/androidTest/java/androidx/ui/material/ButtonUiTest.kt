@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
 import androidx.ui.core.TestTag
@@ -50,14 +49,11 @@ class ButtonUiTest : AndroidUiTestRunner() {
 
     @Test
     fun buttonTest_defaultSemantics() {
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Center {
-                        TestTag(tag = "myButton") {
-                            Button(onClick = {}, text = "myButton")
-                        }
-                    }
+
+        setMaterialContent {
+            Center {
+                TestTag(tag = "myButton") {
+                    Button(onClick = {}, text = "myButton")
                 }
             }
         }
@@ -68,14 +64,11 @@ class ButtonUiTest : AndroidUiTestRunner() {
 
     @Test
     fun buttonTest_disabledSemantics() {
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Center {
-                        TestTag(tag = "myButton") {
-                            Button(text = "myButton")
-                        }
-                    }
+
+        setMaterialContent {
+            Center {
+                TestTag(tag = "myButton") {
+                    Button(text = "myButton")
                 }
             }
         }
@@ -95,13 +88,9 @@ class ButtonUiTest : AndroidUiTestRunner() {
         val onClick: () -> Unit = { ++counter }
         val text = "myButton"
 
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Center {
-                        Button(onClick = onClick, text = text)
-                    }
-                }
+        setMaterialContent {
+            Center {
+                Button(onClick = onClick, text = text)
             }
         }
 
@@ -127,17 +116,13 @@ class ButtonUiTest : AndroidUiTestRunner() {
 
         val text = "myButton"
 
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Column {
-                        TestTag(tag = button1Tag) {
-                            Button(onClick = button1OnClick, text = text)
-                        }
-                        TestTag(tag = button2Tag) {
-                            Button(onClick = button2OnClick, text = text)
-                        }
-                    }
+        setMaterialContent {
+            Column {
+                TestTag(tag = button1Tag) {
+                    Button(onClick = button1OnClick, text = text)
+                }
+                TestTag(tag = button2Tag) {
+                    Button(onClick = button2OnClick, text = text)
                 }
             }
         }
@@ -169,17 +154,14 @@ class ButtonUiTest : AndroidUiTestRunner() {
     fun buttonTest_ButtonHeightIsFromSpec() = withDensity(density) {
         val buttonTag = "button"
         var size: PxSize? = null
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Wrap {
-                        OnChildPositioned(onPositioned = { position ->
-                            size = position.size
-                        }) {
-                            TestTag(tag = buttonTag) {
-                                Button(onClick = {}, text = "Test button")
-                            }
-                        }
+
+        setMaterialContent {
+            Wrap {
+                OnChildPositioned(onPositioned = { position ->
+                    size = position.size
+                }) {
+                    TestTag(tag = buttonTag) {
+                        Button(onClick = {}, text = "Test button")
                     }
                 }
             }

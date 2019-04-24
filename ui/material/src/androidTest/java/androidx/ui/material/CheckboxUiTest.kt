@@ -20,7 +20,6 @@ import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.baseui.selection.ToggleableState.Checked
 import androidx.ui.baseui.selection.ToggleableState.Indeterminate
 import androidx.ui.baseui.selection.ToggleableState.Unchecked
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
 import androidx.ui.core.TestTag
@@ -40,6 +39,7 @@ import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import com.google.common.truth.Truth
 import androidx.compose.Model
+import androidx.compose.composer
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,17 +82,13 @@ class CheckboxUiTest : AndroidUiTestRunner() {
 
     @Test
     fun checkBoxTest_defaultSemantics() {
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Column {
-                        TestTag(tag = "checkboxUnchecked") {
-                            Checkbox(value = Unchecked)
-                        }
-                        TestTag(tag = "checkboxChecked") {
-                            Checkbox(value = Checked)
-                        }
-                    }
+        setMaterialContent {
+            Column {
+                TestTag(tag = "checkboxUnchecked") {
+                    Checkbox(value = Unchecked)
+                }
+                TestTag(tag = "checkboxChecked") {
+                    Checkbox(value = Checked)
                 }
             }
         }
@@ -108,17 +104,13 @@ class CheckboxUiTest : AndroidUiTestRunner() {
     fun checkBoxTest_toggle() {
         val state = CheckboxState(value = Unchecked)
 
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    TestTag(tag = defaultTag) {
-                        Checkbox(
-                            value = state.value,
-                            onClick = {
-                                state.toggle()
-                            })
-                    }
-                }
+        setMaterialContent {
+            TestTag(tag = defaultTag) {
+                Checkbox(
+                        value = state.value,
+                        onClick = {
+                            state.toggle()
+                        })
             }
         }
 
@@ -132,17 +124,13 @@ class CheckboxUiTest : AndroidUiTestRunner() {
     fun checkBoxTest_toggle_twice() {
         val state = CheckboxState(value = Unchecked)
 
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    TestTag(tag = defaultTag) {
-                        Checkbox(
-                            value = state.value,
-                            onClick = {
-                                state.toggle()
-                            })
-                    }
-                }
+        setMaterialContent {
+            TestTag(tag = defaultTag) {
+                Checkbox(
+                        value = state.value,
+                        onClick = {
+                            state.toggle()
+                        })
             }
         }
 
@@ -158,13 +146,9 @@ class CheckboxUiTest : AndroidUiTestRunner() {
     fun checkBoxTest_untoggleable_whenNoLambda() {
         val state = CheckboxState(value = Unchecked)
 
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    TestTag(tag = defaultTag) {
-                        Checkbox(value = state.value)
-                    }
-                }
+        setMaterialContent {
+            TestTag(tag = defaultTag) {
+                Checkbox(value = state.value)
             }
         }
 
@@ -191,16 +175,13 @@ class CheckboxUiTest : AndroidUiTestRunner() {
 
     private fun materialSizeTestForValue(checkboxValue: ToggleableState) {
         var checkboxSize: PxSize? = null
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Container(constraints = bigConstraints) {
-                        OnChildPositioned(onPositioned = { coordinates ->
-                            checkboxSize = coordinates.size
-                        }) {
-                            Checkbox(value = checkboxValue)
-                        }
-                    }
+
+        setMaterialContent {
+            Container(constraints = bigConstraints) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    checkboxSize = coordinates.size
+                }) {
+                    Checkbox(value = checkboxValue)
                 }
             }
         }

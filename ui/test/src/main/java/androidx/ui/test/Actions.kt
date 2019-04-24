@@ -16,11 +16,6 @@
 
 package androidx.ui.test
 
-import android.os.SystemClock
-import android.view.MotionEvent
-import android.view.MotionEvent.ACTION_DOWN
-import android.view.MotionEvent.ACTION_UP
-
 fun SemanticsTreeQuery.doClick(): SemanticsTreeQuery {
     val foundNodes = findAllMatching()
     if (foundNodes.size != 1) {
@@ -33,13 +28,7 @@ fun SemanticsTreeQuery.doClick(): SemanticsTreeQuery {
     val x = globalCoordinates.x.value + 1f
     val y = globalCoordinates.y.value + 1f
 
-    val eventDown = MotionEvent.obtain(SystemClock.uptimeMillis(), 10, ACTION_DOWN, x, y, 0)
-    sendEvent(eventDown)
-    eventDown.recycle()
-
-    val eventUp = MotionEvent.obtain(SystemClock.uptimeMillis(), 10, ACTION_UP, x, y, 0)
-    sendEvent(eventUp)
-    eventUp.recycle()
+    sendClick(x, y)
 
     return this
 }

@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.ui.test
+package androidx.ui.material
 
-import android.view.MotionEvent
-import androidx.ui.core.SemanticsTreeNode
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.ui.test.android.AndroidUiTestRunner
 
-interface UiTestRunner {
-
-    fun findSemantics(selector: (SemanticsTreeNode) -> Boolean): List<SemanticsTreeNode>
-    fun sendEvent(event: MotionEvent)
-    fun performClick(x: Float, y: Float)
+fun AndroidUiTestRunner.setMaterialContent(composable: @Composable() () -> Unit) {
+    setContent {
+        MaterialTheme {
+            composable()
+        }
+    }
 }

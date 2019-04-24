@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import android.graphics.Bitmap
 import androidx.test.filters.MediumTest
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
@@ -40,16 +39,13 @@ class FloatingActionButtonUiTest : AndroidUiTestRunner() {
     @Test
     fun defaultFabHasSizeFromSpec() = withDensity(density) {
         var size: PxSize? = null
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Wrap {
-                        OnChildPositioned(onPositioned = { position ->
-                            size = position.size
-                        }) {
-                            FloatingActionButton(icon = createImage())
-                        }
-                    }
+
+        setMaterialContent {
+            Wrap {
+                OnChildPositioned(onPositioned = { position ->
+                    size = position.size
+                }) {
+                    FloatingActionButton(icon = createImage())
                 }
             }
         }
@@ -63,16 +59,13 @@ class FloatingActionButtonUiTest : AndroidUiTestRunner() {
     @Test
     fun extendedFabHasHeightFromSpec() = withDensity(density) {
         var size: PxSize? = null
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Wrap {
-                        OnChildPositioned(onPositioned = { position ->
-                            size = position.size
-                        }) {
-                            FloatingActionButton(icon = createImage(), text = "Extended")
-                        }
-                    }
+
+        setMaterialContent {
+            Wrap {
+                OnChildPositioned(onPositioned = { position ->
+                    size = position.size
+                }) {
+                    FloatingActionButton(icon = createImage(), text = "Extended")
                 }
             }
         }
