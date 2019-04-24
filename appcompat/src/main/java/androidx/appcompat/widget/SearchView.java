@@ -71,6 +71,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.view.CollapsibleActionView;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.customview.view.AbsSavedState;
@@ -1693,8 +1694,12 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     }
 
     void forceSuggestionQuery() {
-        HIDDEN_METHOD_INVOKER.doBeforeTextChanged(mSearchSrcTextView);
-        HIDDEN_METHOD_INVOKER.doAfterTextChanged(mSearchSrcTextView);
+        if (BuildCompat.isAtLeastQ()) {
+            mSearchSrcTextView.refreshAutoCompleteResults();
+        } else {
+            HIDDEN_METHOD_INVOKER.doBeforeTextChanged(mSearchSrcTextView);
+            HIDDEN_METHOD_INVOKER.doAfterTextChanged(mSearchSrcTextView);
+        }
     }
 
     static boolean isLandscapeMode(Context context) {
@@ -2020,7 +2025,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     private static class AutoCompleteTextViewReflector {
         private Method doBeforeTextChanged, doAfterTextChanged;
         private Method ensureImeVisible;
-        private Method showSoftInputUnchecked;
 
         AutoCompleteTextViewReflector() {
             try {
