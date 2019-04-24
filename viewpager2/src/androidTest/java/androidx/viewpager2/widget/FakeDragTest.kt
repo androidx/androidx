@@ -77,7 +77,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         }
         adapterProvider = viewAdapterProvider(stringSequence(pageCount))
         test = setUpTest(config.orientation).also {
-            fakeDragger = PageSwiperFakeDrag(it.viewPager)
+            fakeDragger = PageSwiperFakeDrag(it.viewPager) { it.viewPager.pageSize }
             it.viewPager.isUserInputEnabled = config.enableUserInput
             it.setAdapterSync(adapterProvider)
             it.assertBasicState(0)
