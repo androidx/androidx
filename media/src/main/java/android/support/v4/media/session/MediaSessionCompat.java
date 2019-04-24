@@ -1318,9 +1318,7 @@ public class MediaSessionCompat {
          * @param speed the playback speed
          * @see #setPlaybackState(PlaybackStateCompat)
          * @see PlaybackStateCompat.Builder#setState(int, long, float)
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public void onSetPlaybackSpeed(float speed) {
         }
 
@@ -1712,6 +1710,14 @@ public class MediaSessionCompat {
                 ensureClassLoader(extras);
                 setCurrentControllerInfo();
                 Callback.this.onPrepareFromUri(uri, extras);
+                clearCurrentControllerInfo();
+            }
+
+            @RequiresApi(29)
+            @Override
+            public void onSetPlaybackSpeed(float speed) {
+                setCurrentControllerInfo();
+                Callback.this.onSetPlaybackSpeed(speed);
                 clearCurrentControllerInfo();
             }
         }
