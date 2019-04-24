@@ -80,8 +80,21 @@ public final class ViewPager2 extends ViewGroup {
     public @interface ScrollState {
     }
 
+    /**
+     * Indicates that the ViewPager2 is in an idle, settled state. The current page
+     * is fully in view and no animation is in progress.
+     */
     public static final int SCROLL_STATE_IDLE = 0;
+
+    /**
+     * Indicates that the ViewPager2 is currently being dragged by the user, or programmatically
+     * via fake drag functionality.
+     */
     public static final int SCROLL_STATE_DRAGGING = 1;
+
+    /**
+     * Indicates that the ViewPager2 is in the process of settling to a final position.
+     */
     public static final int SCROLL_STATE_SETTLING = 2;
 
     /**
