@@ -12,8 +12,8 @@ package androidx.viewpager2.adapter {
     method public final boolean onFailedToRecycleView(androidx.viewpager2.adapter.FragmentViewHolder);
     method public final void onViewAttachedToWindow(androidx.viewpager2.adapter.FragmentViewHolder);
     method public final void onViewRecycled(androidx.viewpager2.adapter.FragmentViewHolder);
-    method public void restoreState(android.os.Parcelable);
-    method public android.os.Parcelable saveState();
+    method public final void restoreState(android.os.Parcelable);
+    method public final android.os.Parcelable saveState();
     method public final void setHasStableIds(boolean);
   }
 
