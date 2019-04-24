@@ -34,6 +34,7 @@ import androidx.ui.core.ParentData
 import androidx.ui.core.Ref
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.coerceAtLeast
+import androidx.ui.core.coerceIn
 import androidx.ui.core.ipx
 import androidx.ui.core.max
 import androidx.ui.core.toRect
@@ -434,6 +435,85 @@ class AndroidLayoutDrawTest {
         assertEquals(1, layoutCalls)
     }
 
+    @Test
+    fun testLayout_whenMeasuringIsDoneDuringPlacing() {
+        @Composable
+        fun FixedSizeRow(width: IntPx, height: IntPx, @Children children: () -> Unit) {
+            <Layout children> measurables, constraints ->
+                val resolvedWidth = width.coerceIn(constraints.minWidth, constraints.maxWidth)
+                val resolvedHeight = height.coerceIn(constraints.minHeight, constraints.maxHeight)
+                layout(resolvedWidth, resolvedHeight) {
+                    val childConstraints = Constraints(
+                        IntPx.Zero,
+                        IntPx.Infinity,
+                        resolvedHeight,
+                        resolvedHeight
+                    )
+                    var left = IntPx.Zero
+                    for (measurable in measurables) {
+                        val placeable = measurable.measure(childConstraints)
+                        if (left + placeable.width > width) {
+                            break
+                        }
+                        placeable.place(left, IntPx.Zero)
+                        left += placeable.width
+                    }
+                }
+            </Layout>
+        }
+        @Composable
+        fun FixedWidthBox(
+            width: IntPx,
+            measured: Ref<Boolean?>,
+            laidOut: Ref<Boolean?>,
+            drawn: Ref<Boolean?>,
+            latch: CountDownLatch
+        ) {
+            <Layout children={
+                <Draw children={}> _, _ ->
+                    drawn.value = true
+                    latch.countDown()
+                </Draw>
+            }> _, constraints ->
+                measured.value = true
+                val resolvedWidth = width.coerceIn(constraints.minWidth, constraints.maxWidth)
+                val resolvedHeight = constraints.minHeight
+                layout(resolvedWidth, resolvedHeight) { laidOut.value = true }
+            </Layout>
+        }
+
+        val childrenCount = 5
+        val measured = Array(childrenCount) { Ref<Boolean?>() }
+        val laidOut = Array(childrenCount) { Ref<Boolean?>() }
+        val drawn = Array(childrenCount) { Ref<Boolean?>() }
+        val latch = CountDownLatch(3)
+        runOnUiThread {
+            activity.composeInto {
+                <CraneWrapper>
+                    <Align>
+                        <FixedSizeRow width=90.ipx height=40.ipx>
+                            for (i in 0 until childrenCount) {
+                                <FixedWidthBox
+                                    width=30.ipx
+                                    measured=measured[i]
+                                    laidOut=laidOut[i]
+                                    drawn=drawn[i]
+                                    latch />
+                            }
+                        </FixedSizeRow>
+                    </Align>
+                </CraneWrapper>
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        for (i in 0 until childrenCount) {
+            assertEquals(i <= 3, measured[i].value ?: false)
+            assertEquals(i <= 2, laidOut[i].value ?: false)
+            assertEquals(i <= 2, drawn[i].value ?: false)
+        }
+    }
+
     // We only need this because IR compiler doesn't like converting lambdas to Runnables
     private fun runOnUiThread(block: () -> Unit) {
         val runnable: Runnable = object : Runnable {
@@ -599,6 +679,33 @@ fun AtLeastSize(size: IntPx, @Children children: @Composable() () -> Unit) {
         }
         var maxWidth = size
         var maxHeight = size
+        placeables.forEach { child ->
+            maxHeight = max(child.height, maxHeight)
+            maxWidth = max(child.width, maxWidth)
+        }
+        layout(maxWidth, maxHeight) {
+            placeables.forEach { child ->
+                child.place(0.ipx, 0.ipx)
+            }
+        }
+    } children />
+}
+
+@Suppress("TestFunctionName")
+@Composable
+fun Align(@Children children: @Composable() () -> Unit) {
+    <Layout layoutBlock = { measurables, constraints ->
+        val newConstraints = Constraints(
+            minWidth = IntPx.Zero,
+            maxWidth = constraints.maxWidth,
+            minHeight = IntPx.Zero,
+            maxHeight = constraints.maxHeight
+        )
+        val placeables = measurables.map { m ->
+            m.measure(newConstraints)
+        }
+        var maxWidth = constraints.minWidth
+        var maxHeight = constraints.minHeight
         placeables.forEach { child ->
             maxHeight = max(child.height, maxHeight)
             maxWidth = max(child.width, maxWidth)
