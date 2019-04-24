@@ -82,6 +82,9 @@ class BenchmarkState internal constructor() {
     // Individual duration in nano seconds.
     private val results = ArrayList<Long>()
 
+    internal var performThrottleChecks = true
+    private var throttleRemainingRetries = THROTTLE_MAX_RETRIES
+
     /**
      * Get the end of run benchmark statistics.
      *
@@ -203,15 +206,31 @@ class BenchmarkState internal constructor() {
 
     private fun startNextTestRun(): Boolean {
         val currentTime = System.nanoTime()
+
         results.add((currentTime - startTimeNs - pausedDurationNs) / maxIterations)
         repeatCount++
+
         if (repeatCount >= REPEAT_COUNT) {
-            if (ENABLE_PROFILING) {
-                Debug.stopMethodTracing()
+            if (performThrottleChecks &&
+                throttleRemainingRetries > 0 &&
+                ThrottleDetector.isDeviceThermalThrottled()
+            ) {
+                // Not finished! System appears to be in thermal throttle!
+                // Sleep, and retry whole benchmark!
+                Log.d(TAG, "THERMAL THROTTLE DETECTED, SLEEPING FOR $THROTTLE_BACKOFF_S SECONDS")
+                Thread.sleep(TimeUnit.SECONDS.toMillis(THROTTLE_BACKOFF_S))
+                throttleRemainingRetries -= 1
+                results.clear()
+                repeatCount = 0
+            } else {
+                // finished!
+                if (ENABLE_PROFILING) {
+                    Debug.stopMethodTracing()
+                }
+                internalStats = Stats(results)
+                state = FINISHED
+                return false
             }
-            internalStats = Stats(results)
-            state = FINISHED
-            return false
         }
         pausedDurationNs = 0
         iterationsRemaining = maxIterations
@@ -261,6 +280,12 @@ class BenchmarkState internal constructor() {
     internal fun keepRunningInternal(): Boolean {
         when (state) {
             NOT_STARTED -> {
+                if (performThrottleChecks &&
+                    !Clocks.areLocked &&
+                    !AndroidBenchmarkRunner.sustainedPerformanceModeInUse
+                ) {
+                    ThrottleDetector.computeThrottleBaseline()
+                }
                 beginWarmup()
                 return true
             }
@@ -396,6 +421,9 @@ class BenchmarkState internal constructor() {
         private const val MAX_TEST_ITERATIONS = 1000000
         private const val MIN_TEST_ITERATIONS = 10
         private const val REPEAT_COUNT = 5
+
+        private const val THROTTLE_MAX_RETRIES = 3
+        private const val THROTTLE_BACKOFF_S = 90L
 
         init {
             Log.i(CSV_TAG, (0 until REPEAT_COUNT).joinToString(
