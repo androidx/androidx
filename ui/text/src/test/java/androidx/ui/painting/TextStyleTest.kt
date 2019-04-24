@@ -43,7 +43,6 @@ class TextStyleTest {
     fun `constructor with default values`() {
         val textStyle = TextStyle()
 
-        assertThat(textStyle.inherit).isTrue()
         assertThat(textStyle.color).isNull()
         assertThat(textStyle.fontSize).isNull()
         assertThat(textStyle.fontWeight).isNull()
@@ -57,13 +56,6 @@ class TextStyleTest {
         assertThat(textStyle.decoration).isNull()
 //        assertThat(textStyle.debugLabel).isNull()
         assertThat(textStyle.fontFamily).isNull()
-    }
-
-    @Test
-    fun `constructor with customized inherit`() {
-        val textStyle = TextStyle(inherit = false)
-
-        assertThat(textStyle.inherit).isFalse()
     }
 
     @Test
@@ -199,16 +191,6 @@ class TextStyleTest {
         val newTextStyle = textStyle.merge()
 
         assertThat(newTextStyle).isEqualTo(textStyle)
-    }
-
-    @Test
-    fun `merge with other's inherit is false should return other`() {
-        val textStyle = TextStyle()
-        val otherTextStyle = TextStyle(inherit = false)
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle).isEqualTo(otherTextStyle)
     }
 
     @Test
@@ -2176,7 +2158,6 @@ class TextStyleTest {
         val fontFeatureSettings = "\"kern\" 0"
 
         val textStyle = TextStyle(
-            inherit = false,
             color = null,
             fontSize = fontSize,
             fontWeight = FontWeight.w800,
@@ -2195,10 +2176,6 @@ class TextStyleTest {
             fontFamily = FontFamily(genericFamily = "sans-serif"),
             shadow = Shadow(Color(0xFF0000FF.toInt()), Offset(1f, 2f), 3.px)
         )
-
-        assertThat(
-            textStyle.compareTo(textStyle.copy(inherit = true))
-        ).isEqualTo(RenderComparison.LAYOUT)
 
         assertThat(
             textStyle.compareTo(
@@ -2255,7 +2232,6 @@ class TextStyleTest {
         val shadow2 = Shadow(Color(0xFF00FFFF.toInt()), Offset(1f, 2f), 3.px)
 
         val textStyle = TextStyle(
-            inherit = false,
             color = color1,
             fontSize = fontSize,
             fontWeight = FontWeight.w800,
