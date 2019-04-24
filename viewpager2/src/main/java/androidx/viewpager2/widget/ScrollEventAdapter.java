@@ -52,6 +52,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         ZERO_MARGIN_LAYOUT_PARAMS.setMargins(0, 0, 0, 0);
     }
 
+    /** @hide */
     @Retention(SOURCE)
     @IntDef({STATE_IDLE, STATE_IN_PROGRESS_MANUAL_DRAG, STATE_IN_PROGRESS_SMOOTH_SCROLL,
             STATE_IN_PROGRESS_IMMEDIATE_SCROLL, STATE_IN_PROGRESS_FAKE_DRAG})
