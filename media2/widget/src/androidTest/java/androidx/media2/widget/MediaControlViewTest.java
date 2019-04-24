@@ -291,8 +291,10 @@ public class MediaControlViewTest {
         final String artist = "Android";
         final MediaItem uriMediaItem = createTestMediaItem2(uri);
         final MediaItem fileMediaItem = new FileMediaItem.Builder(
-                ParcelFileDescriptor.dup(afd.getFileDescriptor()),
-                afd.getStartOffset(), afd.getLength()).build();
+                ParcelFileDescriptor.dup(afd.getFileDescriptor()))
+                .setFileDescriptorOffset(afd.getStartOffset())
+                .setFileDescriptorLength(afd.getLength())
+                .build();
         afd.close();
         final CountDownLatch latchForUri = new CountDownLatch(3);
         final CountDownLatch latchForFile = new CountDownLatch(3);

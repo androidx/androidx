@@ -183,9 +183,9 @@ public class VideoViewTest {
         AssetFileDescriptor afd = mContext.getResources()
                 .openRawResourceFd(R.raw.testvideo_with_2_subtitle_tracks);
         final MediaItem item = new FileMediaItem.Builder(
-                ParcelFileDescriptor.dup(afd.getFileDescriptor()),
-                afd.getStartOffset(),
-                afd.getLength())
+                ParcelFileDescriptor.dup(afd.getFileDescriptor()))
+                .setFileDescriptorOffset(afd.getStartOffset())
+                .setFileDescriptorLength(afd.getLength())
                 .build();
         afd.close();
 

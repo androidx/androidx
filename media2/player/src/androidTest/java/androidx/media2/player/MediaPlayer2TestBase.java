@@ -176,9 +176,10 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             mp.setAudioSessionId(audioSessionId);
 
             mp.setMediaItem(new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
-                    afd.getStartOffset(),
-                    afd.getLength()).build());
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd.getStartOffset())
+                    .setFileDescriptorLength(afd.getLength())
+                    .build());
 
             final Monitor onPrepareCalled = new Monitor();
             ExecutorService executor = Executors.newFixedThreadPool(1);
@@ -370,8 +371,10 @@ public class MediaPlayer2TestBase extends MediaTestBase {
 
         try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
             FileMediaItem item = new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
-                    afd.getStartOffset(), afd.getLength()).build();
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd.getStartOffset())
+                    .setFileDescriptorLength(afd.getLength())
+                    .build();
             mFileMediaItems.add(item);
             mPlayer.setMediaItem(item);
         }
@@ -387,8 +390,10 @@ public class MediaPlayer2TestBase extends MediaTestBase {
 
         try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
             FileMediaItem item = new FileMediaItem.Builder(
-                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
-                    afd.getStartOffset(), afd.getLength()).build();
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()))
+                    .setFileDescriptorOffset(afd.getStartOffset())
+                    .setFileDescriptorLength(afd.getLength())
+                    .build();
             mFileMediaItems.add(item);
             return item;
         }

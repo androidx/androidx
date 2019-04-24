@@ -204,31 +204,35 @@ public class FileMediaItem extends MediaItem {
         }
 
         /**
-         * Creates a new Builder object with a media item (ParcelFileDescriptor) to use. The
-         * ParcelFileDescriptor must be seekable (N.B. a LocalSocket is not seekable).
-         * <p>
-         * If {@link FileMediaItem} is passed to {@link androidx.media2.player.MediaPlayer},
-         * {@link androidx.media2.player.MediaPlayer} will
-         * close the ParcelFileDescriptor.
-         * <p>
+         * Sets the start offset of the file where the data to be played in bytes.
          * Any negative number for offset is treated as 0.
-         * Any negative number for length is treated as maximum length of the media item.
          *
-         * @param pfd the ParcelFileDescriptor for the file you want to play
-         * @param offset the offset into the file where the data to be played starts, in bytes
-         * @param length the length in bytes of the data to be played
+         * @param offset the start offset of the file where the data to be played in bytes
+         * @return this instance for chaining
          */
-        public Builder(@NonNull ParcelFileDescriptor pfd, long offset, long length) {
-            Preconditions.checkNotNull(pfd);
+        @NonNull
+        public Builder setFileDescriptorOffset(long offset) {
             if (offset < 0) {
                 offset = 0;
             }
+            mFDOffset = offset;
+            return this;
+        }
+
+        /**
+         * Sets the length of the data to be played in bytes.
+         * Any negative number for length is treated as maximum length of the media item.
+         *
+         * @param length the length of the data to be played in bytes
+         * @return this instance for chaining
+         */
+        @NonNull
+        public Builder setFileDescriptorLength(long length) {
             if (length < 0) {
                 length = FD_LENGTH_UNKNOWN;
             }
-            mPFD = pfd;
-            mFDOffset = offset;
             mFDLength = length;
+            return this;
         }
 
         // Override just to change return type.
