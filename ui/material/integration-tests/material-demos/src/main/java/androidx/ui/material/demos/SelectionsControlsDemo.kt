@@ -107,7 +107,7 @@ fun CustomRadioGroup() {
             <RadioGroupItem
                 selected
                 onSelected={ onOptionSelected(text) }>
-                <Padding padding=EdgeInsets(10.dp)>
+                <Padding padding=10.dp>
                     <Column>
                         <RadioButton selected />
                         <Text text=text style=textStyle />
@@ -140,7 +140,7 @@ fun CheckboxDemo() {
             <Checkbox value=calcParentState() onToggle=onParentClick />
             <Text text="This is parent" style=+themeTextStyle { body1 } />
         </Row>
-        <Padding padding=EdgeInsets(left = 10.dp)>
+        <Padding left = 10.dp>
             <Column crossAxisAlignment=CrossAxisAlignment.Start>
                 <Checkbox
                     value=state.value

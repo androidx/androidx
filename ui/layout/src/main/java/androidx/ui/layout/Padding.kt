@@ -41,26 +41,24 @@ data class EdgeInsets(
 }
 
 /**
- * Layout widget which takes a child composable and applies whitespace padding around it.
+ * Layout widget that takes a child composable and applies whitespace padding around it.
+ *
  * When passing layout constraints to its child, [Padding] shrinks the constraints by the
  * requested padding, causing the child to layout at a smaller size.
  *
  * Example usage:
- *     <Row>
- *         <Padding padding=EdgeInsets(right=20.dp)>
- *             <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height= 20.dp />
- *         </Padding>
- *         <Padding padding=EdgeInsets(left=20.dp)>
- *             <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height= 20.dp />
- *         </Padding>
- *     </Row>
+ *     Row {
+ *         Padding(padding=EdgeInsets(right=20.dp)) {
+ *             SizedRectangle(color=Color(0xFFFF0000.toInt()), width=20.dp, height= 20.dp)
+ *         }
+ *     }
  */
 @Composable
 fun Padding(
     padding: EdgeInsets,
     @Children children: () -> Unit
 ) {
-    <Layout layoutBlock = { measurables, constraints ->
+    <Layout layoutBlock={ measurables, constraints ->
         val measurable = measurables.firstOrNull()
         if (measurable == null) {
             layout(constraints.minWidth, constraints.minHeight) {}
@@ -89,4 +87,46 @@ fun Padding(
             }
         }
     } children />
+}
+
+/**
+ * Layout widget that takes a child composable and applies whitespace padding around it.
+ *
+ * When passing layout constraints to its child, [Padding] shrinks the constraints by the
+ * requested padding, causing the child to layout at a smaller size.
+ *
+ * Example usage:
+ *     Padding(left=20.dp, right=20.dp) {
+ *         SizedRectangle(color=Color(0xFFFF0000.toInt()), width=20.dp, height= 20.dp)
+ *     }
+ */
+@Composable
+fun Padding(
+    left: Dp = 0.dp,
+    top: Dp = 0.dp,
+    right: Dp = 0.dp,
+    bottom: Dp = 0.dp,
+    @Children children: () -> Unit
+) {
+    <Padding padding=EdgeInsets(left = left, top = top, right = right, bottom = bottom) children />
+}
+
+/**
+ * Layout widget that takes a child composable and applies
+ * the same amount of whitespace padding around it.
+ *
+ * When passing layout constraints to its child, [Padding] shrinks the constraints by the
+ * requested padding, causing the child to layout at a smaller size.
+ *
+ * Example usage:
+ *     Padding(padding=20.dp) {
+ *         SizedRectangle(color=Color(0xFFFF0000.toInt()), width=20.dp, height= 20.dp)
+ *     }
+ */
+@Composable
+fun Padding(
+    padding: Dp,
+    @Children children: () -> Unit
+) {
+    <Padding padding=EdgeInsets(padding) children />
 }

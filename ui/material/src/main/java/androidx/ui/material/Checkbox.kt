@@ -32,7 +32,6 @@ import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Radius
 import androidx.ui.engine.geometry.shrink
 import androidx.ui.engine.geometry.withRadius
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -75,7 +74,7 @@ fun Checkbox(
     color: Color? = null
 ) {
     <Toggleable value onToggle>
-        <Padding padding=EdgeInsets(CheckboxDefaultPadding)>
+        <Padding padding=CheckboxDefaultPadding>
             <Layout children=@Composable { <DrawCheckbox value color /> }> _, constraints ->
                 val checkboxSizePx = CheckboxSize.toIntPx()
                 val height = checkboxSizePx.coerceIn(constraints.minHeight, constraints.maxHeight)

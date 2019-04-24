@@ -23,7 +23,6 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Column
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.ui.layout.VerticalScroller
 import androidx.ui.painting.TextSpan
@@ -72,7 +71,7 @@ class ScrollerActivity : Activity() {
             val style = TextStyle(fontSize = 30.dp.toPx().value)
             setContent {
                 <CraneWrapper>
-                    <Padding padding=EdgeInsets(10.dp)>
+                    <Padding padding=10.dp>
                         <VerticalScroller>
                             <Column>
                                 phrases.forEach { phrase ->
