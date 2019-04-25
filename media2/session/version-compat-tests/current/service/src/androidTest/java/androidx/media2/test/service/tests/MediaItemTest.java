@@ -17,7 +17,7 @@
 package androidx.media2.test.service.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -191,13 +191,9 @@ public class MediaItemTest {
             // VersionedParcelIntegTest#parcelCopy.
             final Parcel p = Parcel.obtain();
             p.writeParcelable(ParcelUtils.toParcelable(mTestItem), 0);
-            p.setDataPosition(0);
-            final MediaItem testRemoteItem = ParcelUtils.fromParcelable(
-                    (ParcelImpl) p.readParcelable(MediaItem.class.getClassLoader()));
-
-            assertTrue("Write to parcel should fail for subclass of MediaItem",
-                    mTestItem.getClass() == MediaItem.class);
-        } catch (Exception e) {
+            fail("Write to parcel should throw RuntimeException for subclass of MediaItem");
+        } catch (RuntimeException e) {
+            // Expected.
         }
     }
 
