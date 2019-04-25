@@ -110,6 +110,7 @@ public class MediaSessionServiceTest extends MediaSessionTestBase {
      */
     @Test
     public void testOnGetSession_returnsSession() throws InterruptedException {
+        prepareLooper();
         final List<ControllerInfo> controllerInfoList = new ArrayList<>();
         final CountDownLatch latch = new CountDownLatch(1);
 
