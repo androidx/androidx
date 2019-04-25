@@ -131,7 +131,7 @@ public class RemoteMediaSession {
         playerBundle.putLong(KEY_BUFFERED_POSITION, buffPos);
         playerBundle.putFloat(KEY_SPEED, speed);
         if (attr != null) {
-            playerBundle.putBundle(KEY_AUDIO_ATTRIBUTES, attr.toBundle());
+            playerBundle.putParcelable(KEY_AUDIO_ATTRIBUTES, MediaParcelUtils.toParcelable(attr));
         }
         return playerBundle;
     }
@@ -150,7 +150,7 @@ public class RemoteMediaSession {
         playerBundle.putInt(KEY_MAX_VOLUME, maxVolume);
         playerBundle.putInt(KEY_CURRENT_VOLUME, currentVolume);
         if (attr != null) {
-            playerBundle.putBundle(KEY_AUDIO_ATTRIBUTES, attr.toBundle());
+            playerBundle.putParcelable(KEY_AUDIO_ATTRIBUTES, MediaParcelUtils.toParcelable(attr));
         }
         return playerBundle;
     }
@@ -273,7 +273,7 @@ public class RemoteMediaSession {
         try {
             List<ParcelImpl> parcelList = new ArrayList<>();
             for (CommandButton btn : layout) {
-                parcelList.add((ParcelImpl) ParcelUtils.toParcelable(btn));
+                parcelList.add(MediaParcelUtils.toParcelable(btn));
             }
             // TODO: ControllerInfo should be handled.
             mBinder.setCustomLayout(mSessionId, null, parcelList);
@@ -370,7 +370,8 @@ public class RemoteMediaSession {
 
         public void notifyAudioAttributesChanged(AudioAttributesCompat attrs) {
             try {
-                mBinder.notifyAudioAttributesChanged(mSessionId, attrs.toBundle());
+                mBinder.notifyAudioAttributesChanged(
+                        mSessionId, MediaParcelUtils.toParcelable(attrs));
             } catch (RemoteException ex) {
                 Log.e(TAG, "Failed to call notifyAudioAttributesChanged()");
             }
