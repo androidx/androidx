@@ -19,10 +19,13 @@ package androidx.ui.test
 import androidx.ui.core.SemanticsTreeNode
 
 /**
- * Finds a component identified by the given tag. There has to be only exactly one component
- * satisfying the condition.
+ * Extension methods that provide the entry point for the testing APIs.
+ */
+
+/**
+ * Finds a component identified by the given tag.
  *
- * @throws AssertionError if exactly one component not found
+ * For usage patterns see [SemanticsTreeQuery]
  */
 fun UiTestRunner.findByTag(testTag: String): SemanticsTreeQuery {
     return findByCondition { node ->
@@ -30,6 +33,22 @@ fun UiTestRunner.findByTag(testTag: String): SemanticsTreeQuery {
     }
 }
 
+/**
+ * Finds a component by the given text.
+ *
+ * For usage patterns see [SemanticsTreeQuery]
+ */
+fun UiTestRunner.findByText(text: String): SemanticsTreeQuery {
+    return findByCondition { node ->
+        node.data.label == text
+    }
+}
+
+/**
+ * Finds a component that matches the given condition
+ *
+ * For usage patterns see [SemanticsTreeQuery]
+ */
 fun UiTestRunner.findByCondition(
     selector: (SemanticsTreeNode) -> Boolean
 ): SemanticsTreeQuery {
