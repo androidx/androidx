@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.graphics.ImageFormat;
 import android.os.Handler;
 import android.util.Rational;
 import android.util.Size;
@@ -48,6 +49,8 @@ public final class ImageCaptureConfig
             Option.create("camerax.core.imageCapture.captureBundle", CaptureBundle.class);
     static final Option<CaptureProcessor> OPTION_CAPTURE_PROCESSOR =
             Option.create("camerax.core.imageCapture.captureProcessor", CaptureProcessor.class);
+    static final Option<Integer> OPTION_BUFFER_FORMAT =
+            Option.create("camerax.core.imageCapture.bufferFormat", Integer.class);
 
     // *********************************************************************************************
 
@@ -153,6 +156,33 @@ public final class ImageCaptureConfig
     @RestrictTo(Scope.LIBRARY_GROUP)
     public CaptureProcessor getCaptureProcessor() {
         return retrieveOption(OPTION_CAPTURE_PROCESSOR);
+    }
+
+    /**
+     * Returns the {@link ImageFormat} of the capture in memory.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>ValueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Integer getBufferFormat(@Nullable Integer valueIfMissing) {
+        return retrieveOption(OPTION_BUFFER_FORMAT, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link ImageFormat} of the capture in memory.
+     *
+     * @return The stored value, if it exists in the configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Integer getBufferFormat() {
+        return retrieveOption(OPTION_BUFFER_FORMAT);
     }
 
     // Start of the default implementation of Config
@@ -569,6 +599,26 @@ public final class ImageCaptureConfig
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setCaptureProcessor(CaptureProcessor captureProcessor) {
             getMutableConfig().insertOption(OPTION_CAPTURE_PROCESSOR, captureProcessor);
+            return this;
+        }
+
+        /**
+         * Sets the {@link ImageFormat} of the {@link ImageProxy} returned by the
+         * {@link ImageCapture.OnImageCapturedListener}.
+         *
+         * <p>Warning. This could lead to an invalid configuration as image format support is per
+         * device. Also, setting the buffer format in conjuncture with image capture extensions will
+         * result in an invalid configuration. In this case {@link
+         * ImageCapture#ImageCapture(ImageCaptureConfig)} will throw an
+         * {@link IllegalArgumentException}.
+         *
+         * @param bufferImageFormat The image format for captured images.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setBufferFormat(int bufferImageFormat) {
+            getMutableConfig().insertOption(OPTION_BUFFER_FORMAT, bufferImageFormat);
             return this;
         }
 
