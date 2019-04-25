@@ -32,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
@@ -266,6 +267,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     booksDao.insertBookSuspend(TestUtil.BOOK_2)
                     throw IOException("Boom!")
                 }
+                @Suppress("UNREACHABLE_CODE")
                 fail("An exception should have been thrown.")
             } catch (ex: IOException) {
                 assertThat(ex).hasMessageThat()
@@ -310,6 +312,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                         booksDao.insertBookSuspend(TestUtil.BOOK_1.copy(salesCnt = 0))
                         throw IOException("Boom!")
                     }
+                    @Suppress("UNREACHABLE_CODE")
                     fail("An exception should have been thrown.")
                 } catch (ex: IOException) {
                     assertThat(ex).hasMessageThat()
@@ -332,6 +335,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                         database.withTransaction {
                             throw IOException("Boom!")
                         }
+                        @Suppress("UNREACHABLE_CODE")
                         fail("An exception should have been thrown.")
                     } catch (ex: IOException) {
                         assertThat(ex).hasMessageThat()
@@ -610,6 +614,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
     }
 
     @Test
+    @ObsoleteCoroutinesApi
     @Suppress("DeferredResultUnused")
     fun withTransaction_multipleTransactions_multipleThreads() {
         runBlocking {

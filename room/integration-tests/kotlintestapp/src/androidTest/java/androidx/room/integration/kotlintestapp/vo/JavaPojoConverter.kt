@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("unused") // Not used by gen code, but tests an annotation processor case.
+
 package androidx.room.integration.kotlintestapp.vo
 
 import androidx.room.Entity
