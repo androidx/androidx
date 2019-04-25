@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ShortcutInfo;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
 
@@ -91,7 +92,22 @@ public class ShortcutInfoCompat {
         if (mCategories != null) {
             builder.setCategories(mCategories);
         }
-        builder.setExtras(buildExtrasBundle());
+
+        if (Build.VERSION.SDK_INT >= 29) {
+            if (mPersons != null && mPersons.length > 0) {
+                android.app.Person[] persons = new android.app.Person[mPersons.length];
+                for (int i = 0; i < persons.length; i++) {
+                    persons[i] = mPersons[i].toAndroidPerson();
+                }
+                builder.setPersons(persons);
+            }
+            builder.setLongLived(mIsLongLived);
+        } else {
+            // ShortcutInfo.Builder#setPersons(...) and ShortcutInfo.Builder#setLongLived(...) are
+            // introduced in API 29. On older API versions, we store mPersons and mIsLongLived in
+            // the extras field of ShortcutInfo for backwards compatibility.
+            builder.setExtras(buildLegacyExtrasBundle());
+        }
         return builder.build();
     }
 
@@ -100,7 +116,7 @@ public class ShortcutInfoCompat {
      */
     @RequiresApi(22)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    private PersistableBundle buildExtrasBundle() {
+    private PersistableBundle buildLegacyExtrasBundle() {
         PersistableBundle bundle = new PersistableBundle();
         if (mPersons != null && mPersons.length > 0) {
             bundle.putInt(EXTRA_PERSON_COUNT, mPersons.length);
