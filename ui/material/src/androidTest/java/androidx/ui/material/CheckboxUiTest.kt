@@ -62,12 +62,12 @@ class CheckboxUiTest : AndroidUiTestRunner() {
 
     // TODO(b/126881459): this should be the default semantic for checkbox
     private val defaultCheckboxCheckedSemantics = createFullSemantics(
-        enabled = true,
-        checked = true
+        isEnabled = true,
+        isChecked = true
     )
 
     private val defaultCheckboxUncheckedSemantics = defaultCheckboxCheckedSemantics.copyWith {
-        checked = false
+        isChecked = false
     }
 
     private val defaultTag = "myCheckbox"

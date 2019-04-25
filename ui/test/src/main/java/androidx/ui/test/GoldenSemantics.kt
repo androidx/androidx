@@ -18,56 +18,27 @@ package androidx.ui.test
 
 import androidx.ui.core.semantics.SemanticsConfiguration
 
-// TODO(catalintudor): add remaining properties
-class SemanticsPropertiesBuilder(
-    var enabled: Boolean?,
-    var checked: Boolean?,
-    var inMutuallyExclusiveGroup: Boolean,
-    var selected: Boolean,
-    var button: Boolean
-) {
-    fun build(): SemanticsConfiguration {
-        return createFullSemantics(
-            enabled = enabled,
-            checked = checked,
-            inMutuallyExclusiveGroup = inMutuallyExclusiveGroup,
-            selected = selected,
-            button = button
-        )
-    }
-}
-
 /**
  * Ensures the created [SemanticsConfiguration] object doesn't have any default values set.
  * This intentionally enforces choosing every value in order to minimise possible unwanted
  * side effects. Should be used to create initial default semantics for widgets and afterwards
  * [SemanticsConfiguration.copyWith] should be used to create a modified copy.
  */
-// TODO(catalintudor): add remaining properties
+// TODO(b/131309551): investigate the structure of this API
 fun createFullSemantics(
-    enabled: Boolean? = null,
-    checked: Boolean? = null,
-    selected: Boolean = false,
-    inMutuallyExclusiveGroup: Boolean = false,
-    button: Boolean = false
+    isEnabled: Boolean? = null,
+    isChecked: Boolean? = null,
+    isSelected: Boolean = false,
+    isButton: Boolean = false,
+    inMutuallyExclusiveGroup: Boolean = false
 ): SemanticsConfiguration {
     return SemanticsConfiguration().also {
-        it.isEnabled = enabled
-        it.isChecked = checked
+        it.isEnabled = isEnabled
+        it.isChecked = isChecked
         it.isInMutuallyExclusiveGroup = inMutuallyExclusiveGroup
-        it.isSelected = selected
-        it.isButton = button
+        it.isSelected = isSelected
+        it.isButton = isButton
     }
-}
-
-fun SemanticsConfiguration.toBuilder(): SemanticsPropertiesBuilder {
-    return SemanticsPropertiesBuilder(
-        enabled = isEnabled,
-        checked = isChecked,
-        inMutuallyExclusiveGroup = isInMutuallyExclusiveGroup,
-        selected = isSelected,
-        button = isButton
-    )
 }
 
 /**
@@ -75,11 +46,10 @@ fun SemanticsConfiguration.toBuilder(): SemanticsPropertiesBuilder {
  * Uses [SemanticsPropertiesBuilder] as an intermediate (mutable) representation of
  * [SemanticsConfiguration]
  */
-fun SemanticsConfiguration.copyWith(diff: SemanticsPropertiesBuilder.() -> Unit):
+fun SemanticsConfiguration.copyWith(diff: SemanticsConfiguration.() -> Unit):
         SemanticsConfiguration {
-    return toBuilder()
+    return copy()
         .apply(diff)
-        .build()
 }
 
 fun SemanticsConfiguration.assertEquals(expected: SemanticsConfiguration) {

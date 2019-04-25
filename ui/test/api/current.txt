@@ -38,29 +38,13 @@ package androidx.ui.test {
   public final class GoldenSemanticsKt {
     ctor public GoldenSemanticsKt();
     method public static void assertEquals(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.core.semantics.SemanticsConfiguration expected);
-    method public static androidx.ui.core.semantics.SemanticsConfiguration copyWith(androidx.ui.core.semantics.SemanticsConfiguration, kotlin.jvm.functions.Function1<? super androidx.ui.test.SemanticsPropertiesBuilder,kotlin.Unit> diff);
-    method public static androidx.ui.core.semantics.SemanticsConfiguration createFullSemantics(Boolean? enabled = null, Boolean? checked = null, boolean selected = false, boolean inMutuallyExclusiveGroup = false, boolean button = false);
-    method public static androidx.ui.test.SemanticsPropertiesBuilder toBuilder(androidx.ui.core.semantics.SemanticsConfiguration);
+    method public static androidx.ui.core.semantics.SemanticsConfiguration copyWith(androidx.ui.core.semantics.SemanticsConfiguration, kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,kotlin.Unit> diff);
+    method public static androidx.ui.core.semantics.SemanticsConfiguration createFullSemantics(Boolean? isEnabled = null, Boolean? isChecked = null, boolean isSelected = false, boolean isButton = false, boolean inMutuallyExclusiveGroup = false);
   }
 
   public final class OutputKt {
     ctor public OutputKt();
     method public static void dumpSemantics(androidx.ui.test.SemanticsTreeQuery, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> consumer);
-  }
-
-  public final class SemanticsPropertiesBuilder {
-    ctor public SemanticsPropertiesBuilder(Boolean? enabled, Boolean? checked, boolean inMutuallyExclusiveGroup, boolean selected, boolean button);
-    method public androidx.ui.core.semantics.SemanticsConfiguration build();
-    method public boolean getButton();
-    method public Boolean? getChecked();
-    method public Boolean? getEnabled();
-    method public boolean getInMutuallyExclusiveGroup();
-    method public boolean getSelected();
-    method public void setButton(boolean p);
-    method public void setChecked(Boolean? p);
-    method public void setEnabled(Boolean? p);
-    method public void setInMutuallyExclusiveGroup(boolean p);
-    method public void setSelected(boolean p);
   }
 
   public final class SemanticsTreeQuery {
