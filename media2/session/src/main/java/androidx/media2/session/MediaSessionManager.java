@@ -64,9 +64,10 @@ public final class MediaSessionManager {
      *
      * @return the MediaSessionManager instance for this context.
      */
-    public static @NonNull MediaSessionManager getInstance(@NonNull Context context) {
+    @NonNull
+    public static MediaSessionManager getInstance(@NonNull Context context) {
         if (context == null) {
-            throw new IllegalArgumentException("context cannot be null");
+            throw new NullPointerException("context shouldn't be null");
         }
         synchronized (sLock) {
             if (sInstance == null) {
@@ -86,7 +87,8 @@ public final class MediaSessionManager {
      *
      * @return set of tokens
      */
-    public @NonNull Set<SessionToken> getSessionServiceTokens() {
+    @NonNull
+    public Set<SessionToken> getSessionServiceTokens() {
         ArraySet<SessionToken> sessionServiceTokens = new ArraySet<>();
         PackageManager pm = mContext.getPackageManager();
         List<ResolveInfo> services = new ArrayList<>();

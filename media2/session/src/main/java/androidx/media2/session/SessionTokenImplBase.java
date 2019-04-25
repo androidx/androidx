@@ -57,7 +57,7 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     SessionTokenImplBase(@NonNull ComponentName serviceComponent, int uid, int type) {
         if (serviceComponent == null) {
-            throw new IllegalArgumentException("serviceComponent shouldn't be null");
+            throw new NullPointerException("serviceComponent shouldn't be null");
         }
         mComponentName = serviceComponent;
         mPackageName = serviceComponent.getPackageName();

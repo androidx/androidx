@@ -48,7 +48,7 @@ final class FancySelectionDemoAdapter extends RecyclerView.Adapter<FancyHolder> 
             @Override
             public boolean isSelected(Uri id) {
                 throw new IllegalStateException(
-                        "Adapter must be initialized with SelectionTracker.");
+                        "Adapter must be initialized with SelectionTracker");
             }
         };
 

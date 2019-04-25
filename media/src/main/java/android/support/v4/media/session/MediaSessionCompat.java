@@ -1956,7 +1956,7 @@ public class MediaSessionCompat {
                 MediaDescriptionCompat description,
                 long id) {
             if (description == null) {
-                throw new IllegalArgumentException("Description cannot be null.");
+                throw new IllegalArgumentException("Description cannot be null");
             }
             if (id == UNKNOWN_ID) {
                 throw new IllegalArgumentException("Id cannot be QueueItem.UNKNOWN_ID");
@@ -2227,7 +2227,7 @@ public class MediaSessionCompat {
                 PendingIntent mbrIntent, Bundle sessionInfo) {
             if (mbrComponent == null) {
                 throw new IllegalArgumentException(
-                        "MediaButtonReceiver component may not be null.");
+                        "MediaButtonReceiver component may not be null");
             }
             mContext = context;
             mPackageName = context.getPackageName();

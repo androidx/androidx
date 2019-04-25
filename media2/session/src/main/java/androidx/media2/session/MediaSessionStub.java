@@ -394,10 +394,8 @@ class MediaSessionStub extends IMediaSession.Stub {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @Nullable
-    MediaItem convertMediaItemOnExecutor(ControllerInfo controller,
-            @NonNull String mediaId) {
+    MediaItem convertMediaItemOnExecutor(ControllerInfo controller, String mediaId) {
         if (TextUtils.isEmpty(mediaId)) {
-            Log.w(TAG, "Media ID shouldn't be null");
             return null;
         }
         MediaItem newItem = mSessionImpl.getCallback().onCreateMediaItem(

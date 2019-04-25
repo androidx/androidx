@@ -162,16 +162,16 @@ class MediaControllerImplBase implements MediaControllerImpl {
             @Nullable Bundle connectionHints, Executor executor, ControllerCallback callback) {
         mInstance = instance;
         if (context == null) {
-            throw new IllegalArgumentException("context shouldn't be null");
+            throw new NullPointerException("context shouldn't be null");
         }
         if (token == null) {
-            throw new IllegalArgumentException("token shouldn't be null");
+            throw new NullPointerException("token shouldn't be null");
         }
         if (callback == null) {
-            throw new IllegalArgumentException("callback shouldn't be null");
+            throw new NullPointerException("callback shouldn't be null");
         }
         if (executor == null) {
-            throw new IllegalArgumentException("executor shouldn't be null");
+            throw new NullPointerException("executor shouldn't be null");
         }
         mContext = context;
         mSequencedFutureManager = new SequencedFutureManager();

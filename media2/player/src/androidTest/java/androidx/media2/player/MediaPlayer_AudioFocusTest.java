@@ -380,19 +380,6 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     }
 
     @Test
-    public void testAudioFocus_setVolumeZeroWhenAudioAttributesIsMissing()
-            throws Exception {
-        prepareLooper();
-
-        // Request an audio focus in advance.
-        requestAudioFocus(AUDIOFOCUS_GAIN);
-        initPlayer(null);
-        mPlayer.play();
-        assertNoAudioFocusChanges(AUDIOFOCUS_GAIN);
-        assertEquals(0, mPlayer.getPlayerVolume(), 0.1f);
-    }
-
-    @Test
     public void testAudioFocus_pauseForFocusLoss() throws Exception {
         prepareLooper();
 
