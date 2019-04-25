@@ -414,8 +414,11 @@ final class CaptureSession {
                         builder, captureConfig.getImplementationOptions());
 
                 CaptureRequest captureRequest = builder.build();
-                callbackAggregator.addCallback(captureRequest,
-                        captureConfig.getCameraCaptureCallbacks());
+                List<CameraCaptureSession.CaptureCallback> cameraCallbacks = new ArrayList<>();
+                for (CameraCaptureCallback callback : captureConfig.getCameraCaptureCallbacks()) {
+                    CaptureCallbackConverter.toCaptureCallback(callback, cameraCallbacks);
+                }
+                callbackAggregator.addCamera2Callbacks(captureRequest, cameraCallbacks);
                 captureRequests.add(captureRequest);
 
             }

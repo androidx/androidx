@@ -480,8 +480,7 @@ public final class ImageCaptureTest {
         }
     }
 
-    // Skipping test due to b/132108192. Add back once test has been fixed.
-    // @Test
+    @Test
     public void camera2InteropCaptureSessionCallbacks() throws InterruptedException {
         ImageCaptureConfig.Builder configBuilder =
                 new ImageCaptureConfig.Builder().setCallbackHandler(mHandler);
