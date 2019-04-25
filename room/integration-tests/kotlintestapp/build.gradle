@@ -74,6 +74,3 @@ dependencies {
     testImplementation(MOCKITO_CORE)
 }
 
-tasks['check'].dependsOn(tasks['connectedCheck'])
-
-uploadArchives.enabled = false

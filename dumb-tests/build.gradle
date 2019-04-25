@@ -29,10 +29,6 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RULES)
 }
 
-tasks['check'].dependsOn(tasks['connectedCheck'])
-
-uploadArchives.enabled = false
-
 androidx {
     name = "Dummy Project for test runner"
     publish = false
