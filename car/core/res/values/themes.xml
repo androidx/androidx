@@ -71,7 +71,7 @@ limitations under the License.
         <item name="colorSwitchThumbNormal">@color/car_body2_light</item>
         <item name="editTextStyle">@style/Widget.Car.EditText</item>
         <item name="listItemActionDividerColor">@color/car_list_divider_light</item>
-        <item name="listItemBackgroundColor">@color/car_card_dark</item>
+        <item name="listItemBackgroundColor">@drawable/car_list_item_background_dark</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body3.Light</item>
         <item name="listItemPrimaryIconTint">@null</item>
         <item name="listItemSupplementalIconTint">@null</item>
@@ -145,7 +145,7 @@ limitations under the License.
         <item name="colorSwitchThumbNormal">@color/car_body2</item>
         <item name="editTextStyle">@style/Widget.Car.EditText</item>
         <item name="listItemActionDividerColor">@color/car_list_divider</item>
-        <item name="listItemBackgroundColor">@color/car_card</item>
+        <item name="listItemBackgroundColor">@drawable/car_list_item_background</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body3</item>
         <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
@@ -296,7 +296,7 @@ limitations under the License.
     <style name="Theme.Car.List" parent="android:Theme">
         <item name="pagedListViewStyle">@style/Widget.Car.List</item>
         <item name="pagedScrollBarViewStyle">@style/Widget.Car.Scrollbar</item>
-        <item name="listItemBackgroundColor">@color/car_card</item>
+        <item name="listItemBackgroundColor">@drawable/car_list_item_background</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
     </style>
@@ -311,7 +311,7 @@ limitations under the License.
     <!-- A theme for PagedListViews that will have a light scrollbars and dark-colored items. The
          colors do not change for night mode. -->
     <style name="Theme.Car.Light.List.DarkItems">
-        <item name="listItemBackgroundColor">@color/car_card_dark</item>
+        <item name="listItemBackgroundColor">@drawable/car_list_item_background_dark</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
     </style>

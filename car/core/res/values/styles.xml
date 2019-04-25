@@ -450,7 +450,7 @@ limitations under the License.
     <!-- A styling for ListItems that has dark text on a light-colored background. This style
          will automatically switch to darker colors during night mode. -->
     <style name="Widget.Car.ListItem" parent="android:Widget">
-        <item name="listItemBackgroundColor">@color/car_card</item>
+        <item name="listItemBackgroundColor">@drawable/car_list_item_background</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
     </style>
@@ -458,7 +458,7 @@ limitations under the License.
     <!-- A styling for ListItems that has light text on a dark-colored background. This style
          will remain dark in night mode. -->
     <style name="Widget.Car.ListItem.Dark">
-        <item name="listItemBackgroundColor">@color/car_card_dark</item>
+        <item name="listItemBackgroundColor">@drawable/car_list_item_background_dark</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
     </style>
