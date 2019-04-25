@@ -250,11 +250,10 @@ class BenchmarkState internal constructor() {
      * This codepath uses exclusively @JvmField/const members, so there are no method calls at all
      * in the inlined loop. On recent Android Platform versions, ART inlines these accessors anyway,
      * but we want to be sure it's as simple as possible.
-     *
-     * @hide
      */
     @Suppress("NOTHING_TO_INLINE")
-    inline fun keepRunningInline(): Boolean {
+    @PublishedApi
+    internal inline fun keepRunningInline(): Boolean {
         if (iterationsRemaining > 1) {
             iterationsRemaining--
             return true
@@ -402,8 +401,7 @@ class BenchmarkState internal constructor() {
         return status
     }
 
-    /** @hide */
-    companion object {
+    internal companion object {
         private const val TAG = "Benchmark"
         private const val STUDIO_OUTPUT_KEY_PREFIX = "android.studio.display."
         private const val STUDIO_OUTPUT_KEY_ID = "benchmark"
