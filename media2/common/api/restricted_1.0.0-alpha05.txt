@@ -58,8 +58,8 @@ package androidx.media2.common {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MediaParcelUtils {
     ctor public MediaParcelUtils();
-    method public static <T extends androidx.versionedparcelable.VersionedParcelable> T? fromParcelable(androidx.versionedparcelable.ParcelImpl?);
-    method public static androidx.versionedparcelable.ParcelImpl? toParcelable(androidx.versionedparcelable.VersionedParcelable?);
+    method public static <T extends androidx.versionedparcelable.VersionedParcelable> T? fromParcelable(androidx.versionedparcelable.ParcelImpl);
+    method public static androidx.versionedparcelable.ParcelImpl toParcelable(androidx.versionedparcelable.VersionedParcelable?);
     field public static final String TAG = "MediaParcelUtils";
   }
 

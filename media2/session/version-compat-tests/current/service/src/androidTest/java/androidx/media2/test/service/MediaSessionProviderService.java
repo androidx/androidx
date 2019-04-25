@@ -231,8 +231,13 @@ public class MediaSessionProviderService extends Service {
                 localPlayer.mMetadata = ParcelUtils.getVersionedParcelable(config, KEY_METADATA);
                 player = localPlayer;
             }
-            player.setAudioAttributes((AudioAttributesCompat) MediaParcelUtils.fromParcelable(
-                    (ParcelImpl) config.getParcelable(KEY_AUDIO_ATTRIBUTES)));
+            ParcelImpl attrImpl = config.getParcelable(KEY_AUDIO_ATTRIBUTES);
+            if (attrImpl != null) {
+                AudioAttributesCompat attr = MediaParcelUtils.fromParcelable(attrImpl);
+                if (attr != null) {
+                    player.setAudioAttributes(attr);
+                }
+            }
             return player;
         }
 
