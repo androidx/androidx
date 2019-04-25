@@ -27,7 +27,7 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(":compose-plugin-cli")
+    kotlinPlugin project(path: ":compose-plugin-cli-gradle", configuration: "pluginForGradle")
 
     api project(":ui-android-text")
     api project(":ui-core")

@@ -11,7 +11,7 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(":compose-plugin-cli")
+    kotlinPlugin project(path: ":compose-plugin-cli-gradle", configuration: "pluginForGradle")
 
     implementation "androidx.annotation:annotation:1.0.0"
     implementation "androidx.activity:activity:1.0.0-alpha01"
