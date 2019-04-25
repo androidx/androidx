@@ -35,7 +35,7 @@ dependencies {
     api(project(":room:room-common"))
     implementation fileTree(
             dir: "${new File(project(":room:room-common-java8").buildDir, "libs")}",
-            include : "*.jar"
+            include : "room-common-java8-${LibraryVersions.ROOM}.jar"
     )
     api(ANDROIDX_SQLITE_FRAMEWORK)
     api(ANDROIDX_SQLITE)
