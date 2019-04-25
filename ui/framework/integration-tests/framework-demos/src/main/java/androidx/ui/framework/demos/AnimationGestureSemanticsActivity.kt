@@ -25,6 +25,7 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Layout
 import androidx.ui.core.Draw
+import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.min
 import androidx.ui.engine.geometry.Offset
@@ -58,26 +59,116 @@ class AnimationGestureSemanticsActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContent {
             <CraneWrapper>
-                <GestureAnimatedComponent />
+
+                // This component does not use Semantics.
+                // <WithoutSemanticActions />
+
+                // This component is a sample using the Level 1 API.
+                // <Level1Api />
+
+                // TODO(ralu): Add Level 2 API Sample. (Need to implement node merging).
+
+                // This component is a sample using the Level 3 API, with the built-in defaults.
+                // <Level3Api />
+
+                // This component is a sample using the Level 3 API, along with extra parameters.
+                <Level3ApiExtras/>
+
             </CraneWrapper>
         }
     }
 
+    /**
+     * This component does not use Semantics. The gesture detector triggers the animation.
+     */
     @Composable
-    fun GestureAnimatedComponent() {
+    fun WithoutSemanticActions() {
         val animationEndState = +state { ComponentState.Released }
         <PressGestureDetector
             onPress={ animationEndState.value = ComponentState.Pressed }
             onRelease={ animationEndState.value = ComponentState.Released }>
-            <Layout children=@Composable {
-                <Transition
-                    definition=transitionDefinition
-                    toState=animationEndState.value> state ->
-                    <Circle color=state[colorKey] sizeRatio=state[sizeKey] />
-                </Transition>
-            }> _, constraints -> layout(constraints.maxWidth, constraints.maxHeight) {}
-            </Layout>
+            <Animation animationEndState=animationEndState.value />
         </PressGestureDetector>
+    }
+
+    /**
+     * This component uses the level 1 Semantics API.
+     */
+    @Composable
+    fun Level1Api() {
+        val animationEndState = +state { ComponentState.Released }
+
+        val pressedAction = SemanticAction<PxPosition>(
+            phrase = "Pressed",
+            defaultParam = PxPosition.Origin,
+            types = setOf(AccessibilityAction.Primary, PolarityAction.Negative)) {
+            animationEndState.value = ComponentState.Pressed
+        }
+
+        val releasedAction = SemanticAction<Unit>(
+            phrase = "Released",
+            defaultParam = Unit,
+            types = setOf(AccessibilityAction.Secondary, PolarityAction.Positive)) {
+            animationEndState.value = ComponentState.Released
+        }
+
+        <Semantics
+            properties=setOf(Label("Animating Circle"), Visibility.Visible)
+            actions=setOf(pressedAction, releasedAction)>
+            <PressGestureDetectorWithActions
+                onPress=pressedAction
+                onRelease=releasedAction>
+                <Animation animationEndState=animationEndState.value />
+            </PressGestureDetectorWithActions>
+        </Semantics>
+    }
+
+    /**
+     * This component uses the level 3 Semantics API. The [ClickInteraction] provides default
+     * parameters for the [SemanticAction]s. The developer has to provide the callback lambda.
+     */
+    @Composable
+    fun Level3Api() {
+        val animationEndState = +state { ComponentState.Released }
+        <ClickInteraction
+            press= { action { animationEndState.value = ComponentState.Pressed } }
+            release= { action { animationEndState.value = ComponentState.Released} }>
+            <Animation animationEndState=animationEndState.value />
+        </ClickInteraction>
+    }
+
+    /**
+     * This component uses the level 3 Semantics API. Instead of using the default parameter that
+     * [ClickInteraction] provides, we provide a custom action phrase and a set of types.
+     */
+    @Composable
+    fun Level3ApiExtras() {
+        val animationEndState = +state { ComponentState.Released }
+        <ClickInteraction
+            press={
+                label = "Shrink"
+                types = setOf(AccessibilityAction.Primary, PolarityAction.Negative)
+                action = { animationEndState.value = ComponentState.Pressed }
+            }
+            release={
+                label = "Enlarge"
+                types = setOf(AccessibilityAction.Secondary, PolarityAction.Positive)
+                action = { animationEndState.value = ComponentState.Released }
+            }>
+            <Animation animationEndState=animationEndState.value />
+        </ClickInteraction>
+    }
+
+    @Composable
+    private fun Animation(animationEndState: ComponentState) {
+        <Layout children=@Composable {
+            <Transition
+                definition=transitionDefinition
+                toState=animationEndState> state ->
+                <Circle color=state[colorKey] sizeRatio=state[sizeKey] />
+            </Transition>
+        }> _, constraints -> layout(constraints.maxWidth, constraints.maxHeight) {}
+        </Layout>
     }
 
     @Composable
