@@ -198,7 +198,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     boolean mMenuVisible = true;
 
     // Used to verify that subclasses call through to super class.
-    boolean mCalled;
+    private boolean mCalled;
 
     // The parent container of the fragment after dynamically added to UI.
     ViewGroup mContainer;
@@ -2575,6 +2575,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 return (mView != null);
             }
         }, this);
+    }
+
+    void performAttach() {
+        mCalled = false;
+        onAttach(mHost.getContext());
+        if (!mCalled) {
+            throw new SuperNotCalledException("Fragment " + this
+                    + " did not call through to super.onAttach()");
+        }
     }
 
     void performCreate(Bundle savedInstanceState) {

@@ -747,12 +747,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                         }
 
                         dispatchOnFragmentPreAttached(f, mHost.getContext(), false);
-                        f.mCalled = false;
-                        f.onAttach(mHost.getContext());
-                        if (!f.mCalled) {
-                            throw new SuperNotCalledException("Fragment " + f
-                                    + " did not call through to super.onAttach()");
-                        }
+                        f.performAttach();
                         if (f.mParentFragment == null) {
                             mHost.onAttachFragment(f);
                         } else {
