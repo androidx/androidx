@@ -16,6 +16,7 @@ dependencies {
     api "androidx.activity:activity:1.0.0-alpha01"
     api(KOTLIN_R4A_STDLIB)
     api project(":compose-runtime")
+    implementation project(':ui-animation')
     implementation project(':ui-framework')
 }
 
