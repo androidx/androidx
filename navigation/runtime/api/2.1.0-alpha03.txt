@@ -68,6 +68,8 @@ package androidx.navigation {
     method @CallSuper public void setGraph(@NavigationRes int, android.os.Bundle?);
     method @CallSuper public void setGraph(androidx.navigation.NavGraph);
     method @CallSuper public void setGraph(androidx.navigation.NavGraph, android.os.Bundle?);
+    method public void setHostLifecycleOwner(androidx.lifecycle.LifecycleOwner);
+    method public void setHostOnBackPressedDispatcherOwner(androidx.activity.OnBackPressedDispatcherOwner);
     method public void setHostViewModelStore(androidx.lifecycle.ViewModelStore);
     field public static final String KEY_DEEP_LINK_INTENT = "android-support-nav:controller:deepLinkIntent";
   }
