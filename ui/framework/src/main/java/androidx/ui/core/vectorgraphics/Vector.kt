@@ -35,6 +35,7 @@ import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.Emittable
 import com.google.r4a.composer
+import androidx.ui.painting.Path as PaintingPath
 
 const val DefaultGroupName = ""
 const val DefaultRotate = 0.0f
@@ -290,7 +291,7 @@ private class Path(val name: String) : VNode(), Emittable {
 
     private var isPathDirty = true
 
-    private val path = androidx.ui.painting.Path()
+    private val path = PaintingPath()
 
     private var fillPaint: Paint? = null
     private var strokePaint: Paint? = null
@@ -398,7 +399,7 @@ private class Group(val name: String = DefaultGroupName) : VNode(), Emittable {
 
     private var isClipPathDirty = true
 
-    private var clipPath: androidx.ui.painting.Path? = null
+    private var clipPath: PaintingPath? = null
     private var parser: PathParser? = null
 
     private fun updateClipPath() {
@@ -413,7 +414,7 @@ private class Group(val name: String = DefaultGroupName) : VNode(), Emittable {
 
             var targetClip = clipPath
             if (targetClip == null) {
-                targetClip = androidx.ui.painting.Path()
+                targetClip = PaintingPath()
                 clipPath = targetClip
             } else {
                 targetClip.reset()
