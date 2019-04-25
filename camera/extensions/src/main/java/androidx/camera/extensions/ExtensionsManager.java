@@ -36,7 +36,17 @@ public final class ExtensionsManager {
          * HDR mode that may get source pictures with different AE settings to generate a best
          * result.
          */
-        HDR
+        HDR,
+        /**
+         * Night mode is used for taking better still capture images under low-light situations,
+         * typically at night time.
+         */
+        NIGHT,
+        /**
+         * Beauty mode is used for taking still capture images that incorporate facial changes
+         * like skin tone, geometry, or retouching.
+         */
+        BEAUTY
     }
 
     /**
@@ -87,6 +97,12 @@ public final class ExtensionsManager {
             case HDR:
                 extender = HdrImageCaptureExtender.create(builder);
                 break;
+            case NIGHT:
+                extender = NightImageCaptureExtender.create(builder);
+                break;
+            case BEAUTY:
+                extender = BeautyImageCaptureExtender.create(builder);
+                break;
             case NORMAL:
                 return true;
             default:
@@ -108,6 +124,12 @@ public final class ExtensionsManager {
                 break;
             case HDR:
                 extender = HdrPreviewExtender.create(builder);
+                break;
+            case NIGHT:
+                extender = NightPreviewExtender.create(builder);
+                break;
+            case BEAUTY:
+                extender = BeautyPreviewExtender.create(builder);
                 break;
             case NORMAL:
                 return true;
