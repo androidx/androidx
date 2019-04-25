@@ -17,6 +17,8 @@
 package androidx.ui.core
 
 import androidx.test.filters.SmallTest
+import androidx.ui.testutils.down
+import androidx.ui.testutils.moveTo
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.core.IsEqual.equalTo
 import org.junit.Assert.assertThat
@@ -33,7 +35,7 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class PointerInputChangeTest {
+class PointerInputTest {
 
     @Test
     fun changedToDown_didNotChange_returnsFalse() {
@@ -444,6 +446,30 @@ class PointerInputChangeTest {
             pointerInputChangeResult3,
             `is`(equalTo(createPointerInputChange(8f, 16f, true, 2f, 4f, true, 3f, 8f, false)))
         )
+    }
+
+    @Test
+    fun addOffset() {
+        val pointerInputChange =
+            down(x = -7f, y = -13f).moveTo(100L.millisecondsToTimestamp(), 3f, -5f)
+
+        val actual = pointerInputChange.addOffset(PxPosition(11.px, -17.px))
+
+        val expected =
+            down(x = 4f, y = -30f).moveTo(100L.millisecondsToTimestamp(), 14f, -22f)
+        assertThat(actual, `is`(equalTo(expected)))
+    }
+
+    @Test
+    fun subtractOffset() {
+        val pointerInputChange =
+            down(x = -7f, y = -13f).moveTo(100L.millisecondsToTimestamp(), 3f, -5f)
+
+        val actual = pointerInputChange.subtractOffset(PxPosition(11.px, -17.px))
+
+        val expected =
+            down(x = -18f, y = 4f).moveTo(100L.millisecondsToTimestamp(), -8f, 12f)
+        assertThat(actual, `is`(equalTo(expected)))
     }
 
     // Private Helper

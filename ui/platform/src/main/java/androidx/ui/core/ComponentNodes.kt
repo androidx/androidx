@@ -866,3 +866,14 @@ fun LayoutNode.childToLocal(child: LayoutNode, childLocal: PxPosition): PxPositi
     }
     return PxPosition(x, y)
 }
+
+/**
+ * Calculates the position of this [LayoutNode] relative to the root of the ui tree.
+ */
+fun LayoutNode.positionRelativeToRoot() = localToGlobal(PxPosition.Origin)
+
+/**
+ * Calculates the position of this [LayoutNode] relative to the provided ancestor.
+ */
+fun LayoutNode.positionRelativeToAncestor(ancestor: LayoutNode) =
+    ancestor.childToLocal(this, PxPosition.Origin)

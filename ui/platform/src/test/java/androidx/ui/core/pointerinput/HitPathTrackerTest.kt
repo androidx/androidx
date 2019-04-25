@@ -17,13 +17,19 @@
 package androidx.ui.core.pointerinput
 
 import androidx.test.filters.SmallTest
+import androidx.ui.core.ConsumedData
+import androidx.ui.core.IntPxPosition
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.Owner
 import androidx.ui.core.PointerEventPass
+import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
+import androidx.ui.core.PxPosition
 import androidx.ui.core.add
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
+import androidx.ui.core.ipx
 import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.positionChange
 import androidx.ui.core.px
@@ -503,7 +509,14 @@ class HitPathTrackerTest {
             PointerEventPass.PreUp
         )
         assertThat(result)
-            .isEqualTo(listOf(change.consumePositionChange(0.px, 126.px))) // 2 + 4 + 8 + 16 + 32 + 64
+            .isEqualTo(
+                listOf(
+                    change.consumePositionChange(
+                        0.px,
+                        126.px
+                    )
+                )
+            ) // 2 + 4 + 8 + 16 + 32 + 64
     }
 
     @Test
@@ -1402,9 +1415,9 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
     }
 
-    //  compositionRoot, root1 -> middle1 -> leaf1
-    //  compositionRoot -> root2, middle2, leaf2
-    //  compositionRoot -> root3 -> middle3, leaf3
+    // compositionRoot, root1 -> middle1 -> leaf1
+    // compositionRoot -> root2, middle2, leaf2
+    // compositionRoot -> root3 -> middle3, leaf3
     @Test
     fun removeDetachedPointerInputNodes_3RootsStaggeredDetached_correctPathsRemoved() {
         val leaf1 = PointerInputNode()
@@ -1451,9 +1464,10 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
     }
 
-    //  compositionRoot, root -> layoutNode -> middle1 -> leaf1
-    //                           layoutNode -> middle2 -> leaf2
-    //                           layoutNode -> middle3 -> leaf3
+    // compositionRoot, root ->
+    //   layoutNode -> middle1 -> leaf1
+    //   layoutNode -> middle2 -> leaf2
+    //   layoutNode -> middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_rootWith3MiddlesDetached_allRemoved() {
         val leaf1 = PointerInputNode()
@@ -1492,9 +1506,10 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
     }
 
-    //  compositionRoot -> root -> layoutNode -> middle1 -> leaf1
-    //                             layoutNode -> middle2 -> leaf2
-    //                             layoutNode, middle3 -> leaf3
+    // compositionRoot -> root ->
+    //   layoutNode -> middle1 -> leaf1
+    //   layoutNode -> middle2 -> leaf2
+    //   layoutNode, middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_rootWith3Middles1Detached_correctMiddleRemoved() {
         val leaf1 = PointerInputNode()
@@ -1552,9 +1567,10 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
     }
 
-    //  compositionRoot -> root -> layoutNode, middle1 -> leaf1
-    //                             layoutNode, middle2 -> leaf2
-    //                             layoutNode -> middle3 -> leaf3
+    // compositionRoot -> root ->
+    //   layoutNode, middle1 -> leaf1
+    //   layoutNode, middle2 -> leaf2
+    //   layoutNode -> middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_rootWith3Middles2Detached_correctMiddlesRemoved() {
         val leaf1 = PointerInputNode()
@@ -1605,9 +1621,10 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
     }
 
-    //  compositionRoot -> root -> layoutNode, middle1 -> leaf1
-    //                             layoutNode, middle2 -> leaf2
-    //                             layoutNode, middle3 -> leaf3
+    // compositionRoot -> root ->
+    //   layoutNode, middle1 -> leaf1
+    //   layoutNode, middle2 -> leaf2
+    //   layoutNode, middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_rootWith3MiddlesAllDetached_allMiddlesRemoved() {
         val leaf1 = PointerInputNode()
@@ -1650,9 +1667,10 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
     }
 
-    //  compositionRoot -> root -> middle -> layoutNode -> leaf1
-    //                                       layoutNode, leaf2
-    //                                       layoutNode -> leaf3
+    // compositionRoot -> root -> middle ->
+    //   layoutNode -> leaf1
+    //   layoutNode, leaf2
+    //   layoutNode -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_middleWith3Leafs1Detached_correctLeafRemoved() {
         val leaf1 = PointerInputNode()
@@ -1702,9 +1720,10 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
     }
 
-    //  compositionRoot -> root -> middle -> layoutNode, leaf1
-    //                                       layoutNode -> leaf2
-    //                                       layoutNode, leaf3
+    // compositionRoot -> root -> middle ->
+    //   layoutNode, leaf1
+    //   layoutNode -> leaf2
+    //   layoutNode, leaf3
     @Test
     fun removeDetachedPointerInputNodes_middleWith3Leafs2Detached_correctLeafsRemoved() {
         val leaf1 = PointerInputNode()
@@ -1750,9 +1769,10 @@ class HitPathTrackerTest {
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
     }
 
-    //  compositionRoot -> root -> middle -> layoutNode, leaf1
-    //                                       layoutNode, leaf2
-    //                                       layoutNode, leaf3
+    // compositionRoot -> root -> middle ->
+    //   layoutNode, leaf1
+    //   layoutNode, leaf2
+    //   layoutNode, leaf3
     @Test
     fun removeDetachedPointerInputNodes_middleWith3LeafsAllDetached_allLeafsRemoved() {
         val leaf1 = PointerInputNode()
@@ -2012,6 +2032,670 @@ class HitPathTrackerTest {
         }
 
         assertThat(areEqual(hitResult.root, expectedRoot)).isTrue()
+    }
+
+    @Test
+    fun refreshOffsets_layoutNodesNotOffset_changeTranslatedCorrectly() {
+        refreshOffsets_changeTranslatedCorrectly(
+            0, 0, 100, 100,
+            0, 0, 100, 100,
+            0, 0, 100, 100,
+            50, 50
+        )
+    }
+
+    @Test
+    fun refreshOffsets_layoutNodesIncreasinglyInset_changeTranslatedCorrectly() {
+        refreshOffsets_changeTranslatedCorrectly(
+            0, 0, 100, 100,
+            2, 11, 100, 100,
+            23, 31, 100, 100,
+            99, 99
+        )
+    }
+
+    @Test
+    fun refreshOffsets_layoutNodesIncreasinglyOutset_changeTranslatedCorrectly() {
+        refreshOffsets_changeTranslatedCorrectly(
+            0, 0, 100, 100,
+            -2, -11, 100, 100,
+            -23, -31, 100, 100,
+            1, 1
+        )
+    }
+
+    // ParentLn -> ParentPin -> MiddleLn -> MiddlePin -> ChildLn -> ChildPin
+    private fun refreshOffsets_changeTranslatedCorrectly(
+        pX1: Int,
+        pY1: Int,
+        pX2: Int,
+        pY2: Int,
+        mX1: Int,
+        mY1: Int,
+        mX2: Int,
+        mY2: Int,
+        cX1: Int,
+        cY1: Int,
+        cX2: Int,
+        cY2: Int,
+        pointerX: Int,
+        pointerY: Int
+    ) {
+
+        // Arrange
+
+        val childOffset = PxPosition(cX1.px, cY1.px)
+        val childLayoutNode = LayoutNode(cX1, cY1, cX2, cY2)
+        val childPointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, childLayoutNode)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        val middleOffset = PxPosition(mX1.px, mY1.px)
+        val middleLayoutNode = LayoutNode(mX1, mY1, mX2, mY2).apply {
+            emitInsertAt(0, childPointerInputNode)
+        }
+        val middlePointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, middleLayoutNode)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        val parentLayoutNode = LayoutNode(pX1, pY1, pX2, pY2).apply {
+            emitInsertAt(0, middlePointerInputNode)
+        }
+        val parentPointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, parentLayoutNode)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+
+        hitResult.addHitPath(
+            3,
+            listOf(parentPointerInputNode, middlePointerInputNode, childPointerInputNode)
+        )
+
+        val offset = PxPosition(pointerX.px, pointerY.px)
+
+        // Act
+
+        hitResult.refreshOffsets()
+
+        // Assert
+
+        hitResult.dispatchChanges(
+            listOf(down(3, 7L.millisecondsToTimestamp(), pointerX.toFloat(), pointerY.toFloat())),
+            PointerEventPass.InitialDown, PointerEventPass.PreUp
+        )
+
+        val pointerInputNodes = arrayOf(
+            parentPointerInputNode,
+            middlePointerInputNode,
+            childPointerInputNode
+        )
+
+        val expectedPointerInputChanges = arrayOf(
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(7L.millisecondsToTimestamp(), offset, true),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            ),
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    offset - middleOffset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            ),
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    offset - middleOffset - childOffset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+        )
+
+        for (pass in listOf(PointerEventPass.InitialDown, PointerEventPass.PreUp)) {
+            for (i in 0 until pointerInputNodes.size) {
+                verify(pointerInputNodes[i].pointerInputHandler).invoke(
+                    expectedPointerInputChanges[i],
+                    pass
+                )
+            }
+        }
+        for (pointerInputNode in pointerInputNodes) {
+            verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
+        }
+    }
+
+    // ParentLn -> ParentPin -> ChildLn -> ChildPin
+    //
+    // ParentLn(3, 5), ChildLn(-7, -11)
+    // Move to
+    // ParentLn(-13, -17), ChildLn(19, 29)
+    @Test
+    fun refreshOffsets_layoutNodesMove_changeTranslatedCorrectly() {
+
+        // Arrange
+
+        val originalChildOffset = IntPxPosition(3.ipx, 5.ipx)
+        val originalParentOffset = IntPxPosition(-7.ipx, -11.ipx)
+        val newChildOffset = IntPxPosition(19.ipx, 29.ipx)
+        val newParentOffset = IntPxPosition(-13.ipx, -17.ipx)
+        val pointerOffset = PxPosition(5.px, 7.px)
+
+        val childLayoutNode = LayoutNode(originalChildOffset)
+        val childPointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, childLayoutNode)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        val parentLayoutNode = LayoutNode(originalParentOffset).apply {
+            emitInsertAt(0, childPointerInputNode)
+        }
+        val parentPointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, parentLayoutNode)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+
+        hitResult.addHitPath(3, listOf(parentPointerInputNode, childPointerInputNode))
+
+        hitResult.refreshOffsets()
+
+        childLayoutNode.moveTo(newChildOffset.x, newChildOffset.y)
+        parentLayoutNode.moveTo(newParentOffset.x, newParentOffset.y)
+
+        // Act
+
+        hitResult.refreshOffsets()
+
+        // Assert
+
+        val pointerInputNodes = arrayOf(parentPointerInputNode, childPointerInputNode)
+
+        val expectedPointerInputChanges = arrayOf(
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointerOffset - newParentOffset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            ),
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointerOffset - newParentOffset - newChildOffset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+        )
+
+        hitResult.dispatchChanges(
+            listOf(
+                down(
+                    3,
+                    7L.millisecondsToTimestamp(),
+                    pointerOffset.x.value,
+                    pointerOffset.y.value
+                )
+            ),
+            PointerEventPass.InitialDown, PointerEventPass.PreUp
+        )
+
+        for (pass in listOf(PointerEventPass.InitialDown, PointerEventPass.PreUp)) {
+            for (i in 0 until pointerInputNodes.size) {
+                verify(pointerInputNodes[i].pointerInputHandler).invoke(
+                    expectedPointerInputChanges[i],
+                    pass
+                )
+            }
+        }
+        for (pointerInputNode in pointerInputNodes) {
+            verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
+        }
+    }
+
+    // Ln -> Pin -> Ln -> Pin
+    // Ln -> Pin -> Ln -> Pin
+    @Test
+    fun refreshOffsets_2IndependentPaths_changeTranslatedCorrectly() {
+
+        // Arrange
+
+        val child1Offset = IntPxPosition(3.ipx, 5.ipx)
+        val parent1Offset = IntPxPosition(-7.ipx, -11.ipx)
+        val child2Offset = IntPxPosition(-13.ipx, -17.ipx)
+        val parent2Offset = IntPxPosition(19.ipx, 27.ipx)
+        val pointer1Offset = PxPosition(5.px, 7.px)
+        val pointer2Offset = PxPosition(11.px, 13.px)
+
+        val childLayoutNode1 = LayoutNode(child1Offset)
+        val childPointerInputNode1 = PointerInputNode().apply {
+            emitInsertAt(0, childLayoutNode1)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        val parentLayoutNode1 = LayoutNode(parent1Offset).apply {
+            emitInsertAt(0, childPointerInputNode1)
+        }
+        val parentPointerInputNode1 = PointerInputNode().apply {
+            emitInsertAt(0, parentLayoutNode1)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+
+        val childLayoutNode2 = LayoutNode(child2Offset)
+        val childPointerInputNode2 = PointerInputNode().apply {
+            emitInsertAt(0, childLayoutNode2)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        val parentLayoutNode2 = LayoutNode(parent2Offset).apply {
+            emitInsertAt(0, childPointerInputNode2)
+        }
+        val parentPointerInputNode2 = PointerInputNode().apply {
+            emitInsertAt(0, parentLayoutNode2)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+
+        hitResult.addHitPath(3, listOf(parentPointerInputNode1, childPointerInputNode1))
+        hitResult.addHitPath(5, listOf(parentPointerInputNode2, childPointerInputNode2))
+
+        // Act
+
+        hitResult.refreshOffsets()
+
+        // Assert
+
+        val pointerInputNodes1 = arrayOf(parentPointerInputNode1, childPointerInputNode1)
+
+        val expectedPointerInputChanges1 = arrayOf(
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointer1Offset - parent1Offset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            ),
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointer1Offset - parent1Offset - child1Offset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+        )
+
+        val pointerInputNodes2 = arrayOf(parentPointerInputNode2, childPointerInputNode2)
+
+        val expectedPointerInputChanges2 = arrayOf(
+            PointerInputChange(
+                id = 5,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointer2Offset - parent2Offset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            ),
+            PointerInputChange(
+                id = 5,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointer2Offset - parent2Offset - child2Offset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+        )
+
+        hitResult.dispatchChanges(
+            listOf(
+                down(
+                    3,
+                    7L.millisecondsToTimestamp(),
+                    pointer1Offset.x.value,
+                    pointer1Offset.y.value
+                ),
+                down(
+                    5,
+                    7L.millisecondsToTimestamp(),
+                    pointer2Offset.x.value,
+                    pointer2Offset.y.value
+                )
+            ),
+            PointerEventPass.InitialDown, PointerEventPass.PreUp
+        )
+
+        for (pass in listOf(PointerEventPass.InitialDown, PointerEventPass.PreUp)) {
+            for (i in 0 until pointerInputNodes1.size) {
+                verify(pointerInputNodes1[i].pointerInputHandler).invoke(
+                    expectedPointerInputChanges1[i],
+                    pass
+                )
+            }
+            for (i in 0 until pointerInputNodes2.size) {
+                verify(pointerInputNodes2[i].pointerInputHandler).invoke(
+                    expectedPointerInputChanges2[i],
+                    pass
+                )
+            }
+        }
+        for (pointerInputNode in pointerInputNodes1) {
+            verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
+        }
+        for (pointerInputNode in pointerInputNodes2) {
+            verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
+        }
+    }
+
+    // Ln -> Pin
+    //   -> Ln -> Pin
+    //   -> Ln -> Pin
+    @Test
+    fun refreshOffsets_2SplittingPaths_changeTranslatedCorrectly() {
+
+        // Arrange
+
+        val child1Offset = IntPxPosition(3.ipx, 5.ipx)
+        val child2Offset = IntPxPosition(-13.ipx, -17.ipx)
+        val parentOffset = IntPxPosition(-7.ipx, 11.ipx)
+        val pointer1Offset = PxPosition(5.px, 7.px)
+        val pointer2Offset = PxPosition(11.px, 13.px)
+
+        val childLayoutNode1 = LayoutNode(child1Offset)
+        val childPointerInputNode1: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, childLayoutNode1)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+
+        val childLayoutNode2 = LayoutNode(child2Offset)
+        val childPointerInputNode2: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, childLayoutNode2)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+
+        val parentLayoutNode: LayoutNode = LayoutNode(parentOffset).apply {
+            emitInsertAt(0, childPointerInputNode1)
+            emitInsertAt(1, childPointerInputNode2)
+        }
+        val parentPointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, parentLayoutNode)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+
+        hitResult.addHitPath(3, listOf(parentPointerInputNode, childPointerInputNode1))
+        hitResult.addHitPath(5, listOf(parentPointerInputNode, childPointerInputNode2))
+
+        // Act
+
+        hitResult.refreshOffsets()
+
+        // Assert
+
+        val pointerInputNodes1 = arrayOf(parentPointerInputNode, childPointerInputNode1)
+
+        val expectedPointerInputChanges1 = arrayOf(
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointer1Offset - parentOffset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            ),
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointer1Offset - parentOffset - child1Offset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+        )
+
+        val pointerInputNodes2 = arrayOf(parentPointerInputNode, childPointerInputNode2)
+
+        val expectedPointerInputChanges2 = arrayOf(
+            PointerInputChange(
+                id = 5,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointer2Offset - parentOffset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            ),
+            PointerInputChange(
+                id = 5,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointer2Offset - parentOffset - child2Offset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+        )
+
+        hitResult.dispatchChanges(
+            listOf(
+                down(
+                    3,
+                    7L.millisecondsToTimestamp(),
+                    pointer1Offset.x.value,
+                    pointer1Offset.y.value
+                ),
+                down(
+                    5,
+                    7L.millisecondsToTimestamp(),
+                    pointer2Offset.x.value,
+                    pointer2Offset.y.value
+                )
+            ),
+            PointerEventPass.InitialDown, PointerEventPass.PreUp
+        )
+
+        for (pass in listOf(PointerEventPass.InitialDown, PointerEventPass.PreUp)) {
+            for (i in 0 until pointerInputNodes1.size) {
+                verify(pointerInputNodes1[i].pointerInputHandler).invoke(
+                    expectedPointerInputChanges1[i],
+                    pass
+                )
+            }
+            for (i in 0 until pointerInputNodes2.size) {
+                verify(pointerInputNodes2[i].pointerInputHandler).invoke(
+                    expectedPointerInputChanges2[i],
+                    pass
+                )
+            }
+        }
+        for (pointerInputNode in pointerInputNodes1) {
+            verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
+        }
+        for (pointerInputNode in pointerInputNodes2) {
+            verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
+        }
+    }
+
+    // Ln -> Ln -> Pin -> Ln
+    @Test
+    fun refreshOffsets_firstPointerInputNodeIsUnder2LayoutNodes_changeTranslatedCorrectly() {
+
+        // Arrange
+
+        val parentOffset1 = IntPxPosition(1.ipx, 2.ipx)
+        val parentOffset2 = IntPxPosition(3.ipx, 4.ipx)
+        val childOffset = IntPxPosition(5.ipx, 6.ipx)
+
+        val pointerOffset = PxPosition(5.px, 7.px)
+
+        val childLayoutNode = LayoutNode(childOffset)
+        val pointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, childLayoutNode)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        val parentLayoutNode2 = LayoutNode(parentOffset2).apply {
+            emitInsertAt(0, pointerInputNode)
+        }
+        @Suppress("UNUSED_VARIABLE")
+        val parentLayoutNode1 = LayoutNode(parentOffset1).apply {
+            emitInsertAt(0, parentLayoutNode2)
+        }
+
+        hitResult.addHitPath(3, listOf(pointerInputNode))
+
+        // Act
+
+        hitResult.refreshOffsets()
+
+        // Assert
+
+        val expectedPointerInputChange =
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointerOffset - parentOffset1 - parentOffset2 - childOffset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+
+        hitResult.dispatchChanges(
+            listOf(
+                down(
+                    3,
+                    7L.millisecondsToTimestamp(),
+                    pointerOffset.x.value,
+                    pointerOffset.y.value
+                )
+            ),
+            PointerEventPass.InitialDown, PointerEventPass.PreUp
+        )
+
+        for (pass in listOf(PointerEventPass.InitialDown, PointerEventPass.PreUp)) {
+            verify(pointerInputNode.pointerInputHandler).invoke(
+                expectedPointerInputChange,
+                pass
+            )
+        }
+        verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
+    }
+
+    // Ln -> Ln -> Pin -> Ln -> Ln -> Pin -> Ln
+    @Test
+    fun refreshOffsets_2LayoutNodes1Pin2LayoutNodes1Pin1LayoutNode_changeTranslatedCorrectly() {
+
+        // Arrange
+
+        val parentOffset1 = IntPxPosition(1.ipx, 2.ipx)
+        val parentOffset2 = IntPxPosition(3.ipx, 4.ipx)
+        val parentOffset3 = IntPxPosition(5.ipx, 6.ipx)
+        val childOffset1 = IntPxPosition(7.ipx, 8.ipx)
+        val childOffset2 = IntPxPosition(9.ipx, 10.ipx)
+        val pointerOffset = PxPosition(5.px, 7.px)
+
+        val childLayoutNode2 = LayoutNode(childOffset2)
+        val childPointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, childLayoutNode2)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        val childLayoutNode1 = LayoutNode(childOffset1).apply {
+            emitInsertAt(0, childPointerInputNode)
+        }
+        val parentLayoutNode3 = LayoutNode(parentOffset3).apply {
+            emitInsertAt(0, childLayoutNode1)
+        }
+        val parentPointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, parentLayoutNode3)
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        val parentLayoutNode2 = LayoutNode(parentOffset2).apply {
+            emitInsertAt(0, parentPointerInputNode)
+        }
+        @Suppress("UNUSED_VARIABLE")
+        val parentLayoutNode1 = LayoutNode(parentOffset1).apply {
+            emitInsertAt(0, parentLayoutNode2)
+        }
+
+        hitResult.addHitPath(3, listOf(parentPointerInputNode, childPointerInputNode))
+
+        // Act
+
+        hitResult.refreshOffsets()
+
+        // Assert
+
+        val pointerInputNodes = arrayOf(parentPointerInputNode, childPointerInputNode)
+
+        val expectedPointerInputChanges = arrayOf(
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointerOffset - parentOffset1 - parentOffset2 - parentOffset3,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            ),
+            PointerInputChange(
+                id = 3,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointerOffset - parentOffset1 - parentOffset2 - parentOffset3 -
+                            childOffset1 - childOffset2,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+        )
+
+        hitResult.dispatchChanges(
+            listOf(
+                down(
+                    3,
+                    7L.millisecondsToTimestamp(),
+                    pointerOffset.x.value,
+                    pointerOffset.y.value
+                )
+            ),
+            PointerEventPass.InitialDown, PointerEventPass.PreUp
+        )
+
+        for (pass in listOf(PointerEventPass.InitialDown, PointerEventPass.PreUp)) {
+            for (i in 0 until pointerInputNodes.size) {
+                verify(pointerInputNodes[i].pointerInputHandler).invoke(
+                    expectedPointerInputChanges[i],
+                    pass
+                )
+            }
+        }
+        for (pointerInputNode in pointerInputNodes) {
+            verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
+        }
     }
 
     private fun areEqual(actualNode: Node, expectedNode: Node): Boolean {

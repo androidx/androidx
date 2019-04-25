@@ -121,13 +121,15 @@ fun PointerInputChange.consumePositionChange(
 
 // Offset modification functions
 
-fun PointerInputChange.subtractOffset(pxPosition: PxPosition): PointerInputChange {
+fun PointerInputChange.addOffset(pxPosition: PxPosition): PointerInputChange {
     return if (pxPosition == PxPosition.Origin) {
         this
     } else {
         this.copy(
-            current = current.copy(position = this.current.position?.minus(pxPosition)),
-            previous = previous.copy(position = this.previous.position?.minus(pxPosition))
+            current = current.copy(position = this.current.position?.plus(pxPosition)),
+            previous = previous.copy(position = this.previous.position?.plus(pxPosition))
         )
     }
 }
+
+fun PointerInputChange.subtractOffset(pxPosition: PxPosition) = addOffset(-pxPosition)

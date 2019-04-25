@@ -361,6 +361,20 @@ class PxTest {
     }
 
     @Test
+    fun pxPositionMinusIntPxPosition() {
+        val a = PxPosition(3.px, 10.px)
+        val b = IntPxPosition(5.ipx, 8.ipx)
+        assertEquals(PxPosition(-2.px, 2.px), a - b)
+    }
+
+    @Test
+    fun pxPositionPlusIntPxPosition() {
+        val a = PxPosition(3.px, 10.px)
+        val b = IntPxPosition(5.ipx, 8.ipx)
+        assertEquals(PxPosition(8.px, 18.px), a + b)
+    }
+
+    @Test
     fun boundsWidth() {
         val bounds = PxBounds(10.px, 5.px, 25.px, 15.px)
         assertEquals(15.px, bounds.width)
