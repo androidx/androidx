@@ -293,6 +293,7 @@ includeProject(":webview-support-interfaces", new File(externalRoot, "webview_su
 includeProject(":compose-runtime", "compose/runtime")
 includeProject(":compose-plugin-cli", "compose/plugins/cli")
 includeProject(":compose-plugin-cli-tests", "compose/plugins/cli-tests")
+includeProject(":compose-plugin-cli-gradle", "compose/plugins/cli/gradle")
 includeProject(":compose-plugin-ide", "compose/plugins/ide")
 includeProject(":ui-android-text", "ui/android-text")
 includeProject(":ui-text", "ui/text")
