@@ -18,6 +18,7 @@ package androidx.media2.common;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.ParcelImpl;
@@ -39,11 +40,8 @@ public class MediaParcelUtils {
      * @param item
      * @return
      */
-    @Nullable
+    @NonNull
     public static ParcelImpl toParcelable(@Nullable VersionedParcelable item) {
-        if (item == null) {
-            return null;
-        }
         if (item instanceof MediaItem) {
             return new MediaItemParcelImpl((MediaItem) item);
         }
@@ -55,10 +53,7 @@ public class MediaParcelUtils {
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
     @Nullable
-    public static <T extends VersionedParcelable> T fromParcelable(@Nullable ParcelImpl p) {
-        if (p == null) {
-            return null;
-        }
+    public static <T extends VersionedParcelable> T fromParcelable(@NonNull ParcelImpl p) {
         return ParcelUtils.<T>fromParcelable(p);
     }
 
