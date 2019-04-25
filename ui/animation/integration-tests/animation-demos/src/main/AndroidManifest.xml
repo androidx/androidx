@@ -20,14 +20,6 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
-        <activity android:name=".AnimationGestureSemanticsActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Animation/Animations Gestures and Semantics">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
         <activity android:name=".HelloAnimationActivity"
                   android:configChanges="orientation|screenSize"
                   android:label="Animation/State Animation with Interruptions">
