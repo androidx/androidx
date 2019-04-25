@@ -17,10 +17,6 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_CONTENT_TYPE;
-import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_FLAGS;
-import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE;
-import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_USAGE;
 import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_MOVIE;
 import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_MUSIC;
 import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_SONIFICATION;
@@ -45,9 +41,6 @@ import static androidx.media.AudioAttributesCompat.USAGE_VIRTUAL_SOURCE;
 import static androidx.media.AudioAttributesCompat.USAGE_VOICE_COMMUNICATION;
 import static androidx.media.AudioAttributesCompat.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
-import android.os.Bundle;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat.AudioManagerHidden;
 import androidx.versionedparcelable.ParcelField;
@@ -133,18 +126,6 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
         return flags & AudioAttributesCompat.FLAG_ALL_PUBLIC;
     }
 
-    @Override
-    public @NonNull Bundle toBundle() {
-        Bundle bundle = new Bundle();
-        bundle.putInt(AUDIO_ATTRIBUTES_USAGE, mUsage);
-        bundle.putInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, mContentType);
-        bundle.putInt(AUDIO_ATTRIBUTES_FLAGS, mFlags);
-        if (mLegacyStream != INVALID_STREAM_TYPE) {
-            bundle.putInt(AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE, mLegacyStream);
-        }
-        return bundle;
-    }
-
     //////////////////////////////////////////////////////////////////////
     // Override Object methods
 
@@ -179,18 +160,6 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
                 .append(" flags=0x")
                 .append(Integer.toHexString(mFlags).toUpperCase());
         return sb.toString();
-    }
-
-    public static AudioAttributesImpl fromBundle(Bundle bundle) {
-        if (bundle == null) {
-            return null;
-        }
-        int usage = bundle.getInt(AUDIO_ATTRIBUTES_USAGE, USAGE_UNKNOWN);
-        int contentType = bundle.getInt(AUDIO_ATTRIBUTES_CONTENT_TYPE, CONTENT_TYPE_UNKNOWN);
-        int flags = bundle.getInt(AUDIO_ATTRIBUTES_FLAGS, 0);
-        int legacyStream = bundle.getInt(AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE,
-                INVALID_STREAM_TYPE);
-        return new AudioAttributesImplBase(contentType, flags, usage, legacyStream);
     }
 
     static class Builder implements AudioAttributesImpl.Builder {

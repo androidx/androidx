@@ -56,10 +56,10 @@ package androidx.media2.common {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @StringDef({androidx.media2.common.MediaMetadata.METADATA_KEY_TITLE, androidx.media2.common.MediaMetadata.METADATA_KEY_ARTIST, androidx.media2.common.MediaMetadata.METADATA_KEY_ALBUM, androidx.media2.common.MediaMetadata.METADATA_KEY_AUTHOR, androidx.media2.common.MediaMetadata.METADATA_KEY_WRITER, androidx.media2.common.MediaMetadata.METADATA_KEY_COMPOSER, androidx.media2.common.MediaMetadata.METADATA_KEY_COMPILATION, androidx.media2.common.MediaMetadata.METADATA_KEY_DATE, androidx.media2.common.MediaMetadata.METADATA_KEY_GENRE, androidx.media2.common.MediaMetadata.METADATA_KEY_ALBUM_ARTIST, androidx.media2.common.MediaMetadata.METADATA_KEY_ART_URI, androidx.media2.common.MediaMetadata.METADATA_KEY_ALBUM_ART_URI, androidx.media2.common.MediaMetadata.METADATA_KEY_DISPLAY_TITLE, androidx.media2.common.MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE, androidx.media2.common.MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION, androidx.media2.common.MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI, androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_ID, androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_URI, androidx.media2.common.MediaMetadata.METADATA_KEY_RADIO_PROGRAM_NAME}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface MediaMetadata.TextKey {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MediaParcelUtils {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MediaParcelUtils {
     ctor public MediaParcelUtils();
-    method public static <T extends androidx.versionedparcelable.VersionedParcelable> T! fromParcelable(androidx.versionedparcelable.ParcelImpl!);
-    method public static androidx.versionedparcelable.ParcelImpl! toParcelable(androidx.versionedparcelable.VersionedParcelable!);
+    method public static <T extends androidx.versionedparcelable.VersionedParcelable> T? fromParcelable(androidx.versionedparcelable.ParcelImpl?);
+    method public static androidx.versionedparcelable.ParcelImpl? toParcelable(androidx.versionedparcelable.VersionedParcelable?);
     field public static final String TAG = "MediaParcelUtils";
   }
 
