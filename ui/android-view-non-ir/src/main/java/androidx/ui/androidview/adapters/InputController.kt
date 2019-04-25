@@ -20,10 +20,12 @@ abstract class InputController<V : View, T>(
     private var lastSetValue: T = getValue()
 
     // TODO(malkov): subject to change when binding in adapters will be introduced
+    // TODO(lmr): this doesn't work anymore and the APIs it's using are deprecated, so commenting
+    //  out for now until we fix.
     private fun inCompositionContext(action: CompositionContext.(Component) -> Unit) {
-        CompositionContext.findRoot(view)?.let { root ->
-            CompositionContext.find(root)?.action(root)
-        }
+//        CompositionContext.findRoot(view)?.let { root ->
+//            CompositionContext.find(root)?.action(root)
+//        }
     }
 
     protected abstract fun getValue(): T
@@ -61,7 +63,8 @@ abstract class InputController<V : View, T>(
 
         if (lastSetValue == getValue()) return true
         inCompositionContext { root ->
-            recomposeSync(root)
+            // TODO(lmr): figure out right way to do this
+//            recomposeSync(root)
         }
 
         if (lastSetValue == getValue()) return true
