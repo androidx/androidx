@@ -40,7 +40,6 @@ import kotlin.math.roundToInt
 /**
  * Tests what happens when a smooth scroll is interrupted by a drag
  */
-@FlakyTest(bugId = 131158288)
 @RunWith(Parameterized::class)
 @LargeTest
 class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
@@ -145,6 +144,7 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
         testSetCurrentItem(true)
     }
 
+    @FlakyTest(bugId = 131158288)
     @Test
     @MediumTest
     fun testSetCurrentItemNotSmooth() {
