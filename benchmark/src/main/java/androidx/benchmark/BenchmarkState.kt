@@ -20,8 +20,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Debug
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
-
 import java.io.File
 import java.text.NumberFormat
 import java.util.ArrayList
@@ -251,7 +251,7 @@ class BenchmarkState internal constructor() {
      */
     @Suppress("NOTHING_TO_INLINE")
     inline fun keepRunningInline(): Boolean {
-        if (iterationsRemaining > 0) {
+        if (iterationsRemaining > 1) {
             iterationsRemaining--
             return true
         }
@@ -269,7 +269,7 @@ class BenchmarkState internal constructor() {
      * ```
      */
     fun keepRunning(): Boolean {
-        if (iterationsRemaining > 0) {
+        if (iterationsRemaining > 1) {
             iterationsRemaining--
             return true
         }
@@ -420,7 +420,9 @@ class BenchmarkState internal constructor() {
         private val TARGET_TEST_DURATION_NS = TimeUnit.MILLISECONDS.toNanos(500)
         private const val MAX_TEST_ITERATIONS = 1000000
         private const val MIN_TEST_ITERATIONS = 10
-        private const val REPEAT_COUNT = 5
+
+        @VisibleForTesting
+        internal const val REPEAT_COUNT = 5
 
         private const val THROTTLE_MAX_RETRIES = 3
         private const val THROTTLE_BACKOFF_S = 90L
