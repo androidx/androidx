@@ -55,6 +55,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
 import androidx.core.app.ComponentActivity;
+import androidx.core.os.BuildCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.versionedparcelable.ParcelUtils;
@@ -1323,9 +1324,7 @@ public final class MediaControllerCompat {
          * Set the playback speed.
          *
          * @param speed The playback speed
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public void setPlaybackSpeed(float speed) {}
 
         /**
@@ -2494,6 +2493,10 @@ public final class MediaControllerCompat {
 
         @Override
         public void setPlaybackSpeed(float speed) {
+            if (BuildCompat.isAtLeastQ()) {
+                mControlsFwk.setPlaybackSpeed(speed);
+                return;
+            }
             Bundle bundle = new Bundle();
             bundle.putFloat(MediaSessionCompat.ACTION_ARGUMENT_PLAYBACK_SPEED, speed);
             sendCustomAction(MediaSessionCompat.ACTION_SET_PLAYBACK_SPEED, bundle);
