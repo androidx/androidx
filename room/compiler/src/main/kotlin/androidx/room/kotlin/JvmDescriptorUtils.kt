@@ -16,9 +16,10 @@
 
 package androidx.room.kotlin
 
-import com.google.auto.common.MoreElements
+import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.NestingKind
+import javax.lang.model.element.QualifiedNameable
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.ArrayType
 import javax.lang.model.type.DeclaredType
@@ -47,21 +48,28 @@ fun ExecutableElement.descriptor(typeUtils: Types) =
  *
  * For reference, see the [JVM specification, section 4.2](https://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.2).
  */
-internal val TypeElement.internalName: String
-    get() = when (nestingKind) {
-        NestingKind.TOP_LEVEL ->
-            qualifiedName.toString().replace('.', '/')
-        NestingKind.MEMBER ->
-            MoreElements.asType(enclosingElement).internalName + "$" + simpleName
-        NestingKind.LOCAL, NestingKind.ANONYMOUS ->
-            error("Unsupported nesting $nestingKind")
+internal val Element.internalName: String
+    get() = when (this) {
+        is TypeElement ->
+            when (nestingKind) {
+                NestingKind.TOP_LEVEL ->
+                    qualifiedName.toString().replace('.', '/')
+                NestingKind.MEMBER ->
+                    enclosingElement.internalName + "$" + simpleName
+                NestingKind.LOCAL, NestingKind.ANONYMOUS ->
+                    error("Unsupported nesting $nestingKind")
+                else ->
+                    error("Unsupported, nestingKind == null")
+            }
+        is QualifiedNameable -> qualifiedName.toString().replace('.', '/')
+        else -> simpleName.toString()
     }
 
 internal val NoType.descriptor: String
     get() = "V"
 
 internal val DeclaredType.descriptor: String
-    get() = "L" + MoreElements.asType(asElement()).internalName + ";"
+    get() = "L" + asElement().internalName + ";"
 
 internal val PrimitiveType.descriptor: String
     get() = when (this.kind) {
