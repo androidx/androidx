@@ -92,7 +92,7 @@ class TransitionSpec {
      *
      * @param init Initialization function for the [Tween] animation
      */
-    fun <T> tween(init: TweenBuilder<T>.() -> Unit): AnimationBuilder<T> =
+    fun <T> tween(init: TweenBuilder<T>.() -> Unit): DurationBasedAnimationBuilder<T> =
         TweenBuilder<T>().apply(init)
 
     /**
@@ -108,8 +108,16 @@ class TransitionSpec {
      *
      * @param init Initialization function for the [Keyframes] animation
      */
-    fun <T> keyframes(init: KeyframesBuilder<T>.() -> Unit): AnimationBuilder<T> =
+    fun <T> keyframes(init: KeyframesBuilder<T>.() -> Unit): DurationBasedAnimationBuilder<T> =
         KeyframesBuilder<T>().apply(init)
+
+    /**
+     * Creates a [Repeatable] animation, initialized with [init]
+     *
+     * @param init Initialization function for the [Repeatable] animation
+     */
+    fun <T> repeatable(init: RepeatableBuilder<T>.() -> Unit): AnimationBuilder<T> =
+        RepeatableBuilder<T>().apply(init)
 }
 
 /**

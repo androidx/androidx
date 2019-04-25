@@ -18,6 +18,7 @@ package androidx.animation
 
 import androidx.animation.Physics.Companion.DampingRatioNoBouncy
 import androidx.animation.Physics.Companion.StiffnessVeryLow
+import kotlin.math.min
 
 const val DEBUG = false
 
@@ -85,22 +86,22 @@ private interface DiffBasedVelocityAnimation<T> : Animation<T> {
 }
 
 /**
- * [Keyframes] class manages the animation based on the values defined at different timestamps in
- * the duration of the animation (i.e. different keyframes). Each keyframe can be provided via
- * [keyframes] parameter. [Keyframes] allows very specific animation definitions with a
- * precision to millisecond.
+ * Base class for [Animation]s based on a fixed [duration].
  *
- * Use [KeyframesBuilder] to create a [Keyframes] animation.
- * // TODO: support different easing for each keyframe interval
+ * @param duration the amount of time while animation is not yet finished.
+ * @param delay the animation can be delayed for this amount of time.
  */
-internal class Keyframes<T>(
-    private val duration: Long,
-    private val keyframes: Map<Long, Pair<T, Easing>>
-) : DiffBasedVelocityAnimation<T> {
+internal abstract class DurationBasedAnimation<T>(
+    internal val duration: Long,
+    internal val delay: Long
+) : Animation<T> {
 
     init {
         if (duration < 0) {
             throw IllegalArgumentException("Duration should be non-negative")
+        }
+        if (delay < 0) {
+            throw IllegalArgumentException("Delay should be non-negative")
         }
     }
 
@@ -109,18 +110,51 @@ internal class Keyframes<T>(
         start: T,
         end: T,
         startVelocity: Float
-    ) = playTime >= duration
+    ): Boolean = playTime >= delay + duration
 
-    override fun getValue(
+    final override fun getValue(
         playTime: Long,
         start: T,
         end: T,
         startVelocity: Float,
         interpolator: (T, T, Float) -> T
     ): T {
-        // Find the range where playtime fits
-        val playTime: Long = playTime.coerceIn(0, duration)
+        val clampedTime: Long = (playTime - delay).coerceIn(0, duration)
+        return getValue(clampedTime, duration, start, end, startVelocity, interpolator)
+    }
 
+    abstract fun getValue(
+        playTime: Long,
+        duration: Long,
+        start: T,
+        end: T,
+        startVelocity: Float,
+        interpolator: (T, T, Float) -> T
+    ): T
+}
+
+/**
+ * [Keyframes] class manages the animation based on the values defined at different timestamps in
+ * the duration of the animation (i.e. different keyframes). Each keyframe can be provided via
+ * [keyframes] parameter. [Keyframes] allows very specific animation definitions with a
+ * precision to millisecond.
+ *
+ * Use [KeyframesBuilder] to create a [Keyframes] animation.
+ */
+internal class Keyframes<T>(
+    duration: Long,
+    delay: Long,
+    private val keyframes: Map<Long, Pair<T, Easing>>
+) : DurationBasedAnimation<T>(duration, delay), DiffBasedVelocityAnimation<T> {
+
+    override fun getValue(
+        playTime: Long,
+        duration: Long,
+        start: T,
+        end: T,
+        startVelocity: Float,
+        interpolator: (T, T, Float) -> T
+    ): T {
         if (keyframes.containsKey(playTime)) {
             return keyframes.getValue(playTime).first
         }
@@ -153,35 +187,19 @@ internal class Keyframes<T>(
  * delayed via [delay].
  */
 internal class Tween<T>(
-    private val duration: Long,
-    private val delay: Long = 0,
+    duration: Long,
+    delay: Long,
     private val easing: Easing
-) : DiffBasedVelocityAnimation<T> {
-
-    init {
-        if (duration < 0) {
-            throw IllegalArgumentException("Duration should be non-negative")
-        }
-        if (delay < 0) {
-            throw IllegalArgumentException("Delay should be non-negative")
-        }
-    }
-
-    override fun isFinished(
-        playTime: Long,
-        start: T,
-        end: T,
-        startVelocity: Float
-    ): Boolean = playTime >= delay + duration
+) : DurationBasedAnimation<T>(duration, delay), DiffBasedVelocityAnimation<T> {
 
     override fun getValue(
         playTime: Long,
+        duration: Long,
         start: T,
         end: T,
         startVelocity: Float,
         interpolator: (T, T, Float) -> T
     ): T {
-        val playTime: Long = (playTime - delay).coerceIn(0, duration)
         val rawFraction = if (duration == 0L) 1f else playTime / duration.toFloat()
         val fraction = easing(rawFraction)
         return interpolator(start, end, fraction)
@@ -322,5 +340,67 @@ internal class Physics<T>(
         }
         @Suppress("UNCHECKED_CAST")
         return result as T
+    }
+}
+
+/**
+ * This animation takes another [animation] as a parameter and repeats it [iterationCount] times.
+ *
+ * @param iterationCount the count of iterations. Should be at least 1. [Infinite] can
+ *  be used to have an infinity repeating animation.
+ * @param animation the [Animation] describing each repetition iteration.
+ */
+internal class Repeatable<T>(
+    private val iterationCount: Long,
+    private val animation: DurationBasedAnimation<T>
+) : Animation<T> {
+
+    init {
+        if (iterationCount < 1) {
+            throw IllegalArgumentException("Iterations count can't be less than 1")
+        }
+    }
+
+    private val duration: Long = animation.delay + animation.duration
+
+    private fun repetitionPlayTime(playTime: Long): Long {
+        val repeatsCount = min(playTime / duration, iterationCount - 1L)
+        return playTime - repeatsCount * duration
+    }
+
+    private fun repetitionStartVelocity(playTime: Long, startVelocity: Float): Float =
+        if (playTime >= duration) 0f else startVelocity
+
+    override fun isFinished(playTime: Long, start: T, end: T, startVelocity: Float): Boolean =
+        duration <= 0 || playTime / duration >= iterationCount
+
+    override fun getValue(
+        playTime: Long,
+        start: T,
+        end: T,
+        startVelocity: Float,
+        interpolator: (T, T, Float) -> T
+    ): T {
+        return animation.getValue(
+            repetitionPlayTime(playTime),
+            start,
+            end,
+            repetitionStartVelocity(playTime, startVelocity),
+            interpolator)
+    }
+
+    override fun getVelocity(
+        playTime: Long,
+        start: T,
+        end: T,
+        startVelocity: Float,
+        interpolator: (T, T, Float) -> T
+    ): Float {
+        return animation.getVelocity(
+            repetitionPlayTime(playTime),
+            start,
+            end,
+            repetitionStartVelocity(playTime, startVelocity),
+            interpolator)
     }
 }
