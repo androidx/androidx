@@ -296,8 +296,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         if (mPrimaryNav != null // We have a primary nav fragment
                 && id < 0 // No valid id (since they're local)
                 && name == null) { // no name to pop to (since they're local)
-            final FragmentManager childManager = mPrimaryNav.peekChildFragmentManager();
-            if (childManager != null && childManager.popBackStackImmediate()) {
+            final FragmentManager childManager = mPrimaryNav.getChildFragmentManager();
+            if (childManager.popBackStackImmediate()) {
                 // We did something, just not to this specific FragmentManager. Return true.
                 return true;
             }
@@ -3097,9 +3097,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     private boolean isMenuAvailable(Fragment f) {
-        return (f.mHasMenu && f.mMenuVisible)
-                || (f.mChildFragmentManager != null
-                && f.mChildFragmentManager.checkForMenus());
+        return f.mHasMenu && f.mMenuVisible || f.mChildFragmentManager.checkForMenus();
     }
 
     public static int reverseTransit(int transit) {
@@ -3297,8 +3295,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             if (mPrimaryNav != null // We have a primary nav fragment
                     && mId < 0 // No valid id (since they're local)
                     && mName == null) { // no name to pop to (since they're local)
-                final FragmentManager childManager = mPrimaryNav.peekChildFragmentManager();
-                if (childManager != null && childManager.popBackStackImmediate()) {
+                final FragmentManager childManager = mPrimaryNav.getChildFragmentManager();
+                if (childManager.popBackStackImmediate()) {
                     // We didn't add any operations for this FragmentManager even though
                     // a child did do work.
                     return false;

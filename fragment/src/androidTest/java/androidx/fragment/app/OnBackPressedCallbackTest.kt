@@ -218,6 +218,44 @@ class OnBackPressedCallbackTest {
                 .isSameInstanceAs(fragment)
         }
     }
+
+    @Test
+    fun testBackPressWithChildFragmentOverFragmentCallback() {
+        with(ActivityScenario.launch(OnBackPressedFragmentActivity::class.java)) {
+            val fragmentManager = withActivity { supportFragmentManager }
+            val fragment = withActivity { fragment }
+            val fragmentCallback = fragment.onBackPressedCallback
+
+            withActivity {
+                onBackPressed()
+            }
+
+            assertWithMessage("Fragment callback should be called before FragmentManager")
+                .that(fragmentCallback.count)
+                .isEqualTo(1)
+            assertThat(fragmentManager.findFragmentById(R.id.content))
+                .isSameAs(fragment)
+
+            val grandChildFragmentManager = fragment.childFragment!!.childFragmentManager
+            val grandChildFragment = StrictFragment()
+            grandChildFragmentManager.beginTransaction()
+                .add(grandChildFragment, "grandchild")
+                .addToBackStack(null)
+                .commit()
+
+            withActivity {
+                onBackPressed()
+            }
+
+            assertWithMessage("Grand child fragment should be called before callbacks " +
+                    "registered on the parent Fragment")
+                .that(fragmentCallback.count)
+                .isEqualTo(1)
+            assertWithMessage("Grand child Fragment should be popped by onBackPressed()")
+                .that(grandChildFragmentManager.findFragmentByTag("grandchild"))
+                .isNull()
+        }
+    }
 }
 
 class CountingOnBackPressedCallback(enabled: Boolean = true) : OnBackPressedCallback(enabled) {
@@ -230,10 +268,20 @@ class CountingOnBackPressedCallback(enabled: Boolean = true) : OnBackPressedCall
 
 class OnBackPressedStrictFragment : StrictFragment() {
     val onBackPressedCallback = CountingOnBackPressedCallback()
+    val childFragment get() = childFragmentManager.findFragmentByTag("child")
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         requireActivity().onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val childFragment = StrictFragment()
+        childFragmentManager.beginTransaction()
+            .add(childFragment, "child")
+            .setPrimaryNavigationFragment(childFragment)
+            .commit()
     }
 }
 
@@ -246,6 +294,7 @@ class OnBackPressedFragmentActivity : FragmentActivity(R.layout.activity_content
         val fragment = OnBackPressedStrictFragment()
         supportFragmentManager.beginTransaction()
             .replace(R.id.content, fragment)
+            .setPrimaryNavigationFragment(fragment)
             .addToBackStack("back_stack")
             .commit()
     }

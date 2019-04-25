@@ -204,8 +204,6 @@ public class NavHostFragment extends Fragment implements NavHost {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final Context context = requireContext();
-        // TODO Fix Fragments to register their OnBackPressedCallback eagerly
-        getChildFragmentManager();
 
         mNavController = new NavController(context);
         mNavController.setHostLifecycleOwner(this);
