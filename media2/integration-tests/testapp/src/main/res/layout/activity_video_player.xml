@@ -50,7 +50,7 @@
     <!-- MediaControlView will be created manually in code -->
     <view
         android:id="@+id/video_view"
-        class="com.example.androidx.media.VideoPlayerActivity$MyVideoView"
+        class="androidx.media2.integration.testapp.VideoPlayerActivity$MyVideoView"
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:layout_marginLeft="40dp"
