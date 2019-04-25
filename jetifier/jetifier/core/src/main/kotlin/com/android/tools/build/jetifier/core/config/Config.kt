@@ -56,7 +56,8 @@ data class Config(
     val typesMap: TypesMap,
     val proGuardMap: ProGuardTypesMap,
     val versionsMap: DependencyVersionsMap,
-    val packageMap: PackageMap
+    val packageMap: PackageMap,
+    val stringsMap: TypesMap
 ) {
 
     init {
@@ -92,7 +93,8 @@ data class Config(
             pomRewriteRules: Set<PomRewriteRule> = emptySet(),
             typesMap: TypesMap = TypesMap.EMPTY,
             proGuardMap: ProGuardTypesMap = ProGuardTypesMap.EMPTY,
-            versionsMap: DependencyVersionsMap = DependencyVersionsMap.EMPTY
+            versionsMap: DependencyVersionsMap = DependencyVersionsMap.EMPTY,
+            stringsMap: TypesMap = TypesMap.EMPTY
         ): Config {
             return Config(
                 restrictToPackagePrefixes = restrictToPackagePrefixes,
@@ -103,7 +105,8 @@ data class Config(
                 pomRewriteRules = pomRewriteRules,
                 typesMap = typesMap,
                 proGuardMap = proGuardMap,
-                versionsMap = versionsMap
+                versionsMap = versionsMap,
+                stringsMap = stringsMap
             )
         }
     }
@@ -118,7 +121,8 @@ data class Config(
             pomRewriteRules = pomRewriteRules,
             typesMap = mappings,
             proGuardMap = proGuardMap,
-            versionsMap = versionsMap
+            versionsMap = versionsMap,
+            stringsMap = stringsMap
         )
     }
 
@@ -182,7 +186,8 @@ data class Config(
             pomRewriteRules.map { it.toJson() }.toList(),
             versionsMap.data,
             typesMap.toJson(),
-            proGuardMap.toJson()
+            proGuardMap.toJson(),
+            stringsMap.toJson()
         )
     }
 
@@ -215,7 +220,10 @@ data class Config(
         val mappings: TypesMap.JsonData? = null,
 
         @SerializedName("proGuardMap")
-        val proGuardMap: ProGuardTypesMap.JsonData? = null
+        val proGuardMap: ProGuardTypesMap.JsonData? = null,
+
+        @SerializedName("stringsMap")
+        val stringsMap: TypesMap.JsonData? = null
     ) {
         /** Creates instance of [Config] */
         fun toConfig(): Config {
@@ -236,7 +244,8 @@ data class Config(
                     ?.let { DependencyVersionsMap(versions) }
                     ?: DependencyVersionsMap.EMPTY,
                 typesMap = mappings?.toMappings() ?: TypesMap.EMPTY,
-                proGuardMap = proGuardMap?.toMappings() ?: ProGuardTypesMap.EMPTY
+                proGuardMap = proGuardMap?.toMappings() ?: ProGuardTypesMap.EMPTY,
+                stringsMap = stringsMap?.toMappings() ?: TypesMap.EMPTY
             )
         }
     }
