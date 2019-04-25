@@ -144,6 +144,7 @@ public class ImageCapture extends UseCase {
      * Creates a new image capture use case from the given configuration.
      *
      * @param userConfig for this use case instance
+     * @throws IllegalArgumentException if the configuration is invalid.
      */
     public ImageCapture(ImageCaptureConfig userConfig) {
         super(userConfig);
@@ -154,11 +155,20 @@ public class ImageCapture extends UseCase {
         mFlashMode = mConfig.getFlashMode();
 
         mCaptureProcessor = mConfig.getCaptureProcessor(null);
-
-        if (mCaptureProcessor != null) {
-            setImageFormat(ImageFormat.YUV_420_888);
+        Integer bufferFormat = mConfig.getBufferFormat(null);
+        if (bufferFormat != null) {
+            if (mCaptureProcessor != null) {
+                throw new IllegalArgumentException(
+                        "Cannot set buffer format with CaptureProcessor defined.");
+            } else {
+                setImageFormat(bufferFormat);
+            }
         } else {
-            setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageCaptureFormat());
+            if (mCaptureProcessor != null) {
+                setImageFormat(ImageFormat.YUV_420_888);
+            } else {
+                setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageCaptureFormat());
+            }
         }
 
         mCaptureBundle = mConfig.getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
