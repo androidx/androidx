@@ -16,7 +16,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.androidx.media">
+    package="androidx.media2.integration.testapp">
 
     <uses-sdk tools:overrideLibrary="androidx.media2.widget" />
 
