@@ -16,7 +16,10 @@
 
 package androidx.benchmark
 
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
+import android.os.BatteryManager
 import android.os.Build
 import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
@@ -30,6 +33,16 @@ internal object WarningState {
 
     val WARNING_PREFIX: String
     private var warningString: String? = null
+
+    /**
+     * Battery percentage required to avoid low battery warning.
+     *
+     * This number is supposed to be a conservative cutoff for when low-battery-triggered power
+     * savings modes (such as disabling cores) may be enabled. It's possible that
+     * [BatteryManager.EXTRA_BATTERY_LOW] is a better source of truth for this, but we want to be
+     * conservative in case the device loses power slowly while benchmarks run.
+     */
+    private const val MINIMUM_BATTERY_PERCENT = 25
 
     fun acquireWarningStringForLogging(): String? {
         val ret = warningString
@@ -61,8 +74,8 @@ internal object WarningState {
         ).any { File(it).exists() }
 
     init {
-        val appInfo = InstrumentationRegistry.getInstrumentation().targetContext
-            .applicationInfo
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val appInfo = context.applicationInfo
         var warningPrefix = ""
         var warningString = ""
         if (appInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) {
@@ -129,6 +142,23 @@ internal object WarningState {
                 |    build.gradle:
                 |        android.defaultConfig.testInstrumentationRunner
                 |            = "androidx.benchmark.AndroidBenchmarkRunner"
+            """.trimMarginWrapNewlines()
+        }
+
+        val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+        val batteryPercent = context.registerReceiver(null, filter)?.run {
+            val level = getIntExtra(BatteryManager.EXTRA_LEVEL, 100)
+            val scale = getIntExtra(BatteryManager.EXTRA_SCALE, 100)
+            level * 100 / scale
+        } ?: 100
+        if (batteryPercent < MINIMUM_BATTERY_PERCENT) {
+            warningPrefix += "LOW-BATTERY_"
+            warningString += """
+                |WARNING: Device has low battery ($batteryPercent%)
+                |    When battery is low, devices will often reduce performance (e.g. disabling big
+                |    cores) to save remaining battery. This occurs even when they are plugged in.
+                |    Wait for your battery to charge to at least $MINIMUM_BATTERY_PERCENT%.
+                |    Currently at $batteryPercent%.
             """.trimMarginWrapNewlines()
         }
 
