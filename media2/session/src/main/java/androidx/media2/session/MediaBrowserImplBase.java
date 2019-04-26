@@ -153,7 +153,8 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
 
     void notifySearchResultChanged(final String query, final int itemCount,
             final LibraryParams libraryParams) {
-        getCallbackExecutor().execute(new Runnable() {
+        if (mCallback == null) return;
+        mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 getCallback().onSearchResultChanged(getInstance(), query, itemCount, libraryParams);
@@ -163,7 +164,8 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
 
     void notifyChildrenChanged(final String parentId, final int itemCount,
             final LibraryParams libraryParams) {
-        getCallbackExecutor().execute(new Runnable() {
+        if (mCallback == null) return;
+        mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 getCallback().onChildrenChanged(getInstance(), parentId, itemCount, libraryParams);
