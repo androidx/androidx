@@ -78,8 +78,7 @@ public class NavController {
     public static final @NonNull String KEY_DEEP_LINK_INTENT =
             "android-support-nav:controller:deepLinkIntent";
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Context mContext;
+    private final Context mContext;
     private Activity mActivity;
     private NavInflater mInflater;
     private NavGraph mGraph;
@@ -88,8 +87,7 @@ public class NavController {
     private int[] mBackStackIdsToRestore;
     private Parcelable[] mBackStackArgsToRestore;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Deque<NavBackStackEntry> mBackStack = new ArrayDeque<>();
+    private final Deque<NavBackStackEntry> mBackStack = new ArrayDeque<>();
 
     private LifecycleOwner mLifecycleOwner;
     private NavControllerViewModel mViewModel;
@@ -98,6 +96,14 @@ public class NavController {
 
     private final CopyOnWriteArrayList<OnDestinationChangedListener>
             mOnDestinationChangedListeners = new CopyOnWriteArrayList<>();
+
+    private final OnBackPressedCallback mOnBackPressedCallback =
+            new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            popBackStack();
+        }
+    };
 
     /**
      * OnDestinationChangedListener receives a callback when the
@@ -281,6 +287,7 @@ public class NavController {
                 break;
             }
         }
+        mOnBackPressedCallback.setEnabled(getDestinationCountOnBackStack() > 1);
         return popped;
     }
 
@@ -346,8 +353,7 @@ public class NavController {
      *
      * @return If changes were dispatched.
      */
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    boolean dispatchOnDestinationChanged() {
+    private boolean dispatchOnDestinationChanged() {
         // We never want to leave NavGraphs on the top of the stack
         //noinspection StatementWithEmptyBody
         while (!mBackStack.isEmpty()
@@ -479,6 +485,7 @@ public class NavController {
                 }
                 mBackStack.add(new NavBackStackEntry(uuid, node, args));
             }
+            mOnBackPressedCallback.setEnabled(getDestinationCountOnBackStack() > 1);
             mBackStackUUIDsToRestore = null;
             mBackStackIdsToRestore = null;
             mBackStackArgsToRestore = null;
@@ -871,6 +878,7 @@ public class NavController {
                     newDest.addInDefaultArgs(finalArgs));
             mBackStack.add(newBackStackEntry);
         }
+        mOnBackPressedCallback.setEnabled(getDestinationCountOnBackStack() > 1);
         if (popped || newDest != null) {
             dispatchOnDestinationChanged();
         }
@@ -1015,23 +1023,10 @@ public class NavController {
             mLifecycleOwner = owner;
         }
         OnBackPressedDispatcher dispatcher = owner.getOnBackPressedDispatcher();
-        dispatcher.addCallback(mLifecycleOwner, new OnBackPressedCallback(true) {
-            @Override
-            public boolean isEnabled() {
-                int destinationCount = 0;
-                for (NavBackStackEntry entry : mBackStack) {
-                    if (!(entry.getDestination() instanceof NavGraph)) {
-                        destinationCount++;
-                    }
-                }
-                return destinationCount > 1;
-            }
-
-            @Override
-            public void handleOnBackPressed() {
-                popBackStack();
-            }
-        });
+        // Remove the callback from any previous dispatcher
+        mOnBackPressedCallback.remove();
+        // Then add it to the new dispatcher
+        dispatcher.addCallback(mLifecycleOwner, mOnBackPressedCallback);
     }
 
     /**
