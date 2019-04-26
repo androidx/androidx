@@ -57,7 +57,7 @@ class BenchmarkState internal constructor() {
      * Decreasing iteration count used when [state] == [RUNNING], used to determine when main
      * measurement loop finishes.
      */
-    @JvmField /* Used by [BenchmarkState.keepRunningInline()] */
+    @JvmField // Used by [BenchmarkState.keepRunningInline()]
     @PublishedApi
     internal var iterationsRemaining = -1
 
@@ -96,16 +96,20 @@ class BenchmarkState internal constructor() {
     internal val stats: Stats
         get() {
             if (state == NOT_STARTED) {
-                throw IllegalStateException("The benchmark wasn't started! Every test in a class " +
-                        "with a BenchmarkRule must contain a benchmark. In Kotlin, call " +
-                        "benchmarkRule.measureRepeated {}, or in Java, call " +
-                        "benchmarkRule.getState().keepRunning() to run your benchmark.")
+                throw IllegalStateException(
+                    "The benchmark wasn't started! Every test in a class " +
+                            "with a BenchmarkRule must contain a benchmark. In Kotlin, call " +
+                            "benchmarkRule.measureRepeated {}, or in Java, call " +
+                            "benchmarkRule.getState().keepRunning() to run your benchmark."
+                )
             }
             if (state != FINISHED) {
-                throw IllegalStateException("The benchmark hasn't finished! In Java, use " +
-                        "while(BenchmarkState.keepRunning()) to ensure keepRunning() returns " +
-                        "false before ending your test. In Kotlin, just use " +
-                        "benchmarkRule.measureRepeated {} to avoid the problem.")
+                throw IllegalStateException(
+                    "The benchmark hasn't finished! In Java, use " +
+                            "while(BenchmarkState.keepRunning()) to ensure keepRunning() returns " +
+                            "false before ending your test. In Kotlin, just use " +
+                            "benchmarkRule.measureRepeated {} to avoid the problem."
+                )
             }
             return internalStats!!
         }
@@ -355,10 +359,7 @@ class BenchmarkState internal constructor() {
             "mean=${mean()}ns, " +
             "min=${min()}ns, " +
             "stddev=${standardDeviation()}ns, " +
-            "count=${count()}, " +
-            results.mapIndexed { index, value ->
-                "No $index result is $value"
-            }.joinToString(", ")
+            "count=${count()}"
 
     private fun ideSummaryLineWrapped(key: String): String {
         val warningLines = WarningState.acquireWarningStringForLogging()?.split("\n") ?: listOf()
@@ -386,7 +387,6 @@ class BenchmarkState internal constructor() {
      */
     internal fun getFullStatusReport(key: String): Bundle {
         Log.i(TAG, key + summaryLine())
-        Log.i(CSV_TAG, results.joinToString(prefix = "$key, ", separator = ", "))
         val status = Bundle()
 
         val prefix = WarningState.WARNING_PREFIX
@@ -405,7 +405,6 @@ class BenchmarkState internal constructor() {
     /** @hide */
     companion object {
         private const val TAG = "Benchmark"
-        private const val CSV_TAG = "BenchmarkCsv"
         private const val STUDIO_OUTPUT_KEY_PREFIX = "android.studio.display."
         private const val STUDIO_OUTPUT_KEY_ID = "benchmark"
 
@@ -416,22 +415,14 @@ class BenchmarkState internal constructor() {
         private const val RUNNING = 2 // The benchmark is running.
         private const val FINISHED = 3 // The benchmark has stopped.
 
-        // values determined empirically
-        private val TARGET_TEST_DURATION_NS = TimeUnit.MILLISECONDS.toNanos(500)
-        private const val MAX_TEST_ITERATIONS = 1000000
-        private const val MIN_TEST_ITERATIONS = 10
-
+        // Values determined empirically.
         @VisibleForTesting
-        internal const val REPEAT_COUNT = 5
+        internal const val REPEAT_COUNT = 50
+        private val TARGET_TEST_DURATION_NS = TimeUnit.MICROSECONDS.toNanos(500)
+        private const val MAX_TEST_ITERATIONS = 1000000
+        private const val MIN_TEST_ITERATIONS = 1
 
         private const val THROTTLE_MAX_RETRIES = 3
         private const val THROTTLE_BACKOFF_S = 90L
-
-        init {
-            Log.i(CSV_TAG, (0 until REPEAT_COUNT).joinToString(
-                prefix = "Benchmark, ",
-                separator = ", "
-            ) { "Result $it" })
-        }
     }
 }
