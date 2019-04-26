@@ -23,7 +23,6 @@ import android.net.Uri;
  */
 public final class SafeBrowsingHelpers {
     public static final String TEST_SAFE_BROWSING_DOMAIN = "testsafebrowsing.appspot.com";
-    // TODO(ntfschr): add URLs for each threat type.
     public static final String MALWARE_URL = new Uri.Builder()
             .scheme("http")
             .authority(TEST_SAFE_BROWSING_DOMAIN)
@@ -46,6 +45,12 @@ public final class SafeBrowsingHelpers {
             .scheme("http")
             .authority(TEST_SAFE_BROWSING_DOMAIN)
             .path("/s/trick_to_bill.html")
+            .build()
+            .toString();
+    public static final String TEST_SAFE_BROWSING_SITE = new Uri.Builder()
+            .scheme("http")
+            .authority(TEST_SAFE_BROWSING_DOMAIN)
+            .path("/")
             .build()
             .toString();
 

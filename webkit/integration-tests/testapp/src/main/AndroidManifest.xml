@@ -29,7 +29,6 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="UnusedAttribute">
-
         <!-- Top-level Activity -->
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -47,6 +46,9 @@
             android:exported="true" />
         <activity
             android:name=".MediumInterstitialActivity"
+            android:exported="true" />
+        <activity
+            android:name=".LoudInterstitialActivity"
             android:exported="true" />
         <activity
             android:name=".ProxyOverrideActivity"
