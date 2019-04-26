@@ -39,15 +39,6 @@ data class EdgeInsets(
 }
 
 /**
- * The total amount of horizontal inset in the current instance.
- */
-val EdgeInsets.totalHorizontal: Dp get() = left + right
-/**
- * The total amount of vertical inset in the current instance.
- */
-val EdgeInsets.totalVertical: Dp get() = top + bottom
-
-/**
  * Layout widget that takes a child composable and applies whitespace padding around it.
  * When passing layout constraints to its child, [Padding] shrinks the constraints by the
  * requested padding, causing the child to layout at a smaller size.
