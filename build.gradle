@@ -48,6 +48,3 @@ init.chooseOutDir()
 
 apply plugin: AndroidXPlugin
 
-// AndroidX needed before jetify since it accesses the createArchive task name directly.
-apply from: 'buildSrc/jetify.gradle'
-
