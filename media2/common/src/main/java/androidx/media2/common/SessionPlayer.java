@@ -756,10 +756,10 @@ public abstract class SessionPlayer implements AutoCloseable {
             @NonNull /*@CallbackExecutor*/ Executor executor,
             @NonNull PlayerCallback callback) {
         if (executor == null) {
-            throw new IllegalArgumentException("executor shouldn't be null");
+            throw new NullPointerException("executor shouldn't be null");
         }
         if (callback == null) {
-            throw new IllegalArgumentException("callback shouldn't be null");
+            throw new NullPointerException("callback shouldn't be null");
         }
 
         synchronized (mLock) {
@@ -781,7 +781,7 @@ public abstract class SessionPlayer implements AutoCloseable {
      */
     public final void unregisterPlayerCallback(@NonNull PlayerCallback callback) {
         if (callback == null) {
-            throw new IllegalArgumentException("callback shouldn't be null");
+            throw new NullPointerException("callback shouldn't be null");
         }
         synchronized (mLock) {
             for (int i = mCallbacks.size() - 1; i >= 0; i--) {

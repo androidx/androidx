@@ -623,12 +623,12 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     @Override
     public ListenableFuture<PlayerResult> setPlaylist(final @NonNull List<MediaItem> list,
             final @Nullable MediaMetadata metadata) {
+        if (list == null) {
+            throw new NullPointerException("list shouldn't be null");
+        }
         return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
             @Override
             public ListenableFuture<PlayerResult> run(SessionPlayer player) throws Exception {
-                if (list == null) {
-                    throw new IllegalArgumentException("list shouldn't be null");
-                }
                 return player.setPlaylist(list, metadata);
             }
         });
@@ -636,12 +636,12 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     @Override
     public ListenableFuture<PlayerResult> setMediaItem(final @NonNull MediaItem item) {
+        if (item == null) {
+            throw new NullPointerException("item shouldn't be null");
+        }
         return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
             @Override
             public ListenableFuture<PlayerResult> run(SessionPlayer player) throws Exception {
-                if (item == null) {
-                    throw new IllegalArgumentException("item shouldn't be null");
-                }
                 return player.setMediaItem(item);
             }
         });
@@ -649,12 +649,12 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     @Override
     public ListenableFuture<PlayerResult> skipToPlaylistItem(final int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("index shouldn't be negative");
+        }
         return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
             @Override
             public ListenableFuture<PlayerResult> run(SessionPlayer player) throws Exception {
-                if (index < 0) {
-                    throw new IllegalArgumentException("index shouldn't be negative");
-                }
                 final List<MediaItem> list = player.getPlaylist();
                 if (index >= list.size()) {
                     return PlayerResult.createFuture(RESULT_ERROR_BAD_VALUE);
@@ -697,15 +697,15 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     @Override
     public ListenableFuture<PlayerResult> addPlaylistItem(final int index,
             final @NonNull MediaItem item) {
+        if (index < 0) {
+            throw new IllegalArgumentException("index shouldn't be negative");
+        }
+        if (item == null) {
+            throw new NullPointerException("item shouldn't be null");
+        }
         return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
             @Override
             public ListenableFuture<PlayerResult> run(SessionPlayer player) throws Exception {
-                if (index < 0) {
-                    throw new IllegalArgumentException("index shouldn't be negative");
-                }
-                if (item == null) {
-                    throw new IllegalArgumentException("item shouldn't be null");
-                }
                 return player.addPlaylistItem(index, item);
             }
         });
@@ -713,12 +713,12 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     @Override
     public ListenableFuture<PlayerResult> removePlaylistItem(final int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("index shouldn't be negative");
+        }
         return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
             @Override
             public ListenableFuture<PlayerResult> run(SessionPlayer player) throws Exception {
-                if (index < 0) {
-                    throw new IllegalArgumentException("index shouldn't be negative");
-                }
                 final List<MediaItem> list = player.getPlaylist();
                 if (index >= list.size()) {
                     return PlayerResult.createFuture(RESULT_ERROR_BAD_VALUE);
@@ -731,15 +731,15 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     @Override
     public ListenableFuture<PlayerResult> replacePlaylistItem(final int index,
             final @NonNull MediaItem item) {
+        if (index < 0) {
+            throw new IllegalArgumentException("index shouldn't be negative");
+        }
+        if (item == null) {
+            throw new NullPointerException("item shouldn't be null");
+        }
         return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
             @Override
             public ListenableFuture<PlayerResult> run(SessionPlayer player) throws Exception {
-                if (index < 0) {
-                    throw new IllegalArgumentException("index shouldn't be negative");
-                }
-                if (item == null) {
-                    throw new IllegalArgumentException("item shouldn't be null");
-                }
                 return player.replacePlaylistItem(index, item);
             }
         });

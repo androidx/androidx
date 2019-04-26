@@ -202,6 +202,9 @@ public final class PlaybackParams {
          * @param playbackParams the non-null instance to initialize from.
          */
         public Builder(@NonNull PlaybackParams playbackParams) {
+            if (playbackParams == null) {
+                throw new NullPointerException("playbakcParams shouldn't be null");
+            }
             if (Build.VERSION.SDK_INT >= 23) {
                 mPlaybackParams = playbackParams.getPlaybackParams();
             } else {
@@ -252,10 +255,10 @@ public final class PlaybackParams {
         public @NonNull Builder setSpeed(
                 @FloatRange(from = 0.0f, to = Float.MAX_VALUE, fromInclusive = false) float speed) {
             if (speed == 0.f) {
-                throw new IllegalArgumentException("0 speed is not allowed.");
+                throw new IllegalArgumentException("0 speed is not allowed");
             }
             if (speed < 0.f) {
-                throw new IllegalArgumentException("negative speed is not supported.");
+                throw new IllegalArgumentException("negative speed is not supported");
             }
             if (Build.VERSION.SDK_INT >= 23) {
                 mPlaybackParams.setSpeed(speed);

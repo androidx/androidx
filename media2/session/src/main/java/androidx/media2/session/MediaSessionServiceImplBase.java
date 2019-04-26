@@ -131,7 +131,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
             if (old != null && old != session) {
                 // TODO(b/112114183): Also check the uniqueness before sessions're returned by
                 //                    onGetSession.
-                throw new IllegalArgumentException("Session ID should be unique.");
+                throw new IllegalArgumentException("Session ID should be unique");
             }
             mSessions.put(session.getId(), session);
         }
