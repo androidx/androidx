@@ -141,7 +141,7 @@ import java.util.concurrent.Executors;
  * <a href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a>
  * <p>
  */
-public class MediaPlayer extends SessionPlayer {
+public final class MediaPlayer extends SessionPlayer {
     private static final String TAG = "MediaPlayer";
 
     /**
