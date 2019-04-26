@@ -137,19 +137,19 @@ public class MediaController implements AutoCloseable {
      * @param callback controller callback to receive changes in
      */
     MediaController(@NonNull final Context context, @NonNull final SessionToken token,
-            @NonNull Bundle connectionHints, @NonNull Executor executor,
+            @Nullable Bundle connectionHints, @NonNull Executor executor,
             @NonNull ControllerCallback callback) {
         if (context == null) {
-            throw new IllegalArgumentException("context shouldn't be null");
+            throw new NullPointerException("context shouldn't be null");
         }
         if (token == null) {
-            throw new IllegalArgumentException("token shouldn't be null");
+            throw new NullPointerException("token shouldn't be null");
         }
         if (callback == null) {
-            throw new IllegalArgumentException("callback shouldn't be null");
+            throw new NullPointerException("callback shouldn't be null");
         }
         if (executor == null) {
-            throw new IllegalArgumentException("executor shouldn't be null");
+            throw new NullPointerException("executor shouldn't be null");
         }
         synchronized (mLock) {
             mImpl = createImpl(context, token, connectionHints, executor, callback);
@@ -165,19 +165,19 @@ public class MediaController implements AutoCloseable {
      * @param callback controller callback to receive changes in
      */
     MediaController(@NonNull final Context context, @NonNull final MediaSessionCompat.Token token,
-            @NonNull final Bundle connectionHints, @NonNull final Executor executor,
+            @Nullable final Bundle connectionHints, @NonNull final Executor executor,
             @NonNull final ControllerCallback callback) {
         if (context == null) {
-            throw new IllegalArgumentException("context shouldn't be null");
+            throw new NullPointerException("context shouldn't be null");
         }
         if (token == null) {
-            throw new IllegalArgumentException("token shouldn't be null");
+            throw new NullPointerException("token shouldn't be null");
         }
         if (callback == null) {
-            throw new IllegalArgumentException("callback shouldn't be null");
+            throw new NullPointerException("callback shouldn't be null");
         }
         if (executor == null) {
-            throw new IllegalArgumentException("executor shouldn't be null");
+            throw new NullPointerException("executor shouldn't be null");
         }
         SessionToken.createSessionToken(context, token, executor,
                 new SessionToken.OnSessionTokenCreatedListener() {
@@ -434,7 +434,7 @@ public class MediaController implements AutoCloseable {
     public ListenableFuture<SessionResult> playFromUri(@NonNull Uri uri,
             @Nullable Bundle extras) {
         if (uri == null) {
-            throw new IllegalArgumentException("uri shouldn't be null");
+            throw new NullPointerException("uri shouldn't be null");
         }
         if (isConnected()) {
             return getImpl().playFromUri(uri, extras);
@@ -511,7 +511,7 @@ public class MediaController implements AutoCloseable {
     public ListenableFuture<SessionResult> prepareFromUri(@NonNull Uri uri,
             @Nullable Bundle extras) {
         if (uri == null) {
-            throw new IllegalArgumentException("uri shouldn't be null");
+            throw new NullPointerException("uri shouldn't be null");
         }
         if (isConnected()) {
             return getImpl().prepareFromUri(uri, extras);
@@ -687,11 +687,13 @@ public class MediaController implements AutoCloseable {
     @NonNull
     public ListenableFuture<SessionResult> setRating(@NonNull String mediaId,
             @NonNull Rating rating) {
-        if (TextUtils.isEmpty(mediaId)) {
+        if (mediaId == null) {
+            throw new NullPointerException("mediaId shouldn't be null");
+        } else if (TextUtils.isEmpty(mediaId)) {
             throw new IllegalArgumentException("mediaId shouldn't be empty");
         }
         if (rating == null) {
-            throw new IllegalArgumentException("rating shouldn't be null");
+            throw new NullPointerException("rating shouldn't be null");
         }
         if (isConnected()) {
             return getImpl().setRating(mediaId, rating);
@@ -768,7 +770,7 @@ public class MediaController implements AutoCloseable {
     public ListenableFuture<SessionResult> setPlaylist(@NonNull List<String> list,
             @Nullable MediaMetadata metadata) {
         if (list == null) {
-            throw new IllegalArgumentException("list shouldn't be null");
+            throw new NullPointerException("list shouldn't be null");
         }
         for (int i = 0; i < list.size(); i++) {
             if (TextUtils.isEmpty(list.get(i))) {
@@ -1261,7 +1263,7 @@ public class MediaController implements AutoCloseable {
          */
         BuilderBase(@NonNull Context context) {
             if (context == null) {
-                throw new IllegalArgumentException("context shouldn't be null");
+                throw new NullPointerException("context shouldn't be null");
             }
             mContext = context;
         }
@@ -1306,7 +1308,7 @@ public class MediaController implements AutoCloseable {
         @NonNull
         public U setSessionToken(@NonNull SessionToken token) {
             if (token == null) {
-                throw new IllegalArgumentException("token shouldn't be null");
+                throw new NullPointerException("token shouldn't be null");
             }
             mToken = token;
             mCompatToken = null;
@@ -1325,7 +1327,7 @@ public class MediaController implements AutoCloseable {
         @NonNull
         public U setSessionCompatToken(@NonNull MediaSessionCompat.Token compatToken) {
             if (compatToken == null) {
-                throw new IllegalArgumentException("compatToken shouldn't be null");
+                throw new NullPointerException("compatToken shouldn't be null");
             }
             mCompatToken = compatToken;
             mToken = null;
@@ -1347,7 +1349,7 @@ public class MediaController implements AutoCloseable {
         @NonNull
         public U setConnectionHints(@NonNull Bundle connectionHints) {
             if (connectionHints == null) {
-                throw new IllegalArgumentException("connectionHints shouldn't be null");
+                throw new NullPointerException("connectionHints shouldn't be null");
             }
             mConnectionHints = new Bundle(connectionHints);
             return (U) this;
@@ -1363,10 +1365,10 @@ public class MediaController implements AutoCloseable {
         @NonNull
         public U setControllerCallback(@NonNull Executor executor, @NonNull C callback) {
             if (executor == null) {
-                throw new IllegalArgumentException("executor shouldn't be null");
+                throw new NullPointerException("executor shouldn't be null");
             }
             if (callback == null) {
-                throw new IllegalArgumentException("callback shouldn't be null");
+                throw new NullPointerException("callback shouldn't be null");
             }
             mCallbackExecutor = executor;
             mCallback = callback;

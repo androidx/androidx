@@ -53,7 +53,7 @@ public class ParcelImplListSlice implements Parcelable {
 
     public ParcelImplListSlice(@NonNull List<ParcelImpl> list) {
         if (list == null) {
-            throw new IllegalArgumentException("list shouldn't be null");
+            throw new NullPointerException("list shouldn't be null");
         }
         mList = list;
     }

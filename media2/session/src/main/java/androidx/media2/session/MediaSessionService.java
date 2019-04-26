@@ -188,7 +188,7 @@ public abstract class MediaSessionService extends Service {
      */
     public final void addSession(@NonNull MediaSession session) {
         if (session == null) {
-            throw new IllegalArgumentException("session shouldn't be null");
+            throw new NullPointerException("session shouldn't be null");
         }
         if (session.isClosed()) {
             throw new IllegalArgumentException("session is already closed");
@@ -204,7 +204,7 @@ public abstract class MediaSessionService extends Service {
      */
     public final void removeSession(@NonNull MediaSession session) {
         if (session == null) {
-            throw new IllegalArgumentException("session shouldn't be null");
+            throw new NullPointerException("session shouldn't be null");
         }
         mImpl.removeSession(session);
     }
@@ -226,7 +226,7 @@ public abstract class MediaSessionService extends Service {
      */
     public @Nullable MediaNotification onUpdateNotification(@NonNull MediaSession session) {
         if (session == null) {
-            throw new IllegalArgumentException("session shouldn't be null");
+            throw new NullPointerException("session shouldn't be null");
         }
         return mImpl.onUpdateNotification(session);
     }
@@ -298,7 +298,7 @@ public abstract class MediaSessionService extends Service {
          */
         public MediaNotification(int notificationId, @NonNull Notification notification) {
             if (notification == null) {
-                throw new IllegalArgumentException("notification shouldn't be null");
+                throw new NullPointerException("notification shouldn't be null");
             }
             mNotificationId = notificationId;
             mNotification = notification;
