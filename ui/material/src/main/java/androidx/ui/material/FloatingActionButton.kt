@@ -51,9 +51,8 @@ import com.google.r4a.unaryPlus
  *
  * @see FloatingActionButton overload for the variants with an icon or an icon and a text.
  *
- * @param onClick Will be called when user clicked on the button.
- * @param enabled Defines the enabled state. The button will not be clickable when it set
- *  to false or when [onClick] is null.
+ * @param onClick will be called when user clicked on the button. The button will be disabled
+ *  when it is null.
  * @param minSize Minimum size of the button. Defaults to [FabSize]
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  *  the [Shapes.button] from [CurrentShapeAmbient].
@@ -65,14 +64,13 @@ import com.google.r4a.unaryPlus
 @Composable
 fun FloatingActionButton(
     onClick: (() -> Unit)? = null,
-    enabled: Boolean = true,
     minSize: Dp = FabSize,
     shape: ShapeBorder = CircleBorder(),
     color: Color? = null,
     elevation: Dp = 0.dp, // TODO(Andrey) add the default elevation when it ready b/123215187
     @Children children: () -> Unit
 ) {
-    <Button color onClick enabled shape elevation>
+    <Button color onClick shape elevation>
         <Container constraints=DpConstraints(minWidth = minSize, minHeight = minSize)>
             <children />
         </Container>
@@ -90,9 +88,8 @@ fun FloatingActionButton(
  * @see FloatingActionButton overload for the variants with a custom content or an icon and a text.
  *
  * @param icon Image to draw in the center.
- * @param onClick Will be called when user clicked on the button.
- * @param enabled Defines the enabled state. The button will not be clickable when it set
- *  to false or when [onClick] is null.
+ * @param onClick will be called when user clicked on the button. The button will be disabled
+ *  when it is null.
  * @param color The background color. [MaterialColors.primary] is used when null
  *  is provided.
  * @param elevation The z-coordinate at which to place this button. This controls the size
@@ -102,11 +99,10 @@ fun FloatingActionButton(
 fun FloatingActionButton(
     icon: Image,
     onClick: (() -> Unit)? = null,
-    enabled: Boolean = true,
     color: Color? = null,
     elevation: Dp = 0.dp
 ) {
-    <FloatingActionButton onClick enabled color elevation>
+    <FloatingActionButton onClick color elevation>
         <SimpleImage image=icon />
     </FloatingActionButton>
 }
@@ -122,9 +118,8 @@ fun FloatingActionButton(
  * @param text Text to display.
  * @param icon Image to draw to the left of the text. It is optional.
  * @param textStyle Optional [TextStyle] to apply for a [text]
- * @param onClick Will be called when user clicked on the button.
- * @param enabled Defines the enabled state. The button will not be clickable when it set
- *  to false or when [onClick] is null.
+ * @param onClick will be called when user clicked on the button. The button will be disabled
+ *  when it is null.
  * @param color The background color. [MaterialColors.primary] is used when null
  *  is provided.
  * @param elevation The z-coordinate at which to place this button. This controls the size
@@ -136,14 +131,13 @@ fun FloatingActionButton(
     icon: Image? = null,
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
-    enabled: Boolean = true,
     color: Color? = null,
     elevation: Dp = 0.dp
 ) {
     // TODO(Andrey): BorderRadius should work with dp b/129278276
     val radius = BorderRadius.circular(+withDensity { ExtendedFabHeight.toPx().value / 2 })
     val shape = RoundedRectangleBorder(borderRadius = radius)
-    <FloatingActionButton onClick enabled color shape elevation minSize=ExtendedFabHeight>
+    <FloatingActionButton onClick color shape elevation minSize=ExtendedFabHeight>
         if (icon == null) {
             <Padding left=ExtendedFabTextPadding right=ExtendedFabTextPadding>
                 <Text text=text style=textStyle />

@@ -81,7 +81,7 @@ fun ButtonDemo() {
                     // TODO(Andrey): Disabled button has wrong bg and text color for now.
                     // Need to figure out where will we store their styling. Not a part of
                     // MaterialColors right now and specs are not clear about this.
-                    <Button enabled=false text="DISABLED. TODO" />
+                    <Button text="DISABLED. TODO" />
                 </Column>
             </Center>
         </MaterialTheme>

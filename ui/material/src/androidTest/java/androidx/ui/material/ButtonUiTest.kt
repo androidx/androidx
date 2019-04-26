@@ -61,6 +61,27 @@ class ButtonUiTest : AndroidUiTestRunner() {
     }
 
     @Test
+    fun buttonTest_disabledSemantics() {
+        setContent {
+            <CraneWrapper>
+                <MaterialTheme>
+                    <Center>
+                        <TestTag tag="myButton">
+                            <Button text="myButton"/>
+                        </TestTag>
+                    </Center>
+                </MaterialTheme>
+            </CraneWrapper>
+        }
+
+        findByTag("myButton")
+            .assertSemanticsIsEqualTo(createFullSemantics(
+                isEnabled = false,
+                isButton = true
+            ))
+    }
+
+    @Test
     fun buttonTest_findByTextAndClick() {
         var counter = 0
         val onClick: () -> Unit = { ++counter }

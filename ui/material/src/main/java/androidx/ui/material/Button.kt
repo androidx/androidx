@@ -39,8 +39,8 @@ import com.google.r4a.unaryPlus
  * [Button] with flexible user interface. You can provide any content you want as a
  * [children] composable.
  *
- * To make a [Button] clickable, you must provide an [onClick]. Setting [enabled] to false
- * also affects this state.
+ * To make a [Button] clickable, you must provide an [onClick]. Not providing it will
+ * also make this [Button] to be displayed as a disabled one.
  * You can specify a [shape] of the surface, it's background [color] and an [elevation].
  *
  * The text style for internal [Text] components will be changed to [MaterialTypography.button],
@@ -57,9 +57,8 @@ import com.google.r4a.unaryPlus
  *
  * @see Button overload for the default Material Design implementation of [Button] with text.
  *
- * @param onClick Will be called when user clicked on the button.
- * @param enabled Defines the enabled state. The button will not be clickable when it set
- *  to false or when [onClick] is null.
+ * @param onClick Will be called when user clicked on the button. The button will be disabled
+ *  when it is null.
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  *  the [Shapes.button] from [CurrentShapeAmbient].
  * @param color The background color. [MaterialColors.primary] is used when null
@@ -70,7 +69,6 @@ import com.google.r4a.unaryPlus
 @Composable
 fun Button(
     onClick: (() -> Unit)? = null,
-    enabled: Boolean = true,
     shape: ShapeBorder? = null,
     color: Color? = null,
     elevation: Dp = 0.dp,
@@ -82,11 +80,11 @@ fun Button(
     <Surface shape=surfaceShape color=surfaceColor elevation>
         <CurrentTextStyleProvider value=textStyle>
             val clickableChildren = @Composable {
-                <Clickable enabled onClick>
+                <Clickable onClick>
                     <children />
                 </Clickable>
             }
-            if (enabled && onClick != null) {
+            if (onClick != null) {
                 <BoundedRipple>
                     <clickableChildren />
                 </BoundedRipple>
@@ -100,7 +98,8 @@ fun Button(
 /**
  * Material Design implementation of [Button] with [text].
  *
- * [Button] will be clickable if you provide [onClick] and [enabled] set to true.
+ * To make a [Button] clickable, you must provide an [onClick]. Not providing it will
+ * also make this [Button] to be displayed as a disabled one.
  * You can specify a [shape] of the surface, it's background [color] and [elevation].
  *
  * The text style for internal [Text] components will be changed to [MaterialTypography.button],
@@ -117,9 +116,8 @@ fun Button(
  *
  * @param text The text to display.
  * @param textStyle The optional text style to apply for the text.
- * @param onClick Will be called when user clicked on the button.
- * @param enabled Defines the enabled state. The button will not be clickable when it set
- *  to false or when [onClick] is null.
+ * @param onClick Will be called when user clicked on the button. The button will be disabled
+ *  when it is null.
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  *  the [Shapes.button] from [CurrentShapeAmbient].
  * @param color The background color. [MaterialColors.primary] is used when null
@@ -132,7 +130,6 @@ fun Button(
     text: String,
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
-    enabled: Boolean = true,
     shape: ShapeBorder? = null,
     color: Color? = null,
     elevation: Dp = 0.dp
@@ -141,7 +138,7 @@ fun Button(
     val surfaceShape = +shape.orFromTheme { button }
     val hasBackground = surfaceColor.alpha > 0 || surfaceShape.borderStyle != BorderStyle.None
     val horPaddings = if (hasBackground) ButtonHorPadding else ButtonHorPaddingNoBg
-    <Button onClick enabled elevation color=surfaceColor shape=surfaceShape>
+    <Button onClick elevation color=surfaceColor shape=surfaceShape>
         val constraints = DpConstraints
             .tightConstraintsForHeight(ButtonHeight)
             .copy(minWidth = ButtonMinWidth)
@@ -156,14 +153,14 @@ fun Button(
  * This will also apply [MaterialColors.primary] as a text color by default, but
  * you can override this with [textStyle].
  *
- * [Button] will be clickable if you provide [onClick] and [enabled] set to true.
+ * To make a [Button] clickable, you must provide an [onClick]. Not providing it will
+ * also make this [Button] to be displayed as a disabled one.
  * You can specify a [shape] of the surface, it's background [color] and [elevation].
  *
  * @param text The text to display.
  * @param textStyle The optional text style to apply for the text.
- * @param onClick Will be called when user clicked on the button.
- * @param enabled Defines the enabled state. The button will not be clickable when it set
- *  to false or when [onClick] is null.
+ * @param onClick Will be called when user clicked on the button. The button will be disabled
+ *  when it is null.
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  *  the [Shapes.button] from [CurrentShapeAmbient].
  * @param elevation The z-coordinate at which to place this button. This controls the size
@@ -174,12 +171,11 @@ fun TransparentButton(
     text: String,
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
-    enabled: Boolean = true,
     shape: ShapeBorder? = null,
     elevation: Dp = 0.dp
 ) {
     val finalTextStyle = TextStyle(color = +themeColor { primary }).merge(textStyle)
-    <Button text onClick enabled shape elevation textStyle=finalTextStyle color=Color.Transparent />
+    <Button text onClick shape elevation textStyle=finalTextStyle color=Color.Transparent />
 }
 
 // Specification for Material Button:

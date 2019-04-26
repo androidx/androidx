@@ -16,7 +16,6 @@
 
 package androidx.ui.baseui
 
-import androidx.ui.core.Layout
 import androidx.ui.core.Semantics
 import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.semantics.SemanticsAction
@@ -28,36 +27,30 @@ import com.google.r4a.composer
 /**
  * Combines [PressReleasedGestureDetector] and [Semantics] for the clickable
  * components like Button.
+ *
+ * @param onClick will be called when user clicked on the button. The button will not be
+ *  clickable when it is null.
+ * @param consumeDownOnStart true means [PressReleasedGestureDetector] should consume
+ *  down events. Provide false if you have some visual feedback like Ripples,
+ *  as it will consume this events instead.
  */
 @Composable
 fun Clickable(
-    /**
-     * Will be called when user clicked on the children [Layout]
-     */
     onClick: (() -> Unit)? = null,
-    /**
-     * Defines the enabled state.
-     * The children [Layout] will not be clickable when it set to false or when [onClick] is null.
-     */
-    enabled: Boolean = true,
-    /**
-     * Should [PressReleasedGestureDetector] consume down events. You shouldn't if you have
-     * some visual feedback like Ripples, as it will consume this events instead.
-     */
     consumeDownOnStart: Boolean = false,
     @Children children: () -> Unit
 ) {
     <Semantics
         button=true
-        enabled=enabled
-        actions=if (enabled && onClick != null) {
+        enabled=(onClick != null)
+        actions=if (onClick != null) {
             // TODO(ryanmentley): The unnecessary generic type specification works around an IR bug
             listOf<SemanticsAction<*>>(SemanticsAction(SemanticsActionType.Tap, onClick))
         } else {
             emptyList<SemanticsAction<*>>()
         }>
         <PressReleasedGestureDetector
-            onRelease=if (enabled) onClick else null
+            onRelease=onClick
             consumeDownOnStart>
             <children />
         </PressReleasedGestureDetector>
