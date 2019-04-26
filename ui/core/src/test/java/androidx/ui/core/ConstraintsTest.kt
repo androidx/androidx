@@ -112,6 +112,23 @@ class ConstraintsTest {
     }
 
     @Test
+    fun loose() {
+        val constraints = Constraints(2.ipx, 2.ipx, 5.ipx, 5.ipx)
+        constraints.looseMin().assertEquals(0.ipx, 0.ipx, 5.ipx, 5.ipx)
+        constraints.looseMax().assertEquals(2.ipx, 2.ipx, IntPx.Infinity, IntPx.Infinity)
+    }
+
+    fun offset() {
+        val constraints = Constraints(2.ipx, 2.ipx, 5.ipx, 5.ipx)
+        constraints.offset(horizontal = 2.ipx, vertical = 3.ipx).assertEquals(
+            4.ipx, 4.ipx, 8.ipx, 8.ipx
+        )
+        constraints.offset(horizontal = -7.ipx, vertical = -7.ipx).assertEquals(
+            0.ipx, 0.ipx, 0.ipx, 0.ipx
+        )
+    }
+
+    @Test
     fun validity() {
         assertInvalid(minWidth = IntPx.Infinity)
         assertInvalid(minHeight = IntPx.Infinity)

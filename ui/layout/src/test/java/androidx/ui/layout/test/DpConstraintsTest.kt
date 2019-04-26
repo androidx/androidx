@@ -26,6 +26,9 @@ import androidx.ui.layout.hasTightHeight
 import androidx.ui.layout.hasTightWidth
 import androidx.ui.layout.isTight
 import androidx.ui.layout.isZero
+import androidx.ui.layout.looseMax
+import androidx.ui.layout.looseMin
+import androidx.ui.layout.offset
 import androidx.ui.layout.withTight
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -90,26 +93,44 @@ class DpConstraintsTest {
 
     @Test
     fun enforce() {
-        val DpConstraints = DpConstraints(5.dp, 10.dp, 5.dp, 10.dp)
-        DpConstraints.enforce(DpConstraints(4.dp, 11.dp, 4.dp, 11.dp)).assertEquals(
+        val constraints = DpConstraints(5.dp, 10.dp, 5.dp, 10.dp)
+        constraints.enforce(DpConstraints(4.dp, 11.dp, 4.dp, 11.dp)).assertEquals(
             5.dp, 10.dp, 5.dp, 10.dp
         )
-        DpConstraints.enforce(DpConstraints(7.dp, 9.dp, 7.dp, 9.dp)).assertEquals(
+        constraints.enforce(DpConstraints(7.dp, 9.dp, 7.dp, 9.dp)).assertEquals(
             7.dp, 9.dp, 7.dp, 9.dp
         )
-        DpConstraints.enforce(DpConstraints(2.dp, 3.dp, 2.dp, 3.dp)).assertEquals(
+        constraints.enforce(DpConstraints(2.dp, 3.dp, 2.dp, 3.dp)).assertEquals(
             3.dp, 3.dp, 3.dp, 3.dp
         )
-        DpConstraints.enforce(DpConstraints(10.dp, 11.dp, 10.dp, 11.dp)).assertEquals(
+        constraints.enforce(DpConstraints(10.dp, 11.dp, 10.dp, 11.dp)).assertEquals(
             10.dp, 10.dp, 10.dp, 10.dp
         )
     }
 
     @Test
     fun withTight() {
-        val DpConstraints = DpConstraints(2.dp, 3.dp, 2.dp, 3.dp)
-        DpConstraints.withTight().assertEquals(2.dp, 3.dp, 2.dp, 3.dp)
-        DpConstraints.withTight(7.dp, 8.dp).assertEquals(7.dp, 7.dp, 8.dp, 8.dp)
+        val constraints = DpConstraints(2.dp, 3.dp, 2.dp, 3.dp)
+        constraints.withTight().assertEquals(2.dp, 3.dp, 2.dp, 3.dp)
+        constraints.withTight(7.dp, 8.dp).assertEquals(7.dp, 7.dp, 8.dp, 8.dp)
+    }
+
+    @Test
+    fun loose() {
+        val constraints = DpConstraints(2.dp, 2.dp, 5.dp, 5.dp)
+        constraints.looseMin().assertEquals(0.dp, 0.dp, 5.dp, 5.dp)
+        constraints.looseMax().assertEquals(2.dp, 2.dp, Dp.Infinity, Dp.Infinity)
+    }
+
+    @Test
+    fun offset() {
+        val constraints = DpConstraints(2.dp, 2.dp, 5.dp, 5.dp)
+        constraints.offset(horizontal = 2.dp, vertical = 3.dp).assertEquals(
+            4.dp, 4.dp, 8.dp, 8.dp
+        )
+        constraints.offset(horizontal = -7.dp, vertical = -7.dp).assertEquals(
+            0.dp, 0.dp, 0.dp, 0.dp
+        )
     }
 
     @Test

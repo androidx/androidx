@@ -18,15 +18,15 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
-import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
-import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.dp
 import androidx.ui.core.enforce
 import androidx.ui.core.ipx
 import androidx.ui.core.isFinite
+import androidx.ui.core.looseMin
 import androidx.ui.core.max
+import androidx.ui.core.offset
 import androidx.ui.core.withTight
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -68,14 +68,14 @@ fun Container(
             .withTight(width?.toIntPx(), height?.toIntPx())
             .enforce(incomingConstraints)
         val childConstraints = containerConstraints
-            .loose() // No min constraints.
-            .let { // Reserve space for padding.
-                it.offset(-padding.horizontal.toIntPx(), -padding.vertical.toIntPx())
+            .looseMin()
+            .let {
+                it.offset(-padding.totalHorizontal.toIntPx(), -padding.totalVertical.toIntPx())
             }
-        val placeable = with(measurables.firstOrNull()) { this?.measure(childConstraints) }
+        val placeable = measurables.firstOrNull()?.measure(childConstraints)
         val containerWidth = if (!expanded || !containerConstraints.maxWidth.isFinite()) {
             max(
-                (placeable?.width ?: 0.ipx) + padding.horizontal.toIntPx(),
+                (placeable?.width ?: 0.ipx) + padding.totalHorizontal.toIntPx(),
                 containerConstraints.minWidth
             )
         } else {
@@ -83,7 +83,7 @@ fun Container(
         }
         val containerHeight = if (!expanded || !containerConstraints.maxHeight.isFinite()) {
             max(
-                (placeable?.height ?: 0.ipx) + padding.horizontal.toIntPx(),
+                (placeable?.height ?: 0.ipx) + padding.totalHorizontal.toIntPx(),
                 containerConstraints.minHeight
             )
         } else {
@@ -93,8 +93,8 @@ fun Container(
             if (placeable != null) {
                 val position = alignment.align(
                     IntPxSize(
-                        containerWidth - placeable.width - padding.horizontal.toIntPx(),
-                        containerHeight - placeable.height - padding.vertical.toIntPx()
+                        containerWidth - placeable.width - padding.totalHorizontal.toIntPx(),
+                        containerHeight - placeable.height - padding.totalVertical.toIntPx()
                     )
                 )
                 placeable.place(
@@ -105,13 +105,3 @@ fun Container(
         }
     </Layout>
 }
-
-private fun Constraints.loose() = this.copy(minWidth = 0.ipx, minHeight = 0.ipx)
-private fun Constraints.offset(horizontal: IntPx, vertical: IntPx) = Constraints(
-    (minWidth + horizontal).coerceAtLeast(0.ipx),
-    (maxWidth + horizontal).coerceAtLeast(0.ipx),
-    (minHeight + vertical).coerceAtLeast(0.ipx),
-    (maxHeight + vertical).coerceAtLeast(0.ipx)
-)
-private val EdgeInsets.horizontal: Dp get() = left + right
-private val EdgeInsets.vertical: Dp get() = top + bottom

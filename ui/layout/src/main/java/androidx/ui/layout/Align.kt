@@ -16,12 +16,12 @@
 
 package androidx.ui.layout
 
-import androidx.ui.core.Constraints
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
 import androidx.ui.core.center
 import androidx.ui.core.isFinite
+import androidx.ui.core.looseMin
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -69,11 +69,7 @@ fun Align(alignment: Alignment, @Children children: () -> Unit) {
     <Layout layoutBlock ={ measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
-        val childConstraints = Constraints(
-            maxWidth = constraints.maxWidth,
-            maxHeight = constraints.maxHeight
-        )
-        val placeable = measurable?.measure(childConstraints)
+        val placeable = measurable?.measure(constraints.looseMin())
 
         // The layout is as large as possible for bounded constraints,
         // or wrap content otherwise.
