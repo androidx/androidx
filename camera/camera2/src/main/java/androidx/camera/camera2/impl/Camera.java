@@ -574,36 +574,40 @@ final class Camera implements BaseCamera {
     }
 
     /**
-     * Checks if there's valid repeating surface and attaches one to {@link CaptureConfig.Builder}.
+     * If the {@link CaptureConfig.Builder} hasn't had a surface attached, attaches all valid
+     * repeating surfaces to it.
      *
-     * @param captureConfigBuilder the configuration builder to attach a repeating surface
-     * @return True if repeating surface has been successfully attached, otherwise false.
+     * @param captureConfigBuilder the configuration builder to attach repeating surfaces.
+     * @return true if repeating surfaces have been successfully attached, otherwise false.
      */
     private boolean checkAndAttachRepeatingSurface(CaptureConfig.Builder captureConfigBuilder) {
+        if (!captureConfigBuilder.getSurfaces().isEmpty()) {
+            Log.w(TAG, "The capture config builder already has surface inside.");
+            return false;
+        }
+
         Collection<UseCase> activeUseCases;
         synchronized (mAttachedUseCaseLock) {
             activeUseCases = mUseCaseAttachState.getActiveAndOnlineUseCases();
         }
 
-        DeferrableSurface repeatingSurface = null;
         for (UseCase useCase : activeUseCases) {
             SessionConfig sessionConfig = useCase.getSessionConfig(mCameraId);
+            // Query the repeating surfaces attached to this use case, then add them to the builder.
             List<DeferrableSurface> surfaces =
                     sessionConfig.getRepeatingCaptureConfig().getSurfaces();
             if (!surfaces.isEmpty()) {
-                // When an use case is active, all surfaces in its CaptureConfig are added to the
-                // repeating request. Choose the first one here as the repeating surface.
-                repeatingSurface = surfaces.get(0);
-                break;
+                for (DeferrableSurface surface : surfaces) {
+                    captureConfigBuilder.addSurface(surface);
+                }
             }
         }
 
-        if (repeatingSurface == null) {
+        if (captureConfigBuilder.getSurfaces().isEmpty()) {
             Log.w(TAG, "Unable to find a repeating surface to attach to CaptureConfig");
             return false;
         }
 
-        captureConfigBuilder.addSurface(repeatingSurface);
         return true;
     }
 
@@ -634,13 +638,12 @@ final class Camera implements BaseCamera {
         List<CaptureConfig> captureConfigsWithSurface = new ArrayList<>();
         for (CaptureConfig captureConfig : captureConfigs) {
             // Recreates the Builder to add extra config needed
-            CaptureConfig.Builder builder =
-                    CaptureConfig.Builder.from(captureConfig);
+            CaptureConfig.Builder builder = CaptureConfig.Builder.from(captureConfig);
 
-            if (captureConfig.getSurfaces().isEmpty()
-                    && captureConfig.isUseRepeatingSurface()) {
-                // Checks and attaches if there's valid repeating surface. If there's no, skip this
-                // capture request.
+            if (captureConfig.getSurfaces().isEmpty() && captureConfig.isUseRepeatingSurface()) {
+                // Checks and attaches repeating surface to the request if there's no surface
+                // has been already attached. If there's no valid repeating surface to be
+                // attached, skip this capture request.
                 if (!checkAndAttachRepeatingSurface(builder)) {
                     continue;
                 }
