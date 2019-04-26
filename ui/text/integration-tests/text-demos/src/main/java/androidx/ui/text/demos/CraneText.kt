@@ -19,9 +19,9 @@ package androidx.ui.text.demos
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.Text
 import androidx.ui.core.EditableText
 import androidx.ui.core.EditorStyle
+import androidx.ui.core.Text
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.BaselineShift
@@ -101,18 +101,22 @@ fun TextDemo() {
 
 @Composable
 fun TagLine(tag: String) {
-    <CraneWrapper>
-        <Text text=TextSpan(
-            text = "      ",
-            style = TextStyle(fontSize = fontSize8)
-        ) />
-    </CraneWrapper>
-    <CraneWrapper>
-        <Text text=TextSpan(
-            text = tag,
-            style = TextStyle(color = Color(0xFFAAAAAA.toInt()), fontSize = fontSize6)
-        ) />
-    </CraneWrapper>
+    CraneWrapper {
+        Text(
+            text = TextSpan(
+                text = "      ",
+                style = TextStyle(fontSize = fontSize8)
+            )
+        )
+    }
+    CraneWrapper {
+        Text(
+            text = TextSpan(
+                text = tag,
+                style = TextStyle(color = Color(0xFFAAAAAA.toInt()), fontSize = fontSize6)
+            )
+        )
+    }
 }
 
 @Composable
@@ -566,17 +570,14 @@ fun TextDemoTextScaleFactor() {
         text = displayText,
         style = TextStyle(fontSize = fontSize8)
     )
-    <LinearLayout orientation=LinearLayout.VERTICAL>
-        <CraneWrapper>
-            <Text
-                text=textSpan />
-        </CraneWrapper>
-        <CraneWrapper>
-            <Text
-                text=textSpan
-                textScaleFactor=2.0f />
-        </CraneWrapper>
-    </LinearLayout>
+    LinearLayout(orientation=LinearLayout.VERTICAL) {
+        CraneWrapper {
+            Text(text=textSpan)
+        }
+        CraneWrapper {
+            Text(text=textSpan, textScaleFactor=2.0f)
+        }
+    }
 }
 
 @Composable
@@ -590,21 +591,21 @@ fun TexDemoTextOverflowFade() {
         style = TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000.toInt()))
     )
 
-    <SecondTagLine tag="horizontally fading edge" />
-    <CraneWrapper>
-        <Text
-            text=textSpan
-            maxLines=1
-            overflow=TextOverflow.FADE
-            softWrap=false />
-    </CraneWrapper>
-    <SecondTagLine tag="vertically fading edge" />
-    <CraneWrapper>
-        <Text
-            text=textSpan
-            maxLines=3
-            overflow=TextOverflow.FADE />
-    </CraneWrapper>
+    SecondTagLine(tag="horizontally fading edge")
+    CraneWrapper {
+        Text(
+            text=textSpan,
+            maxLines=1,
+            overflow=TextOverflow.FADE,
+            softWrap=false)
+    }
+    SecondTagLine(tag="vertically fading edge")
+    CraneWrapper {
+        Text(
+            text=textSpan,
+            maxLines=3,
+            overflow=TextOverflow.FADE)
+    }
 }
 
 @Composable
@@ -624,9 +625,9 @@ fun TextDemoShadowEffect() {
             )
         )
     )
-    <CraneWrapper>
-        <Text text = textSpan />
-    </CraneWrapper>
+    CraneWrapper {
+        Text(text=textSpan)
+    }
 }
 
 @Composable

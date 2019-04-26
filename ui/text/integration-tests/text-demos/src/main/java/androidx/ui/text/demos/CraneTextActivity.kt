@@ -24,6 +24,6 @@ import com.google.r4a.composer
 class CraneTextActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { <TextDemo /> }
+        setContent { TextDemo() }
     }
 }
