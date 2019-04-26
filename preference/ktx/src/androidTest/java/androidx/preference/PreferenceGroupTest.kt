@@ -55,7 +55,8 @@ class PreferenceGroupTest {
         val preference = Preference(context)
         preference.key = key
         preferenceGroup.addPreference(preference)
-        assertSame(preference, preferenceGroup[key])
+        // TODO(jsproch): revert this to [] when compiler supports it
+        assertSame(preference, preferenceGroup.get<Preference>(key))
         assertSame(preference, preferenceGroup[0])
     }
 

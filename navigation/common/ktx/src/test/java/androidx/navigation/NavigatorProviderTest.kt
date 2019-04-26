@@ -29,7 +29,9 @@ class NavigatorProviderTest {
     fun set() {
         val navigator = NoOpNavigator()
         provider[NAME] = navigator
-        val foundNavigator: Navigator<NavDestination> = provider[NAME]
+        // TODO(jsproch): change from .get() to [] when compiler supports it
+        val foundNavigator: Navigator<NavDestination> =
+            provider.get<Navigator<NavDestination>>(NAME)
         assertWithMessage("Set destination should be retrieved with get")
             .that(foundNavigator)
             .isSameAs(navigator)
