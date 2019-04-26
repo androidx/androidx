@@ -610,7 +610,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onPlaybackInfoChanged(int seq, PlaybackInfo info) throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override
@@ -628,59 +628,59 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onPlayerStateChanged(int seq, long eventTimeMs, long positionMs, int playerState)
                 throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override
         void onPlaybackSpeedChanged(int seq, long eventTimeMs, long positionMs, float speed)
                 throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override
         void onBufferingStateChanged(int seq, MediaItem item, int bufferingState,
                 long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override
         void onSeekCompleted(int seq, long eventTimeMs, long positionMs, long position)
                 throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override
         void onCurrentMediaItemChanged(int seq, MediaItem item, int currentIdx, int previousIdx,
                 int nextIdx) throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override
         void onPlaylistChanged(int seq, List<MediaItem> playlist, MediaMetadata metadata,
                 int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override
         void onPlaylistMetadataChanged(int seq, MediaMetadata metadata) throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override
         void onShuffleModeChanged(int seq, int shuffleMode, int currentIdx, int previousIdx,
                 int nextIdx) throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override
         void onRepeatModeChanged(int seq, int repeatMode, int currentIdx, int previousIdx,
                 int nextIdx) throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override
         void onPlaybackCompleted(int seq) throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override
@@ -739,7 +739,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override
@@ -751,7 +751,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onAllowedCommandsChanged(int seq, SessionCommandGroup commands)
                 throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
+            throw new AssertionError("This shouldn't be called");
         }
 
         @Override

@@ -147,7 +147,7 @@ public class UriMediaItem extends MediaItem {
                 if (cookieHandler != null && !(cookieHandler instanceof CookieManager)) {
                     throw new IllegalArgumentException(
                             "The cookie handler has to be of CookieManager type "
-                                    + "when cookies are provided.");
+                                    + "when cookies are provided");
                 }
             }
 

@@ -339,9 +339,11 @@ public abstract class MediaLibraryService extends MediaSessionService {
                 @NonNull String parentId, @IntRange(from = 0) int itemCount,
                 @Nullable LibraryParams params) {
             if (controller == null) {
-                throw new IllegalArgumentException("controller shouldn't be null");
+                throw new NullPointerException("controller shouldn't be null");
             }
-            if (TextUtils.isEmpty(parentId)) {
+            if (parentId == null) {
+                throw new NullPointerException("parentId shouldn't be null");
+            } else if (TextUtils.isEmpty(parentId)) {
                 throw new IllegalArgumentException("parentId shouldn't be empty");
             }
             if (itemCount < 0) {
@@ -382,9 +384,11 @@ public abstract class MediaLibraryService extends MediaSessionService {
                 @NonNull String query, @IntRange(from = 0) int itemCount,
                 @Nullable LibraryParams params) {
             if (controller == null) {
-                throw new IllegalArgumentException("controller shouldn't be null");
+                throw new NullPointerException("controller shouldn't be null");
             }
-            if (TextUtils.isEmpty(query)) {
+            if (query == null) {
+                throw new NullPointerException("query shouldn't be null");
+            } else if (TextUtils.isEmpty(query)) {
                 throw new IllegalArgumentException("query shouldn't be empty");
             }
             if (itemCount < 0) {
