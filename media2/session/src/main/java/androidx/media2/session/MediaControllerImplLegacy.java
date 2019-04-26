@@ -183,8 +183,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     private volatile boolean mConnected;
 
     MediaControllerImplLegacy(@NonNull Context context, @NonNull MediaController instance,
-            @NonNull SessionToken token, @NonNull Executor executor,
-            @NonNull ControllerCallback callback) {
+            @NonNull SessionToken token, @Nullable Executor executor,
+            @Nullable ControllerCallback callback) {
         mContext = context;
         mInstance = instance;
         mHandlerThread = new HandlerThread("MediaController_Thread");
@@ -234,6 +234,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             }
             mConnected = false;
         }
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -872,6 +873,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             setCurrentMediaItemLocked(mControllerCompat.getMetadata());
             mConnected = true;
         }
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -905,7 +907,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     private void connectToService() {
-        mCallbackExecutor.execute(new Runnable() {
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
                 synchronized (mLock) {
@@ -1064,6 +1066,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                     return;
                 }
             }
+            if (mCallback == null) return;
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1113,6 +1116,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 currentAllowedCommands = mAllowedCommands;
             }
 
+            if (mCallback == null) return;
             if (prevItem != currentItem) {
                 mCallbackExecutor.execute(new Runnable() {
                     @Override
@@ -1228,6 +1232,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 setCurrentMediaItemLocked(metadata);
                 currentItem = mCurrentMediaItem;
             }
+            if (mCallback == null) return;
             if (prevItem != currentItem) {
                 mCallbackExecutor.execute(new Runnable() {
                     @Override
@@ -1259,6 +1264,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 playlist = mPlaylist;
                 playlistMetadata = mPlaylistMetadata;
             }
+            if (mCallback == null) return;
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1277,6 +1283,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 mPlaylistMetadata = MediaUtils.convertToMediaMetadata(title);
                 playlistMetadata = mPlaylistMetadata;
             }
+            if (mCallback == null) return;
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1292,6 +1299,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                     return;
                 }
             }
+            if (mCallback == null) return;
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1308,6 +1316,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                     return;
                 }
             }
+            if (mCallback == null) return;
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1323,6 +1332,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                     return;
                 }
             }
+            if (mCallback == null) return;
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1342,6 +1352,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 }
                 mRepeatMode = repeatMode;
             }
+            if (mCallback == null) return;
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1358,6 +1369,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 }
                 mShuffleMode = shuffleMode;
             }
+            if (mCallback == null) return;
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
