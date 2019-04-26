@@ -107,7 +107,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     final SessionToken mToken;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ControllerCallback mCallback;
-    private final Executor mCallbackExecutor;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Executor mCallbackExecutor;
     private final IBinder.DeathRecipient mDeathRecipient;
     final SequencedFutureManager mSequencedFutureManager;
     final MediaControllerStub mControllerStub;
@@ -167,12 +168,6 @@ class MediaControllerImplBase implements MediaControllerImpl {
         if (token == null) {
             throw new NullPointerException("token shouldn't be null");
         }
-        if (callback == null) {
-            throw new NullPointerException("callback shouldn't be null");
-        }
-        if (executor == null) {
-            throw new NullPointerException("executor shouldn't be null");
-        }
         mContext = context;
         mSequencedFutureManager = new SequencedFutureManager();
         mControllerStub = new MediaControllerStub(this, mSequencedFutureManager);
@@ -230,6 +225,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             }
         }
         mSequencedFutureManager.close();
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -881,6 +877,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 mPlaylist.set(currentMediaItemIndex, item);
             }
         }
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -898,6 +895,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPositionMs = positionMs;
             mPlayerState = state;
         }
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -915,6 +913,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPositionMs = positionMs;
             mPlaybackSpeed = speed;
         }
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -934,6 +933,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPositionEventTimeMs = eventTimeMs;
             mPositionMs = positionMs;
         }
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -957,6 +957,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 mCurrentMediaItem = playlist.get(currentMediaItemIndex);
             }
         }
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -972,6 +973,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
         synchronized (mLock) {
             mPlaylistMetadata = metadata;
         }
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -987,6 +989,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
         synchronized (mLock) {
             mPlaybackInfo = info;
         }
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -1006,6 +1009,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPreviousMediaItemIndex = previousMediaItemIndex;
             mNextMediaItemIndex = nextMediaItemIndex;
         }
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -1025,6 +1029,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPreviousMediaItemIndex = previousMediaItemIndex;
             mNextMediaItemIndex = nextMediaItemIndex;
         }
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -1037,6 +1042,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     void notifyPlaybackCompleted() {
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -1054,6 +1060,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
             mPositionMs = positionMs;
         }
 
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -1136,6 +1143,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                         mToken.getUid(), TYPE_SESSION, mToken.getPackageName(), sessionBinder,
                         tokenExtras));
             }
+            if (mCallback == null) return;
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1172,6 +1180,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
         if (DEBUG) {
             Log.d(TAG, "onCustomCommand cmd=" + command.getCustomAction());
         }
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -1190,6 +1199,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     void onAllowedCommandsChanged(final SessionCommandGroup commands) {
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -1199,6 +1209,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     void onSetCustomLayout(final int seq, final List<MediaSession.CommandButton> layout) {
+        if (mCallback == null) return;
         mCallbackExecutor.execute(new Runnable() {
             @Override
             public void run() {

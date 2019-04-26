@@ -84,21 +84,21 @@ public class MediaBrowser extends MediaController {
      * @param callback controller callback to receive changes in
      */
     MediaBrowser(@NonNull Context context, @NonNull SessionToken token,
-            @Nullable Bundle connectionHints, @NonNull Executor executor,
-            @NonNull BrowserCallback callback) {
+            @Nullable Bundle connectionHints, @Nullable Executor executor,
+            @Nullable BrowserCallback callback) {
         super(context, token, connectionHints, executor, callback);
     }
 
     MediaBrowser(@NonNull Context context, @NonNull MediaSessionCompat.Token token,
-            @Nullable Bundle connectionHints, @NonNull Executor executor,
-            @NonNull BrowserCallback callback) {
+            @Nullable Bundle connectionHints, @Nullable Executor executor,
+            @Nullable BrowserCallback callback) {
         super(context, token, connectionHints, executor, callback);
     }
 
     @Override
     MediaBrowserImpl createImpl(@NonNull Context context, @NonNull SessionToken token,
-            @Nullable Bundle connectionHints, @NonNull Executor executor,
-            @NonNull ControllerCallback callback) {
+            @Nullable Bundle connectionHints, @Nullable Executor executor,
+            @Nullable ControllerCallback callback) {
         if (token.isLegacySession()) {
             return new MediaBrowserImplLegacy(
                     context, this, token, executor, (BrowserCallback) callback);
@@ -145,7 +145,8 @@ public class MediaBrowser extends MediaController {
      * @param parentId non-empty parent id
      * @param params library params
      */
-    public @NonNull ListenableFuture<LibraryResult> subscribe(@NonNull String parentId,
+    @NonNull
+    public ListenableFuture<LibraryResult> subscribe(@NonNull String parentId,
             @Nullable LibraryParams params) {
         if (TextUtils.isEmpty(parentId)) {
             throw new IllegalArgumentException("parentId shouldn't be empty");
@@ -165,7 +166,8 @@ public class MediaBrowser extends MediaController {
      *
      * @param parentId non-empty parent id
      */
-    public @NonNull ListenableFuture<LibraryResult> unsubscribe(@NonNull String parentId) {
+    @NonNull
+    public ListenableFuture<LibraryResult> unsubscribe(@NonNull String parentId) {
         if (TextUtils.isEmpty(parentId)) {
             throw new IllegalArgumentException("parentId shouldn't be empty");
         }
@@ -187,7 +189,8 @@ public class MediaBrowser extends MediaController {
      * @param params library params
      * @see LibraryResult#getMediaItems()
      */
-    public @NonNull ListenableFuture<LibraryResult> getChildren(@NonNull String parentId,
+    @NonNull
+    public ListenableFuture<LibraryResult> getChildren(@NonNull String parentId,
             @IntRange(from = 0) int page, @IntRange(from = 1) int pageSize,
             @Nullable LibraryParams params) {
         if (TextUtils.isEmpty(parentId)) {
@@ -214,7 +217,8 @@ public class MediaBrowser extends MediaController {
      * @param mediaId non-empty media id for specifying the item
      * @see LibraryResult#getMediaItem()
      */
-    public @NonNull ListenableFuture<LibraryResult> getItem(@NonNull final String mediaId) {
+    @NonNull
+    public ListenableFuture<LibraryResult> getItem(@NonNull final String mediaId) {
         if (TextUtils.isEmpty(mediaId)) {
             throw new IllegalArgumentException("mediaId shouldn't be empty");
         }
@@ -239,7 +243,8 @@ public class MediaBrowser extends MediaController {
      * @see BrowserCallback#getSearchResult(String, int, int, LibraryParams)
      * @see #getSearchResult(String, int, int, LibraryParams)
      */
-    public @NonNull ListenableFuture<LibraryResult> search(@NonNull String query,
+    @NonNull
+    public ListenableFuture<LibraryResult> search(@NonNull String query,
             @Nullable LibraryParams params) {
         if (TextUtils.isEmpty(query)) {
             throw new IllegalArgumentException("query shouldn't be empty");
@@ -263,7 +268,8 @@ public class MediaBrowser extends MediaController {
      * @param params library params
      * @see LibraryResult#getMediaItems()
      */
-    public @NonNull ListenableFuture<LibraryResult> getSearchResult(final @NonNull String query,
+    @NonNull
+    public ListenableFuture<LibraryResult> getSearchResult(final @NonNull String query,
             @IntRange(from = 0) int page, @IntRange(from = 1) int pageSize,
             final @Nullable LibraryParams params) {
         if (TextUtils.isEmpty(query)) {
