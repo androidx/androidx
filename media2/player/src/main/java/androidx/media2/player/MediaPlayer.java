@@ -1927,8 +1927,8 @@ public final class MediaPlayer extends SessionPlayer {
     }
 
     /**
-     * Returns the index of the audio or video track currently selected for playback,
-     * The return value is an index into the array returned by {@link #getTrackInfo()}, and can
+     * Returns the audio or video track currently selected for playback.
+     * The return value is an element in the list returned by {@link #getTrackInfo()}, and can
      * be used in calls to {@link #selectTrack(TrackInfo)}.
      *
      * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO} or
