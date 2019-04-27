@@ -29,6 +29,20 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.60" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.65" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.96" />
+
     <ScrollView
         android:id="@+id/scroll_log"
         android:layout_width="0dp"
@@ -38,8 +52,8 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/rounded_frame"
-        app:layout_constraintBottom_toTopOf="@id/guideline_horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guideline_vertical"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -70,7 +84,7 @@
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guideline_vertical"
         app:layout_constraintTop_toBottomOf="@+id/guideline_progress" />
 
     <androidx.camera.integration.antelope.AutoFitSurfaceView
@@ -81,10 +95,10 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@id/guideline_progress"
-        app:layout_constraintEnd_toStartOf="@id/guideline_vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/guideline_horizontal" />
+        app:layout_constraintBottom_toTopOf="@id/button_single"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guideline_vertical"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.camera.integration.antelope.AutoFitTextureView
         android:id="@+id/texture_preview"
@@ -95,17 +109,10 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@id/guideline_progress"
-        app:layout_constraintEnd_toStartOf="@id/guideline_vertical"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/guideline_horizontal" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.96" />
+        app:layout_constraintBottom_toTopOf="@id/button_single"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@id/guideline_vertical"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <Button
@@ -117,9 +124,9 @@
         android:includeFontPadding="false"
         android:minHeight="20dp"
         android:text="@string/button_single_test"
+        app:layout_constraintBottom_toTopOf="@+id/button_multi"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/button_multi"
-        app:layout_constraintTop_toBottomOf="@+id/guideline_horizontal" />
+        app:layout_constraintStart_toStartOf="@+id/button_multi" />
 
     <Button
         android:id="@+id/button_multi"
@@ -130,8 +137,8 @@
         android:includeFontPadding="false"
         android:minHeight="20dp"
         android:text="@string/button_multi_test"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_single" />
+        app:layout_constraintBottom_toTopOf="@id/button_abort"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/button_abort"
@@ -143,13 +150,6 @@
         android:text="@string/button_abort"
         app:layout_constraintBottom_toTopOf="@id/guideline_progress"
         app:layout_constraintEnd_toEndOf="parent" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline_vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
