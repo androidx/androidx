@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedDeprecatedMethod: androidx.core.graphics.drawable.IconCompat#createFromIcon(android.graphics.drawable.Icon):
+    Removed deprecated method androidx.core.graphics.drawable.IconCompat.createFromIcon(android.graphics.drawable.Icon)
+
+
