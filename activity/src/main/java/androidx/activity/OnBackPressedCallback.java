@@ -87,7 +87,7 @@ public abstract class OnBackPressedCallback {
      * added to.
      */
     @MainThread
-    public void remove() {
+    public final void remove() {
         for (Cancellable cancellable: mCancellables) {
             cancellable.cancel();
         }
