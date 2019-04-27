@@ -41,6 +41,6 @@ class ButtonActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { <ButtonDemo/>}
+        setContent { ButtonDemo()}
     }
 }

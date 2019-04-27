@@ -117,7 +117,7 @@ fun Ripple(
      * slightly more efficient).
      */
     boundsCallback: ((LayoutCoordinates) -> PxBounds)? = null,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     val density = +ambientDensity()
     val rippleSurface = +ambientRippleSurface()
@@ -128,19 +128,19 @@ fun Ripple(
         rippleSurface.backgroundColor
     )
 
-    <OnChildPositioned onPositioned={ state.coordinates = it }>
-        <PressIndicatorGestureDetector
-            onStart={ position ->
+    OnChildPositioned(onPositioned = { state.coordinates = it }) {
+        PressIndicatorGestureDetector(
+            onStart = { position ->
                 state.handleStart(
                     position, rippleSurface, theme, density, bounded, boundsCallback,
                     clippingBorderRadius, shape, finalRadius
                 )
-            }
-            onStop={ state.handleFinish(false, onHighlightChanged) }
-            onCancel={ state.handleFinish(true, onHighlightChanged) }>
-            <children />
-        </PressIndicatorGestureDetector>
-    </OnChildPositioned>
+            },
+            onStop = { state.handleFinish(false, onHighlightChanged) },
+            onCancel = { state.handleFinish(true, onHighlightChanged) }) {
+            children()
+        }
+    }
 
     +onDispose {
         state.effects.forEach { it.dispose() }

@@ -28,6 +28,6 @@ class FloatingActionButtonActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val icon = Image(BitmapFactory.decodeResource(resources, R.drawable.ic_favorite))
-        setContent { <FloatingActionButtonDemo icon/>}
+        setContent { FloatingActionButtonDemo(icon = icon)}
     }
 }

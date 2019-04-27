@@ -42,9 +42,9 @@ import com.google.r4a.composer
  */
 @Composable
 fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
-    <Container width height expanded=true>
-        <DrawFillRect brush />
-    </Container>
+    Container(width = width, height = height, expanded = true) {
+        DrawFillRect(brush = brush)
+    }
 }
 
 /**
@@ -56,14 +56,14 @@ fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
  */
 @Composable
 fun ColoredRect(color: Color, width: Dp? = null, height: Dp? = null) {
-    <ColoredRect brush=SolidColor(color) width height />
+    ColoredRect(brush = SolidColor(color), width = width, height = height)
 }
 
 @Composable
 private fun DrawFillRect(brush: Brush) {
-    <Draw> canvas, parentSize ->
+    Draw { canvas, parentSize ->
         val paint = Paint()
         brush.applyBrush(paint)
         canvas.drawRect(parentSize.toRect(), paint)
-    </Draw>
+    }
 }

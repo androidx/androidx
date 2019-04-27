@@ -45,41 +45,41 @@ fun DividersDemo() {
     val color = Color(0xFFE91E63.toInt())
     val dividerColor = Color(0xFFC6C6C6.toInt())
     val blackColor = Color(0xFF000000.toInt())
-    <Column>
-        <Column> items.forEachIndexed { index, text ->
-            <Item text color />
+    Column {
+        Column { items.forEachIndexed { index, text ->
+            Item(text = text, color = color)
             if (index != items.lastIndex) {
-                <Divider color=dividerColor indent=ItemSize />
+                Divider(color = dividerColor, indent = ItemSize)
             }
         }
-        </Column>
-        <HeightSpacer height=30.dp />
-        <Divider height=2.dp color=blackColor />
-        <HeightSpacer height=10.dp />
-        <Column> items.forEach { text ->
-            <Item text />
-            <Divider color=dividerColor height=0.5.dp />
         }
-        </Column>
-    </Column>
+        HeightSpacer(height = 30.dp)
+        Divider(height = 2.dp, color = blackColor)
+        HeightSpacer(height = 10.dp)
+        Column { items.forEach { text ->
+            Item(text = text)
+            Divider(color = dividerColor, height = 0.5.dp)
+        }
+        }
+    }
 }
 
 @Composable
 fun Item(text: String, color: Color? = null) {
     val avatarSize = ItemSize - ItemPadding * 2
     val textStyle = +themeTextStyle { body1 }
-    <Container height=ItemSize padding=EdgeInsets(ItemPadding)>
-        <Row crossAxisAlignment=CrossAxisAlignment.Center>
+    Container(height = ItemSize, padding = EdgeInsets(ItemPadding)) {
+        Row(crossAxisAlignment = CrossAxisAlignment.Center) {
             if (color != null) {
-                <ColoredRect
-                    width=avatarSize
-                    height=avatarSize
-                    color />
-                <WidthSpacer width=ItemPadding />
+                ColoredRect(
+                    width = avatarSize,
+                    height = avatarSize,
+                    color = color)
+                WidthSpacer(width = ItemPadding)
             }
-            <Text text style=textStyle />
-        </Row>
-    </Container>
+            Text(text = text, style = textStyle)
+        }
+    }
 }
 
 private val ItemSize = 55.dp

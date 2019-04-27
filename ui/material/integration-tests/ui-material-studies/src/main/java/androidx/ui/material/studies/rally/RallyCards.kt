@@ -46,34 +46,36 @@ internal val cardInternalColor = Color(0xFF33333D.toInt())
  */
 @Composable
 fun RallyAlertCard() {
-    <Card color=cardInternalColor>
-        <Padding padding=12.dp>
-            <Column>
-                <Row mainAxisAlignment=MainAxisAlignment.SpaceBetween>
-                    <Text text="Alerts" style=+themeTextStyle { subtitle2 } />
-                    <TransparentButton text="See All" onClick={} />
-                </Row>
-                <Padding padding=EdgeInsets(0.dp, 12.dp, 0.dp, 12.dp)>
-                    val colors = +ambient(Colors)
-                    <Divider color=colors.surface height=2.dp />
-                </Padding>
-                <FlexRow> expanded(flex = 1.0f) {
-                    val text = "Heads up, you've used up 90% of your " +
-                            "Shopping budget for this month."
-                    <Text
-                        style=+themeTextStyle { body1 }
-                        text />
+    Card(color = cardInternalColor) {
+        Padding(padding = 12.dp) {
+            Column {
+                Row(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+                    Text(text = "Alerts", style = +themeTextStyle { subtitle2 })
+                    TransparentButton(text = "See All", onClick = { })
                 }
+                Padding(padding = EdgeInsets(0.dp, 12.dp, 0.dp, 12.dp)) {
+                    val colors = +ambient(Colors)
+                    Divider(color = colors.surface, height = 2.dp)
+                }
+                FlexRow {
+                    expanded(flex = 1.0f) {
+                        val text = "Heads up, you've used up 90% of your " +
+                                "Shopping budget for this month."
+                        Text(
+                            style = +themeTextStyle { body1 },
+                            text = text
+                        )
+                    }
                     inflexible {
                         // TODO: icons still don't work
 //                        <vectorResource res=context.resources
 //                            resId=androidx.ui.material.studies.R.drawable.sort_icon/>
-                        <TransparentButton text="Sort" onClick={} />
+                        TransparentButton(text = "Sort", onClick = { })
                     }
-                </FlexRow>
-            </Column>
-        </Padding>
-    </Card>
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -81,41 +83,44 @@ fun RallyAlertCard() {
  */
 @Composable
 fun RallyAccountsCard() {
-    <Card color=cardInternalColor>
-        <Column>
-            <Padding padding=12.dp>
-                <Column>
-                    <Text text="Accounts" style=+themeTextStyle { body1 } />
-                    <Text text="$12,132.49" style=+themeTextStyle { h3 } />
-                </Column>
-            </Padding>
-            <Divider color=rallyGreen height=1.dp />
-            <Padding padding=12.dp>
-                <Column>
+    Card(color = cardInternalColor) {
+        Column {
+            Padding(padding = 12.dp) {
+                Column {
+                    Text(text = "Accounts", style = +themeTextStyle { body1 })
+                    Text(text = "$12,132.49", style = +themeTextStyle { h3 })
+                }
+            }
+            Divider(color = rallyGreen, height = 1.dp)
+            Padding(padding = 12.dp) {
+                Column {
                     val colors = +ambient(Colors)
-                    <RallyAccountRow
-                        name="Checking"
-                        number="1234"
-                        amount="2,215.13"
-                        color=Color(0xFF005D57) />
-                    <Divider color=colors.surface height=2.dp />
-                    <RallyAccountRow
-                        name="Home Savings"
-                        number="5678"
-                        amount="8,676.88"
-                        color=Color(0xFF04B97F) />
-                    <Divider color=colors.surface height=2.dp />
-                    <RallyAccountRow
-                        name="Car Savings"
-                        number="9012"
-                        amount="987.48"
-                        color=Color(0xFF37EFBA) />
-                    <Divider color=colors.surface height=2.dp />
-                    <TransparentButton text="See All" />
-                </Column>
-            </Padding>
-        </Column>
-    </Card>
+                    RallyAccountRow(
+                        name = "Checking",
+                        number = "1234",
+                        amount = "2,215.13",
+                        color = Color(0xFF005D57.toInt())
+                    )
+                    Divider(color = colors.surface, height = 2.dp)
+                    RallyAccountRow(
+                        name = "Home Savings",
+                        number = "5678",
+                        amount = "8,676.88",
+                        color = Color(0xFF04B97F.toInt())
+                    )
+                    Divider(color = colors.surface, height = 2.dp)
+                    RallyAccountRow(
+                        name = "Car Savings",
+                        number = "9012",
+                        amount = "987.48",
+                        color = Color(0xFF37EFBA.toInt())
+                    )
+                    Divider(color = colors.surface, height = 2.dp)
+                    TransparentButton(text = "See All")
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -123,23 +128,24 @@ fun RallyAccountsCard() {
  */
 @Composable
 fun RallyAccountRow(name: String, number: String, amount: String, color: Color) {
-    <Padding padding=EdgeInsets(0.dp, 12.dp, 0.dp, 12.dp)>
-        <FlexRow> inflexible {
-            <AccountIndicator color=color />
-            <WidthSpacer width=8.dp />
-            <Column crossAxisAlignment=MainAxisAlignment.Start>
-                <Text text=name style=+themeTextStyle { body1 } />
-                <Text text="•••••$number" style=+themeTextStyle { subtitle1 } />
-            </Column>
-        }
+    Padding(padding = EdgeInsets(0.dp, 12.dp, 0.dp, 12.dp)) {
+        FlexRow {
+            inflexible {
+                AccountIndicator(color = color)
+                WidthSpacer(width = 8.dp)
+                Column(crossAxisAlignment = MainAxisAlignment.Start) {
+                    Text(text = name, style = +themeTextStyle { body1 })
+                    Text(text = "•••••$number", style = +themeTextStyle { subtitle1 })
+                }
+            }
             expanded(flex = 1.0f) {
-                <FixedSpacer width=0.dp height=0.dp />
+                FixedSpacer(width = 0.dp, height = 0.dp)
             }
             inflexible {
-                <Text text="$ $amount" style=+themeTextStyle { h6 } />
+                Text(text = "$ $amount", style = +themeTextStyle { h6 })
             }
-        </FlexRow>
-    </Padding>
+        }
+    }
 }
 
 /**
@@ -147,7 +153,7 @@ fun RallyAccountRow(name: String, number: String, amount: String, color: Color) 
  */
 @Composable
 fun AccountIndicator(color: Color) {
-    <ColoredRect color width=4.dp height=36.dp />
+    ColoredRect(color = color, width = 4.dp, height = 36.dp)
 }
 
 /**
@@ -155,14 +161,14 @@ fun AccountIndicator(color: Color) {
  */
 @Composable
 fun RallyBillsCard() {
-    <Card color=cardInternalColor>
-        <Column>
-            <Padding padding=12.dp>
-                <Column>
-                    <Text text="Bills" style=+themeTextStyle { subtitle2 } />
-                    <Text text="$1,810.00" style=+themeTextStyle { h1 } />
-                </Column>
-            </Padding>
-        </Column>
-    </Card>
+    Card(color = cardInternalColor) {
+        Column {
+            Padding(padding = 12.dp) {
+                Column {
+                    Text(text = "Bills", style = +themeTextStyle { subtitle2 })
+                    Text(text = "$1,810.00", style = +themeTextStyle { h1 })
+                }
+            }
+        }
+    }
 }

@@ -38,7 +38,7 @@ import com.google.r4a.composer
 @Composable
 fun TransparentSurface(
     shape: ShapeBorder = RoundedRectangleBorder(),
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
-    <Surface shape children color=Color.Transparent />
+    Surface(shape = shape, children = children, color = Color.Transparent)
 }

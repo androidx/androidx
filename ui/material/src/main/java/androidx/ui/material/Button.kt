@@ -49,11 +49,11 @@ import com.google.r4a.unaryPlus
  * To modify these default style values use [CurrentTextStyleProvider].
  *
  * Example:
- *     <Button onClick={ ... }>
- *         <Padding padding=EdgeInsets(16.dp)>
- *             <Text text=TextSpan(text = "CUSTOM BUTTON") />
- *         </Padding>
- *     </Button>
+ *     Button(onClick = { ... }) {
+ *         Padding(padding = EdgeInsets(16.dp)) {
+ *             Text(text=TextSpan(text="CUSTOM BUTTON"))
+ *         }
+ *     }
  *
  * @see Button overload for the default Material Design implementation of [Button] with text.
  *
@@ -72,27 +72,27 @@ fun Button(
     shape: ShapeBorder? = null,
     color: Color? = null,
     elevation: Dp = 0.dp,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     val surfaceColor = +color.orFromTheme { primary }
     val surfaceShape = +shape.orFromTheme { button }
     val textStyle = +themeTextStyle { button }
-    <Surface shape=surfaceShape color=surfaceColor elevation>
-        <CurrentTextStyleProvider value=textStyle>
+    Surface(shape = surfaceShape, color = surfaceColor, elevation = elevation) {
+        CurrentTextStyleProvider(value = textStyle) {
             val clickableChildren = @Composable {
-                <Clickable onClick>
-                    <children />
-                </Clickable>
+                Clickable(onClick = onClick) {
+                    children()
+                }
             }
             if (onClick != null) {
-                <BoundedRipple>
-                    <clickableChildren />
-                </BoundedRipple>
+                BoundedRipple {
+                    clickableChildren()
+                }
             } else {
-                <clickableChildren />
+                clickableChildren()
             }
-        </CurrentTextStyleProvider>
-    </Surface>
+        }
+    }
 }
 
 /**
@@ -107,9 +107,9 @@ fun Button(
  * on [MaterialColors.primary] background [MaterialColors.onPrimary] will be used for text.
  *
  * Example:
- *     <Button
- *         onClick={ ... }
- *         text="TEXT") />
+ *     Button(
+ *         onClick = { ... },
+ *         text="TEXT"))
  *
  * @see Button for the flexible implementation with a customizable content.
  * @see TransparentButton for the version with no background.
@@ -138,14 +138,16 @@ fun Button(
     val surfaceShape = +shape.orFromTheme { button }
     val hasBackground = surfaceColor.alpha > 0 || surfaceShape.borderStyle != BorderStyle.None
     val horPaddings = if (hasBackground) ButtonHorPadding else ButtonHorPaddingNoBg
-    <Button onClick elevation color=surfaceColor shape=surfaceShape>
+    Button(onClick = onClick, elevation = elevation, color = surfaceColor, shape = surfaceShape) {
         val constraints = DpConstraints
             .tightConstraintsForHeight(ButtonHeight)
             .copy(minWidth = ButtonMinWidth)
-        <Container padding=EdgeInsets(left = horPaddings, right = horPaddings) constraints>
-            <Text text=text style=textStyle />
-        </Container>
-    </Button>
+        Container(
+            padding = EdgeInsets(left = horPaddings, right = horPaddings),
+            constraints = constraints) {
+            Text(text = text, style = textStyle)
+        }
+    }
 }
 
 /**
@@ -175,7 +177,13 @@ fun TransparentButton(
     elevation: Dp = 0.dp
 ) {
     val finalTextStyle = TextStyle(color = +themeColor { primary }).merge(textStyle)
-    <Button text onClick shape elevation textStyle=finalTextStyle color=Color.Transparent />
+    Button(
+        text = text,
+        onClick = onClick,
+        shape = shape,
+        elevation = elevation,
+        textStyle = finalTextStyle,
+        color = Color.Transparent)
 }
 
 // Specification for Material Button:

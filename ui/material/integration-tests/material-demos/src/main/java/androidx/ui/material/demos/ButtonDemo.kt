@@ -41,17 +41,17 @@ import com.google.r4a.unaryPlus
 @Composable
 fun ButtonDemo() {
     val onClick: () -> Unit = { Log.e("ButtonDemo", "onClick") }
-    <CraneWrapper>
-        <MaterialTheme>
-            <Center>
-                <Column mainAxisAlignment=MainAxisAlignment.SpaceEvenly>
-                    <Button onClick text="LONG TEXT" />
-                    <Button onClick text="SH" />
-                    <TransparentButton onClick text="NO BACKGROUND" />
-                    <Button
-                        onClick
-                        color=+themeColor { secondary }
-                        text="SECONDARY COLOR" />
+    CraneWrapper {
+        MaterialTheme {
+            Center {
+                Column(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                    Button(onClick = onClick, text = "LONG TEXT")
+                    Button(onClick = onClick, text = "SH")
+                    TransparentButton(onClick = onClick, text = "NO BACKGROUND")
+                    Button(
+                        onClick = onClick,
+                        color = +themeColor{ secondary },
+                        text = "SECONDARY COLOR")
 
                     val outlinedShape = +withDensity {
                         RoundedRectangleBorder(
@@ -65,25 +65,25 @@ fun ButtonDemo() {
                         )
                     }
 
-                    <TransparentButton onClick shape=outlinedShape text="OUTLINED" />
+                    TransparentButton(onClick = onClick, shape = outlinedShape, text = "OUTLINED")
 
                     val customColor = Color(0xFFFFFF00.toInt())
-                    <Button
-                        onClick
-                        text="CUSTOM STYLE"
-                        textStyle=+themeTextStyle { body2.copy(color = customColor) } />
-                    <Button onClick>
-                        <Padding padding=16.dp>
-                            <Text text="CUSTOM BUTTON!" />
-                        </Padding>
-                    </Button>
+                    Button(
+                        onClick = onClick,
+                        text = "CUSTOM STYLE",
+                        textStyle = +themeTextStyle{ body2.copy(color = customColor) })
+                    Button(onClick = onClick) {
+                        Padding(padding = 16.dp) {
+                            Text(text = "CUSTOM BUTTON!")
+                        }
+                    }
 
                     // TODO(Andrey): Disabled button has wrong bg and text color for now.
                     // Need to figure out where will we store their styling. Not a part of
                     // MaterialColors right now and specs are not clear about this.
-                    <Button text="DISABLED. TODO" />
-                </Column>
-            </Center>
-        </MaterialTheme>
-    </CraneWrapper>
+                    Button(text = "DISABLED. TODO")
+                }
+            }
+        }
+    }
 }

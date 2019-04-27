@@ -28,7 +28,6 @@ import com.google.r4a.unaryPlus
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun Semantics(
-    @Children children: () -> Unit,
     /**
      * If 'container' is true, this component will introduce a new
      * node in the semantics tree. Otherwise, the semantics will be
@@ -124,7 +123,8 @@ fun Semantics(
      */
     textDirection: TextDirection? = null,
     testTag: String? = null,
-    actions: List<SemanticsAction<*>> = emptyList()
+    actions: List<SemanticsAction<*>> = emptyList(),
+    @Children children: @Composable() () -> Unit
 ) {
     val providedTestTag = +ambient(TestTagAmbient)
     <SemanticsComponentNode

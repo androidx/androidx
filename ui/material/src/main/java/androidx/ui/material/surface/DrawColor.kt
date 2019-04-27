@@ -35,8 +35,8 @@ fun DrawColor(color: Color?) {
         val paint = Paint()
         paint.color = color
         paint.style = PaintingStyle.fill
-        <Draw> canvas, parentSize ->
+        Draw { canvas, parentSize ->
             canvas.drawRect(parentSize.toRect(), paint)
-        </Draw>
+        }
     }
 }

@@ -36,10 +36,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class DividerUiTest : AndroidUiTestRunner() {
 
-    private val bigConstraints = DpConstraints(
-        maxWidth = 5000.dp,
-        maxHeight = 5000.dp
-    )
+    private val bigConstraints = DpConstraints(maxWidth = 5000.dp, maxHeight = 5000.dp)
 
     private val defaultHeight = 1.dp
 
@@ -47,17 +44,17 @@ class DividerUiTest : AndroidUiTestRunner() {
     fun divider_DefaultSizes() {
         var size: PxSize? = null
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Container constraints=bigConstraints>
-                        <OnChildPositioned onPositioned={ position ->
+            CraneWrapper {
+                MaterialTheme {
+                    Container(constraints = bigConstraints) {
+                        OnChildPositioned(onPositioned = { position ->
                             size = position.size
-                        }>
-                            <Divider />
-                        </OnChildPositioned>
-                    </Container>
-                </MaterialTheme>
-            </CraneWrapper>
+                        }) {
+                            Divider()
+                        }
+                    }
+                }
+            }
         }
         val dm = activityTestRule.activity.resources.displayMetrics
         withDensity(density) {
@@ -71,17 +68,17 @@ class DividerUiTest : AndroidUiTestRunner() {
         var size: PxSize? = null
         val height = 20.dp
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Container constraints=bigConstraints>
-                        <OnChildPositioned onPositioned={ position ->
+            CraneWrapper {
+                MaterialTheme {
+                    Container(constraints = bigConstraints) {
+                        OnChildPositioned(onPositioned = { position ->
                             size = position.size
-                        }>
-                            <Divider height />
-                        </OnChildPositioned>
-                    </Container>
-                </MaterialTheme>
-            </CraneWrapper>
+                        }) {
+                            Divider(height = height)
+                        }
+                    }
+                }
+            }
         }
         val dm = activityTestRule.activity.resources.displayMetrics
         withDensity(density) {
@@ -96,17 +93,17 @@ class DividerUiTest : AndroidUiTestRunner() {
         val indent = 75.dp
         val height = 21.dp
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Container constraints=bigConstraints>
-                        <OnChildPositioned onPositioned={ position ->
+            CraneWrapper {
+                MaterialTheme {
+                    Container(constraints = bigConstraints) {
+                        OnChildPositioned(onPositioned = { position ->
                             size = position.size
-                        }>
-                            <Divider indent height />
-                        </OnChildPositioned>
-                    </Container>
-                </MaterialTheme>
-            </CraneWrapper>
+                        }) {
+                            Divider(indent = indent, height = height)
+                        }
+                    }
+                }
+            }
         }
         val dm = activityTestRule.activity.resources.displayMetrics
         withDensity(density) {

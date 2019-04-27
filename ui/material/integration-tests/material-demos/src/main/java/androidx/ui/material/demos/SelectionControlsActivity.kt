@@ -27,11 +27,11 @@ open class SelectionControlsActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <SelectionsControlsDemo />
-                </MaterialTheme>
-            </CraneWrapper>
+            CraneWrapper {
+                MaterialTheme {
+                    SelectionsControlsDemo()
+                }
+            }
         }
     }
 }

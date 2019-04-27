@@ -37,7 +37,7 @@ fun <T> CachingClipper(
     @Children children: @Composable() (clipper: CustomClipper<T>) -> Unit
 ) {
     val cachingClipper = +memo(clipper) { CachingCustomClipper(clipper) }
-    <children clipper=cachingClipper />
+    children(clipper = cachingClipper)
 }
 
 internal class CachingCustomClipper<T>(

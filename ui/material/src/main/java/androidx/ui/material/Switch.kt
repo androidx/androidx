@@ -63,9 +63,9 @@ fun Switch(
 ) {
     val value = if (checked) ToggleableState.Checked else ToggleableState.Unchecked
     val onToggle = onChecked?.let { { it(!checked) } }
-    <Toggleable value onToggle>
-        val children = @Composable { <DrawSwitch checked color /> }
-        <Layout children> measurables, constraints ->
+    Toggleable(value = value, onToggle = onToggle) {
+        val children = @Composable { DrawSwitch(checked = checked, color = color) }
+        Layout(children = children, layoutBlock = { measurables, constraints ->
             val height =
                 MinHeight.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
             val width =
@@ -74,8 +74,8 @@ fun Switch(
                 m.measure(Constraints.tightConstraints(width, height))
             }
             layout(width, height) { ps.forEach { it.place(0.ipx, 0.ipx) } }
-        </Layout>
-    </Toggleable>
+        })
+    }
 }
 
 @Composable
@@ -85,26 +85,27 @@ private fun DrawSwitch(checked: Boolean, color: Color? = null) {
         generateTransitionDefinition(activeColor)
     }
     val trackColor = if (checked) activeColor else UncheckedTrackColor
-    <DrawTrack color=trackColor />
-    <Transition definition=transDef toState=checked> state ->
+    DrawTrack(color = trackColor)
+    Transition(definition = transDef, toState = checked) { state ->
+        // TODO: Convert this to FCS - currently there are some strange issues when this is FCS.
         <DrawThumb
             color=state[ThumbColorProp]
             relativePosition=state[RelativeThumbTranslationProp] />
-    </Transition>
+    }
 }
 
 @Composable
 private fun DrawTrack(color: Color) {
-    <Draw> canvas, parentSize ->
+    Draw { canvas, parentSize ->
         drawTrack(canvas, parentSize, color)
-    </Draw>
+    }
 }
 
 @Composable
 private fun DrawThumb(relativePosition: Float, color: Color) {
-    <Draw> canvas, parentSize ->
+    Draw { canvas, parentSize ->
         drawThumb(canvas, parentSize, relativePosition, color)
-    </Draw>
+    }
 }
 
 private fun DensityReceiver.drawTrack(

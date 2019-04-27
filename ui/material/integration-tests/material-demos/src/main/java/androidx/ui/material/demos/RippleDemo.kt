@@ -35,25 +35,25 @@ import com.google.r4a.unaryPlus
 
 @Composable
 fun RippleDemo() {
-    <CraneWrapper>
-        <MaterialTheme>
-            <Container padding=EdgeInsets(50.dp)>
+    CraneWrapper {
+        MaterialTheme {
+            Container(padding = EdgeInsets(50.dp)) {
                 val shape = RoundedRectangleBorder(
                     side = BorderSide(Color(0x80000000.toInt())),
                     borderRadius = BorderRadius.circular(100f)
                 )
-                <Card shape>
-                    <BoundedRipple>
-                        <Container expanded=true>
-                            <BoundedRipple>
-                                <Container width=100.dp height=50.dp>
-                                    <Text text="inner" style=+themeTextStyle { body1 } />
-                                </Container>
-                            </BoundedRipple>
-                        </Container>
-                    </BoundedRipple>
-                </Card>
-            </Container>
-        </MaterialTheme>
-    </CraneWrapper>
+                Card(shape = shape) {
+                    BoundedRipple {
+                        Container(expanded = true) {
+                            BoundedRipple {
+                                Container(width = 100.dp, height = 50.dp) {
+                                    Text(text = "inner", style = +themeTextStyle{ body1 })
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

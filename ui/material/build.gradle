@@ -66,9 +66,16 @@ androidx {
     description = "AndroidX Material"
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-    kotlinOptions {
-        useIR = true
-        freeCompilerArgs += ["-Werror"]
+android {
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+        kotlinOptions {
+            useIR = true
+            // TODO: Enable once composable warning is gone
+            //freeCompilerArgs += ["-Werror"]
+        }
+    }
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { compile ->
+        compile.kotlinOptions.freeCompilerArgs += "-P"
+        compile.kotlinOptions.freeCompilerArgs += "plugin:org.jetbrains.kotlin.r4a:syntax=FCS"
     }
 }

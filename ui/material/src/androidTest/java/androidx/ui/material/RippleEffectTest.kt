@@ -94,6 +94,7 @@ class RippleEffectTest : AndroidUiTestRunner() {
 
         val padding = 10.dp
         setContent {
+            // TODO
             <CraneWrapper>
                 <MaterialTheme>
                     <CurrentRippleTheme.Provider value=RippleTheme(factory, colorCallback)>

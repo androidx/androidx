@@ -68,13 +68,13 @@ fun FloatingActionButton(
     shape: ShapeBorder = CircleBorder(),
     color: Color? = null,
     elevation: Dp = 0.dp, // TODO(Andrey) add the default elevation when it ready b/123215187
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
-    <Button color onClick shape elevation>
-        <Container constraints=DpConstraints(minWidth = minSize, minHeight = minSize)>
-            <children />
-        </Container>
-    </Button>
+    Button(color = color, onClick = onClick, shape = shape, elevation = elevation) {
+        Container(constraints = DpConstraints(minWidth = minSize, minHeight = minSize)) {
+            children()
+        }
+    }
 }
 
 /**
@@ -102,9 +102,9 @@ fun FloatingActionButton(
     color: Color? = null,
     elevation: Dp = 0.dp
 ) {
-    <FloatingActionButton onClick color elevation>
-        <SimpleImage image=icon />
-    </FloatingActionButton>
+    FloatingActionButton(onClick = onClick, color = color, elevation = elevation) {
+        SimpleImage(image = icon)
+    }
 }
 
 /**
@@ -137,21 +137,26 @@ fun FloatingActionButton(
     // TODO(Andrey): BorderRadius should work with dp b/129278276
     val radius = BorderRadius.circular(+withDensity { ExtendedFabHeight.toPx().value / 2 })
     val shape = RoundedRectangleBorder(borderRadius = radius)
-    <FloatingActionButton onClick color shape elevation minSize=ExtendedFabHeight>
+    FloatingActionButton(
+        onClick = onClick,
+        color = color,
+        shape = shape,
+        elevation = elevation,
+        minSize = ExtendedFabHeight) {
         if (icon == null) {
-            <Padding left=ExtendedFabTextPadding right=ExtendedFabTextPadding>
-                <Text text=text style=textStyle />
-            </Padding>
+            Padding(left = ExtendedFabTextPadding, right = ExtendedFabTextPadding) {
+                Text(text = text, style = textStyle)
+            }
         } else {
-            <Padding left=ExtendedFabIconPadding right=ExtendedFabTextPadding>
-                <Row mainAxisSize=MainAxisSize.Min>
-                    <SimpleImage image=icon />
-                    <WidthSpacer width=ExtendedFabIconPadding/>
-                    <Text text=text style=textStyle />
-                </Row>
-            </Padding>
+            Padding(left = ExtendedFabIconPadding, right = ExtendedFabTextPadding) {
+                Row(mainAxisSize = MainAxisSize.Min) {
+                    SimpleImage(image = icon)
+                    WidthSpacer(width = ExtendedFabIconPadding)
+                    Text(text = text, style = textStyle)
+                }
+            }
         }
-    </FloatingActionButton>
+    }
 }
 
 val FabSize = 56.dp

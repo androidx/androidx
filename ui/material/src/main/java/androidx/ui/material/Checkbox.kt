@@ -73,16 +73,18 @@ fun Checkbox(
     onToggle: (() -> Unit)? = null,
     color: Color? = null
 ) {
-    <Toggleable value onToggle>
-        <Padding padding=CheckboxDefaultPadding>
-            <Layout children=@Composable { <DrawCheckbox value color /> }> _, constraints ->
+    Toggleable(value = value, onToggle = onToggle) {
+        Padding(padding = CheckboxDefaultPadding) {
+            Layout(
+                children = { DrawCheckbox(value = value, color = color) },
+                layoutBlock = { _, constraints ->
                 val checkboxSizePx = CheckboxSize.toIntPx()
                 val height = checkboxSizePx.coerceIn(constraints.minHeight, constraints.maxHeight)
                 val width = checkboxSizePx.coerceIn(constraints.minWidth, constraints.maxWidth)
                 layout(width, height) {}
-            </Layout>
-        </Padding>
-    </Toggleable>
+            })
+        }
+    }
 }
 
 @Composable
@@ -91,19 +93,20 @@ private fun DrawCheckbox(value: ToggleableState, color: Color?) {
     val definition = +memo(activeColor) {
         generateTransitionDefinition(activeColor)
     }
-    <Transition definition toState=value> state ->
+    Transition(definition = definition, toState = value) { state ->
+        // TODO: Convert this to FCS - currently there are some strange issues when this is FCS.
         <DrawBox
             color=state[BoxColorProp]
             innerRadiusFraction=state[InnerRadiusFractionProp] />
         <DrawCheck
             checkFraction=state[CheckFractionProp]
             crossCenterGravitation=state[CenterGravitationForCheck] />
-    </Transition>
+    }
 }
 
 @Composable
 private fun DrawBox(color: Color, innerRadiusFraction: Float) {
-    <Draw> canvas, _ ->
+    Draw { canvas, _ ->
         val paint = Paint()
         paint.strokeWidth = StrokeWidth.toPx().value
         paint.isAntiAlias = true
@@ -131,7 +134,7 @@ private fun DrawBox(color: Color, innerRadiusFraction: Float) {
         val inner = innerSquared
             .withRadius(Radius.circular(innerSquared.width * squareMultiplier))
         canvas.drawDRRect(outer, inner, paint)
-    </Draw>
+    }
 }
 
 @Composable
@@ -139,7 +142,7 @@ private fun DrawCheck(
     checkFraction: Float,
     crossCenterGravitation: Float
 ) {
-    <Draw> canvas, _ ->
+    Draw { canvas, _ ->
         val paint = Paint()
         paint.isAntiAlias = true
         paint.style = PaintingStyle.stroke
@@ -174,7 +177,7 @@ private fun DrawCheck(
         )
         canvas.drawLine(crossPoint, leftBranch, paint)
         canvas.drawLine(crossPoint, rightBranch, paint)
-    </Draw>
+    }
 }
 
 private fun calcMiddleValue(start: Float, finish: Float, fraction: Float): Float {

@@ -73,7 +73,7 @@ abstract class ShapeBorder {
     operator fun plus(other: ShapeBorder): ShapeBorder {
         return add(other) ?: other.add(this, reversed = true) ?: TODO(
             "Migration|Andrey: Needs _CompoundBorder")
-//                _CompoundBorder(<ShapeBorder>[other, this])
+//                _CompoundBorder(ShapeBorder {[other, this])
     }
 
     /**

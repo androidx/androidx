@@ -51,15 +51,15 @@ class ButtonUiTest : AndroidUiTestRunner() {
     @Test
     fun buttonTest_defaultSemantics() {
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Center>
-                        <TestTag tag="myButton">
-                            <Button onClick= {} text="myButton"/>
-                        </TestTag>
-                    </Center>
-                </MaterialTheme>
-            </CraneWrapper>
+            CraneWrapper {
+                MaterialTheme {
+                    Center {
+                        TestTag(tag = "myButton") {
+                            Button(onClick = {}, text = "myButton")
+                        }
+                    }
+                }
+            }
         }
 
         findByTag("myButton")
@@ -69,22 +69,24 @@ class ButtonUiTest : AndroidUiTestRunner() {
     @Test
     fun buttonTest_disabledSemantics() {
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Center>
-                        <TestTag tag="myButton">
-                            <Button text="myButton"/>
-                        </TestTag>
-                    </Center>
-                </MaterialTheme>
-            </CraneWrapper>
+            CraneWrapper {
+                MaterialTheme {
+                    Center {
+                        TestTag(tag = "myButton") {
+                            Button(text = "myButton")
+                        }
+                    }
+                }
+            }
         }
 
         findByTag("myButton")
-            .assertSemanticsIsEqualTo(createFullSemantics(
-                isEnabled = false,
-                isButton = true
-            ))
+            .assertSemanticsIsEqualTo(
+                createFullSemantics(
+                    isEnabled = false,
+                    isButton = true
+                )
+            )
     }
 
     @Test
@@ -94,13 +96,13 @@ class ButtonUiTest : AndroidUiTestRunner() {
         val text = "myButton"
 
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Center>
-                        <Button onClick text/>
-                    </Center>
-                </MaterialTheme>
-            </CraneWrapper>
+            CraneWrapper {
+                MaterialTheme {
+                    Center {
+                        Button(onClick = onClick, text = text)
+                    }
+                }
+            }
         }
 
         // TODO(b/129400818): this actually finds the text, not the button as
@@ -126,18 +128,18 @@ class ButtonUiTest : AndroidUiTestRunner() {
         val text = "myButton"
 
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Column>
-                        <TestTag tag=button1Tag>
-                            <Button onClick=button1OnClick text/>
-                        </TestTag>
-                        <TestTag tag=button2Tag>
-                            <Button onClick=button2OnClick text/>
-                        </TestTag>
-                    </Column>
-                </MaterialTheme>
-            </CraneWrapper>
+            CraneWrapper {
+                MaterialTheme {
+                    Column {
+                        TestTag(tag = button1Tag) {
+                            Button(onClick = button1OnClick, text = text)
+                        }
+                        TestTag(tag = button2Tag) {
+                            Button(onClick = button2OnClick, text = text)
+                        }
+                    }
+                }
+            }
         }
 
         findByTag(button1Tag)
@@ -168,19 +170,19 @@ class ButtonUiTest : AndroidUiTestRunner() {
         val buttonTag = "button"
         var size: PxSize? = null
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Wrap>
-                        <OnChildPositioned onPositioned={ position ->
+            CraneWrapper {
+                MaterialTheme {
+                    Wrap {
+                        OnChildPositioned(onPositioned = { position ->
                             size = position.size
-                        }>
-                            <TestTag tag=buttonTag>
-                                <Button onClick={} text="Test button"/>
-                            </TestTag>
-                        </OnChildPositioned>
-                    </Wrap>
-                </MaterialTheme>
-            </CraneWrapper>
+                        }) {
+                            TestTag(tag = buttonTag) {
+                                Button(onClick = {}, text = "Test button")
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         Truth.assertThat(size!!.height.round()).isEqualTo(36.dp.toIntPx())

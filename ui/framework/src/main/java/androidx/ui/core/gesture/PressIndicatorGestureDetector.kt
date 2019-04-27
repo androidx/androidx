@@ -27,11 +27,11 @@ import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.engine.geometry.Offset
 import com.google.r4a.Children
-import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
+import com.google.r4a.memo
+import com.google.r4a.unaryPlus
 
-// TODO(shepshapard): Convert to functional component with effects once effects are ready.
 /**
  * This gesture detector has callbacks for when a press gesture starts and ends for the purposes of
  * displaying visual feedback for those two states.
@@ -48,32 +48,20 @@ import com.google.r4a.composer
  *
  * This gesture detector always consumes the down change during the [PointerEventPass.PostUp] pass.
  */
-class PressIndicatorGestureDetector(
-    @Children var children: @Composable() () -> Unit
-) : Component() {
-    var onStart: ((PxPosition) -> Unit)?
-        get() = recognizer.onStart
-        set(value) {
-            recognizer.onStart = value
-        }
-    var onStop: (() -> Unit)?
-        get() = recognizer.onStop
-        set(value) {
-            recognizer.onStop = value
-        }
-    var onCancel: (() -> Unit)?
-        get() = recognizer.onCancel
-        set(value) {
-            recognizer.onCancel = value
-        }
-
-    private val recognizer = PressIndicatorGestureRecognizer()
-
-    override fun compose() {
-        <PointerInput pointerInputHandler=recognizer.pointerInputHandler>
-            <children />
-        </PointerInput>
-    }
+@Composable
+fun PressIndicatorGestureDetector(
+    onStart: ((PxPosition) -> Unit)? = null,
+    onStop: (() -> Unit)? = null,
+    onCancel: (() -> Unit)? = null,
+    @Children children: @Composable() () -> Unit
+) {
+    val recognizer = +memo { PressIndicatorGestureRecognizer() }
+    recognizer.onStart = onStart
+    recognizer.onStop = onStop
+    recognizer.onCancel = onCancel
+    <PointerInput pointerInputHandler=recognizer.pointerInputHandler>
+        <children />
+    </PointerInput>
 }
 
 internal class PressIndicatorGestureRecognizer {

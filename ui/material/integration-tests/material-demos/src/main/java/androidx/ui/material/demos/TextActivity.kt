@@ -31,14 +31,14 @@ open class TextActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
+            CraneWrapper {
+                MaterialTheme {
                     val textColor = Color(0xFFFF0000.toInt())
-                    <Text
-                        text="Hello"
-                        style=+themeTextStyle { h1.copy(color = textColor) } />
-                </MaterialTheme>
-            </CraneWrapper>
+                    Text(
+                        text = "Hello",
+                        style = +themeTextStyle{ h1.copy(color = textColor) })
+                }
+            }
         }
     }
 }

@@ -29,16 +29,16 @@ import com.google.r4a.composer
 
 @Composable
 fun FloatingActionButtonDemo(icon: Image) {
-    <CraneWrapper>
-        <MaterialTheme>
-            <Center>
+    CraneWrapper {
+        MaterialTheme {
+            Center {
                 val onClick: () -> Unit = { Log.e("FABDemo", "onClick") }
-                <Column mainAxisAlignment=MainAxisAlignment.SpaceEvenly>
-                    <FloatingActionButton icon=icon onClick />
-                    <FloatingActionButton text="EXTENDED" onClick />
-                    <FloatingActionButton icon text="ADD TO FAVS" onClick />
-                </Column>
-            </Center>
-        </MaterialTheme>
-    </CraneWrapper>
+                Column(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                    FloatingActionButton(icon = icon, onClick = onClick)
+                    FloatingActionButton(text = "EXTENDED", onClick = onClick)
+                    FloatingActionButton(icon = icon, text = "ADD TO FAVS", onClick = onClick)
+                }
+            }
+        }
+    }
 }

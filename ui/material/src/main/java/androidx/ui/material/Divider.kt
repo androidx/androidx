@@ -39,7 +39,7 @@ fun Divider(
     indent: Dp = 0.dp
 ) {
     val dividerColor = +color.orFromTheme { onSurface }
-    <Padding left = indent>
-        <ColoredRect height color=dividerColor />
-    </Padding>
+    Padding(left = indent) {
+        ColoredRect(height = height, color = dividerColor)
+    }
 }
