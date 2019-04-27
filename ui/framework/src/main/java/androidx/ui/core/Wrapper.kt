@@ -31,7 +31,7 @@ import com.google.r4a.memo
 import com.google.r4a.unaryPlus
 
 @Composable
-fun CraneWrapper(@Children children: () -> Unit) {
+fun CraneWrapper(@Children children: @Composable() () -> Unit) {
     val rootRef = +memo { Ref<AndroidCraneView>() }
 
     // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work with
