@@ -67,7 +67,7 @@ public abstract class OnBackPressedCallback {
      * @param enabled whether the callback should be considered enabled
      */
     @MainThread
-    public void setEnabled(boolean enabled) {
+    public final void setEnabled(boolean enabled) {
         mEnabled = enabled;
     }
 
@@ -78,7 +78,7 @@ public abstract class OnBackPressedCallback {
      * @return Whether this callback should be considered enabled.
      */
     @MainThread
-    public boolean isEnabled() {
+    public final boolean isEnabled() {
         return mEnabled;
     }
 
