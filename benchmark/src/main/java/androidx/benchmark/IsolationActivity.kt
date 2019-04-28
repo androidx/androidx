@@ -19,6 +19,7 @@ package androidx.benchmark
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import androidx.annotation.AnyThread
 import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
@@ -43,6 +44,7 @@ class IsolationActivity : android.app.Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.isolation_activity)
 
         // disable launch animation
         overridePendingTransition(0, 0)
@@ -50,6 +52,12 @@ class IsolationActivity : android.app.Activity() {
         val old = singleton.getAndSet(this)
         if (old != null) {
             throw IllegalStateException("Only one IsolationActivity should exist")
+        }
+
+        findViewById<TextView>(R.id.clock_state).text = when {
+            Clocks.areLocked -> "Locked Clocks"
+            AndroidBenchmarkRunner.sustainedPerformanceModeInUse -> "Sustained Performance Mode"
+            else -> ""
         }
     }
 
