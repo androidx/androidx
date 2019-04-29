@@ -20,6 +20,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.AnyThread
+import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.atomic.AtomicReference
@@ -36,6 +37,7 @@ import java.util.concurrent.atomic.AtomicReference
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class IsolationActivity : android.app.Activity() {
     var resumed = false
 
@@ -72,7 +74,7 @@ class IsolationActivity : android.app.Activity() {
     }
 
     companion object {
-        const val TAG = "Benchmark"
+        private const val TAG = "Benchmark"
         internal val singleton = AtomicReference<IsolationActivity>()
 
         @WorkerThread

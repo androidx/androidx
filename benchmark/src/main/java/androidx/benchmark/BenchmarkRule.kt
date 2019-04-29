@@ -18,6 +18,7 @@ package androidx.benchmark
 
 import android.app.Activity
 import android.util.Log
+import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -107,6 +108,7 @@ class BenchmarkRule : TestRule {
     var applied = false
 
     /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     val scope = Scope()
 
     /**
@@ -138,10 +140,9 @@ class BenchmarkRule : TestRule {
 
         /**
          * Allows the inline function [runWithTimingDisabled] to be called outside of this scope.
-         *
-         * @hide
          */
-        fun getOuterState(): BenchmarkState {
+        @PublishedApi
+        internal fun getOuterState(): BenchmarkState {
             return getState()
         }
     }
@@ -192,10 +193,7 @@ class BenchmarkRule : TestRule {
         }
     }
 
-    /**
-     * @hide
-     */
-    companion object {
+    internal companion object {
         private const val TAG = "BenchmarkRule"
     }
 }
