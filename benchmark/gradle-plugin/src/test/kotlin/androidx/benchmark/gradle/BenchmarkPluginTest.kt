@@ -16,10 +16,9 @@
 
 package androidx.benchmark.gradle
 
-import org.gradle.api.Project
-import org.gradle.api.internal.plugins.PluginApplicationException
-import org.gradle.testfixtures.ProjectBuilder
-import org.junit.Assert
+import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.UnexpectedBuildFailure
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -27,6 +26,9 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
+import java.util.Properties
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class BenchmarkPluginTest {
@@ -34,46 +36,180 @@ class BenchmarkPluginTest {
     @get:Rule
     val testProjectDir = TemporaryFolder()
 
-    private lateinit var localPropFile: File
-    private lateinit var project: Project
+    private lateinit var buildToolsVersion: String
+    private lateinit var compileSdkVersion: String
+    private lateinit var prebuiltsRepo: String
+    private lateinit var minSdkVersion: String
+
+    private lateinit var buildFile: File
+    private lateinit var propertiesFile: File
+    private lateinit var gradleRunner: GradleRunner
 
     @Before
     fun setUp() {
+        val stream = BenchmarkPluginTest::class.java.classLoader.getResourceAsStream("sdk.prop")
+        val properties = Properties()
+        properties.load(stream)
+        prebuiltsRepo = properties.getProperty("prebuiltsRepo")
+        compileSdkVersion = properties.getProperty("compileSdkVersion")
+        buildToolsVersion = properties.getProperty("buildToolsVersion")
+        minSdkVersion = properties.getProperty("minSdkVersion")
+
         testProjectDir.root.mkdirs()
 
-        localPropFile = File(testProjectDir.root, "local.properties")
-        localPropFile.createNewFile()
-        localPropFile.writeText("sdk.dir=/usr/test/android/home")
+        val localPropFile = File("../../local.properties")
+        localPropFile.copyTo(File(testProjectDir.root, "local.properties"), overwrite = true)
 
-        project = ProjectBuilder.builder()
+        buildFile = File(testProjectDir.root, "build.gradle")
+        buildFile.createNewFile()
+
+        propertiesFile = File(testProjectDir.root, "gradle.properties")
+        propertiesFile.writer().use {
+            val props = Properties()
+            props.setProperty("android.useAndroidX", "true")
+            props.setProperty("android.enableJetpack", "true")
+            props.store(it, null)
+        }
+
+        File("src/test/test-data", "app-project").copyRecursively(testProjectDir.root)
+
+        gradleRunner = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
-            .build()
+            .withPluginClasspath()
+    }
+
+    @After
+    fun tearDown() {
     }
 
     @Test
     fun applyPluginAppProject() {
-        project.apply { it.plugin("com.android.application") }
-        project.apply { it.plugin("androidx.benchmark") }
+        buildFile.writeText(
+            """
+            plugins {
+                id('com.android.application')
+                id('androidx.benchmark')
+            }
 
-        Assert.assertNotNull(project.tasks.findByPath("lockClocks"))
-        Assert.assertNotNull(project.tasks.findByPath("unlockClocks"))
+            repositories {
+                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRepo/androidx/internal" }
+            }
+
+            android {
+                compileSdkVersion $compileSdkVersion
+                buildToolsVersion "$buildToolsVersion"
+
+                defaultConfig {
+                    minSdkVersion $minSdkVersion
+                }
+            }
+
+            dependencies {
+                androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
+            }
+        """.trimIndent()
+        )
+
+        val output = gradleRunner.withArguments("tasks").build()
+        assertTrue { output.output.contains("lockClocks - ") }
+        assertTrue { output.output.contains("unlockClocks - ") }
     }
 
     @Test
     fun applyPluginAndroidLibProject() {
-        project.apply { it.plugin("com.android.library") }
-        project.apply { it.plugin("androidx.benchmark") }
+        buildFile.writeText(
+            """
+            plugins {
+                id('com.android.library')
+                id('androidx.benchmark')
+            }
 
-        Assert.assertNotNull(project.tasks.findByPath("lockClocks"))
-        Assert.assertNotNull(project.tasks.findByPath("unlockClocks"))
+            repositories {
+                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRepo/androidx/internal" }
+            }
+
+            android {
+                compileSdkVersion $compileSdkVersion
+                buildToolsVersion "$buildToolsVersion"
+
+                defaultConfig {
+                    minSdkVersion $minSdkVersion
+                }
+            }
+
+            dependencies {
+                androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
+            }
+        """.trimIndent()
+        )
+
+        val output = gradleRunner.withArguments("tasks").build()
+        assertTrue { output.output.contains("lockClocks - ") }
+        assertTrue { output.output.contains("unlockClocks - ") }
     }
 
-    @Test(expected = PluginApplicationException::class)
+    @Test
     fun applyPluginNonAndroidProject() {
-        project.apply { it.plugin("java-library") }
-        project.apply { it.plugin("androidx.benchmark") }
+        buildFile.writeText(
+            """
+            plugins {
+                id('androidx.benchmark')
+            }
 
-        Assert.assertNotNull(project.tasks.findByPath("lockClocks"))
-        Assert.assertNotNull(project.tasks.findByPath("unlockClocks"))
+            repositories {
+                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRepo/androidx/internal" }
+            }
+
+            android {
+                compileSdkVersion $compileSdkVersion
+                buildToolsVersion "$buildToolsVersion"
+
+                defaultConfig {
+                    minSdkVersion $minSdkVersion
+                }
+            }
+
+            dependencies {
+                androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
+            }
+        """.trimIndent()
+        )
+
+        assertFailsWith(UnexpectedBuildFailure::class) {
+            gradleRunner.withArguments("assemble").build()
+        }
+    }
+
+    @Test
+    fun applyPluginNonBenchmarkProject() {
+        buildFile.writeText(
+            """
+            plugins {
+                id('com.android.library')
+                id('androidx.benchmark')
+            }
+
+            repositories {
+                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRepo/androidx/internal" }
+            }
+
+            android {
+                compileSdkVersion $compileSdkVersion
+                buildToolsVersion "$buildToolsVersion"
+
+                defaultConfig {
+                    minSdkVersion $minSdkVersion
+                }
+            }
+        """.trimIndent()
+        )
+
+        assertFailsWith(UnexpectedBuildFailure::class) {
+            gradleRunner.withArguments("-m", "connectedAndroidTest").build()
+        }
     }
 }
