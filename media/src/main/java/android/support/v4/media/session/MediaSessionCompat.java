@@ -464,7 +464,7 @@ public class MediaSessionCompat {
      * @param context The context to use to create the session.
      * @param tag A short name for debugging purposes.
      */
-    public MediaSessionCompat(Context context, String tag) {
+    public MediaSessionCompat(@NonNull Context context, @NonNull String tag) {
         this(context, tag, null, null);
     }
 
@@ -489,17 +489,54 @@ public class MediaSessionCompat {
      *            {@link android.os.Build.VERSION_CODES#KITKAT_WATCH} instead of the
      *            component name.
      */
-    public MediaSessionCompat(Context context, String tag, ComponentName mbrComponent,
-            PendingIntent mbrIntent) {
+    public MediaSessionCompat(@NonNull Context context, @NonNull String tag,
+            @Nullable ComponentName mbrComponent, @Nullable PendingIntent mbrIntent) {
         this(context, tag, mbrComponent, mbrIntent, null);
+    }
+
+    /**
+     * Creates a new session with a specified media button receiver (a component name and/or
+     * a pending intent). You must call {@link #release()} when finished with the session.
+     * <p>
+     * The session will automatically be registered with the system but will not be published
+     * until {@link #setActive(boolean) setActive(true)} is called.
+     * </p><p>
+     * For API 20 or earlier, note that a media button receiver is required for handling
+     * {@link Intent#ACTION_MEDIA_BUTTON}. This constructor will attempt to find an appropriate
+     * {@link BroadcastReceiver} from your manifest if it's not specified. See
+     * {@link MediaButtonReceiver} for more details.
+     * </p>
+     * The {@code sessionInfo} can include additional unchanging information about this session.
+     * For example, it can include the version of the application, or the list of the custom
+     * commands that this session supports.
+     *
+     * @param context The context to use to create the session.
+     * @param tag A short name for debugging purposes.
+     * @param mbrComponent The component name for your media button receiver.
+     * @param mbrIntent The PendingIntent for your receiver component that handles
+     *            media button events. This is optional and will be used on between
+     *            {@link android.os.Build.VERSION_CODES#JELLY_BEAN_MR2} and
+     *            {@link android.os.Build.VERSION_CODES#KITKAT_WATCH} instead of the
+     *            component name.
+     * @param sessionInfo A bundle for additional information about this session,
+     *                    or {@link Bundle#EMPTY} if none. Controllers can get this information
+     *                    by calling {@link MediaControllerCompat#getSessionInfo()}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public MediaSessionCompat(@NonNull Context context, @NonNull String tag,
+            @Nullable ComponentName mbrComponent, @Nullable PendingIntent mbrIntent,
+            @Nullable Bundle sessionInfo) {
+        this(context, tag, mbrComponent, mbrIntent, sessionInfo, null /* session2Token */);
     }
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public MediaSessionCompat(Context context, String tag, ComponentName mbrComponent,
-            PendingIntent mbrIntent, VersionedParcelable session2Token) {
+    public MediaSessionCompat(@NonNull Context context, @NonNull String tag,
+            @Nullable ComponentName mbrComponent, @Nullable PendingIntent mbrIntent,
+            @Nullable Bundle sessionInfo, @Nullable VersionedParcelable session2Token) {
         if (context == null) {
             throw new IllegalArgumentException("context must not be null");
         }
@@ -522,22 +559,23 @@ public class MediaSessionCompat {
             mbrIntent = PendingIntent.getBroadcast(context,
                     0/* requestCode, ignored */, mediaButtonIntent, 0/* flags */);
         }
+        // TODO(b/130282718): Use new constructor (sessionInfo) of the fwk MediaSession from Q.
         if (android.os.Build.VERSION.SDK_INT >= 28) {
-            mImpl = new MediaSessionImplApi28(context, tag, session2Token);
+            mImpl = new MediaSessionImplApi28(context, tag, session2Token, sessionInfo);
             // Set default callback to respond to controllers' extra binder requests.
             setCallback(new Callback() {});
             mImpl.setMediaButtonReceiver(mbrIntent);
         } else if (android.os.Build.VERSION.SDK_INT >= 21) {
-            mImpl = new MediaSessionImplApi21(context, tag, session2Token);
+            mImpl = new MediaSessionImplApi21(context, tag, session2Token, sessionInfo);
             // Set default callback to respond to controllers' extra binder requests.
             setCallback(new Callback() {});
             mImpl.setMediaButtonReceiver(mbrIntent);
         } else if (android.os.Build.VERSION.SDK_INT >= 19) {
-            mImpl = new MediaSessionImplApi19(context, tag, mbrComponent, mbrIntent);
+            mImpl = new MediaSessionImplApi19(context, tag, mbrComponent, mbrIntent, sessionInfo);
         } else if (android.os.Build.VERSION.SDK_INT >= 18) {
-            mImpl = new MediaSessionImplApi18(context, tag, mbrComponent, mbrIntent);
+            mImpl = new MediaSessionImplApi18(context, tag, mbrComponent, mbrIntent, sessionInfo);
         } else {
-            mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent);
+            mImpl = new MediaSessionImplBase(context, tag, mbrComponent, mbrIntent, sessionInfo);
         }
         mController = new MediaControllerCompat(context, this);
 
@@ -1918,7 +1956,7 @@ public class MediaSessionCompat {
                 MediaDescriptionCompat description,
                 long id) {
             if (description == null) {
-                throw new IllegalArgumentException("Description cannot be null.");
+                throw new IllegalArgumentException("Description cannot be null");
             }
             if (id == UNKNOWN_ID) {
                 throw new IllegalArgumentException("Id cannot be QueueItem.UNKNOWN_ID");
@@ -2138,6 +2176,7 @@ public class MediaSessionCompat {
         private final MediaSessionStub mStub;
         private final Token mToken;
         final String mPackageName;
+        final Bundle mSessionInfo;
         final String mTag;
         final AudioManager mAudioManager;
         final RemoteControlClient mRcc;
@@ -2185,13 +2224,14 @@ public class MediaSessionCompat {
         };
 
         public MediaSessionImplBase(Context context, String tag, ComponentName mbrComponent,
-                PendingIntent mbrIntent) {
+                PendingIntent mbrIntent, Bundle sessionInfo) {
             if (mbrComponent == null) {
                 throw new IllegalArgumentException(
-                        "MediaButtonReceiver component may not be null.");
+                        "MediaButtonReceiver component may not be null");
             }
             mContext = context;
             mPackageName = context.getPackageName();
+            mSessionInfo = sessionInfo;
             mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             mTag = tag;
             mMediaButtonReceiverComponentName = mbrComponent;
@@ -2833,6 +2873,12 @@ public class MediaSessionCompat {
             }
 
             @Override
+            public Bundle getSessionInfo() {
+                // mSessionInfo is final so doesn't need synchronize block
+                return mSessionInfo == null ? null : new Bundle(mSessionInfo);
+            }
+
+            @Override
             public String getTag() {
                 // mTag is final so doesn't need synchronize block
                 return mTag;
@@ -3360,8 +3406,8 @@ public class MediaSessionCompat {
         private static boolean sIsMbrPendingIntentSupported = true;
 
         MediaSessionImplApi18(Context context, String tag, ComponentName mbrComponent,
-                PendingIntent mbrIntent) {
-            super(context, tag, mbrComponent, mbrIntent);
+                PendingIntent mbrIntent, Bundle sessionInfo) {
+            super(context, tag, mbrComponent, mbrIntent, sessionInfo);
         }
 
         @Override
@@ -3444,8 +3490,8 @@ public class MediaSessionCompat {
     @RequiresApi(19)
     static class MediaSessionImplApi19 extends MediaSessionImplApi18 {
         MediaSessionImplApi19(Context context, String tag, ComponentName mbrComponent,
-                PendingIntent mbrIntent) {
-            super(context, tag, mbrComponent, mbrIntent);
+                PendingIntent mbrIntent, Bundle sessionInfo) {
+            super(context, tag, mbrComponent, mbrIntent, sessionInfo);
         }
 
         @Override
@@ -3512,6 +3558,7 @@ public class MediaSessionCompat {
         final MediaSession mSessionFwk;
         final Token mToken;
         final Object mLock = new Object();
+        final Bundle mSessionInfo;
 
         boolean mDestroyed = false;
         final RemoteCallbackList<IMediaControllerCallback> mExtraControllerCallbacks =
@@ -3528,9 +3575,11 @@ public class MediaSessionCompat {
         @GuardedBy("mLock")
         RemoteUserInfo mRemoteUserInfo;
 
-        MediaSessionImplApi21(Context context, String tag, VersionedParcelable session2Token) {
+        MediaSessionImplApi21(Context context, String tag, VersionedParcelable session2Token,
+                Bundle sessionInfo) {
             mSessionFwk = new MediaSession(context, tag);
             mToken = new Token(mSessionFwk.getSessionToken(), new ExtraSession(), session2Token);
+            mSessionInfo = sessionInfo;
             // For backward compatibility, these flags are always set.
             setFlags(FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
         }
@@ -3542,6 +3591,8 @@ public class MediaSessionCompat {
             }
             mSessionFwk = (MediaSession) mediaSession;
             mToken = new Token(mSessionFwk.getSessionToken(), new ExtraSession());
+            // TODO(b/130282718): Get sessionInfo from mSessionFwk from Android Q
+            mSessionInfo = null;
             // For backward compatibility, these flags are always set.
             setFlags(FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
         }
@@ -3804,6 +3855,11 @@ public class MediaSessionCompat {
             public String getPackageName() {
                 // Will not be called.
                 throw new AssertionError();
+            }
+
+            @Override
+            public Bundle getSessionInfo() {
+                return mSessionInfo == null ? null : new Bundle(mSessionInfo);
             }
 
             @Override
@@ -4077,8 +4133,9 @@ public class MediaSessionCompat {
 
     @RequiresApi(28)
     static class MediaSessionImplApi28 extends MediaSessionImplApi21 {
-        MediaSessionImplApi28(Context context, String tag, VersionedParcelable session2Token) {
-            super(context, tag, session2Token);
+        MediaSessionImplApi28(Context context, String tag, VersionedParcelable session2Token,
+                Bundle sessionInfo) {
+            super(context, tag, session2Token, sessionInfo);
         }
 
         MediaSessionImplApi28(Object mediaSession) {

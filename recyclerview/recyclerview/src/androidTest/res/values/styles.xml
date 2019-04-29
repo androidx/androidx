@@ -16,9 +16,6 @@
   -->
 
 <resources>
-    <style name="noAnimTheme" parent="android:Theme">
-        <item name="android:windowAnimationStyle">@null</item>
-    </style>
     <style name="nullListDivider" parent="android:Theme">
         <item name="android:listDivider">@null</item>
     </style>

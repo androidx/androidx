@@ -27,7 +27,6 @@ import static org.junit.Assert.assertFalse;
 import android.util.Log;
 
 import androidx.recyclerview.widget.AdapterHelper.UpdateOp;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +40,6 @@ import java.util.Random;
 import java.util.Set;
 
 @RunWith(JUnit4.class)
-@SmallTest
 public class OpReorderTest {
 
     private static final String TAG = "OpReorderTest";

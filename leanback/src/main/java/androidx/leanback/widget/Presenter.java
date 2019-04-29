@@ -16,9 +16,9 @@ package androidx.leanback.widget;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.collection.ArrayMap;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -98,7 +98,7 @@ public abstract class Presenter implements FacetProvider {
          */
         public final void setFacet(Class<?> facetClass, Object facetImpl) {
             if (mFacets == null) {
-                mFacets = new HashMap<Class, Object>();
+                mFacets = new ArrayMap<Class, Object>();
             }
             mFacets.put(facetClass, facetImpl);
         }
@@ -221,7 +221,7 @@ public abstract class Presenter implements FacetProvider {
      */
     public final void setFacet(Class<?> facetClass, Object facetImpl) {
         if (mFacets == null) {
-            mFacets = new HashMap<Class, Object>();
+            mFacets = new ArrayMap<Class, Object>();
         }
         mFacets.put(facetClass, facetImpl);
     }

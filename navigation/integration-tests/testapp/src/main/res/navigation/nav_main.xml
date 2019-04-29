@@ -30,6 +30,14 @@
                 app:popExitAnim="@anim/nav_default_pop_exit_anim"/>
         </fragment>
     </navigation>
+    <dialog
+        android:id="@+id/learn_more"
+        android:name="androidx.navigation.testapp.LearnMoreDialogFragment">
+        <argument android:name="myarg" android:defaultValue="@null" />
+        <action
+            android:id="@+id/learn_more_about_android"
+            app:destination="@+id/android"/>
+    </dialog>
     <fragment android:id="@+id/android"
               android:label="@string/android"
               android:name="androidx.navigation.testapp.AndroidFragment">

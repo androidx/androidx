@@ -1,0 +1,13 @@
+.DS_Store
+*~
+*.swp
+.idea
+*.iml
+npm-debug.log
+*.log
+*.stackdump
+*.pyc
+
+node_modules/
+tmp/
+built/

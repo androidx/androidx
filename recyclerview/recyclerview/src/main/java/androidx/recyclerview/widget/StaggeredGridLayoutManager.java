@@ -3182,9 +3182,10 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
             mReverseLayout = in.readInt() == 1;
             mAnchorLayoutFromEnd = in.readInt() == 1;
             mLastLayoutRTL = in.readInt() == 1;
-            //noinspection unchecked
-            mFullSpanItems = in.readArrayList(
-                    LazySpanLookup.FullSpanItem.class.getClassLoader());
+            @SuppressWarnings("unchecked")
+            List<LazySpanLookup.FullSpanItem> fullSpanItems =
+                    in.readArrayList(LazySpanLookup.FullSpanItem.class.getClassLoader());
+            mFullSpanItems = fullSpanItems;
         }
 
         public SavedState(SavedState other) {

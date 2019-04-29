@@ -18,19 +18,22 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
     id("kotlin-android")
 }
+
+android.defaultConfig.testInstrumentationRunner "androidx.benchmark.AndroidBenchmarkRunner"
 
 dependencies {
     androidTestImplementation(project(":benchmark"))
     androidTestImplementation(project(":navigation:navigation-runtime"))
     androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(JUNIT)
-    androidTestImplementation(TEST_EXT_JUNIT)
-    androidTestImplementation(TEST_CORE)
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(KOTLIN_STDLIB)
 }
 

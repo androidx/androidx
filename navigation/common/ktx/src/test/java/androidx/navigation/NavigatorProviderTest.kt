@@ -16,13 +16,11 @@
 
 package androidx.navigation
 
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@SmallTest
 @RunWith(JUnit4::class)
 class NavigatorProviderTest {
     private val provider = NavigatorProvider()

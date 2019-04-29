@@ -16,6 +16,9 @@
 
 package androidx.webkit;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -91,8 +94,8 @@ public class TracingControllerTest {
         });
         PollingCheck.check("Tracing did not complete", POLLING_TIMEOUT,
                 tracingReceiver.getCompleteCallable());
-        Assert.assertTrue(tracingReceiver.getNbChunks() > 0);
-        Assert.assertTrue(tracingReceiver.getOutputStream().size() > 0);
+        assertThat(tracingReceiver.getNbChunks(), greaterThan(0));
+        assertThat(tracingReceiver.getOutputStream().size(), greaterThan(0));
     }
 
     /**
@@ -107,8 +110,8 @@ public class TracingControllerTest {
         runTracingTestWithCallbacks(tracingReceiver, mSingleThreadExecutor);
         PollingCheck.check("Tracing did not complete", POLLING_TIMEOUT,
                 tracingReceiver.getCompleteCallable());
-        Assert.assertTrue(tracingReceiver.getNbChunks() > 0);
-        Assert.assertTrue(tracingReceiver.getOutputStream().size() > 0);
+        assertThat(tracingReceiver.getNbChunks(), greaterThan(0));
+        assertThat(tracingReceiver.getOutputStream().size(), greaterThan(0));
     }
 
     /**

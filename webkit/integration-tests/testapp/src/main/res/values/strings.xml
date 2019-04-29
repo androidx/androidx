@@ -16,6 +16,7 @@
 
 <resources>
     <string name="main_activity_title">WebView AndroidX Demos</string>
+    <string name="webkit_api_not_available">This feature is not available. This may be available if you update WebView.</string>
     <string name="safebrowsing_activity_title">Safe Browsing</string>
     <string name="proxy_override_activity_title">Proxy Override</string>
     <string name="not_updateable_webview">not updatable</string>
@@ -23,4 +24,9 @@
     <string name="asset_loader_ajax_activity_title">Asset Loader AJAX Demo</string>
     <string name="asset_loader_list_activity_title">WebView Asset Loader Demos</string>
     <string name="asset_loader_simple_activity_title">Simple Asset Loader</string>
+    <string name="small_interstitial_activity_title">Small Interstitial</string>
+    <string name="medium_tall_interstitial_activity_title">Medium (Tall) Interstitials</string>
+    <string name="medium_wide_interstitial_activity_title">Medium (Wide) Interstitials</string>
+    <string name="loud_interstitial_activity_title">Loud (Red) Interstitials</string>
+    <string name="cannot_start_safe_browsing">Unable to start Safe Browsing, this is unexpected.</string>
 </resources>

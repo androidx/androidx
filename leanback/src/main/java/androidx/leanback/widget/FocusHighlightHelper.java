@@ -199,7 +199,11 @@ public class FocusHighlightHelper {
      */
     public static void setupBrowseItemFocusHighlight(ItemBridgeAdapter adapter, int zoomIndex,
             boolean useDimmer) {
-        adapter.setFocusHighlight(new BrowseItemFocusHighlight(zoomIndex, useDimmer));
+        if (zoomIndex == ZOOM_FACTOR_NONE && !useDimmer) {
+            adapter.setFocusHighlight(null);
+        } else {
+            adapter.setFocusHighlight(new BrowseItemFocusHighlight(zoomIndex, useDimmer));
+        }
     }
 
     /**
@@ -230,7 +234,7 @@ public class FocusHighlightHelper {
                                                      boolean scaleEnabled) {
         if (gridView != null && gridView.getAdapter() instanceof ItemBridgeAdapter) {
             ((ItemBridgeAdapter) gridView.getAdapter())
-                    .setFocusHighlight(new HeaderItemFocusHighlight(scaleEnabled));
+                    .setFocusHighlight(scaleEnabled ? new HeaderItemFocusHighlight() : null);
         }
     }
 
@@ -258,29 +262,23 @@ public class FocusHighlightHelper {
      */
     public static void setupHeaderItemFocusHighlight(ItemBridgeAdapter adapter,
             boolean scaleEnabled) {
-        adapter.setFocusHighlight(new HeaderItemFocusHighlight(scaleEnabled));
+        adapter.setFocusHighlight(scaleEnabled ? new HeaderItemFocusHighlight() : null);
     }
 
     static class HeaderItemFocusHighlight implements FocusHighlightHandler {
         private boolean mInitialized;
         private float mSelectScale;
         private int mDuration;
-        boolean mScaleEnabled;
 
-        HeaderItemFocusHighlight(boolean scaleEnabled) {
-            mScaleEnabled = scaleEnabled;
+        HeaderItemFocusHighlight() {
         }
 
         void lazyInit(View view) {
             if (!mInitialized) {
                 Resources res = view.getResources();
                 TypedValue value = new TypedValue();
-                if (mScaleEnabled) {
-                    res.getValue(R.dimen.lb_browse_header_select_scale, value, true);
-                    mSelectScale = value.getFloat();
-                } else {
-                    mSelectScale = 1f;
-                }
+                res.getValue(R.dimen.lb_browse_header_select_scale, value, true);
+                mSelectScale = value.getFloat();
                 res.getValue(R.dimen.lb_browse_header_select_duration, value, true);
                 mDuration = value.data;
                 mInitialized = true;

@@ -292,7 +292,6 @@ package androidx.car.widget {
     method public java.util.List<androidx.car.widget.CarMenuItem>? getMenuItems();
     method public CharSequence? getSubtitle();
     method public CharSequence! getTitle();
-    method public void hideOverflowMenu();
     method public boolean isOverflowMenuShowing();
     method public void setMenuItems(java.util.List<androidx.car.widget.CarMenuItem>?);
     method public void setNavigationIcon(@DrawableRes int);
@@ -303,18 +302,18 @@ package androidx.car.widget {
     method public void setNavigationIconTint(android.graphics.ColorFilter?);
     method public void setOverflowIcon(@DrawableRes int);
     method public void setOverflowIcon(android.graphics.drawable.Drawable);
+    method public void setOverflowMenuShown(boolean);
     method public void setSubtitle(@StringRes int);
     method public void setSubtitle(CharSequence?);
     method public void setSubtitleTextAppearance(@StyleRes int);
     method public void setTitle(@StringRes int);
-    method public void setTitle(CharSequence!);
+    method public void setTitle(CharSequence?);
     method public void setTitleIcon(@DrawableRes int);
     method public void setTitleIcon(android.graphics.drawable.Drawable?);
     method public void setTitleIconEndMargin(@Px int);
     method public void setTitleIconSize(@Px int);
     method public void setTitleIconStartMargin(@Px int);
     method public void setTitleTextAppearance(@StyleRes int);
-    method public void showOverflowMenu();
   }
 
   public final class ColumnCardView extends androidx.cardview.widget.CardView {
@@ -364,13 +363,10 @@ package androidx.car.widget {
     method public void setMaxItems(int);
     method public void start();
     method public void stop();
-  }
-
-  public static final class ListItemAdapter.BackgroundStyle {
-    field public static final int CARD = 2; // 0x2
-    field public static final int NONE = 1; // 0x1
-    field public static final int PANEL = 3; // 0x3
-    field public static final int SOLID = 0; // 0x0
+    field public static final int BACKGROUND_STYLE_CARD = 2; // 0x2
+    field public static final int BACKGROUND_STYLE_NONE = 1; // 0x1
+    field public static final int BACKGROUND_STYLE_PANEL = 3; // 0x3
+    field public static final int BACKGROUND_STYLE_SOLID = 0; // 0x0
   }
 
   public abstract class ListItemProvider<VH extends androidx.car.widget.ListItem.ViewHolder> {
@@ -400,7 +396,6 @@ package androidx.car.widget {
     method public int getPage(int);
     method public androidx.recyclerview.widget.RecyclerView getRecyclerView();
     method public int getRowsPerPage();
-    method public void hideAlphaJump();
     method public boolean isAlphaJumpShown();
     method public boolean isAtEnd();
     method public boolean isAtStart();
@@ -417,6 +412,7 @@ package androidx.car.widget {
     method public void removeOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
     method public void scrollToPosition(int);
     method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
+    method public void setAlphaJumpVisible(boolean);
     method public void setDividerColor(@ColorRes int);
     method public void setDividerVisibilityManager(androidx.car.widget.PagedListView.DividerVisibilityManager!);
     method public void setDownButtonIcon(android.graphics.drawable.Drawable!);
@@ -431,7 +427,6 @@ package androidx.car.widget {
     method public void setScrollBarTopMargin(int);
     method public void setScrollbarThumbEnabled(boolean);
     method public void setUpButtonIcon(android.graphics.drawable.Drawable!);
-    method public void showAlphaJump();
     method public void snapToPosition(int);
     method public void unregisterCallback(androidx.car.widget.PagedListView.Callback);
     field public static final int UNLIMITED_PAGES = -1; // 0xffffffff
@@ -601,6 +596,7 @@ package androidx.car.widget {
     method public void onBind(androidx.car.widget.SwitchListItem.ViewHolder!);
     method @CallSuper protected void resolveDirtyState();
     method public void setBody(CharSequence?);
+    method public void setChecked(boolean);
     method public void setClickable(boolean);
     method public void setEnabled(boolean);
     method public void setPrimaryActionEmptyIcon();
@@ -609,7 +605,7 @@ package androidx.car.widget {
     method public void setPrimaryActionNoIcon();
     method public void setShowSwitchDivider(boolean);
     method public void setSwitchOnCheckedChangeListener(android.widget.CompoundButton.OnCheckedChangeListener?);
-    method public void setSwitchState(boolean);
+    method @Deprecated public void setSwitchState(boolean);
     method public void setTitle(CharSequence?);
     field public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2; // 0x2
     field public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1; // 0x1

@@ -59,7 +59,6 @@ public class BasicTest {
         Bundle superState = createIntBundle(42);
         ViewPager2.SavedState state = new ViewPager2.SavedState(superState);
         state.mRecyclerViewId = 700;
-        state.mOrientation = 800;
 
         Bundle adapterState = new Bundle(1);
         adapterState.putParcelableArray("adapterState",
@@ -80,7 +79,6 @@ public class BasicTest {
                 equalTo(parcelSuffix));
         assertThat("All of the parcel should be read", parcel.dataAvail(), equalTo(0));
         assertThat(recreatedState.mRecyclerViewId, equalTo(700));
-        assertThat(recreatedState.mOrientation, equalTo(800));
         Parcelable[] recreatedAdapterState =
                 ((Bundle) recreatedState.mAdapterState).getParcelableArray("adapterState");
         assertThat(recreatedAdapterState, arrayWithSize(3));

@@ -50,9 +50,9 @@ dependencies {
     implementation(KOTLIN_COROUTINES)
     kaptAndroidTest project(":room:room-compiler")
 
-    androidTestImplementation(TEST_EXT_JUNIT)
-    androidTestImplementation(TEST_CORE)
-    androidTestImplementation(TEST_RUNNER) {
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER) {
         exclude module: 'support-annotations'
         exclude module: 'hamcrest-core'
     }
@@ -74,6 +74,3 @@ dependencies {
     testImplementation(MOCKITO_CORE)
 }
 
-tasks['check'].dependsOn(tasks['connectedCheck'])
-
-uploadArchives.enabled = false

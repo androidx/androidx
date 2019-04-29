@@ -1,0 +1,37 @@
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+
+import static androidx.build.dependencies.DependenciesKt.*
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+}
+
+dependencies {
+    api(project(":media"))
+    api(GUAVA_LISTENABLE_FUTURE)
+    implementation(project(":concurrent:concurrent-futures"))
+    implementation("androidx.collection:collection:1.0.0")
+    compileOnly(CHECKER_FRAMEWORK)
+
+    annotationProcessor(project(":versionedparcelable-annotation"))
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 19
+    }
+}
+
+androidx {
+    name = "AndroidX media2 common library"
+    publish = true
+    mavenVersion = LibraryVersions.MEDIA2_COMMON
+    mavenGroup = LibraryGroups.MEDIA2
+    inceptionYear = "2018"
+    description = "Media2 Common"
+    // TODO: Remove these (b/130838274)
+    failOnUncheckedWarnings = false
+    failOnDeprecationWarnings = false
+}

@@ -17,10 +17,8 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asContextElement
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -37,13 +35,16 @@ import kotlin.coroutines.resume
  * marked as successful unless an exception is thrown in the suspending [block] or the coroutine
  * is cancelled.
  *
+ * Room will only perform at most one transaction at a time, additional transactions are queued
+ * and executed on a first come, first serve order.
+ *
  * Performing blocking database operations is not permitted in a coroutine scope other than the
  * one received by the suspending block. It is recommended that all [Dao] function invoked within
  * the [block] be suspending functions.
  *
  * The dispatcher used to execute the given [block] will utilize threads from Room's query executor.
  */
-suspend fun <R> RoomDatabase.withTransaction(block: suspend CoroutineScope.() -> R): R {
+suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R {
     // Use inherited transaction context if available, this allows nested suspending transactions.
     val transactionContext =
         coroutineContext[TransactionElement]?.transactionDispatcher ?: createTransactionContext()
@@ -54,10 +55,7 @@ suspend fun <R> RoomDatabase.withTransaction(block: suspend CoroutineScope.() ->
             @Suppress("DEPRECATION")
             beginTransaction()
             try {
-                // Wrap suspending block in a new scope to wait for any child coroutine.
-                val result = coroutineScope {
-                    block.invoke(this)
-                }
+                val result = block.invoke()
                 @Suppress("DEPRECATION")
                 setTransactionSuccessful()
                 return@withContext result

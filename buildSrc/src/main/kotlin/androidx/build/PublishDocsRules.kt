@@ -25,10 +25,10 @@ import androidx.build.Strategy.Prebuilts
 import androidx.build.Strategy.TipOfTree
 
 val RELEASE_RULE = docsRules("public", false) {
-    prebuilts(LibraryGroups.ACTIVITY, "1.0.0-alpha06")
+    prebuilts(LibraryGroups.ACTIVITY, "1.0.0-alpha07")
     prebuilts(LibraryGroups.ANNOTATION, "1.1.0-beta01")
     prebuilts(LibraryGroups.APPCOMPAT, "1.1.0-alpha04")
-    prebuilts(LibraryGroups.ARCH_CORE, "2.1.0-alpha01")
+    prebuilts(LibraryGroups.ARCH_CORE, "2.1.0-alpha02")
     prebuilts(LibraryGroups.ASYNCLAYOUTINFLATER, "1.0.0")
     prebuilts(LibraryGroups.BIOMETRIC, "biometric", "1.0.0-alpha04")
     prebuilts(LibraryGroups.BROWSER, "1.0.0")
@@ -52,7 +52,7 @@ val RELEASE_RULE = docsRules("public", false) {
     prebuilts(LibraryGroups.EMOJI, "1.0.0")
     prebuilts(LibraryGroups.ENTERPRISE, "1.0.0-alpha01")
     prebuilts(LibraryGroups.EXIFINTERFACE, "1.1.0-alpha01")
-    prebuilts(LibraryGroups.FRAGMENT, "1.1.0-alpha06")
+    prebuilts(LibraryGroups.FRAGMENT, "1.1.0-alpha07")
     prebuilts(LibraryGroups.GRIDLAYOUT, "1.0.0")
     prebuilts(LibraryGroups.HEIFWRITER, "1.0.0")
     prebuilts(LibraryGroups.INTERPOLATOR, "1.0.0")
@@ -76,6 +76,10 @@ val RELEASE_RULE = docsRules("public", false) {
     prebuilts(LibraryGroups.MEDIA, "media-widget", "1.0.0-alpha06")
     ignore(LibraryGroups.MEDIA2.group, "media2-widget")
     ignore(LibraryGroups.MEDIA2.group, "media2-exoplayer")
+    // TODO: Reenable to use media2-{common,player,session} prebuilts (b/130839413)
+    ignore(LibraryGroups.MEDIA2.group, "media2-common")
+    ignore(LibraryGroups.MEDIA2.group, "media2-player")
+    ignore(LibraryGroups.MEDIA2.group, "media2-session")
     prebuilts(LibraryGroups.MEDIA2, "1.0.0-alpha04")
     prebuilts(LibraryGroups.MEDIAROUTER, "1.1.0-alpha03")
     ignore(LibraryGroups.NAVIGATION.group, "navigation-testing")
@@ -92,7 +96,7 @@ val RELEASE_RULE = docsRules("public", false) {
     prebuilts(LibraryGroups.RECYCLERVIEW, "recyclerview-selection", "1.1.0-alpha01")
     prebuilts(LibraryGroups.REMOTECALLBACK, "1.0.0-alpha01")
     ignore(LibraryGroups.ROOM.group, "room-common-java8")
-    prebuilts(LibraryGroups.ROOM, "2.1.0-alpha06")
+    prebuilts(LibraryGroups.ROOM, "2.1.0-alpha07")
     prebuilts(LibraryGroups.SAVEDSTATE, "1.0.0-alpha02")
     prebuilts(LibraryGroups.SHARETARGET, "1.0.0-alpha01")
     prebuilts(LibraryGroups.SLICE, "slice-builders", "1.0.0")
@@ -116,7 +120,7 @@ val RELEASE_RULE = docsRules("public", false) {
             .addStubs("wear/wear_stubs/com.google.android.wearable-stubs.jar")
     prebuilts(LibraryGroups.WEBKIT, "1.0.0")
     ignore(LibraryGroups.WORKMANAGER.group, "work-gcm")
-    prebuilts(LibraryGroups.WORKMANAGER, "2.0.1-rc01")
+    prebuilts(LibraryGroups.WORKMANAGER, "2.1.0-alpha01")
     default(Ignore)
 }
 

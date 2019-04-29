@@ -24,11 +24,9 @@ if (currentJvmVersion.getMajorVersion() != "8") {
 "If you have already installed java 8, you can instruct Gradle to use it by setting the environment variable JAVA_HOME equal to its file path.")
 }
 
-
 buildscript {
     ext.supportRootFolder = project.projectDir
     apply from: 'buildSrc/repos.gradle'
-    apply from: 'buildSrc/init.gradle'
     apply from: 'buildSrc/build_dependencies.gradle'
     repos.addMavenRepositories(repositories)
     SdkHelperKt.setSdkInLocalPropertiesFile(ext.supportRootFolder)
@@ -40,11 +38,13 @@ buildscript {
     }
 }
 
-repos.addMavenRepositories(repositories)
+allprojects {
+    repos.addMavenRepositories(repositories)
+}
 
-init.setupRepoOutAndBuildNumber()
-
-init.configureSubProjects()
+apply from: "buildSrc/dependencies.gradle"
+apply from: "buildSrc/out.gradle"
+init.chooseOutDir()
 
 apply plugin: AndroidXPlugin
 

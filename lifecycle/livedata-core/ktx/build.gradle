@@ -19,7 +19,8 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
     id("org.jetbrains.kotlin.android")
 }
 
@@ -38,10 +39,6 @@ dependencies {
     testImplementation(project(":arch:core-testing"))
     testImplementation(JUNIT)
     testImplementation(TRUTH)
-    testImplementation(TEST_EXT_JUNIT)
-    testImplementation(TEST_CORE)
-    testImplementation(TEST_RUNNER)
-    testImplementation(TEST_RULES)
 }
 
 androidx {
