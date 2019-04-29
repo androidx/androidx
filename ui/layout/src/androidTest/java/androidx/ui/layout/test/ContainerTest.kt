@@ -19,6 +19,7 @@ package androidx.ui.layout.test
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Dp
 import androidx.ui.core.Layout
+import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
@@ -37,7 +38,9 @@ import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.Row
+import androidx.ui.layout.Wrap
 import com.google.r4a.Composable
 import com.google.r4a.composer
 import org.junit.Assert.assertEquals
@@ -104,8 +107,9 @@ class ContainerTest : LayoutTest() {
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
+        val totalPadding = paddingDp.toIntPx() * 2
         assertEquals(
-            PxSize(size + (paddingDp * 2).toIntPx(), size + (paddingDp * 2).toIntPx()),
+            PxSize(size + totalPadding, size + totalPadding),
             containerSize.value
         )
         assertEquals(PxPosition(padding, padding), childPosition.value)
@@ -320,6 +324,67 @@ class ContainerTest : LayoutTest() {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
         assertEquals(PxSize(size, size), containerSize.value)
+    }
+
+    @Test
+    fun testContainer_correctlyAppliesNonSymmetricPadding() = withDensity(density) {
+        val childSizeDp = 50.dp
+        val paddingLeft = 8.dp
+        val paddingTop = 7.dp
+        val paddingRight = 5.dp
+        val paddingBottom = 10.dp
+        val edgeInsets = EdgeInsets(left = paddingLeft, top = paddingTop,
+            right = paddingRight, bottom = paddingBottom)
+        val expectedSize = PxSize(
+            childSizeDp.toIntPx() + paddingLeft.toIntPx() + paddingRight.toIntPx(),
+            childSizeDp.toIntPx() + paddingTop.toIntPx() + paddingBottom.toIntPx()
+        )
+
+        var containerSize: PxSize? = null
+        val latch = CountDownLatch(1)
+        show @Composable {
+            <Wrap>
+                <Container padding=edgeInsets>
+                    <FixedSpacer width=childSizeDp height=childSizeDp/>
+                    <OnPositioned onPositioned = { coordinates ->
+                        containerSize = coordinates.size
+                        latch.countDown()
+                    } />
+                </Container>
+            </Wrap>
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(expectedSize, containerSize)
+    }
+
+    @Test
+    fun testContainer_contentSmallerThanPaddingIsCentered() = withDensity(density) {
+        val containerSize = 50.dp
+        val padding = 10.dp
+        val childSize = 5.dp
+        val edgeInsets = EdgeInsets(padding)
+
+        var childCoordinates: LayoutCoordinates? = null
+        val latch = CountDownLatch(1)
+        show @Composable {
+            <Wrap>
+                <Container width=containerSize height=containerSize padding=edgeInsets>
+                    <OnChildPositioned onPositioned = { coordinates ->
+                        childCoordinates = coordinates
+                        latch.countDown()
+                    } >
+                        <FixedSpacer width=childSize height=childSize/>
+                    </OnChildPositioned>
+                </Container>
+            </Wrap>
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        val centeringOffset = padding.toIntPx() +
+            (containerSize.toIntPx() - padding.toIntPx() * 2 - childSize.toIntPx()) / 2
+        assertEquals(PxPosition(centeringOffset, centeringOffset), childCoordinates!!.position)
+        assertEquals(PxSize(childSize.toIntPx(), childSize.toIntPx()), childCoordinates!!.size)
     }
 
     @Composable

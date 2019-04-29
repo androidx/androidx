@@ -18,9 +18,15 @@ package androidx.ui.material
 
 import androidx.test.filters.MediumTest
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.PxSize
 import androidx.ui.core.TestTag
+import androidx.ui.core.dp
+import androidx.ui.core.round
+import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
+import androidx.ui.layout.Wrap
 import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertSemanticsIsEqualTo
 import androidx.ui.test.createFullSemantics
@@ -134,5 +140,28 @@ class ButtonUiTest : AndroidUiTestRunner() {
         Truth
             .assertThat(button2Counter)
             .isEqualTo(1)
+    }
+
+    @Test
+    fun buttonTest_ButtonHeightIsFromSpec() = withDensity(density) {
+        val buttonTag = "button"
+        var size: PxSize? = null
+        setContent {
+            <CraneWrapper>
+                <MaterialTheme>
+                    <Wrap>
+                        <OnChildPositioned onPositioned={ position ->
+                            size = position.size
+                        }>
+                            <TestTag tag=buttonTag>
+                                <Button onClick={} text="Test button"/>
+                            </TestTag>
+                        </OnChildPositioned>
+                    </Wrap>
+                </MaterialTheme>
+            </CraneWrapper>
+        }
+
+        Truth.assertThat(size!!.height.round()).isEqualTo(36.dp.toIntPx())
     }
 }

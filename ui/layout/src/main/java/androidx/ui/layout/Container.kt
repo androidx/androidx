@@ -67,25 +67,19 @@ fun Container(
         val containerConstraints = Constraints(constraints)
             .withTight(width?.toIntPx(), height?.toIntPx())
             .enforce(incomingConstraints)
+        val totalHorizontal = padding.left.toIntPx() + padding.right.toIntPx()
+        val totalVertical = padding.top.toIntPx() + padding.bottom.toIntPx()
         val childConstraints = containerConstraints
             .looseMin()
-            .let {
-                it.offset(-padding.totalHorizontal.toIntPx(), -padding.totalVertical.toIntPx())
-            }
+            .offset(-totalHorizontal, -totalVertical)
         val placeable = measurables.firstOrNull()?.measure(childConstraints)
         val containerWidth = if (!expanded || !containerConstraints.maxWidth.isFinite()) {
-            max(
-                (placeable?.width ?: 0.ipx) + padding.totalHorizontal.toIntPx(),
-                containerConstraints.minWidth
-            )
+            max((placeable?.width ?: 0.ipx) + totalHorizontal, containerConstraints.minWidth)
         } else {
             containerConstraints.maxWidth
         }
         val containerHeight = if (!expanded || !containerConstraints.maxHeight.isFinite()) {
-            max(
-                (placeable?.height ?: 0.ipx) + padding.totalHorizontal.toIntPx(),
-                containerConstraints.minHeight
-            )
+            max((placeable?.height ?: 0.ipx) + totalVertical, containerConstraints.minHeight)
         } else {
             containerConstraints.maxHeight
         }
@@ -93,8 +87,8 @@ fun Container(
             if (placeable != null) {
                 val position = alignment.align(
                     IntPxSize(
-                        containerWidth - placeable.width - padding.totalHorizontal.toIntPx(),
-                        containerHeight - placeable.height - padding.totalVertical.toIntPx()
+                        containerWidth - placeable.width - totalHorizontal,
+                        containerHeight - placeable.height - totalVertical
                     )
                 )
                 placeable.place(
