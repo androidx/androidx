@@ -328,9 +328,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // Dialogs, etc
         mBaseContextAttached = true;
 
-        // Calling Activity.recreate() if we fail to apply the configuration during create() is
-        // likely to cause a loop, especially if the Activity is touching Resources or Assets prior
-        // to calling super.onCreate().
+        // Our implicit call to applyDayNight() should not recreate until after the Activity is
+        // created
         applyDayNight(false);
 
         // We lazily fetch the Window for Activities, to allow DayNight to apply in
@@ -2131,7 +2130,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         return applyDayNight(true);
     }
 
-    private boolean applyDayNight(final boolean recreateIfNeeded) {
+    private boolean applyDayNight(final boolean allowRecreation) {
         if (mIsDestroyed) {
             // If we're destroyed, ignore the call
             return false;
@@ -2139,7 +2138,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         @NightMode final int nightMode = calculateNightMode();
         @ApplyableNightMode final int modeToApply = mapNightMode(nightMode);
-        final boolean applied = updateForNightMode(modeToApply, recreateIfNeeded);
+        final boolean applied = updateForNightMode(modeToApply, allowRecreation);
 
         if (nightMode == MODE_NIGHT_AUTO_TIME) {
             getAutoTimeNightModeManager().setup();
@@ -2215,7 +2214,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     private boolean updateForNightMode(@ApplyableNightMode final int mode,
             final boolean allowRecreation) {
         boolean handled = false;
-        Exception exception = null;
 
         final int applicationNightMode = mContext.getApplicationContext()
                 .getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -2255,7 +2253,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 // applyOverrideConfiguration throws an IllegalStateException if its resources
                 // have already been created. Since there's no way to check this beforehand we
                 // just have to try it and catch the exception.
-                exception = e;
+                Log.e(TAG, "updateForNightMode. Calling applyOverrideConfiguration() failed"
+                        + " with an exception. Will fall back to using"
+                        + " Resources.updateConfiguration()", e);
                 handled = false;
             }
         }
@@ -2264,9 +2264,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             final int currentNightMode = mContext.getResources().getConfiguration().uiMode
                     & Configuration.UI_MODE_NIGHT_MASK;
             if (currentNightMode != newNightMode) {
-                if (allowRecreation && (Build.VERSION.SDK_INT >= 17 || mCreated)
+                if (allowRecreation && mBaseContextAttached
+                        && (Build.VERSION.SDK_INT >= 17 || mCreated)
                         && mHost instanceof Activity) {
-                    // If we're created and are an Activity, we can recreate to apply
+                    // If we're an attached Activity, we can recreate to apply
                     // The SDK_INT check above is because applyOverrideConfiguration only exists on
                     // API 17+, so we don't want to get into an loop of infinite recreations.
                     // On < API 17 we need to use updateConfiguration before we're 'created'
@@ -2295,10 +2296,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // or the Activity is set to handle uiMode changes
         if ((handled || activityHandlingUiMode) && mHost instanceof AppCompatActivity) {
             ((AppCompatActivity) mHost).onNightModeChanged(mode);
-        }
-
-        if (!handled && exception != null) {
-            Log.e(TAG, "updateForNightMode failed due to exception", exception);
         }
 
         return handled;
