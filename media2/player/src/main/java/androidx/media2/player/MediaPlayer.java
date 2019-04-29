@@ -2964,7 +2964,7 @@ public class MediaPlayer extends SessionPlayer {
                     out.append("UNKNOWN");
                     break;
             }
-            out.append(", " + mFormat.toString());
+            out.append(", ").append(mFormat);
             out.append("}");
             return out.toString();
         }

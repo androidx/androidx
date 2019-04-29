@@ -776,7 +776,11 @@ public class VideoView extends SelectiveLayout {
     }
 
     // TODO: move this method inside callback to make sure it runs inside the callback thread.
-    Bundle extractTrackInfoData() {
+    void extractAndBroadcastTrackInfoData() {
+        if (!isMediaPrepared()) {
+            throw new IllegalStateException(
+                    "extractTrackInfo() is unexpectedly called. Media item is not prepared");
+        }
         List<MediaPlayer.TrackInfo> trackInfos = mMediaPlayer.getTrackInfo();
         mVideoTrackCount = 0;
         mAudioTrackInfos = new ArrayList<>();
@@ -810,15 +814,31 @@ public class VideoView extends SelectiveLayout {
         }
 
         Bundle data = new Bundle();
-        data.putInt(MediaControlView.KEY_VIDEO_TRACK_COUNT, mVideoTrackCount);
+        data.putBoolean(MediaControlView.KEY_HAS_VIDEO, hasActualVideo());
         data.putInt(MediaControlView.KEY_AUDIO_TRACK_COUNT, mAudioTrackInfos.size());
         data.putStringArrayList(MediaControlView.KEY_SUBTITLE_TRACK_LANGUAGE_LIST,
                 subtitleTracksLanguageList);
-        return data;
+
+        mMediaSession.broadcastCustomCommand(
+                new SessionCommand(MediaControlView.EVENT_UPDATE_TRACK_STATUS,
+                        null), data);
+    }
+
+    boolean hasActualVideo() {
+        if (mVideoTrackCount > 0) {
+            return true;
+        }
+        VideoSize videoSize = mMediaPlayer.getVideoSize();
+        if (videoSize.getHeight() > 0 && videoSize.getWidth() > 0) {
+            Log.w(TAG, "video track count is zero, but it renders video. size: "
+                    + videoSize.getWidth() + "/" + videoSize.getHeight());
+            return true;
+        }
+        return false;
     }
 
     boolean isCurrentItemMusic() {
-        return mVideoTrackCount == 0 && mAudioTrackInfos != null && mAudioTrackInfos.size() > 0;
+        return !hasActualVideo() && mAudioTrackInfos != null && mAudioTrackInfos.size() > 0;
     }
 
     void updateMusicView() {
@@ -850,6 +870,12 @@ public class VideoView extends SelectiveLayout {
                         }
                         return;
                     }
+                    // This edge case rarely happens.
+                    if (mVideoTrackCount == 0 && size.getHeight() > 0 && size.getWidth() > 0) {
+                        if (isMediaPrepared()) {
+                            extractAndBroadcastTrackInfoData();
+                        }
+                    }
                     mTextureView.forceLayout();
                     mSurfaceView.forceLayout();
                     requestLayout();
@@ -874,11 +900,8 @@ public class VideoView extends SelectiveLayout {
                         return;
                     }
                     if (what == MediaPlayer.MEDIA_INFO_METADATA_UPDATE) {
-                        Bundle data = extractTrackInfoData();
-                        if (data != null) {
-                            mMediaSession.broadcastCustomCommand(
-                                    new SessionCommand(MediaControlView.EVENT_UPDATE_TRACK_STATUS,
-                                            null), data);
+                        if (isMediaPrepared()) {
+                            extractAndBroadcastTrackInfoData();
                         }
                     }
                 }
@@ -983,12 +1006,7 @@ public class VideoView extends SelectiveLayout {
                     mCurrentState = STATE_PREPARED;
 
                     if (mMediaSession != null) {
-                        Bundle data = extractTrackInfoData();
-                        if (data != null) {
-                            mMediaSession.broadcastCustomCommand(
-                                    new SessionCommand(MediaControlView.EVENT_UPDATE_TRACK_STATUS,
-                                            null), data);
-                        }
+                        extractAndBroadcastTrackInfoData();
 
                         // Run extractMetadata() in another thread to prevent StrictMode violation.
                         // extractMetadata() contains file IO indirectly,
@@ -1064,11 +1082,7 @@ public class VideoView extends SelectiveLayout {
                 }
             }
             if (isMediaPrepared()) {
-                Bundle data = extractTrackInfoData();
-                if (data != null) {
-                    mMediaSession.broadcastCustomCommand(new SessionCommand(
-                            MediaControlView.EVENT_UPDATE_TRACK_STATUS, null), data);
-                }
+                extractAndBroadcastTrackInfoData();
             }
         }
 
