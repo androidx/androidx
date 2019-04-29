@@ -26,11 +26,13 @@ def includeProject(name, filePath) {
     project(name).projectDir = file
 }
 
+
 /////////////////////////////
 //
 // Libraries
 //
 /////////////////////////////
+
 includeProject(":activity", "activity")
 includeProject(":activity-ktx", "activity/ktx")
 includeProject(":activity:integration-tests:testapp", "activity/integration-tests/testapp")
@@ -207,7 +209,6 @@ includeProject(":work:work-rxjava2", "work/workmanager-rxjava2")
 includeProject(":work:work-testing", "work/workmanager-testing")
 includeProject(":work:integration-tests:testapp", "work/integration-tests/testapp")
 
-
 /////////////////////////////
 //
 // Legacy
@@ -223,7 +224,9 @@ includeProject(":legacy-support-v13", "legacy/v13")
 // Samples
 //
 /////////////////////////////
+
 File samplesRoot = new File(rootDir, "samples")
+
 // Note: don't add new samples/ apps. Instead, Create
 // <module>/integration-tests/testapp in the "Libraries" section above.
 includeProject(":support-animation-demos", new File(samplesRoot, "SupportAnimationDemos"))
@@ -265,9 +268,9 @@ includeProject(":support-media-compat-test-service", "media/version-compat-tests
 includeProject(":support-media-compat-test-service-previous", "media/version-compat-tests/previous/service")
 includeProject(":support-media-compat-test-lib", "media/version-compat-tests/lib")
 
-includeProject(":support-media2-test-client", "media2/version-compat-tests/current/client")
-includeProject(":support-media2-test-service", "media2/version-compat-tests/current/service")
-includeProject(":support-media2-test-common", "media2/version-compat-tests/common")
+includeProject(":support-media2-test-client", "media2/session/version-compat-tests/current/client")
+includeProject(":support-media2-test-service", "media2/session/version-compat-tests/current/service")
+includeProject(":support-media2-test-common", "media2/session/version-compat-tests/common")
 
 /////////////////////////////
 //
@@ -280,45 +283,15 @@ File externalRoot = new File(rootDir, "../../external")
 
 includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"))
 includeProject(":webview-support-interfaces", new File(externalRoot, "webview_support_interfaces"))
-///// CRANE START
 
-includeProject(":compose-runtime", "compose/runtime")
-includeProject(":compose-plugin-cli", "compose/plugins/cli")
-includeProject(":compose-plugin-cli-tests", "compose/plugins/cli-tests")
-includeProject(":compose-plugin-cli-gradle", "compose/plugins/cli/gradle")
-includeProject(":compose-plugin-ide", "compose/plugins/ide")
-includeProject(":ui-android-text", "ui/android-text")
-includeProject(":ui-text", "ui/text")
-includeProject(":ui-text:integration-tests:ui-text-demos", "ui/text/integration-tests/text-demos")
-includeProject(":ui-core", "ui/core")
-includeProject(":ui-framework", "ui/framework")
-includeProject(":ui-framework:integration-tests:ui-framework-demos", "ui/framework/integration-tests/framework-demos")
-includeProject(":ui-material", "ui/material")
-includeProject(":ui-material:integration-tests:ui-material-demos", "ui/material/integration-tests/material-demos")
-includeProject(":ui-material:integration-tests:ui-material-studies", "ui/material/integration-tests/ui-material-studies")
-includeProject(":ui-platform", "ui/platform")
-includeProject(":ui-test", "ui/test")
-includeProject(":ui-android-view", "ui/android-view")
-includeProject(":ui-android-view-non-ir", "ui/android-view-non-ir")
-includeProject(":ui-layout", "ui/layout")
-includeProject(":ui-layout:integration-tests:ui-layout-demos", "ui/layout/integration-tests/layout-demos")
-includeProject(":ui-demos", "ui/demos")
-includeProject(":ui-r4a", "ui-r4a")
-includeProject(":ui-animation-core", "ui/animation-core")
-includeProject(":ui-animation", "ui/animation")
-includeProject(":ui-animation:integration-tests:ui-animation-demos", "ui/animation/integration-tests/animation-demos")
-
-// dumb test project that has a test for each size to ensure that at least one test is run
-// for each size and test runner is happy when there is nothing to test.
-includeProject(":dumb-tests", "dumb-tests")
-
-///// CRANE END
 // fake project which is used for docs generation from prebuilts
 // we need real android project to generate R.java, aidl etc files that mentioned in sources
-
 if (!startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
     // we don't need it in ide, so we don't configure it there
     includeProject(":docs-fake", "docs-fake")
     includeProject(":docs-runner", "docs-runner")
 }
 
+// dumb test project that has a test for each size to ensure that at least one test is run
+// for each size and test runner is happy when there is nothing to test.
+includeProject(":dumb-tests", "dumb-tests")

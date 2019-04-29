@@ -32,7 +32,7 @@ dependencies {
     api project(":ui-android-text")
     api project(":ui-core")
     api project(":ui-framework")
-    api project(":collection")
+    api "androidx.collection:collection:1.0.0"
     api project(":compose-runtime")
     api(KOTLIN_R4A_STDLIB)
 
@@ -58,7 +58,7 @@ dependencies {
     androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
-    androidTestImplementation project(":internal-testutils")
+    androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
 }
 
 androidx {

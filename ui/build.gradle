@@ -1,0 +1,26 @@
+import androidx.build.AndroidXPlugin
+import androidx.build.SdkHelperKt
+
+buildscript {
+    ext.supportRootFolder = file(project.projectDir.parent)
+    apply from: 'buildSrc/repos.gradle'
+    apply from: 'buildSrc/build_dependencies.gradle'
+    repos.addMavenRepositories(repositories)
+    SdkHelperKt.setSdkInLocalPropertiesFile(ext.supportRootFolder, project.projectDir)
+
+    dependencies {
+        classpath build_libs.gradle
+        classpath build_libs.kotlin.gradle_plugin
+        classpath build_libs.dokka_gradle
+    }
+}
+
+allprojects {
+    repos.addMavenRepositories(repositories)
+}
+
+apply from: "buildSrc/dependencies.gradle"
+apply from: "buildSrc/out.gradle"
+init.chooseOutDir()
+
+apply plugin: androidx.build.AndroidXPlugin
