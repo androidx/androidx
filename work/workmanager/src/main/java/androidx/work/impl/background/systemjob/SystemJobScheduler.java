@@ -35,7 +35,6 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.IdGenerator;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -103,13 +102,6 @@ public class SystemJobScheduler implements Scheduler {
                     continue;
                 }
 
-                // Get pending jobIds that might be currently being used.
-                // This is useful only for API 23, because we double schedule jobs.
-                List<Integer> jobIds =
-                        Build.VERSION.SDK_INT == 23
-                                ? getPendingJobIds(mJobScheduler, workSpec.id)
-                                : Collections.<Integer>emptyList();
-
                 SystemIdInfo info = workDatabase.systemIdInfoDao()
                         .getSystemIdInfo(workSpec.id);
 
@@ -132,10 +124,14 @@ public class SystemJobScheduler implements Scheduler {
                 // we will double-schedule jobs on API 23 and de-dupe them
                 // in SystemJobService as needed.
                 if (Build.VERSION.SDK_INT == 23) {
+                    // Get pending jobIds that might be currently being used.
+                    // This is useful only for API 23, because we double schedule jobs.
+                    List<Integer> jobIds = getPendingJobIds(mJobScheduler, workSpec.id);
+
                     // Remove the jobId which has been used from the list of eligible jobIds.
                     int index = jobIds.indexOf(jobId);
                     if (index >= 0) {
-                        jobIds.remove(jobId);
+                        jobIds.remove(index);
                     }
 
                     int nextJobId;

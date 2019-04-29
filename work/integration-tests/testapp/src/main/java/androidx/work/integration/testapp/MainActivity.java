@@ -210,6 +210,23 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        findViewById(R.id.enqueue_periodic_initial_delay).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Data input = new Data.Builder()
+                                .putString(ToastWorker.ARG_MESSAGE, "Periodic work")
+                                .build();
+                        PeriodicWorkRequest request =
+                                new PeriodicWorkRequest.Builder(ToastWorker.class, 15,
+                                        TimeUnit.MINUTES)
+                                        .setInitialDelay(1, TimeUnit.MINUTES)
+                                        .setInputData(input)
+                                        .build();
+                        WorkManager.getInstance(MainActivity.this).enqueue(request);
+                    }
+                });
+
         findViewById(R.id.begin_unique_work_loop)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override

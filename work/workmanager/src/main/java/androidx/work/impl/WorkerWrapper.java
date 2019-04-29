@@ -167,15 +167,12 @@ public class WorkerWrapper implements Runnable {
 
             if (mWorkSpec.isPeriodic() || mWorkSpec.isBackedOff()) {
                 long now = System.currentTimeMillis();
-                // Allow first run of a PeriodicWorkRequest when flex is applicable
+                // Allow first run of a PeriodicWorkRequest
                 // to go through. This is because when periodStartTime=0;
                 // calculateNextRunTime() always > now.
                 // For more information refer to b/124274584
-                boolean isFirstRunWhenFlexApplicable =
-                                mWorkSpec.intervalDuration != mWorkSpec.flexDuration
-                                && mWorkSpec.periodStartTime == 0;
-
-                if (!isFirstRunWhenFlexApplicable && now < mWorkSpec.calculateNextRunTime()) {
+                boolean isFirstRun = mWorkSpec.periodStartTime == 0;
+                if (!isFirstRun && now < mWorkSpec.calculateNextRunTime()) {
                     Logger.get().debug(TAG,
                             String.format(
                                     "Delaying execution for %s because it is being executed "
