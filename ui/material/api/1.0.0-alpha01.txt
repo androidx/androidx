@@ -3,7 +3,7 @@ package androidx.ui.baseui {
 
   public final class ClickableKt {
     ctor public ClickableKt();
-    method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, boolean consumeDownOnStart = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean consumeDownOnStart = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ColoredRectKt {
@@ -43,9 +43,9 @@ package androidx.ui.material {
 
   public final class ButtonKt {
     ctor public ButtonKt();
-    method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Button(String text, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
-    method public static void TransparentButton(String text, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.core.Dp elevation = 0.dp);
+    method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Button(String text, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
+    method public static void TransparentButton(String text, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.core.Dp elevation = 0.dp);
   }
 
   public final class CheckboxKt {
@@ -61,9 +61,9 @@ package androidx.ui.material {
 
   public final class FloatingActionButtonKt {
     ctor public FloatingActionButtonKt();
-    method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.core.Dp minSize = FabSize, androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.CircleBorder(), androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void FloatingActionButton(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
-    method public static void FloatingActionButton(String text, androidx.ui.painting.Image? icon = null, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean enabled = true, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
+    method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.core.Dp minSize = FabSize, androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.CircleBorder(), androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void FloatingActionButton(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
+    method public static void FloatingActionButton(String text, androidx.ui.painting.Image? icon = null, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
     method public static androidx.ui.core.Dp getExtendedFabHeight();
     method public static androidx.ui.core.Dp getExtendedFabIconPadding();
     method public static androidx.ui.core.Dp getExtendedFabTextPadding();
