@@ -106,8 +106,6 @@ public class ForceStopRunnable implements Runnable {
             } finally {
                 workDatabase.endTransaction();
             }
-            Logger.get().debug(TAG, "Unfinished Workers exist, rescheduling.");
-
         }
         mWorkManager.onForceStopRunnableCompleted();
     }

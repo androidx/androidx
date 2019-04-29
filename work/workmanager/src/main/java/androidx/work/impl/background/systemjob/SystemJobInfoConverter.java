@@ -86,20 +86,14 @@ class SystemJobInfoConverter {
             builder.setBackoffCriteria(workSpec.backoffDelayDuration, backoffPolicy);
         }
 
-        if (workSpec.isPeriodic()) {
-            if (Build.VERSION.SDK_INT >= 24) {
-                builder.setPeriodic(workSpec.intervalDuration, workSpec.flexDuration);
-            } else {
-                Logger.get().debug(TAG,
-                        "Flex duration is currently not supported before API 24. Ignoring.");
-                builder.setPeriodic(workSpec.intervalDuration);
-            }
-        } else {
-            // Even if a WorkRequest has no constraints, setMinimumLatency(0) still needs to be
-            // called due to an issue in JobInfo.Builder#build and JobInfo with no constraints. See
-            // b/67716867.
-            builder.setMinimumLatency(workSpec.initialDelay);
-        }
+        long nextRunTime = workSpec.calculateNextRunTime();
+        long now = System.currentTimeMillis();
+        long offset = Math.max(nextRunTime - now, 0);
+
+        // Even if a WorkRequest has no constraints, setMinimumLatency(0) still needs to be
+        // called due to an issue in JobInfo.Builder#build and JobInfo with no constraints. See
+        // b/67716867.
+        builder.setMinimumLatency(offset);
 
         if (Build.VERSION.SDK_INT >= 24 && constraints.hasContentUriTriggers()) {
             ContentUriTriggers contentUriTriggers = constraints.getContentUriTriggers();
