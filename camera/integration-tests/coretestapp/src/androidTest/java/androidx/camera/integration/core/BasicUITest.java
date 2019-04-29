@@ -22,6 +22,8 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
+import android.content.Intent;
+
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
 import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
@@ -73,6 +75,8 @@ public final class BasicUITest {
 
     @Before
     public void setUp() {
+        // Close system dialogs first to avoid interrupt.
+        mActivityRule.getActivity().sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
         checkViewReady();
     }
 
