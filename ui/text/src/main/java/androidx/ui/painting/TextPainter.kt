@@ -383,6 +383,16 @@ class TextPainter(
     }
 
     /**
+     * Returns the Caret as a vertical bar for given text position, at which to paint the caret.
+     *
+     * Valid only after [layout] has been called.
+     */
+    fun getCaretForTextPosition(position: TextPosition): Pair<Offset, Offset> {
+        assert(!needsLayout)
+        return paragraph!!.getCaretForTextPosition(position)
+    }
+
+    /**
      * Returns the text range of the word at the given offset. Characters not part of a word, such
      * as spaces, symbols, and punctuation, have word breaks on both sides. In such cases, this
      * method will return a text range that contains the given text position.

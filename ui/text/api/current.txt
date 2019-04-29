@@ -95,6 +95,7 @@ package androidx.ui.engine.text {
 
   public final class Paragraph {
     method public float getAlphabeticBaseline();
+    method public kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset> getCaretForTextPosition(androidx.ui.engine.text.TextPosition textPosition);
     method public boolean getDidExceedMaxLines();
     method public float getHeight();
     method public float getIdeographicBaseline();
@@ -423,6 +424,7 @@ package androidx.ui.painting {
     ctor public TextPainter();
     method public float computeDistanceToActualBaseline(androidx.ui.engine.text.TextBaseline baseline);
     method public androidx.ui.engine.text.ParagraphStyle createParagraphStyle(androidx.ui.engine.text.TextDirection? defaultTextDirection = null);
+    method public kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset> getCaretForTextPosition(androidx.ui.engine.text.TextPosition position);
     method public boolean getDidExceedMaxLines();
     method public Boolean? getEllipsis();
     method public float getHeight();
@@ -577,6 +579,7 @@ package androidx.ui.rendering.paragraph {
     method public float computeMaxIntrinsicWidth();
     method public float computeMinIntrinsicHeight(float width);
     method public float computeMinIntrinsicWidth();
+    method public kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset> getCaretForTextPosition(androidx.ui.engine.text.TextPosition position);
     method public float getHeight();
     method public Integer? getMaxLines();
     method public androidx.ui.rendering.paragraph.TextOverflow getOverflow();
