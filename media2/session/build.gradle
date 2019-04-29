@@ -41,4 +41,5 @@ androidx {
     // TODO: Remove these (b/130838274)
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
+    trackRestrictedAPIs = false // TODO: Remove it (b/131561173)
 }
