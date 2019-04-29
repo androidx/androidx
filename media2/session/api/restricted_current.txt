@@ -1,0 +1,91 @@
+// Signature format: 3.0
+package androidx.media2.session {
+
+  public class LibraryResult extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.media2.common.BaseResult {
+    method public long getCompletionTime();
+    method public androidx.media2.common.MediaItem? getMediaItem();
+    method @androidx.media2.session.LibraryResult.ResultCode public int getResultCode();
+  }
+
+  @IntDef(flag=false, value={androidx.media2.common.BaseResult.RESULT_SUCCESS, androidx.media2.common.BaseResult.RESULT_ERROR_UNKNOWN, androidx.media2.common.BaseResult.RESULT_ERROR_INVALID_STATE, androidx.media2.common.BaseResult.RESULT_ERROR_BAD_VALUE, androidx.media2.common.BaseResult.RESULT_ERROR_PERMISSION_DENIED, androidx.media2.common.BaseResult.RESULT_ERROR_IO, androidx.media2.common.BaseResult.RESULT_INFO_SKIPPED, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_DISCONNECTED, androidx.media2.common.BaseResult.RESULT_ERROR_NOT_SUPPORTED, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_CONCURRENT_STREAM_LIMIT, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_PARENTAL_CONTROL_RESTRICTED, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_NOT_AVAILABLE_IN_REGION, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_SETUP_REQUIRED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface LibraryResult.ResultCode {
+  }
+
+  public class MediaController implements java.lang.AutoCloseable {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult> playFromMediaId(String, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult> playFromSearch(String, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult> playFromUri(android.net.Uri, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult> prepareFromMediaId(String, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult> prepareFromSearch(String, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult> prepareFromUri(android.net.Uri, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setTimeDiff(Long!);
+  }
+
+  @IntDef({android.media.AudioManager.ADJUST_LOWER, android.media.AudioManager.ADJUST_RAISE, android.media.AudioManager.ADJUST_SAME, android.media.AudioManager.ADJUST_MUTE, android.media.AudioManager.ADJUST_UNMUTE, android.media.AudioManager.ADJUST_TOGGLE_MUTE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface MediaController.VolumeDirection {
+  }
+
+  @IntDef(value={android.media.AudioManager.FLAG_SHOW_UI, android.media.AudioManager.FLAG_ALLOW_RINGER_MODES, android.media.AudioManager.FLAG_PLAY_SOUND, android.media.AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE, android.media.AudioManager.FLAG_VIBRATE}, flag=true) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface MediaController.VolumeFlags {
+  }
+
+  public class MediaSession implements java.lang.AutoCloseable {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.support.v4.media.session.MediaSessionCompat! getSessionCompat();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isClosed();
+  }
+
+  public static final class MediaSession.ControllerInfo {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.media.MediaSessionManager.RemoteUserInfo getRemoteUserInfo();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isTrusted();
+  }
+
+  public abstract static class MediaSession.SessionCallback {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.media2.session.SessionResult.ResultCode public int onPlayFromMediaId(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, String, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.media2.session.SessionResult.ResultCode public int onPlayFromSearch(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, String, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.media2.session.SessionResult.ResultCode public int onPlayFromUri(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, android.net.Uri, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.media2.session.SessionResult.ResultCode public int onPrepareFromMediaId(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, String, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.media2.session.SessionResult.ResultCode public int onPrepareFromSearch(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, String, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.media2.session.SessionResult.ResultCode public int onPrepareFromUri(androidx.media2.session.MediaSession, androidx.media2.session.MediaSession.ControllerInfo, android.net.Uri, android.os.Bundle?);
+  }
+
+  @IntDef({androidx.media2.session.RemoteSessionPlayer.VOLUME_CONTROL_FIXED, androidx.media2.session.RemoteSessionPlayer.VOLUME_CONTROL_RELATIVE, androidx.media2.session.RemoteSessionPlayer.VOLUME_CONTROL_ABSOLUTE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface RemoteSessionPlayer.VolumeControlType {
+  }
+
+  public final class SessionCommand implements androidx.versionedparcelable.VersionedParcelable {
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID = 40004; // 0x9c44
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int COMMAND_CODE_SESSION_PLAY_FROM_SEARCH = 40005; // 0x9c45
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int COMMAND_CODE_SESSION_PLAY_FROM_URI = 40006; // 0x9c46
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID = 40007; // 0x9c47
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH = 40008; // 0x9c48
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int COMMAND_CODE_SESSION_PREPARE_FROM_URI = 40009; // 0x9c49
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int COMMAND_VERSION_CURRENT = 1; // 0x1
+  }
+
+  @IntDef({androidx.media2.session.SessionCommand.COMMAND_CODE_CUSTOM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PLAY, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PAUSE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PREPARE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_PLAYLIST, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_REPEAT_MODE, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_GET_CURRENT_MEDIA_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA, androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_VOLUME_SET_VOLUME, androidx.media2.session.SessionCommand.COMMAND_CODE_VOLUME_ADJUST_VOLUME, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_REWIND, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SKIP_FORWARD, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SKIP_BACKWARD, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_URI, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI, androidx.media2.session.SessionCommand.COMMAND_CODE_SESSION_SET_RATING, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_SUBSCRIBE, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_UNSUBSCRIBE, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_CHILDREN, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_ITEM, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_SEARCH, androidx.media2.session.SessionCommand.COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SessionCommand.CommandCode {
+  }
+
+  @IntDef({androidx.media2.session.SessionCommand.COMMAND_VERSION_1}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SessionCommand.CommandVersion {
+  }
+
+  public class SessionResult implements androidx.media2.common.BaseResult androidx.versionedparcelable.VersionedParcelable {
+    method public long getCompletionTime();
+    method public androidx.media2.common.MediaItem? getMediaItem();
+    method @androidx.media2.session.SessionResult.ResultCode public int getResultCode();
+  }
+
+  @IntDef(flag=false, value={androidx.media2.session.SessionResult.RESULT_SUCCESS, androidx.media2.common.BaseResult.RESULT_ERROR_UNKNOWN, androidx.media2.common.BaseResult.RESULT_ERROR_INVALID_STATE, androidx.media2.common.BaseResult.RESULT_ERROR_BAD_VALUE, androidx.media2.common.BaseResult.RESULT_ERROR_PERMISSION_DENIED, androidx.media2.common.BaseResult.RESULT_ERROR_IO, androidx.media2.common.BaseResult.RESULT_INFO_SKIPPED, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_DISCONNECTED, androidx.media2.common.BaseResult.RESULT_ERROR_NOT_SUPPORTED, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_CONCURRENT_STREAM_LIMIT, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_PARENTAL_CONTROL_RESTRICTED, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_NOT_AVAILABLE_IN_REGION, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED, androidx.media2.session.RemoteResult.RESULT_ERROR_SESSION_SETUP_REQUIRED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SessionResult.ResultCode {
+  }
+
+  public final class SessionToken implements androidx.versionedparcelable.VersionedParcelable {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void createSessionToken(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token, java.util.concurrent.Executor, androidx.media2.session.SessionToken.OnSessionTokenCreatedListener);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Object! getBinder();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.ComponentName! getComponentName();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isLegacySession();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static interface SessionToken.OnSessionTokenCreatedListener {
+    method public void onSessionTokenCreated(android.support.v4.media.session.MediaSessionCompat.Token!, androidx.media2.session.SessionToken!);
+  }
+
+  @IntDef({androidx.media2.session.SessionToken.TYPE_SESSION, androidx.media2.session.SessionToken.TYPE_SESSION_SERVICE, androidx.media2.session.SessionToken.TYPE_LIBRARY_SERVICE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SessionToken.TokenType {
+  }
+
+}
+

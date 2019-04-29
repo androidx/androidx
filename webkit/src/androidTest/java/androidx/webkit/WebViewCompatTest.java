@@ -323,6 +323,24 @@ public class WebViewCompatTest {
     }
 
     /**
+     * This test should have an equivalent in CTS when this is implemented in the framework.
+     */
+    @Test
+    public void testMultiProcessQuery() {
+        WebkitUtils.checkFeature(WebViewFeature.MULTI_PROCESS_QUERY);
+        WebkitUtils.checkFeature(WebViewFeature.GET_WEB_VIEW_RENDERER);
+
+        // Creates a new WebView for non static getWebViewRenderProcess method
+        WebView webView = WebViewOnUiThread.createWebView();
+
+        // Asserts that if WebView is running in multi process, render process is not null
+        assertEquals(WebViewCompat.isMultiProcessEnabled(),
+                WebViewCompat.getWebViewRenderProcess(webView) != null);
+
+        WebViewOnUiThread.destroy(webView);
+    }
+
+    /**
      * WebViewCompat.getCurrentWebViewPackage should be null on pre-L devices.
      * On L+ devices WebViewCompat.getCurrentWebViewPackage should be null only in exceptional
      * circumstances - like when the WebView APK is being updated, or for Wear devices. The L+

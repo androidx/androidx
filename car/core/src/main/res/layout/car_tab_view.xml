@@ -43,5 +43,5 @@
         android:layout_centerHorizontal="true"
         android:maxLines="1"
         android:textColor="@color/car_tab_tint"
-        android:textAppearance="@style/TextAppearance.Car.Body4.Medium.Light" />
+        android:textAppearance="@style/TextAppearance.Car.SubText1.Medium.Light" />
 </RelativeLayout>

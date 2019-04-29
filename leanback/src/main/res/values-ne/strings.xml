@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="3000046054608531995">"उच्च गुणस्तरलाई असक्षम पार्नुहोस्"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="3934392140182327163">"उप शीर्षकहरू देखाउने सुविधालाई सक्षम पार्नुहोस्"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"उप शीर्षकहरू देखाउने सुविधालाई असक्षम पार्नुहोस्"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"तस्बिरभित्र तस्बिर नामक मोडमा प्रविष्टि गर्नुहोस्"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"तस्बिरभित्र तस्बिर नामक मोडमा प्रविष्ट गर्नुहोस्"</string>
     <string name="lb_playback_time_separator" msgid="6549544638083578695">"/"</string>
     <string name="lb_playback_controls_shown" msgid="7794717158616536936">"मिडियाका नियन्त्रणहरू देखाइएका छन्"</string>
     <string name="lb_playback_controls_hidden" msgid="619396299825306757">"मिडियाका नियन्त्रणहरूलाई लुकाइएको छ, देखाउनका लागि d-pad नामक बटन थिच्नुहोस्"</string>

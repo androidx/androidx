@@ -3,15 +3,16 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
 }
 dependencies {
     api("androidx.annotation:annotation:1.0.1")
     api(AUTO_VALUE_ANNOTATIONS)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
     annotationProcessor(AUTO_VALUE)
-    testImplementation(TEST_CORE)
     testImplementation(JUNIT)
-    testImplementation(TEST_RUNNER)
     testImplementation(TRUTH)
     testImplementation(ROBOLECTRIC)
 }

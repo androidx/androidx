@@ -29,7 +29,7 @@ class CoreRemapperImplTest {
     @Test
     fun remapString_shouldUseFallbackForField() {
         val remapper = prepareRemapper(
-            TypesMap(mapOf(
+            typesMap = TypesMap(mapOf(
                 JavaType.fromDotVersion("androidx.test.InputConnectionCompat")
                     to JavaType.fromDotVersion("androidx.test.InputConnectionCompat")
             )),
@@ -44,14 +44,47 @@ class CoreRemapperImplTest {
     @Test(expected = AmbiguousStringJetifierException::class)
     fun remapString_ambiguousPackageGiven_throwsException() {
         val remapper = prepareRemapper(
-            TypesMap.EMPTY,
             restrictToPackagePrefix = "android/")
 
         remapper.rewriteString("android.support.v4.content")
     }
 
+    @Test
+    fun remapString_usingStringsMap() {
+        val remapper = prepareRemapper(
+            stringsMap = TypesMap(mapOf(
+                JavaType.fromDotVersion("android.support.v4.app.EXTRA_CALLING_ACTIVITY")
+                    to JavaType.fromDotVersion("android.support.v4.app.EXTRA_CALLING_ACTIVITY")
+            )),
+            restrictToPackagePrefix = "android/")
+
+        val given = "android.support.v4.app.EXTRA_CALLING_ACTIVITY"
+
+        Truth.assertThat(remapper.rewriteString(given)).isEqualTo(given)
+    }
+
+    @Test
+    fun remapString_usingStringsMap_hasPriorityOverTypesMap() {
+        val remapper = prepareRemapper(
+            typesMap = TypesMap(mapOf(
+                JavaType.fromDotVersion("android.support.v4.app.EXTRA_CALLING_ACTIVITY")
+                    to JavaType.fromDotVersion("androidx.core.app.EXTRA_CALLING_ACTIVITY")
+            )),
+            stringsMap = TypesMap(mapOf(
+                JavaType.fromDotVersion("android.support.v4.app.EXTRA_CALLING_ACTIVITY")
+                    to JavaType.fromDotVersion("android.support.v4.app.EXTRA_CALLING_ACTIVITY_E")
+            )),
+            restrictToPackagePrefix = "android/")
+
+        val given = "android.support.v4.app.EXTRA_CALLING_ACTIVITY"
+        val expected = "android.support.v4.app.EXTRA_CALLING_ACTIVITY_E"
+
+        Truth.assertThat(remapper.rewriteString(given)).isEqualTo(expected)
+    }
+
     private fun prepareRemapper(
-        typesMap: TypesMap,
+        typesMap: TypesMap? = null,
+        stringsMap: TypesMap? = null,
         restrictToPackagePrefix: String? = null
     ): CoreRemapperImpl {
         val prefixes = if (restrictToPackagePrefix == null) {
@@ -62,7 +95,8 @@ class CoreRemapperImplTest {
 
         val config = Config.fromOptional(
             restrictToPackagePrefixes = prefixes,
-            typesMap = typesMap)
+            typesMap = typesMap ?: TypesMap.EMPTY,
+            stringsMap = stringsMap ?: TypesMap.EMPTY)
 
         val context = TransformationContext(config, isInReversedMode = true)
 

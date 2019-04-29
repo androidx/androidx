@@ -37,19 +37,19 @@ import androidx.annotation.Nullable;
 public final class InputConnectionCompat {
 
     private static final String COMMIT_CONTENT_ACTION =
-            "androidx.core.view.inputmethod.InputConnectionCompat.COMMIT_CONTENT";
+            "android.support.v13.view.inputmethod.InputConnectionCompat.COMMIT_CONTENT";
     private static final String COMMIT_CONTENT_CONTENT_URI_KEY =
-            "androidx.core.view.inputmethod.InputConnectionCompat.CONTENT_URI";
+            "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_URI";
     private static final String COMMIT_CONTENT_DESCRIPTION_KEY =
-            "androidx.core.view.inputmethod.InputConnectionCompat.CONTENT_DESCRIPTION";
+            "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_DESCRIPTION";
     private static final String COMMIT_CONTENT_LINK_URI_KEY =
-            "androidx.core.view.inputmethod.InputConnectionCompat.CONTENT_LINK_URI";
+            "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_LINK_URI";
     private static final String COMMIT_CONTENT_OPTS_KEY =
-            "androidx.core.view.inputmethod.InputConnectionCompat.CONTENT_OPTS";
+            "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_OPTS";
     private static final String COMMIT_CONTENT_FLAGS_KEY =
-            "androidx.core.view.inputmethod.InputConnectionCompat.CONTENT_FLAGS";
+            "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_FLAGS";
     private static final String COMMIT_CONTENT_RESULT_RECEIVER =
-            "androidx.core.view.inputmethod.InputConnectionCompat.CONTENT_RESULT_RECEIVER";
+            "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_RESULT_RECEIVER";
 
     static boolean handlePerformPrivateCommand(
             @Nullable String action,

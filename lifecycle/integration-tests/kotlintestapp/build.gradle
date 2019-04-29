@@ -30,15 +30,14 @@ dependencies {
     implementation(project(":activity"))
 
     testImplementation(JUNIT)
-    testImplementation(TEST_RUNNER)
     testImplementation(TRUTH)
     testImplementation(KOTLIN_COROUTINES)
     testImplementation(KOTLIN_COROUTINES_TEST)
 
     androidTestImplementation(KOTLIN_COROUTINES)
-    androidTestImplementation(TEST_EXT_KTX)
+    androidTestImplementation(ANDROIDX_TEST_EXT_KTX)
     androidTestImplementation(TRUTH)
-    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
 }
 
@@ -51,7 +50,3 @@ android {
         androidTest.java.srcDirs += 'src/test-common/java'
     }
 }
-
-tasks['check'].dependsOn(tasks['connectedCheck'])
-
-uploadArchives.enabled = false

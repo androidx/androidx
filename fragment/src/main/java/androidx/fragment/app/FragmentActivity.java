@@ -35,7 +35,8 @@ import android.view.View;
 import android.view.Window;
 
 import androidx.activity.ComponentActivity;
-import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
@@ -47,6 +48,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.LoaderManager;
@@ -78,6 +80,13 @@ public class FragmentActivity extends ComponentActivity implements
     static final int MAX_NUM_PENDING_FRAGMENT_ACTIVITY_RESULTS = 0xffff - 1;
 
     final FragmentController mFragments = FragmentController.createController(new HostCallbacks());
+    /**
+     * A {@link Lifecycle} that is exactly nested outside of when the FragmentController
+     * has its state changed, providing the proper nesting of Lifecycle callbacks
+     * <p>
+     * TODO(b/127528777) Drive Fragment Lifecycle with LifecycleObserver
+     */
+    final LifecycleRegistry mFragmentLifecycleRegistry = new LifecycleRegistry(this);
 
     boolean mCreated;
     boolean mResumed;
@@ -116,7 +125,6 @@ public class FragmentActivity extends ComponentActivity implements
      */
     public FragmentActivity() {
         super();
-        init();
     }
 
     /**
@@ -132,18 +140,6 @@ public class FragmentActivity extends ComponentActivity implements
     @ContentView
     public FragmentActivity(@LayoutRes int contentLayoutId) {
         super(contentLayoutId);
-        init();
-    }
-
-    private void init() {
-        // Route onBackPressed() callbacks to the FragmentManager
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback() {
-            @Override
-            public boolean handleOnBackPressed() {
-                FragmentManager fragmentManager = mFragments.getSupportFragmentManager();
-                return fragmentManager.popBackStackImmediate();
-            }
-        });
     }
 
     // ------------------------------------------------------------------------
@@ -316,6 +312,7 @@ public class FragmentActivity extends ComponentActivity implements
 
         super.onCreate(savedInstanceState);
 
+        mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
         mFragments.dispatchCreate();
     }
 
@@ -367,6 +364,7 @@ public class FragmentActivity extends ComponentActivity implements
     protected void onDestroy() {
         super.onDestroy();
         mFragments.dispatchDestroy();
+        mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
     }
 
     /**
@@ -420,6 +418,7 @@ public class FragmentActivity extends ComponentActivity implements
         super.onPause();
         mResumed = false;
         mFragments.dispatchPause();
+        mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
     }
 
     /**
@@ -476,6 +475,7 @@ public class FragmentActivity extends ComponentActivity implements
      * the super-class.
      */
     protected void onResumeFragments() {
+        mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
         mFragments.dispatchResume();
     }
 
@@ -509,6 +509,7 @@ public class FragmentActivity extends ComponentActivity implements
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         markFragmentsCreated();
+        mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         Parcelable p = mFragments.saveAllState();
         if (p != null) {
             outState.putParcelable(FRAGMENTS_TAG, p);
@@ -546,6 +547,7 @@ public class FragmentActivity extends ComponentActivity implements
 
         // NOTE: HC onStart goes here.
 
+        mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START);
         mFragments.dispatchStart();
     }
 
@@ -560,6 +562,7 @@ public class FragmentActivity extends ComponentActivity implements
         markFragmentsCreated();
 
         mFragments.dispatchStop();
+        mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
     }
 
     // ------------------------------------------------------------------------
@@ -862,16 +865,33 @@ public class FragmentActivity extends ComponentActivity implements
         }
     }
 
-    class HostCallbacks extends FragmentHostCallback<FragmentActivity>
-            implements ViewModelStoreOwner {
+    class HostCallbacks extends FragmentHostCallback<FragmentActivity> implements
+            ViewModelStoreOwner,
+            OnBackPressedDispatcherOwner {
         public HostCallbacks() {
             super(FragmentActivity.this /*fragmentActivity*/);
         }
 
         @NonNull
         @Override
+        public Lifecycle getLifecycle() {
+            // Instead of directly using the Activity's Lifecycle, we
+            // use a LifecycleRegistry that is nested exactly outside of
+            // when Fragments get their lifecycle changed
+            // TODO(b/127528777) Drive Fragment Lifecycle with LifecycleObserver
+            return mFragmentLifecycleRegistry;
+        }
+
+        @NonNull
+        @Override
         public ViewModelStore getViewModelStore() {
             return FragmentActivity.this.getViewModelStore();
+        }
+
+        @NonNull
+        @Override
+        public OnBackPressedDispatcher getOnBackPressedDispatcher() {
+            return FragmentActivity.this.getOnBackPressedDispatcher();
         }
 
         @Override

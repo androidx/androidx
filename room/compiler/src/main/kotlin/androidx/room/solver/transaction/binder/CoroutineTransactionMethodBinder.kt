@@ -16,9 +16,8 @@
 
 package androidx.room.solver.transaction.binder
 
-import androidx.room.ext.Function2TypeSpecBuilder
+import androidx.room.ext.Function1TypeSpecBuilder
 import androidx.room.ext.KotlinTypeNames.CONTINUATION
-import androidx.room.ext.KotlinTypeNames.COROUTINE_SCOPE
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames.ROOM_DB_KT
@@ -47,14 +46,11 @@ class CoroutineTransactionMethodBinder(
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {
-        val scopeParamName = "__scope"
         val innerContinuationParamName = "__cont"
-        val functionImpl = Function2TypeSpecBuilder(
-            parameter1 = COROUTINE_SCOPE to scopeParamName,
-            parameter2 = ParameterizedTypeName.get(
-                CONTINUATION,
-                WildcardTypeName.supertypeOf(returnType.typeName())
-            ) to innerContinuationParamName,
+        val functionImpl = Function1TypeSpecBuilder(
+            parameterTypeName = ParameterizedTypeName.get(
+                CONTINUATION, WildcardTypeName.supertypeOf(returnType.typeName())),
+            parameterName = innerContinuationParamName,
             returnTypeName = ClassName.OBJECT
         ) {
             val adapterScope = scope.fork()

@@ -52,6 +52,9 @@ package androidx.navigation {
     method public void navigate(@IdRes int, android.os.Bundle?);
     method public void navigate(@IdRes int, android.os.Bundle?, androidx.navigation.NavOptions?);
     method public void navigate(@IdRes int, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
+    method public void navigate(android.net.Uri);
+    method public void navigate(android.net.Uri, androidx.navigation.NavOptions?);
+    method public void navigate(android.net.Uri, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
     method public void navigate(androidx.navigation.NavDirections);
     method public void navigate(androidx.navigation.NavDirections, androidx.navigation.NavOptions?);
     method public void navigate(androidx.navigation.NavDirections, androidx.navigation.Navigator.Extras);
@@ -65,6 +68,8 @@ package androidx.navigation {
     method @CallSuper public void setGraph(@NavigationRes int, android.os.Bundle?);
     method @CallSuper public void setGraph(androidx.navigation.NavGraph);
     method @CallSuper public void setGraph(androidx.navigation.NavGraph, android.os.Bundle?);
+    method public void setHostLifecycleOwner(androidx.lifecycle.LifecycleOwner);
+    method public void setHostOnBackPressedDispatcherOwner(androidx.activity.OnBackPressedDispatcherOwner);
     method public void setHostViewModelStore(androidx.lifecycle.ViewModelStore);
     field public static final String KEY_DEEP_LINK_INTENT = "android-support-nav:controller:deepLinkIntent";
   }

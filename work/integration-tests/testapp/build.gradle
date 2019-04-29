@@ -52,7 +52,3 @@ dependencies {
     implementation(ANDROIDX_RECYCLERVIEW)
     implementation(MATERIAL)
 }
-
-tasks['check'].dependsOn(tasks['connectedCheck'])
-
-uploadArchives.enabled = false

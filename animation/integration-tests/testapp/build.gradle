@@ -17,7 +17,8 @@
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
 }
 
 dependencies {
@@ -26,11 +27,7 @@ dependencies {
     implementation(project(":animation"))
     implementation(project(":animation:testing"))
 
-    implementation(TEST_EXT_JUNIT, libs.exclude_for_espresso)
-    implementation(TEST_CORE, libs.exclude_for_espresso)
-    implementation(TEST_RULES, libs.exclude_for_espresso)
+    implementation(ANDROIDX_TEST_EXT_JUNIT, libs.exclude_for_espresso)
+    implementation(ANDROIDX_TEST_CORE, libs.exclude_for_espresso)
+    implementation(ANDROIDX_TEST_RULES, libs.exclude_for_espresso)
 }
-
-tasks['check'].dependsOn(tasks['connectedCheck'])
-
-uploadArchives.enabled = false

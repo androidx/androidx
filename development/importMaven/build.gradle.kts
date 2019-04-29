@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import org.apache.maven.model.Dependency
 import org.apache.maven.model.Parent
 import org.apache.maven.model.Repository
@@ -116,6 +118,8 @@ val fetchArtifacts = configurations.create(configurationName)
 val fetchArtifactsContainer = configurations.getByName(configurationName)
 // Passed in as a project property
 val artifactName = project.findProperty("artifactName")
+val mediaType = MediaType.get("application/json; charset=utf-8")
+val licenseEndpoint = "https://fetch-licenses.appspot.com/convert/licenses"
 
 val internalArtifacts = listOf(
     "android.arch(.*)?".toRegex(),
@@ -285,7 +289,8 @@ fun licenseFor(pomFile: File): File? {
                 val element = children.item(j)
                 if (element.nodeName.toLowerCase() == "url") {
                     val url = element.textContent
-                    val request = Request.Builder().url(url).build()
+                    val payload = RequestBody.create(mediaType, "{\"url\": \"$url\"}")
+                    val request = Request.Builder().url(licenseEndpoint).post(payload).build()
                     val response = client.newCall(request).execute()
                     val contents = response.body()?.string()
                     if (contents != null) {

@@ -1,0 +1,118 @@
+<!--
+  ~ Copyright 2019 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="log_initial">Android Camera Performance Tool</string>
+
+    <string name="app_name">Antelope</string>
+    <string name="label_camera1">Camera1</string>
+    <string name="label_camera2">Camera2</string>
+    <string name="label_camerax">CameraX</string>
+    <string name="label_size_max">Max image size</string>
+    <string name="label_size_min">Min image size</string>
+    <string name="label_focus_auto">Auto-focus</string>
+    <string name="label_focus_continuous">Continuous focus</string>
+    <string name="label_camera">Camera:</string>
+    <string name="button_single_test">Single Test</string>
+    <string name="button_multi_test">Multiple Tests</string>
+    <string name="button_abort">Abort</string>
+    <string name="label_log">Log: </string>
+    <string name="log_copied">Log copied to the clipboard</string>
+
+    <string name="menu_logcat">Output logcat</string>
+    <string name="menu_delete_photos">Delete images</string>
+    <string name="menu_delete_logs">Delete CSV logs</string>
+
+    <string name="settings_autodelete_key">settings_autodelete</string>
+    <string name="settings_autodelete_title">Auto-delete images</string>
+    <string name="settings_autodelete_summary">Automatically delete images immediately after test runs</string>
+    <string name="settings_autodelete_summary_off">Do not automatically delete images immediately after test runs, images will be stored in the Antelope directory of your device\'s photos area</string>
+
+    <string name="settings_numtests_key">settings_numtests</string>
+    <string name="settings_numtests_title">Number of repetitions</string>
+    <string name="settings_numtests_summary">Number of repetitions to do for repeated tests</string>
+
+    <string name="settings_previewbuffer_key">settings_previewbuffer</string>
+    <string name="settings_previewbuffer_title">Preview buffer time (ms)</string>
+    <string name="settings_previewbuffer_summary">Length of time to allow the preview buffer to run before trying to capture an image. Longer values will ensure the hardware frame buffer is full to offer accurate capture-only latency.</string>
+
+    <string name="settings_autotest_header">Auto-test settings</string>
+    <string name="settings_autotest_header_key">settings_autotest_header_key</string>
+
+    <string name="settings_autotest_api_key">settings_autotest_api</string>
+    <string name="settings_autotest_api_title">APIs</string>
+    <string name="settings_autotest_api_summary">APIs to include in test</string>
+
+    <string name="settings_autotest_imagesize_key">settings_autotest_imagesize</string>
+    <string name="settings_autotest_imagesize_title">Image Capture Sizes</string>
+    <string name="settings_autotest_imagesize_summary">Capture sizes to include in test</string>
+
+    <string name="settings_autotest_focus_key">settings_autotest_focus</string>
+    <string name="settings_autotest_focus_title">Focus Modes</string>
+    <string name="settings_autotest_focus_summary">Focus modes to include in test</string>
+
+    <string name="settings_autotest_switchtest_key">settings_autotest_switchtest</string>
+    <string name="settings_autotest_switchtest_title">Perform Switch Test</string>
+    <string name="settings_autotest_switchtest_summary_on">Time switching from primary->secondary->primary camera.</string>
+    <string name="settings_autotest_switchtest_summmary_off">Do not perform switch test.</string>
+
+    <string name="settings_autotest_cameras_key">settings_autotest_cameras</string>
+    <string name="settings_autotest_cameras_title">Only Logical Cameras</string>
+    <string name="settings_autotest_cameras_summary_on">Only test logical cameras (default front and back camera).</string>
+    <string name="settings_autotest_cameras_summary_off">Test all physical cameras on the device.</string>
+
+    <!-- Single test settings -->
+    <string name="settings_single_test_dialog_title">Single Test</string>
+
+    <string name="settings_single_test_type_key">settings_single_test_type</string>
+    <string name="settings_single_test_type_title">Test Type</string>
+
+    <string name="settings_single_test_api_key">settings_single_test_api</string>
+    <string name="settings_single_test_api_title">API</string>
+
+    <string name="settings_single_test_focus_key">settings_single_test_focus</string>
+    <string name="settings_single_test_focus_title">Focus Mode</string>
+
+    <string name="settings_single_test_imagesize_key">settings_single_test_imagesize</string>
+    <string name="settings_single_test_imagesize_title">Image Capture Size</string>
+
+    <string name="settings_single_test_camera_key">settings_single_test_camera</string>
+    <string name="settings_single_test_camera_title">Camera</string>
+
+    <string name="settings_single_go">Begin Test</string>
+    <string name="settings_single_cancel">Cancel</string>
+    <string name="settings_multi_go">Begin Testing</string>
+    <string name="settings_multi_cancel">Cancel</string>
+
+    <!-- Multi Test settings -->
+    <string name="settings_multi_test_dialog_title">Auto Test</string>
+
+
+    <!--
+    <string name="settings__key">settings_</string>
+    <string name="settings__title"></string>
+    <string name="settings__summary"></string>
+
+    <string name="settings__key">settings_</string>
+    <string name="settings__title"></string>
+    <string name="settings__summary"></string>
+-->
+    <!--
+    <string name="settings__key">settings_</string>
+    <string name="settings__title"></string>
+    <string name="settings__summary"></string>
+    -->
+</resources>

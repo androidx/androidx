@@ -22,10 +22,12 @@ limitations under the License.
     <!-- Base style for the Car that will have dark colors for card backgrounds and light color for
          text. The colors will not change for night mode. -->
     <style name="Theme.Car" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowBackground">@android:color/black</item>
         <item name="android:alertDialogTheme">@style/Theme.Car.Dark.Dialog.Alert</item>
         <item name="android:colorAccent">@color/car_accent</item>
         <item name="android:colorForeground">@color/car_body2_light</item>
-        <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
+        <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored
+        </item>
         <item name="android:buttonStyle">@style/Widget.Car.Button.DarkText</item>
         <item name="android:checkboxStyle">@style/Widget.Car.CheckBox.Light</item>
         <item name="android:colorButtonNormal">@color/car_accent</item>
@@ -37,15 +39,21 @@ limitations under the License.
         <item name="android:editTextStyle">@style/Widget.Car.EditText</item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/car_checkbox</item>
         <item name="android:listChoiceIndicatorSingle">@drawable/car_radio_button</item>
-        <item name="android:listPreferredItemHeightSmall">@dimen/car_double_line_list_item_height</item>
+        <item name="android:listPreferredItemHeightSmall">@dimen/car_double_line_list_item_height
+        </item>
         <item name="android:listPreferredItemPaddingStart">@dimen/car_keyline_1</item>
         <item name="android:listPreferredItemPaddingEnd">@dimen/car_keyline_1</item>
-        <item name="android:progressBarStyleHorizontal">@style/Widget.Car.ProgressBar.Horizontal</item>
+        <item name="android:progressBarStyleHorizontal">@style/Widget.Car.ProgressBar.Horizontal
+        </item>
         <item name="android:progressBackgroundTint">@color/car_seekbar_track_background_dark</item>
         <item name="android:progressTint">?attr/android:colorControlActivated</item>
-        <item name="android:secondaryProgressTint">@color/car_seekbar_track_secondary_progress</item>
-        <item name="android:selectableItemBackground">@drawable/car_card_ripple_background_light</item>
-        <item name="android:selectableItemBackgroundBorderless">@drawable/car_button_ripple_background_light</item>
+        <item name="android:secondaryProgressTint">@color/car_seekbar_track_secondary_progress
+        </item>
+        <item name="android:selectableItemBackground">@drawable/car_card_ripple_background_light
+        </item>
+        <item name="android:selectableItemBackgroundBorderless">
+            @drawable/car_button_ripple_background_light
+        </item>
         <item name="android:seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
         <item name="android:textColor">@color/car_body1_light</item>
         <item name="android:textColorPrimary">@color/car_display1_light</item>
@@ -81,10 +89,14 @@ limitations under the License.
         <item name="pagedScrollBarViewStyle">@style/Widget.Car.Scrollbar.Light</item>
         <item name="seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
         <item name="selectableItemBackground">@drawable/car_card_ripple_background_light</item>
-        <item name="selectableItemBackgroundBorderless">@drawable/car_button_ripple_background_light</item>
+        <item name="selectableItemBackgroundBorderless">
+            @drawable/car_button_ripple_background_light
+        </item>
         <item name="switchStyle">@style/Widget.Car.Switch</item>
         <item name="checkboxStyle">@style/Widget.Car.CheckBox.Light</item>
-        <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation.Light</item>
+        <item name="toolbarNavigationButtonStyle">
+            @style/Widget.Car.Toolbar.Button.Navigation.Light
+        </item>
         <item name="toolbarStyle">@style/Widget.Car.Toolbar.Light</item>
     </style>
 
@@ -97,6 +109,7 @@ limitations under the License.
     <!-- Light theme for the Car. This theme has light colors for card backgrounds and dark
          text. These colors will invert for night. -->
     <style name="Theme.Car.Light.NoActionBar" parent="Theme.Car.NoActionBar">
+        <item name="android:windowBackground">@color/car_card</item>
         <item name="android:alertDialogTheme">@style/Theme.Car.Dialog.Alert</item>
         <item name="android:checkboxStyle">@style/Widget.Car.CheckBox</item>
         <item name="android:colorAccent">@color/car_accent</item>
@@ -106,18 +119,24 @@ limitations under the License.
         <item name="android:colorPrimary">@color/car_card</item>
         <item name="android:colorPrimaryDark">@color/car_card</item>
         <item name="android:buttonStyle">@style/Widget.Car.Button</item>
-        <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
+        <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored
+        </item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/car_checkbox</item>
         <item name="android:listChoiceIndicatorSingle">@drawable/car_radio_button</item>
-        <item name="android:listPreferredItemHeightSmall">@dimen/car_double_line_list_item_height</item>
+        <item name="android:listPreferredItemHeightSmall">@dimen/car_double_line_list_item_height
+        </item>
         <item name="android:listPreferredItemPaddingStart">@dimen/car_keyline_1</item>
         <item name="android:listPreferredItemPaddingEnd">@dimen/car_keyline_1</item>
-        <item name="android:progressBarStyleHorizontal">@style/Widget.Car.ProgressBar.Horizontal</item>
+        <item name="android:progressBarStyleHorizontal">@style/Widget.Car.ProgressBar.Horizontal
+        </item>
         <item name="android:progressBackgroundTint">@color/car_seekbar_track_background</item>
         <item name="android:progressTint">?attr/android:colorControlActivated</item>
-        <item name="android:secondaryProgressTint">@color/car_seekbar_track_secondary_progress</item>
+        <item name="android:secondaryProgressTint">@color/car_seekbar_track_secondary_progress
+        </item>
         <item name="android:selectableItemBackground">@drawable/car_card_ripple_background</item>
-        <item name="android:selectableItemBackgroundBorderless">@drawable/car_button_ripple_background</item>
+        <item name="android:selectableItemBackgroundBorderless">
+            @drawable/car_button_ripple_background
+        </item>
         <item name="android:spinnerStyle">@style/Widget.Spinner.Car</item>
         <item name="android:spinnerItemStyle">@style/CarSpinnerItem</item>
         <item name="android:spinnerDropDownItemStyle">@style/CarSpinnerItem</item>
@@ -153,7 +172,8 @@ limitations under the License.
         <item name="pagedScrollBarViewStyle">@style/Widget.Car.Scrollbar</item>
         <item name="seekBarStyle">@style/Widget.Car.SeekBar</item>
         <item name="selectableItemBackground">@drawable/car_card_ripple_background</item>
-        <item name="selectableItemBackgroundBorderless">@drawable/car_button_ripple_background</item>
+        <item name="selectableItemBackgroundBorderless">@drawable/car_button_ripple_background
+        </item>
         <item name="switchStyle">@style/Widget.Car.Switch</item>
         <item name="checkboxStyle">@style/Widget.Car.CheckBox</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation</item>
@@ -238,14 +258,16 @@ limitations under the License.
          change the background color of the dialog based on the day/night mode. -->
     <style name="Theme.Car.Dialog.Alert" parent="Theme.AppCompat.Dialog.Alert">
         <item name="android:background">@color/car_card</item>
-        <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
+        <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored
+        </item>
         <item name="android:colorButtonNormal">@color/car_accent</item>
         <item name="android:colorControlNormal">@color/car_body3</item>
         <item name="android:colorControlActivated">@color/car_accent</item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/car_checkbox</item>
         <item name="android:listChoiceIndicatorSingle">@drawable/car_radio_button</item>
         <item name="android:listDividerAlertDialog">@drawable/car_preference_divider</item>
-        <item name="android:listPreferredItemHeightSmall">@dimen/car_single_line_list_item_height</item>
+        <item name="android:listPreferredItemHeightSmall">@dimen/car_single_line_list_item_height
+        </item>
         <item name="android:listPreferredItemPaddingStart">@dimen/car_padding_4</item>
         <item name="android:listPreferredItemPaddingEnd">@dimen/car_padding_4</item>
         <item name="android:scrollbarSize">@dimen/car_scroll_bar_thumb_width</item>
@@ -334,7 +356,9 @@ limitations under the License.
         <item name="switchPreferenceStyle">@style/CarPreference.SwitchPreference</item>
         <item name="seekBarPreferenceStyle">@style/CarPreference.SeekBarPreference</item>
         <item name="dialogPreferenceStyle">@style/CarPreference.DialogPreference</item>
-        <item name="editTextPreferenceStyle">@style/CarPreference.DialogPreference.EditTextPreference</item>
+        <item name="editTextPreferenceStyle">
+            @style/CarPreference.DialogPreference.EditTextPreference
+        </item>
         <item name="dropdownPreferenceStyle">@style/CarPreference.DropDown</item>
         <item name="preferenceFragmentListStyle">@style/CarPreferenceFragmentList</item>
     </style>

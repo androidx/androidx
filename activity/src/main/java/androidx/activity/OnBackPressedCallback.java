@@ -16,18 +16,94 @@
 
 package androidx.activity;
 
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+
+import java.util.ArrayList;
+
 /**
- * Interface for handling {@link OnBackPressedDispatcher#onBackPressed()} callbacks without
+ * Class for handling {@link OnBackPressedDispatcher#onBackPressed()} callbacks without
  * strongly coupling that implementation to a subclass of {@link ComponentActivity}.
+ * <p>
+ * This class maintains its own {@link #isEnabled() enabled state}. Only when this callback
+ * is enabled will it receive callbacks to {@link #handleOnBackPressed()}.
+ * <p>
+ * Note that the enabled state is an additional layer on top of the
+ * {@link androidx.lifecycle.LifecycleOwner} passed to
+ * {@link OnBackPressedDispatcher#addCallback(LifecycleOwner, OnBackPressedCallback)}
+ * which controls when the callback is added and removed to the dispatcher.
+ * <p>
+ * By calling {@link #remove()}, this callback will be removed from any
+ * {@link OnBackPressedDispatcher} it has been added to. It is strongly recommended
+ * to instead disable this callback to handle temporary changes in state.
  *
  * @see ComponentActivity#getOnBackPressedDispatcher()
  */
-public interface OnBackPressedCallback {
+public abstract class OnBackPressedCallback {
+
+    private boolean mEnabled;
+    private ArrayList<Cancellable> mCancellables = new ArrayList<>();
+
+    /**
+     * Create a {@link OnBackPressedCallback}.
+     *
+     * @param enabled The default enabled state for this callback.
+     * @see #setEnabled(boolean)
+     */
+    public OnBackPressedCallback(boolean enabled) {
+        mEnabled = enabled;
+    }
+
+    /**
+     * Set the enabled state of the callback. Only when this callback
+     * is enabled will it receive callbacks to {@link #handleOnBackPressed()}.
+     * <p>
+     * Note that the enabled state is an additional layer on top of the
+     * {@link androidx.lifecycle.LifecycleOwner} passed to
+     * {@link OnBackPressedDispatcher#addCallback(LifecycleOwner, OnBackPressedCallback)}
+     * which controls when the callback is added and removed to the dispatcher.
+     *
+     * @param enabled whether the callback should be considered enabled
+     */
+    @MainThread
+    public void setEnabled(boolean enabled) {
+        mEnabled = enabled;
+    }
+
+    /**
+     * Checks whether this callback should be considered enabled. Only when this callback
+     * is enabled will it receive callbacks to {@link #handleOnBackPressed()}.
+     *
+     * @return Whether this callback should be considered enabled.
+     */
+    @MainThread
+    public boolean isEnabled() {
+        return mEnabled;
+    }
+
+    /**
+     * Removes this callback from any {@link OnBackPressedDispatcher} it is currently
+     * added to.
+     */
+    @MainThread
+    public void remove() {
+        for (Cancellable cancellable: mCancellables) {
+            cancellable.cancel();
+        }
+    }
+
     /**
      * Callback for handling the {@link OnBackPressedDispatcher#onBackPressed()} event.
-     *
-     * @return True if you handled the {@link OnBackPressedDispatcher#onBackPressed()} event. No
-     * further {@link OnBackPressedCallback} instances will be called if you return true.
      */
-    boolean handleOnBackPressed();
+    @MainThread
+    public abstract void handleOnBackPressed();
+
+    void addCancellable(@NonNull Cancellable cancellable) {
+        mCancellables.add(cancellable);
+    }
+
+    void removeCancellable(@NonNull Cancellable cancellable) {
+        mCancellables.remove(cancellable);
+    }
 }

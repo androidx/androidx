@@ -20,7 +20,8 @@ import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
     id("kotlin-android")
 }
 
@@ -32,19 +33,14 @@ android {
 
 dependencies {
     api(project(":navigation:navigation-common"))
+    api(project(":activity"))
     api(project(":lifecycle:lifecycle-viewmodel"))
 
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(TEST_EXT_JUNIT)
-    testImplementation(TEST_CORE)
-    testImplementation(TEST_RUNNER)
-
     androidTestImplementation(project(":navigation:navigation-testing"))
-    androidTestImplementation(TEST_EXT_JUNIT)
-    androidTestImplementation(TEST_CORE)
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(TRUTH)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)

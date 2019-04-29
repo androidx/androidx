@@ -100,11 +100,11 @@ public class WebViewAssetLoaderIntegrationTest {
     @MediumTest
     public void testAssetHosting() throws Exception {
         final TestActivity activity = mActivityRule.getActivity();
-        final String testWithTitlePath = "www/test_with_title.html";
 
         String url =
                 mAssetLoader.getAssetsHttpsPrefix().buildUpon()
-                        .appendPath(testWithTitlePath)
+                        .appendPath("www")
+                        .appendPath("test_with_title.html")
                         .build()
                         .toString();
 
@@ -117,12 +117,11 @@ public class WebViewAssetLoaderIntegrationTest {
     @MediumTest
     public void testResourcesHosting() throws Exception {
         final TestActivity activity = mActivityRule.getActivity();
-        final String testWithTitlePath = "test_with_title.html";
 
         String url =
                 mAssetLoader.getResourcesHttpsPrefix().buildUpon()
                 .appendPath("raw")
-                .appendPath(testWithTitlePath)
+                .appendPath("test_with_title.html")
                 .build()
                 .toString();
 

@@ -24,13 +24,9 @@ plugins {
 dependencies {
     implementation(project(":room:room-runtime"))
     annotationProcessor project(":room:room-compiler")
-    androidTestImplementation(TEST_EXT_JUNIT)
-    androidTestImplementation(TEST_CORE)
-    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     testImplementation(JUNIT)
 }
-
-tasks['check'].dependsOn(tasks['connectedCheck'])
-
-uploadArchives.enabled = false

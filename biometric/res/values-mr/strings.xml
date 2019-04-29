@@ -24,7 +24,6 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"कोणत्याही फिंगरप्रिंटची नोंद झाली नाही."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"या डिव्हाइसवर फिंगरप्रिंट सेन्सर नाही"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"वापरकर्त्याने फिंगरप्रिंट ऑपरेशन रद्द केले."</string>
-    <!-- no translation found for fingerprint_error_lockout (1651062876313169162) -->
-    <skip />
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"खूप जास्त प्रयत्न. कृपया नंतर पुन्हा प्रयत्न करा."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"अज्ञात एरर"</string>
 </resources>

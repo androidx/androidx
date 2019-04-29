@@ -42,8 +42,24 @@ class BenchmarkStateTest {
             state.resumeTiming()
         }
         val median = state.stats.median
-        assertTrue("median $median should be between 2ms and 4ms",
-                ms2ns(2) < median && median < ms2ns(4))
+        assertTrue(
+            "median $median should be between 2ms and 4ms",
+            ms2ns(2) < median && median < ms2ns(4)
+        )
+    }
+
+    @Test
+    fun iterationCheck() {
+        val state = BenchmarkState()
+        var total = 0
+        while (state.keepRunning()) {
+            total++
+        }
+
+        val report = state.getReport()
+        val expectedCount =
+            report.warmupIterations + report.repeatIterations * BenchmarkState.REPEAT_COUNT
+        assertEquals(expectedCount, total)
     }
 
     @Test
@@ -59,8 +75,10 @@ class BenchmarkStateTest {
             }
         }.ideSummaryLine("fooBarLongerKey")
 
-        assertEquals(summary1.indexOf("foo"),
-            summary2.indexOf("foo"))
+        assertEquals(
+            summary1.indexOf("foo"),
+            summary2.indexOf("foo")
+        )
     }
 
     @Test
@@ -72,7 +90,8 @@ class BenchmarkStateTest {
         }.getFullStatusReport("foo")
 
         assertTrue(
-            (bundle.get("android.studio.display.benchmark") as String).contains("foo"))
+            (bundle.get("android.studio.display.benchmark") as String).contains("foo")
+        )
 
         // check attribute presence and naming
         val prefix = WarningState.WARNING_PREFIX

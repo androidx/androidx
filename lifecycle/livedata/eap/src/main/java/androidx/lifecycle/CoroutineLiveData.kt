@@ -19,16 +19,19 @@ package androidx.lifecycle
 import androidx.annotation.MainThread
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.experimental.ExperimentalTypeInference
 
 internal const val DEFAULT_TIMEOUT = 5000L
+
 /**
  * Interface that allows controlling a [LiveData] from a coroutine block.
  *
@@ -36,44 +39,44 @@ internal const val DEFAULT_TIMEOUT = 5000L
  */
 interface LiveDataScope<T> {
     /**
-     * Set's the [LiveData]'s value to the given [value]. If you've called [yieldSource] previously,
-     * calling [yield] will remove that source.
+     * Set's the [LiveData]'s value to the given [value]. If you've called [emitSource] previously,
+     * calling [emit] will remove that source.
      *
      * Note that this function suspends until the value is set on the [LiveData].
      *
      * @param value The new value for the [LiveData]
      *
-     * @see yieldSource
+     * @see emitSource
      */
-    suspend fun yield(value: T)
+    suspend fun emit(value: T)
 
     /**
      * Add the given [LiveData] as a source, similar to [MediatorLiveData.addSource]. Calling this
-     * method will remove any source that was yielded before via [yieldSource].
+     * method will remove any source that was yielded before via [emitSource].
      *
      * @param source The [LiveData] instance whose values will be dispatched from the current
      * [LiveData].
      *
-     * @see yield
+     * @see emit
      * @see MediatorLiveData.addSource
      * @see MediatorLiveData.removeSource
      */
-    suspend fun yieldSource(source: LiveData<T>)
+    suspend fun emitSource(source: LiveData<T>): DisposableHandle
 
     /**
      * Denotes the value of the [LiveData] when this block is started.
      *
      * If it is the first time block is running, [initialValue] will be `null`. You can use this
-     * value to check what was then latest value `yield`ed by your `block` before it got cancelled.
+     * value to check what was then latest value `emit`ed by your `block` before it got cancelled.
      *
-     * Note that if the block called [yieldSource], then `initialValue` will be last value
+     * Note that if the block called [emitSource], then `initialValue` will be last value
      * dispatched by the `source` [LiveData].
      */
     val initialValue: T?
 }
 
 internal class LiveDataScopeImpl<T>(
-    private var target: CoroutineLiveData<T>,
+    internal var target: CoroutineLiveData<T>,
     context: CoroutineContext,
     override val initialValue: T? = target.value
 ) : LiveDataScope<T> {
@@ -81,13 +84,36 @@ internal class LiveDataScopeImpl<T>(
     // LiveData. This gives us main thread safety as well as cancellation cooperation
     private val coroutineContext = context + Dispatchers.Main
 
-    override suspend fun yieldSource(source: LiveData<T>) = withContext(coroutineContext) {
-        target.yieldSource(source)
-    }
+    override suspend fun emitSource(source: LiveData<T>): DisposableHandle =
+        withContext(coroutineContext) {
+            return@withContext target.emitSource(source)
+        }
 
-    override suspend fun yield(value: T) = withContext(coroutineContext) {
-        target.clearYieldedSource()
+    override suspend fun emit(value: T) = withContext(coroutineContext) {
+        target.clearSource()
         target.value = value
+    }
+}
+
+internal fun <T> MediatorLiveData<T>.addDisposableSource(
+    source: LiveData<T>
+): DisposableHandle {
+    val disposed = AtomicBoolean(false)
+    addSource(source) {
+        if (!disposed.get()) {
+            value = it
+        } else {
+            removeSource(source)
+        }
+    }
+    return object : DisposableHandle {
+        override fun dispose() {
+            if (disposed.compareAndSet(false, true)) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    removeSource(source)
+                }
+            }
+        }
     }
 }
 
@@ -142,10 +168,11 @@ internal class BlockRunner<T>(
 
 internal class CoroutineLiveData<T>(
     context: CoroutineContext = EmptyCoroutineContext,
-    timeoutInMs: Long = 5000,
+    timeoutInMs: Long = DEFAULT_TIMEOUT,
     block: Block<T>
 ) : MediatorLiveData<T>() {
     private var blockRunner: BlockRunner<T>?
+    private var emittedSource: DisposableHandle? = null
 
     init {
         // use an intermediate supervisor job so that if we cancel individual block runs due to losing
@@ -167,27 +194,18 @@ internal class CoroutineLiveData<T>(
         }
     }
 
-    // The source we are delegated to, sent from LiveDataScope#yieldSource
-    // TODO We track this specifically since [MediatorLiveData] does not provide access to it.
-    // We should eventually get rid of this and provide the internal API from MediatorLiveData after
-    // the EAP.
-    private var yieldedSource: LiveData<T>? = null
-
     @MainThread
-    internal fun yieldSource(source: LiveData<T>) {
-        clearYieldedSource()
-        yieldedSource = source
-        addSource(source) {
-            value = it
-        }
+    internal fun emitSource(source: LiveData<T>): DisposableHandle {
+        clearSource()
+        val newSource = addDisposableSource(source)
+        emittedSource = newSource
+        return newSource
     }
 
     @MainThread
-    internal fun clearYieldedSource() {
-        yieldedSource?.let {
-            removeSource(it)
-            yieldedSource = null
-        }
+    internal fun clearSource() {
+        emittedSource?.dispose()
+        emittedSource = null
     }
 
     override fun onActive() {
@@ -209,12 +227,12 @@ internal class CoroutineLiveData<T>(
  * If the [LiveData] becomes inactive ([LiveData.onInactive]) while the [block] is executing, it
  * will be cancelled after [timeoutInMs] milliseconds unless the [LiveData] becomes active again
  * before that timeout (to gracefully handle cases like Activity rotation). Any value
- * [LiveDataScope.yield]ed from a cancelled [block] will be ignored.
+ * [LiveDataScope.emit]ed from a cancelled [block] will be ignored.
  *
  * After a cancellation, if the [LiveData] becomes active again, the [block] will be re-executed
  * from the beginning. If you would like to continue the operations based on where it was stopped
  * last, you can use the [LiveDataScope.initialValue] function to get the last
- * [LiveDataScope.yield]ed value.
+ * [LiveDataScope.emit]ed value.
 
  * If the [block] completes successfully *or* is cancelled due to reasons other than [LiveData]
  * becoming inactive, it *will not* be re-executed even after [LiveData] goes through active
@@ -228,7 +246,7 @@ internal class CoroutineLiveData<T>(
  * // a simple LiveData that receives value 3, 3 seconds after being observed for the first time.
  * val data : LiveData<Int> = liveData {
  *     delay(3000)
- *     yield(3)
+ *     emit(3)
  * }
  *
  *
@@ -241,7 +259,7 @@ internal class CoroutineLiveData<T>(
  *         // note that `while(true)` is fine because the `delay(30_000)` below will cooperate in
  *         // cancellation if LiveData is not actively observed anymore
  *         val data = api.fetch(id) // errors are ignored for brevity
- *         yield(data)
+ *         emit(data)
  *         delay(30_000)
  *       }
  *     }
@@ -253,7 +271,7 @@ internal class CoroutineLiveData<T>(
  *     var succeeded = false
  *     while(!succeeded) {
  *         try {
- *             yield(api.fetch(id))
+ *             emit(api.fetch(id))
  *             succeeded = true
  *         } catch(ioError : IOException) {
  *             delay(backOffTime)
@@ -266,16 +284,16 @@ internal class CoroutineLiveData<T>(
  * // from the server and also yields the updated value
  * val user = liveData {
  *     // dispatch loading first
- *     yield(LOADING(id))
+ *     emit(LOADING(id))
  *     // check local storage
  *     val cached = cache.loadUser(id)
  *     if (cached != null) {
- *         yield(cached)
+ *         emit(cached)
  *     }
  *     if (cached == null || cached.isStale()) {
  *         val fresh = api.fetch(id) // errors are ignored for brevity
  *         cache.save(fresh)
- *         yield(fresh)
+ *         emit(fresh)
  *     }
  * }
  *
@@ -283,7 +301,7 @@ internal class CoroutineLiveData<T>(
  * // source but also tries to back-fill the database from the server
  * val user = liveData {
  *     val fromDb: LiveData<User> = roomDatabase.loadUser(id)
- *     yieldSource(fromDb)
+ *     emitSource(fromDb)
  *     val updated = api.fetch(id) // errors are ignored for brevity
  *     // Since we are using Room here, updating the database will update the `fromDb` LiveData
  *     // that was obtained above. See Room's documentation for more details.

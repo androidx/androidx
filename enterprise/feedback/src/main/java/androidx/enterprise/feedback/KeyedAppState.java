@@ -29,6 +29,9 @@ import androidx.annotation.Nullable;
 
 import com.google.auto.value.AutoValue;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * A keyed app state to be sent to an EMM (enterprise mobility management), with the intention that
  * it is displayed to the management organization.
@@ -40,6 +43,7 @@ public abstract class KeyedAppState {
     KeyedAppState() {}
 
     @IntDef({SEVERITY_INFO, SEVERITY_ERROR})
+    @Retention(RetentionPolicy.SOURCE)
     @interface Severity {
     }
 
@@ -62,11 +66,10 @@ public abstract class KeyedAppState {
     /**
      * The key for the app state. Acts as a point of reference for what the app is providing state
      * for. For example, when providing managed configuration feedback, this key could be the
-     * managed
-     * configuration key to allow EMMs to take advantage of the connection in their UI.
+     * managed configuration key to allow EMMs to take advantage of the connection in their UI.
      */
     @NonNull
-    public abstract String key();
+    public abstract String getKey();
 
     /**
      * The severity of the app state. This allows EMMs to choose to notify admins of errors. This
@@ -74,11 +77,11 @@ public abstract class KeyedAppState {
      * organization needs to take action to fix.
      *
      * <p>When sending an app state containing errors, it is critical that follow-up app states are
-     * sent when the errors have been resolved, using the same {@link #key()} and this value set to
+     * sent when the errors have been resolved, using the same key and this value set to
      * {@link #SEVERITY_INFO}.
      */
     @Severity
-    public abstract int severity();
+    public abstract int getSeverity();
 
     /**
      * Optionally, a free-form message string to explain the app state. If the state was
@@ -86,7 +89,7 @@ public abstract class KeyedAppState {
      * included in the message.
      */
     @Nullable
-    public abstract String message();
+    public abstract String getMessage();
 
     /**
      * Optionally, a machine-readable value to be read by the EMM. For example, setting values that
@@ -94,17 +97,17 @@ public abstract class KeyedAppState {
      * battery_warning data < 10”).
      */
     @Nullable
-    public abstract String data();
+    public abstract String getData();
 
     Bundle toStateBundle() {
         Bundle bundle = new Bundle();
-        bundle.putString(APP_STATE_KEY, key());
-        bundle.putInt(APP_STATE_SEVERITY, severity());
-        if (message() != null) {
-            bundle.putString(APP_STATE_MESSAGE, message());
+        bundle.putString(APP_STATE_KEY, getKey());
+        bundle.putInt(APP_STATE_SEVERITY, getSeverity());
+        if (getMessage() != null) {
+            bundle.putString(APP_STATE_MESSAGE, getMessage());
         }
-        if (data() != null) {
-            bundle.putString(APP_STATE_DATA, data());
+        if (getData() != null) {
+            bundle.putString(APP_STATE_DATA, getData());
         }
         return bundle;
     }
@@ -154,19 +157,19 @@ public abstract class KeyedAppState {
         // Create a no-args constructor so it doesn't appear in current.txt
         KeyedAppStateBuilder() {}
 
-        /** Set {@link KeyedAppState#key()}. */
+        /** Set {@link KeyedAppState#getKey()}. */
         @NonNull
         public abstract KeyedAppStateBuilder setKey(@NonNull String key);
 
-        /** Set {@link KeyedAppState#severity()}. */
+        /** Set {@link KeyedAppState#getSeverity()}. */
         @NonNull
         public abstract KeyedAppStateBuilder setSeverity(@Severity int severity);
 
-        /** Set {@link KeyedAppState#message()}. */
+        /** Set {@link KeyedAppState#getMessage()}. */
         @NonNull
         public abstract KeyedAppStateBuilder setMessage(@Nullable String message);
 
-        /** Set {@link KeyedAppState#data()}. */
+        /** Set {@link KeyedAppState#getData()}. */
         @NonNull
         public abstract KeyedAppStateBuilder setData(@Nullable String data);
 
@@ -184,24 +187,25 @@ public abstract class KeyedAppState {
         @NonNull
         public KeyedAppState build() {
             KeyedAppState keyedAppState = autoBuild();
-            if (keyedAppState.key().length() > MAX_KEY_LENGTH) {
+            if (keyedAppState.getKey().length() > MAX_KEY_LENGTH) {
                 throw new IllegalStateException(
                         String.format("Key length can be at most %s", MAX_KEY_LENGTH));
             }
 
-            if (keyedAppState.message() != null
-                    && keyedAppState.message().length() > MAX_MESSAGE_LENGTH) {
+            if (keyedAppState.getMessage() != null
+                    && keyedAppState.getMessage().length() > MAX_MESSAGE_LENGTH) {
                 throw new IllegalStateException(
                         String.format("Message length can be at most %s", MAX_MESSAGE_LENGTH));
             }
 
-            if (keyedAppState.data() != null && keyedAppState.data().length() > MAX_DATA_LENGTH) {
+            if (keyedAppState.getData() != null
+                    && keyedAppState.getData().length() > MAX_DATA_LENGTH) {
                 throw new IllegalStateException(
                         String.format("Data length can be at most %s", MAX_DATA_LENGTH));
             }
 
-            if (keyedAppState.severity() != SEVERITY_ERROR
-                    && keyedAppState.severity() != SEVERITY_INFO) {
+            if (keyedAppState.getSeverity() != SEVERITY_ERROR
+                    && keyedAppState.getSeverity() != SEVERITY_INFO) {
                 throw new IllegalStateException("Severity must be SEVERITY_ERROR or SEVERITY_INFO");
             }
 

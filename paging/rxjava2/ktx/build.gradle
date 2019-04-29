@@ -20,7 +20,8 @@ import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
     id("org.jetbrains.kotlin.android")
 }
 
@@ -37,9 +38,9 @@ dependencies {
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
     api(project(":paging:paging-common-ktx"))
 
-    androidTestImplementation(TEST_EXT_JUNIT)
-    androidTestImplementation(TEST_CORE)
-    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(ARCH_CORE_TESTING)
 }
