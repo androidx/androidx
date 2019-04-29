@@ -225,8 +225,8 @@ internal class ParagraphAndroid constructor(
         val horizontal = ensureLayout.getPrimaryHorizontal(textPosition.offset)
 
         val line = ensureLayout.getLineForOffset(textPosition.offset)
-        val top = ensureLayout.getLineTop(line).toFloat()
-        val bottom = ensureLayout.getLineBottom(line).toFloat()
+        val top = ensureLayout.getLineTop(line)
+        val bottom = ensureLayout.getLineBottom(line)
 
         return Pair(Offset(horizontal, top), Offset(horizontal, bottom))
     }
