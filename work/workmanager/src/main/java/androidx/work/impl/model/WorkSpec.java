@@ -247,10 +247,11 @@ public class WorkSpec {
                     : (long) Math.scalb(backoffDelayDuration, runAttemptCount - 1);
             return periodStartTime + Math.min(WorkRequest.MAX_BACKOFF_MILLIS, delay);
         } else if (isPeriodic()) {
+            long now = System.currentTimeMillis();
+            long start = periodStartTime == 0 ? (now + initialDelay) : periodStartTime;
             boolean isFlexApplicable = flexDuration != intervalDuration;
             if (isFlexApplicable) {
-                // When a PeriodicWorkRequest is being scheduled for the first time,
-                // the periodStartTime will be 0. To correctly emulate flex, we need to set it
+                // To correctly emulate flex, we need to set it
                 // to now, so the PeriodicWorkRequest has an initial delay of
                 // initialDelay + (interval - flex).
 
@@ -259,15 +260,16 @@ public class WorkSpec {
                 // 1 => now + (interval - flex) + initialDelay = firstRunTime
                 // 2 => firstRunTime + 2 * interval - flex
                 // 3 => firstRunTime + 3 * interval - flex
-
                 long offset = periodStartTime == 0 ? (-1 * flexDuration) : 0;
-                long start = periodStartTime == 0 ? (System.currentTimeMillis() + initialDelay)
-                        : periodStartTime;
                 return start + intervalDuration + offset;
             } else {
                 // Don't use flexDuration for determining next run time for PeriodicWork
                 // This is because intervalDuration could equal flexDuration.
-                return periodStartTime + intervalDuration;
+
+                // The first run of a periodic work request is immediate in JobScheduler, and we
+                // need to emulate this behavior.
+                long offset = periodStartTime == 0 ? 0 : intervalDuration;
+                return start + offset;
             }
         } else {
             // We are checking for (periodStartTime == 0) to support our testing use case.
