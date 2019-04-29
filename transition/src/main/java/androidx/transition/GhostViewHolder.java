@@ -172,7 +172,7 @@ class GhostViewHolder extends FrameLayout {
 
         // From the implementation of ViewGroup.buildOrderedChildList() used by dispatchDraw:
         // The drawing order list is sorted by Z first.
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (view.getZ() != comparedWith.getZ()) {
                 return view.getZ() > comparedWith.getZ();
             }
