@@ -122,6 +122,11 @@ fun RippleRectFromState(state: TransitionState) {
     </Draw>
 }
 
+private enum class ButtonStatus {
+    Pressed,
+    Released
+}
+
 private val down = PointF(0f, 0f)
 
 private val alpha = FloatPropKey()

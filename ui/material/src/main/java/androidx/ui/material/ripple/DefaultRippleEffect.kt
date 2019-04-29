@@ -157,8 +157,8 @@ internal class DefaultRippleEffect(
         clippingBorderRadius ?: BorderRadius.Zero
     private val clipCallback: ((LayoutCoordinates) -> PxBounds)? =
         getRippleClipCallback(containedInkWell, boundsCallback)
-    private val animation: TransitionAnimation<RippleTransitionState>
-    private var transitionState = RippleTransitionState.Initial
+    private val animation: TransitionAnimation<RippleTransition.State>
+    private var transitionState = RippleTransition.State.Initial
     private var finishRequested = false
 
     init {
@@ -178,19 +178,19 @@ internal class DefaultRippleEffect(
         animation.onUpdate = { rippleSurface.markNeedsRedraw() }
         animation.onStateChangeFinished = { stage ->
             transitionState = stage
-            if (transitionState == RippleTransitionState.Finished) {
+            if (transitionState == RippleTransition.State.Finished) {
                 dispose()
             }
         }
         // currently we are in Initial state, now we start the animation:
-        animation.toState(RippleTransitionState.Revealed)
+        animation.toState(RippleTransition.State.Revealed)
 
         rippleSurface.addEffect(this)
     }
 
     override fun finish(canceled: Boolean) {
         finishRequested = true
-        animation.toState(RippleTransitionState.Finished)
+        animation.toState(RippleTransition.State.Finished)
     }
 
     private fun clipRRectFromRect(rect: Rect): RRect {
@@ -216,7 +216,7 @@ internal class DefaultRippleEffect(
     }
 
     override fun drawEffect(canvas: Canvas, transform: Matrix4) {
-        val alpha = if (transitionState == RippleTransitionState.Initial && finishRequested) {
+        val alpha = if (transitionState == RippleTransition.State.Initial && finishRequested) {
             // if we still fading-in we should immediately switch to the final alpha.
             color.alpha
         } else {
@@ -254,6 +254,15 @@ internal class DefaultRippleEffect(
  */
 private object RippleTransition {
 
+    enum class State {
+        /** The starting state.  */
+        Initial,
+        /** User is still touching the surface.  */
+        Revealed,
+        /** User stopped touching the surface.  */
+        Finished
+    }
+
     private val FadeInDuration = 75.milliseconds
     private val RadiusDuration = 225.milliseconds
     private val FadeOutDuration = 150.milliseconds
@@ -269,23 +278,23 @@ private object RippleTransition {
         startCenter: PxPosition,
         endCenter: PxPosition
     ) = transitionDefinition {
-        state(RippleTransitionState.Initial) {
+        state(State.Initial) {
             this[Alpha] = 0
             this[Radius] = startRadius
             this[Center] = startCenter
         }
-        state(RippleTransitionState.Revealed) {
+        state(State.Revealed) {
             this[Alpha] = revealedAlpha
             this[Radius] = endRadius
             this[Center] = endCenter
         }
-        state(RippleTransitionState.Finished) {
+        state(State.Finished) {
             this[Alpha] = 0
             // the rest are the same as for Revealed
             this[Radius] = endRadius
             this[Center] = endCenter
         }
-        transition(RippleTransitionState.Initial to RippleTransitionState.Revealed) {
+        transition(State.Initial to State.Revealed) {
             Alpha using tween {
                 duration = FadeInDuration.inMilliseconds().toInt()
                 easing = LinearEasing
@@ -301,7 +310,7 @@ private object RippleTransition {
             // we need to always finish the radius animation before starting fading out
             interruptionHandling = InterruptionHandling.UNINTERRUPTIBLE
         }
-        transition(RippleTransitionState.Revealed to RippleTransitionState.Finished) {
+        transition(State.Revealed to State.Finished) {
             fun <T> toFinished() = tween<T> {
                 duration = FadeOutDuration.inMilliseconds().toInt()
                 easing = LinearEasing

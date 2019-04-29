@@ -48,3 +48,9 @@ fun Toggleable(
         }
     }
 }
+
+enum class ToggleableState {
+    Checked,
+    Unchecked,
+    Indeterminate
+}
