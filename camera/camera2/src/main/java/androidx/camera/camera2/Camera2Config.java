@@ -38,7 +38,9 @@ import java.util.Set;
 /** Configuration options related to the {@link android.hardware.camera2} APIs. */
 public final class Camera2Config implements Config {
 
-    static final String CAPTURE_REQUEST_ID_STEM = "camera2.captureRequest.option.";
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY)
+    public static final String CAPTURE_REQUEST_ID_STEM = "camera2.captureRequest.option.";
 
     // Option Declarations:
     // *********************************************************************************************
@@ -90,8 +92,12 @@ public final class Camera2Config implements Config {
         return mConfig.retrieveOption(opt, valueIfMissing);
     }
 
-    /** Returns all capture request options contained in this configuration. */
-    Set<Option<?>> getCaptureRequestOptions() {
+    /**
+     * Returns all capture request options contained in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public Set<Option<?>> getCaptureRequestOptions() {
         final Set<Option<?>> optionSet = new HashSet<>();
         findOptions(
                 Camera2Config.CAPTURE_REQUEST_ID_STEM,
@@ -114,8 +120,10 @@ public final class Camera2Config implements Config {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
+     * @hide
      */
-    int getCaptureRequestTemplate(int valueIfMissing) {
+    @RestrictTo(Scope.LIBRARY)
+    public int getCaptureRequestTemplate(int valueIfMissing) {
         return mConfig.retrieveOption(TEMPLATE_TYPE_OPTION, valueIfMissing);
     }
 
@@ -238,8 +246,10 @@ public final class Camera2Config implements Config {
          *
          * @param templateType The template type to set.
          * @return The current Extender.
+         * @hide
          */
-        Extender setCaptureRequestTemplate(int templateType) {
+        @RestrictTo(Scope.LIBRARY)
+        public Extender setCaptureRequestTemplate(int templateType) {
             mBaseBuilder.getMutableConfig().insertOption(TEMPLATE_TYPE_OPTION, templateType);
             return this;
         }
