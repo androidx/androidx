@@ -1,2 +1,0 @@
-Usage:
-kotlinc -script fixComments.kts ../../port/
