@@ -79,9 +79,12 @@ public class LifecycleOwnerUtils {
                 });
             }
         });
-        boolean latchResult = latch.await(30, TimeUnit.SECONDS);
-        assertThat("expected " + state + " never happened. Current state:"
-                + owner.getLifecycle().getCurrentState(), latchResult, is(true));
+        final boolean latchResult = latch.await(30, TimeUnit.SECONDS);
+
+        assertThat("Expected " + state + " never happened to " + owner
+                        + ". Current state:" + owner.getLifecycle().getCurrentState(),
+                latchResult,
+                is(true));
 
         // wait for another loop to ensure all observers are called
         activityRule.runOnUiThread(DO_NOTHING);
