@@ -339,6 +339,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.crash_app).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                throw new RuntimeException("Crashed app");
+            }
+        });
+
         Button hundredJobExceptionButton = findViewById(R.id.create_hundred_job_exception);
         // 100 Job limits are only enforced on API 24+.
         if (Build.VERSION.SDK_INT >= 24) {

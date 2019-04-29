@@ -793,7 +793,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      */
     public boolean containsKey(@NonNull String key) {
         if (key == null) {
-            throw new IllegalArgumentException("key shouldn't be null");
+            throw new NullPointerException("key shouldn't be null");
         }
         return mBundle.containsKey(key);
     }
@@ -808,7 +808,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      */
     public @Nullable CharSequence getText(@NonNull @TextKey String key) {
         if (key == null) {
-            throw new IllegalArgumentException("key shouldn't be null");
+            throw new NullPointerException("key shouldn't be null");
         }
         return mBundle.getCharSequence(key);
     }
@@ -836,7 +836,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      */
     public @Nullable String getString(@NonNull @TextKey String key) {
         if (key == null) {
-            throw new IllegalArgumentException("key shouldn't be null");
+            throw new NullPointerException("key shouldn't be null");
         }
         CharSequence text = mBundle.getCharSequence(key);
         if (text != null) {
@@ -854,7 +854,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      */
     public long getLong(@NonNull @LongKey String key) {
         if (key == null) {
-            throw new IllegalArgumentException("key shouldn't be null");
+            throw new NullPointerException("key shouldn't be null");
         }
         return mBundle.getLong(key, 0);
     }
@@ -871,7 +871,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      */
     public @Nullable Rating getRating(@NonNull @RatingKey String key) {
         if (key == null) {
-            throw new IllegalArgumentException("key shouldn't be null");
+            throw new NullPointerException("key shouldn't be null");
         }
         Rating rating = null;
         try {
@@ -892,7 +892,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      */
     public float getFloat(@NonNull @FloatKey String key) {
         if (key == null) {
-            throw new IllegalArgumentException("key shouldn't be null");
+            throw new NullPointerException("key shouldn't be null");
         }
         return mBundle.getFloat(key);
     }
@@ -906,7 +906,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      */
     public @Nullable Bitmap getBitmap(@NonNull @BitmapKey String key) {
         if (key == null) {
-            throw new IllegalArgumentException("key shouldn't be null");
+            throw new NullPointerException("key shouldn't be null");
         }
         Bitmap bmp = null;
         try {
@@ -964,7 +964,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @Nullable Object getObject(@NonNull String key) {
         if (key == null) {
-            throw new IllegalArgumentException("key shouldn't be null");
+            throw new NullPointerException("key shouldn't be null");
         }
         return mBundle.get(key);
     }
@@ -1075,7 +1075,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
         public @NonNull Builder putText(@NonNull @TextKey String key,
                 @Nullable CharSequence value) {
             if (key == null) {
-                throw new IllegalArgumentException("key shouldn't be null");
+                throw new NullPointerException("key shouldn't be null");
             }
             if (METADATA_KEYS_TYPE.containsKey(key)) {
                 if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_TEXT) {
@@ -1119,7 +1119,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
         public @NonNull Builder putString(@NonNull @TextKey String key,
                 @Nullable String value) {
             if (key == null) {
-                throw new IllegalArgumentException("key shouldn't be null");
+                throw new NullPointerException("key shouldn't be null");
             }
             if (METADATA_KEYS_TYPE.containsKey(key)) {
                 if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_TEXT) {
@@ -1153,7 +1153,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
          */
         public @NonNull Builder putLong(@NonNull @LongKey String key, long value) {
             if (key == null) {
-                throw new IllegalArgumentException("key shouldn't be null");
+                throw new NullPointerException("key shouldn't be null");
             }
             if (METADATA_KEYS_TYPE.containsKey(key)) {
                 if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_LONG) {
@@ -1181,7 +1181,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
         public @NonNull Builder putRating(@NonNull @RatingKey String key,
                 @Nullable Rating value) {
             if (key == null) {
-                throw new IllegalArgumentException("key shouldn't be null");
+                throw new NullPointerException("key shouldn't be null");
             }
             if (METADATA_KEYS_TYPE.containsKey(key)) {
                 if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_RATING) {
@@ -1213,7 +1213,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
         public @NonNull Builder putBitmap(@NonNull @BitmapKey String key,
                 @Nullable Bitmap value) {
             if (key == null) {
-                throw new IllegalArgumentException("key shouldn't be null");
+                throw new NullPointerException("key shouldn't be null");
             }
             if (METADATA_KEYS_TYPE.containsKey(key)) {
                 if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_BITMAP) {
@@ -1234,7 +1234,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
          */
         public @NonNull Builder putFloat(@NonNull @LongKey String key, float value) {
             if (key == null) {
-                throw new IllegalArgumentException("key shouldn't be null");
+                throw new NullPointerException("key shouldn't be null");
             }
             if (METADATA_KEYS_TYPE.containsKey(key)) {
                 if (METADATA_KEYS_TYPE.get(key) != METADATA_TYPE_FLOAT) {

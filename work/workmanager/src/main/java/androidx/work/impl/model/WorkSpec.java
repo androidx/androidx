@@ -22,8 +22,6 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkRequest.MAX_BACKOFF_MILLIS;
 import static androidx.work.WorkRequest.MIN_BACKOFF_MILLIS;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.util.Function;
@@ -39,7 +37,6 @@ import androidx.work.Data;
 import androidx.work.Logger;
 import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
-import androidx.work.impl.WorkManagerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -250,38 +247,33 @@ public class WorkSpec {
                     : (long) Math.scalb(backoffDelayDuration, runAttemptCount - 1);
             return periodStartTime + Math.min(WorkRequest.MAX_BACKOFF_MILLIS, delay);
         } else if (isPeriodic()) {
-            if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL) {
-                // Flex is only applicable when it's different from interval duration for
-                // the AlarmManager implementation.
-                boolean isFlexApplicable = flexDuration != intervalDuration;
-                if (isFlexApplicable) {
-                    // When a PeriodicWorkRequest is being scheduled for the first time,
-                    // the periodStartTime will be 0. To correctly emulate flex, we need to set it
-                    // to now, so the PeriodicWorkRequest has an initial delay of
-                    // (interval - flex).
+            boolean isFlexApplicable = flexDuration != intervalDuration;
+            if (isFlexApplicable) {
+                // When a PeriodicWorkRequest is being scheduled for the first time,
+                // the periodStartTime will be 0. To correctly emulate flex, we need to set it
+                // to now, so the PeriodicWorkRequest has an initial delay of
+                // initialDelay + (interval - flex).
 
-                    // The subsequent runs will only add the interval duration and no flex.
-                    // This gives us the following behavior:
-                    // 1 => now + (interval - flex) = firstRunTime
-                    // 2 => firstRunTime + 2 * interval - flex
-                    // 3 => firstRunTime + 3 * interval - flex
+                // The subsequent runs will only add the interval duration and no flex.
+                // This gives us the following behavior:
+                // 1 => now + (interval - flex) + initialDelay = firstRunTime
+                // 2 => firstRunTime + 2 * interval - flex
+                // 3 => firstRunTime + 3 * interval - flex
 
-                    long offset = periodStartTime == 0 ? (-1 * flexDuration) : 0;
-                    long start =
-                            periodStartTime == 0 ? System.currentTimeMillis() : periodStartTime;
-                    return start + intervalDuration + offset;
-                } else {
-                    // Don't use flexDuration for determining next run time for PeriodicWork
-                    // Schedulers <= API 22. This is because intervalDuration could equal
-                    // flexDuration.
-                    return periodStartTime + intervalDuration;
-                }
-
+                long offset = periodStartTime == 0 ? (-1 * flexDuration) : 0;
+                long start = periodStartTime == 0 ? (System.currentTimeMillis() + initialDelay)
+                        : periodStartTime;
+                return start + intervalDuration + offset;
             } else {
-                return periodStartTime + intervalDuration - flexDuration;
+                // Don't use flexDuration for determining next run time for PeriodicWork
+                // This is because intervalDuration could equal flexDuration.
+                return periodStartTime + intervalDuration;
             }
         } else {
-            return periodStartTime + initialDelay;
+            // We are checking for (periodStartTime == 0) to support our testing use case.
+            // For newly created WorkSpecs periodStartTime will always be 0.
+            long start = (periodStartTime == 0) ? System.currentTimeMillis() : periodStartTime;
+            return start + initialDelay;
         }
     }
 

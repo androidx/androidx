@@ -103,7 +103,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         try {
             builder = new MediaController.Builder(null);
             fail("null context shouldn't be allowed");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             // expected. pass-through
         }
 
@@ -111,7 +111,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
             builder = new MediaController.Builder(mContext);
             builder.setSessionToken(null);
             fail("null token shouldn't be allowed");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             // expected. pass-through
         }
 
@@ -119,7 +119,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
             builder = new MediaController.Builder(mContext);
             builder.setSessionCompatToken(null);
             fail("null compat token shouldn't be allowed");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             // expected. pass-through
         }
 
@@ -127,7 +127,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
             builder = new MediaController.Builder(mContext);
             builder.setControllerCallback(null, null);
             fail("null executor or null callback shouldn't be allowed");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             // expected. pass-through
         }
 

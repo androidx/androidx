@@ -20,6 +20,8 @@ import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_3_4;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_4_5;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_5;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_6;
 import static androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES;
 import static androidx.work.impl.model.WorkTypeConverters.StateIds.ENQUEUED;
 import static androidx.work.impl.model.WorkTypeConverters.StateIds.RUNNING;
@@ -60,7 +62,7 @@ import java.util.concurrent.TimeUnit;
         WorkTag.class,
         SystemIdInfo.class,
         WorkName.class},
-        version = 5)
+        version = 6)
 @TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
@@ -108,6 +110,8 @@ public abstract class WorkDatabase extends RoomDatabase {
                         new WorkDatabaseMigrations.WorkMigration(context, VERSION_2, VERSION_3))
                 .addMigrations(MIGRATION_3_4)
                 .addMigrations(MIGRATION_4_5)
+                .addMigrations(
+                        new WorkDatabaseMigrations.WorkMigration(context, VERSION_5, VERSION_6))
                 .fallbackToDestructiveMigration()
                 .build();
     }

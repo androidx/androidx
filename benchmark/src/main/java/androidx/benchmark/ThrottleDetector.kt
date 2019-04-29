@@ -21,10 +21,25 @@ import android.opengl.Matrix
 internal object ThrottleDetector {
     private var initNs = 0L
 
+    /**
+     * Copies 400K, 10 times.
+     */
+    private fun copySomeData() {
+        val a = ByteArray(400000)
+        val b = ByteArray(400000)
+        for (i in 0..9) {
+            System.arraycopy(a, 0, b, 0, a.size)
+        }
+    }
+
     private fun measureWorkNs(): Long {
+        // Access a non-trivial amount of data to try and 'reset' any cache state.
+        // Have observed this to give more consistent performance when clocks are unlocked.
+        copySomeData()
+
         val state = BenchmarkState()
         state.performThrottleChecks = false
-        val input = FloatArray(16) { it.toFloat() }
+        val input = FloatArray(16) { System.nanoTime().toFloat() }
         val output = FloatArray(16)
 
         while (state.keepRunningInline()) {

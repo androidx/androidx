@@ -17,6 +17,7 @@
 package androidx.viewpager2.widget
 
 import android.graphics.Path
+import android.view.ViewConfiguration
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
@@ -31,6 +32,7 @@ import androidx.viewpager2.widget.FakeDragTest.TestConfig
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import androidx.viewpager2.widget.swipe.PageSwiperFakeDrag
+import androidx.viewpager2.widget.swipe.PageSwiperManual
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.Matchers.greaterThan
@@ -67,6 +69,12 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
     private lateinit var test: Context
     private lateinit var adapterProvider: AdapterProvider
     private lateinit var fakeDragger: PageSwiperFakeDrag
+
+    // Used to overcome touch slop and gently slide forward.
+    // Similar to but better than DecelerateInterpolator in this case.
+    private val quadInterpolator = PathInterpolatorCompat.create(Path().also {
+        it.quadTo(0f, 1f, 1f, 1f)
+    })
 
     override fun setUp() {
         super.setUp()
@@ -201,41 +209,70 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         setCurrentItemDuringFakeDrag(true)
     }
 
+    /*
+     * Fake drag, interrupted by manual drag after 0.1 page has been fake-dragged
+     *
+     * > Starting fake drag
+     * onPageScrollStateChanged(1)
+     * onPageScrolled(0, 0.016, 24)
+     * onPageScrolled(0, 0.032, 48)
+     * ...
+     * onPageScrolled(0, 0.096, 145)
+     * onPageScrolled(0, 0.112, 169)
+     * > Starting manual drag
+     * onPageScrolled(0, 0.129, 194)
+     * onPageScrolled(0, 0.187, 281)
+     * ...
+     * onPageScrolled(0, 0.616, 925)
+     * onPageScrolled(0, 0.669, 1004)
+     * onPageScrollStateChanged(2)
+     * onPageSelected(1)
+     * onPageScrolled(0, 0.706, 1059)
+     * onPageScrolled(0, 0.740, 1111)
+     * ...
+     * onPageScrolled(0, 0.999, 1499)
+     * onPageScrolled(1, 0.0, 0)
+     * onPageScrollStateChanged(0)
+     */
     @Test
     fun test_startManualDragDuringFakeDrag() {
-        // Skip tests where manual dragging is disabled
-        assumeThat(config.enableUserInput, equalTo(true))
-
-        // Run the test two times to verify that state doesn't linger
-        repeat(2) {
-            val initialPage = test.viewPager.currentItem
-            val expectedFinalPage = initialPage + 1
-            val recorder = test.viewPager.addNewRecordingCallback()
-
-            // start fake drag
-            val fakeDragLatch = test.viewPager.addWaitForDistanceToTarget(expectedFinalPage, .9f)
-            val idleLatch = test.viewPager.addWaitForIdleLatch()
-            fakeDragger.fakeDrag(.5f, 500)
-            assertThat(fakeDragLatch.await(1, SECONDS), equalTo(true))
-
-            // start manual drag
+        startManualDragDuringFakeDrag(.5f, 500) {
             test.swipeForward(SwipeMethod.MANUAL)
-            assertThat(idleLatch.await(2, SECONDS), equalTo(true))
+        }
+    }
 
-            // test assertions
-            test.assertBasicState(expectedFinalPage)
-            recorder.apply {
-                scrollEvents.assertValueSanity(0, pageCount - 1, test.viewPager.pageSize)
-                assertFirstEvents(DRAGGING)
-                assertLastEvents(expectedFinalPage)
-                assertPageSelectedEvents(initialPage, expectedFinalPage)
-                assertStateChanges(
-                    listOf(DRAGGING, SETTLING, IDLE),
-                    listOf(DRAGGING, IDLE)
-                )
-            }
-
-            test.viewPager.unregisterOnPageChangeCallback(recorder)
+    /*
+     * Fake drag, interrupted by manual drag after 1.1 page has been fake-dragged
+     *
+     * > Starting fake drag
+     * onPageScrollStateChanged(1)
+     * onPageScrolled(0, 0.040, 61)
+     * onPageScrolled(0, 0.082, 123)
+     * ...
+     * onPageScrolled(1, 0.063, 95)
+     * onPageScrolled(1, 0.104, 157)
+     * > Starting manual drag
+     * onPageScrolled(1, 0.145, 218)
+     * onPageScrolled(1, 0.173, 260)
+     * ...
+     * onPageScrolled(1, 0.201, 302)
+     * onPageScrolled(1, 0.202, 303)
+     * onPageScrollStateChanged(2)
+     * onPageSelected(1)
+     * onPageScrolled(1, 0.165, 248)
+     * onPageScrolled(1, 0.128, 193)
+     * ...
+     * onPageScrolled(1, 0.001, 1)
+     * onPageScrolled(1, 0.0, 0)
+     * onPageScrollStateChanged(0)
+     */
+    @Test
+    fun test_startManualPeekAfterFakeDrag1Page() {
+        val vc = ViewConfiguration.get(test.viewPager.context)
+        val touchSlop = vc.scaledTouchSlop
+        startManualDragDuringFakeDrag(1.8f, 700, 1) {
+            PageSwiperManual(test.viewPager, config.rtl)
+                .swipeForward(touchSlop * 5f, quadInterpolator)
         }
     }
 
@@ -354,6 +391,49 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         assertThat(executionLatch.await(1, SECONDS), equalTo(true))
         assertThat(exception, notNullValue())
         assertThat(exception!!.message, equalTo(errorMessage))
+    }
+
+    private fun startManualDragDuringFakeDrag(
+        fakeDragDistance: Float,
+        fakeDragDuration: Long,
+        referencePageOffset: Int = 0,
+        manualDragCallback: () -> Unit
+    ) {
+        // Skip tests where manual dragging is disabled
+        assumeThat(config.enableUserInput, equalTo(true))
+
+        // Run the test two times to verify that state doesn't linger
+        repeat(2) {
+            val initialPage = test.viewPager.currentItem
+            val expectedFinalPage = initialPage + 1
+            val recorder = test.viewPager.addNewRecordingCallback()
+
+            // start fake drag
+            val fakeDragLatch = test.viewPager.addWaitForDistanceToTarget(
+                expectedFinalPage + referencePageOffset, .9f)
+            val idleLatch = test.viewPager.addWaitForIdleLatch()
+            fakeDragger.fakeDrag(fakeDragDistance, fakeDragDuration)
+            assertThat(fakeDragLatch.await(5, SECONDS), equalTo(true))
+
+            // start manual drag
+            manualDragCallback()
+            assertThat(idleLatch.await(2, SECONDS), equalTo(true))
+
+            // test assertions
+            test.assertBasicState(expectedFinalPage)
+            recorder.apply {
+                scrollEvents.assertValueSanity(0, pageCount - 1, test.viewPager.pageSize)
+                assertFirstEvents(DRAGGING)
+                assertLastEvents(expectedFinalPage)
+                assertPageSelectedEvents(initialPage, expectedFinalPage)
+                assertStateChanges(
+                    listOf(DRAGGING, SETTLING, IDLE),
+                    listOf(DRAGGING, IDLE)
+                )
+            }
+
+            test.viewPager.unregisterOnPageChangeCallback(recorder)
+        }
     }
 
     private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {

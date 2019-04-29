@@ -38,7 +38,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import android.content.Context;
 import android.content.Intent;
@@ -57,8 +56,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
-
-import com.google.common.util.concurrent.ListenableFuture;
+import androidx.testutils.PollingCheck;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -211,26 +209,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
 
     private void testDuckedAfterAction(final AudioAttributesCompat attr,
             final PlayerRunnable action) throws Exception {
-        final CountDownLatch latchForDucked = new CountDownLatch(1);
         final CountDownLatch latchForPlaying = new CountDownLatch(1);
-
-        try {
-            mInstrumentation.runOnMainSync(new Runnable() {
-                public void run() {
-                    mPlayer = new MediaPlayer(mActivity) {
-                        @Override
-                        public ListenableFuture<PlayerResult> setPlayerVolume(float volume) {
-                            if (volume < getMaxPlayerVolume()) {
-                                latchForDucked.countDown();
-                            }
-                            return super.setPlayerVolume(volume);
-                        }
-                    };
-                }
-            });
-        } catch (Throwable e) {
-            fail();
-        }
 
         initPlayer(attr);
         mPlayer.registerPlayerCallback(sHandlerExecutor, new SessionPlayer.PlayerCallback() {
@@ -245,13 +224,17 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
         // Playback becomes PLAYING needs to be propagated to the session and its focus handler.
         // Wait for a while for that.
         assertTrue(latchForPlaying.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        assertTrue(latchForDucked.getCount() > 0);
 
+        final float curVolume = mPlayer.getPlayerVolume();
         // Do something that would pause playback.
         action.run(mPlayer);
 
-        // Wait until pause actually taking effect.
-        assertTrue(latchForDucked.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        new PollingCheck(WAIT_TIME_MS) {
+            @Override
+            protected boolean check() {
+                return mPlayer.getPlayerVolume() < curVolume || curVolume == 0.0;
+            }
+        }.run();
     }
 
     @Test
@@ -377,19 +360,6 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
         mPlayer.play();
 
         waitForAudioFocus(AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK);
-    }
-
-    @Test
-    public void testAudioFocus_setVolumeZeroWhenAudioAttributesIsMissing()
-            throws Exception {
-        prepareLooper();
-
-        // Request an audio focus in advance.
-        requestAudioFocus(AUDIOFOCUS_GAIN);
-        initPlayer(null);
-        mPlayer.play();
-        assertNoAudioFocusChanges(AUDIOFOCUS_GAIN);
-        assertEquals(0, mPlayer.getPlayerVolume(), 0.1f);
     }
 
     @Test

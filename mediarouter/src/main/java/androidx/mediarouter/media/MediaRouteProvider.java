@@ -512,10 +512,10 @@ public abstract class MediaRouteProvider {
                 @NonNull OnDynamicRoutesChangedListener listener) {
             synchronized (mLock) {
                 if (executor == null) {
-                    throw new NullPointerException("Executor shouldn't be null.");
+                    throw new NullPointerException("Executor shouldn't be null");
                 }
                 if (listener == null) {
-                    throw new NullPointerException("Listener shouldn't be null.");
+                    throw new NullPointerException("Listener shouldn't be null");
                 }
                 mExecutor = executor;
                 mListener = listener;

@@ -266,10 +266,21 @@ public final class Configuration {
     }
 
     /**
-     * A class that can provide the {@link Configuration} for WorkManager.  If your
-     * {@link android.app.Application} class implements this interface and you have disabled
-     * automatic initialization ({@link WorkManager#initialize(Context, Configuration)}, WorkManager
-     * can automatically create and configure itself on-demand.
+     * A class that can provide the {@link Configuration} for WorkManager and allow for on-demand
+     * initialization of WorkManager.  To do this:
+     * <p><ul>
+     *   <li>Disable {@code androidx.work.impl.WorkManagerInitializer} in your manifest</li>
+     *   <li>Implement the {@link Configuration.Provider} interface on your
+     *   {@link android.app.Application} class</li>
+     *   <li>Use {@link WorkManager#getInstance(Context)} when accessing WorkManger (NOT
+     *   {@link WorkManager#getInstance()})</li>
+     * </ul></p>
+     * <p>
+     * Note that on-demand initialization may delay some useful features of WorkManager such as
+     * automatic rescheduling of work following a crash and recovery from the application being
+     * force-stopped by the user or device.
+     *
+     * @see WorkManager#initialize(Context, Configuration) for manual initialization.
      */
     public interface Provider {
 

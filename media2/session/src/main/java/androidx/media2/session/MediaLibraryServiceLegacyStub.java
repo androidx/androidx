@@ -288,7 +288,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
         if (!(controller.getControllerCb() instanceof BrowserLegacyCb)) {
             if (DEBUG) {
-                throw new IllegalStateException("Callback hasn't registered. Must be a bug.");
+                throw new IllegalStateException("Callback hasn't registered. Must be a bug");
             }
             return;
         }

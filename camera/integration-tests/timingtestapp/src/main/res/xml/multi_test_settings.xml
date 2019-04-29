@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright 2019 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Doesn't work as expected
+    <SeekBarPreference
+        android:id="@+id/seekbar_numtests"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:key="@string/settings_numtests_key"
+        android:title="@string/settings_numtests_title"
+        android:summary="@string/settings_numtests_summary"
+        android:defaultValue="30"
+        android:max="500"
+        app:min="5"
+        app:showSeekBarValue="true"
+        app:adjustable="true"
+        app:seekBarIncrement="5"
+        />
+
+    <SeekBarPreference
+        android:id="@+id/seekbar_numtests"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:key="@string/settings_previewbuffer_key"
+        android:title="@string/settings_previewbuffer_title"
+        android:summary="@string/settings_previewbuffer_summary"
+        android:defaultValue="1500"
+        android:max="5000"
+        app:min="250"
+        app:showSeekBarValue="true"
+        app:adjustable="true"
+        app:seekBarIncrement="250"
+        />
+-->
+
+    <MultiSelectListPreference
+        android:id="@+id/multiselect_apis"
+        android:defaultValue="@array/array_settings_api_defaults"
+        android:entries="@array/array_settings_api"
+        android:entryValues="@array/array_settings_api"
+        android:key="@string/settings_autotest_api_key"
+        android:summary="@string/settings_autotest_api_summary"
+        android:title="@string/settings_autotest_api_title"
+        app:iconSpaceReserved="false" />
+
+    <MultiSelectListPreference
+        android:id="@+id/multiselect_imagesize"
+        android:defaultValue="@array/array_settings_imagesize"
+        android:entries="@array/array_settings_imagesize"
+        android:entryValues="@array/array_settings_imagesize"
+        android:key="@string/settings_autotest_imagesize_key"
+        android:summary="@string/settings_autotest_imagesize_summary"
+        android:title="@string/settings_autotest_imagesize_title"
+        app:iconSpaceReserved="false" />
+
+    <MultiSelectListPreference
+        android:id="@+id/multiselect_focus"
+        android:defaultValue="@array/array_settings_focus"
+        android:entries="@array/array_settings_focus"
+        android:entryValues="@array/array_settings_focus"
+        android:key="@string/settings_autotest_focus_key"
+        android:summary="@string/settings_autotest_focus_summary"
+        android:title="@string/settings_autotest_focus_title"
+        app:iconSpaceReserved="false" />
+
+    <CheckBoxPreference
+        android:id="@+id/checkbox_switchtest"
+        android:defaultValue="true"
+        android:key="@string/settings_autotest_switchtest_key"
+        android:summaryOff="@string/settings_autotest_switchtest_summmary_off"
+        android:summaryOn="@string/settings_autotest_switchtest_summary_on"
+        android:title="@string/settings_autotest_switchtest_title"
+        app:iconSpaceReserved="false" />
+
+    <CheckBoxPreference
+        android:id="@+id/checkbox_logical_cameras"
+        android:defaultValue="true"
+        android:key="@string/settings_autotest_cameras_key"
+        android:summaryOff="@string/settings_autotest_cameras_summary_off"
+        android:summaryOn="@string/settings_autotest_cameras_summary_on"
+        android:title="@string/settings_autotest_cameras_title"
+        app:iconSpaceReserved="false" />
+
+
+    <ListPreference
+        android:id="@+id/list_numtests"
+        android:defaultValue="30"
+        android:entries="@array/array_numtests"
+        android:entryValues="@array/array_numtests"
+        android:key="@string/settings_numtests_key"
+        android:summary="%s"
+        android:title="@string/settings_numtests_title"
+        app:iconSpaceReserved="false" />
+
+    <ListPreference
+        android:id="@+id/list_previewbuffer"
+        android:defaultValue="1500"
+        android:entries="@array/array_previewbuffer"
+        android:entryValues="@array/array_previewbuffer"
+        android:key="@string/settings_previewbuffer_key"
+        android:summary="%s"
+        android:title="@string/settings_previewbuffer_title"
+        app:iconSpaceReserved="false" />
+
+    <CheckBoxPreference
+        android:id="@+id/checkbox_autodelete"
+        android:defaultValue="true"
+        android:key="@string/settings_autodelete_key"
+        android:summaryOff="@string/settings_autodelete_summary_off"
+        android:summaryOn="@string/settings_autodelete_summary"
+        android:title="@string/settings_autodelete_title"
+        app:iconSpaceReserved="false" />
+
+</PreferenceScreen>

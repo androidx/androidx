@@ -16,14 +16,16 @@
 
 package androidx.benchmark.gradle
 
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import javax.inject.Inject
 
-open class LockClocksTask @Inject constructor(sdkPath: String) : ClockTask(sdkPath) {
+open class LockClocksTask @Inject constructor(private val adb: Adb) : DefaultTask() {
     init {
+        group = "Android"
         description = "locks clocks of connected, supported, rooted device"
     }
 
@@ -31,8 +33,8 @@ open class LockClocksTask @Inject constructor(sdkPath: String) : ClockTask(sdkPa
     @TaskAction
     fun exec() {
         // Skip "adb root" if already rooted as it will fail.
-        if (execAdbSync(arrayOf("shell", "su exit"), false).exitValue() != 0) {
-            execAdbSync(arrayOf("root"))
+        if (adb.execSync("shell su exit", shouldThrow = false).exitValue != 0) {
+            adb.execSync("root")
         }
 
         val dest = "/data/local/tmp/lockClocks.sh"
@@ -43,11 +45,11 @@ open class LockClocksTask @Inject constructor(sdkPath: String) : ClockTask(sdkPa
             Paths.get(tmpSource),
             StandardCopyOption.REPLACE_EXISTING
         )
-        execAdbSync(arrayOf("push", tmpSource, dest))
+        adb.execSync("push $tmpSource $dest")
 
         // Files pushed by adb push don't always preserve file permissions.
-        execAdbSync(arrayOf("shell", "chmod", "700", dest))
-        execAdbSync(arrayOf("shell", dest))
-        execAdbSync(arrayOf("shell", "rm", dest))
+        adb.execSync("shell chmod 700 $dest")
+        adb.execSync("shell $dest")
+        adb.execSync("shell rm $dest")
     }
 }

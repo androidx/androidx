@@ -25,12 +25,16 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.OnBackPressedDispatcher;
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.CallSuper;
 import androidx.annotation.IdRes;
 import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.TaskStackBuilder;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelStore;
 
 import java.util.ArrayDeque;
@@ -74,8 +78,7 @@ public class NavController {
     public static final @NonNull String KEY_DEEP_LINK_INTENT =
             "android-support-nav:controller:deepLinkIntent";
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Context mContext;
+    private final Context mContext;
     private Activity mActivity;
     private NavInflater mInflater;
     private NavGraph mGraph;
@@ -84,63 +87,23 @@ public class NavController {
     private int[] mBackStackIdsToRestore;
     private Parcelable[] mBackStackArgsToRestore;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Deque<NavBackStackEntry> mBackStack = new ArrayDeque<>();
+    private final Deque<NavBackStackEntry> mBackStack = new ArrayDeque<>();
 
+    private LifecycleOwner mLifecycleOwner;
     private NavControllerViewModel mViewModel;
 
-    private final NavigatorProvider mNavigatorProvider = new NavigatorProvider() {
-        @Nullable
-        @Override
-        public Navigator<? extends NavDestination> addNavigator(@NonNull String name,
-                @NonNull Navigator<? extends NavDestination> navigator) {
-            Navigator<? extends NavDestination> previousNavigator =
-                    super.addNavigator(name, navigator);
-            if (previousNavigator != navigator) {
-                if (previousNavigator != null) {
-                    previousNavigator.removeOnNavigatorBackPressListener(mOnBackPressListener);
-                }
-                navigator.addOnNavigatorBackPressListener(mOnBackPressListener);
-            }
-            return previousNavigator;
-        }
-    };
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Navigator.OnNavigatorBackPressListener mOnBackPressListener =
-            new Navigator.OnNavigatorBackPressListener() {
-                @Override
-                public void onPopBackStack(@NonNull Navigator navigator) {
-                    // Find what destination just got popped
-                    NavDestination lastFromNavigator = null;
-                    Iterator<NavBackStackEntry> iterator = mBackStack.descendingIterator();
-                    while (iterator.hasNext()) {
-                        NavDestination destination = iterator.next().getDestination();
-                        Navigator currentNavigator = getNavigatorProvider().getNavigator(
-                                destination.getNavigatorName());
-                        if (currentNavigator == navigator) {
-                            lastFromNavigator = destination;
-                            break;
-                        }
-                    }
-                    if (lastFromNavigator == null) {
-                        throw new IllegalArgumentException("Navigator " + navigator
-                                + " reported pop but did not have any destinations"
-                                + " on the NavController back stack");
-                    }
-                    // Pop all intervening destinations from other Navigators off the
-                    // back stack
-                    popBackStackInternal(lastFromNavigator.getId(), false);
-                    // Now record the pop operation that we were sent
-                    if (!mBackStack.isEmpty()) {
-                        mBackStack.removeLast();
-                    }
-                    dispatchOnDestinationChanged();
-                }
-            };
+    private final NavigatorProvider mNavigatorProvider = new NavigatorProvider();
 
     private final CopyOnWriteArrayList<OnDestinationChangedListener>
             mOnDestinationChangedListeners = new CopyOnWriteArrayList<>();
+
+    private final OnBackPressedCallback mOnBackPressedCallback =
+            new OnBackPressedCallback(false) {
+        @Override
+        public void handleOnBackPressed() {
+            popBackStack();
+        }
+    };
 
     /**
      * OnDestinationChangedListener receives a callback when the
@@ -324,6 +287,7 @@ public class NavController {
                 break;
             }
         }
+        mOnBackPressedCallback.setEnabled(getDestinationCountOnBackStack() > 1);
         return popped;
     }
 
@@ -389,8 +353,7 @@ public class NavController {
      *
      * @return If changes were dispatched.
      */
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    boolean dispatchOnDestinationChanged() {
+    private boolean dispatchOnDestinationChanged() {
         // We never want to leave NavGraphs on the top of the stack
         //noinspection StatementWithEmptyBody
         while (!mBackStack.isEmpty()
@@ -522,6 +485,7 @@ public class NavController {
                 }
                 mBackStack.add(new NavBackStackEntry(uuid, node, args));
             }
+            mOnBackPressedCallback.setEnabled(getDestinationCountOnBackStack() > 1);
             mBackStackUUIDsToRestore = null;
             mBackStackIdsToRestore = null;
             mBackStackArgsToRestore = null;
@@ -914,6 +878,7 @@ public class NavController {
                     newDest.addInDefaultArgs(finalArgs));
             mBackStack.add(newBackStackEntry);
         }
+        mOnBackPressedCallback.setEnabled(getDestinationCountOnBackStack() > 1);
         if (popped || newDest != null) {
             dispatchOnDestinationChanged();
         }
@@ -1029,6 +994,39 @@ public class NavController {
         mBackStackUUIDsToRestore = navState.getStringArray(KEY_BACK_STACK_UUIDS);
         mBackStackIdsToRestore = navState.getIntArray(KEY_BACK_STACK_IDS);
         mBackStackArgsToRestore = navState.getParcelableArray(KEY_BACK_STACK_ARGS);
+    }
+
+    /**
+     * Sets the host's {@link LifecycleOwner}.
+     *
+     * @param owner The {@link LifecycleOwner} associated with the containing {@link NavHost}.
+     * @see #setHostOnBackPressedDispatcherOwner(OnBackPressedDispatcherOwner)
+     */
+    public void setHostLifecycleOwner(@NonNull LifecycleOwner owner) {
+        mLifecycleOwner = owner;
+    }
+
+    /**
+     * Sets the host's {@link OnBackPressedDispatcherOwner}. If set, NavController will
+     * register a {@link OnBackPressedCallback} to handle system Back button events.
+     * <p>
+     * If you have not explicitly called {@link #setHostLifecycleOwner(LifecycleOwner)},
+     * the owner you pass here will be used as the {@link LifecycleOwner} for registering
+     * the {@link OnBackPressedCallback}.
+     *
+     * @param owner The {@link OnBackPressedDispatcherOwner} associated with the containing
+     * {@link NavHost}.
+     * @see #setHostLifecycleOwner(LifecycleOwner)
+     */
+    public void setHostOnBackPressedDispatcherOwner(@NonNull OnBackPressedDispatcherOwner owner) {
+        if (mLifecycleOwner == null) {
+            mLifecycleOwner = owner;
+        }
+        OnBackPressedDispatcher dispatcher = owner.getOnBackPressedDispatcher();
+        // Remove the callback from any previous dispatcher
+        mOnBackPressedCallback.remove();
+        // Then add it to the new dispatcher
+        dispatcher.addCallback(mLifecycleOwner, mOnBackPressedCallback);
     }
 
     /**

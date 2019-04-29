@@ -11,12 +11,12 @@ package androidx.media2.session {
   }
 
   public class MediaController implements java.lang.AutoCloseable {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult>! playFromMediaId(String, android.os.Bundle?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult>! playFromSearch(String, android.os.Bundle?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult>! playFromUri(android.net.Uri, android.os.Bundle?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult>! prepareFromMediaId(String, android.os.Bundle?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult>! prepareFromSearch(String, android.os.Bundle?);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult>! prepareFromUri(android.net.Uri, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult> playFromMediaId(String, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult> playFromSearch(String, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult> playFromUri(android.net.Uri, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult> prepareFromMediaId(String, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult> prepareFromSearch(String, android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult> prepareFromUri(android.net.Uri, android.os.Bundle?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setTimeDiff(Long!);
   }
 
