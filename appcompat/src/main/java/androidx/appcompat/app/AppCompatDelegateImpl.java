@@ -2305,7 +2305,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // If the Activity is not set to handle uiMode config changes we will
         // update the Resources with a new Configuration with an updated UI Mode
         final Resources res = mContext.getResources();
-        final Configuration conf = new Configuration();
+        final Configuration conf = new Configuration(res.getConfiguration());
         conf.uiMode = uiModeNightModeValue
                 | (res.getConfiguration().uiMode & ~Configuration.UI_MODE_NIGHT_MASK);
         res.updateConfiguration(conf, null);
