@@ -16,15 +16,12 @@
 
 package androidx.media2.player.exoplayer;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.media2.exoplayer.external.DefaultRenderersFactory;
 import androidx.media2.exoplayer.external.Renderer;
 import androidx.media2.exoplayer.external.audio.AudioProcessor;
@@ -44,10 +41,7 @@ import java.util.ArrayList;
 
 /**
  * Factory for renderers for {@link ExoPlayerWrapper}.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class RenderersFactory extends DefaultRenderersFactory {
 

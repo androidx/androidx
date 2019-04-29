@@ -16,7 +16,7 @@
 
 package androidx.media2.player.subtitle;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -47,7 +47,7 @@ import java.util.ArrayList;
 /**
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY_GROUP)
 public class ClosedCaptionRenderer extends SubtitleController.Renderer {
     private static final String TAG = "ClosedCaptionRenderer";
     private final Context mContext;

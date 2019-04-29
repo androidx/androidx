@@ -16,7 +16,7 @@
 
 package androidx.media2.player;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -226,7 +226,7 @@ import java.util.concurrent.Executor;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY)
 public abstract class MediaPlayer2 {
 
     /**
@@ -615,7 +615,7 @@ public abstract class MediaPlayer2 {
     public static final int SEEK_CLOSEST          = 0x03;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "SEEK",*/ value = {
             SEEK_PREVIOUS_SYNC,
             SEEK_NEXT_SYNC,
@@ -743,7 +743,10 @@ public abstract class MediaPlayer2 {
      * Class for MediaPlayer2 to return each audio/video/subtitle track's metadata.
      *
      * @see MediaPlayer2#getTrackInfo
+     *
+     * @hide
      */
+    @RestrictTo(LIBRARY) // TODO: Remove redundant annotation after b/131579290 is resolved
     public abstract static class TrackInfo {
         /**
          * Gets the track type.
@@ -873,7 +876,10 @@ public abstract class MediaPlayer2 {
     /**
      * Interface definition for callbacks to be invoked when the player has the corresponding
      * events.
+     *
+     * @hide
      */
+    @RestrictTo(LIBRARY) // TODO: Remove redundant annotation after b/131579290 is resolved
     public abstract static class EventCallback {
         /**
          * Called to indicate the video size
@@ -1032,7 +1038,7 @@ public abstract class MediaPlayer2 {
     public static final int PLAYER_STATE_ERROR = 1005;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, value = {
             PLAYER_STATE_IDLE,
             PLAYER_STATE_PREPARED,
@@ -1081,7 +1087,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "MEDIA_ERROR",*/ value = {
             MEDIA_ERROR_UNKNOWN,
             MEDIA_ERROR_IO,
@@ -1245,7 +1251,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "MEDIA_INFO",*/ value = {
             MEDIA_INFO_UNKNOWN,
             MEDIA_INFO_DATA_SOURCE_START,
@@ -1404,7 +1410,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "CALL_COMPLETED",*/ value = {
             CALL_COMPLETED_ATTACH_AUX_EFFECT,
             CALL_COMPLETED_DESELECT_TRACK,
@@ -1476,7 +1482,7 @@ public abstract class MediaPlayer2 {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "CALL_STATUS",*/ value = {
             CALL_STATUS_NO_ERROR,
             CALL_STATUS_ERROR_UNKNOWN,
@@ -1499,7 +1505,10 @@ public abstract class MediaPlayer2 {
      *
      * The only allowed DRM calls in this listener are {@link #getDrmPropertyString}
      * and {@link #setDrmPropertyString}.
+     *
+     * @hide
      */
+    @RestrictTo(LIBRARY) // TODO: Remove redundant annotation after b/131579290 is resolved
     public interface OnDrmConfigHelper {
         /**
          * Called to give the app the opportunity to configure DRM before the session is created
@@ -1524,7 +1533,10 @@ public abstract class MediaPlayer2 {
     /**
      * Interface definition for callbacks to be invoked when the player has the corresponding
      * DRM events.
+     *
+     * @hide
      */
+    @RestrictTo(LIBRARY) // TODO: Remove redundant annotation after b/131579290 is resolved
     public abstract static class DrmEventCallback {
         /**
          * Called to indicate DRM info is available
@@ -1598,7 +1610,7 @@ public abstract class MediaPlayer2 {
     public static final int PREPARE_DRM_STATUS_RESOURCE_BUSY = 5;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @IntDef(flag = false, /*prefix = "PREPARE_DRM_STATUS",*/ value = {
             PREPARE_DRM_STATUS_SUCCESS,
             PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR,
@@ -1764,7 +1776,10 @@ public abstract class MediaPlayer2 {
 
     /**
      * Encapsulates the DRM properties of the source.
+     *
+     * @hide
      */
+    @RestrictTo(LIBRARY) // TODO: Remove redundant annotation after b/131579290 is resolved
     public abstract static class DrmInfo {
         /**
          * Returns the PSSH info of the media item for each supported DRM scheme.
@@ -1782,7 +1797,10 @@ public abstract class MediaPlayer2 {
     /**
      * Thrown when a DRM method is called before preparing a DRM scheme through prepareDrm().
      * Extends MediaDrm.MediaDrmException
+     *
+     * @hide
      */
+    @RestrictTo(LIBRARY) // TODO: Remove redundant annotation after b/131579290 is resolved
     public static class NoDrmSchemeException extends MediaDrmException {
         public NoDrmSchemeException(String detailMessage) {
             super(detailMessage);
@@ -1791,7 +1809,10 @@ public abstract class MediaPlayer2 {
 
     /**
      * Definitions for the metrics that are reported via the {@link #getMetrics} call.
+     *
+     * @hide
      */
+    @RestrictTo(LIBRARY) // TODO: Remove redundant annotation after b/131579290 is resolved
     public static final class MetricsConstants {
         private MetricsConstants() {}
 
