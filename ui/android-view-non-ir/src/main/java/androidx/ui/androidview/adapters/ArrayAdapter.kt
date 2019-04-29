@@ -25,7 +25,7 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.FrameLayout
 import android.widget.TextView
-import com.google.r4a.composeInto
+import com.google.r4a.compose
 import com.google.r4a.composer
 
 // TODO(lmr): This should be moved to a separate module, but needs to be one that is not IR-compiled
@@ -114,7 +114,7 @@ class ArrayAdapter<T> : BaseAdapter(), Filterable {
         val group = view as ViewGroup
 
         // TODO(lmr): we should use the variant of this that passes through ambients if we can
-        group.composeInto(object : Function0<Unit> {
+        group.compose(object : Function0<Unit> {
             @Suppress("PLUGIN_WARNING")
             override fun invoke() {
                 val composer = composer.composer

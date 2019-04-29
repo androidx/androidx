@@ -29,8 +29,8 @@ import androidx.ui.framework.test.TestActivity
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import com.google.r4a.Composable
-import com.google.r4a.composeInto
 import com.google.r4a.composer
+import com.google.r4a.setContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -64,7 +64,7 @@ class ParentDataTest {
     fun parentDataDefaultsToNull() {
         val parentData = Ref<Any?>()
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     <Layout children={ <SimpleDrawChild drawLatch/> }> measurables, constraints ->
                         assertEquals(1, measurables.size)
@@ -87,7 +87,7 @@ class ParentDataTest {
     fun nonNullParentData() {
         val parentData = Ref<Any?>()
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     <Layout children={
                         <ParentData data="Hello">
@@ -115,7 +115,7 @@ class ParentDataTest {
     fun parentDataIsReset() {
         val parentData = Ref<Any?>()
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     <ParentData data="Hello">
                         <Layout children={

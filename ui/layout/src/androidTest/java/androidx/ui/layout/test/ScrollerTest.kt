@@ -39,8 +39,8 @@ import androidx.ui.layout.VerticalScroller
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
-import com.google.r4a.composeInto
 import com.google.r4a.composer
+import com.google.r4a.setContent
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -120,7 +120,7 @@ class ScrollerTest : LayoutTest() {
             val constraints = DpConstraints.tightConstraints(45.px.toDp(), height.toPx().toDp())
             val runnable: Runnable = object : Runnable {
                 override fun run() {
-                    activity.composeInto {
+                    activity.setContent {
                         <CraneWrapper>
                             <Align alignment=Alignment.TopLeft>
                                 <ConstrainedBox constraints>

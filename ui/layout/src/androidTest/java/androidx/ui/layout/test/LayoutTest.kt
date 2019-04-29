@@ -32,8 +32,8 @@ import androidx.ui.core.Ref
 import androidx.ui.core.px
 import com.google.r4a.Children
 import com.google.r4a.Composable
-import com.google.r4a.composeInto
 import com.google.r4a.composer
+import com.google.r4a.setContent
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -68,7 +68,7 @@ open class LayoutTest {
     internal fun show(@Children composable: () -> Unit) {
         val runnable: Runnable = object : Runnable {
             override fun run() {
-                activity.composeInto {
+                activity.setContent {
                     <CraneWrapper>
                         <composable />
                     </CraneWrapper>

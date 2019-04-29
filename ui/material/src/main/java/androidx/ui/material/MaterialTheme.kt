@@ -79,7 +79,7 @@ fun MaterialTheme(
  * to use Material colors, as well as override the values when you want to re-style a part of your
  * hierarchy.
  */
-val Colors = Ambient<MaterialColors>("colors") { error("No colors found!") }
+val Colors = Ambient.of<MaterialColors>("colors") { error("No colors found!") }
 
 /**
  * This Ambient holds on to the current definiton of typography for this application as described
@@ -88,7 +88,7 @@ val Colors = Ambient<MaterialColors>("colors") { error("No colors found!") }
  * hierarchy. Material components related to text such as [H1TextStyle] will refer to this Ambient
  * to obtain the values with which to style text.
  */
-val Typography = Ambient<MaterialTypography>("typography") { error("No typography found!") }
+val Typography = Ambient.of<MaterialTypography>("typography") { error("No typography found!") }
 
 /**
  * Data class holding color values as defined by the Material specification

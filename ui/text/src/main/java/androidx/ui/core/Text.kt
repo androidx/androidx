@@ -174,7 +174,7 @@ fun Text(
         maxLines />
 }
 
-internal val CurrentTextStyleAmbient = Ambient<TextStyle>("current text style") {
+internal val CurrentTextStyleAmbient = Ambient.of<TextStyle>("current text style") {
     TextStyle()
 }
 
