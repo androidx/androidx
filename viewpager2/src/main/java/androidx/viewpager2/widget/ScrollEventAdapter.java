@@ -266,7 +266,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             mDragStartPosition = mTarget;
             // Reset target because drags have no target until released
             mTarget = NO_POSITION;
-        } else {
+        } else if (mDragStartPosition == NO_POSITION) {
             // ViewPager2 was at rest, set "drag start page" to current page
             mDragStartPosition = getPosition();
         }
