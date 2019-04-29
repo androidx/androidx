@@ -34,4 +34,8 @@ final class CameraCaptureResultImageInfo implements ImageInfo {
     public long getTimestamp() {
         return mCameraCaptureResult.getTimestamp();
     }
+
+    CameraCaptureResult getCameraCaptureResult() {
+        return mCameraCaptureResult;
+    }
 }
