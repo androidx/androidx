@@ -17,6 +17,7 @@ package androidx.leanback.widget.picker;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -31,7 +32,6 @@ import android.widget.TextView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
-import androidx.core.os.BuildCompat;
 import androidx.leanback.R;
 import androidx.leanback.widget.OnChildViewHolderSelectedListener;
 import androidx.leanback.widget.VerticalGridView;
@@ -194,7 +194,7 @@ public class Picker extends FrameLayout {
         super(context, attrs, defStyleAttr);
         final TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.lbPicker, defStyleAttr, 0);
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             saveAttributeDataForStyleable(
                     context, R.styleable.lbPicker, attrs, a, defStyleAttr, 0);
         }

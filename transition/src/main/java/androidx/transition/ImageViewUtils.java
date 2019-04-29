@@ -25,7 +25,6 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 
 import java.lang.reflect.Field;
 
@@ -44,7 +43,7 @@ class ImageViewUtils {
      */
     @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
     static void animateTransform(@NonNull ImageView view, @Nullable Matrix matrix) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             view.animateTransform(matrix);
         } else if (matrix == null) {
             // There is a bug in ImageView.animateTransform() prior to Q so paddings are

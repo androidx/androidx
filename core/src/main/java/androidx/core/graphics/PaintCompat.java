@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Pair;
 
 /**
@@ -127,7 +126,7 @@ public final class PaintCompat {
      * back to the default BlendMode
      */
     public static boolean setBlendMode(@NonNull Paint paint, @Nullable BlendModeCompat blendMode) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             paint.setBlendMode(blendMode != null ? obtainBlendModeFromCompat(blendMode) : null);
             // All blend modes supported in Q
             return true;
@@ -160,7 +159,7 @@ public final class PaintCompat {
      */
     public static boolean setBlendModeColorFilter(@NonNull Paint paint, @ColorInt int color,
                                                      @Nullable BlendModeCompat blendModeCompat) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             BlendMode blendMode = obtainBlendModeFromCompat(blendModeCompat);
             if (blendMode != null) {
                 paint.setColorFilter(new BlendModeColorFilter(color, blendMode));

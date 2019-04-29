@@ -50,7 +50,6 @@ import android.support.v4.BaseInstrumentationTestCase;
 import androidx.core.R;
 import androidx.core.app.NotificationCompat.MessagingStyle.Message;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -1005,7 +1004,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     @SdkSuppress(minSdkVersion = 28) // TODO(gsennton): this test only applies to Q+ devices.
     public void action_contextual_toAndFromNotification() {
-        if (!BuildCompat.isAtLeastQ()) return;
+        if (Build.VERSION.SDK_INT < 29) return;
         // Without a PendingIntent the Action.Builder class throws an NPE when building a contextual
         // action.
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
@@ -1022,7 +1021,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // TODO(gsennton): This only works on Q+
     public void getAllowSystemGeneratedContextualActions_trueByDefault() {
-        if (!BuildCompat.isAtLeastQ()) return;
+        if (Build.VERSION.SDK_INT < 29) return;
         Notification notification =
                 new NotificationCompat.Builder(mContext, "test channel").build();
         assertTrue(NotificationCompat.getAllowSystemGeneratedContextualActions(notification));
@@ -1031,7 +1030,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // TODO(gsennton): This only works on Q+
     public void getAllowSystemGeneratedContextualActions() {
-        if (!BuildCompat.isAtLeastQ()) return;
+        if (Build.VERSION.SDK_INT < 29) return;
         Notification notification = new NotificationCompat.Builder(mContext, "test channel")
                 .setAllowSystemGeneratedContextualActions(false)
                 .build();
@@ -1069,7 +1068,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
         // Bubbles are only supported on Q and above; on P and earlier, simply verify that the above
         // code does not crash.
-        if (!BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT < 29) {
             return;
         }
 
@@ -1113,7 +1112,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
 
         // Bubbles are only supported on Q and above; on P and earlier, simply verify that the above
         // code does not crash.
-        if (!BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT < 29) {
             return;
         }
 

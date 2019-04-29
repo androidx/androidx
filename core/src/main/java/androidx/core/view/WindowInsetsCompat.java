@@ -19,12 +19,12 @@ package androidx.core.view;
 import static android.os.Build.VERSION.SDK_INT;
 
 import android.graphics.Rect;
+import android.os.Build;
 import android.view.WindowInsets;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.Insets;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 
 /**
@@ -392,7 +392,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public Insets getSystemWindowInsets() {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             return Insets.wrap(((WindowInsets) mInsets).getSystemWindowInsets());
         } else {
             // Else we'll create a copy from the getters
@@ -418,7 +418,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public Insets getStableInsets() {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             return Insets.wrap(((WindowInsets) mInsets).getStableInsets());
         } else {
             // Else we'll create a copy from the getters
@@ -438,7 +438,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public Insets getMandatorySystemGestureInsets() {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             return Insets.wrap(((WindowInsets) mInsets).getMandatorySystemGestureInsets());
         } else {
             // Before Q, the mandatory system gesture insets == system window insets
@@ -459,7 +459,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public Insets getTappableElementInsets() {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             return Insets.wrap(((WindowInsets) mInsets).getTappableElementInsets());
         } else {
             // Before Q, the tappable elements insets == system window insets
@@ -482,7 +482,7 @@ public class WindowInsetsCompat {
      */
     @NonNull
     public Insets getSystemGestureInsets() {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             return Insets.wrap(((WindowInsets) mInsets).getSystemGestureInsets());
         } else {
             // Before Q, the system gesture insets == system window insets

@@ -25,7 +25,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 
 /**
@@ -37,7 +36,7 @@ class ViewUtils {
     private static final String TAG = "ViewUtils";
 
     static {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             // TODO: replace with 'new ViewUtilsApi29()' when we can use an SDK_INT check as lint
             //       doesn't understand BuildCompat API checks
             IMPL = createViewUtilsApi29();

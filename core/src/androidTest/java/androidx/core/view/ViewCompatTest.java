@@ -31,12 +31,12 @@ import static org.mockito.Mockito.verify;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.Display;
 import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.core.os.BuildCompat;
 import androidx.core.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -256,7 +256,7 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         ViewCompat.setSystemGestureExclusionRects(container, rects);
         final List<Rect> returnedRects = ViewCompat.getSystemGestureExclusionRects(container);
 
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             assertEquals("round trip for expected rects", expected, returnedRects);
         } else {
             assertTrue("empty list for old device", returnedRects.isEmpty());

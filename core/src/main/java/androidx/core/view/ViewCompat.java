@@ -60,7 +60,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.collection.ArrayMap;
 import androidx.core.R;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.AccessibilityDelegateCompat.AccessibilityDelegateAdapter;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
@@ -908,7 +907,7 @@ public class ViewCompat {
 
     private static @Nullable View.AccessibilityDelegate
             getAccessibilityDelegateInternal(@NonNull View v) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             return v.getAccessibilityDelegate();
         } else {
             return getAccessibilityDelegateThroughReflection(v);
@@ -2511,7 +2510,7 @@ public class ViewCompat {
      */
     public static void setSystemGestureExclusionRects(@NonNull View view,
             @NonNull List<Rect> rects) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             view.setSystemGestureExclusionRects(rects);
         }
     }
@@ -2526,7 +2525,7 @@ public class ViewCompat {
      */
     @NonNull
     public static List<Rect> getSystemGestureExclusionRects(@NonNull View view) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             return view.getSystemGestureExclusionRects();
         }
         return Collections.emptyList();

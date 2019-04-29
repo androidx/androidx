@@ -16,12 +16,10 @@
 
 package androidx.transition;
 
-import android.annotation.SuppressLint;
 import android.graphics.Canvas;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.core.os.BuildCompat;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -37,11 +35,10 @@ class CanvasUtils {
      *
      * IMPORTANT: This method doesn't work on Pie! It will thrown an exception instead
      */
-    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
     static void enableZ(@NonNull Canvas canvas, boolean enable) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             // no shadows yet added into a platform
-        } else if (BuildCompat.isAtLeastQ()) {
+        } else if (Build.VERSION.SDK_INT >= 29) {
             if (enable) {
                 canvas.enableZ();
             } else {

@@ -19,13 +19,13 @@ package androidx.wear.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Point;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
 import androidx.annotation.Nullable;
-import androidx.core.os.BuildCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.wear.R;
 
@@ -85,7 +85,7 @@ public class WearableRecyclerView extends RecyclerView {
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.WearableRecyclerView,
                     defStyle, defStyleRes);
-            if (BuildCompat.isAtLeastQ()) {
+            if (Build.VERSION.SDK_INT >= 29) {
                 saveAttributeDataForStyleable(
                         context, R.styleable.WearableRecyclerView, attrs, a, defStyle, defStyleRes);
             }

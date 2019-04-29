@@ -63,7 +63,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.text.BidiFormatter;
 import androidx.core.view.GravityCompat;
 
@@ -4906,7 +4905,7 @@ public class NotificationCompat {
                     remoteInput.getLabel(),
                     remoteInput.getChoices(),
                     remoteInput.getAllowFreeFormInput(),
-                    BuildCompat.isAtLeastQ()
+                    Build.VERSION.SDK_INT >= 29
                             ? remoteInput.getEditChoicesBeforeSending()
                             : RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO,
                     remoteInput.getExtras(),
@@ -5660,7 +5659,7 @@ public class NotificationCompat {
      * @param notification the notification to inspect.
      */
     public static @Nullable BubbleMetadata getBubbleMetadata(Notification notification) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             return BubbleMetadata.fromPlatform(notification.getBubbleMetadata());
         } else {
             return null;
@@ -5682,7 +5681,7 @@ public class NotificationCompat {
                         src.getLabel(),
                         src.getChoices(),
                         src.getAllowFreeFormInput(),
-                        BuildCompat.isAtLeastQ()
+                        Build.VERSION.SDK_INT >= 29
                                 ? src.getEditChoicesBeforeSending()
                                 : RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO,
                         src.getExtras(),
@@ -5711,7 +5710,7 @@ public class NotificationCompat {
                     Action.EXTRA_SEMANTIC_ACTION, Action.SEMANTIC_ACTION_NONE);
         }
 
-        final boolean isContextual = BuildCompat.isAtLeastQ() ? action.isContextual() : false;
+        final boolean isContextual = Build.VERSION.SDK_INT >= 29 ? action.isContextual() : false;
 
         return new Action(action.icon, action.title, action.actionIntent,
                 action.getExtras(), remoteInputs, null, allowGeneratedReplies,
@@ -5904,7 +5903,7 @@ public class NotificationCompat {
      * for this notification.
      */
     public static boolean getAllowSystemGeneratedContextualActions(Notification notification) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             return notification.getAllowSystemGeneratedContextualActions();
         } else {
             return false;

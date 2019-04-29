@@ -16,13 +16,13 @@
 
 package androidx.textclassifier;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.textclassifier.TextClassifier;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.Collection;
@@ -38,7 +38,7 @@ final class PlatformEntityConfigWrapper {
     private final BaseImpl mImpl;
 
     PlatformEntityConfigWrapper(@NonNull TextClassifier.EntityConfig platformEntityConfig) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             mImpl = new Api29Impl(platformEntityConfig);
         } else {
             mImpl = new BaseImpl(platformEntityConfig);

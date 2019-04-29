@@ -55,7 +55,6 @@ import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtils;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.ViewCompat;
@@ -578,7 +577,7 @@ public class AppCompatTextViewTest
                 // setText may wrap the given text with SpannedString. Check the contents by casting
                 // to String.
                 assertEquals(SAMPLE_TEXT_1, tv.getText().toString());
-                if (BuildCompat.isAtLeastQ()) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     assertTrue(tv.getText() instanceof PrecomputedText);
                 }
             }
@@ -598,7 +597,7 @@ public class AppCompatTextViewTest
                 tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
                 assertNotEquals(0.0f, tv.getMeasuredWidth());
                 assertEquals(SAMPLE_TEXT_1, tv.getText().toString());
-                if (BuildCompat.isAtLeastQ()) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     assertTrue(tv.getText() instanceof PrecomputedText);
                 }
             }
@@ -630,7 +629,7 @@ public class AppCompatTextViewTest
                 // setText may wrap the given text with SpannedString. Check the contents by casting
                 // to String.
                 assertEquals(SAMPLE_TEXT_2, tv.getText().toString());
-                if (BuildCompat.isAtLeastQ()) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     assertTrue(tv.getText() instanceof PrecomputedText);
                 }
             }
@@ -645,7 +644,7 @@ public class AppCompatTextViewTest
                 // setText may wrap the given text with SpannedString. Check the contents by casting
                 // to String.
                 assertEquals(SAMPLE_TEXT_2, tv.getText().toString());
-                if (BuildCompat.isAtLeastQ()) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     assertTrue(tv.getText() instanceof PrecomputedText);
                 }
             }

@@ -56,7 +56,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.coordinatorlayout.R;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pools;
 import androidx.core.view.GravityCompat;
@@ -221,7 +220,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                 0, R.style.Widget_Support_CoordinatorLayout)
                 : context.obtainStyledAttributes(attrs, R.styleable.CoordinatorLayout,
                         defStyleAttr, 0);
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             if (defStyleAttr == 0) {
                 saveAttributeDataForStyleable(
                         context, R.styleable.CoordinatorLayout, attrs, a, 0,

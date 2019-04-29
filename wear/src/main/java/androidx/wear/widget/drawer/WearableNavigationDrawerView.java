@@ -19,6 +19,7 @@ package androidx.wear.widget.drawer;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
@@ -33,7 +34,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.core.os.BuildCompat;
 import androidx.wear.R;
 import androidx.wear.internal.widget.drawer.MultiPagePresenter;
 import androidx.wear.internal.widget.drawer.MultiPageUi;
@@ -144,7 +144,7 @@ public class WearableNavigationDrawerView extends WearableDrawerView {
                     defStyleAttr,
                     0 /* defStyleRes */);
 
-            if (BuildCompat.isAtLeastQ()) {
+            if (Build.VERSION.SDK_INT >= 29) {
                 saveAttributeDataForStyleable(
                         context, R.styleable.WearableNavigationDrawerView, attrs, typedArray,
                         defStyleAttr, 0);

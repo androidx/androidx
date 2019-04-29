@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -55,7 +54,7 @@ class ViewGroupUtils {
      */
     @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
     static void suppressLayout(@NonNull ViewGroup group, boolean suppress) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             group.suppressLayout(suppress);
         } else if (Build.VERSION.SDK_INT >= 18) {
             hiddenSuppressLayout(group, suppress);
@@ -83,7 +82,7 @@ class ViewGroupUtils {
      */
     @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
     static int getChildDrawingOrder(@NonNull ViewGroup viewGroup, int i) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             return viewGroup.getChildDrawingOrder(i);
         } else {
             if (!sGetChildDrawingOrderMethodFetched) {

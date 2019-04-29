@@ -34,7 +34,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.WrappedDrawable;
-import androidx.core.os.BuildCompat;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -71,7 +70,7 @@ public class DrawableUtils {
      * use reflection. Since the {@code Insets} class is hidden also, we return a Rect instead.
      */
     public static Rect getOpticalBounds(Drawable drawable) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             final android.graphics.Insets insets = drawable.getOpticalInsets();
             final Rect result = new Rect();
             result.left = insets.left;

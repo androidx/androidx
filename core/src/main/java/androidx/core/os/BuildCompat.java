@@ -94,16 +94,13 @@ public class BuildCompat {
     /**
      * Checks if the device is running on a pre-release version of Android Q or newer.
      * <p>
-     * <strong>Note:</strong> This method will return {@code false} on devices running release
-     * versions of Android. When Android Q is finalized for release, this method will be deprecated
-     * and all calls should be replaced with {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q}.
-     *
      * @return {@code true} if Q APIs are available for use, {@code false} otherwise
+     * @deprecated Android Q is a finalized release and this method is no longer necessary. It
+     *             will be removed in a future release of the Support Library. Instead, use
+     *             {@code Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q}.
      */
-    // TODO Inline usages, update ObsoleteBuildCompatUsageDetector, and deprecate once Q is final.
+    @Deprecated
     public static boolean isAtLeastQ() {
-        return VERSION.CODENAME.length() == 1
-            && VERSION.CODENAME.charAt(0) >= 'Q'
-            && VERSION.CODENAME.charAt(0) <= 'Z';
+        return VERSION.SDK_INT >= 29;
     }
 }

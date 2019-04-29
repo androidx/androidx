@@ -41,7 +41,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
-import androidx.core.os.BuildCompat;
 import androidx.core.widget.TextViewCompat;
 
 import java.lang.reflect.Field;
@@ -553,7 +552,7 @@ class AppCompatTextViewAutoSizeHelper {
                 return;
             }
 
-            final boolean horizontallyScrolling = BuildCompat.isAtLeastQ()
+            final boolean horizontallyScrolling = Build.VERSION.SDK_INT >= 29
                     ? mTextView.isHorizontallyScrollable()
                     : invokeAndReturnWithDefault(mTextView, "getHorizontallyScrolling", false);
             final int availableWidth = horizontallyScrolling
@@ -723,7 +722,7 @@ class AppCompatTextViewAutoSizeHelper {
             Layout.Alignment alignment, int availableWidth, int maxLines) {
         // Can use the StaticLayout.Builder (along with TextView params added in or after
         // API 23) to construct the layout.
-        final TextDirectionHeuristic textDirectionHeuristic = BuildCompat.isAtLeastQ()
+        final TextDirectionHeuristic textDirectionHeuristic = Build.VERSION.SDK_INT >= 29
                 ? mTextView.getTextDirectionHeuristic()
                 : invokeAndReturnWithDefault(mTextView, "getTextDirectionHeuristic",
                         TextDirectionHeuristics.FIRSTSTRONG_LTR);

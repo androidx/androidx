@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.annotation.WorkerThread;
 import androidx.collection.ArraySet;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -370,7 +369,7 @@ public abstract class TextClassifier {
         @RequiresApi(28)
         @NonNull
         public android.view.textclassifier.TextClassifier.EntityConfig toPlatform() {
-            if (BuildCompat.isAtLeastQ()) {
+            if (Build.VERSION.SDK_INT >= 29) {
                 return toPlatformQ();
             }
             return toPlatformP();

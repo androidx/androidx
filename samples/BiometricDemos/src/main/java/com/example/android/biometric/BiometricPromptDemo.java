@@ -35,7 +35,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.biometric.BiometricPrompt;
-import androidx.core.os.BuildCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import java.io.IOException;
@@ -183,7 +182,7 @@ public class BiometricPromptDemo extends FragmentActivity {
             mConfirmationRequiredCheckbox.setEnabled(false);
             mConfirmationRequiredCheckbox.setChecked(false);
         }
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             canAuthenticate.setOnClickListener(v -> {
                 BiometricManager bm = getApplicationContext().getSystemService(
                         BiometricManager.class);
@@ -265,7 +264,7 @@ public class BiometricPromptDemo extends FragmentActivity {
                                 + mCounter)
                 .setConfirmationRequired(mConfirmationRequiredCheckbox.isChecked());
 
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             if (mDeviceCredentialAllowedCheckbox.isChecked()) {
                 builder.setDeviceCredentialAllowed(true);
             } else {

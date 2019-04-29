@@ -29,7 +29,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -444,7 +443,7 @@ public class BiometricPrompt implements BiometricConstants {
                         mFingerprintHelperFragment.cancel(
                                 FingerprintHelperFragment.USER_CANCELED_FROM_NONE);
                     }
-                } else if (BuildCompat.isAtLeastQ()) { // TODO: Change to == Q
+                } else if (Build.VERSION.SDK_INT >= 29) { // TODO: Change to == Q
                     // TODO(b/123378871): Change == to >= if this bug is not resolved in R.
                     // Ignore the first onPause if setDeviceCredentialAllowed is true, since
                     // the Q implementation launches ConfirmDeviceCredentialActivity which is an

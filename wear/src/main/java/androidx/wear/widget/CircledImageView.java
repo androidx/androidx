@@ -31,13 +31,13 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 
 import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.core.os.BuildCompat;
 import androidx.wear.R;
 
 import java.util.Objects;
@@ -128,7 +128,7 @@ public class CircledImageView extends View {
         super(context, attrs, defStyle);
 
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.CircledImageView);
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             saveAttributeDataForStyleable(context, R.styleable.CircledImageView, attrs, a, 0, 0);
         }
         mDrawable = a.getDrawable(R.styleable.CircledImageView_android_src);

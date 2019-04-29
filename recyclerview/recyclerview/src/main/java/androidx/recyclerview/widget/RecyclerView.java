@@ -65,7 +65,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.os.BuildCompat;
 import androidx.core.os.TraceCompat;
 import androidx.core.util.Preconditions;
 import androidx.core.view.AccessibilityDelegateCompat;
@@ -692,7 +691,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             int defStyleRes = 0;
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
                     defStyle, defStyleRes);
-            if (BuildCompat.isAtLeastQ()) {
+            if (Build.VERSION.SDK_INT >= 29) {
                 saveAttributeDataForStyleable(
                         context, R.styleable.RecyclerView, attrs, a, defStyle, defStyleRes);
             }
@@ -721,7 +720,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             if (Build.VERSION.SDK_INT >= 21) {
                 a = context.obtainStyledAttributes(attrs, NESTED_SCROLLING_ATTRS,
                         defStyle, defStyleRes);
-                if (BuildCompat.isAtLeastQ()) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     saveAttributeDataForStyleable(
                             context, NESTED_SCROLLING_ATTRS, attrs, a, defStyle, defStyleRes);
                 }

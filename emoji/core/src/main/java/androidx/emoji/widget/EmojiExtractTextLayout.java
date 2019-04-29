@@ -32,7 +32,6 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 import androidx.emoji.R;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.EmojiSpan;
@@ -115,7 +114,7 @@ public class EmojiExtractTextLayout extends LinearLayout {
             if (attrs != null) {
                 final TypedArray a = context.obtainStyledAttributes(attrs,
                         R.styleable.EmojiExtractTextLayout, defStyleAttr, defStyleRes);
-                if (BuildCompat.isAtLeastQ()) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     saveAttributeDataForStyleable(
                             context, R.styleable.EmojiExtractTextLayout, attrs, a, defStyleAttr,
                             defStyleRes);

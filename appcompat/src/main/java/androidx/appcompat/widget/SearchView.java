@@ -34,6 +34,7 @@ import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -71,7 +72,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.view.CollapsibleActionView;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.customview.view.AbsSavedState;
@@ -1694,7 +1694,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     }
 
     void forceSuggestionQuery() {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             mSearchSrcTextView.refreshAutoCompleteResults();
         } else {
             HIDDEN_METHOD_INVOKER.doBeforeTextChanged(mSearchSrcTextView);

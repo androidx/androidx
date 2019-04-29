@@ -32,7 +32,6 @@ import android.util.SparseArray;
 import android.widget.RemoteViews;
 
 import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -206,7 +205,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                         .setVibrate(null);
             }
         }
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             mBuilder.setAllowSystemGeneratedContextualActions(
                     b.mAllowSystemGeneratedContextualActions);
             // TODO: Consider roundtripping NotificationCompat.BubbleMetadata on pre-Q platforms.
@@ -287,7 +286,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 actionBuilder.setSemanticAction(action.getSemanticAction());
             }
 
-            if (BuildCompat.isAtLeastQ()) {
+            if (Build.VERSION.SDK_INT >= 29) {
                 actionBuilder.setContextual(action.isContextual());
             }
 

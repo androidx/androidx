@@ -40,7 +40,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments;
 import androidx.core.view.accessibility.AccessibilityViewCommand.MoveAtGranularityArguments;
@@ -1050,7 +1049,7 @@ public class AccessibilityNodeInfoCompat {
          * @param targetMap A map from regions (in view coordinates) to delegated views.
          */
         public TouchDelegateInfoCompat(@NonNull Map<Region, View> targetMap) {
-            if (BuildCompat.isAtLeastQ()) {
+            if (Build.VERSION.SDK_INT >= 29) {
                 mInfo = new TouchDelegateInfo(targetMap);
             } else {
                 mInfo = null;
@@ -1072,7 +1071,7 @@ public class AccessibilityNodeInfoCompat {
          * @return Number of touch delegate target region.
          */
         public @IntRange(from = 0) int getRegionCount() {
-            if (BuildCompat.isAtLeastQ()) {
+            if (Build.VERSION.SDK_INT >= 29) {
                 return mInfo.getRegionCount();
             }
             return 0;
@@ -1091,7 +1090,7 @@ public class AccessibilityNodeInfoCompat {
          */
         @Nullable
         public Region getRegionAt(@IntRange(from = 0) int index) {
-            if (BuildCompat.isAtLeastQ()) {
+            if (Build.VERSION.SDK_INT >= 29) {
                 return mInfo.getRegionAt(index);
             }
             return null;
@@ -1119,7 +1118,7 @@ public class AccessibilityNodeInfoCompat {
          */
         @Nullable
         public AccessibilityNodeInfoCompat getTargetForRegion(@NonNull Region region) {
-            if (BuildCompat.isAtLeastQ()) {
+            if (Build.VERSION.SDK_INT >= 29) {
                 AccessibilityNodeInfo info = mInfo.getTargetForRegion(region);
                 if (info != null) {
                     return AccessibilityNodeInfoCompat.wrap(info);
@@ -3812,7 +3811,7 @@ public class AccessibilityNodeInfoCompat {
      * @return {@code true} if the node is a text entry key, {@code false} otherwise.
      */
     public boolean isTextEntryKey() {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             return mInfo.isTextEntryKey();
         }
         return getBooleanProperty(BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY);
@@ -3830,7 +3829,7 @@ public class AccessibilityNodeInfoCompat {
      * @param isTextEntryKey {@code true} if the node is a text entry key, {@code false} otherwise.
      */
     public void setTextEntryKey(boolean isTextEntryKey) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             mInfo.setTextEntryKey(isTextEntryKey);
         } else {
             setBooleanProperty(BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY, isTextEntryKey);
@@ -3913,7 +3912,7 @@ public class AccessibilityNodeInfoCompat {
      */
     @Nullable
     public TouchDelegateInfoCompat getTouchDelegateInfo() {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             TouchDelegateInfo delegateInfo = mInfo.getTouchDelegateInfo();
             if (delegateInfo != null) {
                 return new TouchDelegateInfoCompat(delegateInfo);
@@ -3940,7 +3939,7 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setTouchDelegateInfo(@NonNull TouchDelegateInfoCompat delegatedInfo) {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             mInfo.setTouchDelegateInfo(delegatedInfo.mInfo);
         }
     }

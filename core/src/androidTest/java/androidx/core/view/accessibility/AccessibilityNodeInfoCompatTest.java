@@ -26,7 +26,6 @@ import android.os.Build;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import androidx.core.os.BuildCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.TouchDelegateInfoCompat;
 import androidx.test.InstrumentationRegistry;
@@ -178,7 +177,7 @@ public class AccessibilityNodeInfoCompatTest {
         accessibilityNodeInfoCompat.setTouchDelegateInfo(delegateInfo);
         final TouchDelegateInfoCompat touchDelegateInfoResult =
                 accessibilityNodeInfoCompat.getTouchDelegateInfo();
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             assertThat(touchDelegateInfoResult.getRegionCount(), is(1));
             assertThat(touchDelegateInfoResult.getRegionAt(0), is(region));
             // getTargetForRegion return null, since we are not a11y service

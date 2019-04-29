@@ -18,6 +18,7 @@ package androidx.biometric;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
@@ -30,7 +31,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
 import androidx.fragment.app.Fragment;
 
 import java.util.concurrent.Executor;
@@ -175,7 +175,7 @@ public class BiometricFragment extends Fragment {
      */
     protected void cancel() {
         // TODO(b/128747871): Change to == Q
-        if (BuildCompat.isAtLeastQ() && isDeviceCredentialAllowed()) {
+        if (Build.VERSION.SDK_INT >= 29 && isDeviceCredentialAllowed()) {
             if (!mStartRespectingCancel) {
                 Log.w(TAG, "Ignoring fast cancel signal");
                 return;
@@ -234,14 +234,14 @@ public class BiometricFragment extends Fragment {
                         mClientExecutor, mNegativeButtonListener);
             }
 
-            if (BuildCompat.isAtLeastQ()) {
+            if (Build.VERSION.SDK_INT >= 29) {
                 builder.setConfirmationRequired(
                         mBundle.getBoolean((BiometricPrompt.KEY_REQUIRE_CONFIRMATION), true));
                 builder.setDeviceCredentialAllowed(
                         mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL));
             }
 
-            if (BuildCompat.isAtLeastQ()) { // TODO(b/128747871): Change to == Q
+            if (Build.VERSION.SDK_INT >= 29) { // TODO(b/128747871): Change to == Q
                 if (mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL, false)) {
                     mStartRespectingCancel = false;
                     mHandler.postDelayed(new Runnable() {

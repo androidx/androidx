@@ -52,7 +52,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
@@ -250,7 +249,7 @@ public class DrawerLayout extends ViewGroup {
     private Rect mChildHitRect;
     private Matrix mChildInvertedMatrix;
 
-    private static boolean sSupplyGestureExclusion = BuildCompat.isAtLeastQ();
+    private static boolean sSupplyGestureExclusion = Build.VERSION.SDK_INT >= 29;
 
     /**
      * Listener for monitoring events about drawers.

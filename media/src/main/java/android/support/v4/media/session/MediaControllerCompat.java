@@ -55,7 +55,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
 import androidx.core.app.ComponentActivity;
-import androidx.core.os.BuildCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.versionedparcelable.ParcelUtils;
@@ -2501,7 +2500,7 @@ public final class MediaControllerCompat {
             if (speed == 0.0f) {
                 throw new IllegalArgumentException("speed must not be zero");
             }
-            if (BuildCompat.isAtLeastQ()) {
+            if (Build.VERSION.SDK_INT >= 29) {
                 mControlsFwk.setPlaybackSpeed(speed);
                 return;
             }

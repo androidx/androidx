@@ -26,7 +26,6 @@ import static android.view.View.TEXT_DIRECTION_RTL;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -61,7 +60,6 @@ import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
-import androidx.core.os.BuildCompat;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.util.Preconditions;
 
@@ -880,11 +878,10 @@ public final class TextViewCompat {
      * @param precomputed the precomputed text
      * @throws IllegalArgumentException if precomputed text is not compatible with textView.
      */
-    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     public static void setPrecomputedText(@NonNull TextView textView,
                                           @NonNull PrecomputedTextCompat precomputed) {
 
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             // Framework can not understand PrecomptedTextCompat. Pass underlying PrecomputedText.
             // Parameter check is also done by framework.
             textView.setText(precomputed.getPrecomputedText());

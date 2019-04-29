@@ -27,9 +27,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
+import android.os.Build;
 import android.view.View;
 
-import androidx.core.os.BuildCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.test.R;
@@ -73,7 +73,7 @@ public class DrawerLayoutTest {
     @Test
     @SmallTest
     public void testSystemGestureExclusionRects() {
-        if (!BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT < 29) {
             // Not expected on old device
             return;
         }

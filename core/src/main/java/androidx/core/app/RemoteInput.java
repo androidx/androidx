@@ -28,7 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -565,7 +564,7 @@ public final class RemoteInput {
                         .setChoices(src.getChoices())
                         .setAllowFreeFormInput(src.getAllowFreeFormInput())
                         .addExtras(src.getExtras());
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             builder.setEditChoicesBeforeSending(src.getEditChoicesBeforeSending());
         }
         return builder.build();

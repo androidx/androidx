@@ -35,7 +35,6 @@ import androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import androidx.core.content.res.FontResourcesParserCompat.ProviderResourceEntry;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.FontsContractCompat.FontInfo;
 
@@ -46,7 +45,7 @@ import androidx.core.provider.FontsContractCompat.FontInfo;
 public class TypefaceCompat {
     private static final TypefaceCompatBaseImpl sTypefaceCompatImpl;
     static {
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             sTypefaceCompatImpl = new TypefaceCompatApi29Impl();
         } else if (Build.VERSION.SDK_INT >= 28) {
             sTypefaceCompatImpl = new TypefaceCompatApi28Impl();

@@ -25,6 +25,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +33,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import androidx.annotation.ColorInt;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 
@@ -185,7 +185,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.lbSearchOrbView,
                 defStyleAttr, 0);
-        if (BuildCompat.isAtLeastQ()) {
+        if (Build.VERSION.SDK_INT >= 29) {
             saveAttributeDataForStyleable(
                     context, R.styleable.lbSearchOrbView, attrs, a, defStyleAttr, 0);
         }
