@@ -29,7 +29,6 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
-import androidx.ui.core.Layout
 import androidx.ui.core.PxPosition
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.PressGestureDetector
@@ -118,7 +117,7 @@ fun RippleRectFromState(state: TransitionState) {
 
     val radius = state[radius]
 
-    <Draw> canvas, pixelSize ->
+    <Draw> canvas, _ ->
         canvas.drawCircle(Offset(x, y), radius, paint)
     </Draw>
 }
