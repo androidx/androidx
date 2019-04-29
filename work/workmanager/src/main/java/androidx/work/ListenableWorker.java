@@ -53,6 +53,9 @@ import java.util.concurrent.TimeUnit;
  * A ListenableWorker is given a maximum of ten minutes to finish its execution and return a
  * {@link Result}.  After this time has expired, the worker will be signalled to stop and its
  * {@link ListenableFuture} will be cancelled.
+ * <p>
+ * Exercise caution when <a href="WorkManager.html#worker_class_names">renaming or removing
+ * ListenableWorkers</a> from your codebase.
  */
 
 public abstract class ListenableWorker {

@@ -114,8 +114,9 @@ import java.util.concurrent.TimeUnit;
  * WorkRequests can be tagged with human-readable Strings
  * (see {@link WorkRequest.Builder#addTag(String)}), and chains of work can be given a
  * uniquely-identifiable name (see
- * {@link #beginUniqueWork(String, ExistingWorkPolicy, OneTimeWorkRequest)}). *
+ * {@link #beginUniqueWork(String, ExistingWorkPolicy, OneTimeWorkRequest)}).
  * <p>
+ * <a name="initializing"></a>
  * <b>Initializing WorkManager</b>
  * <p>
  * By default, WorkManager auto-initializes itself using a built-in {@code ContentProvider}.
@@ -124,6 +125,21 @@ import java.util.concurrent.TimeUnit;
  * most developers.  However, you can provide a custom {@link Configuration} by using
  * {@link Configuration.Provider} or
  * {@link WorkManager#initialize(android.content.Context, androidx.work.Configuration)}.
+ * <p>
+ * <a name="worker_class_names"></a>
+ * <b>Renaming and Removing ListenableWorker Classes</b>
+ * <p>
+ * Exercise caution in renaming classes derived from {@link ListenableWorker}s.  WorkManager stores
+ * the class name in its internal database when the {@link WorkRequest} is enqueued so it can later
+ * create an instance of that worker when constraints are met.  Unless otherwise specified in the
+ * WorkManager {@link Configuration}, this is done in the default {@link WorkerFactory} which tries
+ * to reflectively create the ListenableWorker object.  Therefore, renaming or removing these
+ * classes is dangerous - if there is pending work with the given class, it will fail permanently
+ * if the class cannot be found.  If you are using a custom WorkerFactory, make sure you properly
+ * handle cases where the class is not found so that your code does not crash.
+ * <p>
+ * In case it is desirable to rename a class, implement a custom WorkerFactory that instantiates the
+ * right ListenableWorker for the old class name.
  * */
 
 public abstract class WorkManager {
