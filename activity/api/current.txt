@@ -4,8 +4,6 @@ package androidx.activity {
   public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
     ctor @ContentView public ComponentActivity(@LayoutRes int);
-    method @Deprecated public void addOnBackPressedCallback(androidx.activity.OnBackPressedCallback);
-    method @Deprecated public void addOnBackPressedCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
     method @Deprecated public Object? getLastCustomNonConfigurationInstance();
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
@@ -13,7 +11,6 @@ package androidx.activity {
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
     method public final Object? onRetainNonConfigurationInstance();
-    method @Deprecated public void removeOnBackPressedCallback(androidx.activity.OnBackPressedCallback);
   }
 
   public abstract class OnBackPressedCallback {
