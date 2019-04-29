@@ -226,12 +226,6 @@ package androidx.fragment.app {
     method public android.os.Parcelable! saveAllState();
   }
 
-  public class FragmentFactory {
-    ctor public FragmentFactory();
-    method public androidx.fragment.app.Fragment instantiate(ClassLoader, String, android.os.Bundle?);
-    method public static Class<? extends androidx.fragment.app.Fragment> loadFragmentClass(ClassLoader, String);
-  }
-
   public abstract class FragmentHostCallback<E> extends androidx.fragment.app.FragmentContainer {
     ctor public FragmentHostCallback(android.content.Context, android.os.Handler, int);
     method public void onDump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String[]!);
