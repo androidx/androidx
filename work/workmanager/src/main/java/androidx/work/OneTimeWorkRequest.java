@@ -19,12 +19,9 @@ package androidx.work;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A {@link WorkRequest} for non-repeating work.
@@ -81,30 +78,6 @@ public final class OneTimeWorkRequest extends WorkRequest {
         public Builder(@NonNull Class<? extends ListenableWorker> workerClass) {
             super(workerClass);
             mWorkSpec.inputMergerClassName = OverwritingInputMerger.class.getName();
-        }
-
-        /**
-         * Sets an initial delay for the {@link OneTimeWorkRequest}.
-         *
-         * @param duration The length of the delay in {@code timeUnit} units
-         * @param timeUnit The units of time for {@code duration}
-         * @return The current {@link Builder}
-         */
-        public @NonNull Builder setInitialDelay(long duration, @NonNull TimeUnit timeUnit) {
-            mWorkSpec.initialDelay = timeUnit.toMillis(duration);
-            return this;
-        }
-
-        /**
-         * Sets an initial delay for the {@link OneTimeWorkRequest}.
-         *
-         * @param duration The length of the delay
-         * @return The current {@link Builder}
-         */
-        @RequiresApi(26)
-        public @NonNull Builder setInitialDelay(@NonNull Duration duration) {
-            mWorkSpec.initialDelay = duration.toMillis();
-            return this;
         }
 
         /**
