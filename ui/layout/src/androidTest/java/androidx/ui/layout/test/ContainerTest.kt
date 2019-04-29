@@ -263,48 +263,6 @@ class ContainerTest : LayoutTest() {
     }
 
     @Test
-    fun testContainer_withNoChildren() = withDensity(density) {
-        val sizeDp = 50.dp
-        val size = sizeDp.toIntPx()
-
-        var positionedLatch = CountDownLatch(1)
-        val minSizeContainerSize = Ref<PxSize>()
-        show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
-                    minSizeContainerSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }>
-                    <Container width=sizeDp height=sizeDp />
-                </OnChildPositioned>
-            </Align>
-        }
-        positionedLatch.await(1, TimeUnit.SECONDS)
-
-        positionedLatch = CountDownLatch(2)
-        val maxSizeContainerSize = Ref<PxSize>()
-        val alignSize = Ref<PxSize>()
-        show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnPositioned onPositioned = { coordinates ->
-                    alignSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }/>
-                <OnChildPositioned onPositioned = { coordinates ->
-                    maxSizeContainerSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }>
-                    <Container expanded=true width=sizeDp height=sizeDp />
-                </OnChildPositioned>
-            </Align>
-        }
-        positionedLatch.await(1, TimeUnit.SECONDS)
-
-        assertEquals(PxSize(size, size), minSizeContainerSize.value)
-        assertEquals(PxSize(size, size), maxSizeContainerSize.value)
-    }
-
-    @Test
     fun testContainer_hasTheRightSize_withPaddingAndNoChildren() = withDensity(density) {
         val sizeDp = 50.dp
         val size = sizeDp.toIntPx()

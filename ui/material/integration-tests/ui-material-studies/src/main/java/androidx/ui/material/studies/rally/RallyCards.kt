@@ -20,8 +20,8 @@ import androidx.ui.baseui.ColoredRect
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Padding
@@ -133,7 +133,7 @@ fun RallyAccountRow(name: String, number: String, amount: String, color: Color) 
             </Column>
         }
             expanded(flex = 1.0f) {
-                <Container />
+                <FixedSpacer width=0.dp height=0.dp />
             }
             inflexible {
                 <Text text="$ $amount" style=+themeTextStyle { h6 } />

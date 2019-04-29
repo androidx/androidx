@@ -34,6 +34,7 @@ import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.MainAxisAlignment
@@ -672,8 +673,8 @@ class FlexTest : LayoutTest() {
         show @Composable {
             <Center>
                 <Row mainAxisSize=MainAxisSize.Max>
-                    <Container width=sizeDp height=sizeDp/>
-                    <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
+                    <FixedSpacer width=sizeDp height=sizeDp/>
+                    <FixedSpacer width=(sizeDp * 2) height=(sizeDp * 2)/>
 
                     <OnPositioned onPositioned={ coordinates ->
                         rowSize = coordinates.size
@@ -703,8 +704,8 @@ class FlexTest : LayoutTest() {
         show @Composable {
             <Center>
                 <Row mainAxisSize=MainAxisSize.Min>
-                    <Container width=sizeDp height=sizeDp/>
-                    <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
+                    <FixedSpacer width=sizeDp height=sizeDp/>
+                    <FixedSpacer width=(sizeDp * 2) height=(sizeDp * 2)/>
 
                     <OnPositioned onPositioned={ coordinates ->
                         rowSize = coordinates.size
@@ -736,8 +737,8 @@ class FlexTest : LayoutTest() {
             <Center>
                 <ConstrainedBox constraints = DpConstraints(minWidth = rowWidthDp)>
                     <Row mainAxisSize=MainAxisSize.Min>
-                        <Container width=sizeDp height=sizeDp/>
-                        <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
+                        <FixedSpacer width=sizeDp height=sizeDp/>
+                        <FixedSpacer width=(sizeDp * 2) height=(sizeDp * 2)/>
 
                         <OnPositioned onPositioned={ coordinates ->
                             rowSize = coordinates.size
@@ -814,8 +815,8 @@ class FlexTest : LayoutTest() {
         show @Composable {
             <Center>
                 <Column mainAxisSize=MainAxisSize.Max>
-                    <Container width=sizeDp height=sizeDp/>
-                    <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
+                    <FixedSpacer width=sizeDp height=sizeDp/>
+                    <FixedSpacer width=(sizeDp * 2) height=(sizeDp * 2)/>
 
                     <OnPositioned onPositioned={ coordinates ->
                         columnSize = coordinates.size
@@ -845,8 +846,8 @@ class FlexTest : LayoutTest() {
         show @Composable {
             <Center>
                 <Column mainAxisSize=MainAxisSize.Min>
-                    <Container width=sizeDp height=sizeDp/>
-                    <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
+                    <FixedSpacer width=sizeDp height=sizeDp/>
+                    <FixedSpacer width=(sizeDp * 2) height=(sizeDp * 2)/>
 
                     <OnPositioned onPositioned={ coordinates ->
                         columnSize = coordinates.size
@@ -925,8 +926,8 @@ class FlexTest : LayoutTest() {
             <Center>
                 <ConstrainedBox constraints = DpConstraints(minHeight = columnHeightDp)>
                     <Column mainAxisSize=MainAxisSize.Min>
-                        <Container width=sizeDp height=sizeDp/>
-                        <Container width=(sizeDp * 2) height=(sizeDp * 2)/>
+                        <FixedSpacer width=sizeDp height=sizeDp/>
+                        <FixedSpacer width=(sizeDp * 2) height=(sizeDp * 2)/>
 
                         <OnPositioned onPositioned={ coordinates ->
                             columnSize = coordinates.size
@@ -1474,7 +1475,7 @@ class FlexTest : LayoutTest() {
                         <OnChildPositioned onPositioned = { coordinates ->
                             containerSize.value = coordinates.size
                         }>
-                            <Container width=childSizeDp height=childSizeDp />
+                            <FixedSpacer width=childSizeDp height=childSizeDp />
                         </OnChildPositioned>
                     </Column>
                 </ConstrainedBox>
