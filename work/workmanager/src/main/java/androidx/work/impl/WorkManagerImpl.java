@@ -134,10 +134,10 @@ public class WorkManagerImpl extends WorkManager {
             if (instance == null) {
                 Context appContext = context.getApplicationContext();
                 if (appContext instanceof Configuration.Provider) {
-                    WorkManager.initialize(
+                    initialize(
                             appContext,
                             ((Configuration.Provider) appContext).getWorkManagerConfiguration());
-                    instance = getInstance();
+                    instance = getInstance(appContext);
                 } else {
                     throw new IllegalStateException("WorkManager is not initialized properly.  You "
                             + "have explicitly disabled WorkManagerInitializer in your manifest, "
