@@ -66,7 +66,9 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
 
         // Send the fakeDrag events
         viewPager.post {
-            viewPager.beginFakeDrag()
+            if (!viewPager.beginFakeDrag()) {
+                return@post
+            }
             viewPager.postDelayed(FakeDragExecutor(deltas, suppressFling), FRAME_LENGTH_MS)
         }
     }
@@ -90,7 +92,9 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
         }
 
         private fun doFakeDragStep() {
-            viewPager.fakeDragBy(deltas[nextStep])
+            if (!viewPager.fakeDragBy(deltas[nextStep])) {
+                return
+            }
             nextStep++
 
             when {
@@ -107,7 +111,9 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
         }
 
         private fun doCoolDownStep() {
-            viewPager.fakeDragBy(0f)
+            if (!viewPager.fakeDragBy(0f)) {
+                return
+            }
             if (SystemClock.uptimeMillis() <= coolDownStart + COOL_DOWN_TIME_MS) {
                 viewPager.postDelayed(this, FRAME_LENGTH_MS)
             } else {
