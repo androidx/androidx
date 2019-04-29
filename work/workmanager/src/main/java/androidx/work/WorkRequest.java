@@ -228,7 +228,8 @@ public abstract class WorkRequest {
         /**
          * Specifies that the results of this work should be kept for at least the specified amount
          * of time.  After this time has elapsed, the results <p>may</p> be pruned at the discretion
-         * of WorkManager when there are no pending dependent jobs.
+         * of WorkManager when this WorkRequest has reached a finished state (see
+         * {@link WorkInfo.State#isFinished()}) and there are no pending dependent jobs.
          * <p>
          * When the results of a work are pruned, it becomes impossible to query for its
          * {@link WorkInfo}.
