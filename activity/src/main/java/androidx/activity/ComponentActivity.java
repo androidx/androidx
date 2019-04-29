@@ -26,6 +26,7 @@ import android.view.Window;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.GenericLifecycleObserver;
@@ -272,6 +273,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * @see #getOnBackPressedDispatcher()
      */
     @Override
+    @MainThread
     public void onBackPressed() {
         if (mOnBackPressedDispatcher.hasEnabledCallbacks()) {
             mOnBackPressedDispatcher.onBackPressed();
