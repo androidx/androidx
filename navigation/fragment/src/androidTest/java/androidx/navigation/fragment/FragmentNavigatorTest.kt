@@ -23,7 +23,6 @@ import androidx.fragment.app.FragmentFactory
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavOptions
-import androidx.navigation.Navigator
 import androidx.navigation.fragment.test.EmptyFragment
 import androidx.navigation.fragment.test.R
 import androidx.test.annotation.UiThreadTest
@@ -40,9 +39,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -179,45 +175,6 @@ class FragmentNavigatorTest {
 
     @UiThreadTest
     @Test
-    fun testNavigateWithPopUpToThenPopWithFragmentManager() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val backPressListener = mock(Navigator.OnNavigatorBackPressListener::class.java)
-        fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
-        val destination = fragmentNavigator.createDestination()
-        destination.id = INITIAL_FRAGMENT
-        destination.className = EmptyFragment::class.java.name
-
-        // Push initial fragment
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-        fragmentManager.executePendingTransactions()
-
-        // Push a second fragment
-        destination.id = SECOND_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-        fragmentManager.executePendingTransactions()
-
-        // Pop and then push third fragment, simulating popUpTo to initial.
-        val success = fragmentNavigator.popBackStack()
-        assertWithMessage("FragmentNavigator should popBackStack successfully")
-                .that(success)
-                .isTrue()
-        destination.id = THIRD_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null,
-                NavOptions.Builder().setPopUpTo(INITIAL_FRAGMENT, false).build(), null))
-            .isEqualTo(destination)
-        fragmentManager.executePendingTransactions()
-
-        // Now pop the Fragment
-        val popped = fragmentManager.popBackStackImmediate()
-        assertTrue("FragmentNavigator should return true when popping the third fragment", popped)
-        verify(backPressListener).onPopBackStack(fragmentNavigator)
-        verifyNoMoreInteractions(backPressListener)
-    }
-
-    @UiThreadTest
-    @Test
     fun testSingleTopInitial() {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
@@ -249,8 +206,6 @@ class FragmentNavigatorTest {
     @Test
     fun testSingleTop() {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val backPressListener = mock(Navigator.OnNavigatorBackPressListener::class.java)
-        fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
         destination.className = EmptyFragment::class.java.name
 
@@ -463,47 +418,8 @@ class FragmentNavigatorTest {
 
     @UiThreadTest
     @Test
-    fun testPopWithFragmentManager() {
+    fun testDeepLinkPop() {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val backPressListener = mock(Navigator.OnNavigatorBackPressListener::class.java)
-        fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
-        val destination = fragmentNavigator.createDestination()
-        destination.id = INITIAL_FRAGMENT
-        destination.className = EmptyFragment::class.java.name
-
-        // First push an initial Fragment
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-        fragmentManager.executePendingTransactions()
-        val fragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Fragment should be added", fragment)
-
-        // Now push the Fragment that we want to pop
-        destination.id = SECOND_FRAGMENT
-        assertThat(fragmentNavigator.navigate(destination, null, null, null))
-            .isEqualTo(destination)
-        fragmentManager.executePendingTransactions()
-        val replacementFragment = fragmentManager.findFragmentById(R.id.container)
-        assertNotNull("Replacement Fragment should be added", replacementFragment)
-        assertTrue("Replacement Fragment should be the correct type",
-                replacementFragment is EmptyFragment)
-        assertEquals("Replacement Fragment should be the primary navigation Fragment",
-                replacementFragment, fragmentManager.primaryNavigationFragment)
-
-        // Now pop the Fragment
-        fragmentManager.popBackStackImmediate()
-        verify(backPressListener).onPopBackStack(fragmentNavigator)
-        assertEquals("Fragment should be the primary navigation Fragment after pop",
-                fragment, fragmentManager.primaryNavigationFragment)
-        verifyNoMoreInteractions(backPressListener)
-    }
-
-    @UiThreadTest
-    @Test
-    fun testDeepLinkPopWithFragmentManager() {
-        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
-        val backPressListener = mock(Navigator.OnNavigatorBackPressListener::class.java)
-        fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
         destination.className = EmptyFragment::class.java.name
@@ -528,21 +444,18 @@ class FragmentNavigatorTest {
                 replacementFragment, fragmentManager.primaryNavigationFragment)
 
         // Now pop the Fragment
-        fragmentManager.popBackStackImmediate()
-        verify(backPressListener).onPopBackStack(fragmentNavigator)
+        fragmentNavigator.popBackStack()
+        fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
         assertEquals("Fragment should be the primary navigation Fragment after pop",
                 fragment, fragmentManager.primaryNavigationFragment)
-        verifyNoMoreInteractions(backPressListener)
     }
 
     @UiThreadTest
     @Test
-    fun testDeepLinkPopWithFragmentManagerWithSaveState() {
+    fun testDeepLinkPopWithSaveState() {
         var fragmentNavigator = FragmentNavigator(emptyActivity,
                 fragmentManager, R.id.container)
-        val backPressListener = mock(Navigator.OnNavigatorBackPressListener::class.java)
-        fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
         destination.className = EmptyFragment::class.java.name
@@ -568,19 +481,16 @@ class FragmentNavigatorTest {
 
         // Create a new FragmentNavigator, replacing the previous one
         val savedState = fragmentNavigator.onSaveState()
-        fragmentNavigator.removeOnNavigatorBackPressListener(backPressListener)
         fragmentNavigator = FragmentNavigator(emptyActivity,
                 fragmentManager, R.id.container)
         fragmentNavigator.onRestoreState(savedState)
-        fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
 
         // Now pop the Fragment
-        fragmentManager.popBackStackImmediate()
-        verify(backPressListener).onPopBackStack(fragmentNavigator)
+        fragmentNavigator.popBackStack()
+        fragmentManager.executePendingTransactions()
         val fragment = fragmentManager.findFragmentById(R.id.container)
         assertEquals("Fragment should be the primary navigation Fragment after pop",
                 fragment, fragmentManager.primaryNavigationFragment)
-        verifyNoMoreInteractions(backPressListener)
     }
 
     @UiThreadTest
@@ -588,8 +498,6 @@ class FragmentNavigatorTest {
     fun testNavigateThenPopAfterSaveState() {
         var fragmentNavigator = FragmentNavigator(emptyActivity,
                 fragmentManager, R.id.container)
-        val backPressListener = mock(Navigator.OnNavigatorBackPressListener::class.java)
-        fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
         destination.className = EmptyFragment::class.java.name
@@ -618,11 +526,9 @@ class FragmentNavigatorTest {
 
         // Create a new FragmentNavigator, replacing the previous one
         val savedState = fragmentNavigator.onSaveState()
-        fragmentNavigator.removeOnNavigatorBackPressListener(backPressListener)
         fragmentNavigator = FragmentNavigator(emptyActivity,
                 fragmentManager, R.id.container)
         fragmentNavigator.onRestoreState(savedState)
-        fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
 
         // Now push a third fragment after the state save
         destination.id = THIRD_FRAGMENT
@@ -637,22 +543,18 @@ class FragmentNavigatorTest {
                 replacementFragment, fragmentManager.primaryNavigationFragment)
 
         // Now pop the Fragment
-        fragmentManager.popBackStackImmediate()
-        verify(backPressListener).onPopBackStack(fragmentNavigator)
+        fragmentNavigator.popBackStack()
+        fragmentManager.executePendingTransactions()
         fragment = fragmentManager.findFragmentById(R.id.container)
         assertEquals("Fragment should be the primary navigation Fragment after pop",
                 fragment, fragmentManager.primaryNavigationFragment)
-
-        verifyNoMoreInteractions(backPressListener)
     }
 
     @UiThreadTest
     @Test
-    fun testMultipleNavigateFragmentTransactionsThenPopWithFragmentManager() {
+    fun testMultipleNavigateFragmentTransactionsThenPop() {
         val fragmentNavigator = FragmentNavigator(emptyActivity,
                 fragmentManager, R.id.container)
-        val backPressListener = mock(Navigator.OnNavigatorBackPressListener::class.java)
-        fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
         destination.className = EmptyFragment::class.java.name
 
@@ -665,19 +567,16 @@ class FragmentNavigatorTest {
         fragmentNavigator.navigate(destination, null, null, null)
 
         // Now pop the Fragment
-        val popped = fragmentManager.popBackStackImmediate()
+        val popped = fragmentNavigator.popBackStack()
+        fragmentManager.executePendingTransactions()
         assertTrue("FragmentNavigator should return true when popping the third fragment", popped)
-        verify(backPressListener).onPopBackStack(fragmentNavigator)
-        verifyNoMoreInteractions(backPressListener)
     }
 
     @UiThreadTest
     @Test
-    fun testMultiplePopFragmentTransactionsThenPopWithFragmentManager() {
+    fun testMultiplePopFragmentTransactionsThenPop() {
         val fragmentNavigator = FragmentNavigator(emptyActivity,
                 fragmentManager, R.id.container)
-        val backPressListener = mock(Navigator.OnNavigatorBackPressListener::class.java)
-        fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
         destination.className = EmptyFragment::class.java.name
 
@@ -696,10 +595,9 @@ class FragmentNavigatorTest {
         fragmentNavigator.popBackStack()
         fragmentNavigator.popBackStack()
 
-        val popped = fragmentManager.popBackStackImmediate()
+        val popped = fragmentNavigator.popBackStack()
+        fragmentManager.executePendingTransactions()
         assertTrue("FragmentNavigator should return true when popping the third fragment", popped)
-        verify(backPressListener).onPopBackStack(fragmentNavigator)
-        verifyNoMoreInteractions(backPressListener)
     }
 }
 

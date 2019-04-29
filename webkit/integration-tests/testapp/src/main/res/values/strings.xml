@@ -27,5 +27,6 @@
     <string name="small_interstitial_activity_title">Small Interstitial</string>
     <string name="medium_tall_interstitial_activity_title">Medium (Tall) Interstitials</string>
     <string name="medium_wide_interstitial_activity_title">Medium (Wide) Interstitials</string>
+    <string name="loud_interstitial_activity_title">Loud (Red) Interstitials</string>
     <string name="cannot_start_safe_browsing">Unable to start Safe Browsing, this is unexpected.</string>
 </resources>

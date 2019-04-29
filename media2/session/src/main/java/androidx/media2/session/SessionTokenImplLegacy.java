@@ -60,10 +60,12 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
 
     SessionTokenImplLegacy(MediaSessionCompat.Token token, String packageName, int uid) {
         if (token == null) {
-            throw new IllegalArgumentException("token shouldn't be null.");
+            throw new NullPointerException("token shouldn't be null");
         }
-        if (TextUtils.isEmpty(packageName)) {
-            throw new IllegalArgumentException("packageName shouldn't be null.");
+        if (packageName == null) {
+            throw new NullPointerException("packageName shouldn't be null");
+        } else if (TextUtils.isEmpty(packageName)) {
+            throw new IllegalArgumentException("packageName shouldn't be empty");
         }
 
         mLegacyToken = token;
@@ -76,7 +78,7 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
 
     SessionTokenImplLegacy(ComponentName serviceComponent, int uid) {
         if (serviceComponent == null) {
-            throw new IllegalArgumentException("serviceComponent shouldn't be null.");
+            throw new NullPointerException("serviceComponent shouldn't be null");
         }
 
         mLegacyToken = null;

@@ -22,6 +22,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import androidx.annotation.CallSuper
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnitRunner
 
@@ -67,8 +68,8 @@ import androidx.test.runner.AndroidJUnitRunner
  * even if a continuous suite of benchmarks runs for many minutes on end.
  */
 @Suppress("unused") // Note: not referenced by code
-class AndroidBenchmarkRunner : AndroidJUnitRunner() {
-
+open class AndroidBenchmarkRunner : AndroidJUnitRunner() {
+    @CallSuper
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
 
@@ -95,6 +96,7 @@ class AndroidBenchmarkRunner : AndroidJUnitRunner() {
         }
     }
 
+    @CallSuper
     override fun callActivityOnStart(activity: Activity) {
         super.callActivityOnStart(activity)
 
@@ -104,6 +106,7 @@ class AndroidBenchmarkRunner : AndroidJUnitRunner() {
         }
     }
 
+    @CallSuper
     override fun waitForActivitiesToComplete() {
         // We don't call the super method here, since we have
         // an activity we intend to persist between tests
@@ -123,6 +126,7 @@ class AndroidBenchmarkRunner : AndroidJUnitRunner() {
         }
     }
 
+    @CallSuper
     override fun onDestroy() {
         IsolationActivity.finishSingleton()
         super.waitForActivitiesToComplete()

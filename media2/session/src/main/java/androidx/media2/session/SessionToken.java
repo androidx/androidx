@@ -121,6 +121,12 @@ public final class SessionToken implements VersionedParcelable {
      * @param serviceComponent The component name of the service.
      */
     public SessionToken(@NonNull Context context, @NonNull ComponentName serviceComponent) {
+        if (context == null) {
+            throw new NullPointerException("context shouldn't be null");
+        }
+        if (serviceComponent == null) {
+            throw new NullPointerException("serviceComponent shouldn't be null");
+        }
         final PackageManager manager = context.getPackageManager();
         final int uid = getUid(manager, serviceComponent.getPackageName());
 
@@ -137,7 +143,7 @@ public final class SessionToken implements VersionedParcelable {
         } else {
             throw new IllegalArgumentException(serviceComponent + " doesn't implement none of"
                     + " MediaSessionService, MediaLibraryService, MediaBrowserService nor"
-                    + " MediaBrowserServiceCompat. Use service's full name.");
+                    + " MediaBrowserServiceCompat. Use service's full name");
         }
         if (type != TYPE_BROWSER_SERVICE_LEGACY) {
             mImpl = new SessionTokenImplBase(serviceComponent, uid, type);
@@ -259,16 +265,16 @@ public final class SessionToken implements VersionedParcelable {
             @NonNull final MediaSessionCompat.Token tokenCompat, @NonNull final Executor executor,
             @NonNull final OnSessionTokenCreatedListener listener) {
         if (context == null) {
-            throw new IllegalArgumentException("context shouldn't be null");
+            throw new NullPointerException("context shouldn't be null");
         }
         if (tokenCompat == null) {
-            throw new IllegalArgumentException("token shouldn't be null");
+            throw new NullPointerException("token shouldn't be null");
         }
         if (executor == null) {
-            throw new IllegalArgumentException("executor shouldn't be null");
+            throw new NullPointerException("executor shouldn't be null");
         }
         if (listener == null) {
-            throw new IllegalArgumentException("listener shouldn't be null");
+            throw new NullPointerException("listener shouldn't be null");
         }
 
         try {

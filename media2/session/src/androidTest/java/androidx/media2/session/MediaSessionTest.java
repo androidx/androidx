@@ -119,14 +119,14 @@ public class MediaSessionTest extends MediaSessionTestBase {
         try {
             builder = new MediaSession.Builder(mContext, null);
             fail("null player shouldn't be allowed");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             // expected. pass-through
         }
         try {
             builder = new MediaSession.Builder(mContext, mPlayer);
             builder.setId(null);
             fail("null id shouldn't be allowed");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
             // expected. pass-through
         }
     }

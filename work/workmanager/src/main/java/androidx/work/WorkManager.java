@@ -114,14 +114,17 @@ import java.util.concurrent.TimeUnit;
  * WorkRequests can be tagged with human-readable Strings
  * (see {@link WorkRequest.Builder#addTag(String)}), and chains of work can be given a
  * uniquely-identifiable name (see
- * {@link #beginUniqueWork(String, ExistingWorkPolicy, OneTimeWorkRequest)}).
- *
+ * {@link #beginUniqueWork(String, ExistingWorkPolicy, OneTimeWorkRequest)}). *
  * <p>
- * <b>Manually initializing WorkManager</b>
+ * <b>Initializing WorkManager</b>
  * <p>
- * You can manually initialize WorkManager and provide a custom {@link Configuration} for it.
- * Please see {@link #initialize(Context, Configuration)}.
- */
+ * By default, WorkManager auto-initializes itself using a built-in {@code ContentProvider}.
+ * ContentProviders are created and run before the {@code Application} object, so this allows the
+ * WorkManager singleton to be setup before your code can run in most cases.  This is suitable for
+ * most developers.  However, you can provide a custom {@link Configuration} by using
+ * {@link Configuration.Provider} or
+ * {@link WorkManager#initialize(android.content.Context, androidx.work.Configuration)}.
+ * */
 
 public abstract class WorkManager {
 
@@ -178,6 +181,7 @@ public abstract class WorkManager {
      *                will call {@link Context#getApplicationContext()}, so you may safely pass in
      *                any Context without risking a memory leak.
      * @param configuration The {@link Configuration} for used to set up WorkManager.
+     * @see Configuration.Provider for on-demand initialization.
      */
     public static void initialize(@NonNull Context context, @NonNull Configuration configuration) {
         WorkManagerImpl.initialize(context, configuration);

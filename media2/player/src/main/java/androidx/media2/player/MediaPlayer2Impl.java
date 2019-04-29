@@ -358,7 +358,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             @Override
             void process() {
                 if (items == null || items.size() == 0) {
-                    throw new IllegalArgumentException("media item list cannot be null or empty.");
+                    throw new IllegalArgumentException("media item list cannot be null or empty");
                 }
                 for (MediaItem item : items) {
                     if (item == null) {

@@ -129,18 +129,16 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setPeriodic(TEST_INTERVAL_DURATION);
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
-        assertThat(jobInfo.getIntervalMillis(), is(TEST_INTERVAL_DURATION));
+        assertThat(jobInfo.getMinLatencyMillis(), is(0L));
     }
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 24)
     public void testConvert_periodicWithFlex() {
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setPeriodic(TEST_INTERVAL_DURATION, TEST_FLEX_DURATION);
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
-        assertThat(jobInfo.getIntervalMillis(), is(TEST_INTERVAL_DURATION));
-        assertThat(jobInfo.getFlexMillis(), is(TEST_FLEX_DURATION));
+        assertThat(jobInfo.getMinLatencyMillis(), is(TEST_INTERVAL_DURATION - TEST_FLEX_DURATION));
     }
 
     @Test

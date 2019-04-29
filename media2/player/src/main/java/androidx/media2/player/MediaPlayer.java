@@ -141,7 +141,7 @@ import java.util.concurrent.Executors;
  * <a href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a>
  * <p>
  */
-public class MediaPlayer extends SessionPlayer {
+public final class MediaPlayer extends SessionPlayer {
     private static final String TAG = "MediaPlayer";
 
     /**
@@ -677,6 +677,9 @@ public class MediaPlayer extends SessionPlayer {
      * @param context A {@link Context} that will be used to resolve {@link UriMediaItem}.
      */
     public MediaPlayer(@NonNull Context context) {
+        if (context == null) {
+            throw new NullPointerException("context shouldn't be null");
+        }
         mState = PLAYER_STATE_IDLE;
         mPlayer = MediaPlayer2.create(context);
         mExecutor = Executors.newFixedThreadPool(1);
@@ -851,6 +854,9 @@ public class MediaPlayer extends SessionPlayer {
     @Override
     public ListenableFuture<PlayerResult> setAudioAttributes(
             @NonNull final AudioAttributesCompat attr) {
+        if (attr == null) {
+            throw new NullPointerException("attr shouldn't be null");
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1486,7 +1492,7 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         reset();
         mAudioFocusHandler.close();
         mPlayer.close();
@@ -1674,6 +1680,9 @@ public class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public ListenableFuture<PlayerResult> setPlaybackParams(@NonNull final PlaybackParams params) {
+        if (params == null) {
+            throw new NullPointerException("params shouldn't be null");
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1918,8 +1927,8 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     /**
-     * Returns the index of the audio or video track currently selected for playback,
-     * The return value is an index into the array returned by {@link #getTrackInfo()}, and can
+     * Returns the audio or video track currently selected for playback.
+     * The return value is an element in the list returned by {@link #getTrackInfo()}, and can
      * be used in calls to {@link #selectTrack(TrackInfo)}.
      *
      * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO} or
@@ -1973,6 +1982,9 @@ public class MediaPlayer extends SessionPlayer {
     // TODO: support subtitle track selection  (b/130312596)
     @NonNull
     public ListenableFuture<PlayerResult> selectTrack(@NonNull final TrackInfo trackInfo) {
+        if (trackInfo == null) {
+            throw new NullPointerException("trackInfo shouldn't be null");
+        }
         final int trackId = trackInfo.mId;
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -2014,6 +2026,9 @@ public class MediaPlayer extends SessionPlayer {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     public ListenableFuture<PlayerResult> deselectTrack(@NonNull final TrackInfo trackInfo) {
+        if (trackInfo == null) {
+            throw new NullPointerException("trackInfo shouldn't be null");
+        }
         final int trackId = trackInfo.mId;
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -2053,6 +2068,9 @@ public class MediaPlayer extends SessionPlayer {
      * @throws IllegalArgumentException if the callback is {@code null}.
      */
     public void unregisterPlayerCallback(@NonNull PlayerCallback callback) {
+        if (callback == null) {
+            throw new NullPointerException("callback shouldn't be null");
+        }
         super.unregisterPlayerCallback(callback);
     }
 
@@ -2097,6 +2115,9 @@ public class MediaPlayer extends SessionPlayer {
     // This is an asynchronous call.
     @NonNull
     public ListenableFuture<DrmResult> prepareDrm(@NonNull final UUID uuid) {
+        if (uuid == null) {
+            throw new NullPointerException("uuid shouldn't be null");
+        }
         PendingFuture<DrmResult> pendingFuture = new PendingFuture<DrmResult>(mExecutor) {
             @Override
             List<ResolvableFuture<DrmResult>> onExecute() {
@@ -2229,6 +2250,9 @@ public class MediaPlayer extends SessionPlayer {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void restoreDrmKeys(@NonNull byte[] keySetId) throws NoDrmSchemeException {
+        if (keySetId == null) {
+            throw new NullPointerException("keySetId shouldn't be null");
+        }
         try {
             mPlayer.restoreDrmKeys(keySetId);
         } catch (MediaPlayer2.NoDrmSchemeException e) {
@@ -2249,6 +2273,9 @@ public class MediaPlayer extends SessionPlayer {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     public String getDrmPropertyString(@NonNull String propertyName) throws NoDrmSchemeException {
+        if (propertyName == null) {
+            throw new NullPointerException("propertyName shouldn't be null");
+        }
         try {
             return mPlayer.getDrmPropertyString(propertyName);
         } catch (MediaPlayer2.NoDrmSchemeException e) {
@@ -2270,6 +2297,12 @@ public class MediaPlayer extends SessionPlayer {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setDrmPropertyString(@NonNull String propertyName, @NonNull String value)
             throws NoDrmSchemeException {
+        if (propertyName == null) {
+            throw new NullPointerException("propertyName shouldn't be null");
+        }
+        if (value == null) {
+            throw new NullPointerException("value shouldn't be null");
+        }
         try {
             mPlayer.setDrmPropertyString(propertyName, value);
         } catch (MediaPlayer2.NoDrmSchemeException e) {
@@ -2374,6 +2407,9 @@ public class MediaPlayer extends SessionPlayer {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     List<ResolvableFuture<PlayerResult>> setMediaItemsInternal(
             @NonNull MediaItem curItem, @Nullable MediaItem nextItem) {
+        if (curItem == null) {
+            throw new NullPointerException("curItem shouldn't be null");
+        }
         boolean setMediaItemCalled;
         synchronized (mPlaylistLock) {
             setMediaItemCalled = mSetMediaItemCalled;

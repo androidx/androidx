@@ -27,10 +27,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.Manifest;
 import android.content.Context;
+import android.graphics.ImageFormat;
+import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.location.Location;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -44,6 +49,7 @@ import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.Exif;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.Metadata;
@@ -58,9 +64,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -75,6 +84,11 @@ import java.util.concurrent.Semaphore;
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageCaptureTest {
+
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.CAMERA);
+
     // Use most supported resolution for different supported hardware level devices,
     // especially for legacy devices.
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
@@ -493,5 +507,47 @@ public final class ImageCaptureTest {
         CaptureRequest captureRequest = requestCaptor.getValue(); // Obtains the last value.
         assertThat(captureRequest.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE);
+    }
+
+    @Test
+    public void takePicture_withBufferFormatRaw10()
+            throws InterruptedException, CameraAccessException {
+        CameraCharacteristics cameraCharacteristics =
+                CameraUtil.getCameraManager().getCameraCharacteristics(mCameraId);
+        StreamConfigurationMap map =
+                cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        Size[] resolutions = map.getOutputSizes(ImageFormat.RAW10);
+        // Ignore this tests on devices that do not support RAW10 image format.
+        Assume.assumeTrue(resolutions != null);
+        Assume.assumeTrue(resolutions.length > 0);
+        Size resolution = resolutions[0];
+
+        ImageCaptureConfig config =
+                new ImageCaptureConfig.Builder()
+                        .setBufferFormat(ImageFormat.RAW10)
+                        .build();
+        ImageCapture useCase = new ImageCapture(config);
+        Map<String, Size> suggestedResolutionMap = new HashMap<>();
+        suggestedResolutionMap.put(mCameraId, resolution);
+        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase, mRepeatingUseCase);
+        useCase.addStateChangeListener(mCamera);
+
+        useCase.takePicture(mOnImageCapturedListener);
+
+        // Wait for the signal that the image has been saved.
+        mSemaphore.acquire();
+
+        assertThat(mCapturedImage.getFormat()).isEqualTo(ImageFormat.RAW10);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructor_withBufferFormatAndCaptureProcessor_throwsException() {
+        ImageCaptureConfig config =
+                new ImageCaptureConfig.Builder()
+                .setBufferFormat(ImageFormat.RAW_SENSOR)
+                .setCaptureProcessor(mock(CaptureProcessor.class))
+                .build();
+        new ImageCapture(config);
     }
 }

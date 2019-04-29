@@ -1081,7 +1081,7 @@ public class MediaPlayerDrmTest {
                 throw new InterruptedException(
                         "Timeout waiting for IDs " + Arrays.toString(waitForIds)
                         + "; received " + mCompleteIds.toString()
-                        + ".  Make sure you have WiFi or some other connectivity for this test.");
+                        + ".  Make sure you have WiFi or some other connectivity for this test");
             }
         }
 

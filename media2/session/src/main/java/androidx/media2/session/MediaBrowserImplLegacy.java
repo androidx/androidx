@@ -62,8 +62,8 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
     private final HashMap<String, List<SubscribeCallback>> mSubscribeCallbacks = new HashMap<>();
 
     MediaBrowserImplLegacy(@NonNull Context context, MediaBrowser instance,
-            @NonNull SessionToken token, @NonNull /*@CallbackExecutor*/ Executor executor,
-            @NonNull MediaBrowser.BrowserCallback callback) {
+            @NonNull SessionToken token, @Nullable /*@CallbackExecutor*/ Executor executor,
+            @Nullable MediaBrowser.BrowserCallback callback) {
         super(context, instance, token, executor, callback);
     }
 
@@ -93,7 +93,7 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
             result.set(new LibraryResult(RESULT_SUCCESS, createRootMediaItem(browserCompat),
                     null));
         } else {
-            getCallbackExecutor().execute(new Runnable() {
+            mHandler.post(new Runnable() {
                 @Override
                 public void run() {
                     // Do this on the callback executor to set the looper of MediaBrowserCompat's
@@ -182,7 +182,7 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
         browserCompat.getItem(mediaId, new ItemCallback() {
             @Override
             public void onItemLoaded(final MediaBrowserCompat.MediaItem item) {
-                getCallbackExecutor().execute(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         if (item != null) {
@@ -197,7 +197,7 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
 
             @Override
             public void onError(String itemId) {
-                getCallbackExecutor().execute(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         result.set(new LibraryResult(RESULT_ERROR_UNKNOWN));
@@ -219,7 +219,8 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
             @Override
             public void onSearchResult(final String query, final Bundle extras,
                     final List<MediaBrowserCompat.MediaItem> items) {
-                getCallbackExecutor().execute(new Runnable() {
+                if (mCallback == null) return;
+                mCallbackExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         // Set extra null here, because 'extra' have different meanings between old
@@ -235,7 +236,8 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
 
             @Override
             public void onError(final String query, final Bundle extras) {
-                getCallbackExecutor().execute(new Runnable() {
+                if (mCallback == null) return;
+                mCallbackExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
                         // Set extra null here, because 'extra' have different meanings between old
@@ -268,7 +270,7 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
             @Override
             public void onSearchResult(final String query, final Bundle extrasSent,
                     final List<MediaBrowserCompat.MediaItem> items) {
-                getCallbackExecutor().execute(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         List<MediaItem> item2List =
@@ -280,7 +282,7 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
 
             @Override
             public void onError(final String query, final Bundle extrasSent) {
-                getCallbackExecutor().execute(new Runnable() {
+                mHandler.post(new Runnable() {
                     @Override
                     public void run() {
                         future.set(new LibraryResult(RESULT_ERROR_UNKNOWN));
@@ -403,7 +405,8 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
 
             final LibraryParams params = MediaUtils.convertToLibraryParams(mContext,
                     browserCompat.getNotifyChildrenChangedOptions());
-            getCallbackExecutor().execute(new Runnable() {
+            if (mCallback == null) return;
+            mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
                     // TODO(Post-P): Cache children result for later getChildren() calls.

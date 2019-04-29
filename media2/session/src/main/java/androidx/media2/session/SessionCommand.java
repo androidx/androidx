@@ -578,7 +578,7 @@ public final class SessionCommand implements VersionedParcelable {
      */
     public SessionCommand(@NonNull String action, @Nullable Bundle extras) {
         if (action == null) {
-            throw new IllegalArgumentException("action shouldn't be null");
+            throw new NullPointerException("action shouldn't be null");
         }
         mCommandCode = COMMAND_CODE_CUSTOM;
         mCustomAction = action;

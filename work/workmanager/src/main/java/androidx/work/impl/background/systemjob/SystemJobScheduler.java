@@ -34,6 +34,8 @@ import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.IdGenerator;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -101,19 +103,15 @@ public class SystemJobScheduler implements Scheduler {
                     continue;
                 }
 
+                // Get pending jobIds that might be currently being used.
+                // This is useful only for API 23, because we double schedule jobs.
+                List<Integer> jobIds =
+                        Build.VERSION.SDK_INT == 23
+                                ? getPendingJobIds(mJobScheduler, workSpec.id)
+                                : Collections.<Integer>emptyList();
+
                 SystemIdInfo info = workDatabase.systemIdInfoDao()
                         .getSystemIdInfo(workSpec.id);
-
-                if (info != null) {
-                    JobInfo jobInfo = getPendingJobInfo(mJobScheduler, workSpec.id);
-                    if (jobInfo != null) {
-                        Logger.get().debug(TAG, String.format(
-                                "Skipping scheduling %s because JobScheduler is aware of it "
-                                        + "already.",
-                                workSpec.id));
-                        continue;
-                    }
-                }
 
                 int jobId = info != null ? info.systemId : mIdGenerator.nextJobSchedulerIdWithRange(
                         mWorkManager.getConfiguration().getMinJobSchedulerId(),
@@ -134,13 +132,24 @@ public class SystemJobScheduler implements Scheduler {
                 // we will double-schedule jobs on API 23 and de-dupe them
                 // in SystemJobService as needed.
                 if (Build.VERSION.SDK_INT == 23) {
-                    int nextJobId = mIdGenerator.nextJobSchedulerIdWithRange(
-                            mWorkManager.getConfiguration().getMinJobSchedulerId(),
-                            mWorkManager.getConfiguration().getMaxJobSchedulerId());
+                    // Remove the jobId which has been used from the list of eligible jobIds.
+                    int index = jobIds.indexOf(jobId);
+                    if (index >= 0) {
+                        jobIds.remove(jobId);
+                    }
 
+                    int nextJobId;
+                    if (!jobIds.isEmpty()) {
+                        // Use the next eligible jobId
+                        nextJobId = jobIds.get(0);
+                    } else {
+                        // Create a new jobId
+                        nextJobId = mIdGenerator.nextJobSchedulerIdWithRange(
+                                mWorkManager.getConfiguration().getMinJobSchedulerId(),
+                                mWorkManager.getConfiguration().getMaxJobSchedulerId());
+                    }
                     scheduleInternal(workSpec, nextJobId);
                 }
-
                 workDatabase.setTransactionSuccessful();
             } finally {
                 workDatabase.endTransaction();
@@ -239,9 +248,12 @@ public class SystemJobScheduler implements Scheduler {
         }
     }
 
-    private static JobInfo getPendingJobInfo(
+    private static List<Integer> getPendingJobIds(
             @NonNull JobScheduler jobScheduler,
             @NonNull String workSpecId) {
+
+        // We have atmost 2 jobs per WorkSpec
+        List<Integer> pendingJobs = new ArrayList<>(2);
 
         List<JobInfo> jobInfos = jobScheduler.getAllPendingJobs();
         // Apparently this CAN be null on API 23?
@@ -252,11 +264,11 @@ public class SystemJobScheduler implements Scheduler {
                         && extras.containsKey(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID)) {
                     if (workSpecId.equals(
                             extras.getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID))) {
-                        return jobInfo;
+                        pendingJobs.add(jobInfo.getId());
                     }
                 }
             }
         }
-        return null;
+        return pendingJobs;
     }
 }

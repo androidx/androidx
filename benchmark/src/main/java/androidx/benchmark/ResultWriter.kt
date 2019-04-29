@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import android.os.Environment
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
@@ -64,8 +65,11 @@ internal object ResultWriter {
         val reportFormatter: (BenchmarkState.Report, String, String) -> String
     ) {
         private val context = InstrumentationRegistry.getInstrumentation().targetContext!!
-        val file =
-            File("/data/data/${context.packageName}/benchmark_reports/benchmarkdata.$extension")
+
+        val file = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            "${context.packageName}-benchmarkData.$extension"
+        )
         var currentContent = initial
 
         val fullFileContent: String
@@ -107,6 +111,7 @@ internal object ResultWriter {
                     parentFile.mkdirs()
                     createNewFile()
                 }
+
                 // Currently, we just overwrite the whole file
                 // Ideally, truncate off the 'tail', and append for efficiency
                 writeText(fileManager.fullFileContent)

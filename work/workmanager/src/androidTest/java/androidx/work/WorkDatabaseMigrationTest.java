@@ -25,6 +25,7 @@ import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_4;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_5;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_6;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -260,6 +261,25 @@ public class WorkDatabaseMigrationTest {
         assertThat(
                 checkColumnExists(database, TABLE_WORKSPEC, TRIGGER_MAX_CONTENT_DELAY),
                 is(true));
+        database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion5To6() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_5);
+        WorkDatabaseMigrations.WorkMigration migration5To6 =
+                new WorkDatabaseMigrations.WorkMigration(mContext, VERSION_5, VERSION_6);
+
+        database = mMigrationTestHelper.runMigrationsAndValidate(
+                TEST_DATABASE,
+                VERSION_6,
+                VALIDATE_DROPPED_TABLES,
+                migration5To6);
+
+        Preferences preferences = new Preferences(mContext);
+        assertThat(preferences.needsReschedule(), is(true));
         database.close();
     }
 

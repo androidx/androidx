@@ -191,7 +191,7 @@ public class MediaSession implements AutoCloseable {
      */
     public void updatePlayer(@NonNull SessionPlayer player) {
         if (player == null) {
-            throw new IllegalArgumentException("player shouldn't be null");
+            throw new NullPointerException("player shouldn't be null");
         }
         mImpl.updatePlayer(player);
     }
@@ -295,10 +295,10 @@ public class MediaSession implements AutoCloseable {
     public @NonNull ListenableFuture<SessionResult> setCustomLayout(
             @NonNull ControllerInfo controller, @NonNull List<CommandButton> layout) {
         if (controller == null) {
-            throw new IllegalArgumentException("controller shouldn't be null");
+            throw new NullPointerException("controller shouldn't be null");
         }
         if (layout == null) {
-            throw new IllegalArgumentException("layout shouldn't be null");
+            throw new NullPointerException("layout shouldn't be null");
         }
         return mImpl.setCustomLayout(controller, layout);
     }
@@ -317,10 +317,10 @@ public class MediaSession implements AutoCloseable {
     public void setAllowedCommands(@NonNull ControllerInfo controller,
             @NonNull SessionCommandGroup commands) {
         if (controller == null) {
-            throw new IllegalArgumentException("controller shouldn't be null");
+            throw new NullPointerException("controller shouldn't be null");
         }
         if (commands == null) {
-            throw new IllegalArgumentException("commands shouldn't be null");
+            throw new NullPointerException("commands shouldn't be null");
         }
         mImpl.setAllowedCommands(controller, commands);
     }
@@ -360,10 +360,10 @@ public class MediaSession implements AutoCloseable {
             @NonNull ControllerInfo controller, @NonNull SessionCommand command,
             @Nullable Bundle args) {
         if (controller == null) {
-            throw new IllegalArgumentException("controller shouldn't be null");
+            throw new NullPointerException("controller shouldn't be null");
         }
         if (command == null) {
-            throw new IllegalArgumentException("command shouldn't be null");
+            throw new NullPointerException("command shouldn't be null");
         }
         if (command.getCommandCode() != SessionCommand.COMMAND_CODE_CUSTOM) {
             throw new IllegalArgumentException("command should be a custom command");
@@ -1237,10 +1237,10 @@ public class MediaSession implements AutoCloseable {
 
         BuilderBase(@NonNull Context context, @NonNull SessionPlayer player) {
             if (context == null) {
-                throw new IllegalArgumentException("context shouldn't be null");
+                throw new NullPointerException("context shouldn't be null");
             }
             if (player == null) {
-                throw new IllegalArgumentException("player shouldn't be null");
+                throw new NullPointerException("player shouldn't be null");
             }
             mContext = context;
             mPlayer = player;
@@ -1267,7 +1267,6 @@ public class MediaSession implements AutoCloseable {
          * wants to provide external apps to have finer controls of them.
          *
          * @param id id of the session. Must be unique per package.
-         * @throws IllegalArgumentException if id is {@code null}.
          * @return
          */
         // Note: This ID is not visible to the controllers. ID is introduced in order to prevent
@@ -1275,7 +1274,7 @@ public class MediaSession implements AutoCloseable {
         // sessions with the same ID in a process, then an IllegalStateException will be thrown.
         @NonNull U setId(@NonNull String id) {
             if (id == null) {
-                throw new IllegalArgumentException("id shouldn't be null");
+                throw new NullPointerException("id shouldn't be null");
             }
             mId = id;
             return (U) this;
@@ -1290,10 +1289,10 @@ public class MediaSession implements AutoCloseable {
          */
         @NonNull U setSessionCallback(@NonNull Executor executor, @NonNull C callback) {
             if (executor == null) {
-                throw new IllegalArgumentException("executor shouldn't be null");
+                throw new NullPointerException("executor shouldn't be null");
             }
             if (callback == null) {
-                throw new IllegalArgumentException("callback shouldn't be null");
+                throw new NullPointerException("callback shouldn't be null");
             }
             mCallbackExecutor = executor;
             mCallback = callback;
@@ -1310,7 +1309,7 @@ public class MediaSession implements AutoCloseable {
         @NonNull
         public U setExtras(@NonNull Bundle extras) {
             if (extras == null) {
-                throw new IllegalArgumentException("extras shouldn't be null");
+                throw new NullPointerException("extras shouldn't be null");
             }
             mExtras = extras;
             return (U) this;
