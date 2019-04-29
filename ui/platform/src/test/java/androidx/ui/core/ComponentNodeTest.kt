@@ -554,6 +554,48 @@ class ComponentNodeTest {
         assertEquals(position, result)
     }
 
+    @Test
+    fun testPositionRelativeToRoot() {
+        val parent = LayoutNode()
+        val child = LayoutNode()
+        parent.emitInsertAt(0, child)
+        parent.moveTo(-100.ipx, 10.ipx)
+        child.moveTo(50.ipx, 80.ipx)
+
+        val actual = child.positionRelativeToRoot()
+
+        assertEquals(PxPosition(-50.px, 90.px), actual)
+    }
+
+    @Test
+    fun testPositionRelativeToAncestorWithParent() {
+        val parent = LayoutNode()
+        val child = LayoutNode()
+        parent.emitInsertAt(0, child)
+        parent.moveTo(-100.ipx, 10.ipx)
+        child.moveTo(50.ipx, 80.ipx)
+
+        val actual = child.positionRelativeToAncestor(parent)
+
+        assertEquals(PxPosition(50.px, 80.px), actual)
+    }
+
+    @Test
+    fun testPositionRelativeToAncestorWithGrandParent() {
+        val grandParent = LayoutNode()
+        val parent = LayoutNode()
+        val child = LayoutNode()
+        grandParent.emitInsertAt(0, parent)
+        parent.emitInsertAt(0, child)
+        grandParent.moveTo(-7.ipx, 17.ipx)
+        parent.moveTo(23.ipx, -13.ipx)
+        child.moveTo(-3.ipx, 11.ipx)
+
+        val actual = child.positionRelativeToAncestor(grandParent)
+
+        assertEquals(PxPosition(20.px, -2.px), actual)
+    }
+
     // SingleChildComponentNode shouldn't allow adding more than two children during composition
     @Test
     fun testAddTwoMax() {

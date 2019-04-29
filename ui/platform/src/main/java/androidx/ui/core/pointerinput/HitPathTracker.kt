@@ -19,7 +19,12 @@ package androidx.ui.core.pointerinput
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputNode
+import androidx.ui.core.PxPosition
+import androidx.ui.core.addOffset
+import androidx.ui.core.positionRelativeToAncestor
+import androidx.ui.core.positionRelativeToRoot
 import androidx.ui.core.isAttached
+import androidx.ui.core.subtractOffset
 
 /**
  * Organizes pointers and the [PointerInputNode]s that they hit into a hierarchy such that
@@ -88,13 +93,29 @@ internal class HitPathTracker {
     fun removePointerId(pointerId: Int) {
         root.removePointerId(pointerId)
     }
+
+    /**
+     * Updates this [HitPathTracker]'s cached knowledge of the bounds of the [PointerInputNode]s
+     * it is tracking.  This is is necessary to call before calls to [dispatchChanges] so that
+     * the positions of [PointerInputChange]s are offset to be relative to the [PointerInputNode]s
+     * that are going to receive them.
+     */
+    fun refreshOffsets() {
+        root.refreshOffsets()
+    }
 }
 
+// TODO(shepshapard): This really should be private. Currently some tests inspect the node's
+// directly which is unneccessary and bad practice.
 internal class Node(
     val pointerInputNode: PointerInputNode? = null
 ) {
     val pointerIds: MutableSet<Int> = mutableSetOf()
     val children: MutableSet<Node> = mutableSetOf()
+
+    // Stores the associated PointerInputNode's virtual position relative to it's parent
+    // PointerInputNode, or relative to the crane root if it has no parent PointerInputNode.
+    var offset: PxPosition = PxPosition.Origin
 
     fun dispatchChanges(
         pointerInputChanges: MutableMap<Int, PointerInputChange>,
@@ -110,24 +131,38 @@ internal class Node(
             }
         }
 
-        // Invoke the pointer PointerInputNode's pointerInputHandler with the downPass and update
-        // the change with the result.
+        // For each relevant change:
+        //  1. subtract the offset
+        //  2. dispatch the change on the down pass,
+        //  3. update it in relevantChanges.
         if (pointerInputNode != null) {
-            for (entry in relevantChanges)
-                entry.setValue(pointerInputNode.pointerInputHandler.invoke(entry.value, downPass))
+            for (entry in relevantChanges) {
+                entry.setValue(
+                    entry.value
+                        .subtractOffset(offset)
+                        .dispatchToPointerInputNode(pointerInputNode, downPass)
+                )
+            }
         }
 
         // Call children recursively with the relevant changes.
         children.forEach { it.dispatchChanges(relevantChanges, downPass, upPass) }
 
-        // Invoke the pointer PointerInputNode's pointerInputHandler with the upPass (if it exists)
-        // and update the change with the result.
+        // For each relevant change:
+        //  1. dispatch the change on the up pass,
+        //  2. add the offset,
+        //  3. update it in  relevant changes.
         if (pointerInputNode != null && upPass != null) {
-            for (entry in relevantChanges)
-                entry.setValue(pointerInputNode.pointerInputHandler.invoke(entry.value, upPass))
+            for (entry in relevantChanges) {
+                entry.setValue(
+                    entry.value
+                        .dispatchToPointerInputNode(pointerInputNode, upPass)
+                        .addOffset(offset)
+                )
+            }
         }
 
-        // Update the pointerInputChanges with those relevant to us, and return it.
+        // Mutate the pointerInputChanges with the ones we modified.
         pointerInputChanges.putAll(relevantChanges)
     }
 
@@ -152,8 +187,31 @@ internal class Node(
         }
     }
 
+    fun refreshOffsets() {
+        if (pointerInputNode == null) {
+            children.forEach { child ->
+                child.offset = child.pointerInputNode?.layoutNode?.positionRelativeToRoot()
+                        ?: PxPosition.Origin
+            }
+        } else {
+            children.forEach { child ->
+                val layoutNode = child.pointerInputNode?.layoutNode
+                child.offset = layoutNode?.positionRelativeToAncestor(pointerInputNode.layoutNode!!)
+                        ?: PxPosition.Origin
+            }
+        }
+        children.forEach { child ->
+            child.refreshOffsets()
+        }
+    }
+
     override fun toString(): String {
         return "Node(pointerInputNode=$pointerInputNode, children=$children, " +
                 "pointerIds=$pointerIds)"
     }
+
+    private fun PointerInputChange.dispatchToPointerInputNode(
+        node: PointerInputNode,
+        pass: PointerEventPass
+    ) = node.pointerInputHandler.invoke(this, pass)
 }

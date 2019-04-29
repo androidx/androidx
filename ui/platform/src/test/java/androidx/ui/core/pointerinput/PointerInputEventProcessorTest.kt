@@ -29,8 +29,6 @@ import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsComponentNode
-import androidx.ui.core.Timestamp
-import androidx.ui.core.ipx
 import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.px
 import com.nhaarman.mockitokotlin2.any
@@ -1236,38 +1234,5 @@ class PointerInputEventProcessorTest {
         }
         verifyNoMoreInteractions(parentPointerInputNode.pointerInputHandler)
         verifyNoMoreInteractions(childPointerInputNode.pointerInputHandler)
-    }
-
-    // Private helpers
-
-    @Suppress("TestFunctionName")
-    private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int) =
-        androidx.ui.core.LayoutNode().apply {
-            moveTo(x.ipx, y.ipx)
-            resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
-        }
-
-    @Suppress("TestFunctionName")
-    private fun PointerInputEventData(
-        id: Int,
-        timestamp: Timestamp,
-        position: PxPosition?,
-        down: Boolean
-    ): PointerInputEventData {
-        val pointerInputData = PointerInputData(timestamp, position, down)
-        return PointerInputEventData(id, pointerInputData)
-    }
-
-    @Suppress("TestFunctionName")
-    private fun PointerInputEvent(
-        id: Int,
-        timestamp: Timestamp,
-        position: PxPosition?,
-        down: Boolean
-    ): PointerInputEvent {
-        return PointerInputEvent(
-            timestamp,
-            listOf(PointerInputEventData(id, timestamp, position, down))
-        )
     }
 }

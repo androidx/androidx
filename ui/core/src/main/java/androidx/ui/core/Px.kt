@@ -60,7 +60,7 @@ data /*inline*/ class Px(val value: Float) {
     /*inline*/ operator fun div(other: Float): Px =
         Px(value = value / other)
 
-        /*inline*/ operator fun div(other: Int): Px =
+    /*inline*/ operator fun div(other: Int): Px =
         Px(value = value / other)
 
     /**
@@ -80,7 +80,7 @@ data /*inline*/ class Px(val value: Float) {
     /*inline*/ operator fun times(other: Float): Px =
         Px(value = value * other)
 
-        /*inline*/ operator fun times(other: Int): Px =
+    /*inline*/ operator fun times(other: Int): Px =
         Px(value = value * other)
 
     /**
@@ -425,6 +425,18 @@ data class PxPosition(val x: Px, val y: Px) {
      * Add a [PxPosition] to another one.
      */
     /*inline*/ operator fun plus(other: PxPosition) =
+        PxPosition(x + other.x, y + other.y)
+
+    /**
+     * Subtract a [IntPxPosition] from this [PxPosition].
+     */
+    /*inline*/ operator fun minus(other: IntPxPosition) =
+        PxPosition(x - other.x, y - other.y)
+
+    /**
+     * Add a [IntPxPosition] to this [PxPosition].
+     */
+    /*inline*/ operator fun plus(other: IntPxPosition) =
         PxPosition(x + other.x, y + other.y)
 
     /**
