@@ -43,6 +43,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.Nullable;
+import androidx.camera.camera2.impl.util.FakeRepeatingUseCase;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;

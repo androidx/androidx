@@ -18,7 +18,7 @@ limitations under the License.
 
     <application>
         <provider
-            android:name=".Camera2Initializer"
+            android:name=".impl.Camera2Initializer"
             android:authorities="${applicationId}.camerax-init"
             android:exported="false"
             android:initOrder="100"
