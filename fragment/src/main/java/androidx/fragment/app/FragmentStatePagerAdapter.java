@@ -194,7 +194,8 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
         mCurTransaction.add(container.getId(), fragment);
 
         if (mBehavior == RESUME_ONLY_CURRENT_FRAGMENT) {
-            mCurTransaction.setMaxLifecycle(fragment, Lifecycle.State.STARTED);
+            mCurTransaction.setMaxLifecycle(fragment, Lifecycle.State.STARTED)
+                    .setReorderingAllowed(true);
         }
 
         return fragment;
@@ -230,7 +231,8 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
                     if (mCurTransaction == null) {
                         mCurTransaction = mFragmentManager.beginTransaction();
                     }
-                    mCurTransaction.setMaxLifecycle(mCurrentPrimaryItem, Lifecycle.State.STARTED);
+                    mCurTransaction.setMaxLifecycle(mCurrentPrimaryItem, Lifecycle.State.STARTED)
+                            .setReorderingAllowed(true);
                 } else {
                     mCurrentPrimaryItem.setUserVisibleHint(false);
                 }
@@ -240,7 +242,8 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
                 if (mCurTransaction == null) {
                     mCurTransaction = mFragmentManager.beginTransaction();
                 }
-                mCurTransaction.setMaxLifecycle(fragment, Lifecycle.State.RESUMED);
+                mCurTransaction.setMaxLifecycle(fragment, Lifecycle.State.RESUMED)
+                        .setReorderingAllowed(true);
             } else {
                 fragment.setUserVisibleHint(true);
             }
