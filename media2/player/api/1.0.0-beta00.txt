@@ -126,6 +126,7 @@ package androidx.media2.player {
   }
 
   public final class VideoSize {
+    ctor public VideoSize(int, int);
     method public int getHeight();
     method public int getWidth();
   }
