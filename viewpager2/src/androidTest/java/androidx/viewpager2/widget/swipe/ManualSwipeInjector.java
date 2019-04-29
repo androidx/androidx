@@ -20,6 +20,8 @@ import android.app.Instrumentation;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
 import androidx.test.espresso.PerformException;
 import androidx.test.espresso.action.CoordinatesProvider;
@@ -53,7 +55,7 @@ public class ManualSwipeInjector {
     private final int mDuration;
     private final int mSteps;
 
-    private ManualSwipeInjector(CoordinatesProvider startCoordinatesProvider,
+    ManualSwipeInjector(CoordinatesProvider startCoordinatesProvider,
             CoordinatesProvider endCoordinatesProvider, int duration, int steps) {
         mStartCoordinatesProvider = startCoordinatesProvider;
         mEndCoordinatesProviders = endCoordinatesProvider;
@@ -98,9 +100,18 @@ public class ManualSwipeInjector {
      * into the Instrumentation instance.
      */
     public void perform(Instrumentation instr, View view) {
+        perform(instr, view, new LinearInterpolator());
+    }
+
+    /**
+     * Perform the swipe on the given view by generating and injecting the appropriate motion events
+     * into the Instrumentation instance. Interpolation between the start and end coordinates is
+     * done at regular intervals using the given interpolator.
+     */
+    public void perform(Instrumentation instr, View view, Interpolator interpolator) {
         float[] swipeStart = mStartCoordinatesProvider.calculateCoordinates(view);
         float[] swipeEnd = mEndCoordinatesProviders.calculateCoordinates(view);
-        sendSwipe(instr, swipeStart, swipeEnd, mDuration, mSteps, view);
+        sendSwipe(instr, swipeStart, swipeEnd, mDuration, mSteps, view, interpolator);
     }
 
     /**
@@ -113,8 +124,8 @@ public class ManualSwipeInjector {
      * @param view The View on which the swipe is performed
      */
     private void sendSwipe(Instrumentation instr, float[] from, float[] to, int duration,
-            int steps, View view) {
-        float[][] coords = interpolate(from, to, steps);
+            int steps, View view, Interpolator interpolator) {
+        float[][] coords = interpolate(from, to, steps, interpolator);
         long startTime = SystemClock.uptimeMillis();
 
         List<MotionEvent> events = new ArrayList<>();
@@ -162,12 +173,13 @@ public class ManualSwipeInjector {
         instrumentation.sendPointerSync(event);
     }
 
-    private static float[][] interpolate(float[] from, float[] to, int steps) {
+    private static float[][] interpolate(float[] from, float[] to, int steps,
+            Interpolator interpolator) {
         float[][] coords = new float[steps + 1][2];
         coords[0][X] = from[X];
         coords[0][Y] = from[Y];
         for (int i = 1; i <= steps; i++) {
-            lerp(from, to, (float) i / steps, coords[i]);
+            lerp(from, to, interpolator.getInterpolation((float) i / steps), coords[i]);
         }
         return coords;
     }
