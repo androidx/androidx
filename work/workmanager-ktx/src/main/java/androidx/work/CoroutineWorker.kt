@@ -59,6 +59,7 @@ abstract class CoroutineWorker(
     @Deprecated(message = "use withContext(...) inside doWork() instead.")
     open val coroutineContext = Dispatchers.Default
 
+    @Suppress("DEPRECATION")
     final override fun startWork(): ListenableFuture<Result> {
 
         val coroutineScope = CoroutineScope(coroutineContext + job)
