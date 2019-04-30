@@ -738,7 +738,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             newState = Fragment.ACTIVITY_CREATED;
         }
         // Don't allow the Fragment to go above its max lifecycle state
-        newState = Math.min(newState, f.mMaxState.ordinal());
+        // Ensure that Fragments are capped at CREATED instead of ACTIVITY_CREATED.
+        if (f.mMaxState == Lifecycle.State.CREATED) {
+            newState = Math.min(newState, Fragment.CREATED);
+        } else {
+            newState = Math.min(newState, f.mMaxState.ordinal());
+        }
         if (f.mState <= newState) {
             // For fragments that are created from a layout, when restoring from
             // state we don't want to allow them to be created until they are
