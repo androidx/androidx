@@ -344,7 +344,7 @@ limitations under the License.
     <!-- A styling for action buttons within a toolbar. -->
     <style name="Widget.Car.ActionButton" parent="Widget.AppCompat.ActionButton">
         <item name="android:background">?attr/actionBarItemBackground</item>
-        <item name="android:minHeight">@dimen/car_action_bar_height</item>
+        <item name="android:minHeight">?attr/actionBarSize</item>
         <item name="android:paddingLeft">@dimen/car_padding_2</item>
         <item name="android:paddingRight">@dimen/car_padding_2</item>
         <item name="android:scaleType">fitCenter</item>
