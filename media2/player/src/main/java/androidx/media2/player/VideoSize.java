@@ -16,10 +16,6 @@
 
 package androidx.media2.player;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
-import androidx.annotation.RestrictTo;
-
 /**
  * Immutable class for describing video size.
  */
@@ -29,9 +25,7 @@ public final class VideoSize {
      *
      * @param width The width of the video
      * @param height The height of the video
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public VideoSize(int width, int height) {
         mWidth = width;
         mHeight = height;
