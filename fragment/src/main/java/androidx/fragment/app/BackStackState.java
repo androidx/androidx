@@ -30,7 +30,8 @@ import java.util.ArrayList;
 final class BackStackState implements Parcelable {
     final int[] mOps;
     final ArrayList<String> mFragmentWhos;
-    final int[] mMaxLifecycleStates;
+    final int[] mOldMaxLifecycleStates;
+    final int[] mCurrentMaxLifecycleStates;
     final int mTransition;
     final int mTransitionStyle;
     final String mName;
@@ -52,7 +53,8 @@ final class BackStackState implements Parcelable {
         }
 
         mFragmentWhos = new ArrayList<>(numOps);
-        mMaxLifecycleStates = new int[numOps];
+        mOldMaxLifecycleStates = new int[numOps];
+        mCurrentMaxLifecycleStates = new int[numOps];
         int pos = 0;
         for (int opNum = 0; opNum < numOps; opNum++) {
             final BackStackRecord.Op op = bse.mOps.get(opNum);
@@ -62,7 +64,8 @@ final class BackStackState implements Parcelable {
             mOps[pos++] = op.mExitAnim;
             mOps[pos++] = op.mPopEnterAnim;
             mOps[pos++] = op.mPopExitAnim;
-            mMaxLifecycleStates[opNum] = op.mMaxState.ordinal();
+            mOldMaxLifecycleStates[opNum] = op.mOldMaxState.ordinal();
+            mCurrentMaxLifecycleStates[opNum] = op.mCurrentMaxState.ordinal();
         }
         mTransition = bse.mTransition;
         mTransitionStyle = bse.mTransitionStyle;
@@ -80,7 +83,8 @@ final class BackStackState implements Parcelable {
     public BackStackState(Parcel in) {
         mOps = in.createIntArray();
         mFragmentWhos = in.createStringArrayList();
-        mMaxLifecycleStates = in.createIntArray();
+        mOldMaxLifecycleStates = in.createIntArray();
+        mCurrentMaxLifecycleStates = in.createIntArray();
         mTransition = in.readInt();
         mTransitionStyle = in.readInt();
         mName = in.readString();
@@ -110,7 +114,8 @@ final class BackStackState implements Parcelable {
             } else {
                 op.mFragment = null;
             }
-            op.mMaxState = Lifecycle.State.values()[mMaxLifecycleStates[num]];
+            op.mOldMaxState = Lifecycle.State.values()[mOldMaxLifecycleStates[num]];
+            op.mCurrentMaxState = Lifecycle.State.values()[mCurrentMaxLifecycleStates[num]];
             op.mEnterAnim = mOps[pos++];
             op.mExitAnim = mOps[pos++];
             op.mPopEnterAnim = mOps[pos++];
@@ -147,7 +152,8 @@ final class BackStackState implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeIntArray(mOps);
         dest.writeStringList(mFragmentWhos);
-        dest.writeIntArray(mMaxLifecycleStates);
+        dest.writeIntArray(mOldMaxLifecycleStates);
+        dest.writeIntArray(mCurrentMaxLifecycleStates);
         dest.writeInt(mTransition);
         dest.writeInt(mTransitionStyle);
         dest.writeString(mName);
