@@ -22,6 +22,8 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
+import static junit.framework.TestCase.assertNotNull;
+
 import android.content.Intent;
 
 import androidx.camera.core.ImageAnalysis;
@@ -77,7 +79,6 @@ public final class BasicUITest {
     public void setUp() {
         // Close system dialogs first to avoid interrupt.
         mActivityRule.getActivity().sendBroadcast(new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
-        checkViewReady();
     }
 
     @After
@@ -86,7 +87,14 @@ public final class BasicUITest {
     }
 
     @Test
-    public void testAnalysisButton() {
+    public void testAnalysisButton1() {
+        ImageAnalysis imageAnalysis = mActivityRule.getActivity().getImageAnalysis();
+        assertNotNull(imageAnalysis);
+    }
+
+    @Test
+    public void testAnalysisButton2() {
+        checkViewReady();
 
         ImageAnalysis imageAnalysis = mActivityRule.getActivity().getImageAnalysis();
         // Click to disable the imageAnalysis use case.
@@ -108,6 +116,7 @@ public final class BasicUITest {
 
     @Test
     public void testPreviewButton() {
+        checkViewReady();
 
         Preview preview = mActivityRule.getActivity().getPreview();
         // Click to disable the preview use case.
