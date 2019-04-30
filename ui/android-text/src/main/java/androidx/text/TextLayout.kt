@@ -176,9 +176,9 @@ class TextLayout constructor(
 
     fun getLineForOffset(offset: Int): Int = layout.getLineForOffset(offset)
 
-    fun getLineTop(line: Int): Int = layout.getLineTop(line)
+    fun getLineTop(line: Int): Float = layout.getLineTop(line).toFloat()
 
-    fun getLineBottom(line: Int): Int = layout.getLineBottom(line)
+    fun getLineBottom(line: Int): Float = layout.getLineBottom(line).toFloat()
 
     fun getSelectionPath(start: Int, end: Int, dest: Path) =
         layout.getSelectionPath(start, end, dest)
