@@ -111,8 +111,9 @@ class Archive(
         val file = outputPath.toFile()
         Files.createFile(outputPath)
         val stream = BufferedOutputStream(FileOutputStream(file))
-        writeSelfTo(stream)
-        stream.close()
+        stream.use {
+            writeSelfTo(it)
+        }
         return file
     }
 
