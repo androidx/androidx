@@ -36,6 +36,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
+import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.MediumTest;
 
@@ -59,7 +60,7 @@ public class GhostViewTest extends BaseTest {
         mContext = rule.getActivity();
         mRoot = new FrameLayout(mContext);
         rule.getActivity().getRoot().addView(mRoot, new ViewGroup.LayoutParams(SIZE, SIZE));
-        rule.getActivity().getRoot().setBackground(new ColorDrawable(Color.WHITE));
+        ViewCompat.setBackground(rule.getActivity().getRoot(), new ColorDrawable(Color.WHITE));
     }
 
     @Test
@@ -261,7 +262,7 @@ public class GhostViewTest extends BaseTest {
 
     private View makeColorView(int color) {
         View view = new View(mContext);
-        view.setBackground(new ColorDrawable(color));
+        ViewCompat.setBackground(view, new ColorDrawable(color));
         return view;
     }
 
