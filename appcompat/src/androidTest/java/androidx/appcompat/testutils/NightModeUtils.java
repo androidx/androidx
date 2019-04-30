@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,6 +33,7 @@ import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.LifecycleOwnerUtils;
 
 public class NightModeUtils {
+    private static final String LOG_TAG = "NightModeUtils";
 
     public enum NightSetMode {
         /**
@@ -70,6 +72,10 @@ public class NightModeUtils {
             @NightMode final int nightMode,
             final NightSetMode setMode
     ) throws Throwable {
+        Log.d(LOG_TAG, "setNightModeAndWait on Activity: " + activity
+                + " to mode: " + nightMode
+                + " using set mode: " + setMode);
+
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         activityRule.runOnUiThread(new Runnable() {
             @Override
@@ -86,12 +92,21 @@ public class NightModeUtils {
             final NightSetMode setMode
     ) throws Throwable {
         final T activity = activityRule.getActivity();
+
+        Log.d(LOG_TAG, "setNightModeAndWaitForDestroy on Activity: " + activity
+                + " to mode: " + nightMode
+                + " using set mode: " + setMode);
+
+        // Wait for the Activity to be resumed and visible
+        LifecycleOwnerUtils.waitUntilState(activity, activityRule, Lifecycle.State.RESUMED);
+
         activityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 setNightMode(nightMode, activity, setMode);
             }
         });
+
         LifecycleOwnerUtils.waitUntilState(activity, activityRule, Lifecycle.State.DESTROYED);
     }
 
