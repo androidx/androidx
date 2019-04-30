@@ -23,12 +23,10 @@
     <!-- Note: we must specify this because our local server uses
          http://localhost URLs (and P defaults to blocking cleartext traffic).
          -->
-
-    <application android:label="WebViewAssetLoaderTestIntegrationTest"
+    <application android:label="AndroidX Webkit Unittests"
                  android:hardwareAccelerated="true"
                  android:usesCleartextTraffic="true">
 
-        <!-- Top-level Activity -->
-        <activity android:name=".WebViewAssetLoaderIntegrationTest$TestActivity"/>
+        <activity android:name=".WebViewTestActivity"/>
     </application>
 </manifest>
