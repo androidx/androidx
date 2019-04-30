@@ -70,12 +70,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * A use case for taking a picture.
  *
- * <p>This class is designed for basic picture taking. It provides simple controls on how a picture
- * will be taken. The caller is responsible for deciding how to use the captured picture, such as
- * saving the picture to a file.
+ * <p>This class is designed for basic picture taking. It provides takePicture() functions to take
+ * a picture to memory or save to a file, and provides image metadata.  Pictures are taken in
+ * automatic mode after focus has converged. The flash mode can additionally be set by the
+ * application.
  *
- * <p>The captured image is made available through an {@link ImageReader} which is passed to an
- * {@link ImageCapture.OnImageCapturedListener}.
+ * <p>TakePicture returns immediately and a listener is called to provide the results after the
+ * capture completes. Multiple calls to takePicture will take pictures sequentially starting
+ * after the previous picture is captured.
+ *
+ * <p>Note that focus and exposure metering regions can be controlled via {@link Preview}.
+ *
+ * <p>When capturing to memory, the captured image is made available through an {@link ImageProxy}
+ * via an {@link ImageCapture.OnImageCapturedListener}.
+ *
  */
 public class ImageCapture extends UseCase {
     /**
@@ -296,7 +304,7 @@ public class ImageCapture extends UseCase {
      * <p>The listener's callback will be called only once for every invocation of this method. The
      * listener is responsible for calling {@link Image#close()} on the returned image.
      *
-     * @param listener for the newly captured image
+     * @param listener Listener to be called for the newly captured image
      */
     public void takePicture(final OnImageCapturedListener listener) {
         if (Looper.getMainLooper() != Looper.myLooper()) {
@@ -314,7 +322,7 @@ public class ImageCapture extends UseCase {
     }
 
     /**
-     * Captures a new still image and saves to disk.
+     * Captures a new still image and saves to a file.
      *
      * <p>The listener's callback will be called only once for every invocation of this method.
      *
@@ -326,7 +334,7 @@ public class ImageCapture extends UseCase {
     }
 
     /**
-     * Captures a new still image and saves to disk.
+     * Captures a new still image and saves to a file.
      *
      * <p>The listener's callback will be called only once for every invocation of this method.
      *
@@ -960,7 +968,23 @@ public class ImageCapture extends UseCase {
         /**
          * Callback for when the image has been captured.
          *
-         * <p>The listener is responsible for closing the supplied {@link Image}.
+         * <p>The application is responsible for calling {@link ImageProxy#close()} to close the
+         * image.
+         *
+         * <p>The image is of format {@link ImageFormat#JPEG}, queryable via
+         * {@link ImageProxy#getFormat()}.
+         *
+         * <p>The image is provided as captured by the underlying {@link ImageReader} without
+         * rotation applied.  rotationDegrees describes the magnitude of clockwise roation, which if
+         * applied to the image will make it match the display.  For example, a rotation of 90
+         * degrees means rotating the image 90 degrees clockwise produces an image that will match
+         * the display.
+         *
+         * @param image The captured image
+         * @param rotationDegrees The rotation which if applied to the image will make it match the
+         *                        display, expressed as one of
+         *                        {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+         *                        {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
          */
         public void onCaptureSuccess(ImageProxy image, int rotationDegrees) {
             image.close();
