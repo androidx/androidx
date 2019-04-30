@@ -51,10 +51,29 @@ import java.util.Iterator;
  */
 public final class OnBackPressedDispatcher {
 
+    @Nullable
+    private final Runnable mFallbackOnBackPressed;
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ArrayDeque<OnBackPressedCallback> mOnBackPressedCallbacks = new ArrayDeque<>();
 
-    OnBackPressedDispatcher() {
+    /**
+     * Create a new OnBackPressedDispatcher that dispatches System back button pressed events
+     * to one or more {@link OnBackPressedCallback} instances.
+     */
+    public OnBackPressedDispatcher() {
+        this(null);
+    }
+
+    /**
+     * Create a new OnBackPressedDispatcher that dispatches System back button pressed events
+     * to one or more {@link OnBackPressedCallback} instances.
+     *
+     * @param fallbackOnBackPressed The Runnable that should be triggered if
+     * {@link #onBackPressed()} is called when {@link #hasEnabledCallbacks()} returns false.
+     */
+    public OnBackPressedDispatcher(@Nullable Runnable fallbackOnBackPressed) {
+        mFallbackOnBackPressed = fallbackOnBackPressed;
     }
 
     /**
@@ -170,6 +189,9 @@ public final class OnBackPressedDispatcher {
                 callback.handleOnBackPressed();
                 return;
             }
+        }
+        if (mFallbackOnBackPressed != null) {
+            mFallbackOnBackPressed.run();
         }
     }
 
