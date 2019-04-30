@@ -24,6 +24,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+        <View
+            android:id="@+id/for_focus"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:focusable="true" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/view_tinted_no_background"
@@ -32,7 +37,8 @@
             android:background="@null"
             android:src="@drawable/test_drawable_blue"
             app:backgroundTint="@color/color_state_list_lilac"
-            app:backgroundTintMode="src_in"/>
+            app:backgroundTintMode="src_in"
+            android:focusable="false"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/view_tinted_background"
@@ -41,21 +47,24 @@
             android:background="@drawable/test_drawable"
             android:src="@drawable/test_drawable_blue"
             app:backgroundTint="@color/color_state_list_lilac"
-            app:backgroundTintMode="src_in"/>
+            app:backgroundTintMode="src_in"
+            android:focusable="false"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/view_untinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@null"
-            android:src="@drawable/test_drawable_blue"/>
+            android:src="@drawable/test_drawable_blue"
+            android:focusable="false"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/view_untinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/test_background_green"
-            android:src="@drawable/test_drawable_blue"/>
+            android:src="@drawable/test_drawable_blue"
+            android:focusable="false"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/view_tinted_source"
@@ -63,25 +72,29 @@
             android:layout_height="wrap_content"
             android:src="@drawable/test_drawable_blue"
             app:tint="@color/color_state_list_lilac"
-            app:tintMode="src_in"/>
+            app:tintMode="src_in"
+            android:focusable="false"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/view_tinted_no_source"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:tint="@color/color_state_list_lilac"
-            app:tintMode="src_in"/>
+            app:tintMode="src_in"
+            android:focusable="false"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/view_untinted_source"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/test_drawable_blue"/>
+            android:src="@drawable/test_drawable_blue"
+            android:focusable="false"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/view_untinted_no_source"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:focusable="false"/>
 
     </LinearLayout>
 
