@@ -56,7 +56,7 @@ class BenchmarkStateTest {
             total++
         }
 
-        val report = state.getReport()
+        val report = state.getReport("test", "class")
         val expectedCount =
             report.warmupIterations + report.repeatIterations * BenchmarkState.REPEAT_COUNT
         assertEquals(expectedCount, total)
@@ -64,16 +64,8 @@ class BenchmarkStateTest {
 
     @Test
     fun ideSummary() {
-        val summary1 = BenchmarkState().apply {
-            while (keepRunning()) {
-                Thread.sleep(1)
-            }
-        }.ideSummaryLine("foo")
-        val summary2 = BenchmarkState().apply {
-            while (keepRunning()) {
-                // nothing
-            }
-        }.ideSummaryLine("fooBarLongerKey")
+        val summary1 = BenchmarkState.ideSummaryLine("foo", 1000)
+        val summary2 = BenchmarkState.ideSummaryLine("fooBarLongerKey", 10000)
 
         assertEquals(
             summary1.indexOf("foo"),
@@ -122,6 +114,21 @@ class BenchmarkStateTest {
         } catch (e: IllegalStateException) {
             assertTrue(e.message!!.contains("hasn't finished"))
             assertTrue(e.message!!.contains("benchmarkRule.measureRepeated {}"))
+        }
+    }
+
+    @Test
+    fun reportResult() {
+        BenchmarkState.reportData("className", "testName", 100, listOf(100), 1, 1)
+        val expectedReport = BenchmarkState.Report(
+            className = "className",
+            testName = "testName",
+            nanos = 100,
+            data = listOf(100),
+            repeatIterations = 1,
+            warmupIterations = 1)
+        ResultWriter.fileManagers.forEach {
+            assertEquals(expectedReport, it.lastAddedEntry)
         }
     }
 }
