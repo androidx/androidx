@@ -20,6 +20,12 @@ import android.content.Context;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.camera2.impl.Camera2CameraFactory;
+import androidx.camera.camera2.impl.Camera2DeviceSurfaceManager;
+import androidx.camera.camera2.impl.ImageAnalysisConfigProvider;
+import androidx.camera.camera2.impl.ImageCaptureConfigProvider;
+import androidx.camera.camera2.impl.PreviewConfigProvider;
+import androidx.camera.camera2.impl.VideoCaptureConfigProvider;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;

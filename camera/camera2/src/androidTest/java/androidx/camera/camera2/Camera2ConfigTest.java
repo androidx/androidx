@@ -24,6 +24,7 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Range;
 
+import androidx.camera.camera2.impl.Camera2CaptureCallbacks;
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.Config;
