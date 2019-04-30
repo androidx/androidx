@@ -599,21 +599,21 @@ public class CarToolbarTest {
     @Test
     public void testIfRoomItemDisplayedInOrderProvided() throws Throwable {
         List<CarMenuItem> items = new ArrayList<>();
-        String action1Text = "action_item_1";
+        String action1Text = "item_1";
         items.add(new CarMenuItem
                 .Builder()
                 .setTitle(action1Text)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
                 .build());
 
-        String ifRoomItemText = "if_room_item_text";
+        String ifRoomItemText = "if_room";
         items.add(new CarMenuItem
                 .Builder()
                 .setTitle(ifRoomItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
                 .build());
 
-        String action2Text = "action_item_2";
+        String action2Text = "item_2";
         items.add(new CarMenuItem
                 .Builder()
                 .setTitle(action2Text)
