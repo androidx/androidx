@@ -241,7 +241,7 @@ public abstract class MediaPlayer2 {
      * @param context The context the player is running in
      * @return A MediaPlayer2 object created
      */
-    public static final MediaPlayer2 create(@NonNull Context context) {
+    public static MediaPlayer2 create(@NonNull Context context) {
         if (Build.VERSION.SDK_INT <= 27 || DEBUG_USE_EXOPLAYER) {
             return new ExoPlayerMediaPlayer2Impl(context);
         } else {
