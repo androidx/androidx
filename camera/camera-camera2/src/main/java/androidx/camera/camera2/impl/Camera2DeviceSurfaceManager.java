@@ -30,6 +30,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.SurfaceConfig;
 import androidx.camera.core.UseCase;
@@ -301,11 +302,11 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     }
 
     private String getCameraIdFromConfig(UseCaseConfig<?> useCaseConfig) {
-        CameraDeviceConfig config = (CameraDeviceConfig) useCaseConfig;
         String cameraId;
         try {
-            cameraId = CameraX.getCameraWithLensFacing(config.getLensFacing());
-        } catch (Exception e) {
+            cameraId =
+                    CameraX.getCameraWithCameraDeviceConfig((CameraDeviceConfig) useCaseConfig);
+        } catch (CameraInfoUnavailableException e) {
             throw new IllegalArgumentException(
                     "Unable to get camera ID for use case " + useCaseConfig.getTargetName(), e);
         }
