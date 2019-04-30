@@ -163,6 +163,23 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase>, 
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
     }
 
+    /** @hide */
+    @Nullable
+    @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public UseCase.EventListener getUseCaseEventListener(
+            @Nullable UseCase.EventListener valueIfMissing) {
+        return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER, valueIfMissing);
+    }
+
+    /** @hide */
+    @Nullable
+    @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public UseCase.EventListener getUseCaseEventListener() {
+        return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER);
+    }
+
     // End of the default implementation of Config
     // *********************************************************************************************
 
@@ -243,6 +260,14 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase>, 
         @Override
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            return this;
+        }
+
+        /** @hide */
+        @Override
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder setUseCaseEventListener(UseCase.EventListener eventListener) {
+            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_LISTENER, eventListener);
             return this;
         }
     }
