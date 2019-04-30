@@ -39,7 +39,6 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
@@ -1154,8 +1153,8 @@ public class MediaController implements AutoCloseable {
         // Internally used methods
         @NonNull MediaController getInstance();
         @NonNull Context getContext();
-        @NonNull ControllerCallback getCallback();
-        @NonNull Executor getCallbackExecutor();
+        @Nullable ControllerCallback getCallback();
+        @Nullable Executor getCallbackExecutor();
         @Nullable MediaBrowserCompat getBrowserCompat();
     }
 
@@ -1169,7 +1168,7 @@ public class MediaController implements AutoCloseable {
      * Otherwise, the {@link #build()} will throw an {@link IllegalArgumentException}.
      * <p>
      * Any incoming event from the {@link MediaSession} will be handled on the callback
-     * executor. If it's not set, {@link ContextCompat#getMainExecutor} will be used by default.
+     * executor.
      */
     public static final class Builder extends BuilderBase<MediaController, Builder,
             ControllerCallback> {
@@ -1210,7 +1209,6 @@ public class MediaController implements AutoCloseable {
             if (mToken == null && mCompatToken == null) {
                 throw new IllegalArgumentException("token and compat token shouldn't be both null");
             }
-
             if (mToken != null) {
                 return new MediaController(mContext, mToken, mConnectionHints,
                         mCallbackExecutor, mCallback);
