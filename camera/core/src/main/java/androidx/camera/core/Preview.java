@@ -24,6 +24,7 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
+import android.view.View;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
@@ -126,10 +127,23 @@ public class Preview extends UseCase {
      * no longer stream data to the last {@link PreviewOutput}.
      *
      * <p>Once {@link OnPreviewOutputUpdateListener#onUpdated(PreviewOutput)} is called,
-     * ownership of the {@link PreviewOutput} and its contents is transferred to the user. It is
-     * the user's responsibility to release the last {@link SurfaceTexture} returned by {@link
-     * PreviewOutput#getSurfaceTexture()} when a new SurfaceTexture is provided via an update or
-     * when the user is finished with the use case.
+     * ownership of the {@link PreviewOutput} and its contents is transferred to the application. It
+     * is the application's responsibility to release the last {@link SurfaceTexture} returned by
+     * {@link PreviewOutput#getSurfaceTexture()} when a new SurfaceTexture is provided via an update
+     * or when the user is finished with the use case.
+     *
+     * <p>Calling {@link android.view.TextureView#setSurfaceTexture(SurfaceTexture)} when the
+     * TextureView's SurfaceTexture is already created, should be preceded by calling
+     * {@link android.view.ViewGroup#removeView(View)} and
+     * {@link android.view.ViewGroup#addView(View)} on the parent view of the TextureView to ensure
+     * the setSurfaceTexture() call succeeds.
+     *
+     * <p>Since {@link OnPreviewOutputUpdateListener} is called when the underlying SurfaceTexture
+     * is created, applications that return false from {@link
+     * android.view.TextureView.SurfaceTextureListener#onSurfaceTextureDestroyed(SurfaceTexture)}
+     * should be sure to call {@link android.view.TextureView#setSurfaceTexture(SurfaceTexture)}
+     * with the output from the previous {@link PreviewOutput} to attach it to a new TextureView,
+     * such as on resuming the application.
      *
      * @param newListener The listener which will receive {@link PreviewOutput} updates.
      */
