@@ -238,12 +238,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             // on our face. Since our callback is disabled, we can
             // re-trigger the onBackPressed() to dispatch to the next
             // enabled callback
-            // TODO Register the activity as an OnBackPressedCallback
-            if (mHost.getActivity() != null) {
-                mHost.getActivity().onBackPressed();
-            } else {
-                mOnBackPressedDispatcher.onBackPressed();
-            }
+            mOnBackPressedDispatcher.onBackPressed();
         }
     }
 

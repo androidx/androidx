@@ -65,7 +65,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     // Lazily recreated from NonConfigurationInstances by getViewModelStore()
     private ViewModelStore mViewModelStore;
 
-    private final OnBackPressedDispatcher mOnBackPressedDispatcher = new OnBackPressedDispatcher();
+    private final OnBackPressedDispatcher mOnBackPressedDispatcher =
+            new OnBackPressedDispatcher(new Runnable() {
+                @Override
+                public void run() {
+                    ComponentActivity.super.onBackPressed();
+                }
+            });
 
     @LayoutRes
     private int mContentLayoutId;
@@ -275,13 +281,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Override
     @MainThread
     public void onBackPressed() {
-        if (mOnBackPressedDispatcher.hasEnabledCallbacks()) {
-            mOnBackPressedDispatcher.onBackPressed();
-            return;
-        }
-        // If the OnBackPressedDispatcher doesn't handle the back button,
-        // delegate to the super implementation
-        super.onBackPressed();
+        mOnBackPressedDispatcher.onBackPressed();
     }
 
     /**
