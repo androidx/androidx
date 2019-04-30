@@ -95,7 +95,7 @@ private interface DiffBasedVelocityAnimation<T> : Animation<T> {
  */
 internal class Keyframes<T>(
     private val duration: Long,
-    private val keyframes: Map<Long, T>
+    private val keyframes: Map<Long, Pair<T, Easing>>
 ) : DiffBasedVelocityAnimation<T> {
 
     init {
@@ -122,25 +122,27 @@ internal class Keyframes<T>(
         val playTime: Long = playTime.coerceIn(0, duration)
 
         if (keyframes.containsKey(playTime)) {
-            return keyframes.getValue(playTime)
+            return keyframes.getValue(playTime).first
         }
 
         var startTime = 0L
         var startVal = start
         var endVal = end
         var endTime: Long = duration
+        var easing: Easing = LinearEasing
         for ((timestamp, value) in keyframes) {
-            if (playTime > timestamp && timestamp > startTime) {
+            if (playTime > timestamp && timestamp >= startTime) {
                 startTime = timestamp
-                startVal = value
-            } else if (playTime < timestamp && timestamp < endTime) {
+                startVal = value.first
+                easing = value.second
+            } else if (playTime < timestamp && timestamp <= endTime) {
                 endTime = timestamp
-                endVal = value
+                endVal = value.first
             }
         }
 
         // Now interpolate
-        val fraction = (playTime - startTime) / (endTime - startTime).toFloat()
+        val fraction = easing((playTime - startTime) / (endTime - startTime).toFloat())
         return interpolator(startVal, endVal, fraction)
     }
 }

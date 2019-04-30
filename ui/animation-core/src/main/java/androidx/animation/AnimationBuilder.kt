@@ -35,16 +35,22 @@ const val DefaultDuration: Int = 300
  * [at]. [Keyframes] allows very specific animation definitions with a precision to millisecond.
  *
  * The following sample creates a [Keyframes] animation for a float property.
- * `
- * keyframes {
- *      duration = 375
- *      0f at 0 // ms  // Optional
- *      0.4f at 75 // ms
- *      0.4f at 225 // ms
- *      0f at 375 // ms  // Optional
- * }
- * `
- * // TODO: support different easing for each keyframe interval
+ *     keyframes {
+ *         duration = 375
+ *         0f at 0 // ms  // Optional
+ *         0.4f at 75 // ms
+ *         0.4f at 225 // ms
+ *         0f at 375 // ms  // Optional
+ *     }
+ *
+ * You can also provide a custom [Easing] for the interval with use of [with] function applied
+ * for the interval starting keyframe. In this sample [FastOutSlowInEasing] is added for
+ * the interval from 0 to 100 ms.
+ *     keyframes {
+ *         duration = 100
+ *         0f at 0 with FastOutSlowInEasing
+ *         1f at 100
+ *     }
  */
 class KeyframesBuilder<T> : AnimationBuilder<T>() {
 
@@ -59,24 +65,53 @@ class KeyframesBuilder<T> : AnimationBuilder<T>() {
             field = value
         }
 
-    private val keyframes = mutableMapOf<Long, T>()
+    private val keyframes = mutableMapOf<Long, KeyframeEntity>()
 
     /**
      * Adds a keyframe so that animation value will be [this] at time: [timeStamp]
      *
      * @param timeStamp The time in the during when animation should reach value: [this]
+     * @return an [KeyframeEntity] so a custom [Easing] can be added by [with] method.
      */
-    infix fun T.at(timeStamp: Int) {
-        if (timeStamp >= 0) {
-            keyframes[timeStamp.toLong()] = this
+    infix fun T.at(timeStamp: Int): KeyframeEntity {
+        return if (timeStamp >= 0) {
+            KeyframeEntity(this).also {
+                keyframes[timeStamp.toLong()] = it
+            }
         } else {
             // TODO: adding a timestamp < 0 should cause a compile time error
             throw IllegalArgumentException("Time cannot be negative.")
         }
     }
 
+    /**
+     * Adds an [Easing] for the interval started with the just provided timestamp.
+     *
+     * The following sample adds a custom Easing for the interval from 0 to 100 ms:
+     *     keyframes {
+     *         duration = 100
+     *         0f at 0 with FastOutSlowInEasing
+     *         1f at 100
+     *     }
+     *
+     * @param easing [Easing] to be used for the next interval.
+     */
+    infix fun KeyframeEntity.with(easing: Easing) {
+        this.easing = easing
+    }
+
     override fun build(): Animation<T> =
-        Keyframes(duration.toLong(), keyframes)
+        Keyframes(duration.toLong(), keyframes.mapValues { it.value.toPair() })
+
+    /**
+     * Holder class for building a keyframes animation.
+     */
+    inner class KeyframeEntity internal constructor(
+        internal val value: T,
+        internal var easing: Easing = LinearEasing
+    ) {
+        internal fun toPair() = value to easing
+    }
 }
 
 class TweenBuilder<T> : AnimationBuilder<T>() {
