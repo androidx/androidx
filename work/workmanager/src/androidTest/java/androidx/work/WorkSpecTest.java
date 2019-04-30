@@ -21,11 +21,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
 
-import android.os.Build;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.worker.InfiniteTestWorker;
 
@@ -69,11 +66,7 @@ public class WorkSpecTest extends WorkManagerTest {
         long now = System.currentTimeMillis();
         WorkSpec workSpec = getWorkSpec(periodicWork);
         long nextRunTime = workSpec.calculateNextRunTime();
-        if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL) {
-            assertThat(nextRunTime, greaterThan(now));
-        } else {
-            assertThat(nextRunTime, is(DEFAULT_INTERVAL_TIME_MS - DEFAULT_FLEX_TIME_MS));
-        }
+        assertThat(nextRunTime, greaterThan(now));
     }
 
     @Test
@@ -90,11 +83,7 @@ public class WorkSpecTest extends WorkManagerTest {
         long now = System.currentTimeMillis();
         WorkSpec workSpec = getWorkSpec(periodicWork);
         long nextRunTime = workSpec.calculateNextRunTime();
-        if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL) {
-            assertThat(nextRunTime, lessThan(now)); // Should be in the past
-        } else {
-            assertThat(nextRunTime, is(0L));
-        }
+        assertThat(nextRunTime, lessThan(now)); // Should be in the past
     }
 
     @Test
@@ -111,15 +100,8 @@ public class WorkSpecTest extends WorkManagerTest {
 
         WorkSpec workSpec = getWorkSpec(periodicWork);
         long nextRunTime = workSpec.calculateNextRunTime();
-        if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL) {
-            assertThat(nextRunTime,
-                    is(DEFAULT_PERIOD_START_TIME + DEFAULT_INTERVAL_TIME_MS));
-        } else {
-            assertThat(nextRunTime,
-                    is(DEFAULT_PERIOD_START_TIME
-                            + DEFAULT_INTERVAL_TIME_MS
-                            - DEFAULT_FLEX_TIME_MS));
-        }
+        assertThat(nextRunTime,
+                is(DEFAULT_PERIOD_START_TIME + DEFAULT_INTERVAL_TIME_MS));
     }
 
     @Test
@@ -136,11 +118,7 @@ public class WorkSpecTest extends WorkManagerTest {
 
         WorkSpec workSpec = getWorkSpec(periodicWork);
         long nextRunTime = workSpec.calculateNextRunTime();
-        if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL) {
-            assertThat(nextRunTime, is(DEFAULT_PERIOD_START_TIME + DEFAULT_INTERVAL_TIME_MS));
-        } else {
-            assertThat(nextRunTime, is(DEFAULT_PERIOD_START_TIME));
-        }
+        assertThat(nextRunTime, is(DEFAULT_PERIOD_START_TIME + DEFAULT_INTERVAL_TIME_MS));
     }
 
     @Test
