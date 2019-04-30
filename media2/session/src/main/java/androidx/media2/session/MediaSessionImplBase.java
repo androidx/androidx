@@ -70,6 +70,7 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaSession.ControllerCb;
 import androidx.media2.session.MediaSession.ControllerInfo;
@@ -861,6 +862,36 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         });
     }
 
+    @Override
+    public List<TrackInfo> getTrackInfo() {
+        return dispatchPlayerTask(new PlayerTask<List<TrackInfo>>() {
+            @Override
+            public List<TrackInfo> run(SessionPlayer player) throws Exception {
+                return player.getTrackInfoInternal();
+            }
+        }, null);
+    }
+
+    @Override
+    public ListenableFuture<PlayerResult> selectTrack(final TrackInfo trackInfo) {
+        return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer player) throws Exception {
+                return player.selectTrackInternal(trackInfo);
+            }
+        });
+    }
+
+    @Override
+    public ListenableFuture<PlayerResult> deselectTrack(final TrackInfo trackInfo) {
+        return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer player) throws Exception {
+                return player.deselectTrackInternal(trackInfo);
+            }
+        });
+    }
+
     ///////////////////////////////////////////////////
     // package private and private methods
     ///////////////////////////////////////////////////
@@ -1450,6 +1481,35 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                 @Override
                 public void run(ControllerCb callback, int seq) throws RemoteException {
                     callback.onVideoSizeChanged(seq, item, videoSize);
+                }
+            });
+        }
+
+        public void onTrackInfoChanged(SessionPlayer player, final List<TrackInfo> trackInfos) {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
+                @Override
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onTrackInfoChanged(seq, trackInfos);
+                }
+            });
+        }
+
+        @Override
+        public void onTrackSelected(SessionPlayer player, final TrackInfo trackInfo) {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
+                @Override
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onTrackSelected(seq, trackInfo);
+                }
+            });
+        }
+
+        @Override
+        public void onTrackDeselected(SessionPlayer player, final TrackInfo trackInfo) {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
+                @Override
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onTrackDeselected(seq, trackInfo);
                 }
             });
         }

@@ -802,7 +802,7 @@ public abstract class MediaPlayer2 {
         TrackInfo info = tracks.get(index);
         MediaItem item = getCurrentMediaItem();
         return new MediaPlayer.TrackInfo(
-                index, item , info.getTrackType(), info.getFormat());
+                index, item, info.getTrackType(), info.getFormat());
     }
 
     /**

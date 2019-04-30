@@ -43,6 +43,7 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.Rating;
+import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.PlaybackInfo;
@@ -1033,6 +1034,44 @@ class MediaSessionStub extends IMediaSession.Stub {
                 });
     }
 
+    @Override
+    public void selectTrack(IMediaController caller, int seq, final ParcelImpl trackInfoParcel) {
+        if (caller == null || trackInfoParcel == null) {
+            return;
+        }
+        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_PLAYER_SELECT_TRACK,
+                new SessionPlayerTask() {
+                    @Override
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        SessionPlayer.TrackInfo trackInfo =
+                                MediaParcelUtils.fromParcelable(trackInfoParcel);
+                        if (trackInfo == null) {
+                            return PlayerResult.createFuture(RESULT_ERROR_BAD_VALUE);
+                        }
+                        return mSessionImpl.selectTrack(trackInfo);
+                    }
+                });
+    }
+
+    @Override
+    public void deselectTrack(IMediaController caller, int seq, final ParcelImpl trackInfoParcel) {
+        if (caller == null || trackInfoParcel == null) {
+            return;
+        }
+        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK,
+                new SessionPlayerTask() {
+                    @Override
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        SessionPlayer.TrackInfo trackInfo =
+                                MediaParcelUtils.fromParcelable(trackInfoParcel);
+                        if (trackInfo == null) {
+                            return PlayerResult.createFuture(RESULT_ERROR_BAD_VALUE);
+                        }
+                        return mSessionImpl.deselectTrack(trackInfo);
+                    }
+                });
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////////
     // AIDL methods for LibrarySession overrides
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1384,6 +1423,23 @@ class MediaSessionStub extends IMediaSession.Stub {
             ParcelImpl itemParcel = MediaParcelUtils.toParcelable(item);
             ParcelImpl videoSizeParcel = MediaParcelUtils.toParcelable(videoSize);
             mIControllerCallback.onVideoSizeChanged(seq, itemParcel, videoSizeParcel);
+        }
+
+        @Override
+        void onTrackInfoChanged(int seq, List<SessionPlayer.TrackInfo> trackInfos)
+                throws RemoteException {
+            List<ParcelImpl> trackInfoList = MediaParcelUtils.toParcelableList(trackInfos);
+            mIControllerCallback.onTrackInfoChanged(seq, trackInfoList);
+        }
+
+        @Override
+        void onTrackSelected(int seq, SessionPlayer.TrackInfo trackInfo) throws RemoteException {
+            mIControllerCallback.onTrackSelected(seq, MediaParcelUtils.toParcelable(trackInfo));
+        }
+
+        @Override
+        void onTrackDeselected(int seq, SessionPlayer.TrackInfo trackInfo) throws RemoteException {
+            mIControllerCallback.onTrackDeselected(seq, MediaParcelUtils.toParcelable(trackInfo));
         }
 
         @Override

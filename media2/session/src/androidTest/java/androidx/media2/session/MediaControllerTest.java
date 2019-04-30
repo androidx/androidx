@@ -64,6 +64,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -1562,6 +1563,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void testSetMetadataForCurrentMediaItem() throws InterruptedException {
+        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(2);
         final long duration = 1000L;
         final MediaItem item = TestUtils.createMediaItemWithMetadata();
@@ -1598,6 +1600,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
     @Test
     public void testSetMetadataForMediaItemInPlaylist() throws InterruptedException {
+        prepareLooper();
         final CountDownLatch latch = new CountDownLatch(2);
         final long duration = 1000L;
         final int currentItemIdx = 0;
@@ -1651,6 +1654,63 @@ public class MediaControllerTest extends MediaSessionTestBase {
         mPlayer.notifyVideoSizeChanged(testVideoSize);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(testVideoSize, controller.getVideoSize());
+    }
+
+    @Test
+    public void testGetTrackInfo() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionPlayer.TrackInfo testTrack = new SessionPlayer.TrackInfo(0, null, 0, null);
+        final List<SessionPlayer.TrackInfo> testTracks = new ArrayList<>();
+        testTracks.add(testTrack);
+
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onTrackInfoChanged(MediaController controller,
+                    List<SessionPlayer.TrackInfo> trackInfos) {
+                assertEquals(testTrack, trackInfos.get(0));
+                latch.countDown();
+            }
+        };
+        MediaController controller = createController(mSession.getToken(), true, null, callback);
+        mPlayer.notifyTrackInfoChanged(testTracks);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testSelectTrack() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionPlayer.TrackInfo testTrack = new SessionPlayer.TrackInfo(0, null, 0, null);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onTrackSelected(MediaController controller,
+                    SessionPlayer.TrackInfo trackInfo) {
+                assertEquals(testTrack, trackInfo);
+                latch.countDown();
+            }
+        };
+        MediaController controller = createController(mSession.getToken(), true, null, callback);
+        mPlayer.notifyTrackSelected(testTrack);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testDeselectTrack() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionPlayer.TrackInfo testTrack = new SessionPlayer.TrackInfo(0, null, 0, null);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onTrackDeselected(MediaController controller,
+                    SessionPlayer.TrackInfo trackInfo) {
+                assertEquals(testTrack, trackInfo);
+                latch.countDown();
+            }
+        };
+        MediaController controller = createController(mSession.getToken(), true, null, callback);
+        mPlayer.notifyTrackDeselected(testTrack);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     private void testCloseFromService(String id) throws InterruptedException {

@@ -102,6 +102,8 @@ public final class SessionCommand implements VersionedParcelable {
             COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
             COMMAND_CODE_PLAYER_SET_MEDIA_ITEM,
             COMMAND_CODE_PLAYER_SET_SURFACE,
+            COMMAND_CODE_PLAYER_SELECT_TRACK,
+            COMMAND_CODE_PLAYER_DESELECT_TRACK,
             COMMAND_CODE_VOLUME_SET_VOLUME,
             COMMAND_CODE_VOLUME_ADJUST_VOLUME,
             COMMAND_CODE_SESSION_FAST_FORWARD,
@@ -354,6 +356,32 @@ public final class SessionCommand implements VersionedParcelable {
     @RestrictTo(LIBRARY_GROUP)
     public static final int COMMAND_CODE_PLAYER_SET_SURFACE = 11000;
 
+    /**
+     * Command code for {@link MediaController#selectTrack(SessionPlayer.TrackInfo)}.
+     * <p>
+     * Command would be sent directly to the player if the session doesn't reject the request
+     * through the
+     * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)}.
+     * <p>
+     * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public static final int COMMAND_CODE_PLAYER_SELECT_TRACK = 11001;
+
+    /**
+     * Command code for {@link MediaController#deselectTrack(SessionPlayer.TrackInfo)}.
+     * <p>
+     * Command would be sent directly to the player if the session doesn't reject the request
+     * through the
+     * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)}.
+     * <p>
+     * Code version is {@link #COMMAND_VERSION_1}.
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public static final int COMMAND_CODE_PLAYER_DESELECT_TRACK = 11002;
+
     static {
         VERSION_PLAYER_BASIC_COMMANDS_MAP.put(COMMAND_VERSION_1,
                 new Range(COMMAND_CODE_PLAYER_PLAY, COMMAND_CODE_PLAYER_SET_SPEED));
@@ -367,7 +395,7 @@ public final class SessionCommand implements VersionedParcelable {
 
     static {
         VERSION_PLAYER_HIDDEN_COMMANDS_MAP.put(COMMAND_VERSION_1,
-                new Range(COMMAND_CODE_PLAYER_SET_SURFACE, COMMAND_CODE_PLAYER_SET_SURFACE));
+                new Range(COMMAND_CODE_PLAYER_SET_SURFACE, COMMAND_CODE_PLAYER_DESELECT_TRACK));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
