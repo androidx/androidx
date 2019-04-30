@@ -135,7 +135,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     public void testPlayAudio() throws Exception {
         final int resid = R.raw.testmp3_2;
         final int mp3Duration = 34909;
-        final int tolerance = 70;
+        final int tolerance = 100;
         final int seekDuration = 100;
 
         try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
