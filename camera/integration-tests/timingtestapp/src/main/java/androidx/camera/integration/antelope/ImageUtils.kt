@@ -185,8 +185,10 @@ fun writeFile(activity: MainActivity, bytes: ByteArray) {
     if (!photosDir.exists()) {
         val createSuccess = photosDir.mkdir()
         if (!createSuccess) {
-            Toast.makeText(activity, "DCIM/" + PHOTOS_DIR + " creation failed.",
-                Toast.LENGTH_SHORT).show()
+            activity.runOnUiThread {
+                Toast.makeText(activity, "DCIM/" + PHOTOS_DIR + " creation failed.",
+                    Toast.LENGTH_SHORT).show()
+            }
             logd("Photo storage directory DCIM/" + PHOTOS_DIR + " creation failed!!")
         } else {
             logd("Photo storage directory DCIM/" + PHOTOS_DIR + " did not exist. Created.")
@@ -240,7 +242,9 @@ fun deleteTestPhotos(activity: MainActivity) {
         scannerIntent.data = Uri.fromFile(photosDir)
         activity.sendBroadcast(scannerIntent)
 
-        Toast.makeText(activity, "All test photos deleted", Toast.LENGTH_SHORT).show()
+        activity.runOnUiThread {
+            Toast.makeText(activity, "All test photos deleted", Toast.LENGTH_SHORT).show()
+        }
         logd("All photos in storage directory DCIM/" + PHOTOS_DIR + " deleted.")
     }
 }

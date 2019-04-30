@@ -43,10 +43,16 @@ android {
         release {
             minifyEnabled false
         }
+        debug {
+            testCoverageEnabled true
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    testOptions {
+        animationsDisabled = true
     }
 }
 
@@ -67,13 +73,12 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 
     // Testing framework
-    implementation 'androidx.test.espresso:espresso-idling-resource:3.1.0'
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
     androidTestImplementation(ESPRESSO_CORE)
+    implementation(ESPRESSO_IDLING_RESOURCE)
 
     // Statistics library
     implementation(GUAVA_ANDROID)
