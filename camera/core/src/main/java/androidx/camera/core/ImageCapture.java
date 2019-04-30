@@ -299,7 +299,7 @@ public class ImageCapture extends UseCase {
     }
 
     /**
-     * Captures a new still image.
+     * Captures a new still image for in memory access.
      *
      * <p>The listener's callback will be called only once for every invocation of this method. The
      * listener is responsible for calling {@link Image#close()} on the returned image.
@@ -334,15 +334,17 @@ public class ImageCapture extends UseCase {
     }
 
     /**
-     * Captures a new still image and saves to a file.
+     * Captures a new still image and saves to a file along with application specified metadata.
      *
      * <p>The listener's callback will be called only once for every invocation of this method.
+     *
+     * <p>This function accepts metadata as a parameter from application code.  For JPEGs, this
+     * metadata will be included in the EXIF.
      *
      * @param saveLocation       Location to store the newly captured image.
      * @param imageSavedListener Listener to be called for the newly captured image.
      * @param metadata           Metadata to be stored with the saved image. For JPEG this will
-     *                           be included in
-     *                           EXIF.
+     *                           be included in the EXIF.
      */
     public void takePicture(
             final File saveLocation, final OnImageSavedListener imageSavedListener,
