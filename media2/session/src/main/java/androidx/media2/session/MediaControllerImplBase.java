@@ -770,27 +770,32 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
-    public @NonNull Context getContext() {
+    @NonNull
+    public Context getContext() {
         return mContext;
     }
 
     @Override
-    public @NonNull ControllerCallback getCallback() {
+    @Nullable
+    public ControllerCallback getCallback() {
         return mCallback;
     }
 
     @Override
-    public @NonNull Executor getCallbackExecutor() {
+    @Nullable
+    public Executor getCallbackExecutor() {
         return mCallbackExecutor;
     }
 
     @Override
-    public @Nullable MediaBrowserCompat getBrowserCompat() {
+    @Nullable
+    public MediaBrowserCompat getBrowserCompat() {
         return null;
     }
 
     @Override
-    public @NonNull MediaController getInstance() {
+    @NonNull
+    public MediaController getInstance() {
         return mInstance;
     }
 
