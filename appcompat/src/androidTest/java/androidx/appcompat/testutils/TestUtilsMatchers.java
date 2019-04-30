@@ -106,6 +106,8 @@ public class TestUtilsMatchers {
                 if (drawable == null) {
                     return false;
                 }
+                // The next call short-circuits the animations set on this drawable (if any)
+                drawable.jumpToCurrentState();
                 try {
                     if (onlyTestCenter) {
                         TestUtils.assertCenterPixelOfColor("", drawable, view.getWidth(),
