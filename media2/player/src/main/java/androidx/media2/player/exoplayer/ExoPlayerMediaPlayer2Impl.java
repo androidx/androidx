@@ -286,12 +286,13 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
 
     @Override
     public long getCurrentPosition() {
-        return runPlayerCallableBlocking(new Callable<Long>() {
+        Long position = runPlayerCallableBlocking(new Callable<Long>() {
             @Override
-            public Long call() throws Exception {
+            public Long call() {
                 return mPlayer.getCurrentPosition();
             }
         });
+        return position == null ? 0 : position;
     }
 
     @Override
@@ -834,7 +835,11 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
                 }
             }
         });
-        Preconditions.checkState(success);
+        if (!success) {
+            // TODO(b/131682542): Remove once VideoView doesn't call methods after close().
+            Log.w(TAG, "Ignoring unexpected call after close().", new Throwable());
+            return null;
+        }
         try {
             T result;
             boolean wasInterrupted = false;
