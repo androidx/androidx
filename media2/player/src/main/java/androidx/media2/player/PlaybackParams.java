@@ -232,10 +232,13 @@ public final class PlaybackParams {
          * Sets the pitch factor.
          *
          * @return this <code>Builder</code> instance.
-         * @throws IllegalArgumentException if the pitch is negative.
+         * @throws IllegalArgumentException if the pitch is negative or zero.
          */
         public @NonNull Builder setPitch(
-                @FloatRange(from = 0.0f, to = Float.MAX_VALUE) float pitch) {
+                @FloatRange(from = 0.0f, to = Float.MAX_VALUE, fromInclusive = false) float pitch) {
+            if (pitch == 0.f) {
+                throw new IllegalArgumentException("0 pitch is not allowed");
+            }
             if (pitch < 0.f) {
                 throw new IllegalArgumentException("pitch must not be negative");
             }
@@ -251,6 +254,7 @@ public final class PlaybackParams {
          * Sets the speed factor.
          *
          * @return this <code>Builder</code> instance.
+         * @throws IllegalArgumentException if the speed is negative or zero.
          */
         public @NonNull Builder setSpeed(
                 @FloatRange(from = 0.0f, to = Float.MAX_VALUE, fromInclusive = false) float speed) {
