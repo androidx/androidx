@@ -22,6 +22,8 @@ package androidx.activity {
   }
 
   public final class OnBackPressedDispatcher {
+    ctor public OnBackPressedDispatcher();
+    ctor public OnBackPressedDispatcher(Runnable?);
     method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback);
     method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
     method @MainThread public boolean hasEnabledCallbacks();
