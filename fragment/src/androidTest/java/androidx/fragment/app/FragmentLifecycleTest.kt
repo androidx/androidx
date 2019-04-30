@@ -308,6 +308,8 @@ class FragmentLifecycleTest {
 
         assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
 
+        assertThat(fragment.calledOnResume).isFalse()
+
         fm.beginTransaction()
             .setMaxLifecycle(fragment, Lifecycle.State.STARTED)
             .addToBackStack(null)
@@ -337,6 +339,9 @@ class FragmentLifecycleTest {
             .setMaxLifecycle(fragment1, Lifecycle.State.STARTED)
             .setMaxLifecycle(fragment2, Lifecycle.State.CREATED)
             .commitNow()
+
+        assertThat(fragment1.calledOnResume).isFalse()
+        assertThat(fragment2.calledOnResume).isFalse()
 
         assertThat(fragment1.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
         assertThat(fragment2.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)

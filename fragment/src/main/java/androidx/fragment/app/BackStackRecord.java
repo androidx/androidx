@@ -114,7 +114,6 @@ final class BackStackRecord extends FragmentTransaction implements
                     case OP_SET_PRIMARY_NAV: cmdStr="SET_PRIMARY_NAV"; break;
                     case OP_UNSET_PRIMARY_NAV: cmdStr="UNSET_PRIMARY_NAV";break;
                     case OP_SET_MAX_LIFECYCLE: cmdStr = "OP_SET_MAX_LIFECYCLE"; break;
-                    case OP_UNSET_MAX_LIFECYCLE: cmdStr = "OP_UNSET_MAX_LIFECYCLE"; break;
                     default: cmdStr = "cmd=" + op.mCmd; break;
                 }
                 writer.print(prefix); writer.print("  Op #"); writer.print(opNum);
@@ -426,10 +425,7 @@ final class BackStackRecord extends FragmentTransaction implements
                     mManager.setPrimaryNavigationFragment(null);
                     break;
                 case OP_SET_MAX_LIFECYCLE:
-                    mManager.setMaxLifecycle(f, op.mMaxState);
-                    break;
-                case OP_UNSET_MAX_LIFECYCLE:
-                    mManager.setMaxLifecycle(f, op.mMaxState);
+                    mManager.setMaxLifecycle(f, op.mCurrentMaxState);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown cmd: " + op.mCmd);
@@ -491,10 +487,7 @@ final class BackStackRecord extends FragmentTransaction implements
                     mManager.setPrimaryNavigationFragment(f);
                     break;
                 case OP_SET_MAX_LIFECYCLE:
-                    mManager.setMaxLifecycle(f, op.mMaxState);
-                    break;
-                case OP_UNSET_MAX_LIFECYCLE:
-                    mManager.setMaxLifecycle(f, op.mMaxState);
+                    mManager.setMaxLifecycle(f, op.mOldMaxState);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown cmd: " + op.mCmd);
@@ -515,9 +508,6 @@ final class BackStackRecord extends FragmentTransaction implements
      *
      * <p>Removes all OP_REPLACE ops and replaces them with the proper add and remove
      * operations that are equivalent to the replace.</p>
-     *
-     * <p>Adds OP_UNSET_MAX_LIFECYCLE ops to match OP_SET_MAX_LIFECYCLE ops so that we can restore
-     * the old max lifecycle later.</p>
      *
      * <p>Adds OP_UNSET_PRIMARY_NAV ops to match OP_SET_PRIMARY_NAV, OP_REMOVE and OP_DETACH
      * ops so that we can restore the old primary nav fragment later. Since callers call this
@@ -598,13 +588,6 @@ final class BackStackRecord extends FragmentTransaction implements
                     oldPrimaryNav = op.mFragment;
                 }
                 break;
-                case OP_SET_MAX_LIFECYCLE: {
-                    // A pop will restore the value of the current max state
-                    mOps.add(opNum, new Op(OP_UNSET_MAX_LIFECYCLE, op.mFragment,
-                            op.mFragment.mMaxState));
-                    opNum++;
-                }
-                break;
             }
         }
         return oldPrimaryNav;
@@ -638,11 +621,8 @@ final class BackStackRecord extends FragmentTransaction implements
                 case OP_SET_PRIMARY_NAV:
                     oldPrimaryNav = null;
                     break;
-                case OP_UNSET_MAX_LIFECYCLE:
-                    op.mFragment.mMaxState = op.mMaxState;
-                    break;
                 case OP_SET_MAX_LIFECYCLE:
-                    op.mMaxState = op.mFragment.mMaxState;
+                    op.mCurrentMaxState = op.mOldMaxState;
                     break;
             }
         }
