@@ -517,7 +517,7 @@ class SaveStateFragmentTest {
         fm.beginTransaction()
             .add(android.R.id.content, fragment1, "1")
             .addToBackStack(null)
-            .setMaxLifecycle(fragment1, Lifecycle.State.CREATED)
+            .setMaxLifecycle(fragment1, Lifecycle.State.STARTED)
             .commit()
         fm.executePendingTransactions()
 
@@ -526,7 +526,7 @@ class SaveStateFragmentTest {
         fragment1 = fm.findFragmentByTag("1") as StateSaveFragment
         assertThat(fragment1).isNotNull()
         assertThat(fragment1.savedState).isEqualTo("1")
-        assertThat(fragment1.mMaxState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(fragment1.mMaxState).isEqualTo(Lifecycle.State.STARTED)
     }
 
     /**
