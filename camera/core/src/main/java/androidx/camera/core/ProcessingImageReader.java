@@ -20,6 +20,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.util.Log;
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -136,12 +137,11 @@ class ProcessingImageReader implements ImageReaderProxy {
     ProcessingImageReader(int width, int height, int format, int maxImages,
             @Nullable Handler handler,
             @NonNull CaptureBundle captureBundle, @NonNull CaptureProcessor captureProcessor) {
-        int captureBundleSize = captureBundle.getCaptureStages().size();
         mInputImageReader = new MetadataImageReader(
                 width,
                 height,
                 format,
-                maxImages >= captureBundleSize ? maxImages : captureBundleSize,
+                maxImages,
                 handler);
         mOutputImageReader = ImageReader.newInstance(width, height, format, maxImages);
 
@@ -169,8 +169,10 @@ class ProcessingImageReader implements ImageReaderProxy {
         mOutputImageReader.setOnImageAvailableListener(mImageProcessedListener, handler);
         mCaptureProcessor = captureProcessor;
         mCaptureProcessor.onOutputSurface(mOutputImageReader.getSurface(), getImageFormat());
+        mCaptureProcessor.onResolutionUpdate(
+                new Size(mInputImageReader.getWidth(), mInputImageReader.getHeight()));
 
-        setupSettableImageProxyBundle(captureBundle);
+        setCaptureBundle(captureBundle);
     }
 
     @Override
@@ -260,6 +262,29 @@ class ProcessingImageReader implements ImageReaderProxy {
         }
     }
 
+    /** Sets a CaptureBundle */
+    public void setCaptureBundle(@NonNull CaptureBundle captureBundle) {
+        synchronized (mLock) {
+            if (captureBundle.getCaptureStages() != null) {
+                if (mInputImageReader.getMaxImages() < captureBundle.getCaptureStages().size()) {
+                    throw new IllegalArgumentException(
+                            "CaptureBundle is lager than InputImageReader.");
+                }
+
+                mCaptureIdList.clear();
+
+                for (CaptureStage captureStage : captureBundle.getCaptureStages()) {
+                    if (captureStage != null) {
+                        mCaptureIdList.add(captureStage.getId());
+                    }
+                }
+            }
+
+            mSettableImageProxyBundle = new SettableImageProxyBundle(mCaptureIdList);
+            setupSettableImageProxyBundleCallbacks();
+        }
+    }
+
     /** Returns necessary camera callbacks to retrieve metadata from camera result. */
     @Nullable
     CameraCaptureCallback getCameraCaptureCallback() {
@@ -270,25 +295,12 @@ class ProcessingImageReader implements ImageReaderProxy {
         }
     }
 
-    private void setupSettableImageProxyBundle(CaptureBundle captureBundle) {
-        if (captureBundle != null) {
-            for (CaptureStage captureStage : captureBundle.getCaptureStages()) {
-                if (captureStage != null) {
-                    mCaptureIdList.add(captureStage.getId());
-                }
-            }
-        }
-
-        mSettableImageProxyBundle = new SettableImageProxyBundle(mCaptureIdList);
-        setupSettableImageProxyBundleCallbacks();
-    }
-
     void setupSettableImageProxyBundleCallbacks() {
         List<ListenableFuture<ImageProxy>> futureList = new ArrayList<>();
         for (Integer id : mCaptureIdList) {
             futureList.add(mSettableImageProxyBundle.getImageProxy((id)));
         }
-        Futures.addCallback(Futures.successfulAsList(futureList), mCaptureStageReadyCallback,
+        Futures.addCallback(Futures.allAsList(futureList), mCaptureStageReadyCallback,
                 CameraXExecutors.directExecutor());
     }
 

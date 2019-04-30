@@ -45,10 +45,10 @@ public class CaptureBundleTest {
         captureOrder.add(2);
         captureOrder.add(1);
 
-        CaptureBundle captureBundle = new CaptureBundle();
-        for (Integer captureId : captureOrder) {
-            captureBundle.addCaptureStage(new FakeCaptureStage(captureId, null));
-        }
+        CaptureBundle captureBundle = CaptureBundles.createCaptureBundle(
+                new FakeCaptureStage(0, null),
+                new FakeCaptureStage(2, null),
+                new FakeCaptureStage(1, null));
 
         List<CaptureStage> captureStages = captureBundle.getCaptureStages();
 

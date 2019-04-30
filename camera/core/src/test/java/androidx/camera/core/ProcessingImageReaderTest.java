@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.camera.testing.fakes.FakeCaptureStage;
@@ -58,6 +59,11 @@ public final class ProcessingImageReaderTest {
         public void process(ImageProxyBundle bundle) {
 
         }
+
+        @Override
+        public void onResolutionUpdate(Size size) {
+
+        }
     };
 
     private final CaptureStage mCaptureStage0 = new FakeCaptureStage(CAPTURE_ID_0, null);
@@ -69,9 +75,7 @@ public final class ProcessingImageReaderTest {
     @Before
     public void setUp() {
         mMainHandler = new Handler(Looper.getMainLooper());
-        mCaptureBundle = new CaptureBundle();
-        mCaptureBundle.addCaptureStage(mCaptureStage0);
-        mCaptureBundle.addCaptureStage(mCaptureStage1);
+        mCaptureBundle = CaptureBundles.createCaptureBundle(mCaptureStage0, mCaptureStage1);
     }
 
     @Test
@@ -88,6 +92,11 @@ public final class ProcessingImageReaderTest {
             @Override
             public void process(ImageProxyBundle bundle) {
                 bundleRef.set(bundle);
+            }
+
+            @Override
+            public void onResolutionUpdate(Size size) {
+
             }
         };
         new ProcessingImageReader(

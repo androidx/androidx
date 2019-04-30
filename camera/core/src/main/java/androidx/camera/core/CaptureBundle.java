@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,21 @@
 
 package androidx.camera.core;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
- * An ordered collection of {@link CaptureStage}.
+ * A interface to return an ordered collection of {@link CaptureStage}.
  *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public final class CaptureBundle {
-    private List<CaptureStage> mCaptureStages = new ArrayList<>();
-
-    /** Add a new {@link CaptureStage} to the bundle. */
-    public void addCaptureStage(@NonNull CaptureStage captureStage) {
-        mCaptureStages.add(captureStage);
-    }
+public interface CaptureBundle {
 
     /**
-     * Returns the list of {@link CaptureStage} which is in the order that they were inserted.
+     * Returns a list of {@link CaptureStage} in order of how they are to be issued.
      */
-    public List<CaptureStage> getCaptureStages() {
-        return Collections.unmodifiableList(mCaptureStages);
-    }
+    List<CaptureStage> getCaptureStages();
 }
