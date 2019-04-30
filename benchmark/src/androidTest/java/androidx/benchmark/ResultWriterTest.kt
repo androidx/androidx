@@ -25,7 +25,17 @@ import org.junit.runners.JUnit4
 @SmallTest
 @RunWith(JUnit4::class)
 class ResultWriterTest {
-    private val report = BenchmarkState.Report(
+    private val reportA = BenchmarkState.Report(
+        testName = "MethodA",
+        className = "package.Class1",
+        nanos = 100,
+        data = listOf(100, 101, 102),
+        repeatIterations = 100000,
+        warmupIterations = 8000
+    )
+    private val reportB = BenchmarkState.Report(
+        testName = "MethodB",
+        className = "package.Class2",
         nanos = 100,
         data = listOf(100, 101, 102),
         repeatIterations = 100000,
@@ -36,8 +46,8 @@ class ResultWriterTest {
     fun validateXml() {
         val manager = ResultWriter.fileManagers.find { it.extension == "xml" }!!
         manager.currentContent = manager.initial
-        manager.append(report, "MethodA", "package.Class1")
-        manager.append(report, "MethodB", "package.Class2")
+        manager.append(reportA)
+        manager.append(reportB)
         assertEquals("""
             <benchmarksuite>
                 <testcase
@@ -70,8 +80,8 @@ class ResultWriterTest {
     fun validateJson() {
         val manager = ResultWriter.fileManagers.find { it.extension == "json" }!!
         manager.currentContent = manager.initial
-        manager.append(report, "MethodA", "package.Class1")
-        manager.append(report, "MethodB", "package.Class2")
+        manager.append(reportA)
+        manager.append(reportB)
         assertEquals("""
             { "results": [
                 {
