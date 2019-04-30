@@ -25,10 +25,10 @@ internal object ResultWriter {
         return joinToString("\n") { "|        <run nanos=\"$it\"/>" }
     }
 
-    private fun BenchmarkState.Report.toXml(name: String, className: String): String {
+    private fun BenchmarkState.Report.toXml(): String {
         return "\n" + """
         |    <testcase
-        |            name="$name"
+        |            name="$testName"
         |            classname="$className"
         |            nanos="$nanos"
         |            warmupIterations="$warmupIterations"
@@ -42,10 +42,10 @@ internal object ResultWriter {
         return joinToString(",\n") { "|            $it" }
     }
 
-    private fun BenchmarkState.Report.toJson(name: String, className: String): String {
+    private fun BenchmarkState.Report.toJson(): String {
         return "\n" + """
         |    {
-        |        "name": "$name",
+        |        "name": "$testName",
         |        "classname": "$className",
         |        "nanos": $nanos,
         |        "warmupIterations": $warmupIterations,
@@ -62,7 +62,7 @@ internal object ResultWriter {
         val initial: String,
         val tail: String,
         val separator: String? = null,
-        val reportFormatter: (BenchmarkState.Report, String, String) -> String
+        val reportFormatter: (BenchmarkState.Report) -> String
     ) {
         private val context = InstrumentationRegistry.getInstrumentation().targetContext!!
 
@@ -71,15 +71,17 @@ internal object ResultWriter {
             "${context.packageName}-benchmarkData.$extension"
         )
         var currentContent = initial
+        var lastAddedEntry: BenchmarkState.Report? = null
 
         val fullFileContent: String
             get() = currentContent + tail
 
-        fun append(report: BenchmarkState.Report, name: String, className: String) {
+        fun append(report: BenchmarkState.Report) {
             if (currentContent != initial && separator != null) {
                 currentContent += separator
             }
-            currentContent += reportFormatter(report, name, className)
+            lastAddedEntry = report
+            currentContent += reportFormatter(report)
         }
     }
 
@@ -88,8 +90,8 @@ internal object ResultWriter {
             extension = "xml",
             initial = "<benchmarksuite>",
             tail = "\n</benchmarksuite>",
-            reportFormatter = { report, name, className ->
-                report.toXml(name, className)
+            reportFormatter = { report ->
+                report.toXml()
             }
         ),
         FileManager(
@@ -97,15 +99,15 @@ internal object ResultWriter {
             initial = "{ \"results\": [",
             tail = "\n]}",
             separator = ",",
-            reportFormatter = { report, name, className ->
-                report.toJson(name, className)
+            reportFormatter = { report ->
+                report.toJson()
             }
         )
     )
 
-    fun appendStats(name: String, className: String, report: BenchmarkState.Report) {
+    fun appendStats(report: BenchmarkState.Report) {
         for (fileManager in fileManagers) {
-            fileManager.append(report, WarningState.WARNING_PREFIX + name, className)
+            fileManager.append(report)
             fileManager.file.run {
                 if (!exists()) {
                     parentFile.mkdirs()

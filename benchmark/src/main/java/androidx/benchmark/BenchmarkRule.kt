@@ -17,10 +17,8 @@
 package androidx.benchmark
 
 import android.Manifest
-import android.app.Activity
 import android.util.Log
 import androidx.annotation.RestrictTo
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -188,13 +186,13 @@ class BenchmarkRule : TestRule {
 
                         val fullTestName = WarningState.WARNING_PREFIX +
                                 description.testClass.simpleName + "." + invokeMethodName
-                        InstrumentationRegistry.getInstrumentation().sendStatus(
-                            Activity.RESULT_OK,
-                            internalState.getFullStatusReport(fullTestName)
-                        )
+                        internalState.sendStatus(fullTestName)
 
                         ResultWriter.appendStats(
-                            invokeMethodName, description.className, internalState.getReport()
+                            internalState.getReport(
+                                testName = WarningState.WARNING_PREFIX + invokeMethodName,
+                                className = description.className
+                            )
                         )
                     }
                 }
