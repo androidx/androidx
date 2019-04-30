@@ -46,9 +46,6 @@ class Camera2CaptureOptionUnpacker implements CaptureConfig.OptionUnpacker {
             templateType = defaultCaptureConfig.getTemplateType();
             builder.addAllCameraCaptureCallbacks(defaultCaptureConfig.getCameraCaptureCallbacks());
             implOptions = defaultCaptureConfig.getImplementationOptions();
-
-            // Add all default camera characteristics
-            builder.addCharacteristics(defaultCaptureConfig.getCameraCharacteristics());
         }
 
         // Set the any additional implementation options
@@ -67,23 +64,16 @@ class Camera2CaptureOptionUnpacker implements CaptureConfig.OptionUnpacker {
                                 Camera2CaptureCallbacks.createNoOpCallback())));
 
         // Copy extension keys
-        camera2Config.findOptions(
-                Camera2Config.CAPTURE_REQUEST_ID_STEM,
-                new Config.OptionMatcher() {
-                    @Override
-                    public boolean onOptionMatched(Option<?> option) {
-                        @SuppressWarnings(
-                                "unchecked")
-                        // No way to get actual type info here, so treat as Object
-                                Option<Object> typeErasedOption = (Option<Object>) option;
-                        @SuppressWarnings("unchecked")
-                        CaptureRequest.Key<Object> key =
-                                (CaptureRequest.Key<Object>) option.getToken();
-
-                        builder.addCharacteristic(key,
-                                camera2Config.retrieveOption(typeErasedOption));
-                        return true;
-                    }
-                });
+        Camera2Config.Builder configBuilder = new Camera2Config.Builder();
+        for (Option<?> option : camera2Config.getCaptureRequestOptions()) {
+            @SuppressWarnings("unchecked")
+            // No way to get actual type info here, so treat as Object
+                    Option<Object> typeErasedOption = (Option<Object>) option;
+            @SuppressWarnings("unchecked")
+            CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();
+            configBuilder.setCaptureRequestOption(key,
+                    camera2Config.retrieveOption(typeErasedOption));
+        }
+        builder.addImplementationOptions(configBuilder.build());
     }
 }

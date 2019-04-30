@@ -22,10 +22,9 @@ import static org.mockito.Mockito.mock;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
-import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureRequest.Key;
 import android.view.Surface;
 
+import androidx.camera.core.Config.Option;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
@@ -36,11 +35,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
-import java.util.Map;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class SessionConfigTest {
+    private static final Option<Integer> OPTION = Option.create(
+            "camerax.test.option_0", Integer.class);
+    private static final Option<String> OPTION_1 = Option.create(
+            "camerax.test.option_1", String.class);
+
     private DeferrableSurface mMockSurface0;
     private DeferrableSurface mMockSurface1;
 
@@ -132,23 +135,18 @@ public class SessionConfigTest {
     }
 
     @Test
-    public void builderAddCharacteristic() {
+    public void builderAddOption() {
         SessionConfig.Builder builder = new SessionConfig.Builder();
 
-        builder.addCharacteristic(
-                CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
+        MutableOptionsBundle options = MutableOptionsBundle.create();
+        options.insertOption(OPTION, 1);
+        builder.addImplementationOptions(options);
         SessionConfig sessionConfig = builder.build();
 
-        Map<Key<?>, CaptureRequestParameter<?>> parameterMap =
-                sessionConfig.getCameraCharacteristics();
+        Config config = sessionConfig.getImplementationOptions();
 
-        assertThat(parameterMap.containsKey(CaptureRequest.CONTROL_AF_MODE)).isTrue();
-        assertThat(parameterMap)
-                .containsEntry(
-                        CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequestParameter.create(
-                                CaptureRequest.CONTROL_AF_MODE,
-                                CaptureRequest.CONTROL_AF_MODE_AUTO));
+        assertThat(config.containsOption(OPTION)).isTrue();
+        assertThat(config.retrieveOption(OPTION)).isEqualTo(1);
     }
 
     @Test
@@ -169,20 +167,23 @@ public class SessionConfigTest {
     }
 
     @Test
-    public void conflictingCharacteristics() {
-        SessionConfig.Builder builderAfAuto = new SessionConfig.Builder();
-        builderAfAuto.addCharacteristic(
-                CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
-        SessionConfig sessionConfigAfAuto = builderAfAuto.build();
-        SessionConfig.Builder builderAfOff = new SessionConfig.Builder();
-        builderAfOff.addCharacteristic(
-                CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF);
-        SessionConfig sessionConfigAfOff = builderAfOff.build();
+    public void conflictingOptions() {
+        SessionConfig.Builder builder0 = new SessionConfig.Builder();
+        MutableOptionsBundle options0 = MutableOptionsBundle.create();
+        options0.insertOption(OPTION, 1);
+        builder0.addImplementationOptions(options0);
+        SessionConfig config0 = builder0.build();
+
+        SessionConfig.Builder builder1 = new SessionConfig.Builder();
+        MutableOptionsBundle options1 = MutableOptionsBundle.create();
+        options1.insertOption(OPTION, 2);
+        builder1.addImplementationOptions(options1);
+        SessionConfig config1 = builder1.build();
 
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
 
-        validatingBuilder.add(sessionConfigAfAuto);
-        validatingBuilder.add(sessionConfigAfOff);
+        validatingBuilder.add(config0);
+        validatingBuilder.add(config1);
 
         assertThat(validatingBuilder.isValid()).isFalse();
     }
@@ -192,15 +193,16 @@ public class SessionConfigTest {
         SessionConfig.Builder builder0 = new SessionConfig.Builder();
         builder0.addSurface(mMockSurface0);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        builder0.addCharacteristic(
-                CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
+        MutableOptionsBundle options0 = MutableOptionsBundle.create();
+        options0.insertOption(OPTION, 1);
+        builder0.addImplementationOptions(options0);
 
         SessionConfig.Builder builder1 = new SessionConfig.Builder();
         builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        builder1.addCharacteristic(
-                CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
-                CaptureRequest.CONTROL_AE_ANTIBANDING_MODE_AUTO);
+        MutableOptionsBundle options1 = MutableOptionsBundle.create();
+        options1.insertOption(OPTION_1, "test");
+        builder1.addImplementationOptions(options1);
 
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         validatingBuilder.add(builder0.build());
@@ -214,15 +216,16 @@ public class SessionConfigTest {
         SessionConfig.Builder builder0 = new SessionConfig.Builder();
         builder0.addSurface(mMockSurface0);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        builder0.addCharacteristic(
-                CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
+        MutableOptionsBundle options0 = MutableOptionsBundle.create();
+        options0.insertOption(OPTION, 1);
+        builder0.addImplementationOptions(options0);
 
         SessionConfig.Builder builder1 = new SessionConfig.Builder();
         builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        builder1.addCharacteristic(
-                CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
-                CaptureRequest.CONTROL_AE_ANTIBANDING_MODE_AUTO);
+        MutableOptionsBundle options1 = MutableOptionsBundle.create();
+        options1.insertOption(OPTION_1, "test");
+        builder1.addImplementationOptions(options1);
 
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         validatingBuilder.add(builder0.build());
@@ -238,15 +241,16 @@ public class SessionConfigTest {
         SessionConfig.Builder builder0 = new SessionConfig.Builder();
         builder0.addSurface(mMockSurface0);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        builder0.addCharacteristic(
-                CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
+        MutableOptionsBundle options0 = MutableOptionsBundle.create();
+        options0.insertOption(OPTION, 1);
+        builder0.addImplementationOptions(options0);
 
         SessionConfig.Builder builder1 = new SessionConfig.Builder();
         builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        builder1.addCharacteristic(
-                CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
-                CaptureRequest.CONTROL_AE_ANTIBANDING_MODE_AUTO);
+        MutableOptionsBundle options1 = MutableOptionsBundle.create();
+        options1.insertOption(OPTION_1, "test");
+        builder1.addImplementationOptions(options1);
 
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         validatingBuilder.add(builder0.build());
@@ -259,19 +263,20 @@ public class SessionConfigTest {
     }
 
     @Test
-    public void combineTwoSessionsCharacteristics() {
+    public void combineTwoSessionsOptions() {
         SessionConfig.Builder builder0 = new SessionConfig.Builder();
         builder0.addSurface(mMockSurface0);
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        builder0.addCharacteristic(
-                CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
+        MutableOptionsBundle options0 = MutableOptionsBundle.create();
+        options0.insertOption(OPTION, 1);
+        builder0.addImplementationOptions(options0);
 
         SessionConfig.Builder builder1 = new SessionConfig.Builder();
         builder1.addSurface(mMockSurface1);
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-        builder1.addCharacteristic(
-                CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
-                CaptureRequest.CONTROL_AE_ANTIBANDING_MODE_AUTO);
+        MutableOptionsBundle options1 = MutableOptionsBundle.create();
+        options1.insertOption(OPTION_1, "test");
+        builder1.addImplementationOptions(options1);
 
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
         validatingBuilder.add(builder0.build());
@@ -279,18 +284,10 @@ public class SessionConfigTest {
 
         SessionConfig sessionConfig = validatingBuilder.build();
 
-        Map<Key<?>, CaptureRequestParameter<?>> parameterMap =
-                sessionConfig.getCameraCharacteristics();
-        assertThat(parameterMap)
-                .containsExactly(
-                        CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequestParameter.create(
-                                CaptureRequest.CONTROL_AF_MODE,
-                                CaptureRequest.CONTROL_AF_MODE_AUTO),
-                        CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
-                        CaptureRequestParameter.create(
-                                CaptureRequest.CONTROL_AE_ANTIBANDING_MODE,
-                                CaptureRequest.CONTROL_AE_ANTIBANDING_MODE_AUTO));
+        Config config = sessionConfig.getImplementationOptions();
+
+        assertThat(config.retrieveOption(OPTION)).isEqualTo(1);
+        assertThat(config.retrieveOption(OPTION_1)).isEqualTo("test");
     }
 
     @Test
