@@ -24,27 +24,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+        <View
+            android:id="@+id/for_focus"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:focusable="true" />
 
         <androidx.appcompat.widget.AppCompatButton
             style="@style/TextStyleAllCapsOn"
             android:id="@+id/button_caps1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sample_text1" />
+            android:text="@string/sample_text1"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatButton
             style="@style/TextStyleAllCapsOff"
             android:id="@+id/button_caps2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sample_text2" />
+            android:text="@string/sample_text2"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_app_allcaps_false"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
-            app:textAllCaps="false"/>
+            app:textAllCaps="false"
+            android:focusable="false"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/view_tinted_no_background"
@@ -52,7 +60,8 @@
             android:layout_height="wrap_content"
             android:text="@string/sample_text1"
             app:backgroundTint="@color/color_state_list_lilac"
-            app:backgroundTintMode="src_in" />
+            app:backgroundTintMode="src_in"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/view_tinted_background"
@@ -61,40 +70,46 @@
             android:text="@string/sample_text2"
             android:background="@drawable/test_drawable"
             app:backgroundTint="@color/color_state_list_lilac"
-            app:backgroundTintMode="src_in" />
+            app:backgroundTintMode="src_in"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/view_untinted_no_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sample_text2" />
+            android:text="@string/sample_text2"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/view_untinted_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
-            android:background="@drawable/test_background_green" />
+            android:background="@drawable/test_background_green"
+            android:focusable="false" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_colored_untinted"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text2"
+            android:focusable="false"
             style="@style/Widget.AppCompat.Button.Colored"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_untinted"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sample_text2"/>
+            android:text="@string/sample_text2"
+            android:focusable="false"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button_fontresource"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sample_text1"
-            app:fontFamily="@font/samplefont" />
+            app:fontFamily="@font/samplefont"
+            android:focusable="false" />
 
     </LinearLayout>
 
