@@ -58,8 +58,10 @@ class BackStackStateTest {
             .containsExactlyElementsIn(backStackState.mOps.asList())
         assertThat(restoredBackStackState.mFragmentWhos)
             .containsExactlyElementsIn(backStackState.mFragmentWhos)
-        assertThat(restoredBackStackState.mMaxLifecycleStates).asList()
-            .containsExactlyElementsIn(backStackState.mMaxLifecycleStates.asList())
+        assertThat(restoredBackStackState.mOldMaxLifecycleStates).asList()
+            .containsExactlyElementsIn(backStackState.mOldMaxLifecycleStates.asList())
+        assertThat(restoredBackStackState.mCurrentMaxLifecycleStates).asList()
+            .containsExactlyElementsIn(backStackState.mCurrentMaxLifecycleStates.asList())
         assertThat(restoredBackStackState.mReorderingAllowed)
             .isEqualTo(backStackState.mReorderingAllowed)
     }

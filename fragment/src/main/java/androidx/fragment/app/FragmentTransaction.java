@@ -58,7 +58,6 @@ public abstract class FragmentTransaction {
     static final int OP_SET_PRIMARY_NAV = 8;
     static final int OP_UNSET_PRIMARY_NAV = 9;
     static final int OP_SET_MAX_LIFECYCLE = 10;
-    static final int OP_UNSET_MAX_LIFECYCLE = 11;
 
     static final class Op {
         int mCmd;
@@ -67,7 +66,8 @@ public abstract class FragmentTransaction {
         int mExitAnim;
         int mPopEnterAnim;
         int mPopExitAnim;
-        Lifecycle.State mMaxState;
+        Lifecycle.State mOldMaxState;
+        Lifecycle.State mCurrentMaxState;
 
         Op() {
         }
@@ -75,13 +75,15 @@ public abstract class FragmentTransaction {
         Op(int cmd, Fragment fragment) {
             this.mCmd = cmd;
             this.mFragment = fragment;
-            this.mMaxState = Lifecycle.State.RESUMED;
+            this.mOldMaxState = Lifecycle.State.RESUMED;
+            this.mCurrentMaxState = Lifecycle.State.RESUMED;
         }
 
-        Op(int cmd, Fragment fragment, Lifecycle.State state) {
+        Op(int cmd, @NonNull Fragment fragment, Lifecycle.State state) {
             this.mCmd = cmd;
             this.mFragment = fragment;
-            this.mMaxState = state;
+            this.mOldMaxState = fragment.mMaxState;
+            this.mCurrentMaxState = state;
         }
     }
 
