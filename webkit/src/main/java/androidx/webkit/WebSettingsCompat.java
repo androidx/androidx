@@ -282,7 +282,116 @@ public class WebSettingsCompat {
         }
     }
 
+    /**
+     * Disable force dark, irrespective of the force dark mode of the WebView parent. In this mode,
+     * WebView content will always be rendered as-is, regardless of whether native views are being
+     * automatically darkened.
+     *
+     * @see #setForceDark
+     * TODO(amalova): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final int FORCE_DARK_OFF = 0;
 
+    /**
+     * Enable force dark dependent on the state of the WebView parent view. If the WebView parent
+     * view is being automatically force darkened
+     * (@see android.view.View#setForceDarkAllowed), then WebView content will be rendered
+     * so as to emulate a dark theme. WebViews that are not attached to the view hierarchy will not
+     * be inverted.
+     *
+     * @see #setForceDark
+     * TODO(amalova): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final int FORCE_DARK_AUTO = 1;
+
+    /**
+     * Used with {@link #setForceDark}
+     *
+     * Unconditionally enable force dark. In this mode WebView content will always be rendered so
+     * as to emulate a dark theme.
+     *
+     * @see #setForceDark
+     * TODO(amalova): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final int FORCE_DARK_ON = 2;
+
+    /**
+     * @hide
+     */
+    // TODO(amalova): redefine with framework constants when AndroidX compiles against Q
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @IntDef(value = {
+            FORCE_DARK_OFF,
+            FORCE_DARK_AUTO,
+            FORCE_DARK_ON,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @Target({ElementType.PARAMETER, ElementType.METHOD})
+    public @interface ForceDark {}
+
+    /**
+     * Set the force dark mode for this WebView.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#FORCE_DARK}.
+     *
+     * @param forceDarkMode the force dark mode to set.
+     *
+     * TODO(amalova): unhide
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.FORCE_DARK,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setForceDark(WebSettings webSettings, @ForceDark int forceDarkMode) {
+        WebViewFeatureInternal webViewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.FORCE_DARK);
+        if (webViewFeature.isSupportedByWebView()) {
+            getAdapter(webSettings).setForceDark(forceDarkMode);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Get the force dark mode for this WebView.
+     *
+     * <p>
+     * The default force dark mode is {@link #FORCE_DARK_AUTO}
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#FORCE_DARK}.
+     *
+     * @return the currently set force dark mode.
+     *
+     * TODO(amalova): unhide
+     * @hide
+     */
+    // TODO(amalova): add support with the framework APIs when AndroidX compiles against the Q SDK
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.FORCE_DARK,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static @ForceDark int getForceDark(WebSettings webSettings) {
+        WebViewFeatureInternal webViewFeature =
+                WebViewFeatureInternal.getFeature(WebViewFeature.FORCE_DARK);
+        if (webViewFeature.isSupportedByWebView()) {
+            return getAdapter(webSettings).getForceDark();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
 
     private static WebSettingsAdapter getAdapter(WebSettings webSettings) {
         return WebViewGlueCommunicator.getCompatConverter().convertSettings(webSettings);
