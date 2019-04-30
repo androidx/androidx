@@ -113,6 +113,39 @@ function updateStudio() {
   unzip "${studioZipPath}" -d "${studioUnzippedPath}"
 }
 
+function ensureComposeAt() {
+  pluginPath=$1
+  copyOption=$2
+  idePluginJar="$pluginPath/r4a-ide-plugin.jar"
+  compilerPluginJar="$pluginPath/r4a-compiler-plugin.jar"
+  compilerPluginJarOutput="../../../out/ui/compose-plugin-cli/build/libs/compose-plugin-cli-1.0.0-alpha01.jar"
+  idePluginJarOutput="../../../out/ui/compose-plugin-ide/build/libs/compose-plugin-ide-1.0.0-alpha01.jar"
+  if [ ! -e "$idePluginJarOutput" ] || [ ! -e "$compilerPluginJarOutput" ]
+  then
+    echo "Building compose plugin"
+    ./gradlew :compose-plugin-ide:assemble :compose-plugin-cli:ideVersion
+  fi
+  cp $copyOption "$compilerPluginJarOutput" "$compilerPluginJar"
+  cp $copyOption "$idePluginJarOutput" "$idePluginJar"
+}
+
+function ensureComposeLinux() {
+  ensureComposeAt "${studioUnzippedPath}/android-studio/plugins/Kotlin/lib" "-u"
+}
+
+function ensureComposeMac() {
+  ensureComposeAt "$(findStudioMacAppPath)/Contents/plugins/Kotlin/lib"
+}
+
+function ensureCompose() {
+  # ensure compose plugin is up-to-date
+  if [ "${osName}" == "mac" ]; then
+    ensureComposeMac
+  else
+    ensureComposeLinux
+  fi
+}
+
 function runStudioLinux() {
   studioPath="${studioUnzippedPath}/android-studio/bin/studio.sh"
   echo "$studioPath &"
@@ -141,6 +174,7 @@ function runStudio() {
 
 function main() {
   updateStudio
+  ensureCompose
   checkLicenseAgreement
   runStudio
 }
