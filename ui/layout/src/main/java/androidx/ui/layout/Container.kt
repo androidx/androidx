@@ -33,7 +33,7 @@ import com.google.r4a.Composable
 import com.google.r4a.composer
 
 /**
- * A convenience widget that combines common layout and painting widgets for one child:
+ * A convenience widget that combines common layout widgets for one child:
  * - padding: the padding to be applied to the child
  * - alignment: how to position the padded child if the [Container] is larger than the child
  * - constraints: additional Constraints to be enforced when measuring the Container
@@ -61,7 +61,7 @@ fun Container(
     constraints: DpConstraints = DpConstraints(),
     width: Dp? = null,
     height: Dp? = null,
-    @Children() children: @Composable() () -> Unit = {}
+    @Children children: () -> Unit
 ) {
     <Layout children> measurables, incomingConstraints ->
         val containerConstraints = Constraints(constraints)

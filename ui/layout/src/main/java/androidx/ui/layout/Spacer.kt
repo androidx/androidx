@@ -17,6 +17,7 @@
 package androidx.ui.layout
 
 import androidx.ui.core.Dp
+import androidx.ui.core.dp
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
@@ -28,7 +29,9 @@ import com.google.r4a.composer
  */
 @Composable
 fun FixedSpacer(width: Dp, height: Dp) {
-    <Container width height expanded=true />
+    <ConstrainedBox constraints=DpConstraints.tightConstraints(width, height)>
+        // no children as we only need space
+    </ConstrainedBox>
 }
 
 /**
@@ -38,7 +41,7 @@ fun FixedSpacer(width: Dp, height: Dp) {
  */
 @Composable
 fun WidthSpacer(width: Dp) {
-    <Container width />
+    <FixedSpacer width height=0.dp />
 }
 
 /**
@@ -48,5 +51,5 @@ fun WidthSpacer(width: Dp) {
  */
 @Composable
 fun HeightSpacer(height: Dp) {
-    <Container height />
+    <FixedSpacer height width=0.dp />
 }
