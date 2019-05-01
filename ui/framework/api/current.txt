@@ -105,7 +105,7 @@ package androidx.ui.core {
 
   public final class SemanticsKt {
     ctor public SemanticsKt();
-    method public static void Semantics(kotlin.jvm.functions.Function0<kotlin.Unit> children, boolean container = false, boolean explicitChildNodes = false, Boolean? enabled = null, Boolean? checked = null, Boolean? selected = null, Boolean? button = null, Boolean? inMutuallyExclusiveGroup = null, Boolean? hidden = null, String? label = null, String? value = null, androidx.ui.engine.text.TextDirection? textDirection = null, String? testTag = null, java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> actions = emptyList());
+    method public static void Semantics(boolean container = false, boolean explicitChildNodes = false, Boolean? enabled = null, Boolean? checked = null, Boolean? selected = null, Boolean? button = null, Boolean? inMutuallyExclusiveGroup = null, Boolean? hidden = null, String? label = null, String? value = null, androidx.ui.engine.text.TextDirection? textDirection = null, String? testTag = null, java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> actions = emptyList(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class TestTagProviderKt {
@@ -173,33 +173,14 @@ package androidx.ui.core.gesture {
     method public static void PressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit>? onPress = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class PressIndicatorGestureDetector extends com.google.r4a.Component {
-    ctor public PressIndicatorGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnCancel();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.PxPosition,kotlin.Unit>? getOnStart();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnStop();
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setOnCancel(kotlin.jvm.functions.Function0<kotlin.Unit>? value);
-    method public void setOnStart(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit>? value);
-    method public void setOnStop(kotlin.jvm.functions.Function0<kotlin.Unit>? value);
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel;
-    property public final kotlin.jvm.functions.Function1<androidx.ui.core.PxPosition,kotlin.Unit>? onStart;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onStop;
+  public final class PressIndicatorGestureDetectorKt {
+    ctor public PressIndicatorGestureDetectorKt();
+    method public static void PressIndicatorGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit>? onStart = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onStop = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class PressReleasedGestureDetector extends com.google.r4a.Component {
-    ctor public PressReleasedGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public boolean getConsumeDownOnStart();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnRelease();
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setConsumeDownOnStart(boolean value);
-    method public void setOnRelease(kotlin.jvm.functions.Function0<kotlin.Unit>? value);
-    property public final boolean consumeDownOnStart;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease;
+  public final class PressReleasedGestureDetectorKt {
+    ctor public PressReleasedGestureDetectorKt();
+    method public static void PressReleasedGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, boolean consumeDownOnStart = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }

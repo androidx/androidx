@@ -14,7 +14,7 @@ package androidx.ui.baseui {
 
   public final class SimpleImageKt {
     ctor public SimpleImageKt();
-    method public static error.NonExistentClass SimpleImage(androidx.ui.painting.Image image);
+    method public static void SimpleImage(androidx.ui.painting.Image image);
   }
 
 }
