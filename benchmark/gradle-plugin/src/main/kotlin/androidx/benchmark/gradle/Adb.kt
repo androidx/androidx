@@ -16,17 +16,28 @@
 
 package androidx.benchmark.gradle
 
+import com.android.build.gradle.BaseExtension
 import org.gradle.api.GradleException
+import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.logging.Logger
 import java.util.concurrent.TimeUnit
 
-class Adb(private val adbPath: String, private val logger: Logger) {
+class Adb constructor(project: Project) {
     data class ProcessResult(
         val exitValue: Int,
         val stdout: String,
         val stderr: String
     )
+
+    private val adbPath: String
+    private val logger: Logger
+
+    init {
+        val extension = project.extensions.getByType(BaseExtension::class.java)
+        adbPath = extension.adbExecutable.absolutePath
+        logger = project.logger
+    }
 
     fun execSync(
         adbCmd: String,
