@@ -261,6 +261,16 @@ public class ImageCapture extends UseCase {
     /**
      * Sets target aspect ratio.
      *
+     * <p>This sets the cropping rectangle returned by {@link ImageProxy#getCropRect()} returned
+     * from {@link ImageCapture#takePicture(OnImageCapturedListener)}.
+     *
+     * <p>This crops the saved image when calling
+     * {@link ImageCapture#takePicture(File, OnImageSavedListener)} or
+     * {@link ImageCapture#takePicture(File, OnImageSavedListener, Metadata)}.
+     *
+     * <p>Cropping occurs around the center of the image and as though it were in the target
+     * rotation.
+     *
      * @param aspectRatio New target aspect ratio.
      */
     public void setTargetAspectRatio(Rational aspectRatio) {
