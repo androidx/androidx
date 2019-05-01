@@ -139,7 +139,7 @@ public class Preview extends UseCase {
      * the setSurfaceTexture() call succeeds.
      *
      * <p>Since {@link OnPreviewOutputUpdateListener} is called when the underlying SurfaceTexture
-     * is created, applications that return false from {@link
+     * is created, applications that override and return false from {@link
      * android.view.TextureView.SurfaceTextureListener#onSurfaceTextureDestroyed(SurfaceTexture)}
      * should be sure to call {@link android.view.TextureView#setSurfaceTexture(SurfaceTexture)}
      * with the output from the previous {@link PreviewOutput} to attach it to a new TextureView,
