@@ -57,7 +57,7 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     private val options = listOf(itemOne, itemTwo, itemThree)
 
     @Composable
-    fun VerticalRadioGroupforTests(@Children children: RadioGroupScope.() -> Unit) {
+    fun VerticalRadioGroupforTests(@Children children: @Composable() RadioGroupScope.() -> Unit) {
         CraneWrapper {
             MaterialTheme {
                 RadioGroup {

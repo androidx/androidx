@@ -107,7 +107,7 @@ fun VerticalScroller(
     onScrollChanged: (position: Px, maxPosition: Px) -> Unit = { position, _ ->
         scrollerPosition.position = position
     },
-    @Children child: () -> Unit
+    @Children child: @Composable() () -> Unit
 ) {
     val maxPosition = +state { 0.px }
     <VerticalDragGestureDetector

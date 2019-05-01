@@ -88,7 +88,7 @@ fun RippleSurface(
      * The surface background backgroundColor.
      */
     color: Color?,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     val owner = +memo { RippleSurfaceOwnerImpl() }
     owner.backgroundColor = color

@@ -16,7 +16,6 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.Position
 import androidx.ui.core.PxPosition
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -27,7 +26,7 @@ fun PressGestureDetector(
     onPress: ((PxPosition) -> Unit)? = null,
     onRelease: (() -> Unit)? = null,
     onCancel: (() -> Unit)? = null,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     <PressIndicatorGestureDetector onStart=onPress onCancel>
         <PressReleasedGestureDetector onRelease consumeDownOnStart=false>

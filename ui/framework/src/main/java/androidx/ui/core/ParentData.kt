@@ -56,6 +56,6 @@ internal val ParentDataAmbient = Ambient.of<Any?>(key = "parent data")
  * expanded, which are inflexible and which are flexible.
  */
 @Composable
-fun ParentData(data: Any, @Children children: () -> Unit) {
+fun ParentData(data: Any, @Children children: @Composable() () -> Unit) {
     <ParentDataAmbient.Provider value=data children/>
 }

@@ -64,7 +64,7 @@ private fun DrawFillRect(brush: Brush) {
 fun HeaderFooterLayout(
     header: () -> Unit,
     footer: () -> Unit,
-    @Children content: () -> Unit
+    @Children content: @Composable() () -> Unit
 ) {
     <Layout childrenArray=arrayOf(header, content, footer)> measurables, constraints ->
         val headerPlaceable = measurables[header].first().measure(

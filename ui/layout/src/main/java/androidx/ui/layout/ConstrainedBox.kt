@@ -36,7 +36,7 @@ import com.google.r4a.composer
 @Composable
 fun ConstrainedBox(
     constraints: DpConstraints,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     <Layout layoutBlock = { measurables, incomingConstraints ->
         val measurable = measurables.firstOrNull()

@@ -41,7 +41,7 @@ fun TextInputClient(
     /** Called when the InputMethod forwarded a key event */
     onKeyEventForwarded: (Any) -> Unit = {}, // TODO(nona): Define argument type
 
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     val textInputService = +ambient(TextInputServiceAmbient)
 

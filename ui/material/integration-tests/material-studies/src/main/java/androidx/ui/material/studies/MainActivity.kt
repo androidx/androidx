@@ -45,6 +45,7 @@ class MainActivity : ListActivity() {
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
+        @Suppress("UNCHECKED_CAST")
         val map = l.getItemAtPosition(position) as Map<String, Intent>
         startActivity(map["intent"])
     }

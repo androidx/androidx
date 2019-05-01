@@ -93,6 +93,6 @@ class FontTest {
 
         assertThat(fontFamily).isNotNull()
         assertThat(fontFamily).isNotEmpty()
-        assertThat(fontFamily[0]).isSameAs(font)
+        assertThat(fontFamily[0]).isSameInstanceAs(font)
     }
 }

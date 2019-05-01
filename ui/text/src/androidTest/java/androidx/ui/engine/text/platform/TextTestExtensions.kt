@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.port.engine.text.platform
+package androidx.ui.engine.text.platform
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -22,7 +22,6 @@ import android.graphics.Typeface
 import android.text.Layout
 import android.text.TextPaint
 import androidx.text.TextLayout
-import androidx.ui.engine.text.platform.ParagraphAndroid
 import kotlin.math.ceil
 
 internal fun ParagraphAndroid.bitmap(): Bitmap {

@@ -27,6 +27,6 @@ val TestTagAmbient = Ambient.of { DefaultTestTag }
 // Implementation with ambients now for only one semantics inside.
 // replace with mergeable semantics later
 @Composable
-fun TestTag(tag: String, @Children children: () -> Unit) {
+fun TestTag(tag: String, @Children children: @Composable() () -> Unit) {
     <TestTagAmbient.Provider value=tag children />
 }

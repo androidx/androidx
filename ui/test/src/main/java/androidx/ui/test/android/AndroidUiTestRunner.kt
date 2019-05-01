@@ -22,7 +22,7 @@ import android.os.Looper
 import android.view.Choreographer
 import android.view.MotionEvent
 import android.view.ViewGroup
-import androidx.test.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Density
 import androidx.ui.core.SemanticsTreeNode

@@ -35,7 +35,7 @@ import com.google.r4a.composer
  * For a widget that does alignment and tries to be as large as possible, see [Align].
  */
 @Composable
-fun Wrap(alignment: Alignment = Alignment.TopLeft, @Children children: () -> Unit) {
+fun Wrap(alignment: Alignment = Alignment.TopLeft, @Children children: @Composable() () -> Unit) {
     <Layout layoutBlock = { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.

@@ -16,6 +16,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -66,16 +67,13 @@ androidx {
     description = "AndroidX Material"
 }
 
-android {
-    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-        kotlinOptions {
-            useIR = true
-            // TODO: Enable once composable warning is gone
-            //freeCompilerArgs += ["-Werror"]
-        }
+tasks.withType(KotlinCompile).all {
+    kotlinOptions {
+        useIR = true
+        freeCompilerArgs += ["-Werror"]
     }
-    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { compile ->
-        compile.kotlinOptions.freeCompilerArgs += "-P"
-        compile.kotlinOptions.freeCompilerArgs += "plugin:org.jetbrains.kotlin.r4a:syntax=FCS"
-    }
+}
+tasks.withType(KotlinCompile).configureEach { compile ->
+    compile.kotlinOptions.freeCompilerArgs += "-P"
+    compile.kotlinOptions.freeCompilerArgs += "plugin:org.jetbrains.kotlin.r4a:syntax=FCS"
 }

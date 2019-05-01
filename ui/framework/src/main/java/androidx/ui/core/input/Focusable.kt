@@ -40,7 +40,7 @@ internal fun Focusable(
     /** A callback that is executed when this component is about to lose the focus */
     onBlur: () -> Unit = {},
 
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     val focusManager = +ambient(FocusManagerAmbient)
 

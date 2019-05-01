@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ui.rendering
+package androidx.ui.rendering.paragraph
 
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
-import androidx.ui.rendering.paragraph.RenderParagraph
-import androidx.ui.rendering.paragraph.TextOverflow
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -91,7 +89,7 @@ class RenderParagraphTest {
 
         paragraph.text = newText
 
-        assertThat(paragraph.text).isSameAs(initText)
+        assertThat(paragraph.text).isSameInstanceAs(initText)
     }
 
     @Test

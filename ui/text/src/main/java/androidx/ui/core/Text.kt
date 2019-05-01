@@ -185,7 +185,7 @@ internal val CurrentTextStyleAmbient = Ambient.of<TextStyle>("current text style
  * styled explicitly.
  */
 @Composable
-fun CurrentTextStyleProvider(value: TextStyle, @Children children: () -> Unit) {
+fun CurrentTextStyleProvider(value: TextStyle, @Children children: @Composable() () -> Unit) {
     val style = +ambient(CurrentTextStyleAmbient)
     val mergedStyle = style.merge(value)
     <CurrentTextStyleAmbient.Provider value=mergedStyle>

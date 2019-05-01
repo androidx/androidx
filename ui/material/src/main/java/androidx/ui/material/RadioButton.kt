@@ -76,7 +76,7 @@ import com.google.r4a.unaryPlus
  *         onOptionSelected = { ... })
  */
 @Composable
-fun RadioGroup(@Children children: RadioGroupScope.() -> Unit) {
+fun RadioGroup(@Children children: @Composable RadioGroupScope.() -> Unit) {
     val scope = +memo { RadioGroupScope() }
     children(p1 = scope)
 }
