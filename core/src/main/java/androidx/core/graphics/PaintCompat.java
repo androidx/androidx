@@ -122,17 +122,26 @@ public final class PaintCompat {
      * @param blendMode BlendMode to configure on the paint if it is supported by the platform
      *                  version. A value of null removes the BlendMode from the Paint and restores
      *                  it to the default
+     * @return true if the specified BlendMode as applied successfully, false if the platform
+     * version does not support this BlendMode. If the BlendMode is not supported, this falls
+     * back to the default BlendMode
      */
-    public static void setBlendMode(@NonNull Paint paint, @Nullable BlendModeCompat blendMode) {
+    public static boolean setBlendMode(@NonNull Paint paint, @Nullable BlendModeCompat blendMode) {
         if (BuildCompat.isAtLeastQ()) {
-            paint.setBlendMode(obtainBlendModeFromCompat(blendMode));
-        } else {
+            paint.setBlendMode(blendMode != null ? obtainBlendModeFromCompat(blendMode) : null);
+            // All blend modes supported in Q
+            return true;
+        } else if (blendMode != null) {
             PorterDuff.Mode mode = obtainPorterDuffFromCompat(blendMode);
-            if (mode != null) {
-                paint.setXfermode(new PorterDuffXfermode(mode));
-            } else {
-                paint.setXfermode(null);
-            }
+            paint.setXfermode(mode != null ? new PorterDuffXfermode(mode) : null);
+            // If the BlendMode has an equivalent PorterDuff mode, return true,
+            // otherwise return false
+            return mode != null;
+        } else {
+            // Configuration of a null BlendMode falls back to the default which is supported in
+            // all platform levels
+            paint.setXfermode(null);
+            return true;
         }
     }
 
@@ -145,8 +154,11 @@ public final class PaintCompat {
      * @param color color which to apply the blend mode with
      * @param blendModeCompat BlendMode to configure on the color filter if it is supported by the
      *                        platform. A value of null removes the ColorFilter from the paint
+     * @return true if the color filter was applied successfully with the provided BlendMode, false
+     * if the platform version does not support this BlendMode. if the BlendMode is not supported
+     * the ColorFilter is removed from the Paint
      */
-    public static void setBlendModeColorFilter(@NonNull Paint paint, @ColorInt int color,
+    public static boolean setBlendModeColorFilter(@NonNull Paint paint, @ColorInt int color,
                                                      @Nullable BlendModeCompat blendModeCompat) {
         if (BuildCompat.isAtLeastQ()) {
             BlendMode blendMode = obtainBlendModeFromCompat(blendModeCompat);
@@ -155,85 +167,87 @@ public final class PaintCompat {
             } else {
                 paint.setColorFilter(null);
             }
-        } else {
+            // All blend modes supported in Q
+            return true;
+        } else if (blendModeCompat != null) {
             PorterDuff.Mode porterDuffMode = obtainPorterDuffFromCompat(blendModeCompat);
-            if (porterDuffMode != null) {
-                paint.setColorFilter(new PorterDuffColorFilter(color, porterDuffMode));
-            } else {
-                paint.setColorFilter(null);
-            }
+            paint.setColorFilter(porterDuffMode != null
+                    ? new PorterDuffColorFilter(color, porterDuffMode) : null);
+            // If the BlendMode has an equivalent PorterDuff mode, apply the corresponding
+            // PorterDuffColorFilter, otherwise remove the existing ColorFilter
+            return porterDuffMode != null;
+        } else {
+            // Passing in null removes the ColorFilter on the paint
+            paint.setColorFilter(null);
+            return true;
         }
     }
 
     @RequiresApi(29)
     @VisibleForTesting
     /* package */ static @Nullable BlendMode obtainBlendModeFromCompat(
-            @Nullable BlendModeCompat blendModeCompat) {
-        if (blendModeCompat != null) {
-            switch (blendModeCompat) {
-                case CLEAR:
-                    return BlendMode.CLEAR;
-                case SRC:
-                    return BlendMode.SRC;
-                case DST:
-                    return BlendMode.DST;
-                case SRC_OVER:
-                    return BlendMode.SRC_OVER;
-                case DST_OVER:
-                    return BlendMode.SRC_OVER;
-                case SRC_IN:
-                    return BlendMode.SRC_IN;
-                case DST_IN:
-                    return BlendMode.DST_IN;
-                case SRC_OUT:
-                    return BlendMode.SRC_OUT;
-                case DST_OUT:
-                    return BlendMode.DST_OUT;
-                case SRC_ATOP:
-                    return BlendMode.SRC_ATOP;
-                case DST_ATOP:
-                    return BlendMode.DST_ATOP;
-                case XOR:
-                    return BlendMode.XOR;
-                case PLUS:
-                    return BlendMode.PLUS;
-                case MODULATE:
-                    return BlendMode.MODULATE;
-                case SCREEN:
-                    return BlendMode.SCREEN;
-                case OVERLAY:
-                    return BlendMode.OVERLAY;
-                case DARKEN:
-                    return BlendMode.DARKEN;
-                case LIGHTEN:
-                    return BlendMode.LIGHTEN;
-                case COLOR_DODGE:
-                    return BlendMode.COLOR_DODGE;
-                case COLOR_BURN:
-                    return BlendMode.COLOR_BURN;
-                case HARD_LIGHT:
-                    return BlendMode.HARD_LIGHT;
-                case SOFT_LIGHT:
-                    return BlendMode.SOFT_LIGHT;
-                case DIFFERENCE:
-                    return BlendMode.DIFFERENCE;
-                case EXCLUSION:
-                    return BlendMode.EXCLUSION;
-                case MULTIPLY:
-                    return BlendMode.MULTIPLY;
-                case HUE:
-                    return BlendMode.HUE;
-                case SATURATION:
-                    return BlendMode.SATURATION;
-                case COLOR:
-                    return BlendMode.COLOR;
-                case LUMINOSITY:
-                    return BlendMode.LUMINOSITY;
-                default:
-                    return null;
-            }
-        } else {
-            return null;
+            @NonNull BlendModeCompat blendModeCompat) {
+        switch (blendModeCompat) {
+            case CLEAR:
+                return BlendMode.CLEAR;
+            case SRC:
+                return BlendMode.SRC;
+            case DST:
+                return BlendMode.DST;
+            case SRC_OVER:
+                return BlendMode.SRC_OVER;
+            case DST_OVER:
+                return BlendMode.SRC_OVER;
+            case SRC_IN:
+                return BlendMode.SRC_IN;
+            case DST_IN:
+                return BlendMode.DST_IN;
+            case SRC_OUT:
+                return BlendMode.SRC_OUT;
+            case DST_OUT:
+                return BlendMode.DST_OUT;
+            case SRC_ATOP:
+                return BlendMode.SRC_ATOP;
+            case DST_ATOP:
+                return BlendMode.DST_ATOP;
+            case XOR:
+                return BlendMode.XOR;
+            case PLUS:
+                return BlendMode.PLUS;
+            case MODULATE:
+                return BlendMode.MODULATE;
+            case SCREEN:
+                return BlendMode.SCREEN;
+            case OVERLAY:
+                return BlendMode.OVERLAY;
+            case DARKEN:
+                return BlendMode.DARKEN;
+            case LIGHTEN:
+                return BlendMode.LIGHTEN;
+            case COLOR_DODGE:
+                return BlendMode.COLOR_DODGE;
+            case COLOR_BURN:
+                return BlendMode.COLOR_BURN;
+            case HARD_LIGHT:
+                return BlendMode.HARD_LIGHT;
+            case SOFT_LIGHT:
+                return BlendMode.SOFT_LIGHT;
+            case DIFFERENCE:
+                return BlendMode.DIFFERENCE;
+            case EXCLUSION:
+                return BlendMode.EXCLUSION;
+            case MULTIPLY:
+                return BlendMode.MULTIPLY;
+            case HUE:
+                return BlendMode.HUE;
+            case SATURATION:
+                return BlendMode.SATURATION;
+            case COLOR:
+                return BlendMode.COLOR;
+            case LUMINOSITY:
+                return BlendMode.LUMINOSITY;
+            default:
+                return null;
         }
     }
 

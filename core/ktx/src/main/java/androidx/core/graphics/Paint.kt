@@ -24,8 +24,8 @@ import androidx.annotation.ColorInt
  * compatible way. This method is a no-op for BlendModes that have no equivalent
  * on older API levels
  */
-inline fun Paint.setBlendMode(blendModeCompat: BlendModeCompat?) {
-    PaintCompat.setBlendMode(this, blendModeCompat)
+inline fun Paint.setBlendMode(blendModeCompat: BlendModeCompat?): Boolean {
+    return PaintCompat.setBlendMode(this, blendModeCompat)
 }
 
 /**
@@ -40,6 +40,6 @@ inline fun Paint.setBlendMode(blendModeCompat: BlendModeCompat?) {
 inline fun Paint.setBlendModeColorFilter(
     @ColorInt color: Int,
     blendModeCompat: BlendModeCompat?
-) {
-    PaintCompat.setBlendModeColorFilter(this, color, blendModeCompat)
+): Boolean {
+    return PaintCompat.setBlendModeColorFilter(this, color, blendModeCompat)
 }

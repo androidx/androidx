@@ -120,7 +120,7 @@ public class PaintTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     public void testNullBlendModeRemovesBlendModeColorFilter() {
         Paint p = new Paint();
-        PaintCompat.setBlendModeColorFilter(p, Color.RED, BlendModeCompat.CLEAR);
+        assertTrue(PaintCompat.setBlendModeColorFilter(p, Color.RED, BlendModeCompat.CLEAR));
         ColorFilter filter = p.getColorFilter();
         assertTrue(filter instanceof BlendModeColorFilter);
 
@@ -132,7 +132,7 @@ public class PaintTest {
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.P)
     public void testNullBlendModeRemovesPorterDuffColorFilter() {
         Paint p = new Paint();
-        PaintCompat.setBlendModeColorFilter(p, Color.RED, BlendModeCompat.CLEAR);
+        assertTrue(PaintCompat.setBlendModeColorFilter(p, Color.RED, BlendModeCompat.CLEAR));
         ColorFilter filter = p.getColorFilter();
         assertTrue(filter instanceof PorterDuffColorFilter);
 
@@ -144,10 +144,10 @@ public class PaintTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     public void testNullBlendModeRemovesBlendMode() {
         Paint p = new Paint();
-        PaintCompat.setBlendMode(p, BlendModeCompat.CLEAR);
+        assertTrue(PaintCompat.setBlendMode(p, BlendModeCompat.CLEAR));
         assertEquals(BlendMode.CLEAR, p.getBlendMode());
 
-        PaintCompat.setBlendMode(p, null);
+        assertTrue(PaintCompat.setBlendMode(p, null));
         assertNull(p.getBlendMode());
     }
 
@@ -156,7 +156,7 @@ public class PaintTest {
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.P)
     public void testNullBlendModeRemovesXfermode() {
         Paint p = new Paint();
-        PaintCompat.setBlendMode(p, BlendModeCompat.CLEAR);
+        assertTrue(PaintCompat.setBlendMode(p, BlendModeCompat.CLEAR));
         verifyPorterDuffMatchesCompat(BlendModeCompat.CLEAR, PorterDuff.Mode.CLEAR);
 
         verifyPorterDuffMatchesCompat(null, null);
@@ -183,12 +183,29 @@ public class PaintTest {
     private void verifyPorterDuffMatchesCompat(@Nullable BlendModeCompat compat,
                                                @Nullable PorterDuff.Mode mode) {
         Paint p = new Paint();
-        PaintCompat.setBlendMode(p, compat);
+        boolean result = PaintCompat.setBlendMode(p, compat);
+        if (compat != null && mode == null) {
+            // If there is not a compatible PorterDuff mode for this BlendMode, configuration
+            // of the blend mode should return false
+            assertTrue(!result);
+        } else if (compat != null) {
+            // .. otherwise if there is a corresponding PorterDuff mode with the given BlendMode
+            // then the assignment should complete successfully
+            assertTrue(result);
+        } else if (mode == null) {
+            // If null is provided, then the assignment should complete successfully and the
+            // default blending algorithm will be utilized on the paint
+            assertTrue(result);
+        }
+
         // Fields on PorterDuffXfermode are private, so verify the mapping helper method is correct
         // and the resultant Xfermode returned from Paint#getXfermode is an instance of
         // PorterDuffXferMode
         Xfermode xfermode = p.getXfermode();
-        assertEquals(mode, PaintCompat.obtainPorterDuffFromCompat(compat));
+        if (compat != null) {
+            assertEquals(mode, PaintCompat.obtainPorterDuffFromCompat(compat));
+        }
+
         if (mode != null) {
             assertTrue(xfermode instanceof PorterDuffXfermode);
         } else {
