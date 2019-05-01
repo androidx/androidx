@@ -29,7 +29,7 @@ import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.test.UiTestRunner
 import com.google.r4a.Composable
-import com.google.r4a.composeInto
+import com.google.r4a.setContent
 import org.junit.Before
 import org.junit.Rule
 import java.util.concurrent.CountDownLatch
@@ -114,7 +114,7 @@ open class AndroidUiTestRunner : UiTestRunner {
         val drawLatch = CountDownLatch(1)
         val runnable: Runnable = object : Runnable {
             override fun run() {
-                activity.composeInto(composable)
+                activity.setContent(composable)
             }
         }
         activityTestRule.runOnUiThread(runnable)

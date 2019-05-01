@@ -44,8 +44,8 @@ import androidx.ui.painting.Paint
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.Model
-import com.google.r4a.composeInto
 import com.google.r4a.composer
+import com.google.r4a.setContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -143,7 +143,7 @@ class AndroidLayoutDrawTest {
         val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = green)
 
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     <Padding size=(model.size * 3)>
                         <Draw> canvas, parentSize ->
@@ -183,7 +183,7 @@ class AndroidLayoutDrawTest {
         val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = white)
 
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     <Layout children={
                         <Padding size=(model.size * 3)>
@@ -223,7 +223,7 @@ class AndroidLayoutDrawTest {
         val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = white)
 
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     <Draw> canvas, parentSize ->
                         // Fill the space with the outerColor
@@ -272,7 +272,7 @@ class AndroidLayoutDrawTest {
         val firstChildConstraints = Ref<Constraints>()
         val secondChildConstraints = Ref<Constraints>()
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     <WithConstraints> constraints ->
                         topConstraints.value = constraints
@@ -321,7 +321,7 @@ class AndroidLayoutDrawTest {
         val footerChildrenCount = 2
 
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     val header = @Composable {
                         <Layout layoutBlock={ _, constraints ->
@@ -356,7 +356,7 @@ class AndroidLayoutDrawTest {
     @Test
     fun multiChildLayoutTest_doesNotOverrideChildrenParentData() {
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     val header = @Composable {
                         <ParentData data=0>
@@ -389,7 +389,7 @@ class AndroidLayoutDrawTest {
         var layoutCalls = 0
 
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     <Draw> canvas, parentSize ->
                         val paint = Paint()
@@ -485,7 +485,7 @@ class AndroidLayoutDrawTest {
         val drawn = Array(childrenCount) { Ref<Boolean?>() }
         val latch = CountDownLatch(3)
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     <Align>
                         <FixedSizeRow width=90.ipx height=40.ipx>
@@ -523,7 +523,7 @@ class AndroidLayoutDrawTest {
 
     private fun composeSquares(model: SquareModel) {
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     <Draw> canvas, parentSize ->
                         val paint = Paint()
@@ -547,7 +547,7 @@ class AndroidLayoutDrawTest {
 
     private fun composeNestedSquares(model: SquareModel) {
         runOnUiThread {
-            activity.composeInto {
+            activity.setContent {
                 <CraneWrapper>
                     <Draw children=@Composable {
                         <AtLeastSize size=(model.size * 3)>

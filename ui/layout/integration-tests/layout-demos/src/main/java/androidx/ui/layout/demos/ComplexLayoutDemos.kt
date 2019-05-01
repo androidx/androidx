@@ -51,6 +51,7 @@ import com.google.r4a.composer
 import com.google.r4a.effectOf
 import com.google.r4a.memo
 import com.google.r4a.onCommit
+import com.google.r4a.state
 import com.google.r4a.unaryPlus
 
 /**
