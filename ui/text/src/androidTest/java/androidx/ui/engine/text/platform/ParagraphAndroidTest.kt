@@ -1,4 +1,4 @@
-package androidx.ui.port.engine.text.platform
+package androidx.ui.engine.text.platform
 
 import android.graphics.Paint
 import android.text.TextPaint
@@ -26,25 +26,23 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
+import androidx.ui.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDecoration
+import androidx.ui.engine.text.TextGeometricTransform
+import androidx.ui.engine.text.TextIndent
 import androidx.ui.engine.text.TextStyle
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
-import androidx.ui.engine.text.platform.ParagraphAndroid
-import androidx.ui.engine.text.platform.TypefaceAdapter
 import androidx.ui.engine.window.Locale
-import androidx.ui.painting.Color
-import androidx.ui.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
-import androidx.ui.engine.text.TextGeometricTransform
-import androidx.ui.engine.text.TextIndent
 import androidx.ui.matchers.equalToBitmap
 import androidx.ui.matchers.hasSpan
 import androidx.ui.matchers.hasSpanOnTop
 import androidx.ui.matchers.notHasSpan
+import androidx.ui.painting.Color
 import androidx.ui.painting.Shadow
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq

@@ -170,7 +170,7 @@ fun Row(
     mainAxisAlignment: Int = MainAxisAlignment.Start,
     mainAxisSize: Int = MainAxisSize.Max,
     crossAxisAlignment: Int = CrossAxisAlignment.Center,
-    @Children block: () -> Unit
+    @Children block: @Composable() () -> Unit
 ) {
     <FlexRow mainAxisAlignment mainAxisSize crossAxisAlignment>
         inflexible {
@@ -195,7 +195,7 @@ fun Column(
     mainAxisAlignment: Int = MainAxisAlignment.Start,
     mainAxisSize: Int = MainAxisSize.Max,
     crossAxisAlignment: Int = CrossAxisAlignment.Center,
-    @Children block: () -> Unit
+    @Children block: @Composable() () -> Unit
 ) {
     <FlexColumn mainAxisAlignment mainAxisSize crossAxisAlignment>
         inflexible {

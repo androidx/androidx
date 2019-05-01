@@ -24,7 +24,6 @@ import com.google.r4a.ambient
 import com.google.r4a.composer
 import com.google.r4a.compositionReference
 import com.google.r4a.memo
-import com.google.r4a.onCommit
 import com.google.r4a.onPreCommit
 import com.google.r4a.unaryPlus
 
@@ -539,7 +538,7 @@ fun OnPositioned(
 @Composable
 fun OnChildPositioned(
     onPositioned: (coordinates: LayoutCoordinates) -> Unit,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     val coordinatesCallbacks = +ambient(OnChildPositionedAmbient)
     +onPreCommit(onPositioned) {

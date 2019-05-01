@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.port.rendering
+package androidx.ui.rendering.paragraph
 
 import android.graphics.Bitmap
 import androidx.test.filters.SmallTest
@@ -34,8 +34,6 @@ import androidx.ui.painting.Path
 import androidx.ui.painting.PathOperation
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
-import androidx.ui.rendering.paragraph.RenderParagraph
-import androidx.ui.rendering.paragraph.TextOverflow
 import androidx.ui.services.text_editing.TextSelection
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert

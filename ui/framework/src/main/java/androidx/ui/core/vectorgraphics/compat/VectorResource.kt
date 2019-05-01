@@ -84,7 +84,7 @@ private fun inflateGroup(
     a: TypedArray,
     parser: XmlPullParser,
     @Suppress("UNUSED_PARAMETER") theme: Resources.Theme?,
-    @Children childNodes: () -> Unit
+    @Children childNodes: @Composable() () -> Unit
 ) {
     // Account for any configuration changes.
     // mChangingConfigurations |= Utils.getChangingConfigurations(a);
@@ -160,7 +160,7 @@ private fun inflateClip(
     a: TypedArray,
     parser: XmlPullParser,
     theme: Resources.Theme?,
-    @Children childNodes: () -> Unit
+    @Children childNodes: @Composable() () -> Unit
 ) {
 //    var pathName: String? =
 //        a.getString(AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_NAME)

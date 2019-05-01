@@ -435,7 +435,11 @@ class AndroidLayoutDrawTest {
     @Test
     fun testLayout_whenMeasuringIsDoneDuringPlacing() {
         @Composable
-        fun FixedSizeRow(width: IntPx, height: IntPx, @Children children: () -> Unit) {
+        fun FixedSizeRow(
+            width: IntPx,
+            height: IntPx,
+            @Children children: @Composable() () -> Unit
+        ) {
             <Layout children> measurables, constraints ->
                 val resolvedWidth = width.coerceIn(constraints.minWidth, constraints.maxWidth)
                 val resolvedHeight = height.coerceIn(constraints.minHeight, constraints.maxHeight)

@@ -61,7 +61,7 @@ fun Container(
     constraints: DpConstraints = DpConstraints(),
     width: Dp? = null,
     height: Dp? = null,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     <Layout children> measurables, incomingConstraints ->
         val containerConstraints = Constraints(constraints)

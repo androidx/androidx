@@ -58,7 +58,7 @@ fun MaterialTheme(
     colors: MaterialColors = MaterialColors(),
     typography: MaterialTypography = MaterialTypography(),
     @Children
-    children: () -> Unit
+    children: @Composable() () -> Unit
 ) {
     <Colors.Provider value=colors>
         <Typography.Provider value=typography>
@@ -224,7 +224,7 @@ data class MaterialTypography(
  * guidelines for descendants
  */
 @Composable
-fun MaterialRippleTheme(@Children children: () -> Unit) {
+fun MaterialRippleTheme(@Children children: @Composable() () -> Unit) {
     val materialColors = +ambient(Colors)
     val defaultTheme = RippleTheme(
         factory = DefaultRippleEffectFactory,
@@ -296,7 +296,7 @@ val CurrentShapeAmbient = Ambient.of<Shapes> {
  * Applies the default [ShapeBorder]s for all the surfaces.
  */
 @Composable
-fun MaterialButtonShapeTheme(@Children children: () -> Unit) {
+fun MaterialButtonShapeTheme(@Children children: @Composable() () -> Unit) {
     val value = +withDensity {
         Shapes(
             button = RoundedRectangleBorder(

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.port.engine.text.platform
+package androidx.ui.engine.text.platform
 
 import android.content.Context
 import android.graphics.Typeface
@@ -23,12 +23,6 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
-import androidx.ui.engine.text.FontWeight
-import androidx.ui.engine.text.font.Font
-import androidx.ui.engine.text.font.FontFamily
-import androidx.ui.engine.text.font.FontMatcher
-import androidx.ui.engine.text.font.asFontFamily
-import androidx.ui.engine.text.platform.TypefaceAdapter
 import androidx.ui.engine.text.FontTestData.Companion.FONT_100_ITALIC
 import androidx.ui.engine.text.FontTestData.Companion.FONT_100_REGULAR
 import androidx.ui.engine.text.FontTestData.Companion.FONT_200_ITALIC
@@ -47,6 +41,11 @@ import androidx.ui.engine.text.FontTestData.Companion.FONT_800_ITALIC
 import androidx.ui.engine.text.FontTestData.Companion.FONT_800_REGULAR
 import androidx.ui.engine.text.FontTestData.Companion.FONT_900_ITALIC
 import androidx.ui.engine.text.FontTestData.Companion.FONT_900_REGULAR
+import androidx.ui.engine.text.FontWeight
+import androidx.ui.engine.text.font.Font
+import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.engine.text.font.FontMatcher
+import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.matchers.equalToBitmap
 import androidx.ui.matchers.isTypefaceOf
 import com.google.common.truth.Truth.assertThat
@@ -352,7 +351,7 @@ class TypefaceAdapterTest {
         // therefore return the same typeface
         val otherTypeface = typefaceAdapter.create()
 
-        assertThat(typeface).isSameAs(otherTypeface)
+        assertThat(typeface).isSameInstanceAs(otherTypeface)
     }
 
     @Test
@@ -364,7 +363,7 @@ class TypefaceAdapterTest {
         // therefore return some other typeface
         val otherTypeface = typefaceAdapter.create(fontWeight = FontWeight.bold)
 
-        assertThat(typeface).isNotSameAs(otherTypeface)
+        assertThat(typeface).isNotSameInstanceAs(otherTypeface)
     }
 
     @Test
@@ -374,7 +373,7 @@ class TypefaceAdapterTest {
         val typeface = typefaceAdapter.create(fontStyle = FontStyle.normal)
         val otherTypeface = typefaceAdapter.create(fontStyle = FontStyle.italic)
 
-        assertThat(typeface).isNotSameAs(otherTypeface)
+        assertThat(typeface).isNotSameInstanceAs(otherTypeface)
     }
 
     @Test
@@ -387,7 +386,7 @@ class TypefaceAdapterTest {
         val typeface = typefaceAdapter.create(fontFamily, fontWeight, fontStyle)
         val otherTypeface = typefaceAdapter.create(fontFamily, fontWeight, fontStyle)
 
-        assertThat(typeface).isSameAs(otherTypeface)
+        assertThat(typeface).isSameInstanceAs(otherTypeface)
     }
 
     @Test
@@ -399,9 +398,9 @@ class TypefaceAdapterTest {
         val sansTypeface = typefaceAdapter.create(FontFamily("sans-serif"))
         val otherSansTypeface = typefaceAdapter.create(FontFamily("sans-serif"))
 
-        assertThat(serifTypeface).isSameAs(otherSerifTypeface)
-        assertThat(sansTypeface).isSameAs(otherSansTypeface)
-        assertThat(sansTypeface).isNotSameAs(serifTypeface)
+        assertThat(serifTypeface).isSameInstanceAs(otherSerifTypeface)
+        assertThat(sansTypeface).isSameInstanceAs(otherSansTypeface)
+        assertThat(sansTypeface).isNotSameInstanceAs(serifTypeface)
     }
 
     @Test(expected = IllegalStateException::class)
