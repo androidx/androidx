@@ -21,7 +21,7 @@ import android.hardware.camera2.CameraCharacteristics;
 /**
  * Provides abstract methods that the OEM needs to implement to enable extensions in the preview.
  */
-public interface PreviewExtenderImpl {
+public interface PreviewExtenderImpl extends ExtenderStateListener {
     /** The different types of the preview processing. */
     enum ProcessorType {
         /** Processing which only updates the {@link CaptureStageImpl}. */

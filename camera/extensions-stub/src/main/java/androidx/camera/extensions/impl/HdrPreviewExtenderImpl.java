@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions.impl;
 
+import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 
 /**
@@ -50,6 +51,32 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
 
     @Override
     public RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
+            Context context) {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public void onDeInit() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public CaptureStageImpl onPresetSession() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public CaptureStageImpl onEnableSession() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public CaptureStageImpl onDisableSession() {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 }
