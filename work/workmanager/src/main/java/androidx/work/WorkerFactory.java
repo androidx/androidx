@@ -39,6 +39,10 @@ public abstract class WorkerFactory {
      * Override this method to implement your custom worker-creation logic.  Use
      * {@link Configuration.Builder#setWorkerFactory(WorkerFactory)} to use your custom class.
      * <p></p>
+     * Throwing an {@link Exception} here will crash the application. If a {@link WorkerFactory}
+     * is unable to create an instance of the {@link ListenableWorker}, it should return {@code
+     * null} so it can delegate to the default {@link WorkerFactory}.
+     * <p></p>
      * Returns a new instance of the specified {@code workerClassName} given the arguments.  The
      * returned worker should be a newly-created instance and must not have been previously returned
      * or used by WorkManager.
