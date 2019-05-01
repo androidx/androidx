@@ -16,17 +16,17 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
+import androidx.ui.baseui.Clickable
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Density
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Px
 import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
-import androidx.ui.core.Semantics
+import androidx.ui.core.TestTag
 import androidx.ui.core.dp
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BoxShape
@@ -94,23 +94,23 @@ class RippleEffectTest : AndroidUiTestRunner() {
 
         val padding = 10.dp
         setContent {
-            // TODO
-            <CraneWrapper>
-                <MaterialTheme>
-                    <CurrentRippleTheme.Provider value=RippleTheme(factory, colorCallback)>
-                        <Card>
-                            <Padding padding=EdgeInsets(padding)>
-                                <Semantics testTag="ripple">
-                                    <BoundedRipple>
-                                        <Container>
-                                        </Container>
-                                    </BoundedRipple>
-                                </Semantics>
-                            </Padding>
-                        </Card>
-                    </CurrentRippleTheme.Provider>
-                </MaterialTheme>
-            </CraneWrapper>
+            CraneWrapper {
+                MaterialTheme {
+                    CurrentRippleTheme.Provider(value = RippleTheme(factory, colorCallback)) {
+                        Card {
+                            Padding(padding = padding) {
+                                TestTag(tag = "ripple") {
+                                    BoundedRipple {
+                                        Clickable(onClick = {}) {
+                                            Container {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         findByTag("ripple")
