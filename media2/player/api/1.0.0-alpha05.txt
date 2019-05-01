@@ -58,8 +58,8 @@ package androidx.media2.player {
     field public static final int MEDIA_INFO_AUDIO_NOT_PLAYING = 804; // 0x324
     field public static final int MEDIA_INFO_BAD_INTERLEAVING = 800; // 0x320
     field public static final int MEDIA_INFO_BUFFERING_UPDATE = 704; // 0x2c0
+    field public static final int MEDIA_INFO_METADATA_UPDATE = 802; // 0x322
     field public static final int MEDIA_INFO_NOT_SEEKABLE = 801; // 0x321
-    field public static final int MEDIA_INFO_PREPARED = 100; // 0x64
     field public static final int MEDIA_INFO_VIDEO_NOT_PLAYING = 805; // 0x325
     field public static final int MEDIA_INFO_VIDEO_RENDERING_START = 3; // 0x3
     field public static final int MEDIA_INFO_VIDEO_TRACK_LAGGING = 700; // 0x2bc
@@ -116,7 +116,7 @@ package androidx.media2.player {
     ctor public PlaybackParams.Builder(androidx.media2.player.PlaybackParams);
     method public androidx.media2.player.PlaybackParams build();
     method public androidx.media2.player.PlaybackParams.Builder setAudioFallbackMode(int);
-    method public androidx.media2.player.PlaybackParams.Builder setPitch(@FloatRange(from=0.0f, to=java.lang.Float.MAX_VALUE) float);
+    method public androidx.media2.player.PlaybackParams.Builder setPitch(@FloatRange(from=0.0f, to=java.lang.Float.MAX_VALUE, fromInclusive=false) float);
     method public androidx.media2.player.PlaybackParams.Builder setSpeed(@FloatRange(from=0.0f, to=java.lang.Float.MAX_VALUE, fromInclusive=false) float);
   }
 
@@ -126,6 +126,7 @@ package androidx.media2.player {
   }
 
   public final class VideoSize {
+    ctor public VideoSize(int, int);
     method public int getHeight();
     method public int getWidth();
   }
