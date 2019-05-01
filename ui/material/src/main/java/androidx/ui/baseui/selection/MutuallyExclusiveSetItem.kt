@@ -35,13 +35,13 @@ import com.google.r4a.composer
 fun MutuallyExclusiveSetItem(
     selected: Boolean,
     onSelected: () -> Unit,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
-    <PressGestureDetector onPress={ onSelected() }>
-        <Semantics
-            inMutuallyExclusiveGroup=true
-            selected=selected>
-            <children />
-        </Semantics>
-    </PressGestureDetector>
+    PressGestureDetector(onPress = { onSelected() }) {
+        Semantics(
+            inMutuallyExclusiveGroup = true,
+            selected = selected) {
+            children()
+        }
+    }
 }

@@ -26,11 +26,11 @@ import androidx.ui.core.changedToUp
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
 import com.google.r4a.Children
-import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
+import com.google.r4a.memo
+import com.google.r4a.unaryPlus
 
-// TODO(shepshapard): Convert to functional component with effects once effects are ready.
 /**
  * This gesture detector has a callback for when a press gesture being released for the purposes of
  * firing an event in response to something like a button being pressed.
@@ -48,26 +48,18 @@ import com.google.r4a.composer
  * [PointerEventPass.PostUp] pass if it has not already been consumed. That behavior can be changed
  * via [consumeDownOnStart].
  */
-class PressReleasedGestureDetector(
-    @Children var children: @Composable() () -> Unit
-) : Component() {
-    private val recognizer = PressReleaseGestureRecognizer()
-    var onRelease: (() -> Unit)?
-        get() = recognizer.onRelease
-        set(value) {
-            recognizer.onRelease = value
-        }
-    var consumeDownOnStart
-        get() = recognizer.consumeDownOnStart
-        set(value) {
-            recognizer.consumeDownOnStart = value
-        }
-
-    override fun compose() {
-        <PointerInput pointerInputHandler=recognizer.pointerInputHandler>
-            <children />
-        </PointerInput>
-    }
+@Composable
+fun PressReleasedGestureDetector(
+    onRelease: (() -> Unit)? = null,
+    consumeDownOnStart: Boolean = true,
+    @Children children: @Composable() () -> Unit
+) {
+    val recognizer = +memo { PressReleaseGestureRecognizer() }
+    recognizer.onRelease = onRelease
+    recognizer.consumeDownOnStart = consumeDownOnStart
+    <PointerInput pointerInputHandler=recognizer.pointerInputHandler>
+        <children />
+    </PointerInput>
 }
 
 internal class PressReleaseGestureRecognizer {

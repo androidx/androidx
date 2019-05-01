@@ -36,7 +36,7 @@ val rallyPurple = Color(0xFFB15DFF.toInt())
 val rallyBlue = Color(0xFF72DEFF.toInt())
 
 @Composable
-fun RallyTheme(@Children children: () -> Unit) {
+fun RallyTheme(@Children children: @Composable() () -> Unit) {
     val colors = MaterialColors(
         primary = rallyGreen,
         surface = Color(0xFF26282F.toInt()),
@@ -84,11 +84,11 @@ fun RallyTheme(@Children children: () -> Unit) {
             fontSize = 10f)
 
     )
-    <MaterialTheme colors typography>
+    MaterialTheme(colors = colors, typography = typography) {
         // TODO: remove this when surface auto-sets the text color
         val value = TextStyle(color = Color(0xFFFFFFFF.toInt()))
-        <CurrentTextStyleProvider value>
-            <children />
-        </CurrentTextStyleProvider>
-    </MaterialTheme>
+        CurrentTextStyleProvider(value = value) {
+            children()
+        }
+    }
 }

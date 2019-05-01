@@ -80,29 +80,29 @@ fun Surface(
     shape: ShapeBorder = RoundedRectangleBorder(),
     color: Color? = null,
     elevation: Dp = 0.dp,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     val finalColor = +color.orFromTheme { surface }
-    <SurfaceLayout>
-        <CachingClipper
-            clipper=ShapeBorderClipper(shape)> clipper ->
-            <DrawShadow elevation clipper />
-            <ClipPath clipper>
-                <DrawColor color=finalColor />
-                <RippleSurface color=finalColor>
+    SurfaceLayout {
+        CachingClipper(
+            clipper = ShapeBorderClipper(shape)) { clipper ->
+            DrawShadow(elevation = elevation, clipper = clipper)
+            ClipPath(clipper = clipper) {
+                DrawColor(color = finalColor)
+                RippleSurface(color = finalColor) {
                     val textColor = +textColorForBackground(finalColor)
                     if (textColor != null) {
-                        <CurrentTextStyleProvider value=TextStyle(color = textColor)>
-                            <children />
-                        </CurrentTextStyleProvider>
+                        CurrentTextStyleProvider(value = TextStyle(color = textColor)) {
+                            children()
+                        }
                     } else {
-                        <children />
+                        children()
                     }
-                </RippleSurface>
-            </ClipPath>
-        </CachingClipper>
-        <DrawBorder shape />
-    </SurfaceLayout>
+                }
+            }
+        }
+        DrawBorder(shape = shape)
+    }
 }
 
 /**
@@ -112,8 +112,8 @@ fun Surface(
  * TODO("Andrey: Should be replaced with some basic layout implementation when we have it")
  */
 @Composable
-private fun SurfaceLayout(@Children children: () -> Unit) {
-    <Layout children layoutBlock={ measurables, constraints ->
+private fun SurfaceLayout(@Children children: @Composable() () -> Unit) {
+    Layout(children = children, layoutBlock = { measurables, constraints ->
         if (measurables.size > 1) {
             throw IllegalStateException("Surface can have only one direct measurable child!")
         }
@@ -126,5 +126,5 @@ private fun SurfaceLayout(@Children children: () -> Unit) {
                 placeable.place(0.ipx, 0.ipx)
             }
         }
-    } />
+    })
 }

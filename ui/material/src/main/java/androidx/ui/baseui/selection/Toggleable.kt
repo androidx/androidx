@@ -28,7 +28,7 @@ import com.google.r4a.composer
 fun Toggleable(
     value: ToggleableState = ToggleableState.Checked,
     onToggle: (() -> Unit)? = null,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     val actions = if (onToggle != null) {
         listOf(SemanticsAction(SemanticsActionType.Tap, onToggle))
@@ -36,14 +36,15 @@ fun Toggleable(
         emptyList()
     }
     // TODO should we use PressReleasedGestureDetector?
-    <PressGestureDetector onRelease=onToggle>
+    PressGestureDetector(onRelease = onToggle) {
         // TODO: enabled should not be hardcoded
         // TODO(pavlis): Semantics currently doesn't support 4 states (only checked / unchecked / not checkable).
-        <Semantics
-            checked=(value == ToggleableState.Checked)
-            enabled=true
-            actions>
-            <children />
-        </Semantics>
-    </PressGestureDetector>
+        Semantics(
+            checked = (value == ToggleableState.Checked),
+            enabled = true,
+            actions = actions
+        ) {
+            children()
+        }
+    }
 }

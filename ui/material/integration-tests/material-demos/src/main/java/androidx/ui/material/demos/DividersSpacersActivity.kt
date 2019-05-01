@@ -28,11 +28,11 @@ class DividersSpacersActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <DividersDemo />
-                </MaterialTheme>
-            </CraneWrapper>
+            CraneWrapper {
+                MaterialTheme {
+                    DividersDemo()
+                }
+            }
         }
     }
 }

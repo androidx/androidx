@@ -74,16 +74,16 @@ fun BoundedRipple(
      * slightly more efficient).
      */
     boundsCallback: ((LayoutCoordinates) -> PxBounds)? = null,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
-    <Ripple
-        shape=BoxShape.Rectangle
-        bounded=true
-        onHighlightChanged
-        finalRadius
-        clippingBorderRadius
-        boundsCallback
-    >
-        <children />
-    </Ripple>
+    Ripple(
+        shape = BoxShape.Rectangle,
+        bounded = true,
+        onHighlightChanged = onHighlightChanged,
+        finalRadius = finalRadius,
+        clippingBorderRadius = clippingBorderRadius,
+        boundsCallback = boundsCallback
+        ) {
+        children()
+    }
 }

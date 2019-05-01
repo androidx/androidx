@@ -40,7 +40,7 @@ fun DrawShadow(
     clipper: CustomClipper<Path>
 ) {
     if (elevation != 0.dp) {
-        <Draw> _, _ ->
+        Draw { _, _ ->
             TODO("Migration|Andrey: Needs canvas.drawShadow. b/123215187")
 //            canvas.drawShadow(
 //                clipper.getClip(parentSize, density),
@@ -48,6 +48,6 @@ fun DrawShadow(
 //                elevation,
 //                color.alpha != 0xFF
 //            )
-        </Draw>
+        }
     }
 }

@@ -29,12 +29,12 @@ import com.google.r4a.composer
  */
 @Composable
 fun DrawBorder(shape: ShapeBorder) {
-    <Draw> canvas, parentSize ->
+    Draw { canvas, parentSize ->
         shape.paint(
             canvas,
             density,
             parentSize.toRect(),
             null
         )
-    </Draw>
+    }
 }

@@ -36,7 +36,7 @@ import com.google.r4a.composer
 @Composable
 fun ClipPath(
     clipper: CustomClipper<Path>,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
 // TODO("Andrey: We will need a mechanism to only allow taps within the clip path")
 //    override fun hitTest(result: HitTestResult, position: Offset): Boolean {
@@ -49,12 +49,12 @@ fun ClipPath(
 //        }
 //        return super.hitTest(result, position = position)
 //    }
-    <Draw> canvas, parentSize ->
+    Draw { canvas, parentSize ->
         canvas.save()
         canvas.clipPath(clipper.getClip(parentSize, density))
-    </Draw>
-    <children />
-    <Draw> canvas, _ ->
+    }
+    children()
+    Draw { canvas, _ ->
         canvas.restore()
-    </Draw>
+    }
 }

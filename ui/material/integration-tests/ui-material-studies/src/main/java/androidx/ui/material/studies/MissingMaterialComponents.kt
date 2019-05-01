@@ -31,15 +31,15 @@ import com.google.r4a.unaryPlus
  */
 
 @Composable
-fun Scaffold(appBar: @Composable() () -> Unit, @Children children: () -> Unit) {
-    <FlexColumn>
+fun Scaffold(appBar: @Composable() () -> Unit, @Children children: @Composable() () -> Unit) {
+    FlexColumn {
         inflexible {
-            <appBar />
+            appBar()
         }
         expanded(flex = 1.0f) {
-            <Surface color=+themeColor { surface }>
-                <children />
-            </Surface>
+            Surface(color = +themeColor{ surface }) {
+                children()
+            }
         }
-    </FlexColumn>
+    }
 }

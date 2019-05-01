@@ -25,6 +25,7 @@ import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
+import androidx.ui.core.Layout
 import androidx.ui.core.PxSize
 import androidx.ui.core.Text
 import androidx.ui.core.dp
@@ -59,25 +60,25 @@ import com.google.r4a.unaryPlus
  *
  * Typical children for RadioGroup will be [RadioGroupScope.RadioGroupItem] and following usage:
  *
- *     <RadioGroup>
- *         <Column> options.forEach { item ->
- *             <RadioGroupTextItem text=item.toString() selected=... onSelected={...}/>
+ *     RadioGroup {
+ *         Column { options.forEach { item ->
+ *             RadioGroupTextItem(text = item.toString(), selected = ..., onSelected = { ... })
  *         }
- *         </Column>
- *     </RadioGroup>
+ *         }
+ *     }
  *
  * If you want a simplified version with [Column] of [RadioGroupScope.RadioGroupTextItem],
  * consider using version that accepts list of [String] options and doesn't require any children:
  *
- *     <RadioGroup
- *         options=listOfOption
- *         selectedOption=...
- *         onOptionSelected={...}/>
+ *     RadioGroup(
+ *         options = listOfOption,
+ *         selectedOption = ...,
+ *         onOptionSelected = { ... })
  */
 @Composable
 fun RadioGroup(@Children children: RadioGroupScope.() -> Unit) {
     val scope = +memo { RadioGroupScope() }
-    <children p1=scope />
+    children(p1 = scope)
 }
 
 /**
@@ -105,17 +106,19 @@ fun RadioGroup(
     radioColor: Color? = null,
     textStyle: TextStyle? = null
 ) {
-    <RadioGroup>
-        <Column mainAxisSize=MainAxisSize.Min> options.forEach { text ->
-            <RadioGroupTextItem
-                selected=(text == selectedOption)
-                onSelected={ onOptionSelected(text) }
-                text
-                radioColor
-                textStyle />
+    RadioGroup {
+        Column(mainAxisSize = MainAxisSize.Min) {
+            options.forEach { text ->
+                RadioGroupTextItem(
+                    selected = (text == selectedOption),
+                    onSelected = { onOptionSelected(text) },
+                    text = text,
+                    radioColor = radioColor,
+                    textStyle = textStyle
+                )
+            }
         }
-        </Column>
-    </RadioGroup>
+    }
 }
 
 class RadioGroupScope internal constructor() {
@@ -137,13 +140,13 @@ class RadioGroupScope internal constructor() {
     fun RadioGroupItem(
         selected: Boolean,
         onSelected: () -> Unit,
-        @Children children: () -> Unit
+        @Children children: @Composable() () -> Unit
     ) {
-        <MutuallyExclusiveSetItem
-            selected
-            onSelected={ if (!selected) onSelected() }>
-            <children />
-        </MutuallyExclusiveSetItem>
+        MutuallyExclusiveSetItem(
+            selected = selected,
+            onSelected = { if (!selected) onSelected() }) {
+            children()
+        }
     }
 
     /**
@@ -169,18 +172,18 @@ class RadioGroupScope internal constructor() {
         radioColor: Color? = null,
         textStyle: TextStyle? = null
     ) {
-        <RadioGroupItem selected onSelected>
+        RadioGroupItem(selected = selected, onSelected = onSelected) {
             val padding =
                 EdgeInsets(top = DefaultRadioItemPadding, bottom = DefaultRadioItemPadding)
-            <Padding padding>
-                <Row mainAxisSize=MainAxisSize.Max mainAxisAlignment=MainAxisAlignment.Start>
-                    <RadioButton selected color=radioColor />
-                    <Padding left = DefaultRadioLabelOffset>
-                        <Text text style=+themeTextStyle { body1.merge(textStyle) } />
-                    </Padding>
-                </Row>
-            </Padding>
-        </RadioGroupItem>
+            Padding(padding = padding) {
+                Row(mainAxisSize = MainAxisSize.Max, mainAxisAlignment = MainAxisAlignment.Start) {
+                    RadioButton(selected = selected, color = radioColor)
+                    Padding(left = DefaultRadioLabelOffset) {
+                        Text(text = text, style = +themeTextStyle { body1.merge(textStyle) })
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -199,33 +202,34 @@ fun RadioButton(
     selected: Boolean,
     color: Color? = null
 ) {
-    <Layout children={
+    Layout(children = {
         val activeColor = +color.orFromTheme { primary }
         val definition = +memo(activeColor) {
             generateTransitionDefinition(activeColor)
         }
-        <Transition definition toState=selected> state ->
+        Transition(definition = definition, toState = selected) { state ->
+            // TODO: Convert this to FCS - currently there are some strange issues when this is FCS.
             <DrawRadioButton
                 color=state[ColorProp]
                 outerRadius=state[OuterRadiusProp]
                 innerRadius=state[InnerRadiusProp]
                 gap=state[GapProp] />
-        </Transition>
-    }> _, constraints ->
+        }
+    }, layoutBlock = { _, constraints ->
         val size = RadioRadius.toIntPx() * 2
         val w = max(constraints.minWidth, min(constraints.maxWidth, size))
         val h = max(constraints.minHeight, min(constraints.maxHeight, size))
         layout(w, h) {
             // no children to place
         }
-    </Layout>
+    })
 }
 
 @Composable
 private fun DrawRadioButton(color: Color, outerRadius: Dp, innerRadius: Dp, gap: Dp) {
-    <Draw> canvas, parentSize ->
+    Draw { canvas, parentSize ->
         drawRadio(canvas, parentSize, color, outerRadius, innerRadius, gap)
-    </Draw>
+    }
 }
 
 private fun DensityReceiver.drawRadio(

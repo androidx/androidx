@@ -44,4 +44,8 @@ android {
             useIR = true
         }
     }
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { compile ->
+        compile.kotlinOptions.freeCompilerArgs +="-P"
+        compile.kotlinOptions.freeCompilerArgs +="plugin:org.jetbrains.kotlin.r4a:syntax=FCS"
+    }
 }

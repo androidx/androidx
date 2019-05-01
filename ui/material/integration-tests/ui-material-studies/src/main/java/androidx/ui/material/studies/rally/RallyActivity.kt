@@ -40,42 +40,42 @@ class RallyActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            <CraneWrapper>
-                <RallyApp />
-            </CraneWrapper>
+            CraneWrapper {
+                RallyApp()
+            }
         }
     }
 
     @Composable
     fun RallyApp() {
-        <RallyTheme>
-            <Scaffold appBar={ <RallyAppBar /> }>
-                <RallyBody />
-            </Scaffold>
-        </RallyTheme>
+        RallyTheme {
+            Scaffold(appBar = { RallyAppBar() }) {
+                RallyBody()
+            }
+        }
     }
 
     @Composable
     fun RallyAppBar() {
         // TODO: Transform to tabs
-        <Row>
-            // <Icon />
-            <Text text="Overview" style=+themeTextStyle { h4 } />
+        Row {
+            // Icon()
+            Text(text = "Overview", style = +themeTextStyle{ h4 })
             // TODO: Other items
-        </Row>
+        }
     }
 }
 
 @Composable
 fun RallyBody() {
-    <Padding padding=16.dp>
-        <Column>
+    Padding(padding = 16.dp) {
+        Column {
             // TODO: scrolling container
-            <RallyAlertCard />
-            <HeightSpacer height=10.dp />
-            <RallyAccountsCard />
-            <HeightSpacer height=10.dp />
-            <RallyBillsCard />
-        </Column>
-    </Padding>
+            RallyAlertCard()
+            HeightSpacer(height = 10.dp)
+            RallyAccountsCard()
+            HeightSpacer(height = 10.dp)
+            RallyBillsCard()
+        }
+    }
 }

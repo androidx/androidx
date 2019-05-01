@@ -52,19 +52,19 @@ class ColoredRectUiTest : AndroidUiTestRunner() {
         val width = 40.dp
         val height = 71.dp
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Center>
-                        <Container constraints=bigConstraints>
-                            <OnChildPositioned onPositioned={ position ->
+            CraneWrapper {
+                MaterialTheme {
+                    Center {
+                        Container(constraints = bigConstraints) {
+                            OnChildPositioned(onPositioned = { position ->
                                 size = position.size
-                            }>
-                                <ColoredRect width height color />
-                            </OnChildPositioned>
-                        </Container>
-                    </Center>
-                </MaterialTheme>
-            </CraneWrapper>
+                            }) {
+                                ColoredRect(width = width, height = height, color = color)
+                            }
+                        }
+                    }
+                }
+            }
         }
         withDensity(density) {
             Truth.assertThat(size?.height?.round()).isEqualTo(height.toIntPx())
@@ -78,19 +78,19 @@ class ColoredRectUiTest : AndroidUiTestRunner() {
         val width = 40.dp
         val height = 71.dp
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Center>
-                        <Container width height>
-                            <OnChildPositioned onPositioned={ position ->
+            CraneWrapper {
+                MaterialTheme {
+                    Center {
+                        Container(width = width, height = height) {
+                            OnChildPositioned(onPositioned = { position ->
                                 size = position.size
-                            }>
-                                <ColoredRect color />
-                            </OnChildPositioned>
-                        </Container>
-                    </Center>
-                </MaterialTheme>
-            </CraneWrapper>
+                            }) {
+                                ColoredRect(color = color)
+                            }
+                        }
+                    }
+                }
+            }
         }
         withDensity(density) {
             Truth.assertThat(size?.height?.round()).isEqualTo(height.toIntPx())
@@ -102,19 +102,19 @@ class ColoredRectUiTest : AndroidUiTestRunner() {
     fun coloredRect_expand_WholeScreenSizes() {
         var size: PxSize? = null
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Center>
-                        <Container constraints=bigConstraints>
-                            <OnChildPositioned onPositioned={ position ->
+            CraneWrapper {
+                MaterialTheme {
+                    Center {
+                        Container(constraints = bigConstraints) {
+                            OnChildPositioned(onPositioned = { position ->
                                 size = position.size
-                            }>
-                                <ColoredRect color />
-                            </OnChildPositioned>
-                        </Container>
-                    </Center>
-                </MaterialTheme>
-            </CraneWrapper>
+                            }) {
+                                ColoredRect(color = color)
+                            }
+                        }
+                    }
+                }
+            }
         }
         val dm = activityTestRule.activity.resources.displayMetrics
         withDensity(density) {

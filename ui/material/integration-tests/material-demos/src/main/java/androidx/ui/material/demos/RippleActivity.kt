@@ -25,7 +25,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.ui.androidview.adapters.dp
-import androidx.ui.androidview.adapters.setPadding
+import com.google.r4a.Composable
 import com.google.r4a.composer
 import com.google.r4a.setContent
 
@@ -34,22 +34,28 @@ class RippleActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                0,
-                1f
-            )
-            val gravity = Gravity.CENTER_HORIZONTAL
-            <LinearLayout orientation=LinearLayout.VERTICAL>
-                <TextView gravity text="Crane card with ripple:" />
-                <FrameLayout layoutParams>
-                    <RippleDemo />
-                </FrameLayout>
-                <TextView gravity text="Platform button with ripple:" />
-                <FrameLayout layoutParams padding=50.dp>
-                    <Button background=getDrawable(R.drawable.ripple) />
-                </FrameLayout>
-            </LinearLayout>
+            Demo()
+        }
+    }
+
+    // TODO: move out of function directly into set content, blocked by b/131681875
+    @Composable
+    private fun Demo() {
+        val layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            0,
+            1f
+        )
+        val gravity = Gravity.CENTER_HORIZONTAL
+        LinearLayout(orientation = LinearLayout.VERTICAL) {
+            TextView(gravity = gravity, text = "Crane card with ripple:")
+            FrameLayout(layoutParams = layoutParams) {
+                RippleDemo()
+            }
+            TextView(gravity = gravity, text = "Platform button with ripple:")
+            FrameLayout(layoutParams = layoutParams, padding = 50.dp) {
+                Button(background = getDrawable(R.drawable.ripple))
+            }
         }
     }
 }

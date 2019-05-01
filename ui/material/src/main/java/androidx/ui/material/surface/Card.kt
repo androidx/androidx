@@ -44,10 +44,10 @@ fun Card(
     shape: ShapeBorder = RoundedRectangleBorder(),
     color: Color? = null,
     elevation: Dp = 0.dp,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     // TODO(Andrey: This currently adds no logic on top of Surface, I just reserve the name
     // for now. We will see what will be the additional Card specific logic later.
     // It will add the default shape with rounded corners, default 1px elevation, elevate on hover.
-    <Surface shape elevation color children />
+    Surface(shape = shape, elevation = elevation, color = color, children = children)
 }

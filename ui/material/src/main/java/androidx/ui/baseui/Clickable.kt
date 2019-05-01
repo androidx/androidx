@@ -38,21 +38,21 @@ import com.google.r4a.composer
 fun Clickable(
     onClick: (() -> Unit)? = null,
     consumeDownOnStart: Boolean = false,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
-    <Semantics
-        button=true
-        enabled=(onClick != null)
+    Semantics(
+        button=true,
+        enabled=(onClick != null),
         actions=if (onClick != null) {
             // TODO(ryanmentley): The unnecessary generic type specification works around an IR bug
             listOf<SemanticsAction<*>>(SemanticsAction(SemanticsActionType.Tap, onClick))
         } else {
             emptyList<SemanticsAction<*>>()
-        }>
-        <PressReleasedGestureDetector
-            onRelease=onClick
-            consumeDownOnStart>
-            <children />
-        </PressReleasedGestureDetector>
-    </Semantics>
+        }) {
+        PressReleasedGestureDetector(
+            onRelease = onClick,
+            consumeDownOnStart = consumeDownOnStart) {
+            children()
+        }
+    }
 }

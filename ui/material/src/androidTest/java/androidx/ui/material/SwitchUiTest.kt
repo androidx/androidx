@@ -56,18 +56,18 @@ class SwitchUiTest : AndroidUiTestRunner() {
     @Test
     fun SwitchTest_defaultSemantics() {
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Column>
-                        <TestTag tag="checked">
-                            <Switch checked=true />
-                        </TestTag>
-                        <TestTag tag="unchecked">
-                            <Switch checked=false />
-                        </TestTag>
-                    </Column>
-                </MaterialTheme>
-            </CraneWrapper>
+            CraneWrapper {
+                MaterialTheme {
+                    Column {
+                        TestTag(tag = "checked") {
+                            Switch(checked = true)
+                        }
+                        TestTag(tag = "unchecked") {
+                            Switch(checked = false)
+                        }
+                    }
+                }
+            }
         }
 
         findByTag("checked").assertSemanticsIsEqualTo(defaultCheckedSwitchSemantics)
@@ -77,14 +77,14 @@ class SwitchUiTest : AndroidUiTestRunner() {
     @Test
     fun SwitchTest_toggle() {
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
+            CraneWrapper {
+                MaterialTheme {
                     val (checked, onChecked) = +state { false }
-                    <TestTag tag=defaultSwitchTag>
-                        <Switch checked onChecked />
-                    </TestTag>
-                </MaterialTheme>
-            </CraneWrapper>
+                    TestTag(tag = defaultSwitchTag) {
+                        Switch(checked = checked, onChecked = onChecked)
+                    }
+                }
+            }
         }
         findByTag(defaultSwitchTag)
             .assertIsNotChecked()
@@ -95,14 +95,14 @@ class SwitchUiTest : AndroidUiTestRunner() {
     @Test
     fun SwitchTest_toggleTwice() {
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
+            CraneWrapper {
+                MaterialTheme {
                     val (checked, onChecked) = +state { false }
-                    <TestTag tag=defaultSwitchTag>
-                        <Switch checked onChecked />
-                    </TestTag>
-                </MaterialTheme>
-            </CraneWrapper>
+                    TestTag(tag = defaultSwitchTag) {
+                        Switch(checked = checked, onChecked = onChecked)
+                    }
+                }
+            }
         }
         findByTag(defaultSwitchTag)
             .assertIsNotChecked()
@@ -115,14 +115,14 @@ class SwitchUiTest : AndroidUiTestRunner() {
     @Test
     fun SwitchTest_uncheckableWithNoLambda() {
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
+            CraneWrapper {
+                MaterialTheme {
                     val (checked, _) = +state { false }
-                    <TestTag tag=defaultSwitchTag>
-                        <Switch checked />
-                    </TestTag>
-                </MaterialTheme>
-            </CraneWrapper>
+                    TestTag(tag = defaultSwitchTag) {
+                        Switch(checked = checked)
+                    }
+                }
+            }
         }
         findByTag(defaultSwitchTag)
             .assertIsNotChecked()

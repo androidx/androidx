@@ -41,17 +41,17 @@ class FloatingActionButtonUiTest : AndroidUiTestRunner() {
     fun defaultFabHasSizeFromSpec() = withDensity(density) {
         var size: PxSize? = null
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Wrap>
-                        <OnChildPositioned onPositioned={ position ->
+            CraneWrapper {
+                MaterialTheme {
+                    Wrap {
+                        OnChildPositioned(onPositioned = { position ->
                             size = position.size
-                        }>
-                            <FloatingActionButton icon=createImage() />
-                        </OnChildPositioned>
-                    </Wrap>
-                </MaterialTheme>
-            </CraneWrapper>
+                        }) {
+                            FloatingActionButton(icon = createImage())
+                        }
+                    }
+                }
+            }
         }
         with(size!!) {
             val expectedSize = 56.dp.toIntPx()
@@ -64,17 +64,17 @@ class FloatingActionButtonUiTest : AndroidUiTestRunner() {
     fun extendedFabHasHeightFromSpec() = withDensity(density) {
         var size: PxSize? = null
         setContent {
-            <CraneWrapper>
-                <MaterialTheme>
-                    <Wrap>
-                        <OnChildPositioned onPositioned={ position ->
+            CraneWrapper {
+                MaterialTheme {
+                    Wrap {
+                        OnChildPositioned(onPositioned = { position ->
                             size = position.size
-                        }>
-                            <FloatingActionButton icon=createImage() text="Extended" />
-                        </OnChildPositioned>
-                    </Wrap>
-                </MaterialTheme>
-            </CraneWrapper>
+                        }) {
+                            FloatingActionButton(icon = createImage(), text = "Extended")
+                        }
+                    }
+                }
+            }
         }
         with(size!!) {
             val expectedSize = 48.dp.toIntPx()

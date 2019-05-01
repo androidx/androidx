@@ -31,9 +31,9 @@ import com.google.r4a.unaryPlus
 fun SimpleImage(
     image: Image
 ) = +withDensity {
-    <Container width=image.width.toDp() height=image.height.toDp()>
-        <Draw> canvas, _ ->
+    Container(width = image.width.toDp(), height = image.height.toDp()) {
+        Draw { canvas, _ ->
             canvas.drawImage(image, Offset.zero, Paint())
-        </Draw>
-    </Container>
+        }
+    }
 }
