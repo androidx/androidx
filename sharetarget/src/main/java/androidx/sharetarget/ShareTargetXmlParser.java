@@ -19,8 +19,12 @@ package androidx.sharetarget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
-import android.content.res.Resources;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.XmlResourceParser;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
@@ -29,6 +33,7 @@ import androidx.annotation.WorkerThread;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility class to parse the list of {@link ShareTargetCompat} from app's Xml resource.
@@ -39,6 +44,8 @@ import java.util.ArrayList;
 class ShareTargetXmlParser {
 
     static final String TAG = "ShareTargetXmlParser";
+
+    private static final String META_DATA_APP_SHORTCUTS = "android.app.shortcuts";
 
     private static final String TAG_SHARE_TARGET = "share-target";
     private static final String ATTR_TARGET_CLASS = "targetClass";
@@ -77,7 +84,33 @@ class ShareTargetXmlParser {
 
     private static ArrayList<ShareTargetCompat> parseShareTargets(Context context) {
         ArrayList<ShareTargetCompat> targets = new ArrayList<>();
-        XmlResourceParser parser = getXmlResourceParser(context);
+
+        Intent mainIntent = new Intent(Intent.ACTION_MAIN);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        mainIntent.setPackage(context.getPackageName());
+
+        List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(
+                mainIntent, PackageManager.GET_META_DATA);
+        if (resolveInfos == null) {
+            return targets;
+        }
+
+        for (ResolveInfo info : resolveInfos) {
+            ActivityInfo activityInfo = info.activityInfo;
+            Bundle metaData = activityInfo.metaData;
+            if (metaData != null && metaData.containsKey(META_DATA_APP_SHORTCUTS)) {
+                List<ShareTargetCompat> shareTargets = parseShareTargets(context, activityInfo);
+                targets.addAll(shareTargets);
+            }
+        }
+
+        return targets;
+    }
+
+    private static ArrayList<ShareTargetCompat> parseShareTargets(Context context,
+            ActivityInfo activityInfo) {
+        ArrayList<ShareTargetCompat> targets = new ArrayList<>();
+        XmlResourceParser parser = getXmlResourceParser(context, activityInfo);
 
         try {
             int type;
@@ -97,10 +130,15 @@ class ShareTargetXmlParser {
         return targets;
     }
 
-    private static XmlResourceParser getXmlResourceParser(Context context) {
-        // TODO: Parse the main manifest to find the right Xml resource for share targets
-        Resources res = context.getResources();
-        return res.getXml(res.getIdentifier("shortcuts", "xml", context.getPackageName()));
+    private static XmlResourceParser getXmlResourceParser(Context context, ActivityInfo info) {
+        XmlResourceParser parser = info.loadXmlMetaData(context.getPackageManager(),
+                META_DATA_APP_SHORTCUTS);
+        if (parser == null) {
+            throw new IllegalArgumentException("Failed to open " + META_DATA_APP_SHORTCUTS
+                    + " meta-data resource of " + info.name);
+        }
+
+        return parser;
     }
 
     private static ShareTargetCompat parseShareTarget(XmlResourceParser parser) throws Exception {
