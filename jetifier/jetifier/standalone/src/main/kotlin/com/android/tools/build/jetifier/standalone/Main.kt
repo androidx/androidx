@@ -153,7 +153,12 @@ class Main {
             rewritingSupportLib = rebuildTopOfTree,
             stripSignatures = shouldStripSignatures,
             useFallbackIfTypeIsMissing = !isStrict)
-        processor.transform(fileMappings)
+        val transformationResult = processor.transform2(fileMappings)
+
+        if (transformationResult.numberOfLibsModified == 0) {
+            // Jetifier is not needed here
+            Log.w(TAG, "No references were rewritten. You don't need to run Jetifier.")
+        }
 
         if (rebuildTopOfTree) {
             val tempFile = fileMappings.first().to

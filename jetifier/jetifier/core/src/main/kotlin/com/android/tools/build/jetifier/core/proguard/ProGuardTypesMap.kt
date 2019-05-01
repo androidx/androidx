@@ -83,7 +83,7 @@ data class ProGuardTypesMap(private val rules: Map<ProGuardType, Set<ProGuardTyp
             val conflictFrom = reversed[to.single()]
             if (conflictFrom != null) {
                 // Conflict - skip
-                Log.w(TAG, "Conflict: %s -> (%s, %s)", to, from, conflictFrom)
+                Log.v(TAG, "Conflict: %s -> (%s, %s)", to, from, conflictFrom)
                 continue
             }
             reversed[to.single()] = from
