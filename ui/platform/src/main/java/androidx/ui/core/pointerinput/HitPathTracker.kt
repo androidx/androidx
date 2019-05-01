@@ -72,6 +72,10 @@ internal class HitPathTracker {
         downPass: PointerEventPass,
         upPass: PointerEventPass? = null
     ): List<PointerInputChange> {
+
+        // TODO(b/124523868): PointerInputNodes should opt into passes prevent having to visit
+        // each one for every PointerInputChange.
+
         val idToChangesMap = pointerInputChanges.associateTo(mutableMapOf()) {
             it.id to it
         }

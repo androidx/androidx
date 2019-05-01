@@ -28,9 +28,6 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.SemanticsComponentNode
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
-import androidx.ui.core.isAttached
-import androidx.ui.core.localToGlobal
-import androidx.ui.core.subtractOffset
 
 /**
  * Produces [PointerInputChangeEvent]s by tracking changes between [PointerInputEvent]s
@@ -61,59 +58,12 @@ private class PointerInputChangeEventProducer {
 }
 
 /**
- * Applies offsets to [PointerInputChange]'s via the offset of the [LayoutNode] associated with the
- * [PointerInputNode] that is about to receive the [PointerInputChange].
- *
- * Call [offsetPointerInputChange] to apply the offset over time and call [reset] when the
- * incoming pointerInputChange is new and has not yet been processed by
- * [PointerInputChangeOffsetManager].
- */
-private class PointerInputChangeOffsetManager {
-    private val nodeGlobalOffsets: MutableMap<PointerInputNode, PxPosition> = mutableMapOf()
-    private val changeOffsets: MutableMap<Int, PxPosition> = mutableMapOf()
-
-    fun reset(targetNodeSequences: Collection<List<PointerInputNode>>) {
-        changeOffsets.clear()
-        nodeGlobalOffsets.clear()
-
-        // Discover the global positions of PointerInputNodes and cache them
-        // TODO(b/124960509): Make this more efficient.
-        targetNodeSequences.flatten().forEach {
-            if (!nodeGlobalOffsets.containsKey(it)) {
-                val layoutNode = it.layoutNode
-                nodeGlobalOffsets[it] =
-                    layoutNode?.run {
-                        layoutNode.localToGlobal(PxPosition.Origin)
-                    } ?: PxPosition.Origin
-            }
-        }
-    }
-
-    fun offsetPointerInputChange(
-        change: PointerInputChange,
-        node: PointerInputNode
-    ): PointerInputChange {
-        val newOffset = nodeGlobalOffsets[node]!!
-        val oldOffset = changeOffsets.getOrPut(change.id) {
-            PxPosition.Origin
-        }
-        val offsetDiff = newOffset - oldOffset
-        changeOffsets[change.id] = newOffset
-        if (offsetDiff != PxPosition.Origin) {
-            return change.subtractOffset(offsetDiff)
-        }
-        return change
-    }
-}
-
-/**
  * The core element that receives [PointerInputEvent]s and process them through Crane.
  */
 internal class PointerInputEventProcessor(val root: LayoutNode) {
 
+    private val hitPathTracker = HitPathTracker()
     private val pointerInputChangeEventProducer = PointerInputChangeEventProducer()
-    private val offsetManager = PointerInputChangeOffsetManager()
-    private val targetNodeSequences: MutableMap<Int, List<PointerInputNode>> = mutableMapOf()
 
     /**
      * Receives [PointerInputEvent]s and process them through Crane.
@@ -135,63 +85,30 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                 it.current.position!!,
                 hitResult
             )
-            targetNodeSequences[it.id] = hitResult
+            hitPathTracker.addHitPath(it.id, hitResult)
         }
     }
 
     private fun removeDetachedReceivers() {
-        targetNodeSequences.keys.forEach { pointerId ->
-            targetNodeSequences[pointerId] =
-                targetNodeSequences[pointerId]!!.filter { it.isAttached() }
-        }
+        hitPathTracker.removeDetachedPointerInputNodes()
     }
 
     private fun resolveLayoutOffsetInformation() {
-        offsetManager.reset(targetNodeSequences.values)
+        hitPathTracker.refreshOffsets()
     }
 
     private fun dispatchToReceivers(pointerInputChangeEvent: PointerInputChangeEvent) {
-        pointerInputChangeEvent.changes.forEach { pointerInputChange ->
-            val targetNodeSequence =
-                targetNodeSequences[pointerInputChange.id] ?: return@forEach
-
-            // Forwards is from child to parent
-            @Suppress("UnnecessaryVariable")
-            val parentToChild = targetNodeSequence
-            val childToParent = parentToChild.reversed()
-            var change = pointerInputChange
-
-            // TODO(b/124523868): PointerInputNodes should opt into passes prevent having to visit
-            // each one for every PointerInputChange.
-
-            // Down from parent to child
-            change = parentToChild.dispatchChange(change, PointerEventPass.InitialDown)
-            // PrePass up (hacky up path of onNestedPreScroll)
-            change = childToParent.dispatchChange(change, PointerEventPass.PreUp)
-            // Pre-pass down (onNestedPreScroll)
-            change = parentToChild.dispatchChange(change, PointerEventPass.PreDown)
-            // Post-pass up (onNestedScroll)
-            change = childToParent.dispatchChange(change, PointerEventPass.PostUp)
-            // Post-pass down (hacky down path of onNestedScroll)
-            parentToChild.dispatchChange(change, PointerEventPass.PostDown)
+        var changes = pointerInputChangeEvent.changes
+        hitPathTracker.apply {
+            changes = dispatchChanges(changes, PointerEventPass.InitialDown, PointerEventPass.PreUp)
+            changes = dispatchChanges(changes, PointerEventPass.PreDown, PointerEventPass.PostUp)
+            dispatchChanges(changes, PointerEventPass.PostDown)
         }
-    }
-
-    private fun List<PointerInputNode>.dispatchChange(
-        pointerInputChange: PointerInputChange,
-        pass: PointerEventPass
-    ): PointerInputChange {
-        var change = pointerInputChange
-        forEach {
-            change = offsetManager.offsetPointerInputChange(change, it)
-            change = it.pointerInputHandler(change, pass)
-        }
-        return change
     }
 
     private fun removeReceiversDueToUpEvents(pointerInputChangeEvent: PointerInputChangeEvent) {
         pointerInputChangeEvent.changes.filter { it.changedToUpIgnoreConsumed() }.forEach {
-            targetNodeSequences.remove(it.id)
+            hitPathTracker.removePointerId(it.id)
         }
     }
 
