@@ -7,6 +7,7 @@ package androidx.leanback.preference {
 
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class LeanbackSettingsFragment.DummyFragment extends android.app.Fragment {
     ctor @Deprecated public LeanbackSettingsFragment.DummyFragment();
+    method @Deprecated public android.view.View? onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LeanbackSettingsRootView extends android.widget.FrameLayout {
