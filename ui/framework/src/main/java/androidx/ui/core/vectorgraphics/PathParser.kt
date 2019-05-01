@@ -644,11 +644,7 @@ class PathParser {
     @Throws(IllegalArgumentException::class)
     private fun addNode(cmd: Char, args: FloatArray) {
         nodes.add(
-            PathNode(
-                PathCommand.pathCommandFromKey(
-                    cmd
-                ), args
-            )
+            PathNode(cmd.toPathCommand(), args)
         )
     }
 

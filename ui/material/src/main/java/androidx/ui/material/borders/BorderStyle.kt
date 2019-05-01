@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ui.animation.demos;
+package androidx.ui.material.borders
 
-// TODO(tianliu/popam): convert this to kotlin enum class when IR compiler fully supports
-public enum OverlayState {
-    Open,
-    Closed
+/** The style of line to draw for a [BorderSide] in a [Border]. */
+enum class BorderStyle {
+    /** Skip the border. */
+    None,
+    /** Draw the border as a solid line. */
+    Solid
+    // if you add more, think about how they will lerp
 }

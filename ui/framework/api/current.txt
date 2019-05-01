@@ -264,8 +264,8 @@ package androidx.ui.core.vectorgraphics {
   }
 
   public enum PathCommand {
-    method public static androidx.ui.core.vectorgraphics.PathCommand! pathCommandFromKey(char) throws java.lang.IllegalArgumentException;
-    method public char toKey();
+    ctor protected PathCommand(char mKey);
+    method public final char toKey();
     enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand ArcTo;
     enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand Close;
     enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand CurveTo;
@@ -286,6 +286,11 @@ package androidx.ui.core.vectorgraphics {
     enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand RelativeReflectiveQuadTo;
     enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand RelativeVerticalTo;
     enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand VerticalLineTo;
+  }
+
+  public final class PathCommandKt {
+    ctor public PathCommandKt();
+    method public static androidx.ui.core.vectorgraphics.PathCommand toPathCommand(char) throws java.lang.IllegalArgumentException;
   }
 
   public final class PathDelegate {

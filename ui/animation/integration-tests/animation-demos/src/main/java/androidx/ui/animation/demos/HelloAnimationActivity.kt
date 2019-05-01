@@ -57,6 +57,11 @@ fun HelloAnimation() {
 private val background = ColorPropKey()
 private val y = FloatPropKey()
 
+private enum class OverlayState {
+    Open,
+    Closed
+}
+
 private val definition = transitionDefinition {
     state(OverlayState.Open) {
         this[background] = Color.fromARGB(255, 128, 128, 128)
