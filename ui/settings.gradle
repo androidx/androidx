@@ -60,3 +60,7 @@ if (!startParameter.projectProperties.containsKey('android.injected.invoked.from
     includeProject(":docs-fake", "../docs-fake")
     includeProject(":docs-runner", "../docs-runner")
 }
+
+// dumb test project that has a test for each size to ensure that at least one test is run
+// for each size and test runner is happy when there is nothing to test.
+includeProject(":dumb-tests", "../dumb-tests")
