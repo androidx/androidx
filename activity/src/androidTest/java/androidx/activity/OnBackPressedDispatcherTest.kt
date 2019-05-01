@@ -276,6 +276,42 @@ class OnBackPressedHandlerTest {
 
     @UiThreadTest
     @Test
+    fun testLifecycleRemoveInCallback() {
+        val onBackPressedCallback = object : CountingOnBackPressedCallback() {
+            override fun handleOnBackPressed() {
+                super.handleOnBackPressed()
+                remove()
+            }
+        }
+        val lifecycleOwner = object : LifecycleOwner {
+            val lifecycleRegistry = LifecycleRegistry(this)
+
+            override fun getLifecycle() = lifecycleRegistry
+        }
+        lifecycleOwner.lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+
+        dispatcher.addCallback(lifecycleOwner, onBackPressedCallback)
+        assertWithMessage("Handler should return true once a callback is added")
+            .that(dispatcher.hasEnabledCallbacks())
+            .isTrue()
+        dispatcher.onBackPressed()
+        assertWithMessage("Count should be incremented after onBackPressed")
+            .that(onBackPressedCallback.count)
+            .isEqualTo(1)
+
+        assertWithMessage("Handler should return false when no OnBackPressedCallbacks " +
+                "are registered")
+            .that(dispatcher.hasEnabledCallbacks())
+            .isFalse()
+        dispatcher.onBackPressed()
+        // Check that the count still equals 1
+        assertWithMessage("Count shouldn't be incremented after removal")
+            .that(onBackPressedCallback.count)
+            .isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
     fun testLifecycleCallbackDestroyed() {
         val onBackPressedCallback = CountingOnBackPressedCallback()
         val lifecycleOwner = object : LifecycleOwner {
