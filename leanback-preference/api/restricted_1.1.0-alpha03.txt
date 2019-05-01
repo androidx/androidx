@@ -1,0 +1,31 @@
+// Signature format: 3.0
+package androidx.leanback.preference {
+
+  @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LeanbackPreferenceFragmentTransitionHelperApi21 {
+    method public static void addTransitions(android.app.Fragment!);
+  }
+
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class LeanbackSettingsFragment.DummyFragment extends android.app.Fragment {
+    ctor @Deprecated public LeanbackSettingsFragment.DummyFragment();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LeanbackSettingsRootView extends android.widget.FrameLayout {
+    ctor public LeanbackSettingsRootView(android.content.Context!);
+    ctor public LeanbackSettingsRootView(android.content.Context!, android.util.AttributeSet!);
+    ctor public LeanbackSettingsRootView(android.content.Context!, android.util.AttributeSet!, int);
+    method public void setOnBackKeyListener(android.view.View.OnKeyListener!);
+  }
+
+}
+
+package androidx.leanback.preference.internal {
+
+  @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class OutlineOnlyWithChildrenFrameLayout extends android.widget.FrameLayout {
+    ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!);
+    ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!, android.util.AttributeSet!);
+    ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!, android.util.AttributeSet!, int, int);
+  }
+
+}
+
