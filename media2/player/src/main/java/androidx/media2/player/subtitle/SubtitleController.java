@@ -16,7 +16,7 @@
 
 package androidx.media2.player.subtitle;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.media.MediaFormat;
@@ -41,7 +41,7 @@ import java.util.Locale;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class SubtitleController {
     private MediaTimeProvider mTimeProvider;
     private ArrayList<Renderer> mRenderers;
@@ -401,10 +401,7 @@ public class SubtitleController {
 
     /**
      * Interface for supporting a single or multiple subtitle types in {@link MediaPlayer}.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP) // TODO: Remove redundant annotation after b/131579290 is resolved
     public abstract static class Renderer {
         /**
          * Called by {@link MediaPlayer}'s {@link SubtitleController} when a new
@@ -472,10 +469,7 @@ public class SubtitleController {
     /**
      * Subtitle anchor, an object that is able to display a subtitle renderer,
      * e.g. a VideoView.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP) // TODO: Remove redundant annotation after b/131579290 is resolved
     public interface Anchor {
         /**
          * Anchor should use the supplied subtitle rendering widget, or
@@ -531,10 +525,7 @@ public class SubtitleController {
 
     /**
      * Listener for when subtitle track has been selected.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP) // TODO: Remove redundant annotation after b/131579290 is resolved
     public interface Listener {
         /**
          * Called when a subtitle track has been selected.

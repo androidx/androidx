@@ -16,7 +16,7 @@
 
 package androidx.media2.player.subtitle;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.graphics.Canvas;
 import android.media.MediaFormat;
@@ -42,7 +42,7 @@ import java.util.TreeMap;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeListener {
     private static final String TAG = "SubtitleTrack";
     private long mLastUpdateTimeMs;
@@ -564,12 +564,7 @@ public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeList
         }
     }
 
-    /**
-     * Cue has timing information
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP) // TODO: Remove redundant annotation after b/131579290 is resolved
+    /** Cue has timing information */
     public static class Cue {
         public long mStartTimeMs;
         public long mEndTimeMs;
@@ -667,10 +662,7 @@ public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeList
 
     /**
      * Interface for rendering subtitles onto a Canvas.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP) // TODO: Remove redundant annotation after b/131579290 is resolved
     public interface RenderingWidget {
         /**
          * Sets the widget's callback, which is used to send updates when the
@@ -714,11 +706,8 @@ public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeList
 
         /**
          * Callback used to send updates about changes to rendering data.
-         *
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP) // TODO: Remove redundant annotation after b/131579290 resolved
-        interface OnChangedListener {
+        public interface OnChangedListener {
             /**
              * Called when the rendering data has changed.
              *
