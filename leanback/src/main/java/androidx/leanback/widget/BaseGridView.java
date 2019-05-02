@@ -23,7 +23,9 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Interpolator;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.R;
 import androidx.recyclerview.widget.RecyclerView;
@@ -157,6 +159,28 @@ public abstract class BaseGridView extends RecyclerView {
     private static final int PFLAG_RETAIN_FOCUS_FOR_CHILD = 1 << 0;
 
     /**
+     * Defines behavior of duration and interpolator for smoothScrollBy().
+     */
+    public interface SmoothScrollByBehavior {
+        /**
+         * Defines duration in milliseconds of smoothScrollBy().
+         * @param dx x distance in pixels.
+         * @param dy y distance in pixels.
+         * @return Duration in milliseconds or UNDEFINED_DURATION for default value.
+         */
+        int configSmoothScrollByDuration(int dx, int dy);
+
+        /**
+         * Defines interpolator of smoothScrollBy().
+         * @param dx x distance in pixels.
+         * @param dy y distance in pixels.
+         * @return Interpolator to be used or null for default interpolator.
+         */
+        @Nullable
+        Interpolator configSmoothScrollByInterpolator(int dx, int dy);
+    }
+
+    /**
      * Listener for intercepting touch dispatch events.
      */
     public interface OnTouchInterceptListener {
@@ -194,6 +218,8 @@ public abstract class BaseGridView extends RecyclerView {
     }
 
     final GridLayoutManager mLayoutManager;
+
+    private SmoothScrollByBehavior mSmoothScrollByBehavior;
 
     /**
      * Animate layout changes from a child resizing or adding/removing a child.
@@ -1158,6 +1184,88 @@ public abstract class BaseGridView extends RecyclerView {
             return;
         }
         super.smoothScrollToPosition(position);
+    }
+
+    /**
+     * Set custom behavior for smoothScrollBy().
+     * @param behavior Custom behavior of SmoothScrollBy(). Null for default behavior.
+     */
+    public final void setSmoothScrollByBehavior(@Nullable SmoothScrollByBehavior behavior) {
+        mSmoothScrollByBehavior = behavior;
+    }
+
+    /**
+     * Returns custom behavior for smoothScrollBy().
+     * @return Custom behavior for SmoothScrollBy(). Null for default behavior.
+     */
+    @Nullable
+    public SmoothScrollByBehavior getSmoothScrollByBehavior() {
+        return mSmoothScrollByBehavior;
+    }
+
+    @Override
+    public void smoothScrollBy(int dx, int dy) {
+        if (mSmoothScrollByBehavior != null) {
+            smoothScrollBy(dx, dy,
+                    mSmoothScrollByBehavior.configSmoothScrollByInterpolator(dx, dy),
+                    mSmoothScrollByBehavior.configSmoothScrollByDuration(dx, dy));
+        } else {
+            smoothScrollBy(dx, dy, null, UNDEFINED_DURATION);
+        }
+    }
+
+    @Override
+    public void smoothScrollBy(int dx, int dy, @Nullable Interpolator interpolator) {
+        if (mSmoothScrollByBehavior != null) {
+            smoothScrollBy(dx, dy,
+                    interpolator,
+                    mSmoothScrollByBehavior.configSmoothScrollByDuration(dx, dy));
+        } else {
+            smoothScrollBy(dx, dy, interpolator, UNDEFINED_DURATION);
+        }
+    }
+
+    /**
+     * Set factor of how slow the smoothScroller should run. For example when set to 2f, the smooth
+     * scroller is twice slower. The value is 1f by default.
+     * @param smoothScrollSpeedFactor Factor of how slow the smooth scroll is.
+     */
+    public final void setSmoothScrollSpeedFactor(float smoothScrollSpeedFactor) {
+        mLayoutManager.mSmoothScrollSpeedFactor = smoothScrollSpeedFactor;
+    }
+
+    /**
+     * @return Factor of how slow the smoothScroller runs. Default value is 1f.
+     */
+    public final float getSmoothScrollSpeedFactor() {
+        return mLayoutManager.mSmoothScrollSpeedFactor;
+    }
+
+    /**
+     * When holding DPAD, DPAD events are generated faster than the grid view can scroll. The
+     * grid view counts unhandled DPAD events and completes the movement after user release DPAD.
+     * If the value is set too high, the scrolling will last very long after DPAD is released. If
+     * the value is set too low, it may miss many DPAD events. The default value is 10. If app
+     * increases {@link #setSmoothScrollSpeedFactor(float)}, it may need decrease the max pending
+     * DPAD events to avoid scrolling too long after DPAD release.
+     * @param maxPendingMoves Maximum number of pending DPAD events to be remembered.
+     */
+    public final void setSmoothScrollMaxPendingMoves(int maxPendingMoves) {
+        mLayoutManager.mMaxPendingMoves = maxPendingMoves;
+    }
+
+    /**
+     * When holding DPAD, DPAD events are generated faster than the grid view can scroll. The
+     * grid view counts unhandled DPAD events and complete the movement after user release DPAD.
+     * If the value is set too high, the scrolling will last very long after DPAD is released. If
+     * the value is set too low, it may miss many DPAD events. The default value is 10. If app
+     * increases {@link #setSmoothScrollSpeedFactor(float)}, it may need decrease the max pending
+     * DPAD events to avoid scrolling too long after DPAD release.
+     * @return Maximum number of pending DPAD events to be remembered when smooth scroll cannot
+     *         catch up speed of DPAD events being sent.
+     */
+    public final int getSmoothScrollMaxPendingMoves() {
+        return mLayoutManager.mMaxPendingMoves;
     }
 
     /**
