@@ -51,6 +51,9 @@
             android:name=".LoudInterstitialActivity"
             android:exported="true" />
         <activity
+            android:name=".GiantInterstitialActivity"
+            android:exported="true" />
+        <activity
             android:name=".ProxyOverrideActivity"
             android:exported="true" />
         <activity
