@@ -16,6 +16,7 @@
 
 package androidx.media2.player.exoplayer;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_AUDIO;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_METADATA;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
@@ -35,6 +36,7 @@ import android.annotation.SuppressLint;
 import android.media.MediaFormat;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.Format;
@@ -54,7 +56,10 @@ import java.util.List;
 
 /**
  * Manages track selection for {@link ExoPlayerWrapper}.
+ *
+ * @hide
  */
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class TrackSelector {
 
