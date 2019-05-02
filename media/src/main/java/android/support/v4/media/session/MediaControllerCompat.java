@@ -1320,9 +1320,11 @@ public final class MediaControllerCompat {
         public abstract void setRating(RatingCompat rating, Bundle extras);
 
         /**
-         * Set the playback speed.
+         * Sets the playback speed. A value of {@code 1.0f} is the default playback value,
+         * and a negative value indicates reverse playback. {@code 0.0f} is not allowed.
          *
          * @param speed The playback speed
+         * @throws IllegalArgumentException if the {@code speed} is equal to zero.
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -1979,6 +1981,9 @@ public final class MediaControllerCompat {
 
         @Override
         public void setPlaybackSpeed(float speed) {
+            if (speed == 0.0f) {
+                throw new IllegalArgumentException("speed must not be zero");
+            }
             try {
                 mBinder.setPlaybackSpeed(speed);
             } catch (RemoteException e) {
@@ -2494,6 +2499,9 @@ public final class MediaControllerCompat {
 
         @Override
         public void setPlaybackSpeed(float speed) {
+            if (speed == 0.0f) {
+                throw new IllegalArgumentException("speed must not be zero");
+            }
             Bundle bundle = new Bundle();
             bundle.putFloat(MediaSessionCompat.ACTION_ARGUMENT_PLAYBACK_SPEED, speed);
             sendCustomAction(MediaSessionCompat.ACTION_SET_PLAYBACK_SPEED, bundle);
