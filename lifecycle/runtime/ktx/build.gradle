@@ -49,14 +49,14 @@ dependencies {
     androidTestImplementation(KOTLIN_COROUTINES_TEST)
 
     // have to use lintChecks because, lintPublish does nothing: b/123377555
-    lintChecks(project(':lifecycle:lifecycle-runtime-eap-lint'))
-    lintPublish(project(':lifecycle:lifecycle-runtime-eap-lint'))
+    lintChecks(project(':lifecycle:lifecycle-runtime-ktx-lint'))
+    lintPublish(project(':lifecycle:lifecycle-runtime-ktx-lint'))
 }
 
 androidx {
     name = "Android Lifecycle Kotlin Extensions"
-    publish = false
-    mavenVersion = LibraryVersions.LIFECYCLES_COROUTINES
+    publish = true
+    mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2019"
     description = "Kotlin extensions for 'lifecycle' artifact"
