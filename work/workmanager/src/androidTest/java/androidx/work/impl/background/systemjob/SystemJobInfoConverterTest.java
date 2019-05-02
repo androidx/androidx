@@ -25,6 +25,7 @@ import static androidx.work.NetworkType.UNMETERED;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 import android.app.job.JobInfo;
 import android.net.Uri;
@@ -120,7 +121,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.initialDelay = expectedInitialDelay;
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
-        assertThat(jobInfo.getMinLatencyMillis(), is(expectedInitialDelay));
+        assertCloseValues(jobInfo.getMinLatencyMillis(), expectedInitialDelay);
     }
 
     @Test
@@ -138,7 +139,8 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setPeriodic(TEST_INTERVAL_DURATION, TEST_FLEX_DURATION);
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
-        assertThat(jobInfo.getMinLatencyMillis(), is(TEST_INTERVAL_DURATION - TEST_FLEX_DURATION));
+        assertCloseValues(jobInfo.getMinLatencyMillis(),
+                TEST_INTERVAL_DURATION - TEST_FLEX_DURATION);
     }
 
     @Test
@@ -286,5 +288,12 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         return getWorkSpec(new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(constraints)
                 .build());
+    }
+
+    private void assertCloseValues(long value, long target) {
+        double min = Math.min(value, target);
+        double max = Math.max(value, target);
+        double ratio = min / max;
+        assertThat(ratio, greaterThanOrEqualTo(0.99999d));
     }
 }
