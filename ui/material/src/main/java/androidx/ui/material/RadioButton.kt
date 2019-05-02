@@ -24,19 +24,16 @@ import androidx.ui.baseui.selection.MutuallyExclusiveSetItem
 import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
-import androidx.ui.core.Layout
-import androidx.ui.core.Layout
 import androidx.ui.core.PxSize
 import androidx.ui.core.Text
 import androidx.ui.core.dp
-import androidx.ui.core.max
-import androidx.ui.core.min
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Radius
 import androidx.ui.engine.geometry.shift
 import androidx.ui.engine.geometry.shrink
 import androidx.ui.layout.Column
+import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.MainAxisSize
@@ -52,6 +49,7 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.material.ripple.BoundedRipple
 
 /**
  * Components for creating mutually exclusive set of [RadioButton]s.
@@ -142,10 +140,14 @@ class RadioGroupScope internal constructor() {
         onSelected: () -> Unit,
         @Children children: @Composable() () -> Unit
     ) {
-        MutuallyExclusiveSetItem(
-            selected = selected,
-            onSelected = { if (!selected) onSelected() }) {
-            children()
+        Container {
+            BoundedRipple {
+                MutuallyExclusiveSetItem(
+                    selected = selected,
+                    onSelected = { if (!selected) onSelected() }) {
+                    children()
+                }
+            }
         }
     }
 
@@ -202,27 +204,24 @@ fun RadioButton(
     selected: Boolean,
     color: Color? = null
 ) {
-    Layout(children = {
-        val activeColor = +color.orFromTheme { primary }
-        val definition = +memo(activeColor) {
-            generateTransitionDefinition(activeColor)
+    Padding(padding = RadioButtonPadding) {
+        Container(width = RadioButtonSize, height = RadioButtonSize) {
+            val selectedColor = +color.orFromTheme { secondary }
+            val unselectedColor = (+themeColor { onSurface }).withOpacity(UnselectedOpacity)
+            val definition = +memo(selectedColor, unselectedColor) {
+                generateTransitionDefinition(selectedColor, unselectedColor)
+            }
+            // TODO: remove @Composable annotation here when b/131681875 is fixed
+            Transition(definition = definition, toState = selected) @Composable { state ->
+                DrawRadioButton(
+                    color = state[ColorProp],
+                    outerRadius = state[OuterRadiusProp],
+                    innerRadius = state[InnerRadiusProp],
+                    gap = state[GapProp]
+                )
+            }
         }
-        // TODO: remove @Composable annotation here when b/131681875 is fixed
-        Transition(definition = definition, toState = selected) @Composable { state ->
-            DrawRadioButton(
-                color = state[ColorProp],
-                outerRadius = state[OuterRadiusProp],
-                innerRadius = state[InnerRadiusProp],
-                gap = state[GapProp])
-        }
-    }, layoutBlock = { _, constraints ->
-        val size = RadioRadius.toIntPx() * 2
-        val w = max(constraints.minWidth, min(constraints.maxWidth, size))
-        val h = max(constraints.minHeight, min(constraints.maxHeight, size))
-        layout(w, h) {
-            // no children to place
-        }
-    })
+    }
 }
 
 @Composable
@@ -282,18 +281,21 @@ private val PulseDuration = 100
 private val GapDuration = 150
 private val TotalDuration = RadiusClosureDuration + PulseDuration + GapDuration
 
-private fun generateTransitionDefinition(activeColor: Color) = transitionDefinition {
+private fun generateTransitionDefinition(
+    selectedColor: Color,
+    unselectedColor: Color
+) = transitionDefinition {
     state(false) {
         this[OuterRadiusProp] = RadioRadius
         this[InnerRadiusProp] = InitialInner
         this[GapProp] = 0.dp
-        this[ColorProp] = UnselectedRadioColor
+        this[ColorProp] = unselectedColor
     }
     state(true) {
         this[OuterRadiusProp] = RadioRadius
         this[InnerRadiusProp] = 0.dp
         this[GapProp] = DefaultGap
-        this[ColorProp] = activeColor
+        this[ColorProp] = selectedColor
     }
     transition(fromState = false, toState = true) {
         ColorProp using tween {
@@ -339,13 +341,13 @@ private fun generateTransitionDefinition(activeColor: Color) = transitionDefinit
     }
 }
 
-// TODO(malkov): see how it goes and maybe move it to styles or cross-widget defaults
-private val UnselectedRadioColor = Color(0xFF7D7D7D.toInt())
-
-// TODO(malkov): random numbers for now to produce radio as in material comp.
-private val RadioRadius = 10.dp
+private val RadioButtonPadding = 2.dp
+private val RadioButtonSize = 20.dp
+private val RadioRadius = RadioButtonSize / 2
 private val RadioStrokeWidth = 2.dp
+// TODO(malkov): random numbers for now to produce radio as in material comp.
 private val DefaultGap = 3.dp
+private val UnselectedOpacity = 0.6f
 
 // for animations
 private val OuterOffsetDuringAnimation = 2.dp

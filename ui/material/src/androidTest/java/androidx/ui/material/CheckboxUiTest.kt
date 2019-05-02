@@ -40,6 +40,7 @@ import androidx.ui.test.findByTag
 import com.google.common.truth.Truth
 import androidx.compose.Model
 import androidx.compose.composer
+import androidx.ui.core.round
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -107,10 +108,10 @@ class CheckboxUiTest : AndroidUiTestRunner() {
         setMaterialContent {
             TestTag(tag = defaultTag) {
                 Checkbox(
-                        value = state.value,
-                        onClick = {
-                            state.toggle()
-                        })
+                    value = state.value,
+                    onClick = {
+                        state.toggle()
+                    })
             }
         }
 
@@ -127,10 +128,10 @@ class CheckboxUiTest : AndroidUiTestRunner() {
         setMaterialContent {
             TestTag(tag = defaultTag) {
                 Checkbox(
-                        value = state.value,
-                        onClick = {
-                            state.toggle()
-                        })
+                    value = state.value,
+                    onClick = {
+                        state.toggle()
+                    })
             }
         }
 
@@ -186,8 +187,9 @@ class CheckboxUiTest : AndroidUiTestRunner() {
             }
         }
         withDensity(density) {
-            Truth.assertThat(checkboxSize?.width).isEqualTo(materialCheckboxSize.toPx())
-            Truth.assertThat(checkboxSize?.height).isEqualTo(materialCheckboxSize.toPx())
+            Truth.assertThat(checkboxSize?.width?.round()).isEqualTo(materialCheckboxSize.toIntPx())
+            Truth.assertThat(checkboxSize?.height?.round())
+                .isEqualTo(materialCheckboxSize.toIntPx())
         }
     }
 }

@@ -33,6 +33,7 @@ import androidx.ui.material.RadioButton
 import androidx.ui.material.RadioGroup
 import androidx.ui.material.Switch
 import androidx.ui.material.parentCheckboxState
+import androidx.ui.material.surface.Surface
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
 import androidx.compose.Composable
@@ -58,27 +59,29 @@ fun SelectionsControlsDemo() {
     val headerStyle = +themeTextStyle { h6 }
     val padding = EdgeInsets(10.dp)
 
-    Padding(padding = padding) {
-        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
-            Text(text = "Checkbox", style = headerStyle)
-            Padding(padding = padding) {
-                CheckboxDemo()
-            }
-            Text(text = "Switch", style = headerStyle)
-            Padding(padding = padding) {
-                SwitchDemo()
-            }
-            Text(text = "RadioButton", style = headerStyle)
-            Padding(padding = padding) {
-                RadioButtonDemo()
-            }
-            Text(text = "Radio group :: Default usage", style = headerStyle)
-            Padding(padding = padding) {
-                DefaultRadioGroup()
-            }
-            Text(text = "Radio group :: Custom usage", style = headerStyle)
-            Padding(padding = padding) {
-                CustomRadioGroup()
+    Surface {
+        Padding(padding = padding) {
+            Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                Text(text = "Checkbox", style = headerStyle)
+                Padding(padding = padding) {
+                    CheckboxDemo()
+                }
+                Text(text = "Switch", style = headerStyle)
+                Padding(padding = padding) {
+                    SwitchDemo()
+                }
+                Text(text = "RadioButton", style = headerStyle)
+                Padding(padding = padding) {
+                    RadioButtonDemo()
+                }
+                Text(text = "Radio group :: Default usage", style = headerStyle)
+                Padding(padding = padding) {
+                    DefaultRadioGroup()
+                }
+                Text(text = "Radio group :: Custom usage", style = headerStyle)
+                Padding(padding = padding) {
+                    CustomRadioGroup()
+                }
             }
         }
     }

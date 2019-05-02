@@ -17,7 +17,7 @@
 package androidx.ui.baseui.selection
 
 import androidx.ui.core.Semantics
-import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.semantics.SemanticsAction
 import androidx.ui.core.semantics.SemanticsActionType
 import androidx.compose.Children
@@ -35,8 +35,9 @@ fun Toggleable(
     } else {
         emptyList()
     }
-    // TODO should we use PressReleasedGestureDetector?
-    PressGestureDetector(onRelease = onToggle) {
+    PressReleasedGestureDetector(
+        onRelease = onToggle,
+        consumeDownOnStart = false) {
         // TODO: enabled should not be hardcoded
         // TODO(pavlis): Semantics currently doesn't support 4 states (only checked / unchecked / not checkable).
         Semantics(

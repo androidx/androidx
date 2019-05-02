@@ -41,17 +41,19 @@ fun Clickable(
     @Children children: @Composable() () -> Unit
 ) {
     Semantics(
-        button=true,
-        enabled=(onClick != null),
-        actions=if (onClick != null) {
+        button = true,
+        enabled = (onClick != null),
+        actions = if (onClick != null) {
             // TODO(ryanmentley): The unnecessary generic type specification works around an IR bug
             listOf<SemanticsAction<*>>(SemanticsAction(SemanticsActionType.Tap, onClick))
         } else {
             emptyList<SemanticsAction<*>>()
-        }) {
+        }
+    ) {
         PressReleasedGestureDetector(
             onRelease = onClick,
-            consumeDownOnStart = consumeDownOnStart) {
+            consumeDownOnStart = consumeDownOnStart
+        ) {
             children()
         }
     }
