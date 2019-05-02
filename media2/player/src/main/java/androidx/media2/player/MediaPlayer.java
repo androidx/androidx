@@ -1471,7 +1471,7 @@ public final class MediaPlayer extends SessionPlayer {
     }
 
     @Override
-    public void close() {
+    public void close() throws Exception {
         reset();
         mAudioFocusHandler.close();
         mPlayer.close();
