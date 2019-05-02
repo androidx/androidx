@@ -20,8 +20,8 @@ import androidx.ui.input.EditorState
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * Data class holding text display attributes used for editors.

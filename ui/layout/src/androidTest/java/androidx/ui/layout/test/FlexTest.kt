@@ -40,8 +40,8 @@ import androidx.ui.layout.FlexRow
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.MainAxisSize
 import androidx.ui.layout.Row
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

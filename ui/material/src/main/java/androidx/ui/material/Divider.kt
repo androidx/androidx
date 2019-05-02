@@ -21,9 +21,9 @@ import androidx.ui.core.Dp
 import androidx.ui.core.dp
 import androidx.ui.layout.Padding
 import androidx.ui.painting.Color
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.unaryPlus
 
 /**
  * A divider is a thin line that groups content in lists and layouts

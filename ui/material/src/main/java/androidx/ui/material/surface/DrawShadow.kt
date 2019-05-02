@@ -21,8 +21,8 @@ import androidx.ui.core.Draw
 import androidx.ui.core.dp
 import androidx.ui.material.clip.CustomClipper
 import androidx.ui.painting.Path
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * Draws the shadow. The [elevation] defines the visual dept of the physical object.

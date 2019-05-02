@@ -18,9 +18,9 @@ package androidx.ui.material.clip
 
 import androidx.ui.core.Draw
 import androidx.ui.painting.Path
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * A Composable that clips its child using a path.

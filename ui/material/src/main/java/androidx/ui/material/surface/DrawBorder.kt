@@ -19,8 +19,8 @@ package androidx.ui.material.surface
 import androidx.ui.core.Draw
 import androidx.ui.core.toRect
 import androidx.ui.material.borders.ShapeBorder
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * Draws the border of the provided [shape].

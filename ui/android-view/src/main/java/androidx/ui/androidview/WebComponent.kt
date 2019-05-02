@@ -20,8 +20,8 @@ import android.print.PrintDocumentAdapter
 import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 
 class WebContext {
 

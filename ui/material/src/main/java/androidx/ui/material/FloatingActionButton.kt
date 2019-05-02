@@ -34,10 +34,10 @@ import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.painting.Color
 import androidx.ui.painting.Image
 import androidx.ui.painting.TextStyle
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.unaryPlus
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.unaryPlus
 
 /**
  * A floating action button (FAB) is a [Button] to represents the primary action of a screen.

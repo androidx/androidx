@@ -38,11 +38,11 @@ import androidx.ui.painting.Paint
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import androidx.ui.vectormath64.radians
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.setContent
-import com.google.r4a.state
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.setContent
+import androidx.compose.state
+import androidx.compose.unaryPlus
 
 class RepeatedRotationActivity : Activity() {
 

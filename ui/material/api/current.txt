@@ -106,13 +106,13 @@ package androidx.ui.material {
     method public static void MaterialButtonShapeTheme(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void MaterialRippleTheme(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void MaterialTheme(androidx.ui.material.MaterialColors colors = androidx.ui.material.MaterialColors(), androidx.ui.material.MaterialTypography typography = androidx.ui.material.MaterialTypography(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static com.google.r4a.Ambient<androidx.ui.material.MaterialColors> getColors();
-    method public static com.google.r4a.Ambient<androidx.ui.material.Shapes> getCurrentShapeAmbient();
-    method public static com.google.r4a.Ambient<androidx.ui.material.MaterialTypography> getTypography();
-    method public static com.google.r4a.Effect<androidx.ui.painting.Color> orFromTheme(androidx.ui.painting.Color?, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color> choosingBlock);
-    method public static com.google.r4a.Effect<androidx.ui.material.borders.ShapeBorder> orFromTheme(androidx.ui.material.borders.ShapeBorder?, kotlin.jvm.functions.Function1<? super androidx.ui.material.Shapes,? extends androidx.ui.material.borders.ShapeBorder> choosingBlock);
-    method @CheckResult("+") public static com.google.r4a.Effect<androidx.ui.painting.Color> themeColor(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color> choosingBlock);
-    method @CheckResult("+") public static com.google.r4a.Effect<androidx.ui.painting.TextStyle> themeTextStyle(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle> choosingBlock);
+    method public static androidx.compose.Ambient<androidx.ui.material.MaterialColors> getColors();
+    method public static androidx.compose.Ambient<androidx.ui.material.Shapes> getCurrentShapeAmbient();
+    method public static androidx.compose.Ambient<androidx.ui.material.MaterialTypography> getTypography();
+    method public static androidx.compose.Effect<androidx.ui.painting.Color> orFromTheme(androidx.ui.painting.Color?, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color> choosingBlock);
+    method public static androidx.compose.Effect<androidx.ui.material.borders.ShapeBorder> orFromTheme(androidx.ui.material.borders.ShapeBorder?, kotlin.jvm.functions.Function1<? super androidx.ui.material.Shapes,? extends androidx.ui.material.borders.ShapeBorder> choosingBlock);
+    method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.painting.Color> themeColor(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color> choosingBlock);
+    method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.painting.TextStyle> themeTextStyle(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle> choosingBlock);
   }
 
   public final class MaterialTypography {
@@ -173,7 +173,7 @@ package androidx.ui.material {
 
   public final class TextKt {
     ctor public TextKt();
-    method public static com.google.r4a.Effect<androidx.ui.painting.Color> textColorForBackground(androidx.ui.painting.Color background);
+    method public static androidx.compose.Effect<androidx.ui.painting.Color> textColorForBackground(androidx.ui.painting.Color background);
   }
 
 }
@@ -420,7 +420,7 @@ package androidx.ui.material.ripple {
   public final class RippleSurfaceKt {
     ctor public RippleSurfaceKt();
     method public static void RippleSurface(androidx.ui.painting.Color? color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method @CheckResult("+") public static com.google.r4a.Effect<androidx.ui.material.ripple.RippleSurfaceOwner> ambientRippleSurface();
+    method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.material.ripple.RippleSurfaceOwner> ambientRippleSurface();
   }
 
   public interface RippleSurfaceOwner {
@@ -444,7 +444,7 @@ package androidx.ui.material.ripple {
 
   public final class RippleThemeKt {
     ctor public RippleThemeKt();
-    method public static com.google.r4a.Ambient<androidx.ui.material.ripple.RippleTheme> getCurrentRippleTheme();
+    method public static androidx.compose.Ambient<androidx.ui.material.ripple.RippleTheme> getCurrentRippleTheme();
   }
 
 }

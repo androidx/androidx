@@ -24,9 +24,9 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.MaterialTypography
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextStyle
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
 
 val rallyGreen = Color(0xFF1EB980.toInt())
 val rallyDarkGreen = Color(0xFF045D56.toInt())

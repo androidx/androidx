@@ -25,8 +25,8 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.FrameLayout
 import android.widget.TextView
-import com.google.r4a.compose
-import com.google.r4a.composer
+import androidx.compose.compose
+import androidx.compose.composer
 
 // TODO(lmr): This should be moved to a separate module, but needs to be one that is not IR-compiled
 class ArrayAdapter<T> : BaseAdapter(), Filterable {

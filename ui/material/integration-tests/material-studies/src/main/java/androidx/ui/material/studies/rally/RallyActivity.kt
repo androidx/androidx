@@ -27,10 +27,10 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.material.studies.Scaffold
 import androidx.ui.material.themeTextStyle
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.setContent
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.setContent
+import androidx.compose.unaryPlus
 
 /**
  * This Activity recreates the Rally Material Study from

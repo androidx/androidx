@@ -31,10 +31,10 @@ import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.Emittable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.Emittable
+import androidx.compose.composer
 import androidx.ui.painting.Path as PaintingPath
 
 const val DefaultGroupName = ""

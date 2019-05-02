@@ -34,8 +34,8 @@ package androidx.ui.material.demos
 
 import android.app.Activity
 import android.os.Bundle
-import com.google.r4a.composer
-import com.google.r4a.setContent
+import androidx.compose.setContent
+import androidx.compose.composer
 
 class ButtonActivity : Activity() {
 

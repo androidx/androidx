@@ -16,10 +16,10 @@
 
 package androidx.ui.core
 
-import com.google.r4a.Children
-import com.google.r4a.Component
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Component
+import androidx.compose.Composable
+import androidx.compose.composer
 
 class PointerInput(
     @Children var children: @Composable() () -> Unit

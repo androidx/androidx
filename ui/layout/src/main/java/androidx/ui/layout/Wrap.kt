@@ -21,9 +21,9 @@ import androidx.ui.core.Layout
 import androidx.ui.core.ipx
 import androidx.ui.core.looseMin
 import androidx.ui.core.max
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * A layout that expects a child and places it within itself. The child will be measured

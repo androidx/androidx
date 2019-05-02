@@ -30,7 +30,7 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.painting.Color
 import androidx.ui.test.android.AndroidUiTestRunner
 import com.google.common.truth.Truth
-import com.google.r4a.composer
+import androidx.compose.composer
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

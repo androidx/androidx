@@ -31,11 +31,11 @@ import androidx.ui.core.min
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.setContent
-import com.google.r4a.state
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.setContent
+import androidx.compose.state
+import androidx.compose.unaryPlus
 
 /* Demo app created to study the interaction of animations, gestures and semantics. */
 class AnimationGestureSemanticsActivity : Activity() {

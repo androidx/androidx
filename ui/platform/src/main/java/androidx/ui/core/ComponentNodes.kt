@@ -19,7 +19,7 @@ import androidx.ui.core.semantics.SemanticsAction
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.Canvas
-import com.google.r4a.Emittable
+import androidx.compose.Emittable
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 

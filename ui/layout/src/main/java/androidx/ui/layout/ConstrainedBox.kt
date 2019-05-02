@@ -20,9 +20,9 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.enforce
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * Widget that enforces additional [Constraints] to its only child. The ConstrainedBox will

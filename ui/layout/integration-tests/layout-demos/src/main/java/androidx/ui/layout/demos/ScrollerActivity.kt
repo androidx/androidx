@@ -27,8 +27,8 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.VerticalScroller
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
-import com.google.r4a.composer
-import com.google.r4a.setContent
+import androidx.compose.composer
+import androidx.compose.setContent
 
 class ScrollerActivity : Activity() {
     val phrases = listOf(

@@ -87,7 +87,7 @@ package androidx.ui.core {
     property public abstract androidx.ui.core.IntPx width;
   }
 
-  public final class PointerInput extends com.google.r4a.Component {
+  public final class PointerInput extends androidx.compose.Component {
     ctor public PointerInput(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void compose();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
@@ -112,16 +112,16 @@ package androidx.ui.core {
     ctor public TestTagProviderKt();
     method public static void TestTag(String tag, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static String getDefaultTestTag();
-    method public static com.google.r4a.Ambient<java.lang.String> getTestTagAmbient();
+    method public static androidx.compose.Ambient<java.lang.String> getTestTagAmbient();
   }
 
   public final class WrapperKt {
     ctor public WrapperKt();
     method public static void CraneWrapper(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method @CheckResult("+") public static com.google.r4a.Effect<androidx.ui.core.Density> ambientDensity();
-    method public static com.google.r4a.Ambient<android.content.Context> getContextAmbient();
-    method public static com.google.r4a.Ambient<androidx.ui.core.Density> getDensityAmbient();
-    method @CheckResult("+") public static <R> com.google.r4a.Effect<R> withDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,? extends R> block);
+    method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.core.Density> ambientDensity();
+    method public static androidx.compose.Ambient<android.content.Context> getContextAmbient();
+    method public static androidx.compose.Ambient<androidx.ui.core.Density> getDensityAmbient();
+    method @CheckResult("+") public static <R> androidx.compose.Effect<R> withDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,? extends R> block);
   }
 
 }
@@ -149,7 +149,7 @@ package androidx.ui.core.gesture {
     method public static androidx.ui.core.Duration getZoomControlsTimeout();
   }
 
-  public final class DragGestureDetector extends com.google.r4a.Component {
+  public final class DragGestureDetector extends androidx.compose.Component {
     ctor public DragGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void compose();
     method public kotlin.jvm.functions.Function1<androidx.ui.core.Direction,java.lang.Boolean>? getCanDrag();

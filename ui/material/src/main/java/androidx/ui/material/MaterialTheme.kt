@@ -31,14 +31,14 @@ import androidx.ui.material.ripple.RippleTheme
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextStyle
 import androidx.ui.painting.withAlphaPercent
-import com.google.r4a.Ambient
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.Effect
-import com.google.r4a.ambient
-import com.google.r4a.composer
-import com.google.r4a.effectOf
-import com.google.r4a.unaryPlus
+import androidx.compose.Ambient
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.Effect
+import androidx.compose.ambient
+import androidx.compose.composer
+import androidx.compose.effectOf
+import androidx.compose.unaryPlus
 
 /**
  * This Component defines the styling principles from the Material design specification. It must be

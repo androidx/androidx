@@ -44,15 +44,15 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.Model
-import com.google.r4a.composer
-import com.google.r4a.effectOf
-import com.google.r4a.memo
-import com.google.r4a.onCommit
-import com.google.r4a.state
-import com.google.r4a.unaryPlus
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.Model
+import androidx.compose.composer
+import androidx.compose.effectOf
+import androidx.compose.memo
+import androidx.compose.onCommit
+import androidx.compose.state
+import androidx.compose.unaryPlus
 
 /**
  * Draws a rectangle of a specified dimension, or to its max incoming constraints if

@@ -36,10 +36,10 @@ import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.StrokeCap
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.memo
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.memo
+import androidx.compose.unaryPlus
 
 /**
  * A Switch is a two state toggleable component that provides on/off like options

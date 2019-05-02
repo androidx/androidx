@@ -29,11 +29,11 @@ import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.setContent
-import com.google.r4a.state
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.setContent
+import androidx.compose.state
+import androidx.compose.unaryPlus
 
 class HelloGestureBasedAnimationActivity : Activity() {
 
@@ -75,7 +75,7 @@ fun TransitionExample() {
         onPress = { toState.value = ComponentState.Pressed }
         onRelease = { toState.value = ComponentState.Released }
         onCancel = { toState.value = ComponentState.Released }>
-        val children = @Composable {
+        val children = @androidx.compose.Composable {
             <Transition definition toState=toState.value> state ->
                 <DrawScaledRect scale=state[scale] color=state[color] />
             </Transition>

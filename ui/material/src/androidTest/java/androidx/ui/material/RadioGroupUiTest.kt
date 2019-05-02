@@ -28,10 +28,10 @@ import androidx.ui.test.copyWith
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.Model
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.Model
+import androidx.compose.composer
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

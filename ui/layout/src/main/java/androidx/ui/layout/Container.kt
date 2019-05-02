@@ -28,9 +28,9 @@ import androidx.ui.core.looseMin
 import androidx.ui.core.max
 import androidx.ui.core.offset
 import androidx.ui.core.withTight
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * A convenience widget that combines common layout widgets for one child:

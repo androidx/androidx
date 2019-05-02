@@ -39,9 +39,9 @@ import androidx.ui.core.vectorgraphics.DefaultTranslateY
 import androidx.ui.core.vectorgraphics.EmptyBrush
 import androidx.ui.core.vectorgraphics.EmptyPath
 import androidx.ui.core.vectorgraphics.PathNode
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException

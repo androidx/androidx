@@ -28,8 +28,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import com.google.r4a.Composable
-import com.google.r4a.Model
 import androidx.ui.androidview.adapters.dp
 import androidx.ui.androidview.adapters.setControlledText
 import androidx.ui.androidview.adapters.setLayoutHeight
@@ -37,10 +35,12 @@ import androidx.ui.androidview.adapters.setLayoutWeight
 import androidx.ui.androidview.adapters.setLayoutWidth
 import androidx.ui.androidview.adapters.setOnClick
 import androidx.ui.androidview.adapters.setOnTextChanged
-import com.google.r4a.composer
-import com.google.r4a.setContent
-import com.google.r4a.state
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.Model
+import androidx.compose.setContent
+import androidx.compose.state
+import androidx.compose.unaryPlus
+import androidx.compose.composer
 
 @Model
 class WebParams {

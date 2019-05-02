@@ -39,7 +39,7 @@ import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import com.google.common.truth.Truth
-import com.google.r4a.Model
+import androidx.compose.Model
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

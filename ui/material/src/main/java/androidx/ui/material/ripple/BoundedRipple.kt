@@ -21,9 +21,9 @@ import androidx.ui.core.Px
 import androidx.ui.core.PxBounds
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BoxShape
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * A rectangular area of a [RippleSurface] that responds to touch.

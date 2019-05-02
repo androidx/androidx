@@ -18,8 +18,8 @@ package androidx.ui.layout
 
 import androidx.ui.core.Dp
 import androidx.ui.core.dp
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * Component that represents an empty space with given width and height.

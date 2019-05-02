@@ -17,11 +17,11 @@ package androidx.ui.core
 
 import androidx.ui.core.semantics.SemanticsAction
 import androidx.ui.engine.text.TextDirection
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.ambient
-import com.google.r4a.composer
-import com.google.r4a.unaryPlus
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.ambient
+import androidx.compose.composer
+import androidx.compose.unaryPlus
 
 // TODO(ryanmentley): This is the wrong package, move it as a standalone CL
 

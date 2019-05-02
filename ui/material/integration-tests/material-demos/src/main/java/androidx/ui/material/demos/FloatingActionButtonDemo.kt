@@ -24,8 +24,8 @@ import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.material.FloatingActionButton
 import androidx.ui.material.MaterialTheme
 import androidx.ui.painting.Image
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 
 @Composable
 fun FloatingActionButtonDemo(icon: Image) {

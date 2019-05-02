@@ -32,8 +32,8 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -152,7 +152,7 @@ class PaddingTest : LayoutTest() {
         show @Composable {
             <Center>
                 <ConstrainedBox constraints=DpConstraints.tightConstraints(sizeDp, sizeDp)>
-                    val children = @Composable {
+                    val children = @androidx.compose.Composable {
                         <Container>
                             <OnPositioned onPositioned={ coordinates ->
                                 childSize = coordinates.size
@@ -197,7 +197,7 @@ class PaddingTest : LayoutTest() {
         show @Composable {
             <Center>
                 <ConstrainedBox constraints=DpConstraints.tightConstraints(sizeDp, sizeDp)>
-                    val children = @Composable {
+                    val children = @androidx.compose.Composable {
                         <Container>
                             <OnPositioned onPositioned={ coordinates ->
                                 childSize = coordinates.size
@@ -250,7 +250,7 @@ class PaddingTest : LayoutTest() {
             show @Composable {
                 <Center>
                     <ConstrainedBox constraints=DpConstraints.tightConstraints(sizeDp, sizeDp)>
-                        val children = @Composable {
+                        val children = @androidx.compose.Composable {
                             <Container>
                                 <OnPositioned onPositioned={ coordinates ->
                                     childSize = coordinates.size

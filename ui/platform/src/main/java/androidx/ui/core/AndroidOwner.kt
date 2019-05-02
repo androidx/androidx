@@ -29,10 +29,10 @@ import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.toPointerInputEvent
 import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
-import com.google.r4a.frames.FrameCommitObserver
-import com.google.r4a.frames.FrameReadObserver
-import com.google.r4a.frames.currentFrame
-import com.google.r4a.frames.registerCommitObserver
+import androidx.compose.frames.FrameCommitObserver
+import androidx.compose.frames.FrameReadObserver
+import androidx.compose.frames.currentFrame
+import androidx.compose.frames.registerCommitObserver
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class AndroidCraneView constructor(context: Context)

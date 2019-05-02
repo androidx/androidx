@@ -39,8 +39,8 @@ import androidx.ui.layout.VerticalScroller
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
-import com.google.r4a.composer
-import com.google.r4a.setContent
+import androidx.compose.composer
+import androidx.compose.setContent
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals

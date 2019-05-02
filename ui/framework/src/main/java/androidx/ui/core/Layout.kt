@@ -16,16 +16,16 @@
 
 package androidx.ui.core
 
-import com.google.r4a.Ambient
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.R4a
-import com.google.r4a.ambient
-import com.google.r4a.composer
-import com.google.r4a.compositionReference
-import com.google.r4a.memo
-import com.google.r4a.onPreCommit
-import com.google.r4a.unaryPlus
+import androidx.compose.Ambient
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.R4a
+import androidx.compose.ambient
+import androidx.compose.composer
+import androidx.compose.compositionReference
+import androidx.compose.memo
+import androidx.compose.onPreCommit
+import androidx.compose.unaryPlus
 
 internal typealias LayoutBlock = LayoutBlockReceiver.(List<Measurable>, Constraints) -> Unit
 internal typealias IntrinsicMeasurementBlock = IntrinsicMeasurementsReceiver
