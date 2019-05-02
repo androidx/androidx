@@ -119,6 +119,32 @@ limitations under the License.
         <item name="android:textColor">@color/car_accent</item>
     </style>
 
+    <!-- Deprecated. Mapping all Body4 text appearances to SubText1 until removal -->
+    <style name="TextAppearance.Car.Body4" parent="TextAppearance.Car.SubText1">
+    </style>
+
+    <style name="TextAppearance.Car.Body4.Medium" parent="TextAppearance.Car.SubText1.Medium">
+    </style>
+
+    <style name="TextAppearance.Car.Body4.Light" parent="TextAppearance.Car.SubText1.Light">
+    </style>
+
+    <style name="TextAppearance.Car.Body4.Medium.Light" parent="TextAppearance.Car.SubText1.Medium.Light">
+        <item name="android:textColor">@color/car_body3_light</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body4.Dark" parent="TextAppearance.Car.SubText1.Dark">
+        <item name="android:textColor">@color/car_body3_dark</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body4.Medium.Dark" parent="TextAppearance.Car.SubText1.Medium.Dark">
+        <item name="android:textColor">@color/car_body3_dark</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body4.Medium.Accent" parent="TextAppearance.Car.SubText1.Medium.Accent">
+        <item name="android:textColor">@color/car_accent</item>
+    </style>
+
     <style name="TextAppearance.Car.SubText1">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_subtext1_size</item>
@@ -207,6 +233,10 @@ limitations under the License.
 
     <style name="TextAppearance.Car.SubText3.Medium.Accent">
         <item name="android:textColor">@color/car_accent</item>
+    </style>
+
+    <!-- Deprecated. Mapping to SubText3 until removal -->
+    <style name="TextAppearance.Car.SubText4" parent="TextAppearance.Car.SubText3">
     </style>
 
     <!-- The styling for subheader text. This text uses android:colorAccent defined in the theme as
@@ -329,7 +359,7 @@ limitations under the License.
 
     <!-- The styling for the navigation button in action bar. -->
     <style name="Widget.Car.Toolbar.Button.Navigation"
-           parent="Widget.AppCompat.Toolbar.Button.Navigation">
+        parent="Widget.AppCompat.Toolbar.Button.Navigation">
         <item name="android:background">@drawable/car_button_ripple_background</item>
         <item name="android:scaleType">center</item>
         <item name="android:tint">@color/car_tint</item>
