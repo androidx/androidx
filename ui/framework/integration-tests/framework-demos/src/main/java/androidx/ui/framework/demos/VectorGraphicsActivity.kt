@@ -91,7 +91,7 @@ class VectorGraphicsActivity : Activity() {
     fun backgroundPath(vectorWidth: Float, vectorHeight: Float) {
         val background = PathDelegate {
             horizontalLineTo(vectorWidth)
-            verticalLineTo(vectorWidth)
+            verticalLineTo(vectorHeight)
             horizontalLineTo(0.0f)
             close()
         }

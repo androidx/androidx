@@ -16,6 +16,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.*
 // TODO(pavlis): Make this a multi-platform module
@@ -60,7 +61,7 @@ androidx {
     description = "Contains internal implementation that allows separation of android implementation from host-side tests."
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+tasks.withType(KotlinCompile).all {
     kotlinOptions {
         freeCompilerArgs += ["-Werror"]
     }

@@ -96,14 +96,12 @@ internal class SpringSimulation(var finalPosition: Float) {
     /*********************** Below are private APIs  */
 
     fun getAcceleration(lastDisplacement: Float, lastVelocity: Float): Float {
-        var lastDisplacement = lastDisplacement
-
-        lastDisplacement -= finalPosition
+        val adjustedDisplacement = lastDisplacement - finalPosition
 
         val k = naturalFreq * naturalFreq
         val c = 2.0 * naturalFreq * dampingRatio
 
-        return (-k * lastDisplacement - c * lastVelocity).toFloat()
+        return (-k * adjustedDisplacement - c * lastVelocity).toFloat()
     }
 
     fun isAtEquilibrium(value: Float, velocity: Float, timeElapsed: Long = 0): Boolean {
@@ -162,19 +160,18 @@ internal class SpringSimulation(var finalPosition: Float) {
      */
     internal fun updateValues(lastDisplacement: Float, lastVelocity: Float, timeElapsed: Long):
             Motion {
-        var lastDisplacement = lastDisplacement
-        var lastVelocity = lastVelocity
         init()
 
+        val adjustedDisplacement = lastDisplacement - finalPosition
         val deltaT = timeElapsed / 1000.0 // unit: seconds
-        lastDisplacement -= finalPosition
         val displacement: Double
         val currentVelocity: Double
         if (dampingRatio > 1) {
             // Overdamped
-            val coeffA = (lastDisplacement - ((gammaMinus * lastDisplacement - lastVelocity) /
+            val coeffA =
+                (adjustedDisplacement - ((gammaMinus * adjustedDisplacement - lastVelocity) /
                     (gammaMinus - gammaPlus)))
-            val coeffB = ((gammaMinus * lastDisplacement - lastVelocity) /
+            val coeffB = ((gammaMinus * adjustedDisplacement - lastVelocity) /
                     (gammaMinus - gammaPlus))
             displacement = (coeffA * Math.pow(Math.E, gammaMinus * deltaT) +
                     coeffB * Math.pow(Math.E, gammaPlus * deltaT))
@@ -182,16 +179,17 @@ internal class SpringSimulation(var finalPosition: Float) {
                     coeffB * gammaPlus * Math.pow(Math.E, gammaPlus * deltaT))
         } else if (dampingRatio == 1.0f) {
             // Critically damped
-            val coeffA = lastDisplacement
-            val coeffB = lastVelocity + naturalFreq * lastDisplacement
+            val coeffA = adjustedDisplacement
+            val coeffB = lastVelocity + naturalFreq * adjustedDisplacement
             displacement = (coeffA + coeffB * deltaT) * Math.pow(Math.E, -naturalFreq * deltaT)
             currentVelocity =
                     (((coeffA + coeffB * deltaT) * Math.pow(Math.E, -naturalFreq * deltaT) *
                     (-naturalFreq)) + coeffB * Math.pow(Math.E, -naturalFreq * deltaT))
         } else {
             // Underdamped
-            val cosCoeff = lastDisplacement
-            val sinCoeff = ((1 / dampedFreq) * (((dampingRatio * naturalFreq * lastDisplacement) +
+            val cosCoeff = adjustedDisplacement
+            val sinCoeff =
+                ((1 / dampedFreq) * (((dampingRatio * naturalFreq * adjustedDisplacement) +
                     lastVelocity)))
             displacement = (Math.pow(Math.E, -dampingRatio * naturalFreq * deltaT) *
                     ((cosCoeff * Math.cos(dampedFreq * deltaT) +

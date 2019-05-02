@@ -16,6 +16,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -31,6 +32,7 @@ dependencies {
     api project(":compose-runtime")
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
+    api(KOTLIN_R4A_REFLECT)
 
     implementation "androidx.annotation:annotation:1.0.0"
     implementation "androidx.activity:activity:1.0.0-alpha01"
@@ -61,4 +63,10 @@ androidx {
     inceptionYear = "2019"
     description = "AndroidX UI View wrappers (temporary non-IR module)."
 }
-
+android {
+    tasks.withType(KotlinCompile).all {
+        kotlinOptions {
+            freeCompilerArgs += ["-Werror"]
+        }
+    }
+}

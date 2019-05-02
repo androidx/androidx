@@ -22,18 +22,18 @@ abstract class InputController<V : View, T>(
     // TODO(malkov): subject to change when binding in adapters will be introduced
     // TODO(lmr): this doesn't work anymore and the APIs it's using are deprecated, so commenting
     //  out for now until we fix.
-    private fun inCompositionContext(action: CompositionContext.(Component) -> Unit) {
-//        CompositionContext.findRoot(view)?.let { root ->
-//            CompositionContext.find(root)?.action(root)
-//        }
-    }
+    /*private fun inCompositionContext(action: CompositionContext.(Component) -> Unit)) {
+        CompositionContext.findRoot(view)?.let { root ->
+            CompositionContext.find(root)?.action(root)
+        }
+    }*/
 
     protected abstract fun getValue(): T
     protected abstract fun setValue(value: T)
     protected fun prepareForChange(@Suppress("UNUSED_PARAMETER") value: T) {
-        inCompositionContext {
+        /*inCompositionContext {
             addPostRecomposeObserver(onPostRecompose)
-        }
+        }*/
         // TODO(malkov): remove it then we can control lifecycle of InputController
         // for now we don't have proper ways to dispose this listener when view goes out of
         // recompose scope, so we have to add and remove listener every time
@@ -53,19 +53,19 @@ abstract class InputController<V : View, T>(
     }
 
     override fun onPreDraw(): Boolean {
-        inCompositionContext {
+        /*inCompositionContext {
             removePostRecomposeObserver(onPostRecompose)
-        }
+        }*/
         // TODO(malkov): remove it then we can control lifecycle of InputController
         // for now we don't have proper ways to dispose this listener when view goes out of
         // recompose scope, so we have to add and remove listener every time
         view.viewTreeObserver.removeOnPreDrawListener(this)
 
         if (lastSetValue == getValue()) return true
-        inCompositionContext { root ->
+        /*inCompositionContext { root ->
             // TODO(lmr): figure out right way to do this
-//            recomposeSync(root)
-        }
+              recomposeSync(root)
+        }*/
 
         if (lastSetValue == getValue()) return true
         setValueIfNeeded(lastSetValue)
