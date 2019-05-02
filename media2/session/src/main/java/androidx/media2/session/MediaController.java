@@ -620,10 +620,16 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Set the playback speed.
+     * Sets the playback speed. A value of {@code 1.0f} is the default playback value,
+     * and a negative value indicates reverse playback. {@code 0.0f} is not allowed.
+     *
+     * @throws IllegalArgumentException if the {@code speed} is equal to zero.
      */
     @NonNull
     public ListenableFuture<SessionResult> setPlaybackSpeed(float speed) {
+        if (speed == 0.0f) {
+            throw new IllegalArgumentException("speed must not be zero");
+        }
         if (isConnected()) {
             return getImpl().setPlaybackSpeed(speed);
         }
