@@ -24,16 +24,16 @@ import androidx.animation.transitionDefinition
 import androidx.ui.animation.Transition
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Layout
-import androidx.ui.core.PxPosition
 import androidx.ui.core.Draw
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import com.google.r4a.Composable
-import com.google.r4a.Recompose
 import com.google.r4a.composer
 import com.google.r4a.setContent
+import com.google.r4a.state
+import com.google.r4a.unaryPlus
 
 class HelloGestureBasedAnimationActivity : Activity() {
 
@@ -51,15 +51,17 @@ fun HelloGesture() {
     </CraneWrapper>
 }
 
+private enum class ComponentState { Pressed, Released }
+
 private val scale = FloatPropKey()
 private val color = ColorPropKey()
 
 private val definition = transitionDefinition {
-    state("released") {
+    state(ComponentState.Released) {
         this[scale] = 1f
         this[color] = Color.fromARGB(255, 0, 200, 0)
     }
-    state("pressed") {
+    state(ComponentState.Pressed) {
         this[scale] = 3f
         this[color] = Color.fromARGB(255, 0, 100, 0)
     }
@@ -68,28 +70,20 @@ private val definition = transitionDefinition {
 @Suppress("FunctionName")
 @Composable
 fun TransitionExample() {
-    var toState = "released"
-
-    <Recompose> recompose ->
-        val onPress: (PxPosition) -> Unit = {
-            toState = "pressed"
-            recompose()
+    val toState = +state { ComponentState.Released }
+    <PressGestureDetector
+        onPress = { toState.value = ComponentState.Pressed }
+        onRelease = { toState.value = ComponentState.Released }
+        onCancel = { toState.value = ComponentState.Released }>
+        val children = @Composable {
+            <Transition definition toState=toState.value> state ->
+                <DrawScaledRect scale=state[scale] color=state[color] />
+            </Transition>
         }
-        val onRelease = {
-            toState = "released"
-            recompose()
-        }
-        <PressGestureDetector onPress onRelease onCancel=onRelease>
-            val children = @Composable {
-                <Transition definition toState> state ->
-                    <DrawScaledRect scale=state[scale] color=state[color] />
-                </Transition>
-            }
-            <Layout children> _, constraints ->
-                layout(constraints.maxWidth, constraints.maxHeight) {}
-            </Layout>
-        </PressGestureDetector>
-    </Recompose>
+        <Layout children> _, constraints ->
+            layout(constraints.maxWidth, constraints.maxHeight) {}
+        </Layout>
+    </PressGestureDetector>
 }
 
 val paint: Paint = Paint()
