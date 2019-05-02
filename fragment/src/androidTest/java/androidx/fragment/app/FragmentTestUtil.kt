@@ -16,6 +16,7 @@
 package androidx.fragment.app
 
 import android.app.Activity
+import android.os.Build
 import android.os.Looper
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
@@ -23,6 +24,8 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertWithMessage
+import java.lang.ref.WeakReference
+import java.util.ArrayList
 
 fun ActivityTestRule<out FragmentActivity>.waitForExecution() {
     // Wait for two cycles. When starting a postponed transition, it will post to
@@ -106,6 +109,29 @@ fun assertChildren(container: ViewGroup, vararg fragments: Fragment) {
         assertWithMessage("Wrong Fragment View order for [$index]")
             .that(fragment.requireView())
             .isSameAs(container.getChildAt(index))
+    }
+}
+
+/**
+ * Allocates until a garbage collection occurs.
+ */
+fun forceGC() {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
+        // The following works on O+
+        Runtime.getRuntime().gc()
+        Runtime.getRuntime().gc()
+        Runtime.getRuntime().runFinalization()
+    } else {
+        // The following works on older versions
+        for (i in 0..1) {
+            // Use a random index in the list to detect the garbage collection each time because
+            // .get() may accidentally trigger a strong reference during collection.
+            val leak = ArrayList<WeakReference<ByteArray>>()
+            do {
+                val arr = WeakReference(ByteArray(100))
+                leak.add(arr)
+            } while (leak[(Math.random() * leak.size).toInt()].get() != null)
+        }
     }
 }
 
