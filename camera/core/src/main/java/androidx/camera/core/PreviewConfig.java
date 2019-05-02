@@ -28,7 +28,7 @@ import androidx.annotation.RestrictTo.Scope;
 import java.util.Set;
 import java.util.UUID;
 
-/** Configuration for an image capture use case. */
+/** Configuration for a {@link Preview} use case. */
 public final class PreviewConfig
         implements UseCaseConfig<Preview>,
         ImageOutputConfig,
