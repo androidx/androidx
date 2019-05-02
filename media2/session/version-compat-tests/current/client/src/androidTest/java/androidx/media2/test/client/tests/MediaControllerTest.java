@@ -39,6 +39,7 @@ import android.util.Log;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaController.ControllerCallback;
 import androidx.media2.session.MediaController.PlaybackInfo;
@@ -346,6 +347,18 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 info.getMaxVolume());
         assertEquals(mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC),
                 info.getCurrentVolume());
+    }
+
+    @Test
+    public void testGetVideoSize() throws InterruptedException {
+        prepareLooper();
+
+        VideoSize testSize = new VideoSize(100, 42);
+        Bundle playerConfig = RemoteMediaSession.createMockPlayerConnectorConfigForVideoSize(
+                testSize);
+        mRemoteSession.updatePlayer(playerConfig);
+        MediaController controller = createController(mRemoteSession.getToken());
+        assertEquals(testSize, controller.getVideoSize());
     }
 
     RemoteMediaSession createRemoteMediaSession(String id, Bundle tokenExtras) {

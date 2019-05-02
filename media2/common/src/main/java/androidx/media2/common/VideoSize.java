@@ -20,6 +20,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.RestrictTo;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelable;
+import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * Immutable class for describing video size.
@@ -27,7 +30,20 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public final class VideoSize { // TODO: Merge androidx.media2.player.VideoSize into this
+// TODO: Merge androidx.media2.player.VideoSize into this
+@VersionedParcelize
+public final class VideoSize implements VersionedParcelable {
+    @ParcelField(1)
+    int mWidth;
+    @ParcelField(2)
+    int mHeight;
+
+    /**
+     * Used for VersionedParcelable
+     */
+    VideoSize() {
+    }
+
     /**
      * Creates a new immutable VideoSize instance.
      *
@@ -101,7 +117,4 @@ public final class VideoSize { // TODO: Merge androidx.media2.player.VideoSize i
         // assuming most sizes are <2^16, doing a rotate will give us perfect hashing
         return mHeight ^ ((mWidth << (Integer.SIZE / 2)) | (mWidth >>> (Integer.SIZE / 2)));
     }
-
-    private final int mWidth;
-    private final int mHeight;
 }

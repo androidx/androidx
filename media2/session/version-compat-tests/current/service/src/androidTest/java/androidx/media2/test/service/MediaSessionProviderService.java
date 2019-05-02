@@ -30,6 +30,7 @@ import static androidx.media2.test.common.CommonConstants.KEY_METADATA;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
 import static androidx.media2.test.common.CommonConstants.KEY_SPEED;
+import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
 import static androidx.media2.test.common.MediaSessionConstants
         .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
@@ -55,6 +56,7 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.ParcelImplListSlice;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.SessionCommand;
@@ -229,6 +231,10 @@ public class MediaSessionProviderService extends Service {
                 localPlayer.mCurrentMediaItem = (currentItem == null)
                         ? null : (MediaItem) MediaParcelUtils.fromParcelable(currentItem);
                 localPlayer.mMetadata = ParcelUtils.getVersionedParcelable(config, KEY_METADATA);
+                ParcelImpl videoSize = config.getParcelable(KEY_VIDEO_SIZE);
+                if (videoSize != null) {
+                    localPlayer.mVideoSize = MediaParcelUtils.fromParcelable(videoSize);
+                }
                 player = localPlayer;
             }
             ParcelImpl attrImpl = config.getParcelable(KEY_AUDIO_ATTRIBUTES);
@@ -512,6 +518,14 @@ public class MediaSessionProviderService extends Service {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
             player.notifyPlaybackCompleted();
+        }
+
+        @Override
+        public void notifyVideoSizeChanged(String sessionId, ParcelImpl videoSize) {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            VideoSize videoSizeObj = MediaParcelUtils.fromParcelable(videoSize);
+            player.notifyVideoSizeChanged(videoSizeObj);
         }
     }
 }

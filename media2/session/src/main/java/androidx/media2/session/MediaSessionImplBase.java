@@ -69,6 +69,7 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaSession.ControllerCb;
 import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.MediaSession.SessionCallback;
@@ -839,6 +840,16 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         });
     }
 
+    @Override
+    public VideoSize getVideoSize() {
+        return dispatchPlayerTask(new PlayerTask<VideoSize>() {
+            @Override
+            public VideoSize run(@NonNull SessionPlayer player) {
+                return player.getVideoSizeInternal();
+            }
+        }, new VideoSize(0, 0));
+    }
+
     ///////////////////////////////////////////////////
     // package private and private methods
     ///////////////////////////////////////////////////
@@ -1419,6 +1430,17 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             if (!ObjectsCompat.equals(newInfo, oldInfo)) {
                 session.notifyPlaybackInfoChangedNotLocked(newInfo);
             }
+        }
+
+        @Override
+        public void onVideoSizeChangedInternal(final @NonNull SessionPlayer player,
+                final @NonNull MediaItem item, final @NonNull VideoSize videoSize) {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
+                @Override
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onVideoSizeChanged(seq, item, videoSize);
+                }
+            });
         }
 
         private MediaSessionImplBase getSession() {
