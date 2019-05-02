@@ -28,7 +28,6 @@ package androidx.appcompat.graphics.drawable {
     method public void setDither(boolean);
     method public void setEnterFadeDuration(int);
     method public void setExitFadeDuration(int);
-    method public void setTintMode(android.graphics.PorterDuff.Mode);
     method public void unscheduleDrawable(android.graphics.drawable.Drawable, Runnable);
   }
 

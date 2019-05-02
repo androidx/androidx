@@ -1438,7 +1438,7 @@ public class ListPopupWindow implements ShowableListMenu {
                 }
             }
         } else {
-            mPopup.setClipToScreenEnabled(clip);
+            mPopup.setIsClippedToScreen(clip);
         }
     }
 

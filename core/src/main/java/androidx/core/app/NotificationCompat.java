@@ -5355,7 +5355,7 @@ public class NotificationCompat {
                             .setDeleteIntent(compatMetadata.getDeleteIntent())
                             .setIcon(compatMetadata.getIcon().toIcon())
                             .setIntent(compatMetadata.getIntent())
-                            .setSuppressInitialNotification(
+                            .setSuppressNotification(
                                     compatMetadata.getSuppressInitialNotification());
 
             if (compatMetadata.getDesiredHeight() != 0) {
@@ -5391,7 +5391,7 @@ public class NotificationCompat {
                     .setIcon(IconCompat.createFromIcon(platformMetadata.getIcon()))
                     .setIntent(platformMetadata.getIntent())
                     .setSuppressInitialNotification(
-                            platformMetadata.getSuppressInitialNotification());
+                            platformMetadata.isNotificationSuppressed());
 
             if (platformMetadata.getDesiredHeight() != 0) {
                 compatBuilder.setDesiredHeight(platformMetadata.getDesiredHeight());
