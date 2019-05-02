@@ -18,12 +18,15 @@ package androidx.camera.testing;
 
 import android.Manifest;
 import android.content.Context;
+import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.CameraManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.BaseCamera;
@@ -158,4 +161,34 @@ public final class CameraUtil {
         camera.removeOnlineUseCase(Arrays.asList(useCases));
     }
 
+    /**
+     * Check if there is any camera in the device.
+     *
+     * <p>If there is no camera in the device, most tests will failed.
+     *
+     * @return false if no camera
+     */
+    public static boolean deviceHasCamera() {
+        // TODO Think about external camera case,
+        //  especially no built in camera but there might be some external camera
+
+        // It also could be checked by PackageManager's hasSystemFeature() with following:
+        //     FEATURE_CAMERA, FEATURE_CAMERA_FRONT, FEATURE_CAMERA_ANY.
+        // But its needed to consider one case that platform build with camera feature but there is
+        // no built in camera or external camera.
+
+        int numberOfCamera = 0;
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            try {
+                numberOfCamera = ((CameraManager) ApplicationProvider.getApplicationContext()
+                        .getSystemService(Context.CAMERA_SERVICE)).getCameraIdList().length;
+            } catch (CameraAccessException e) {
+                Log.e(CameraUtil.class.getSimpleName(), "Unable to check camera availability.", e);
+            }
+        } else {
+            numberOfCamera = Camera.getNumberOfCameras();
+        }
+
+        return numberOfCamera > 0;
+    }
 }

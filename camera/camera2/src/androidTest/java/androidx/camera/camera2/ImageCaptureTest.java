@@ -18,6 +18,7 @@ package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
@@ -142,7 +143,8 @@ public final class ImageCaptureTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp()  {
+        assumeTrue(CameraUtil.deviceHasCamera());
         mHandlerThread = new HandlerThread("CaptureThread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
@@ -196,10 +198,12 @@ public final class ImageCaptureTest {
 
     @After
     public void tearDown() {
-        mHandlerThread.quitSafely();
-        mCamera.close();
-        if (mCapturedImage != null) {
-            mCapturedImage.close();
+        if (mHandlerThread != null && mCamera != null) {
+            mHandlerThread.quitSafely();
+            mCamera.close();
+            if (mCapturedImage != null) {
+                mCapturedImage.close();
+            }
         }
     }
 

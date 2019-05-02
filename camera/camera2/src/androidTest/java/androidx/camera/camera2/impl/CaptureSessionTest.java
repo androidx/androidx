@@ -18,11 +18,13 @@ package androidx.camera.camera2.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.Manifest;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -45,9 +47,12 @@ import androidx.camera.core.SessionConfig;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -70,8 +75,14 @@ public final class CaptureSessionTest {
 
     private CameraDevice mCameraDevice;
 
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.CAMERA);
+
     @Before
-    public void setup() throws CameraAccessException, InterruptedException {
+    public void setup() throws CameraAccessException, InterruptedException,
+            AssumptionViolatedException {
+        assumeTrue(CameraUtil.deviceHasCamera());
         mTestParameters0 = new CaptureSessionTestParameters("mTestParameters0");
         mTestParameters1 = new CaptureSessionTestParameters("mTestParameters1");
         mCameraDevice = CameraUtil.getCameraDevice();
@@ -79,9 +90,11 @@ public final class CaptureSessionTest {
 
     @After
     public void tearDown() {
-        mTestParameters0.tearDown();
-        mTestParameters1.tearDown();
-        CameraUtil.releaseCameraDevice(mCameraDevice);
+        if (mCameraDevice != null) {
+            mTestParameters0.tearDown();
+            mTestParameters1.tearDown();
+            CameraUtil.releaseCameraDevice(mCameraDevice);
+        }
     }
 
     @Test
