@@ -78,6 +78,9 @@ public class SafeBrowsingActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.loud_interstitial_activity_title),
                         new Intent(activityContext, LoudInterstitialActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.giant_interstitial_activity_title),
+                        new Intent(activityContext, GiantInterstitialActivity.class)),
         };
         listView.setItems(menuItems);
     }
