@@ -90,8 +90,24 @@ fun ambientDensity() =
  */
 @CheckResult(suggest = "+")
 // can't make this inline as tests are failing with "DensityKt.$jacocoInit()' is inaccessible"
-/*inline*/ fun <R> withDensity(/*crossinline*/ block: @Composable() DensityReceiver.() -> R) =
+/*inline*/ fun <R> withDensity(/*crossinline*/ block: DensityReceiver.() -> R) =
     effectOf<R> {
         @Suppress("USELESS_CAST")
         withDensity(+ambientDensity(), block as DensityReceiver.() -> R)
     }
+
+/**
+ * A component to be able to convert dimensions between each other.
+ * A [Density] object will be take from an ambient.
+ *
+ * Usage example:
+ *   WithDensity {
+ *     Draw() { canvas, _ ->
+ *       canvas.drawRect(Rect(0, 0, dpHeight.toPx(), dpWidth.toPx()), paint)
+ *     }
+ *   }
+ */
+@Composable
+fun WithDensity(block: @Composable DensityReceiver.() -> Unit) {
+    DensityReceiverImpl(+ambientDensity()).block()
+}

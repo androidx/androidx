@@ -67,7 +67,7 @@ class ParentDataTest {
                 CraneWrapper {
                     Layout(children = {
                         SimpleDrawChild(drawLatch = drawLatch)
-                    }) { measurables, constraints ->
+                    }, layoutBlock = { measurables, constraints ->
                         assertEquals(1, measurables.size)
                         parentData.value = measurables[0].parentData
 
@@ -75,7 +75,7 @@ class ParentDataTest {
                         layout(placeable.width, placeable.height) {
                             placeable.place(0.ipx, 0.ipx)
                         }
-                    }
+                    })
                 }
             }
         }
@@ -94,7 +94,7 @@ class ParentDataTest {
                         ParentData(data = "Hello") {
                             SimpleDrawChild(drawLatch = drawLatch)
                         }
-                    }) { measurables, constraints ->
+                    }, layoutBlock = { measurables, constraints ->
                         assertEquals(1, measurables.size)
                         parentData.value = measurables[0].parentData
 
@@ -102,7 +102,7 @@ class ParentDataTest {
                         layout(placeable.width, placeable.height) {
                             placeable.place(0.ipx, 0.ipx)
                         }
-                    }
+                    })
                 }
             }
         }
@@ -121,7 +121,7 @@ class ParentDataTest {
                     ParentData(data = "Hello") {
                         Layout(children = {
                             SimpleDrawChild(drawLatch = drawLatch)
-                        }) { measurables, constraints ->
+                        }, layoutBlock = { measurables, constraints ->
                             assertEquals(1, measurables.size)
                             parentData.value = measurables[0].parentData
 
@@ -129,7 +129,7 @@ class ParentDataTest {
                             layout(placeable.width, placeable.height) {
                                 placeable.place(0.ipx, 0.ipx)
                             }
-                        }
+                        })
                     }
                 }
             }

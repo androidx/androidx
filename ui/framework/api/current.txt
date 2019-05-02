@@ -137,6 +137,7 @@ package androidx.ui.core {
   public final class WrapperKt {
     ctor public WrapperKt();
     method public static void CraneWrapper(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void WithDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,kotlin.Unit> block);
     method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.core.Density> ambientDensity();
     method public static androidx.compose.Ambient<android.content.Context> getContextAmbient();
     method public static androidx.compose.Ambient<androidx.ui.core.Density> getDensityAmbient();
