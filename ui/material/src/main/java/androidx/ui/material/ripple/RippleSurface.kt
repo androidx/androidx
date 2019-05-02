@@ -94,8 +94,8 @@ fun RippleSurface(
     owner.backgroundColor = color
     owner.recompose = +invalidate
 
-    <OnPositioned onPositioned={ owner._layoutCoordinates = it } />
-    <Draw> canvas, size ->
+    OnPositioned(onPositioned = { owner._layoutCoordinates = it })
+    Draw { canvas, size ->
         // TODO(Andrey) Find a better way to disable ripples when transitions are disabled.
         val transitionsEnabled = transitionsEnabled
         if (owner.effects.isNotEmpty() && transitionsEnabled) {
@@ -104,10 +104,8 @@ fun RippleSurface(
             owner.effects.forEach { it.draw(canvas) }
             canvas.restore()
         }
-    </Draw>
-    <CurrentRippleSurface.Provider value=owner>
-        <children />
-    </CurrentRippleSurface.Provider>
+    }
+    CurrentRippleSurface.Provider(value = owner, children = children)
 }
 
 private class RippleSurfaceOwnerImpl : RippleSurfaceOwner {

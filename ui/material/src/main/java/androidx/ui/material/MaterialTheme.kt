@@ -60,17 +60,15 @@ fun MaterialTheme(
     @Children
     children: @Composable() () -> Unit
 ) {
-    <Colors.Provider value=colors>
-        <Typography.Provider value=typography>
-            <CurrentTextStyleProvider value=typography.body1>
-                <MaterialRippleTheme>
-                    <MaterialButtonShapeTheme>
-                        <children />
-                    </MaterialButtonShapeTheme>
-                </MaterialRippleTheme>
-            </CurrentTextStyleProvider>
-        </Typography.Provider>
-    </Colors.Provider>
+    Colors.Provider(value = colors) {
+        Typography.Provider(value = typography) {
+            CurrentTextStyleProvider(value = typography.body1) {
+                MaterialRippleTheme {
+                    MaterialButtonShapeTheme(children = children)
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -237,9 +235,7 @@ fun MaterialRippleTheme(@Children children: @Composable() () -> Unit) {
             }
         }
     )
-    <CurrentRippleTheme.Provider value=defaultTheme>
-        <children />
-    </CurrentRippleTheme.Provider>
+    CurrentRippleTheme.Provider(value = defaultTheme, children = children)
 }
 
 /**
@@ -304,9 +300,7 @@ fun MaterialButtonShapeTheme(@Children children: @Composable() () -> Unit) {
             )
         )
     }
-    <CurrentShapeAmbient.Provider value>
-        <children />
-    </CurrentShapeAmbient.Provider>
+    CurrentShapeAmbient.Provider(value = value, children = children)
 }
 
 // Syntax helpers for having theme fallbacks
