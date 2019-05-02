@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 import static androidx.build.dependencies.DependenciesKt.KOTLIN_R4A_STDLIB
 
 plugins {
@@ -19,5 +21,11 @@ dependencies {
 android {
     defaultConfig {
         minSdkVersion 21
+    }
+
+    tasks.withType(KotlinCompile).all {
+        kotlinOptions {
+            freeCompilerArgs += ["-Werror"]
+        }
     }
 }

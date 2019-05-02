@@ -216,12 +216,12 @@ internal object TextAlignmentAdapter {
         var alignLeft = Layout.Alignment.ALIGN_NORMAL
         var alignRight = Layout.Alignment.ALIGN_NORMAL
         for (value in values) {
-            if (value.name.equals("ALIGN_LEFT")) {
+            if (value.name == "ALIGN_LEFT") {
                 alignLeft = value
                 continue
             }
 
-            if (value.name.equals("ALIGN_RIGHT")) {
+            if (value.name == "ALIGN_RIGHT") {
                 alignRight = value
                 continue
             }

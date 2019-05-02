@@ -218,6 +218,7 @@ fun ConstrainedBoxUsage() {
     </Align>
 }
 
+@Composable
 fun PaddingUsage() {
     <Row>
         <Padding padding=20.dp>
@@ -275,7 +276,7 @@ fun SingleCompositionRect() {
                 canvas.drawRect(parentSize.toRect(), paint)
             </Draw>
         }
-    <Layout layoutBlock = { measurables, constraints ->
+    <Layout layoutBlock = { _, constraints ->
         val size = constraints.constrain(IntPxSize(30.ipx, 30.ipx))
         layout(size.width, size.height) {}
     } children=Rectangle />
@@ -294,7 +295,7 @@ fun SingleCompositionRectWithIntrinsics() {
         </Draw>
     }
     <ComplexLayout children=Rectangle>
-        layout { _, constraints ->
+        layout { _, _ ->
             layoutResult(50.ipx, 50.ipx) {}
         }
         minIntrinsicWidth { _, _ -> 50.ipx }
