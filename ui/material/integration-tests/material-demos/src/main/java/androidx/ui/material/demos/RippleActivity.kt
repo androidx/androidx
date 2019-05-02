@@ -34,28 +34,23 @@ class RippleActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            Demo()
-        }
-    }
-
-    // TODO: move out of function directly into set content, blocked by b/131681875
-    @Composable
-    private fun Demo() {
-        val layoutParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            0,
-            1f
-        )
-        val gravity = Gravity.CENTER_HORIZONTAL
-        LinearLayout(orientation = LinearLayout.VERTICAL) {
-            TextView(gravity = gravity, text = "Crane card with ripple:")
-            FrameLayout(layoutParams = layoutParams) {
-                RippleDemo()
-            }
-            TextView(gravity = gravity, text = "Platform button with ripple:")
-            FrameLayout(layoutParams = layoutParams, padding = 50.dp) {
-                Button(background = getDrawable(R.drawable.ripple))
+        // TODO: remove @Composable annotation here when b/131681875 is fixed
+        setContent @Composable {
+            val layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+            val gravity = Gravity.CENTER_HORIZONTAL
+            LinearLayout(orientation = LinearLayout.VERTICAL) {
+                TextView(gravity = gravity, text = "Crane card with ripple:")
+                FrameLayout(layoutParams = layoutParams) {
+                    RippleDemo()
+                }
+                TextView(gravity = gravity, text = "Platform button with ripple:")
+                FrameLayout(layoutParams = layoutParams, padding = 50.dp) {
+                    Button(background = getDrawable(R.drawable.ripple))
+                }
             }
         }
     }

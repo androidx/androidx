@@ -207,13 +207,13 @@ fun RadioButton(
         val definition = +memo(activeColor) {
             generateTransitionDefinition(activeColor)
         }
-        Transition(definition = definition, toState = selected) { state ->
-            // TODO: Convert this to FCS - currently there are some strange issues when this is FCS.
-            <DrawRadioButton
-                color=state[ColorProp]
-                outerRadius=state[OuterRadiusProp]
-                innerRadius=state[InnerRadiusProp]
-                gap=state[GapProp] />
+        // TODO: remove @Composable annotation here when b/131681875 is fixed
+        Transition(definition = definition, toState = selected) @Composable { state ->
+            DrawRadioButton(
+                color = state[ColorProp],
+                outerRadius = state[OuterRadiusProp],
+                innerRadius = state[InnerRadiusProp],
+                gap = state[GapProp])
         }
     }, layoutBlock = { _, constraints ->
         val size = RadioRadius.toIntPx() * 2
