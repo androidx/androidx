@@ -1646,6 +1646,15 @@ public final class MediaPlayer extends SessionPlayer {
         return new VideoSize(mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
     }
 
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    @NonNull
+    public androidx.media2.common.VideoSize getVideoSizeInternal() {
+        VideoSize playerSize = getVideoSize();
+        return new androidx.media2.common.VideoSize(playerSize.getWidth(), playerSize.getHeight());
+    }
+
     /**
      * @return a {@link PersistableBundle} containing the set of attributes and values
      * available for the media being handled by this player instance.
@@ -2727,11 +2736,12 @@ public final class MediaPlayer extends SessionPlayer {
         @Override
         public void onVideoSizeChanged(
                 MediaPlayer2 mp, final MediaItem item, final int width, final int height) {
-            final VideoSize size = new VideoSize(width, height);
-            notifyMediaPlayerCallback(new MediaPlayerCallbackNotifier() {
+            final androidx.media2.common.VideoSize commonSize =
+                    new androidx.media2.common.VideoSize(width, height);
+            notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                 @Override
-                public void callCallback(PlayerCallback callback) {
-                    callback.onVideoSizeChanged(MediaPlayer.this, item, size);
+                public void callCallback(SessionPlayer.PlayerCallback callback) {
+                    callback.onVideoSizeChangedInternal(MediaPlayer.this, item, commonSize);
                 }
             });
         }
@@ -2848,6 +2858,21 @@ public final class MediaPlayer extends SessionPlayer {
          */
         public void onVideoSizeChanged(
                 @NonNull MediaPlayer mp, @NonNull MediaItem item, @NonNull VideoSize size) { }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Override
+        public void onVideoSizeChangedInternal(
+                @NonNull SessionPlayer player, @NonNull MediaItem item,
+                @NonNull androidx.media2.common.VideoSize commonSize) {
+            if (!(player instanceof MediaPlayer)) {
+                throw new IllegalArgumentException("player must be MediaPlayer");
+            }
+            VideoSize playerSize = new VideoSize(commonSize.getWidth(), commonSize.getHeight());
+            onVideoSizeChanged((MediaPlayer) player, item, playerSize);
+        }
 
         /**
          * Called to indicate available timed metadata

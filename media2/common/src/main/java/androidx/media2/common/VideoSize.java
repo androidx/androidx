@@ -14,19 +14,33 @@
  * limitations under the License.
  */
 
-package androidx.media2.player;
+package androidx.media2.common;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
+import androidx.annotation.IntRange;
+import androidx.annotation.RestrictTo;
 
 /**
  * Immutable class for describing video size.
+ *
+ * @hide
  */
-public final class VideoSize {
+@RestrictTo(LIBRARY_GROUP)
+public final class VideoSize { // TODO: Merge androidx.media2.player.VideoSize into this
     /**
      * Creates a new immutable VideoSize instance.
      *
      * @param width The width of the video
      * @param height The height of the video
      */
-    public VideoSize(int width, int height) {
+    public VideoSize(@IntRange(from = 0) int width, @IntRange(from = 0) int height) {
+        if (width < 0) {
+            throw new IllegalArgumentException("width can not be negative");
+        }
+        if (height < 0) {
+            throw new IllegalArgumentException("height can not be negative");
+        }
         mWidth = width;
         mHeight = height;
     }
@@ -34,6 +48,7 @@ public final class VideoSize {
     /**
      * Returns the width of the video.
      */
+    @IntRange(from = 0)
     public int getWidth() {
         return mWidth;
     }
@@ -41,6 +56,7 @@ public final class VideoSize {
     /**
      * Returns the height of the video.
      */
+    @IntRange(from = 0)
     public int getHeight() {
         return mHeight;
     }
