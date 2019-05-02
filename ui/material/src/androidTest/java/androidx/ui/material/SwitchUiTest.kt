@@ -29,7 +29,6 @@ import androidx.ui.test.copyWith
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
-import com.google.r4a.composer
 import com.google.r4a.state
 import com.google.r4a.unaryPlus
 import org.junit.Rule
@@ -81,7 +80,7 @@ class SwitchUiTest : AndroidUiTestRunner() {
                 MaterialTheme {
                     val (checked, onChecked) = +state { false }
                     TestTag(tag = defaultSwitchTag) {
-                        Switch(checked = checked, onChecked = onChecked)
+                        Switch(checked = checked, onClick = { onChecked(!checked) })
                     }
                 }
             }
@@ -99,7 +98,7 @@ class SwitchUiTest : AndroidUiTestRunner() {
                 MaterialTheme {
                     val (checked, onChecked) = +state { false }
                     TestTag(tag = defaultSwitchTag) {
-                        Switch(checked = checked, onChecked = onChecked)
+                        Switch(checked = checked, onClick = { onChecked(!checked) })
                     }
                 }
             }

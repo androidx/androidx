@@ -92,7 +92,8 @@ fun DefaultRadioGroup() {
         options = radioOptions,
         selectedOption = selectedOption,
         onOptionSelected = onOptionSelected,
-        radioColor = customColor2)
+        radioColor = customColor2
+    )
 }
 
 @Composable
@@ -102,19 +103,20 @@ fun CustomRadioGroup() {
     val textStyle = +themeTextStyle { subtitle1 }
 
     RadioGroup {
-        Row(mainAxisSize = MainAxisSize.Min) { radioOptions.forEach { text ->
-            val selected = text == selectedOption
-            RadioGroupItem(
-                selected = selected,
-                onSelected = { onOptionSelected(text) }) {
-                Padding(padding = 10.dp) {
-                    Column {
-                        RadioButton(selected = selected)
-                        Text(text = text, style = textStyle)
+        Row(mainAxisSize = MainAxisSize.Min) {
+            radioOptions.forEach { text ->
+                val selected = text == selectedOption
+                RadioGroupItem(
+                    selected = selected,
+                    onSelected = { onOptionSelected(text) }) {
+                    Padding(padding = 10.dp) {
+                        Column {
+                            RadioButton(selected = selected)
+                            Text(text = text, style = textStyle)
+                        }
                     }
                 }
             }
-        }
         }
     }
 }
@@ -137,23 +139,25 @@ fun CheckboxDemo() {
             state3.value = s
         }
         Row {
-            Checkbox(value = calcParentState(), onToggle = onParentClick)
-            Text(text = "This is parent", style = +themeTextStyle{ body1 })
+            Checkbox(value = calcParentState(), onClick = onParentClick)
+            Text(text = "This is parent", style = +themeTextStyle { body1 })
         }
         Padding(left = 10.dp) {
             Column(crossAxisAlignment = CrossAxisAlignment.Start) {
                 Checkbox(
                     value = state.value,
                     color = customColor,
-                    onToggle = { state.toggle() })
+                    onClick = { state.toggle() })
                 Checkbox(
                     value = state2.value,
-                    onToggle = { state2.toggle() },
-                    color = customColor2)
+                    onClick = { state2.toggle() },
+                    color = customColor2
+                )
                 Checkbox(
                     value = state3.value,
-                    onToggle = { state3.toggle() },
-                    color = customColor3)
+                    onClick = { state3.toggle() },
+                    color = customColor3
+                )
             }
         }
     }
@@ -163,15 +167,16 @@ fun CheckboxDemo() {
 fun SwitchDemo() {
     Row(
         mainAxisAlignment = MainAxisAlignment.SpaceAround,
-        mainAxisSize = MainAxisSize.Min) {
+        mainAxisSize = MainAxisSize.Min
+    ) {
         val (checked, onChecked) = +state { false }
         val (checked2, onChecked2) = +state { false }
         val (checked3, onChecked3) = +state { true }
         val (checked4, onChecked4) = +state { true }
-        Switch(checked = checked, onChecked = onChecked)
-        Switch(checked = checked2, onChecked = onChecked2, color = customColor)
-        Switch(checked = checked3, onChecked = onChecked3, color = customColor2)
-        Switch(checked = checked4, onChecked = onChecked4, color = customColor3)
+        Switch(checked = checked, onClick = { onChecked(!checked) })
+        Switch(checked = checked2, onClick = { onChecked2(!checked2) }, color = customColor)
+        Switch(checked = checked3, onClick = { onChecked3(!checked3) }, color = customColor2)
+        Switch(checked = checked4, onClick = { onChecked4(!checked4) }, color = customColor3)
     }
 }
 
@@ -179,7 +184,8 @@ fun SwitchDemo() {
 fun RadioButtonDemo() {
     Row(
         mainAxisAlignment = MainAxisAlignment.SpaceAround,
-        mainAxisSize = MainAxisSize.Min) {
+        mainAxisSize = MainAxisSize.Min
+    ) {
         RadioButton(selected = true)
         RadioButton(selected = false)
         RadioButton(selected = true, color = customColor)

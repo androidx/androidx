@@ -44,7 +44,7 @@ import com.google.r4a.unaryPlus
 
 // TODO(malkov): think about how to abstract it better
 /**
- * Function to resolve parent checkbox state based on children checkboxes' state
+ * Function to resolve parent [Checkbox] state based on children checkboxes' state
  * Use it when you have a hierarchy relationship between checkboxes in different levels
  *
  * @param childrenStates states of children checkboxes this parent is responsible for
@@ -56,24 +56,24 @@ fun parentCheckboxState(vararg childrenStates: ToggleableState): ToggleableState
 }
 
 /**
- * A checkbox is a toggleable component that provides checked / unchecked / indeterminate options
- * A checkbox can only reach an indeterminate state when it has
+ * A Checkbox is a toggleable component that provides checked / unchecked / indeterminate options
+ * A Checkbox can only reach an indeterminate state when it has
  * child checkboxes with different state values.
  *
  * @see [parentCheckboxState] to create parent checkbox state based on children's state
  *
- * @param value whether checkbox is checked, unchecked or in indeterminate state
- * @param onToggle callback to be invoked when checkbox is being toggled
+ * @param value whether Checkbox is checked, unchecked or in indeterminate state
+ * @param onClick callback to be invoked when checkbox is being clicked.
+ * If [null], Checkbox will show static [value] and remain disabled
  * @param color custom color for checkbox. By default [MaterialColors.secondary] will be used
- * @param testTag temporary test tag for testing purposes
  */
 @Composable
 fun Checkbox(
     value: ToggleableState,
-    onToggle: (() -> Unit)? = null,
+    onClick: (() -> Unit)? = null,
     color: Color? = null
 ) {
-    Toggleable(value = value, onToggle = onToggle) {
+    Toggleable(value = value, onToggle = onClick) {
         Padding(padding = CheckboxDefaultPadding) {
             Layout(
                 children = { DrawCheckbox(value = value, color = color) },

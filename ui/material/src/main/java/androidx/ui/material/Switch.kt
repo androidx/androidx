@@ -44,26 +44,20 @@ import com.google.r4a.unaryPlus
 /**
  * A Switch is a two state toggleable component that provides on/off like options
  *
- * if [onChecked] callback is represented, tapping this component will trigger callback with
- *  value opposite to what [checked] is.
- * If [onChecked] is not provided, this components will show
- * the current [checked] state and remains not clickable.
- *
  * @param checked whether or not this components is checked
- * @param onChecked callback to be invoked with opposite to [checked] value
- * when component is clicked
+ * @param onClick callback to be invoked when Switch is clicked.
+ * if [null], Switch will show static [checked] state and remain disabled
  * @param color optional active color for Switch,
  * by default [androidx.ui.material.MaterialColors.primary] will be used
  */
 @Composable
 fun Switch(
     checked: Boolean,
-    onChecked: ((Boolean) -> Unit)? = null,
+    onClick: (() -> Unit)? = null,
     color: Color? = null
 ) {
     val value = if (checked) ToggleableState.Checked else ToggleableState.Unchecked
-    val onToggle = onChecked?.let { { it(!checked) } }
-    Toggleable(value = value, onToggle = onToggle) {
+    Toggleable(value = value, onToggle = onClick) {
         val children = @Composable { DrawSwitch(checked = checked, color = color) }
         Layout(children = children, layoutBlock = { measurables, constraints ->
             val height =

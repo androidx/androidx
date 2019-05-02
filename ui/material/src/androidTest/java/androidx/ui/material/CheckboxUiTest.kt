@@ -40,7 +40,6 @@ import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import com.google.common.truth.Truth
 import com.google.r4a.Model
-import com.google.r4a.composer
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,7 +114,7 @@ class CheckboxUiTest : AndroidUiTestRunner() {
                     TestTag(tag = defaultTag) {
                         Checkbox(
                             value = state.value,
-                            onToggle = {
+                            onClick = {
                                 state.toggle()
                             })
                     }
@@ -139,7 +138,7 @@ class CheckboxUiTest : AndroidUiTestRunner() {
                     TestTag(tag = defaultTag) {
                         Checkbox(
                             value = state.value,
-                            onToggle = {
+                            onClick = {
                                 state.toggle()
                             })
                     }
