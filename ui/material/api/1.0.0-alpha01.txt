@@ -51,7 +51,7 @@ package androidx.ui.material {
 
   public final class CheckboxKt {
     ctor public CheckboxKt();
-    method public static void Checkbox(androidx.ui.baseui.selection.ToggleableState value, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, androidx.ui.painting.Color? color = null);
+    method public static void Checkbox(androidx.ui.baseui.selection.ToggleableState value, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.painting.Color? color = null);
     method public static androidx.ui.baseui.selection.ToggleableState parentCheckboxState(androidx.ui.baseui.selection.ToggleableState... childrenStates);
   }
 
@@ -168,7 +168,7 @@ package androidx.ui.material {
 
   public final class SwitchKt {
     ctor public SwitchKt();
-    method public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onChecked = null, androidx.ui.painting.Color? color = null);
+    method public static void Switch(boolean checked, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.painting.Color? color = null);
   }
 
   public final class TextKt {
