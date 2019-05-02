@@ -39,16 +39,16 @@ class HelloGestureBasedAnimationActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { <HelloGesture /> }
+        setContent { HelloGesture() }
     }
 }
 
 @Suppress("FunctionName")
 @Composable
 fun HelloGesture() {
-    <CraneWrapper>
-        <TransitionExample />
-    </CraneWrapper>
+    CraneWrapper {
+        TransitionExample()
+    }
 }
 
 private enum class ComponentState { Pressed, Released }
@@ -71,19 +71,19 @@ private val definition = transitionDefinition {
 @Composable
 fun TransitionExample() {
     val toState = +state { ComponentState.Released }
-    <PressGestureDetector
-        onPress = { toState.value = ComponentState.Pressed }
-        onRelease = { toState.value = ComponentState.Released }
-        onCancel = { toState.value = ComponentState.Released }>
-        val children = @androidx.compose.Composable {
-            <Transition definition toState=toState.value> state ->
-                <DrawScaledRect scale=state[scale] color=state[color] />
-            </Transition>
+    PressGestureDetector(
+        onPress = { toState.value = ComponentState.Pressed },
+        onRelease = { toState.value = ComponentState.Released },
+        onCancel = { toState.value = ComponentState.Released }) {
+        val children = @Composable {
+            Transition(definition = definition, toState = toState.value) { state ->
+                DrawScaledRect(scale = state[scale], color = state[color])
+            }
         }
-        <Layout children> _, constraints ->
+        Layout(children = children, layoutBlock = { _, constraints ->
             layout(constraints.maxWidth, constraints.maxHeight) {}
-        </Layout>
-    </PressGestureDetector>
+        })
+    }
 }
 
 val paint: Paint = Paint()
@@ -92,7 +92,7 @@ const val halfSize = 200f
 @Suppress("FunctionName")
 @Composable
 fun DrawScaledRect(scale: Float, color: Color) {
-    <Draw> canvas, parentSize ->
+    Draw { canvas, parentSize ->
         val centerX = parentSize.width.value / 2
         val centerY = parentSize.height.value / 2
         paint.color = color
@@ -102,5 +102,5 @@ fun DrawScaledRect(scale: Float, color: Color) {
                 centerX + halfSize * scale, centerY + halfSize * scale
             ), paint
         )
-    </Draw>
+    }
 }

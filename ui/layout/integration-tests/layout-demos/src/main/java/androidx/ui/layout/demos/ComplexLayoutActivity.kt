@@ -25,6 +25,6 @@ class ComplexLayoutActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { <ComplexLayoutDemos /> }
+        setContent { ComplexLayoutDemos() }
     }
 }

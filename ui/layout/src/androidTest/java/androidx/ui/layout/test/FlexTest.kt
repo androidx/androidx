@@ -61,25 +61,25 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
-            <Center>
-                <Row>
-                    <Container width=sizeDp height=sizeDp>
-                        <OnPositioned onPositioned={ coordinates ->
+            Center {
+                Row {
+                    Container(width = sizeDp, height = sizeDp) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
+                        })
+                    }
 
-                    <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned onPositioned={ coordinates ->
+                    Container(width = (sizeDp * 2), height = (sizeDp * 2)) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
-                </Row>
-            </Center>
+                        })
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -110,31 +110,31 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
-            <Center>
-                <FlexRow>
+            Center {
+                FlexRow {
                     val widthDp = 50.px.toDp()
 
-                    expanded(flex=1f) {
-                        <Container width=widthDp height=heightDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                    expanded(flex = 1f) {
+                        Container(width = widthDp, height = heightDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childSize[0] = coordinates.size
                                 childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
 
-                    expanded(flex=2f) {
-                        <Container width=widthDp height=(heightDp * 2)>
-                            <OnPositioned onPositioned={ coordinates ->
+                    expanded(flex = 2f) {
+                        Container(width = widthDp, height = (heightDp * 2)) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childSize[1] = coordinates.size
                                 childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                </FlexRow>
-            </Center>
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -147,13 +147,17 @@ class FlexTest : LayoutTest() {
             childSize[1]
         )
         assertEquals(
-            PxPosition(0.px,
-                (root.height.px / 2 - (childrenHeight.toPx() - 1.px) / 2).round().toPx()),
+            PxPosition(
+                0.px,
+                (root.height.px / 2 - (childrenHeight.toPx() - 1.px) / 2).round().toPx()
+            ),
             childPosition[0]
         )
         assertEquals(
-            PxPosition((root.width.px / 3).round().toPx(),
-                (root.height.px / 2).round().toPx() - childrenHeight.toPx()),
+            PxPosition(
+                (root.width.px / 3).round().toPx(),
+                (root.height.px / 2).round().toPx() - childrenHeight.toPx()
+            ),
             childPosition[1]
         )
     }
@@ -169,29 +173,29 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
-            <Center>
-                <FlexRow>
-                    flexible(flex=1f) {
-                        <Container width=childrenWidthDp height=childrenHeightDp>
-                            <OnPositioned onPositioned={ coordinates ->
+            Center {
+                FlexRow {
+                    flexible(flex = 1f) {
+                        Container(width = childrenWidthDp, height = childrenHeightDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childSize[0] = coordinates.size
                                 childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
 
-                    flexible(flex=2f) {
-                        <Container width=childrenWidthDp height=(childrenHeightDp * 2)>
-                            <OnPositioned onPositioned={ coordinates ->
+                    flexible(flex = 2f) {
+                        Container(width = childrenWidthDp, height = (childrenHeightDp * 2)) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childSize[1] = coordinates.size
                                 childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                </FlexRow>
-            </Center>
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -208,8 +212,10 @@ class FlexTest : LayoutTest() {
             childPosition[0]
         )
         assertEquals(
-            PxPosition(childrenWidth.toPx(),
-                (root.height.px / 2 - childrenHeight.toPx()).round().toPx()),
+            PxPosition(
+                childrenWidth.toPx(),
+                (root.height.px / 2 - childrenHeight.toPx()).round().toPx()
+            ),
             childPosition[1]
         )
     }
@@ -223,24 +229,24 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
-            <Center>
-                <Column>
-                    <Container width=sizeDp height=sizeDp>
-                        <OnPositioned onPositioned={ coordinates ->
+            Center {
+                Column {
+                    Container(width = sizeDp, height = sizeDp) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
-                    <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned onPositioned={ coordinates ->
+                        })
+                    }
+                    Container(width = (sizeDp * 2), height = (sizeDp * 2)) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
-                </Column>
-            </Center>
+                        })
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -271,31 +277,31 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
-            <Center>
-                <FlexColumn>
+            Center {
+                FlexColumn {
                     val heightDp = 50.px.toDp()
 
-                    expanded(flex=1f) {
-                        <Container width=widthDp height=heightDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                    expanded(flex = 1f) {
+                        Container(width = widthDp, height = heightDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childSize[0] = coordinates.size
                                 childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
 
-                    expanded(flex=2f) {
-                        <Container width=(widthDp * 2) height=heightDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                    expanded(flex = 2f) {
+                        Container(width = (widthDp * 2), height = heightDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childSize[1] = coordinates.size
                                 childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                </FlexColumn>
-            </Center>
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -315,8 +321,10 @@ class FlexTest : LayoutTest() {
             childPosition[0]
         )
         assertEquals(
-            PxPosition((root.width.px / 2 - childrenWidth.toPx()).round().toPx(),
-                (root.height.px / 3).round().toPx()),
+            PxPosition(
+                (root.width.px / 2 - childrenWidth.toPx()).round().toPx(),
+                (root.height.px / 3).round().toPx()
+            ),
             childPosition[1]
         )
     }
@@ -332,29 +340,29 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
-            <Center>
-                <FlexColumn>
-                    flexible(flex=1f) {
-                        <Container width=childrenWidthDp height=childrenHeightDp>
-                            <OnPositioned onPositioned={ coordinates ->
+            Center {
+                FlexColumn {
+                    flexible(flex = 1f) {
+                        Container(width = childrenWidthDp, height = childrenHeightDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childSize[0] = coordinates.size
                                 childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
 
-                    flexible(flex=2f) {
-                        <Container width=(childrenWidthDp * 2) height=childrenHeightDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                    flexible(flex = 2f) {
+                        Container(width = (childrenWidthDp * 2), height = childrenHeightDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childSize[1] = coordinates.size
                                 childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                </FlexColumn>
-            </Center>
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -371,8 +379,10 @@ class FlexTest : LayoutTest() {
             childPosition[0]
         )
         assertEquals(
-            PxPosition((root.width.px / 2 - childrenWidth.toPx()).round().toPx(),
-                childrenHeight.toPx()),
+            PxPosition(
+                (root.width.px / 2 - childrenWidth.toPx()).round().toPx(),
+                childrenHeight.toPx()
+            ),
             childPosition[1]
         )
     }
@@ -386,25 +396,25 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
-            <Center>
-                <Row crossAxisAlignment=CrossAxisAlignment.Start>
-                    <Container width=sizeDp height=sizeDp>
-                        <OnPositioned onPositioned={ coordinates ->
+            Center {
+                Row(crossAxisAlignment = CrossAxisAlignment.Start) {
+                    Container(width = sizeDp, height = sizeDp) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
+                        })
+                    }
 
-                    <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned onPositioned={ coordinates ->
+                    Container(width = (sizeDp * 2), height = (sizeDp * 2)) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
-                </Row>
-            </Center>
+                        })
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -435,25 +445,25 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
-            <Center>
-                <Row crossAxisAlignment=CrossAxisAlignment.End>
-                    <Container width=sizeDp height=sizeDp>
-                        <OnPositioned onPositioned={ coordinates ->
+            Center {
+                Row(crossAxisAlignment = CrossAxisAlignment.End) {
+                    Container(width = sizeDp, height = sizeDp) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
+                        })
+                    }
 
-                    <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned onPositioned={ coordinates ->
+                    Container(width = (sizeDp * 2), height = (sizeDp * 2)) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
-                </Row>
-            </Center>
+                        })
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -466,8 +476,10 @@ class FlexTest : LayoutTest() {
             childSize[1]
         )
         assertEquals(
-            PxPosition(0.px, ((root.height.px + (sizeDp.toPx() * 2)
-                .round().toPx()) / 2 - size.toPx()).round().toPx()),
+            PxPosition(
+                0.px, ((root.height.px + (sizeDp.toPx() * 2)
+                    .round().toPx()) / 2 - size.toPx()).round().toPx()
+            ),
             childPosition[0]
         )
         assertEquals(
@@ -485,25 +497,25 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
-            <Center>
-                <Row crossAxisAlignment=CrossAxisAlignment.Stretch>
-                    <Container width=sizeDp height=sizeDp>
-                        <OnPositioned onPositioned={ coordinates ->
+            Center {
+                Row(crossAxisAlignment = CrossAxisAlignment.Stretch) {
+                    Container(width = sizeDp, height = sizeDp) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
+                        })
+                    }
 
-                    <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned onPositioned={ coordinates ->
+                    Container(width = (sizeDp * 2), height = (sizeDp * 2)) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
-                </Row>
-            </Center>
+                        })
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -528,25 +540,25 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
-            <Center>
-                <Column crossAxisAlignment=CrossAxisAlignment.Start>
-                    <Container width=sizeDp height=sizeDp>
-                        <OnPositioned onPositioned={ coordinates ->
+            Center {
+                Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                    Container(width = sizeDp, height = sizeDp) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
+                        })
+                    }
 
-                    <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned onPositioned={ coordinates ->
+                    Container(width = (sizeDp * 2), height = (sizeDp * 2)) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
-                </Column>
-            </Center>
+                        })
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -577,25 +589,25 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
-            <Center>
-                <Column crossAxisAlignment=CrossAxisAlignment.End>
-                    <Container width=sizeDp height=sizeDp>
-                        <OnPositioned onPositioned={ coordinates ->
+            Center {
+                Column(crossAxisAlignment = CrossAxisAlignment.End) {
+                    Container(width = sizeDp, height = sizeDp) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
+                        })
+                    }
 
-                    <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned onPositioned={ coordinates ->
+                    Container(width = (sizeDp * 2), height = (sizeDp * 2)) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
-                </Column>
-            </Center>
+                        })
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -630,25 +642,25 @@ class FlexTest : LayoutTest() {
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
         show @Composable {
-            <Center>
-                <Column crossAxisAlignment=CrossAxisAlignment.Stretch>
-                    <Container width=sizeDp height=sizeDp>
-                        <OnPositioned onPositioned={ coordinates ->
+            Center {
+                Column(crossAxisAlignment = CrossAxisAlignment.Stretch) {
+                    Container(width = sizeDp, height = sizeDp) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[0] = coordinates.size
                             childPosition[0] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
+                        })
+                    }
 
-                    <Container width=(sizeDp * 2) height=(sizeDp * 2)>
-                        <OnPositioned onPositioned={ coordinates ->
+                    Container(width = (sizeDp * 2), height = (sizeDp * 2)) {
+                        OnPositioned(onPositioned = { coordinates ->
                             childSize[1] = coordinates.size
                             childPosition[1] = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             drawLatch.countDown()
-                        } />
-                    </Container>
-                </Column>
-            </Center>
+                        })
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -671,17 +683,17 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         lateinit var rowSize: PxSize
         show @Composable {
-            <Center>
-                <Row mainAxisSize=MainAxisSize.Max>
-                    <FixedSpacer width=sizeDp height=sizeDp/>
-                    <FixedSpacer width=(sizeDp * 2) height=(sizeDp * 2)/>
+            Center {
+                Row(mainAxisSize = MainAxisSize.Max) {
+                    FixedSpacer(width = sizeDp, height = sizeDp)
+                    FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         rowSize = coordinates.size
                         drawLatch.countDown()
-                    } />
-                </Row>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -702,17 +714,17 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         lateinit var rowSize: PxSize
         show @Composable {
-            <Center>
-                <Row mainAxisSize=MainAxisSize.Min>
-                    <FixedSpacer width=sizeDp height=sizeDp/>
-                    <FixedSpacer width=(sizeDp * 2) height=(sizeDp * 2)/>
+            Center {
+                Row(mainAxisSize = MainAxisSize.Min) {
+                    FixedSpacer(width = sizeDp, height = sizeDp)
+                    FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         rowSize = coordinates.size
                         drawLatch.countDown()
-                    } />
-                </Row>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -734,19 +746,19 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         lateinit var rowSize: PxSize
         show @Composable {
-            <Center>
-                <ConstrainedBox constraints = DpConstraints(minWidth = rowWidthDp)>
-                    <Row mainAxisSize=MainAxisSize.Min>
-                        <FixedSpacer width=sizeDp height=sizeDp/>
-                        <FixedSpacer width=(sizeDp * 2) height=(sizeDp * 2)/>
+            Center {
+                ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
+                    Row(mainAxisSize = MainAxisSize.Min) {
+                        FixedSpacer(width = sizeDp, height = sizeDp)
+                        FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
-                        <OnPositioned onPositioned={ coordinates ->
+                        OnPositioned(onPositioned = { coordinates ->
                             rowSize = coordinates.size
                             drawLatch.countDown()
-                        } />
-                    </Row>
-                </ConstrainedBox>
-            </Center>
+                        })
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -770,26 +782,26 @@ class FlexTest : LayoutTest() {
         lateinit var rowSize: PxSize
         lateinit var expandedChildSize: PxSize
         show @Composable {
-            <Center>
-                <ConstrainedBox constraints = DpConstraints(minWidth = rowWidthDp)>
-                    <FlexRow mainAxisSize=MainAxisSize.Min>
-                        expanded(flex=1f) {
-                            <Container width=sizeDp height=sizeDp>
-                                <OnPositioned onPositioned={ coordinates ->
+            Center {
+                ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
+                    FlexRow(mainAxisSize = MainAxisSize.Min) {
+                        expanded(flex = 1f) {
+                            Container(width = sizeDp, height = sizeDp) {
+                                OnPositioned(onPositioned = { coordinates ->
                                     expandedChildSize = coordinates.size
                                     drawLatch.countDown()
-                                } />
-                            </Container>
+                                })
+                            }
                         }
                         inflexible {
-                            <OnPositioned onPositioned={ coordinates ->
+                            OnPositioned(onPositioned = { coordinates ->
                                 rowSize = coordinates.size
                                 drawLatch.countDown()
-                            } />
+                            })
                         }
-                    </FlexRow>
-                </ConstrainedBox>
-            </Center>
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -813,17 +825,17 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         lateinit var columnSize: PxSize
         show @Composable {
-            <Center>
-                <Column mainAxisSize=MainAxisSize.Max>
-                    <FixedSpacer width=sizeDp height=sizeDp/>
-                    <FixedSpacer width=(sizeDp * 2) height=(sizeDp * 2)/>
+            Center {
+                Column(mainAxisSize = MainAxisSize.Max) {
+                    FixedSpacer(width = sizeDp, height = sizeDp)
+                    FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         columnSize = coordinates.size
                         drawLatch.countDown()
-                    } />
-                </Column>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -844,17 +856,17 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         lateinit var columnSize: PxSize
         show @Composable {
-            <Center>
-                <Column mainAxisSize=MainAxisSize.Min>
-                    <FixedSpacer width=sizeDp height=sizeDp/>
-                    <FixedSpacer width=(sizeDp * 2) height=(sizeDp * 2)/>
+            Center {
+                Column(mainAxisSize = MainAxisSize.Min) {
+                    FixedSpacer(width = sizeDp, height = sizeDp)
+                    FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         columnSize = coordinates.size
                         drawLatch.countDown()
-                    } />
-                </Column>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -878,26 +890,26 @@ class FlexTest : LayoutTest() {
         lateinit var columnSize: PxSize
         lateinit var expandedChildSize: PxSize
         show @Composable {
-            <Center>
-                <ConstrainedBox constraints = DpConstraints(minHeight = columnHeightDp)>
-                    <FlexColumn mainAxisSize=MainAxisSize.Min>
-                        expanded(flex=1f) {
-                            <Container width=sizeDp height=sizeDp>
-                                <OnPositioned onPositioned={ coordinates ->
+            Center {
+                ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
+                    FlexColumn(mainAxisSize = MainAxisSize.Min) {
+                        expanded(flex = 1f) {
+                            Container(width = sizeDp, height = sizeDp) {
+                                OnPositioned(onPositioned = { coordinates ->
                                     expandedChildSize = coordinates.size
                                     drawLatch.countDown()
-                                } />
-                            </Container>
+                                })
+                            }
                         }
                         inflexible {
-                            <OnPositioned onPositioned={ coordinates ->
+                            OnPositioned(onPositioned = { coordinates ->
                                 columnSize = coordinates.size
                                 drawLatch.countDown()
-                            } />
+                            })
                         }
-                    </FlexColumn>
-                </ConstrainedBox>
-            </Center>
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -923,19 +935,19 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         lateinit var columnSize: PxSize
         show @Composable {
-            <Center>
-                <ConstrainedBox constraints = DpConstraints(minHeight = columnHeightDp)>
-                    <Column mainAxisSize=MainAxisSize.Min>
-                        <FixedSpacer width=sizeDp height=sizeDp/>
-                        <FixedSpacer width=(sizeDp * 2) height=(sizeDp * 2)/>
+            Center {
+                ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
+                    Column(mainAxisSize = MainAxisSize.Min) {
+                        FixedSpacer(width = sizeDp, height = sizeDp)
+                        FixedSpacer(width = (sizeDp * 2), height = (sizeDp * 2))
 
-                        <OnPositioned onPositioned={ coordinates ->
+                        OnPositioned(onPositioned = { coordinates ->
                             columnSize = coordinates.size
                             drawLatch.countDown()
-                        } />
-                    </Column>
-                </ConstrainedBox>
-            </Center>
+                        })
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -959,26 +971,26 @@ class FlexTest : LayoutTest() {
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show @Composable {
-            <Center>
-                <Row mainAxisAlignment=MainAxisAlignment.Start>
+            Center {
+                Row(mainAxisAlignment = MainAxisAlignment.Start) {
                     // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
-                        <Container width=sizeDp height=sizeDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                        Container(width = sizeDp, height = sizeDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    } />
-                </Row>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -1001,26 +1013,26 @@ class FlexTest : LayoutTest() {
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show @Composable {
-            <Center>
-                <Row mainAxisAlignment=MainAxisAlignment.End>
-                // TODO(popam): replace with normal for loop when IR is fixed
+            Center {
+                Row(mainAxisAlignment = MainAxisAlignment.End) {
+                    // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
-                        <Container width=sizeDp height=sizeDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                        Container(width = sizeDp, height = sizeDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    } />
-                </Row>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -1043,26 +1055,26 @@ class FlexTest : LayoutTest() {
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show @Composable {
-            <Center>
-                <Row mainAxisAlignment=MainAxisAlignment.Center>
-                // TODO(popam): replace with normal for loop when IR is fixed
+            Center {
+                Row(mainAxisAlignment = MainAxisAlignment.Center) {
+                    // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
-                        <Container width=sizeDp height=sizeDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                        Container(width = sizeDp, height = sizeDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    } />
-                </Row>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -1086,26 +1098,26 @@ class FlexTest : LayoutTest() {
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show @Composable {
-            <Center>
-                <Row mainAxisAlignment=MainAxisAlignment.SpaceEvenly>
-                // TODO(popam): replace with normal for loop when IR is fixed
+            Center {
+                Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                    // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
-                        <Container width=sizeDp height=sizeDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                        Container(width = sizeDp, height = sizeDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    } />
-                </Row>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -1129,26 +1141,26 @@ class FlexTest : LayoutTest() {
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show @Composable {
-            <Center>
-                <Row mainAxisAlignment=MainAxisAlignment.SpaceBetween>
-                // TODO(popam): replace with normal for loop when IR is fixed
+            Center {
+                Row(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+                    // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
-                        <Container width=sizeDp height=sizeDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                        Container(width = sizeDp, height = sizeDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    } />
-                </Row>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -1172,26 +1184,26 @@ class FlexTest : LayoutTest() {
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show @Composable {
-            <Center>
-                <Row mainAxisAlignment=MainAxisAlignment.SpaceAround>
-                // TODO(popam): replace with normal for loop when IR is fixed
+            Center {
+                Row(mainAxisAlignment = MainAxisAlignment.SpaceAround) {
+                    // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
-                        <Container width=sizeDp height=sizeDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                        Container(width = sizeDp, height = sizeDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    } />
-                </Row>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -1215,26 +1227,26 @@ class FlexTest : LayoutTest() {
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show @Composable {
-            <Center>
-                <Column mainAxisAlignment=MainAxisAlignment.Start>
-                // TODO(popam): replace with normal for loop when IR is fixed
+            Center {
+                Column(mainAxisAlignment = MainAxisAlignment.Start) {
+                    // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
-                        <Container width=sizeDp height=sizeDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                        Container(width = sizeDp, height = sizeDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    } />
-                </Column>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -1257,26 +1269,26 @@ class FlexTest : LayoutTest() {
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show @Composable {
-            <Center>
-                <Column mainAxisAlignment=MainAxisAlignment.End>
-                // TODO(popam): replace with normal for loop when IR is fixed
+            Center {
+                Column(mainAxisAlignment = MainAxisAlignment.End) {
+                    // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
-                        <Container width=sizeDp height=sizeDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                        Container(width = sizeDp, height = sizeDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    } />
-                </Column>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -1299,26 +1311,26 @@ class FlexTest : LayoutTest() {
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show @Composable {
-            <Center>
-                <Column mainAxisAlignment=MainAxisAlignment.Center>
-                // TODO(popam): replace with normal for loop when IR is fixed
+            Center {
+                Column(mainAxisAlignment = MainAxisAlignment.Center) {
+                    // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
-                        <Container width=sizeDp height=sizeDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                        Container(width = sizeDp, height = sizeDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    } />
-                </Column>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -1342,26 +1354,26 @@ class FlexTest : LayoutTest() {
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show @Composable {
-            <Center>
-                <Column mainAxisAlignment=MainAxisAlignment.SpaceEvenly>
-                // TODO(popam): replace with normal for loop when IR is fixed
+            Center {
+                Column(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                    // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
-                        <Container width=sizeDp height=sizeDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                        Container(width = sizeDp, height = sizeDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    } />
-                </Column>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -1385,26 +1397,26 @@ class FlexTest : LayoutTest() {
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show @Composable {
-            <Center>
-                <Column mainAxisAlignment=MainAxisAlignment.SpaceBetween>
-                // TODO(popam): replace with normal for loop when IR is fixed
+            Center {
+                Column(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+                    // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
-                        <Container width=sizeDp height=sizeDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                        Container(width = sizeDp, height = sizeDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    } />
-                </Column>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -1428,26 +1440,26 @@ class FlexTest : LayoutTest() {
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
         show @Composable {
-            <Center>
-                <Column mainAxisAlignment=MainAxisAlignment.SpaceAround>
-                // TODO(popam): replace with normal for loop when IR is fixed
+            Center {
+                Column(mainAxisAlignment = MainAxisAlignment.SpaceAround) {
+                    // TODO(popam): replace with normal for loop when IR is fixed
                     childPosition.forEachIndexed { i, _ ->
-                        <Container width=sizeDp height=sizeDp>
-                            <OnPositioned onPositioned={ coordinates ->
+                        Container(width = sizeDp, height = sizeDp) {
+                            OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
                                 drawLatch.countDown()
-                            } />
-                        </Container>
+                            })
+                        }
                     }
-                    <OnPositioned onPositioned={ coordinates ->
+                    OnPositioned(onPositioned = { coordinates ->
                         childPosition.forEachIndexed { i, _ ->
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
                         drawLatch.countDown()
-                    } />
-                </Column>
-            </Center>
+                    })
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -1469,17 +1481,19 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(4)
         val containerSize = Ref<PxSize>()
         show @Composable {
-            <Center>
-                <ConstrainedBox constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)>
-                    <Column>
-                        <OnChildPositioned onPositioned = { coordinates ->
+            Center {
+                ConstrainedBox(
+                    constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)
+                ) {
+                    Column {
+                        OnChildPositioned(onPositioned = { coordinates ->
                             containerSize.value = coordinates.size
-                        }>
-                            <FixedSpacer width=childSizeDp height=childSizeDp />
-                        </OnChildPositioned>
-                    </Column>
-                </ConstrainedBox>
-            </Center>
+                        }) {
+                            FixedSpacer(width = childSizeDp, height = childSizeDp)
+                        }
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 

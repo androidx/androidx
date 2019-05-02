@@ -103,6 +103,7 @@ interface ActionType
 
 // These are some example action types provided by the framework:
 class Autofill : ActionType
+
 enum class PolarityAction : ActionType { Neutral, Positive, Negative, Toggle }
 enum class AccessibilityAction : ActionType { Primary, Secondary, Tertiary }
 enum class EditAction : ActionType { Cut, Copy, Paste, Select, SelectAll, Clear, Undo }
@@ -119,14 +120,14 @@ fun PressGestureDetectorWithActions(
     onPress: SemanticAction<PxPosition> = SemanticAction(defaultParam = PxPosition.Origin) { _ -> },
     onRelease: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { _ -> },
     onCancel: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { _ -> },
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
-    <PressGestureDetector
-        onPress={ onPress.action(ActionParam(ActionCaller.PointerInput, it)) }
-        onRelease={ onRelease.action(ActionParam(ActionCaller.PointerInput, Unit)) }
-        onCancel={ onCancel.action(ActionParam(ActionCaller.PointerInput, Unit)) }>
-        <children />
-    </PressGestureDetector>
+    PressGestureDetector(
+        onPress = { onPress.action(ActionParam(ActionCaller.PointerInput, it)) },
+        onRelease = { onRelease.action(ActionParam(ActionCaller.PointerInput, Unit)) },
+        onCancel = { onCancel.action(ActionParam(ActionCaller.PointerInput, Unit)) }) {
+        children()
+    }
 }
 
 /**
@@ -137,37 +138,41 @@ fun PressGestureDetectorWithActions(
  */
 @Composable
 fun Semantics(
-    @Suppress("UNUSED_PARAMETER") properties: Set<SemanticProperty<out Any>> = setOf(),
+    // TODO: use this?
+    // properties: Set<SemanticProperty<out Any>> = setOf(),
     actions: Set<SemanticAction<out Any?>> = setOf(),
     @Children children: @Composable() () -> Unit
 ) {
-    <Column>
-        <MaterialTheme>
+    Column {
+        MaterialTheme {
 
             // Invoke actions by type.
             val primary = actions.firstOrNull { it.types.contains(AccessibilityAction.Primary) }
             val secondary = actions.firstOrNull { it.types.contains(AccessibilityAction.Secondary) }
-            <Text text="Accessibility Actions By Type" style=+themeTextStyle { h6.copy() } />
-            <Row mainAxisAlignment=MainAxisAlignment.SpaceEvenly>
-                <Button text="Primary" onClick={ primary?.invoke(ActionCaller.Accessibility) } />
-                <Button text="Secondary" onClick={ secondary?.invoke(ActionCaller.Accessibility) }/>
-            </Row>
+            Text(text = "Accessibility Actions By Type", style = +themeTextStyle { h6.copy() })
+            Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                Button(text = "Primary", onClick = { primary?.invoke(ActionCaller.Accessibility) })
+                Button(text = "Secondary", onClick = {
+                    secondary?.invoke(ActionCaller.Accessibility)
+                })
+            }
 
             // Invoke by phrase.
-            <Text text="Accessibility Actions By Phrase" style=+themeTextStyle { h6.copy() } />
-            <Row mainAxisAlignment=MainAxisAlignment.SpaceEvenly> actions.forEach {
-                <Button text=it.phrase onClick={ it.invoke(ActionCaller.Accessibility) } />
+            Text(text = "Accessibility Actions By Phrase", style = +themeTextStyle { h6.copy() })
+            Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                actions.forEach {
+                    Button(text = it.phrase, onClick = { it.invoke(ActionCaller.Accessibility) })
+                }
             }
-            </Row>
 
             // Invoke by assistant type.
             val positive = actions.firstOrNull { it.types.contains(PolarityAction.Positive) }
             val negative = actions.firstOrNull { it.types.contains(PolarityAction.Negative) }
-            <Text text="Assistant Actions" style=+themeTextStyle { h6.copy() } />
-            <Row mainAxisAlignment=MainAxisAlignment.SpaceEvenly>
-                <Button text="Negative" onClick={ negative?.invoke(ActionCaller.Assistant) } />
-                <Button text="Positive" onClick={ positive?.invoke(ActionCaller.Assistant) } />
-            </Row>
+            Text(text = "Assistant Actions", style = +themeTextStyle { h6.copy() })
+            Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                Button(text = "Negative", onClick = { negative?.invoke(ActionCaller.Assistant) })
+                Button(text = "Positive", onClick = { positive?.invoke(ActionCaller.Assistant) })
+            }
 
             // Invoke by passing parameters.
             @Suppress("UNCHECKED_CAST")
@@ -176,24 +181,25 @@ fun Semantics(
             @Suppress("UNCHECKED_CAST")
             val unitAction =
                 actions.firstOrNull { it.defaultParam is Unit } as SemanticAction<Unit>?
-            <Text text="Actions using Parameters" style=+themeTextStyle { h6.copy() } />
-            <Row mainAxisAlignment=MainAxisAlignment.SpaceEvenly>
-                <Button
-                    text="IntAction"
-                    onClick={ pxPositionAction?.invoke(param = PxPosition(1.px, 1.px)) } />
-                <Button
-                    text="VoidAction"
-                    onClick={ unitAction?.invoke(param = Unit) } />
-            </Row>
-        </MaterialTheme>
-        <Row
-            mainAxisAlignment=MainAxisAlignment.Center
-            crossAxisAlignment=CrossAxisAlignment.Center>
-            <Container height=300.dp width=500.dp>
-                <children />
-            </Container>
-        </Row>
-    </Column>
+            Text(text = "Actions using Parameters", style = +themeTextStyle { h6.copy() })
+            Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                Button(
+                    text = "IntAction",
+                    onClick = { pxPositionAction?.invoke(param = PxPosition(1.px, 1.px)) })
+                Button(
+                    text = "VoidAction",
+                    onClick = { unitAction?.invoke(param = Unit) })
+            }
+        }
+        Row(
+            mainAxisAlignment = MainAxisAlignment.Center,
+            crossAxisAlignment = CrossAxisAlignment.Center
+        ) {
+            Container(height = 300.dp, width = 500.dp) {
+                children()
+            }
+        }
+    }
 }
 
 /**
@@ -205,7 +211,7 @@ fun Semantics(
 fun ClickInteraction(
     press: SemanticActionBuilder<PxPosition>.() -> Unit,
     release: SemanticActionBuilder<Unit>.() -> Unit,
-    @Children children: () -> Unit
+    @Children children: @Composable() () -> Unit
 ) {
     val pressedAction = SemanticActionBuilder(
         label = "On Press",
@@ -217,15 +223,17 @@ fun ClickInteraction(
         defaultParam = Unit
     ).apply(release).build()
 
-    <Semantics
-        actions=setOf(pressedAction, releasedAction)>
-        <PressGestureDetectorWithActions
-            onPress=pressedAction
-            onRelease=releasedAction
-            onCancel=releasedAction>
-            <children />
-        </PressGestureDetectorWithActions>
-    </Semantics>
+    Semantics(
+        actions = setOf(pressedAction, releasedAction)
+    ) {
+        PressGestureDetectorWithActions(
+            onPress = pressedAction,
+            onRelease = releasedAction,
+            onCancel = releasedAction
+        ) {
+            children()
+        }
+    }
 }
 
 /**

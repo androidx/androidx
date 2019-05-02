@@ -55,13 +55,13 @@ val fontSize10: Float = 100.0.toFloat()
 
 @Composable
 fun TextDemo() {
-    <LinearLayout orientation=LinearLayout.VERTICAL
+    LinearLayout(orientation = LinearLayout.VERTICAL,
         layoutParams=LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.MATCH_PARENT
-        )>
-        <ScrollView>
-            <LinearLayout orientation=LinearLayout.VERTICAL>
+        )) {
+        ScrollView {
+            LinearLayout(orientation = LinearLayout.VERTICAL) {
                 TagLine(tag="color, fontSize, fontWeight and fontStyle")
                 TextDemoBasic()
                 TagLine(tag="Chinese, Arabic, and Hindi")
@@ -94,9 +94,9 @@ fun TextDemo() {
                 TextDemoShadowEffect()
                 TagLine(tag="editing")
                 EditLine()
-            </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
+            }
+        }
+    }
 }
 
 @Composable
@@ -373,7 +373,7 @@ fun TextDemoBaselineShift() {
 @Composable
 fun TextDemoHeight() {
     // This group of text widgets show different height.
-    <LinearLayout orientation=LinearLayout.HORIZONTAL>
+    LinearLayout(orientation = LinearLayout.HORIZONTAL) {
         CraneWrapper {
             Text(
                 text = TextSpan(
@@ -395,7 +395,7 @@ fun TextDemoHeight() {
                 )
             )
         }
-    </LinearLayout>
+    }
 }
 
 @Composable
@@ -479,7 +479,7 @@ fun TextDemoTextAlign() {
     for (i in 1..10) {
         text = text + displayText + " "
     }
-    <LinearLayout orientation=LinearLayout.VERTICAL>
+    LinearLayout(orientation = LinearLayout.VERTICAL) {
         SecondTagLine(tag="textAlgin = TextAlign.LEFT")
         CraneWrapper {
             Text(
@@ -507,7 +507,7 @@ fun TextDemoTextAlign() {
                         fontSize = fontSize8,
                         color = Color(0xFFFF0000.toInt())
                     )
-                ) )
+                ))
             }
         CraneWrapper {
             Text(
@@ -547,7 +547,7 @@ fun TextDemoTextAlign() {
                 textAlign = TextAlign.END
             )
         }
-    </LinearLayout>
+    }
 }
 
 @Composable
@@ -558,7 +558,7 @@ fun TextDemoSoftWrap() {
         text = text + displayText
     }
 
-    <LinearLayout orientation=LinearLayout.VERTICAL>
+    LinearLayout(orientation = LinearLayout.VERTICAL) {
         CraneWrapper {
             Text(
                 text=TextSpan(
@@ -578,7 +578,7 @@ fun TextDemoSoftWrap() {
                 softWrap = false
             )
         }
-    </LinearLayout>
+    }
 }
 
 // TODO(Migration/qqd): Impelement text demo for overflow and maxLines.

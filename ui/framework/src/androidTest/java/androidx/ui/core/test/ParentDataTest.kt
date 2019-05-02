@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2019 The Android Open Source Project
  *
@@ -65,8 +64,10 @@ class ParentDataTest {
         val parentData = Ref<Any?>()
         runOnUiThread {
             activity.setContent {
-                <CraneWrapper>
-                    <Layout children={ <SimpleDrawChild drawLatch/> }> measurables, constraints ->
+                CraneWrapper {
+                    Layout(children = {
+                        SimpleDrawChild(drawLatch = drawLatch)
+                    }) { measurables, constraints ->
                         assertEquals(1, measurables.size)
                         parentData.value = measurables[0].parentData
 
@@ -74,8 +75,8 @@ class ParentDataTest {
                         layout(placeable.width, placeable.height) {
                             placeable.place(0.ipx, 0.ipx)
                         }
-                    </Layout>
-                </CraneWrapper>
+                    }
+                }
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -88,12 +89,12 @@ class ParentDataTest {
         val parentData = Ref<Any?>()
         runOnUiThread {
             activity.setContent {
-                <CraneWrapper>
-                    <Layout children={
-                        <ParentData data="Hello">
-                            <SimpleDrawChild drawLatch/>
-                        </ParentData>
-                    }> measurables, constraints ->
+                CraneWrapper {
+                    Layout(children = {
+                        ParentData(data = "Hello") {
+                            SimpleDrawChild(drawLatch = drawLatch)
+                        }
+                    }) { measurables, constraints ->
                         assertEquals(1, measurables.size)
                         parentData.value = measurables[0].parentData
 
@@ -101,8 +102,8 @@ class ParentDataTest {
                         layout(placeable.width, placeable.height) {
                             placeable.place(0.ipx, 0.ipx)
                         }
-                    </Layout>
-                </CraneWrapper>
+                    }
+                }
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -116,11 +117,11 @@ class ParentDataTest {
         val parentData = Ref<Any?>()
         runOnUiThread {
             activity.setContent {
-                <CraneWrapper>
-                    <ParentData data="Hello">
-                        <Layout children={
-                            <SimpleDrawChild drawLatch/>
-                        }> measurables, constraints ->
+                CraneWrapper {
+                    ParentData(data = "Hello") {
+                        Layout(children = {
+                            SimpleDrawChild(drawLatch = drawLatch)
+                        }) { measurables, constraints ->
                             assertEquals(1, measurables.size)
                             parentData.value = measurables[0].parentData
 
@@ -128,9 +129,9 @@ class ParentDataTest {
                             layout(placeable.width, placeable.height) {
                                 placeable.place(0.ipx, 0.ipx)
                             }
-                        </Layout>
-                    </ParentData>
-                </CraneWrapper>
+                        }
+                    }
+                }
             }
         }
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
@@ -150,12 +151,12 @@ class ParentDataTest {
 
 @Composable
 fun SimpleDrawChild(drawLatch: CountDownLatch) {
-    <AtLeastSize size=10.ipx>
-        <Draw> canvas, parentSize ->
+    AtLeastSize(size = 10.ipx) {
+        Draw { canvas, parentSize ->
             val paint = Paint()
             paint.color = Color(0xFF008000.toInt())
             canvas.drawRect(parentSize.toRect(), paint)
             drawLatch.countDown()
-        </Draw>
-    </AtLeastSize>
+        }
+    }
 }

@@ -107,46 +107,47 @@ fun Text(
         }
     }
 
-        val style = +ambient(CurrentTextStyleAmbient)
-        val mergedStyle = style.merge(text.style)
-        // Make a wrapper to avoid modifying the style on the original element
-        val styledText = TextSpan(style = mergedStyle, children = listOf(text))
-        <Semantics
-            label=text.text>
-            val renderParagraph = RenderParagraph(
-                text = styledText,
-                textAlign = textAlign,
-                textDirection = textDirection,
-                softWrap = softWrap,
-                overflow = overflow,
-                textScaleFactor = textScaleFactor,
-                maxLines = maxLines,
-                selectionColor = selectionColor
-            )
-            // TODO(Migration/siyamed): This is temporary and should be removed when resource
-            // system is resolved.
-            attachContextToFont(styledText, context)
+    val style = +ambient(CurrentTextStyleAmbient)
+    val mergedStyle = style.merge(text.style)
+    // Make a wrapper to avoid modifying the style on the original element
+    val styledText = TextSpan(style = mergedStyle, children = listOf(text))
+    Semantics(
+        label = text.text
+    ) {
+        val renderParagraph = RenderParagraph(
+            text = styledText,
+            textAlign = textAlign,
+            textDirection = textDirection,
+            softWrap = softWrap,
+            overflow = overflow,
+            textScaleFactor = textScaleFactor,
+            maxLines = maxLines,
+            selectionColor = selectionColor
+        )
+        // TODO(Migration/siyamed): This is temporary and should be removed when resource
+        // system is resolved.
+        attachContextToFont(styledText, context)
 
-            val children = @androidx.compose.Composable {
-                <Draw> canvas, _ ->
-                    internalSelection?.let { renderParagraph.paintSelection(canvas, it) }
-                    renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
-                </Draw>
+        val children = @Composable {
+            Draw { canvas, _ ->
+                internalSelection?.let { renderParagraph.paintSelection(canvas, it) }
+                renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
             }
-            <Layout children> _, constraints ->
-                renderParagraph.performLayout(constraints)
-                // Convert the selection's start and end offset to a TextSelection object.
-                selectionPosition?.let {
-                    var selectionStart = renderParagraph.getPositionForOffset(it.first).offset
-                    var selectionEnd = renderParagraph.getPositionForOffset(it.second).offset
+        }
+        Layout(children = children, layoutBlock = { _, constraints ->
+            renderParagraph.performLayout(constraints)
+            // Convert the selection's start and end offset to a TextSelection object.
+            selectionPosition?.let {
+                val selectionStart = renderParagraph.getPositionForOffset(it.first).offset
+                var selectionEnd = renderParagraph.getPositionForOffset(it.second).offset
 
-                    if (selectionEnd == selectionStart) selectionEnd = selectionStart + 1
-                    internalSelection = TextSelection(selectionStart, selectionEnd)
-                }
+                if (selectionEnd == selectionStart) selectionEnd = selectionStart + 1
+                internalSelection = TextSelection(selectionStart, selectionEnd)
+            }
 
-                layout(renderParagraph.width.px.round(), renderParagraph.height.px.round()) {}
-            </Layout>
-        </Semantics>
+            layout(renderParagraph.width.px.round(), renderParagraph.height.px.round()) {}
+        })
+    }
 }
 
 /**
@@ -165,13 +166,14 @@ fun Text(
     overflow: TextOverflow = DefaultOverflow,
     maxLines: Int? = DefaultMaxLines
 ) {
-    <Text
-        text=TextSpan(text = text, style = style)
-        textAlign
-        textDirection
-        softWrap
-        overflow
-        maxLines />
+    Text(
+        text = TextSpan(text = text, style = style),
+        textAlign = textAlign,
+        textDirection = textDirection,
+        softWrap = softWrap,
+        overflow = overflow,
+        maxLines = maxLines
+    )
 }
 
 internal val CurrentTextStyleAmbient = Ambient.of<TextStyle>("current text style") {
@@ -188,9 +190,9 @@ internal val CurrentTextStyleAmbient = Ambient.of<TextStyle>("current text style
 fun CurrentTextStyleProvider(value: TextStyle, @Children children: @Composable() () -> Unit) {
     val style = +ambient(CurrentTextStyleAmbient)
     val mergedStyle = style.merge(value)
-    <CurrentTextStyleAmbient.Provider value=mergedStyle>
-        <children />
-    </CurrentTextStyleAmbient.Provider>
+    CurrentTextStyleAmbient.Provider(value = mergedStyle) {
+        children()
+    }
 }
 
 /**

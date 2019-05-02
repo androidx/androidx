@@ -53,19 +53,20 @@ class StackTest : LayoutTest() {
         val positionedChildSize = Ref<PxSize>()
         val positionedChildPosition = Ref<PxPosition>()
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
-                    <Stack>
+                }) {
+                    Stack {
                         aligned(Alignment.BottomRight) {
-                            <Container width=sizeDp height=sizeDp>
-                                <SaveLayoutInfo
-                                    size=alignedChildSize
-                                    position=alignedChildPosition
-                                    positionedLatch />
-                            </Container>
+                            Container(width = sizeDp, height = sizeDp) {
+                                SaveLayoutInfo(
+                                    size = alignedChildSize,
+                                    position = alignedChildPosition,
+                                    positionedLatch = positionedLatch
+                                )
+                            }
                         }
                         positioned(
                             leftInset = 10.dp,
@@ -73,16 +74,17 @@ class StackTest : LayoutTest() {
                             rightInset = 10.dp,
                             bottomInset = 10.dp
                         ) {
-                            <Container>
-                                <SaveLayoutInfo
-                                    size=positionedChildSize
-                                    position=positionedChildPosition
-                                    positionedLatch />
-                            </Container>
+                            Container {
+                                SaveLayoutInfo(
+                                    size = positionedChildSize,
+                                    position = positionedChildPosition,
+                                    positionedLatch = positionedLatch
+                                )
+                            }
                         }
-                    </Stack>
-                </OnChildPositioned>
-            </Align>
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
@@ -105,29 +107,31 @@ class StackTest : LayoutTest() {
         val childSize = arrayOf(Ref<PxSize>(), Ref<PxSize>())
         val childPosition = arrayOf(Ref<PxPosition>(), Ref<PxPosition>())
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
-                    <Stack>
+                }) {
+                    Stack {
                         aligned(Alignment.BottomRight) {
-                            <Container width=sizeDp height=sizeDp>
-                                <SaveLayoutInfo
-                                    size=childSize[0]
-                                    position=childPosition[0]
-                                    positionedLatch />
-                            </Container>
-                            <Container width=doubleSizeDp height=doubleSizeDp>
-                                <SaveLayoutInfo
-                                    size=childSize[1]
-                                    position=childPosition[1]
-                                    positionedLatch />
-                            </Container>
+                            Container(width = sizeDp, height = sizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[0],
+                                    position = childPosition[0],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                            Container(width = doubleSizeDp, height = doubleSizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[1],
+                                    position = childPosition[1],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
                         }
-                    </Stack>
-                </OnChildPositioned>
-            </Align>
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
@@ -152,71 +156,78 @@ class StackTest : LayoutTest() {
         val childSize = Array(7) { Ref<PxSize>() }
         val childPosition = Array(7) { Ref<PxPosition>() }
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned={ coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
-                    <Stack defaultAlignment=Alignment.BottomRight>
+                }) {
+                    Stack(defaultAlignment = Alignment.BottomRight) {
                         aligned(Alignment.Center) {
-                            <Container width=sizeDp height=sizeDp>
-                                <SaveLayoutInfo
-                                    size=childSize[0]
-                                    position=childPosition[0]
-                                    positionedLatch />
-                            </Container>
+                            Container(width = sizeDp, height = sizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[0],
+                                    position = childPosition[0],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
                         }
                         positioned(leftInset = insetDp, topInset = insetDp) {
-                            <Container width=halfSizeDp height=halfSizeDp>
-                                <SaveLayoutInfo
-                                    size=childSize[1]
-                                    position=childPosition[1]
-                                    positionedLatch />
-                            </Container>
+                            Container(width = halfSizeDp, height = halfSizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[1],
+                                    position = childPosition[1],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
                         }
                         positioned(rightInset = insetDp, bottomInset = insetDp) {
-                            <Container width=halfSizeDp height=halfSizeDp>
-                                <SaveLayoutInfo
-                                    size=childSize[2]
-                                    position=childPosition[2]
-                                    positionedLatch />
-                            </Container>
+                            Container(width = halfSizeDp, height = halfSizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[2],
+                                    position = childPosition[2],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
                         }
                         positioned(leftInset = insetDp) {
-                            <Container width=halfSizeDp height=halfSizeDp>
-                                <SaveLayoutInfo
-                                    size=childSize[3]
-                                    position=childPosition[3]
-                                    positionedLatch />
-                            </Container>
+                            Container(width = halfSizeDp, height = halfSizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[3],
+                                    position = childPosition[3],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
                         }
                         positioned(topInset = insetDp) {
-                            <Container width=halfSizeDp height=halfSizeDp>
-                                <SaveLayoutInfo
-                                    size=childSize[4]
-                                    position=childPosition[4]
-                                    positionedLatch />
-                            </Container>
+                            Container(width = halfSizeDp, height = halfSizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[4],
+                                    position = childPosition[4],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
                         }
                         positioned(rightInset = insetDp) {
-                            <Container width=halfSizeDp height=halfSizeDp>
-                                <SaveLayoutInfo
-                                    size=childSize[5]
-                                    position=childPosition[5]
-                                    positionedLatch />
-                            </Container>
+                            Container(width = halfSizeDp, height = halfSizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[5],
+                                    position = childPosition[5],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
                         }
                         positioned(bottomInset = insetDp) {
-                            <Container width=halfSizeDp height=halfSizeDp>
-                                <SaveLayoutInfo
-                                    size=childSize[6]
-                                    position=childPosition[6]
-                                    positionedLatch />
-                            </Container>
+                            Container(width = halfSizeDp, height = halfSizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[6],
+                                    position = childPosition[6],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
                         }
-                    </Stack>
-                </OnChildPositioned>
-            </Align>
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 

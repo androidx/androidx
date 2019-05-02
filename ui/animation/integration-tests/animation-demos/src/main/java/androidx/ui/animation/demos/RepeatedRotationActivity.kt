@@ -48,41 +48,41 @@ class RepeatedRotationActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { <RepeatedRotation /> }
+        setContent { RepeatedRotation() }
     }
 }
 
 @Composable
 fun RepeatedRotation() {
-    <CraneWrapper>
-        <Center>
+    CraneWrapper {
+        Center {
             val state = +state { RotationStates.Original }
-            <Column mainAxisAlignment=MainAxisAlignment.SpaceEvenly>
+            Column(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
                 val textStyle = TextStyle(fontSize = +withDensity { 18.dp.toPx().value })
-                <PressReleasedGestureDetector onRelease={
+                PressReleasedGestureDetector(onRelease = {
                     state.value = RotationStates.Rotated
-                }>
-                    <Text text=TextSpan(text = "Rotate 10 times", style = textStyle) />
-                </PressReleasedGestureDetector>
-                <PressReleasedGestureDetector onRelease={
+                }) {
+                    Text(text = TextSpan(text = "Rotate 10 times", style = textStyle))
+                }
+                PressReleasedGestureDetector(onRelease = {
                     state.value = RotationStates.Original
-                }>
-                    <Text text=TextSpan(text = "Reset", style = textStyle) />
-                </PressReleasedGestureDetector>
-                <Container width=100.dp height=100.dp>
-                    <Transition definition toState=state.value> state ->
-                        <Draw> canvas, parentSize ->
+                }) {
+                    Text(text = TextSpan(text = "Reset", style = textStyle))
+                }
+                Container(width = 100.dp, height = 100.dp) {
+                    Transition(definition = definition, toState = state.value) { state ->
+                        Draw { canvas, parentSize ->
                             canvas.save()
                             canvas.rotate(radians(state[rotation]))
                             canvas.drawRect(parentSize.toRect(),
                                 Paint().apply { color = Color(0xFF00FF00.toInt()) })
                             canvas.restore()
-                        </Draw>
-                    </Transition>
-                </Container>
-            </Column>
-        </Center>
-    </CraneWrapper>
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 enum class RotationStates {

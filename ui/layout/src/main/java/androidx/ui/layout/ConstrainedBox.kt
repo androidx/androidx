@@ -38,7 +38,7 @@ fun ConstrainedBox(
     constraints: DpConstraints,
     @Children children: @Composable() () -> Unit
 ) {
-    <Layout layoutBlock = { measurables, incomingConstraints ->
+    Layout(layoutBlock = { measurables, incomingConstraints ->
         val measurable = measurables.firstOrNull()
         val childConstraints = Constraints(constraints).enforce(incomingConstraints)
         val placeable = measurable?.measure(childConstraints)
@@ -48,5 +48,5 @@ fun ConstrainedBox(
         layout(layoutWidth, layoutHeight) {
             placeable?.place(IntPx.Zero, IntPx.Zero)
         }
-    } children />
+    }, children = children)
 }

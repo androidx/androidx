@@ -47,25 +47,25 @@ class StateBasedRippleAnimation : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { <StateBasedRippleDemo /> }
+        setContent { StateBasedRippleDemo() }
     }
 }
 
 @Composable
 fun StateBasedRippleDemo() {
-    <CraneWrapper>
-        val children = @androidx.compose.Composable {
-            <WithConstraints> constraints ->
-                <RippleRect width=constraints.maxWidth height=constraints.maxHeight />
-            </WithConstraints>
+    CraneWrapper {
+        val children = @Composable {
+            WithConstraints { constraints ->
+                RippleRect(width = constraints.maxWidth, height = constraints.maxHeight)
+            }
         }
-        <Layout children> measurables, constraints ->
+        Layout(children = children, layoutBlock = { measurables, constraints ->
             val placeable = measurables.firstOrNull()?.measure(constraints)
             layout(constraints.maxWidth, constraints.maxHeight) {
                 placeable?.place(0.ipx, 0.ipx)
             }
-        </Layout>
-    </CraneWrapper>
+        })
+    }
 }
 
 @Composable
@@ -79,7 +79,7 @@ fun RippleRect(width: IntPx, height: IntPx) {
     ).toFloat() / 2f
     var toState = ButtonStatus.Released
     val rippleTransDef = +memo(targetRadius) { createTransDef(targetRadius) }
-    <Recompose> recompose ->
+    Recompose { recompose ->
         val onPress: (PxPosition) -> Unit = { position ->
             toState = ButtonStatus.Pressed
             down.x = position.x.value
@@ -91,17 +91,17 @@ fun RippleRect(width: IntPx, height: IntPx) {
             toState = ButtonStatus.Released
             recompose()
         }
-        <PressGestureDetector onPress onRelease>
-            val children = @androidx.compose.Composable {
-                <Transition definition=rippleTransDef toState> state ->
-                    <RippleRectFromState state />
-                </Transition>
+        PressGestureDetector(onPress = onPress, onRelease = onRelease) {
+            val children = @Composable {
+                Transition(definition = rippleTransDef, toState = toState) { state ->
+                    RippleRectFromState(state = state)
+                }
             }
-            <Layout children> _, constraints ->
+            Layout(children = children, layoutBlock = { _, constraints ->
                 layout(constraints.maxWidth, constraints.maxHeight) { }
-            </Layout>
-        </PressGestureDetector>
-    </Recompose>
+            })
+        }
+    }
 }
 
 @Composable
@@ -117,9 +117,9 @@ fun RippleRectFromState(state: TransitionState) {
 
     val radius = state[radius]
 
-    <Draw> canvas, _ ->
+    Draw { canvas, _ ->
         canvas.drawCircle(Offset(x, y), radius, paint)
-    </Draw>
+    }
 }
 
 private enum class ButtonStatus {

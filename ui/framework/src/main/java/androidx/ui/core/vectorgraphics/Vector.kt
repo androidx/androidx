@@ -89,7 +89,7 @@ fun vector(
     @Children children: @Composable() () -> Unit
 ) {
     <Vector name defaultWidth defaultHeight viewportWidth viewportHeight>
-        <children />
+        children()
     </Vector>
 }
 
@@ -118,7 +118,7 @@ fun group(
         translateX
         translateY
         clipPathNodes>
-        <childNodes />
+        childNodes()
     </Group>
 }
 

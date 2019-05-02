@@ -58,23 +58,21 @@ class AnimationGestureSemanticsActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            <CraneWrapper>
-
+            CraneWrapper {
                 // This component does not use Semantics.
-                // <WithoutSemanticActions />
+                // WithoutSemanticActions()
 
                 // This component is a sample using the Level 1 API.
-                // <Level1Api />
+                // Level1Api()
 
                 // TODO(ralu): Add Level 2 API Sample. (Need to implement node merging).
 
                 // This component is a sample using the Level 3 API, with the built-in defaults.
-                // <Level3Api />
+                // Level3Api()
 
                 // This component is a sample using the Level 3 API, along with extra parameters.
-                <Level3ApiExtras/>
-
-            </CraneWrapper>
+                Level3ApiExtras()
+            }
         }
     }
 
@@ -84,11 +82,11 @@ class AnimationGestureSemanticsActivity : Activity() {
     @Composable
     fun WithoutSemanticActions() {
         val animationEndState = +state { ComponentState.Released }
-        <PressGestureDetector
-            onPress={ animationEndState.value = ComponentState.Pressed }
-            onRelease={ animationEndState.value = ComponentState.Released }>
-            <Animation animationEndState=animationEndState.value />
-        </PressGestureDetector>
+        PressGestureDetector(
+            onPress = { animationEndState.value = ComponentState.Pressed },
+            onRelease = { animationEndState.value = ComponentState.Released }) {
+            Animation(animationEndState = animationEndState.value)
+        }
     }
 
     /**
@@ -101,26 +99,30 @@ class AnimationGestureSemanticsActivity : Activity() {
         val pressedAction = SemanticAction<PxPosition>(
             phrase = "Pressed",
             defaultParam = PxPosition.Origin,
-            types = setOf(AccessibilityAction.Primary, PolarityAction.Negative)) {
+            types = setOf(AccessibilityAction.Primary, PolarityAction.Negative)
+        ) {
             animationEndState.value = ComponentState.Pressed
         }
 
         val releasedAction = SemanticAction<Unit>(
             phrase = "Released",
             defaultParam = Unit,
-            types = setOf(AccessibilityAction.Secondary, PolarityAction.Positive)) {
+            types = setOf(AccessibilityAction.Secondary, PolarityAction.Positive)
+        ) {
             animationEndState.value = ComponentState.Released
         }
 
-        <Semantics
-            properties=setOf(Label("Animating Circle"), Visibility.Visible)
-            actions=setOf(pressedAction, releasedAction)>
-            <PressGestureDetectorWithActions
-                onPress=pressedAction
-                onRelease=releasedAction>
-                <Animation animationEndState=animationEndState.value />
-            </PressGestureDetectorWithActions>
-        </Semantics>
+        Semantics(
+            // properties = setOf(Label("Animating Circle"), Visibility.Visible),
+            actions = setOf(pressedAction, releasedAction)
+        ) {
+            PressGestureDetectorWithActions(
+                onPress = pressedAction,
+                onRelease = releasedAction
+            ) @Composable {
+                Animation(animationEndState = animationEndState.value)
+            }
+        }
     }
 
     /**
@@ -130,11 +132,15 @@ class AnimationGestureSemanticsActivity : Activity() {
     @Composable
     fun Level3Api() {
         val animationEndState = +state { ComponentState.Released }
-        <ClickInteraction
-            press= { action { animationEndState.value = ComponentState.Pressed } }
-            release= { action { animationEndState.value = ComponentState.Released} }>
-            <Animation animationEndState=animationEndState.value />
-        </ClickInteraction>
+        ClickInteraction(
+            press = { action { animationEndState.value = ComponentState.Pressed } },
+            release = {
+                action {
+                    animationEndState.value = ComponentState.Released
+                }
+            }) @Composable {
+            Animation(animationEndState = animationEndState.value)
+        }
     }
 
     /**
@@ -144,40 +150,42 @@ class AnimationGestureSemanticsActivity : Activity() {
     @Composable
     fun Level3ApiExtras() {
         val animationEndState = +state { ComponentState.Released }
-        <ClickInteraction
-            press={
+        ClickInteraction(
+            press = {
                 label = "Shrink"
                 types = setOf(AccessibilityAction.Primary, PolarityAction.Negative)
                 action = { animationEndState.value = ComponentState.Pressed }
-            }
-            release={
+            },
+            release = {
                 label = "Enlarge"
                 types = setOf(AccessibilityAction.Secondary, PolarityAction.Positive)
                 action = { animationEndState.value = ComponentState.Released }
-            }>
-            <Animation animationEndState=animationEndState.value />
-        </ClickInteraction>
+            }) {
+            Animation(animationEndState = animationEndState.value)
+        }
     }
 
     @Composable
     private fun Animation(animationEndState: ComponentState) {
-        <Layout children=@Composable {
-            <Transition
-                definition=transitionDefinition
-                toState=animationEndState> state ->
-                <Circle color=state[colorKey] sizeRatio=state[sizeKey] />
-            </Transition>
-        }> _, constraints -> layout(constraints.maxWidth, constraints.maxHeight) {}
-        </Layout>
+        Layout(children = @Composable {
+            Transition(
+                definition = transitionDefinition,
+                toState = animationEndState
+            ) { state ->
+                Circle(color = state[colorKey], sizeRatio = state[sizeKey])
+            }
+        }, layoutBlock = { _, constraints ->
+            layout(constraints.maxWidth, constraints.maxHeight) {}
+        })
     }
 
     @Composable
     fun Circle(color: Color, sizeRatio: Float) {
-        <Draw> canvas, parentSize ->
+        Draw { canvas, parentSize ->
             canvas.drawCircle(
                 c = Offset(parentSize.width.value / 2, parentSize.height.value / 2),
                 radius = min(parentSize.height, parentSize.width).value * sizeRatio / 2,
                 paint = Paint().apply { this.color = color })
-        </Draw>
+        }
     }
 }

@@ -64,7 +64,7 @@ class ScrollerTest : LayoutTest() {
         Color.fromARGB(0xFF, 0, 0xFF, 0xA5),
         Color.fromARGB(0xFF, 0, 0, 0xFF),
         Color.fromARGB(0xFF, 0xA5, 0, 0xFF)
-        )
+    )
 
     var drawLatch = CountDownLatch(1)
 
@@ -92,7 +92,7 @@ class ScrollerTest : LayoutTest() {
         val scrollerPosition = ScrollerPosition()
 
         val changeListener = ScrollerChangeListener(scrollerPosition)
-            composeScroller(scrollerPosition, changeListener, height = 30.ipx)
+        composeScroller(scrollerPosition, changeListener, height = 30.ipx)
 
         changeListener.waitForChange()
 
@@ -121,31 +121,35 @@ class ScrollerTest : LayoutTest() {
             val runnable: Runnable = object : Runnable {
                 override fun run() {
                     activity.setContent {
-                        <CraneWrapper>
-                            <Align alignment=Alignment.TopLeft>
-                                <ConstrainedBox constraints>
-                                    <VerticalScroller scrollerPosition onScrollChanged>
-                                        <Column crossAxisAlignment=CrossAxisAlignment.Start>
+                        CraneWrapper {
+                            Align(alignment = Alignment.TopLeft) {
+                                ConstrainedBox(constraints = constraints) {
+                                    VerticalScroller(
+                                        scrollerPosition = scrollerPosition,
+                                        onScrollChanged = onScrollChanged
+                                    ) {
+                                        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
                                             colors.forEach { color ->
-                                                <Container
-                                                    height=5.px.toDp()
-                                                    width=45.px.toDp()>
-                                                    <Draw> canvas, parentSize ->
+                                                Container(
+                                                    height = 5.px.toDp(),
+                                                    width = 45.px.toDp()
+                                                ) {
+                                                    Draw { canvas, parentSize ->
                                                         val paint = Paint()
                                                         paint.color = color
                                                         paint.style = PaintingStyle.fill
                                                         canvas.drawRect(parentSize.toRect(), paint)
-                                                    </Draw>
-                                                </Container>
+                                                    }
+                                                }
                                             }
-                                        </Column>
-                                    </VerticalScroller>
-                                    <Draw> _, _ ->
+                                        }
+                                    }
+                                    Draw { _, _ ->
                                         drawLatch.countDown()
-                                    </Draw>
-                                </ConstrainedBox>
-                            </Align>
-                        </CraneWrapper>
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -169,8 +173,10 @@ class ScrollerTest : LayoutTest() {
 
             for (x in 0 until width) {
                 val pixel = bitmap.getPixel(x, y)
-                assertEquals("Expected $expectedColor, but got ${Color(pixel)} at $x, $y",
-                    expectedColor.value, pixel)
+                assertEquals(
+                    "Expected $expectedColor, but got ${Color(pixel)} at $x, $y",
+                    expectedColor.value, pixel
+                )
             }
         }
     }
@@ -206,7 +212,7 @@ class ScrollerTest : LayoutTest() {
             }
         }
         PixelCopy.request(activity.window, srcRect, dest, onCopyFinished, handler)
-        Assert.assertTrue(latch.await(1, TimeUnit.SECONDS))
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(PixelCopy.SUCCESS, copyResult)
         return dest
     }

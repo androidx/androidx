@@ -36,75 +36,78 @@ import androidx.compose.composer
 
 @Composable
 fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
-    <Layout children={<DrawFillRect brush />}> _, constraints ->
+    Layout(children = { DrawFillRect(brush = brush) }, layoutBlock = { _, constraints ->
         layout(
             width?.toIntPx()?.coerceIn(constraints.minWidth, constraints.maxWidth)
                 ?: constraints.maxWidth,
             height?.toIntPx()?.coerceIn(constraints.minHeight, constraints.maxHeight)
                 ?: constraints.maxHeight
-        ){}
-    </Layout>
+        ) {}
+    })
 }
 
 @Composable
 fun ColoredRect(color: Color, width: Dp? = null, height: Dp? = null) {
-    <ColoredRect brush=SolidColor(color) width height />
+    ColoredRect(brush = SolidColor(color), width = width, height = height)
 }
 
 @Composable
 private fun DrawFillRect(brush: Brush) {
-    <Draw> canvas, parentSize ->
+    Draw { canvas, parentSize ->
         val paint = Paint()
         brush.applyBrush(paint)
         canvas.drawRect(parentSize.toRect(), paint)
-    </Draw>
+    }
 }
 
 @Composable
 fun HeaderFooterLayout(
-    header: () -> Unit,
-    footer: () -> Unit,
+    header: @Composable() () -> Unit,
+    footer: @Composable() () -> Unit,
     @Children content: @Composable() () -> Unit
 ) {
-    <Layout childrenArray=arrayOf(header, content, footer)> measurables, constraints ->
-        val headerPlaceable = measurables[header].first().measure(
-            Constraints.tightConstraints(constraints.maxWidth, 100.ipx)
-        )
-        val footerPadding = 50.ipx
-        val footerPlaceable = measurables[footer].first().measure(
-            Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.ipx)
-        )
-        val itemHeight =
-            (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
-                    measurables[content].size
-        val contentPlaceables = measurables[content].map { measurable ->
-            measurable.measure(Constraints.tightConstraints(constraints.maxWidth, itemHeight))
-        }
-
-        layout(constraints.maxWidth, constraints.maxHeight) {
-            headerPlaceable.place(0.ipx, 0.ipx)
-            footerPlaceable.place(footerPadding, constraints.maxHeight - footerPlaceable.height)
-            var top = headerPlaceable.height
-            contentPlaceables.forEach { placeable ->
-                placeable.place(0.ipx, top)
-                top += itemHeight
+    @Suppress("USELESS_CAST")
+    Layout(
+        childrenArray = arrayOf(header, content, footer),
+        layoutBlock = { measurables, constraints ->
+            val headerPlaceable = measurables[header as () -> Unit].first().measure(
+                Constraints.tightConstraints(constraints.maxWidth, 100.ipx)
+            )
+            val footerPadding = 50.ipx
+            val footerPlaceable = measurables[footer as () -> Unit].first().measure(
+                Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.ipx)
+            )
+            val itemHeight =
+                (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
+                        measurables[content as () -> Unit].size
+            val contentPlaceables = measurables[content as () -> Unit].map { measurable ->
+                measurable.measure(Constraints.tightConstraints(constraints.maxWidth, itemHeight))
             }
-        }
-    </Layout>
+
+            layout(constraints.maxWidth, constraints.maxHeight) {
+                headerPlaceable.place(0.ipx, 0.ipx)
+                footerPlaceable.place(footerPadding, constraints.maxHeight - footerPlaceable.height)
+                var top = headerPlaceable.height
+                contentPlaceables.forEach { placeable ->
+                    placeable.place(0.ipx, top)
+                    top += itemHeight
+                }
+            }
+        })
 }
 
 @Composable
 fun MultipleCollectTest() {
-    <CraneWrapper>
-        val header = {
-            <ColoredRect color=Color(android.graphics.Color.GRAY) />
+    CraneWrapper {
+        val header = @Composable {
+            ColoredRect(color = Color(android.graphics.Color.GRAY))
         }
-        val footer = {
-            <ColoredRect color=Color(android.graphics.Color.BLUE) />
+        val footer = @Composable {
+            ColoredRect(color = Color(android.graphics.Color.BLUE))
         }
-        <HeaderFooterLayout header footer>
-            <ColoredRect color=Color(android.graphics.Color.GREEN) />
-            <ColoredRect color=Color(android.graphics.Color.YELLOW) />
-        </HeaderFooterLayout>
-    </CraneWrapper>
+        HeaderFooterLayout(header = header, footer = footer) {
+            ColoredRect(color = Color(android.graphics.Color.GREEN))
+            ColoredRect(color = Color(android.graphics.Color.YELLOW))
+        }
+    }
 }

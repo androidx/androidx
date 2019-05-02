@@ -51,8 +51,8 @@ fun Draw(
     // Hide the internals of DrawNode
     <DrawNode onPaint={ canvas, parentSize ->
         DrawScope(this).onPaint(canvas, parentSize)
-    } >
-        <children/>
+    }>
+        children()
     </DrawNode>
 }
 

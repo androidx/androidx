@@ -28,9 +28,9 @@ fun PressGestureDetector(
     onCancel: (() -> Unit)? = null,
     @Children children: @Composable() () -> Unit
 ) {
-    <PressIndicatorGestureDetector onStart=onPress onCancel>
-        <PressReleasedGestureDetector onRelease consumeDownOnStart=false>
-            <children />
-        </PressReleasedGestureDetector>
-    </PressIndicatorGestureDetector>
+    PressIndicatorGestureDetector(onStart = onPress, onCancel = onCancel) {
+        PressReleasedGestureDetector(onRelease = onRelease, consumeDownOnStart = false) {
+            children()
+        }
+    }
 }

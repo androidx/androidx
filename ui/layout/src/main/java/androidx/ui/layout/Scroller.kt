@@ -32,7 +32,6 @@ import androidx.ui.core.round
 import androidx.ui.core.toPx
 import androidx.ui.core.toRect
 import androidx.compose.Children
-import androidx.compose.Component
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer
@@ -44,38 +43,33 @@ import androidx.compose.unaryPlus
  * Tracks the vertical drag gesture offset, allowing a range between `0.px` and [max].
  * When the offset changes, [offsetChange] is called with the new offset.
  */
-private class VerticalDragGestureDetector(
-    var max: Px = Px.Infinity,
-    var offsetChange: (Px) -> Unit,
-    @Children var children: @Composable() () -> Unit
-) : Component() {
-    private var offset: Px = 0.px
-
-    override fun compose() {
-        <DragGestureDetector
-            dragObserver=object : DragObserver {
-                override fun onDrag(dragDistance: PxPosition): PxPosition {
-                    val dragPosition = -offset + dragDistance.y
-                    val targetPosition = dragPosition.coerceIn(-max, 0.px)
-                    if (targetPosition != -offset) {
-                        offset = -targetPosition
-                        offsetChange(offset)
-                    }
-                    val consumed = dragDistance.y - (targetPosition - dragPosition)
-                    return PxPosition(0.px, consumed)
+@Composable
+private fun VerticalDragGestureDetector(
+    max: Px = Px.Infinity,
+    offsetChange: (Px) -> Unit,
+    @Children children: @Composable() () -> Unit
+) {
+    val offset= +state { 0.px }
+    DragGestureDetector(
+        dragObserver = object : DragObserver {
+            override fun onDrag(dragDistance: PxPosition): PxPosition {
+                val dragPosition = -offset.value + dragDistance.y
+                val targetPosition = dragPosition.coerceIn(-max, 0.px)
+                if (targetPosition != -offset.value) {
+                    offset.value = -targetPosition
+                    offsetChange(offset.value)
                 }
+                val consumed = dragDistance.y - (targetPosition - dragPosition)
+                return PxPosition(0.px, consumed)
             }
-            canDrag={ direction ->
-                when (direction) {
-                    Direction.DOWN -> offset > 0.px
-                    Direction.UP -> offset < max
-                    else -> false
-                }
+        },
+        canDrag = { direction ->
+            when (direction) {
+                Direction.DOWN -> offset.value > 0.px
+                Direction.UP -> offset.value < max
+                else -> false
             }
-        >
-            <children />
-        </DragGestureDetector>
-    }
+        }) { children() }
 }
 
 /**
@@ -110,19 +104,19 @@ fun VerticalScroller(
     @Children child: @Composable() () -> Unit
 ) {
     val maxPosition = +state { 0.px }
-    <VerticalDragGestureDetector
-        max=maxPosition.value
-        offsetChange={ newOffset -> onScrollChanged(newOffset, maxPosition.value) }>
-        <Layout children = {
-            <Draw> canvas, parentSize ->
+    VerticalDragGestureDetector(
+        max = maxPosition.value,
+        offsetChange = { newOffset -> onScrollChanged(newOffset, maxPosition.value) }) {
+        Layout(children = {
+            Draw { canvas, parentSize ->
                 canvas.save()
                 canvas.clipRect(parentSize.toRect())
-            </Draw>
-            <child />
-            <Draw> canvas, _ ->
+            }
+            child()
+            Draw { canvas, _ ->
                 canvas.restore()
-            </Draw>
-        }> measurables, constraints ->
+            }
+        }, layoutBlock = { measurables, constraints ->
             if (measurables.size > 1) {
                 throw IllegalStateException("Only one child is allowed in a VerticalScroller")
             }
@@ -147,6 +141,6 @@ fun VerticalScroller(
             layout(width, height) {
                 placeable?.place(0.ipx, -scrollerPosition.position.round())
             }
-        </Layout>
-    </VerticalDragGestureDetector>
+        })
+    }
 }

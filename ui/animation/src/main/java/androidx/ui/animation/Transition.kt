@@ -37,9 +37,9 @@ import androidx.compose.unaryPlus
  *
  *     @Composable
  *     fun TransitionBackground() {
- *         <Transition definition toState=State.Pressed> state ->
- *             <Background alpha=state[alpha]/>
- *         <Transition/>
+ *         Transition(definition = definition, toState = State.Pressed) { state ->
+ *             Background(alpha = state[alpha])
+ *         Transition()
  *     }
  */
 @Composable
@@ -49,13 +49,12 @@ fun <T> Transition(
     @Children children: @Composable() (state: TransitionState) -> Unit
 ) {
     if (transitionsEnabled) {
-        // TODO: Remove the second parameter that works around b/130349879 once this code is updated to the DSL syntax
-        val model = +memo(definition, null) { TransitionModel(definition) }
+        val model = +memo(definition) { TransitionModel(definition) }
         model.anim.toState(toState)
-        <children state=model />
+        children(state = model)
     } else {
         val state = +memo(definition, toState) { definition.getStateFor(toState) }
-        <children state/>
+        children(state = state)
     }
 }
 

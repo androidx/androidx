@@ -17,19 +17,17 @@
 package androidx.ui.core
 
 import androidx.compose.Children
-import androidx.compose.Component
 import androidx.compose.Composable
 import androidx.compose.composer
 
-class PointerInput(
-    @Children var children: @Composable() () -> Unit
-) : Component() {
-    var pointerInputHandler: PointerInputHandler = { event, _ -> event }
-
-    override fun compose() {
-        // Hide the internals of PointerInputNode
-        <PointerInputNode pointerInputHandler >
-            <children/>
-        </PointerInputNode>
-    }
+// TODO: Rename
+@Composable
+fun PointerInputWrapper(
+    pointerInputHandler: PointerInputHandler = { event, _ -> event },
+    @Children children: @Composable() () -> Unit
+) {
+    // Hide the internals of PointerInputNode
+    <PointerInputNode pointerInputHandler>
+        children()
+    </PointerInputNode>
 }

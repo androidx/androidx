@@ -210,14 +210,14 @@ fun ComplexLayout(
 
     val parentData = +ambient(ParentDataAmbient)
 
-    <LayoutNode ref=layoutState.layoutNodeRef layout=layoutState parentData>
-        <OnChildPositionedAmbient.Provider value=layoutState.onChildPositioned>
-            <OnPositionedAmbient.Provider value=layoutState.onPositioned>
-                <ParentDataAmbient.Provider value=null>
-                    <children />
-                </ParentDataAmbient.Provider>
-            </OnPositionedAmbient.Provider>
-        </OnChildPositionedAmbient.Provider>
+    <LayoutNode ref = layoutState.layoutNodeRef layout = layoutState parentData = parentData>
+        OnChildPositionedAmbient.Provider(value = layoutState.onChildPositioned) {
+            OnPositionedAmbient.Provider(value = layoutState.onPositioned) {
+                ParentDataAmbient.Provider(value = null) {
+                    children()
+                }
+            }
+        }
     </LayoutNode>
     ComplexLayoutReceiver(layoutState).runBlock(block)
 }
@@ -286,7 +286,7 @@ fun Layout(
     @Children(composable = false) layoutBlock: LayoutReceiver
         .(measurables: List<Measurable>, constraints: Constraints) -> Unit
 ) {
-    <ComplexLayout children>
+    ComplexLayout(children = children, block = {
         layout { measurables, constraints ->
             val layoutReceiver = LayoutReceiver(
                 layoutState,
@@ -340,15 +340,14 @@ fun Layout(
             layoutBlock(layoutReceiver, measurables, constraints)
             intrinsicHeight
         }
-
-    </ComplexLayout>
+    })
 }
 
 /**
  * Used by multi child [Layout] as parent data for the dummy [Layout] instances that mark
  * the end of the [Measurable]s sequence corresponding to a particular child.
  */
-internal data class ChildrenEndParentData(val children: () -> Unit)
+internal data class ChildrenEndParentData(val children: @Composable() () -> Unit)
 
 /**
  * Temporary component that allows composing and indexing measurables of multiple composables.
@@ -373,20 +372,20 @@ fun Layout(
     @Children(composable = false) layoutBlock: LayoutReceiver
         .(measurables: List<Measurable>, constraints: Constraints) -> Unit
 ) {
-    val ChildrenEndMarker = @Composable { children: () -> Unit ->
-        <ParentData data=ChildrenEndParentData(children)>
-            <Layout layoutBlock={ _, _ -> layout(0.ipx, 0.ipx) {}} children={} />
-        </ParentData>
+    val ChildrenEndMarker = @Composable { children: @Composable() () -> Unit ->
+        ParentData(data = ChildrenEndParentData(children)) {
+            Layout(layoutBlock={_, _ -> layout(0.ipx, 0.ipx){}}, children = {})
+        }
     }
     val children = @Composable {
         val addMarkers = childrenArray.size > 1
         childrenArray.forEach { childrenComposable ->
-            <childrenComposable />
-            if (addMarkers) <ChildrenEndMarker p1 = childrenComposable />
+            childrenComposable()
+            if (addMarkers) ChildrenEndMarker(p1 = childrenComposable)
         }
     }
 
-    <Layout layoutBlock children />
+    Layout(layoutBlock = layoutBlock, children = children)
 }
 
 /**
@@ -434,16 +433,16 @@ class LayoutReceiver internal constructor(
  * A widget that defines its own content according to the available space, based on the incoming
  * constraints. Example usage:
  *
- * <WithConstraints> constraints ->
+ * WithConstraints { constraints ->
  *     if (constraints.maxWidth < 100.ipx) {
- *         <Icon />
+ *         Icon()
  *     } else {
- *         <Row>
- *             <Icon />
- *             <IconDescription />
- *          </Row>
+ *         Row {
+ *             Icon()
+ *             IconDescription()
+ *          }
  *     }
- * </WithConstraints>
+ * }
  *
  * The widget will compose the given children, and will position the resulting layout widgets
  * in a parent [Layout]. The widget will be as small as possible such that it can fit its
@@ -454,11 +453,11 @@ class LayoutReceiver internal constructor(
  * Please note that using this widget might be a performance hit, so please use with care.
  */
 @Composable
-fun WithConstraints(@Children children: (Constraints) -> Unit) {
+fun WithConstraints(@Children children: @Composable() (Constraints) -> Unit) {
     val ref = +compositionReference()
     val context = +ambient(ContextAmbient)
 
-    <Layout
+    Layout(
         layoutBlock = { _, constraints ->
             val root = layoutState.layoutNode
             // Start subcomposition from the current node.
@@ -467,7 +466,7 @@ fun WithConstraints(@Children children: (Constraints) -> Unit) {
                 context,
                 ref
             ) {
-                <children p1=constraints />
+                children(p1 = constraints)
             }
 
             // Measure the obtained children and compute our size.
@@ -483,8 +482,8 @@ fun WithConstraints(@Children children: (Constraints) -> Unit) {
                     placeable.place(IntPx.Zero, IntPx.Zero)
                 }
             }
-        }
-        children={} />
+        },
+        children={})
 }
 
 internal val OnPositionedAmbient =
@@ -499,14 +498,14 @@ internal val OnChildPositionedAmbient =
  * Note that it will be called after a composition when the coordinates are finalized.
  *
  * Usage example:
- *     <Column>
- *         <Item1/>
- *         <Item2/>
- *         <OnPositioned onPositioned={ coordinates ->
+ *     Column {
+ *         Item1()
+ *         Item2()
+ *         OnPositioned (onPositioned={ coordinates ->
  *             // This coordinates contain bounds of the Column within it's parent Layout.
  *             // Store it if you want to use it later f.e. when a touch happens.
- *         } />
- *     </Column>
+ *         })
+ *     }
  */
 @Composable
 fun OnPositioned(
@@ -527,13 +526,13 @@ fun OnPositioned(
  * Note that it will be called after a composition when the coordinates are finalized.
  *
  * Usage example:
- *     <OnChildPositioned onPositioned={ coordinates ->
+ *     OnChildPositioned (onPositioned={ coordinates ->
  *         // This coordinates contain bounds of the Item within it's parent Layout.
  *         // Store it if you want to use it later f.e. when a touch happens.
- *     } >
- *         <Item/>
- *     </OnChildPositioned>
- * </Column>
+ *     }) {
+ *         Item()
+ *     }
+ * }
  */
 @Composable
 fun OnChildPositioned(
@@ -547,5 +546,5 @@ fun OnChildPositioned(
             coordinatesCallbacks.remove(onPositioned)
         }
     }
-    <children/>
+    children()
 }
