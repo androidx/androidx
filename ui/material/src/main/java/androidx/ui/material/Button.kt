@@ -28,7 +28,7 @@ import androidx.ui.material.borders.BorderStyle
 import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.ripple.BoundedRipple
 import androidx.ui.material.surface.Surface
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.TextStyle
 import androidx.compose.Children
 import androidx.compose.Composable

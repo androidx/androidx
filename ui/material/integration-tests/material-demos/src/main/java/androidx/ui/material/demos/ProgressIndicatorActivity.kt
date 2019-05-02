@@ -26,8 +26,7 @@ import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.MainAxisAlignment.Companion.SpaceEvenly
 import androidx.ui.layout.Row
 import androidx.ui.material.MaterialTheme
-import androidx.ui.painting.Color
-import androidx.ui.painting.Color.Companion.fromARGB
+import androidx.ui.graphics.Color
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer
@@ -56,11 +55,11 @@ private class ProgressState {
 
     fun generateColor(): Color {
         return when (cycle) {
-            1 -> fromARGB(255, 255, 0, 0)
-            2 -> fromARGB(255, 0, 255, 0)
-            3 -> fromARGB(255, 0, 0, 255)
+            1 -> Color.Red
+            2 -> Color.Green
+            3 -> Color.Blue
             // unused
-            else -> fromARGB(255, 0, 0, 0)
+            else -> Color.Black
         }
     }
 

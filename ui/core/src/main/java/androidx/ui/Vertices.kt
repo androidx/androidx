@@ -17,7 +17,7 @@
 package androidx.ui
 
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 
 /**  A set of vertex data used by [Canvas.drawVertices]. */
 class Vertices(
@@ -53,7 +53,7 @@ class Vertices(
 
     private fun encodeColorList(colors: List<Color>): IntArray {
         return IntArray(colors.size) {
-            i -> colors[i].value
+            i -> colors[i].toArgb()
         }
     }
 

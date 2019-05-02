@@ -22,7 +22,8 @@ import androidx.ui.core.dp
 import androidx.ui.core.lerp
 import androidx.ui.core.max
 import androidx.ui.core.withDensity
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.lerp
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 
@@ -220,7 +221,7 @@ fun lerp(a: BorderSide, b: BorderSide, t: Float): BorderSide {
         return BorderSide.None
     if (a.style == b.style) {
         return BorderSide(
-            color = Color.lerp(a.color, b.color, t)!!,
+            color = lerp(a.color, b.color, t),
             width = width,
             style = a.style // == b.style
         )
@@ -229,16 +230,16 @@ fun lerp(a: BorderSide, b: BorderSide, t: Float): BorderSide {
         BorderStyle.Solid ->
             a.color
         BorderStyle.None ->
-            a.color.withAlpha(0x00)
+            a.color.copy(alpha = 0f)
     }
     val colorB: Color = when (b.style) {
         BorderStyle.Solid ->
             b.color
         BorderStyle.None ->
-            b.color.withAlpha(0x00)
+            b.color.copy(alpha = 0f)
     }
     return BorderSide(
-        color = Color.lerp(colorA, colorB, t)!!,
+        color = lerp(colorA, colorB, t),
         width = width,
         style = BorderStyle.Solid
     )

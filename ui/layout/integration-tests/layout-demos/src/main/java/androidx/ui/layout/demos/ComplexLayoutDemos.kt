@@ -42,7 +42,7 @@ import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.Children
 import androidx.compose.Composable
@@ -51,7 +51,6 @@ import androidx.compose.composer
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.onCommit
-import androidx.compose.state
 import androidx.compose.unaryPlus
 
 /**

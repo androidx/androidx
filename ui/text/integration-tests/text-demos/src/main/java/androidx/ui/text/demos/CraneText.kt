@@ -35,7 +35,7 @@ import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
 import androidx.ui.input.EditorState
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Shadow
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
@@ -57,46 +57,48 @@ val fontSize10: Float = 100.0.toFloat()
 
 @Composable
 fun TextDemo() {
-    LinearLayout(orientation = LinearLayout.VERTICAL,
-        layoutParams=LinearLayout.LayoutParams(
+    LinearLayout(
+        orientation = LinearLayout.VERTICAL,
+        layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.MATCH_PARENT
-        )) {
+        )
+    ) {
         ScrollView {
             LinearLayout(orientation = LinearLayout.VERTICAL) {
-                TagLine(tag="color, fontSize, fontWeight and fontStyle")
+                TagLine(tag = "color, fontSize, fontWeight and fontStyle")
                 TextDemoBasic()
-                TagLine(tag="Chinese, Arabic, and Hindi")
+                TagLine(tag = "Chinese, Arabic, and Hindi")
                 TextDemoLanguage()
-                TagLine(tag="FontFamily: sans-serif, serif, and monospace")
+                TagLine(tag = "FontFamily: sans-serif, serif, and monospace")
                 TextDemoFontFamily()
-                TagLine(tag="decoration, decorationColor and decorationStyle")
+                TagLine(tag = "decoration, decorationColor and decorationStyle")
                 TextDemoTextDecoration()
-                TagLine(tag="letterSpacing")
+                TagLine(tag = "letterSpacing")
                 TextDemoLetterSpacing()
-                TagLine(tag="wordSpacing")
+                TagLine(tag = "wordSpacing")
                 TextDemoWordSpacing()
-                TagLine(tag="baselineShift")
+                TagLine(tag = "baselineShift")
                 TextDemoBaselineShift()
-                TagLine(tag="height")
+                TagLine(tag = "height")
                 TextDemoHeight()
-                TagLine(tag="background")
+                TagLine(tag = "background")
                 TextDemoBackground()
-                TagLine(tag="Locale: Japanese, Simplified and Traditional Chinese")
+                TagLine(tag = "Locale: Japanese, Simplified and Traditional Chinese")
                 TextDemoLocale()
-                TagLine(tag="textAlign and textDirection")
+                TagLine(tag = "textAlign and textDirection")
                 TextDemoTextAlign()
-                TagLine(tag="softWrap: on and off")
+                TagLine(tag = "softWrap: on and off")
                 TextDemoSoftWrap()
-                TagLine(tag="textScaleFactor: default and 2.0")
+                TagLine(tag = "textScaleFactor: default and 2.0")
                 TextDemoTextScaleFactor()
-                TagLine(tag="TextOverFlow: FADE")
+                TagLine(tag = "TextOverFlow: FADE")
                 TexDemoTextOverflowFade()
-                TagLine(tag="shadow")
+                TagLine(tag = "shadow")
                 TextDemoShadowEffect()
-                TagLine(tag="editing")
+                TagLine(tag = "editing")
                 EditLine()
-                TagLine(tag="selection")
+                TagLine(tag = "selection")
                 TextDemoSelection()
             }
         }
@@ -484,66 +486,74 @@ fun TextDemoTextAlign() {
         text = text + displayText + " "
     }
     LinearLayout(orientation = LinearLayout.VERTICAL) {
-        SecondTagLine(tag="textAlgin = TextAlign.LEFT")
+        SecondTagLine(tag = "textAlgin = TextAlign.LEFT")
         CraneWrapper {
             Text(
-                text=textSpan,
-                textAlign=TextAlign.LEFT)
+                text = textSpan,
+                textAlign = TextAlign.LEFT
+            )
         }
-        SecondTagLine(tag="textAlgin = TextAlign.RIGHT")
+        SecondTagLine(tag = "textAlgin = TextAlign.RIGHT")
         CraneWrapper {
             Text(
-                text=textSpan,
-                textAlign=TextAlign.RIGHT)
+                text = textSpan,
+                textAlign = TextAlign.RIGHT
+            )
         }
-        SecondTagLine(tag="textAlgin = TextAlign.CENTER")
+        SecondTagLine(tag = "textAlgin = TextAlign.CENTER")
         CraneWrapper {
             Text(
-                text=textSpan,
-                textAlign=TextAlign.CENTER)
+                text = textSpan,
+                textAlign = TextAlign.CENTER
+            )
         }
-        SecondTagLine(tag="textAlgin = default and TextAlign.JUSTIFY")
+        SecondTagLine(tag = "textAlgin = default and TextAlign.JUSTIFY")
         CraneWrapper {
             Text(
-                text=TextSpan(
+                text = TextSpan(
                     text = text,
                     style = TextStyle(
                         fontSize = fontSize8,
                         color = Color(0xFFFF0000.toInt())
                     )
-                ))
-            }
+                )
+            )
+        }
         CraneWrapper {
             Text(
-                text=TextSpan(
+                text = TextSpan(
                     text = text,
                     style = TextStyle(
                         fontSize = fontSize8,
                         color = Color(0xFF0000FF.toInt())
                     )
                 ),
-                textAlign=TextAlign.JUSTIFY)
+                textAlign = TextAlign.JUSTIFY
+            )
         }
-        SecondTagLine(tag="textAlgin = TextAlign.START for LTR")
+        SecondTagLine(tag = "textAlgin = TextAlign.START for LTR")
         CraneWrapper {
             Text(
-                text=textSpan,
-                textAlign=TextAlign.START)
+                text = textSpan,
+                textAlign = TextAlign.START
+            )
         }
-        SecondTagLine(tag="textAlgin = TextAlign.START for RTL")
+        SecondTagLine(tag = "textAlgin = TextAlign.START for RTL")
         CraneWrapper {
             Text(
-                text=textSpan,
-                textDirection=TextDirection.RTL,
-                textAlign=TextAlign.START)
+                text = textSpan,
+                textDirection = TextDirection.RTL,
+                textAlign = TextAlign.START
+            )
         }
-        SecondTagLine(tag="textAlgin = TextAlign.END for LTR")
+        SecondTagLine(tag = "textAlgin = TextAlign.END for LTR")
         CraneWrapper {
             Text(
-                text=textSpan,
-                textAlign=TextAlign.END)
+                text = textSpan,
+                textAlign = TextAlign.END
+            )
         }
-        SecondTagLine(tag="textAlgin = TextAlign.END for RTL")
+        SecondTagLine(tag = "textAlgin = TextAlign.END for RTL")
         CraneWrapper {
             Text(
                 text = textSpan,
@@ -565,7 +575,7 @@ fun TextDemoSoftWrap() {
     LinearLayout(orientation = LinearLayout.VERTICAL) {
         CraneWrapper {
             Text(
-                text=TextSpan(
+                text = TextSpan(
                     text = text,
                     style = TextStyle(
                         fontSize = fontSize8, color = Color(0xFFFF0000.toInt())
@@ -601,12 +611,12 @@ fun TextDemoTextScaleFactor() {
         text = displayText,
         style = TextStyle(fontSize = fontSize8)
     )
-    LinearLayout(orientation=LinearLayout.VERTICAL) {
+    LinearLayout(orientation = LinearLayout.VERTICAL) {
         CraneWrapper {
-            Text(text=textSpan)
+            Text(text = textSpan)
         }
         CraneWrapper {
-            Text(text=textSpan, textScaleFactor=2.0f)
+            Text(text = textSpan, textScaleFactor = 2.0f)
         }
     }
 }
@@ -622,20 +632,22 @@ fun TexDemoTextOverflowFade() {
         style = TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000.toInt()))
     )
 
-    SecondTagLine(tag="horizontally fading edge")
+    SecondTagLine(tag = "horizontally fading edge")
     CraneWrapper {
         Text(
-            text=textSpan,
-            maxLines=1,
-            overflow=TextOverflow.FADE,
-            softWrap=false)
+            text = textSpan,
+            maxLines = 1,
+            overflow = TextOverflow.FADE,
+            softWrap = false
+        )
     }
-    SecondTagLine(tag="vertically fading edge")
+    SecondTagLine(tag = "vertically fading edge")
     CraneWrapper {
         Text(
-            text=textSpan,
-            maxLines=3,
-            overflow=TextOverflow.FADE)
+            text = textSpan,
+            maxLines = 3,
+            overflow = TextOverflow.FADE
+        )
     }
 }
 
@@ -657,7 +669,7 @@ fun TextDemoShadowEffect() {
         )
     )
     CraneWrapper {
-        Text(text=textSpan)
+        Text(text = textSpan)
     }
 }
 
@@ -675,62 +687,62 @@ fun EditLine() {
 
 fun TextDemoSelection() {
     var textSpan = TextSpan(
-            children = listOf(
-                    TextSpan(
-                            text = displayText + "   ",
-                            style = TextStyle(
-                                    color = Color(0xFFFF0000.toInt()),
-                                    fontSize = fontSize6,
-                                    fontWeight = FontWeight.w200,
-                                    fontStyle = FontStyle.italic
-                            )
-                    ),
-                    TextSpan(
-                            text = displayTextChinese + "   ",
-                            style = TextStyle(
-                                    color = Color(0xFFFF0000.toInt()),
-                                    fontSize = fontSize6,
-                                    fontWeight = FontWeight.w200,
-                                    fontStyle = FontStyle.italic
-                            )
-                    ),
-                    TextSpan(
-                            text = displayTextHindi,
-                            style = TextStyle(
-                                    color = Color(0xFF0000FF.toInt()),
-                                    fontSize = fontSize10,
-                                    fontWeight = FontWeight.w800,
-                                    fontStyle = FontStyle.normal
-                            )
-                    ),
-                    TextSpan(
-                            text = "\n" + "先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。",
-                            style = TextStyle(
-                                    color = Color(0xFFFF0000.toInt()),
-                                    fontSize = fontSize6,
-                                    fontWeight = FontWeight.w200,
-                                    fontStyle = FontStyle.italic,
-                                    locale = Locale("zh", "CN")
-                            )
-                    ),
-                    TextSpan(
-                            text = "\nまず、現在天下が魏・呉・蜀に分れており、そのうち蜀は疲弊していることを指摘する。",
-                            style = TextStyle(
-                                    color = Color(0xFFFF0000.toInt()),
-                                    fontSize = fontSize6,
-                                    fontWeight = FontWeight.w200,
-                                    fontStyle = FontStyle.italic,
-                                    locale = Locale("ja", "JP")
-                            )
-                    )
+        children = listOf(
+            TextSpan(
+                text = displayText + "   ",
+                style = TextStyle(
+                    color = Color(0xFFFF0000.toInt()),
+                    fontSize = fontSize6,
+                    fontWeight = FontWeight.w200,
+                    fontStyle = FontStyle.italic
+                )
+            ),
+            TextSpan(
+                text = displayTextChinese + "   ",
+                style = TextStyle(
+                    color = Color(0xFFFF0000.toInt()),
+                    fontSize = fontSize6,
+                    fontWeight = FontWeight.w200,
+                    fontStyle = FontStyle.italic
+                )
+            ),
+            TextSpan(
+                text = displayTextHindi,
+                style = TextStyle(
+                    color = Color(0xFF0000FF.toInt()),
+                    fontSize = fontSize10,
+                    fontWeight = FontWeight.w800,
+                    fontStyle = FontStyle.normal
+                )
+            ),
+            TextSpan(
+                text = "\n" + "先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。",
+                style = TextStyle(
+                    color = Color(0xFFFF0000.toInt()),
+                    fontSize = fontSize6,
+                    fontWeight = FontWeight.w200,
+                    fontStyle = FontStyle.italic,
+                    locale = Locale("zh", "CN")
+                )
+            ),
+            TextSpan(
+                text = "\nまず、現在天下が魏・呉・蜀に分れており、そのうち蜀は疲弊していることを指摘する。",
+                style = TextStyle(
+                    color = Color(0xFFFF0000.toInt()),
+                    fontSize = fontSize6,
+                    fontWeight = FontWeight.w200,
+                    fontStyle = FontStyle.italic,
+                    locale = Locale("ja", "JP")
+                )
             )
+        )
     )
 
     val selection = +state<Selection?> { null }
     CraneWrapper {
         SelectionContainer(
-                selection = selection.value,
-                onSelectionChange = { selection.value = it }) {
+            selection = selection.value,
+            onSelectionChange = { selection.value = it }) {
             Text(text = textSpan)
         }
     }

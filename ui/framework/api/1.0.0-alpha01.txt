@@ -26,13 +26,13 @@ package androidx.ui.core {
   }
 
   public final class EditorStyle {
-    ctor public EditorStyle(androidx.ui.painting.TextStyle textStyle, androidx.ui.painting.Color compositionColor, androidx.ui.painting.Color selectionColor);
+    ctor public EditorStyle(androidx.ui.painting.TextStyle textStyle, androidx.ui.graphics.Color compositionColor, androidx.ui.graphics.Color selectionColor);
     method public androidx.ui.painting.TextStyle component1();
-    method public androidx.ui.painting.Color component2();
-    method public androidx.ui.painting.Color component3();
-    method public androidx.ui.core.EditorStyle copy(androidx.ui.painting.TextStyle textStyle, androidx.ui.painting.Color compositionColor, androidx.ui.painting.Color selectionColor);
-    method public androidx.ui.painting.Color getCompositionColor();
-    method public androidx.ui.painting.Color getSelectionColor();
+    method public androidx.ui.graphics.Color component2();
+    method public androidx.ui.graphics.Color component3();
+    method public androidx.ui.core.EditorStyle copy(androidx.ui.painting.TextStyle textStyle, androidx.ui.graphics.Color compositionColor, androidx.ui.graphics.Color selectionColor);
+    method public androidx.ui.graphics.Color getCompositionColor();
+    method public androidx.ui.graphics.Color getSelectionColor();
     method public androidx.ui.painting.TextStyle getTextStyle();
   }
 
@@ -149,7 +149,7 @@ package androidx.ui.core {
   public final class TextKt {
     ctor public TextKt();
     method public static void CurrentTextStyleProvider(androidx.ui.painting.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Text(androidx.ui.painting.TextSpan text, androidx.ui.engine.text.TextAlign textAlign = androidx.ui.core.TextKt.DefaultTextAlign, androidx.ui.engine.text.TextDirection textDirection = androidx.ui.core.TextKt.DefaultTextDirection, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, float textScaleFactor = 1.0f, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.painting.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor);
+    method public static void Text(androidx.ui.painting.TextSpan text, androidx.ui.engine.text.TextAlign textAlign = androidx.ui.core.TextKt.DefaultTextAlign, androidx.ui.engine.text.TextDirection textDirection = androidx.ui.core.TextKt.DefaultTextDirection, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, float textScaleFactor = 1.0f, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor);
     method public static void Text(String text, androidx.ui.painting.TextStyle? style = null, androidx.ui.engine.text.TextAlign textAlign = androidx.ui.core.TextKt.DefaultTextAlign, androidx.ui.engine.text.TextDirection textDirection = androidx.ui.core.TextKt.DefaultTextDirection, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines);
     method public static androidx.compose.Effect<androidx.ui.painting.TextStyle> currentTextStyle();
   }
@@ -266,7 +266,7 @@ package androidx.ui.core.vectorgraphics {
   }
 
   public final class LinearGradient implements androidx.ui.core.vectorgraphics.Brush {
-    ctor public LinearGradient(kotlin.Pair<androidx.ui.painting.Color,java.lang.Float>[] colorStops, float startX, float startY, float endX, float endY, androidx.ui.painting.TileMode tileMode);
+    ctor public LinearGradient(kotlin.Pair<androidx.ui.graphics.Color,java.lang.Float>[] colorStops, float startX, float startY, float endX, float endY, androidx.ui.painting.TileMode tileMode);
     method public void applyBrush(androidx.ui.painting.Paint p);
     method public float getEndX();
     method public float getEndY();
@@ -362,12 +362,12 @@ package androidx.ui.core.vectorgraphics {
   }
 
   public final class RadialGradient implements androidx.ui.core.vectorgraphics.Brush {
-    ctor public RadialGradient(kotlin.Pair<androidx.ui.painting.Color,java.lang.Float>[] colorStops, float centerX, float centerY, float radius, androidx.ui.painting.TileMode tileMode);
+    ctor public RadialGradient(kotlin.Pair<androidx.ui.graphics.Color,java.lang.Float>[] colorStops, float centerX, float centerY, float radius, androidx.ui.painting.TileMode tileMode);
     method public void applyBrush(androidx.ui.painting.Paint p);
   }
 
   public final class SolidColor implements androidx.ui.core.vectorgraphics.Brush {
-    ctor public SolidColor(androidx.ui.painting.Color value);
+    ctor public SolidColor(androidx.ui.graphics.Color value);
     method public void applyBrush(androidx.ui.painting.Paint p);
   }
 

@@ -32,7 +32,7 @@ import androidx.ui.engine.geometry.shrink
 import androidx.ui.engine.geometry.withRadius
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.StrokeCap
@@ -90,7 +90,7 @@ fun Checkbox(
 @Composable
 private fun DrawCheckbox(value: ToggleableState, color: Color?) {
     val activeColor = +color.orFromTheme { secondary }
-    val unselectedColor = (+themeColor { onSurface }).withOpacity(UncheckedBoxOppacity)
+    val unselectedColor = (+themeColor { onSurface }).copy(alpha = UncheckedBoxOppacity)
     val definition = +memo(activeColor, unselectedColor) {
         generateTransitionDefinition(activeColor, unselectedColor)
     }

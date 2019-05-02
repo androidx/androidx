@@ -20,7 +20,7 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import androidx.ui.rendering.paragraph.RenderParagraph

@@ -17,7 +17,7 @@
 package androidx.ui.core.vectorgraphics
 
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Gradient
 import androidx.ui.painting.Paint
 import androidx.ui.painting.TileMode

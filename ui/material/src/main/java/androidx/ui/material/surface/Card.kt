@@ -21,7 +21,7 @@ import androidx.ui.core.dp
 import androidx.ui.material.MaterialColors
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer

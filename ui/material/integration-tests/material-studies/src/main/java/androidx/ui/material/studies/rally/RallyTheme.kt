@@ -22,7 +22,7 @@ import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.material.MaterialColors
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.MaterialTypography
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.TextStyle
 import androidx.compose.Children
 import androidx.compose.Composable

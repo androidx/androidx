@@ -42,7 +42,7 @@ import androidx.ui.matchers.equalToBitmap
 import androidx.ui.matchers.hasSpan
 import androidx.ui.matchers.hasSpanOnTop
 import androidx.ui.matchers.notHasSpan
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Shadow
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -448,7 +448,7 @@ class ParagraphAndroidTest {
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText,
             hasSpan(BackgroundColorSpan::class, 0, text.length) { span ->
-                span.backgroundColor == color.value
+                span.backgroundColor == color.toArgb()
             }
         )
     }
@@ -468,7 +468,7 @@ class ParagraphAndroidTest {
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText,
             hasSpan(BackgroundColorSpan::class, 0, "abc".length) { span ->
-                span.backgroundColor == color.value
+                span.backgroundColor == color.toArgb()
             }
         )
     }
@@ -493,18 +493,18 @@ class ParagraphAndroidTest {
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText,
             hasSpan(BackgroundColorSpan::class, 0, text.length) { span ->
-                span.backgroundColor == color.value
+                span.backgroundColor == color.toArgb()
             }
         )
         assertThat(paragraph.underlyingText,
             hasSpan(BackgroundColorSpan::class, 0, "abc".length) { span ->
-                span.backgroundColor == colorOverwrite.value
+                span.backgroundColor == colorOverwrite.toArgb()
             }
         )
         assertThat(
             paragraph.underlyingText,
             hasSpanOnTop(BackgroundColorSpan::class, 0, "abc".length) { span ->
-                span.backgroundColor == colorOverwrite.value
+                span.backgroundColor == colorOverwrite.toArgb()
             }
         )
     }
@@ -856,7 +856,7 @@ class ParagraphAndroidTest {
         assertThat(
             paragraph.underlyingText,
             hasSpan(ShadowSpan::class, start = 0, end = text.length) {
-                return@hasSpan it.color == color.value &&
+                return@hasSpan it.color == color.toArgb() &&
                         it.offsetX == offset.dx &&
                         it.offsetY == offset.dy &&
                         it.radius == radius.value
@@ -892,7 +892,7 @@ class ParagraphAndroidTest {
         assertThat(
             paragraph.underlyingText,
             hasSpan(ShadowSpan::class, start = 0, end = text.length) {
-                return@hasSpan it.color == color.value &&
+                return@hasSpan it.color == color.toArgb() &&
                         it.offsetX == offset.dx &&
                         it.offsetY == offset.dy &&
                         it.radius == radius.value
@@ -901,7 +901,7 @@ class ParagraphAndroidTest {
         assertThat(
             paragraph.underlyingText,
             hasSpanOnTop(ShadowSpan::class, start = 0, end = "abc".length) {
-                return@hasSpanOnTop it.color == colorOverwrite.value &&
+                return@hasSpanOnTop it.color == colorOverwrite.toArgb() &&
                         it.offsetX == offsetOverwrite.dx &&
                         it.offsetY == offsetOverwrite.dy &&
                         it.radius == radiusOverwrite.value

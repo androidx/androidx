@@ -367,7 +367,7 @@ internal class ParagraphAndroid constructor(
 
             style.color?.let {
                 spannableString.setSpan(
-                    ForegroundColorSpan(it.value),
+                    ForegroundColorSpan(it.toArgb()),
                     start,
                     end,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -478,7 +478,7 @@ internal class ParagraphAndroid constructor(
             // TODO(Migration/haoyuchang): framework only support background color now
             style.background?.let {
                 spannableString.setSpan(
-                    BackgroundColorSpan(it.value),
+                    BackgroundColorSpan(it.toArgb()),
                     start,
                     end,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -487,7 +487,7 @@ internal class ParagraphAndroid constructor(
             // TODO(Migration/haoyuchang): implement foreground or decide if we really need it
             style.shadow?.let {
                 spannableString.setSpan(
-                    ShadowSpan(it.color.value, it.offset.dx, it.offset.dy, it.blurRadius.value),
+                    ShadowSpan(it.color.toArgb(), it.offset.dx, it.offset.dy, it.blurRadius.value),
                     start,
                     end,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE

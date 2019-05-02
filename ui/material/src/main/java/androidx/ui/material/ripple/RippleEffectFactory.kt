@@ -23,7 +23,7 @@ import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BoxShape
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 
 /**
  * An encapsulation of an [RippleEffect] constructor used by [BoundedRipple]

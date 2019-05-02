@@ -3,10 +3,10 @@ package  {
 
   public final class ProgressIndicatorKt {
     ctor public ProgressIndicatorKt();
-    method public static void CircularProgressIndicator(@FloatRange(value=0.0, value=1.0) float progress, androidx.ui.painting.Color? color = null);
-    method public static void CircularProgressIndicator(androidx.ui.painting.Color? color = null);
-    method public static void LinearProgressIndicator(@FloatRange(value=0.0, value=1.0) float progress, androidx.ui.painting.Color? color = null);
-    method public static void LinearProgressIndicator(androidx.ui.painting.Color? color = null);
+    method public static void CircularProgressIndicator(@FloatRange(value=0.0, value=1.0) float progress, androidx.ui.graphics.Color? color = null);
+    method public static void CircularProgressIndicator(androidx.ui.graphics.Color? color = null);
+    method public static void LinearProgressIndicator(@FloatRange(value=0.0, value=1.0) float progress, androidx.ui.graphics.Color? color = null);
+    method public static void LinearProgressIndicator(androidx.ui.graphics.Color? color = null);
   }
 
 }
@@ -21,7 +21,7 @@ package androidx.ui.baseui {
   public final class ColoredRectKt {
     ctor public ColoredRectKt();
     method public static void ColoredRect(androidx.ui.core.vectorgraphics.Brush brush, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
-    method public static void ColoredRect(androidx.ui.painting.Color color, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
+    method public static void ColoredRect(androidx.ui.graphics.Color color, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
   }
 
   public final class DeterminateProgressIndicatorKt {
@@ -61,27 +61,27 @@ package androidx.ui.material {
 
   public final class ButtonKt {
     ctor public ButtonKt();
-    method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Button(String text, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
+    method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.graphics.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Button(String text, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.graphics.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
     method public static void TransparentButton(String text, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.core.Dp elevation = 0.dp);
   }
 
   public final class CheckboxKt {
     ctor public CheckboxKt();
-    method public static void Checkbox(androidx.ui.baseui.selection.ToggleableState value, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.painting.Color? color = null);
+    method public static void Checkbox(androidx.ui.baseui.selection.ToggleableState value, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color? color = null);
     method public static androidx.ui.baseui.selection.ToggleableState parentCheckboxState(androidx.ui.baseui.selection.ToggleableState... childrenStates);
   }
 
   public final class DividerKt {
     ctor public DividerKt();
-    method public static void Divider(androidx.ui.painting.Color? color = null, androidx.ui.core.Dp height = 1.dp, androidx.ui.core.Dp indent = 0.dp);
+    method public static void Divider(androidx.ui.graphics.Color? color = null, androidx.ui.core.Dp height = 1.dp, androidx.ui.core.Dp indent = 0.dp);
   }
 
   public final class FloatingActionButtonKt {
     ctor public FloatingActionButtonKt();
-    method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.core.Dp minSize = FabSize, androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.CircleBorder(), androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void FloatingActionButton(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
-    method public static void FloatingActionButton(String text, androidx.ui.painting.Image? icon = null, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
+    method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.core.Dp minSize = FabSize, androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.CircleBorder(), androidx.ui.graphics.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void FloatingActionButton(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
+    method public static void FloatingActionButton(String text, androidx.ui.painting.Image? icon = null, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color? color = null, androidx.ui.core.Dp elevation = 0.dp);
     method public static androidx.ui.core.Dp getExtendedFabHeight();
     method public static androidx.ui.core.Dp getExtendedFabIconPadding();
     method public static androidx.ui.core.Dp getExtendedFabTextPadding();
@@ -89,33 +89,33 @@ package androidx.ui.material {
   }
 
   public final class MaterialColors {
-    ctor public MaterialColors(androidx.ui.painting.Color primary, androidx.ui.painting.Color primaryVariant, androidx.ui.painting.Color secondary, androidx.ui.painting.Color secondaryVariant, androidx.ui.painting.Color background, androidx.ui.painting.Color surface, androidx.ui.painting.Color error, androidx.ui.painting.Color onPrimary, androidx.ui.painting.Color onSecondary, androidx.ui.painting.Color onBackground, androidx.ui.painting.Color onSurface, androidx.ui.painting.Color onError);
+    ctor public MaterialColors(androidx.ui.graphics.Color primary, androidx.ui.graphics.Color primaryVariant, androidx.ui.graphics.Color secondary, androidx.ui.graphics.Color secondaryVariant, androidx.ui.graphics.Color background, androidx.ui.graphics.Color surface, androidx.ui.graphics.Color error, androidx.ui.graphics.Color onPrimary, androidx.ui.graphics.Color onSecondary, androidx.ui.graphics.Color onBackground, androidx.ui.graphics.Color onSurface, androidx.ui.graphics.Color onError);
     ctor public MaterialColors();
-    method public androidx.ui.painting.Color component1();
-    method public androidx.ui.painting.Color component10();
-    method public androidx.ui.painting.Color component11();
-    method public androidx.ui.painting.Color component12();
-    method public androidx.ui.painting.Color component2();
-    method public androidx.ui.painting.Color component3();
-    method public androidx.ui.painting.Color component4();
-    method public androidx.ui.painting.Color component5();
-    method public androidx.ui.painting.Color component6();
-    method public androidx.ui.painting.Color component7();
-    method public androidx.ui.painting.Color component8();
-    method public androidx.ui.painting.Color component9();
-    method public androidx.ui.material.MaterialColors copy(androidx.ui.painting.Color primary, androidx.ui.painting.Color primaryVariant, androidx.ui.painting.Color secondary, androidx.ui.painting.Color secondaryVariant, androidx.ui.painting.Color background, androidx.ui.painting.Color surface, androidx.ui.painting.Color error, androidx.ui.painting.Color onPrimary, androidx.ui.painting.Color onSecondary, androidx.ui.painting.Color onBackground, androidx.ui.painting.Color onSurface, androidx.ui.painting.Color onError);
-    method public androidx.ui.painting.Color getBackground();
-    method public androidx.ui.painting.Color getError();
-    method public androidx.ui.painting.Color getOnBackground();
-    method public androidx.ui.painting.Color getOnError();
-    method public androidx.ui.painting.Color getOnPrimary();
-    method public androidx.ui.painting.Color getOnSecondary();
-    method public androidx.ui.painting.Color getOnSurface();
-    method public androidx.ui.painting.Color getPrimary();
-    method public androidx.ui.painting.Color getPrimaryVariant();
-    method public androidx.ui.painting.Color getSecondary();
-    method public androidx.ui.painting.Color getSecondaryVariant();
-    method public androidx.ui.painting.Color getSurface();
+    method public androidx.ui.graphics.Color component1();
+    method public androidx.ui.graphics.Color component10();
+    method public androidx.ui.graphics.Color component11();
+    method public androidx.ui.graphics.Color component12();
+    method public androidx.ui.graphics.Color component2();
+    method public androidx.ui.graphics.Color component3();
+    method public androidx.ui.graphics.Color component4();
+    method public androidx.ui.graphics.Color component5();
+    method public androidx.ui.graphics.Color component6();
+    method public androidx.ui.graphics.Color component7();
+    method public androidx.ui.graphics.Color component8();
+    method public androidx.ui.graphics.Color component9();
+    method public androidx.ui.material.MaterialColors copy(androidx.ui.graphics.Color primary, androidx.ui.graphics.Color primaryVariant, androidx.ui.graphics.Color secondary, androidx.ui.graphics.Color secondaryVariant, androidx.ui.graphics.Color background, androidx.ui.graphics.Color surface, androidx.ui.graphics.Color error, androidx.ui.graphics.Color onPrimary, androidx.ui.graphics.Color onSecondary, androidx.ui.graphics.Color onBackground, androidx.ui.graphics.Color onSurface, androidx.ui.graphics.Color onError);
+    method public androidx.ui.graphics.Color getBackground();
+    method public androidx.ui.graphics.Color getError();
+    method public androidx.ui.graphics.Color getOnBackground();
+    method public androidx.ui.graphics.Color getOnError();
+    method public androidx.ui.graphics.Color getOnPrimary();
+    method public androidx.ui.graphics.Color getOnSecondary();
+    method public androidx.ui.graphics.Color getOnSurface();
+    method public androidx.ui.graphics.Color getPrimary();
+    method public androidx.ui.graphics.Color getPrimaryVariant();
+    method public androidx.ui.graphics.Color getSecondary();
+    method public androidx.ui.graphics.Color getSecondaryVariant();
+    method public androidx.ui.graphics.Color getSurface();
   }
 
   public final class MaterialThemeKt {
@@ -126,9 +126,9 @@ package androidx.ui.material {
     method public static androidx.compose.Ambient<androidx.ui.material.MaterialColors> getColors();
     method public static androidx.compose.Ambient<androidx.ui.material.Shapes> getCurrentShapeAmbient();
     method public static androidx.compose.Ambient<androidx.ui.material.MaterialTypography> getTypography();
-    method public static androidx.compose.Effect<androidx.ui.painting.Color> orFromTheme(androidx.ui.painting.Color?, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color> choosingBlock);
+    method public static androidx.compose.Effect<androidx.ui.graphics.Color> orFromTheme(androidx.ui.graphics.Color?, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.graphics.Color> choosingBlock);
     method public static androidx.compose.Effect<androidx.ui.material.borders.ShapeBorder> orFromTheme(androidx.ui.material.borders.ShapeBorder?, kotlin.jvm.functions.Function1<? super androidx.ui.material.Shapes,? extends androidx.ui.material.borders.ShapeBorder> choosingBlock);
-    method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.painting.Color> themeColor(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.painting.Color> choosingBlock);
+    method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.graphics.Color> themeColor(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.graphics.Color> choosingBlock);
     method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.painting.TextStyle> themeTextStyle(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle> choosingBlock);
   }
 
@@ -166,14 +166,14 @@ package androidx.ui.material {
 
   public final class RadioButtonKt {
     ctor public RadioButtonKt();
-    method public static void RadioButton(boolean selected, androidx.ui.painting.Color? color = null);
+    method public static void RadioButton(boolean selected, androidx.ui.graphics.Color? color = null);
     method public static void RadioGroup(kotlin.jvm.functions.Function1<? super androidx.ui.material.RadioGroupScope,kotlin.Unit> children);
-    method public static void RadioGroup(java.util.List<java.lang.String> options, String? selectedOption, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onOptionSelected, androidx.ui.painting.Color? radioColor = null, androidx.ui.painting.TextStyle? textStyle = null);
+    method public static void RadioGroup(java.util.List<java.lang.String> options, String? selectedOption, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onOptionSelected, androidx.ui.graphics.Color? radioColor = null, androidx.ui.painting.TextStyle? textStyle = null);
   }
 
   public final class RadioGroupScope {
     method public void RadioGroupItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void RadioGroupTextItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, String text, androidx.ui.painting.Color? radioColor = null, androidx.ui.painting.TextStyle? textStyle = null);
+    method public void RadioGroupTextItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, String text, androidx.ui.graphics.Color? radioColor = null, androidx.ui.painting.TextStyle? textStyle = null);
   }
 
   public final class Shapes {
@@ -185,12 +185,12 @@ package androidx.ui.material {
 
   public final class SwitchKt {
     ctor public SwitchKt();
-    method public static void Switch(boolean checked, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.painting.Color? color = null);
+    method public static void Switch(boolean checked, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color? color = null);
   }
 
   public final class TextKt {
     ctor public TextKt();
-    method public static androidx.compose.Effect<androidx.ui.painting.Color> textColorForBackground(androidx.ui.painting.Color background);
+    method public static androidx.compose.Effect<androidx.ui.graphics.Color> textColorForBackground(androidx.ui.graphics.Color background);
   }
 
 }
@@ -273,13 +273,13 @@ package androidx.ui.material.borders {
   }
 
   public final class BorderSide {
-    ctor public BorderSide(androidx.ui.painting.Color color, androidx.ui.core.Dp width, androidx.ui.material.borders.BorderStyle style);
+    ctor public BorderSide(androidx.ui.graphics.Color color, androidx.ui.core.Dp width, androidx.ui.material.borders.BorderStyle style);
     ctor public BorderSide();
-    method public androidx.ui.painting.Color component1();
+    method public androidx.ui.graphics.Color component1();
     method public androidx.ui.core.Dp component2();
     method public androidx.ui.material.borders.BorderStyle component3();
-    method public androidx.ui.material.borders.BorderSide copy(androidx.ui.painting.Color color, androidx.ui.core.Dp width, androidx.ui.material.borders.BorderStyle style);
-    method public androidx.ui.painting.Color getColor();
+    method public androidx.ui.material.borders.BorderSide copy(androidx.ui.graphics.Color color, androidx.ui.core.Dp width, androidx.ui.material.borders.BorderStyle style);
+    method public androidx.ui.graphics.Color getColor();
     method public static androidx.ui.material.borders.BorderSide getNone();
     method public androidx.ui.material.borders.BorderStyle getStyle();
     method public androidx.ui.core.Dp getWidth();
@@ -403,7 +403,7 @@ package androidx.ui.material.ripple {
   }
 
   public final class DefaultRippleEffectFactory extends androidx.ui.material.ripple.RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.painting.Color color, androidx.ui.core.Density density, androidx.ui.material.borders.BoxShape shape, androidx.ui.core.Px? finalRadius, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback, androidx.ui.material.borders.BorderRadius? clippingBorderRadius, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
+    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.graphics.Color color, androidx.ui.core.Density density, androidx.ui.material.borders.BoxShape shape, androidx.ui.core.Px? finalRadius, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback, androidx.ui.material.borders.BorderRadius? clippingBorderRadius, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
     field public static final androidx.ui.material.ripple.DefaultRippleEffectFactory! INSTANCE;
   }
 
@@ -412,21 +412,21 @@ package androidx.ui.material.ripple {
   }
 
   public abstract class RippleEffect {
-    ctor public RippleEffect(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.painting.Color color, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
+    ctor public RippleEffect(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
     method @CallSuper public void dispose();
     method protected abstract void drawEffect(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform);
     method public void finish(boolean canceled);
-    method public final androidx.ui.painting.Color getColor();
+    method public final androidx.ui.graphics.Color getColor();
     method public final androidx.ui.core.LayoutCoordinates getCoordinates();
     method public final kotlin.jvm.functions.Function0<kotlin.Unit>? getOnRemoved();
     method public final androidx.ui.material.ripple.RippleSurfaceOwner getRippleSurface();
-    method public final void setColor(androidx.ui.painting.Color value);
-    property public final androidx.ui.painting.Color color;
+    method public final void setColor(androidx.ui.graphics.Color value);
+    property public final androidx.ui.graphics.Color color;
   }
 
   public abstract class RippleEffectFactory {
     ctor public RippleEffectFactory();
-    method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.painting.Color color, androidx.ui.core.Density density, androidx.ui.material.borders.BoxShape shape = BoxShape.Rectangle, androidx.ui.core.Px? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
+    method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.graphics.Color color, androidx.ui.core.Density density, androidx.ui.material.borders.BoxShape shape = BoxShape.Rectangle, androidx.ui.core.Px? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
   }
 
   public final class RippleKt {
@@ -436,26 +436,26 @@ package androidx.ui.material.ripple {
 
   public final class RippleSurfaceKt {
     ctor public RippleSurfaceKt();
-    method public static void RippleSurface(androidx.ui.painting.Color? color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void RippleSurface(androidx.ui.graphics.Color? color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.material.ripple.RippleSurfaceOwner> ambientRippleSurface();
   }
 
   public interface RippleSurfaceOwner {
     method public void addEffect(androidx.ui.material.ripple.RippleEffect feature);
-    method public androidx.ui.painting.Color? getBackgroundColor();
+    method public androidx.ui.graphics.Color? getBackgroundColor();
     method public androidx.ui.core.LayoutCoordinates getLayoutCoordinates();
     method public void markNeedsRedraw();
     method public void removeEffect(androidx.ui.material.ripple.RippleEffect feature);
-    property public abstract androidx.ui.painting.Color? backgroundColor;
+    property public abstract androidx.ui.graphics.Color? backgroundColor;
     property public abstract androidx.ui.core.LayoutCoordinates layoutCoordinates;
   }
 
   public final class RippleTheme {
-    ctor public RippleTheme(androidx.ui.material.ripple.RippleEffectFactory factory, kotlin.jvm.functions.Function1<? super androidx.ui.painting.Color,androidx.ui.painting.Color> colorCallback);
+    ctor public RippleTheme(androidx.ui.material.ripple.RippleEffectFactory factory, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,androidx.ui.graphics.Color> colorCallback);
     method public androidx.ui.material.ripple.RippleEffectFactory component1();
-    method public kotlin.jvm.functions.Function1<androidx.ui.painting.Color,androidx.ui.painting.Color> component2();
-    method public androidx.ui.material.ripple.RippleTheme copy(androidx.ui.material.ripple.RippleEffectFactory factory, kotlin.jvm.functions.Function1<? super androidx.ui.painting.Color,androidx.ui.painting.Color> colorCallback);
-    method public kotlin.jvm.functions.Function1<androidx.ui.painting.Color,androidx.ui.painting.Color> getColorCallback();
+    method public kotlin.jvm.functions.Function1<androidx.ui.graphics.Color,androidx.ui.graphics.Color> component2();
+    method public androidx.ui.material.ripple.RippleTheme copy(androidx.ui.material.ripple.RippleEffectFactory factory, kotlin.jvm.functions.Function1<? super androidx.ui.graphics.Color,androidx.ui.graphics.Color> colorCallback);
+    method public kotlin.jvm.functions.Function1<androidx.ui.graphics.Color,androidx.ui.graphics.Color> getColorCallback();
     method public androidx.ui.material.ripple.RippleEffectFactory getFactory();
   }
 
@@ -470,7 +470,7 @@ package androidx.ui.material.surface {
 
   public final class CardKt {
     ctor public CardKt();
-    method public static void Card(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Card(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), androidx.ui.graphics.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DrawBorderKt {
@@ -480,7 +480,7 @@ package androidx.ui.material.surface {
 
   public final class DrawColorKt {
     ctor public DrawColorKt();
-    method public static void DrawColor(androidx.ui.painting.Color? color);
+    method public static void DrawColor(androidx.ui.graphics.Color? color);
   }
 
   public final class DrawShadowKt {
@@ -490,7 +490,7 @@ package androidx.ui.material.surface {
 
   public final class SurfaceKt {
     ctor public SurfaceKt();
-    method public static void Surface(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), androidx.ui.painting.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Surface(androidx.ui.material.borders.ShapeBorder shape = androidx.ui.material.borders.RoundedRectangleBorder(), androidx.ui.graphics.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class TransparentSurfaceKt {

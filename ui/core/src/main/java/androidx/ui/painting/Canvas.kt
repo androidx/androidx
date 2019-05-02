@@ -22,6 +22,7 @@ import androidx.ui.core.toFrameworkRect
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.graphics.Color
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.degrees
 import androidx.ui.vectormath64.isIdentity
@@ -386,7 +387,7 @@ class Canvas {
      * being the destination.
      */
     fun drawColor(color: Color, blendMode: BlendMode) {
-        internalCanvas.drawColor(color.value, blendMode.toPorterDuffMode())
+        internalCanvas.drawColor(color.toArgb(), blendMode.toPorterDuffMode())
     }
 
     /**
