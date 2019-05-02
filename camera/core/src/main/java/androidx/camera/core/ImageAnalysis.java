@@ -39,12 +39,13 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * A use case providing CPU accessible images for an app to perform image analysis on.
  *
- * <p>Newly available images are acquired from the camera using an {@link ImageReader}. Each image
- * is analyzed with an {@link ImageAnalysis.Analyzer} to produce a result. Then, the image is
- * closed.
+ * <p>ImageAnalysis acquires images from the camera via an {@link ImageReader}. Each image
+ * is provided to an {@link ImageAnalysis.Analyzer} function which can be implemented by application
+ * code, where it can access image data for application analysis via an {@link ImageProxy}.
  *
- * <p>The result type, as well as distribution of the result, are left up to the implementation of
- * the {@link Analyzer}.
+ * <p>After the analyzer function returns, the {@link ImageProxy} will be closed and the
+ * corresponding {@link android.media.Image} is released back to the {@link ImageReader}.
+ *
  */
 public final class ImageAnalysis extends UseCase {
     /**
@@ -86,8 +87,8 @@ public final class ImageAnalysis extends UseCase {
     /**
      * Removes a previously set analyzer.
      *
-     * <p>This is equivalent to calling {@code setAnalyzer(null)}. Removing the analyzer will stop
-     * the stream of data from the camera.
+     * <p>This is equivalent to calling {@code setAnalyzer(null)}.  This will stop data from
+     * streaming to the {@link ImageAnalysis}.
      */
     @UiThread
     public void removeAnalyzer() {
@@ -95,13 +96,26 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /**
-     * Sets the rotation of the analysis pipeline.
+     * Sets the target rotation.
      *
-     * <p>This informs the use case of what the analyzer's reference rotation will be so it can
-     * adjust the rotation value sent to {@link Analyzer#analyze(ImageProxy, int)}.
+     * <p>This informs the use case so it can adjust the rotation value sent to
+     * {@link Analyzer#analyze(ImageProxy, int)}.
      *
      * <p>In most cases this should be set to the current rotation returned by {@link
-     * Display#getRotation()}.
+     * Display#getRotation()}.  In that case, the rotation parameter sent to the analyzer will be
+     * the rotation, which if applied to the output image, will make it match a correctly configured
+     * preview.
+     *
+     * <p>While rotation can also be set via
+     * {@link ImageAnalysisConfig.Builder#setTargetRotation(int)}, using
+     * {@link ImageAnalysis#setTargetRotation(int)} allows the target rotation to be set
+     * dynamically. This can be useful if an app locks itself to portrait, and uses the orientation
+     * sensor to set rotation, to process landscape images when the device is rotated by examining
+     * the rotation received by the Analyzer function.
+     *
+     * <p>If no target rotation is set by the application, it is set to the value of
+     * {@link Display#getRotation()} of the default display at the time the
+     * {@link ImageAnalysis} is created.
      *
      * @param rotation Desired rotation of the output image.
      */
@@ -150,9 +164,15 @@ public final class ImageAnalysis extends UseCase {
      * stream of data can be stopped by setting the analyzer to {@code null} or by calling {@link
      * #removeAnalyzer()}.
      *
-     * <p>Distribution of the result is left up to the implementation of the {@link Analyzer}.
+     * <p>Applications can process or copy the image by implementing the {@link Analyzer}.  If
+     * frames should be skipped (no analysis), the analyzer function should return, instead of
+     * disconnecting the analyzer function completely.
      *
-     * @param analyzer of the images or {@code null} to stop the stream of data.
+     * <p>Setting an analyzer function replaces any previous analyzer.  Only one analyzer can be
+     * set at any time.
+     *
+     * @param analyzer of the images or {@code null} to stop data streaming to
+     *                 {@link ImageAnalysis}.
      */
     @UiThread
     public void setAnalyzer(@Nullable Analyzer analyzer) {
@@ -313,7 +333,13 @@ public final class ImageAnalysis extends UseCase {
         ACQUIRE_NEXT_IMAGE,
     }
 
-    /** An analyzer of images. */
+    /** Interface for analyzing images.
+     *
+     * <p>Implement Analyzer and pass it to {@link ImageAnalysis#setAnalyzer(Analyzer)} to receive
+     * images and perform custom processing by implementing the
+     * {@link ImageAnalysis.Analyzer#analyze(ImageProxy, int)} function.
+     *
+     */
     public interface Analyzer {
         /**
          * Analyzes an image to produce a result.
@@ -326,9 +352,16 @@ public final class ImageAnalysis extends UseCase {
          * should not store external references to this image, as these references will become
          * invalid.
          *
-         * @param image           to analyze
-         * @param rotationDegrees The rotation required to match the rotation given by
-         *                        ImageOutputConfig#getTargetRotation(int).
+         * <p>Processing should complete within a single frame time of latency, or the image data
+         * should be copied out for longer processing.  Applications can be skip analyzing a frame
+         * by having the analyzer return immediately.
+         *
+         * @param image           The image to analyze
+         * @param rotationDegrees The rotation which if applied to the image would make it match
+         *                        the current target rotation of {@link ImageAnalysis}, expressed as
+         *                        one of {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+         *                        {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
+         *
          */
         void analyze(ImageProxy image, int rotationDegrees);
     }
