@@ -16,6 +16,7 @@
 
 package androidx.media2.player;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_ERROR_INVALID_STATE;
@@ -1963,7 +1964,7 @@ public final class MediaPlayer extends SessionPlayer {
         if (trackInfo == null) {
             throw new NullPointerException("trackInfo shouldn't be null");
         }
-        final int trackId = trackInfo.mId;
+        final int trackId = trackInfo.getId();
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -2007,7 +2008,7 @@ public final class MediaPlayer extends SessionPlayer {
         if (trackInfo == null) {
             throw new NullPointerException("trackInfo shouldn't be null");
         }
-        final int trackId = trackInfo.mId;
+        final int trackId = trackInfo.getId();
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -2024,6 +2025,44 @@ public final class MediaPlayer extends SessionPlayer {
         };
         addPendingFuture(pendingFuture);
         return pendingFuture;
+    }
+
+    /**
+     * TODO: Merge this into {@link MediaPlayer#getTrackInfo()}
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    @Override
+    public List<SessionPlayer.TrackInfo> getTrackInfoInternal() {
+        List<TrackInfo> list = getTrackInfo();
+        List<SessionPlayer.TrackInfo> trackList = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            trackList.add(createTrackInfoInternal(list.get(i)));
+        }
+        return trackList;
+    }
+
+    /**
+     * TODO: Merge this into {@link MediaPlayer#selectTrack(TrackInfo)}
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    @Override
+    public ListenableFuture<PlayerResult> selectTrackInternal(SessionPlayer.TrackInfo info) {
+        return selectTrack(createTrackInfo(info));
+    }
+
+    /**
+     * TODO: Merge this into {@link MediaPlayer#deselectTrack(TrackInfo)}
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    @Override
+    public ListenableFuture<PlayerResult> deselectTrackInternal(SessionPlayer.TrackInfo info) {
+        return deselectTrack(createTrackInfo(info));
     }
 
     /**
@@ -2639,6 +2678,16 @@ public final class MediaPlayer extends SessionPlayer {
         }
     }
 
+    private SessionPlayer.TrackInfo createTrackInfoInternal(TrackInfo info) {
+        return new SessionPlayer.TrackInfo(info.getId(), info.getMediaItem(), info.getTrackType(),
+                info.getFormat());
+    }
+
+    private TrackInfo createTrackInfo(SessionPlayer.TrackInfo info) {
+        return new TrackInfo(info.getId(), info.getMediaItem(), info.getTrackType(),
+                info.getFormat());
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     class Mp2DrmCallback extends MediaPlayer2.DrmEventCallback {
         @Override
@@ -2897,7 +2946,7 @@ public final class MediaPlayer extends SessionPlayer {
         /**
          * @hide
          */
-        @IntDef(flag = false, /*prefix = "PLAYER_ERROR",*/ value = {
+        @IntDef(flag = false, /*prefix = "MEDIA_TRACK_TYPE",*/ value = {
                 MEDIA_TRACK_TYPE_UNKNOWN,
                 MEDIA_TRACK_TYPE_VIDEO,
                 MEDIA_TRACK_TYPE_AUDIO,
@@ -2908,7 +2957,7 @@ public final class MediaPlayer extends SessionPlayer {
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public @interface MediaTrackType {}
 
-        final int mId;
+        private final int mId;
         private final MediaItem mItem;
         private final int mTrackType;
         private final MediaFormat mFormat;
@@ -2945,6 +2994,14 @@ public final class MediaPlayer extends SessionPlayer {
                 return mFormat;
             }
             return null;
+        }
+
+        int getId() {
+            return mId;
+        }
+
+        MediaItem getMediaItem() {
+            return mItem;
         }
 
         /** @hide */
