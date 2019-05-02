@@ -2632,6 +2632,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         mHost = null;
         mContainer = null;
         mParent = null;
+        if (mOnBackPressedDispatcher != null) {
+            // mOnBackPressedDispatcher can hold a reference to the host
+            // so we need to null it out to prevent memory leaks
+            mOnBackPressedCallback.remove();
+            mOnBackPressedDispatcher = null;
+        }
     }
 
     private void dispatchStateChange(int nextState) {

@@ -17,7 +17,6 @@
 package androidx.fragment.app
 
 import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.test.LoaderActivity
 import androidx.fragment.test.R
@@ -33,7 +32,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.lang.ref.WeakReference
-import java.util.ArrayList
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
@@ -145,29 +143,6 @@ class LoaderTest {
 
         companion object {
             private const val LOADER_ID = 1
-        }
-    }
-}
-
-/**
- * Allocates until a garbage collection occurs.
- */
-private fun forceGC() {
-    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N_MR1) {
-        // The following works on O+
-        Runtime.getRuntime().gc()
-        Runtime.getRuntime().gc()
-        Runtime.getRuntime().runFinalization()
-    } else {
-        // The following works on older versions
-        for (i in 0..1) {
-            // Use a random index in the list to detect the garbage collection each time because
-            // .get() may accidentally trigger a strong reference during collection.
-            val leak = ArrayList<WeakReference<ByteArray>>()
-            do {
-                val arr = WeakReference(ByteArray(100))
-                leak.add(arr)
-            } while (leak[(Math.random() * leak.size).toInt()].get() != null)
         }
     }
 }
