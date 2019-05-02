@@ -21,9 +21,8 @@ import org.gradle.api.tasks.TaskAction
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import javax.inject.Inject
 
-open class LockClocksTask @Inject constructor(private val adb: Adb) : DefaultTask() {
+open class LockClocksTask : DefaultTask() {
     init {
         group = "Android"
         description = "locks clocks of connected, supported, rooted device"
@@ -32,6 +31,8 @@ open class LockClocksTask @Inject constructor(private val adb: Adb) : DefaultTas
     @Suppress("unused")
     @TaskAction
     fun exec() {
+        val adb = Adb(project)
+
         // Skip "adb root" if already rooted as it will fail.
         if (adb.execSync("shell su exit", shouldThrow = false).exitValue != 0) {
             adb.execSync("root")
