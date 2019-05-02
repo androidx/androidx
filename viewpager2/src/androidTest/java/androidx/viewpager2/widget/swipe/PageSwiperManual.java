@@ -17,7 +17,8 @@
 package androidx.viewpager2.widget.swipe;
 
 import static androidx.test.espresso.action.GeneralLocation.CENTER;
-import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
+import static androidx.viewpager2.widget.BaseTestKt.isHorizontal;
+import static androidx.viewpager2.widget.BaseTestKt.isRtl;
 
 import android.app.Instrumentation;
 import android.view.View;
@@ -38,16 +39,12 @@ public class PageSwiperManual implements PageSwiper {
     // Use -mYForwardFactor for a backwards swipe.
     private final int mYForwardFactor;
 
-    public PageSwiperManual(ViewPager2 viewPager, boolean isRtl) {
+    public PageSwiperManual(ViewPager2 viewPager) {
         mViewPager = viewPager;
-        int orientation = viewPager.getOrientation();
-        mActionPrevious = orientation == ORIENTATION_HORIZONTAL
-                ? (isRtl ? SWIPE_LEFT : SWIPE_RIGHT)
-                : SWIPE_DOWN;
-        mActionNext = orientation == ORIENTATION_HORIZONTAL
-                ? (isRtl ? SWIPE_RIGHT : SWIPE_LEFT)
-                : SWIPE_UP;
-        boolean isHorizontal = orientation == ORIENTATION_HORIZONTAL;
+        boolean isRtl = isRtl(mViewPager);
+        boolean isHorizontal = isHorizontal(mViewPager);
+        mActionPrevious = isHorizontal ? (isRtl ? SWIPE_LEFT : SWIPE_RIGHT) : SWIPE_DOWN;
+        mActionNext = isHorizontal ? (isRtl ? SWIPE_RIGHT : SWIPE_LEFT) : SWIPE_UP;
         mXForwardFactor = isHorizontal ? (isRtl ? 1 : -1) : 0;
         mYForwardFactor = isHorizontal ? 0 : -1;
     }

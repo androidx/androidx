@@ -20,9 +20,9 @@ import android.os.SystemClock
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
-import androidx.core.view.ViewCompat
 import androidx.viewpager2.widget.ViewPager2
-import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import androidx.viewpager2.widget.isHorizontal
+import androidx.viewpager2.widget.isRtl
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -36,9 +36,7 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
         private const val COOL_DOWN_TIME_MS = 100L
     }
 
-    private val needsRtlModifier
-        get() = viewPager.orientation == ORIENTATION_HORIZONTAL &&
-                ViewCompat.getLayoutDirection(viewPager) == ViewCompat.LAYOUT_DIRECTION_RTL
+    private val needsRtlModifier get() = viewPager.isHorizontal && viewPager.isRtl
 
     override fun swipeNext() {
         postFakeDrag(.5f, FLING_DURATION_MS, interpolator = AccelerateInterpolator())
