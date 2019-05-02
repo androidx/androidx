@@ -1314,6 +1314,9 @@ public class MediaSessionCompat {
          * To update the new playback speed, create a new {@link PlaybackStateCompat} by using
          * {@link PlaybackStateCompat.Builder#setState(int, long, float)}, and set it with
          * {@link #setPlaybackState(PlaybackStateCompat)}.
+         * <p>
+         * A value of {@code 1.0f} is the default playback value, and a negative value indicates
+         * reverse playback. The {@code speed} will not be equal to zero.
          *
          * @param speed the playback speed
          * @see #setPlaybackState(PlaybackStateCompat)

@@ -344,7 +344,7 @@ public abstract class SessionPlayer implements AutoCloseable {
 
     /**
      * Sets the playback speed. A value of {@code 1.0f} is the default playback value, and a
-     * negative value indicates reverse playback.
+     * negative value indicates reverse playback. {@code 0.0f} is not allowed.
      * <p>
      * Supported playback speed range may differ per player. So it is recommended to query the
      * actual speed supported by the player after changing the playback speed.
