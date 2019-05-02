@@ -20,7 +20,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Class for handling {@link OnBackPressedDispatcher#onBackPressed()} callbacks without
@@ -43,7 +43,7 @@ import java.util.ArrayList;
 public abstract class OnBackPressedCallback {
 
     private boolean mEnabled;
-    private ArrayList<Cancellable> mCancellables = new ArrayList<>();
+    private CopyOnWriteArrayList<Cancellable> mCancellables = new CopyOnWriteArrayList<>();
 
     /**
      * Create a {@link OnBackPressedCallback}.
