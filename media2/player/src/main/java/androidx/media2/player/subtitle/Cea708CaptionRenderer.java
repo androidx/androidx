@@ -16,7 +16,7 @@
 
 package androidx.media2.player.subtitle;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -57,7 +57,7 @@ import java.util.List;
 
 // Note: This is forked from android.media.Cea708CaptionRenderer since P
 /** @hide */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class Cea708CaptionRenderer extends SubtitleController.Renderer {
     private final Context mContext;
     private Cea708CCWidget mCCWidget;

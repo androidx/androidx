@@ -16,7 +16,7 @@
 
 package androidx.media2.player;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -77,7 +77,7 @@ public final class MediaTimestamp {
     private final float mClockRate;
 
     /** @hide */
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public MediaTimestamp(long mediaUs, long systemNs, float rate) {
         mMediaTimeUs = mediaUs;
         mNanoTime = systemNs;
@@ -86,7 +86,7 @@ public final class MediaTimestamp {
 
     /** @hide */
     @RequiresApi(23)
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     MediaTimestamp(android.media.MediaTimestamp timestamp) {
         mMediaTimeUs = timestamp.getAnchorMediaTimeUs();
         mNanoTime = timestamp.getAnchorSytemNanoTime();
@@ -94,7 +94,7 @@ public final class MediaTimestamp {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     MediaTimestamp() {
         mMediaTimeUs = 0;
         mNanoTime = 0;

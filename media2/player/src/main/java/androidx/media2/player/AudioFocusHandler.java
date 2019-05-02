@@ -16,6 +16,7 @@
 
 package androidx.media2.player;
 
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 import static androidx.media2.common.SessionPlayer.PLAYER_STATE_PAUSED;
 
 import android.content.BroadcastReceiver;
@@ -27,6 +28,9 @@ import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
 import androidx.media.AudioAttributesCompat;
 
 /**
@@ -38,8 +42,11 @@ import androidx.media.AudioAttributesCompat;
  * @see {@docRoot}guide/topics/media-apps/video-app/mediasession-callbacks.html
  * @see {@docRoot}guide/topics/media-apps/audio-focus.html
  * @see {@docRoot}guide/topics/media-apps/volume-and-earphones.html
+ * @hide
  */
-/* package */ class AudioFocusHandler {
+@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+@RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
+public class AudioFocusHandler {
     private static final String TAG = "AudioFocusHandler";
     private static final boolean DEBUG = true;
 
