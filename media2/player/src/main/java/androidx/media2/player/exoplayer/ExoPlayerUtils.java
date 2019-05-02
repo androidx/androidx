@@ -16,7 +16,6 @@
 
 package androidx.media2.player.exoplayer;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_IO;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_MALFORMED;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_TIMED_OUT;
@@ -36,7 +35,6 @@ import android.content.Context;
 import android.media.MediaFormat;
 import android.net.Uri;
 
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.CallbackMediaItem;
@@ -70,10 +68,7 @@ import java.net.SocketTimeoutException;
 
 /**
  * Utility methods for translating between the MediaPlayer2 and ExoPlayer APIs.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class ExoPlayerUtils {
 

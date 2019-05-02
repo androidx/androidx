@@ -16,7 +16,7 @@
 
 package androidx.media2.player.common;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.media.MediaFormat;
 
@@ -29,7 +29,7 @@ import androidx.media2.player.MediaPlayer2;
  * @see MediaPlayer2#getTrackInfo
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY)
 public final class TrackInfoImpl extends MediaPlayer2.TrackInfo {
     private final int mTrackType;
     private final MediaFormat mFormat;

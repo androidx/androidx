@@ -16,13 +16,10 @@
 
 package androidx.media2.player.exoplayer;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.annotation.SuppressLint;
 import android.net.Uri;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.upstream.BaseDataSource;
@@ -37,10 +34,7 @@ import java.io.InputStream;
 
 /**
  * An ExoPayer {@link DataSource} for reading from a file descriptor.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class FileDescriptorDataSource extends BaseDataSource {
 
