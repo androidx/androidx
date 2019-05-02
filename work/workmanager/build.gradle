@@ -24,6 +24,7 @@ import static androidx.build.dependencies.DependenciesKt.*
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 android {
@@ -57,6 +58,7 @@ dependencies {
 
     api(ARCH_LIFECYCLE_EXTENSIONS)
     api(GUAVA_LISTENABLE_FUTURE)
+    androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(WORK_ARCH_CORE_TESTING)
