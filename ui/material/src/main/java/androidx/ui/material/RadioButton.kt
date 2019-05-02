@@ -312,7 +312,7 @@ private fun generateTransitionDefinition(activeColor: Color) = transitionDefinit
             duration = RadiusClosureDuration
         }
         GapProp using tween {
-            delay = (RadiusClosureDuration + PulseDuration).toLong()
+            delay = RadiusClosureDuration + PulseDuration
             duration = GapDuration
         }
     }
@@ -333,7 +333,7 @@ private fun generateTransitionDefinition(activeColor: Color) = transitionDefinit
             duration = GapDuration
         }
         InnerRadiusProp using tween {
-            delay = (GapDuration + PulseDuration).toLong()
+            delay = GapDuration + PulseDuration
             duration = RadiusClosureDuration
         }
     }

@@ -29,6 +29,11 @@ abstract class AnimationBuilder<T> {
 const val DefaultDuration: Int = 300
 
 /**
+ * Used as a iterations count for [RepeatableBuilder] to create an infinity repeating animation.
+ */
+const val Infinite: Int = Int.MAX_VALUE
+
+/**
  * [KeyframesBuilder] creates a [Keyframes] animation.
  * [Keyframes] animation based on the values defined at different timestamps in
  * the duration of the animation (i.e. different keyframes). Each keyframe can be defined using
@@ -52,18 +57,7 @@ const val DefaultDuration: Int = 300
  *         1f at 100
  *     }
  */
-class KeyframesBuilder<T> : AnimationBuilder<T>() {
-
-    /**
-     * Duration of Keyframes animation in milliseconds. Defaults to [DefaultDuration]
-     */
-    var duration: Int = DefaultDuration
-        set(value) {
-            if (value < 0) {
-                throw IllegalStateException("Duration shouldn't be negative")
-            }
-            field = value
-        }
+class KeyframesBuilder<T> : DurationBasedAnimationBuilder<T>() {
 
     private val keyframes = mutableMapOf<Long, KeyframeEntity>()
 
@@ -100,8 +94,8 @@ class KeyframesBuilder<T> : AnimationBuilder<T>() {
         this.easing = easing
     }
 
-    override fun build(): Animation<T> =
-        Keyframes(duration.toLong(), keyframes.mapValues { it.value.toPair() })
+    override fun build(): DurationBasedAnimation<T> =
+        Keyframes(duration.toLong(), delay.toLong(), keyframes.mapValues { it.value.toPair() })
 
     /**
      * Holder class for building a keyframes animation.
@@ -114,10 +108,49 @@ class KeyframesBuilder<T> : AnimationBuilder<T>() {
     }
 }
 
-class TweenBuilder<T> : AnimationBuilder<T>() {
+/**
+ * Used for creating repeated animations where each iteration is defined by one of
+ * the duration based animations like [TweenBuilder] or [KeyframesBuilder].
+ */
+class RepeatableBuilder<T> : AnimationBuilder<T>() {
 
     /**
-     * Duration of Keyframes animation in milliseconds. Defaults to [DefaultDuration]
+     * The count of iterations. Can't be less then 1. Use [Infinite] to
+     * have an infinity repeating animation.
+     */
+    var iterations: Int? = null
+        set(value) {
+            if (value != null && value < 1) {
+                throw IllegalStateException("Iterations count can't be less than 1")
+            }
+            field = value
+        }
+
+    /**
+     * Use [TransitionSpec.tween] or [TransitionSpec.keyframes] as a specification
+     * for the animation iteration.
+     */
+    var animation: DurationBasedAnimationBuilder<T>? = null
+
+    override fun build(): Animation<T> {
+        val iterationsCount = iterations?.toLong()
+            ?: throw IllegalStateException("The iterations count should be provided")
+        val animation = animation
+            ?: throw IllegalStateException("The animation should be provided")
+        return Repeatable(
+            iterationsCount,
+            animation.build()
+        )
+    }
+}
+
+/**
+ * Base class for an [AnimationBuilder] to create animations based on a fixed duration.
+ */
+abstract class DurationBasedAnimationBuilder<T> : AnimationBuilder<T>() {
+
+    /**
+     * Duration of the animation in milliseconds. Defaults to [DefaultDuration]
      */
     var duration: Int = DefaultDuration
         set(value) {
@@ -130,7 +163,7 @@ class TweenBuilder<T> : AnimationBuilder<T>() {
     /**
      * The amount of time that the animation should be delayed.
      */
-    var delay: Long = 0
+    var delay: Int = 0
         set(value) {
             if (value < 0) {
                 throw IllegalStateException("Delay shouldn't be negative")
@@ -138,14 +171,19 @@ class TweenBuilder<T> : AnimationBuilder<T>() {
             field = value
         }
 
+    abstract override fun build(): DurationBasedAnimation<T>
+}
+
+class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
+
     /**
      * Easing (a.k.a interpolator) for the Tween animation.
      * Default: [FastOutSlowInEasing]
      */
     var easing: Easing = FastOutSlowInEasing
 
-    override fun build(): Animation<T> =
-        Tween(duration.toLong(), delay, easing)
+    override fun build(): DurationBasedAnimation<T> =
+        Tween(duration.toLong(), delay.toLong(), easing)
 }
 
 open class PhysicsBuilder<T> : AnimationBuilder<T>() {

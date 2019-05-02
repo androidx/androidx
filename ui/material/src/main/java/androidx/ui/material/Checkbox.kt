@@ -251,7 +251,7 @@ private fun TransitionSpec.boxTransitionFromUnchecked() {
     }
     CheckFractionProp using tween {
         duration = CheckStrokeAnimationDuration
-        delay = BoxAnimationDuration.toLong()
+        delay = BoxAnimationDuration
     }
 }
 
@@ -261,7 +261,7 @@ private fun TransitionSpec.boxTransitionToUnchecked() {
     }
     InnerRadiusFractionProp using tween {
         duration = BoxAnimationDuration
-        delay = CheckStrokeAnimationDuration.toLong()
+        delay = CheckStrokeAnimationDuration
     }
     CheckFractionProp using tween {
         duration = CheckStrokeAnimationDuration

@@ -16,10 +16,12 @@ dependencies {
     implementation "androidx.annotation:annotation:1.0.0"
     implementation "androidx.activity:activity:1.0.0-alpha01"
 
-    api(KOTLIN_R4A_STDLIB)
-    api project(":compose-runtime")
-    api project(':ui-animation')
-    api project(":ui-framework")
+    implementation(KOTLIN_R4A_STDLIB)
+    implementation project(":compose-runtime")
+    implementation project(':ui-animation')
+    implementation project(":ui-framework")
+    implementation project(":ui-layout")
+    implementation project(":ui-text")
 }
 
 androidx {

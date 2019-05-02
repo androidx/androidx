@@ -33,7 +33,7 @@ class TweenAnimationTest {
         val end = 1000f
 
         val animation = TweenBuilder<Float>().run {
-            delay = 100L
+            delay = 100
             duration = testDuration
             easing = LinearEasing
             build()
@@ -59,8 +59,7 @@ class TweenAnimationTest {
         }
 
         val fraction = 0.3f
-        val playTime = (totalDuration * fraction).toLong()
-        val value = animation.getValue(playTime, 0f, 1f, 0f, ::lerp)
+        val value = animation.at((totalDuration * fraction).toInt())
         val expectedValue = accelerateEasing(fraction)
         assertThat(value).isEqualTo(expectedValue)
     }
@@ -68,15 +67,12 @@ class TweenAnimationTest {
     @Test
     fun endValueCalculatedForPlaytimeOverDuration() {
         val testDuration = 200
-        val start = 0f
-        val end = 100f
 
         val animation = TweenBuilder<Float>().run {
             duration = testDuration
             build()
         }
 
-        val value = animation.getValue(testDuration + 10L, start, end, 0f, ::lerp)
-        assertThat(value).isEqualTo(end)
+        assertThat(animation.at(testDuration + 10)).isEqualTo(1f)
     }
 }

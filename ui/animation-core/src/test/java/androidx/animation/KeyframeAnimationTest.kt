@@ -32,7 +32,6 @@
 
 package androidx.animation
 
-import androidx.ui.lerp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -111,7 +110,4 @@ class KeyframeAnimationTest {
 
         assertThat(animation.at(25)).isEqualTo(0.25f)
     }
-
-    private fun Animation<Float>.at(time: Int): Float =
-        getValue(time.toLong(), 0f, 1f, 0f, ::lerp)
 }
