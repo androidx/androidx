@@ -343,16 +343,19 @@ public abstract class SessionPlayer implements AutoCloseable {
     public abstract @NonNull ListenableFuture<PlayerResult> seekTo(long position);
 
     /**
-     * Sets the playback speed. A value of {@code 1.0f} is the default playback value, and a
-     * negative value indicates reverse playback. {@code 0.0f} is not allowed.
+     * Sets the playback speed. {@code 1.0f} is the default, negative values indicate reverse
+     * playback and {@code 0.0f} is not allowed.
      * <p>
-     * Supported playback speed range may differ per player. So it is recommended to query the
-     * actual speed supported by the player after changing the playback speed.
+     * The supported playback speed range depends on the underlying player implementation, so it is
+     * recommended to query the actual speed of the player via {@link #getPlaybackSpeed()} after the
+     * operation completes. In particular, please note that player implementations may not support
+     * reverse playback.
      * <p>
      * On success, a {@link PlayerResult} should be returned with the current media item when the
      * command completed.
      *
-     * @param playbackSpeed playback speed
+     * @param playbackSpeed The requested playback speed.
+     * @return A {@link ListenableFuture} representing the pending completion of the command.
      * @see #getPlaybackSpeed()
      * @see PlayerCallback#onPlaybackSpeedChanged(SessionPlayer, float)
      */
