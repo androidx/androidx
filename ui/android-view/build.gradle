@@ -66,6 +66,11 @@ android {
     }
 }
 
+tasks.withType(KotlinCompile).configureEach { compile ->
+    compile.kotlinOptions.freeCompilerArgs += "-P"
+    compile.kotlinOptions.freeCompilerArgs += "plugin:org.jetbrains.kotlin.r4a:syntax=FCS"
+}
+
 androidx {
     name = "AndroidX UI View components"
     publish = true

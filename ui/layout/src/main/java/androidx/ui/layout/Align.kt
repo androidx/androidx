@@ -66,7 +66,7 @@ data class Alignment(val verticalBias: Float, val horizontalBias: Float) {
  */
 @Composable
 fun Align(alignment: Alignment, @Children children: @Composable() () -> Unit) {
-    <Layout layoutBlock ={ measurables, constraints ->
+    Layout(layoutBlock ={ measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
         val placeable = measurable?.measure(constraints.looseMin())
@@ -92,7 +92,7 @@ fun Align(alignment: Alignment, @Children children: @Composable() () -> Unit) {
                 placeable.place(position.x, position.y)
             }
         }
-    } children />
+    }, children = children)
 }
 
 /**
@@ -103,11 +103,11 @@ fun Align(alignment: Alignment, @Children children: @Composable() () -> Unit) {
  * For a widget that does alignment and tries to be the same size as its child, see [Wrap].
  *
  * Example usage:
- * <Center>
- *    <SizedRectangle color=Color(0xFF0000FF.toInt()) width = 40.dp height = 40.dp />
- * </Center>
+ * Center {
+ *    SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+ * }
  */
 @Composable
 fun Center(@Children children: @Composable() () -> Unit) {
-    <Align alignment=Alignment.Center children />
+    Align(alignment = Alignment.Center, children = children)
 }

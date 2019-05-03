@@ -38,16 +38,18 @@ class VectorGraphicsActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         val res = getResources()
-        setContent {
+        setContent @Composable {
             composer.registerAdapter { parent, child ->
                 adoptVectorGraphic(parent, child)
             }
 
-            <LinearLayout orientation=LinearLayout.VERTICAL>
-                <vectorResource res
-                    resId=androidx.ui.framework.demos.R.drawable.ic_crane_logo_text />
-                <vectorShape />
-            </LinearLayout>
+            LinearLayout(orientation = LinearLayout.VERTICAL) {
+                vectorResource(
+                    res = res,
+                    resId = androidx.ui.framework.demos.R.drawable.ic_crane_logo_text
+                )
+                vectorShape()
+            }
         }
     }
 
@@ -55,25 +57,29 @@ class VectorGraphicsActivity : Activity() {
     fun vectorShape() {
         val viewportWidth = 300.0f
         val viewportHeight = 300.0f
-        <vector name="vectorShape"
-                defaultWidth=300.0f
-                defaultHeight=300.0f
-                viewportWidth
-                viewportHeight>
-            <group
-                scaleX=0.75f
-                scaleY=0.75f
-                rotate=45.0f
-                pivotX=(viewportWidth / 2)
-                pivotY=(viewportHeight / 2)>
-                <backgroundPath vectorWidth=viewportWidth vectorHeight=viewportHeight />
-                <stripePath vectorWidth=viewportWidth vectorHeight=viewportHeight />
-                <group
-                    translateX=50.0f
-                    translateY=50.0f
-                    pivotX=(viewportWidth / 2)
-                    pivotY=(viewportHeight / 2)
-                    rotate=25.0f>
+        vector(
+            name = "vectorShape",
+            defaultWidth = 300.0f,
+            defaultHeight = 300.0f,
+            viewportWidth = viewportWidth,
+            viewportHeight = viewportHeight
+        ) {
+            group(
+                scaleX = 0.75f,
+                scaleY = 0.75f,
+                rotate = 45.0f,
+                pivotX = (viewportWidth / 2),
+                pivotY = (viewportHeight / 2)
+            ) {
+                backgroundPath(vectorWidth = viewportWidth, vectorHeight = viewportHeight)
+                stripePath(vectorWidth = viewportWidth, vectorHeight = viewportHeight)
+                group(
+                    translateX = 50.0f,
+                    translateY = 50.0f,
+                    pivotX = (viewportWidth / 2),
+                    pivotY = (viewportHeight / 2),
+                    rotate = 25.0f
+                ) {
                     val pathData = PathDelegate {
                         moveTo(viewportWidth / 2 - 100, viewportHeight / 2 - 100)
                         horizontalLineToRelative(200.0f)
@@ -81,10 +87,10 @@ class VectorGraphicsActivity : Activity() {
                         horizontalLineToRelative(-200.0f)
                         close()
                     }
-                    <path fill=Color.MAGENTA pathData />
-                </group>
-            </group>
-        </vector>
+                    path(fill = Color.MAGENTA, pathData = pathData)
+                }
+            }
+        }
     }
 
     @Composable
@@ -96,7 +102,7 @@ class VectorGraphicsActivity : Activity() {
             close()
         }
 
-        <path fill=Color.CYAN pathData=background />
+        path(fill = Color.CYAN, pathData = background)
     }
 
     @Composable
@@ -105,7 +111,7 @@ class VectorGraphicsActivity : Activity() {
             stripe(vectorWidth, vectorHeight, 10)
         }
 
-        <path stroke=Color.BLUE pathData=stripeDelegate />
+        path(stroke = Color.BLUE, pathData = stripeDelegate)
     }
 
     private fun PathBuilder.stripe(vectorWidth: Float, vectorHeight: Float, numLines: Int) {

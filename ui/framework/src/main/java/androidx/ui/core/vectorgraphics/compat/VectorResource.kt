@@ -140,18 +140,19 @@ private fun inflateGroup(
 
     // TODO parse clip path
     val clipPathData = EmptyPath
-    <group
-        name
-        rotate
-        scaleX
-        scaleY
-        translateX
-        translateY
-        pivotX
-        pivotY
-        clipPathData>
-        <childNodes />
-    </group>
+    group(
+        name = name,
+        rotate = rotate,
+        scaleX = scaleX,
+        scaleY = scaleY,
+        translateX = translateX,
+        translateY = translateY,
+        pivotX = pivotX,
+        pivotY = pivotY,
+        clipPathData = clipPathData
+    ) {
+        childNodes()
+    }
 }
 
 @Suppress("UNUSED_PARAMETER")
@@ -177,7 +178,7 @@ private fun inflateClip(
 private fun inflatePath(a: TypedArray, parser: XmlPullParser, theme: Resources.Theme?) {
     val hasPathData = TypedArrayUtils.hasAttribute(parser, "pathData")
     if (!hasPathData) {
-        // If there is no pathData in the <VPath> tag, then this is an empty VPath,
+        // If there is no pathData in the VPath tag, then this is an empty VPath,
         // nothing need to be drawn.
         Log.v("VectorPath", "no path data available skipping path")
         return
@@ -248,13 +249,14 @@ private fun inflatePath(a: TypedArray, parser: XmlPullParser, theme: Resources.T
     )*/
 
     // TODO update path with additional params
-    <path
-        name
-        fill= if (fillColor.willDraw()) fillColor.color else EmptyBrush
-        strokeAlpha
-        strokeLineWidth
-        stroke= if (strokeColor.willDraw()) strokeColor.color else EmptyBrush
-        pathData />
+    path(
+        name = name,
+        fill = if (fillColor.willDraw()) fillColor.color else EmptyBrush,
+        strokeAlpha = strokeAlpha,
+        strokeLineWidth = strokeLineWidth,
+        stroke = if (strokeColor.willDraw()) strokeColor.color else EmptyBrush,
+        pathData = pathData
+    )
 }
 
 @Composable
@@ -280,25 +282,37 @@ private fun inflateInner(
                     res, theme, attrs,
                     AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_PATH
                 )
-                <inflatePath a parser theme />
+                inflatePath(a = a, parser = parser, theme = theme)
                 a.recycle()
             } else if (SHAPE_CLIP_PATH.equals(tagName)) {
                 val a = TypedArrayUtils.obtainAttributes(
                     res, theme, attrs,
                     AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH
                 )
-                <inflateClip a parser theme>
-                    <inflateInner res parser attrs theme innerDepth />
-                </inflateClip>
+                inflateClip(a = a, parser = parser, theme = theme) {
+                    inflateInner(
+                        res = res,
+                        parser = parser,
+                        attrs = attrs,
+                        theme = theme,
+                        innerDepth = innerDepth
+                    )
+                }
                 a.recycle()
             } else if (SHAPE_GROUP.equals(tagName)) {
                 val a = TypedArrayUtils.obtainAttributes(
                     res, theme, attrs,
                     AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_GROUP
                 )
-                <inflateGroup a parser theme>
-                    <inflateInner res parser attrs theme innerDepth />
-                </inflateGroup>
+                inflateGroup(a = a, parser = parser, theme = theme) {
+                    inflateInner(
+                        res = res,
+                        parser = parser,
+                        attrs = attrs,
+                        theme = theme,
+                        innerDepth = innerDepth
+                    )
+                }
                 a.recycle()
             }
         }
@@ -340,12 +354,12 @@ private fun inflate(
     if (viewportWidth <= 0) {
         throw XmlPullParserException(
             vectorAttrs.getPositionDescription() +
-                    "<VectorGraphic> tag requires viewportWidth > 0"
+                    "VectorGraphic requires viewportWidth > 0"
         )
     } else if (viewportHeight <= 0) {
         throw XmlPullParserException(
             vectorAttrs.getPositionDescription() +
-                    "<VectorGraphic> tag requires viewportHeight > 0"
+                    "VectorGraphic requires viewportHeight > 0"
         )
     }
 
@@ -356,9 +370,21 @@ private fun inflate(
         AndroidVectorResources.STYLEABLE_VECTOR_DRAWABLE_HEIGHT, 0.0f
     )
 
-    <vector name="vector" defaultWidth defaultHeight viewportWidth viewportHeight>
-        <inflateInner res attrs theme innerDepth parser />
-    </vector>
+    vector(
+        name = "vector",
+        defaultWidth = defaultWidth,
+        defaultHeight = defaultHeight,
+        viewportWidth = viewportWidth,
+        viewportHeight = viewportHeight
+    ) {
+        inflateInner(
+            res = res,
+            attrs = attrs,
+            theme = theme,
+            innerDepth = innerDepth,
+            parser = parser
+        )
+    }
 }
 
 @Composable
@@ -375,7 +401,7 @@ fun vectorResource(res: Resources, resId: Int) {
         if (type != XmlPullParser.START_TAG) {
             throw XmlPullParserException("No start tag found")
         }
-        <inflate res parser attrs theme=null />
+        inflate(res = res, parser = parser, attrs = attrs, theme = null)
     } catch (e: XmlPullParserException) {
         Log.e(LOGTAG, "parser error", e)
     } catch (e: IOException) {

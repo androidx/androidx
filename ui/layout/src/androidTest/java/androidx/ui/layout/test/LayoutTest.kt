@@ -69,9 +69,9 @@ open class LayoutTest {
         val runnable: Runnable = object : Runnable {
             override fun run() {
                 activity.setContent {
-                    <CraneWrapper>
-                        <composable />
-                    </CraneWrapper>
+                    CraneWrapper {
+                        composable()
+                    }
                 }
             }
         }
@@ -120,10 +120,10 @@ open class LayoutTest {
         position: Ref<PxPosition>,
         positionedLatch: CountDownLatch
     ) {
-        <OnPositioned onPositioned = { coordinates ->
+        OnPositioned(onPositioned = { coordinates ->
             size.value = PxSize(coordinates.size.width, coordinates.size.height)
             position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
             positionedLatch.countDown()
-        } />
+        })
     }
 }

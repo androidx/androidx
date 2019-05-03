@@ -55,14 +55,14 @@ class SpacerTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(1)
         show @Composable {
-            <Container constraints=bigConstraints>
-                <OnChildPositioned onPositioned={ position ->
+            Container(constraints = bigConstraints) {
+                OnChildPositioned(onPositioned = { position ->
                     size = position.size
                     drawLatch.countDown()
-                }>
-                    <FixedSpacer width height />
-                </OnChildPositioned>
-            </Container>
+                }) {
+                    FixedSpacer(width = width, height = height)
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -82,19 +82,21 @@ class SpacerTest : LayoutTest() {
         val containerWidth = 5.dp
         val containerHeight = 7.dp
         show @Composable {
-            <Center>
-                <Container constraints=DpConstraints(
-                    maxWidth = containerWidth,
-                    maxHeight = containerHeight
-                )>
-                    <OnChildPositioned onPositioned={ position ->
+            Center {
+                Container(
+                    constraints = DpConstraints(
+                        maxWidth = containerWidth,
+                        maxHeight = containerHeight
+                    )
+                ) {
+                    OnChildPositioned(onPositioned = { position ->
                         size = position.size
                         drawLatch.countDown()
-                    }>
-                        <FixedSpacer width height />
-                    </OnChildPositioned>
-                </Container>
-            </Center>
+                    }) {
+                        FixedSpacer(width = width, height = height)
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -111,14 +113,14 @@ class SpacerTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(1)
         show @Composable {
-            <Container constraints=bigConstraints>
-                <OnChildPositioned onPositioned={ position ->
+            Container(constraints = bigConstraints) {
+                OnChildPositioned(onPositioned = { position ->
                     size = position.size
                     drawLatch.countDown()
-                }>
-                    <WidthSpacer width />
-                </OnChildPositioned>
-            </Container>
+                }) {
+                    WidthSpacer(width = width)
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -137,19 +139,21 @@ class SpacerTest : LayoutTest() {
         val containerWidth = 5.dp
         val containerHeight = 7.dp
         show @Composable {
-            <Center>
-                <Container constraints=DpConstraints(
-                    maxWidth = containerWidth,
-                    maxHeight = containerHeight
-                )>
-                    <OnChildPositioned onPositioned={ position ->
+            Center {
+                Container(
+                    constraints = DpConstraints(
+                        maxWidth = containerWidth,
+                        maxHeight = containerHeight
+                    )
+                ) {
+                    OnChildPositioned(onPositioned = { position ->
                         size = position.size
                         drawLatch.countDown()
-                    }>
-                        <WidthSpacer width />
-                    </OnChildPositioned>
-                </Container>
-            </Center>
+                    }) {
+                        WidthSpacer(width = width)
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -166,14 +170,14 @@ class SpacerTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(1)
         show @Composable {
-            <Container constraints=bigConstraints>
-                <OnChildPositioned onPositioned={ position ->
+            Container(constraints = bigConstraints) {
+                OnChildPositioned(onPositioned = { position ->
                     size = position.size
                     drawLatch.countDown()
-                }>
-                    <HeightSpacer height />
-                </OnChildPositioned>
-            </Container>
+                }) {
+                    HeightSpacer(height = height)
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 
@@ -192,19 +196,21 @@ class SpacerTest : LayoutTest() {
         val containerWidth = 5.dp
         val containerHeight = 7.dp
         show @Composable {
-            <Center>
-                <Container constraints=DpConstraints(
-                    maxWidth = containerWidth,
-                    maxHeight = containerHeight
-                )>
-                    <OnChildPositioned onPositioned={ position ->
+            Center {
+                Container(
+                    constraints = DpConstraints(
+                        maxWidth = containerWidth,
+                        maxHeight = containerHeight
+                    )
+                ) {
+                    OnChildPositioned(onPositioned = { position ->
                         size = position.size
                         drawLatch.countDown()
-                    }>
-                        <HeightSpacer height />
-                    </OnChildPositioned>
-                </Container>
-            </Center>
+                    }) {
+                        HeightSpacer(height = height)
+                    }
+                }
+            }
         }
         drawLatch.await(1, TimeUnit.SECONDS)
 

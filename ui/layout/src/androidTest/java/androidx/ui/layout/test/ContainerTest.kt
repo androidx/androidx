@@ -62,16 +62,16 @@ class ContainerTest : LayoutTest() {
         val positionedLatch = CountDownLatch(1)
         val containerSize = Ref<PxSize>()
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
-                    <Container>
-                        <EmptyBox width=sizeDp height=sizeDp />
-                    </Container>
-                </OnChildPositioned>
-            </Align>
+                }) {
+                    Container {
+                        EmptyBox(width = sizeDp, height = sizeDp)
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
@@ -89,21 +89,21 @@ class ContainerTest : LayoutTest() {
         val containerSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
-                    <Container padding=EdgeInsets(paddingDp)>
-                        <OnChildPositioned onPositioned = { coordinates ->
+                }) {
+                    Container(padding = EdgeInsets(paddingDp)) {
+                        OnChildPositioned(onPositioned = { coordinates ->
                             childPosition.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             positionedLatch.countDown()
-                        }>
-                            <EmptyBox width=sizeDp height=sizeDp />
-                        </OnChildPositioned>
-                    </Container>
-                </OnChildPositioned>
-            </Align>
+                        }) {
+                            EmptyBox(width = sizeDp, height = sizeDp)
+                        }
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
@@ -128,43 +128,44 @@ class ContainerTest : LayoutTest() {
         val containerSize = Ref<PxSize>()
         val childSize = Array(3) { PxSize(0.px, 0.px) }
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
-                    <Row>
-                        <Container width=childWidthDp height=childHeightDp>
-                            <OnChildPositioned onPositioned = { coordinates ->
+                }) {
+                    Row {
+                        Container(width = childWidthDp, height = childHeightDp) {
+                            OnChildPositioned(onPositioned = { coordinates ->
                                 childSize[0] = coordinates.size
                                 positionedLatch.countDown()
-                            }>
-                                <EmptyBox width=sizeDp height=sizeDp />
-                            </OnChildPositioned>
-                        </Container>
-                        <Container constraints=childConstraints>
-                            <OnChildPositioned onPositioned = { coordinates ->
+                            }) {
+                                EmptyBox(width = sizeDp, height = sizeDp)
+                            }
+                        }
+                        Container(constraints = childConstraints) {
+                            OnChildPositioned(onPositioned = { coordinates ->
                                 childSize[1] = coordinates.size
                                 positionedLatch.countDown()
-                            }>
-                                <EmptyBox width=sizeDp height=sizeDp />
-                            </OnChildPositioned>
-                        </Container>
-                        <Container
-                            constraints=(childConstraints)
+                            }) {
+                                EmptyBox(width = sizeDp, height = sizeDp)
+                            }
+                        }
+                        Container(
+                            constraints = (childConstraints),
                             // These should have priority.
-                            width=(childWidthDp * 2)
-                            height=(childHeightDp * 2)>
-                            <OnChildPositioned onPositioned = { coordinates ->
+                            width = (childWidthDp * 2),
+                            height = (childHeightDp * 2)
+                        ) {
+                            OnChildPositioned(onPositioned = { coordinates ->
                                 childSize[2] = coordinates.size
                                 positionedLatch.countDown()
-                            }>
-                                <EmptyBox width=sizeDp height=sizeDp />
-                            </OnChildPositioned>
-                        </Container>
-                    </Row>
-                </OnChildPositioned>
-            </Align>
+                            }) {
+                                EmptyBox(width = sizeDp, height = sizeDp)
+                            }
+                        }
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
@@ -187,26 +188,26 @@ class ContainerTest : LayoutTest() {
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnPositioned(onPositioned = { coordinates ->
                     alignSize.value = coordinates.size
                     positionedLatch.countDown()
-                }/>
-                <OnChildPositioned onPositioned = { coordinates ->
+                })
+                OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
-                    <Container expanded=true>
-                        <OnChildPositioned onPositioned = { coordinates ->
+                }) {
+                    Container(expanded = true) {
+                        OnChildPositioned(onPositioned = { coordinates ->
                             childSize.value = coordinates.size
                             childPosition.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
                             positionedLatch.countDown()
-                        }>
-                            <EmptyBox width=sizeDp height=sizeDp />
-                        </OnChildPositioned>
-                    </Container>
-                </OnChildPositioned>
-            </Align>
+                        }) {
+                            EmptyBox(width = sizeDp, height = sizeDp)
+                        }
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
@@ -231,26 +232,26 @@ class ContainerTest : LayoutTest() {
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
+                }) {
                     val constraints = DpConstraints(minWidth = sizeDp * 2, minHeight = sizeDp * 2)
-                    <ConstrainedBox constraints>
-                        <Container alignment=Alignment.BottomRight>
-                            <OnChildPositioned onPositioned = { coordinates ->
+                    ConstrainedBox(constraints = constraints) {
+                        Container(alignment = Alignment.BottomRight) {
+                            OnChildPositioned(onPositioned = { coordinates ->
                                 childSize.value = coordinates.size
                                 childPosition.value =
                                     coordinates.localToGlobal(PxPosition(0.px, 0.px))
                                 positionedLatch.countDown()
-                            }>
-                                <EmptyBox width=sizeDp height=sizeDp />
-                            </OnChildPositioned>
-                        </Container>
-                    </ConstrainedBox>
-                </OnChildPositioned>
-            </Align>
+                            }) {
+                                EmptyBox(width = sizeDp, height = sizeDp)
+                            }
+                        }
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
@@ -270,14 +271,14 @@ class ContainerTest : LayoutTest() {
         val containerSize = Ref<PxSize>()
         val latch = CountDownLatch(1)
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <Container width=sizeDp height=sizeDp padding=EdgeInsets(10.dp)>
-                    <OnPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                Container(width = sizeDp, height = sizeDp, padding = EdgeInsets(10.dp)) {
+                    OnPositioned(onPositioned = { coordinates ->
                         containerSize.value = coordinates.size
                         latch.countDown()
-                    } />
-                </Container>
-            </Align>
+                    })
+                }
+            }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
@@ -291,8 +292,10 @@ class ContainerTest : LayoutTest() {
         val paddingTop = 7.dp
         val paddingRight = 5.dp
         val paddingBottom = 10.dp
-        val edgeInsets = EdgeInsets(left = paddingLeft, top = paddingTop,
-            right = paddingRight, bottom = paddingBottom)
+        val edgeInsets = EdgeInsets(
+            left = paddingLeft, top = paddingTop,
+            right = paddingRight, bottom = paddingBottom
+        )
         val expectedSize = PxSize(
             childSizeDp.toIntPx() + paddingLeft.toIntPx() + paddingRight.toIntPx(),
             childSizeDp.toIntPx() + paddingTop.toIntPx() + paddingBottom.toIntPx()
@@ -301,15 +304,15 @@ class ContainerTest : LayoutTest() {
         var containerSize: PxSize? = null
         val latch = CountDownLatch(1)
         show @Composable {
-            <Wrap>
-                <Container padding=edgeInsets>
-                    <FixedSpacer width=childSizeDp height=childSizeDp/>
-                    <OnPositioned onPositioned = { coordinates ->
+            Wrap {
+                Container(padding = edgeInsets) {
+                    FixedSpacer(width = childSizeDp, height = childSizeDp)
+                    OnPositioned(onPositioned = { coordinates ->
                         containerSize = coordinates.size
                         latch.countDown()
-                    } />
-                </Container>
-            </Wrap>
+                    })
+                }
+            }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
@@ -326,32 +329,32 @@ class ContainerTest : LayoutTest() {
         var childCoordinates: LayoutCoordinates? = null
         val latch = CountDownLatch(1)
         show @Composable {
-            <Wrap>
-                <Container width=containerSize height=containerSize padding=edgeInsets>
-                    <OnChildPositioned onPositioned = { coordinates ->
+            Wrap {
+                Container(width = containerSize, height = containerSize, padding = edgeInsets) {
+                    OnChildPositioned(onPositioned = { coordinates ->
                         childCoordinates = coordinates
                         latch.countDown()
-                    } >
-                        <FixedSpacer width=childSize height=childSize/>
-                    </OnChildPositioned>
-                </Container>
-            </Wrap>
+                    }) {
+                        FixedSpacer(width = childSize, height = childSize)
+                    }
+                }
+            }
         }
         assertTrue(latch.await(1, TimeUnit.SECONDS))
 
         val centeringOffset = padding.toIntPx() +
-            (containerSize.toIntPx() - padding.toIntPx() * 2 - childSize.toIntPx()) / 2
+                (containerSize.toIntPx() - padding.toIntPx() * 2 - childSize.toIntPx()) / 2
         assertEquals(PxPosition(centeringOffset, centeringOffset), childCoordinates!!.position)
         assertEquals(PxSize(childSize.toIntPx(), childSize.toIntPx()), childCoordinates!!.size)
     }
 
     @Composable
     fun EmptyBox(width: Dp, height: Dp) {
-        <Layout layoutBlock={ _, constraints ->
+        Layout(layoutBlock = { _, constraints ->
             layout(
                 width.toIntPx().coerceIn(constraints.minWidth, constraints.maxWidth),
                 height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
             ) {}
-        } children={} />
+        }, children = { })
     }
 }

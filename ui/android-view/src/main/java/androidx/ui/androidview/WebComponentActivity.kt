@@ -54,14 +54,14 @@ open class WebComponentActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
+        setContent @Composable {
             if (WebContext.debug) {
                 Log.e("WebCompAct", "setContent")
             }
 
-            <FrameLayout>
-                <renderViews webContext=webContext />
-            </FrameLayout>
+            FrameLayout {
+                renderViews(webContext = webContext)
+            }
         }
     }
 
@@ -88,59 +88,61 @@ fun renderViews(webParams: WebParams = WebParams(), webContext: WebContext) {
         }
     }
 
-    <LinearLayout
-        orientation=LinearLayout.VERTICAL
-        layoutWidth=MATCH_PARENT
-        layoutHeight=MATCH_PARENT>
-        <LinearLayout
-            orientation=LinearLayout.HORIZONTAL
-            layoutWidth=MATCH_PARENT
-            layoutHeight=WRAP_CONTENT
-            weightSum=1f>
-            <Button
-                layoutWidth=40.dp
-                layoutHeight=WRAP_CONTENT
-                text="<"
-                onClick={
+    LinearLayout(
+        orientation = LinearLayout.VERTICAL,
+        layoutWidth = MATCH_PARENT,
+        layoutHeight = MATCH_PARENT
+    ) {
+        LinearLayout(
+            orientation = LinearLayout.HORIZONTAL,
+            layoutWidth = MATCH_PARENT,
+            layoutHeight = WRAP_CONTENT,
+            weightSum = 1f
+        ) {
+            Button(
+                layoutWidth = 40.dp,
+                layoutHeight = WRAP_CONTENT,
+                text = "",
+                onClick = {
                     webContext.goBack()
-                } />
-            <Button
-                layoutWidth=40.dp
-                layoutHeight=WRAP_CONTENT
-                text=">"
-                onClick={
+                })
+            Button(
+                layoutWidth = 40.dp,
+                layoutHeight = WRAP_CONTENT,
+                text = ") {",
+                onClick = {
                     webContext.goForward()
-                } />
-            <EditText
-                layoutWidth=0.dp
-                layoutHeight=WRAP_CONTENT
-                layoutWeight=1f
-                singleLine=true
-                controlledText=displayedUrl.value
-                onTextChanged={ s: CharSequence?, _, _, _ ->
+                })
+            EditText(
+                layoutWidth = 0.dp,
+                layoutHeight = WRAP_CONTENT,
+                layoutWeight = 1f,
+                singleLine = true,
+                controlledText = displayedUrl.value,
+                onTextChanged = { s: CharSequence?, _, _, _ ->
                     displayedUrl.value = s.toString()
-                } />
-            <Button
-                layoutWidth=WRAP_CONTENT
-                layoutHeight=WRAP_CONTENT
-                text="Go"
-                onClick={
+                })
+            Button(
+                layoutWidth = WRAP_CONTENT,
+                layoutHeight = WRAP_CONTENT,
+                text = "Go",
+                onClick = {
                     if (displayedUrl.value.isNotBlank()) {
                         if (WebContext.debug) {
                             Log.d("WebCompAct", "setting url to " + displayedUrl.value)
                         }
                         webParams.url = displayedUrl.value
                     }
-                } />
-        </LinearLayout>
+                })
+        }
 
         if (WebContext.debug) {
             Log.d("WebCompAct", "webComponent: start")
         }
 
-        <WebComponent
-            url=webParams.url
-            webViewClient=object : WebViewClient() {
+        WebComponent(
+            url = webParams.url,
+            webViewClient = object : WebViewClient() {
 
                 override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                     updateDisplayedUrl(url)
@@ -155,11 +157,12 @@ fun renderViews(webParams: WebParams = WebParams(), webContext: WebContext) {
                     updateDisplayedUrl(url)
                     return false
                 }
-            }
-            webContext />
+            },
+            webContext = webContext
+        )
 
         if (WebContext.debug) {
             Log.d("WebCompAct", "webComponent: end")
         }
-    </LinearLayout>
+    }
 }

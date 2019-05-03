@@ -51,14 +51,22 @@ internal fun makeEditorDisplayText(editorState: EditorState, editorStyle: Editor
         editorStyle.textStyle.merge(TextStyle(background = editorStyle.compositionColor))
     // TODO(nona): Implement selection highlight
     return editorState.composition?.let {
-        TextSpan(children = listOf(
-            TextSpan(text = editorState.text.substring(TextRange(0, it.start)),
-                style = editorStyle.textStyle),
-            TextSpan(text = editorState.text.substring(it),
-                style = compositionTextStyle),
-            TextSpan(text = editorState.text.substring(it.end),
-                style = editorStyle.textStyle)
-        ))
+        TextSpan(
+            children = listOf(
+                TextSpan(
+                    text = editorState.text.substring(TextRange(0, it.start)),
+                    style = editorStyle.textStyle
+                ),
+                TextSpan(
+                    text = editorState.text.substring(it),
+                    style = compositionTextStyle
+                ),
+                TextSpan(
+                    text = editorState.text.substring(it.end),
+                    style = editorStyle.textStyle
+                )
+            )
+        )
     } ?: TextSpan(text = editorState.text, style = editorStyle.textStyle)
 }
 
@@ -70,9 +78,9 @@ internal fun makeEditorDisplayText(editorState: EditorState, editorStyle: Editor
  *
  * Example:
  *     var state = +state { EditorState() }
- *     <EditableText
- *         value = state.value
- *         onValueChange= { state.value = it } />
+ *     EditableText(
+ *         value = state.value,
+ *         onValueChange = { state.value = it })
  */
 @Composable
 fun EditableText(
@@ -83,7 +91,7 @@ fun EditableText(
     editorStyle: EditorStyle,
 
     /** Called when the InputMethodService update the editor state */
-    onValueChange: (EditorState)-> Unit = {},
+    onValueChange: (EditorState) -> Unit = {},
 
     /** Called when the InputMethod requested an editor action */
     onEditorActionPerformed: (Any) -> Unit = {}, // TODO(nona): Define argument type
@@ -91,12 +99,12 @@ fun EditableText(
     /** Called when the InputMethod forwarded a key event */
     onKeyEventForwarded: (Any) -> Unit = {} // TODO(nona): Define argument type
 ) {
-        <TextInputClient
-            editorState=value
-            onEditorStateChange=onValueChange
-            onEditorActionPerformed=onEditorActionPerformed
-            onKeyEventForwarded=onKeyEventForwarded
-        >
-            <Text text=makeEditorDisplayText(value, editorStyle) />
-        </TextInputClient>
+    TextInputClient(
+        editorState = value,
+        onEditorStateChange = onValueChange,
+        onEditorActionPerformed = onEditorActionPerformed,
+        onKeyEventForwarded = onKeyEventForwarded
+    ) {
+        Text(text = makeEditorDisplayText(value, editorStyle))
+    }
 }

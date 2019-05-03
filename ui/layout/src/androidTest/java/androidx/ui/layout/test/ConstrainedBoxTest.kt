@@ -51,18 +51,22 @@ class ConstrainedBoxTest : LayoutTest() {
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
                     constrainedBoxSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
-                    <ConstrainedBox constraints=DpConstraints.tightConstraints(sizeDp, sizeDp)>
-                        <Container expanded=true>
-                            <SaveLayoutInfo size=childSize position=childPosition positionedLatch />
-                        </Container>
-                    </ConstrainedBox>
-                </OnChildPositioned>
-            </Align>
+                }) {
+                    ConstrainedBox(constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)) {
+                        Container(expanded = true) {
+                            SaveLayoutInfo(
+                                size = childSize,
+                                position = childPosition,
+                                positionedLatch = positionedLatch
+                            )
+                        }
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
@@ -81,24 +85,26 @@ class ConstrainedBoxTest : LayoutTest() {
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <Container width=sizeDp height=sizeDp>
-                    <OnChildPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                Container(width = sizeDp, height = sizeDp) {
+                    OnChildPositioned(onPositioned = { coordinates ->
                         constrainedBoxSize.value = coordinates.size
                         positionedLatch.countDown()
-                    }>
-                        <ConstrainedBox
-                            constraints=DpConstraints.tightConstraints(sizeDp * 2, sizeDp * 2)>
-                            <Container expanded=true>
-                                <SaveLayoutInfo
-                                    size=childSize
-                                    position=childPosition
-                                    positionedLatch />
-                            </Container>
-                        </ConstrainedBox>
-                    </OnChildPositioned>
-                    </Container>
-            </Align>
+                    }) {
+                        ConstrainedBox(
+                            constraints = DpConstraints.tightConstraints(sizeDp * 2, sizeDp * 2)
+                        ) {
+                            Container(expanded = true) {
+                                SaveLayoutInfo(
+                                    size = childSize,
+                                    position = childPosition,
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
@@ -115,16 +121,16 @@ class ConstrainedBoxTest : LayoutTest() {
         val positionedLatch = CountDownLatch(1)
         val constrainedBoxSize = Ref<PxSize>()
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
                     constrainedBoxSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
+                }) {
                     val constraints = DpConstraints(sizeDp, sizeDp * 2, sizeDp, sizeDp * 2)
-                    <ConstrainedBox constraints>
-                    </ConstrainedBox>
-                </OnChildPositioned>
-            </Align>
+                    ConstrainedBox(constraints = constraints) {
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 

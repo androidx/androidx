@@ -16,10 +16,8 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Direction
 import androidx.ui.core.PointerEventPass
-import androidx.ui.core.PointerInput
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PxPosition
 import androidx.ui.core.changedToDown
@@ -34,10 +32,11 @@ import androidx.ui.core.positionChange
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.compose.Children
-import androidx.compose.Component
 import androidx.compose.Composable
 import androidx.compose.composer
-import  androidx.compose.unaryPlus
+import androidx.compose.memo
+import androidx.compose.unaryPlus
+import androidx.ui.core.PointerInputWrapper
 
 interface DragObserver {
 
@@ -92,36 +91,27 @@ interface DragObserver {
  *
  * When multiple pointers are touching the detector, the drag distance is taken as the average of
  * all of the pointers.
+ *
+ * @param canDrag Set to limit the directions under which a drag can be started. Return true if you
+ * want a drag to be started due to the touch slop being surpassed in given [Direction]
  */
-class DragGestureDetector(
-    @Children var children: @Composable() () -> Unit
-) : Component() {
-
-    private val recognizer = DragGestureRecognizer()
-
-    /**
-     * Set to limit the directions under which a drag can be started.  Return true if a you want
-     * a drag to be started due to the touch slop being surpased in given [Direction]
-     */
-    var canDrag: ((Direction) -> Boolean)?
-        get() = recognizer.canDrag
-        set(value) {
-            recognizer.canDrag = value
-        }
+@Composable
+fun DragGestureDetector(
+    canDrag: ((Direction) -> Boolean)? = null,
+    dragObserver: DragObserver? = null,
+    @Children children: @Composable() () -> Unit
+) {
+    val recognizer = +memo { DragGestureRecognizer() }
+    recognizer.canDrag = canDrag
     // TODO(b/129784010): Consider also allowing onStart, onDrag, and onEnd to be set individually.
-    var dragObserver
-        get() = recognizer.dragObserver
-        set(value) {
-            recognizer.dragObserver = value
-        }
+    recognizer.dragObserver = dragObserver
 
-    override fun compose() {
-        +withDensity @Composable {
-            recognizer.touchSlop = TouchSlop.toIntPx()
-            <PointerInput pointerInputHandler=recognizer.pointerInputHandler>
-                <children />
-            </PointerInput>
-        }
+    +withDensity {
+        recognizer.touchSlop = TouchSlop.toIntPx()
+    }
+
+    PointerInputWrapper(pointerInputHandler=recognizer.pointerInputHandler) {
+        children()
     }
 }
 

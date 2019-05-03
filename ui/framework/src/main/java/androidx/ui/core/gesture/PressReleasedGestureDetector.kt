@@ -16,7 +16,6 @@
 
 package androidx.ui.core.gesture
 
-import androidx.ui.core.PointerInput
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.anyPositionChangeConsumed
@@ -30,6 +29,7 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.core.PointerInputWrapper
 
 /**
  * This gesture detector has a callback for when a press gesture being released for the purposes of
@@ -57,9 +57,9 @@ fun PressReleasedGestureDetector(
     val recognizer = +memo { PressReleaseGestureRecognizer() }
     recognizer.onRelease = onRelease
     recognizer.consumeDownOnStart = consumeDownOnStart
-    <PointerInput pointerInputHandler=recognizer.pointerInputHandler>
-        <children />
-    </PointerInput>
+    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
+        children()
+    }
 }
 
 internal class PressReleaseGestureRecognizer {

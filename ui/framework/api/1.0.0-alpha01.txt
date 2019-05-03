@@ -87,14 +87,9 @@ package androidx.ui.core {
     property public abstract androidx.ui.core.IntPx width;
   }
 
-  public final class PointerInput extends androidx.compose.Component {
-    ctor public PointerInput(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.PointerInputChange,androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> getPointerInputHandler();
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setPointerInputHandler(kotlin.jvm.functions.Function2<? super androidx.ui.core.PointerInputChange,? super androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> p);
-    property public final kotlin.jvm.functions.Function2<androidx.ui.core.PointerInputChange,androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> pointerInputHandler;
+  public final class PointerInputWrapperKt {
+    ctor public PointerInputWrapperKt();
+    method public static void PointerInputWrapper(kotlin.jvm.functions.Function2<? super androidx.ui.core.PointerInputChange,? super androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> pointerInputHandler = { event, _ -> event }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class PositioningBlockReceiver {
@@ -149,17 +144,9 @@ package androidx.ui.core.gesture {
     method public static androidx.ui.core.Duration getZoomControlsTimeout();
   }
 
-  public final class DragGestureDetector extends androidx.compose.Component {
-    ctor public DragGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.Direction,java.lang.Boolean>? getCanDrag();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public androidx.ui.core.gesture.DragObserver? getDragObserver();
-    method public void setCanDrag(kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? value);
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setDragObserver(androidx.ui.core.gesture.DragObserver? value);
-    property public final kotlin.jvm.functions.Function1<androidx.ui.core.Direction,java.lang.Boolean>? canDrag;
-    property public final androidx.ui.core.gesture.DragObserver? dragObserver;
+  public final class DragGestureDetectorKt {
+    ctor public DragGestureDetectorKt();
+    method public static void DragGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, androidx.ui.core.gesture.DragObserver? dragObserver = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public interface DragObserver {

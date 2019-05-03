@@ -17,11 +17,11 @@
 
 package androidx.ui.core
 
-// TODO(mount): regain the inline functions. These don't seem to work with jococo tests
+// TODO(mount): regain the inline functions. These don't seem to work with jacoco tests
 internal enum class ErrorMessages(val message: String) {
     ComponentNodeHasParent("Inserting an instance that already has a parent"),
-    SizeAlreadyExists("<Layout> can only be used once within a <MeasureBox>"),
-    NoSizeAfterLayout("<MeasureBox> requires one <Layout> element"),
+    SizeAlreadyExists("Layout can only be used once within a MeasureBox"),
+    NoSizeAfterLayout("MeasureBox requires one Layout element"),
     OnlyComponents("Don't know how to add a non-composable element to the hierarchy"),
     NoMovingSingleElements("Cannot move elements that contain a maximum of one child"),
     NoChild("There is no child in this node"),

@@ -70,17 +70,17 @@ class ScrollerActivity : Activity() {
         withDensity(density) {
             val style = TextStyle(fontSize = 30.dp.toPx().value)
             setContent {
-                <CraneWrapper>
-                    <Padding padding=10.dp>
-                        <VerticalScroller>
-                            <Column>
+                CraneWrapper {
+                    Padding(padding = 10.dp) {
+                        VerticalScroller {
+                            Column {
                                 phrases.forEach { phrase ->
-                                    <Text text=TextSpan(text = phrase, style = style)/>
+                                    Text(text = TextSpan(text = phrase, style = style))
                                 }
-                            </Column>
-                        </VerticalScroller>
-                    </Padding>
-                </CraneWrapper>
+                            }
+                        }
+                    }
+                }
             }
         }
     }

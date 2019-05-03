@@ -33,7 +33,7 @@ fun TextInputClient(
     editorState: EditorState = EditorState(),
 
     /** Called when the InputMethodService update the editor state */
-    onEditorStateChange: (EditorState)-> Unit = {},
+    onEditorStateChange: (EditorState) -> Unit = {},
 
     /** Clled when the InputMethod requested an editor action */
     onEditorActionPerformed: (Any) -> Unit = {}, // TODO(nona): Define argument type
@@ -45,14 +45,16 @@ fun TextInputClient(
 ) {
     val textInputService = +ambient(TextInputServiceAmbient)
 
-    <Focusable onFocus={ textInputService?.startInput(
-        initState = editorState,
-        onUpdateEditorState = onEditorStateChange,
-        onEditorActionPerformed = onEditorActionPerformed,
-        onKeyEventForwarded = onKeyEventForwarded)
+    Focusable(onFocus = {
+        textInputService?.startInput(
+            initState = editorState,
+            onUpdateEditorState = onEditorStateChange,
+            onEditorActionPerformed = onEditorActionPerformed,
+            onKeyEventForwarded = onKeyEventForwarded
+        )
+    },
+        onBlur = { textInputService?.stopInput() }
+    ) {
+        children()
     }
-        onBlur={ textInputService?.stopInput() }
-    >
-        <children />
-    </Focusable>
 }

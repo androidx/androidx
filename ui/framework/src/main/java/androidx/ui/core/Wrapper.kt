@@ -43,15 +43,15 @@ fun CraneWrapper(@Children children: @Composable() () -> Unit) {
         val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
         val context = rootRef.value?.context ?: composer.composer.context
         Compose.composeInto(container = rootLayoutNode, context = context, parent = reference) {
-            <ContextAmbient.Provider value=context>
-                <DensityAmbient.Provider value=Density(context)>
-                    <FocusManagerAmbient.Provider value=focusManager>
-                        <TextInputServiceAmbient.Provider value=rootRef.value?.textInputService>
-                            <children />
-                        </TextInputServiceAmbient.Provider>
-                    </FocusManagerAmbient.Provider>
-                </DensityAmbient.Provider>
-            </ContextAmbient.Provider>
+            ContextAmbient.Provider(value = context) {
+                DensityAmbient.Provider(value = Density(context)) {
+                    FocusManagerAmbient.Provider(value = focusManager) {
+                        TextInputServiceAmbient.Provider(value = rootRef.value?.textInputService) {
+                            children()
+                        }
+                    }
+                }
+            }
         }
     </AndroidCraneView>
 }
@@ -92,5 +92,6 @@ fun ambientDensity() =
 // can't make this inline as tests are failing with "DensityKt.$jacocoInit()' is inaccessible"
 /*inline*/ fun <R> withDensity(/*crossinline*/ block: @Composable() DensityReceiver.() -> R) =
     effectOf<R> {
-        withDensity(+ambientDensity(), block)
+        @Suppress("USELESS_CAST")
+        withDensity(+ambientDensity(), block as DensityReceiver.() -> R)
     }

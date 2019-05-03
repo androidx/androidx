@@ -25,6 +25,6 @@ open class MultipleCollectActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { <MultipleCollectTest /> }
+        setContent { MultipleCollectTest() }
     }
 }

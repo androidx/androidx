@@ -81,8 +81,8 @@ fun WebComponent(
         Log.d("WebComponent", "WebComponent compose " + url)
     }
 
-    <WebView
-        ref={ webContext.webView = it }
-        url=url
-        webViewClient=webViewClient />
+    WebView(
+        ref = { webContext.webView = it },
+        url = url,
+        webViewClient = webViewClient)
 }

@@ -54,12 +54,20 @@ class AlignTest : LayoutTest() {
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show @Composable {
-            <Align alignment=Alignment.BottomRight>
-                <SaveLayoutInfo size=alignSize position=alignPosition positionedLatch />
-                <Container width=sizeDp height=sizeDp>
-                    <SaveLayoutInfo size=childSize position=childPosition positionedLatch />
-                </Container>
-            </Align>
+            Align(alignment = Alignment.BottomRight) {
+                SaveLayoutInfo(
+                    size = alignSize,
+                    position = alignPosition,
+                    positionedLatch = positionedLatch
+                )
+                Container(width = sizeDp, height = sizeDp) {
+                    SaveLayoutInfo(
+                        size = childSize,
+                        position = childPosition,
+                        positionedLatch = positionedLatch
+                    )
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
@@ -86,21 +94,30 @@ class AlignTest : LayoutTest() {
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show @Composable {
-            <Layout
+            Layout(
+                children = {
+                    Align(alignment = Alignment.BottomRight) {
+                        SaveLayoutInfo(
+                            size = alignSize,
+                            position = alignPosition,
+                            positionedLatch = positionedLatch
+                        )
+                        Container(width = sizeDp, height = sizeDp) {
+                            SaveLayoutInfo(
+                                size = childSize,
+                                position = childPosition,
+                                positionedLatch = positionedLatch
+                            )
+                        }
+                    }
+                },
                 layoutBlock = { measurables, constraints ->
                     val placeable = measurables.first().measure(Constraints())
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         placeable.place(0.ipx, 0.ipx)
                     }
                 }
-                children = {
-                    <Align alignment=Alignment.BottomRight>
-                        <SaveLayoutInfo size=alignSize position=alignPosition positionedLatch />
-                        <Container width=sizeDp height=sizeDp>
-                            <SaveLayoutInfo size=childSize position=childPosition positionedLatch />
-                        </Container>
-                    </Align>
-                } />
+            )
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 

@@ -29,9 +29,9 @@ import androidx.compose.composer
  */
 @Composable
 fun FixedSpacer(width: Dp, height: Dp) {
-    <ConstrainedBox constraints=DpConstraints.tightConstraints(width, height)>
+    ConstrainedBox(constraints = DpConstraints.tightConstraints(width, height)) {
         // no children as we only need space
-    </ConstrainedBox>
+    }
 }
 
 /**
@@ -41,7 +41,7 @@ fun FixedSpacer(width: Dp, height: Dp) {
  */
 @Composable
 fun WidthSpacer(width: Dp) {
-    <FixedSpacer width height=0.dp />
+    FixedSpacer(width = width, height = 0.dp)
 }
 
 /**
@@ -51,5 +51,5 @@ fun WidthSpacer(width: Dp) {
  */
 @Composable
 fun HeightSpacer(height: Dp) {
-    <FixedSpacer height width=0.dp />
+    FixedSpacer(height = height, width = 0.dp)
 }

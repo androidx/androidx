@@ -60,6 +60,9 @@ def no_child_replace(match):
   return converted_function
 
 def with_child_replace(match):
+  # Hack to ignore generic parameters: 'fun <T>'
+  if match.group(0) == "<T>":
+    return match.group(0)
   # If we haven't eaten a '>', it means we matched another '<' on the way, so return without
   # converting the inside
   if not match.group("end"):

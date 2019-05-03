@@ -52,18 +52,22 @@ class WrapTest : LayoutTest() {
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
                     wrapSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
-                    <Wrap>
-                        <Container width=sizeDp height=sizeDp>
-                            <SaveLayoutInfo size=childSize position=childPosition positionedLatch />
-                        </Container>
-                    </Wrap>
-                </OnChildPositioned>
-            </Align>
+                }) {
+                    Wrap {
+                        Container(width = sizeDp, height = sizeDp) {
+                            SaveLayoutInfo(
+                                size = childSize,
+                                position = childPosition,
+                                positionedLatch = positionedLatch
+                            )
+                        }
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
@@ -84,25 +88,26 @@ class WrapTest : LayoutTest() {
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
                     wrapSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
+                }) {
                     val constraints =
                         DpConstraints(minWidth = doubleSizeDp, minHeight = doubleSizeDp)
-                    <ConstrainedBox constraints>
-                        <Wrap>
-                            <Container width=sizeDp height=sizeDp>
-                                <SaveLayoutInfo
-                                    size=childSize
-                                    position=childPosition
-                                    positionedLatch />
-                            </Container>
-                        </Wrap>
-                    </ConstrainedBox>
-                </OnChildPositioned>
-            </Align>
+                    ConstrainedBox(constraints = constraints) {
+                        Wrap {
+                            Container(width = sizeDp, height = sizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize,
+                                    position = childPosition,
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 
@@ -123,27 +128,28 @@ class WrapTest : LayoutTest() {
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
         show @Composable {
-            <Align alignment=Alignment.TopLeft>
-                <OnChildPositioned onPositioned = { coordinates ->
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
                     wrapSize.value = coordinates.size
                     positionedLatch.countDown()
-                }>
+                }) {
                     val constraints = DpConstraints(
                         minWidth = doubleSizeDp,
                         minHeight = doubleSizeDp
                     )
-                    <ConstrainedBox constraints>
-                        <Wrap alignment=Alignment.Center>
-                            <Container width=sizeDp height=sizeDp>
-                                <SaveLayoutInfo
-                                    size=childSize
-                                    position=childPosition
-                                    positionedLatch />
-                            </Container>
-                        </Wrap>
-                    </ConstrainedBox>
-                </OnChildPositioned>
-            </Align>
+                    ConstrainedBox(constraints = constraints) {
+                        Wrap(alignment = Alignment.Center) {
+                            Container(width = sizeDp, height = sizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize,
+                                    position = childPosition,
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
         positionedLatch.await(1, TimeUnit.SECONDS)
 

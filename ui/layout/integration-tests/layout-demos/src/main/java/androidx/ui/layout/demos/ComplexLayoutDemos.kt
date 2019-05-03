@@ -60,19 +60,19 @@ import androidx.compose.unaryPlus
  */
 @Composable
 fun SizedRectangle(color: Color, width: Dp? = null, height: Dp? = null) {
-    <Layout children={ <DrawRectangle color /> }> _, constraints ->
+    Layout(children = { DrawRectangle(color = color) }, layoutBlock = { _, constraints ->
         val widthPx = width?.toIntPx() ?: constraints.maxWidth
         val heightPx = height?.toIntPx() ?: constraints.maxHeight
         layout(widthPx, heightPx) {}
-    </Layout>
+    })
 }
 
 /**
  * A widget that forces its only child to be as wide as its min intrinsic width.
  */
 @Composable
-fun IntrinsicWidth(@Children() children: () -> Unit) {
-    <ComplexLayout children>
+fun IntrinsicWidth(@Children() children: @Composable() () -> Unit) {
+    ComplexLayout(children = children, block = {
         layout { measurables, constraints ->
             // Force child be as wide as its min intrinsic width.
             val width = measurables.first().minIntrinsicWidth(constraints.minHeight)
@@ -99,7 +99,7 @@ fun IntrinsicWidth(@Children() children: () -> Unit) {
         maxIntrinsicHeight { measurables, w ->
             measurables.first().maxIntrinsicHeight(w)
         }
-    </ComplexLayout>
+    })
 }
 
 /**
@@ -107,7 +107,7 @@ fun IntrinsicWidth(@Children() children: () -> Unit) {
  */
 @Composable
 fun RectangleWithIntrinsics(color: Color) {
-    <ComplexLayout children = { <DrawRectangle color /> }>
+    ComplexLayout(children = { DrawRectangle(color = color) }, block = {
         layout { _, _ ->
             layoutResult(80.ipx, 80.ipx) {}
         }
@@ -115,124 +115,124 @@ fun RectangleWithIntrinsics(color: Color) {
         maxIntrinsicWidth { _, _ -> 150.ipx }
         minIntrinsicHeight { _, _ -> 30.ipx }
         maxIntrinsicHeight { _, _ -> 150.ipx }
-    </ComplexLayout>
+    })
 }
 
 @Composable
 fun FlexRowUsage() {
-    <FlexRow>
-        expanded(flex=2f) {
-            <Center>
-                <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
-            </Center>
-            <SizedRectangle color=Color(0xFF0000FF.toInt()) height=40.dp />
+    FlexRow {
+        expanded(flex = 2f) {
+            Center {
+                SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+            }
+            SizedRectangle(color = Color(0xFF0000FF.toInt()), height = 40.dp)
         }
         inflexible {
-            <SizedRectangle color=Color(0xFFFF0000.toInt()) width=40.dp />
-            <SizedRectangle color=Color(0xFF00FF00.toInt()) width=50.dp />
-            <SizedRectangle color=Color(0xFF0000FF.toInt()) width=60.dp />
+            SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 40.dp)
+            SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 50.dp)
+            SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 60.dp)
         }
-        expanded(flex=1f) {
-            <SizedRectangle color=Color(0xFF00FF00.toInt()) />
+        expanded(flex = 1f) {
+            SizedRectangle(color = Color(0xFF00FF00.toInt()))
         }
-    </FlexRow>
+    }
 }
 
 @Composable
 fun FlexColumnUsage() {
-    <FlexColumn>
-        expanded(flex=2f) {
-            <Center>
-                <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
-            </Center>
-            <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp />
+    FlexColumn {
+        expanded(flex = 2f) {
+            Center {
+                SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+            }
+            SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp)
         }
         inflexible {
-            <SizedRectangle color=Color(0xFFFF0000.toInt()) height=40.dp />
-            <SizedRectangle color=Color(0xFF00FF00.toInt()) height=50.dp />
-            <SizedRectangle color=Color(0xFF0000FF.toInt()) height=60.dp />
+            SizedRectangle(color = Color(0xFFFF0000.toInt()), height = 40.dp)
+            SizedRectangle(color = Color(0xFF00FF00.toInt()), height = 50.dp)
+            SizedRectangle(color = Color(0xFF0000FF.toInt()), height = 60.dp)
         }
-        expanded(flex=1f) {
-            <SizedRectangle color=Color(0xFF00FF00.toInt()) />
+        expanded(flex = 1f) {
+            SizedRectangle(color = Color(0xFF00FF00.toInt()))
         }
-    </FlexColumn>
+    }
 }
 
 @Composable
 fun RowUsage() {
-    <Row>
-        <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
-        <SizedRectangle color=Color(0xFFFF0000.toInt()) width=40.dp height=80.dp />
-        <SizedRectangle color=Color(0xFF00FF00.toInt()) width=80.dp height=70.dp />
-    </Row>
+    Row {
+        SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+        SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 40.dp, height = 80.dp)
+        SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 80.dp, height = 70.dp)
+    }
 }
 
 @Composable
 fun ColumnUsage() {
-    <Column>
-        <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
-        <SizedRectangle color=Color(0xFFFF0000.toInt()) width=40.dp height=80.dp />
-        <SizedRectangle color=Color(0xFF00FF00.toInt()) width=80.dp height=70.dp />
-    </Column>
+    Column {
+        SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+        SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 40.dp, height = 80.dp)
+        SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 80.dp, height = 70.dp)
+    }
 }
 
 @Composable
 fun AlignUsage() {
-    <Align alignment=Alignment.BottomRight>
-        <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
-    </Align>
+    Align(alignment = Alignment.BottomRight) {
+        SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+    }
 }
 
 @Composable
 fun StackUsage() {
-    <Stack defaultAlignment=Alignment.BottomRight>
+    Stack(defaultAlignment = Alignment.BottomRight) {
         aligned(Alignment.Center) {
-            <SizedRectangle color=Color(0xFF0000FF.toInt()) width=300.dp height=300.dp />
+            SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 300.dp, height = 300.dp)
         }
         aligned(Alignment.TopLeft) {
-            <SizedRectangle color=Color(0xFF00FF00.toInt()) width=150.dp height=150.dp />
+            SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 150.dp, height = 150.dp)
         }
         aligned(Alignment.BottomRight) {
-            <SizedRectangle color=Color(0xFFFF0000.toInt()) width=150.dp height=150.dp />
+            SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 150.dp, height = 150.dp)
         }
         // TODO(popam): insets should be named arguments
         positioned(null, 20.dp, null, 20.dp) {
-            <SizedRectangle color=Color(0xFFFFA500.toInt()) width=80.dp />
-            <SizedRectangle color=Color(0xFFA52A2A.toInt()) width=20.dp />
+            SizedRectangle(color = Color(0xFFFFA500.toInt()), width = 80.dp)
+            SizedRectangle(color = Color(0xFFA52A2A.toInt()), width = 20.dp)
         }
         positioned(40.dp, null, null, null) {
-            <SizedRectangle color=Color(0xFFB22222.toInt()) width=20.dp />
+            SizedRectangle(color = Color(0xFFB22222.toInt()), width = 20.dp)
         }
         positioned(null, null, 40.dp, null) {
-            <SizedRectangle color=Color(0xFFFFFF00) width=40.dp />
+            SizedRectangle(color = Color(0xFFFFFF00.toInt()), width = 40.dp)
         }
-    </Stack>
+    }
 }
 
 @Composable
 fun ConstrainedBoxUsage() {
-    <Align alignment=Alignment.Center>
-        <ConstrainedBox constraints=DpConstraints.tightConstraints(50.dp, 50.dp)>
-            <SizedRectangle color=Color(0xFFFF0000) />
-        </ConstrainedBox>
-    </Align>
+    Align(alignment = Alignment.Center) {
+        ConstrainedBox(constraints = DpConstraints.tightConstraints(50.dp, 50.dp)) {
+            SizedRectangle(color = Color(0xFFFF0000.toInt()))
+        }
+    }
 }
 
 @Composable
 fun PaddingUsage() {
-    <Row>
-        <Padding padding=20.dp>
-            <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height=20.dp />
-        </Padding>
-        <Padding padding=20.dp>
-            <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height=20.dp />
-        </Padding>
-    </Row>
+    Row {
+        Padding(padding = 20.dp) {
+            SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 20.dp, height = 20.dp)
+        }
+        Padding(padding = 20.dp) {
+            SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 20.dp, height = 20.dp)
+        }
+    }
 }
 
 @Composable
 fun SingleCompositionRow(@Children children: @Composable() () -> Unit) {
-    <Layout layoutBlock = { measurables, constraints ->
+    Layout(layoutBlock = { measurables, constraints ->
         val placeables = measurables.map {
             it.measure(constraints.copy(minWidth = 0.ipx, maxWidth = IntPx.Infinity))
         }
@@ -246,12 +246,12 @@ fun SingleCompositionRow(@Children children: @Composable() () -> Unit) {
                 left += placeable.width
             }
         }
-    } children />
+    }, children = children)
 }
 
 @Composable
 fun SingleCompositionColumn(@Children children: @Composable() () -> Unit) {
-    <Layout layoutBlock = { measurables, constraints ->
+    Layout(layoutBlock = { measurables, constraints ->
         val placeables = measurables.map {
             it.measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))
         }
@@ -265,36 +265,40 @@ fun SingleCompositionColumn(@Children children: @Composable() () -> Unit) {
                 top += placeable.height
             }
         }
-    } children />
+    }, children = children)
 }
 
 @Composable
 fun SingleCompositionRect() {
     val Rectangle = @Composable {
-            <Draw> canvas, parentSize ->
-                val paint = Paint().apply { this.color = rectColorModel.color }
-                canvas.drawRect(parentSize.toRect(), paint)
-            </Draw>
+        Draw { canvas, parentSize ->
+            val paint = Paint().apply { this.color = rectColorModel.color }
+            canvas.drawRect(parentSize.toRect(), paint)
         }
-    <Layout layoutBlock = { _, constraints ->
-        val size = constraints.constrain(IntPxSize(30.ipx, 30.ipx))
-        layout(size.width, size.height) {}
-    } children=Rectangle />
+    }
+    Layout(
+        layoutBlock = { _, constraints ->
+            val size = constraints.constrain(IntPxSize(30.ipx, 30.ipx))
+            layout(size.width, size.height) { }
+        },
+        children = Rectangle
+    )
 }
 
 @Model
 class RectColor(var color: Color = Color(0xFF00FF00.toInt()), var cnt: Int = 4)
+
 val rectColorModel = RectColor()
 
 @Composable
 fun SingleCompositionRectWithIntrinsics() {
     val Rectangle = @Composable {
-        <Draw> canvas, parentSize ->
+        Draw { canvas, parentSize ->
             val paint = Paint().apply { this.color = rectColorModel.color }
             canvas.drawRect(parentSize.toRect(), paint)
-        </Draw>
+        }
     }
-    <ComplexLayout children=Rectangle>
+    ComplexLayout(children = Rectangle, block = {
         layout { _, _ ->
             layoutResult(50.ipx, 50.ipx) {}
         }
@@ -302,18 +306,20 @@ fun SingleCompositionRectWithIntrinsics() {
         maxIntrinsicWidth { _, _ -> 50.ipx }
         minIntrinsicHeight { _, _ -> 50.ipx }
         maxIntrinsicHeight { _, _ -> 50.ipx }
-    </ComplexLayout>
+    })
 }
 
 @Composable
 fun SingleCompositionRowWithIntrinsics(@Children children: @Composable() () -> Unit) {
-    <ComplexLayout children>
+    ComplexLayout(children = children, block = {
         layout { measurables, constraints ->
             val placeables = measurables.map { measurable ->
                 val childWidth = measurable.maxIntrinsicWidth(constraints.maxHeight)
-                measurable.measure(Constraints(
-                    childWidth, childWidth, 0.ipx, constraints.maxHeight
-                ))
+                measurable.measure(
+                    Constraints(
+                        childWidth, childWidth, 0.ipx, constraints.maxHeight
+                    )
+                )
             }
             val width = placeables.map { it.width }.sum()
             val height = placeables.map { it.height }.max()
@@ -338,21 +344,21 @@ fun SingleCompositionRowWithIntrinsics(@Children children: @Composable() () -> U
         maxIntrinsicHeight { measurables, w ->
             measurables.map { it.maxIntrinsicHeight(w) }.max()
         }
-    </ComplexLayout>
+    })
 }
 
 @Composable
 fun FillWithRectangles() {
-    <WithConstraints> constraints ->
+    WithConstraints { constraints ->
         val rectangles = (constraints.maxWidth / 50).value
-        <Row>
+        Row {
             for (i in 0 until rectangles) {
-                <Padding padding=1.dp>
-                    <SingleCompositionRect />
-                </Padding>
+                Padding(padding = 1.dp) {
+                    SingleCompositionRect()
+                }
             }
-        </Row>
-    </WithConstraints>
+        }
+    }
 }
 
 @Composable
@@ -361,14 +367,14 @@ fun ComplexLayoutDemos() {
         rectColorModel.color = Color(0xFF0000FF.toInt())
         rectColorModel.cnt++
     }
-    <CraneWrapper>
-        <Center>
+    CraneWrapper {
+        Center {
             val rectangleWidth = 30.dp * rectColorModel.cnt
-            <ConstrainedBox constraints=DpConstraints.tightConstraintsForWidth(rectangleWidth)>
-                <FillWithRectangles />
-            </ConstrainedBox>
-        </Center>
-    </CraneWrapper>
+            ConstrainedBox(constraints = DpConstraints.tightConstraintsForWidth(rectangleWidth)) {
+                FillWithRectangles()
+            }
+        }
+    }
 }
 
 fun runDelayed(vararg millis: Int, block: () -> Unit) = effectOf<Unit> {
@@ -408,7 +414,7 @@ fun Collection<IntPx>.max(): IntPx {
 fun DrawRectangle(color: Color) {
     val paint = Paint()
     paint.color = color
-    <Draw> canvas, parentSize ->
+    Draw { canvas, parentSize ->
         canvas.drawRect(parentSize.toRect(), paint)
-    </Draw>
+    }
 }

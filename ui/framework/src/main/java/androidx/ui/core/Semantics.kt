@@ -148,8 +148,8 @@ fun Semantics(
         textDirection
         testTag=(testTag ?: providedTestTag)
         actions>
-        <TestTag tag=DefaultTestTag>
-            <children />
-        </TestTag>
+        TestTag(tag=DefaultTestTag) {
+            children()
+        }
     </SemanticsComponentNode>
 }

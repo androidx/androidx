@@ -44,17 +44,19 @@ internal fun Focusable(
 ) {
     val focusManager = +ambient(FocusManagerAmbient)
 
-    <PressGestureDetector onPress={ focusManager.requestFocus(object : FocusManager.FocusNode {
-        override fun onFocus() {
-            onFocus()
-        }
+    PressGestureDetector(onPress = {
+        focusManager.requestFocus(object : FocusManager.FocusNode {
+            override fun onFocus() {
+                onFocus()
+            }
 
-        override fun onBlur() {
-            onBlur()
-        }
-    })}>
-        <children />
-    </PressGestureDetector>
+            override fun onBlur() {
+                onBlur()
+            }
+        })
+    }) {
+        children()
+    }
 
     // TODO(nona): Implement focus transitions other than onPress event, e.g. TAB key events.
 }

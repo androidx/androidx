@@ -54,12 +54,12 @@ class StackChildren {
             leftInset = leftInset, topInset = topInset,
             rightInset = rightInset, bottomInset = bottomInset
         )
-        _stackChildren += @Composable { <ParentData data children /> }
+        _stackChildren += @Composable { ParentData(data = data, children = children) }
     }
 
     fun aligned(alignment: Alignment, children: @Composable() () -> Unit) {
         val data = StackChildData(alignment = alignment)
-        _stackChildren += @Composable { <ParentData data children /> }
+        _stackChildren += @Composable { ParentData(data = data, children = children) }
     }
 }
 
@@ -78,21 +78,21 @@ class StackChildren {
  * will be resolved according to the [Stack]'s defaultAlignment argument.
  *
  * Example usage:
- *     <Stack> children ->
+ *     Stack { children ->
  *         children.aligned(Alignment.Center) {
- *             <SizedRectangle color=Color(0xFF0000FF.toInt()) width=300.dp height=300.dp />
+ *             SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 300.dp, height = 300.dp)
  *         }
  *         children.aligned(Alignment.TopLeft) {
- *             <SizedRectangle color=Color(0xFF00FF00.toInt()) width=150.dp height=150.dp />
+ *             SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 150.dp, height = 150.dp)
  *         }
  *         children.aligned(Alignment.BottomRight) {
- *             <SizedRectangle color=Color(0xFFFF0000.toInt()) width=150.dp height=150.dp />
+ *             SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 150.dp, height = 150.dp)
  *         }
  *         children.positioned(null, 20.dp, null, 20.dp) {
- *             <SizedRectangle color=Color(0xFFFFA500.toInt()) width=80.dp />
- *             <SizedRectangle color=Color(0xFFA52A2A.toInt()) width=20.dp />
+ *             SizedRectangle(color = Color(0xFFFFA500.toInt()), width = 80.dp)
+ *             SizedRectangle(color = Color(0xFFA52A2A.toInt()), width = 20.dp)
  *         }
- *     </Stack>
+ *     }
  */
 @Suppress("FunctionName")
 @Composable
@@ -100,16 +100,16 @@ fun Stack(
     defaultAlignment: Alignment = Alignment.Center,
     @Children(composable = false) block: StackChildren.() -> Unit
 ) {
-    val children = with(StackChildren()) {
+    val children: @Composable() () -> Unit = with(StackChildren()) {
         apply(block)
         val composable = @Composable {
             stackChildren.forEach {
-                <it />
+                it()
             }
         }
         composable
     }
-    <Layout children> measurables, constraints ->
+    Layout(children = children, layoutBlock = { measurables, constraints ->
         val placeables = arrayOfNulls<Placeable>(measurables.size)
         // First measure aligned children to get the size of the layout.
         (0 until measurables.size).filter { i -> !measurables[i].positioned }.forEach { i ->
@@ -199,7 +199,7 @@ fun Stack(
                 }
             }
         }
-    </Layout>
+    })
 }
 
 internal data class StackChildData(
@@ -213,6 +213,7 @@ internal data class StackChildData(
 )
 
 internal val Measurable.stackChildData: StackChildData get() = this.parentData as StackChildData
-internal val Measurable.positioned: Boolean get() = with(stackChildData) {
-    leftInset != null || topInset != null || rightInset != null || bottomInset != null
-}
+internal val Measurable.positioned: Boolean
+    get() = with(stackChildData) {
+        leftInset != null || topInset != null || rightInset != null || bottomInset != null
+    }

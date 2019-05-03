@@ -55,10 +55,10 @@ fun Padding(
     padding: EdgeInsets,
     @Children children: @Composable() () -> Unit
 ) {
-    <Layout layoutBlock={ measurables, constraints ->
+    Layout(layoutBlock = { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         if (measurable == null) {
-            layout(constraints.minWidth, constraints.minHeight) {}
+            layout(constraints.minWidth, constraints.minHeight) { }
         } else {
             val paddingLeft = padding.left.toIntPx()
             val paddingTop = padding.top.toIntPx()
@@ -78,7 +78,7 @@ fun Padding(
                 placeable.place(paddingLeft, paddingTop)
             }
         }
-    } children />
+    }, children = children)
 }
 
 /**
@@ -100,7 +100,10 @@ fun Padding(
     bottom: Dp = 0.dp,
     @Children children: @Composable() () -> Unit
 ) {
-    <Padding padding=EdgeInsets(left = left, top = top, right = right, bottom = bottom) children />
+    Padding(
+        padding = EdgeInsets(left = left, top = top, right = right, bottom = bottom),
+        children = children
+    )
 }
 
 /**
@@ -120,5 +123,5 @@ fun Padding(
     padding: Dp,
     @Children children: @Composable() () -> Unit
 ) {
-    <Padding padding=EdgeInsets(padding) children />
+    Padding(padding = EdgeInsets(padding), children = children)
 }

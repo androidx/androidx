@@ -30,32 +30,32 @@ internal val ParentDataAmbient = Ambient.of<Any?>(key = "parent data")
  * Normally [ParentData] is completely controlled by the containing Layout. For example,
  * [Flex] is used like this:
  *
- *     <Flex ...>
+ *     Flex(...) {
  *         expanded(2f) {
- *             <Text .../>
+ *             Text(...)
  *         }
  *         inflexible {
- *             <Center><Text .../></Center>
+ *             Center {Text(...)}
  *         }
- *     </Flex>
+ *     }
  *
  * The Flex component internally adds a ParentData to mark the expanded and inflexible
  * children so that they can later be read during layout. Conceptually, Flex will treat it
  * like this:
  *
- *     <Flex ...>
- *         <ParentData value=FlexInfo(FlexFit.Tight, 2f)>
- *             <Text .../>
- *         </ParentData>
- *         <ParentData value=FlexInfo(FlexFit.Loose, 0f)>
- *             <Center><Text .../></Center>
- *         </ParentData>
- *     </Flex>
+ *     Flex(...) {
+ *         ParentData(value = FlexInfo(FlexFit.Tight, 2f)) {
+ *             Text(...)
+ *         }
+ *         ParentData(value = FlexInfo(FlexFit.Loose, 0f)) {
+ *             Center {Text(...)}
+ *         }
+ *     }
  *
  * Flex then reads the [Measurable.parentData] and can determine which elements are
  * expanded, which are inflexible and which are flexible.
  */
 @Composable
 fun ParentData(data: Any, @Children children: @Composable() () -> Unit) {
-    <ParentDataAmbient.Provider value=data children/>
+    ParentDataAmbient.Provider(value = data, children = children)
 }

@@ -46,7 +46,7 @@ class FlexChildren internal constructor() {
             throw IllegalArgumentException("flex must be >= 0")
         }
         childrenList += @Composable {
-            <ParentData data=FlexInfo(flex = flex, fit = FlexFit.Tight) children/>
+            ParentData(data = FlexInfo(flex = flex, fit = FlexFit.Tight), children = children)
         }
     }
 
@@ -55,13 +55,13 @@ class FlexChildren internal constructor() {
             throw IllegalArgumentException("flex must be >= 0")
         }
         childrenList += @Composable {
-            <ParentData data=FlexInfo(flex = flex, fit = FlexFit.Loose) children/>
+            ParentData(data = FlexInfo(flex = flex, fit = FlexFit.Loose), children = children)
         }
     }
 
     fun inflexible(children: @Composable() () -> Unit) {
         childrenList += @Composable {
-            <ParentData data=FlexInfo(flex = 0f, fit = FlexFit.Loose) children/>
+            ParentData(data = FlexInfo(flex = 0f, fit = FlexFit.Loose), children = children)
         }
     }
 }
@@ -80,19 +80,19 @@ class FlexChildren internal constructor() {
  * unoccupied width.
  *
  * Example usage:
- *     <FlexRow> children ->
+ *     FlexRow { children ->
  *         children.expanded(/*flex=*/2f) {
- *             <Center>
- *                 <SizedRectangle color=Color(0xFF0000FF.toInt()) width = 40.dp height = 40.dp />
- *             </Center>
+ *             Center {
+ *                 SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+ *             }
  *         }
  *         children.inflexible {
- *             <SizedRectangle color=Color(0xFFFF0000.toInt()) width=40.dp />
+ *             SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 40.dp)
  *         }
  *         children.expanded(/*flex=*/1f) {
- *             <SizedRectangle color=Color(0xFF00FF00.toInt()) />
+ *             SizedRectangle(color = Color(0xFF00FF00.toInt()))
  *         }
- *     </FlexRow>
+ *     }
  */
 @Suppress("FunctionName")
 @Composable
@@ -102,12 +102,13 @@ fun FlexRow(
     crossAxisAlignment: Int = CrossAxisAlignment.Center,
     @Children(composable = false) block: FlexChildren.() -> Unit
 ) {
-    <Flex
-        orientation=FlexOrientation.Horizontal
-        mainAxisAlignment
-        mainAxisSize
-        crossAxisAlignment
-        block />
+    Flex(
+        orientation = FlexOrientation.Horizontal,
+        mainAxisAlignment = mainAxisAlignment,
+        mainAxisSize = mainAxisSize,
+        crossAxisAlignment = crossAxisAlignment,
+        block = block
+    )
 }
 
 /**
@@ -124,19 +125,19 @@ fun FlexRow(
  * unoccupied height.
  *
  * Example usage:
- *     <ColumnFlex> children ->
+ *     ColumnFlex { children ->
  *         children.expanded(/*flex=*/2f) {
- *             <Center>
- *                 <SizedRectangle color=Color(0xFF0000FF.toInt()) width = 40.dp height = 40.dp />
- *             </Center>
+ *             Center {
+ *                 SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+ *             }
  *         }
  *         children.inflexible {
- *             <SizedRectangle color=Color(0xFFFF0000.toInt()) height=40.dp />
+ *             SizedRectangle(color = Color(0xFFFF0000.toInt()), height = 40.dp)
  *         }
  *         children.expanded(/*flex=*/1f) {
- *             <SizedRectangle color=Color(0xFF00FF00.toInt()) />
+ *             SizedRectangle(color = Color(0xFF00FF00.toInt()))
  *         }
- *     </ColumnFlex>
+ *     }
  */
 @Suppress("FunctionName")
 @Composable
@@ -144,25 +145,26 @@ fun FlexColumn(
     mainAxisAlignment: Int = MainAxisAlignment.Start,
     mainAxisSize: Int = MainAxisSize.Max,
     crossAxisAlignment: Int = CrossAxisAlignment.Center,
-    @Children(composable=false) block: FlexChildren.() -> Unit
+    @Children(composable = false) block: FlexChildren.() -> Unit
 ) {
-    <Flex
-        orientation=FlexOrientation.Vertical
-        mainAxisAlignment
-        mainAxisSize
-        crossAxisAlignment
-        block />
+    Flex(
+        orientation = FlexOrientation.Vertical,
+        mainAxisAlignment = mainAxisAlignment,
+        mainAxisSize = mainAxisSize,
+        crossAxisAlignment = crossAxisAlignment,
+        block = block
+    )
 }
 
 /**
  * A widget that places its children in a horizontal sequence.
  *
  * Example usage:
- *   <Row>
- *       <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
- *       <SizedRectangle color=Color(0xFFFF0000.toInt()) width=40.dp height=80.dp />
- *       <SizedRectangle color=Color(0xFF00FF00.toInt()) width=80.dp height=70.dp />
- *   </Row>
+ *   Row {
+ *       SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+ *       SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 40.dp, height = 80.dp)
+ *       SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 80.dp, height = 70.dp)
+ *   }
  */
 @Suppress("FunctionName")
 @Composable
@@ -172,22 +174,26 @@ fun Row(
     crossAxisAlignment: Int = CrossAxisAlignment.Center,
     @Children block: @Composable() () -> Unit
 ) {
-    <FlexRow mainAxisAlignment mainAxisSize crossAxisAlignment>
+    FlexRow(
+        mainAxisAlignment = mainAxisAlignment,
+        mainAxisSize = mainAxisSize,
+        crossAxisAlignment = crossAxisAlignment
+    ) {
         inflexible {
-            <block />
+            block()
         }
-    </FlexRow>
+    }
 }
 
 /**
  * A widget that places its children in a vertical sequence.
  *
  * Example usage:
- *   <Column>
- *       <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
- *       <SizedRectangle color=Color(0xFFFF0000.toInt()) width=40.dp height=80.dp />
- *       <SizedRectangle color=Color(0xFF00FF00.toInt()) width=80.dp height=70.dp />
- *   </Column>
+ *   Column {
+ *       SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
+ *       SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 40.dp, height = 80.dp)
+ *       SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 80.dp, height = 70.dp)
+ *   }
  */
 @Suppress("FunctionName")
 @Composable
@@ -197,11 +203,15 @@ fun Column(
     crossAxisAlignment: Int = CrossAxisAlignment.Center,
     @Children block: @Composable() () -> Unit
 ) {
-    <FlexColumn mainAxisAlignment mainAxisSize crossAxisAlignment>
+    FlexColumn(
+        mainAxisAlignment = mainAxisAlignment,
+        mainAxisSize = mainAxisSize,
+        crossAxisAlignment = crossAxisAlignment
+    ) {
         inflexible {
-            <block />
+            block()
         }
-    </FlexColumn>
+    }
 }
 
 // TODO(popam): convert this to enum when possible
@@ -475,14 +485,14 @@ private fun Flex(
     fun Placeable.mainAxisSize() = if (orientation == FlexOrientation.Horizontal) width else height
     fun Placeable.crossAxisSize() = if (orientation == FlexOrientation.Horizontal) height else width
 
-    val flexChildren = with(FlexChildren()) {
+    val flexChildren: @Composable() () -> Unit = with(FlexChildren()) @Composable {
         block()
         val composable = @Composable {
-            childrenList.forEach { <it/> }
+            childrenList.forEach { it() }
         }
         composable
     }
-    <Layout children=flexChildren> children, outerConstraints ->
+    Layout(children = flexChildren, layoutBlock = { children, outerConstraints ->
 
         val constraints = OrientationIndependentConstraints(outerConstraints, orientation)
 
@@ -533,7 +543,8 @@ private fun Flex(
 
         // Compute the Flex size and position the children.
         val mainAxisLayoutSize = if (constraints.mainAxisMax != IntPx.Infinity &&
-            mainAxisSize == MainAxisSize.Max) {
+            mainAxisSize == MainAxisSize.Max
+        ) {
             constraints.mainAxisMax
         } else {
             max(
@@ -569,11 +580,15 @@ private fun Flex(
                     }
                     CrossAxisAlignment.Center -> {
                         Alignment.Center.align(
-                            IntPxSize(mainAxisLayoutSize - placeable.mainAxisSize(),
-                            crossAxisLayoutSize - placeable.crossAxisSize())
+                            IntPxSize(
+                                mainAxisLayoutSize - placeable.mainAxisSize(),
+                                crossAxisLayoutSize - placeable.crossAxisSize()
+                            )
                         ).y
                     }
-                    else -> { IntPx.Zero /* TODO(popam): support baseline and use enum */}
+                    else -> {
+                        IntPx.Zero /* TODO(popam): support baseline and use enum */
+                    }
                 }
                 if (orientation == FlexOrientation.Horizontal) {
                     placeable.place(mainAxisPositions[index], crossAxis)
@@ -582,5 +597,5 @@ private fun Flex(
                 }
             }
         }
-    </Layout>
+    })
 }
