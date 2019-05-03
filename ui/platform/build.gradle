@@ -31,7 +31,7 @@ dependencies {
     api project(":compose-runtime")
     api project(":ui-core")
     api project(":compose-runtime")
-    api(KOTLIN_R4A_STDLIB)
+    api(KOTLIN_COMPOSE_STDLIB)
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)

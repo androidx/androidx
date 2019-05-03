@@ -28,7 +28,7 @@ plugins {
 }
 
 dependencies {
-    api(KOTLIN_R4A_STDLIB)
+    api(KOTLIN_COMPOSE_STDLIB)
 
     api "androidx.annotation:annotation:1.0.0"
     api "androidx.activity:activity:1.0.0-alpha01"

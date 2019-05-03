@@ -234,7 +234,7 @@ sealed class SingleChildComponentNode : ComponentNode() {
     var child: ComponentNode? = null
 
     /**
-     * Second child. This may seem weird, but R4A doesn't guarantee that a child will
+     * Second child. This may seem weird, but Compose doesn't guarantee that a child will
      * be removed before a new child will be added. This allows the execution order to
      * be independent.
      */

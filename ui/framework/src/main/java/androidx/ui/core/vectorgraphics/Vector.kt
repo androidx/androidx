@@ -58,7 +58,7 @@ class PathDelegate(val delegate: PathBuilder.() -> Unit)
 
 // TODO figure out how to use UNIONTYPE with a Lambda receiver. Cannot cast to KClass which is what
 // UnionType is expecting
-// TODO uncomment usage of UnionType when R4A can be accessed across modules
+// TODO uncomment usage of UnionType when Compose can be accessed across modules
 typealias PathData = /*@UnionType(String::class, PathDelegate::class, Array<PathNode>::class)*/ Any?
 
 // TODO (njawad) change to color int
@@ -366,15 +366,15 @@ private class Path(val name: String) : VNode(), Emittable {
     }
 
     override fun emitInsertAt(index: Int, instance: Emittable) {
-        throw IllegalArgumentException("Unable to insert Emittable into R4APath")
+        throw IllegalArgumentException("Unable to insert Emittable into Path")
     }
 
     override fun emitMove(from: Int, to: Int, count: Int) {
-        throw IllegalArgumentException("Unable to move Emittable within R4APath")
+        throw IllegalArgumentException("Unable to move Emittable within Path")
     }
 
     override fun emitRemoveAt(index: Int, count: Int) {
-        throw IllegalArgumentException("Unable to remove Emittable from R4APath")
+        throw IllegalArgumentException("Unable to remove Emittable from Path")
     }
 
     override fun toString(): String {

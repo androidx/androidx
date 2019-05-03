@@ -19,8 +19,8 @@ package androidx.ui.androidview.adapters
 import android.view.View
 
 /**
- * A Ref is essentially a "value-holder" class that can be used with R4A to get controlled access to the underlying
- * view instances that are constructed as a result of a compose() pass in R4A.
+ * A Ref is essentially a "value-holder" class that can be used with Compose to get controlled access to the underlying
+ * view instances that are constructed as a result of a compose() pass in Compose.
  */
 class Ref<T> {
     // TODO(lmr): One idea is that Ref<T> could implement LiveData<T>, which means people could observe when the value

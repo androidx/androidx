@@ -31,7 +31,7 @@ dependencies {
     api "androidx.annotation:annotation:1.0.0"
     api "androidx.dynamicanimation:dynamicanimation:1.0.0"
     api project(':ui-core')
-    api(KOTLIN_R4A_STDLIB)
+    api(KOTLIN_COMPOSE_STDLIB)
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)

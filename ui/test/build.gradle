@@ -34,7 +34,7 @@ dependencies {
     api project(":ui-animation")
     api project(":compose-runtime")
     
-    api(KOTLIN_R4A_STDLIB)
+    api(KOTLIN_COMPOSE_STDLIB)
 
     implementation(JUNIT)
     implementation(ANDROIDX_TEST_RUNNER)
