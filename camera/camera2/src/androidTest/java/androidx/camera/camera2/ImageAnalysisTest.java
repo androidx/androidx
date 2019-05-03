@@ -42,7 +42,7 @@ import androidx.camera.core.UseCase.StateChangeListener;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -57,7 +57,7 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageAnalysisTest {
     // Use most supported resolution for different supported hardware level devices,
