@@ -1694,7 +1694,7 @@ public class NotificationCompat {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public BubbleMetadata getBubbleMetadata() {
+        public @Nullable BubbleMetadata getBubbleMetadata() {
             return mBubbleMetadata;
         }
     }
@@ -5342,8 +5342,8 @@ public class NotificationCompat {
          * is non-null, otherwise null.
          */
         @RequiresApi(29)
-        protected static android.app.Notification.BubbleMetadata toPlatform(
-                BubbleMetadata compatMetadata) {
+        public static @Nullable android.app.Notification.BubbleMetadata toPlatform(
+                @Nullable BubbleMetadata compatMetadata) {
             if (compatMetadata == null) {
                 return null;
             }
@@ -5378,8 +5378,8 @@ public class NotificationCompat {
          * platformMetadata is non-null, otherwise null.
          */
         @RequiresApi(29)
-        protected static BubbleMetadata fromPlatform(
-                android.app.Notification.BubbleMetadata platformMetadata) {
+        public static @Nullable BubbleMetadata fromPlatform(
+                @Nullable android.app.Notification.BubbleMetadata platformMetadata) {
             if (platformMetadata == null) {
                 return null;
             }
@@ -5563,11 +5563,7 @@ public class NotificationCompat {
                 return data;
             }
 
-            /**
-             * @hide
-             */
-            @RestrictTo(LIBRARY_GROUP_PREFIX)
-            public BubbleMetadata.Builder setFlag(int mask, boolean value) {
+            private BubbleMetadata.Builder setFlag(int mask, boolean value) {
                 if (value) {
                     mFlags |= mask;
                 } else {
