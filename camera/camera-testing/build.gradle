@@ -33,6 +33,13 @@ dependencies {
     implementation("androidx.core:core:1.1.0-rc01")
     implementation("androidx.concurrent:concurrent-futures:1.0.0-alpha03")
     implementation(JUNIT)
+
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
+    testImplementation(ROBOLECTRIC)
+    testImplementation(MOCKITO_CORE)
 }
 
 android {
