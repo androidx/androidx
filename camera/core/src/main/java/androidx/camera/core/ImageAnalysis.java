@@ -103,8 +103,8 @@ public final class ImageAnalysis extends UseCase {
      *
      * <p>In most cases this should be set to the current rotation returned by {@link
      * Display#getRotation()}.  In that case, the rotation parameter sent to the analyzer will be
-     * the rotation, which if applied to the output image, will make it match a correctly configured
-     * preview.
+     * the rotation, which if applied to the output image, will make the image match the display
+     * orientation.
      *
      * <p>While rotation can also be set via
      * {@link ImageAnalysisConfig.Builder#setTargetRotation(int)}, using
@@ -115,9 +115,11 @@ public final class ImageAnalysis extends UseCase {
      *
      * <p>If no target rotation is set by the application, it is set to the value of
      * {@link Display#getRotation()} of the default display at the time the
-     * {@link ImageAnalysis} is created.
+     * use case is created.
      *
-     * @param rotation Desired rotation of the output image.
+     * @param rotation Target rotation of the output image, expressed as one of
+     *                 {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     *                 {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      */
     public void setTargetRotation(@RotationValue int rotation) {
         ImageAnalysisConfig oldConfig = (ImageAnalysisConfig) getUseCaseConfig();
@@ -343,6 +345,9 @@ public final class ImageAnalysis extends UseCase {
     public interface Analyzer {
         /**
          * Analyzes an image to produce a result.
+         *
+         * <p>This method is called once for each image from the camera, and called at the
+         * frame rate of the camera.  Each analyze call is executed sequentially.
          *
          * <p>The caller is responsible for ensuring this analysis method can be executed quickly
          * enough to prevent stalls in the image acquisition pipeline. Otherwise, newly available
