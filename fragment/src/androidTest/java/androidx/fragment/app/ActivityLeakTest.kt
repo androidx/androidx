@@ -16,10 +16,13 @@
 
 package androidx.fragment.app
 
-import androidx.fragment.app.test.EmptyFragmentTestActivity
-import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.ActivityTestRule
+import androidx.testutils.FragmentActivityUtils
+import androidx.testutils.RecreatedActivity
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -77,19 +80,36 @@ class ActivityLeakTest(
         }
     }
 
+    @get:Rule
+    val activityRule = ActivityTestRule(ActivityLeakActivity::class.java)
+
     @Test
     fun testActivityDoesNotLeak() {
-        with(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
-            val weakRef = withActivity { WeakReference(this) }
-            onActivity { activity ->
-                val parent = parentConfiguration.commit(activity.supportFragmentManager)!!
-                childConfiguration.commit(parent.childFragmentManager)
-            }
-            recreate()
-            forceGC()
-            assertWithMessage("Old activity should be garbage collected")
-                .that(weakRef.get())
-                .isNull()
+        // Restart the activity because activityRule keeps a strong reference to the
+        // old activity.
+        val activity = FragmentActivityUtils.recreateActivity(activityRule, activityRule.activity)
+        activityRule.runOnUiThreadRethrow {
+            val parent = parentConfiguration.commit(activity.supportFragmentManager)!!
+            childConfiguration.commit(parent.childFragmentManager)
         }
+
+        val weakRef = WeakReference(ActivityLeakActivity.activity)
+
+        // Wait for everything to settle. We have to make sure that the old Activity
+        // is ready to be collected.
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        activityRule.waitForExecution()
+
+        // Force a garbage collection.
+        forceGC()
+        assertWithMessage("Old activity should be garbage collected")
+            .that(weakRef.get())
+            .isNull()
+    }
+}
+
+class ActivityLeakActivity : RecreatedActivity() {
+    companion object {
+        val activity get() = RecreatedActivity.activity
     }
 }
