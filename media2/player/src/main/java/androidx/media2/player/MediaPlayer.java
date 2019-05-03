@@ -812,6 +812,9 @@ public final class MediaPlayer extends SessionPlayer {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
+                if (playbackSpeed <= 0.0f) {
+                    return createFuturesForResultCode(RESULT_ERROR_BAD_VALUE);
+                }
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
                 synchronized (mPendingCommands) {
