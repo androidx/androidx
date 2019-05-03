@@ -41,11 +41,20 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
                 ViewCompat.getLayoutDirection(viewPager) == ViewCompat.LAYOUT_DIRECTION_RTL
 
     override fun swipeNext() {
-        fakeDrag(.5f, FLING_DURATION_MS, interpolator = AccelerateInterpolator())
+        postFakeDrag(.5f, FLING_DURATION_MS, interpolator = AccelerateInterpolator())
     }
 
     override fun swipePrevious() {
-        fakeDrag(-.5f, FLING_DURATION_MS, interpolator = AccelerateInterpolator())
+        postFakeDrag(-.5f, FLING_DURATION_MS, interpolator = AccelerateInterpolator())
+    }
+
+    fun postFakeDrag(
+        relativeDragDistance: Float,
+        duration: Long,
+        interpolator: Interpolator = LinearInterpolator(),
+        suppressFling: Boolean = false
+    ) {
+        viewPager.post { fakeDrag(relativeDragDistance, duration, interpolator, suppressFling) }
     }
 
     fun fakeDrag(
@@ -65,12 +74,10 @@ class PageSwiperFakeDrag(private val viewPager: ViewPager2, private val pageSize
         }
 
         // Send the fakeDrag events
-        viewPager.post {
-            if (!viewPager.beginFakeDrag()) {
-                return@post
-            }
-            viewPager.postDelayed(FakeDragExecutor(deltas, suppressFling), FRAME_LENGTH_MS)
+        if (!viewPager.beginFakeDrag()) {
+            return
         }
+        viewPager.postDelayed(FakeDragExecutor(deltas, suppressFling), FRAME_LENGTH_MS)
     }
 
     private inner class FakeDragExecutor(
