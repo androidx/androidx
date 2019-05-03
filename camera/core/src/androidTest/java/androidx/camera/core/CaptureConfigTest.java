@@ -20,9 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
 
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
-import android.hardware.camera2.CaptureRequest;
 import android.view.Surface;
 
 import androidx.camera.core.Config.Option;
@@ -51,18 +49,6 @@ public class CaptureConfigTest {
     @Before
     public void setup() {
         mMockSurface0 = mock(DeferrableSurface.class);
-    }
-
-    @Test
-    public void buildCaptureRequestWithNullCameraDevice() throws CameraAccessException {
-        CaptureConfig.Builder builder = new CaptureConfig.Builder();
-        CameraDevice cameraDevice = null;
-        CaptureConfig captureConfig = builder.build();
-
-        CaptureRequest.Builder captureRequestBuilder =
-                captureConfig.buildCaptureRequest(cameraDevice);
-
-        assertThat(captureRequestBuilder).isNull();
     }
 
     @Test

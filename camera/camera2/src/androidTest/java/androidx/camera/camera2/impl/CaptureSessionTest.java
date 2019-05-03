@@ -345,7 +345,32 @@ public final class CaptureSessionTest {
         assertThat(captureResult.getRequest().get(CaptureRequest.CONTROL_AE_MODE)).isEqualTo(
                 CaptureRequest.CONTROL_AE_MODE_ON);
     }
+    @Test
+    public void issueCaptureRequestAcrossCaptureSessions()
+            throws CameraAccessException, InterruptedException {
+        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
+        captureSession.issueCaptureRequests(
+                Collections.singletonList(mTestParameters0.mCaptureConfig));
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+
+        captureSession.close();
+        CaptureSession captureSession2 = new CaptureSession(mTestParameters0.mHandler);
+        captureSession2.setSessionConfig(captureSession.getSessionConfig());
+        if (!captureSession.getCaptureConfigs().isEmpty()) {
+            captureSession2.issueCaptureRequests(captureSession.getCaptureConfigs());
+        }
+        captureSession2.open(mTestParameters0.mSessionConfig, mCameraDevice);
+
+        mTestParameters0.waitForCameraCaptureCallback();
+
+        // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
+        verify(mTestParameters0.mCameraCaptureCallback, timeout(3000).times(1))
+                .onCaptureCompleted(any(CameraCaptureResult.class));
+    }
+
+    @Test
     public void issueCaptureRequestBeforeCaptureSessionOpened()
             throws CameraAccessException, InterruptedException {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
@@ -649,7 +674,7 @@ public final class CaptureSessionTest {
 
             CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
             captureConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            captureConfigBuilder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
+            captureConfigBuilder.addSurface(mDeferrableSurface);
             captureConfigBuilder.addCameraCaptureCallback(mComboCameraCaptureCallback);
 
             // Add capture request options for CaptureConfig
