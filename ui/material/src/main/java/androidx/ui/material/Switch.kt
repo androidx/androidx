@@ -80,11 +80,11 @@ private fun DrawSwitch(checked: Boolean, color: Color? = null) {
     }
     val trackColor = if (checked) activeColor else UncheckedTrackColor
     DrawTrack(color = trackColor)
-    Transition(definition = transDef, toState = checked) { state ->
-        // TODO: Convert this to FCS - currently there are some strange issues when this is FCS.
-        <DrawThumb
-            color=state[ThumbColorProp]
-            relativePosition=state[RelativeThumbTranslationProp] />
+    // TODO: remove @Composable annotation here when b/131681875 is fixed
+    Transition(definition = transDef, toState = checked) @Composable { state ->
+        DrawThumb(
+            color = state[ThumbColorProp],
+            relativePosition = state[RelativeThumbTranslationProp])
     }
 }
 

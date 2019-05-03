@@ -93,14 +93,14 @@ private fun DrawCheckbox(value: ToggleableState, color: Color?) {
     val definition = +memo(activeColor) {
         generateTransitionDefinition(activeColor)
     }
-    Transition(definition = definition, toState = value) { state ->
-        // TODO: Convert this to FCS - currently there are some strange issues when this is FCS.
-        <DrawBox
-            color=state[BoxColorProp]
-            innerRadiusFraction=state[InnerRadiusFractionProp] />
-        <DrawCheck
-            checkFraction=state[CheckFractionProp]
-            crossCenterGravitation=state[CenterGravitationForCheck] />
+    // TODO: remove @Composable annotation here when b/131681875 is fixed
+    Transition(definition = definition, toState = value) @Composable { state ->
+        DrawBox(
+            color = state[BoxColorProp],
+            innerRadiusFraction = state[InnerRadiusFractionProp])
+        DrawCheck(
+            checkFraction = state[CheckFractionProp],
+            crossCenterGravitation = state[CenterGravitationForCheck])
     }
 }
 
