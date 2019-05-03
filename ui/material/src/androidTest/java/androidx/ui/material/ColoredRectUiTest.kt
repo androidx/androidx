@@ -18,7 +18,6 @@ package androidx.ui.material
 
 import androidx.test.filters.MediumTest
 import androidx.ui.baseui.ColoredRect
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
@@ -51,17 +50,14 @@ class ColoredRectUiTest : AndroidUiTestRunner() {
         var size: PxSize? = null
         val width = 40.dp
         val height = 71.dp
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Center {
-                        Container(constraints = bigConstraints) {
-                            OnChildPositioned(onPositioned = { position ->
-                                size = position.size
-                            }) {
-                                ColoredRect(width = width, height = height, color = color)
-                            }
-                        }
+
+        setMaterialContent {
+            Center {
+                Container(constraints = bigConstraints) {
+                    OnChildPositioned(onPositioned = { position ->
+                        size = position.size
+                    }) {
+                        ColoredRect(width = width, height = height, color = color)
                     }
                 }
             }
@@ -77,17 +73,14 @@ class ColoredRectUiTest : AndroidUiTestRunner() {
         var size: PxSize? = null
         val width = 40.dp
         val height = 71.dp
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Center {
-                        Container(width = width, height = height) {
-                            OnChildPositioned(onPositioned = { position ->
-                                size = position.size
-                            }) {
-                                ColoredRect(color = color)
-                            }
-                        }
+
+        setMaterialContent {
+            Center {
+                Container(width = width, height = height) {
+                    OnChildPositioned(onPositioned = { position ->
+                        size = position.size
+                    }) {
+                        ColoredRect(color = color)
                     }
                 }
             }
@@ -101,17 +94,14 @@ class ColoredRectUiTest : AndroidUiTestRunner() {
     @Test
     fun coloredRect_expand_WholeScreenSizes() {
         var size: PxSize? = null
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Center {
-                        Container(constraints = bigConstraints) {
-                            OnChildPositioned(onPositioned = { position ->
-                                size = position.size
-                            }) {
-                                ColoredRect(color = color)
-                            }
-                        }
+
+        setMaterialContent {
+            Center {
+                Container(constraints = bigConstraints) {
+                    OnChildPositioned(onPositioned = { position ->
+                        size = position.size
+                    }) {
+                        ColoredRect(color = color)
                     }
                 }
             }

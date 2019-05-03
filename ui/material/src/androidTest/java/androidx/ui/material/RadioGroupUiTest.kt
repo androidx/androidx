@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.TestTag
 import androidx.ui.layout.Column
 import androidx.ui.test.android.AndroidUiTestRunner
@@ -57,14 +56,11 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     private val options = listOf(itemOne, itemTwo, itemThree)
 
     @Composable
+
     fun VerticalRadioGroupforTests(@Children children: @Composable() RadioGroupScope.() -> Unit) {
-        CraneWrapper {
-            MaterialTheme {
-                RadioGroup {
-                    Column {
-                        children(p1 = this)
-                    }
-                }
+        RadioGroup {
+            Column {
+                children(p1 = this)
             }
         }
     }
@@ -73,14 +69,14 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     fun radioGroupTest_defaultSemantics() {
         val select = RadioGroupSelectedState(itemOne)
 
-        setContent {
+        setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
                     TestTag(tag = item) {
                         RadioGroupTextItem(
-                            text = item,
-                            selected = (select.selected == item),
-                            onSelected = { select.selected = item })
+                                text = item,
+                                selected = (select.selected == item),
+                                onSelected = { select.selected = item })
                     }
                 }
             }
@@ -105,14 +101,14 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     fun radioGroupTest_ensureUnselectable() {
         val select = RadioGroupSelectedState(itemOne)
 
-        setContent {
+        setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
                     TestTag(tag = item) {
                         RadioGroupTextItem(
-                            text = item,
-                            selected = (select.selected == item),
-                            onSelected = { select.selected = item })
+                                text = item,
+                                selected = (select.selected == item),
+                                onSelected = { select.selected = item })
                     }
                 }
             }
@@ -133,14 +129,14 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     @Test
     fun radioGroupTest_clickSelect() {
         val select = RadioGroupSelectedState(itemOne)
-        setContent {
+        setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
                     TestTag(tag = item) {
                         RadioGroupTextItem(
-                            text = item,
-                            selected = (select.selected == item),
-                            onSelected = { select.selected = item })
+                                text = item,
+                                selected = (select.selected == item),
+                                onSelected = { select.selected = item })
                     }
                 }
             }
@@ -161,14 +157,14 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     fun radioGroupTest_clickSelectTwoDifferentItems() {
         val select = RadioGroupSelectedState(itemOne)
 
-        setContent {
+        setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
                     TestTag(tag = item) {
                         RadioGroupTextItem(
-                            text = item,
-                            selected = (select.selected == item),
-                            onSelected = { select.selected = item })
+                                text = item,
+                                selected = (select.selected == item),
+                                onSelected = { select.selected = item })
                     }
                 }
             }

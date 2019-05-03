@@ -46,4 +46,8 @@ class SemanticsTreeQuery internal constructor(
     internal fun sendEvent(event: MotionEvent) {
         uiTestRunner.sendEvent(event)
     }
+
+    internal fun sendClick(x: Float, y: Float) {
+        uiTestRunner.performClick(x, y)
+    }
 }

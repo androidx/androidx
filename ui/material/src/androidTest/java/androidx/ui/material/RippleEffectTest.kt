@@ -16,8 +16,8 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
+
 import androidx.ui.baseui.Clickable
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Density
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Px
@@ -93,18 +93,14 @@ class RippleEffectTest : AndroidUiTestRunner() {
         val colorCallback: RippleColorCallback = { Color(0) }
 
         val padding = 10.dp
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    CurrentRippleTheme.Provider(value = RippleTheme(factory, colorCallback)) {
-                        Card {
-                            Padding(padding = padding) {
-                                TestTag(tag = "ripple") {
-                                    BoundedRipple {
-                                        Clickable(onClick = {}) {
-                                            Container {}
-                                        }
-                                    }
+        setMaterialContent {
+            CurrentRippleTheme.Provider(value = RippleTheme(factory, colorCallback)) {
+                Card {
+                    Padding(padding = padding) {
+                        TestTag(tag = "ripple") {
+                            BoundedRipple {
+                                Clickable(onClick = {}) {
+                                    Container {}
                                 }
                             }
                         }

@@ -48,4 +48,8 @@ class FakeUiTestRunner : UiTestRunner {
     override fun sendEvent(event: MotionEvent) {
         // TODO(catalintudor): implement
     }
+
+    override fun performClick(x: Float, y: Float) {
+        // TODO(malkov): implement?
+    }
 }

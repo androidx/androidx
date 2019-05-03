@@ -17,7 +17,6 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.TestTag
 import androidx.ui.layout.Column
 import androidx.ui.test.DisableTransitions
@@ -31,6 +30,7 @@ import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.compose.composer
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,17 +54,13 @@ class SwitchUiTest : AndroidUiTestRunner() {
 
     @Test
     fun SwitchTest_defaultSemantics() {
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    Column {
-                        TestTag(tag = "checked") {
-                            Switch(checked = true)
-                        }
-                        TestTag(tag = "unchecked") {
-                            Switch(checked = false)
-                        }
-                    }
+        setMaterialContent {
+            Column {
+                TestTag(tag = "checked") {
+                    Switch(checked = true)
+                }
+                TestTag(tag = "unchecked") {
+                    Switch(checked = false)
                 }
             }
         }
@@ -75,14 +71,10 @@ class SwitchUiTest : AndroidUiTestRunner() {
 
     @Test
     fun SwitchTest_toggle() {
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    val (checked, onChecked) = +state { false }
-                    TestTag(tag = defaultSwitchTag) {
-                        Switch(checked = checked, onClick = { onChecked(!checked) })
-                    }
-                }
+        setMaterialContent {
+            val (checked, onChecked) = +state { false }
+            TestTag(tag = defaultSwitchTag) {
+                Switch(checked = checked, onClick = { onChecked(!checked) })
             }
         }
         findByTag(defaultSwitchTag)
@@ -93,14 +85,11 @@ class SwitchUiTest : AndroidUiTestRunner() {
 
     @Test
     fun SwitchTest_toggleTwice() {
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    val (checked, onChecked) = +state { false }
-                    TestTag(tag = defaultSwitchTag) {
-                        Switch(checked = checked, onClick = { onChecked(!checked) })
-                    }
-                }
+
+        setMaterialContent {
+            val (checked, onChecked) = +state { false }
+            TestTag(tag = defaultSwitchTag) {
+                Switch(checked = checked, onClick = { onChecked(!checked)})
             }
         }
         findByTag(defaultSwitchTag)
@@ -113,14 +102,10 @@ class SwitchUiTest : AndroidUiTestRunner() {
 
     @Test
     fun SwitchTest_uncheckableWithNoLambda() {
-        setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    val (checked, _) = +state { false }
-                    TestTag(tag = defaultSwitchTag) {
-                        Switch(checked = checked)
-                    }
-                }
+        setMaterialContent {
+            val (checked, _) = +state { false }
+            TestTag(tag = defaultSwitchTag) {
+                Switch(checked = checked)
             }
         }
         findByTag(defaultSwitchTag)

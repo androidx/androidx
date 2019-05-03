@@ -28,6 +28,8 @@ plugins {
 }
 
 dependencies {
+    kotlinPlugin project(path: ":compose-plugin-cli-gradle", configuration: "pluginForGradle")
+
     api project(":ui-core")
     api project(":ui-platform")
     api project(":ui-framework")
@@ -44,6 +46,18 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(ANDROIDX_TEST_RULES)
+}
+
+android {
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+        kotlinOptions {
+            useIR = true
+        }
+    }
+    tasks.withType(KotlinCompile).configureEach { compile ->
+        compile.kotlinOptions.freeCompilerArgs +="-P"
+        compile.kotlinOptions.freeCompilerArgs +="plugin:org.jetbrains.kotlin.r4a:syntax=FCS"
+    }
 }
 
 androidx {
