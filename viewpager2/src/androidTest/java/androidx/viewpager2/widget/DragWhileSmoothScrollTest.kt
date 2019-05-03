@@ -16,10 +16,8 @@
 
 package androidx.viewpager2.widget
 
-import android.os.Build
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.SwipeToLocation.flingToCenter
@@ -37,6 +35,7 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.greaterThan
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -90,9 +89,10 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         val waitTillCloseEnough = test.viewPager.addWaitForDistanceToTarget(config.targetPage,
             config.distanceToTargetWhenStartDrag)
         test.runOnUiThread { test.viewPager.setCurrentItem(config.targetPage, true) }
-        waitTillCloseEnough.await(1, SECONDS)
+        waitTillCloseEnough.await(2, SECONDS)
 
         // then perform a swipe
+        val idleLatch = test.viewPager.addWaitForIdleLatch()
         if (config.endInSnappedPosition) {
             swipeExactlyToPage(config.pageToSnapTo(movingForward))
         } else if (config.dragInOppositeDirection == movingForward) {
@@ -100,7 +100,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         } else {
             test.swipeForward(SwipeMethod.MANUAL)
         }
-        test.viewPager.addWaitForIdleLatch().await(2, SECONDS)
+        idleLatch.await(2, SECONDS)
 
         // and check the result
         callback.apply {
@@ -151,39 +151,37 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
     }
 
     /**
-     * Swipe to the next page, but don't stop the swipe until the next page is in snapped position.
+     * Swipe to the next page, but don't stop the swipe until the [pageToSnapTo] is in snapped
+     * position.
      *
      * @param pageToSnapTo The page to swipe and snap to
      */
     private fun swipeExactlyToPage(pageToSnapTo: Int) {
-        val pageText = "$pageToSnapTo"
-        if (Build.VERSION.SDK_INT >= 16) {
-            onPage(withText(pageText)).perform(flingToCenter())
-        } else {
-            // Below API 16, the smooth scroll is executed on the main thread, causing
-            // onPage(..).perform(fling()) to be postponed until the scroll is finished.
-            val fling = flingToCenter()
+        // Don't let Espresso perform the fling, it can be delayed until after the smooth scroll
+        val fling = flingToCenter()
 
-            // Find the view on the UI thread, as RV may be in layout
-            var viewFound = false
-            test.activityTestRule.runOnUiThread {
-                val llm = test.viewPager.recyclerView.layoutManager as LinearLayoutManager
-                var i = 0
-                while (!viewFound && i < llm.childCount) {
-                    val view = llm.getChildAt(i++) as TextView
-                    if (view.text == pageText) {
-                        viewFound = true
-                        // Resolve start and end coordinates immediately, before
-                        // RV gets the chance to detach the view from its parent
-                        fling.initialize(view)
-                    }
+        // Find the view on the UI thread, as RV may be in layout
+        val pageText = "$pageToSnapTo"
+        var viewFound = false
+        test.activityTestRule.runOnUiThread {
+            val llm = test.viewPager.recyclerView.layoutManager as LinearLayoutManager
+            var i = 0
+            while (!viewFound && i < llm.childCount) {
+                val view = llm.getChildAt(i++) as TextView
+                if (view.text == pageText) {
+                    viewFound = true
+                    // Resolve start and end coordinates immediately, before
+                    // RV gets the chance to detach the view from its parent
+                    fling.initialize(view)
                 }
             }
+        }
 
-            // Perform the fling
-            if (viewFound) {
-                fling.perform(InstrumentationRegistry.getInstrumentation())
-            }
+        // Perform the fling
+        if (viewFound) {
+            fling.perform(InstrumentationRegistry.getInstrumentation())
+        } else {
+            fail("Page with text \"$pageText\" not found")
         }
     }
 
