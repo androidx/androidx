@@ -34,7 +34,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.CoordinatesProvider
 import androidx.test.espresso.action.GeneralLocation
 import androidx.test.espresso.action.GeneralSwipeAction
@@ -45,7 +44,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.AppCompatActivityUtils
@@ -76,8 +74,6 @@ import org.junit.Assert.assertThat
 import org.junit.Assume.assumeThat
 import org.junit.Before
 import org.junit.Rule
-import java.lang.AssertionError
-import java.lang.Exception
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
@@ -514,13 +510,6 @@ open class BaseTest {
     enum class SortOrder(val sign: Int) {
         ASC(1),
         DESC(-1)
-    }
-
-    fun onPage(childMatcher: Matcher<View>): ViewInteraction {
-        return onView(allOf(
-            withParent(withParent(isAssignableFrom(ViewPager2::class.java))),
-            childMatcher
-        ))
     }
 
     fun <T, R : Comparable<R>> List<T>.assertSorted(selector: (T) -> R) {
