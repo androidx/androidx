@@ -38,7 +38,7 @@ import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -51,7 +51,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public final class CameraXTest {
     // TODO(b/126431497): This shouldn't need to be static, but the initialization behavior does
