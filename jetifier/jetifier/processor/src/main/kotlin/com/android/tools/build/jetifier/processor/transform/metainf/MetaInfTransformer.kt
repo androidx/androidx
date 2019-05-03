@@ -41,6 +41,7 @@ class MetaInfTransformer internal constructor(
             "androidx.car_car-cluster.version",
             "androidx.car_car-moderator.version",
             "androidx.activity_activity-ktx.version",
+            "androidx.lifecycle_lifecycle-runtime-ktx.version",
             "androidx.dynamicanimation_dynamicanimation-ktx.version"
         )
     }
