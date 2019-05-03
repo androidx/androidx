@@ -25,11 +25,11 @@ import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUp
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.memo
-import com.google.r4a.unaryPlus
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.memo
+import androidx.compose.unaryPlus
 
 /**
  * This gesture detector has a callback for when a press gesture being released for the purposes of

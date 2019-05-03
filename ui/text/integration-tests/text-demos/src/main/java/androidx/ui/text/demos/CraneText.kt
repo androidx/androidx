@@ -38,10 +38,10 @@ import androidx.ui.painting.Shadow
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import androidx.ui.rendering.paragraph.TextOverflow
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.state
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.state
+import androidx.compose.unaryPlus
 
 val displayText = "Text Demo"
 val displayTextChinese = "文本演示"
@@ -659,7 +659,7 @@ fun TextDemoShadowEffect() {
 
 @Composable
 fun EditLine() {
-    val state = +state{ EditorState() }
+    val state = +state { EditorState() }
     CraneWrapper {
         EditableText(
             value = state.value,

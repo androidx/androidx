@@ -36,12 +36,12 @@ import androidx.ui.core.ipx
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import com.google.r4a.Composable
-import com.google.r4a.Recompose
-import com.google.r4a.composer
-import com.google.r4a.memo
-import com.google.r4a.setContent
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.Recompose
+import androidx.compose.composer
+import androidx.compose.memo
+import androidx.compose.setContent
+import androidx.compose.unaryPlus
 
 class StateBasedRippleAnimation : Activity() {
 
@@ -54,7 +54,7 @@ class StateBasedRippleAnimation : Activity() {
 @Composable
 fun StateBasedRippleDemo() {
     <CraneWrapper>
-        val children = @Composable {
+        val children = @androidx.compose.Composable {
             <WithConstraints> constraints ->
                 <RippleRect width=constraints.maxWidth height=constraints.maxHeight />
             </WithConstraints>
@@ -92,7 +92,7 @@ fun RippleRect(width: IntPx, height: IntPx) {
             recompose()
         }
         <PressGestureDetector onPress onRelease>
-            val children = @Composable {
+            val children = @androidx.compose.Composable {
                 <Transition definition=rippleTransDef toState> state ->
                     <RippleRectFromState state />
                 </Transition>

@@ -24,8 +24,8 @@ import androidx.ui.core.vectorgraphics.SolidColor
 import androidx.ui.layout.Container
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * Component that represents a rectangle painted with the specified [Brush].

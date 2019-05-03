@@ -34,9 +34,9 @@ import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.themeColor
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.unaryPlus
+import androidx.compose.composer
 
 @Composable
 fun ButtonDemo() {

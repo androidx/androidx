@@ -44,7 +44,7 @@ import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.vectormath64.Matrix4
-import com.google.r4a.composer
+import androidx.compose.composer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue

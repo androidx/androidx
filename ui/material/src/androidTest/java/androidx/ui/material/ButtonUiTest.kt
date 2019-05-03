@@ -34,7 +34,7 @@ import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import com.google.common.truth.Truth
-import com.google.r4a.composer
+import androidx.compose.composer
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

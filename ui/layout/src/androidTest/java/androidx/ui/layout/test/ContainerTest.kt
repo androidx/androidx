@@ -41,8 +41,8 @@ import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

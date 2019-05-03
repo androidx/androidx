@@ -36,10 +36,10 @@ import androidx.ui.material.ripple.ambientRippleSurface
 import androidx.ui.material.textColorForBackground
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextStyle
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.unaryPlus
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.unaryPlus
 
 /**
  * The [Surface] is responsible for:

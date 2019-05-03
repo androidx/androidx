@@ -21,9 +21,9 @@ import androidx.ui.core.Layout
 import androidx.ui.core.dp
 import androidx.ui.core.min
 import androidx.ui.core.offset
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * Describes a set of offsets from each of the four sides of a box. For example,

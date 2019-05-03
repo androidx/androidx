@@ -21,8 +21,8 @@ import androidx.ui.core.toRect
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * Draws the provided [color] within the parent layout's bounds.

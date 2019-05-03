@@ -32,10 +32,10 @@ import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import com.google.r4a.Composable
-import com.google.r4a.Recompose
-import com.google.r4a.composer
-import com.google.r4a.setContent
+import androidx.compose.Composable
+import androidx.compose.Recompose
+import androidx.compose.composer
+import androidx.compose.setContent
 
 class HelloAnimationActivity : Activity() {
 

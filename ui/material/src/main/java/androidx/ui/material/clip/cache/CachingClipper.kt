@@ -20,11 +20,11 @@ import androidx.ui.core.Density
 import androidx.ui.core.PxSize
 import androidx.ui.material.clip.CustomClipper
 import androidx.ui.painting.Path
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.memo
-import com.google.r4a.unaryPlus
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.memo
+import androidx.compose.unaryPlus
 
 /**
  * A Composable to help cache the clip object and not execute [CustomClipper.getClip]

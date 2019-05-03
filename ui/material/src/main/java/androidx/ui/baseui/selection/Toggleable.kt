@@ -20,9 +20,9 @@ import androidx.ui.core.Semantics
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.semantics.SemanticsAction
 import androidx.ui.core.semantics.SemanticsActionType
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
 
 @Composable
 fun Toggleable(

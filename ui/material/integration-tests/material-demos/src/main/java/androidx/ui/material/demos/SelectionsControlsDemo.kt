@@ -35,11 +35,11 @@ import androidx.ui.material.Switch
 import androidx.ui.material.parentCheckboxState
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
-import com.google.r4a.Composable
-import com.google.r4a.Model
-import com.google.r4a.composer
-import com.google.r4a.state
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.Model
+import androidx.compose.composer
+import androidx.compose.state
+import androidx.compose.unaryPlus
 
 @Model
 class CheckboxState(var value: ToggleableState) {

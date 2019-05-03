@@ -30,10 +30,10 @@ import androidx.ui.material.ripple.BoundedRipple
 import androidx.ui.material.surface.Surface
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextStyle
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.unaryPlus
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.unaryPlus
 
 /**
  * [Button] with flexible user interface. You can provide any content you want as a

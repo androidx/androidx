@@ -29,8 +29,8 @@ import androidx.ui.layout.Alignment
 import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

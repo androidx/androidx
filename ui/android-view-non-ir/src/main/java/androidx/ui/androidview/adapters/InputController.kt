@@ -2,8 +2,8 @@ package androidx.ui.androidview.adapters
 
 import android.view.View
 import android.view.ViewTreeObserver
-import com.google.r4a.Component
-import com.google.r4a.CompositionContext
+import androidx.compose.Component
+import androidx.compose.CompositionContext
 
 // This class is a small helper class for creating objects that properly deal with controlled
 // inputs. The expectation is that you will implement this class and have the implementation also

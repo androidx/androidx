@@ -27,10 +27,10 @@ import androidx.ui.core.vectorgraphics.path
 import androidx.ui.core.vectorgraphics.vector
 import androidx.ui.core.vectorgraphics.PathBuilder
 import androidx.ui.core.vectorgraphics.PathDelegate
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.registerAdapter
-import com.google.r4a.setContent
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.registerAdapter
+import androidx.compose.setContent
 
 class VectorGraphicsActivity : Activity() {
 

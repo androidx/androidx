@@ -25,10 +25,10 @@ package androidx.ui.core {
     property public final androidx.ui.core.LayoutNode root;
   }
 
-  public abstract sealed class ComponentNode implements com.google.r4a.Emittable {
+  public abstract sealed class ComponentNode implements androidx.compose.Emittable {
     method public void attach(androidx.ui.core.Owner owner);
     method public void detach();
-    method public void emitInsertAt(int index, com.google.r4a.Emittable instance);
+    method public void emitInsertAt(int index, androidx.compose.Emittable instance);
     method public void emitRemoveAt(int index, int count);
     method public abstract operator androidx.ui.core.ComponentNode get(int index);
     method public abstract int getCount();

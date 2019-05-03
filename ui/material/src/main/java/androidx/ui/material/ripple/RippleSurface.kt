@@ -23,15 +23,15 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.toRect
 import androidx.ui.painting.Color
-import com.google.r4a.Ambient
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.ambient
-import com.google.r4a.composer
-import com.google.r4a.effectOf
-import com.google.r4a.invalidate
-import com.google.r4a.memo
-import com.google.r4a.unaryPlus
+import androidx.compose.Ambient
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.ambient
+import androidx.compose.composer
+import androidx.compose.effectOf
+import androidx.compose.invalidate
+import androidx.compose.memo
+import androidx.compose.unaryPlus
 
 /**
  * An interface for creating [RippleEffect]s on a [RippleSurface].
@@ -77,7 +77,8 @@ internal val CurrentRippleSurface = Ambient.of<RippleSurfaceOwner> {
  * [ambient] to get a current [RippleSurfaceOwner] object from the [RippleSurface] ancestor.
  */
 @CheckResult(suggest = "+")
-fun ambientRippleSurface() = effectOf<RippleSurfaceOwner> { +ambient(CurrentRippleSurface) }
+fun ambientRippleSurface() =
+    effectOf<RippleSurfaceOwner> { +ambient(CurrentRippleSurface) }
 
 /**
  * A surface used to draw [RippleEffect]s on top of it.

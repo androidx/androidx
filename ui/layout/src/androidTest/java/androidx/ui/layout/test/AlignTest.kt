@@ -31,8 +31,8 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.Container
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Composable
+import androidx.compose.composer
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

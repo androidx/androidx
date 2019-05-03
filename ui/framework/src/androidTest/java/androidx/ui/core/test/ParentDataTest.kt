@@ -28,9 +28,9 @@ import androidx.ui.core.toRect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.setContent
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.setContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue

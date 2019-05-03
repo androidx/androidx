@@ -20,9 +20,9 @@ import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.painting.Color
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * A transparent [Surface] that draws [RippleEffect]s.

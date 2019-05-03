@@ -26,9 +26,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.ui.androidview.adapters.dp
 import androidx.ui.androidview.adapters.setPadding
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.setContent
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.setContent
 
 class RippleActivity : Activity() {
 

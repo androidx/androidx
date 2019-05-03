@@ -19,16 +19,16 @@ import android.content.Context
 import androidx.annotation.CheckResult
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
-import com.google.r4a.Ambient
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.R4a
-import com.google.r4a.ambient
-import com.google.r4a.composer
-import com.google.r4a.compositionReference
-import com.google.r4a.effectOf
-import com.google.r4a.memo
-import com.google.r4a.unaryPlus
+import androidx.compose.Ambient
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.R4a
+import androidx.compose.ambient
+import androidx.compose.composer
+import androidx.compose.compositionReference
+import androidx.compose.effectOf
+import androidx.compose.memo
+import androidx.compose.unaryPlus
 
 @Composable
 fun CraneWrapper(@Children children: @Composable() () -> Unit) {
@@ -70,7 +70,8 @@ internal val TextInputServiceAmbient = Ambient.of<TextInputService?>()
  * Note: this is an experiment with the ways to achieve a read-only public [Ambient]s.
  */
 @CheckResult(suggest = "+")
-fun ambientDensity() = effectOf<Density> { +ambient(DensityAmbient) }
+fun ambientDensity() =
+    effectOf<Density> { +ambient(DensityAmbient) }
 
 /**
  * An effect to be able to convert dimensions between each other.

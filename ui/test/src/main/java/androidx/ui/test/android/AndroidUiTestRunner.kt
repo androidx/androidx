@@ -28,8 +28,8 @@ import androidx.ui.core.Density
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.SemanticsTreeProvider
 import androidx.ui.test.UiTestRunner
-import com.google.r4a.Composable
-import com.google.r4a.setContent
+import androidx.compose.Composable
+import androidx.compose.setContent
 import org.junit.Before
 import org.junit.Rule
 import java.util.concurrent.CountDownLatch

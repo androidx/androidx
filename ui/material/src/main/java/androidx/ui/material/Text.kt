@@ -17,8 +17,8 @@
 package androidx.ui.material
 
 import androidx.ui.painting.Color
-import com.google.r4a.ambient
-import com.google.r4a.effectOf
+import androidx.compose.ambient
+import androidx.compose.effectOf
 
 /**
  * Tries to match the background color to correlated text color. For example,

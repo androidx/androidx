@@ -27,8 +27,8 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.Wrap
 import androidx.ui.painting.Image
 import androidx.ui.test.android.AndroidUiTestRunner
+import androidx.compose.composer
 import com.google.common.truth.Truth.assertThat
-import com.google.r4a.composer
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

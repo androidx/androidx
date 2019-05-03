@@ -41,11 +41,11 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.Model
-import com.google.r4a.composer
-import com.google.r4a.setContent
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.Model
+import androidx.compose.composer
+import androidx.compose.setContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -323,12 +323,12 @@ class AndroidLayoutDrawTest {
         runOnUiThread {
             activity.setContent {
                 <CraneWrapper>
-                    val header = @Composable {
+                    val header = @androidx.compose.Composable {
                         <Layout layoutBlock={ _, constraints ->
                             assertEquals(childConstraints[0], constraints)
                         } children={} />
                     }
-                    val footer = @Composable {
+                    val footer = @androidx.compose.Composable {
                         <Layout layoutBlock={ _, constraints ->
                             assertEquals(childConstraints[1], constraints)
                         } children={} />
@@ -358,12 +358,12 @@ class AndroidLayoutDrawTest {
         runOnUiThread {
             activity.setContent {
                 <CraneWrapper>
-                    val header = @Composable {
+                    val header = @androidx.compose.Composable {
                         <ParentData data=0>
                             <Layout layoutBlock={ _, _ -> } children={} />
                         </ParentData>
                     }
-                    val footer = @Composable {
+                    val footer = @androidx.compose.Composable {
                         <ParentData data=1>
                             <Layout layoutBlock={ _, _ -> } children={} />
                         </ParentData>
@@ -396,7 +396,7 @@ class AndroidLayoutDrawTest {
                         paint.color = model.outerColor
                         canvas.drawRect(parentSize.toRect(), paint)
                     </Draw>
-                    <Layout children=@Composable {
+                    <Layout children=@androidx.compose.Composable {
                         <AtLeastSize size=model.size>
                             <Draw> canvas, parentSize ->
                                 drawLatch.countDown()
@@ -553,9 +553,9 @@ class AndroidLayoutDrawTest {
         runOnUiThread {
             activity.setContent {
                 <CraneWrapper>
-                    <Draw children=@Composable {
+                    <Draw children=@androidx.compose.Composable {
                         <AtLeastSize size=(model.size * 3)>
-                            <Draw children=@Composable {
+                            <Draw children=@androidx.compose.Composable {
                                 <Draw> canvas, parentSize ->
                                     val paint = Paint()
                                     paint.color = model.innerColor

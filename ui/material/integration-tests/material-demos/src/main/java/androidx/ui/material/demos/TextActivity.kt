@@ -23,9 +23,9 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
-import com.google.r4a.composer
-import com.google.r4a.setContent
-import com.google.r4a.unaryPlus
+import androidx.compose.composer
+import androidx.compose.setContent
+import androidx.compose.unaryPlus
 
 open class TextActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {

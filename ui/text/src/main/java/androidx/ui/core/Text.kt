@@ -25,13 +25,13 @@ import androidx.ui.painting.TextStyle
 import androidx.ui.rendering.paragraph.RenderParagraph
 import androidx.ui.rendering.paragraph.TextOverflow
 import androidx.ui.services.text_editing.TextSelection
-import com.google.r4a.Ambient
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.ambient
-import com.google.r4a.composer
-import com.google.r4a.effectOf
-import com.google.r4a.unaryPlus
+import androidx.compose.Ambient
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.ambient
+import androidx.compose.composer
+import androidx.compose.effectOf
+import androidx.compose.unaryPlus
 
 private val DefaultTextAlign: TextAlign = TextAlign.START
 private val DefaultTextDirection: TextDirection = TextDirection.LTR
@@ -127,7 +127,7 @@ fun Text(
             // system is resolved.
             attachContextToFont(styledText, context)
 
-            val children = @Composable {
+            val children = @androidx.compose.Composable {
                 <Draw> canvas, _ ->
                     internalSelection?.let { renderParagraph.paintSelection(canvas, it) }
                     renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
@@ -198,4 +198,5 @@ fun CurrentTextStyleProvider(value: TextStyle, @Children children: @Composable()
  * components included in this component's children will be styled with this style unless
  * styled explicitly.
  */
-fun currentTextStyle() = effectOf<TextStyle> { +ambient(CurrentTextStyleAmbient) }
+fun currentTextStyle() =
+    effectOf<TextStyle> { +ambient(CurrentTextStyleAmbient) }

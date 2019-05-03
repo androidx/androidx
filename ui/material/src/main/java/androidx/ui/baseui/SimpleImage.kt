@@ -22,9 +22,9 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.layout.Container
 import androidx.ui.painting.Image
 import androidx.ui.painting.Paint
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.unaryPlus
 
 // TODO(Andrey) Temporary. Should be replaced with our proper Image component when it available
 @Composable

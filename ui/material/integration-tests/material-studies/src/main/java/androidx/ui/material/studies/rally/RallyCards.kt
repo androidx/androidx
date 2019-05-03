@@ -33,10 +33,10 @@ import androidx.ui.material.TransparentButton
 import androidx.ui.material.surface.Card
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.Color
-import com.google.r4a.Composable
-import com.google.r4a.ambient
-import com.google.r4a.composer
-import com.google.r4a.unaryPlus
+import androidx.compose.Composable
+import androidx.compose.ambient
+import androidx.compose.composer
+import androidx.compose.unaryPlus
 
 // TODO: This is not integrated with the theme
 internal val cardInternalColor = Color(0xFF33333D.toInt())

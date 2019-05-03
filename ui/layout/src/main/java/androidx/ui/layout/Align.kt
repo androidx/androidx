@@ -22,9 +22,9 @@ import androidx.ui.core.Layout
 import androidx.ui.core.center
 import androidx.ui.core.isFinite
 import androidx.ui.core.looseMin
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
 
 /**
  * Represents a positioning of a point inside a 2D box. [Alignment] is often used to define

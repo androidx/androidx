@@ -18,7 +18,7 @@ package androidx.ui.material.ripple
 
 import androidx.ui.material.MaterialRippleTheme
 import androidx.ui.painting.Color
-import com.google.r4a.Ambient
+import androidx.compose.Ambient
 
 /**
  * Defines the appearance and the behavior for [RippleEffect]s.

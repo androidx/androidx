@@ -26,13 +26,13 @@ import androidx.ui.core.ambientDensity
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BoxShape
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.ambient
-import com.google.r4a.composer
-import com.google.r4a.memo
-import com.google.r4a.onDispose
-import com.google.r4a.unaryPlus
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.ambient
+import androidx.compose.composer
+import androidx.compose.memo
+import androidx.compose.onDispose
+import androidx.compose.unaryPlus
 
 /**
  * An area of a [RippleSurface] that responds to touch. Has a configurable shape and

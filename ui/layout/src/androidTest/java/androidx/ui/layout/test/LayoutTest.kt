@@ -30,10 +30,10 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
 import androidx.ui.core.px
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.setContent
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.setContent
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule

@@ -29,8 +29,8 @@ import androidx.ui.test.copyWith
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
-import com.google.r4a.state
-import com.google.r4a.unaryPlus
+import androidx.compose.state
+import androidx.compose.unaryPlus
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

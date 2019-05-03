@@ -31,14 +31,14 @@ import androidx.ui.core.px
 import androidx.ui.core.round
 import androidx.ui.core.toPx
 import androidx.ui.core.toRect
-import com.google.r4a.Children
-import com.google.r4a.Component
-import com.google.r4a.Composable
-import com.google.r4a.Model
-import com.google.r4a.composer
-import com.google.r4a.memo
-import com.google.r4a.state
-import com.google.r4a.unaryPlus
+import androidx.compose.Children
+import androidx.compose.Component
+import androidx.compose.Composable
+import androidx.compose.Model
+import androidx.compose.composer
+import androidx.compose.memo
+import androidx.compose.state
+import androidx.compose.unaryPlus
 
 /**
  * Tracks the vertical drag gesture offset, allowing a range between `0.px` and [max].

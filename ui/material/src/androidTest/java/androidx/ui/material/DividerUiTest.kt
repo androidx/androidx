@@ -27,7 +27,7 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.test.android.AndroidUiTestRunner
 import com.google.common.truth.Truth.assertThat
-import com.google.r4a.composer
+import androidx.compose.composer
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

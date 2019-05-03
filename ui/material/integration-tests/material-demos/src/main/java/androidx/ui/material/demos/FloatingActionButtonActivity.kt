@@ -20,8 +20,8 @@ import android.app.Activity
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.ui.painting.Image
-import com.google.r4a.composer
-import com.google.r4a.setContent
+import androidx.compose.setContent
+import androidx.compose.composer
 
 class FloatingActionButtonActivity : Activity() {
 

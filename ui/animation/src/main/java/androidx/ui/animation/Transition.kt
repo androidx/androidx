@@ -20,12 +20,12 @@ import androidx.animation.PropKey
 import androidx.animation.TransitionAnimation
 import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.Model
-import com.google.r4a.composer
-import com.google.r4a.memo
-import com.google.r4a.unaryPlus
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.Model
+import androidx.compose.composer
+import androidx.compose.memo
+import androidx.compose.unaryPlus
 
 /**
  * Composable to use with TransitionDefinition-based animations.

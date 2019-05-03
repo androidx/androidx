@@ -29,10 +29,10 @@ import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.themeTextStyle
-import com.google.r4a.Children
-import com.google.r4a.Composable
-import com.google.r4a.composer
-import com.google.r4a.unaryPlus
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.unaryPlus
 
 /** A [SemanticProperty] is used to store semantic information about a component.
  *
@@ -137,7 +137,7 @@ fun PressGestureDetectorWithActions(
  */
 @Composable
 fun Semantics(
-    properties: Set<SemanticProperty<out Any>> = setOf(),
+    @Suppress("UNUSED_PARAMETER") properties: Set<SemanticProperty<out Any>> = setOf(),
     actions: Set<SemanticAction<out Any?>> = setOf(),
     @Children children: @Composable() () -> Unit
 ) {
