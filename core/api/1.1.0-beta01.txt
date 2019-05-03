@@ -359,7 +359,7 @@ package androidx.core.app {
   }
 
   public static final class NotificationCompat.BubbleMetadata {
-    method @RequiresApi(29) protected static androidx.core.app.NotificationCompat.BubbleMetadata! fromPlatform(android.app.Notification.BubbleMetadata!);
+    method @RequiresApi(29) public static androidx.core.app.NotificationCompat.BubbleMetadata? fromPlatform(android.app.Notification.BubbleMetadata?);
     method public boolean getAutoExpandBubble();
     method public android.app.PendingIntent? getDeleteIntent();
     method @Dimension(unit=androidx.annotation.Dimension.DP) public int getDesiredHeight();
@@ -367,7 +367,7 @@ package androidx.core.app {
     method public androidx.core.graphics.drawable.IconCompat getIcon();
     method public android.app.PendingIntent getIntent();
     method public boolean getSuppressInitialNotification();
-    method @RequiresApi(29) protected static android.app.Notification.BubbleMetadata! toPlatform(androidx.core.app.NotificationCompat.BubbleMetadata!);
+    method @RequiresApi(29) public static android.app.Notification.BubbleMetadata? toPlatform(androidx.core.app.NotificationCompat.BubbleMetadata?);
   }
 
   public static final class NotificationCompat.BubbleMetadata.Builder {
