@@ -1056,7 +1056,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                         .setDesiredHeight(600)
                         .setIcon(icon)
                         .setIntent(intent)
-                        .setSuppressInitialNotification(true)
+                        .setSuppressNotification(true)
                         .build();
 
         Notification notification = new NotificationCompat.Builder(mContext, "test channel")
@@ -1083,8 +1083,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         /* assertEquals(originalBubble.getIcon().toIcon(), roundtripBubble.getIcon().toIcon()); */
         assertEquals(originalBubble.getIntent(), roundtripBubble.getIntent());
         assertEquals(
-                originalBubble.getSuppressInitialNotification(),
-                roundtripBubble.getSuppressInitialNotification());
+                originalBubble.isNotificationSuppressed(),
+                roundtripBubble.isNotificationSuppressed());
     }
 
     @Test
