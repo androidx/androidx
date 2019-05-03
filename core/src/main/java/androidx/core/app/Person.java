@@ -16,7 +16,6 @@
 
 package androidx.core.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Bundle;
@@ -27,16 +26,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.versionedparcelable.ParcelField;
-import androidx.versionedparcelable.VersionedParcelable;
-import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * Provides an immutable reference to an entity that appears repeatedly on different surfaces of the
  * platform. For example, this could represent the sender of a message.
  */
-@VersionedParcelize(jetifyAs = "android.support.v4.app.Person")
-public class Person implements VersionedParcelable {
+public class Person {
     private static final String NAME_KEY = "name";
     private static final String ICON_KEY = "icon";
     private static final String URI_KEY = "uri";
@@ -103,39 +98,18 @@ public class Person implements VersionedParcelable {
                 .build();
     }
 
-    /** @hide */
-    @ParcelField(1)
-    @Nullable
-    @RestrictTo(LIBRARY)
-    public CharSequence mName;
-
-    /** @hide */
-    @ParcelField(2)
-    @Nullable
-    @RestrictTo(LIBRARY)
-    public IconCompat mIcon;
-
-    /** @hide */
-    @ParcelField(3)
-    @Nullable
-    @RestrictTo(LIBRARY)
-    public String mUri;
-
-    /** @hide */
-    @ParcelField(4)
-    @Nullable
-    @RestrictTo(LIBRARY)
-    public String mKey;
-
-    /** @hide */
-    @ParcelField(5)
-    @RestrictTo(LIBRARY)
-    public boolean mIsBot;
-
-    /** @hide */
-    @ParcelField(6)
-    @RestrictTo(LIBRARY)
-    public boolean mIsImportant;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable CharSequence mName;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable IconCompat mIcon;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable String mUri;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable String mKey;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mIsBot;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mIsImportant;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     Person(Builder builder) {
@@ -146,13 +120,6 @@ public class Person implements VersionedParcelable {
         mIsBot = builder.mIsBot;
         mIsImportant = builder.mIsImportant;
     }
-
-    /**
-     * Used by VersionedParcelable.
-     * @hide
-     */
-    @RestrictTo(LIBRARY)
-    public Person() {}
 
     /**
      * Writes and returns a new {@link Bundle} that represents this {@link Person}. This bundle can
