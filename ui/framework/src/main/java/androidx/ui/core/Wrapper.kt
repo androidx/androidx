@@ -22,7 +22,7 @@ import androidx.ui.input.TextInputService
 import androidx.compose.Ambient
 import androidx.compose.Children
 import androidx.compose.Composable
-import androidx.compose.R4a
+import androidx.compose.Compose
 import androidx.compose.ambient
 import androidx.compose.composer
 import androidx.compose.compositionReference
@@ -42,7 +42,7 @@ fun CraneWrapper(@Children children: @Composable() () -> Unit) {
         val reference = +compositionReference()
         val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
         val context = rootRef.value?.context ?: composer.composer.context
-        R4a.composeInto(container = rootLayoutNode, context = context, parent = reference) {
+        Compose.composeInto(container = rootLayoutNode, context = context, parent = reference) {
             <ContextAmbient.Provider value=context>
                 <DensityAmbient.Provider value=Density(context)>
                     <FocusManagerAmbient.Provider value=focusManager>

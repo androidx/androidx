@@ -31,8 +31,8 @@ dependencies {
 
     api "androidx.annotation:annotation:1.0.0"
     api "androidx.activity:activity:1.0.0-alpha01"
-    api(KOTLIN_R4A_STDLIB)
-    api(KOTLIN_R4A_COROUTINES)
+    api(KOTLIN_COMPOSE_STDLIB)
+    api(KOTLIN_COMPOSE_COROUTINES)
     implementation project(":compose-runtime")
     implementation project(":ui-framework")
     implementation project(":ui-layout")

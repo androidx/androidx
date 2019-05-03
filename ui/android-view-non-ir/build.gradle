@@ -30,9 +30,9 @@ plugins {
 dependencies {
     api project(":ui-core")
     api project(":compose-runtime")
-    api(KOTLIN_R4A_STDLIB)
-    api(KOTLIN_R4A_COROUTINES)
-    api(KOTLIN_R4A_REFLECT)
+    api(KOTLIN_COMPOSE_STDLIB)
+    api(KOTLIN_COMPOSE_COROUTINES)
+    api(KOTLIN_COMPOSE_REFLECT)
 
     implementation "androidx.annotation:annotation:1.0.0"
     implementation "androidx.activity:activity:1.0.0-alpha01"

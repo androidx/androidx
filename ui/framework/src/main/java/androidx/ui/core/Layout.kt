@@ -19,7 +19,7 @@ package androidx.ui.core
 import androidx.compose.Ambient
 import androidx.compose.Children
 import androidx.compose.Composable
-import androidx.compose.R4a
+import androidx.compose.Compose
 import androidx.compose.ambient
 import androidx.compose.composer
 import androidx.compose.compositionReference
@@ -462,7 +462,7 @@ fun WithConstraints(@Children children: (Constraints) -> Unit) {
         layoutBlock = { _, constraints ->
             val root = layoutState.layoutNode
             // Start subcomposition from the current node.
-            R4a.composeInto(
+            Compose.composeInto(
                 root,
                 context,
                 ref

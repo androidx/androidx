@@ -34,7 +34,7 @@ dependencies {
     api project(":ui-core")
     //implementation project(":ui-platform")
     api project(":ui-platform")
-    api(KOTLIN_R4A_STDLIB)
+    api(KOTLIN_COMPOSE_STDLIB)
 
     // TODO: Non-Kotlin dependency, move to Android-specific code
     implementation "androidx.core:core:1.0.0"

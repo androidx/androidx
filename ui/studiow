@@ -11,7 +11,7 @@ function getStudioUrl() {
   ideaMajorVersion="$(grep "idea_major_version=" ${propertiesFile} | sed 's/[^=]*=//')"
   buildNumber="$(grep "studio_build_number=" ${propertiesFile} | sed 's/[^=]*=//')"
   osName="$1"
-  # Trusted server maintained by the R4A team to host internal builds of r4a in a maven repository.
+  # Trusted server maintained by the Compose team to host internal builds of compose in a maven repository.
   studioUrl="https://us-central1-kompose-219700.cloudfunctions.net/as-r4a/$buildNumber/android-studio-$buildNumber.$osName.zip"
   echo "${studioUrl}"
 }
@@ -47,8 +47,8 @@ function downloadFile() {
   tempPath="${destPath}.tmp"
   r4a_username=$(grep 'r4a_username=' ~/.gradle/gradle.properties | sed 's/^[^=]*=//')
   r4a_password=$(grep 'r4a_password=' ~/.gradle/gradle.properties | sed 's/^[^=]*=//')
-  [ -z "$r4a_username" ] && error_exit "r4a_username could not be found in ~/.gradle/gradle.properties.  Please install from go/r4a-download"
-  [ -z "$r4a_password" ] && error_exit "r4a_password could not be found in ~/.gradle/gradle.properties.  Please install from go/r4a-download"
+  [ -z "$r4a_username" ] && error_exit "r4a_username could not be found in ~/.gradle/gradle.properties.
+  [ -z "$r4a_password" ] && error_exit "r4a_password could not be found in ~/.gradle/gradle.properties.
   echo "Downloading ${fromUrl} to ${destPath}"
   curl -L -u $r4a_username:$r4a_password "${fromUrl}" > "${tempPath}"
   mv "${tempPath}" "${destPath}"
