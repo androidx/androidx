@@ -804,6 +804,17 @@ public final class MediaPlayer extends SessionPlayer {
         return pendingFuture;
     }
 
+    /**
+     * Sets the playback speed. {@code 1.0f} is the default, and values less than or equal to
+     * {@code 0.0f} are not allowed.
+     * <p>
+     * The supported playback speed range depends on the underlying player implementation, so it is
+     * recommended to query the actual speed of the player via {@link #getPlaybackSpeed()} after the
+     * operation completes.
+     *
+     * @param playbackSpeed The requested playback speed.
+     * @return A {@link ListenableFuture} representing the pending completion of the command.
+     */
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> setPlaybackSpeed(
