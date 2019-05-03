@@ -25,6 +25,7 @@ buildSrc/jetpad-integration/build
 lifecycle/common/build
 jacoco.exec
 /studio
+/ui/studio
 
 # When Gradle configuration fails with the --profile option enabled it creates this folder.
 /reports
