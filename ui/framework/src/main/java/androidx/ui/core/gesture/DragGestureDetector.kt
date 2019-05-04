@@ -251,8 +251,8 @@ internal class DragGestureRecognizer {
                         change = dragObserver?.run {
                             val (consumedDx, consumedDy) = onDrag(
                                 PxPosition(
-                                    dx.px,
-                                    dy.px
+                                    dx.px/pointerCount,
+                                    dy.px/pointerCount
                                 )
                             )
                             pointerInputChange.consumePositionChange(
