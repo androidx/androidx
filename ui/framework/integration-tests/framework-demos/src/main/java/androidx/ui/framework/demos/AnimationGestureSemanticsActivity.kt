@@ -165,8 +165,8 @@ class AnimationGestureSemanticsActivity : Activity() {
             Transition(
                 definition = transitionDefinition,
                 toState = animationEndState
-            ) { state ->
-                <Circle color = state[colorKey] sizeRatio = state[sizeKey]/>
+            ) @Composable { state ->
+                Circle(color = state[colorKey], sizeRatio = state[sizeKey])
             }
         }, layoutBlock = { _, constraints ->
             layout(constraints.maxWidth, constraints.maxHeight) {}
