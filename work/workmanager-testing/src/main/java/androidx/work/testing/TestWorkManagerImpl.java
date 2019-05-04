@@ -74,12 +74,6 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
                     public Executor getBackgroundExecutor() {
                         return mSynchronousExecutor;
                     }
-
-                    @NonNull
-                    @Override
-                    public Thread getBackgroundExecutorThread() {
-                        return Thread.currentThread();
-                    }
                 },
                 true);
 

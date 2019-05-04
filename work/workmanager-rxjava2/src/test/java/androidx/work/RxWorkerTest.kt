@@ -154,9 +154,5 @@ class RxWorkerTest {
         override fun getBackgroundExecutor(): Executor {
             return mSynchronousExecutor
         }
-
-        override fun getBackgroundExecutorThread(): Thread {
-            return Thread.currentThread()
-        }
     }
 }

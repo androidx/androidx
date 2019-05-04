@@ -49,6 +49,7 @@ public final class Configuration {
     public static final int MIN_SCHEDULER_LIMIT = 20;
 
     private final @NonNull Executor mExecutor;
+    private final @NonNull Executor mTaskExecutor;
     private final @NonNull WorkerFactory mWorkerFactory;
     private final int mLoggingLevel;
     private final int mMinJobSchedulerId;
@@ -60,6 +61,15 @@ public final class Configuration {
             mExecutor = createDefaultExecutor();
         } else {
             mExecutor = builder.mExecutor;
+        }
+
+        if (builder.mTaskExecutor == null) {
+            // This executor is used for *both* WorkManager's tasks and Room's query executor.
+            // So this should not be a single threaded executor. Writes will still be serialized
+            // as this will be wrapped with an SerialExecutor.
+            mTaskExecutor = createDefaultExecutor();
+        } else {
+            mTaskExecutor = builder.mTaskExecutor;
         }
 
         if (builder.mWorkerFactory == null) {
@@ -79,6 +89,14 @@ public final class Configuration {
      */
     public @NonNull Executor getExecutor() {
         return mExecutor;
+    }
+
+    /**
+     * @return The {@link Executor} used by {@link WorkManager} for all its internal book-keeping.
+     */
+    @NonNull
+    public Executor getTaskExecutor() {
+        return mTaskExecutor;
     }
 
     /**
@@ -151,6 +169,8 @@ public final class Configuration {
 
         Executor mExecutor;
         WorkerFactory mWorkerFactory;
+        Executor mTaskExecutor;
+
         int mLoggingLevel = Log.INFO;
         int mMinJobSchedulerId = IdGenerator.INITIAL_ID;
         int mMaxJobSchedulerId = Integer.MAX_VALUE;
@@ -175,6 +195,25 @@ public final class Configuration {
          */
         public @NonNull Builder setExecutor(@NonNull Executor executor) {
             mExecutor = executor;
+            return this;
+        }
+
+        /**
+         * Specifies a {@link Executor} which will be used by WorkManager for all its
+         * internal book-keeping.
+         *
+         * For best performance this {@link Executor} should be bounded. This {@link Executor}
+         * should *not* be a single threaded executor.
+         *
+         * For more information look at
+         * {@link androidx.room.RoomDatabase.Builder#setQueryExecutor(Executor)}.
+         *
+         * @param taskExecutor The {@link Executor} which will be used by WorkManager for
+         *                             all its internal book-keeping
+         * @return This {@link Builder} instance
+         */
+        public @NonNull Builder setTaskExecutor(@NonNull Executor taskExecutor) {
+            mTaskExecutor = taskExecutor;
             return this;
         }
 
