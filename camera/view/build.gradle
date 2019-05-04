@@ -36,7 +36,7 @@ android {
 }
 androidx {
     name = "Jetpack Camera View Library"
-    publish = true
+    publish = false
     mavenVersion = LibraryVersions.CAMERA
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"
