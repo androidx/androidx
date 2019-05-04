@@ -77,7 +77,7 @@ fun TransitionExample() {
         onCancel = { toState.value = ComponentState.Released }) {
         val children = @Composable {
             Transition(definition = definition, toState = toState.value) { state ->
-                DrawScaledRect(scale = state[scale], color = state[color])
+                <DrawScaledRect scale=state[scale] color=state[color] />
             }
         }
         Layout(children = children, layoutBlock = { _, constraints ->
