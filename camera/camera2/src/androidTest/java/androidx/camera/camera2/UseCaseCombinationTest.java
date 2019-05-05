@@ -49,7 +49,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -65,7 +65,7 @@ import java.util.concurrent.Semaphore;
  * Contains tests for {@link androidx.camera.core.CameraX} which varies use case combinations to
  * run.
  */
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class UseCaseCombinationTest {
     private static final LensFacing DEFAULT_LENS_FACING = LensFacing.BACK;
