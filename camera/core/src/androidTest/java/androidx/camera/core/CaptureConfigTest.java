@@ -27,7 +27,7 @@ import android.hardware.camera2.CaptureRequest.Key;
 import android.view.Surface;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import com.google.common.collect.Lists;
 
@@ -38,7 +38,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 import java.util.Map;
 
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class CaptureConfigTest {
     private DeferrableSurface mMockSurface0;
