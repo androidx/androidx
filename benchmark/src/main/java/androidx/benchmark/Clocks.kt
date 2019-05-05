@@ -18,6 +18,7 @@ package androidx.benchmark
 
 import android.util.Log
 import java.io.File
+import java.io.IOException
 
 internal object Clocks {
     private const val TAG = "Benchmark"
@@ -98,11 +99,17 @@ internal object Clocks {
     }
 
     /**
-     * Read the text of a file as a String, null if file doesn't exist.
+     * Read the text of a file as a String, null if file doesn't exist or can't be read.
      */
     private fun readFileTextOrNull(path: String): String? {
-        File(path).run {
-            return if (exists()) readText().trim() else null
+        try {
+            File(path).run {
+                return if (exists()) {
+                    readText().trim()
+                } else null
+            }
+        } catch (e: IOException) {
+            return null
         }
     }
 }
