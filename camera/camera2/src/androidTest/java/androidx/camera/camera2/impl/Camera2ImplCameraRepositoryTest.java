@@ -34,7 +34,7 @@ import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -49,7 +49,7 @@ import java.util.Map;
  * Contains tests for {@link androidx.camera.core.CameraRepository} which require an actual
  * implementation to run.
  */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class Camera2ImplCameraRepositoryTest {
     private CameraRepository mCameraRepository;
