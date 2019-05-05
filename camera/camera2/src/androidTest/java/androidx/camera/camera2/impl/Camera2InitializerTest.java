@@ -24,7 +24,7 @@ import android.content.Intent;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 /**
  * Unit tests for {@link Camera2Initializer}.
  */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class Camera2InitializerTest {
 
