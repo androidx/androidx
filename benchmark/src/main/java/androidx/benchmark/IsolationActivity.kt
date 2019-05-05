@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicReference
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class IsolationActivity : android.app.Activity() {
     var resumed = false
+    private var destroyed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +51,7 @@ class IsolationActivity : android.app.Activity() {
         overridePendingTransition(0, 0)
 
         val old = singleton.getAndSet(this)
-        if (old != null) {
+        if (old != null && !old.destroyed && !old.isFinishing) {
             throw IllegalStateException("Only one IsolationActivity should exist")
         }
 
@@ -69,6 +70,11 @@ class IsolationActivity : android.app.Activity() {
     override fun onPause() {
         super.onPause()
         resumed = false
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        destroyed = true
     }
 
     /** finish is ignored! we defer until [actuallyFinish] is called. */
