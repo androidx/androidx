@@ -47,7 +47,7 @@ import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -64,7 +64,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * run.
  */
 @FlakyTest
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class Camera2ImplCameraXTest {
     private static final LensFacing DEFAULT_LENS_FACING = LensFacing.BACK;

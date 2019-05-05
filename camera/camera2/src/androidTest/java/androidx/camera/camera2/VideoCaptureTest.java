@@ -37,7 +37,7 @@ import androidx.camera.core.VideoCaptureConfig;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.Before;
@@ -58,7 +58,7 @@ import java.util.Map;
  * <p>TODO(b/112325215): The VideoCapture will be more thoroughly tested via integration
  * tests
  */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class VideoCaptureTest {
     // Use most supported resolution for different supported hardware level devices,
