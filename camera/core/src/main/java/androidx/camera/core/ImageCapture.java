@@ -293,8 +293,7 @@ public class ImageCapture extends UseCase {
      *
      * <p>In most cases this should be set to the current rotation returned by {@link
      * Display#getRotation()}.  In that case, the output rotation from takePicture calls will be the
-     * rotation, which if applied to the output image, will make it match a correctly configured
-     * preview.
+     * rotation, which if applied to the output image, will make it match the display orientation.
      *
      * <p>While rotation can also be set via
      * {@link ImageCaptureConfig.Builder#setTargetRotation(int)}, using
@@ -304,9 +303,9 @@ public class ImageCapture extends UseCase {
      *
      * <p>If no target rotation is set by the application, it is set to the value of
      * {@link Display#getRotation()} of the default display at the time the
-     * {@link ImageCapture} is created.
+     * use case is created.
      *
-     * @param rotation Desired rotation of the output image. rotation is expressed as one of
+     * @param rotation Target rotation of the output image, expressed as one of
      *                 {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
      *                 {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      */
@@ -1004,10 +1003,10 @@ public class ImageCapture extends UseCase {
          * rotation applied.  rotationDegrees describes the magnitude of clockwise rotation, which
          * if applied to the image will make it match the currently configured target rotation.
          *
-         * <p>For example, if the current target rotation is set to the display rotation, then for a
-         * correctly configured preview, rotationDegrees is the rotation to apply to the image to
-         * match what is seen in the preview.  A rotation of 90 degrees would mean rotating the
-         * image 90 degrees clockwise produces an image that will match the preview.
+         * <p>For example, if the current target rotation is set to the display rotation,
+         * rotationDegrees is the rotation to apply to the image to match the display orientation.
+         * A rotation of 90 degrees would mean rotating the image 90 degrees clockwise produces an
+         * image that will match the display orientation.
          *
          * <p>See also {@link ImageCaptureConfig.Builder#setTargetRotation(int)} and
          * {@link #setTargetRotation(int)}.
