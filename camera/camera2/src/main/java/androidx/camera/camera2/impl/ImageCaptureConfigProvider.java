@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.ConfigProvider;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
@@ -66,7 +67,12 @@ public final class ImageCaptureConfigProvider implements ConfigProvider<ImageCap
 
         // Add options to UseCaseConfig
         builder.setDefaultSessionConfig(sessionBuilder.build());
-        builder.setOptionUnpacker(Camera2OptionUnpacker.INSTANCE);
+        builder.setSessionOptionUnpacker(Camera2SessionOptionUnpacker.INSTANCE);
+
+        CaptureConfig.Builder captureConfig = new CaptureConfig.Builder();
+        captureConfig.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
+        builder.setDefaultCaptureConfig(captureConfig.build());
+        builder.setCaptureOptionUnpacker(ImageCaptureOptionUnpacker.INSTANCE);
 
         List<LensFacing> lensFacingList;
 

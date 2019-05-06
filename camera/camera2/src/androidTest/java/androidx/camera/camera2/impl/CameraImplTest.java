@@ -451,7 +451,7 @@ public class CameraImplTest {
         protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(CameraX.LensFacing lensFacing) {
             return new FakeUseCaseConfig.Builder()
                     .setLensFacing(lensFacing)
-                    .setOptionUnpacker(new Camera2OptionUnpacker());
+                    .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());
         }
 
         void close() {

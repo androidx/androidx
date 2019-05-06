@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.ConfigProvider;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
@@ -60,7 +61,12 @@ public final class PreviewConfigProvider implements ConfigProvider<PreviewConfig
 
         // Add options to UseCaseConfig
         builder.setDefaultSessionConfig(sessionBuilder.build());
-        builder.setOptionUnpacker(Camera2OptionUnpacker.INSTANCE);
+        builder.setSessionOptionUnpacker(Camera2SessionOptionUnpacker.INSTANCE);
+
+        CaptureConfig.Builder captureBuilder = new CaptureConfig.Builder();
+        captureBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        builder.setDefaultCaptureConfig(captureBuilder.build());
+        builder.setCaptureOptionUnpacker(Camera2CaptureOptionUnpacker.INSTANCE);
 
         List<LensFacing> lensFacingList;
 

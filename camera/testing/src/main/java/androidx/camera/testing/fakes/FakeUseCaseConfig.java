@@ -19,6 +19,7 @@ package androidx.camera.testing.fakes;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.MutableConfig;
 import androidx.camera.core.MutableOptionsBundle;
@@ -121,8 +122,7 @@ public class FakeUseCaseConfig
 
     @Override
     @Nullable
-    public SessionConfig getDefaultSessionConfig(
-            @Nullable SessionConfig valueIfMissing) {
+    public SessionConfig getDefaultSessionConfig(@Nullable SessionConfig valueIfMissing) {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG, valueIfMissing);
     }
 
@@ -133,14 +133,37 @@ public class FakeUseCaseConfig
 
     @Override
     @Nullable
-    public SessionConfig.OptionUnpacker getOptionUnpacker(
-            @Nullable SessionConfig.OptionUnpacker valueIfMissing) {
-        return retrieveOption(OPTION_CONFIG_UNPACKER, valueIfMissing);
+    public CaptureConfig getDefaultCaptureConfig(@Nullable CaptureConfig valueIfMissing) {
+        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG, valueIfMissing);
     }
 
     @Override
-    public SessionConfig.OptionUnpacker getOptionUnpacker() {
-        return retrieveOption(OPTION_CONFIG_UNPACKER);
+    public CaptureConfig getDefaultCaptureConfig() {
+        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG);
+    }
+
+    @Override
+    @Nullable
+    public SessionConfig.OptionUnpacker getSessionOptionUnpacker(
+            @Nullable SessionConfig.OptionUnpacker valueIfMissing) {
+        return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER, valueIfMissing);
+    }
+
+    @Override
+    public SessionConfig.OptionUnpacker getSessionOptionUnpacker() {
+        return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER);
+    }
+
+    @Override
+    @Nullable
+    public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker(
+            @Nullable CaptureConfig.OptionUnpacker valueIfMissing) {
+        return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER, valueIfMissing);
+    }
+
+    @Override
+    public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker() {
+        return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER);
     }
 
     @Override
@@ -231,8 +254,20 @@ public class FakeUseCaseConfig
         }
 
         @Override
-        public Builder setOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker) {
-            getMutableConfig().insertOption(OPTION_CONFIG_UNPACKER, optionUnpacker);
+        public Builder setDefaultCaptureConfig(CaptureConfig captureConfig) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_CAPTURE_CONFIG, captureConfig);
+            return this;
+        }
+
+        @Override
+        public Builder setSessionOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_SESSION_CONFIG_UNPACKER, optionUnpacker);
+            return this;
+        }
+
+        @Override
+        public Builder setCaptureOptionUnpacker(CaptureConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_CONFIG_UNPACKER, optionUnpacker);
             return this;
         }
 

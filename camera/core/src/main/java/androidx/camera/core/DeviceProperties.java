@@ -18,27 +18,35 @@ package androidx.camera.core;
 
 import android.os.Build;
 
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
+
 import com.google.auto.value.AutoValue;
 
-/** Container of the device properties. */
+/**
+ * Container of the device properties.
+ *
+ * @hide
+ */
 @AutoValue
-abstract class DeviceProperties {
+@RestrictTo(Scope.LIBRARY_GROUP)
+public abstract class DeviceProperties {
     /** Creates an instance by querying the properties from {@link android.os.Build}. */
-    static DeviceProperties create() {
+    public static DeviceProperties create() {
         return create(Build.MANUFACTURER, Build.MODEL, Build.VERSION.SDK_INT);
     }
 
     /** Creates an instance from the given properties. */
-    static DeviceProperties create(String manufacturer, String model, int sdkVersion) {
+    public static DeviceProperties create(String manufacturer, String model, int sdkVersion) {
         return new AutoValue_DeviceProperties(manufacturer, model, sdkVersion);
     }
 
     /** Returns the manufacturer of the device. */
-    abstract String manufacturer();
+    public abstract String manufacturer();
 
     /** Returns the model of the device. */
-    abstract String model();
+    public abstract String model();
 
     /** Returns the SDK version of the OS running on the device. */
-    abstract int sdkVersion();
+    public abstract int sdkVersion();
 }
