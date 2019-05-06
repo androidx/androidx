@@ -40,10 +40,31 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * A use case that provides a camera preview stream for a view finder.
+ * A use case that provides a camera preview stream for displaying on-screen.
  *
- * <p>The preview stream is connected to an underlying {@link SurfaceTexture}. The caller is still
- * responsible for deciding how this texture is shown.
+ * <p>The preview stream is connected to an underlying {@link SurfaceTexture}.  This SurfaceTexture
+ * is created by the Preview use case and provided as an output after it is configured and attached
+ * to the camera.  The application receives the SurfaceTexture by setting an output listener with
+ * {@link Preview#setOnPreviewOutputUpdateListener(OnPreviewOutputUpdateListener)}. When the
+ * lifecycle becomes active, the camera will start and images will be streamed to the
+ * SurfaceTexture.
+ * {@link OnPreviewOutputUpdateListener#onUpdated(PreviewOutput)} is called when a
+ * new SurfaceTexture is created.  A SurfaceTexture is created each time the use case becomes
+ * active and no previous SurfaceTexture exists.
+ *
+ * <p>The application can then decide how this texture is shown.  The texture data is as received
+ * by the camera system with no rotation applied.  To display the SurfaceTexture with the correct
+ * orientation, the rotation parameter sent to {@link Preview.OnPreviewOutputUpdateListener} can
+ * be used to create a correct transformation matrix for display. See
+ * {@link #setTargetRotation(int)} and {@link PreviewConfig.Builder#setTargetRotation(int)} for
+ * details.  See {@link Preview#setOnPreviewOutputUpdateListener(OnPreviewOutputUpdateListener)} for
+ * notes if attaching the SurfaceTexture to {@link android.view.TextureView}.
+ *
+ * <p>The application is responsible for managing SurfaceTexture after receiving it.  See
+ * {@link Preview#setOnPreviewOutputUpdateListener(OnPreviewOutputUpdateListener)} for notes on
+ * if overriding {@link
+ * android.view.TextureView.SurfaceTextureListener#onSurfaceTextureDestroyed(SurfaceTexture)}.
+ *
  */
 public class Preview extends UseCase {
     /**
@@ -72,7 +93,7 @@ public class Preview extends UseCase {
     private boolean mSurfaceDispatched = false;
 
     /**
-     * Creates a new view finder use case from the given configuration.
+     * Creates a new preview use case from the given configuration.
      *
      * @param config for this use case instance
      */
@@ -126,11 +147,14 @@ public class Preview extends UseCase {
      * data. Setting the listener to {@code null} will signal to the camera that the camera should
      * no longer stream data to the last {@link PreviewOutput}.
      *
-     * <p>Once {@link OnPreviewOutputUpdateListener#onUpdated(PreviewOutput)} is called,
+     * <p>Once {@link OnPreviewOutputUpdateListener#onUpdated(PreviewOutput)}  is called,
      * ownership of the {@link PreviewOutput} and its contents is transferred to the application. It
      * is the application's responsibility to release the last {@link SurfaceTexture} returned by
      * {@link PreviewOutput#getSurfaceTexture()} when a new SurfaceTexture is provided via an update
-     * or when the user is finished with the use case.
+     * or when the user is finished with the use case.  A SurfaceTexture is created each time the
+     * use case becomes active and no previous SurfaceTexture exists.
+     * {@link OnPreviewOutputUpdateListener#onUpdated(PreviewOutput)} is called when a new
+     * SurfaceTexture is created.
      *
      * <p>Calling {@link android.view.TextureView#setSurfaceTexture(SurfaceTexture)} when the
      * TextureView's SurfaceTexture is already created, should be preceded by calling
@@ -138,8 +162,8 @@ public class Preview extends UseCase {
      * {@link android.view.ViewGroup#addView(View)} on the parent view of the TextureView to ensure
      * the setSurfaceTexture() call succeeds.
      *
-     * <p>Since {@link OnPreviewOutputUpdateListener} is called when the underlying SurfaceTexture
-     * is created, applications that override and return false from {@link
+     * <p>Since {@link OnPreviewOutputUpdateListener#onUpdated(PreviewOutput)} is called when the
+     * underlying SurfaceTexture is created, applications that override and return false from {@link
      * android.view.TextureView.SurfaceTextureListener#onSurfaceTextureDestroyed(SurfaceTexture)}
      * should be sure to call {@link android.view.TextureView#setSurfaceTexture(SurfaceTexture)}
      * with the output from the previous {@link PreviewOutput} to attach it to a new TextureView,
@@ -176,10 +200,12 @@ public class Preview extends UseCase {
     }
 
     /**
-     * Adjusts the view finder according to the properties in some local regions.
+     * Adjusts the preview according to the properties in some local regions.
      *
      * <p>The auto-focus (AF) and auto-exposure (AE) properties will be recalculated from the local
      * regions.
+     *
+     * <p>Dimensions of the sensor coordinate frame can be found using Camera2.
      *
      * @param focus    rectangle with dimensions in sensor coordinate frame for focus
      * @param metering rectangle with dimensions in sensor coordinate frame for metering
@@ -189,11 +215,13 @@ public class Preview extends UseCase {
     }
 
     /**
-     * Adjusts the view finder according to the properties in some local regions with a callback
+     * Adjusts the preview according to the properties in some local regions with a callback
      * called once focus scan has completed.
      *
      * <p>The auto-focus (AF) and auto-exposure (AE) properties will be recalculated from the local
      * regions.
+     *
+     * <p>Dimensions of the sensor coordinate frame can be found using Camera2.
      *
      * @param focus    rectangle with dimensions in sensor coordinate frame for focus
      * @param metering rectangle with dimensions in sensor coordinate frame for metering
@@ -204,7 +232,12 @@ public class Preview extends UseCase {
     }
 
     /**
-     * Adjusts the view finder to zoom to a local region.
+     * Adjusts the preview to zoom to a local region.
+     *
+     * <p>Setting the zoom is equivalent to setting a scalar crop region (digital zoom), and zoom
+     * occurs about the center of the image.
+     *
+     * <p>Dimensions of the sensor coordinate frame can be found using Camera2.
      *
      * @param crop rectangle with dimensions in sensor coordinate frame for zooming
      */
@@ -214,6 +247,9 @@ public class Preview extends UseCase {
 
     /**
      * Sets torch on/off.
+     *
+     * When the torch is on, the torch will remain on during photo capture regardless of flash
+     * setting.  When the torch is off, flash will function as set by {@link ImageCapture}.
      *
      * @param torch True if turn on torch, otherwise false
      */
@@ -227,13 +263,23 @@ public class Preview extends UseCase {
     }
 
     /**
-     * Sets the rotation of the surface texture consumer.
+     * Sets the target rotation.
+     *
+     * <p>This informs the use case so it can adjust the rotation value sent to
+     * {@link Preview.OnPreviewOutputUpdateListener}.
      *
      * <p>In most cases this should be set to the current rotation returned by {@link
-     * Display#getRotation()}. This will update the rotation value in {@link PreviewOutput} to
-     * reflect the angle the PreviewOutput should be rotated to match the supplied rotation.
+     * Display#getRotation()}. In that case, the rotation values output by the use case will be
+     * the rotation, which if applied to the output image, will make the image match the display
+     * orientation.
      *
-     * @param rotation Rotation of the surface texture consumer.
+     * <p>If no target rotation is set by the application, it is set to the value of
+     * {@link Display#getRotation()} of the default display at the time the
+     * use case is created.
+     *
+     * @param rotation Rotation of the surface texture consumer expressed as one of
+     *                 {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     *                 {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      */
     public void setTargetRotation(@RotationValue int rotation) {
         ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
