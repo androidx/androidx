@@ -89,7 +89,7 @@ fun ColorRect() {
                 recompose()
             }
         }, (200..800).random().toLong())
-        Transition(definition = definition, toState = toState) { state ->
+        Transition(definition = definition, toState = toState) @Composable { state ->
             DrawColorRectState(state = state)
         }
     }

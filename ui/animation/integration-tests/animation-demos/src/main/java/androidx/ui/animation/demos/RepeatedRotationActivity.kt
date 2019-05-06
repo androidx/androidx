@@ -70,7 +70,10 @@ fun RepeatedRotation() {
                     Text(text = TextSpan(text = "Reset", style = textStyle))
                 }
                 Container(width = 100.dp, height = 100.dp) {
-                    Transition(definition = definition, toState = state.value) { state ->
+                    Transition(
+                        definition = definition,
+                        toState = state.value
+                    ) @Composable { state ->
                         Draw { canvas, parentSize ->
                             canvas.save()
                             canvas.rotate(radians(state[rotation]))
