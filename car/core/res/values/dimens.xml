@@ -22,8 +22,8 @@ limitations under the License.
     <dimen name="car_gutter_width">16dp</dimen>
 
     <!-- Focus -->
-    <dimen name="car_focus_ring_stroke_width_hovered">4dp</dimen>
-    <dimen name="car_focus_ring_stroke_width_focused">6dp</dimen>
+    <dimen name="car_focus_outline_stroke_width_hovered">4dp</dimen>
+    <dimen name="car_focus_outline_stroke_width_focused">6dp</dimen>
 
     <!-- Keylines -->
     <dimen name="car_keyline_1">24dp</dimen>

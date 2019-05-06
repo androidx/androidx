@@ -47,6 +47,8 @@
     <public type="attr" name="showScrollBarThumb"/>
 
     <!-- ListItem -->
+    <public type="attr" name="listItemFocusOutlineColor" />
+    <public type="attr" name="listItemBackground" />
     <public type="attr" name="listItemBackgroundColor" />
     <public type="attr" name="listItemTitleTextAppearance" />
     <public type="attr" name="listItemBodyTextAppearance" />
