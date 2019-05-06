@@ -51,4 +51,14 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
 
         return captureStage;
     }
+
+    @Override
+    public ProcessorType getProcessorType() {
+        return ProcessorType.PROCESSOR_TYPE_REQUEST_UPDATE_ONLY;
+    }
+
+    @Override
+    public RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor() {
+        return RequestUpdateProcessorImpls.noUpdateProcessor();
+    }
 }
