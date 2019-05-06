@@ -15,5 +15,4 @@
 -->
 <manifest package="androidx.security"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 </manifest>
