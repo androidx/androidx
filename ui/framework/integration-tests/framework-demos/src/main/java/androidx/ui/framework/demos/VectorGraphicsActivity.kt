@@ -46,7 +46,7 @@ class VectorGraphicsActivity : Activity() {
             LinearLayout(orientation = LinearLayout.VERTICAL) {
                 vectorResource(
                     res = res,
-                    resId = androidx.ui.framework.demos.R.drawable.ic_crane_logo_text
+                    resId = androidx.ui.framework.demos.R.drawable.ic_crane
                 )
                 vectorShape()
             }
