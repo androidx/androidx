@@ -132,8 +132,10 @@ public final class SessionConfigurationCompat {
         return outList;
     }
 
+    /** @hide */
     @RequiresApi(24)
-    static List<OutputConfiguration> transformFromCompat(
+    @RestrictTo(Scope.LIBRARY)
+    public static List<OutputConfiguration> transformFromCompat(
             @NonNull List<OutputConfigurationCompat> outputConfigurations) {
         ArrayList<OutputConfiguration> outList = new ArrayList<>(outputConfigurations.size());
         for (OutputConfigurationCompat outputConfiguration : outputConfigurations) {
