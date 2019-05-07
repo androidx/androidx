@@ -95,12 +95,27 @@ public class ListItemAdapter extends
      */
     public static final int BACKGROUND_STYLE_PANEL = 3;
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+            LIST_ITEM_TYPE_TEXT,
+            LIST_ITEM_TYPE_SEEKBAR,
+            LIST_ITEM_TYPE_SUBHEADER,
+            LIST_ITEM_TYPE_ACTION,
+            LIST_ITEM_TYPE_RADIO,
+            LIST_ITEM_TYPE_SWITCH,
+            LIST_ITEM_TYPE_CHECK_BOX})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ListItemType {
+    }
+
     static final int LIST_ITEM_TYPE_TEXT = 1;
     static final int LIST_ITEM_TYPE_SEEKBAR = 2;
     static final int LIST_ITEM_TYPE_SUBHEADER = 3;
     static final int LIST_ITEM_TYPE_ACTION = 4;
     static final int LIST_ITEM_TYPE_RADIO = 5;
     static final int LIST_ITEM_TYPE_SWITCH = 6;
+    static final int LIST_ITEM_TYPE_CHECK_BOX = 7;
 
     private final SparseIntArray mViewHolderLayoutResIds = new SparseIntArray();
 
@@ -146,6 +161,8 @@ public class ListItemAdapter extends
                 R.layout.car_list_item_radio_content, RadioButtonListItem::createViewHolder);
         registerListItemViewTypeInternal(LIST_ITEM_TYPE_SWITCH,
                 R.layout.car_list_item_switch_content, SwitchListItem::createViewHolder);
+        registerListItemViewTypeInternal(LIST_ITEM_TYPE_CHECK_BOX,
+                R.layout.car_list_item_check_box_content, CheckBoxListItem::createViewHolder);
 
         mUxRestrictionsHelper =
                 new CarUxRestrictionsHelper(context, carUxRestrictions -> {
