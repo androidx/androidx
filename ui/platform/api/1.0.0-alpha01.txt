@@ -1,0 +1,529 @@
+// Signature format: 3.0
+package androidx.ui.core {
+
+  public final class AndroidCraneView extends android.view.ViewGroup implements androidx.ui.core.Owner androidx.ui.core.SemanticsTreeProvider {
+    ctor public AndroidCraneView(android.content.Context context);
+    method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
+    method public androidx.ui.core.Constraints getConstraints();
+    method public androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? getRef();
+    method public androidx.ui.core.LayoutNode getRoot();
+    method public void onAttach(androidx.ui.core.ComponentNode node);
+    method public void onDetach(androidx.ui.core.ComponentNode node);
+    method public void onEndLayout(androidx.ui.core.LayoutNode layoutNode);
+    method public void onEndMeasure(androidx.ui.core.LayoutNode layoutNode);
+    method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
+    method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void onRequestLayout(androidx.ui.core.LayoutNode layoutNode);
+    method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
+    method public void onStartMeasure(androidx.ui.core.LayoutNode layoutNode);
+    method public void sendEvent(android.view.MotionEvent event);
+    method public void setConstraints(androidx.ui.core.Constraints p);
+    method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? value);
+    property public final androidx.ui.core.Constraints constraints;
+    property public final androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? ref;
+    property public final androidx.ui.core.LayoutNode root;
+  }
+
+  public abstract sealed class ComponentNode implements androidx.compose.Emittable {
+    method public void attach(androidx.ui.core.Owner owner);
+    method public void detach();
+    method public void emitInsertAt(int index, androidx.compose.Emittable instance);
+    method public void emitRemoveAt(int index, int count);
+    method public abstract operator androidx.ui.core.ComponentNode get(int index);
+    method public abstract int getCount();
+    method public final int getDepth();
+    method public abstract androidx.ui.core.LayoutNode? getLayoutNode();
+    method public final androidx.ui.core.Owner? getOwner();
+    method public final Object? getOwnerData();
+    method public final androidx.ui.core.ComponentNode? getParent();
+    method public androidx.ui.core.LayoutNode? getParentLayoutNode();
+    method public final void setDepth(int p);
+    method public final void setOwnerData(Object? p);
+    method public void setParentLayoutNode(androidx.ui.core.LayoutNode? p);
+    method public abstract void visitChildren(boolean reverse = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    property public abstract int count;
+    property public final int depth;
+    property public abstract androidx.ui.core.LayoutNode? layoutNode;
+    property public final androidx.ui.core.Owner? owner;
+    property public final Object? ownerData;
+    property public final androidx.ui.core.ComponentNode? parent;
+    property public androidx.ui.core.LayoutNode? parentLayoutNode;
+  }
+
+  public final class ComponentNodesKt {
+    ctor public ComponentNodesKt();
+    method public static void add(androidx.ui.core.ComponentNode, androidx.ui.core.ComponentNode child);
+    method public static androidx.ui.core.PxPosition childToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode child, androidx.ui.core.PxPosition childLocal);
+    method public static java.util.List<java.lang.Object> childrenLayouts(androidx.ui.core.LayoutNode);
+    method public static androidx.ui.core.PxPosition globalToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition global);
+    method public static boolean isAttached(androidx.ui.core.ComponentNode);
+    method public static androidx.ui.core.PxPosition localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition local);
+    method public static androidx.ui.core.PxPosition positionRelativeToAncestor(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode ancestor);
+    method public static androidx.ui.core.PxPosition positionRelativeToRoot(androidx.ui.core.LayoutNode);
+  }
+
+  public final class DebugUtilsKt {
+    ctor public DebugUtilsKt();
+    method public static inline void ifDebug(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
+  public final class DrawNode extends androidx.ui.core.SingleChildComponentNode {
+    ctor public DrawNode();
+    method public boolean getNeedsPaint();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.DrawNodeScope,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit> getOnPaint();
+    method public void invalidate();
+    method public void setNeedsPaint(boolean p);
+    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawNodeScope,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> value);
+    property public final boolean needsPaint;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DrawNodeScope,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit> onPaint;
+  }
+
+  public interface DrawNodeScope extends androidx.ui.core.DensityReceiver {
+    method public void drawChildren();
+  }
+
+  public final class LayoutNode extends androidx.ui.core.ComponentNode {
+    ctor public LayoutNode();
+    method public void emitMove(int from, int to, int count);
+    method public void endLayout();
+    method public void endMeasure();
+    method public androidx.ui.core.ComponentNode get(int index);
+    method public boolean getAffectsParentSize();
+    method public java.util.List<androidx.ui.core.ComponentNode> getChildren();
+    method public androidx.ui.core.Constraints getConstraints();
+    method public int getCount();
+    method public androidx.ui.core.IntPx getHeight();
+    method public androidx.ui.core.MeasurableLayout? getLayout();
+    method public androidx.ui.core.LayoutNode getLayoutNode();
+    method public boolean getNeedsRemeasure();
+    method public Object? getParentData();
+    method public androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? getRef();
+    method public boolean getVisible();
+    method public androidx.ui.core.IntPx getWidth();
+    method public androidx.ui.core.IntPx getX();
+    method public androidx.ui.core.IntPx getY();
+    method public void moveTo(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
+    method public kotlin.Unit? requestLayout();
+    method public void resize(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height);
+    method public void setAffectsParentSize(boolean p);
+    method public void setConstraints(androidx.ui.core.Constraints p);
+    method public void setLayout(androidx.ui.core.MeasurableLayout? p);
+    method public void setNeedsRemeasure$lintWithKotlin(boolean p);
+    method public void setParentData(Object? p);
+    method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
+    method public void startLayout();
+    method public void startMeasure();
+    method public void visitChildren(boolean reverse, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    property public final boolean affectsParentSize;
+    property public final java.util.List<androidx.ui.core.ComponentNode> children;
+    property public final androidx.ui.core.Constraints constraints;
+    property public int count;
+    property public final androidx.ui.core.IntPx height;
+    property public final androidx.ui.core.MeasurableLayout? layout;
+    property public androidx.ui.core.LayoutNode layoutNode;
+    property public final boolean needsRemeasure;
+    property public final Object? parentData;
+    property public final androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? ref;
+    property public final boolean visible;
+    property public final androidx.ui.core.IntPx width;
+    property public final androidx.ui.core.IntPx x;
+    property public final androidx.ui.core.IntPx y;
+  }
+
+  public interface MeasurableLayout {
+    method public void callLayout();
+    method public void callMeasure(androidx.ui.core.Constraints constraints);
+  }
+
+  public interface Owner {
+    method public void onAttach(androidx.ui.core.ComponentNode node);
+    method public void onDetach(androidx.ui.core.ComponentNode node);
+    method public void onEndLayout(androidx.ui.core.LayoutNode layoutNode);
+    method public void onEndMeasure(androidx.ui.core.LayoutNode layoutNode);
+    method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
+    method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void onRequestLayout(androidx.ui.core.LayoutNode layoutNode);
+    method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
+    method public void onStartMeasure(androidx.ui.core.LayoutNode layoutNode);
+  }
+
+  public final class PointerInputNode extends androidx.ui.core.SingleChildComponentNode {
+    ctor public PointerInputNode();
+    method public kotlin.jvm.functions.Function2<androidx.ui.core.PointerInputChange,androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> getPointerInputHandler();
+    method public void setPointerInputHandler(kotlin.jvm.functions.Function2<? super androidx.ui.core.PointerInputChange,? super androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> p);
+    property public final kotlin.jvm.functions.Function2<androidx.ui.core.PointerInputChange,androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> pointerInputHandler;
+  }
+
+  public final class Ref<T> {
+    ctor public Ref();
+    method public T? getValue();
+    method public void setValue(T? p);
+    property public final T? value;
+  }
+
+  public final class SemanticsComponentNode extends androidx.ui.core.SingleChildComponentNode {
+    ctor public SemanticsComponentNode(boolean container, boolean explicitChildNodes, Boolean? enabled, Boolean? checked, Boolean? selected, Boolean? button, Boolean? header, Boolean? textField, Boolean? focused, Boolean? inMutuallyExclusiveGroup, Boolean? obscured, Boolean? scopesRoute, Boolean? namesRoute, Boolean? hidden, String? label, String? value, String? hint, androidx.ui.engine.text.TextDirection? textDirection, String? testTag, java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> actions);
+    ctor public SemanticsComponentNode();
+    method public java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> getActions();
+    method public Boolean? getButton();
+    method public Boolean? getChecked();
+    method public boolean getContainer();
+    method public Boolean? getEnabled();
+    method public boolean getExplicitChildNodes();
+    method public Boolean? getFocused();
+    method public Boolean? getHeader();
+    method public Boolean? getHidden();
+    method public String? getHint();
+    method public Boolean? getInMutuallyExclusiveGroup();
+    method public String? getLabel();
+    method public Boolean? getNamesRoute();
+    method public Boolean? getObscured();
+    method public Boolean? getScopesRoute();
+    method public Boolean? getSelected();
+    method public androidx.ui.core.semantics.SemanticsConfiguration getSemanticsConfiguration();
+    method public String? getTestTag();
+    method public androidx.ui.engine.text.TextDirection? getTextDirection();
+    method public Boolean? getTextField();
+    method public String? getValue();
+    method public void setActions(java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> p);
+    method public void setButton(Boolean? p);
+    method public void setChecked(Boolean? p);
+    method public void setContainer(boolean p);
+    method public void setEnabled(Boolean? p);
+    method public void setExplicitChildNodes(boolean p);
+    method public void setFocused(Boolean? p);
+    method public void setHeader(Boolean? p);
+    method public void setHidden(Boolean? p);
+    method public void setHint(String? p);
+    method public void setInMutuallyExclusiveGroup(Boolean? p);
+    method public void setLabel(String? p);
+    method public void setNamesRoute(Boolean? p);
+    method public void setObscured(Boolean? p);
+    method public void setScopesRoute(Boolean? p);
+    method public void setSelected(Boolean? p);
+    method public void setTestTag(String? p);
+    method public void setTextDirection(androidx.ui.engine.text.TextDirection? p);
+    method public void setTextField(Boolean? p);
+    method public void setValue(String? p);
+    property public final java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> actions;
+    property public final Boolean? button;
+    property public final Boolean? checked;
+    property public final boolean container;
+    property public final Boolean? enabled;
+    property public final boolean explicitChildNodes;
+    property public final Boolean? focused;
+    property public final Boolean? header;
+    property public final Boolean? hidden;
+    property public final String? hint;
+    property public final Boolean? inMutuallyExclusiveGroup;
+    property public final String? label;
+    property public final Boolean? namesRoute;
+    property public final Boolean? obscured;
+    property public final Boolean? scopesRoute;
+    property public final Boolean? selected;
+    property public final androidx.ui.core.semantics.SemanticsConfiguration semanticsConfiguration;
+    property public final String? testTag;
+    property public final androidx.ui.engine.text.TextDirection? textDirection;
+    property public final Boolean? textField;
+    property public final String? value;
+  }
+
+  public interface SemanticsTreeNode {
+    method public java.util.Set<androidx.ui.core.SemanticsTreeNode> getChildren();
+    method public androidx.ui.core.semantics.SemanticsConfiguration getData();
+    method public androidx.ui.core.PxPosition? getGlobalPosition();
+    method public androidx.ui.core.SemanticsTreeNode? getParent();
+    property public abstract java.util.Set<androidx.ui.core.SemanticsTreeNode> children;
+    property public abstract androidx.ui.core.semantics.SemanticsConfiguration data;
+    property public abstract androidx.ui.core.PxPosition? globalPosition;
+    property public abstract androidx.ui.core.SemanticsTreeNode? parent;
+  }
+
+  public final class SemanticsTreeNodeImpl implements androidx.ui.core.SemanticsTreeNode {
+    ctor public SemanticsTreeNodeImpl(androidx.ui.core.SemanticsTreeNode? parent, androidx.ui.core.semantics.SemanticsConfiguration data, androidx.ui.core.LayoutNode? layoutNode);
+    method public void addChild(androidx.ui.core.SemanticsTreeNode child);
+    method public java.util.Set<androidx.ui.core.SemanticsTreeNode> getChildren();
+    method public androidx.ui.core.semantics.SemanticsConfiguration getData();
+    method public androidx.ui.core.PxPosition? getGlobalPosition();
+    method public androidx.ui.core.SemanticsTreeNode? getParent();
+    property public java.util.Set<androidx.ui.core.SemanticsTreeNode> children;
+    property public androidx.ui.core.PxPosition? globalPosition;
+  }
+
+  public final class SemanticsTreeNodeImplKt {
+    ctor public SemanticsTreeNodeImplKt();
+  }
+
+  public interface SemanticsTreeProvider {
+    method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
+    method public void sendEvent(android.view.MotionEvent event);
+  }
+
+  public abstract sealed class SingleChildComponentNode extends androidx.ui.core.ComponentNode {
+    method public void emitMove(int from, int to, int count);
+    method public androidx.ui.core.ComponentNode get(int index);
+    method public final androidx.ui.core.ComponentNode? getChild();
+    method public int getCount();
+    method public androidx.ui.core.LayoutNode? getLayoutNode();
+    method public final void setChild(androidx.ui.core.ComponentNode? p);
+    method public void setLayoutNode(androidx.ui.core.LayoutNode? p);
+    method public void visitChildren(boolean reverse, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    property public final androidx.ui.core.ComponentNode? child;
+    property public int count;
+    property public androidx.ui.core.LayoutNode? layoutNode;
+    property public androidx.ui.core.LayoutNode? parentLayoutNode;
+  }
+
+  public final class Unicode {
+    field public static final String ALM = "\u061c";
+    field public static final String FSI = "\u2068";
+    field public static final androidx.ui.core.Unicode! INSTANCE;
+    field public static final String LRE = "\u202a";
+    field public static final String LRI = "\u2066";
+    field public static final String LRM = "\u200e";
+    field public static final String LRO = "\u202d";
+    field public static final String PDF = "\u202c";
+    field public static final String PDI = "\u2069";
+    field public static final String RLE = "\u202b";
+    field public static final String RLI = "\u2067";
+    field public static final String RLM = "\u200f";
+    field public static final String RLO = "\u202e";
+  }
+
+}
+
+package androidx.ui.core.input {
+
+  public final class EditableUtilKt {
+    ctor public EditableUtilKt();
+  }
+
+}
+
+package androidx.ui.core.pointerinput {
+
+  public final class MotionEventAdapterKt {
+    ctor public MotionEventAdapterKt();
+  }
+
+  public final class PointerInputEventData {
+    ctor public PointerInputEventData(int id, androidx.ui.core.PointerInputData pointerInputData);
+    method public int component1();
+    method public androidx.ui.core.PointerInputData component2();
+    method public androidx.ui.core.pointerinput.PointerInputEventData copy(int id, androidx.ui.core.PointerInputData pointerInputData);
+    method public int getId();
+    method public androidx.ui.core.PointerInputData getPointerInputData();
+  }
+
+}
+
+package androidx.ui.core.semantics {
+
+  public final class SemanticsConfiguration {
+    ctor public SemanticsConfiguration();
+    method public androidx.ui.core.semantics.SemanticsConfiguration copy();
+    method public java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> getActions();
+    method public boolean getExplicitChildNodes();
+    method public boolean getHasBeenAnnotated();
+    method public boolean getHasImplicitScrolling();
+    method public String? getHint();
+    method public androidx.ui.core.semantics.SemanticsHintOverrides? getHintOverrides();
+    method public String? getLabel();
+    method public boolean getLiveRegion();
+    method public boolean getNamesRoute();
+    method public boolean getScopesRoute();
+    method public Float? getScrollExtentMax();
+    method public Float? getScrollExtentMin();
+    method public Float? getScrollPosition();
+    method public String? getTestTag();
+    method public androidx.ui.engine.text.TextDirection? getTextDirection();
+    method public androidx.ui.services.text_editing.TextSelection? getTextSelection();
+    method public String? getValue();
+    method public boolean isBlockingSemanticsOfPreviouslyPaintedNodes();
+    method public boolean isButton();
+    method public Boolean? isChecked();
+    method public boolean isCompatibleWith(androidx.ui.core.semantics.SemanticsConfiguration? other);
+    method public Boolean? isEnabled();
+    method public boolean isFocused();
+    method public boolean isHeader();
+    method public boolean isHidden();
+    method public boolean isImage();
+    method public boolean isInMutuallyExclusiveGroup();
+    method public boolean isMergingSemanticsOfDescendants();
+    method public boolean isObscured();
+    method public boolean isSelected();
+    method public boolean isSemanticBoundary();
+    method public boolean isTextField();
+    method public Boolean? isToggled();
+    method public void setActions(java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> value);
+    method public void setBlockingSemanticsOfPreviouslyPaintedNodes(boolean p);
+    method public void setButton(boolean p);
+    method public void setChecked(Boolean? value);
+    method public void setEnabled(Boolean? value);
+    method public void setExplicitChildNodes(boolean p);
+    method public void setFocused(boolean p);
+    method public void setHasBeenAnnotated(boolean p);
+    method public void setHasImplicitScrolling(boolean p);
+    method public void setHeader(boolean p);
+    method public void setHidden(boolean p);
+    method public void setHint(String? p);
+    method public void setHintOverrides(androidx.ui.core.semantics.SemanticsHintOverrides? p);
+    method public void setImage(boolean p);
+    method public void setInMutuallyExclusiveGroup(boolean p);
+    method public void setLabel(String? p);
+    method public void setLiveRegion(boolean p);
+    method public void setMergingSemanticsOfDescendants(boolean value);
+    method public void setNamesRoute(boolean p);
+    method public void setObscured(boolean p);
+    method public void setScopesRoute(boolean p);
+    method public void setScrollExtentMax(Float? p);
+    method public void setScrollExtentMin(Float? p);
+    method public void setScrollPosition(Float? p);
+    method public void setSelected(boolean p);
+    method public void setSemanticBoundary(boolean value);
+    method public void setTestTag(String? p);
+    method public void setTextDirection(androidx.ui.engine.text.TextDirection? p);
+    method public void setTextField(boolean p);
+    method public void setTextSelection(androidx.ui.services.text_editing.TextSelection? p);
+    method public void setToggled(Boolean? value);
+    method public void setValue(String? p);
+    property public final java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> actions;
+    property public final boolean explicitChildNodes;
+    property public final boolean hasBeenAnnotated;
+    property public final boolean hasImplicitScrolling;
+    property public final String? hint;
+    property public final androidx.ui.core.semantics.SemanticsHintOverrides? hintOverrides;
+    property public final boolean isBlockingSemanticsOfPreviouslyPaintedNodes;
+    property public final boolean isButton;
+    property public final Boolean? isChecked;
+    property public final Boolean? isEnabled;
+    property public final boolean isFocused;
+    property public final boolean isHeader;
+    property public final boolean isHidden;
+    property public final boolean isImage;
+    property public final boolean isInMutuallyExclusiveGroup;
+    property public final boolean isMergingSemanticsOfDescendants;
+    property public final boolean isObscured;
+    property public final boolean isSelected;
+    property public final boolean isSemanticBoundary;
+    property public final boolean isTextField;
+    property public final Boolean? isToggled;
+    property public final String? label;
+    property public final boolean liveRegion;
+    property public final boolean namesRoute;
+    property public final boolean scopesRoute;
+    property public final Float? scrollExtentMax;
+    property public final Float? scrollExtentMin;
+    property public final Float? scrollPosition;
+    property public final String? testTag;
+    property public final androidx.ui.engine.text.TextDirection? textDirection;
+    property public final androidx.ui.services.text_editing.TextSelection? textSelection;
+    property public final String? value;
+  }
+
+  public final class SemanticsConfigurationKt {
+    ctor public SemanticsConfigurationKt();
+  }
+
+  public enum SemanticsFlag {
+    ctor protected SemanticsFlag();
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag HasCheckedState;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag HasEnabledState;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag HasImplicitScrolling;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag HasToggledState;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsButton;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsChecked;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsEnabled;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsFocused;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsHeader;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsHidden;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsImage;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsInMutuallyExclusiveGroup;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsLiveRegion;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsObscured;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsSelected;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsTextField;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsToggled;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag NamesRoute;
+    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag ScopesRoute;
+    field public static final androidx.ui.core.semantics.SemanticsFlag.Companion! Companion;
+  }
+
+  public static final class SemanticsFlag.Companion {
+    method public java.util.Map<java.lang.Integer,androidx.ui.core.semantics.SemanticsFlag> getValues();
+    property public final java.util.Map<java.lang.Integer,androidx.ui.core.semantics.SemanticsFlag> values;
+  }
+
+  public final class SemanticsHintOverrides {
+    ctor public SemanticsHintOverrides(String? onTapHint, String? onLongPressHint);
+    method public String? component1();
+    method public String? component2();
+    method public androidx.ui.core.semantics.SemanticsHintOverrides copy(String? onTapHint, String? onLongPressHint);
+    method public String? getOnLongPressHint();
+    method public String? getOnTapHint();
+    method public boolean isNotEmpty();
+    property public final boolean isNotEmpty;
+  }
+
+  public final class SemanticsNode {
+    ctor public SemanticsNode();
+    method public boolean getAttached();
+    method public java.util.List<androidx.ui.core.semantics.SemanticsNode> getChildren();
+    method public int getChildrenCount();
+    method public androidx.ui.core.semantics.SemanticsConfiguration getConfig();
+    method public int getDepth();
+    method public boolean getHasChildren();
+    method public int getId();
+    method public boolean getMergeAllDescendantsIntoThisNode();
+    method public androidx.ui.core.semantics.SemanticsOwner? getOwner();
+    method public androidx.ui.core.semantics.SemanticsNode? getParent();
+    method public androidx.ui.engine.geometry.Rect? getParentPaintClipRect();
+    method public androidx.ui.engine.geometry.Rect? getParentSemanticsClipRect();
+    method public androidx.ui.engine.geometry.Rect getRect();
+    method public boolean isDifferentFromCurrentSemanticAnnotation(androidx.ui.core.semantics.SemanticsConfiguration config);
+    method public boolean isInvisible();
+    method public boolean isMergedIntoParent();
+    method public boolean isPartOfNodeMerging();
+    method public void redepthChild(androidx.ui.core.semantics.SemanticsNode child);
+    method public void redepthChildren();
+    method public void setChildren(java.util.List<androidx.ui.core.semantics.SemanticsNode> p);
+    method public void setMergedIntoParent(boolean value);
+    method public void setParent(androidx.ui.core.semantics.SemanticsNode? p);
+    method public void setParentPaintClipRect(androidx.ui.engine.geometry.Rect? p);
+    method public void setParentSemanticsClipRect(androidx.ui.engine.geometry.Rect? p);
+    method public void setRect(androidx.ui.engine.geometry.Rect value);
+    property public final boolean attached;
+    property public final java.util.List<androidx.ui.core.semantics.SemanticsNode> children;
+    property public final int childrenCount;
+    property public final androidx.ui.core.semantics.SemanticsConfiguration config;
+    property public final int depth;
+    property public final boolean hasChildren;
+    property public final boolean isInvisible;
+    property public final boolean isMergedIntoParent;
+    property public final boolean isPartOfNodeMerging;
+    property public final boolean mergeAllDescendantsIntoThisNode;
+    property public final androidx.ui.core.semantics.SemanticsOwner? owner;
+    property public final androidx.ui.core.semantics.SemanticsNode? parent;
+    property public final androidx.ui.engine.geometry.Rect? parentPaintClipRect;
+    property public final androidx.ui.engine.geometry.Rect? parentSemanticsClipRect;
+    property public final androidx.ui.engine.geometry.Rect rect;
+    field public static final androidx.ui.core.semantics.SemanticsNode.Companion! Companion;
+  }
+
+  public static final class SemanticsNode.Companion {
+    method public androidx.ui.core.semantics.SemanticsNode root(androidx.ui.core.semantics.SemanticsOwner owner);
+  }
+
+  public final class SemanticsNodeKt {
+    ctor public SemanticsNodeKt();
+  }
+
+  public final class SemanticsOwner {
+    ctor public SemanticsOwner();
+    method public void performAction(int id, androidx.ui.core.semantics.SemanticsActionType<?> action, Object? args = null);
+  }
+
+}
+

@@ -1,0 +1,65 @@
+// Calling includeProject(name, filePath) is shorthand for:
+//
+//   include(name)
+//   project(name).projectDir = new File(filePath)
+//
+// Note that <name> directly controls the Gradle project name, and also indirectly sets:
+//   the project name in the IDE
+//   the Maven artifactId
+//
+def includeProject(name, filePath) {
+    settings.include(name)
+
+    def file
+    if (filePath instanceof String) {
+        file = new File(filePath)
+    } else {
+        file = filePath
+    }
+    project(name).projectDir = file
+}
+
+
+includeProject(":compose-runtime", "../compose/runtime")
+includeProject(":compose-plugin-cli", "../compose/plugins/cli")
+includeProject(":compose-plugin-cli-tests", "../compose/plugins/cli-tests")
+includeProject(":compose-plugin-ide", "../compose/plugins/ide")
+includeProject(":compose-plugin-cli-gradle", "../compose/plugins/cli/gradle")
+includeProject(":ui-android-text", "android-text")
+includeProject(":ui-text", "text")
+includeProject(":ui-text:integration-tests:ui-text-demos", "text/integration-tests/text-demos")
+includeProject(":ui-core", "core")
+includeProject(":ui-framework", "framework")
+includeProject(":ui-framework:integration-tests:ui-framework-demos", "framework/integration-tests/framework-demos")
+includeProject(":ui-material", "material")
+includeProject(":ui-material:integration-tests:ui-material-demos", "material/integration-tests/material-demos")
+includeProject(":ui-material:integration-tests:ui-material-studies", "material/integration-tests/material-studies")
+includeProject(":ui-platform", "platform")
+includeProject(":ui-test", "test")
+includeProject(":ui-android-view", "android-view")
+includeProject(":ui-android-view-non-ir", "android-view-non-ir")
+includeProject(":ui-layout", "layout")
+includeProject(":ui-layout:integration-tests:ui-layout-demos", "layout/integration-tests/layout-demos")
+includeProject(":ui-demos", "demos")
+includeProject(":ui-animation-core", "animation-core")
+includeProject(":ui-animation", "animation")
+includeProject(":ui-animation:integration-tests:ui-animation-demos", "animation/integration-tests/animation-demos")
+
+
+/////////////////////////////
+//
+// External
+//
+/////////////////////////////
+
+apply(from: "../include-composite-deps.gradle")
+
+if (!startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
+    // we don't need it in ide, so we don't configure it there
+    includeProject(":docs-fake", "../docs-fake")
+    includeProject(":docs-runner", "../docs-runner")
+}
+
+// dumb test project that has a test for each size to ensure that at least one test is run
+// for each size and test runner is happy when there is nothing to test.
+includeProject(":dumb-tests", "../dumb-tests")
