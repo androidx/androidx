@@ -35,10 +35,13 @@ import java.util.Objects;
  * <p>
  * Elements in this sequence are represented by {@link RichTextElement} instances.
  * <p>
- * Each sequence will have a textual representation provided by {@link #getText()}
- * and in the case of the absence of a rich representation, the sequence of elements
- * {@link #getElements()} may be left empty. The textual representation may also be used as a
- * fallback for when {@link RichTextElement}s fail to render.
+ * Each sequence will have a textual representation provided by {@link #getText()} and in the case
+ * of the absence of a rich representation, the sequence of elements {@link #getElements()} may be
+ * left empty. The textual representation may also be used as a fallback for when
+ * {@link RichTextElement}s fail to render.
+ * <p>
+ * Spaces and other separators should be provided by the third-party navigation apps, while OEM
+ * rendering services shouldn't add additional ones, in order to avoid duplications.
  */
 @VersionedParcelize
 public class RichText implements VersionedParcelable {

@@ -50,7 +50,7 @@ public final class Destination implements VersionedParcelable {
     CharSequence mFormattedEta;
 
     /**
-     * Congestion level on the way to a destination, compared to ideal driving conditions.
+     * Traffic congestion level on the way to a destination, compared to ideal driving conditions.
      */
     public enum Traffic {
         /** Traffic information is not available */
@@ -177,7 +177,8 @@ public final class Destination implements VersionedParcelable {
         }
 
         /**
-         * Sets the congestion level to this destination, compared to ideal driving conditions.
+         * Sets the traffic congestion level to this destination, compared to ideal driving
+         * conditions.
          *
          * @param traffic traffic level
          * @param fallbacks Variations of {@code traffic}, in case the consumer of this API doesn't
@@ -228,7 +229,7 @@ public final class Destination implements VersionedParcelable {
     }
 
     /**
-     * Returns the estimated time of arrival to this destination, or null if it was not provided or
+     * Returns the estimated time of arrival at this destination, or null if it was not provided or
      * is unknown.
      */
     @Nullable
@@ -237,7 +238,7 @@ public final class Destination implements VersionedParcelable {
     }
 
     /**
-     * Returns the estimated time of arrival to this destination as a formatted String, or empty if
+     * Returns the estimated time of arrival at this destination as a formatted String, or empty if
      * it was not provided or is unknown.
      */
     @NonNull
@@ -246,7 +247,8 @@ public final class Destination implements VersionedParcelable {
     }
 
     /**
-     * Returns the congestion level to this destination, compared to to ideal driving conditions.
+     * Returns the traffic congestion level to this destination, compared to to ideal driving
+     * conditions.
      */
     @NonNull
     public Traffic getTraffic() {

@@ -32,12 +32,13 @@ import java.util.Objects;
  * be displayed one after another.
  * <p>
  * A {@link RichTextElement} can contain text and a graphic element as its representation.
- * Consumers must attempt to render the graphic element if present. In case of failure to render
- * the element, the first line of fallback should be {@link #getText()}. If that is also empty,
- * fallback to {@link RichText#getText()} will be used.
+ * OEM cluster rendering services must attempt to render the graphic element if present. In case of
+ * failure to render the element, the first line of fallback should be {@link #getText()}. If that
+ * is also empty, fallback to {@link RichText#getText()} will be used.
  * <p>
  * New graphic element types might be added in the future. If such elements are unknown to the
- * consumer, they will be delivered to the consumer as just text.
+ * OEM cluster rendering service, the elements will be delivered to the OEM cluster rendering
+ * services as just text.
  */
 @VersionedParcelize
 public class RichTextElement implements VersionedParcelable {
@@ -104,7 +105,8 @@ public class RichTextElement implements VersionedParcelable {
         /**
          * Builds a {@link RichTextElement} with an optional textual representation, and any other
          * optional representation provided to this builder. If no other graphic element is provided
-         * or if such graphic element cannot be rendered by the consumer, text will be used instead.
+         * or if such graphic element cannot be rendered by the OEM cluster rendering service, text
+         * will be used instead.
          */
         @NonNull
         public RichTextElement build() {

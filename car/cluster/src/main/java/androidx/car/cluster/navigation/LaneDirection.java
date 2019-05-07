@@ -28,8 +28,8 @@ import java.util.Objects;
 
 /**
  * One of the possible directions a driver can go when using a particular lane at a particular
- * step in the navigation. This can be used by the consumer to choose what icon or icons to combine
- * in order to display a lane configuration to the user.
+ * step in the navigation. This can be used by the OEM cluster rendering service to choose what
+ * icon(s) to combine in order to display a lane configuration to the driver.
  */
 @VersionedParcelize
 public final class LaneDirection implements VersionedParcelable {
@@ -38,8 +38,8 @@ public final class LaneDirection implements VersionedParcelable {
      */
     public enum Shape {
         /**
-         * The shape is unknown to the consumer, in which case the consumer shouldn't show any
-         * lane information at all.
+         * The shape is unknown to the OEM cluster rendering service, in which case the OEM cluster
+         * rendering service shouldn't show any lane information at all.
          */
         UNKNOWN,
         /**
@@ -113,11 +113,11 @@ public final class LaneDirection implements VersionedParcelable {
 
         /**
          * Sets the {@link Shape} of this lane direction, and any fallback values that could be used
-         * by the consumer if the shape is unknown to it.
+         * by the OEM cluster rendering service if the shape is unknown to it.
          *
          * @param shape lane direction shape
-         * @param fallbacks Variations of {@code shape}, in case the consumer of this API doesn't
-         *                  know the main one (used for backward compatibility).
+         * @param fallbacks Variations of {@code shape}, in case the OEM cluster rendering service
+         *                  of this API doesn't know the main one (used for backward compatibility).
          * @return this object for chaining
          */
         @NonNull
@@ -127,7 +127,7 @@ public final class LaneDirection implements VersionedParcelable {
         }
 
         /**
-         * Sets whether this a direction the driver could take in order to stay in the navigation
+         * Sets whether this is a direction the driver could take in order to stay on the navigation
          * route.
          *
          * @param highlighted true if this is a recommended lane direction, or false otherwise.
@@ -158,7 +158,7 @@ public final class LaneDirection implements VersionedParcelable {
     }
 
     /**
-     * Returns whether this is a direction the driver should take in order to stay in the
+     * Returns whether this is a direction the driver should take in order to stay on the
      * navigation route.
      */
     public boolean isHighlighted() {
