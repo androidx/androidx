@@ -55,7 +55,11 @@ class Label(override var value: String) : SemanticProperty<String> {
 
 /** [Visibility] stores an enum that represents the visibility of the component. */
 enum class Visibility : SemanticProperty<Visibility> {
-    Undefined, Visible, Invisible;
+    @Suppress("Unused")
+    Undefined,
+    Visible,
+    @Suppress("Unused")
+    Invisible;
 
     override val value: Visibility get() = this
 
@@ -85,13 +89,25 @@ fun <T> SemanticAction<T>.invoke(
  * The parameter sent to every callback. In addition to the parameter value, it also provides
  * information about the framework that raised the action.
  */
-class ActionParam<T>(val caller: ActionCaller = ActionCaller.Unknown, val value: T)
+class ActionParam<T>(
+    @Suppress("Unused") val caller: ActionCaller = ActionCaller.Unknown,
+    val value: T
+)
 
 /**
  * Frameworks that invoke the action. The developer might be interested in knowing which framework
  * invoked the action.
  */
-enum class ActionCaller { Unknown, Accessibility, AutoFill, Assistant, PointerInput, KeyInput }
+enum class ActionCaller {
+    Unknown,
+    Accessibility,
+    @Suppress("Unused")
+    AutoFill,
+    Assistant,
+    PointerInput,
+    @Suppress("Unused")
+    KeyInput
+}
 
 /**
  * The [ActionType] is a way to provide more information about a [SemanticAction]. It can be used by
@@ -102,11 +118,17 @@ enum class ActionCaller { Unknown, Accessibility, AutoFill, Assistant, PointerIn
 interface ActionType
 
 // These are some example action types provided by the framework:
+@Suppress("Unused")
 class Autofill : ActionType
 
-enum class PolarityAction : ActionType { Neutral, Positive, Negative, Toggle }
-enum class AccessibilityAction : ActionType { Primary, Secondary, Tertiary }
+enum class PolarityAction : ActionType { Positive, Negative }
+
+enum class AccessibilityAction : ActionType { Primary, Secondary }
+
+@Suppress("Unused")
 enum class EditAction : ActionType { Cut, Copy, Paste, Select, SelectAll, Clear, Undo }
+
+@Suppress("Unused")
 enum class NavigationAction : ActionType { Back, Forward, Up, Down, Left, Right }
 
 /**
@@ -115,11 +137,12 @@ enum class NavigationAction : ActionType { Back, Forward, Up, Down, Left, Right 
  * This component just wraps the GestureDetetor and allows us to use it with actions, instead of
  * lambda functions. A [SemanticAction] allows us to specify more information in addition to the
  * lambda to be executed.*/
+@Suppress("FunctionName", "Unused")
 @Composable
 fun PressGestureDetectorWithActions(
-    onPress: SemanticAction<PxPosition> = SemanticAction(defaultParam = PxPosition.Origin) { _ -> },
-    onRelease: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { _ -> },
-    onCancel: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { _ -> },
+    onPress: SemanticAction<PxPosition> = SemanticAction(defaultParam = PxPosition.Origin) { },
+    onRelease: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { },
+    onCancel: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { },
     @Children children: @Composable() () -> Unit
 ) {
     PressGestureDetector(
@@ -136,10 +159,10 @@ fun PressGestureDetectorWithActions(
  * This implementation is a component just wraps its child components in a frame that has buttons
  * which represent some frameworks that will trigger the semantic actions.
  */
+@Suppress("FunctionName", "Unused")
 @Composable
 fun Semantics(
-    // TODO: use this?
-    // properties: Set<SemanticProperty<out Any>> = setOf(),
+    @Suppress("UNUSED_PARAMETER") properties: Set<SemanticProperty<out Any>> = setOf(),
     actions: Set<SemanticAction<out Any?>> = setOf(),
     @Children children: @Composable() () -> Unit
 ) {
@@ -207,6 +230,7 @@ fun Semantics(
  * This component provides default values for all the parameters to the builder, the developer has
  * to just supply the callback lambda.
  */
+@Suppress("FunctionName", "Unused")
 @Composable
 fun ClickInteraction(
     press: SemanticActionBuilder<PxPosition>.() -> Unit,
@@ -223,16 +247,12 @@ fun ClickInteraction(
         defaultParam = Unit
     ).apply(release).build()
 
-    Semantics(
-        actions = setOf(pressedAction, releasedAction)
-    ) {
+    Semantics(actions = setOf(pressedAction, releasedAction)) {
         PressGestureDetectorWithActions(
             onPress = pressedAction,
             onRelease = releasedAction,
             onCancel = releasedAction
-        ) {
-            children()
-        }
+        ) { children() }
     }
 }
 

@@ -32,7 +32,6 @@ dependencies {
 
     api project(":ui-android-text")
     api project(":ui-core")
-    api project(":ui-framework")
     api "androidx.collection:collection:1.0.0"
     api project(":compose-runtime")
     api(KOTLIN_COMPOSE_STDLIB)
@@ -80,5 +79,5 @@ tasks.withType(KotlinCompile).all {
 
 tasks.withType(KotlinCompile).configureEach { compile ->
     compile.kotlinOptions.freeCompilerArgs +="-P"
-    compile.kotlinOptions.freeCompilerArgs +="plugin:org.jetbrains.kotlin.r4a:syntax=FCS"
+    compile.kotlinOptions.freeCompilerArgs += "plugin:androidx.compose.plugins.kotlin:syntax=FCS"
 }

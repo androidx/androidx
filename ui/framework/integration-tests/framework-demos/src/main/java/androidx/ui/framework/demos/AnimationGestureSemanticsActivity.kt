@@ -79,6 +79,7 @@ class AnimationGestureSemanticsActivity : Activity() {
     /**
      * This component does not use Semantics. The gesture detector triggers the animation.
      */
+    @Suppress("FunctionName", "Unused")
     @Composable
     fun WithoutSemanticActions() {
         val animationEndState = +state { ComponentState.Released }
@@ -92,6 +93,7 @@ class AnimationGestureSemanticsActivity : Activity() {
     /**
      * This component uses the level 1 Semantics API.
      */
+    @Suppress("FunctionName", "Unused")
     @Composable
     fun Level1Api() {
         val animationEndState = +state { ComponentState.Released }
@@ -108,20 +110,16 @@ class AnimationGestureSemanticsActivity : Activity() {
             phrase = "Released",
             defaultParam = Unit,
             types = setOf(AccessibilityAction.Secondary, PolarityAction.Positive)
-        ) {
-            animationEndState.value = ComponentState.Released
-        }
+        ) { animationEndState.value = ComponentState.Released }
 
         Semantics(
-            // properties = setOf(Label("Animating Circle"), Visibility.Visible),
+            properties = setOf(Label("Animating Circle"), Visibility.Visible),
             actions = setOf(pressedAction, releasedAction)
         ) {
             PressGestureDetectorWithActions(
                 onPress = pressedAction,
                 onRelease = releasedAction
-            ) @Composable {
-                Animation(animationEndState = animationEndState.value)
-            }
+            ) { Animation(animationEndState = animationEndState.value) }
         }
     }
 
@@ -129,24 +127,21 @@ class AnimationGestureSemanticsActivity : Activity() {
      * This component uses the level 3 Semantics API. The [ClickInteraction] provides default
      * parameters for the [SemanticAction]s. The developer has to provide the callback lambda.
      */
+    @Suppress("FunctionName", "Unused")
     @Composable
     fun Level3Api() {
         val animationEndState = +state { ComponentState.Released }
         ClickInteraction(
             press = { action { animationEndState.value = ComponentState.Pressed } },
-            release = {
-                action {
-                    animationEndState.value = ComponentState.Released
-                }
-            }) @Composable {
-            Animation(animationEndState = animationEndState.value)
-        }
+            release = { action { animationEndState.value = ComponentState.Released } }
+        ) { Animation(animationEndState = animationEndState.value) }
     }
 
     /**
      * This component uses the level 3 Semantics API. Instead of using the default parameter that
      * [ClickInteraction] provides, we provide a custom action phrase and a set of types.
      */
+    @Suppress("FunctionName", "Unused")
     @Composable
     fun Level3ApiExtras() {
         val animationEndState = +state { ComponentState.Released }
@@ -160,18 +155,17 @@ class AnimationGestureSemanticsActivity : Activity() {
                 label = "Enlarge"
                 types = setOf(AccessibilityAction.Secondary, PolarityAction.Positive)
                 action = { animationEndState.value = ComponentState.Released }
-            }) {
-            Animation(animationEndState = animationEndState.value)
-        }
+            }) { Animation(animationEndState = animationEndState.value) }
     }
 
+    @Suppress("FunctionName")
     @Composable
     private fun Animation(animationEndState: ComponentState) {
         Layout(children = @Composable {
             Transition(
                 definition = transitionDefinition,
                 toState = animationEndState
-            ) { state ->
+            ) @Composable { state ->
                 Circle(color = state[colorKey], sizeRatio = state[sizeKey])
             }
         }, layoutBlock = { _, constraints ->
@@ -179,6 +173,7 @@ class AnimationGestureSemanticsActivity : Activity() {
         })
     }
 
+    @Suppress("FunctionName")
     @Composable
     fun Circle(color: Color, sizeRatio: Float) {
         Draw { canvas, parentSize ->

@@ -2,6 +2,7 @@ import androidx.build.AndroidXPlugin
 import androidx.build.SdkHelperKt
 
 buildscript {
+    System.setProperty("DIST_SUBDIR", "/ui")
     ext.supportRootFolder = file(project.projectDir.parent)
     apply from: 'buildSrc/repos.gradle'
     apply from: 'buildSrc/build_dependencies.gradle'
@@ -21,6 +22,6 @@ allprojects {
 
 apply from: "buildSrc/dependencies.gradle"
 apply from: "buildSrc/out.gradle"
-init.chooseOutDir()
+init.chooseOutDir("/ui")
 
 apply plugin: androidx.build.AndroidXPlugin

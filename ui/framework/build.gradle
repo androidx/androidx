@@ -38,6 +38,7 @@ dependencies {
 
     // TODO: Non-Kotlin dependency, move to Android-specific code
     implementation "androidx.core:core:1.0.0"
+    implementation project(":ui-text")
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
@@ -76,5 +77,5 @@ tasks.withType(KotlinCompile).all {
 
 tasks.withType(KotlinCompile).configureEach { compile ->
     compile.kotlinOptions.freeCompilerArgs += "-P"
-    compile.kotlinOptions.freeCompilerArgs += "plugin:org.jetbrains.kotlin.r4a:syntax=FCS"
+    compile.kotlinOptions.freeCompilerArgs += "plugin:androidx.compose.plugins.kotlin:syntax=FCS"
 }

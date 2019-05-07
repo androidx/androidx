@@ -23,6 +23,7 @@ import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.consumeDownChange
 import androidx.ui.core.consumePositionChange
 import androidx.ui.core.ipx
+import androidx.ui.core.milliseconds
 import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.core.px
 import androidx.ui.testutils.consume
@@ -190,7 +191,7 @@ class DragGestureDetectorTest {
         assertThat(log.filter { it.methodName == "canDrag" }).hasSize(1)
     }
 
-    // Verification of correctness of values passed to onDrag.
+    // Verification of correctness of values passed to canDrag.
 
     @Test
     fun pointerInputHandler_canDragCalledWithCorrectDirection() {
@@ -478,6 +479,45 @@ class DragGestureDetectorTest {
         assertThat(onDragLog[2].pxPosition).isEqualTo(PxPosition(-3.px, 7.px))
         assertThat(onDragLog[3].pxPosition).isEqualTo(PxPosition(6.px, 10.px))
         assertThat(onDragLog[4].pxPosition).isEqualTo(PxPosition((-10).px, -6.px))
+    }
+
+    @Test
+    fun pointerInputHandler_3Down1Moves_onDragCalledWith3rdOfDistance() {
+
+        // Arrange
+
+        val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
+        val thirdDistance1 = beyondTouchSlop
+        val thirdDistance2 = beyondTouchSlop * 2
+        val distance1 = thirdDistance1 * 3
+        val distance2 = thirdDistance2 * 3
+
+        recognizer.canDrag = canDragMockTrue
+        recognizer.dragObserver = MockDragObserver(log)
+
+        var pointer1 = down()
+        var pointer2 = down()
+        var pointer3 = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1)
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer2)
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer3)
+
+        pointer1 = pointer1.moveBy(100.milliseconds, distance1, distance2)
+
+        // Act
+
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointer1)
+
+        // Assert
+
+        val onDragLog = log.filter { it.methodName == "onDrag" }
+        assertThat(onDragLog).hasSize(1)
+        assertThat(onDragLog[0].pxPosition).isEqualTo(
+            PxPosition(
+                thirdDistance1.px,
+                thirdDistance2.px
+            )
+        )
     }
 
     // onStop not called verification
