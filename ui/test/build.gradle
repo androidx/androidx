@@ -49,14 +49,10 @@ dependencies {
 }
 
 android {
-    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    tasks.withType(KotlinCompile).configureEach {
         kotlinOptions {
             useIR = true
         }
-    }
-    tasks.withType(KotlinCompile).configureEach { compile ->
-        compile.kotlinOptions.freeCompilerArgs +="-P"
-        compile.kotlinOptions.freeCompilerArgs += "plugin:androidx.compose.plugins.kotlin:syntax=FCS"
     }
 }
 
@@ -67,10 +63,4 @@ androidx {
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
     description = "AndroidX UI test framework."
-}
-
-tasks.withType(KotlinCompile).all {
-    kotlinOptions {
-        freeCompilerArgs += ["-Werror"]
-    }
 }
