@@ -34,7 +34,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class InputConfigurationCompatTest {
+public final class InputConfigurationCompatTest {
 
     private static final int WIDTH = 1024;
     private static final int HEIGHT = 768;
