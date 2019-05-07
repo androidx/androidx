@@ -19,9 +19,9 @@ package androidx.car.widget;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -32,27 +32,37 @@ import androidx.car.widget.ListItemAdapter.ListItemType;
 import androidx.constraintlayout.widget.Guideline;
 
 /**
- * Class to build a list item with {@link Switch}.
+ * Class to build a list item with {@link CheckBox}.
  *
- * <p>A switch list item is visually composed of 5 parts.
+ * <p>A checkbox list item is visually composed of 5 parts.
  * <ul>
- * <li>A {@link Switch}.
- * <li>optional {@code Divider}.
  * <li>optional {@code Primary Action Icon}.
  * <li>optional {@code Title}.
  * <li>optional {@code Body}.
+ * <li>optional {@code Divider}.
+ * <li>A {@link CheckBox}.
  * </ul>
  */
-public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.ViewHolder> {
+public final class CheckBoxListItem extends CompoundButtonListItem<CheckBoxListItem.ViewHolder> {
 
     /**
      * Creates a {@link ViewHolder}.
      *
-     * @return a {@link ViewHolder} for this {@link SwitchListItem}.
+     * @return a {@link ViewHolder} for this {@link CheckBoxListItem}.
      */
     @NonNull
     public static ViewHolder createViewHolder(@NonNull View itemView) {
         return new ViewHolder(itemView);
+    }
+
+    /**
+     * Creates a {@link CheckBoxListItem} that will be used to display a list item with a
+     * {@link CheckBox}.
+     *
+     * @param context The context to be used by this {@link CheckBoxListItem}.
+     */
+    public CheckBoxListItem(@NonNull Context context) {
+        super(context);
     }
 
     /**
@@ -63,17 +73,7 @@ public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.
     @ListItemType
     @Override
     public int getViewType() {
-        return ListItemAdapter.LIST_ITEM_TYPE_SWITCH;
-    }
-
-    /**
-     * Creates a {@link SwitchListItem} that will be used to display a list item with a
-     * {@link Switch}.
-     *
-     * @param context The context to be used by this {@link SwitchListItem}.
-     */
-    public SwitchListItem(@NonNull Context context) {
-        super(context);
+        return ListItemAdapter.LIST_ITEM_TYPE_CHECK_BOX;
     }
 
     /**
@@ -88,7 +88,7 @@ public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.
     }
 
     /**
-     * ViewHolder that contains necessary widgets for {@link SwitchListItem}.
+     * ViewHolder that contains necessary widgets for {@link CheckBoxListItem}.
      */
     public static final class ViewHolder extends CompoundButtonListItem.ViewHolder {
 
@@ -107,9 +107,9 @@ public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.
         private View mCompoundButtonDivider;
 
         /**
-         * Creates a {@link ViewHolder} for a {@link SwitchListItem}.
+         * Creates a {@link ViewHolder} for a {@link CheckBoxListItem}.
          *
-         * @param itemView The view to be used to display a {@link SwitchListItem}.
+         * @param itemView The view to be used to display a {@link CheckBoxListItem}.
          */
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -123,8 +123,8 @@ public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.
 
             mSupplementalGuideline = itemView.findViewById(R.id.supplemental_actions_guideline);
 
-            mCompoundButton = itemView.findViewById(R.id.switch_widget);
-            mCompoundButtonDivider = itemView.findViewById(R.id.switch_divider);
+            mCompoundButton = itemView.findViewById(R.id.checkbox_widget);
+            mCompoundButtonDivider = itemView.findViewById(R.id.checkbox_divider);
 
             int minTouchSize = itemView.getContext().getResources()
                     .getDimensionPixelSize(R.dimen.car_touch_target_size);
@@ -157,7 +157,6 @@ public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.
          * @return Icon view within this view holder's view.
          */
         @NonNull
-        @Override
         public ImageView getPrimaryIcon() {
             return mPrimaryIcon;
         }
@@ -168,7 +167,6 @@ public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.
          * @return Title view within this view holder's view.
          */
         @NonNull
-        @Override
         public TextView getTitle() {
             return mTitle;
         }
@@ -179,7 +177,6 @@ public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.
          * @return Body view within this view holder's view.
          */
         @NonNull
-        @Override
         public TextView getBody() {
             return mBody;
         }
@@ -190,7 +187,6 @@ public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.
          * @return Compound button divider view within this view holder's view.
          */
         @NonNull
-        @Override
         public View getCompoundButtonDivider() {
             return mCompoundButtonDivider;
         }
@@ -201,19 +197,16 @@ public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.
          * @return Compound button within this view holder's view.
          */
         @NonNull
-        @Override
         public CompoundButton getCompoundButton() {
             return mCompoundButton;
         }
 
         @NonNull
-        @Override
         Guideline getSupplementalGuideline() {
             return mSupplementalGuideline;
         }
 
         @NonNull
-        @Override
         View[] getWidgetViews() {
             return mWidgetViews;
         }
@@ -224,7 +217,6 @@ public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.
          * @return Container layout of this view holder.
          */
         @NonNull
-        @Override
         public ViewGroup getContainerLayout() {
             return mContainerLayout;
         }

@@ -316,6 +316,24 @@ package androidx.car.widget {
     method public void setTitleTextAppearance(@StyleRes int);
   }
 
+  public final class CheckBoxListItem extends androidx.car.widget.CompoundButtonListItem<androidx.car.widget.CheckBoxListItem.ViewHolder> {
+    ctor public CheckBoxListItem(android.content.Context);
+    method public static androidx.car.widget.CheckBoxListItem.ViewHolder createViewHolder(android.view.View);
+    method public int getViewType();
+    method public boolean isCompoundButtonPositionEnd();
+  }
+
+  public static final class CheckBoxListItem.ViewHolder extends androidx.car.widget.CompoundButtonListItem.ViewHolder {
+    ctor public CheckBoxListItem.ViewHolder(android.view.View);
+    method public android.widget.TextView getBody();
+    method public android.widget.CompoundButton getCompoundButton();
+    method public android.view.View getCompoundButtonDivider();
+    method public android.view.ViewGroup getContainerLayout();
+    method public android.widget.ImageView getPrimaryIcon();
+    method public android.widget.TextView getTitle();
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
+  }
+
   public final class ColumnCardView extends androidx.cardview.widget.CardView {
     ctor public ColumnCardView(android.content.Context!);
     ctor public ColumnCardView(android.content.Context!, android.util.AttributeSet!);
@@ -323,6 +341,36 @@ package androidx.car.widget {
     method public int getColumnSpan();
     method public void onMeasure(int, int);
     method public void setColumnSpan(int);
+  }
+
+  public abstract class CompoundButtonListItem<VH extends androidx.car.widget.CompoundButtonListItem.ViewHolder> extends androidx.car.widget.ListItem<VH> {
+    ctor public CompoundButtonListItem(android.content.Context);
+    method public abstract boolean isCompoundButtonPositionEnd();
+    method public void onBind(VH);
+    method @CallSuper protected void resolveDirtyState();
+    method public void setBody(CharSequence?);
+    method public void setChecked(boolean);
+    method public void setClickable(boolean);
+    method public void setEnabled(boolean);
+    method public void setOnCheckedChangeListener(android.widget.CompoundButton.OnCheckedChangeListener?);
+    method public void setPrimaryActionEmptyIcon();
+    method public void setPrimaryActionIcon(android.graphics.drawable.Drawable, int);
+    method public void setPrimaryActionIcon(@DrawableRes int, int);
+    method public void setPrimaryActionNoIcon();
+    method public void setShowCompoundButtonDivider(boolean);
+    method public void setTitle(CharSequence?);
+    field public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2; // 0x2
+    field public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1; // 0x1
+    field public static final int PRIMARY_ACTION_ICON_SIZE_SMALL = 0; // 0x0
+  }
+
+  public abstract static class CompoundButtonListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
+    ctor public CompoundButtonListItem.ViewHolder(android.view.View);
+    method public abstract android.widget.TextView getBody();
+    method public abstract android.widget.CompoundButton getCompoundButton();
+    method public abstract android.view.View getCompoundButtonDivider();
+    method public abstract android.widget.ImageView getPrimaryIcon();
+    method public abstract android.widget.TextView getTitle();
   }
 
   public abstract class ListItem<VH extends androidx.car.widget.ListItem.ViewHolder> {
@@ -496,38 +544,22 @@ package androidx.car.widget {
     field public static final int PAGE_UP = 0; // 0x0
   }
 
-  public class RadioButtonListItem extends androidx.car.widget.ListItem<androidx.car.widget.RadioButtonListItem.ViewHolder> {
+  public final class RadioButtonListItem extends androidx.car.widget.CompoundButtonListItem<androidx.car.widget.RadioButtonListItem.ViewHolder> {
     ctor public RadioButtonListItem(android.content.Context);
     method public static androidx.car.widget.RadioButtonListItem.ViewHolder createViewHolder(android.view.View);
-    method protected android.content.Context getContext();
     method public int getViewType();
-    method public boolean isChecked();
-    method protected void onBind(androidx.car.widget.RadioButtonListItem.ViewHolder!);
-    method protected void resolveDirtyState();
-    method public void setBody(CharSequence?);
-    method public void setChecked(boolean);
-    method public void setEnabled(boolean);
-    method public void setOnCheckedChangeListener(android.widget.CompoundButton.OnCheckedChangeListener);
-    method public void setPrimaryActionIcon(android.graphics.drawable.Drawable, int);
-    method public void setPrimaryActionIcon(@DrawableRes int, int);
-    method public void setPrimaryActionNoIcon();
-    method public void setShowRadioButtonDivider(boolean);
-    method public void setTextStartMargin(@DimenRes int);
-    method public void setTitle(CharSequence?);
-    field public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2; // 0x2
-    field public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1; // 0x1
-    field public static final int PRIMARY_ACTION_ICON_SIZE_SMALL = 0; // 0x0
+    method public boolean isCompoundButtonPositionEnd();
   }
 
-  public static final class RadioButtonListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
+  public static final class RadioButtonListItem.ViewHolder extends androidx.car.widget.CompoundButtonListItem.ViewHolder {
     ctor public RadioButtonListItem.ViewHolder(android.view.View);
     method public android.widget.TextView getBody();
+    method public android.widget.CompoundButton getCompoundButton();
+    method public android.view.View getCompoundButtonDivider();
     method public android.view.ViewGroup getContainerLayout();
     method public android.widget.ImageView getPrimaryIcon();
-    method public android.widget.RadioButton getRadioButton();
-    method public android.view.View getRadioButtonDivider();
     method public android.widget.TextView getTitle();
-    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions!);
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
   }
 
   public class SeekbarListItem extends androidx.car.widget.ListItem<androidx.car.widget.SeekbarListItem.ViewHolder> {
@@ -588,38 +620,22 @@ package androidx.car.widget {
     method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions!);
   }
 
-  public class SwitchListItem extends androidx.car.widget.ListItem<androidx.car.widget.SwitchListItem.ViewHolder> {
+  public final class SwitchListItem extends androidx.car.widget.CompoundButtonListItem<androidx.car.widget.SwitchListItem.ViewHolder> {
     ctor public SwitchListItem(android.content.Context);
-    method public static androidx.car.widget.SwitchListItem.ViewHolder createViewHolder(android.view.View!);
-    method protected final android.content.Context getContext();
+    method public static androidx.car.widget.SwitchListItem.ViewHolder createViewHolder(android.view.View);
     method public int getViewType();
-    method public void onBind(androidx.car.widget.SwitchListItem.ViewHolder!);
-    method @CallSuper protected void resolveDirtyState();
-    method public void setBody(CharSequence?);
-    method public void setChecked(boolean);
-    method public void setClickable(boolean);
-    method public void setEnabled(boolean);
-    method public void setPrimaryActionEmptyIcon();
-    method public void setPrimaryActionIcon(android.graphics.drawable.Drawable, int);
-    method public void setPrimaryActionIcon(@DrawableRes int, int);
-    method public void setPrimaryActionNoIcon();
-    method public void setShowSwitchDivider(boolean);
-    method public void setSwitchOnCheckedChangeListener(android.widget.CompoundButton.OnCheckedChangeListener?);
-    method @Deprecated public void setSwitchState(boolean);
-    method public void setTitle(CharSequence?);
-    field public static final int PRIMARY_ACTION_ICON_SIZE_LARGE = 2; // 0x2
-    field public static final int PRIMARY_ACTION_ICON_SIZE_MEDIUM = 1; // 0x1
-    field public static final int PRIMARY_ACTION_ICON_SIZE_SMALL = 0; // 0x0
+    method public boolean isCompoundButtonPositionEnd();
   }
 
-  public static final class SwitchListItem.ViewHolder extends androidx.car.widget.ListItem.ViewHolder {
+  public static final class SwitchListItem.ViewHolder extends androidx.car.widget.CompoundButtonListItem.ViewHolder {
     ctor public SwitchListItem.ViewHolder(android.view.View);
     method public android.widget.TextView getBody();
+    method public android.widget.CompoundButton getCompoundButton();
+    method public android.view.View getCompoundButtonDivider();
+    method public android.view.ViewGroup getContainerLayout();
     method public android.widget.ImageView getPrimaryIcon();
-    method public android.widget.Switch getSwitch();
-    method public android.view.View getSwitchDivider();
     method public android.widget.TextView getTitle();
-    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions!);
+    method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
   }
 
   public class TextListItem extends androidx.car.widget.ListItem<androidx.car.widget.TextListItem.ViewHolder> {

@@ -45,8 +45,8 @@ import android.text.InputFilter;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.Switch;
 
 import androidx.car.test.R;
 import androidx.car.util.CarUxRestrictionsTestUtils;
@@ -73,11 +73,11 @@ import java.util.List;
 import java.util.Locale;
 
 /**
-* Tests the layout configuration and switch functionality of {@link SwitchListItem}.
+ * Tests the layout configuration and checkbox functionality of {@link CheckBoxListItem}.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class SwitchListItemTest {
+public class CheckBoxListItemTest {
 
     @Rule
     public ActivityTestRule<PagedListViewTestActivity> mActivityRule =
@@ -101,8 +101,8 @@ public class SwitchListItemTest {
     }
 
     @Test
-    public void testDefaultVisibility_EmptyItemShowsSwitch() {
-        SwitchListItem item = new SwitchListItem(mActivity);
+    public void testDefaultVisibility_EmptyItemShowsCheckBox() {
+        CheckBoxListItem item = new CheckBoxListItem(mActivity);
         setupPagedListView(Arrays.asList(item));
 
         ViewGroup itemView = (ViewGroup)
@@ -111,7 +111,7 @@ public class SwitchListItemTest {
         for (int i = 0; i < childCount; i++) {
             View view = itemView.getChildAt(i);
             // |view| could be container in view holder, so exempt ViewGroup.
-            if (view instanceof Switch || view instanceof ViewGroup) {
+            if (view instanceof CheckBox || view instanceof ViewGroup) {
                 assertThat(view.getVisibility(), is(equalTo(View.VISIBLE)));
             } else {
                 assertThat("Visibility of view "
@@ -124,9 +124,9 @@ public class SwitchListItemTest {
 
     @Test
     public void testItemIsEnabledByDefault() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
 
-        List<SwitchListItem> items = Arrays.asList(item0);
+        List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
         assertTrue(getViewHolderAtPosition(0).itemView.isEnabled());
@@ -134,9 +134,9 @@ public class SwitchListItemTest {
 
     @Test
     public void testDisablingItem() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
 
-        List<SwitchListItem> items = Arrays.asList(item0);
+        List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
         item0.setEnabled(false);
@@ -147,9 +147,9 @@ public class SwitchListItemTest {
 
     @Test
     public void testClickableItem_DefaultNotClickable() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
 
-        List<SwitchListItem> items = Arrays.asList(item0);
+        List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
         assertFalse(getViewHolderAtPosition(0).itemView.isClickable());
@@ -157,21 +157,21 @@ public class SwitchListItemTest {
 
     @Test
     public void testClickableItem_setClickable() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setClickable(true);
 
-        List<SwitchListItem> items = Arrays.asList(item0);
+        List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
         assertTrue(getViewHolderAtPosition(0).itemView.isClickable());
     }
 
     @Test
-    public void testClickableItem_ClickingTogglesSwitch() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+    public void testClickableItem_ClickingTogglesCheckBox() {
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setClickable(true);
 
-        List<SwitchListItem> items = Arrays.asList(item0);
+        List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
         onView(withId(R.id.recycler_view)).perform(actionOnItemAtPosition(0, click()));
@@ -180,13 +180,13 @@ public class SwitchListItemTest {
     }
 
     @Test
-    public void testSwitchStatePersistsOnRebind() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
-        // Switch initially checked.
+    public void testCheckBoxStatePersistsOnRebind() {
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
+        // CheckBox initially checked.
         item0.setChecked(true);
 
         setupPagedListView(Collections.singletonList(item0));
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
 
         toggleChecked(viewHolder.getCompoundButton());
 
@@ -195,8 +195,8 @@ public class SwitchListItemTest {
     }
 
     @Test
-    public void testSetSwitchState() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+    public void testSetCheckBoxState() {
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setChecked(true);
 
         setupPagedListView(Arrays.asList(item0));
@@ -204,16 +204,16 @@ public class SwitchListItemTest {
         item0.setChecked(false);
         refreshUi();
 
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getCompoundButton().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getCompoundButton().isChecked(), is(equalTo(false)));
     }
 
     @Test
-    public void testSetSwitchStateCallsListener() {
+    public void testSetCheckBoxStateCallsListener() {
         CompoundButton.OnCheckedChangeListener listener =
                 mock(CompoundButton.OnCheckedChangeListener.class);
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setOnCheckedChangeListener(listener);
 
         setupPagedListView(Collections.singletonList(item0));
@@ -227,7 +227,7 @@ public class SwitchListItemTest {
     public void testRefreshingUiDoesNotCallListener() {
         CompoundButton.OnCheckedChangeListener listener =
                 mock(CompoundButton.OnCheckedChangeListener.class);
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setOnCheckedChangeListener(listener);
 
         setupPagedListView(Collections.singletonList(item0));
@@ -237,10 +237,10 @@ public class SwitchListItemTest {
     }
 
     @Test
-    public void testSetSwitchStateBeforeFirstBindCallsListener() {
+    public void testSetCheckBoxStateBeforeFirstBindCallsListener() {
         CompoundButton.OnCheckedChangeListener listener =
                 mock(CompoundButton.OnCheckedChangeListener.class);
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setOnCheckedChangeListener(listener);
         item0.setChecked(true);
 
@@ -250,26 +250,26 @@ public class SwitchListItemTest {
     }
 
     @Test
-    public void testSwitchToggleCallsListener() {
+    public void testCheckBoxToggleCallsListener() {
         CompoundButton.OnCheckedChangeListener listener =
                 mock(CompoundButton.OnCheckedChangeListener.class);
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setOnCheckedChangeListener(listener);
 
         setupPagedListView(Collections.singletonList(item0));
 
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         toggleChecked(viewHolder.getCompoundButton());
 
-        // Expect true because switch defaults to false.
+        // Expect true because checkbox defaults to false.
         verify(listener).onCheckedChanged(any(CompoundButton.class), eq(true));
     }
 
     @Test
-    public void testSetSwitchStateNotDirtyDoesNotCallListener() {
+    public void testSetCheckBoxStateNotDirtyDoesNotCallListener() {
         CompoundButton.OnCheckedChangeListener listener =
                 mock(CompoundButton.OnCheckedChangeListener.class);
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setChecked(true);
         item0.setOnCheckedChangeListener(listener);
 
@@ -282,35 +282,35 @@ public class SwitchListItemTest {
     }
 
     @Test
-    public void testCheckingSwitch() {
+    public void testCheckingCheckBox() {
         final boolean[] clicked = {false};
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setOnCheckedChangeListener((button, isChecked) -> {
             // Initial value is false.
             assertTrue(isChecked);
             clicked[0] = true;
         });
 
-        List<SwitchListItem> items = Arrays.asList(item0);
+        List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
         onView(withId(R.id.recycler_view)).perform(
-                actionOnItemAtPosition(0, clickChildViewWithId(R.id.switch_widget)));
+                actionOnItemAtPosition(0, clickChildViewWithId(R.id.checkbox_widget)));
         assertTrue(clicked[0]);
     }
 
     @Test
     public void testDividerVisibility() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setShowCompoundButtonDivider(true);
 
-        SwitchListItem item1 = new SwitchListItem(mActivity);
+        CheckBoxListItem item1 = new CheckBoxListItem(mActivity);
         item0.setShowCompoundButtonDivider(false);
 
-        List<SwitchListItem> items = Arrays.asList(item0, item1);
+        List<CheckBoxListItem> items = Arrays.asList(item0, item1);
         setupPagedListView(items);
 
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getCompoundButton().getVisibility(), is(equalTo(View.VISIBLE)));
         assertThat(viewHolder.getCompoundButton().getVisibility(), is(equalTo(View.VISIBLE)));
 
@@ -321,19 +321,19 @@ public class SwitchListItemTest {
 
     @Test
     public void testPrimaryActionVisible() {
-        SwitchListItem largeIcon = new SwitchListItem(mActivity);
+        CheckBoxListItem largeIcon = new CheckBoxListItem(mActivity);
         largeIcon.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
-        SwitchListItem mediumIcon = new SwitchListItem(mActivity);
+        CheckBoxListItem mediumIcon = new CheckBoxListItem(mActivity);
         mediumIcon.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
 
-        SwitchListItem smallIcon = new SwitchListItem(mActivity);
+        CheckBoxListItem smallIcon = new CheckBoxListItem(mActivity);
         smallIcon.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
 
-        List<SwitchListItem> items = Arrays.asList(largeIcon, mediumIcon, smallIcon);
+        List<CheckBoxListItem> items = Arrays.asList(largeIcon, mediumIcon, smallIcon);
         setupPagedListView(items);
 
         assertThat(getViewHolderAtPosition(0).getPrimaryIcon().getVisibility(),
@@ -346,13 +346,13 @@ public class SwitchListItemTest {
 
     @Test
     public void testTextVisible() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setTitle("title");
 
-        SwitchListItem item1 = new SwitchListItem(mActivity);
+        CheckBoxListItem item1 = new CheckBoxListItem(mActivity);
         item1.setBody("body");
 
-        List<SwitchListItem> items = Arrays.asList(item0, item1);
+        List<CheckBoxListItem> items = Arrays.asList(item0, item1);
         setupPagedListView(items);
 
         assertThat(getViewHolderAtPosition(0).getTitle().getVisibility(),
@@ -363,25 +363,25 @@ public class SwitchListItemTest {
 
     @Test
     public void testTextStartMarginMatchesPrimaryActionType() {
-        SwitchListItem largeIcon = new SwitchListItem(mActivity);
+        CheckBoxListItem largeIcon = new CheckBoxListItem(mActivity);
         largeIcon.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
-        SwitchListItem mediumIcon = new SwitchListItem(mActivity);
+        CheckBoxListItem mediumIcon = new CheckBoxListItem(mActivity);
         mediumIcon.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
 
-        SwitchListItem smallIcon = new SwitchListItem(mActivity);
+        CheckBoxListItem smallIcon = new CheckBoxListItem(mActivity);
         smallIcon.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
 
-        SwitchListItem emptyIcon = new SwitchListItem(mActivity);
+        CheckBoxListItem emptyIcon = new CheckBoxListItem(mActivity);
         emptyIcon.setPrimaryActionEmptyIcon();
 
-        SwitchListItem noIcon = new SwitchListItem(mActivity);
+        CheckBoxListItem noIcon = new CheckBoxListItem(mActivity);
         noIcon.setPrimaryActionNoIcon();
 
-        List<SwitchListItem> items = Arrays.asList(
+        List<CheckBoxListItem> items = Arrays.asList(
                 largeIcon, mediumIcon, smallIcon, emptyIcon, noIcon);
         List<Integer> expectedStartMargin = Arrays.asList(
                 R.dimen.car_keyline_4,  // Large icon.
@@ -392,7 +392,7 @@ public class SwitchListItemTest {
         setupPagedListView(items);
 
         for (int i = 0; i < items.size(); i++) {
-            SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(i);
+            CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(i);
 
             int expected = ApplicationProvider.getApplicationContext().getResources()
                     .getDimensionPixelSize(expectedStartMargin.get(i));
@@ -406,27 +406,27 @@ public class SwitchListItemTest {
     @Test
     public void testItemWithOnlyTitleIsSingleLine() {
         // Only space.
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setTitle(" ");
 
         // Underscore.
-        SwitchListItem item1 = new SwitchListItem(mActivity);
+        CheckBoxListItem item1 = new CheckBoxListItem(mActivity);
         item1.setTitle("______");
 
-        SwitchListItem item2 = new SwitchListItem(mActivity);
+        CheckBoxListItem item2 = new CheckBoxListItem(mActivity);
         item2.setTitle("ALL UPPER CASE");
 
         // String wouldn't fit in one line.
-        SwitchListItem item3 = new SwitchListItem(mActivity);
+        CheckBoxListItem item3 = new CheckBoxListItem(mActivity);
         item3.setTitle(ApplicationProvider.getApplicationContext().getResources().getString(
                 R.string.over_uxr_text_length_limit));
 
-        List<SwitchListItem> items = Arrays.asList(item0, item1, item2, item3);
+        List<CheckBoxListItem> items = Arrays.asList(item0, item1, item2, item3);
         setupPagedListView(items);
 
         double singleLineHeight =
                 ApplicationProvider.getApplicationContext().getResources().getDimension(
-                R.dimen.car_single_line_list_item_height);
+                        R.dimen.car_single_line_list_item_height);
 
         LinearLayoutManager layoutManager =
                 (LinearLayoutManager) mPagedListView.getRecyclerView().getLayoutManager();
@@ -439,19 +439,19 @@ public class SwitchListItemTest {
     @Test
     public void testItemWithBodyTextIsAtLeastDoubleLine() {
         // Only space.
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setBody(" ");
 
         // Underscore.
-        SwitchListItem item1 = new SwitchListItem(mActivity);
+        CheckBoxListItem item1 = new CheckBoxListItem(mActivity);
         item1.setBody("____");
 
         // String wouldn't fit in one line.
-        SwitchListItem item2 = new SwitchListItem(mActivity);
+        CheckBoxListItem item2 = new CheckBoxListItem(mActivity);
         item2.setBody(ApplicationProvider.getApplicationContext().getResources().getString(
                 R.string.over_uxr_text_length_limit));
 
-        List<SwitchListItem> items = Arrays.asList(item0, item1, item2);
+        List<CheckBoxListItem> items = Arrays.asList(item0, item1, item2);
         setupPagedListView(items);
 
         final int doubleLineHeight =
@@ -468,11 +468,11 @@ public class SwitchListItemTest {
 
     @Test
     public void testSetPrimaryActionIcon_withIcon() {
-        SwitchListItem item = new SwitchListItem(mActivity);
+        CheckBoxListItem item = new CheckBoxListItem(mActivity);
         item.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
-        List<SwitchListItem> items = Arrays.asList(item);
+        List<CheckBoxListItem> items = Arrays.asList(item);
         setupPagedListView(items);
 
         assertThat(getViewHolderAtPosition(0).getPrimaryIcon().getDrawable(), is(notNullValue()));
@@ -480,12 +480,12 @@ public class SwitchListItemTest {
 
     @Test
     public void testSetPrimaryActionIcon_withDrawable() {
-        SwitchListItem item = new SwitchListItem(mActivity);
+        CheckBoxListItem item = new CheckBoxListItem(mActivity);
         item.setPrimaryActionIcon(
                 mActivity.getDrawable(android.R.drawable.sym_def_app_icon),
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
-        List<SwitchListItem> items = Arrays.asList(item);
+        List<CheckBoxListItem> items = Arrays.asList(item);
         setupPagedListView(items);
 
         assertThat(getViewHolderAtPosition(0).getPrimaryIcon().getDrawable(), is(notNullValue()));
@@ -493,24 +493,24 @@ public class SwitchListItemTest {
 
     @Test
     public void testPrimaryIconSizesInIncreasingOrder() {
-        SwitchListItem small = new SwitchListItem(mActivity);
+        CheckBoxListItem small = new CheckBoxListItem(mActivity);
         small.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
 
-        SwitchListItem medium = new SwitchListItem(mActivity);
+        CheckBoxListItem medium = new CheckBoxListItem(mActivity);
         medium.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
 
-        SwitchListItem large = new SwitchListItem(mActivity);
+        CheckBoxListItem large = new CheckBoxListItem(mActivity);
         large.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
-        List<SwitchListItem> items = Arrays.asList(small, medium, large);
+        List<CheckBoxListItem> items = Arrays.asList(small, medium, large);
         setupPagedListView(items);
 
-        SwitchListItem.ViewHolder smallVH = getViewHolderAtPosition(0);
-        SwitchListItem.ViewHolder mediumVH = getViewHolderAtPosition(1);
-        SwitchListItem.ViewHolder largeVH = getViewHolderAtPosition(2);
+        CheckBoxListItem.ViewHolder smallVH = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder mediumVH = getViewHolderAtPosition(1);
+        CheckBoxListItem.ViewHolder largeVH = getViewHolderAtPosition(2);
 
         assertThat(largeVH.getPrimaryIcon().getHeight(), is(greaterThan(
                 mediumVH.getPrimaryIcon().getHeight())));
@@ -520,38 +520,38 @@ public class SwitchListItemTest {
 
     @Test
     public void testLargePrimaryIconHasNoStartMargin() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setPrimaryActionIcon(android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_LARGE);
 
-        List<SwitchListItem> items = Arrays.asList(item0);
+        List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(((ViewGroup.MarginLayoutParams) viewHolder.getPrimaryIcon().getLayoutParams())
                 .getMarginStart(), is(equalTo(0)));
     }
 
     @Test
     public void testSmallAndMediumPrimaryIconStartMargin() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setPrimaryActionIcon(
                 android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
 
-        SwitchListItem item1 = new SwitchListItem(mActivity);
+        CheckBoxListItem item1 = new CheckBoxListItem(mActivity);
         item1.setPrimaryActionIcon(
                 android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_MEDIUM);
 
-        List<SwitchListItem> items = Arrays.asList(item0, item1);
+        List<CheckBoxListItem> items = Arrays.asList(item0, item1);
         setupPagedListView(items);
 
         int expected =
                 ApplicationProvider.getApplicationContext().getResources().getDimensionPixelSize(
-                R.dimen.car_keyline_1);
+                        R.dimen.car_keyline_1);
 
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(((ViewGroup.MarginLayoutParams) viewHolder.getPrimaryIcon().getLayoutParams())
                 .getMarginStart(), is(equalTo(expected)));
 
@@ -564,46 +564,46 @@ public class SwitchListItemTest {
     public void testSmallPrimaryIconTopMarginRemainsTheSameRegardlessOfTextLength() {
         final String longText =
                 ApplicationProvider.getApplicationContext().getResources().getString(
-                R.string.over_uxr_text_length_limit);
+                        R.string.over_uxr_text_length_limit);
 
         // Single line item.
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setPrimaryActionIcon(
                 android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item0.setTitle("one line text");
 
         // Double line item with one line text.
-        SwitchListItem item1 = new SwitchListItem(mActivity);
+        CheckBoxListItem item1 = new CheckBoxListItem(mActivity);
         item1.setPrimaryActionIcon(
                 android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item1.setTitle("one line text");
         item1.setBody("one line text");
 
         // Double line item with long text.
-        SwitchListItem item2 = new SwitchListItem(mActivity);
+        CheckBoxListItem item2 = new CheckBoxListItem(mActivity);
         item2.setPrimaryActionIcon(
                 android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item2.setTitle("one line text");
         item2.setBody(longText);
 
         // Body text only - long text.
-        SwitchListItem item3 = new SwitchListItem(mActivity);
+        CheckBoxListItem item3 = new CheckBoxListItem(mActivity);
         item3.setPrimaryActionIcon(
                 android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item3.setBody(longText);
 
         // Body text only - one line text.
-        SwitchListItem item4 = new SwitchListItem(mActivity);
+        CheckBoxListItem item4 = new CheckBoxListItem(mActivity);
         item4.setPrimaryActionIcon(
                 android.R.drawable.sym_def_app_icon,
-                SwitchListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
+                CheckBoxListItem.PRIMARY_ACTION_ICON_SIZE_SMALL);
         item4.setBody("one line text");
 
-        List<SwitchListItem> items = Arrays.asList(item0, item1, item2, item3, item4);
+        List<CheckBoxListItem> items = Arrays.asList(item0, item1, item2, item3, item4);
         setupPagedListView(items);
 
         for (int i = 1; i < items.size(); i++) {
@@ -611,7 +611,7 @@ public class SwitchListItemTest {
             // Implementation uses integer division so it may be off by 1 vs centered vertically.
             assertThat((double) getViewHolderAtPosition(i - 1).getPrimaryIcon().getTop(),
                     is(closeTo(
-                    (double) getViewHolderAtPosition(i).getPrimaryIcon().getTop(), 1.0d)));
+                            (double) getViewHolderAtPosition(i).getPrimaryIcon().getTop(), 1.0d)));
         }
     }
 
@@ -619,26 +619,26 @@ public class SwitchListItemTest {
     public void testCustomViewBinderBindsLast() {
         final String updatedTitle = "updated title";
 
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setTitle("original title");
         item0.addViewBinder((viewHolder) -> viewHolder.getTitle().setText(updatedTitle));
 
-        List<SwitchListItem> items = Arrays.asList(item0);
+        List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getTitle().getText(), is(equalTo(updatedTitle)));
     }
 
     @Test
     public void testCustomViewBinderOnUnusedViewsHasNoEffect() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.addViewBinder((viewHolder) -> viewHolder.getBody().setText("text"));
 
-        List<SwitchListItem> items = Arrays.asList(item0);
+        List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getBody().getVisibility(), is(equalTo(View.GONE)));
         // Custom binder interacts with body but has no effect.
         // Expect card height to remain single line.
@@ -649,19 +649,19 @@ public class SwitchListItemTest {
 
     @Test
     public void testRevertingViewBinder() throws Throwable {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setBody("one item");
         item0.addViewBinder(
                 (viewHolder) -> viewHolder.getBody().setEllipsize(TextUtils.TruncateAt.END),
                 (viewHolder -> viewHolder.getBody().setEllipsize(null)));
 
-        List<SwitchListItem> items = Arrays.asList(item0);
+        List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
 
         // Bind view holder to a new item - the customization made by item0 should be reverted.
-        SwitchListItem item1 = new SwitchListItem(mActivity);
+        CheckBoxListItem item1 = new CheckBoxListItem(mActivity);
         item1.setBody("new item");
         mActivityRule.runOnUiThread(() -> item1.bind(viewHolder));
 
@@ -670,15 +670,15 @@ public class SwitchListItemTest {
 
     @Test
     public void testRemovingViewBinder() {
-        SwitchListItem item0 = new SwitchListItem(mActivity);
+        CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
         item0.setBody("one item");
-        ListItem.ViewBinder<SwitchListItem.ViewHolder> binder =
+        ListItem.ViewBinder<CheckBoxListItem.ViewHolder> binder =
                 (viewHolder) -> viewHolder.getTitle().setEllipsize(TextUtils.TruncateAt.END);
         item0.addViewBinder(binder);
 
         assertTrue(item0.removeViewBinder(binder));
 
-        List<SwitchListItem> items = Arrays.asList(item0);
+        List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
 
         assertThat(getViewHolderAtPosition(0).getBody().getEllipsize(), is(equalTo(null)));
@@ -686,7 +686,7 @@ public class SwitchListItemTest {
 
     @Test
     public void testUpdateItem() {
-        SwitchListItem item = new SwitchListItem(mActivity);
+        CheckBoxListItem item = new CheckBoxListItem(mActivity);
         setupPagedListView(Arrays.asList(item));
 
         String title = "updated title";
@@ -694,19 +694,19 @@ public class SwitchListItemTest {
 
         refreshUi();
 
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertThat(viewHolder.getTitle().getText(), is(equalTo(title)));
     }
 
     @Test
     public void testUxRestrictionsChange() {
         String longText = mActivity.getString(R.string.over_uxr_text_length_limit);
-        SwitchListItem item = new SwitchListItem(mActivity);
+        CheckBoxListItem item = new CheckBoxListItem(mActivity);
         item.setBody(longText);
 
         setupPagedListView(Arrays.asList(item));
 
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         // Default behavior without UXR is unrestricted.
         assertThat(viewHolder.getBody().getText(), is(equalTo(longText)));
 
@@ -721,13 +721,13 @@ public class SwitchListItemTest {
     public void testUxRestrictionsChangesDoNotAlterExistingInputFilters() {
         InputFilter filter = new InputFilter.AllCaps(Locale.US);
         String bodyText = "body_text";
-        SwitchListItem item = new SwitchListItem(mActivity);
+        CheckBoxListItem item = new CheckBoxListItem(mActivity);
         item.setBody(bodyText);
-        item.addViewBinder(vh -> vh.getBody().setFilters(new InputFilter[] {filter}));
+        item.addViewBinder(vh -> vh.getBody().setFilters(new InputFilter[]{filter}));
 
         setupPagedListView(Arrays.asList(item));
 
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
 
         // Toggle UX restrictions between fully restricted and unrestricted should not affect
         // existing filters.
@@ -742,14 +742,14 @@ public class SwitchListItemTest {
 
     @Test
     public void testDisabledItemDisablesViewHolder() {
-        SwitchListItem item = new SwitchListItem(mActivity);
+        CheckBoxListItem item = new CheckBoxListItem(mActivity);
         item.setTitle("title");
         item.setBody("body");
         item.setEnabled(false);
 
         setupPagedListView(Arrays.asList(item));
 
-        SwitchListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
+        CheckBoxListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
         assertFalse(viewHolder.getTitle().isEnabled());
         assertFalse(viewHolder.getBody().isEnabled());
         assertFalse(viewHolder.getCompoundButton().isEnabled());
@@ -763,7 +763,7 @@ public class SwitchListItemTest {
 
         // We are explicitly setting itemView so test it here.
         boolean[] clicked = new boolean[]{false};
-        SwitchListItem item = new SwitchListItem(mActivity);
+        CheckBoxListItem item = new CheckBoxListItem(mActivity);
         item.setEnabled(false);
 
         setupPagedListView(Arrays.asList(item));
@@ -788,7 +788,7 @@ public class SwitchListItemTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
-    private void setupPagedListView(List<SwitchListItem> items) {
+    private void setupPagedListView(List<CheckBoxListItem> items) {
         ListItemProvider provider = new ListItemProvider.ListProvider(new ArrayList<>(items));
         try {
             mAdapter = new ListItemAdapter(mActivity, provider);
@@ -800,8 +800,8 @@ public class SwitchListItemTest {
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
-    private SwitchListItem.ViewHolder getViewHolderAtPosition(int position) {
-        return (SwitchListItem.ViewHolder) mPagedListView.getRecyclerView()
+    private CheckBoxListItem.ViewHolder getViewHolderAtPosition(int position) {
+        return (CheckBoxListItem.ViewHolder) mPagedListView.getRecyclerView()
                 .findViewHolderForAdapterPosition(position);
     }
 
