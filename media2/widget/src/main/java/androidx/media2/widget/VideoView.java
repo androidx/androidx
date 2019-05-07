@@ -556,14 +556,14 @@ public class VideoView extends SelectiveLayout {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
+        mMediaSession.close();
+        mMediaSession = null;
         try {
             mMediaPlayer.close();
         } catch (Exception e) {
             Log.e(TAG, "Encountered an exception while performing MediaPlayer.close()", e);
         }
-        mMediaSession.close();
         mMediaPlayer = null;
-        mMediaSession = null;
         if (mMediaItem != null && mMediaItem instanceof FileMediaItem) {
             ((FileMediaItem) mMediaItem).decreaseRefCount();
         }

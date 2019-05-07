@@ -427,6 +427,12 @@ public final class MediaPlayer extends SessionPlayer {
      */
     public static final int NO_TRACK_SELECTED = Integer.MIN_VALUE;
 
+    static final PlaybackParams DEFAULT_PLAYBACK_PARAMS = new PlaybackParams.Builder()
+            .setSpeed(1f)
+            .setPitch(1f)
+            .setAudioFallbackMode(PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT)
+            .build();
+
     private static final int CALL_COMPLETE_PLAYLIST_BASE = -1000;
     private static final int END_OF_PLAYLIST = -1;
     private static final int NO_MEDIA_ITEM = -2;
@@ -618,6 +624,9 @@ public final class MediaPlayer extends SessionPlayer {
     private @PlayerState int mState;
     @GuardedBy("mStateLock")
     private Map<MediaItem, Integer> mMediaItemToBuffState = new HashMap<>();
+    @GuardedBy("mStateLock")
+    private boolean mClosed;
+
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final AudioFocusHandler mAudioFocusHandler;
 
@@ -699,6 +708,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> play() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -727,6 +741,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> pause() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -762,6 +781,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> prepare() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -786,6 +810,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> seekTo(final long position) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture =
                 new PendingFuture<PlayerResult>(mExecutor, true) {
             @Override
@@ -820,6 +849,11 @@ public final class MediaPlayer extends SessionPlayer {
     public ListenableFuture<PlayerResult> setPlaybackSpeed(
             @FloatRange(from = 0.0f, to = Float.MAX_VALUE, fromInclusive = false)
             final float playbackSpeed) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -850,6 +884,11 @@ public final class MediaPlayer extends SessionPlayer {
         if (attr == null) {
             throw new NullPointerException("attr shouldn't be null");
         }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -878,6 +917,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public long getCurrentPosition() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return UNKNOWN_TIME;
+            }
+        }
         try {
             final long pos = mPlayer.getCurrentPosition();
             if (pos >= 0) {
@@ -891,6 +935,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public long getDuration() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return UNKNOWN_TIME;
+            }
+        }
         try {
             final long duration = mPlayer.getDuration();
             if (duration >= 0) {
@@ -904,6 +953,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public long getBufferedPosition() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return UNKNOWN_TIME;
+            }
+        }
         try {
             final long pos = mPlayer.getBufferedPosition();
             if (pos >= 0) {
@@ -918,6 +972,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @BuffState
     public int getBufferingState() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return BUFFERING_STATE_UNKNOWN;
+            }
+        }
         Integer buffState;
         synchronized (mStateLock) {
             buffState = mMediaItemToBuffState.get(mPlayer.getCurrentMediaItem());
@@ -928,6 +987,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @FloatRange(from = 0.0f, to = Float.MAX_VALUE, fromInclusive = false)
     public float getPlaybackSpeed() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return 1.0f;
+            }
+        }
         try {
             return mPlayer.getPlaybackParams().getSpeed();
         } catch (IllegalStateException e) {
@@ -938,6 +1002,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @Nullable
     public AudioAttributesCompat getAudioAttributes() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
         try {
             return mPlayer.getAudioAttributes();
         } catch (IllegalStateException e) {
@@ -954,6 +1023,11 @@ public final class MediaPlayer extends SessionPlayer {
         if (item instanceof FileMediaItem) {
             if (((FileMediaItem) item).isClosed()) {
                 throw new IllegalArgumentException("File descriptor is closed. " + item);
+            }
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
             }
         }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -983,6 +1057,11 @@ public final class MediaPlayer extends SessionPlayer {
             throw new NullPointerException("playlist shouldn't be null");
         } else if (playlist.isEmpty()) {
             throw new IllegalArgumentException("playlist shouldn't be empty");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
         }
         String errorString = null;
         for (MediaItem item : playlist) {
@@ -1054,6 +1133,11 @@ public final class MediaPlayer extends SessionPlayer {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
         }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
 
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -1105,6 +1189,11 @@ public final class MediaPlayer extends SessionPlayer {
     public ListenableFuture<PlayerResult> removePlaylistItem(@IntRange(from = 0) final int index) {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
         }
 
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -1170,6 +1259,11 @@ public final class MediaPlayer extends SessionPlayer {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
         }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
 
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -1220,6 +1314,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> skipToPreviousPlaylistItem() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1252,6 +1351,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> skipToNextPlaylistItem() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1292,6 +1396,11 @@ public final class MediaPlayer extends SessionPlayer {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
         }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
 
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -1318,6 +1427,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     public ListenableFuture<PlayerResult> updatePlaylistMetadata(
             @Nullable final MediaMetadata metadata) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1341,6 +1455,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> setRepeatMode(final int repeatMode) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1373,6 +1492,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> setShuffleMode(final int shuffleMode) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1405,6 +1529,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @Nullable
     public List<MediaItem> getPlaylist() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
         synchronized (mPlaylistLock) {
             return mPlaylist.isEmpty() ? null : new ArrayList<>(mPlaylist.getCollection());
         }
@@ -1413,6 +1542,11 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @Nullable
     public MediaMetadata getPlaylistMetadata() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
         synchronized (mPlaylistLock) {
             return mPlaylistMetadata;
         }
@@ -1420,6 +1554,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public int getRepeatMode() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return REPEAT_MODE_NONE;
+            }
+        }
         synchronized (mPlaylistLock) {
             return mRepeatMode;
         }
@@ -1427,6 +1566,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public int getShuffleMode() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return SHUFFLE_MODE_NONE;
+            }
+        }
         synchronized (mPlaylistLock) {
             return mShuffleMode;
         }
@@ -1435,11 +1579,21 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @Nullable
     public MediaItem getCurrentMediaItem() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
         return mPlayer.getCurrentMediaItem();
     }
 
     @Override
     public int getCurrentMediaItemIndex() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return END_OF_PLAYLIST;
+            }
+        }
         synchronized (mPlaylistLock) {
             if (mCurrentShuffleIdx < 0) {
                 return END_OF_PLAYLIST;
@@ -1450,6 +1604,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public int getPreviousMediaItemIndex() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return END_OF_PLAYLIST;
+            }
+        }
         synchronized (mPlaylistLock) {
             if (mCurrentShuffleIdx < 0) {
                 return END_OF_PLAYLIST;
@@ -1468,6 +1627,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public int getNextMediaItemIndex() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return END_OF_PLAYLIST;
+            }
+        }
         synchronized (mPlaylistLock) {
             if (mCurrentShuffleIdx < 0) {
                 return END_OF_PLAYLIST;
@@ -1486,10 +1650,15 @@ public final class MediaPlayer extends SessionPlayer {
 
     @Override
     public void close() throws Exception {
-        reset();
-        mAudioFocusHandler.close();
-        mPlayer.close();
-        mExecutor.shutdown();
+        synchronized (mStateLock) {
+            if (!mClosed) {
+                mClosed = true;
+                reset();
+                mAudioFocusHandler.close();
+                mPlayer.close();
+                mExecutor.shutdown();
+            }
+        }
     }
 
     /**
@@ -1502,9 +1671,10 @@ public final class MediaPlayer extends SessionPlayer {
     }
 
     /**
-     * Resets {@link MediaPlayer} to its uninitialized state. After calling
-     * this method, you will have to initialize it again by setting the
-     * media item and calling {@link #prepare()}.
+     * Resets {@link MediaPlayer} to its uninitialized state if not closed. After calling
+     * this method, you will have to initialize it again by setting the media item and
+     * calling {@link #prepare()}.
+     * <p> Note that if the player is closed, there is no way to reuse the instance.
      */
     public void reset() {
         // Cancel the pending commands.
@@ -1564,6 +1734,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public ListenableFuture<PlayerResult> setSurface(@Nullable final Surface surface) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1604,6 +1779,14 @@ public final class MediaPlayer extends SessionPlayer {
     @NonNull
     public ListenableFuture<PlayerResult> setPlayerVolume(
             @FloatRange(from = 0, to = 1) final float volume) {
+        if (volume < 0 || volume > 1) {
+            throw new IllegalArgumentException("volume should be between 0.0 and 1.0");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1621,6 +1804,11 @@ public final class MediaPlayer extends SessionPlayer {
      * account the associated stream volume.
      */
     public float getPlayerVolume() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return 1.0f;
+            }
+        }
         return mPlayer.getPlayerVolume();
     }
 
@@ -1628,6 +1816,11 @@ public final class MediaPlayer extends SessionPlayer {
      * @return the maximum volume that can be used in {@link #setPlayerVolume(float)}.
      */
     public float getMaxPlayerVolume() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return 1.0f;
+            }
+        }
         return mPlayer.getMaxPlayerVolume();
     }
 
@@ -1643,6 +1836,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public VideoSize getVideoSize() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return new VideoSize(0, 0);
+            }
+        }
         return new VideoSize(mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
     }
 
@@ -1676,6 +1874,11 @@ public final class MediaPlayer extends SessionPlayer {
         if (params == null) {
             throw new NullPointerException("params shouldn't be null");
         }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1701,6 +1904,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public PlaybackParams getPlaybackParams() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return DEFAULT_PLAYBACK_PARAMS;
+            }
+        }
         return mPlayer.getPlaybackParams();
     }
 
@@ -1727,6 +1935,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public ListenableFuture<PlayerResult> seekTo(final long position, @SeekMode final int mode) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture =
                 new PendingFuture<PlayerResult>(mExecutor, true) {
             @Override
@@ -1767,6 +1980,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @Nullable
     public MediaTimestamp getTimestamp() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
         return mPlayer.getTimestamp();
     }
 
@@ -1795,6 +2013,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public ListenableFuture<PlayerResult> setAudioSessionId(final int sessionId) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1817,10 +2040,15 @@ public final class MediaPlayer extends SessionPlayer {
      * Returns the audio session ID.
      *
      * @return the audio session ID. {@see #setAudioSessionId(int)}
-     * Note that the audio session ID is 0 only if a problem occurred when the MediaPlayer2 was
-     * constructed.
+     * Note that the audio session ID is 0 if a problem occurred when the MediaPlayer was
+     * constructed or it is closed.
      */
     public int getAudioSessionId() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return 0;
+            }
+        }
         return mPlayer.getAudioSessionId();
     }
 
@@ -1845,6 +2073,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public ListenableFuture<PlayerResult> attachAuxEffect(final int effectId) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1886,6 +2119,11 @@ public final class MediaPlayer extends SessionPlayer {
     @NonNull
     public ListenableFuture<PlayerResult> setAuxEffectSendLevel(
             @FloatRange(from = 0, to = 1) final float level) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -1911,6 +2149,11 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public List<TrackInfo> getTrackInfo() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return Collections.emptyList();
+            }
+        }
         List<MediaPlayer2.TrackInfo> list = mPlayer.getTrackInfo();
         List<TrackInfo> trackList = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
@@ -1937,6 +2180,11 @@ public final class MediaPlayer extends SessionPlayer {
     // TODO: revise the method document once subtitle track support is re-enabled. (b/130312596)
     @Nullable
     public TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
         final int ret = mPlayer.getSelectedTrack(trackType);
         return ret < 0 ? null : mPlayer.getTrackInfo(ret);
     }
@@ -1977,6 +2225,11 @@ public final class MediaPlayer extends SessionPlayer {
     public ListenableFuture<PlayerResult> selectTrack(@NonNull final TrackInfo trackInfo) {
         if (trackInfo == null) {
             throw new NullPointerException("trackInfo shouldn't be null");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
         }
         final int trackId = trackInfo.getId();
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -2021,6 +2274,11 @@ public final class MediaPlayer extends SessionPlayer {
     public ListenableFuture<PlayerResult> deselectTrack(@NonNull final TrackInfo trackInfo) {
         if (trackInfo == null) {
             throw new NullPointerException("trackInfo shouldn't be null");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
         }
         final int trackId = trackInfo.getId();
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -2099,9 +2357,6 @@ public final class MediaPlayer extends SessionPlayer {
      * @throws IllegalArgumentException if the callback is {@code null}.
      */
     public void unregisterPlayerCallback(@NonNull PlayerCallback callback) {
-        if (callback == null) {
-            throw new NullPointerException("callback shouldn't be null");
-        }
         super.unregisterPlayerCallback(callback);
     }
 
@@ -2399,6 +2654,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void notifySessionPlayerCallback(final SessionPlayerCallbackNotifier notifier) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return;
+            }
+        }
         List<Pair<SessionPlayer.PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<SessionPlayer.PlayerCallback, Executor> pair : callbacks) {
             final SessionPlayer.PlayerCallback callback = pair.first;
@@ -2413,6 +2673,11 @@ public final class MediaPlayer extends SessionPlayer {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void notifyMediaPlayerCallback(final MediaPlayerCallbackNotifier notifier) {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return;
+            }
+        }
         List<Pair<SessionPlayer.PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<SessionPlayer.PlayerCallback, Executor> pair : callbacks) {
             if (pair.first instanceof PlayerCallback) {
@@ -2502,6 +2767,13 @@ public final class MediaPlayer extends SessionPlayer {
             addPendingCommandLocked(
                     MediaPlayer2.CALL_COMPLETED_SET_PLAYER_VOLUME, future, token);
         }
+        return future;
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    ResolvableFuture<PlayerResult> createFutureForClosed() {
+        ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
+        future.set(new PlayerResult(RESULT_ERROR_INVALID_STATE, null));
         return future;
     }
 
