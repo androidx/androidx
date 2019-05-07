@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -29,6 +30,7 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A reference to a {@link Surface} whose creation can be deferred to a later time.
@@ -40,6 +42,12 @@ import java.util.concurrent.Executor;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public abstract class DeferrableSurface {
+    private static final boolean DEBUG = false;
+    protected static final String TAG = "DeferrableSurface";
+
+    // Debug only, used to track total count of attached surfaces.
+    private static AtomicInteger sSurfaceCount = new AtomicInteger(0);
+
     // The count of attachment.
     @GuardedBy("mLock")
     private int mAttachedCount = 0;
@@ -68,6 +76,14 @@ public abstract class DeferrableSurface {
     public void notifySurfaceAttached() {
         synchronized (mLock) {
             mAttachedCount++;
+
+            if (DEBUG) {
+                if (mAttachedCount == 1) {
+                    Log.d(TAG, "Surface attached, count = " + sSurfaceCount.incrementAndGet() + " "
+                            + this);
+                }
+                Log.d(TAG, "attach count+1, attachedCount=" + mAttachedCount + " " + this);
+            }
         }
     }
 
@@ -88,6 +104,15 @@ public abstract class DeferrableSurface {
             if (mAttachedCount == 0) {
                 listener = mOnSurfaceDetachedListener;
                 listenerExecutor = mListenerExecutor;
+            }
+
+            if (DEBUG) {
+                Log.d(TAG, "attach count-1,  attachedCount=" + getAttachedCount() + " " + this);
+
+                if (mAttachedCount == 0) {
+                    Log.d(TAG, "Surface detached, count = " + sSurfaceCount.decrementAndGet() + " "
+                            + this);
+                }
             }
         }
 
@@ -137,7 +162,7 @@ public abstract class DeferrableSurface {
     }
 
     @VisibleForTesting
-    int getAttachedCount() {
+    public int getAttachedCount() {
         synchronized (mLock) {
             return mAttachedCount;
         }
@@ -152,5 +177,4 @@ public abstract class DeferrableSurface {
          */
         void onSurfaceDetached();
     }
-
 }
