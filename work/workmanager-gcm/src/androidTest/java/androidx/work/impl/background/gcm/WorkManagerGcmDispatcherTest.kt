@@ -22,7 +22,7 @@ import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.MediumTest
 import androidx.work.Configuration
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.utils.SynchronousExecutor
@@ -36,7 +36,7 @@ import org.mockito.Mockito.mock
 import java.util.concurrent.Executor
 
 @RunWith(AndroidJUnit4::class)
-@SmallTest
+@MediumTest
 class WorkManagerGcmDispatcherTest {
     lateinit var mContext: Context
     lateinit var mExecutor: Executor
