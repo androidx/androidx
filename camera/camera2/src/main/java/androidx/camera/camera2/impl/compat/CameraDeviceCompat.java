@@ -21,15 +21,11 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.os.Build;
-import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.impl.compat.params.SessionConfigurationCompat;
-
-import java.util.concurrent.Executor;
 
 /**
  * Helper for accessing features in {@link CameraDevice} in a backwards compatible fashion.
@@ -94,96 +90,4 @@ public final class CameraDeviceCompat {
                 @NonNull SessionConfigurationCompat config) throws CameraAccessException;
     }
 
-    static final class StateCallbackExecutorWrapper extends CameraCaptureSession.StateCallback {
-
-        final CameraCaptureSession.StateCallback mWrappedCallback;
-        private final Executor mExecutor;
-
-        StateCallbackExecutorWrapper(@NonNull Executor executor,
-                @NonNull CameraCaptureSession.StateCallback wrappedCallback) {
-            mExecutor = executor;
-            mWrappedCallback = wrappedCallback;
-        }
-
-        @Override
-        public void onConfigured(@NonNull final CameraCaptureSession session) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onConfigured(session);
-                }
-            });
-        }
-
-        @Override
-        public void onConfigureFailed(@NonNull final CameraCaptureSession session) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onConfigureFailed(session);
-                }
-            });
-        }
-
-        @Override
-        public void onReady(@NonNull final CameraCaptureSession session) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onReady(session);
-                }
-            });
-        }
-
-        @Override
-        public void onActive(@NonNull final CameraCaptureSession session) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onActive(session);
-                }
-            });
-        }
-
-        @RequiresApi(26)
-        @Override
-        public void onCaptureQueueEmpty(@NonNull final CameraCaptureSession session) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onCaptureQueueEmpty(session);
-                }
-            });
-        }
-
-
-        @Override
-        public void onClosed(@NonNull final CameraCaptureSession session) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onClosed(session);
-                }
-            });
-        }
-
-        @RequiresApi(23)
-        @Override
-        public void onSurfacePrepared(@NonNull final CameraCaptureSession session,
-                @NonNull final Surface surface) {
-            mExecutor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    mWrappedCallback.onSurfacePrepared(session, surface);
-                }
-            });
-        }
-    }
 }

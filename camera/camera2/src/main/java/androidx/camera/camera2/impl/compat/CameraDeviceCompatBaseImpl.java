@@ -78,8 +78,9 @@ class CameraDeviceCompatBaseImpl implements CameraDeviceCompat.CameraDeviceCompa
         }
 
         // Wrap the executor in the callback
-        CameraCaptureSession.StateCallback cb = new CameraDeviceCompat.StateCallbackExecutorWrapper(
-                config.getExecutor(), config.getStateCallback());
+        CameraCaptureSession.StateCallback cb =
+                new CameraCaptureSessionCompat.StateCallbackExecutorWrapper(
+                        config.getExecutor(), config.getStateCallback());
 
         // Convert the OutputConfigurations to surfaces
         List<Surface> surfaces = unpackSurfaces(config.getOutputConfigurations());
