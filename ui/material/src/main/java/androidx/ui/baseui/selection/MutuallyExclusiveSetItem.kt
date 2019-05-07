@@ -16,11 +16,11 @@
 
 package androidx.ui.baseui.selection
 
-import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.core.Semantics
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.Semantics
+import androidx.ui.core.gesture.PressReleasedGestureDetector
 
 /**
  * Component for representing one option out of many
@@ -37,10 +37,14 @@ fun MutuallyExclusiveSetItem(
     onSelected: () -> Unit,
     @Children children: @Composable() () -> Unit
 ) {
-    PressGestureDetector(onPress = { onSelected() }) {
+    PressReleasedGestureDetector(
+        onRelease = onSelected,
+        consumeDownOnStart = false
+    ) {
         Semantics(
             inMutuallyExclusiveGroup = true,
-            selected = selected) {
+            selected = selected
+        ) {
             children()
         }
     }

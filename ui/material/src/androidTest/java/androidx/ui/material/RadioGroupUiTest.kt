@@ -17,8 +17,14 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
+import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.PxSize
 import androidx.ui.core.TestTag
+import androidx.ui.core.dp
+import androidx.ui.core.withDensity
 import androidx.ui.layout.Column
+import androidx.ui.layout.Container
+import androidx.ui.layout.DpConstraints
 import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected
@@ -31,6 +37,8 @@ import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer
+import androidx.ui.core.round
+import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -45,6 +53,8 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     private val itemOne = "Bar"
     private val itemTwo = "Foo"
     private val itemThree = "Sap"
+
+    private val materialRadioSize = 24.dp
 
     private val unselectedRadioGroupItemSemantics = createFullSemantics(
         inMutuallyExclusiveGroup = true,
@@ -74,9 +84,9 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
                 options.forEach { item ->
                     TestTag(tag = item) {
                         RadioGroupTextItem(
-                                text = item,
-                                selected = (select.selected == item),
-                                onSelected = { select.selected = item })
+                            text = item,
+                            selected = (select.selected == item),
+                            onSelected = { select.selected = item })
                     }
                 }
             }
@@ -106,9 +116,9 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
                 options.forEach { item ->
                     TestTag(tag = item) {
                         RadioGroupTextItem(
-                                text = item,
-                                selected = (select.selected == item),
-                                onSelected = { select.selected = item })
+                            text = item,
+                            selected = (select.selected == item),
+                            onSelected = { select.selected = item })
                     }
                 }
             }
@@ -134,9 +144,9 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
                 options.forEach { item ->
                     TestTag(tag = item) {
                         RadioGroupTextItem(
-                                text = item,
-                                selected = (select.selected == item),
-                                onSelected = { select.selected = item })
+                            text = item,
+                            selected = (select.selected == item),
+                            onSelected = { select.selected = item })
                     }
                 }
             }
@@ -162,9 +172,9 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
                 options.forEach { item ->
                     TestTag(tag = item) {
                         RadioGroupTextItem(
-                                text = item,
-                                selected = (select.selected == item),
-                                onSelected = { select.selected = item })
+                            text = item,
+                            selected = (select.selected == item),
+                            onSelected = { select.selected = item })
                     }
                 }
             }
@@ -188,5 +198,37 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
 
         findByTag(itemTwo)
             .assertSemanticsIsEqualTo(unselectedRadioGroupItemSemantics)
+    }
+
+    @Test
+    fun radioButton_materialSizes_whenSelected() {
+        materialSizesTestForValue(selected = true)
+    }
+
+    @Test
+    fun radioButton_materialSizes_whenNotSelected() {
+        materialSizesTestForValue(selected = false)
+    }
+
+    private fun materialSizesTestForValue(selected: Boolean) {
+        var radioSize: PxSize? = null
+        setMaterialContent {
+            Container(
+                constraints = DpConstraints(
+                    maxWidth = 5000.dp,
+                    maxHeight = 5000.dp
+                )
+            ) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    radioSize = coordinates.size
+                }) {
+                    RadioButton(selected = selected)
+                }
+            }
+        }
+        withDensity(density) {
+            Truth.assertThat(radioSize?.width?.round()).isEqualTo(materialRadioSize.toIntPx())
+            Truth.assertThat(radioSize?.height?.round()).isEqualTo(materialRadioSize.toIntPx())
+        }
     }
 }

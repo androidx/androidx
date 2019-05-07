@@ -24,14 +24,13 @@ import androidx.ui.animation.Transition
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.Draw
-import androidx.ui.core.Layout
-import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Radius
 import androidx.ui.engine.geometry.shrink
 import androidx.ui.engine.geometry.withRadius
+import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -41,6 +40,8 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.layout.Wrap
+import androidx.ui.material.ripple.Ripple
 
 // TODO(malkov): think about how to abstract it better
 /**
@@ -73,16 +74,15 @@ fun Checkbox(
     onClick: (() -> Unit)? = null,
     color: Color? = null
 ) {
-    Toggleable(value = value, onToggle = onClick) {
-        Padding(padding = CheckboxDefaultPadding) {
-            Layout(
-                children = { DrawCheckbox(value = value, color = color) },
-                layoutBlock = { _, constraints ->
-                val checkboxSizePx = CheckboxSize.toIntPx()
-                val height = checkboxSizePx.coerceIn(constraints.minHeight, constraints.maxHeight)
-                val width = checkboxSizePx.coerceIn(constraints.minWidth, constraints.maxWidth)
-                layout(width, height) {}
-            })
+    Wrap {
+        Ripple {
+            Toggleable(value = value, onToggle = onClick) {
+                Padding(padding = CheckboxDefaultPadding) {
+                    Container(width = CheckboxSize, height = CheckboxSize) {
+                        DrawCheckbox(value = value, color = color)
+                    }
+                }
+            }
         }
     }
 }
@@ -90,29 +90,32 @@ fun Checkbox(
 @Composable
 private fun DrawCheckbox(value: ToggleableState, color: Color?) {
     val activeColor = +color.orFromTheme { secondary }
-    val definition = +memo(activeColor) {
-        generateTransitionDefinition(activeColor)
+    val unselectedColor = (+themeColor { onSurface }).withOpacity(UncheckedBoxOppacity)
+    val definition = +memo(activeColor, unselectedColor) {
+        generateTransitionDefinition(activeColor, unselectedColor)
     }
     // TODO: remove @Composable annotation here when b/131681875 is fixed
     Transition(definition = definition, toState = value) @Composable { state ->
         DrawBox(
             color = state[BoxColorProp],
-            innerRadiusFraction = state[InnerRadiusFractionProp])
+            innerRadiusFraction = state[InnerRadiusFractionProp]
+        )
         DrawCheck(
             checkFraction = state[CheckFractionProp],
-            crossCenterGravitation = state[CenterGravitationForCheck])
+            crossCenterGravitation = state[CenterGravitationForCheck]
+        )
     }
 }
 
 @Composable
 private fun DrawBox(color: Color, innerRadiusFraction: Float) {
-    Draw { canvas, _ ->
+    Draw { canvas, parentSize ->
         val paint = Paint()
         paint.strokeWidth = StrokeWidth.toPx().value
         paint.isAntiAlias = true
         paint.color = color
 
-        val checkboxSize = CheckboxSize.toPx().value
+        val checkboxSize = parentSize.width.value
 
         val outer = RRect(
             0f,
@@ -142,7 +145,7 @@ private fun DrawCheck(
     checkFraction: Float,
     crossCenterGravitation: Float
 ) {
-    Draw { canvas, _ ->
+    Draw { canvas, parentSize ->
         val paint = Paint()
         paint.isAntiAlias = true
         paint.style = PaintingStyle.stroke
@@ -150,7 +153,7 @@ private fun DrawCheck(
         paint.strokeWidth = StrokeWidth.toPx().value
         paint.color = CheckStrokeDefaultColor
 
-        val width = CheckboxSize.toPx().value
+        val width = parentSize.width.value
 
         val checkCrossX = 0.4f
         val checkCrossY = 0.7f
@@ -193,54 +196,55 @@ private val BoxColorProp = ColorPropKey()
 private val BoxAnimationDuration = 100
 private val CheckStrokeAnimationDuration = 100
 
-private fun generateTransitionDefinition(color: Color) = transitionDefinition {
-    state(ToggleableState.Checked) {
-        this[CheckFractionProp] = 1f
-        this[InnerRadiusFractionProp] = 1f
-        this[CenterGravitationForCheck] = 0f
-        this[BoxColorProp] = color
-    }
-    state(ToggleableState.Unchecked) {
-        this[CheckFractionProp] = 0f
-        this[InnerRadiusFractionProp] = 0f
-        this[CenterGravitationForCheck] = 1f
-        this[BoxColorProp] = UncheckedBoxColor
-    }
-    state(ToggleableState.Indeterminate) {
-        this[CheckFractionProp] = 1f
-        this[InnerRadiusFractionProp] = 1f
-        this[CenterGravitationForCheck] = 1f
-        this[BoxColorProp] = color
-    }
-    transition(fromState = ToggleableState.Unchecked, toState = ToggleableState.Checked) {
-        boxTransitionFromUnchecked()
-        CenterGravitationForCheck using tween {
-            duration = 0
+private fun generateTransitionDefinition(color: Color, unselectedColor: Color) =
+    transitionDefinition {
+        state(ToggleableState.Checked) {
+            this[CheckFractionProp] = 1f
+            this[InnerRadiusFractionProp] = 1f
+            this[CenterGravitationForCheck] = 0f
+            this[BoxColorProp] = color
+        }
+        state(ToggleableState.Unchecked) {
+            this[CheckFractionProp] = 0f
+            this[InnerRadiusFractionProp] = 0f
+            this[CenterGravitationForCheck] = 1f
+            this[BoxColorProp] = unselectedColor
+        }
+        state(ToggleableState.Indeterminate) {
+            this[CheckFractionProp] = 1f
+            this[InnerRadiusFractionProp] = 1f
+            this[CenterGravitationForCheck] = 1f
+            this[BoxColorProp] = color
+        }
+        transition(fromState = ToggleableState.Unchecked, toState = ToggleableState.Checked) {
+            boxTransitionFromUnchecked()
+            CenterGravitationForCheck using tween {
+                duration = 0
+            }
+        }
+        transition(fromState = ToggleableState.Checked, toState = ToggleableState.Unchecked) {
+            boxTransitionToUnchecked()
+            CenterGravitationForCheck using tween {
+                duration = CheckStrokeAnimationDuration
+            }
+        }
+        transition(fromState = ToggleableState.Checked, toState = ToggleableState.Indeterminate) {
+            CenterGravitationForCheck using tween {
+                duration = CheckStrokeAnimationDuration
+            }
+        }
+        transition(fromState = ToggleableState.Indeterminate, toState = ToggleableState.Checked) {
+            CenterGravitationForCheck using tween {
+                duration = CheckStrokeAnimationDuration
+            }
+        }
+        transition(fromState = ToggleableState.Indeterminate, toState = ToggleableState.Unchecked) {
+            boxTransitionToUnchecked()
+        }
+        transition(fromState = ToggleableState.Unchecked, toState = ToggleableState.Indeterminate) {
+            boxTransitionFromUnchecked()
         }
     }
-    transition(fromState = ToggleableState.Checked, toState = ToggleableState.Unchecked) {
-        boxTransitionToUnchecked()
-        CenterGravitationForCheck using tween {
-            duration = CheckStrokeAnimationDuration
-        }
-    }
-    transition(fromState = ToggleableState.Checked, toState = ToggleableState.Indeterminate) {
-        CenterGravitationForCheck using tween {
-            duration = CheckStrokeAnimationDuration
-        }
-    }
-    transition(fromState = ToggleableState.Indeterminate, toState = ToggleableState.Checked) {
-        CenterGravitationForCheck using tween {
-            duration = CheckStrokeAnimationDuration
-        }
-    }
-    transition(fromState = ToggleableState.Indeterminate, toState = ToggleableState.Unchecked) {
-        boxTransitionToUnchecked()
-    }
-    transition(fromState = ToggleableState.Unchecked, toState = ToggleableState.Indeterminate) {
-        boxTransitionFromUnchecked()
-    }
-}
 
 private fun TransitionSpec.boxTransitionFromUnchecked() {
     BoxColorProp using tween {
@@ -273,5 +277,5 @@ private val CheckboxSize = 20.dp
 private val StrokeWidth = 2.dp
 private val RadiusSize = 2.dp
 
-private val UncheckedBoxColor = Color(0xFF7D7D7D.toInt())
+private val UncheckedBoxOppacity = 0.6f
 private val CheckStrokeDefaultColor = Color(0xFFFFFFFF.toInt())

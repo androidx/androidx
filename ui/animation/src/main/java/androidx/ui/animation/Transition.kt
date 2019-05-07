@@ -49,7 +49,8 @@ fun <T> Transition(
     @Children children: @Composable() (state: TransitionState) -> Unit
 ) {
     if (transitionsEnabled) {
-        val model = +memo(definition) { TransitionModel(definition) }
+        // TODO: This null is workaround for b/132148894
+        val model = +memo(definition, null) { TransitionModel(definition) }
         model.anim.toState(toState)
         children(state = model)
     } else {

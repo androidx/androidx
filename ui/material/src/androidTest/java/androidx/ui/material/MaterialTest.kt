@@ -18,12 +18,15 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.material.surface.Surface
 import androidx.ui.test.android.AndroidUiTestRunner
 
 fun AndroidUiTestRunner.setMaterialContent(composable: @Composable() () -> Unit) {
     setContent {
         MaterialTheme {
-            composable()
+            Surface {
+                composable()
+            }
         }
     }
 }
