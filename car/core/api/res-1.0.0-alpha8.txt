@@ -300,8 +300,10 @@ attr listContentTopOffset
 attr listDividerColor
 attr listEndMargin
 attr listItemActionDividerColor
+attr listItemBackground
 attr listItemBackgroundColor
 attr listItemBodyTextAppearance
+attr listItemFocusOutlineColor
 attr listItemSubheaderTextAppearance
 attr listItemTitleTextAppearance
 attr navigationIcon
