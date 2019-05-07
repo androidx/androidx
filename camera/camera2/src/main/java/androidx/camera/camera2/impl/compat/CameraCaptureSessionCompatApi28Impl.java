@@ -37,4 +37,14 @@ class CameraCaptureSessionCompatApi28Impl extends CameraCaptureSessionCompatBase
         // Call through directly to executor API
         return captureSession.captureSingleRequest(request, executor, listener);
     }
+
+    @Override
+    public int setSingleRepeatingRequest(@NonNull CameraCaptureSession captureSession,
+            @NonNull CaptureRequest request, @NonNull Executor executor,
+            @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
+        Preconditions.checkNotNull(captureSession);
+
+        // Call through directly to executor API
+        return captureSession.setSingleRepeatingRequest(request, executor, listener);
+    }
 }

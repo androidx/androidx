@@ -99,8 +99,57 @@ public final class CameraCaptureSessionCompat {
         return IMPL.captureSingleRequest(captureSession, request, executor, listener);
     }
 
+    /**
+     * Request endlessly repeating capture of images by this capture session.
+     *
+     * <p>The behavior of this method matches that of
+     * {@link CameraCaptureSession#setRepeatingRequest(CaptureRequest,
+     * CameraCaptureSession.CaptureCallback, Handler)},
+     * except that it uses {@link Executor} as an argument instead of {@link Handler}.</p>
+     *
+     * @param request the request to repeat indefinitely
+     * @param executor the executor which will be used for invoking the listener.
+     * @param listener The callback object to notify every time the
+     * request finishes processing.
+     *
+     * @return int A unique capture sequence ID used by
+     *             {@link CameraCaptureSession.CaptureCallback#onCaptureSequenceCompleted}.
+     *
+     * @throws CameraAccessException if the camera device is no longer connected or has
+     *                               encountered a fatal error
+     * @throws IllegalStateException if this session is no longer active, either because the session
+     *                               was explicitly closed, a new session has been created
+     *                               or the camera device has been closed.
+     * @throws IllegalArgumentException If the request references no Surfaces or references Surfaces
+     *                                  that are not currently configured as outputs; or the request
+     *                                  is a reprocess capture request; or the capture targets a
+     *                                  Surface in the middle of being prepared; or
+     *                                  the executor is null; or the listener is null.
+     *
+     * @see CameraCaptureSession#capture
+     * @see CameraCaptureSession#captureBurst
+     * @see CameraCaptureSession#setRepeatingBurst
+     * @see CameraCaptureSession#stopRepeating
+     * @see CameraCaptureSession#abortCaptures
+     */
+    public static int setSingleRepeatingRequest(
+            @NonNull CameraCaptureSession captureSession,
+            @NonNull CaptureRequest request,
+            @NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull CameraCaptureSession.CaptureCallback listener)
+            throws CameraAccessException {
+        return IMPL.setSingleRepeatingRequest(captureSession, request, executor, listener);
+    }
+
     interface CameraCaptureSessionCompatImpl {
         int captureSingleRequest(
+                @NonNull CameraCaptureSession captureSession,
+                @NonNull CaptureRequest request,
+                @NonNull /* @CallbackExecutor */ Executor executor,
+                @NonNull CameraCaptureSession.CaptureCallback listener)
+                throws CameraAccessException;
+
+        int setSingleRepeatingRequest(
                 @NonNull CameraCaptureSession captureSession,
                 @NonNull CaptureRequest request,
                 @NonNull /* @CallbackExecutor */ Executor executor,
