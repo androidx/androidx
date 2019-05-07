@@ -144,17 +144,17 @@ class ArrayAdapter<T> : BaseAdapter(), Filterable {
             val results = Filter.FilterResults()
 
             if (originalValues == null) {
-                originalValues = synchronized(lock) { ArrayList(items) }
+                originalValues = synchronized(lock) { ArrayList<T>(items!!) }
             }
 
             if (prefix == null || prefix.isEmpty()) {
-                val list = synchronized(lock) { ArrayList<T>(originalValues) }
+                val list = synchronized(lock) { ArrayList<T>(originalValues!!) }
                 results.values = list
                 results.count = list.size
             } else {
                 val prefixString = prefix.toString().toLowerCase()
 
-                val values = synchronized(lock) { ArrayList<T>(originalValues) }
+                val values = synchronized(lock) { ArrayList<T>(originalValues!!) }
 
                 val count = values.size
                 val newValues = ArrayList<T>()
