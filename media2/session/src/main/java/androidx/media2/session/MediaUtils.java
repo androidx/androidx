@@ -804,11 +804,10 @@ public class MediaUtils {
     public static SessionCommandGroup convertToSessionCommandGroup(long sessionFlags,
             PlaybackStateCompat state) {
         SessionCommandGroup.Builder commandsBuilder = new SessionCommandGroup.Builder();
+        commandsBuilder.addAllPlayerBasicCommands(COMMAND_VERSION_CURRENT);
         boolean includePlaylistCommands = (sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0;
         if (includePlaylistCommands) {
-            commandsBuilder.addAllPlayerCommands(COMMAND_VERSION_CURRENT);
-        } else {
-            commandsBuilder.addAllPlayerBasicCommands(COMMAND_VERSION_CURRENT);
+            commandsBuilder.addAllPlayerPlaylistCommands(COMMAND_VERSION_CURRENT);
         }
         commandsBuilder.addAllVolumeCommands(COMMAND_VERSION_CURRENT);
         commandsBuilder.addAllSessionCommands(COMMAND_VERSION_CURRENT);

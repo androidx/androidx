@@ -16,6 +16,8 @@
 
 package androidx.media2.session;
 
+import android.view.Surface;
+
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer.PlayerResult;
@@ -76,5 +78,6 @@ class MediaInterface {
     // Common interface for session and controller
     interface SessionPlayer extends SessionPlaybackControl, SessionPlaylistControl {
         VideoSize getVideoSize();
+        ListenableFuture<PlayerResult> setSurface(Surface surface);
     }
 }

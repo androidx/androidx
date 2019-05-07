@@ -33,6 +33,7 @@ import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
+import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
@@ -1086,6 +1087,24 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
+     * Sets the {@link Surface} to be used as the sink for the video portion of the media.
+     * <p>
+     * This calls {@link SessionPlayer#setSurfaceInternal(Surface)}.
+     *
+     * @param surface The {@link Surface} to be used for the video portion of the media.
+     * @return a {@link ListenableFuture} which represents the pending completion of the command.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public ListenableFuture<SessionResult> setSurface(@Nullable Surface surface) {
+        if (isConnected()) {
+            return getImpl().setSurface(surface);
+        }
+        return createDisconnectedFuture();
+    }
+
+    /**
      * Sets the time diff forcefully when calculating current position.
      * @param timeDiff {@code null} for reset.
      *
@@ -1172,6 +1191,7 @@ public class MediaController implements AutoCloseable {
         @ShuffleMode int getShuffleMode();
         ListenableFuture<SessionResult> setShuffleMode(@ShuffleMode int shuffleMode);
         @NonNull VideoSize getVideoSize();
+        ListenableFuture<SessionResult> setSurface(@Nullable Surface surface);
 
         // Internally used methods
         @NonNull MediaController getInstance();

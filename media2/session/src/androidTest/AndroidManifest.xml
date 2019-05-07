@@ -24,6 +24,7 @@
 
     <application android:usesCleartextTraffic="true">
         <activity android:name="androidx.media2.session.MockActivity" />
+        <activity android:name="androidx.media2.session.SurfaceActivity" />
 
         <!-- Keep the test services synced together with the MockMediaSessionService -->
         <service android:name="androidx.media2.session.MockMediaSessionService">

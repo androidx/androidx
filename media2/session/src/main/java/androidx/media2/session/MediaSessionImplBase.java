@@ -54,6 +54,7 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -848,6 +849,16 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                 return player.getVideoSizeInternal();
             }
         }, new VideoSize(0, 0));
+    }
+
+    @Override
+    public ListenableFuture<PlayerResult> setSurface(final Surface surface) {
+        return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(@NonNull SessionPlayer player) {
+                return player.setSurfaceInternal(surface);
+            }
+        });
     }
 
     ///////////////////////////////////////////////////

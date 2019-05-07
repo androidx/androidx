@@ -19,6 +19,7 @@ package androidx.media2.session;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_DISPLAY_TITLE;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_TITLE;
 import static androidx.media2.session.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES;
+import static androidx.media2.session.SessionCommand.COMMAND_VERSION_CURRENT;
 import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
 
 import android.content.Context;
@@ -67,8 +68,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     static {
         SessionCommandGroup group = new SessionCommandGroup.Builder()
-                .addAllPlayerCommands(SessionCommand.COMMAND_VERSION_CURRENT)
-                .addAllVolumeCommands(SessionCommand.COMMAND_VERSION_CURRENT)
+                .addAllPlayerCommands(COMMAND_VERSION_CURRENT, /* includeHidden= */ false)
+                .addAllVolumeCommands(COMMAND_VERSION_CURRENT)
                 .build();
         Set<SessionCommand> commands = group.getCommands();
         for (SessionCommand command : commands) {
