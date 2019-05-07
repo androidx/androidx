@@ -25,11 +25,25 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 import androidx.core.util.Preconditions;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 @RequiresApi(21)
 class CameraCaptureSessionCompatBaseImpl implements
         CameraCaptureSessionCompat.CameraCaptureSessionCompatImpl {
+    @Override
+    public int captureBurstRequests(@NonNull CameraCaptureSession captureSession,
+            @NonNull List<CaptureRequest> requests, @NonNull Executor executor,
+            @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
+        Preconditions.checkNotNull(captureSession);
+
+        // Wrap the executor in the callback
+        CameraCaptureSession.CaptureCallback cb =
+                new CameraCaptureSessionCompat.CaptureCallbackExecutorWrapper(executor, listener);
+
+        return captureSession.captureBurst(requests, cb, MainThreadAsyncHandler.getInstance());
+    }
+
     @Override
     public int captureSingleRequest(@NonNull CameraCaptureSession captureSession,
             @NonNull CaptureRequest request, @NonNull Executor executor,

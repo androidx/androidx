@@ -31,6 +31,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -51,6 +52,56 @@ public final class CameraCaptureSessionCompat {
         }
 
         return new CameraCaptureSessionCompatBaseImpl();
+    }
+
+    /**
+     * Submit a list of requests to be captured in sequence as a burst. The
+     * burst will be captured in the minimum amount of time possible, and will
+     * not be interleaved with requests submitted by other capture or repeat
+     * calls.
+     *
+     * <p>The behavior of this method matches that of
+     * {@link
+     * CameraCaptureSession#captureBurst(List, CameraCaptureSession.CaptureCallback, Handler)},
+     * except that it uses {@link Executor} as an argument instead of {@link Handler}.
+     *
+     * @param requests the list of settings for this burst capture
+     * @param executor the executor which will be used for invoking the listener.
+     * @param listener The callback object to notify each time one of the
+     * requests in the burst has been processed.
+     *
+     * @return int A unique capture sequence ID used by
+     *             {@link CameraCaptureSession.CaptureCallback#onCaptureSequenceCompleted}.
+     *
+     * @throws CameraAccessException if the camera device is no longer connected or has
+     *                               encountered a fatal error
+     * @throws IllegalStateException if this session is no longer active, either because the session
+     *                               was explicitly closed, a new session has been created
+     *                               or the camera device has been closed.
+     * @throws IllegalArgumentException If the requests target no Surfaces, or the requests target
+     *                                  Surfaces not currently configured as outputs; or one of the
+     *                                  requests targets a set of Surfaces that cannot be submitted
+     *                                  simultaneously in a reprocessable capture session; or a
+     *                                  reprocess capture request is submitted in a
+     *                                  non-reprocessable capture session; or one of the reprocess
+     *                                  capture requests was created with a
+     *                                  {@link TotalCaptureResult} from a different session; or one
+     *                                  of the captures targets a Surface in the middle of being
+     *                                  prepared; or if the executor is null; or if
+     *                                  the listener is null.
+     *
+     * @see CameraCaptureSession#capture
+     * @see CameraCaptureSession#setRepeatingRequest
+     * @see CameraCaptureSession#setRepeatingBurst
+     * @see CameraCaptureSession#abortCaptures
+     */
+    public static int captureBurstRequests(
+            @NonNull CameraCaptureSession captureSession,
+            @NonNull List<CaptureRequest> requests,
+            @NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull CameraCaptureSession.CaptureCallback listener)
+            throws CameraAccessException {
+        return IMPL.captureBurstRequests(captureSession, requests, executor, listener);
     }
 
     /**
@@ -142,6 +193,13 @@ public final class CameraCaptureSessionCompat {
     }
 
     interface CameraCaptureSessionCompatImpl {
+        int captureBurstRequests(
+                @NonNull CameraCaptureSession captureSession,
+                @NonNull List<CaptureRequest> requests,
+                @NonNull /* @CallbackExecutor */ Executor executor,
+                @NonNull CameraCaptureSession.CaptureCallback listener)
+                throws CameraAccessException;
+
         int captureSingleRequest(
                 @NonNull CameraCaptureSession captureSession,
                 @NonNull CaptureRequest request,
