@@ -25,6 +25,7 @@ import static junit.framework.TestCase.assertFalse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -1128,6 +1129,23 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
 
         mPlayer.unregisterPlayerCallback(callback);
+    }
+
+    @Test
+    @LargeTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    public void testSetPlaybackSpeedWithIllegalArguments() throws Throwable {
+        // Zero is not allowed.
+        ListenableFuture<PlayerResult> future = mPlayer.setPlaybackSpeed(0.0f);
+        PlayerResult result = future.get();
+        assertNotNull(result);
+        assertEquals(RESULT_ERROR_BAD_VALUE, result.getResultCode());
+
+        // Negative values are not allowed.
+        future = mPlayer.setPlaybackSpeed(-1.0f);
+        result = future.get();
+        assertNotNull(result);
+        assertEquals(RESULT_ERROR_BAD_VALUE, result.getResultCode());
     }
 
     @Test
