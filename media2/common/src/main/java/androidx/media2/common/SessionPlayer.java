@@ -23,6 +23,7 @@ import android.media.MediaFormat;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
@@ -446,6 +447,31 @@ public abstract class SessionPlayer implements AutoCloseable {
     @NonNull
     public VideoSize getVideoSizeInternal() {
         throw new UnsupportedOperationException("getVideoSizeInternal is internal use only");
+    }
+
+    /**
+     * Sets the {@link Surface} to be used as the sink for the video portion of the media.
+     * <p>
+     * The default implementation returns {@link PlayerResult} with the result code
+     * {@link BaseResult#RESULT_ERROR_NOT_SUPPORTED}.
+     * <p>
+     * A null surface will reset any Surface and result in only the audio track being played.
+     * <p>
+     * On success, a {@link SessionPlayer.PlayerResult} is returned with
+     * the current media item when the command completed.
+     *
+     * @param surface The {@link Surface} to be used for the video portion of the media.
+     * @return a {@link ListenableFuture} which represents the pending completion of the command.
+     * {@link SessionPlayer.PlayerResult} will be delivered when the command
+     * completed.
+     *
+     * @hide
+     */
+    // TODO: Change this into setSurface
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    public ListenableFuture<PlayerResult> setSurfaceInternal(@Nullable Surface surface) {
+        return PlayerResult.createFuture(BaseResult.RESULT_ERROR_NOT_SUPPORTED);
     }
 
     /**
@@ -1196,6 +1222,7 @@ public abstract class SessionPlayer implements AutoCloseable {
                 RESULT_ERROR_BAD_VALUE,
                 RESULT_ERROR_PERMISSION_DENIED,
                 RESULT_ERROR_IO,
+                RESULT_ERROR_NOT_SUPPORTED,
                 RESULT_INFO_SKIPPED})
         @Retention(RetentionPolicy.SOURCE)
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -1246,6 +1273,7 @@ public abstract class SessionPlayer implements AutoCloseable {
          * @see #RESULT_ERROR_BAD_VALUE
          * @see #RESULT_ERROR_PERMISSION_DENIED
          * @see #RESULT_ERROR_IO
+         * @see #RESULT_ERROR_NOT_SUPPORTED
          * @see #RESULT_INFO_SKIPPED
          */
         @Override

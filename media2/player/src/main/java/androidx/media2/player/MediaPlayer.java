@@ -1582,6 +1582,16 @@ public final class MediaPlayer extends SessionPlayer {
     }
 
     /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Override
+    @NonNull
+    public ListenableFuture<PlayerResult> setSurfaceInternal(@Nullable Surface surface) {
+        return setSurface(surface);
+    }
+
+    /**
      * Sets the volume of the audio of the media to play, expressed as a linear multiplier
      * on the audio samples.
      * <p>
