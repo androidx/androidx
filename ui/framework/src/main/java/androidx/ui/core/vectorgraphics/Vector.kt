@@ -595,8 +595,8 @@ private class VectorGraphicDrawable(private val vector: Vector) : Drawable() {
 
     override fun getIntrinsicHeight(): Int = Math.round(vector.defaultHeight)
 
-    override fun draw(canvas: android.graphics.Canvas?) {
-        vector.draw(androidx.ui.painting.Canvas(canvas!!))
+    override fun draw(canvas: android.graphics.Canvas) {
+        vector.draw(androidx.ui.painting.Canvas(canvas))
     }
 
     override fun setAlpha(alpha: Int) {
