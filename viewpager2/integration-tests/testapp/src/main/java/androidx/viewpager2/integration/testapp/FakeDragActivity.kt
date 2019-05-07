@@ -38,8 +38,8 @@ class FakeDragActivity : FragmentActivity() {
         viewPager = findViewById(R.id.viewPager)
         viewPager.adapter = CardViewAdapter()
         viewPager.isUserInputEnabled = false
-        UserInputController(viewPager, findViewById(R.id.disable_user_input_checkbox)).setup()
-        OrientationController(viewPager, findViewById(R.id.orientation_spinner)).setup()
+        UserInputController(viewPager, findViewById(R.id.disable_user_input_checkbox)).setUp()
+        OrientationController(viewPager, findViewById(R.id.orientation_spinner)).setUp()
 
         findViewById<View>(R.id.touchpad).setOnTouchListener { _, event ->
             handleOnTouchEvent(event)
