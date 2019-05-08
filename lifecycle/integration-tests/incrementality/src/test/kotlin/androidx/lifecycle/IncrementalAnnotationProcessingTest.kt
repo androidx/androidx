@@ -39,9 +39,8 @@ class IncrementalAnnotationProcessingTest {
         private const val BUILD_DIR = "app/build"
         private const val SOURCE_DIR = "$MAIN_DIR/java/androidx/lifecycle/incap"
         private const val GENERATED_SOURCE_DIR = BUILD_DIR +
-                "/generated/source/apt/debug/androidx/lifecycle/incap"
-        private const val CLASSES_DIR = BUILD_DIR +
-                "/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
+                "/generated/ap_generated_sources/debug/out/androidx/lifecycle/incap"
+        private const val CLASSES_DIR = "$BUILD_DIR/intermediates/javac/debug/classes"
         private const val GENERATED_PROGUARD_DIR = "$CLASSES_DIR/META-INF/proguard"
         private const val APP_CLASS_DIR = "$CLASSES_DIR/androidx/lifecycle/incap"
     }

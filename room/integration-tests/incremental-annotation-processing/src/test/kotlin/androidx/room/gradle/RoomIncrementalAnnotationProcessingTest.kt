@@ -40,10 +40,9 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
         fun parameters() = listOf(true, false)
 
         private const val SRC_DIR = "src/main/java"
-        private const val GEN_SRC_DIR = "build/generated/source/apt/debug"
+        private const val GEN_SRC_DIR = "build/generated/ap_generated_sources/debug/out/"
         private const val GEN_RES_DIR = "build/generated/resources"
-        private const val CLASS_DIR =
-            "build/intermediates/javac/debug/compileDebugJavaWithJavac/classes"
+        private const val CLASS_DIR = "build/intermediates/javac/debug/classes"
 
         private const val CLEAN_TASK = ":clean"
         private const val COMPILE_TASK = ":compileDebugJavaWithJavac"
