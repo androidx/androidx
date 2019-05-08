@@ -105,6 +105,16 @@ public final class UseCaseAttachState {
         }
     }
 
+    /** Returns if the use case is online or not. */
+    public boolean isUseCaseOnline(UseCase useCase) {
+        if (!mAttachedUseCasesToInfoMap.containsKey(useCase)) {
+            return false;
+        }
+
+        UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCase);
+        return useCaseAttachInfo.getOnline();
+    }
+
     public Collection<UseCase> getOnlineUseCases() {
         return Collections.unmodifiableCollection(
                 getUseCases(new AttachStateFilter() {
