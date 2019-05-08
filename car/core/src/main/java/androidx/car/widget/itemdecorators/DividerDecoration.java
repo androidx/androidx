@@ -24,7 +24,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.View;
 
-import androidx.annotation.ColorRes;
+import androidx.annotation.ColorInt;
 import androidx.annotation.IdRes;
 import androidx.annotation.RestrictTo;
 import androidx.car.R;
@@ -50,7 +50,7 @@ public class DividerDecoration extends RecyclerView.ItemDecoration {
     private final int mDividerEndMargin;
     @IdRes private final int mDividerStartId;
     @IdRes private final int mDividerEndId;
-    @ColorRes private int mListDividerColor;
+    @ColorInt private int mListDividerColor;
     private DividerVisibilityManager mVisibilityManager;
 
     /**
@@ -67,7 +67,7 @@ public class DividerDecoration extends RecyclerView.ItemDecoration {
      */
     public DividerDecoration(Context context, int dividerStartMargin,
             int dividerEndMargin, @IdRes int dividerStartId, @IdRes int dividerEndId,
-            @ColorRes int listDividerColor) {
+            @ColorInt int listDividerColor) {
         mContext = context;
         mDividerStartMargin = dividerStartMargin;
         mDividerEndMargin = dividerEndMargin;
@@ -76,20 +76,15 @@ public class DividerDecoration extends RecyclerView.ItemDecoration {
         mListDividerColor = listDividerColor;
 
         mPaint = new Paint();
-        mPaint.setColor(mContext.getColor(listDividerColor));
+        mPaint.setColor(mListDividerColor);
         mDividerHeight = mContext.getResources().getDimensionPixelSize(
                 R.dimen.car_list_divider_height);
     }
 
     /** Sets the color for the dividers. */
-    public void setDividerColor(@ColorRes int dividerColor) {
+    public void setDividerColor(@ColorInt int dividerColor) {
         mListDividerColor = dividerColor;
-        updateDividerColor();
-    }
-
-    /** Updates the list divider color which may have changed due to a day night transition. */
-    public void updateDividerColor() {
-        mPaint.setColor(mContext.getColor(mListDividerColor));
+        mPaint.setColor(mListDividerColor);
     }
 
     /** Sets {@link DividerVisibilityManager} on the DividerDecoration.*/

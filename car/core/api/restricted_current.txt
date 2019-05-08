@@ -87,10 +87,9 @@ package androidx.car.widget.itemdecorators {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DividerDecoration extends androidx.recyclerview.widget.RecyclerView.ItemDecoration {
-    ctor public DividerDecoration(android.content.Context!, int, int, @IdRes int, @IdRes int, @ColorRes int);
-    method public void setDividerColor(@ColorRes int);
+    ctor public DividerDecoration(android.content.Context!, int, int, @IdRes int, @IdRes int, @ColorInt int);
+    method public void setDividerColor(@ColorInt int);
     method public void setVisibilityManager(androidx.car.widget.PagedListView.DividerVisibilityManager!);
-    method public void updateDividerColor();
     field public static final int INVALID_RESOURCE_ID = -1; // 0xffffffff
   }
 
