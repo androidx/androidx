@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.test.screenshot
+package androidx.test.screenshot.utils
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
-import org.junit.Assert.assertTrue
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.test.platform.app.InstrumentationRegistry
 
-@RunWith(AndroidJUnit4::class)
-class ScreenshotTestTest {
-
-    @get:Rule
-    val screenshotTestRule = ScreenshotTestRule()
-
-    @Test
-    @SmallTest
-    fun screenshotTestTest_dummy() {
-        assertTrue(true)
+internal fun loadBitmap(imageName: String): Bitmap {
+    val context = InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
+    context.assets.open("$imageName.png").use {
+        return BitmapFactory.decodeStream(it)
     }
 }
