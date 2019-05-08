@@ -105,7 +105,7 @@ package androidx.ui.core {
 
   public final class PointerInputWrapperKt {
     ctor public PointerInputWrapperKt();
-    method public static void PointerInputWrapper(kotlin.jvm.functions.Function2<? super androidx.ui.core.PointerInputChange,? super androidx.ui.core.PointerEventPass,androidx.ui.core.PointerInputChange> pointerInputHandler = { event, _ -> event }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void PointerInputWrapper(kotlin.jvm.functions.Function2<? super java.util.List<androidx.ui.core.PointerInputChange>,? super androidx.ui.core.PointerEventPass,? extends java.util.List<androidx.ui.core.PointerInputChange>> pointerInputHandler = { event, _ -> event }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class PositioningBlockReceiver {

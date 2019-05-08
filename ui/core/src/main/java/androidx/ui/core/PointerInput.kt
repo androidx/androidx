@@ -43,6 +43,7 @@ data class ConsumedData(
     val positionChange: PxPosition = PxPosition.Origin,
     val downChange: Boolean = false
 )
+
 /**
  * The enumeration of passes where [PointerInputChange] traverses up and down the UI tree.
  */
@@ -50,7 +51,8 @@ enum class PointerEventPass {
     InitialDown, PreUp, PreDown, PostUp, PostDown
 }
 
-typealias PointerInputHandler = (PointerInputChange, PointerEventPass) -> PointerInputChange
+typealias PointerInputHandler =
+            (List<PointerInputChange>, PointerEventPass) -> List<PointerInputChange>
 
 // PointerInputChange extension functions
 
@@ -118,18 +120,3 @@ fun PointerInputChange.consumePositionChange(
         )
     )
 }
-
-// Offset modification functions
-
-fun PointerInputChange.addOffset(pxPosition: PxPosition): PointerInputChange {
-    return if (pxPosition == PxPosition.Origin) {
-        this
-    } else {
-        this.copy(
-            current = current.copy(position = this.current.position?.plus(pxPosition)),
-            previous = previous.copy(position = this.previous.position?.plus(pxPosition))
-        )
-    }
-}
-
-fun PointerInputChange.subtractOffset(pxPosition: PxPosition) = addOffset(-pxPosition)

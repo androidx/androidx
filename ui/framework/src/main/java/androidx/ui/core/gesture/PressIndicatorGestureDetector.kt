@@ -95,39 +95,47 @@ internal class PressIndicatorGestureRecognizer {
     private var pointerCount = 0
     private var started = false
 
-    val pointerInputHandler = { event: PointerInputChange, pass: PointerEventPass ->
-        var pointerEvent: PointerInputChange = event
+    val pointerInputHandler =
+        { changes: List<PointerInputChange>, pass: PointerEventPass ->
+            changes.map { processChange(it, pass) }
+        }
 
-        if (pass == PointerEventPass.InitialDown && pointerEvent.changedToDownIgnoreConsumed()) {
+    private fun processChange(
+        pointerInputChange: PointerInputChange,
+        pass: PointerEventPass
+    ): PointerInputChange {
+        var change = pointerInputChange
+
+        if (pass == PointerEventPass.InitialDown && change.changedToDownIgnoreConsumed()) {
             pointerCount++
         }
 
         if (pass == PointerEventPass.PostUp &&
             pointerCount == 1
         ) {
-            if (pointerEvent.changedToDown()) {
+            if (change.changedToDown()) {
                 started = true
-                onStart?.invoke(pointerEvent.current.position!!)
-                pointerEvent = pointerEvent.consumeDownChange()
+                onStart?.invoke(change.current.position!!)
+                change = change.consumeDownChange()
             }
-            if (started && pointerEvent.changedToUpIgnoreConsumed()) {
+            if (started && change.changedToUpIgnoreConsumed()) {
                 started = false
                 onStop?.invoke()
             }
         }
 
-        if (pass == PointerEventPass.PostDown && started && event.anyPositionChangeConsumed()) {
+        if (pass == PointerEventPass.PostDown && started && change.anyPositionChangeConsumed()) {
             started = false
             onCancel?.invoke()
         }
 
-        if (pass == PointerEventPass.PostDown && pointerEvent.changedToUpIgnoreConsumed()) {
+        if (pass == PointerEventPass.PostDown && change.changedToUpIgnoreConsumed()) {
             pointerCount--
             if (pointerCount == 0) {
                 started = false
             }
         }
 
-        pointerEvent
+        return change
     }
 }

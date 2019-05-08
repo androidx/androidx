@@ -190,7 +190,7 @@ class HitPathTrackerTest {
 
         hitResult.dispatchChanges(listOf(down(13)), PointerEventPass.InitialDown)
 
-        verify(pin1.pointerInputHandler).invoke(down(13), PointerEventPass.InitialDown)
+        verify(pin1.pointerInputHandler).invoke(listOf(down(13)), PointerEventPass.InitialDown)
         verifyNoMoreInteractions(pin1.pointerInputHandler)
     }
 
@@ -207,9 +207,9 @@ class HitPathTrackerTest {
         hitResult.dispatchChanges(listOf(down(13)), PointerEventPass.InitialDown)
 
         inOrder(pin1.pointerInputHandler, pin2.pointerInputHandler, pin3.pointerInputHandler) {
-            verify(pin1.pointerInputHandler).invoke(down(13), PointerEventPass.InitialDown)
-            verify(pin2.pointerInputHandler).invoke(down(13), PointerEventPass.InitialDown)
-            verify(pin3.pointerInputHandler).invoke(down(13), PointerEventPass.InitialDown)
+            verify(pin1.pointerInputHandler).invoke(listOf(down(13)), PointerEventPass.InitialDown)
+            verify(pin2.pointerInputHandler).invoke(listOf(down(13)), PointerEventPass.InitialDown)
+            verify(pin3.pointerInputHandler).invoke(listOf(down(13)), PointerEventPass.InitialDown)
         }
         verifyNoMoreInteractions(
             pin1.pointerInputHandler,
@@ -235,12 +235,12 @@ class HitPathTrackerTest {
         )
 
         inOrder(pin1.pointerInputHandler, pin2.pointerInputHandler, pin3.pointerInputHandler) {
-            verify(pin1.pointerInputHandler).invoke(down(13), PointerEventPass.InitialDown)
-            verify(pin2.pointerInputHandler).invoke(down(13), PointerEventPass.InitialDown)
-            verify(pin3.pointerInputHandler).invoke(down(13), PointerEventPass.InitialDown)
-            verify(pin3.pointerInputHandler).invoke(down(13), PointerEventPass.PreUp)
-            verify(pin2.pointerInputHandler).invoke(down(13), PointerEventPass.PreUp)
-            verify(pin1.pointerInputHandler).invoke(down(13), PointerEventPass.PreUp)
+            verify(pin1.pointerInputHandler).invoke(listOf(down(13)), PointerEventPass.InitialDown)
+            verify(pin2.pointerInputHandler).invoke(listOf(down(13)), PointerEventPass.InitialDown)
+            verify(pin3.pointerInputHandler).invoke(listOf(down(13)), PointerEventPass.InitialDown)
+            verify(pin3.pointerInputHandler).invoke(listOf(down(13)), PointerEventPass.PreUp)
+            verify(pin2.pointerInputHandler).invoke(listOf(down(13)), PointerEventPass.PreUp)
+            verify(pin1.pointerInputHandler).invoke(listOf(down(13)), PointerEventPass.PreUp)
         }
         verifyNoMoreInteractions(
             pin1.pointerInputHandler,
@@ -271,16 +271,16 @@ class HitPathTrackerTest {
         )
 
         inOrder(pin1.pointerInputHandler, pin2.pointerInputHandler) {
-            verify(pin1.pointerInputHandler).invoke(event1, PointerEventPass.InitialDown)
-            verify(pin2.pointerInputHandler).invoke(event1, PointerEventPass.InitialDown)
-            verify(pin2.pointerInputHandler).invoke(event1, PointerEventPass.PreUp)
-            verify(pin1.pointerInputHandler).invoke(event1, PointerEventPass.PreUp)
+            verify(pin1.pointerInputHandler).invoke(listOf(event1), PointerEventPass.InitialDown)
+            verify(pin2.pointerInputHandler).invoke(listOf(event1), PointerEventPass.InitialDown)
+            verify(pin2.pointerInputHandler).invoke(listOf(event1), PointerEventPass.PreUp)
+            verify(pin1.pointerInputHandler).invoke(listOf(event1), PointerEventPass.PreUp)
         }
         inOrder(pin3.pointerInputHandler, pin4.pointerInputHandler) {
-            verify(pin3.pointerInputHandler).invoke(event2, PointerEventPass.InitialDown)
-            verify(pin4.pointerInputHandler).invoke(event2, PointerEventPass.InitialDown)
-            verify(pin4.pointerInputHandler).invoke(event2, PointerEventPass.PreUp)
-            verify(pin3.pointerInputHandler).invoke(event2, PointerEventPass.PreUp)
+            verify(pin3.pointerInputHandler).invoke(listOf(event2), PointerEventPass.InitialDown)
+            verify(pin4.pointerInputHandler).invoke(listOf(event2), PointerEventPass.InitialDown)
+            verify(pin4.pointerInputHandler).invoke(listOf(event2), PointerEventPass.PreUp)
+            verify(pin3.pointerInputHandler).invoke(listOf(event2), PointerEventPass.PreUp)
         }
         verifyNoMoreInteractions(
             pin1.pointerInputHandler,
@@ -309,50 +309,38 @@ class HitPathTrackerTest {
             PointerEventPass.PreUp
         )
 
-        // Verifies that event1 traverses in the correct order.
+        // Verifies that the events traverse between parent and child1 in the correct order.
         inOrder(
             parent.pointerInputHandler,
             child1.pointerInputHandler
         ) {
-            verify(parent.pointerInputHandler).invoke(event1, PointerEventPass.InitialDown)
-            verify(child1.pointerInputHandler).invoke(event1, PointerEventPass.InitialDown)
-            verify(child1.pointerInputHandler).invoke(event1, PointerEventPass.PreUp)
-            verify(parent.pointerInputHandler).invoke(event1, PointerEventPass.PreUp)
+            verify(parent.pointerInputHandler).invoke(
+                listOf(event1, event2),
+                PointerEventPass.InitialDown
+            )
+            verify(child1.pointerInputHandler).invoke(listOf(event1), PointerEventPass.InitialDown)
+            verify(child1.pointerInputHandler).invoke(listOf(event1), PointerEventPass.PreUp)
+            verify(parent.pointerInputHandler).invoke(
+                listOf(event1, event2),
+                PointerEventPass.PreUp
+            )
         }
 
-        // Verifies that event2 traverses in the correct order.
+        // Verifies that the events traverse between parent and child2 in the correct order.
         inOrder(
             parent.pointerInputHandler,
             child2.pointerInputHandler
         ) {
-            verify(parent.pointerInputHandler).invoke(event2, PointerEventPass.InitialDown)
-            verify(child2.pointerInputHandler).invoke(event2, PointerEventPass.InitialDown)
-            verify(child2.pointerInputHandler).invoke(event2, PointerEventPass.PreUp)
-            verify(parent.pointerInputHandler).invoke(event2, PointerEventPass.PreUp)
-        }
-
-        // Verifies that the parent gets event1 before the child2 gets event2 on the way down, and
-        // that child2 gets event2 before the parent gets event1 on the way up.
-        inOrder(
-            parent.pointerInputHandler,
-            child2.pointerInputHandler
-        ) {
-            verify(parent.pointerInputHandler).invoke(event1, PointerEventPass.InitialDown)
-            verify(child2.pointerInputHandler).invoke(event2, PointerEventPass.InitialDown)
-            verify(child2.pointerInputHandler).invoke(event2, PointerEventPass.PreUp)
-            verify(parent.pointerInputHandler).invoke(event1, PointerEventPass.PreUp)
-        }
-
-        // Verifies that the parent gets event2 before the child1 gets event1 on the way down, and
-        // that child1 gets event1 before the parent gets event2 on the way up.
-        inOrder(
-            parent.pointerInputHandler,
-            child1.pointerInputHandler
-        ) {
-            verify(parent.pointerInputHandler).invoke(event2, PointerEventPass.InitialDown)
-            verify(child1.pointerInputHandler).invoke(event1, PointerEventPass.InitialDown)
-            verify(child1.pointerInputHandler).invoke(event1, PointerEventPass.PreUp)
-            verify(parent.pointerInputHandler).invoke(event2, PointerEventPass.PreUp)
+            verify(parent.pointerInputHandler).invoke(
+                listOf(event1, event2),
+                PointerEventPass.InitialDown
+            )
+            verify(child2.pointerInputHandler).invoke(listOf(event2), PointerEventPass.InitialDown)
+            verify(child2.pointerInputHandler).invoke(listOf(event2), PointerEventPass.PreUp)
+            verify(parent.pointerInputHandler).invoke(
+                listOf(event1, event2),
+                PointerEventPass.PreUp
+            )
         }
 
         verifyNoMoreInteractions(
@@ -363,7 +351,7 @@ class HitPathTrackerTest {
     }
 
     @Test
-    fun dispatchChanges_2PointersShareCompletePath_eventsSplitCorrectlyAndCallOrderCorrect() {
+    fun dispatchChanges_2PointersShareCompletePath_eventsDoNotSplitAndCallOrderCorrect() {
         val child1 = PointerInputNode()
         val child2 = PointerInputNode()
         child1.pointerInputHandler = spy(MyPointerInputHandler())
@@ -379,50 +367,62 @@ class HitPathTrackerTest {
             PointerEventPass.PreUp
         )
 
-        // Verifies that event1 traverses in the correct order
+        // Verify that order is correct for child1.
         inOrder(
-            child1.pointerInputHandler,
-            child2.pointerInputHandler
+            child1.pointerInputHandler
         ) {
-            verify(child1.pointerInputHandler).invoke(event1, PointerEventPass.InitialDown)
-            verify(child2.pointerInputHandler).invoke(event1, PointerEventPass.InitialDown)
-            verify(child2.pointerInputHandler).invoke(event1, PointerEventPass.PreUp)
-            verify(child1.pointerInputHandler).invoke(event1, PointerEventPass.PreUp)
+            verify(child1.pointerInputHandler).invoke(
+                listOf(event1, event2),
+                PointerEventPass.InitialDown
+            )
+            verify(child1.pointerInputHandler).invoke(
+                listOf(event1, event2),
+                PointerEventPass.PreUp
+            )
         }
 
-        // Verifies that event2 traverses in the correct order
+        // Verify that order is correct for child2.
         inOrder(
-            child1.pointerInputHandler,
             child2.pointerInputHandler
         ) {
-            verify(child1.pointerInputHandler).invoke(event2, PointerEventPass.InitialDown)
-            verify(child2.pointerInputHandler).invoke(event2, PointerEventPass.InitialDown)
-            verify(child2.pointerInputHandler).invoke(event2, PointerEventPass.PreUp)
-            verify(child1.pointerInputHandler).invoke(event2, PointerEventPass.PreUp)
+            verify(child2.pointerInputHandler).invoke(
+                listOf(event1, event2),
+                PointerEventPass.InitialDown
+            )
+            verify(child2.pointerInputHandler).invoke(
+                listOf(event1, event2),
+                PointerEventPass.PreUp
+            )
         }
 
-        // Verifies that child1 gets event1 before child2 gets event2 on the way down, and
-        // that child2 gets event2 before the child1 gets event1 on the way up.
+        // Verify that first pass hits child1 before second pass hits child2
         inOrder(
             child1.pointerInputHandler,
             child2.pointerInputHandler
         ) {
-            verify(child1.pointerInputHandler).invoke(event1, PointerEventPass.InitialDown)
-            verify(child2.pointerInputHandler).invoke(event2, PointerEventPass.InitialDown)
-            verify(child2.pointerInputHandler).invoke(event2, PointerEventPass.PreUp)
-            verify(child1.pointerInputHandler).invoke(event1, PointerEventPass.PreUp)
+            verify(child1.pointerInputHandler).invoke(
+                listOf(event1, event2),
+                PointerEventPass.InitialDown
+            )
+            verify(child2.pointerInputHandler).invoke(
+                listOf(event1, event2),
+                PointerEventPass.PreUp
+            )
         }
 
-        // Verifies that the child1 gets event2 before child2 gets event1 on the way down, and
-        // that child2 gets event1 before the child1 gets event2 on the way up.
+        // Verify that first pass hits child2 before second pass hits child1
         inOrder(
             child1.pointerInputHandler,
             child2.pointerInputHandler
         ) {
-            verify(child1.pointerInputHandler).invoke(event2, PointerEventPass.InitialDown)
-            verify(child2.pointerInputHandler).invoke(event1, PointerEventPass.InitialDown)
-            verify(child2.pointerInputHandler).invoke(event1, PointerEventPass.PreUp)
-            verify(child1.pointerInputHandler).invoke(event2, PointerEventPass.PreUp)
+            verify(child2.pointerInputHandler).invoke(
+                listOf(event1, event2),
+                PointerEventPass.InitialDown
+            )
+            verify(child1.pointerInputHandler).invoke(
+                listOf(event1, event2),
+                PointerEventPass.PreUp
+            )
         }
 
         verifyNoMoreInteractions(
@@ -442,8 +442,8 @@ class HitPathTrackerTest {
     fun dispatchChanges_hitResultHasSingleMatch_changesAreUpdatedCorrectly() {
         val pin1 = PointerInputNode()
         pin1.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, _ ->
-                change.consumeDownChange()
+            modifyBlock = { changes, _ ->
+                changes.map { it.consumeDownChange() }
             }
         })
         hitResult.addHitPath(13, listOf(pin1))
@@ -459,21 +459,21 @@ class HitPathTrackerTest {
         val pin2 = PointerInputNode()
         val pin3 = PointerInputNode()
         pin1.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, pass ->
+            modifyBlock = { changes, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 64f
-                change.consumePositionChange(0.px, yConsume.px)
+                changes.map { it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         pin2.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, pass ->
+            modifyBlock = { changes, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 4f else 32f
-                change.consumePositionChange(0.px, yConsume.px)
+                changes.map { it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         pin3.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, pass ->
+            modifyBlock = { changes, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 8f else 16f
-                change.consumePositionChange(0.px, yConsume.px)
+                changes.map { it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         hitResult.addHitPath(13, listOf(pin1, pin2, pin3))
@@ -486,26 +486,26 @@ class HitPathTrackerTest {
         )
 
         verify(pin1.pointerInputHandler).invoke(
-            change, PointerEventPass.InitialDown
+            listOf(change), PointerEventPass.InitialDown
         )
         verify(pin2.pointerInputHandler).invoke(
-            change.consumePositionChange(0.px, 2.px),
+            listOf(change.consumePositionChange(0.px, 2.px)),
             PointerEventPass.InitialDown
         )
         verify(pin3.pointerInputHandler).invoke(
-            change.consumePositionChange(0.px, 6.px), // 2 + 4
+            listOf(change.consumePositionChange(0.px, 6.px)), // 2 + 4
             PointerEventPass.InitialDown
         )
         verify(pin3.pointerInputHandler).invoke(
-            change.consumePositionChange(0.px, 14.px), // 2 + 4 + 8
+            listOf(change.consumePositionChange(0.px, 14.px)), // 2 + 4 + 8
             PointerEventPass.PreUp
         )
         verify(pin2.pointerInputHandler).invoke(
-            change.consumePositionChange(0.px, 30.px), // 2 + 4 + 8 + 16
+            listOf(change.consumePositionChange(0.px, 30.px)), // 2 + 4 + 8 + 16
             PointerEventPass.PreUp
         )
         verify(pin1.pointerInputHandler).invoke(
-            change.consumePositionChange(0.px, 62.px), // 2 + 4 + 8 + 16 + 32
+            listOf(change.consumePositionChange(0.px, 62.px)), // 2 + 4 + 8 + 16 + 32
             PointerEventPass.PreUp
         )
         assertThat(result)
@@ -526,27 +526,27 @@ class HitPathTrackerTest {
         val pin3 = PointerInputNode()
         val pin4 = PointerInputNode()
         pin1.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, pass ->
+            modifyBlock = { changes, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 2f else 12f
-                change.consumePositionChange(0.px, yConsume.px)
+                changes.map { it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         pin2.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, pass ->
+            modifyBlock = { changes, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 3f else 6f
-                change.consumePositionChange(0.px, yConsume.px)
+                changes.map { it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         pin3.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, pass ->
+            modifyBlock = { changes, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) -2f else -12f
-                change.consumePositionChange(0.px, yConsume.px)
+                changes.map { it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         pin4.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, pass ->
+            modifyBlock = { changes, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) -3f else -6f
-                change.consumePositionChange(0.px, yConsume.px)
+                changes.map { it.consumePositionChange(0.px, yConsume.px) }
             }
         })
         hitResult.addHitPath(3, listOf(pin1, pin2))
@@ -561,36 +561,36 @@ class HitPathTrackerTest {
         )
 
         verify(pin1.pointerInputHandler).invoke(
-            event1,
+            listOf(event1),
             PointerEventPass.InitialDown
         )
         verify(pin2.pointerInputHandler).invoke(
-            event1.consumePositionChange(0.px, 2.px),
+            listOf(event1.consumePositionChange(0.px, 2.px)),
             PointerEventPass.InitialDown
         )
         verify(pin2.pointerInputHandler).invoke(
-            event1.consumePositionChange(0.px, 5.px),
+            listOf(event1.consumePositionChange(0.px, 5.px)),
             PointerEventPass.PreUp
         )
         verify(pin1.pointerInputHandler).invoke(
-            event1.consumePositionChange(0.px, 11.px),
+            listOf(event1.consumePositionChange(0.px, 11.px)),
             PointerEventPass.PreUp
         )
 
         verify(pin3.pointerInputHandler).invoke(
-            event2,
+            listOf(event2),
             PointerEventPass.InitialDown
         )
         verify(pin4.pointerInputHandler).invoke(
-            event2.consumePositionChange(0.px, -2.px),
+            listOf(event2.consumePositionChange(0.px, -2.px)),
             PointerEventPass.InitialDown
         )
         verify(pin4.pointerInputHandler).invoke(
-            event2.consumePositionChange(0.px, -5.px),
+            listOf(event2.consumePositionChange(0.px, -5.px)),
             PointerEventPass.PreUp
         )
         verify(pin3.pointerInputHandler).invoke(
-            event2.consumePositionChange(0.px, (-11).px),
+            listOf(event2.consumePositionChange(0.px, (-11).px)),
             PointerEventPass.PreUp
         )
 
@@ -605,30 +605,39 @@ class HitPathTrackerTest {
         val child1 = PointerInputNode()
         val child2 = PointerInputNode()
         parent.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, pass ->
+            modifyBlock = { changes, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
-                change.consumePositionChange(
-                    0.px,
-                    (change.positionChange().y.value.toInt() / yConsume).px
-                )
+                changes.map {
+                    it.consumePositionChange(
+                        0.px,
+                        (it.positionChange().y.value.toInt() / yConsume).px
+                    )
+                }
             }
-        })
-        child1.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, pass ->
+        }
+        )
+        child1.pointerInputHandler = spy(MyPointerInputHandler().apply
+        {
+            modifyBlock = { changes, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
-                change.consumePositionChange(
-                    0.px,
-                    (change.positionChange().y.value.toInt() / yConsume).px
-                )
+                changes.map {
+                    it.consumePositionChange(
+                        0.px,
+                        (it.positionChange().y.value.toInt() / yConsume).px
+                    )
+                }
             }
         })
-        child2.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, pass ->
+        child2.pointerInputHandler = spy(MyPointerInputHandler().apply
+        {
+            modifyBlock = { changes, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 11 else 13
-                change.consumePositionChange(
-                    0.px,
-                    (change.positionChange().y.value.toInt() / yConsume).px
-                )
+                changes.map {
+                    it.consumePositionChange(
+                        0.px,
+                        (it.positionChange().y.value.toInt() / yConsume).px
+                    )
+                }
             }
         })
         hitResult.addHitPath(3, listOf(parent, child1))
@@ -643,36 +652,30 @@ class HitPathTrackerTest {
         )
 
         verify(parent.pointerInputHandler).invoke(
-            event1,
+            listOf(event1, event2),
             PointerEventPass.InitialDown
         )
         verify(child1.pointerInputHandler).invoke(
-            event1.consumePositionChange(0.px, 500.px),
+            listOf(event1.consumePositionChange(0.px, 500.px)),
+            PointerEventPass.InitialDown
+        )
+        verify(child2.pointerInputHandler).invoke(
+            listOf(event2.consumePositionChange(0.px, -500.px)),
             PointerEventPass.InitialDown
         )
         verify(child1.pointerInputHandler).invoke(
-            event1.consumePositionChange(0.px, 600.px),
+            listOf(event1.consumePositionChange(0.px, 600.px)),
             PointerEventPass.PreUp
-        )
-        verify(parent.pointerInputHandler).invoke(
-            event1.consumePositionChange(0.px, 657.px),
-            PointerEventPass.PreUp
-        )
-
-        verify(parent.pointerInputHandler).invoke(
-            event2,
-            PointerEventPass.InitialDown
         )
         verify(child2.pointerInputHandler).invoke(
-            event2.consumePositionChange(0.px, -500.px),
-            PointerEventPass.InitialDown
-        )
-        verify(child2.pointerInputHandler).invoke(
-            event2.consumePositionChange(0.px, -545.px),
+            listOf(event2.consumePositionChange(0.px, -545.px)),
             PointerEventPass.PreUp
         )
         verify(parent.pointerInputHandler).invoke(
-            event2.consumePositionChange(0.px, -580.px),
+            listOf(
+                event1.consumePositionChange(0.px, 657.px),
+                event2.consumePositionChange(0.px, -580.px)
+            ),
             PointerEventPass.PreUp
         )
 
@@ -686,21 +689,25 @@ class HitPathTrackerTest {
         val child1 = PointerInputNode()
         val child2 = PointerInputNode()
         child1.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, pass ->
+            modifyBlock = { changes, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 2 else 3
-                change.consumePositionChange(
-                    0.px,
-                    (change.positionChange().y.value.toInt() / yConsume).px
-                )
+                changes.map {
+                    it.consumePositionChange(
+                        0.px,
+                        (it.positionChange().y.value.toInt() / yConsume).px
+                    )
+                }
             }
         })
         child2.pointerInputHandler = spy(MyPointerInputHandler().apply {
-            modifyBlock = { change, pass ->
+            modifyBlock = { changes, pass ->
                 val yConsume = if (pass == PointerEventPass.InitialDown) 5 else 7
-                change.consumePositionChange(
-                    0.px,
-                    (change.positionChange().y.value.toInt() / yConsume).px
-                )
+                changes.map {
+                    it.consumePositionChange(
+                        0.px,
+                        (it.positionChange().y.value.toInt() / yConsume).px
+                    )
+                }
             }
         })
         hitResult.addHitPath(3, listOf(child1, child2))
@@ -715,36 +722,29 @@ class HitPathTrackerTest {
         )
 
         verify(child1.pointerInputHandler).invoke(
-            event1,
-            PointerEventPass.InitialDown
-        )
-        verify(child1.pointerInputHandler).invoke(
-            event2,
+            listOf(event1, event2),
             PointerEventPass.InitialDown
         )
         verify(child2.pointerInputHandler).invoke(
-            event1.consumePositionChange(0.px, 500.px),
-            PointerEventPass.InitialDown
-        )
-        verify(child2.pointerInputHandler).invoke(
-            event2.consumePositionChange(0.px, -500.px),
+            listOf(
+                event1.consumePositionChange(0.px, 500.px),
+                event2.consumePositionChange(0.px, -500.px)
+            ),
             PointerEventPass.InitialDown
         )
 
         verify(child2.pointerInputHandler).invoke(
-            event1.consumePositionChange(0.px, 600.px),
-            PointerEventPass.PreUp
-        )
-        verify(child2.pointerInputHandler).invoke(
-            event2.consumePositionChange(0.px, -600.px),
-            PointerEventPass.PreUp
-        )
-        verify(child1.pointerInputHandler).invoke(
-            event1.consumePositionChange(0.px, 657.px),
+            listOf(
+                event1.consumePositionChange(0.px, 600.px),
+                event2.consumePositionChange(0.px, -600.px)
+            ),
             PointerEventPass.PreUp
         )
         verify(child1.pointerInputHandler).invoke(
-            event2.consumePositionChange(0.px, -657.px),
+            listOf(
+                event1.consumePositionChange(0.px, 657.px),
+                event2.consumePositionChange(0.px, -657.px)
+            ),
             PointerEventPass.PreUp
         )
 
@@ -908,8 +908,8 @@ class HitPathTrackerTest {
     }
 
     //  compositionRoot -> root1 -> middle1 -> leaf1
-    //  compositionRoot -> root2 -> middle2 -> leaf2
-    //  compositionRoot, root3 -> middle3 -> leaf3
+//  compositionRoot -> root2 -> middle2 -> leaf2
+//  compositionRoot, root3 -> middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_3Roots1Detached_correctRootAndAncestorsRemoved() {
         val leaf1 = PointerInputNode()
@@ -970,8 +970,8 @@ class HitPathTrackerTest {
     }
 
     //  compositionRoot -> root1, middle1 -> leaf1
-    //  compositionRoot -> root2 -> middle2 -> leaf2
-    //  compositionRoot -> root3 -> middle3 -> leaf3
+//  compositionRoot -> root2 -> middle2 -> leaf2
+//  compositionRoot -> root3 -> middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_3Roots1MiddleDetached_correctMiddleAndAncestorsRemoved() {
         val leaf1 = PointerInputNode()
@@ -1034,8 +1034,8 @@ class HitPathTrackerTest {
     }
 
     //  compositionRoot -> root1 -> middle1 -> leaf1
-    //  compositionRoot -> root2 -> middle2, leaf2
-    //  compositionRoot -> root3 -> middle3 -> leaf3
+//  compositionRoot -> root2 -> middle2, leaf2
+//  compositionRoot -> root3 -> middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_3Roots1LeafDetached_correctLeafRemoved() {
         val leaf1 = PointerInputNode()
@@ -1101,8 +1101,8 @@ class HitPathTrackerTest {
     }
 
     //  compositionRoot, root1 -> middle1 -> leaf1
-    //  compositionRoot -> root2 -> middle2 -> leaf2
-    //  compositionRoot, root3 -> middle3 -> leaf3
+//  compositionRoot -> root2 -> middle2 -> leaf2
+//  compositionRoot, root3 -> middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_3Roots2Detached_correct2RootsAndAncestorsRemoved() {
         val leaf1 = PointerInputNode()
@@ -1153,8 +1153,8 @@ class HitPathTrackerTest {
     }
 
     //  compositionRoot -> root1, middle1 -> leaf1
-    //  compositionRoot -> root2, middle2 -> leaf2
-    //  compositionRoot -> root3 -> middle3 -> leaf3
+//  compositionRoot -> root2, middle2 -> leaf2
+//  compositionRoot -> root3 -> middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_3Roots2MiddlesDetached_correct2NodesAndAncestorsRemoved() {
         val leaf1 = PointerInputNode()
@@ -1209,8 +1209,8 @@ class HitPathTrackerTest {
     }
 
     //  compositionRoot -> root1 -> middle1 -> leaf1
-    //  compositionRoot -> root2 -> middle2, leaf2
-    //  compositionRoot -> root3 -> middle3, leaf3
+//  compositionRoot -> root2 -> middle2, leaf2
+//  compositionRoot -> root3 -> middle3, leaf3
     @Test
     fun removeDetachedPointerInputNodes_3Roots2LeafsDetached_correct2LeafsRemoved() {
         val leaf1 = PointerInputNode()
@@ -1271,8 +1271,8 @@ class HitPathTrackerTest {
     }
 
     //  compositionRoot, root1 -> middle1 -> leaf1
-    //  compositionRoot, root2 -> middle2 -> leaf2
-    //  compositionRoot, root3 -> middle3 -> leaf3
+//  compositionRoot, root2 -> middle2 -> leaf2
+//  compositionRoot, root3 -> middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_3Roots3Detached_all3RootsAndAncestorsRemoved() {
         val leaf1 = PointerInputNode()
@@ -1311,8 +1311,8 @@ class HitPathTrackerTest {
     }
 
     //  compositionRoot -> root1, middle1 -> leaf1
-    //  compositionRoot -> root2, middle2 -> leaf2
-    //  compositionRoot -> root3, middle3 -> leaf3
+//  compositionRoot -> root2, middle2 -> leaf2
+//  compositionRoot -> root3, middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_3Roots3MiddlesDetached_all3MiddlesAndAncestorsRemoved() {
         val leaf1 = PointerInputNode()
@@ -1359,8 +1359,8 @@ class HitPathTrackerTest {
     }
 
     //  compositionRoot -> root1 -> middle1, leaf1
-    //  compositionRoot -> root2 -> middle2, leaf2
-    //  compositionRoot -> root3 -> middle3, leaf3
+//  compositionRoot -> root2 -> middle2, leaf2
+//  compositionRoot -> root3 -> middle3, leaf3
     @Test
     fun removeDetachedPointerInputNodes_3Roots3LeafsDetached_all3LeafsRemoved() {
         val leaf1 = PointerInputNode()
@@ -1416,8 +1416,8 @@ class HitPathTrackerTest {
     }
 
     // compositionRoot, root1 -> middle1 -> leaf1
-    // compositionRoot -> root2, middle2, leaf2
-    // compositionRoot -> root3 -> middle3, leaf3
+// compositionRoot -> root2, middle2, leaf2
+// compositionRoot -> root3 -> middle3, leaf3
     @Test
     fun removeDetachedPointerInputNodes_3RootsStaggeredDetached_correctPathsRemoved() {
         val leaf1 = PointerInputNode()
@@ -1465,9 +1465,9 @@ class HitPathTrackerTest {
     }
 
     // compositionRoot, root ->
-    //   layoutNode -> middle1 -> leaf1
-    //   layoutNode -> middle2 -> leaf2
-    //   layoutNode -> middle3 -> leaf3
+//   layoutNode -> middle1 -> leaf1
+//   layoutNode -> middle2 -> leaf2
+//   layoutNode -> middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_rootWith3MiddlesDetached_allRemoved() {
         val leaf1 = PointerInputNode()
@@ -1507,9 +1507,9 @@ class HitPathTrackerTest {
     }
 
     // compositionRoot -> root ->
-    //   layoutNode -> middle1 -> leaf1
-    //   layoutNode -> middle2 -> leaf2
-    //   layoutNode, middle3 -> leaf3
+//   layoutNode -> middle1 -> leaf1
+//   layoutNode -> middle2 -> leaf2
+//   layoutNode, middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_rootWith3Middles1Detached_correctMiddleRemoved() {
         val leaf1 = PointerInputNode()
@@ -1568,9 +1568,9 @@ class HitPathTrackerTest {
     }
 
     // compositionRoot -> root ->
-    //   layoutNode, middle1 -> leaf1
-    //   layoutNode, middle2 -> leaf2
-    //   layoutNode -> middle3 -> leaf3
+//   layoutNode, middle1 -> leaf1
+//   layoutNode, middle2 -> leaf2
+//   layoutNode -> middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_rootWith3Middles2Detached_correctMiddlesRemoved() {
         val leaf1 = PointerInputNode()
@@ -1622,9 +1622,9 @@ class HitPathTrackerTest {
     }
 
     // compositionRoot -> root ->
-    //   layoutNode, middle1 -> leaf1
-    //   layoutNode, middle2 -> leaf2
-    //   layoutNode, middle3 -> leaf3
+//   layoutNode, middle1 -> leaf1
+//   layoutNode, middle2 -> leaf2
+//   layoutNode, middle3 -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_rootWith3MiddlesAllDetached_allMiddlesRemoved() {
         val leaf1 = PointerInputNode()
@@ -1668,9 +1668,9 @@ class HitPathTrackerTest {
     }
 
     // compositionRoot -> root -> middle ->
-    //   layoutNode -> leaf1
-    //   layoutNode, leaf2
-    //   layoutNode -> leaf3
+//   layoutNode -> leaf1
+//   layoutNode, leaf2
+//   layoutNode -> leaf3
     @Test
     fun removeDetachedPointerInputNodes_middleWith3Leafs1Detached_correctLeafRemoved() {
         val leaf1 = PointerInputNode()
@@ -1721,9 +1721,9 @@ class HitPathTrackerTest {
     }
 
     // compositionRoot -> root -> middle ->
-    //   layoutNode, leaf1
-    //   layoutNode -> leaf2
-    //   layoutNode, leaf3
+//   layoutNode, leaf1
+//   layoutNode -> leaf2
+//   layoutNode, leaf3
     @Test
     fun removeDetachedPointerInputNodes_middleWith3Leafs2Detached_correctLeafsRemoved() {
         val leaf1 = PointerInputNode()
@@ -1770,9 +1770,9 @@ class HitPathTrackerTest {
     }
 
     // compositionRoot -> root -> middle ->
-    //   layoutNode, leaf1
-    //   layoutNode, leaf2
-    //   layoutNode, leaf3
+//   layoutNode, leaf1
+//   layoutNode, leaf2
+//   layoutNode, leaf3
     @Test
     fun removeDetachedPointerInputNodes_middleWith3LeafsAllDetached_allLeafsRemoved() {
         val leaf1 = PointerInputNode()
@@ -1814,8 +1814,8 @@ class HitPathTrackerTest {
     }
 
     // arrange: root(3) -> middle(3) -> leaf(3)
-    // act: 3 is removed
-    // assert: no path
+// act: 3 is removed
+// assert: no path
     @Test
     fun removePointerId_onePathPointerIdRemoved_hitTestResultIsEmpty() {
         val root = PointerInputNode()
@@ -1832,8 +1832,8 @@ class HitPathTrackerTest {
     }
 
     // arrange: root(3) -> middle(3) -> leaf(3)
-    // act: 99 is removed
-    // assert: root(3) -> middle(3) -> leaf(3)
+// act: 99 is removed
+// assert: root(3) -> middle(3) -> leaf(3)
     @Test
     fun removePointerId_onePathOtherPointerIdRemoved_hitTestResultIsNotChanged() {
         val root = PointerInputNode()
@@ -1860,14 +1860,14 @@ class HitPathTrackerTest {
     }
 
     // Arrange:
-    // root(3) -> middle(3) -> leaf(3)
-    // root(5) -> middle(5) -> leaf(5)
-    //
-    // Act:
-    // 5 is removed
-    //
-    // Act:
-    // root(3) -> middle(3) -> leaf(3)
+// root(3) -> middle(3) -> leaf(3)
+// root(5) -> middle(5) -> leaf(5)
+//
+// Act:
+// 5 is removed
+//
+// Act:
+// root(3) -> middle(3) -> leaf(3)
     @Test
     fun removePointerId_2IndependentPaths1PointerIdRemoved_resultContainsRemainingPath() {
         val root1 = PointerInputNode()
@@ -1899,8 +1899,8 @@ class HitPathTrackerTest {
     }
 
     // root(3,5) -> middle(3,5) -> leaf(3,5)
-    // 3 is removed
-    // root(5) -> middle(5) -> leaf(5)
+// 3 is removed
+// root(5) -> middle(5) -> leaf(5)
     @Test
     fun removePointerId_2PathsShareNodes1PointerIdRemoved_resultContainsRemainingPath() {
         val root = PointerInputNode()
@@ -1928,8 +1928,8 @@ class HitPathTrackerTest {
     }
 
     // Arrange: root(3,5) -> middle(3,5) -> leaf(3)
-    // Act: 3 is removed
-    // Assert: root(5) -> middle(5)
+// Act: 3 is removed
+// Assert: root(5) -> middle(5)
     @Test
     fun removePointerId_2PathsShare2NodesLongPathPointerIdRemoved_resultJustHasShortPath() {
         val root = PointerInputNode()
@@ -1954,8 +1954,8 @@ class HitPathTrackerTest {
     }
 
     // Arrange: root(3,5) -> middle(3,5) -> leaf(3)
-    // Act: 5 is removed
-    // Assert: root(3) -> middle(3) -> leaf(3)
+// Act: 5 is removed
+// Assert: root(3) -> middle(3) -> leaf(3)
     @Test
     fun removePointerId_2PathsShare2NodesShortPathPointerIdRemoved_resultJustHasLongPath() {
         val root = PointerInputNode()
@@ -1983,8 +1983,8 @@ class HitPathTrackerTest {
     }
 
     // Arrange: root(3,5) -> middle(3) -> leaf(3)
-    // Act: 3 is removed
-    // Assert: root(5)
+// Act: 3 is removed
+// Assert: root(5)
     @Test
     fun removePointerId_2PathsShare1NodeLongPathPointerIdRemoved_resultJustHasShortPath() {
         val root = PointerInputNode()
@@ -2006,8 +2006,8 @@ class HitPathTrackerTest {
     }
 
     // Arrange: root(3,5) -> middle(3) -> leaf(3)
-    // Act: 5 is removed
-    // Assert: root(3) -> middle(3) -> leaf(3)
+// Act: 5 is removed
+// Assert: root(3) -> middle(3) -> leaf(3)
     @Test
     fun removePointerId_2PathsShare1NodeShortPathPointerIdRemoved_resultJustHasLongPath() {
         val root = PointerInputNode()
@@ -2162,7 +2162,7 @@ class HitPathTrackerTest {
         for (pass in listOf(PointerEventPass.InitialDown, PointerEventPass.PreUp)) {
             for (i in 0 until pointerInputNodes.size) {
                 verify(pointerInputNodes[i].pointerInputHandler).invoke(
-                    expectedPointerInputChanges[i],
+                    listOf(expectedPointerInputChanges[i]),
                     pass
                 )
             }
@@ -2173,10 +2173,10 @@ class HitPathTrackerTest {
     }
 
     // ParentLn -> ParentPin -> ChildLn -> ChildPin
-    //
-    // ParentLn(3, 5), ChildLn(-7, -11)
-    // Move to
-    // ParentLn(-13, -17), ChildLn(19, 29)
+//
+// ParentLn(3, 5), ChildLn(-7, -11)
+// Move to
+// ParentLn(-13, -17), ChildLn(19, 29)
     @Test
     fun refreshOffsets_layoutNodesMove_changeTranslatedCorrectly() {
 
@@ -2254,7 +2254,7 @@ class HitPathTrackerTest {
         for (pass in listOf(PointerEventPass.InitialDown, PointerEventPass.PreUp)) {
             for (i in 0 until pointerInputNodes.size) {
                 verify(pointerInputNodes[i].pointerInputHandler).invoke(
-                    expectedPointerInputChanges[i],
+                    listOf(expectedPointerInputChanges[i]),
                     pass
                 )
             }
@@ -2265,7 +2265,7 @@ class HitPathTrackerTest {
     }
 
     // Ln -> Pin -> Ln -> Pin
-    // Ln -> Pin -> Ln -> Pin
+// Ln -> Pin -> Ln -> Pin
     @Test
     fun refreshOffsets_2IndependentPaths_changeTranslatedCorrectly() {
 
@@ -2384,13 +2384,13 @@ class HitPathTrackerTest {
         for (pass in listOf(PointerEventPass.InitialDown, PointerEventPass.PreUp)) {
             for (i in 0 until pointerInputNodes1.size) {
                 verify(pointerInputNodes1[i].pointerInputHandler).invoke(
-                    expectedPointerInputChanges1[i],
+                    listOf(expectedPointerInputChanges1[i]),
                     pass
                 )
             }
             for (i in 0 until pointerInputNodes2.size) {
                 verify(pointerInputNodes2[i].pointerInputHandler).invoke(
-                    expectedPointerInputChanges2[i],
+                    listOf(expectedPointerInputChanges2[i]),
                     pass
                 )
             }
@@ -2447,9 +2447,7 @@ class HitPathTrackerTest {
 
         // Assert
 
-        val pointerInputNodes1 = arrayOf(parentPointerInputNode, childPointerInputNode1)
-
-        val expectedPointerInputChanges1 = arrayOf(
+        val parentExpectedPointerInputChanges = listOf(
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
@@ -2460,6 +2458,19 @@ class HitPathTrackerTest {
                 previous = PointerInputData(null, null, false),
                 consumed = ConsumedData()
             ),
+            PointerInputChange(
+                id = 5,
+                current = PointerInputData(
+                    7L.millisecondsToTimestamp(),
+                    pointer2Offset - parentOffset,
+                    true
+                ),
+                previous = PointerInputData(null, null, false),
+                consumed = ConsumedData()
+            )
+        )
+
+        val child1ExpectedPointerInputChanges = listOf(
             PointerInputChange(
                 id = 3,
                 current = PointerInputData(
@@ -2472,19 +2483,7 @@ class HitPathTrackerTest {
             )
         )
 
-        val pointerInputNodes2 = arrayOf(parentPointerInputNode, childPointerInputNode2)
-
-        val expectedPointerInputChanges2 = arrayOf(
-            PointerInputChange(
-                id = 5,
-                current = PointerInputData(
-                    7L.millisecondsToTimestamp(),
-                    pointer2Offset - parentOffset,
-                    true
-                ),
-                previous = PointerInputData(null, null, false),
-                consumed = ConsumedData()
-            ),
+        val child2ExpectedPointerInputChanges = listOf(
             PointerInputChange(
                 id = 5,
                 current = PointerInputData(
@@ -2515,26 +2514,28 @@ class HitPathTrackerTest {
             PointerEventPass.InitialDown, PointerEventPass.PreUp
         )
 
-        for (pass in listOf(PointerEventPass.InitialDown, PointerEventPass.PreUp)) {
-            for (i in 0 until pointerInputNodes1.size) {
-                verify(pointerInputNodes1[i].pointerInputHandler).invoke(
-                    expectedPointerInputChanges1[i],
-                    pass
-                )
-            }
-            for (i in 0 until pointerInputNodes2.size) {
-                verify(pointerInputNodes2[i].pointerInputHandler).invoke(
-                    expectedPointerInputChanges2[i],
-                    pass
-                )
-            }
-        }
-        for (pointerInputNode in pointerInputNodes1) {
-            verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
-        }
-        for (pointerInputNode in pointerInputNodes2) {
-            verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
-        }
+        verify(parentPointerInputNode.pointerInputHandler).invoke(
+            parentExpectedPointerInputChanges, PointerEventPass.InitialDown
+        )
+        verify(childPointerInputNode1.pointerInputHandler).invoke(
+            child1ExpectedPointerInputChanges, PointerEventPass.InitialDown
+        )
+        verify(childPointerInputNode2.pointerInputHandler).invoke(
+            child2ExpectedPointerInputChanges, PointerEventPass.InitialDown
+        )
+        verify(childPointerInputNode1.pointerInputHandler).invoke(
+            child1ExpectedPointerInputChanges, PointerEventPass.PreUp
+        )
+        verify(childPointerInputNode2.pointerInputHandler).invoke(
+            child2ExpectedPointerInputChanges, PointerEventPass.PreUp
+        )
+        verify(parentPointerInputNode.pointerInputHandler).invoke(
+            parentExpectedPointerInputChanges, PointerEventPass.PreUp
+        )
+
+        verifyNoMoreInteractions(parentPointerInputNode.pointerInputHandler)
+        verifyNoMoreInteractions(childPointerInputNode1.pointerInputHandler)
+        verifyNoMoreInteractions(childPointerInputNode2.pointerInputHandler)
     }
 
     // Ln -> Ln -> Pin -> Ln
@@ -2596,7 +2597,7 @@ class HitPathTrackerTest {
 
         for (pass in listOf(PointerEventPass.InitialDown, PointerEventPass.PreUp)) {
             verify(pointerInputNode.pointerInputHandler).invoke(
-                expectedPointerInputChange,
+                listOf(expectedPointerInputChange),
                 pass
             )
         }
@@ -2688,7 +2689,7 @@ class HitPathTrackerTest {
         for (pass in listOf(PointerEventPass.InitialDown, PointerEventPass.PreUp)) {
             for (i in 0 until pointerInputNodes.size) {
                 verify(pointerInputNodes[i].pointerInputHandler).invoke(
-                    expectedPointerInputChanges[i],
+                    listOf(expectedPointerInputChanges[i]),
                     pass
                 )
             }

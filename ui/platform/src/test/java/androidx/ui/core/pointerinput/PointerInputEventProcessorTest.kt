@@ -137,7 +137,7 @@ class PointerInputEventProcessorTest {
         inOrder(pointerInputNode.pointerInputHandler) {
             for (expected in expectedChanges) {
                 for (pass in PointerEventPass.values()) {
-                    verify(pointerInputNode.pointerInputHandler).invoke(expected, pass)
+                    verify(pointerInputNode.pointerInputHandler).invoke(listOf(expected), pass)
                 }
             }
         }
@@ -189,7 +189,7 @@ class PointerInputEventProcessorTest {
 
         verify(pointerInputNode.pointerInputHandler, times(4)).invoke(any(), eq(InitialDown))
         for (expected in expectedChanges) {
-            verify(pointerInputNode.pointerInputHandler).invoke(expected, InitialDown)
+            verify(pointerInputNode.pointerInputHandler).invoke(listOf(expected), InitialDown)
         }
     }
 
@@ -333,7 +333,11 @@ class PointerInputEventProcessorTest {
         val pointerInputNode: PointerInputNode = PointerInputNode().apply {
             emitInsertAt(0, LayoutNode(0, 0, 500, 500))
             pointerInputHandler = spy(MyPointerInputHandler())
-            whenever(pointerInputHandler.invoke(input, InitialDown)).thenReturn(output)
+            whenever(pointerInputHandler.invoke(listOf(input), InitialDown)).thenReturn(
+                listOf(
+                    output
+                )
+            )
         }
         root.emitInsertAt(0, pointerInputNode)
 
@@ -357,8 +361,8 @@ class PointerInputEventProcessorTest {
 
         // Assert
 
-        verify(pointerInputNode.pointerInputHandler).invoke(input, InitialDown)
-        verify(pointerInputNode.pointerInputHandler).invoke(output, PreUp)
+        verify(pointerInputNode.pointerInputHandler).invoke(listOf(input), InitialDown)
+        verify(pointerInputNode.pointerInputHandler).invoke(listOf(output), PreUp)
     }
 
     @Test
@@ -481,7 +485,7 @@ class PointerInputEventProcessorTest {
         for (pass in PointerEventPass.values()) {
             for (i in 0..2) {
                 verify(pointerInputNodes[i].pointerInputHandler).invoke(
-                    expectedPointerInputChanges[i],
+                    listOf(expectedPointerInputChanges[i]),
                     pass
                 )
             }
@@ -560,9 +564,9 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(childPointerInputNode1.pointerInputHandler)
-                .invoke(expectedChange1, pointerEventPass)
+                .invoke(listOf(expectedChange1), pointerEventPass)
             verify(childPointerInputNode2.pointerInputHandler)
-                .invoke(expectedChange2, pointerEventPass)
+                .invoke(listOf(expectedChange2), pointerEventPass)
         }
     }
 
@@ -656,11 +660,11 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(childPointerInputNode1.pointerInputHandler)
-                .invoke(expectedChange1, pointerEventPass)
+                .invoke(listOf(expectedChange1), pointerEventPass)
             verify(childPointerInputNode2.pointerInputHandler)
-                .invoke(expectedChange2, pointerEventPass)
+                .invoke(listOf(expectedChange2), pointerEventPass)
             verify(childPointerInputNode3.pointerInputHandler)
-                .invoke(expectedChange3, pointerEventPass)
+                .invoke(listOf(expectedChange3), pointerEventPass)
         }
         verifyNoMoreInteractions(
             childPointerInputNode1.pointerInputHandler,
@@ -749,11 +753,9 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(childPointerInputNode1.pointerInputHandler)
-                .invoke(expectedChange1, pointerEventPass)
+                .invoke(listOf(expectedChange1, expectedChange3), pointerEventPass)
             verify(childPointerInputNode2.pointerInputHandler)
-                .invoke(expectedChange2, pointerEventPass)
-            verify(childPointerInputNode1.pointerInputHandler)
-                .invoke(expectedChange3, pointerEventPass)
+                .invoke(listOf(expectedChange2), pointerEventPass)
         }
         verifyNoMoreInteractions(
             childPointerInputNode1.pointerInputHandler,
@@ -837,11 +839,9 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(childPointerInputNode1.pointerInputHandler)
-                .invoke(expectedChange1, pointerEventPass)
+                .invoke(listOf(expectedChange1, expectedChange3), pointerEventPass)
             verify(childPointerInputNode2.pointerInputHandler)
-                .invoke(expectedChange2, pointerEventPass)
-            verify(childPointerInputNode1.pointerInputHandler)
-                .invoke(expectedChange3, pointerEventPass)
+                .invoke(listOf(expectedChange2), pointerEventPass)
         }
         verifyNoMoreInteractions(
             childPointerInputNode1.pointerInputHandler,
@@ -895,11 +895,11 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(childPointerInputNode1.pointerInputHandler)
-                .invoke(expectedChange, pointerEventPass)
+                .invoke(listOf(expectedChange), pointerEventPass)
             verify(childPointerInputNode2.pointerInputHandler)
-                .invoke(expectedChange, pointerEventPass)
+                .invoke(listOf(expectedChange), pointerEventPass)
             verify(childPointerInputNode3.pointerInputHandler)
-                .invoke(expectedChange, pointerEventPass)
+                .invoke(listOf(expectedChange), pointerEventPass)
         }
         verifyNoMoreInteractions(childPointerInputNode1.pointerInputHandler)
         verifyNoMoreInteractions(childPointerInputNode2.pointerInputHandler)
@@ -954,7 +954,7 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(pointerInputNode.pointerInputHandler)
-                .invoke(expectedChange, pointerEventPass)
+                .invoke(listOf(expectedChange), pointerEventPass)
         }
         verifyNoMoreInteractions(pointerInputNode.pointerInputHandler)
     }
@@ -1036,13 +1036,13 @@ class PointerInputEventProcessorTest {
 
         for (pointerEventPass in PointerEventPass.values()) {
             verify(pointerInputNode1.pointerInputHandler)
-                .invoke(expectedChange1, pointerEventPass)
+                .invoke(listOf(expectedChange1), pointerEventPass)
             verify(pointerInputNode2.pointerInputHandler)
-                .invoke(expectedChange1, pointerEventPass)
+                .invoke(listOf(expectedChange1), pointerEventPass)
             verify(pointerInputNode3.pointerInputHandler)
-                .invoke(expectedChange2, pointerEventPass)
+                .invoke(listOf(expectedChange2), pointerEventPass)
             verify(pointerInputNode4.pointerInputHandler)
-                .invoke(expectedChange2, pointerEventPass)
+                .invoke(listOf(expectedChange2), pointerEventPass)
         }
         verifyNoMoreInteractions(pointerInputNode1.pointerInputHandler)
         verifyNoMoreInteractions(pointerInputNode2.pointerInputHandler)
@@ -1226,11 +1226,11 @@ class PointerInputEventProcessorTest {
 
         PointerEventPass.values().forEach {
             verify(parentPointerInputNode.pointerInputHandler)
-                .invoke(expectedDownChange, it)
+                .invoke(listOf(expectedDownChange), it)
             verify(childPointerInputNode.pointerInputHandler)
-                .invoke(expectedDownChange, it)
+                .invoke(listOf(expectedDownChange), it)
             verify(parentPointerInputNode.pointerInputHandler)
-                .invoke(expectedUpChange, it)
+                .invoke(listOf(expectedUpChange), it)
         }
         verifyNoMoreInteractions(parentPointerInputNode.pointerInputHandler)
         verifyNoMoreInteractions(childPointerInputNode.pointerInputHandler)

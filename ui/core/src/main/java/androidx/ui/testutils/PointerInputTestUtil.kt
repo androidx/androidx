@@ -76,25 +76,23 @@ fun PointerInputChange.consume(dx: Float = 0f, dy: Float = 0f, downChange: Boole
     )
 
 fun PointerInputHandler.invokeOverPasses(
-    pointerInputChange: PointerInputChange,
+    pointerInputChanges: List<PointerInputChange>,
     vararg pointerEventPasses: PointerEventPass
-): PointerInputChange {
-    var localPointerInputChange = pointerInputChange
+): List<PointerInputChange> {
+    var localPointerInputChanges = pointerInputChanges
     pointerEventPasses.forEach {
-        localPointerInputChange = this.invoke(localPointerInputChange, it)
+        localPointerInputChanges = this.invoke(localPointerInputChanges, it)
     }
-    return localPointerInputChange
+    return localPointerInputChanges
 }
 
 fun PointerInputHandler.invokeOverAllPasses(
-    pointerInputChange: PointerInputChange
-): PointerInputChange {
-    return invokeOverPasses(
-        pointerInputChange,
-        PointerEventPass.InitialDown,
-        PointerEventPass.PreUp,
-        PointerEventPass.PreDown,
-        PointerEventPass.PostUp,
-        PointerEventPass.PostDown
-    )
-}
+    pointerInputChanges: List<PointerInputChange>
+) = invokeOverPasses(
+    pointerInputChanges,
+    PointerEventPass.InitialDown,
+    PointerEventPass.PreUp,
+    PointerEventPass.PreDown,
+    PointerEventPass.PostUp,
+    PointerEventPass.PostDown
+)
