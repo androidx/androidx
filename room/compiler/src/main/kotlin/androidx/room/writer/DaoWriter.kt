@@ -42,6 +42,7 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import stripNonJava
 import javax.annotation.processing.ProcessingEnvironment
+import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.FINAL
@@ -52,7 +53,11 @@ import javax.lang.model.type.DeclaredType
 /**
  * Creates the implementation for a class annotated with Dao.
  */
-class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
+class DaoWriter(
+    val dao: Dao,
+    private val dbElement: Element,
+    val processingEnv: ProcessingEnvironment
+)
     : ClassWriter(dao.typeName) {
     private val declaredDao = MoreTypes.asDeclared(dao.element.asType())
 
@@ -90,6 +95,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
                 createPreparedQueries(preparedQueries)
 
         builder.apply {
+            addOriginatingElement(dbElement)
             addModifiers(PUBLIC)
             addModifiers(FINAL)
             if (dao.element.kind == ElementKind.INTERFACE) {

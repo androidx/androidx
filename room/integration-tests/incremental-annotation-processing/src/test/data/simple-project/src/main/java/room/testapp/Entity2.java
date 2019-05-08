@@ -14,12 +14,21 @@
  * limitations under the License.
  */
 
-package testapp;
+package room.testapp;
 
-import androidx.room.Database;
-import androidx.room.RoomDatabase;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
-@Database(entities = TestEntity.class, version = 1, exportSchema = false)
-public abstract class TestDatabase extends RoomDatabase {
-    public abstract TestDao getDao();
+@Entity(tableName = "entity2")
+public class Entity2 {
+    @PrimaryKey(autoGenerate = true)
+    private long mId;
+
+    public Entity2(long id) {
+        this.mId = id;
+    }
+
+    public long getId() {
+        return mId;
+    }
 }
