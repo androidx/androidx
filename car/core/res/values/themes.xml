@@ -82,6 +82,7 @@ limitations under the License.
         <item name="listItemFocusOutlineColor">@color/car_accent_light</item>
         <item name="listItemBackground">@drawable/car_list_item_background</item>
         <item name="listItemBackgroundColor">@color/car_card_dark</item>
+        <item name="listItemForeground">@drawable/car_card_ripple_background_light</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body3.Light</item>
         <item name="listItemPrimaryIconTint">@null</item>
         <item name="listItemSupplementalIconTint">@null</item>
@@ -168,6 +169,7 @@ limitations under the License.
         <item name="listItemActionDividerColor">@color/car_list_divider</item>
         <item name="listItemFocusOutlineColor">@color/car_accent</item>
         <item name="listItemBackgroundColor">@color/car_card</item>
+        <item name="listItemForeground">@drawable/car_card_ripple_background</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body3</item>
         <item name="listItemSubheaderTextAppearance">@style/TextAppearance.Car.Subheader</item>
@@ -290,6 +292,7 @@ limitations under the License.
     <style name="Theme.Car.Light.Dialog.Alert" parent="Theme.Car.Dialog.Alert">
         <item name="android:colorButtonNormal">@color/car_accent_dark</item>
         <item name="android:colorControlActivated">@color/car_accent_dark</item>
+        <item name="listItemForeground">@drawable/car_card_ripple_background</item>
         <item name="android:background">@color/car_card_light</item>
         <item name="android:textColorPrimary">@color/car_body3_dark</item>
         <item name="android:windowTitleStyle">@style/Widget.Car.Dialog.Title.Dark</item>
@@ -300,6 +303,7 @@ limitations under the License.
     <style name="Theme.Car.Dark.Dialog.Alert" parent="Theme.Car.Dialog.Alert">
         <item name="android:colorButtonNormal">@color/car_accent_light</item>
         <item name="android:colorControlActivated">@color/car_accent_light</item>
+        <item name="listItemForeground">@drawable/car_card_ripple_background_light</item>
         <item name="android:background">@color/car_card_dark</item>
         <item name="android:textColorPrimary">@color/car_body3_light</item>
         <item name="android:windowTitleStyle">@style/Widget.Car.Dialog.Title.Light</item>
@@ -324,6 +328,7 @@ limitations under the License.
         <item name="listItemFocusOutlineColor">@color/car_accent_dark</item>
         <item name="listItemBackground">@drawable/car_list_item_background</item>
         <item name="listItemBackgroundColor">@color/car_card</item>
+        <item name="listItemForeground">@drawable/car_card_ripple_background</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
     </style>

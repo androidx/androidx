@@ -48,6 +48,7 @@
 
     <!-- ListItem -->
     <public type="attr" name="listItemFocusOutlineColor" />
+    <public type="attr" name="listItemForeground" />
     <public type="attr" name="listItemBackground" />
     <public type="attr" name="listItemBackgroundColor" />
     <public type="attr" name="listItemTitleTextAppearance" />
