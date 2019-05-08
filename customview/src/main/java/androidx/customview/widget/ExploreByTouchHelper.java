@@ -428,9 +428,11 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
         getVisibleVirtualViews(virtualViewIds);
 
         final SparseArrayCompat<AccessibilityNodeInfoCompat> allNodes = new SparseArrayCompat<>();
-        for (int virtualViewId = 0; virtualViewId < virtualViewIds.size(); virtualViewId++) {
-            final AccessibilityNodeInfoCompat virtualView = createNodeForChild(virtualViewId);
-            allNodes.put(virtualViewId, virtualView);
+        for (int virtualViewIdIndex = 0; virtualViewIdIndex < virtualViewIds.size();
+                virtualViewIdIndex++) {
+            final AccessibilityNodeInfoCompat virtualView =
+                    createNodeForChild(virtualViewIds.get(virtualViewIdIndex));
+            allNodes.put(virtualViewIds.get(virtualViewIdIndex), virtualView);
         }
 
         return allNodes;
@@ -1025,6 +1027,10 @@ public abstract class ExploreByTouchHelper extends AccessibilityDelegateCompat {
 
         if (mKeyboardFocusedVirtualViewId != INVALID_ID) {
             clearKeyboardFocusForVirtualView(mKeyboardFocusedVirtualViewId);
+        }
+
+        if (virtualViewId == INVALID_ID) {
+            return false;
         }
 
         mKeyboardFocusedVirtualViewId = virtualViewId;
