@@ -24,7 +24,7 @@ import android.view.animation.LinearInterpolator
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.test.filters.LargeTest
 import androidx.testutils.FragmentActivityUtils.waitForCycles
-import androidx.viewpager2.LocaleTestUtils
+import androidx.testutils.LocaleTestUtils
 import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
 import androidx.viewpager2.widget.FakeDragTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.FakeDragTest.Event.OnPageScrolledEvent

@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatCallback;
 import androidx.appcompat.test.R;
 import androidx.appcompat.view.ActionMode;
+import androidx.testutils.LocaleTestUtils;
 import androidx.testutils.RecreatedAppCompatActivity;
 
 public abstract class BaseTestActivity extends RecreatedAppCompatActivity {
@@ -48,10 +49,19 @@ public abstract class BaseTestActivity extends RecreatedAppCompatActivity {
     private boolean mDestroyed;
 
     private AppCompatCallback mAppCompatCallback;
+    private static final String EXTRA_LANGUAGE = "language";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        final LocaleTestUtils locale = new LocaleTestUtils(this);
+        if (getIntent().hasExtra(EXTRA_LANGUAGE)) {
+            locale.setLocale(LocaleTestUtils.RTL_LANGUAGE);
+        } else {
+            locale.setLocale(LocaleTestUtils.DEFAULT_TEST_LANGUAGE);
+        }
+
         overridePendingTransition(0, 0);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         final int contentView = getContentViewLayoutResId();

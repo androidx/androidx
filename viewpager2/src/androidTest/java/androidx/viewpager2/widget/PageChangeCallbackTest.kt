@@ -22,9 +22,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.testutils.LocaleTestUtils
 import androidx.testutils.PollingCheck
 import androidx.viewpager.widget.ViewPager
-import androidx.viewpager2.LocaleTestUtils
 import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
 import androidx.viewpager2.widget.PageChangeCallbackTest.Event.MarkerEvent
 import androidx.viewpager2.widget.PageChangeCallbackTest.Event.OnPageScrollStateChangedEvent
