@@ -61,7 +61,7 @@ androidx {
     description = "AndroidX UI classes used by all other UI modules."
 }
 
-tasks.withType(KotlinCompile).all {
+tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += ["-Werror", "-Xuse-experimental=kotlin.Experimental"]
     }

@@ -60,10 +60,3 @@ androidx {
     inceptionYear = "2019"
     description = "Contains internal implementation that allows separation of android implementation from host-side tests."
 }
-
-tasks.withType(KotlinCompile).all {
-    kotlinOptions {
-        freeCompilerArgs += ["-Werror"]
-    }
-}
-

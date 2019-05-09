@@ -70,14 +70,8 @@ androidx {
     description = "AndroidX UI Text"
 }
 
-tasks.withType(KotlinCompile).all {
+tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         useIR = true
-        freeCompilerArgs += ["-Werror"]
     }
-}
-
-tasks.withType(KotlinCompile).configureEach { compile ->
-    compile.kotlinOptions.freeCompilerArgs +="-P"
-    compile.kotlinOptions.freeCompilerArgs += "plugin:androidx.compose.plugins.kotlin:syntax=FCS"
 }
