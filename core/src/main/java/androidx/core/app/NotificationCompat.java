@@ -194,6 +194,16 @@ public class NotificationCompat {
     public static final int FLAG_GROUP_SUMMARY      = 0x00000200;
 
     /**
+     * Bit set in the Notification flags field if this notification is showing as a bubble.
+     *
+     * Applications cannot set this flag directly; they should instead call
+     * {@link NotificationCompat.Builder#setBubbleMetadata(BubbleMetadata)} to request that a
+     * notification be displayed as a bubble, and then check this flag to see whether that request
+     * was honored by the system.
+     */
+    public static final int FLAG_BUBBLE             = 0x00001000;
+
+    /**
      * Default notification priority for {@link NotificationCompat.Builder#setPriority(int)}.
      * If your application does not prioritize its own notifications,
      * use this value for all notifications.
@@ -5251,15 +5261,15 @@ public class NotificationCompat {
 
         /**
          * If set and the app creating the bubble is in the foreground, the bubble will be posted
-         * <b>without</b> the associated notification in the notification shade. Subsequent update
-         * notifications to this bubble will post a notification in the shade.
+         * <b>without</b> the associated notification in the notification shade.
          *
-         * <p>If the app creating the bubble is not in the foreground this flag has no effect.</p>
+         * <p>If the app posting the bubble is not in the foreground this flag has no effect.</p>
          *
          * <p>Generally this flag should only be set if the user has performed an action to request
-         * or create a bubble.</p>
+         * or create a bubble, or if the user has seen the content in the notification and the
+         * notification is no longer relevant.</p>
          */
-        private static final int FLAG_SUPPRESS_INITIAL_NOTIFICATION = 0x00000002;
+        private static final int FLAG_SUPPRESS_NOTIFICATION = 0x00000002;
 
         private BubbleMetadata(PendingIntent expandIntent, PendingIntent deleteIntent,
                 IconCompat icon, int height, @DimenRes int heightResId, int flags) {
@@ -5325,12 +5335,12 @@ public class NotificationCompat {
         }
 
         /**
-         * @return whether this bubble should suppress the initial notification when it is posted.
+         * @return whether this bubble should suppress the notification when it is posted.
          *
-         * @see BubbleMetadata.Builder#setSuppressInitialNotification(boolean)
+         * @see BubbleMetadata.Builder#setSuppressNotification(boolean)
          */
-        public boolean getSuppressInitialNotification() {
-            return (mFlags & FLAG_SUPPRESS_INITIAL_NOTIFICATION) != 0;
+        public boolean isNotificationSuppressed() {
+            return (mFlags & FLAG_SUPPRESS_NOTIFICATION) != 0;
         }
 
         /**
@@ -5355,7 +5365,7 @@ public class NotificationCompat {
                             .setIcon(compatMetadata.getIcon().toIcon())
                             .setIntent(compatMetadata.getIntent())
                             .setSuppressNotification(
-                                    compatMetadata.getSuppressInitialNotification());
+                                    compatMetadata.isNotificationSuppressed());
 
             if (compatMetadata.getDesiredHeight() != 0) {
                 platformMetadataBuilder.setDesiredHeight(compatMetadata.getDesiredHeight());
@@ -5389,7 +5399,7 @@ public class NotificationCompat {
                     .setDeleteIntent(platformMetadata.getDeleteIntent())
                     .setIcon(IconCompat.createFromIcon(platformMetadata.getIcon()))
                     .setIntent(platformMetadata.getIntent())
-                    .setSuppressInitialNotification(
+                    .setSuppressNotification(
                             platformMetadata.isNotificationSuppressed());
 
             if (platformMetadata.getDesiredHeight() != 0) {
@@ -5518,20 +5528,20 @@ public class NotificationCompat {
             }
 
             /**
-             * If set and the app creating the bubble is in the foreground, the bubble will be
+             * If set and the app posting the bubble is in the foreground, the bubble will be
              * posted <b>without</b> the associated notification in the notification shade.
-             * Subsequent update notifications to this bubble will post a notification in the shade.
              *
-             * <p>If the app creating the bubble is not in the foreground this flag has no effect.
+             * <p>If the app posting the bubble is not in the foreground this flag has no effect.
              * </p>
              *
              * <p>Generally this flag should only be set if the user has performed an action to
-             * request or create a bubble.</p>
+             * request or create a bubble, or if the user has seen the content in the notification
+             * and the notification is no longer relevant.</p>
              */
             @NonNull
-            public BubbleMetadata.Builder setSuppressInitialNotification(
-                    boolean shouldSupressNotif) {
-                setFlag(FLAG_SUPPRESS_INITIAL_NOTIFICATION, shouldSupressNotif);
+            public BubbleMetadata.Builder setSuppressNotification(
+                    boolean shouldSuppressNotif) {
+                setFlag(FLAG_SUPPRESS_NOTIFICATION, shouldSuppressNotif);
                 return this;
             }
 
@@ -5650,11 +5660,14 @@ public class NotificationCompat {
     }
 
     /**
-     * Get the bubble metadata that will be used to display app content in a floating window
-     * over the existing foreground activity.
-     * @param notification the notification to inspect.
+     * Get the {@link BubbleMetadata} for a notification that will be used to display app content in
+     * a floating window over the existing foreground activity.
+     *
+     * @param notification the notification to inspect
+     *
+     * @return the BubbleMetadata if available and set, otherwise null
      */
-    public static @Nullable BubbleMetadata getBubbleMetadata(Notification notification) {
+    public static @Nullable BubbleMetadata getBubbleMetadata(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 29) {
             return BubbleMetadata.fromPlatform(notification.getBubbleMetadata());
         } else {

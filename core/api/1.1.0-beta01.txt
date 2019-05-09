@@ -182,7 +182,7 @@ package androidx.core.app {
     method public static int getActionCount(android.app.Notification!);
     method public static boolean getAllowSystemGeneratedContextualActions(android.app.Notification!);
     method public static int getBadgeIconType(android.app.Notification!);
-    method public static androidx.core.app.NotificationCompat.BubbleMetadata? getBubbleMetadata(android.app.Notification!);
+    method public static androidx.core.app.NotificationCompat.BubbleMetadata? getBubbleMetadata(android.app.Notification);
     method public static String! getCategory(android.app.Notification!);
     method public static String! getChannelId(android.app.Notification!);
     method @RequiresApi(19) public static CharSequence! getContentTitle(android.app.Notification!);
@@ -250,6 +250,7 @@ package androidx.core.app {
     field public static final String EXTRA_TITLE = "android.title";
     field public static final String EXTRA_TITLE_BIG = "android.title.big";
     field public static final int FLAG_AUTO_CANCEL = 16; // 0x10
+    field public static final int FLAG_BUBBLE = 4096; // 0x1000
     field public static final int FLAG_FOREGROUND_SERVICE = 64; // 0x40
     field public static final int FLAG_GROUP_SUMMARY = 512; // 0x200
     field @Deprecated public static final int FLAG_HIGH_PRIORITY = 128; // 0x80
@@ -366,7 +367,7 @@ package androidx.core.app {
     method @DimenRes public int getDesiredHeightResId();
     method public androidx.core.graphics.drawable.IconCompat getIcon();
     method public android.app.PendingIntent getIntent();
-    method public boolean getSuppressInitialNotification();
+    method public boolean isNotificationSuppressed();
     method @RequiresApi(29) public static android.app.Notification.BubbleMetadata? toPlatform(androidx.core.app.NotificationCompat.BubbleMetadata?);
   }
 
@@ -379,7 +380,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setDesiredHeightResId(@DimenRes int);
     method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setIcon(androidx.core.graphics.drawable.IconCompat);
     method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setIntent(android.app.PendingIntent);
-    method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setSuppressInitialNotification(boolean);
+    method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setSuppressNotification(boolean);
   }
 
   public static class NotificationCompat.Builder {
