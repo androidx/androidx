@@ -63,10 +63,3 @@ androidx {
     inceptionYear = "2019"
     description = "AndroidX UI View wrappers (temporary non-IR module)."
 }
-android {
-    tasks.withType(KotlinCompile).all {
-        kotlinOptions {
-            freeCompilerArgs += ["-Werror"]
-        }
-    }
-}
