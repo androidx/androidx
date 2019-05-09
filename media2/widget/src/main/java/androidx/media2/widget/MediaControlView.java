@@ -108,7 +108,7 @@ public class MediaControlView extends ViewGroup {
     private static final String TAG = "MediaControlView";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    static final String KEY_VIDEO_TRACK_COUNT = "VideoTrackCount";
+    static final String KEY_HAS_VIDEO = "HasVideo";
     static final String KEY_AUDIO_TRACK_COUNT = "AudioTrackCount";
     static final String KEY_SUBTITLE_TRACK_LANGUAGE_LIST = "SubtitleTrackLanguageList";
     static final String KEY_SELECTED_AUDIO_INDEX = "SelectedAudioIndex";
@@ -172,7 +172,7 @@ public class MediaControlView extends ViewGroup {
     private int mFullSettingsItemWidth;
     private int mSettingsItemHeight;
     private int mSettingsWindowMargin;
-    int mVideoTrackCount;
+    boolean mHasVideo;
     int mAudioTrackCount;
     int mSettingsMode;
     int mSelectedSubtitleTrackIndex;
@@ -2140,7 +2140,7 @@ public class MediaControlView extends ViewGroup {
                 }
                 switch (command.getCustomAction()) {
                     case EVENT_UPDATE_TRACK_STATUS:
-                        mVideoTrackCount = (args != null) ? args.getInt(KEY_VIDEO_TRACK_COUNT) : 0;
+                        mHasVideo = (args != null) ? args.getBoolean(KEY_HAS_VIDEO) : false;
                         // If there is one or more audio tracks, and this information has not been
                         // reflected into the Settings window yet, automatically check the first
                         // track.
@@ -2160,12 +2160,24 @@ public class MediaControlView extends ViewGroup {
                             mAudioTrackList.add(mResources.getString(
                                     R.string.MediaControlView_audio_track_none_text));
                         }
-                        if (mVideoTrackCount == 0 && mAudioTrackCount > 0) {
+                        if (!mHasVideo && mAudioTrackCount > 0) {
                             mMediaType = MEDIA_TYPE_MUSIC;
+                        } else {
+                            mMediaType = MEDIA_TYPE_DEFAULT;
                         }
                         List<String> subtitleTracksList = (args != null)
                                 ? args.getStringArrayList(KEY_SUBTITLE_TRACK_LANGUAGE_LIST) : null;
-                        if (subtitleTracksList != null) {
+                        if (subtitleTracksList == null || subtitleTracksList.isEmpty()) {
+                            // For Audio only media item, CC button will not be shown when there's
+                            // no subtitle tracks.
+                            if (mMediaType == MEDIA_TYPE_MUSIC) {
+                                mSubtitleButton.setVisibility(View.GONE);
+                            } else {
+                                mSubtitleButton.setVisibility(View.VISIBLE);
+                                mSubtitleButton.setAlpha(0.5f);
+                                mSubtitleButton.setEnabled(false);
+                            }
+                        } else {
                             mSubtitleDescriptionsList = new ArrayList<String>();
                             mSubtitleDescriptionsList.add(mResources.getString(
                                     R.string.MediaControlView_subtitle_off_text));
@@ -2184,15 +2196,9 @@ public class MediaControlView extends ViewGroup {
                                 }
                                 mSubtitleDescriptionsList.add(trackDescription);
                             }
+                            mSubtitleButton.setVisibility(View.VISIBLE);
                             mSubtitleButton.setAlpha(1.0f);
                             mSubtitleButton.setEnabled(true);
-                        } else {
-                            if (mMediaType == MEDIA_TYPE_MUSIC) {
-                                mSubtitleButton.setVisibility(View.GONE);
-                            } else {
-                                mSubtitleButton.setAlpha(0.5f);
-                                mSubtitleButton.setEnabled(false);
-                            }
                         }
                         break;
                     case EVENT_UPDATE_MEDIA_TYPE_STATUS:
