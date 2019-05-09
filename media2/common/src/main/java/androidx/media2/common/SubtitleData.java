@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.media2.player;
+package androidx.media2.common;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.media2.common.MediaItem;
-import androidx.media2.common.SessionPlayer;
-import androidx.media2.player.MediaPlayer.TrackInfo;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 
 import java.util.concurrent.Executor;
 
 /**
  * Class encapsulating subtitle data, as received through the
- * {@link MediaPlayer.PlayerCallback#onSubtitleData} interface.
+ * {@link SessionPlayer.PlayerCallback#onSubtitleData} interface.
  * The subtitle data includes:
  * <ul>
  * <li> the track index</li>
@@ -38,40 +36,17 @@ import java.util.concurrent.Executor;
  * </ul>
  * The data is stored in a byte-array, and is encoded in one of the supported in-band
  * subtitle formats. The subtitle encoding is determined by the MIME type of the
- * {@link MediaPlayer.TrackInfo} of the subtitle track, one of
+ * {@link SessionPlayer.TrackInfo} of the subtitle track, one of
  * {@link #MIMETYPE_TEXT_CEA_608}, {@link #MIMETYPE_TEXT_CEA_708},
  * {@link #MIMETYPE_TEXT_VTT}.
- * <p>
- * Here is an example of iterating over the tracks of a {@link MediaPlayer}, and checking which
- * encoding is used for the subtitle tracks:
- * <p>
- * <pre class="prettyprint">
- * MediaPlayer mp = new MediaPlayer(context);
- * // prepare the player with a valid media item.
- * &hellip;
  *
- * final TrackInfo[] trackInfos = mp.getTrackInfo();
- * for (TrackInfo info : trackInfo) {
- *     if (info.getTrackType() == TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
- *         final String mime = info.getFormat().getString(MediaFormat.KEY_MIME);
- *         if (SubtitleData.MIMETYPE_TEXT_CEA_608.equals(mime) {
- *             // subtitle encoding is CEA 608
- *         } else if (SubtitleData.MIMETYPE_TEXT_CEA_708.equals(mime) {
- *             // subtitle encoding is CEA 708
- *         } else if (SubtitleData.MIMETYPE_TEXT_VTT.equals(mime) {
- *             // subtitle encoding is WebVTT
- *         }
- *     }
- * }
- * </pre>
- * <p>
- * @see MediaPlayer#registerPlayerCallback(Executor, SessionPlayer.PlayerCallback)
- * @see MediaPlayer.PlayerCallback#onSubtitleData(MediaPlayer, MediaItem, SubtitleData)
+ * @see SessionPlayer#registerPlayerCallback(Executor, SessionPlayer.PlayerCallback)
+ * @see SessionPlayer.PlayerCallback#onSubtitleData(SessionPlayer, MediaItem, SubtitleData)
  *
  * @hide
  */
 // TODO: replace this byte oriented data with structured data (b/130312596)
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY_GROUP)
 public final class SubtitleData {
     private static final String TAG = "SubtitleData";
 
@@ -96,7 +71,7 @@ public final class SubtitleData {
     private byte[] mData;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP)
     public SubtitleData(@NonNull TrackInfo trackInfo,
             long startTimeUs, long durationUs, byte[] data) {
         mTrackInfo = trackInfo;
@@ -106,8 +81,8 @@ public final class SubtitleData {
     }
 
     /**
-     * Returns metadata of the {@link MediaPlayer} track which contains this subtitle data.
-     * @return metadata of the {@link MediaPlayer} track which contains this subtitle data.
+     * Gets the track which contains this subtitle data.
+     * @return the {@link TrackInfo} which contains this subtitle data.
      */
     @NonNull
     public TrackInfo getTrackInfo() {

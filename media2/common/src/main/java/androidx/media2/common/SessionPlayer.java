@@ -1196,6 +1196,19 @@ public abstract class SessionPlayer implements AutoCloseable {
         public void onVideoSizeChangedInternal(
                 @NonNull SessionPlayer player, @NonNull MediaItem item, @NonNull VideoSize size) {
         }
+
+        /**
+         * Called when the player's subtitle track has new subtitle data available.
+         * @param player the player that reports the new subtitle data
+         * @param item the MediaItem of this media item
+         * @param data the subtitle data
+         *
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public void onSubtitleData(@NonNull SessionPlayer player,
+                @NonNull MediaItem item, @NonNull SubtitleData data) {
+        }
     }
 
     /**

@@ -38,11 +38,11 @@ import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.exoplayer.external.Player;
 import androidx.media2.player.MediaPlayer2;
 import androidx.media2.player.MediaTimestamp;
 import androidx.media2.player.PlaybackParams;
-import androidx.media2.player.SubtitleData;
 import androidx.media2.player.TimedMetaData;
 
 import java.io.IOException;

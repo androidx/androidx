@@ -37,6 +37,7 @@ import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.player.exoplayer.ExoPlayerMediaPlayer2Impl;
 
 import java.lang.annotation.Retention;

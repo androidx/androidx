@@ -55,6 +55,7 @@ import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.UriMediaItem;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -2842,9 +2843,9 @@ public final class MediaPlayer extends SessionPlayer {
         @Override
         public void onSubtitleData(
                 MediaPlayer2 mp, final MediaItem item, final SubtitleData data) {
-            notifyMediaPlayerCallback(new MediaPlayerCallbackNotifier() {
+            notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                 @Override
-                public void callCallback(PlayerCallback callback) {
+                public void callCallback(SessionPlayer.PlayerCallback callback) {
                     callback.onSubtitleData(MediaPlayer.this, item, data);
                 }
             });
@@ -2950,18 +2951,6 @@ public final class MediaPlayer extends SessionPlayer {
          */
         public void onMediaTimeDiscontinuity(@NonNull MediaPlayer mp,
                 @NonNull MediaItem item, @NonNull MediaTimestamp timestamp) { }
-
-        /**
-         * Called when when a player subtitle track has new subtitle data available.
-         * @param mp the player that reports the new subtitle data
-         * @param item the MediaItem of this media item
-         * @param data the subtitle data
-         *
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public void onSubtitleData(@NonNull MediaPlayer mp,
-                @NonNull MediaItem item, @NonNull SubtitleData data) { }
 
         /**
          * Called to indicate DRM info is available
