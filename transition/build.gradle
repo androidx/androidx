@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
+    api("androidx.annotation:annotation:1.1.0-rc01")
     api("androidx.core:core:1.0.1")
     implementation("androidx.collection:collection:1.0.0")
     compileOnly("androidx.fragment:fragment:1.0.0")

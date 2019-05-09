@@ -22,7 +22,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-common"))
     api(project(":arch:core-common"))
     // necessary for IJ to resolve dependencies.
-    api(project(":annotation"))
+    api("androidx.annotation:annotation:1.1.0-rc01")
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
