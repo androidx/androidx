@@ -7,7 +7,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
+    api("androidx.annotation:annotation:1.1.0-rc01")
     api(project(":core"))
     api(project(":documentfile"))
     api(project(":loader"))

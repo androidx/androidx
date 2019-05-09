@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
+    api("androidx.annotation:annotation:1.1.0-rc01")
     implementation("androidx.collection:collection:1.0.0")
     api(ARCH_LIFECYCLE_RUNTIME, libs.exclude_annotations_transitive)
     api(project(":versionedparcelable"))

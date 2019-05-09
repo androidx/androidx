@@ -29,7 +29,7 @@ plugins {
 dependencies {
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)
-    compile(project(":annotation"))
+    compile("androidx.annotation:annotation:1.1.0-rc01")
 }
 
 androidx {
