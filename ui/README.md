@@ -13,12 +13,12 @@ Composable functions are built using a custom Kotlin compiler plugin. More infor
 ## Getting started
 To try out Jetpack Compose you need to set up the toolchain for AndroidX development. Follow the process [here](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/README.md) to check out the code.
 
-To start the recommended version of Android Studio, you need to run the studiow command from the ui subfolder
+To start the required version of Android Studio, you need to run the studiow command from the `/ui` subfolder
 
     cd path/to/checkout/frameworks/support/ui/
     ./studiow
 
-Also if you would like to build from the command line, all gradle commands need to be run from the `ui` subfolder.  E.g. to build the demo app, run:
+Also if you would like to build from the command line, all gradle commands need to be run from the `/ui` subfolder.  E.g. to build the demo app, run:
 
     cd path/to/checkout/frameworks/support/ui/
     ./gradlew :ui-demos:assembleDebug
@@ -29,6 +29,12 @@ Jetpack Compose is in very early stages of development. Developers wanting to bu
 Run the `ui-demos` app to see examples of individual components. 
 
 A sample implementation of the [Material Rally app](https://material.io/design/material-studies/rally.html) is under `material/integration-tests/material-studies`.
+
+To build the Material Rally app via the command line run:
+
+    cd path/to/checkout/frameworks/support/ui/
+    ./gradlew :ui-material:integration-tests:ui-material-studies:assembleDebug
+
 
 ## Structure
 Library code for Jetpack Compose lives under the `frameworks/support/ui` directory. Additionally, sample code can be found within each module in the `integration-tests` subdirectories and the compiler and runtime code can be found in `frameworks/support/compose`.
