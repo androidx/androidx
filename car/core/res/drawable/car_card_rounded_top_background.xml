@@ -14,9 +14,35 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="?attr/listItemBackgroundColor"/>
-    <corners
-        android:topRightRadius="@dimen/car_radius_2"
-        android:topLeftRadius="@dimen/car_radius_2"/>
-</shape>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_hovered="true" android:state_window_focused="true">
+        <shape android:shape="rectangle">
+            <corners
+                android:topLeftRadius="@dimen/car_radius_2"
+                android:topRightRadius="@dimen/car_radius_2" />
+            <stroke
+                android:width="@dimen/car_focus_outline_stroke_width_hovered"
+                android:color="?attr/listItemFocusOutlineColor" />
+            <solid android:color="?attr/listItemBackgroundColor" />
+\        </shape>
+    </item>
+    <item android:state_focused="true" android:state_window_focused="true">
+        <shape android:shape="rectangle">
+            <corners
+                android:topLeftRadius="@dimen/car_radius_2"
+                android:topRightRadius="@dimen/car_radius_2" />
+            <stroke
+                android:width="@dimen/car_focus_outline_stroke_width_focused"
+                android:color="?attr/listItemFocusOutlineColor" />
+            <solid android:color="?attr/listItemBackgroundColor" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <corners
+                android:topLeftRadius="@dimen/car_radius_2"
+                android:topRightRadius="@dimen/car_radius_2" />
+            <solid android:color="?attr/listItemBackgroundColor" />
+        </shape>
+    </item>
+</selector>

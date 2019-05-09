@@ -120,6 +120,10 @@ limitations under the License.
     <!-- The configuration for modifying the ListItem. These ListItems are only intended to be used
          within a PagedListView. -->
     <declare-styleable name="ListItem">
+        <!-- The accent color of each ListItem when the item is in focus and not in touch mode. -->
+        <attr name="listItemFocusOutlineColor" format="color"/>
+        <!-- The background drawable of each ListItem. -->
+        <attr name="listItemBackground" format="reference"/>
         <!-- The background color of each ListItem. -->
         <attr name="listItemBackgroundColor" format="color"/>
         <!-- The TextAppearance of the title text in the ListItem. -->

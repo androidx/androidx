@@ -13,21 +13,26 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_hovered="true" android:state_window_focused="true">
         <shape android:shape="rectangle">
             <stroke
-                android:width="@dimen/car_focus_ring_stroke_width_hovered"
-                android:color="@color/car_accent_dark"/>
+                android:width="@dimen/car_focus_outline_stroke_width_hovered"
+                android:color="?attr/listItemFocusOutlineColor" />
+            <solid android:color="?attr/listItemBackgroundColor" />
         </shape>
     </item>
     <item android:state_focused="true" android:state_window_focused="true">
         <shape android:shape="rectangle">
             <stroke
-                android:width="@dimen/car_focus_ring_stroke_width_focused"
-                android:color="@color/car_accent_dark"/>
+                android:width="@dimen/car_focus_outline_stroke_width_focused"
+                android:color="?attr/listItemFocusOutlineColor" />
+            <solid android:color="?attr/listItemBackgroundColor" />
         </shape>
     </item>
-    <item android:drawable="@color/car_card"/>
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="?attr/listItemBackgroundColor" />
+        </shape>
+    </item>
 </selector>
