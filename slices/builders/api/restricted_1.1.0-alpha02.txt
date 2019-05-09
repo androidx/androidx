@@ -1,0 +1,133 @@
+// Signature format: 3.0
+package androidx.slice.builders {
+
+  @RequiresApi(19) public class GridRowBuilder {
+  }
+
+  public static class GridRowBuilder.CellBuilder {
+  }
+
+  @RequiresApi(19) public class ListBuilder extends androidx.slice.builders.TemplateSliceBuilder {
+  }
+
+  public static class ListBuilder.HeaderBuilder {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ListBuilder.HeaderBuilder(android.net.Uri!);
+  }
+
+
+  public static class ListBuilder.InputRangeBuilder {
+  }
+
+
+  public static class ListBuilder.RangeBuilder {
+  }
+
+  public static class ListBuilder.RowBuilder {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public class MessagingSliceBuilder extends androidx.slice.builders.TemplateSliceBuilder {
+    ctor public MessagingSliceBuilder(android.content.Context, android.net.Uri);
+    method public androidx.slice.builders.MessagingSliceBuilder! add(androidx.slice.builders.MessagingSliceBuilder.MessageBuilder!);
+    method public androidx.slice.builders.MessagingSliceBuilder! add(androidx.core.util.Consumer<androidx.slice.builders.MessagingSliceBuilder.MessageBuilder>!);
+    field public static final int MAXIMUM_RETAINED_MESSAGES = 50; // 0x32
+  }
+
+  public static final class MessagingSliceBuilder.MessageBuilder extends androidx.slice.builders.TemplateSliceBuilder {
+    ctor public MessagingSliceBuilder.MessageBuilder(androidx.slice.builders.MessagingSliceBuilder!);
+    method @RequiresApi(23) public androidx.slice.builders.MessagingSliceBuilder.MessageBuilder! addSource(android.graphics.drawable.Icon!);
+    method public androidx.slice.builders.MessagingSliceBuilder.MessageBuilder! addSource(androidx.core.graphics.drawable.IconCompat!);
+    method public androidx.slice.builders.MessagingSliceBuilder.MessageBuilder! addText(CharSequence!);
+    method public androidx.slice.builders.MessagingSliceBuilder.MessageBuilder! addTimestamp(long);
+  }
+
+  @RequiresApi(19) public class SelectionBuilder {
+  }
+
+  @RequiresApi(19) public class SliceAction implements androidx.slice.core.SliceAction {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, @androidx.slice.builders.ListBuilder.ImageMode int, CharSequence);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceAction(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public SliceAction(android.app.PendingIntent, CharSequence, boolean);
+  }
+
+  @RequiresApi(19) public abstract class TemplateSliceBuilder {
+  }
+
+}
+
+package androidx.slice.builders.impl {
+
+
+  public static final class GridRowBuilderListV1Impl.CellBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
+    method public void fillFrom(androidx.slice.builders.GridRowBuilder.CellBuilder!);
+  }
+
+
+
+
+  public static class ListBuilderImpl.HeaderBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
+    method public void apply(androidx.slice.Slice.Builder!);
+  }
+
+  public static class ListBuilderImpl.InputRangeBuilderImpl extends androidx.slice.builders.impl.ListBuilderImpl.RangeBuilderImpl {
+  }
+
+  public static class ListBuilderImpl.RangeBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
+    method public void apply(androidx.slice.Slice.Builder!);
+    field protected CharSequence! mContentDescr;
+    field protected int mLayoutDir;
+    field protected int mMax;
+    field protected int mMin;
+    field protected androidx.slice.builders.SliceAction! mPrimaryAction;
+    field protected CharSequence! mSubtitle;
+    field protected CharSequence! mTitle;
+    field protected int mValue;
+    field protected boolean mValueSet;
+  }
+
+  public static class ListBuilderImpl.RowBuilderImpl extends androidx.slice.builders.impl.TemplateBuilderImpl {
+    method protected void addEndItem(long);
+    method public void apply(androidx.slice.Slice.Builder!);
+    method protected void setSubtitle(CharSequence!);
+    method protected void setTitleItem(androidx.core.graphics.drawable.IconCompat!, int);
+  }
+
+
+  public static final class MessagingBasicImpl.MessageBuilder extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder.MessageBuilder {
+    ctor public MessagingBasicImpl.MessageBuilder(androidx.slice.builders.impl.MessagingBasicImpl!);
+    method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
+    method public void addText(CharSequence!);
+    method public void addTimestamp(long);
+    method public void apply(androidx.slice.Slice.Builder!);
+  }
+
+
+  public static interface MessagingBuilder.MessageBuilder {
+    method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
+    method public void addText(CharSequence!);
+    method public void addTimestamp(long);
+  }
+
+
+  public static final class MessagingListV1Impl.MessageBuilder extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder.MessageBuilder {
+    ctor public MessagingListV1Impl.MessageBuilder(androidx.slice.builders.impl.MessagingListV1Impl!);
+    method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
+    method public void addText(CharSequence!);
+    method public void addTimestamp(long);
+    method public void apply(androidx.slice.Slice.Builder!);
+  }
+
+
+  public static final class MessagingV1Impl.MessageBuilder extends androidx.slice.builders.impl.TemplateBuilderImpl implements androidx.slice.builders.impl.MessagingBuilder.MessageBuilder {
+    ctor public MessagingV1Impl.MessageBuilder(androidx.slice.builders.impl.MessagingV1Impl!);
+    method @RequiresApi(23) public void addSource(android.graphics.drawable.Icon!);
+    method public void addText(CharSequence!);
+    method public void addTimestamp(long);
+    method public void apply(androidx.slice.Slice.Builder!);
+  }
+
+
+
+
+
+}
+
