@@ -41,6 +41,7 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
@@ -508,6 +509,12 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         @Override
         final void onTrackDeselected(int seq, SessionPlayer.TrackInfo trackInfo)
                 throws RemoteException {
+            // No-op. BrowserCompat doesn't understand Controller features.
+        }
+
+        @Override
+        final void onSubtitleData(int seq, @NonNull MediaItem item,
+                @NonNull SessionPlayer.TrackInfo track, @NonNull SubtitleData data) {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
     }

@@ -50,6 +50,8 @@ interface IRemoteMediaSession {
     void notifyAudioAttributesChanged(String sessionId, in ParcelImpl attrs);
     void notifyVideoSizeChanged(String sessionId, in ParcelImpl videoSize);
     boolean surfaceExists(String sessionId);
+    void notifySubtitleData(String sessionId, in ParcelImpl item, in ParcelImpl track,
+            in ParcelImpl data);
 
     void setPlaylist(String sessionId, in List<ParcelImpl> playlist);
     void createAndSetDummyPlaylist(String sessionId, int size);

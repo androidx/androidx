@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -29,6 +30,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.media.MediaFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,6 +47,8 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.Rating;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.SessionPlayer.TrackInfo;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.ControllerCallback;
 import androidx.media2.session.MediaController.PlaybackInfo;
@@ -1710,6 +1714,34 @@ public class MediaControllerTest extends MediaSessionTestBase {
         };
         MediaController controller = createController(mSession.getToken(), true, null, callback);
         mPlayer.notifyTrackDeselected(testTrack);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnSubtitleData() throws InterruptedException {
+        prepareLooper();
+        MediaFormat format = new MediaFormat();
+        format.setString(MediaFormat.KEY_LANGUAGE, "und");
+        format.setString(MediaFormat.KEY_MIME, SubtitleData.MIMETYPE_TEXT_CEA_608);
+        final MediaItem testItem = TestUtils.createMediaItem("onSubtitleData");
+        final TrackInfo testTrack = new TrackInfo(1, testItem, TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE,
+                format);
+        final SubtitleData testData = new SubtitleData(123, 456,
+                new byte[] { 7, 8, 9, 0, 1, 2, 3, 4, 5, 6 });
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onSubtitleData(@NonNull MediaController controller, @NonNull MediaItem item,
+                    @NonNull TrackInfo track, @NonNull SubtitleData data) {
+                assertSame(testItem, item);
+                assertEquals(testTrack, track);
+                assertEquals(testData, data);
+                latch.countDown();
+            }
+        };
+        MediaController controller = createController(mSession.getToken(), true, null, callback);
+        mPlayer.notifySubtitleData(testItem, testTrack, testData);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
