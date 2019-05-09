@@ -73,7 +73,7 @@ abstract class BaseTest<T : FragmentActivity>(clazz: Class<T>) {
         idleWatcher.unregister()
     }
 
-    fun selectOrientation(@ViewPager2.Orientation orientation: Int) {
+    fun selectOrientation(orientation: Int) {
         onView(withId(R.id.orientation_spinner)).perform(click())
         onData(equalTo(
             when (orientation) {
