@@ -25,14 +25,18 @@ import androidx.core.os.HandlerCompat;
 
 /**
  * Singleton instance of an async main thread {@link Handler}.
- * @see Handler#createAsync(Looper)
+ * @see HandlerCompat#createAsync(Looper)
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class MainThreadAsyncHandler {
     private static volatile Handler sHandler;
 
-    static Handler getInstance() {
+    /**
+     * Returns a main thread handler which marks all messages/runnables posted as async.
+     * @see HandlerCompat#createAsync(Looper)
+     */
+    public static Handler getInstance() {
         if (sHandler != null) {
             return sHandler;
         }
