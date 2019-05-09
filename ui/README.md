@@ -3,7 +3,7 @@
 Jetpack Compose is a suite of libraries within the AndroidX ecosystem. For more information, see our [project page](https://developer.android.com/jetpackcompose)
 
 ## Syntax
-Jetpack Compose uses composable functions instead of XML layouts to define UI components. You can see this in action in the demos, like `androidx.ui.material.demos.ButtonDemo.kt`. More information can be found in the [compiler README](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/ui/compose/README.md).
+Jetpack Compose uses composable functions instead of XML layouts to define UI components. You can see this in action in the demos, like `androidx.ui.material.demos.ButtonDemo.kt`. More information can be found in the [compiler README](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/compose/README.md).
 
 You may notice some parts of the codebase use an XML-like syntax. This was an exploration done early on in the project, and we have since decided to move away from it. Usages of this syntax will eventually be converted to use the standard kotlin DSL instead.
 
