@@ -15,7 +15,7 @@ android {
 
 dependencies {
     api(project(":core"))
-    implementation(project(":collection"))
+    implementation("androidx.collection:collection:1.1.0-rc01")
 
     annotationProcessor(NULLAWAY)
 
