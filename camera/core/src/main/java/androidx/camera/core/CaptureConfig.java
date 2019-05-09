@@ -250,7 +250,8 @@ public final class CaptureConfig {
             mSurfaces.clear();
         }
 
-        Set<DeferrableSurface> getSurfaces() {
+        /** Gets the surfaces attached to the request. */
+        public Set<DeferrableSurface> getSurfaces() {
             return mSurfaces;
         }
 
