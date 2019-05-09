@@ -355,7 +355,9 @@ public class MediaControlViewTest {
 
         final int subtitleTrackCount = 2;
         final int selectedSubtitleTrackIndex = 0;
-        final String subtitleTrack1Text = "Track 1";
+        final String subtitleTrack1Text = mContext.getResources().getString(
+                R.string.MediaControlView_subtitle_track_number_text, 1);
+
         final MediaItem mediaItem = createTestMediaItem2(uri);
 
         final CountDownLatch latchForTrackUpdate = new CountDownLatch(1);
