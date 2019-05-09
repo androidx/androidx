@@ -19,17 +19,7 @@ package androidx.ui.painting
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextPosition
-/*import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
-import androidx.ui.foundation.diagnostics.DiagnosticableTree
-import androidx.ui.foundation.diagnostics.DiagnosticsNode
-import androidx.ui.foundation.diagnostics.DiagnosticsProperty
-import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
-import androidx.ui.foundation.diagnostics.StringProperty
-import androidx.ui.foundation.diagnostics.describeIdentity
-import androidx.ui.gestures.recognizer.GestureRecognizer*/
 import androidx.ui.painting.basictypes.RenderComparison
-/*import androidx.ui.runtimeType*/
-import java.lang.StringBuilder
 
 /**
  * A [TextSpan] object can be styled using its [style] property.
@@ -47,15 +37,13 @@ import java.lang.StringBuilder
  *
  * * `recognizer`: A gesture recognizer that will receive events that hit this text span.
  */
-
-// TODO(Migration/qqd): Figure out a way to implement this @immutable.
-// @immutable
-data class TextSpan(
-    val style: TextStyle? = null,
-    val text: String? = null,
-    val children: List<TextSpan>? = null/*,
+// TODO(haoyuchang) Make TextSpan immutable.
+class TextSpan(
+    var style: TextStyle? = null,
+    var text: String? = null,
+    val children: MutableList<TextSpan> = mutableListOf()/*,
     val recognizer: GestureRecognizer? = null*/
-) /*: DiagnosticableTree*/ {
+) {
 
     /**
      * Apply the [style], [text], and [children] of this object to the given [ParagraphBuilder],
@@ -70,14 +58,15 @@ data class TextSpan(
         if (hasStyle) {
             builder.pushStyle(style!!.getTextStyle(textScaleFactor))
         }
-        if (text != null) {
-            builder.addText(text)
+
+        text?.let {
+            builder.addText(it)
         }
-        if (children != null) {
-            for (child in children) {
-                child.build(builder, textScaleFactor)
-            }
+
+        children.forEach {
+            it.build(builder, textScaleFactor)
         }
+
         if (hasStyle) {
             builder.pop()
         }
@@ -93,11 +82,9 @@ data class TextSpan(
                 return false
             }
         }
-        if (children != null) {
-            for (child in children) {
-                if (!child.visitTextSpan(visitor)) {
-                    return false
-                }
+        for (child in children) {
+            if (!child.visitTextSpan(visitor)) {
+                return false
             }
         }
         return true
@@ -176,7 +163,7 @@ data class TextSpan(
             return RenderComparison.IDENTICAL
         }
         if (other.text != text ||
-            children?.size != other.children?.size ||
+            children.size != other.children.size ||
             (style == null) != (other.style == null)) {
             return RenderComparison.LAYOUT
         }
@@ -184,8 +171,8 @@ data class TextSpan(
             // TODO(siyamed) add recognizer
             /*if (recognizer == other.recognizer) RenderComparison.IDENTICAL
             else RenderComparison.METADATA*/
-        if (style != null) {
-            val candidate: RenderComparison = style.compareTo(other.style!!)
+        style?.let {
+            val candidate: RenderComparison = it.compareTo(other.style!!)
             if (candidate.ordinal > result.ordinal) {
                 result = candidate
             }
@@ -193,48 +180,16 @@ data class TextSpan(
                 return result
             }
         }
-        if (children != null) {
-            for (index in children.indices) {
-                val candidate: RenderComparison = children[index].compareTo(other.children!![index])
-                if (candidate.ordinal > result.ordinal) {
-                    result = candidate
-                }
-                if (result == RenderComparison.LAYOUT) {
-                    return result
-                }
+
+        children.forEachIndexed { index, child ->
+            val candidate: RenderComparison = child.compareTo(other.children[index])
+            if (candidate.ordinal > result.ordinal) {
+                result = candidate
+            }
+            if (result == RenderComparison.LAYOUT) {
+                return result
             }
         }
         return result
     }
-
-    /*override fun toStringShort() = describeIdentity(this)
-
-    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
-        super.debugFillProperties(properties)
-        properties.defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.whitespace
-        // Properties on style are added as if they were properties directly on this TextSpan.
-        if (style != null)
-            style.debugFillProperties(properties)
-
-        properties.add(
-            DiagnosticsProperty.create(
-            "recognizer", recognizer,
-            description = recognizer?. runtimeType?.toString(),
-            defaultValue = null
-        ))
-
-        properties.add(StringProperty("text", text, showName = false, defaultValue = null))
-        if (style == null && text == null && children == null)
-            properties.add(DiagnosticsNode.message("(empty)"))
-    }
-
-    override fun debugDescribeChildren(): List<DiagnosticsNode> {
-        if (children == null) {
-            val defaultList: List<DiagnosticsNode> = emptyList()
-            return defaultList
-        }
-        return children.map { child: TextSpan ->
-            child.toDiagnosticsNode()
-        }.toList()
-    } */
 }

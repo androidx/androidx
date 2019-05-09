@@ -31,9 +31,11 @@ import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.composer
+import androidx.compose.compositionReference
 import androidx.compose.effectOf
 import androidx.compose.onCommit
 import androidx.compose.state
+import androidx.compose.memo
 import androidx.compose.unaryPlus
 
 private val DefaultTextAlign: TextAlign = TextAlign.START
@@ -56,8 +58,6 @@ private val DefaultSelectionColor = Color(0x6633B5E5)
 // TODO(migration/qqd): Add tests when text widget system is mature and testable.
 @Composable
 fun Text(
-    /** The text to display. */
-    text: TextSpan,
     /** How the text should be aligned horizontally. */
     textAlign: TextAlign = DefaultTextAlign,
     /** The directionality of the text. */
@@ -83,11 +83,16 @@ fun Text(
     /**
      *  The color used to draw selected region.
      */
-    selectionColor: Color = DefaultSelectionColor
+    selectionColor: Color = DefaultSelectionColor,
+    /**
+     * Composable TextSpan attached after [text].
+     */
+    @Children child: @Composable TextSpanScope.() -> Unit
 ) {
     val context = composer.composer.context
     val internalSelection = +state<TextSelection?> { null }
     val registrar = +ambient(SelectionRegistrarAmbient)
+
     fun attachContextToFont(
         text: TextSpan,
         context: Context
@@ -100,12 +105,24 @@ fun Text(
         }
     }
 
+    val rootTextSpan = +memo { TextSpan() }
+    val ref = +compositionReference()
+    compose(rootTextSpan, ref, child)
+
+    // TODO This is a temporary workaround due to lack of textStyle parameter of Text.
+    val textSpan = if (rootTextSpan.children.size == 1) {
+        rootTextSpan.children[0]
+    } else {
+        rootTextSpan
+    }
+
     val style = +ambient(CurrentTextStyleAmbient)
-    val mergedStyle = style.merge(text.style)
+    val mergedStyle = style.merge(textSpan.style)
     // Make a wrapper to avoid modifying the style on the original element
-    val styledText = TextSpan(style = mergedStyle, children = listOf(text))
+    val styledText = TextSpan(style = mergedStyle, children = mutableListOf(textSpan))
+
     Semantics(
-        label = text.text
+        label = styledText.toPlainText()
     ) {
         val renderParagraph = RenderParagraph(
             text = styledText,
@@ -186,13 +203,14 @@ fun Text(
     maxLines: Int? = DefaultMaxLines
 ) {
     Text(
-        text = TextSpan(text = text, style = style),
         textAlign = textAlign,
         textDirection = textDirection,
         softWrap = softWrap,
         overflow = overflow,
         maxLines = maxLines
-    )
+    ) {
+        Span(text = text, style = style)
+    }
 }
 
 internal val CurrentTextStyleAmbient = Ambient.of<TextStyle>("current text style") {
