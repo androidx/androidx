@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -56,6 +55,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.collection.ArrayMap;
@@ -134,9 +134,7 @@ public class ViewCompat {
     @Deprecated
     public static final int OVER_SCROLL_NEVER = 2;
 
-    @TargetApi(Build.VERSION_CODES.O)
-    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
-    @SuppressLint("BanTargetApiAnnotation")
+    @RequiresApi(Build.VERSION_CODES.O)
     @IntDef({
             View.IMPORTANT_FOR_AUTOFILL_AUTO,
             View.IMPORTANT_FOR_AUTOFILL_YES,
@@ -3804,18 +3802,17 @@ public class ViewCompat {
         return result == null ? false : result.booleanValue();
     }
 
-    @TargetApi(28)
-    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
-    @SuppressLint("BanTargetApiAnnotation")
     private static AccessibilityViewProperty<Boolean> screenReaderFocusableProperty() {
         return new AccessibilityViewProperty<Boolean>(
                 R.id.tag_screen_reader_focusable, Boolean.class, 28) {
 
+            @RequiresApi(28)
             @Override
             Boolean frameworkGet(View view) {
                 return view.isScreenReaderFocusable();
             }
 
+            @RequiresApi(28)
             @Override
             void frameworkSet(View view, Boolean value) {
                 view.setScreenReaderFocusable(value);
@@ -3877,18 +3874,17 @@ public class ViewCompat {
         return paneTitleProperty().get(view);
     }
 
-    @TargetApi(28)
-    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
-    @SuppressLint("BanTargetApiAnnotation")
     private static AccessibilityViewProperty<CharSequence> paneTitleProperty() {
         return new AccessibilityViewProperty<CharSequence>(R.id.tag_accessibility_pane_title,
                 CharSequence.class, AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_TITLE, 28) {
 
+            @RequiresApi(28)
             @Override
             CharSequence frameworkGet(View view) {
                 return view.getAccessibilityPaneTitle();
             }
 
+            @RequiresApi(28)
             @Override
             void frameworkSet(View view, CharSequence value) {
                 view.setAccessibilityPaneTitle(value);
@@ -3935,18 +3931,17 @@ public class ViewCompat {
         accessibilityHeadingProperty().set(view, isHeading);
     }
 
-    @TargetApi(28)
-    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
-    @SuppressLint("BanTargetApiAnnotation")
     private static AccessibilityViewProperty<Boolean> accessibilityHeadingProperty() {
         return new AccessibilityViewProperty<Boolean>(
                 R.id.tag_accessibility_heading, Boolean.class, 28) {
 
+            @RequiresApi(28)
             @Override
             Boolean frameworkGet(View view) {
                 return view.isAccessibilityHeading();
             }
 
+            @RequiresApi(28)
             @Override
             void frameworkSet(View view, Boolean value) {
                 view.setAccessibilityHeading(value);
@@ -3985,6 +3980,9 @@ public class ViewCompat {
             } else if (extrasAvailable() && shouldUpdate(get(view), value)) {
                 getOrCreateAccessibilityDelegateCompat(view);
                 view.setTag(mTagKey, value);
+                // If we're here, we're guaranteed to be on v19+ (see the logic in
+                // extrasAvailable), so we can call notifyViewAccessibilityStateChangedIfNeeded
+                // which requires 19.
                 notifyViewAccessibilityStateChangedIfNeeded(view,
                         AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED);
             }
@@ -4023,9 +4021,7 @@ public class ViewCompat {
         }
     }
 
-    @TargetApi(19)
-    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
-    @SuppressLint("BanTargetApiAnnotation")
+    @RequiresApi(19)
     static void notifyViewAccessibilityStateChangedIfNeeded(View view, int changeType) {
         AccessibilityManager accessibilityManager = (AccessibilityManager)
                 view.getContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
@@ -4055,13 +4051,11 @@ public class ViewCompat {
     private static AccessibilityPaneVisibilityManager sAccessibilityPaneVisibilityManager =
             new AccessibilityPaneVisibilityManager();
 
-    @TargetApi(19)
-    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
-    @SuppressLint("BanTargetApiAnnotation")
     static class AccessibilityPaneVisibilityManager
             implements ViewTreeObserver.OnGlobalLayoutListener, View.OnAttachStateChangeListener {
         private WeakHashMap<View, Boolean> mPanesToVisible = new WeakHashMap<View, Boolean>();
 
+        @RequiresApi(19)
         @Override
         public void onGlobalLayout() {
             for (Map.Entry<View, Boolean> entry : mPanesToVisible.entrySet()) {
@@ -4069,6 +4063,7 @@ public class ViewCompat {
             }
         }
 
+        @RequiresApi(19)
         @Override
         public void onViewAttachedToWindow(View view) {
             // When detached the view loses its viewTreeObserver.
@@ -4080,6 +4075,7 @@ public class ViewCompat {
             // Don't do anything.
         }
 
+        @RequiresApi(19)
         void addAccessibilityPane(View pane) {
             mPanesToVisible.put(pane, pane.getVisibility() == View.VISIBLE);
             pane.addOnAttachStateChangeListener(this);
@@ -4088,12 +4084,14 @@ public class ViewCompat {
             }
         }
 
+        @RequiresApi(19)
         void removeAccessibilityPane(View pane) {
             mPanesToVisible.remove(pane);
             pane.removeOnAttachStateChangeListener(this);
             unregisterForLayoutCallback(pane);
         }
 
+        @RequiresApi(19)
         private void checkPaneVisibility(View pane, boolean oldVisibility) {
             boolean newVisibility = pane.getVisibility() == View.VISIBLE;
             if (oldVisibility != newVisibility) {
@@ -4105,10 +4103,12 @@ public class ViewCompat {
             }
         }
 
+        @RequiresApi(19)
         private void registerForLayoutCallback(View view) {
             view.getViewTreeObserver().addOnGlobalLayoutListener(this);
         }
 
+        @RequiresApi(19)
         private void unregisterForLayoutCallback(View view) {
             view.getViewTreeObserver().removeOnGlobalLayoutListener(this);
         }
