@@ -526,6 +526,23 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
+     * Set the visibility of the scroll bar.
+     *
+     * @param enabled Whether the scrollbar is visible or not.
+     */
+    public void setScrollBarEnabled(boolean enabled) {
+        mScrollBarEnabled = enabled;
+        mScrollBarView.setVisibility(mScrollBarEnabled ? VISIBLE : GONE);
+    }
+
+    /**
+     * Returns {@code true} if the scroll bar is visible.
+     */
+    public boolean isScrollBarEnabled() {
+        return mScrollBarEnabled;
+    }
+
+    /**
      * Sets an offset above the first item in the {@code PagedListView}. This offset is scrollable
      * with the contents of the list.
      *
