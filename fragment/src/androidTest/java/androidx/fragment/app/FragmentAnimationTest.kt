@@ -27,7 +27,6 @@ import android.view.animation.AnimationUtils
 import android.view.animation.TranslateAnimation
 import androidx.annotation.AnimRes
 import androidx.core.view.ViewCompat
-import androidx.fragment.app.CtsMockitoUtils.within
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.ViewModelStore
