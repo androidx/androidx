@@ -122,6 +122,8 @@ limitations under the License.
     <declare-styleable name="ListItem">
         <!-- The accent color of each ListItem when the item is in focus and not in touch mode. -->
         <attr name="listItemFocusOutlineColor" format="color"/>
+        <!-- The foreground of each ListItem. -->
+        <attr name="listItemForeground" format="reference"/>
         <!-- The background drawable of each ListItem. -->
         <attr name="listItemBackground" format="reference"/>
         <!-- The background color of each ListItem. -->

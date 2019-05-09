@@ -304,6 +304,7 @@ attr listItemBackground
 attr listItemBackgroundColor
 attr listItemBodyTextAppearance
 attr listItemFocusOutlineColor
+attr listItemForeground
 attr listItemSubheaderTextAppearance
 attr listItemTitleTextAppearance
 attr navigationIcon

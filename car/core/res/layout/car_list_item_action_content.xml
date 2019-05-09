@@ -17,14 +17,12 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingConstraints"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingEnd="@dimen/car_keyline_1"
+    android:foreground="?attr/listItemForeground"
     android:minHeight="@dimen/car_single_line_list_item_height"
-    android:foreground="@drawable/car_card_ripple_background" >
+    android:paddingEnd="@dimen/car_keyline_1">
 
     <!-- Primary Action. -->
     <ImageView
@@ -32,9 +30,9 @@
         android:layout_width="@dimen/car_single_line_list_item_height"
         android:layout_height="@dimen/car_single_line_list_item_height"
         android:tint="?attr/listItemPrimaryIconTint"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Text. -->
     <TextView
@@ -42,14 +40,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/car_padding_4"
-        android:singleLine="true"
         android:ellipsize="end"
+        android:singleLine="true"
         android:textAppearance="?attr/listItemTitleTextAppearance"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/body"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/barrier"
-        app:layout_constraintVertical_chainStyle="packed"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
         android:id="@+id/body"
@@ -57,18 +55,18 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/car_padding_4"
         android:textAppearance="?attr/listItemBodyTextAppearance"
-        app:layout_constraintTop_toBottomOf="@+id/title"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/barrier"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/barrier"/>
+        app:layout_constraintTop_toBottomOf="@+id/title" />
 
     <!-- A barrier between the text and any supplemental icons or actions. -->
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:barrierDirection="start"
         app:barrierAllowsGoneWidgets="false"
+        app:barrierDirection="start"
         app:constraint_referenced_ids="secondary_action_barrier,primary_action_barrier" />
 
     <!-- A view that will be underneath all the supplemental icons and action buttons. It is meant
@@ -79,10 +77,10 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clickable="true"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/barrier"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Guideline that the supplemental actions are centered upon. -->
     <androidx.constraintlayout.widget.Guideline
@@ -95,73 +93,75 @@
     <!-- Up to 2 action buttons with dividers. -->
     <View
         android:id="@+id/secondary_action_divider"
-        android:background="?attr/listItemActionDividerColor"
+        style="@style/CarListVerticalDivider"
         android:layout_marginEnd="@dimen/car_padding_2"
-        app:layout_constraintTop_toTopOf="@+id/actions_guideline"
+        android:background="?attr/listItemActionDividerColor"
         app:layout_constraintBottom_toBottomOf="@+id/actions_guideline"
         app:layout_constraintEnd_toStartOf="@+id/secondary_action_barrier"
-        style="@style/CarListVerticalDivider"/>
+        app:layout_constraintTop_toTopOf="@+id/actions_guideline" />
 
     <!-- A barrier before secondary actions. -->
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/secondary_action_barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:barrierDirection="start"
         app:barrierAllowsGoneWidgets="true"
+        app:barrierDirection="start"
         app:constraint_referenced_ids="secondary_action_borderless,secondary_action" />
 
     <Button
         android:id="@+id/secondary_action_borderless"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/car_padding_4"
-        app:layout_constraintTop_toTopOf="@+id/actions_guideline"
         app:layout_constraintBottom_toBottomOf="@+id/actions_guideline"
         app:layout_constraintEnd_toStartOf="@+id/primary_action_barrier"
-        style="?android:attr/borderlessButtonStyle"/>
+        app:layout_constraintTop_toTopOf="@+id/actions_guideline" />
+
     <Button
         android:id="@+id/secondary_action"
+        style="?android:attr/buttonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/car_padding_4"
-        app:layout_constraintTop_toTopOf="@+id/actions_guideline"
         app:layout_constraintBottom_toBottomOf="@+id/actions_guideline"
         app:layout_constraintEnd_toStartOf="@+id/primary_action_barrier"
-        style="?android:attr/buttonStyle"/>
+        app:layout_constraintTop_toTopOf="@+id/actions_guideline" />
 
     <View
         android:id="@+id/primary_action_divider"
-        android:background="?attr/listItemActionDividerColor"
+        style="@style/CarListVerticalDivider"
         android:layout_marginEnd="@dimen/car_padding_2"
-        app:layout_constraintTop_toTopOf="@+id/actions_guideline"
+        android:background="?attr/listItemActionDividerColor"
         app:layout_constraintBottom_toBottomOf="@+id/actions_guideline"
         app:layout_constraintEnd_toStartOf="@+id/primary_action_barrier"
-        style="@style/CarListVerticalDivider"/>
+        app:layout_constraintTop_toTopOf="@+id/actions_guideline" />
 
     <!-- A barrier before primary actions. -->
     <androidx.constraintlayout.widget.Barrier
         android:id="@+id/primary_action_barrier"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:barrierDirection="start"
         app:barrierAllowsGoneWidgets="true"
+        app:barrierDirection="start"
         app:constraint_referenced_ids="primary_action_borderless,primary_action" />
 
     <Button
         android:id="@+id/primary_action_borderless"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@+id/actions_guideline"
         app:layout_constraintBottom_toBottomOf="@+id/actions_guideline"
         app:layout_constraintEnd_toEndOf="parent"
-        style="?android:attr/borderlessButtonStyle"/>
+        app:layout_constraintTop_toTopOf="@+id/actions_guideline" />
+
     <Button
         android:id="@+id/primary_action"
+        style="?android:attr/buttonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@+id/actions_guideline"
         app:layout_constraintBottom_toBottomOf="@+id/actions_guideline"
         app:layout_constraintEnd_toEndOf="parent"
-        style="?android:attr/buttonStyle"/>
+        app:layout_constraintTop_toTopOf="@+id/actions_guideline" />
 </androidx.constraintlayout.widget.ConstraintLayout>
