@@ -501,15 +501,6 @@ final class CaptureSession {
                     case OPENING:
                         mState = State.OPENED;
                         mCameraCaptureSession = session;
-
-                        if (!mConfiguredSurfaces.containsAll(
-                                DeferrableSurfaces.surfaceList(mSessionConfig.getSurfaces()))) {
-                            // When this happens (surface not matched with configured surfaces),
-                            // there should be another new capture session replacing this one soon.
-                            // So we don't need to close the capture session here.
-                            Log.e(TAG, "Does not have the proper configured lists");
-                            return;
-                        }
                         Log.d(TAG, "Attempting to send capture request onConfigured");
                         issueRepeatingCaptureRequests();
                         issueBurstCaptureRequest();
