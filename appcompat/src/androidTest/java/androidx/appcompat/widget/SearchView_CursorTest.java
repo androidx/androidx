@@ -168,8 +168,7 @@ public class SearchView_CursorTest {
         verify(mockQueryTextListener, times(1)).onQueryTextChange("Di");
     }
 
-    // Temporarily disabled due to b/111852321
-    // @Test
+    @Test
     public void testSuggestionSelection() throws Throwable {
         final SearchView.OnSuggestionListener mockSuggestionListener =
                 spy(new MySuggestionListener());
@@ -204,7 +203,7 @@ public class SearchView_CursorTest {
         // Emulate click on the first suggestion - which should be Dido
         final int suggestionRowHeight = mActivity.getResources().getDimensionPixelSize(
                 R.dimen.search_view_suggestion_row_height);
-        TestUtils.emulateTapOnView(mInstrumentation, mSearchView,
+        TestUtils.emulateTapOnView(mInstrumentation, mActivityRule, mSearchView,
                 mSearchView.getWidth() / 2, mSearchView.getHeight() + suggestionRowHeight / 2);
 
         // At this point we expect the click on the first suggestion to have activated a sequence
