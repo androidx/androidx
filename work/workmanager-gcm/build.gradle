@@ -34,6 +34,9 @@ android {
             testCoverageEnabled = false
         }
     }
+    lintOptions {
+        fatal("UnknownNullness")
+    }
 }
 
 dependencies {
