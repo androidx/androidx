@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.media2.player;
+package androidx.media2.common;
 
 import static junit.framework.Assert.assertEquals;
 
 import android.media.MediaFormat;
 
-import androidx.media2.player.MediaPlayer.TrackInfo;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class SubtitleDataTest extends MediaTestBase {
+public class SubtitleDataTest {
 
     @Test
     public void testConstructor() {

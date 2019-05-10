@@ -43,6 +43,7 @@ import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.player.MediaPlayer.TrackInfo;
 import androidx.media2.player.TestUtils.Monitor;
 import androidx.media2.player.test.R;
@@ -608,7 +609,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             }
 
             @Override
-            public void onSubtitleData(MediaPlayer mp, MediaItem dsd, SubtitleData data) {
+            public void onSubtitleData(SessionPlayer player, MediaItem item, SubtitleData data) {
                 if (data != null && data.getData() != null) {
                     mOnSubtitleDataCalled.signal();
                 }
@@ -665,7 +666,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
             @Override
             public void onSubtitleData(
-                    MediaPlayer mp, MediaItem dsd, SubtitleData data) {
+                    SessionPlayer player, MediaItem item, SubtitleData data) {
                 if (data != null && data.getData() != null) {
                     mOnSubtitleDataCalled.signal();
                 }

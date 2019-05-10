@@ -46,10 +46,10 @@ import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.SessionPlayer.TrackInfo;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.UriMediaItem;
 import androidx.media2.player.MediaPlayer;
-import androidx.media2.player.MediaPlayer.TrackInfo;
-import androidx.media2.player.SubtitleData;
 import androidx.media2.player.VideoSize;
 import androidx.media2.player.subtitle.Cea708CaptionRenderer;
 import androidx.media2.player.subtitle.ClosedCaptionRenderer;
@@ -691,7 +691,7 @@ public class VideoView extends SelectiveLayout {
                 @Override
                 public void onSubtitleTrackSelected(SubtitleTrack track) {
                     if (track == null) {
-                        mMediaPlayer.deselectTrack(mSelectedSubtitleTrackInfo);
+                        mMediaPlayer.deselectTrackInternal(mSelectedSubtitleTrackInfo);
                         mSelectedSubtitleTrackInfo = null;
                         mSubtitleAnchorView.setVisibility(View.GONE);
 
@@ -709,7 +709,7 @@ public class VideoView extends SelectiveLayout {
                         indexInSubtitleTrackList++;
                     }
                     if (info != null) {
-                        mMediaPlayer.selectTrack(info);
+                        mMediaPlayer.selectTrackInternal(info);
                         mSelectedSubtitleTrackInfo = info;
                         mSubtitleAnchorView.setVisibility(View.VISIBLE);
 
@@ -781,7 +781,7 @@ public class VideoView extends SelectiveLayout {
             throw new IllegalStateException(
                     "extractTrackInfo() is unexpectedly called. Media item is not prepared");
         }
-        List<MediaPlayer.TrackInfo> trackInfos = mMediaPlayer.getTrackInfo();
+        List<TrackInfo> trackInfos = mMediaPlayer.getTrackInfoInternal();
         mVideoTrackCount = 0;
         mAudioTrackInfos = new ArrayList<>();
         mSubtitleTracks = new LinkedHashMap<>();
@@ -933,25 +933,25 @@ public class VideoView extends SelectiveLayout {
 
                 @Override
                 public void onSubtitleData(
-                        @NonNull MediaPlayer mp, @NonNull MediaItem dsd,
+                        @NonNull SessionPlayer player, @NonNull MediaItem item,
                         @NonNull SubtitleData data) {
                     final TrackInfo trackInfo = data.getTrackInfo();
                     if (DEBUG) {
                         Log.d(TAG, "onSubtitleData():"
                                 + " getTrackInfo: " + trackInfo
-                                + ", getCurrentPosition: " + mp.getCurrentPosition()
+                                + ", getCurrentPosition: " + player.getCurrentPosition()
                                 + ", getStartTimeUs(): " + data.getStartTimeUs()
                                 + ", diff: "
-                                + (data.getStartTimeUs() / 1000 - mp.getCurrentPosition())
+                                + (data.getStartTimeUs() / 1000 - player.getCurrentPosition())
                                 + "ms, getDurationUs(): " + data.getDurationUs());
                     }
-                    if (mp != mMediaPlayer) {
+                    if (player != mMediaPlayer) {
                         if (DEBUG) {
-                            Log.w(TAG, "onSubtitleData() is ignored. mp is already gone.");
+                            Log.w(TAG, "onSubtitleData() is ignored. player is already gone.");
                         }
                         return;
                     }
-                    if (dsd != mMediaItem) {
+                    if (item != mMediaItem) {
                         if (DEBUG) {
                             Log.w(TAG, "onSubtitleData() is ignored. Media item is changed.");
                         }
@@ -1125,7 +1125,7 @@ public class VideoView extends SelectiveLayout {
                         TrackInfo audioTrackInfo = mAudioTrackInfos.get(audioIndex);
                         if (!audioTrackInfo.equals(mSelectedAudioTrackInfo)) {
                             mSelectedAudioTrackInfo = audioTrackInfo;
-                            mMediaPlayer.selectTrack(mSelectedAudioTrackInfo);
+                            mMediaPlayer.selectTrackInternal(mSelectedAudioTrackInfo);
                         }
                     }
                     break;

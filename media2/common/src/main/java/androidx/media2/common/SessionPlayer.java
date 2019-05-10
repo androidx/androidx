@@ -23,6 +23,7 @@ import android.media.MediaFormat;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
@@ -429,6 +430,49 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @return the actual playback speed
      */
     public abstract float getPlaybackSpeed();
+
+    /**
+     * Returns the size of the video.
+     *
+     * @return the size of the video. The width and height of size could be 0 if there is no video
+     * or the size has not been determined yet.
+     * The {@link PlayerCallback} can be registered via {@link #registerPlayerCallback} to
+     * receive a notification {@link PlayerCallback#onVideoSizeChangedInternal} when the size
+     * is available.
+     *
+     * @hide
+     */
+    // TODO: Change this into getVideoSize
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    public VideoSize getVideoSizeInternal() {
+        throw new UnsupportedOperationException("getVideoSizeInternal is internal use only");
+    }
+
+    /**
+     * Sets the {@link Surface} to be used as the sink for the video portion of the media.
+     * <p>
+     * The default implementation returns {@link PlayerResult} with the result code
+     * {@link BaseResult#RESULT_ERROR_NOT_SUPPORTED}.
+     * <p>
+     * A null surface will reset any Surface and result in only the audio track being played.
+     * <p>
+     * On success, a {@link SessionPlayer.PlayerResult} is returned with
+     * the current media item when the command completed.
+     *
+     * @param surface The {@link Surface} to be used for the video portion of the media.
+     * @return a {@link ListenableFuture} which represents the pending completion of the command.
+     * {@link SessionPlayer.PlayerResult} will be delivered when the command
+     * completed.
+     *
+     * @hide
+     */
+    // TODO: Change this into setSurface
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    public ListenableFuture<PlayerResult> setSurfaceInternal(@Nullable Surface surface) {
+        return PlayerResult.createFuture(BaseResult.RESULT_ERROR_NOT_SUPPORTED);
+    }
 
     /**
      * Sets a list of {@link MediaItem} with metadata. Use this or {@link #setMediaItem} to specify
@@ -1133,6 +1177,38 @@ public abstract class SessionPlayer implements AutoCloseable {
         public void onAudioAttributesChanged(@NonNull SessionPlayer player,
                 @Nullable AudioAttributesCompat attributes) {
         }
+
+        /**
+         * Called to indicate the video size
+         * <p>
+         * The video size (width and height) could be 0 if there was no video,
+         * no display surface was set, or the value was not determined yet.
+         *
+         * @param player the player associated with this callback
+         * @param item the MediaItem of this media item
+         * @param size the size of the video
+         * @see #getVideoSizeInternal()
+         *
+         * @hide
+         */
+        // TODO: Change this into onVideoSizeChanged
+        @RestrictTo(LIBRARY_GROUP)
+        public void onVideoSizeChangedInternal(
+                @NonNull SessionPlayer player, @NonNull MediaItem item, @NonNull VideoSize size) {
+        }
+
+        /**
+         * Called when the player's subtitle track has new subtitle data available.
+         * @param player the player that reports the new subtitle data
+         * @param item the MediaItem of this media item
+         * @param data the subtitle data
+         *
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public void onSubtitleData(@NonNull SessionPlayer player,
+                @NonNull MediaItem item, @NonNull SubtitleData data) {
+        }
     }
 
     /**
@@ -1159,6 +1235,7 @@ public abstract class SessionPlayer implements AutoCloseable {
                 RESULT_ERROR_BAD_VALUE,
                 RESULT_ERROR_PERMISSION_DENIED,
                 RESULT_ERROR_IO,
+                RESULT_ERROR_NOT_SUPPORTED,
                 RESULT_INFO_SKIPPED})
         @Retention(RetentionPolicy.SOURCE)
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -1209,6 +1286,7 @@ public abstract class SessionPlayer implements AutoCloseable {
          * @see #RESULT_ERROR_BAD_VALUE
          * @see #RESULT_ERROR_PERMISSION_DENIED
          * @see #RESULT_ERROR_IO
+         * @see #RESULT_ERROR_NOT_SUPPORTED
          * @see #RESULT_INFO_SKIPPED
          */
         @Override

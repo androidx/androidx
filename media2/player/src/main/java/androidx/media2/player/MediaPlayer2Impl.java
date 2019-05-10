@@ -52,6 +52,7 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.BuffState;
 import androidx.media2.common.SessionPlayer.PlayerState;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.UriMediaItem;
 import androidx.media2.player.common.TrackInfoImpl;
 
@@ -1111,7 +1112,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         final long durationUs = data.getDurationUs();
                         final byte[] bytes = data.getData();
                         androidx.media2.player.MediaPlayer.TrackInfo info = getTrackInfo(idx);
-                        SubtitleData sub = new SubtitleData(info, startTimeUs, durationUs, bytes);
+                        SessionPlayer.TrackInfo infoInternal = new SessionPlayer.TrackInfo(
+                                info.getId(), info.getMediaItem(), info.getTrackType(),
+                                info.getFormat());
+                        SubtitleData sub = new SubtitleData(infoInternal, startTimeUs, durationUs,
+                                bytes);
                         cb.onSubtitleData(MediaPlayer2Impl.this, src.getDSD(), sub);
                     }
                 });

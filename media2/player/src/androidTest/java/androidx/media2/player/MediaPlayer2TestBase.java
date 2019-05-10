@@ -40,6 +40,7 @@ import androidx.annotation.CallSuper;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.UriMediaItem;
 import androidx.media2.player.TestUtils.Monitor;
 import androidx.test.platform.app.InstrumentationRegistry;
