@@ -68,5 +68,8 @@
         <activity
             android:name=".AssetLoaderAjaxActivity"
             android:exported="true" />
+        <activity
+            android:name=".ForceDarkActivity"
+            android:exported="true" />
     </application>
 </manifest>
