@@ -47,6 +47,7 @@ import androidx.media2.common.SessionPlayer.BuffState;
 import androidx.media2.common.SessionPlayer.PlayerResult;
 import androidx.media2.common.SessionPlayer.PlayerState;
 import androidx.media2.common.UriMediaItem;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.SessionResult.ResultCode;
@@ -1167,6 +1168,8 @@ public class MediaSession implements AutoCloseable {
                 int currentIdx, int previousIdx, int nextIdx) throws RemoteException;
         abstract void onPlaybackCompleted(int seq) throws RemoteException;
         abstract void onDisconnected(int seq) throws RemoteException;
+        abstract void onVideoSizeChanged(int seq, @NonNull MediaItem item,
+                @NonNull VideoSize videoSize) throws RemoteException;
 
         // Mostly matched with the methods in MediaBrowser.BrowserCallback.
         abstract void onChildrenChanged(int seq, @NonNull String parentId, int itemCount,

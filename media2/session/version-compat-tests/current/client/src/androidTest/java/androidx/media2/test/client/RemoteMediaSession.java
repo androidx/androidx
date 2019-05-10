@@ -28,6 +28,7 @@ import static androidx.media2.test.common.CommonConstants.KEY_METADATA;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
 import static androidx.media2.test.common.CommonConstants.KEY_SPEED;
+import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
 import static androidx.media2.test.common.CommonConstants.MEDIA2_SESSION_PROVIDER_SERVICE;
 import static androidx.media2.test.common.TestUtils.PROVIDER_SERVICE_CONNECTION_TIMEOUT_MS;
@@ -52,6 +53,7 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.ParcelImplListSlice;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.CommandButton;
 import androidx.media2.session.MediaSession.ControllerInfo;
@@ -178,6 +180,12 @@ public class RemoteMediaSession {
         if (metadata != null) {
             ParcelUtils.putVersionedParcelable(bundle, KEY_METADATA, metadata);
         }
+        return bundle;
+    }
+
+    public static Bundle createMockPlayerConnectorConfigForVideoSize(@NonNull VideoSize videoSize) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(KEY_VIDEO_SIZE, MediaParcelUtils.toParcelable(videoSize));
         return bundle;
     }
 
@@ -486,6 +494,15 @@ public class RemoteMediaSession {
                 mBinder.notifyPlaybackCompleted(mSessionId);
             } catch (RemoteException ex) {
                 Log.e(TAG, "Failed to call notifyRepeatModeChanged()");
+            }
+        }
+
+        public void notifyVideoSizeChanged(@NonNull VideoSize videoSize) {
+            try {
+                mBinder.notifyVideoSizeChanged(mSessionId,
+                        MediaParcelUtils.toParcelable(videoSize));
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call notifyVideoSizeChanged()");
             }
         }
     }

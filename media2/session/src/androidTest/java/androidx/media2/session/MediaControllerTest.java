@@ -45,6 +45,7 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.Rating;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.ControllerCallback;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
@@ -1630,6 +1631,26 @@ public class MediaControllerTest extends MediaSessionTestBase {
         assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         list.get(1).setMetadata(newMetadata);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testGetVideoSize() throws InterruptedException {
+        prepareLooper();
+        final VideoSize testVideoSize = new VideoSize(100, 42);
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onVideoSizeChanged(@NonNull MediaController controller,
+                    @NonNull MediaItem item, @NonNull VideoSize videoSize) {
+                assertNotNull(item);
+                assertEquals(testVideoSize, videoSize);
+                latch.countDown();
+            }
+        };
+        MediaController controller = createController(mSession.getToken(), true, null, callback);
+        mPlayer.notifyVideoSizeChanged(testVideoSize);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testVideoSize, controller.getVideoSize());
     }
 
     private void testCloseFromService(String id) throws InterruptedException {
