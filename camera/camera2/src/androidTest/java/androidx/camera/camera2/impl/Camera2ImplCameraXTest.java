@@ -25,6 +25,7 @@ import static org.mockito.Mockito.verify;
 
 import android.Manifest;
 import android.content.Context;
+import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -243,6 +244,29 @@ public final class Camera2ImplCameraXTest {
         mLifecycle.startAndResume();
 
         verify(mMockStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
+    }
+
+    @Test
+    public void bind_opensCamera_noActiveUseCase_sessionIsConfigured() {
+        CameraCaptureSession.StateCallback mockSessionStateCallback = Mockito.mock(
+                CameraCaptureSession.StateCallback.class);
+
+
+        ImageAnalysisConfig.Builder builder =
+                new ImageAnalysisConfig.Builder().setLensFacing(DEFAULT_LENS_FACING);
+        new Camera2Config.Extender(builder).setDeviceStateCallback(mMockStateCallback)
+                .setSessionStateCallback(mockSessionStateCallback);
+
+        ImageAnalysisConfig config = builder.build();
+        ImageAnalysis useCase = new ImageAnalysis(config);
+        CameraX.bindToLifecycle(mLifecycle, useCase);
+        mLifecycle.startAndResume();
+
+        // When no analyzer is set, there will be no active surface for repeating request
+        // CaptureSession#mSessionConfig will be null. Thus we wait until capture session
+        // onConfigured to see if it causes any issue.
+        verify(mockSessionStateCallback, timeout(3000)).onConfigured(
+                any(CameraCaptureSession.class));
     }
 
     @Test
