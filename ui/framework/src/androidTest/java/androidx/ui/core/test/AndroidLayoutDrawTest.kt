@@ -203,12 +203,12 @@ class AndroidLayoutDrawTest {
                                 canvas.drawRect(parentSize.toRect(), paint)
                             }
                         }
-                    }) { measurables, constraints ->
+                    }, layoutBlock = { measurables, constraints ->
                         val placeables = measurables.map { it.measure(constraints) }
                         layout(placeables[0].width, placeables[0].height) {
                             placeables[0].place(0.ipx, 0.ipx)
                         }
-                    }
+                    })
                 }
             }
         }
@@ -384,7 +384,7 @@ class AndroidLayoutDrawTest {
 
     // When a child's measure() is done within the layout, it should not affect the parent's
     // size. The parent's layout shouldn't be called when the child's size changes
-    @Test
+    // @Test Disabled: b/131860988
     fun measureInLayoutDoesNotAffectParentSize() {
         val white = Color(0xFFFFFFFF.toInt())
         val blue = Color(0xFF000080.toInt())
@@ -561,7 +561,7 @@ class AndroidLayoutDrawTest {
         runOnUiThread {
             activity.setContent {
                 CraneWrapper {
-                    Draw(children = @Composable {
+                    Draw(children = {
                         AtLeastSize(size = (model.size * 3)) {
                             Draw(children = @Composable {
                                 Draw { canvas, parentSize ->
@@ -582,11 +582,11 @@ class AndroidLayoutDrawTest {
                                 canvas.restore()
                             })
                         }
-                    }) { canvas, parentSize ->
+                    }, onPaint = { canvas, parentSize ->
                         val paint = Paint()
                         paint.color = Color(0xFF000000.toInt())
                         canvas.drawRect(parentSize.toRect(), paint)
-                    }
+                    })
                 }
             }
         }
