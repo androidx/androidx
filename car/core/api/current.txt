@@ -462,7 +462,7 @@ package androidx.car.widget {
     method public void scrollToPosition(int);
     method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
     method public void setAlphaJumpVisible(boolean);
-    method public void setDividerColor(@ColorRes int);
+    method public void setDividerColor(@ColorInt int);
     method public void setDividerVisibilityManager(androidx.car.widget.PagedListView.DividerVisibilityManager!);
     method public void setDownButtonIcon(android.graphics.drawable.Drawable!);
     method public void setGutter(@androidx.car.widget.PagedListView.Gutter int);
