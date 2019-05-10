@@ -200,4 +200,8 @@ final class Camera2CameraCaptureResult implements CameraCaptureResult {
     public Object getTag() {
         return mTag;
     }
+
+    CaptureResult getCaptureResult() {
+        return mCaptureResult;
+    }
 }

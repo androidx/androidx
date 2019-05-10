@@ -16,7 +16,9 @@
 
 package androidx.camera.extensions.impl;
 
+import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
+import android.util.Pair;
 import android.view.Surface;
 
 import java.util.Map;
@@ -40,9 +42,9 @@ public interface CaptureProcessorImpl {
      * <p> The result of the processing step should be written to the {@link Surface} that was
      * received by {@link #onOutputSurface(Surface, int)}.
      *
-     * @param images The map of images to process. The {@link Image} that are
+     * @param results The map of images and metadata to process. The {@link Image} that are
      *                contained within the map will become invalid after this method completes,
      *                so no references to them should be kept.
      */
-    void process(Map<Integer, Image> images);
+    void process(Map<Integer, Pair<Image, TotalCaptureResult>> results);
 }

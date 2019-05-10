@@ -16,10 +16,17 @@
 
 package androidx.camera.extensions;
 
+import android.hardware.camera2.CaptureResult;
+import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
+import android.util.Pair;
 import android.view.Surface;
 
+import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
+import androidx.camera.core.CameraCaptureResult;
+import androidx.camera.core.CameraCaptureResults;
 import androidx.camera.core.CaptureProcessor;
+import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageProxyBundle;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
@@ -50,7 +57,7 @@ final class AdaptingCaptureProcessor implements CaptureProcessor {
     public void process(ImageProxyBundle bundle) {
         List<Integer> ids = bundle.getCaptureIds();
 
-        Map<Integer, Image> bundleMap = new HashMap<>();
+        Map<Integer, Pair<Image, TotalCaptureResult>> bundleMap = new HashMap<>();
 
         for (Integer id : ids) {
             ListenableFuture<ImageProxy> imageProxyListenableFuture = bundle.getImageProxy(id);
@@ -61,7 +68,29 @@ final class AdaptingCaptureProcessor implements CaptureProcessor {
                     return;
                 }
 
-                bundleMap.put(id, imageProxy.getImage());
+                ImageInfo imageInfo = imageProxy.getImageInfo();
+
+                CameraCaptureResult result =
+                        CameraCaptureResults.retrieveCameraCaptureResult(imageInfo);
+                if (result == null) {
+                    return;
+                }
+
+                CaptureResult captureResult =
+                        Camera2CameraCaptureResultConverter.getCaptureResult(result);
+                if (captureResult == null) {
+                    return;
+                }
+
+                TotalCaptureResult totalCaptureResult = (TotalCaptureResult) captureResult;
+                if (totalCaptureResult == null) {
+                    return;
+                }
+
+                Pair<Image, TotalCaptureResult> imageCapturePair = new Pair<>(imageProxy.getImage(),
+                        totalCaptureResult);
+                bundleMap.put(id, imageCapturePair);
+
             } catch (TimeoutException | ExecutionException | InterruptedException e) {
                 return;
             }

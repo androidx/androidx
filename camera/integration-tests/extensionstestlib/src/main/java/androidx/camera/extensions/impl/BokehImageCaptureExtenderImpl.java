@@ -17,10 +17,12 @@ package androidx.camera.extensions.impl;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.media.ImageWriter;
 import android.os.Build;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Surface;
 
 import java.nio.ByteBuffer;
@@ -77,10 +79,10 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
                     }
 
                     @Override
-                    public void process(Map<Integer, Image> images) {
+                    public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results) {
                         Log.d(TAG, "Started bokeh CaptureProcessor");
 
-                        Image result = images.get(DEFAULT_STAGE_ID);
+                        Pair<Image, TotalCaptureResult> result = results.get(DEFAULT_STAGE_ID);
 
                         if (result == null) {
                             Log.w(TAG,
@@ -97,9 +99,9 @@ public final class BokehImageCaptureExtenderImpl implements ImageCaptureExtender
                                 ByteBuffer vByteBuffer = image.getPlanes()[1].getBuffer();
 
                                 // Sample here just simply copy/paste the capture image result
-                                yByteBuffer.put(result.getPlanes()[0].getBuffer());
-                                uByteBuffer.put(result.getPlanes()[2].getBuffer());
-                                vByteBuffer.put(result.getPlanes()[1].getBuffer());
+                                yByteBuffer.put(result.first.getPlanes()[0].getBuffer());
+                                uByteBuffer.put(result.first.getPlanes()[2].getBuffer());
+                                vByteBuffer.put(result.first.getPlanes()[1].getBuffer());
 
                                 mImageWriter.queueInputImage(image);
                             }
