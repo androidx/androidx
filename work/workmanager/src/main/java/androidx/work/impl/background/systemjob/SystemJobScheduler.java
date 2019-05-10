@@ -74,7 +74,7 @@ public class SystemJobScheduler implements Scheduler {
     }
 
     @Override
-    public void schedule(WorkSpec... workSpecs) {
+    public void schedule(@NonNull WorkSpec... workSpecs) {
         WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
 
         for (WorkSpec workSpec : workSpecs) {

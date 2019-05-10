@@ -51,7 +51,7 @@ public class GcmScheduler implements Scheduler {
     }
 
     @Override
-    public void schedule(WorkSpec... workSpecs) {
+    public void schedule(@NonNull WorkSpec... workSpecs) {
         for (WorkSpec workSpec : workSpecs) {
             Task task = mTaskConverter.convert(workSpec);
             Logger.get().debug(TAG, String.format("Scheduling %s with %s", workSpec, task));
