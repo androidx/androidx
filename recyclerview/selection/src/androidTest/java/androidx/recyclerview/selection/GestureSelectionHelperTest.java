@@ -18,6 +18,7 @@ package androidx.recyclerview.selection;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.view.MotionEvent;
 
@@ -25,7 +26,7 @@ import androidx.recyclerview.selection.testing.SelectionProbe;
 import androidx.recyclerview.selection.testing.SelectionTrackers;
 import androidx.recyclerview.selection.testing.TestAutoScroller;
 import androidx.recyclerview.selection.testing.TestEvents;
-import androidx.recyclerview.selection.testing.TestItemDetailsLookup;
+import androidx.recyclerview.selection.testing.TestSelectionPredicate;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -55,7 +56,7 @@ public class GestureSelectionHelperTest {
 
     private GestureSelectionHelper mHelper;
     private SelectionTracker<String> mSelectionTracker;
-    private TestItemDetailsLookup mDetailsLookup;
+    private TestSelectionPredicate<String> mSelectionPredicate;
     private SelectionProbe mSelection;
     private OperationMonitor mMonitor;
     private TestViewDelegate mView;
@@ -63,13 +64,14 @@ public class GestureSelectionHelperTest {
     @Before
     public void setUp() {
         mSelectionTracker = SelectionTrackers.createStringTracker("gesture-selection-test", 100);
-        mDetailsLookup = new TestItemDetailsLookup();
-        mDetailsLookup.initAt(3);
+        mSelectionPredicate = new TestSelectionPredicate<>();
         mSelection = new SelectionProbe(mSelectionTracker);
         mMonitor = new OperationMonitor();
         mView = new TestViewDelegate();
         mHelper = new GestureSelectionHelper(
-                mSelectionTracker, mDetailsLookup, mView, new TestAutoScroller(), mMonitor);
+                mSelectionTracker, mSelectionPredicate, mView, new TestAutoScroller(), mMonitor);
+
+        mSelectionPredicate.setReturnValue(true);
     }
 
     @Test
@@ -80,16 +82,26 @@ public class GestureSelectionHelperTest {
 
     @Test
     public void testIgnoresDown_NoItemDetails() {
-        mDetailsLookup.reset();
         assertFalse(mHelper.onInterceptTouchEvent(null, DOWN));
     }
 
     @Test
-    public void testNoStartOnIllegalPosition() {
-        mView.mNextPosition = RecyclerView.NO_POSITION;
-        mHelper.onInterceptTouchEvent(null, DOWN);
-        mHelper.start();
-        assertFalse(mMonitor.isStarted());
+    public void testThrowsWhenStartingWithoutRange() {
+        mView.mNextPosition = 0;
+
+        // Normally, this is controller by the TouchSelectionHelper via a a long press gesture.
+        mSelectionTracker.select("1");
+        // If mSelectionTracker.anchorRange(1) didn't initialize the range, then start
+        // should throw an exception.
+        try {
+            mHelper.start();
+            fail("Should have thrown IllegalStateException.");
+        } catch (IllegalStateException expected) { }
+    }
+
+    @Test
+    public void testIgnoresEventsWhenNotStarted() {
+        assertFalse(mHelper.onInterceptTouchEvent(null, MOVE));
     }
 
     @Test
@@ -101,27 +113,22 @@ public class GestureSelectionHelperTest {
     @Test
     public void testClaimsMoveIfStarted() {
         mView.mNextPosition = 0;
-        // TODO(b/109808552): This should be removed with that bug is fixed because it will be a
-        // no-op at that time.
-        mHelper.onInterceptTouchEvent(null, DOWN);
 
         // Normally, this is controller by the TouchSelectionHelper via a a long press gesture.
         mSelectionTracker.select("1");
         mSelectionTracker.anchorRange(1);
         mHelper.start();
+
         assertTrue(mHelper.onInterceptTouchEvent(null, MOVE));
     }
 
     @Test
     public void testCreatesRangeSelection() {
         mView.mNextPosition = 1;
-        mHelper.onInterceptTouchEvent(null, DOWN);
-        // Another way we are implicitly coupled to TouchInputHandler, is that we depend on
-        // long press to establish the initial anchor point. Without that we'll get an
-        // error when we try to extend the range.
 
         mSelectionTracker.select("1");
         mSelectionTracker.anchorRange(1);
+
         mHelper.start();
 
         mHelper.onTouchEvent(null, MOVE);
@@ -130,7 +137,23 @@ public class GestureSelectionHelperTest {
         mHelper.onTouchEvent(null, MOVE);
         mHelper.onTouchEvent(null, UP);
 
-        mSelection.assertRangeSelected(1,  9);
+        mSelection.assertRangeSelected(1, 9);
+    }
+
+    // Verify b/78615740 is fixed.
+    @Test
+    public void testEndsSelectionOnInterceptUp() {
+        mView.mNextPosition = 1;
+
+        mSelectionTracker.select("1");
+        mSelectionTracker.anchorRange(1);
+
+        mHelper.start();
+        mHelper.onInterceptTouchEvent(null, UP);
+
+        // If the helper didn't stop after onInterceptTouchEvent UP
+        // this would fail.
+        mHelper.start();
     }
 
     private static final class TestViewDelegate extends GestureSelectionHelper.ViewDelegate {
