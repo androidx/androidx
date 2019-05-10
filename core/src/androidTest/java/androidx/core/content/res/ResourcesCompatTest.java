@@ -28,6 +28,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Build;
 import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
@@ -450,5 +451,16 @@ public class ResourcesCompatTest {
         } catch (Resources.NotFoundException e) {
             assertEquals("Resource ID #0x2a", e.getMessage());
         }
+    }
+
+    @Test
+    public void testMutateTransitionDrawable() {
+        Drawable drawable = ResourcesCompat.getDrawable(mResources,
+                R.drawable.test_transition_drawable, null);
+        assertTrue(drawable instanceof TransitionDrawable);
+
+        Drawable mutated = drawable.mutate();
+        assertTrue(drawable instanceof TransitionDrawable);
+        assertTrue(mutated instanceof TransitionDrawable);
     }
 }
