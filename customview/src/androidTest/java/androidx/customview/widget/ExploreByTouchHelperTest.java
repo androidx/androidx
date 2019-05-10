@@ -21,7 +21,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -104,6 +106,32 @@ public class ExploreByTouchHelperTest {
 
         ViewCompat.setAccessibilityDelegate(mHost, null);
     }
+    @Test
+    @UiThreadTest
+    public void testMoveFocusToNextVirtualId() {
+        final ExploreByTouchHelper helper = new FocusTouchHelper(mHost);
+
+        ViewCompat.setAccessibilityDelegate(mHost, helper);
+
+        boolean moveFocusToId1 = helper.dispatchKeyEvent(
+                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB));
+        assertEquals(1, helper.getKeyboardFocusedVirtualViewId());
+        assertEquals(true, moveFocusToId1);
+
+        // moveFocus should move focus to the node with id 5
+        boolean moveFocusToId5 = helper.dispatchKeyEvent(
+                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB));
+        assertEquals(5, helper.getKeyboardFocusedVirtualViewId());
+        assertEquals(true, moveFocusToId5);
+
+        // moveFocus should not return true if the node has id INVALID_ID.
+        boolean moveFocusToInvalidId = helper.dispatchKeyEvent(
+                new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB));
+        assertEquals(ExploreByTouchHelper.INVALID_ID, helper.getKeyboardFocusedVirtualViewId());
+        assertEquals(false, moveFocusToInvalidId);
+
+        ViewCompat.setAccessibilityDelegate(mHost, null);
+    }
 
     private static Rect getBoundsOnScreen(View v) {
         final int[] tempLocation = new int[2];
@@ -152,5 +180,56 @@ public class ExploreByTouchHelperTest {
                 Bundle arguments) {
             return false;
         }
+    }
+
+    /**
+     * An extension of ExploreByTouchHelper that contains two virtual views to test moving focus.
+     */
+    private static class FocusTouchHelper extends ExploreByTouchHelper {
+        private final View mHost;
+
+        FocusTouchHelper(View host) {
+            super(host);
+            mHost = host;
+        }
+
+        @Override
+        protected int getVirtualViewAt(float x, float y) {
+            RectF topHalf = new RectF();
+            topHalf.set(0, 0, mHost.getWidth(), mHost.getHeight() / 2);
+            if (topHalf.contains(x, y)) {
+                return 1;
+            }
+            return 5;
+        }
+
+        @Override
+        protected void getVisibleVirtualViews(List<Integer> virtualViewIds) {
+            virtualViewIds.add(1);
+            virtualViewIds.add(5);
+        }
+
+        @Override
+        protected void onPopulateNodeForVirtualView(int virtualViewId,
+                @NonNull AccessibilityNodeInfoCompat node) {
+            if (virtualViewId == 1) {
+                node.setContentDescription("test 1");
+                final Rect hostBounds = new Rect(0, 0, mHost.getWidth(), mHost.getHeight() / 2);
+                node.setBoundsInParent(hostBounds);
+            }
+            if (virtualViewId == 5) {
+                node.setContentDescription("test 5");
+                final Rect hostBounds =
+                        new Rect(0, mHost.getHeight() / 2, mHost.getWidth(), mHost.getHeight());
+                node.setBoundsInParent(hostBounds);
+            }
+        }
+
+        @Override
+        protected boolean onPerformActionForVirtualView(int virtualViewId, int action,
+                Bundle arguments) {
+            return false;
+        }
+
     }
 }
