@@ -72,4 +72,28 @@ public final class CameraCaptureSessionCompatTest {
         verify(mCaptureSession, times(1)).captureSingleRequest(any(CaptureRequest.class),
                 any(Executor.class), any(CameraCaptureSession.CaptureCallback.class));
     }
+
+    @Test
+    @Config(maxSdk = 27)
+    public void setSingleRepeatingRequest_callsSetRepeatingRequest() throws CameraAccessException {
+        CameraCaptureSessionCompat.setSingleRepeatingRequest(mCaptureSession,
+                mock(CaptureRequest.class),
+                mock(Executor.class), mock(
+                        CameraCaptureSession.CaptureCallback.class));
+
+        verify(mCaptureSession, times(1)).setRepeatingRequest(any(CaptureRequest.class), any(
+                CameraCaptureSession.CaptureCallback.class), any(Handler.class));
+    }
+
+    @Test
+    @Config(minSdk = 28)
+    public void captureSingleRequest_callsSetSingleRepeatingRequest() throws CameraAccessException {
+        CameraCaptureSessionCompat.setSingleRepeatingRequest(mCaptureSession,
+                mock(CaptureRequest.class),
+                mock(Executor.class), mock(
+                        CameraCaptureSession.CaptureCallback.class));
+
+        verify(mCaptureSession, times(1)).setSingleRepeatingRequest(any(CaptureRequest.class),
+                any(Executor.class), any(CameraCaptureSession.CaptureCallback.class));
+    }
 }
