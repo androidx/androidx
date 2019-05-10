@@ -29,7 +29,7 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
     compile(project(":lifecycle:lifecycle-common"))
-    compile(project(":annotation"))
+    compile("androidx.annotation:annotation:1.1.0-rc01")
 
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)

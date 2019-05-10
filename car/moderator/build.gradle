@@ -24,7 +24,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
+    api("androidx.annotation:annotation:1.1.0-rc01")
     api(project(":core"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
