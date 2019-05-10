@@ -21,6 +21,8 @@ import android.widget.ScrollView
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.EditableText
 import androidx.ui.core.EditorStyle
+import androidx.ui.core.Selection
+import androidx.ui.core.SelectionContainer
 import androidx.ui.core.Text
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
@@ -94,6 +96,8 @@ fun TextDemo() {
                 TextDemoShadowEffect()
                 TagLine(tag="editing")
                 EditLine()
+                TagLine(tag="selection")
+                TextDemoSelection()
             }
         }
     }
@@ -666,5 +670,68 @@ fun EditLine() {
             onValueChange = { state.value = it },
             editorStyle = EditorStyle(textStyle = TextStyle(fontSize = fontSize8))
         )
+    }
+}
+
+fun TextDemoSelection() {
+    var textSpan = TextSpan(
+            children = listOf(
+                    TextSpan(
+                            text = displayText + "   ",
+                            style = TextStyle(
+                                    color = Color(0xFFFF0000.toInt()),
+                                    fontSize = fontSize6,
+                                    fontWeight = FontWeight.w200,
+                                    fontStyle = FontStyle.italic
+                            )
+                    ),
+                    TextSpan(
+                            text = displayTextChinese + "   ",
+                            style = TextStyle(
+                                    color = Color(0xFFFF0000.toInt()),
+                                    fontSize = fontSize6,
+                                    fontWeight = FontWeight.w200,
+                                    fontStyle = FontStyle.italic
+                            )
+                    ),
+                    TextSpan(
+                            text = displayTextHindi,
+                            style = TextStyle(
+                                    color = Color(0xFF0000FF.toInt()),
+                                    fontSize = fontSize10,
+                                    fontWeight = FontWeight.w800,
+                                    fontStyle = FontStyle.normal
+                            )
+                    ),
+                    TextSpan(
+                            text = "\n" + "先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。",
+                            style = TextStyle(
+                                    color = Color(0xFFFF0000.toInt()),
+                                    fontSize = fontSize6,
+                                    fontWeight = FontWeight.w200,
+                                    fontStyle = FontStyle.italic,
+                                    locale = Locale("zh", "CN")
+                            )
+                    ),
+                    TextSpan(
+                            text = "\nまず、現在天下が魏・呉・蜀に分れており、そのうち蜀は疲弊していることを指摘する。",
+                            style = TextStyle(
+                                    color = Color(0xFFFF0000.toInt()),
+                                    fontSize = fontSize6,
+                                    fontWeight = FontWeight.w200,
+                                    fontStyle = FontStyle.italic,
+                                    locale = Locale("ja", "JP")
+                            )
+                    )
+            )
+    )
+
+    val selection = +state<Selection?> { null }
+    CraneWrapper {
+        SelectionContainer(
+                selection = selection.value,
+                onSelectionChange = { selection.value = it }) {
+            Text(text = textSpan)
+        }
     }
 }
