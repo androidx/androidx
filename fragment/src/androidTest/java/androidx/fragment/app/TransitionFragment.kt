@@ -62,7 +62,7 @@ open class TransitionFragment(
     internal fun waitForTransition() {
         verify(
             listener,
-            CtsMockitoUtils.within(1000)
+            within(1000)
         ).onTransitionEnd(ArgumentMatchers.any())
         reset(listener)
     }

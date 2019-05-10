@@ -36,12 +36,12 @@ import java.util.concurrent.TimeUnit
 class SafeTransactionInOnResumeTest {
 
     @get:Rule
-    var mActivityRule = ActivityTestRule<OnResumeTestActivity>(OnResumeTestActivity::class.java)
+    var activityRule = ActivityTestRule<OnResumeTestActivity>(OnResumeTestActivity::class.java)
 
-    @Test()
+    @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.M)
     fun onResumeTest() {
-        assertTrue(mActivityRule.activity.testResult())
+        assertTrue(activityRule.activity.testResult())
     }
 }
 
