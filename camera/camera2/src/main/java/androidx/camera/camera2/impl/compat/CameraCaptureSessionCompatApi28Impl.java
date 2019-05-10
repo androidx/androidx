@@ -50,6 +50,16 @@ class CameraCaptureSessionCompatApi28Impl extends CameraCaptureSessionCompatBase
     }
 
     @Override
+    public int setRepeatingBurstRequests(@NonNull CameraCaptureSession captureSession,
+            @NonNull List<CaptureRequest> requests, @NonNull Executor executor,
+            @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
+        Preconditions.checkNotNull(captureSession);
+
+        // Call through directly to executor API
+        return captureSession.setRepeatingBurstRequests(requests, executor, listener);
+    }
+
+    @Override
     public int setSingleRepeatingRequest(@NonNull CameraCaptureSession captureSession,
             @NonNull CaptureRequest request, @NonNull Executor executor,
             @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {

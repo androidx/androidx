@@ -151,6 +151,51 @@ public final class CameraCaptureSessionCompat {
     }
 
     /**
+     * <p>Request endlessly repeating capture of a sequence of images by this
+     * capture session.</p>
+     *
+     * <p>The behavior of this method matches that of
+     * {@link
+     * CameraCaptureSession#setRepeatingBurst(List, CameraCaptureSession.CaptureCallback, Handler)},
+     * except that it uses {@link java.util.concurrent.Executor} as an argument
+     * instead of {@link android.os.Handler}.</p>
+     *
+     * @param requests the list of requests to cycle through indefinitely
+     * @param executor the executor which will be used for invoking the listener.
+     * @param listener The callback object to notify each time one of the
+     * requests in the repeating bursts has finished processing.
+     *
+     * @return int A unique capture sequence ID used by
+     *             {@link CameraCaptureSession.CaptureCallback#onCaptureSequenceCompleted}.
+     *
+     * @throws CameraAccessException if the camera device is no longer connected or has
+     *                               encountered a fatal error
+     * @throws IllegalStateException if this session is no longer active, either because the session
+     *                               was explicitly closed, a new session has been created
+     *                               or the camera device has been closed.
+     * @throws IllegalArgumentException If the requests reference no Surfaces or reference Surfaces
+     *                                  not currently configured as outputs; or one of the requests
+     *                                  is a reprocess capture request; or one of the captures
+     *                                  targets a Surface in the middle of being
+     *                                  prepared; or the executor is null; or the
+     *                                  listener is null.
+     *
+     * @see CameraCaptureSession#capture
+     * @see CameraCaptureSession#captureBurst
+     * @see CameraCaptureSession#setRepeatingRequest
+     * @see CameraCaptureSession#stopRepeating
+     * @see CameraCaptureSession#abortCaptures
+     */
+    public static int setRepeatingBurstRequests(
+            @NonNull CameraCaptureSession captureSession,
+            @NonNull List<CaptureRequest> requests,
+            @NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull CameraCaptureSession.CaptureCallback listener)
+            throws CameraAccessException {
+        return IMPL.setRepeatingBurstRequests(captureSession, requests, executor, listener);
+    }
+
+    /**
      * Request endlessly repeating capture of images by this capture session.
      *
      * <p>The behavior of this method matches that of
@@ -203,6 +248,13 @@ public final class CameraCaptureSessionCompat {
         int captureSingleRequest(
                 @NonNull CameraCaptureSession captureSession,
                 @NonNull CaptureRequest request,
+                @NonNull /* @CallbackExecutor */ Executor executor,
+                @NonNull CameraCaptureSession.CaptureCallback listener)
+                throws CameraAccessException;
+
+        int setRepeatingBurstRequests(
+                @NonNull CameraCaptureSession captureSession,
+                @NonNull List<CaptureRequest> requests,
                 @NonNull /* @CallbackExecutor */ Executor executor,
                 @NonNull CameraCaptureSession.CaptureCallback listener)
                 throws CameraAccessException;
