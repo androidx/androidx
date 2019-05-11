@@ -137,8 +137,10 @@ function_lock_cpu() {
       echo 0 > ${CPU_BASE}/cpu${cpu}/online
     done
 
-    echo "\nLocked CPUs ${enableIndices// /,} to $chosenFreq / $maxFreq KHz"
+    echo "=================================="
+    echo "Locked CPUs ${enableIndices// /,} to $chosenFreq / $maxFreq KHz"
     echo "Disabled CPUs ${disableIndices// /,}"
+    echo "=================================="
 }
 
 # If we have a Qualcomm GPU, find its max frequency, and lock to
@@ -146,12 +148,12 @@ function_lock_cpu() {
 function_lock_gpu_kgsl() {
     if [ ! -d /sys/class/kgsl/kgsl-3d0/ ]; then
         # not kgsl, abort
-        echo "\nCurrently don't support locking GPU clocks of $MODEL ($DEVICE)"
+        echo "Currently don't support locking GPU clocks of $MODEL ($DEVICE)"
         return -1
     fi
     if [ ${DEVICE} == "walleye" ] || [ ${DEVICE} == "taimen" ]; then
         # Workaround crash
-        echo "\nUnable to lock GPU clocks of $MODEL ($DEVICE)"
+        echo "Unable to lock GPU clocks of $MODEL ($DEVICE)"
         return -1
     fi
 
@@ -218,7 +220,7 @@ function_lock_gpu_kgsl() {
         echo "index = $chosenIndex"
         exit -1
     fi
-    echo "\nLocked GPU to $chosenFreq / $gpuMaxFreq Hz"
+    echo "Locked GPU to $chosenFreq / $gpuMaxFreq Hz"
 }
 
 # kill processes that manage thermals / scaling
@@ -235,7 +237,7 @@ function_lock_gpu_kgsl
 if [ ${DEVICE} == "marlin" ] || [ ${DEVICE} == "sailfish" ]; then
     echo 13763 > /sys/class/devfreq/soc:qcom,gpubw/max_freq
 else
-    echo "\nUnable to lock memory bus of $MODEL ($DEVICE)."
+    echo "Unable to lock memory bus of $MODEL ($DEVICE)."
 fi
 
-echo "\n$DEVICE clocks have been locked - to reset, reboot the device\n"
+echo "$DEVICE clocks have been locked - to reset, reboot the device"
