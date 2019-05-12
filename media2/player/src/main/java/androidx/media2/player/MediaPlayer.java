@@ -3356,7 +3356,15 @@ public final class MediaPlayer extends SessionPlayer {
             final int prime = 31;
             int result = 1;
             result = prime * result + mId;
-            result = prime * result + ((mItem == null) ? 0 : mItem.hashCode());
+            int hashCode = 0;
+            if (mItem != null) {
+                if (mItem.getMediaId() != null) {
+                    hashCode = mItem.getMediaId().hashCode();
+                } else {
+                    hashCode = mItem.hashCode();
+                }
+            }
+            result = prime * result + hashCode;
             return result;
         }
 
@@ -3375,14 +3383,17 @@ public final class MediaPlayer extends SessionPlayer {
             if (mId != other.mId) {
                 return false;
             }
-            if (mItem == null) {
-                if (other.mItem != null) {
-                    return false;
-                }
-            } else if (!mItem.equals(other.mItem)) {
+            if (mItem == null && other.mItem == null) {
+                return true;
+            } else if (mItem == null || other.mItem == null) {
                 return false;
+            } else {
+                String mediaId = mItem.getMediaId();
+                if (mediaId != null) {
+                    return mediaId.equals(other.mItem.getMediaId());
+                }
+                return mItem.equals(other.mItem);
             }
-            return true;
         }
     }
 
