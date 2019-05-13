@@ -33,7 +33,8 @@ internal enum class ErrorMessages(val message: String) {
     OwnerAlreadyDetached("Detaching a node that is already detached"),
     IllegalMoveOperation("Moving %1\$d items from %2\$d to %3\$d is not legal"),
     CannotFindLayoutInParent("Parent layout does not contain this layout as a child"),
-    ChildrenUnsupported("Draw does not have children");
+    ChildrenUnsupported("Draw does not have children"),
+    NodeShouldBeAttached("Node should be attached to an owner");
 
     /*inline */fun validateState(check: Boolean) {
         if (!check) state()

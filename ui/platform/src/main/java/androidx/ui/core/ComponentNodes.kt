@@ -87,6 +87,11 @@ interface Owner {
      * Called when layout (placement) ends.
      */
     fun onEndLayout(layoutNode: LayoutNode)
+
+    /**
+     * Returns a position of the owner in its window.
+     */
+    fun calculatePosition(): PxPosition
 }
 
 /**
@@ -791,6 +796,11 @@ class SemanticsComponentNode(
 }
 
 /**
+ * Returns [ComponentNode.owner] or throws if it is null.
+ */
+fun ComponentNode.requireOwner(): Owner = owner ?: ErrorMessages.NodeShouldBeAttached.state()
+
+/**
  * The list of child Layouts. It can contain zero or more entries.
  */
 fun LayoutNode.childrenLayouts(): List<Any> {
@@ -812,7 +822,7 @@ class Ref<T> {
 /**
  * Converts a global position into a local position within this LayoutNode.
  */
-fun LayoutNode.globalToLocal(global: PxPosition): PxPosition {
+fun LayoutNode.globalToLocal(global: PxPosition, withOwnerOffset: Boolean = true): PxPosition {
     var x: Px = global.x
     var y: Px = global.y
     var node: LayoutNode? = this
@@ -821,13 +831,18 @@ fun LayoutNode.globalToLocal(global: PxPosition): PxPosition {
         y -= node.y.toPx()
         node = node.parentLayoutNode
     }
+    if (withOwnerOffset) {
+        val ownerPosition = requireOwner().calculatePosition()
+        x -= ownerPosition.x
+        y -= ownerPosition.y
+    }
     return PxPosition(x, y)
 }
 
 /**
  * Converts a local position within this LayoutNode into a global one.
  */
-fun LayoutNode.localToGlobal(local: PxPosition): PxPosition {
+fun LayoutNode.localToGlobal(local: PxPosition, withOwnerOffset: Boolean = true): PxPosition {
     var x: Px = local.x
     var y: Px = local.y
     var node: LayoutNode? = this
@@ -835,6 +850,11 @@ fun LayoutNode.localToGlobal(local: PxPosition): PxPosition {
         x += node.x.toPx()
         y += node.y.toPx()
         node = node.parentLayoutNode
+    }
+    if (withOwnerOffset) {
+        val ownerPosition = requireOwner().calculatePosition()
+        x += ownerPosition.x
+        y += ownerPosition.y
     }
     return PxPosition(x, y)
 }
@@ -870,7 +890,7 @@ fun LayoutNode.childToLocal(child: LayoutNode, childLocal: PxPosition): PxPositi
 /**
  * Calculates the position of this [LayoutNode] relative to the root of the ui tree.
  */
-fun LayoutNode.positionRelativeToRoot() = localToGlobal(PxPosition.Origin)
+fun LayoutNode.positionRelativeToRoot() = localToGlobal(PxPosition.Origin, false)
 
 /**
  * Calculates the position of this [LayoutNode] relative to the provided ancestor.

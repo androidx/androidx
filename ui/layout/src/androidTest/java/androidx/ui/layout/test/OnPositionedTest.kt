@@ -16,14 +16,18 @@
 
 package androidx.ui.layout.test
 
+import android.widget.FrameLayout
 import androidx.compose.Composable
+import androidx.compose.compose
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
+import androidx.ui.core.CraneWrapper
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.Px
 import androidx.ui.core.PxPosition
+import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
@@ -157,5 +161,38 @@ class OnPositionedTest : LayoutTest() {
 
         assertThat(0.px).isEqualTo(firstCoordinates!!.position.x)
         assertThat(size).isEqualTo(secondCoordinates!!.position.x)
+    }
+
+    @Test
+    fun globalCoordinatesAreInActivityCoordinates() = withDensity(density) {
+        val padding = 30
+        val localPosition = PxPosition.Origin
+        val globalPosition = PxPosition(padding.ipx, padding.ipx)
+        var realGlobalPosition: PxPosition? = null
+        var realLocalPosition: PxPosition? = null
+
+        val drawLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThread(object : Runnable {
+            override fun run() {
+                val frameLayout = FrameLayout(activity)
+                frameLayout.setPadding(padding, padding, padding, padding)
+                activity.setContentView(frameLayout)
+                frameLayout.compose @Composable {
+                    CraneWrapper {
+                        OnChildPositioned(onPositioned = {
+                            realGlobalPosition = it.localToGlobal(localPosition)
+                            realLocalPosition = it.globalToLocal(globalPosition)
+                            drawLatch.countDown()
+                        }) {
+                            Container(expanded = true) {}
+                        }
+                    }
+                }
+            }
+        })
+        drawLatch.await(1, TimeUnit.SECONDS)
+
+        assertThat(realGlobalPosition).isEqualTo(globalPosition)
+        assertThat(realLocalPosition).isEqualTo(localPosition)
     }
 }
