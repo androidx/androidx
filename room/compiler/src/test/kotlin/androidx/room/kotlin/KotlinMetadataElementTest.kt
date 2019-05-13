@@ -85,6 +85,7 @@ class KotlinMetadataElementTest {
             it to KotlinMetadataElement.createFor(Context(invocation.processingEnv), it)!!
         }
 
+    @Suppress("unused")
     private class TestData(val constructorParam: String) {
 
         constructor() : this("anything")
@@ -93,6 +94,7 @@ class KotlinMetadataElementTest {
 
         suspend fun suspendFunction() {}
 
+        @Suppress("UNUSED_PARAMETER")
         fun functionWithParams(param1: String, yesOrNo: Boolean, number: Int) {}
     }
 }

@@ -110,6 +110,7 @@ class SavedStateRegistryTest {
 
     @Test
     fun autoRecreatedThrowOnMissingDefaultConstructor() {
+        @Suppress("UNUSED_PARAMETER")
         class InvalidConstructorClass(unused: Int) : SavedStateRegistry.AutoRecreated {
             override fun onRecreated(owner: SavedStateRegistryOwner) {
                 TODO("not implemented")

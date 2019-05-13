@@ -36,7 +36,6 @@ import org.hamcrest.Matchers.lessThan
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThat
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -216,7 +215,6 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
                     when (e) {
                         is OnPageScrolledEvent -> groups.add(mutableListOf())
                         is TransformPageEvent -> groups.last().add(e)
-                        else -> fail("$e is neither OnPageScrolledEvent nor TransformPageEvent")
                     }
                     groups
                 }

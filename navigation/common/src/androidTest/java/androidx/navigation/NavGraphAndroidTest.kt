@@ -173,7 +173,7 @@ class NavGraphAndroidTest {
 
         assertWithMessage("Deep link should point to correct destination")
             .that(match?.destination)
-            .isSameAs(postDestination)
+            .isSameInstanceAs(postDestination)
         assertWithMessage("Deep link should extract id argument correctly")
             .that(match?.matchingArgs?.getInt("id"))
             .isEqualTo(43)
