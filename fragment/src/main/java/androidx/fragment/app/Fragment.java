@@ -128,6 +128,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // Target request code.
     int mTargetRequestCode;
 
+    // Boolean indicating whether this Fragment is the primary navigation fragment
+    private Boolean mIsPrimaryNavigationFragment = null;
+
     // True if the fragment is in the list of added fragments.
     boolean mAdded;
 
@@ -1814,6 +1817,20 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
+     * Callback for when the primary navigation state of this Fragment has changed. This can be
+     * the result of the {@link #getFragmentManager() containing FragmentManager} having its
+     * primary navigation fragment changed via
+     * {@link FragmentTransaction#setPrimaryNavigationFragment(Fragment)} or due to the primary
+     * navigation fragment changing in a parent FragmentManager.
+     *
+     * @param isPrimaryNavigationFragment True if and only if this Fragment and any
+     * {@link #getParentFragment() parent fragment} is set as the primary navigation fragment
+     * via {@link FragmentTransaction#setPrimaryNavigationFragment(Fragment)}.
+     */
+    public void onPrimaryNavigationFragmentChanged(boolean isPrimaryNavigationFragment) {
+    }
+
+    /**
      * Called when the Fragment is no longer resumed.  This is generally
      * tied to {@link Activity#onPause() Activity.onPause} of the containing
      * Activity's lifecycle.
@@ -2686,6 +2703,19 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     void noteStateNotSaved() {
         if (mChildFragmentManager != null) {
             mChildFragmentManager.noteStateNotSaved();
+        }
+    }
+
+    void performPrimaryNavigationFragmentChanged() {
+        boolean isPrimaryNavigationFragment = mFragmentManager.isPrimaryNavigation(this);
+        // Only send out the callback / dispatch if the state has changed
+        if (mIsPrimaryNavigationFragment == null
+                || mIsPrimaryNavigationFragment != isPrimaryNavigationFragment) {
+            mIsPrimaryNavigationFragment = isPrimaryNavigationFragment;
+            onPrimaryNavigationFragmentChanged(isPrimaryNavigationFragment);
+            if (mChildFragmentManager != null) {
+                mChildFragmentManager.dispatchPrimaryNavigationFragmentChanged();
+            }
         }
     }
 
