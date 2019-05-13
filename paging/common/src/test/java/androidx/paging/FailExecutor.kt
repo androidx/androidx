@@ -17,27 +17,7 @@
 package androidx.paging
 
 import org.junit.Assert.fail
-import java.util.LinkedList
 import java.util.concurrent.Executor
-
-class TestExecutor : Executor {
-    private val mTasks = LinkedList<Runnable>()
-
-    override fun execute(runnable: Runnable) {
-        mTasks.add(runnable)
-    }
-
-    internal fun executeAll(): Boolean {
-        val consumed = !mTasks.isEmpty()
-
-        var task = mTasks.poll()
-        while (task != null) {
-            task.run()
-            task = mTasks.poll()
-        }
-        return consumed
-    }
-}
 
 class FailExecutor(val string: String = "Executor expected to be unused") : Executor {
     override fun execute(runnable: Runnable?) {

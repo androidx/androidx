@@ -38,6 +38,7 @@ dependencies {
     testCompile(MOCKITO_CORE)
     testCompile(KOTLIN_STDLIB)
     testCompile(GUAVA)
+    testImplementation project(':internal-testutils-common')
 }
 
 androidx {
