@@ -96,25 +96,17 @@ public class MediaBrowser extends MediaController {
 
     @Override
     MediaBrowserImpl createImpl(@NonNull Context context, @NonNull SessionToken token,
-            @Nullable Bundle connectionHints, @Nullable Executor executor,
-            @Nullable ControllerCallback callback) {
+            @Nullable Bundle connectionHints) {
         if (token.isLegacySession()) {
-            return new MediaBrowserImplLegacy(
-                    context, this, token, executor, (BrowserCallback) callback);
+            return new MediaBrowserImplLegacy(context, this, token);
         } else {
-            return new MediaBrowserImplBase(context, this, token, connectionHints,
-                    executor, (BrowserCallback) callback);
+            return new MediaBrowserImplBase(context, this, token, connectionHints);
         }
     }
 
     @Override
     MediaBrowserImpl getImpl() {
         return (MediaBrowserImpl) super.getImpl();
-    }
-
-    @Override
-    BrowserCallback getCallback() {
-        return (BrowserCallback) super.getCallback();
     }
 
     /**
@@ -286,6 +278,20 @@ public class MediaBrowser extends MediaController {
         return createDisconnectedFuture();
     }
 
+    void notifyBrowserCallback(final BrowserCallbackRunnable callbackRunnable) {
+        if (mCallback != null && mCallbackExecutor != null) {
+            mCallbackExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callbackRunnable.run((BrowserCallback) mCallback);
+                }
+            });
+        }
+    }
+
+    interface BrowserCallbackRunnable {
+        void run(@NonNull BrowserCallback callback);
+    }
 
     /**
      * Builder for {@link MediaBrowser}.
