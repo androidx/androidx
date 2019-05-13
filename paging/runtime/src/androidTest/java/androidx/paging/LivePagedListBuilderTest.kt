@@ -27,6 +27,7 @@ import androidx.paging.PagedList.LoadState.LOADING
 import androidx.paging.PagedList.LoadState.RETRYABLE_ERROR
 import androidx.paging.PagedList.LoadType.REFRESH
 import androidx.test.filters.SmallTest
+import androidx.testutils.TestExecutor
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
