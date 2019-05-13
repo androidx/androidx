@@ -719,25 +719,31 @@ class AppCompatTextViewAutoSizeHelper {
     @RequiresApi(23)
     private StaticLayout createStaticLayoutForMeasuring(CharSequence text,
             Layout.Alignment alignment, int availableWidth, int maxLines) {
-        // Can use the StaticLayout.Builder (along with TextView params added in or after
-        // API 23) to construct the layout.
-        final TextDirectionHeuristic textDirectionHeuristic = invokeAndReturnWithDefault(
-                mTextView, "getTextDirectionHeuristic",
-                TextDirectionHeuristics.FIRSTSTRONG_LTR);
 
         final StaticLayout.Builder layoutBuilder = StaticLayout.Builder.obtain(
                 text, 0, text.length(),  mTempTextPaint, availableWidth);
 
-        return layoutBuilder.setAlignment(alignment)
+        layoutBuilder.setAlignment(alignment)
                 .setLineSpacing(
                         mTextView.getLineSpacingExtra(),
                         mTextView.getLineSpacingMultiplier())
                 .setIncludePad(mTextView.getIncludeFontPadding())
                 .setBreakStrategy(mTextView.getBreakStrategy())
                 .setHyphenationFrequency(mTextView.getHyphenationFrequency())
-                .setMaxLines(maxLines == -1 ? Integer.MAX_VALUE : maxLines)
-                .setTextDirection(textDirectionHeuristic)
-                .build();
+                .setMaxLines(maxLines == -1 ? Integer.MAX_VALUE : maxLines);
+
+        try {
+            // Can use the StaticLayout.Builder (along with TextView params added in or after
+            // API 23) to construct the layout.
+            final TextDirectionHeuristic textDirectionHeuristic = invokeAndReturnWithDefault(
+                    mTextView, "getTextDirectionHeuristic",
+                    TextDirectionHeuristics.FIRSTSTRONG_LTR);
+            layoutBuilder.setTextDirection(textDirectionHeuristic);
+        } catch (ClassCastException e) {
+            // On some devices this exception happens, details: b/127137059.
+            Log.w(TAG, "Failed to obtain TextDirectionHeuristic, auto size may be incorrect");
+        }
+        return layoutBuilder.build();
     }
 
     @RequiresApi(16)
