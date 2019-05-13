@@ -81,7 +81,7 @@ public final class DialogFragmentNavigator extends Navigator<DialogFragmentNavig
             return false;
         }
         Fragment existingFragment = mFragmentManager
-                .findFragmentByTag(DIALOG_TAG + mDialogCount--);
+                .findFragmentByTag(DIALOG_TAG + --mDialogCount);
         if (existingFragment != null) {
             existingFragment.getLifecycle().removeObserver(mObserver);
             ((DialogFragment) existingFragment).dismiss();
