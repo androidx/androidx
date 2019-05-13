@@ -38,7 +38,7 @@ class VectorGraphicsActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         val res = getResources()
-        setContent @Composable {
+        setContent {
             composer.registerAdapter { parent, child ->
                 adoptVectorGraphic(parent, child)
             }

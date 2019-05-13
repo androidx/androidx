@@ -93,7 +93,7 @@ fun RippleRect(width: IntPx, height: IntPx) {
         }
         PressGestureDetector(onPress = onPress, onRelease = onRelease) {
             val children = @Composable {
-                Transition(definition = rippleTransDef, toState = toState) @Composable { state ->
+                Transition(definition = rippleTransDef, toState = toState) { state ->
                     RippleRectFromState(state = state)
                 }
             }

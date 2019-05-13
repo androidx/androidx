@@ -52,7 +52,7 @@ class StackTest : LayoutTest() {
         val alignedChildPosition = Ref<PxPosition>()
         val positionedChildSize = Ref<PxSize>()
         val positionedChildPosition = Ref<PxPosition>()
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     stackSize.value = coordinates.size
@@ -106,7 +106,7 @@ class StackTest : LayoutTest() {
         val stackSize = Ref<PxSize>()
         val childSize = arrayOf(Ref<PxSize>(), Ref<PxSize>())
         val childPosition = arrayOf(Ref<PxPosition>(), Ref<PxPosition>())
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     stackSize.value = coordinates.size
@@ -155,7 +155,7 @@ class StackTest : LayoutTest() {
         val stackSize = Ref<PxSize>()
         val childSize = Array(7) { Ref<PxSize>() }
         val childPosition = Array(7) { Ref<PxPosition>() }
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     stackSize.value = coordinates.size

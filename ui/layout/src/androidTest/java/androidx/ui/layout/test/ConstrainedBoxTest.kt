@@ -50,7 +50,7 @@ class ConstrainedBoxTest : LayoutTest() {
         val constrainedBoxSize = Ref<PxSize>()
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     constrainedBoxSize.value = coordinates.size
@@ -84,7 +84,7 @@ class ConstrainedBoxTest : LayoutTest() {
         val constrainedBoxSize = Ref<PxSize>()
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 Container(width = sizeDp, height = sizeDp) {
                     OnChildPositioned(onPositioned = { coordinates ->
@@ -120,7 +120,7 @@ class ConstrainedBoxTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(1)
         val constrainedBoxSize = Ref<PxSize>()
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     constrainedBoxSize.value = coordinates.size

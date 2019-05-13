@@ -94,8 +94,7 @@ private fun DrawCheckbox(value: ToggleableState, color: Color?) {
     val definition = +memo(activeColor, unselectedColor) {
         generateTransitionDefinition(activeColor, unselectedColor)
     }
-    // TODO: remove @Composable annotation here when b/131681875 is fixed
-    Transition(definition = definition, toState = value) @Composable { state ->
+    Transition(definition = definition, toState = value) { state ->
         DrawBox(
             color = state[BoxColorProp],
             innerRadiusFraction = state[InnerRadiusFractionProp]

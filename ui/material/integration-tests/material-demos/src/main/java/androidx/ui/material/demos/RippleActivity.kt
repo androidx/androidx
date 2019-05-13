@@ -34,8 +34,7 @@ class RippleActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // TODO: remove @Composable annotation here when b/131681875 is fixed
-        setContent @Composable {
+        setContent {
             val layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 0,

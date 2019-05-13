@@ -73,7 +73,7 @@ fun RepeatedRotation() {
                     Transition(
                         definition = definition,
                         toState = state.value
-                    ) @Composable { state ->
+                    ) { state ->
                         Draw { canvas, parentSize ->
                             canvas.save()
                             canvas.rotate(radians(state[rotation]))

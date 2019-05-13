@@ -60,7 +60,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
-        show @Composable {
+        show {
             Center {
                 Row {
                     Container(width = sizeDp, height = sizeDp) {
@@ -109,7 +109,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
-        show @Composable {
+        show {
             Center {
                 FlexRow {
                     val widthDp = 50.px.toDp()
@@ -172,7 +172,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
-        show @Composable {
+        show {
             Center {
                 FlexRow {
                     flexible(flex = 1f) {
@@ -228,7 +228,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
-        show @Composable {
+        show {
             Center {
                 Column {
                     Container(width = sizeDp, height = sizeDp) {
@@ -276,7 +276,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
-        show @Composable {
+        show {
             Center {
                 FlexColumn {
                     val heightDp = 50.px.toDp()
@@ -339,7 +339,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
-        show @Composable {
+        show {
             Center {
                 FlexColumn {
                     flexible(flex = 1f) {
@@ -395,7 +395,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
-        show @Composable {
+        show {
             Center {
                 Row(crossAxisAlignment = CrossAxisAlignment.Start) {
                     Container(width = sizeDp, height = sizeDp) {
@@ -444,7 +444,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
-        show @Composable {
+        show {
             Center {
                 Row(crossAxisAlignment = CrossAxisAlignment.End) {
                     Container(width = sizeDp, height = sizeDp) {
@@ -496,7 +496,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
-        show @Composable {
+        show {
             Center {
                 Row(crossAxisAlignment = CrossAxisAlignment.Stretch) {
                     Container(width = sizeDp, height = sizeDp) {
@@ -539,7 +539,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
-        show @Composable {
+        show {
             Center {
                 Column(crossAxisAlignment = CrossAxisAlignment.Start) {
                     Container(width = sizeDp, height = sizeDp) {
@@ -588,7 +588,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
-        show @Composable {
+        show {
             Center {
                 Column(crossAxisAlignment = CrossAxisAlignment.End) {
                     Container(width = sizeDp, height = sizeDp) {
@@ -641,7 +641,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         val childSize = arrayOf(PxSize(-1.px, -1.px), PxSize(-1.px, -1.px))
         val childPosition = arrayOf(PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px))
-        show @Composable {
+        show {
             Center {
                 Column(crossAxisAlignment = CrossAxisAlignment.Stretch) {
                     Container(width = sizeDp, height = sizeDp) {
@@ -682,7 +682,7 @@ class FlexTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(1)
         lateinit var rowSize: PxSize
-        show @Composable {
+        show {
             Center {
                 Row(mainAxisSize = MainAxisSize.Max) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
@@ -713,7 +713,7 @@ class FlexTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(1)
         lateinit var rowSize: PxSize
-        show @Composable {
+        show {
             Center {
                 Row(mainAxisSize = MainAxisSize.Min) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
@@ -745,7 +745,7 @@ class FlexTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(1)
         lateinit var rowSize: PxSize
-        show @Composable {
+        show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
                     Row(mainAxisSize = MainAxisSize.Min) {
@@ -781,7 +781,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         lateinit var rowSize: PxSize
         lateinit var expandedChildSize: PxSize
-        show @Composable {
+        show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
                     FlexRow(mainAxisSize = MainAxisSize.Min) {
@@ -824,7 +824,7 @@ class FlexTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(1)
         lateinit var columnSize: PxSize
-        show @Composable {
+        show {
             Center {
                 Column(mainAxisSize = MainAxisSize.Max) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
@@ -855,7 +855,7 @@ class FlexTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(1)
         lateinit var columnSize: PxSize
-        show @Composable {
+        show {
             Center {
                 Column(mainAxisSize = MainAxisSize.Min) {
                     FixedSpacer(width = sizeDp, height = sizeDp)
@@ -889,7 +889,7 @@ class FlexTest : LayoutTest() {
         val drawLatch = CountDownLatch(2)
         lateinit var columnSize: PxSize
         lateinit var expandedChildSize: PxSize
-        show @Composable {
+        show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
                     FlexColumn(mainAxisSize = MainAxisSize.Min) {
@@ -934,7 +934,7 @@ class FlexTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(1)
         lateinit var columnSize: PxSize
-        show @Composable {
+        show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
                     Column(mainAxisSize = MainAxisSize.Min) {
@@ -970,7 +970,7 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        show @Composable {
+        show {
             Center {
                 Row(mainAxisAlignment = MainAxisAlignment.Start) {
                     // TODO(popam): replace with normal for loop when IR is fixed
@@ -1012,7 +1012,7 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        show @Composable {
+        show {
             Center {
                 Row(mainAxisAlignment = MainAxisAlignment.End) {
                     // TODO(popam): replace with normal for loop when IR is fixed
@@ -1054,7 +1054,7 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        show @Composable {
+        show {
             Center {
                 Row(mainAxisAlignment = MainAxisAlignment.Center) {
                     // TODO(popam): replace with normal for loop when IR is fixed
@@ -1097,7 +1097,7 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        show @Composable {
+        show {
             Center {
                 Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
                     // TODO(popam): replace with normal for loop when IR is fixed
@@ -1140,7 +1140,7 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        show @Composable {
+        show {
             Center {
                 Row(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
                     // TODO(popam): replace with normal for loop when IR is fixed
@@ -1183,7 +1183,7 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        show @Composable {
+        show {
             Center {
                 Row(mainAxisAlignment = MainAxisAlignment.SpaceAround) {
                     // TODO(popam): replace with normal for loop when IR is fixed
@@ -1226,7 +1226,7 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        show @Composable {
+        show {
             Center {
                 Column(mainAxisAlignment = MainAxisAlignment.Start) {
                     // TODO(popam): replace with normal for loop when IR is fixed
@@ -1268,7 +1268,7 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        show @Composable {
+        show {
             Center {
                 Column(mainAxisAlignment = MainAxisAlignment.End) {
                     // TODO(popam): replace with normal for loop when IR is fixed
@@ -1310,7 +1310,7 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        show @Composable {
+        show {
             Center {
                 Column(mainAxisAlignment = MainAxisAlignment.Center) {
                     // TODO(popam): replace with normal for loop when IR is fixed
@@ -1353,7 +1353,7 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        show @Composable {
+        show {
             Center {
                 Column(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
                     // TODO(popam): replace with normal for loop when IR is fixed
@@ -1396,7 +1396,7 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        show @Composable {
+        show {
             Center {
                 Column(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
                     // TODO(popam): replace with normal for loop when IR is fixed
@@ -1439,7 +1439,7 @@ class FlexTest : LayoutTest() {
             PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px), PxPosition(-1.px, -1.px)
         )
         val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        show @Composable {
+        show {
             Center {
                 Column(mainAxisAlignment = MainAxisAlignment.SpaceAround) {
                     // TODO(popam): replace with normal for loop when IR is fixed
@@ -1480,7 +1480,7 @@ class FlexTest : LayoutTest() {
 
         val drawLatch = CountDownLatch(4)
         val containerSize = Ref<PxSize>()
-        show @Composable {
+        show {
             Center {
                 ConstrainedBox(
                     constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)
