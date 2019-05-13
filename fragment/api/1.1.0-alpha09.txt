@@ -102,6 +102,7 @@ package androidx.fragment.app {
     method @CallSuper public void onPause();
     method public void onPictureInPictureModeChanged(boolean);
     method public void onPrepareOptionsMenu(android.view.Menu);
+    method public void onPrimaryNavigationFragmentChanged(boolean);
     method public void onRequestPermissionsResult(int, String[], int[]);
     method @CallSuper public void onResume();
     method public void onSaveInstanceState(android.os.Bundle);
