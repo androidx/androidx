@@ -33,6 +33,7 @@ import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -42,6 +43,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
+import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.common.MediaItem;
@@ -60,6 +62,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -102,6 +105,8 @@ import java.util.concurrent.Executor;
  * @see MediaSessionService
  */
 public class MediaController implements AutoCloseable {
+    private static final String TAG = "MediaController";
+
     /**
      * @hide
      */
@@ -129,6 +134,9 @@ public class MediaController implements AutoCloseable {
 
     final ControllerCallback mCallback;
     final Executor mCallbackExecutor;
+
+    @GuardedBy("mLock")
+    private final List<Pair<ControllerCallback, Executor>> mExtraCallbacks = new ArrayList<>();
 
     // For testing.
     Long mTimeDiff;
@@ -1158,6 +1166,70 @@ public class MediaController implements AutoCloseable {
         mTimeDiff = timeDiff;
     }
 
+    /**
+     * Registers an extra {@link ControllerCallback}.
+     * @param executor a callback executor
+     * @param callback a ControllerCallback
+     * @see #unregisterExtraCallback(ControllerCallback)
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void registerExtraCallback(@NonNull /*@CallbackExecutor*/ Executor executor,
+            @NonNull ControllerCallback callback) {
+        if (executor == null) {
+            throw new NullPointerException("executor shouldn't be null");
+        }
+        if (callback == null) {
+            throw new NullPointerException("callback shouldn't be null");
+        }
+        boolean found = false;
+        synchronized (mLock) {
+            for (Pair<ControllerCallback, Executor> pair : mExtraCallbacks) {
+                if (pair.first == callback) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                mExtraCallbacks.add(new Pair<>(callback, executor));
+            }
+        }
+        if (found) {
+            Log.w(TAG, "registerExtraCallback: the callback already exists");
+        }
+    }
+
+    /**
+     * Unregisters an {@link ControllerCallback} that has been registered by
+     * {@link #registerExtraCallback(Executor, ControllerCallback)}.
+     * The callback passed to {@link Builder#setControllerCallback(Executor, ControllerCallback)}
+     * can not be unregistered by this method.
+     * @param callback a ControllerCallback
+     * @see #registerExtraCallback(Executor, ControllerCallback)
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    public void unregisterExtraCallback(@NonNull ControllerCallback callback) {
+        if (callback == null) {
+            throw new NullPointerException("callback shouldn't be null");
+        }
+        boolean found = false;
+        synchronized (mLock) {
+            for (int i = mExtraCallbacks.size() - 1; i >= 0; i--) {
+                if (mExtraCallbacks.get(i).first == callback) {
+                    found = true;
+                    mExtraCallbacks.remove(i);
+                    break;
+                }
+            }
+        }
+        if (!found) {
+            Log.w(TAG, "unregisterExtraCallback: no such callback found");
+        }
+    }
+
     private static ListenableFuture<SessionResult> createDisconnectedFuture() {
         return SessionResult.createFutureWithResult(
                 SessionResult.RESULT_ERROR_SESSION_DISCONNECTED);
@@ -1169,6 +1241,31 @@ public class MediaController implements AutoCloseable {
                 @Override
                 public void run() {
                     callbackRunnable.run(mCallback);
+                }
+            });
+        }
+
+        List<Pair<ControllerCallback, Executor>> extraCallbacks;
+        synchronized (mLock) {
+            extraCallbacks = new ArrayList<>(mExtraCallbacks);
+        }
+        for (Pair<ControllerCallback, Executor> pair : extraCallbacks) {
+            final ControllerCallback callback = pair.first;
+            final Executor executor = pair.second;
+            if (callback == null) {
+                Log.e(TAG, "notifyControllerCallback: mExtraCallbacks contains a null "
+                        + "ControllerCallback! Ignoring...");
+                continue;
+            }
+            if (executor == null) {
+                Log.e(TAG, "notifyControllerCallback: mExtraCallbacks contains a null "
+                        + "Executor! Ignoring...");
+                continue;
+            }
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callbackRunnable.run(callback);
                 }
             });
         }
