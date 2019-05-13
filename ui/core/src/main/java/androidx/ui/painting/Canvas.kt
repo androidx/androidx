@@ -502,8 +502,8 @@ class Canvas {
         internalRectF.set(rect.toFrameworkRect())
         internalCanvas.drawArc(
                 internalRectF,
-                degrees(startAngle),
-                degrees(sweepAngle),
+                startAngle,
+                sweepAngle,
                 useCenter,
                 paint.toFrameworkPaint()
         )

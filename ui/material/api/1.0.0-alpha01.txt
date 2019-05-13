@@ -1,4 +1,16 @@
 // Signature format: 3.0
+package  {
+
+  public final class ProgressIndicatorKt {
+    ctor public ProgressIndicatorKt();
+    method public static void CircularProgressIndicator(@FloatRange(value=0.0, value=1.0) float progress, androidx.ui.painting.Color? color = null);
+    method public static void CircularProgressIndicator(androidx.ui.painting.Color? color = null);
+    method public static void LinearProgressIndicator(@FloatRange(value=0.0, value=1.0) float progress, androidx.ui.painting.Color? color = null);
+    method public static void LinearProgressIndicator(androidx.ui.painting.Color? color = null);
+  }
+
+}
+
 package androidx.ui.baseui {
 
   public final class ClickableKt {
@@ -10,6 +22,11 @@ package androidx.ui.baseui {
     ctor public ColoredRectKt();
     method public static void ColoredRect(androidx.ui.core.vectorgraphics.Brush brush, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
     method public static void ColoredRect(androidx.ui.painting.Color color, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
+  }
+
+  public final class DeterminateProgressIndicatorKt {
+    ctor public DeterminateProgressIndicatorKt();
+    method public static void DeterminateProgressIndicator(@FloatRange(value=0.0, value=1.0) float progress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class SimpleImageKt {
