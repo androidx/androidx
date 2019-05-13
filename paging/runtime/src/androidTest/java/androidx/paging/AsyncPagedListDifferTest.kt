@@ -47,10 +47,12 @@ class AsyncPagedListDifferTest {
     private fun createDiffer(
         listUpdateCallback: ListUpdateCallback = IGNORE_CALLBACK
     ): AsyncPagedListDiffer<String> {
-        val differ = AsyncPagedListDiffer(listUpdateCallback,
-                AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
-                        .setBackgroundThreadExecutor(mDiffThread)
-                        .build())
+        val differ = AsyncPagedListDiffer(
+            listUpdateCallback,
+            AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
+                .setBackgroundThreadExecutor(mDiffThread)
+                .build()
+        )
         // by default, use ArchExecutor
         assertEquals(differ.mMainThreadExecutor, ArchTaskExecutor.getMainThreadExecutor())
         differ.mMainThreadExecutor = mMainThread
@@ -64,10 +66,10 @@ class AsyncPagedListDifferTest {
     ): PagedList<V> {
         @Suppress("DEPRECATION")
         return PagedList.Builder<Int, V>(ListDataSource(data), config)
-                .setInitialKey(initialKey)
-                .setNotifyExecutor(mMainThread)
-                .setFetchExecutor(mPageLoadingThread)
-                .build()
+            .setInitialKey(initialKey)
+            .setNotifyExecutor(mMainThread)
+            .setFetchExecutor(mPageLoadingThread)
+            .build()
     }
 
     @Test
@@ -163,10 +165,10 @@ class AsyncPagedListDifferTest {
     @Test
     fun pagingInContent() {
         val config = PagedList.Config.Builder()
-                .setInitialLoadSizeHint(4)
-                .setPageSize(2)
-                .setPrefetchDistance(2)
-                .build()
+            .setInitialLoadSizeHint(4)
+            .setPageSize(2)
+            .setPrefetchDistance(2)
+            .build()
 
         val callback = mock(ListUpdateCallback::class.java)
         val differ = createDiffer(callback)
@@ -212,8 +214,8 @@ class AsyncPagedListDifferTest {
     fun simpleSwap() {
         // Page size large enough to load
         val config = PagedList.Config.Builder()
-                .setPageSize(50)
-                .build()
+            .setPageSize(50)
+            .build()
 
         val callback = mock(ListUpdateCallback::class.java)
         val differ = createDiffer(callback)
@@ -245,10 +247,10 @@ class AsyncPagedListDifferTest {
     @Test
     fun newPageWhileDiffing() {
         val config = PagedList.Config.Builder()
-                .setInitialLoadSizeHint(4)
-                .setPageSize(2)
-                .setPrefetchDistance(2)
-                .build()
+            .setInitialLoadSizeHint(4)
+            .setPageSize(2)
+            .setPrefetchDistance(2)
+            .build()
 
         val callback = mock(ListUpdateCallback::class.java)
         val differ = createDiffer(callback)
@@ -314,8 +316,8 @@ class AsyncPagedListDifferTest {
         differAccessor[0] = differ
 
         val config = PagedList.Config.Builder()
-                .setPageSize(20)
-                .build()
+            .setPageSize(20)
+            .build()
 
         // in the fast-add case...
         expectedCount[0] = 5
@@ -342,9 +344,9 @@ class AsyncPagedListDifferTest {
         val differ = createDiffer()
 
         val config = PagedList.Config.Builder()
-                .setPageSize(5)
-                .setEnablePlaceholders(false)
-                .build()
+            .setPageSize(5)
+            .setEnablePlaceholders(false)
+            .build()
 
         // initialize, initial key position is 0
         differ.submitList(createPagedListFromListAndPos(config, ALPHABET_LIST.subList(10, 20), 0))
@@ -362,11 +364,11 @@ class AsyncPagedListDifferTest {
     fun submitSubset() {
         // Page size large enough to load
         val config = PagedList.Config.Builder()
-                .setInitialLoadSizeHint(4)
-                .setPageSize(2)
-                .setPrefetchDistance(1)
-                .setEnablePlaceholders(false)
-                .build()
+            .setInitialLoadSizeHint(4)
+            .setPageSize(2)
+            .setPrefetchDistance(1)
+            .setEnablePlaceholders(false)
+            .build()
 
         val differ = createDiffer()
 
