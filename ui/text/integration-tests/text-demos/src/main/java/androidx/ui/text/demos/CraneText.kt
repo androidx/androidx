@@ -19,11 +19,11 @@ package androidx.ui.text.demos
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.EditableText
 import androidx.ui.core.EditorStyle
-import androidx.ui.core.Selection
-import androidx.ui.core.SelectionContainer
 import androidx.ui.core.Span
 import androidx.ui.core.Text
 import androidx.ui.core.px
+import androidx.ui.core.selection.Selection
+import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle

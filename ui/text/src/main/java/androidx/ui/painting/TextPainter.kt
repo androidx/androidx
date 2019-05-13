@@ -16,6 +16,7 @@
 
 package androidx.ui.painting
 
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPxSize
@@ -517,8 +518,11 @@ class TextPainter(
      * top, bottom, left and right of a character.
      *
      * Valid only after [layout] has been called.
+     *
+     * @hide
      */
-    internal fun getBoundingBoxForTextPosition(textPosition: TextPosition): Rect {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun getBoundingBoxForTextPosition(textPosition: TextPosition): Rect {
         assert(!needsLayout)
         return paragraph!!.getBoundingBoxForTextPosition(textPosition)
     }
