@@ -1820,12 +1820,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Callback for when the primary navigation state of this Fragment has changed. This can be
      * the result of the {@link #getFragmentManager() containing FragmentManager} having its
      * primary navigation fragment changed via
-     * {@link FragmentTransaction#setPrimaryNavigationFragment(Fragment)} or due to the primary
-     * navigation fragment changing in a parent FragmentManager.
+     * {@link androidx.fragment.app.FragmentTransaction#setPrimaryNavigationFragment} or due to
+     * the primary navigation fragment changing in a parent FragmentManager.
      *
      * @param isPrimaryNavigationFragment True if and only if this Fragment and any
      * {@link #getParentFragment() parent fragment} is set as the primary navigation fragment
-     * via {@link FragmentTransaction#setPrimaryNavigationFragment(Fragment)}.
+     * via {@link androidx.fragment.app.FragmentTransaction#setPrimaryNavigationFragment}.
      */
     public void onPrimaryNavigationFragmentChanged(boolean isPrimaryNavigationFragment) {
     }
