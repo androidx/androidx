@@ -25,39 +25,34 @@ import androidx.lifecycle.ViewModel
  */
 class CamViewModel : ViewModel() {
     private var cameraParams: HashMap<String, CameraParams> = HashMap<String, CameraParams>()
-
-    private val currentAPI: MutableLiveData<CameraAPI> = MutableLiveData()
-    private val currentCamera: MutableLiveData<Int> = MutableLiveData()
-    private val currentFocusMode: MutableLiveData<FocusMode> = MutableLiveData()
-    private val currentImageCaptureSize: MutableLiveData<ImageCaptureSize> = MutableLiveData()
-    private val shouldOutputLog: MutableLiveData<Boolean> = MutableLiveData()
-    private val humanReadableReport: MutableLiveData<String> = MutableLiveData()
+    private val currentAPI = MutableLiveData<CameraAPI>().apply { value = CameraAPI.CAMERA2 }
+    private val currentCamera = MutableLiveData<Int>().apply { value = 0 }
+    private val currentFocusMode = MutableLiveData<FocusMode>().apply { value = FocusMode.AUTO }
+    private val currentImageCaptureSize = MutableLiveData<ImageCaptureSize>().apply {
+        value = ImageCaptureSize.MAX
+    }
+    private val shouldOutputLog = MutableLiveData<Boolean>().apply { value = false }
+    private val humanReadableReport = MutableLiveData<String>().apply {
+        value = "Android Camera Performance Tool"
+    }
 
     /** Camera API of the current test */
     fun getCurrentAPI(): MutableLiveData<CameraAPI> {
-        if (currentAPI.value == null)
-            currentAPI.value = CameraAPI.CAMERA2
         return currentAPI
     }
 
     /** Camera ID of the current test */
     fun getCurrentCamera(): MutableLiveData<Int> {
-        if (currentCamera.value == null)
-            currentCamera.value = 0
         return currentCamera
     }
 
     /** Focus mode of the current test */
     fun getCurrentFocusMode(): MutableLiveData<FocusMode> {
-        if (currentFocusMode.value == null)
-            currentFocusMode.value = FocusMode.AUTO
         return currentFocusMode
     }
 
     /** Requested image capture size of the current test */
     fun getCurrentImageCaptureSize(): MutableLiveData<ImageCaptureSize> {
-        if (currentImageCaptureSize.value == null)
-            currentImageCaptureSize.value = ImageCaptureSize.MAX
         return currentImageCaptureSize
     }
 
@@ -68,15 +63,11 @@ class CamViewModel : ViewModel() {
 
     /** If the user has asked to output the debugging log */
     fun getShouldOutputLog(): MutableLiveData<Boolean> {
-        if (shouldOutputLog.value == null)
-            shouldOutputLog.value = false
         return shouldOutputLog
     }
 
     /** Current value of the main output window on screen */
     fun getHumanReadableReport(): MutableLiveData<String> {
-        if (humanReadableReport.value == null)
-            humanReadableReport.value = "Android Camera Performance Tool"
         return humanReadableReport
     }
 }
