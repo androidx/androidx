@@ -41,6 +41,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.coroutines.ContinuationInterceptor
@@ -149,10 +150,38 @@ class BuildLiveDataTest {
         assertThat(ld.value).isEqualTo(2)
         ld.addObserver().apply {
             assertItems(2)
-            // adnvace enough to cover the rest of the delay
+            // advance enough to cover the rest of the delay
             mainContext.advanceTimeBy(501)
             assertItems(2, 3)
         }
+    }
+
+    @Test
+    fun timeoutViaDuration() {
+        val running = CompletableDeferred<Unit>()
+        val ld = liveData(timeout = Duration.ofSeconds(5)) {
+            try {
+                emit(1)
+                delay(5_001)
+                emit(2)
+            } finally {
+                running.complete(Unit)
+            }
+        }
+        ld.addObserver().apply {
+            assertItems(1)
+            unsubscribe()
+        }
+        // advance some but not enough to cover the delay
+        mainContext.advanceTimeBy(4_000)
+        assertThat(running.isActive).isTrue()
+        assertThat(ld.hasActiveObservers()).isFalse()
+        assertThat(ld.value).isEqualTo(1)
+        // advance time to finish
+        mainContext.advanceTimeBy(1_000)
+        // ensure it is not running anymore
+        assertThat(running.isActive).isFalse()
+        assertThat(ld.value).isEqualTo(1)
     }
 
     @Test
