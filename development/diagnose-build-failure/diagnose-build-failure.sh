@@ -149,6 +149,7 @@ else
   echo "The clean build also failed."
   echo "This may mean that the build is failing for everyone"
   echo "This may mean that something about your checkout is different from others'"
+  echo "You may be interested in running development/simplify-build-failure/simplify-build-failure.sh to identify the minimal set of source files required to reproduce this error"
   echo "Checking the status of your checkout:"
   checkStatus
   exit 1

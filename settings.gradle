@@ -34,7 +34,11 @@ def includeProject(name, filePath) {
         file = filePath
     }
     if (!file.exists()) {
-        throw new Exception("Path " + file + " does not exist; cannot include project " + name)
+        // This option is supported so that development/simplify_build_failure.sh can try
+        // deleting entire projects at once to identify the cause of a build failure
+        if (System.getenv("ALLOW_MISSING_PROJECTS") == null) {
+            throw new Exception("Path " + file + " does not exist; cannot include project " + name)
+        }
     }
     project(name).projectDir = file
 }
