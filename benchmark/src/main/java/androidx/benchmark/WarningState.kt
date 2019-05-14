@@ -110,6 +110,17 @@ internal object WarningState {
             """.trimMarginWrapNewlines()
         }
 
+        val arguments = InstrumentationRegistry.getArguments()
+        if (arguments["coverage"] == "true") {
+            warningPrefix += "CODE-COVERAGE_"
+            warningString += """
+                |WARNING: Code coverage enabled
+                |    Benchmark is running with code coverage enabled, which typically alters the dex
+                |    in a way that can affect performance. Ensure that code coverage is disabled by
+                |    setting testCoverageEnabled to false in the buildType your benchmarks run in.
+            """.trimMarginWrapNewlines()
+        }
+
         if (isDeviceRooted && !Clocks.areLocked) {
             warningPrefix += "UNLOCKED_"
             warningString += """
