@@ -43,42 +43,8 @@ class ResultWriterTest {
     )
 
     @Test
-    fun validateXml() {
-        val manager = ResultWriter.fileManagers.find { it.extension == "xml" }!!
-        manager.currentContent = manager.initial
-        manager.append(reportA)
-        manager.append(reportB)
-        assertEquals("""
-            <benchmarksuite>
-                <testcase
-                        name="MethodA"
-                        className="package.Class1"
-                        nanos="100"
-                        warmupIterations="8000"
-                        repeatIterations="100000">
-                    <run nanos="100"/>
-                    <run nanos="101"/>
-                    <run nanos="102"/>
-                </testcase>
-                <testcase
-                        name="MethodB"
-                        className="package.Class2"
-                        nanos="100"
-                        warmupIterations="8000"
-                        repeatIterations="100000">
-                    <run nanos="100"/>
-                    <run nanos="101"/>
-                    <run nanos="102"/>
-                </testcase>
-            </benchmarksuite>
-            """.trimIndent(),
-            manager.fullFileContent
-        )
-    }
-
-    @Test
     fun validateJson() {
-        val manager = ResultWriter.fileManagers.find { it.extension == "json" }!!
+        val manager = ResultWriter.fileManager
         manager.currentContent = manager.initial
         manager.append(reportA)
         manager.append(reportB)
