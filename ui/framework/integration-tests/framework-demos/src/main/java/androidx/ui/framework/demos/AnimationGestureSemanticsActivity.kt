@@ -161,11 +161,11 @@ class AnimationGestureSemanticsActivity : Activity() {
     @Suppress("FunctionName")
     @Composable
     private fun Animation(animationEndState: ComponentState) {
-        Layout(children = @Composable {
+        Layout(children = {
             Transition(
                 definition = transitionDefinition,
                 toState = animationEndState
-            ) @Composable { state ->
+            ) { state ->
                 Circle(color = state[colorKey], sizeRatio = state[sizeKey])
             }
         }, layoutBlock = { _, constraints ->

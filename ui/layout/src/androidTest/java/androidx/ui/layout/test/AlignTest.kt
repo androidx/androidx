@@ -53,7 +53,7 @@ class AlignTest : LayoutTest() {
         val alignPosition = Ref<PxPosition>()
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
-        show @Composable {
+        show {
             Align(alignment = Alignment.BottomRight) {
                 SaveLayoutInfo(
                     size = alignSize,
@@ -93,7 +93,7 @@ class AlignTest : LayoutTest() {
         val alignPosition = Ref<PxPosition>()
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
-        show @Composable {
+        show {
             Layout(
                 children = {
                     Align(alignment = Alignment.BottomRight) {

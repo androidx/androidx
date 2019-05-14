@@ -51,7 +51,7 @@ class WrapTest : LayoutTest() {
         val wrapSize = Ref<PxSize>()
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     wrapSize.value = coordinates.size
@@ -87,7 +87,7 @@ class WrapTest : LayoutTest() {
         val wrapSize = Ref<PxSize>()
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     wrapSize.value = coordinates.size
@@ -127,7 +127,7 @@ class WrapTest : LayoutTest() {
         val wrapSize = Ref<PxSize>()
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     wrapSize.value = coordinates.size

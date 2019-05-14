@@ -149,7 +149,7 @@ class PaddingTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         var childSize = PxSize(-1.px, -1.px)
         var childPosition = PxPosition(-1.px, -1.px)
-        show @Composable {
+        show {
             Center {
                 ConstrainedBox(constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)) {
                     val children = @Composable {
@@ -162,7 +162,7 @@ class PaddingTest : LayoutTest() {
                             })
                         }
                     }
-                    paddingContainer(p1 = children)
+                    paddingContainer(children)
                 }
             }
         }
@@ -194,7 +194,7 @@ class PaddingTest : LayoutTest() {
         val drawLatch = CountDownLatch(1)
         var childSize = PxSize(-1.px, -1.px)
         var childPosition = PxPosition(-1.px, -1.px)
-        show @Composable {
+        show {
             Center {
                 ConstrainedBox(constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)) {
                     val children = @Composable {
@@ -207,7 +207,7 @@ class PaddingTest : LayoutTest() {
                             })
                         }
                     }
-                    paddingContainer(p1 = children)
+                    paddingContainer(children)
                 }
             }
         }
@@ -247,7 +247,7 @@ class PaddingTest : LayoutTest() {
             val drawLatch = CountDownLatch(1)
             var childSize = PxSize(-1.px, -1.px)
             var childPosition = PxPosition(-1.px, -1.px)
-            show @Composable {
+            show {
                 Center {
                     ConstrainedBox(constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)) {
                         val children = @Composable {
@@ -260,7 +260,7 @@ class PaddingTest : LayoutTest() {
                                 })
                             }
                         }
-                        paddingContainer(p1 = children)
+                        paddingContainer(children)
                     }
                 }
             }

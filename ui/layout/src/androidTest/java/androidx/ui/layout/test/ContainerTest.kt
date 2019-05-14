@@ -61,7 +61,7 @@ class ContainerTest : LayoutTest() {
 
         val positionedLatch = CountDownLatch(1)
         val containerSize = Ref<PxSize>()
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
@@ -88,7 +88,7 @@ class ContainerTest : LayoutTest() {
         val positionedLatch = CountDownLatch(2)
         val containerSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
@@ -127,7 +127,7 @@ class ContainerTest : LayoutTest() {
         val positionedLatch = CountDownLatch(4)
         val containerSize = Ref<PxSize>()
         val childSize = Array(3) { PxSize(0.px, 0.px) }
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
@@ -187,7 +187,7 @@ class ContainerTest : LayoutTest() {
         val containerSize = Ref<PxSize>()
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnPositioned(onPositioned = { coordinates ->
                     alignSize.value = coordinates.size
@@ -231,7 +231,7 @@ class ContainerTest : LayoutTest() {
         val containerSize = Ref<PxSize>()
         val childSize = Ref<PxSize>()
         val childPosition = Ref<PxPosition>()
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 OnChildPositioned(onPositioned = { coordinates ->
                     containerSize.value = coordinates.size
@@ -270,7 +270,7 @@ class ContainerTest : LayoutTest() {
 
         val containerSize = Ref<PxSize>()
         val latch = CountDownLatch(1)
-        show @Composable {
+        show {
             Align(alignment = Alignment.TopLeft) {
                 Container(width = sizeDp, height = sizeDp, padding = EdgeInsets(10.dp)) {
                     OnPositioned(onPositioned = { coordinates ->
@@ -303,7 +303,7 @@ class ContainerTest : LayoutTest() {
 
         var containerSize: PxSize? = null
         val latch = CountDownLatch(1)
-        show @Composable {
+        show {
             Wrap {
                 Container(padding = edgeInsets) {
                     FixedSpacer(width = childSizeDp, height = childSizeDp)
@@ -328,7 +328,7 @@ class ContainerTest : LayoutTest() {
 
         var childCoordinates: LayoutCoordinates? = null
         val latch = CountDownLatch(1)
-        show @Composable {
+        show {
             Wrap {
                 Container(width = containerSize, height = containerSize, padding = edgeInsets) {
                     OnChildPositioned(onPositioned = { coordinates ->
