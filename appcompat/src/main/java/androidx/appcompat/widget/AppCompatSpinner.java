@@ -347,6 +347,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
     @Override
     public void setDropDownHorizontalOffset(int pixels) {
         if (mPopup != null) {
+            mPopup.setHorizontalOriginalOffset(pixels);
             mPopup.setHorizontalOffset(pixels);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             super.setDropDownHorizontalOffset(pixels);
@@ -836,6 +837,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         void setBackgroundDrawable(Drawable bg);
         void setVerticalOffset(int px);
         void setHorizontalOffset(int px);
+        void setHorizontalOriginalOffset(int px);
+        int getHorizontalOriginalOffset();
         Drawable getBackground();
         int getVerticalOffset();
         int getHorizontalOffset();
@@ -933,12 +936,24 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         public int getHorizontalOffset() {
             return 0;
         }
+
+        @Override
+        public void setHorizontalOriginalOffset(int px) {
+            Log.e(TAG, "Cannot set horizontal (original) offset for MODE_DIALOG, ignoring");
+        }
+
+        @Override
+        public int getHorizontalOriginalOffset() {
+            return 0;
+        }
     }
 
-    private class DropdownPopup extends ListPopupWindow implements SpinnerPopup {
+    @VisibleForTesting
+    class DropdownPopup extends ListPopupWindow implements SpinnerPopup {
         private CharSequence mHintText;
         ListAdapter mAdapter;
         private final Rect mVisibleRect = new Rect();
+        private int mOriginalHorizontalOffset;
 
         public DropdownPopup(Context context, AttributeSet attrs, int defStyleAttr) {
             super(context, attrs, defStyleAttr);
@@ -1007,9 +1022,10 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                 setContentWidth(mDropDownWidth);
             }
             if (ViewUtils.isLayoutRtl(AppCompatSpinner.this)) {
-                hOffset += spinnerWidth - spinnerPaddingRight - getWidth();
+                hOffset += spinnerWidth - spinnerPaddingRight - getWidth()
+                        - getHorizontalOriginalOffset();
             } else {
-                hOffset += spinnerPaddingLeft;
+                hOffset += spinnerPaddingLeft + getHorizontalOriginalOffset();
             }
             setHorizontalOffset(hOffset);
         }
@@ -1074,6 +1090,16 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
          */
         boolean isVisibleToUser(View view) {
             return ViewCompat.isAttachedToWindow(view) && view.getGlobalVisibleRect(mVisibleRect);
+        }
+
+        @Override
+        public void setHorizontalOriginalOffset(int px) {
+            mOriginalHorizontalOffset = px;
+        }
+
+        @Override
+        public int getHorizontalOriginalOffset() {
+            return mOriginalHorizontalOffset;
         }
     }
 }

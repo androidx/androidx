@@ -41,7 +41,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.AppCompatActivityUtils
 import androidx.testutils.FragmentActivityUtils.waitForActivityDrawn
-import androidx.viewpager2.LocaleTestUtils
+import androidx.testutils.LocaleTestUtils
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.test.R
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
@@ -84,7 +84,8 @@ open class BaseTest {
     @Before
     open fun setUp() {
         localeUtil = LocaleTestUtils(
-            ApplicationProvider.getApplicationContext() as android.content.Context)
+            ApplicationProvider.getApplicationContext() as android.content.Context
+        )
         // Ensure a predictable test environment by explicitly setting a locale
         localeUtil.setLocale(LocaleTestUtils.DEFAULT_TEST_LANGUAGE)
     }
