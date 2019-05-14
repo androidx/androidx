@@ -29,6 +29,8 @@ import java.util.Collection;
  * mobility management).
  *
  * For production use {@link SingletonKeyedAppStatesReporter}.
+ * For testing see the {@code FakeKeyedAppStatesReporter} class in
+ * the {@code enterprise-feedback-testing} artifact.
  */
 public abstract class KeyedAppStatesReporter {
 
