@@ -24,7 +24,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNull;
 
 import android.text.InputFilter;
 import android.widget.EditText;
@@ -76,8 +75,6 @@ public class EditTextPreferenceTest {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                assertNull(mEditTextPreference.getOnBindEditTextListener());
-
                 mEditTextPreference.setOnBindEditTextListener(
                         new EditTextPreference.OnBindEditTextListener() {
                             @Override

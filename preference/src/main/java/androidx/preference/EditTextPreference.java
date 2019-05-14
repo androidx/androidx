@@ -158,7 +158,7 @@ public class EditTextPreference extends DialogPreference {
      * there is no OnBindEditTextListener set
      * @see OnBindEditTextListener
      */
-    public @Nullable OnBindEditTextListener getOnBindEditTextListener() {
+    @Nullable OnBindEditTextListener getOnBindEditTextListener() {
         return mOnBindEditTextListener;
     }
 
