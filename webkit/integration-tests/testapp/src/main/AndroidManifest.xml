@@ -57,6 +57,12 @@
             android:name=".PerWebViewEnableActivity"
             android:exported="true" />
         <activity
+            android:name=".InvisibleActivity"
+            android:exported="true" />
+        <activity
+            android:name=".UnattachedActivity"
+            android:exported="true" />
+        <activity
             android:name=".ProxyOverrideActivity"
             android:exported="true" />
         <activity
