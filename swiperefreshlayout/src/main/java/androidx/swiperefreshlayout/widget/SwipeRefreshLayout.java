@@ -18,6 +18,8 @@ package androidx.swiperefreshlayout.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -231,6 +233,56 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         if (!enabled) {
             reset();
         }
+    }
+
+    static class SavedState extends View.BaseSavedState {
+        final boolean mRefreshing;
+
+        /**
+         * Constructor called from {@link SwipeRefreshLayout#onSaveInstanceState()}
+         */
+        SavedState(Parcelable superState, boolean refreshing) {
+            super(superState);
+            this.mRefreshing = refreshing;
+        }
+
+        /**
+         * Constructor called from {@link #CREATOR}
+         */
+        SavedState(Parcel in) {
+            super(in);
+            mRefreshing = in.readByte() != 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeByte(mRefreshing ? (byte) 1 : (byte) 0);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        return new SavedState(superState, mRefreshing);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        SavedState savedState = (SavedState) state;
+        super.onRestoreInstanceState(savedState.getSuperState());
+        setRefreshing(savedState.mRefreshing);
     }
 
     @Override
