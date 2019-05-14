@@ -505,6 +505,10 @@ public class RemoteMediaSession {
                 Log.e(TAG, "Failed to call notifyVideoSizeChanged()");
             }
         }
+
+        public boolean surfaceExists() throws RemoteException {
+            return mBinder.surfaceExists(mSessionId);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////

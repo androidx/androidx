@@ -148,7 +148,7 @@ public final class SessionCommandGroup implements VersionedParcelable {
             if (version != COMMAND_VERSION_1) {
                 throw new IllegalArgumentException("Unknown command version " + version);
             }
-            addAllPlayerCommands(version);
+            addAllPlayerCommands(version, /* includeHidden= */ true);
             addAllVolumeCommands(version);
             addAllSessionCommands(version);
             addAllLibraryCommands(version);
@@ -168,9 +168,10 @@ public final class SessionCommandGroup implements VersionedParcelable {
             return this;
         }
 
-        @NonNull Builder addAllPlayerCommands(@CommandVersion int version) {
+        @NonNull Builder addAllPlayerCommands(@CommandVersion int version, boolean includeHidden) {
             addAllPlayerBasicCommands(version);
             addAllPlayerPlaylistCommands(version);
+            if (includeHidden) addAllPlayerHiddenCommands(version);
             return this;
         }
 
@@ -181,6 +182,11 @@ public final class SessionCommandGroup implements VersionedParcelable {
 
         @NonNull Builder addAllPlayerPlaylistCommands(@CommandVersion int version) {
             addCommands(version, SessionCommand.VERSION_PLAYER_PLAYLIST_COMMANDS_MAP);
+            return this;
+        }
+
+        @NonNull Builder addAllPlayerHiddenCommands(@CommandVersion int version) {
+            addCommands(version, SessionCommand.VERSION_PLAYER_HIDDEN_COMMANDS_MAP);
             return this;
         }
 

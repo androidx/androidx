@@ -32,6 +32,7 @@ import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_PLA
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_REPEAT_MODE;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED;
+import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SURFACE;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM;
@@ -68,6 +69,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
 import android.util.Log;
+import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -778,6 +780,17 @@ class MediaControllerImplBase implements MediaControllerImpl {
         synchronized (mLock) {
             return mVideoSize;
         }
+    }
+
+    @Override
+    public ListenableFuture<SessionResult> setSurface(final @Nullable Surface surface) {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SET_SURFACE,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession iSession, int seq) throws RemoteException {
+                        iSession.setSurface(mControllerStub, seq, surface);
+                    }
+                });
     }
 
     @Override
