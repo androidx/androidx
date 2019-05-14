@@ -73,7 +73,7 @@ typealias TextSpanUpdater<T> = ComposerUpdater<TextSpan, T>
  */
 class TextSpanComposer(
     val root: TextSpan,
-    recomposer: Recomposer?
+    recomposer: Recomposer
 ) : Composer<TextSpan>(SlotTable(), Applier(root, TextSpanApplyAdapter()), recomposer)
 
 @PublishedApi

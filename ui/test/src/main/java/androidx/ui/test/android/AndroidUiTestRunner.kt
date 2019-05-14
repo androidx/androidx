@@ -16,14 +16,18 @@
 
 package androidx.ui.test.android
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Instrumentation
 import android.os.Looper
 import android.os.SystemClock
+import android.util.Log
+import android.view.Choreographer
 import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
+import androidx.compose.Recomposer
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.Compose
@@ -61,7 +65,6 @@ open class AndroidUiTestRunner : UiTestRunner {
     private lateinit var activity: DefaultTestActivity
     private lateinit var instrumentation: Instrumentation
     private lateinit var rootProvider: SemanticsTreeProvider
-    private var compositionContext: CompositionContext? = null
 
     val density: Density get() = Density(activity)
 
@@ -71,11 +74,6 @@ open class AndroidUiTestRunner : UiTestRunner {
         activity = activityTestRule.activity
         activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
         instrumentation = InstrumentationRegistry.getInstrumentation()
-    }
-
-    @After
-    fun teardown() {
-        compositionContext = null
     }
 
     private fun runOnUiThread(action: () -> Unit) {
@@ -93,33 +91,46 @@ open class AndroidUiTestRunner : UiTestRunner {
         }
     }
 
-    fun runOnUiAndWaitForRecompose(runnable: () -> Unit) {
+    private fun scheduleIdleCheck(latch: CountDownLatch) {
+        Choreographer.getInstance().postFrameCallback(object : Choreographer.FrameCallback {
+            @SuppressLint("SyntheticAccessor")
+            override fun doFrame(frameTimeNanos: Long) {
+                if (Recomposer.hasPendingChanges()) {
+                    scheduleIdleCheck(latch)
+                } else {
+                    latch.countDown()
+                }
+            }
+        })
+    }
+
+    /**
+     * Run action on UI thread and wait for all pending changes to be applied
+     * in all activity's compositions
+     */
+    fun runOnUiAndWaitForIdle(runnable: () -> Unit) {
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            throw Exception("Cannot be run on UI thread.")
+        }
+        runOnUiThread {
+            runnable.invoke()
+        }
+
+        waitForIdleScreen()
+    }
+
+    /**
+     * Wait for all pending changes to be applied in all activity's compositions
+     */
+    fun waitForIdleScreen() {
         if (Looper.getMainLooper() == Looper.myLooper()) {
             throw Exception("Cannot be run on UI thread.")
         }
         val latch = CountDownLatch(1)
         runOnUiThread {
-            runWithCompositionContext {
-                addPostRecomposeObserver {
-                    latch.countDown()
-                }
-                runnable.invoke()
-            }
+            scheduleIdleCheck(latch)
         }
         latch.await(defaultRecomposeWaitTimeMs, TimeUnit.MILLISECONDS)
-    }
-
-    private fun <T> runWithCompositionContext(action: CompositionContext.() -> T): T {
-        val cc = compositionContext
-        if (cc != null) {
-            return cc.run(action)
-        } else {
-            // forcing exception here as we don't want to work here without context
-            throw IllegalAccessException(
-                "Cannot find composition context to wait for recompose. Did you substitute" +
-                        "CraneWrapper for TestWrapper in your tests?"
-            )
-        }
     }
 
     private fun findCompositionRootProvider(): SemanticsTreeProvider {
@@ -175,7 +186,7 @@ open class AndroidUiTestRunner : UiTestRunner {
 
     private fun setContentInternal(composable: @Composable() () -> Unit) {
         activity.setContentView(FrameLayout(activity).apply {
-            compositionContext = Compose.composeInto(this, null, composable = {
+            Compose.composeInto(this, null, composable = {
                 TestWrapper {
                     composable()
                 }
@@ -188,7 +199,7 @@ open class AndroidUiTestRunner : UiTestRunner {
     }
 
     override fun performClick(x: Float, y: Float) {
-        runOnUiAndWaitForRecompose {
+        runOnUiAndWaitForIdle {
             val eventDown = MotionEvent.obtain(
                 SystemClock.uptimeMillis(), 10,
                 MotionEvent.ACTION_DOWN, x, y, 0
@@ -210,7 +221,7 @@ open class AndroidUiTestRunner : UiTestRunner {
     }
 
     override fun sendEvent(event: MotionEvent) {
-        runOnUiAndWaitForRecompose {
+        runOnUiAndWaitForIdle {
             rootProvider.sendEvent(event)
         }
     }

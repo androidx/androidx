@@ -66,7 +66,7 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
             .assertIsVisible()
             .assertValueEquals("0.0")
 
-        runOnUiAndWaitForRecompose {
+        runOnUiAndWaitForIdle {
             state.progress = 0.5f
         }
 
@@ -126,7 +126,7 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
             .assertIsVisible()
             .assertValueEquals("0.0")
 
-        runOnUiAndWaitForRecompose {
+        runOnUiAndWaitForIdle {
             state.progress = 0.5f
         }
 
