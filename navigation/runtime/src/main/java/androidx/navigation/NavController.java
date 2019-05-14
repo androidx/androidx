@@ -126,19 +126,28 @@ public class NavController {
     }
 
     /**
-     * Interface returned by
+     * Class returned by
      * {@link #setHostOnBackPressedDispatcherOwner(OnBackPressedDispatcherOwner)} to
      * allow the {@link NavHost} to manually disable or enable whether the NavController
      * should actively handle system Back button events.
      */
-    public interface NavHostOnBackPressedManager {
+    public final class NavHostOnBackPressedManager {
+        /**
+         * This class should only be instantiated by NavController itself as part of
+         * {@link #setHostOnBackPressedDispatcherOwner(OnBackPressedDispatcherOwner)}.
+         */
+        NavHostOnBackPressedManager(){
+        }
+
         /**
          * Set whether the NavController should handle the system Back button events via the
          * registered {@link OnBackPressedDispatcher}.
          *
          * @param enabled True if the NavController should handle system Back button events.
          */
-        void enableOnBackPressed(boolean enabled);
+        public void enableOnBackPressed(boolean enabled) {
+            setEnableOnBackPressedCallback(enabled);
+        }
     }
 
     /**
@@ -1049,12 +1058,7 @@ public class NavController {
         mOnBackPressedCallback.remove();
         // Then add it to the new dispatcher
         dispatcher.addCallback(mLifecycleOwner, mOnBackPressedCallback);
-        return new NavHostOnBackPressedManager() {
-            @Override
-            public void enableOnBackPressed(boolean enabled) {
-                setEnableOnBackPressedCallback(enabled);
-            }
-        };
+        return new NavHostOnBackPressedManager();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */

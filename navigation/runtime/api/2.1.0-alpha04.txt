@@ -74,7 +74,7 @@ package androidx.navigation {
     field public static final String KEY_DEEP_LINK_INTENT = "android-support-nav:controller:deepLinkIntent";
   }
 
-  public static interface NavController.NavHostOnBackPressedManager {
+  public final class NavController.NavHostOnBackPressedManager {
     method public void enableOnBackPressed(boolean);
   }
 
