@@ -27,7 +27,7 @@ plugins {
 dependencies {
     implementation "androidx.annotation:annotation:1.1.0-rc01"
     implementation project(":appcompat")
-    api project(":collection")
+    api "androidx.collection:collection:1.1.0-rc01"
     api(project(":remotecallback"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
