@@ -101,7 +101,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         });
 
         Context context = ApplicationProvider.getApplicationContext();
-        mDatabase = WorkDatabase.create(context, true);
+        mDatabase = WorkDatabase.create(context, Executors.newCachedThreadPool(), true);
         InstantWorkTaskExecutor taskExecutor = new InstantWorkTaskExecutor();
         Configuration configuration = new Configuration.Builder()
                 .setExecutor(Executors.newSingleThreadExecutor())

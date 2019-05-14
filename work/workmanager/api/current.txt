@@ -15,6 +15,7 @@ package androidx.work {
     method public java.util.concurrent.Executor getExecutor();
     method public int getMaxJobSchedulerId();
     method public int getMinJobSchedulerId();
+    method public java.util.concurrent.Executor getTaskExecutor();
     method public androidx.work.WorkerFactory getWorkerFactory();
     field public static final int MIN_SCHEDULER_LIMIT = 20; // 0x14
   }
@@ -26,6 +27,7 @@ package androidx.work {
     method public androidx.work.Configuration.Builder setJobSchedulerJobIdRange(int, int);
     method public androidx.work.Configuration.Builder setMaxSchedulerLimit(int);
     method public androidx.work.Configuration.Builder setMinimumLoggingLevel(int);
+    method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor);
     method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory);
   }
 
