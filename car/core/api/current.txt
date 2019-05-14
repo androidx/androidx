@@ -627,6 +627,9 @@ package androidx.car.widget {
     method public static androidx.car.widget.SwitchListItem.ViewHolder createViewHolder(android.view.View);
     method public int getViewType();
     method public boolean isCompoundButtonPositionEnd();
+    method @Deprecated public void setShowSwitchDivider(boolean);
+    method @Deprecated public void setSwitchOnCheckedChangeListener(android.widget.CompoundButton.OnCheckedChangeListener?);
+    method @Deprecated public void setSwitchState(boolean);
   }
 
   public static final class SwitchListItem.ViewHolder extends androidx.car.widget.CompoundButtonListItem.ViewHolder {
@@ -636,6 +639,7 @@ package androidx.car.widget {
     method public android.view.View getCompoundButtonDivider();
     method public android.view.ViewGroup getContainerLayout();
     method public android.widget.ImageView getPrimaryIcon();
+    method @Deprecated public android.widget.Switch getSwitch();
     method public android.widget.TextView getTitle();
     method public void onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions);
   }
