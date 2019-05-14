@@ -868,27 +868,21 @@ public class NavController {
         NavDestination newDest = navigator.navigate(node, finalArgs,
                 navOptions, navigatorExtras);
         if (newDest != null) {
-            // Ensure that every parent NavGraph is also on the stack if it isn't already
-            // First get all of the parent NavGraphs
+            // The mGraph should always be on the back stack after you navigate()
+            if (mBackStack.isEmpty()) {
+                mBackStack.add(new NavBackStackEntry(mGraph, finalArgs));
+            }
+            // Now ensure all intermediate NavGraphs are put on the back stack
+            // to ensure that global actions work.
             ArrayDeque<NavBackStackEntry> hierarchy = new ArrayDeque<>();
-            NavGraph parent = newDest.getParent();
-            while (parent != null) {
-                hierarchy.addFirst(new NavBackStackEntry(parent, finalArgs));
-                parent = parent.getParent();
-            }
-            // Now iterate through the back stack and see which NavGraphs
-            // are already on the back stack
-            Iterator<NavBackStackEntry> iterator = mBackStack.iterator();
-            while (iterator.hasNext() && !hierarchy.isEmpty()) {
-                NavDestination destination = iterator.next().getDestination();
-                if (destination.equals(hierarchy.getFirst().getDestination())) {
-                    // This destination is already in the back stack so
-                    // we don't need to add it
-                    hierarchy.removeFirst();
+            NavDestination destination = newDest;
+            while (destination != null && findDestination(destination.getId()) == null) {
+                NavGraph parent = destination.getParent();
+                if (parent != null) {
+                    hierarchy.addFirst(new NavBackStackEntry(parent, finalArgs));
                 }
+                destination = parent;
             }
-            // Add all of the remaining parent NavGraphs that aren't
-            // already on the back stack
             mBackStack.addAll(hierarchy);
             // And finally, add the new destination with its default args
             NavBackStackEntry newBackStackEntry = new NavBackStackEntry(newDest,
