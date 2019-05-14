@@ -101,11 +101,6 @@
                     android:layout_height="wrap_content"
                     style="@style/TitleBarButton.Launch" />
             </LinearLayout>
-
-            <view class="androidx.mediarouter.app.MediaRouteButton"
-                android:id="@+id/cast"
-                android:visibility="gone"
-                style="@style/TitleBarButton" />
         </LinearLayout>
     </LinearLayout>
 

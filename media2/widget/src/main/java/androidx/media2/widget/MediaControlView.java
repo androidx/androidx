@@ -66,8 +66,6 @@ import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.session.SessionResult;
 import androidx.media2.session.SessionToken;
-import androidx.mediarouter.app.MediaRouteButton;
-import androidx.mediarouter.media.MediaRouteSelector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -201,7 +199,6 @@ public class MediaControlView extends ViewGroup {
     private View mTitleBar;
     private TextView mTitleView;
     private View mAdExternalLink;
-    private MediaRouteButton mRouteButton;
 
     // Relating to Center View
     ViewGroup mCenterView;
@@ -526,16 +523,6 @@ public class MediaControlView extends ViewGroup {
         }
     }
 
-    void setRouteSelector(MediaRouteSelector selector) {
-        if (selector != null && !selector.isEmpty()) {
-            mRouteButton.setRouteSelector(selector);
-            mRouteButton.setVisibility(View.VISIBLE);
-        } else {
-            mRouteButton.setRouteSelector(MediaRouteSelector.EMPTY);
-            mRouteButton.setVisibility(View.GONE);
-        }
-    }
-
     void setDelayedAnimationInterval(long interval) {
         mDelayedAnimationIntervalMs = interval;
     }
@@ -555,7 +542,6 @@ public class MediaControlView extends ViewGroup {
         mTitleBar = findViewById(R.id.title_bar);
         mTitleView = findViewById(R.id.title_text);
         mAdExternalLink = findViewById(R.id.ad_external_link);
-        mRouteButton = findViewById(R.id.cast);
 
         // Relating to Center View
         mCenterView = findViewById(R.id.center_view);
