@@ -28,7 +28,8 @@ import androidx.camera.core.SessionConfig.OptionUnpacker;
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Config {
+public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Config,
+        UseCaseEventConfig {
     // Option Declarations:
     // *********************************************************************************************
 
@@ -156,7 +157,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     interface Builder<T extends UseCase, C extends UseCaseConfig<T>, B> extends
-            TargetConfig.Builder<T, B>, ExtendableBuilder {
+            TargetConfig.Builder<T, B>, ExtendableBuilder, UseCaseEventConfig.Builder<B> {
 
         /**
          * Sets the default session configuration for this use case.

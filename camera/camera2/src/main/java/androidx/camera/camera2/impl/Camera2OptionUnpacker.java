@@ -23,6 +23,7 @@ import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.Config;
 import androidx.camera.core.Config.Option;
+import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.OptionsBundle;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCaseConfig;
@@ -76,6 +77,11 @@ final class Camera2OptionUnpacker implements SessionConfig.OptionUnpacker {
                 CaptureCallbackContainer.create(
                         camera2Config.getSessionCaptureCallback(
                                 Camera2CaptureCallbacks.createNoOpCallback())));
+
+        MutableOptionsBundle cameraEventConfig = MutableOptionsBundle.create();
+        cameraEventConfig.insertOption(Camera2Config.CAMERA_EVENT_CALLBACK_OPTION,
+                camera2Config.getCameraEventCallback(CameraEventCallbacks.createEmptyCallback()));
+        builder.addImplementationOptions(cameraEventConfig);
 
         // Copy extension keys
         camera2Config.findOptions(
