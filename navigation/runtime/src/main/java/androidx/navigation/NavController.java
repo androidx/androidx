@@ -1028,7 +1028,7 @@ public class NavController {
      * @param owner The {@link LifecycleOwner} associated with the containing {@link NavHost}.
      * @see #setHostOnBackPressedDispatcherOwner(OnBackPressedDispatcherOwner)
      */
-    public void setHostLifecycleOwner(@NonNull LifecycleOwner owner) {
+    public final void setHostLifecycleOwner(@NonNull LifecycleOwner owner) {
         mLifecycleOwner = owner;
     }
 
@@ -1048,7 +1048,7 @@ public class NavController {
      * @see #setHostLifecycleOwner(LifecycleOwner)
      */
     @NonNull
-    public NavHostOnBackPressedManager setHostOnBackPressedDispatcherOwner(
+    public final NavHostOnBackPressedManager setHostOnBackPressedDispatcherOwner(
             @NonNull OnBackPressedDispatcherOwner owner) {
         if (mLifecycleOwner == null) {
             mLifecycleOwner = owner;
@@ -1079,7 +1079,7 @@ public class NavController {
      *
      * @param viewModelStore ViewModelStore used to store ViewModels at the navigation graph level
      */
-    public void setHostViewModelStore(@NonNull ViewModelStore viewModelStore) {
+    public final void setHostViewModelStore(@NonNull ViewModelStore viewModelStore) {
         mViewModel = NavControllerViewModel.getInstance(viewModelStore);
     }
 
