@@ -19,7 +19,7 @@ package androidx.fragment.app
 import android.app.Activity
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
@@ -30,7 +30,7 @@ import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 
 @RunWith(AndroidJUnit4::class)
-@SmallTest
+@MediumTest
 class PrimaryNavFragmentTest {
     @get:Rule
     val activityRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
