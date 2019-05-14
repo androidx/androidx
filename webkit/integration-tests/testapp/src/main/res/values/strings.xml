@@ -51,4 +51,8 @@
     <string name="whitelist_switch_text">Whitelist the test domain (won\'t show interstitials)</string>
     <string name="force_dark_activity_title">Force Dark</string>
     <string name="error_log_title">Network errors:</string>
+    <string name="multi_process_enabled_activity_title">Multi Process Enabled</string>
+    <string name="multi_process_enabled">Multi Process is enabled</string>
+    <string name="multi_process_disabled">Multi Process is disabled</string>
+    <string name="multi_process_query_unavailable">Multi Process query not available</string>
 </resources>
