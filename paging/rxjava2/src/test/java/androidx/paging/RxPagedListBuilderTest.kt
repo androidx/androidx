@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.test.filters.SmallTest
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import io.reactivex.schedulers.TestScheduler
@@ -25,7 +24,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@SmallTest
 @RunWith(JUnit4::class)
 class RxPagedListBuilderTest {
 

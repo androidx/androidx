@@ -33,18 +33,12 @@ android {
 
 dependencies {
     api(project(":paging:paging-common"))
-
     api(project(":arch:core-runtime"))
-
     api(RX_JAVA)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(KOTLIN_STDLIB)
+
+    testImplementation(JUNIT)
+    testImplementation(KOTLIN_STDLIB)
+    testImplementation(KOTLIN_TEST_COMMON)
 }
 
 androidx {
