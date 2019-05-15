@@ -65,12 +65,12 @@ fun SemanticsTreeQuery.assertIsNotChecked() =
         it.isChecked != true
     }
 
-fun SemanticsTreeQuery.assertIsSelected(excepted: Boolean) =
+fun SemanticsTreeQuery.assertIsSelected(expected: Boolean) =
     // TODO(pavlis): Throw exception if component is not selectable
     verifyAssertOnExactlyOne(
-        "The component is expected to be selected = '$excepted', but it's not!"
+        "The component is expected to be selected = '$expected', but it's not!"
     ) {
-        it.isSelected == excepted
+        it.isSelected == expected
     }
 
 fun SemanticsTreeQuery.assertIsInMutuallyExclusiveGroup() =
@@ -78,7 +78,12 @@ fun SemanticsTreeQuery.assertIsInMutuallyExclusiveGroup() =
     verifyAssertOnExactlyOne(
         "The component is expected to be mutually exclusive group, but it's not!"
     ) {
-        it.isInMutuallyExclusiveGroup == true
+        it.isInMutuallyExclusiveGroup
+    }
+
+fun SemanticsTreeQuery.assertValueEquals(value: String) =
+    verifyAssertOnExactlyOne({ node -> "Expected value: $value Actual value: ${node.value}" }) {
+        it.value == value
     }
 
 fun SemanticsTreeQuery.assertSemanticsIsEqualTo(
@@ -97,12 +102,20 @@ internal fun SemanticsTreeQuery.verifyAssertOnExactlyOne(
     assertionMessage: String,
     condition: (SemanticsConfiguration) -> Boolean
 ): SemanticsTreeQuery {
+    return verifyAssertOnExactlyOne({ assertionMessage }, condition)
+}
+
+internal fun SemanticsTreeQuery.verifyAssertOnExactlyOne(
+    assertionMessage: (SemanticsConfiguration) -> String,
+    condition: (SemanticsConfiguration) -> Boolean
+): SemanticsTreeQuery {
     val foundNodes = findAllMatching()
     if (foundNodes.size != 1) {
         throw AssertionError("Found '${foundNodes.size}' nodes but 1 was expected!")
     }
-    if (!condition.invoke(foundNodes.first().data)) {
-        throw AssertionError("Assert failed: $assertionMessage")
+    val node = foundNodes.first().data
+    if (!condition.invoke(node)) {
+        throw AssertionError("Assert failed: ${assertionMessage(node)}")
     }
     return this
 }

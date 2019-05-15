@@ -13,9 +13,10 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsTreeQuery assertIsHidden(androidx.ui.test.SemanticsTreeQuery);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsInMutuallyExclusiveGroup(androidx.ui.test.SemanticsTreeQuery);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsNotChecked(androidx.ui.test.SemanticsTreeQuery);
-    method public static androidx.ui.test.SemanticsTreeQuery assertIsSelected(androidx.ui.test.SemanticsTreeQuery, boolean excepted);
+    method public static androidx.ui.test.SemanticsTreeQuery assertIsSelected(androidx.ui.test.SemanticsTreeQuery, boolean expected);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsVisible(androidx.ui.test.SemanticsTreeQuery);
     method public static androidx.ui.test.SemanticsTreeQuery assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeQuery, androidx.ui.core.semantics.SemanticsConfiguration expectedProperties);
+    method public static androidx.ui.test.SemanticsTreeQuery assertValueEquals(androidx.ui.test.SemanticsTreeQuery, String value);
   }
 
   public final class DisableTransitions implements org.junit.rules.TestRule {
@@ -67,6 +68,7 @@ package androidx.ui.test.android {
     method public final androidx.test.rule.ActivityTestRule<androidx.ui.test.android.DefaultTestActivity> getActivityTestRule();
     method public final androidx.ui.core.Density getDensity();
     method public void performClick(float x, float y);
+    method public final void runOnUiAndWaitForRecompose(kotlin.jvm.functions.Function0<kotlin.Unit> runnable);
     method public void sendEvent(android.view.MotionEvent event);
     method public final void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public final void setup();

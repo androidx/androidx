@@ -29,7 +29,6 @@ import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.CompositionContext
 import androidx.compose.composer
-import androidx.compose.setContent
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.CraneWrapper
@@ -94,7 +93,7 @@ open class AndroidUiTestRunner : UiTestRunner {
         }
     }
 
-    private fun runOnUiAndWaitForRecompose(runnable: () -> Unit) {
+    fun runOnUiAndWaitForRecompose(runnable: () -> Unit) {
         if (Looper.getMainLooper() == Looper.myLooper()) {
             throw Exception("Cannot be run on UI thread.")
         }

@@ -15,38 +15,14 @@
   -->
 
 <manifest
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        package="androidx.ui.material.demos">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.ui.material.demos">
+
+    <uses-sdk android:targetSdkVersion="${target-sdk-version}" />
 
     <application>
-        <activity android:name=".SelectionControlsActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Material/Selection Controls">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".TextActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Material/Text">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".RippleActivity"
-                  android:configChanges="orientation|screenSize"
-                  android:label="Material/Ripples">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".ButtonActivity"
+        <activity
+            android:name=".ButtonActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/Buttons">
             <intent-filter>
@@ -54,9 +30,52 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        <activity android:name=".DividersSpacersActivity"
+
+        <activity
+            android:name=".DividersSpacersActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/Dividers And Spacers">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ProgressIndicatorActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Progress Indicators">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".RippleActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Ripples">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".SelectionControlsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Selection Controls">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+
+        <activity
+            android:name=".TextActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Text">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
