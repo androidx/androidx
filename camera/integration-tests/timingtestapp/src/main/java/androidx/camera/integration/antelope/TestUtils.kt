@@ -59,7 +59,7 @@ fun postTestResults(activity: MainActivity, testConfig: TestConfig) {
 
         activity.resetUIAfterTest()
         activity.updateLog(log)
-        writeCSV(activity, DeviceInfo(activity).deviceShort, csv)
+        writeCSV(activity, DeviceInfo().deviceShort, csv)
 
         // Indicate to Espresso that a test run has ended
         try {
@@ -150,7 +150,7 @@ fun setupAutoTestRunner(activity: MainActivity) {
     MainActivity.autoTestConfigs.clear()
     val cameras: ArrayList<String> = PrefHelper.getCameraIds(activity, MainActivity.cameraParams)
     val logicalCameras: ArrayList<String> =
-        PrefHelper.getLogicalCameraIds(activity, MainActivity.cameraParams)
+        PrefHelper.getLogicalCameraIds(MainActivity.cameraParams)
     val apis: ArrayList<CameraAPI> = PrefHelper.getAPIs(activity)
     val imageSizes: ArrayList<ImageCaptureSize> = PrefHelper.getImageSizes(activity)
     val focusModes: ArrayList<FocusMode> = PrefHelper.getFocusModes(activity)

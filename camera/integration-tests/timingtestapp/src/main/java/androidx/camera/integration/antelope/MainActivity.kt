@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity() {
 
         camViewModel = ViewModelProviders.of(this).get(CamViewModel::class.java)
         cameraParams = camViewModel.getCameraParams()
-        deviceInfo = DeviceInfo(this)
+        deviceInfo = DeviceInfo()
 
         if (checkCameraPermissions()) {
             initializeCameras(this)
@@ -282,7 +282,7 @@ class MainActivity : AppCompatActivity() {
      */
     fun checkCameraPermissions(): Boolean {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            !== PackageManager.PERMISSION_GRANTED) {
+            != PackageManager.PERMISSION_GRANTED) {
 
             // No explanation needed; request the permission
             ActivityCompat.requestPermissions(this,
@@ -291,7 +291,7 @@ class MainActivity : AppCompatActivity() {
             return false
         } else if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            !== PackageManager.PERMISSION_GRANTED) {
+            != PackageManager.PERMISSION_GRANTED) {
             // No explanation needed; request the permission
             ActivityCompat.requestPermissions(this,
                 arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
@@ -422,7 +422,7 @@ class MainActivity : AppCompatActivity() {
             }
             CameraAPI.CAMERA2 -> {
                 if (null != currentParams)
-                    camera2Abort(this, currentParams, currentConfig)
+                    camera2Abort(this, currentParams)
             }
         }
 
