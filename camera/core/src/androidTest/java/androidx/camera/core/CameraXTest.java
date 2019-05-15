@@ -244,6 +244,21 @@ public final class CameraXTest {
     }
 
     @Test
+    public void eventListenerCalled_bindAndUnbind() {
+        UseCase.EventListener eventListener = Mockito.mock(UseCase.EventListener.class);
+
+        FakeUseCaseConfig.Builder fakeConfigBuilder = new FakeUseCaseConfig.Builder();
+        fakeConfigBuilder.setUseCaseEventListener(eventListener);
+        AttachCameraFakeCase fakeUseCase = new AttachCameraFakeCase(fakeConfigBuilder.build());
+
+        CameraX.bindToLifecycle(mLifecycle, fakeUseCase);
+        Mockito.verify(eventListener).onBind(mCameraId);
+
+        CameraX.unbind(fakeUseCase);
+        Mockito.verify(eventListener).onUnbind();
+    }
+
+    @Test
     public void canRetrieveCameraInfo() throws CameraInfoUnavailableException {
         String cameraId = CameraX.getCameraWithLensFacing(LensFacing.BACK);
         CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);

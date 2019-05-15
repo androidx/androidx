@@ -36,6 +36,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -47,8 +49,12 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class ProcessingImageReaderTest {
     private static final int CAPTURE_ID_0 = 0;
     private static final int CAPTURE_ID_1 = 1;
+    private static final int CAPTURE_ID_2 = 2;
+    private static final int CAPTURE_ID_3 = 3;
     private static final long TIMESTAMP_0 = 0L;
     private static final long TIMESTAMP_1 = 1000L;
+    private static final long TIMESTAMP_2 = 2000L;
+    private static final long TIMESTAMP_3 = 4000L;
     private static final CaptureProcessor NOOP_PROCESSOR = new CaptureProcessor() {
         @Override
         public void onOutputSurface(Surface surface, int imageFormat) {
@@ -68,6 +74,8 @@ public final class ProcessingImageReaderTest {
 
     private final CaptureStage mCaptureStage0 = new FakeCaptureStage(CAPTURE_ID_0, null);
     private final CaptureStage mCaptureStage1 = new FakeCaptureStage(CAPTURE_ID_1, null);
+    private final CaptureStage mCaptureStage2 = new FakeCaptureStage(CAPTURE_ID_2, null);
+    private final CaptureStage mCaptureStage3 = new FakeCaptureStage(CAPTURE_ID_3, null);
     private final FakeImageReaderProxy mImageReaderProxy = new FakeImageReaderProxy();
     private CaptureBundle mCaptureBundle;
     private Handler mMainHandler;
@@ -99,12 +107,28 @@ public final class ProcessingImageReaderTest {
 
             }
         };
-        new ProcessingImageReader(
+        ProcessingImageReader processingImageReader = new ProcessingImageReader(
                 mImageReaderProxy, mMainHandler, mCaptureBundle, captureProcessor);
+        Map<Integer, Long> resultMap = new HashMap<>();
+        resultMap.put(CAPTURE_ID_0, TIMESTAMP_0);
+        resultMap.put(CAPTURE_ID_1, TIMESTAMP_1);
+        triggerAndVerify(bundleRef, resultMap);
 
+        processingImageReader.setCaptureBundle(CaptureBundles.createCaptureBundle(mCaptureStage2,
+                mCaptureStage3));
+        Map<Integer, Long> resultMap1 = new HashMap<>();
+        resultMap1.put(CAPTURE_ID_2, TIMESTAMP_2);
+        resultMap1.put(CAPTURE_ID_3, TIMESTAMP_3);
+        triggerAndVerify(bundleRef, resultMap1);
+    }
+
+    private void triggerAndVerify(AtomicReference<ImageProxyBundle> bundleRef,
+            Map<Integer, Long> captureIdToTime)
+            throws InterruptedException, ExecutionException, TimeoutException {
         // Feeds ImageProxy with all capture id on the initial list.
-        triggerImageAvailable(CAPTURE_ID_0, TIMESTAMP_0);
-        triggerImageAvailable(CAPTURE_ID_1, TIMESTAMP_1);
+        for (Integer id : captureIdToTime.keySet()) {
+            triggerImageAvailable(id, captureIdToTime.get(id));
+        }
 
         // Ensure all posted tasks finish running
         ShadowLooper.runUiThreadTasks();
@@ -114,10 +138,10 @@ public final class ProcessingImageReaderTest {
 
         // CaptureProcessor.process should be called once all ImageProxies on the
         // initial lists are ready. Then checks if the output has matched timestamp.
-        assertThat(bundle.getImageProxy(CAPTURE_ID_0).get(0,
-                TimeUnit.SECONDS).getTimestamp()).isEqualTo(TIMESTAMP_0);
-        assertThat(bundle.getImageProxy(CAPTURE_ID_1).get(0,
-                TimeUnit.SECONDS).getTimestamp()).isEqualTo(TIMESTAMP_1);
+        for (Integer id : captureIdToTime.keySet()) {
+            assertThat(bundle.getImageProxy(id).get(0,
+                    TimeUnit.SECONDS).getTimestamp()).isEqualTo(captureIdToTime.get(id));
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
