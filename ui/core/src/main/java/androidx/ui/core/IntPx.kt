@@ -23,8 +23,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-// TODO(mount): regain the inline below. These don't work with jacoco
-
 /**
  * Dimension value represented in whole pixels (px). Layout and constraints operate on Int
  * pixels. Operations with an [Infinity] IntPx result in [Infinity].
@@ -35,66 +33,66 @@ data /*inline*/ class IntPx(val value: Int) {
      * Add two [IntPx]s together. Any operation on an
      * [IntPx.Infinity] results in [IntPx.Infinity]
      */
-    /*inline*/ operator fun plus(other: IntPx) =
+    operator fun plus(other: IntPx) =
         keepInfinity(other, IntPx(value = this.value + other.value))
 
     /**
      * Subtract a IntPx from another one. Any operation on an
      * [IntPx.Infinity] results in [IntPx.Infinity]
      */
-    /*inline*/ operator fun minus(other: IntPx) =
+    operator fun minus(other: IntPx) =
         keepInfinity(other, IntPx(value = this.value - other.value))
 
     /**
      * This is the same as multiplying the IntPx by -1. Any operation on an
      * [IntPx.Infinity] results in [IntPx.Infinity]
      */
-    /*inline*/ operator fun unaryMinus() = keepInfinity(IntPx(-value))
+    operator fun unaryMinus() = keepInfinity(IntPx(-value))
 
     /**
      * Divide a IntPx by a scalar and return the rounded result as an IntPx. Any operation on an
      * [IntPx.Infinity] results in [IntPx.Infinity]
      */
-    /*inline*/ operator fun div(other: Float): IntPx =
+    operator fun div(other: Float): IntPx =
         keepInfinity(IntPx(value = (value.toFloat() / other).roundToInt()))
 
     /**
      * Divide a IntPx by a scalar and return the rounded result as an IntPx. Any operation on an
      * [IntPx.Infinity] results in [IntPx.Infinity]
      */
-    /*inline*/ operator fun div(other: Double): IntPx =
+    operator fun div(other: Double): IntPx =
         keepInfinity(IntPx(value = (value.toDouble() / other).roundToInt()))
 
     /**
      * Divide a IntPx by a scalar and return the rounded result as an IntPx. Any operation on an
      * [IntPx.Infinity] results in [IntPx.Infinity]
      */
-    /*inline*/ operator fun div(other: Int): IntPx =
+    operator fun div(other: Int): IntPx =
         keepInfinity(IntPx(value = (value.toFloat() / other).roundToInt()))
 
     /**
      * Multiply a IntPx by a scalar and round the result to an IntPx. Any operation on an
      * [IntPx.Infinity] results in [IntPx.Infinity]
      */
-    /*inline*/ operator fun times(other: Float): IntPx =
+    operator fun times(other: Float): IntPx =
         keepInfinity(IntPx(value = (value.toFloat() * other).roundToInt()))
 
     /**
      * Multiply a IntPx by a scalar and round the result to an IntPx
      */
-    /*inline*/ operator fun times(other: Double): IntPx =
+    operator fun times(other: Double): IntPx =
         keepInfinity(IntPx(value = (value.toDouble() * other).roundToInt()))
 
     /**
      * Multiply a IntPx by a scalar and result in an IntPx
      */
-    /*inline*/ operator fun times(other: Int): IntPx =
+    operator fun times(other: Int): IntPx =
         keepInfinity(IntPx(value = value * other))
 
     /**
      * Support comparing Dimensions with comparison operators.
      */
-    /*inline*/ operator fun compareTo(other: IntPx) = value.compareTo(other.value)
+    inline operator fun compareTo(other: IntPx) = value.compareTo(other.value)
 
     companion object {
         /**
@@ -115,10 +113,10 @@ data /*inline*/ class IntPx(val value: Int) {
 /**
  * Return whether `true` when it is finite or `false` when it is [IntPx.Infinity]
  */
-/*inline*/ fun IntPx.isFinite(): Boolean = value != Int.MAX_VALUE
+inline fun IntPx.isFinite(): Boolean = value != Int.MAX_VALUE
 
 private inline fun IntPx.keepInfinity(other: IntPx, noInfinityValue: IntPx): IntPx {
-    return if (!isFinite() || !other.isFinite()) IntPx.Infinity else noInfinityValue
+    return if (!isFinite() || !other.isFinite()) Infinity else noInfinityValue
 }
 
 private inline fun IntPx.keepInfinity(noInfinityValue: IntPx): IntPx {
@@ -132,39 +130,39 @@ private inline fun IntPx.keepInfinity(noInfinityValue: IntPx): IntPx {
  *     // -- or --
  *     val y = 10.ipx
  */
-/*inline*/ val Int.ipx: IntPx get() = IntPx(value = this)
+inline val Int.ipx: IntPx get() = IntPx(value = this)
 
 /**
  * Multiply an IntPx by a Float and round the result to an IntPx. Any operation on an
  * [IntPx.Infinity] results in [IntPx.Infinity]
  */
-/*inline*/ operator fun Float.times(other: IntPx): IntPx =
+operator fun Float.times(other: IntPx): IntPx =
     other.keepInfinity(IntPx(value = (other.value.toFloat() * this).roundToInt()))
 
 /**
  * Multiply an IntPx by a Double and round the result to an IntPx. Any operation on an
  * [IntPx.Infinity] results in [IntPx.Infinity]
  */
-/*inline*/ operator fun Double.times(other: IntPx): IntPx =
+operator fun Double.times(other: IntPx): IntPx =
     other.keepInfinity(IntPx(value = (other.value.toDouble() * this).roundToInt()))
 
 /**
  * Multiply an IntPx by a Double to result in an IntPx. Any operation on an
  * [IntPx.Infinity] results in [IntPx.Infinity]
  */
-/*inline*/ operator fun Int.times(other: IntPx): IntPx =
+operator fun Int.times(other: IntPx): IntPx =
     other.keepInfinity(IntPx(value = other.value * this))
 
 /**
  * Return the minimum of two [IntPx]s. Any value is considered less than [IntPx.Infinity].
  */
-/*inline*/ fun min(a: IntPx, b: IntPx): IntPx =
+inline fun min(a: IntPx, b: IntPx): IntPx =
     IntPx(value = min(a.value, b.value))
 
 /**
  * Return the maximum of two [IntPx]s. An [IntPx.Infinity] is considered the maximum value.
  */
-/*inline*/ fun max(a: IntPx, b: IntPx): IntPx =
+inline fun max(a: IntPx, b: IntPx): IntPx =
     IntPx(value = max(a.value, b.value))
 
 /**
@@ -173,7 +171,7 @@ private inline fun IntPx.keepInfinity(noInfinityValue: IntPx): IntPx {
  * @return this value if it's in the range, or [minimumValue] if this value is less than
  * [minimumValue], or [maximumValue] if this value is greater than [maximumValue].
  */
-/*inline*/ fun IntPx.coerceIn(minimumValue: IntPx, maximumValue: IntPx): IntPx =
+inline fun IntPx.coerceIn(minimumValue: IntPx, maximumValue: IntPx): IntPx =
     IntPx(value = value.coerceIn(minimumValue.value, maximumValue.value))
 
 /**
@@ -182,7 +180,7 @@ private inline fun IntPx.keepInfinity(noInfinityValue: IntPx): IntPx {
  * @return this value if it's greater than or equal to the [minimumValue] or the
  * [minimumValue] otherwise.
  */
-/*inline*/ fun IntPx.coerceAtLeast(minimumValue: IntPx): IntPx =
+inline fun IntPx.coerceAtLeast(minimumValue: IntPx): IntPx =
     IntPx(value = value.coerceAtLeast(minimumValue.value))
 
 /**
@@ -192,7 +190,7 @@ private inline fun IntPx.keepInfinity(noInfinityValue: IntPx): IntPx {
  * [maximumValue] otherwise. Passing [IntPx.Infinity] as [maximumValue] will
  * always return this.
  */
-/*inline*/ fun IntPx.coerceAtMost(maximumValue: IntPx): IntPx =
+inline fun IntPx.coerceAtMost(maximumValue: IntPx): IntPx =
     IntPx(value = value.coerceAtMost(maximumValue.value))
 
 /**
@@ -215,10 +213,10 @@ fun lerp(a: IntPx, b: IntPx, t: Float): IntPx {
 /**
  * Rounds a [Px] size to the nearest Int pixel value.
  */
-/*inline*/ fun Px.round(): IntPx =
+inline fun Px.round(): IntPx =
     if (value.isInfinite()) IntPx.Infinity else IntPx(value.roundToInt())
 
-/*inline*/ fun IntPx.toPx(): Px = value.px
+inline fun IntPx.toPx(): Px = value.px
 
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 // Structures using IntPx
@@ -244,13 +242,13 @@ fun IntPxSize.center(): IntPxPosition {
     /**
      * Subtract a [IntPxPosition] from another one.
      */
-    /*inline*/ operator fun minus(other: IntPxPosition) =
+    inline operator fun minus(other: IntPxPosition) =
         IntPxPosition(x - other.x, y - other.y)
 
     /**
      * Add a [IntPxPosition] to another one.
      */
-    /*inline*/ operator fun plus(other: IntPxPosition) =
+    inline operator fun plus(other: IntPxPosition) =
         IntPxPosition(x + other.x, y + other.y)
 }
 
@@ -281,27 +279,27 @@ data class IntPxBounds(
 /**
  * A width of this IntPxBounds in [IntPx].
  */
-val IntPxBounds.width: IntPx get() = right - left
+inline val IntPxBounds.width: IntPx get() = right - left
 
 /**
  * A height of this IntPxBounds in [IntPx].
  */
-val IntPxBounds.height: IntPx get() = bottom - top
+inline val IntPxBounds.height: IntPx get() = bottom - top
 
 /**
  * Convert a [IntPxBounds] to a [IntPxSize].
  */
-fun IntPxBounds.toSize(): IntPxSize {
+inline fun IntPxBounds.toSize(): IntPxSize {
     return IntPxSize(width, height)
 }
 
 /**
  * Create a [PxSize] from [IntPx] values.
  */
-fun PxSize(width: IntPx, height: IntPx): PxSize =
+inline fun PxSize(width: IntPx, height: IntPx): PxSize =
     PxSize(width = width.toPx(), height = height.toPx())
 
 /**
  * Create a [PxPosition] from [IntPx] values.
  */
-fun PxPosition(x: IntPx, y: IntPx): PxPosition = PxPosition(x = x.toPx(), y = y.toPx())
+inline fun PxPosition(x: IntPx, y: IntPx): PxPosition = PxPosition(x = x.toPx(), y = y.toPx())
