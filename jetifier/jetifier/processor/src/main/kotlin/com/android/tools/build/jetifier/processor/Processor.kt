@@ -196,9 +196,10 @@ class Processor private constructor(
             reversedMode: Boolean = false,
             rewritingSupportLib: Boolean = false,
             useFallbackIfTypeIsMissing: Boolean = true,
-            versionSetName: String? = null,
+            @Suppress("UNUSED_PARAMETER") versionSetName: String? = null,
             dataBindingVersion: String? = null
         ): Processor {
+            @Suppress("deprecation")
             return createProcessor2(
                 config = config,
                 reversedMode = reversedMode,

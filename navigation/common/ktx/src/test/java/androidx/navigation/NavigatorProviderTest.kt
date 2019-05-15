@@ -32,7 +32,7 @@ class NavigatorProviderTest {
         val foundNavigator: Navigator<NavDestination> = provider[NAME]
         assertWithMessage("Set destination should be retrieved with get")
             .that(foundNavigator)
-            .isSameAs(navigator)
+            .isSameInstanceAs(navigator)
     }
 
     @Test
@@ -41,7 +41,7 @@ class NavigatorProviderTest {
         provider += navigator
         assertWithMessage("Set destination should be retrieved with get")
             .that(provider[NoOpNavigator::class])
-            .isSameAs(navigator)
+            .isSameInstanceAs(navigator)
     }
 }
 

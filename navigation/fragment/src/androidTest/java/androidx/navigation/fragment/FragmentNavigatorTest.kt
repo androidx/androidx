@@ -105,7 +105,7 @@ class FragmentNavigatorTest {
             .isInstanceOf(NonEmptyConstructorFragment::class.java)
         assertWithMessage("Fragment should be the primary navigation Fragment")
             .that(fragment)
-            .isSameAs(fragmentManager.primaryNavigationFragment)
+            .isSameInstanceAs(fragmentManager.primaryNavigationFragment)
     }
 
     @UiThreadTest
@@ -242,10 +242,10 @@ class FragmentNavigatorTest {
             .isInstanceOf(EmptyFragment::class.java)
         assertWithMessage("Replacement Fragment should be the primary navigation Fragment")
             .that(fragmentManager.primaryNavigationFragment)
-            .isSameAs(replacementFragment)
+            .isSameInstanceAs(replacementFragment)
         assertWithMessage("Replacement should be a new instance")
             .that(replacementFragment)
-            .isNotSameAs(fragment)
+            .isNotSameInstanceAs(fragment)
         assertWithMessage("Old instance should be destroyed")
             .that(lifecycle.currentState)
             .isEqualTo(Lifecycle.State.DESTROYED)
@@ -255,10 +255,10 @@ class FragmentNavigatorTest {
         fragmentManager.executePendingTransactions()
         assertWithMessage("Initial Fragment should be on top of back stack after pop")
             .that(fragmentManager.findFragmentById(R.id.container))
-            .isSameAs(initialFragment)
+            .isSameInstanceAs(initialFragment)
         assertWithMessage("Initial Fragment should be the primary navigation Fragment")
             .that(fragmentManager.primaryNavigationFragment)
-            .isSameAs(initialFragment)
+            .isSameInstanceAs(initialFragment)
     }
 
     @UiThreadTest
@@ -345,7 +345,7 @@ class FragmentNavigatorTest {
             .isNotNull()
         assertWithMessage("Replacement Fragment should be the primary navigation Fragment")
             .that(fragmentManager.primaryNavigationFragment)
-            .isSameAs(replacementFragment)
+            .isSameInstanceAs(replacementFragment)
 
         // Push the same Fragment a second time, creating a stack of two
         // identical Fragments
@@ -358,7 +358,7 @@ class FragmentNavigatorTest {
             .isNotNull()
         assertWithMessage("Fragment to pop should be the primary navigation Fragment")
             .that(fragmentManager.primaryNavigationFragment)
-            .isSameAs(fragmentToPop)
+            .isSameInstanceAs(fragmentToPop)
 
         // Now pop the Fragment
         val popped = fragmentNavigator.popBackStack()
@@ -369,7 +369,7 @@ class FragmentNavigatorTest {
         assertWithMessage("Replacement Fragment should be the primary navigation Fragment " +
                 "after pop")
             .that(fragmentManager.primaryNavigationFragment)
-            .isSameAs(replacementFragment)
+            .isSameInstanceAs(replacementFragment)
     }
 
     @UiThreadTest

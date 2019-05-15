@@ -61,6 +61,7 @@ class AsyncPagedListDifferTest {
         data: List<V>,
         initialKey: Int
     ): PagedList<V> {
+        @Suppress("DEPRECATION")
         return PagedList.Builder<Int, V>(ListDataSource(data), config)
                 .setInitialKey(initialKey)
                 .setNotifyExecutor(mMainThread)

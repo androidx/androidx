@@ -36,7 +36,7 @@ class NavGraphTest {
         graph += destination
         assertWithMessage("plusAssign destination should be retrieved with get")
             .that(graph[DESTINATION_ID])
-            .isSameAs(destination)
+            .isSameInstanceAs(destination)
     }
 
     @Test
@@ -46,7 +46,7 @@ class NavGraphTest {
         graph += destination
         assertWithMessage("plusAssign destination should be retrieved with get")
             .that(graph[DESTINATION_ID])
-            .isSameAs(destination)
+            .isSameInstanceAs(destination)
         graph -= destination
         assertWithMessage("Destination should be removed after minusAssign")
             .that(DESTINATION_ID in graph)

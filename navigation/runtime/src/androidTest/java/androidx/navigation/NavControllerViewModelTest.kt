@@ -33,14 +33,14 @@ class NavControllerViewModelTest {
         val navGraphId = UUID.randomUUID()
         val viewModel = NavControllerViewModel()
         val viewModelStore = viewModel.getViewModelStore(navGraphId)
-        assertThat(viewModel.getViewModelStore(navGraphId)).isSameAs(viewModelStore)
+        assertThat(viewModel.getViewModelStore(navGraphId)).isSameInstanceAs(viewModelStore)
     }
 
     @Test
     fun testGetInstance() {
         val viewModelStore = ViewModelStore()
         val viewModel = NavControllerViewModel.getInstance(viewModelStore)
-        assertThat(NavControllerViewModel.getInstance(viewModelStore)).isSameAs(viewModel)
+        assertThat(NavControllerViewModel.getInstance(viewModelStore)).isSameInstanceAs(viewModel)
     }
 
     @Test
@@ -51,7 +51,7 @@ class NavControllerViewModelTest {
         assertThat(viewModelStore).isNotNull()
 
         viewModel.clear(navGraphId)
-        assertThat(viewModel.getViewModelStore(navGraphId)).isNotSameAs(viewModelStore)
+        assertThat(viewModel.getViewModelStore(navGraphId)).isNotSameInstanceAs(viewModelStore)
     }
 
     @Test
@@ -63,6 +63,7 @@ class NavControllerViewModelTest {
         assertThat(navGraphViewModelStore).isNotNull()
 
         baseViewModelStore.clear()
-        assertThat(viewModel.getViewModelStore(navGraphId)).isNotSameAs(navGraphViewModelStore)
+        assertThat(viewModel.getViewModelStore(navGraphId)).isNotSameInstanceAs(
+            navGraphViewModelStore)
     }
 }

@@ -58,7 +58,7 @@ class AtomicFileTest {
                 it.write(byteArrayOf(3, 4, 5))
                 throw failure
             }
-        }.isSameAs(failure)
+        }.isSameInstanceAs(failure)
 
         val bytes = file.openRead().use { it.readBytes() }
         assertArrayEquals(byteArrayOf(0, 1, 2), bytes)

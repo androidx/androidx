@@ -23,7 +23,6 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -52,10 +51,10 @@ class ViewModelTest {
         val vm = object : ViewModel() {}
         val scope1 = vm.viewModelScope
         val scope2 = vm.viewModelScope
-        Truth.assertThat(scope1).isSameAs(scope2)
+        Truth.assertThat(scope1).isSameInstanceAs(scope2)
         vm.clear()
         val scope3 = vm.viewModelScope
-        Truth.assertThat(scope3).isSameAs(scope2)
+        Truth.assertThat(scope3).isSameInstanceAs(scope2)
     }
 
     @Test fun testJobIsSuperVisor() {
@@ -67,7 +66,6 @@ class ViewModelTest {
         runBlocking {
             try {
                 failingDeferred.await()
-                Assert.fail()
             } catch (e: Error) {
             }
             Truth.assertThat(delayingDeferred.isActive).isTrue()

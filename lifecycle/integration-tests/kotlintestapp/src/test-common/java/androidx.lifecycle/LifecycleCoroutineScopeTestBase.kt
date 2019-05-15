@@ -34,9 +34,9 @@ abstract class LifecycleCoroutineScopeTestBase {
     fun initialization() {
         val owner = FakeLifecycleOwner(Lifecycle.State.INITIALIZED)
         val scope = owner.lifecycleScope
-        assertThat(owner.lifecycle.mInternalScopeRef.get()).isSameAs(scope)
+        assertThat(owner.lifecycle.mInternalScopeRef.get()).isSameInstanceAs(scope)
         val scope2 = owner.lifecycleScope
-        assertThat(scope).isSameAs(scope2)
+        assertThat(scope).isSameInstanceAs(scope2)
         runBlocking(Dispatchers.Main) {
             assertThat((owner.lifecycle as LifecycleRegistry).observerCount).isEqualTo(1)
         }
@@ -115,7 +115,8 @@ abstract class LifecycleCoroutineScopeTestBase {
                 throw RuntimeException("foo")
             }
             action.join()
-            assertThat(action.getCompletionExceptionOrNull()).hasMessageThat().isSameAs("foo")
+            assertThat(action.getCompletionExceptionOrNull()).hasMessageThat().isSameInstanceAs(
+                "foo")
         }
     }
 
@@ -131,7 +132,8 @@ abstract class LifecycleCoroutineScopeTestBase {
                 owner.setState(Lifecycle.State.STARTED)
             }
             action.join()
-            assertThat(action.getCompletionExceptionOrNull()).hasMessageThat().isSameAs("foo")
+            assertThat(action.getCompletionExceptionOrNull()).hasMessageThat().isSameInstanceAs(
+                "foo")
         }
     }
 
