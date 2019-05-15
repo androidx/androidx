@@ -80,6 +80,39 @@ class DialogFragmentNavigatorTest {
             .that(dialogFragment.requireDialog().isShowing)
             .isTrue()
     }
+
+    @UiThreadTest
+    @Test
+    fun testPop() {
+        lateinit var dialogFragment: DialogFragment
+        fragmentManager.fragmentFactory = object : FragmentFactory() {
+            override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
+                return super.instantiate(classLoader, className).also { fragment ->
+                    if (fragment is DialogFragment) {
+                        dialogFragment = fragment
+                    }
+                }
+            }
+        }
+        val dialogNavigator = DialogFragmentNavigator(emptyActivity, fragmentManager)
+        val destination = dialogNavigator.createDestination().apply {
+            id = INITIAL_FRAGMENT
+            className = EmptyDialogFragment::class.java.name
+        }
+
+        assertThat(dialogNavigator.navigate(destination, null, null, null))
+            .isEqualTo(destination)
+        fragmentManager.executePendingTransactions()
+        assertWithMessage("Dialog should be shown")
+            .that(dialogFragment.requireDialog().isShowing)
+            .isTrue()
+        assertWithMessage("DialogNavigator should pop dialog off the back stack")
+            .that(dialogNavigator.popBackStack())
+            .isTrue()
+        assertWithMessage("Pop should dismiss the DialogFragment")
+            .that(dialogFragment.requireDialog().isShowing)
+            .isFalse()
+    }
 }
 
 class EmptyDialogFragment : DialogFragment() {
