@@ -38,7 +38,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                 _db.execSQL("CREATE TABLE IF NOT EXISTS `Child2` (`id` INTEGER NOT NULL, `name` TEXT, `serial` INTEGER, `code` TEXT, PRIMARY KEY(`id`))");
                 _db.execSQL("CREATE VIEW `UserSummary` AS SELECT uid, name FROM User");
                 _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-                _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"12b646c55443feeefb567521e2bece85\")");
+                _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '12b646c55443feeefb567521e2bece85')");
             }
 
             @Override
