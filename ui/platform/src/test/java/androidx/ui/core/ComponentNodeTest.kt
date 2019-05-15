@@ -15,6 +15,9 @@
  */
 package androidx.ui.core
 
+import androidx.test.filters.SmallTest
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -31,6 +34,7 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import kotlin.IllegalArgumentException
 
+@SmallTest
 @RunWith(JUnit4::class)
 class ComponentNodeTest {
     @get:Rule
@@ -454,6 +458,7 @@ class ComponentNodeTest {
     @Test
     fun testGlobalToLocal() {
         val node0 = LayoutNode()
+        node0.attach(mockOwner())
         val node1 = LayoutNode()
         node0.emitInsertAt(0, node1)
 
@@ -478,6 +483,7 @@ class ComponentNodeTest {
     @Test
     fun testLocalToGlobal() {
         val node0 = LayoutNode()
+        node0.attach(mockOwner())
         val node1 = LayoutNode()
         node0.emitInsertAt(0, node1)
 
@@ -497,6 +503,17 @@ class ComponentNodeTest {
         val result = node1.localToGlobal(localPosition)
 
         assertEquals(expectedPosition, result)
+    }
+
+    @Test
+    fun testLocalToGlobalUsesOwnerPosition() {
+        val node = LayoutNode()
+        node.attach(mockOwner(PxPosition(20.px, 20.px)))
+        node.moveTo(100.ipx, 10.ipx)
+
+        val result = node.localToGlobal(PxPosition.Origin)
+
+        assertEquals(PxPosition(120.px, 30.px), result)
     }
 
     @Test
@@ -565,6 +582,19 @@ class ComponentNodeTest {
         val actual = child.positionRelativeToRoot()
 
         assertEquals(PxPosition(-50.px, 90.px), actual)
+    }
+
+    @Test
+    fun testPositionRelativeToRootIsNotAffectedByOwnerPosition() {
+        val parent = LayoutNode()
+        parent.attach(mockOwner(PxPosition(20.px, 20.px)))
+        val child = LayoutNode()
+        parent.emitInsertAt(0, child)
+        child.moveTo(50.ipx, 80.ipx)
+
+        val actual = child.positionRelativeToRoot()
+
+        assertEquals(PxPosition(50.px, 80.px), actual)
     }
 
     @Test
@@ -724,4 +754,9 @@ class ComponentNodeTest {
         layoutNode.emitInsertAt(1, child2)
         return Triple(layoutNode, child1, child2)
     }
+
+    private fun mockOwner(position: PxPosition = PxPosition.Origin): Owner =
+        mock {
+            on { calculatePosition() } doReturn position
+        }
 }

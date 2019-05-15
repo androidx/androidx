@@ -329,6 +329,12 @@ class AndroidCraneView constructor(context: Context)
     override fun onCreateInputConnection(outAttrs: EditorInfo): InputConnection? =
         textInputServiceAndroid.createInputConnection(outAttrs)
 
+    override fun calculatePosition(): PxPosition {
+        val positionArray = intArrayOf(0, 0)
+        getLocationInWindow(positionArray)
+        return PxPosition(positionArray[0].ipx, positionArray[1].ipx)
+    }
+
     private fun callMeasure(constraints: Constraints) {
         var maxWidth = 0.ipx
         var maxHeight = 0.ipx
