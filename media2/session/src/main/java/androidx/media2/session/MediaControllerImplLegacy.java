@@ -66,6 +66,7 @@ import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.BuffState;
 import androidx.media2.common.SessionPlayer.RepeatMode;
 import androidx.media2.common.SessionPlayer.ShuffleMode;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.ControllerCallback;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaController.VolumeDirection;
@@ -800,6 +801,12 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             mControllerCompat.getTransportControls().setShuffleMode(shuffleMode);
         }
         return createFutureWithResult(RESULT_SUCCESS);
+    }
+
+    @Override
+    public @NonNull VideoSize getVideoSize() {
+        Log.w(TAG, "Session doesn't support getting VideoSize");
+        return new VideoSize(0, 0);
     }
 
     @Override

@@ -19,6 +19,7 @@ package androidx.media2.player;
 /**
  * Immutable class for describing video size.
  */
+// TODO: Merge this into androidx.media2.common.VideoSize
 public final class VideoSize {
     /**
      * Creates a new immutable VideoSize instance.

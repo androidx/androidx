@@ -132,7 +132,7 @@ public final class SessionCommand implements VersionedParcelable {
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Player commands (i.e. commands to {@link SessionPlayer})
     ////////////////////////////////////////////////////////////////////////////////////////////////
-    static final ArrayMap<Integer, Range> VERSION_PLAYER_COMMANDS_MAP = new ArrayMap<>();
+    static final ArrayMap<Integer, Range> VERSION_PLAYER_BASIC_COMMANDS_MAP = new ArrayMap<>();
     static final ArrayMap<Integer, Range> VERSION_PLAYER_PLAYLIST_COMMANDS_MAP = new ArrayMap<>();
 
     /**
@@ -337,8 +337,8 @@ public final class SessionCommand implements VersionedParcelable {
     public static final int COMMAND_CODE_PLAYER_SET_MEDIA_ITEM = 10018;
 
     static {
-        VERSION_PLAYER_COMMANDS_MAP.put(COMMAND_VERSION_1,
-                new Range(COMMAND_CODE_PLAYER_PLAY, COMMAND_CODE_PLAYER_SET_MEDIA_ITEM));
+        VERSION_PLAYER_BASIC_COMMANDS_MAP.put(COMMAND_VERSION_1,
+                new Range(COMMAND_CODE_PLAYER_PLAY, COMMAND_CODE_PLAYER_SET_SPEED));
     }
 
     static {

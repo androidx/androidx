@@ -43,6 +43,7 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.Rating;
 import androidx.media2.common.SessionPlayer.PlayerResult;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MediaLibraryService.MediaLibrarySession;
@@ -1360,6 +1361,14 @@ class MediaSessionStub extends IMediaSession.Stub {
         @Override
         void onDisconnected(int seq) throws RemoteException {
             mIControllerCallback.onDisconnected(seq);
+        }
+
+        @Override
+        void onVideoSizeChanged(int seq, @NonNull MediaItem item, @NonNull VideoSize videoSize)
+                throws RemoteException {
+            ParcelImpl itemParcel = MediaParcelUtils.toParcelable(item);
+            ParcelImpl videoSizeParcel = MediaParcelUtils.toParcelable(videoSize);
+            mIControllerCallback.onVideoSizeChanged(seq, itemParcel, videoSizeParcel);
         }
 
         @Override

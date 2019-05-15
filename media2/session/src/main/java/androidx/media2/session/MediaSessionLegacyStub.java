@@ -45,6 +45,7 @@ import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer.PlayerResult;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MediaSession.CommandButton;
@@ -700,6 +701,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
+        void onVideoSizeChanged(int seq, @NonNull MediaItem item, @NonNull VideoSize videoSize) {
+            // no-op
+        }
+
+        @Override
         public int hashCode() {
             return ObjectsCompat.hash(mRemoteUserInfo);
         }
@@ -883,6 +889,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onDisconnected(int seq) throws RemoteException {
             // no-op. Calling MediaSessionCompat#release() is already done in close().
+        }
+
+        @Override
+        void onVideoSizeChanged(int seq, @NonNull MediaItem item, @NonNull VideoSize videoSize) {
+            // no-op
         }
     }
 }

@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaBrowser.BrowserCallback;
 import androidx.media2.session.MediaController.ControllerCallback;
 import androidx.media2.session.MediaSession.CommandButton;
@@ -168,6 +169,12 @@ public class TestBrowserCallback extends BrowserCallback
     @Override
     public void onPlaybackCompleted(MediaController controller) {
         mCallbackProxy.onPlaybackCompleted(controller);
+    }
+
+    @Override
+    public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
+            @NonNull VideoSize videoSize) {
+        mCallbackProxy.onVideoSizeChanged(controller, item, videoSize);
     }
 
     @Override

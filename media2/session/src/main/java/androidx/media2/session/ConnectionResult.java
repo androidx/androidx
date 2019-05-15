@@ -23,6 +23,7 @@ import android.os.SystemClock;
 
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.ParcelImplListSlice;
+import androidx.media2.common.VideoSize;
 import androidx.versionedparcelable.CustomVersionedParcelable;
 import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelField;
@@ -78,6 +79,8 @@ class ConnectionResult extends CustomVersionedParcelable {
     int mNextMediaItemIndex;
     @ParcelField(17)
     Bundle mTokenExtras;
+    @ParcelField(18)
+    VideoSize mVideoSize;
 
     // For versioned parcelable
     ConnectionResult() {
@@ -101,6 +104,7 @@ class ConnectionResult extends CustomVersionedParcelable {
         mPreviousMediaItemIndex = sessionImpl.getPreviousMediaItemIndex();
         mNextMediaItemIndex = sessionImpl.getNextMediaItemIndex();
         mTokenExtras = sessionImpl.getToken().getExtras();
+        mVideoSize = sessionImpl.getVideoSize();
         if (allowedCommands != null
                 && allowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST)) {
             List<MediaItem> playlist = sessionImpl.getPlaylist();
@@ -182,6 +186,10 @@ class ConnectionResult extends CustomVersionedParcelable {
 
     public Bundle getTokenExtras() {
         return mTokenExtras;
+    }
+
+    public VideoSize getVideoSize() {
+        return mVideoSize;
     }
 
     @Override
