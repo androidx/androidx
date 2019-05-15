@@ -37,6 +37,8 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.CallbackMediaItem;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.UriMediaItem;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.DefaultLoadControl;
@@ -67,12 +69,10 @@ import androidx.media2.exoplayer.external.upstream.DefaultDataSourceFactory;
 import androidx.media2.exoplayer.external.util.MimeTypes;
 import androidx.media2.exoplayer.external.util.Util;
 import androidx.media2.exoplayer.external.video.VideoRendererEventListener;
-import androidx.media2.player.MediaPlayer;
 import androidx.media2.player.MediaPlayer2;
 import androidx.media2.player.MediaPlayer2.TrackInfo;
 import androidx.media2.player.MediaTimestamp;
 import androidx.media2.player.PlaybackParams;
-import androidx.media2.player.SubtitleData;
 import androidx.media2.player.TimedMetaData;
 
 import java.io.FileDescriptor;
@@ -610,7 +610,7 @@ import java.util.Map;
         int trackIndex = mTrackSelector.getSelectedTrack(MEDIA_TRACK_TYPE_SUBTITLE);
         TrackInfo info2 = mTrackSelector.getTrackInfos().get(trackIndex);
         final MediaItem currentMediaItem = getCurrentMediaItem();
-        MediaPlayer.TrackInfo info = new MediaPlayer.TrackInfo(trackIndex,
+        SessionPlayer.TrackInfo info = new SessionPlayer.TrackInfo(trackIndex,
                 currentMediaItem, info2.getTrackType(), info2.getFormat());
         mListener.onSubtitleData(currentMediaItem,
                 new SubtitleData(info, timeUs, /* durationUs= */ 0L, data));

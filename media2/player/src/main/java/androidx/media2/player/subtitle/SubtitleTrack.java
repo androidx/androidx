@@ -27,7 +27,7 @@ import android.util.LongSparseArray;
 import android.util.Pair;
 
 import androidx.annotation.RestrictTo;
-import androidx.media2.player.SubtitleData;
+import androidx.media2.common.SubtitleData;
 
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -44,6 +44,7 @@ import androidx.media2.common.CallbackMediaItem;
 import androidx.media2.common.DataSourceCallback;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.UriMediaItem;
 import androidx.media2.player.TestUtils.Monitor;
 import androidx.media2.player.test.R;

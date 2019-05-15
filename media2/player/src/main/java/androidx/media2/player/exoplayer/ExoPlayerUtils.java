@@ -17,6 +17,8 @@
 package androidx.media2.player.exoplayer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.media2.common.SubtitleData.MIMETYPE_TEXT_CEA_608;
+import static androidx.media2.common.SubtitleData.MIMETYPE_TEXT_CEA_708;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_IO;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_MALFORMED;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_TIMED_OUT;
@@ -27,8 +29,6 @@ import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUB
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_VIDEO;
-import static androidx.media2.player.SubtitleData.MIMETYPE_TEXT_CEA_608;
-import static androidx.media2.player.SubtitleData.MIMETYPE_TEXT_CEA_708;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
