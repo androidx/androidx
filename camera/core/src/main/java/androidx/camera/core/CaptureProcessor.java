@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.RestrictTo;
@@ -48,4 +49,11 @@ public interface CaptureProcessor {
      *               no references to them should be kept.
      */
     void process(ImageProxyBundle bundle);
+
+    /**
+     * This will be invoked when the input surface resolution is updated.
+     *
+     * @param size for the surface.
+     */
+    void onResolutionUpdate(Size size);
 }
