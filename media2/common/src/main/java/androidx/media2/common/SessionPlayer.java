@@ -1276,6 +1276,39 @@ public abstract class SessionPlayer implements AutoCloseable {
         public void onSubtitleData(@NonNull SessionPlayer player,
                 @NonNull MediaItem item, @NonNull SubtitleData data) {
         }
+
+        /**
+         * Called when the player's track info list is changed.
+         * @param player the player associated with this callback
+         * @param trackInfos the list of track info
+         *
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public void onTrackInfoChanged(SessionPlayer player, List<TrackInfo> trackInfos) {
+        }
+
+        /**
+         * Called when a track has been selected.
+         * @param player the player associated with this callback
+         * @param trackInfo the selected track info
+         *
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public void onTrackSelected(SessionPlayer player, TrackInfo trackInfo) {
+        }
+
+        /**
+         * Called when a track has been selected.
+         * @param player the player associated with this callback
+         * @param trackInfo the deselected track info
+         *
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public void onTrackDeselected(SessionPlayer player, TrackInfo trackInfo) {
+        }
     }
 
     /**

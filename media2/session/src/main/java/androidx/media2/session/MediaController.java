@@ -1109,6 +1109,45 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
+     * Gets the list of track information.
+     *
+     * @return List of track info. The total number of tracks is the size of the list.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Nullable
+    public List<SessionPlayer.TrackInfo> getTrackInfo() {
+        return isConnected() ? getImpl().getTrackInfo() : null;
+    }
+
+    /**
+     * Select track info.
+     *
+     * @param trackInfo Track info to be selected.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    public ListenableFuture<SessionResult> selectTrack(SessionPlayer.TrackInfo trackInfo) {
+        return isConnected() ? getImpl().selectTrack(trackInfo) : createDisconnectedFuture();
+    }
+
+    /**
+     * Deselect track info.
+     *
+     * @param trackInfo Track info to be deselected.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    public ListenableFuture<SessionResult> deselectTrack(SessionPlayer.TrackInfo trackInfo) {
+        return isConnected() ? getImpl().deselectTrack(trackInfo) : createDisconnectedFuture();
+    }
+
+    /**
      * Sets the time diff forcefully when calculating current position.
      * @param timeDiff {@code null} for reset.
      *
@@ -1201,6 +1240,9 @@ public class MediaController implements AutoCloseable {
         ListenableFuture<SessionResult> setShuffleMode(@ShuffleMode int shuffleMode);
         @NonNull VideoSize getVideoSize();
         ListenableFuture<SessionResult> setSurface(@Nullable Surface surface);
+        @NonNull List<SessionPlayer.TrackInfo> getTrackInfo();
+        ListenableFuture<SessionResult> selectTrack(SessionPlayer.TrackInfo trackInfo);
+        ListenableFuture<SessionResult> deselectTrack(SessionPlayer.TrackInfo trackInfo);
 
         // Internally used methods
         @NonNull Context getContext();
@@ -1635,6 +1677,39 @@ public class MediaController implements AutoCloseable {
         @RestrictTo(LIBRARY_GROUP)
         public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
                 @NonNull VideoSize videoSize) {}
+
+        /**
+         * Called when the track info list is changed.
+         *
+         * @param controller the controller for this event
+         * @param trackInfos the list of track infos
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public void onTrackInfoChanged(MediaController controller,
+                List<SessionPlayer.TrackInfo> trackInfos) {}
+
+        /**
+         * Called when a track info is selected.
+         *
+         * @param controller the controller for this event
+         * @param trackInfo the selected track info
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public void onTrackSelected(MediaController controller,
+                SessionPlayer.TrackInfo trackInfo) {}
+
+        /**
+         * Called when a track info is deselected.
+         *
+         * @param controller the controller for this event
+         * @param trackInfo the deselected track info
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public void onTrackDeselected(MediaController controller,
+                SessionPlayer.TrackInfo trackInfo) {}
     }
 
     /**

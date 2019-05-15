@@ -511,11 +511,19 @@ public final class MediaPlayer extends SessionPlayer {
         @MediaPlayer2.CallCompleted final int mCallType;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         final ResolvableFuture mFuture;
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        final TrackInfo mTrackInfo;
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         PendingCommand(int callType, ResolvableFuture future) {
+            this(callType, future, null);
+        }
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        PendingCommand(int callType, ResolvableFuture future, TrackInfo trackInfo) {
             mCallType = callType;
             mFuture = future;
+            mTrackInfo = trackInfo;
         }
     }
 
@@ -684,6 +692,23 @@ public final class MediaPlayer extends SessionPlayer {
             int callType, final ResolvableFuture future, final Object token) {
         final PendingCommand pendingCommand = new PendingCommand(callType, future);
         mPendingCommands.add(pendingCommand);
+        addFutureListener(pendingCommand, future, token);
+    }
+
+    @GuardedBy("mPendingCommands")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void addPendingCommandWithTrackInfoLocked(
+            int callType, final ResolvableFuture future, final TrackInfo trackInfo,
+            final Object token) {
+        final PendingCommand pendingCommand = new PendingCommand(callType, future, trackInfo);
+        mPendingCommands.add(pendingCommand);
+        addFutureListener(pendingCommand, future, token);
+    }
+
+    @GuardedBy("mPendingCommands")
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void addFutureListener(final PendingCommand pendingCommand, final ResolvableFuture future,
+            final Object token) {
         future.addListener(new Runnable() {
             @Override
             public void run() {
@@ -2258,9 +2283,10 @@ public final class MediaPlayer extends SessionPlayer {
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
                 synchronized (mPendingCommands) {
+                    // TODO (b/131873726): trackId may be invalid
                     Object token = mPlayer.selectTrack(trackId);
-                    addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_SELECT_TRACK,
-                            future, token);
+                    addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_SELECT_TRACK,
+                            future, trackInfo, token);
                 }
                 futures.add(future);
                 return futures;
@@ -2307,9 +2333,10 @@ public final class MediaPlayer extends SessionPlayer {
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
                 synchronized (mPendingCommands) {
+                    // TODO (b/131873726): trackId may be invalid
                     Object token = mPlayer.deselectTrack(trackId);
-                    addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK,
-                            future, token);
+                    addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK,
+                            future, trackInfo, token);
                 }
                 futures.add(future);
                 return futures;
@@ -2895,6 +2922,7 @@ public final class MediaPlayer extends SessionPlayer {
             return;
         }
 
+        final TrackInfo trackInfo = expected.mTrackInfo;
         if (what != expected.mCallType) {
             Log.w(TAG, "Call type does not match. expeced:" + expected.mCallType
                     + " actual:" + what);
@@ -2948,6 +2976,24 @@ public final class MediaPlayer extends SessionPlayer {
                         }
                     });
                     break;
+                case MediaPlayer2.CALL_COMPLETED_SELECT_TRACK:
+                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                        @Override
+                        public void callCallback(SessionPlayer.PlayerCallback callback) {
+                            callback.onTrackSelected(MediaPlayer.this,
+                                    createTrackInfoInternal(trackInfo));
+                        }
+                    });
+                    break;
+                case MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK:
+                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                        @Override
+                        public void callCallback(SessionPlayer.PlayerCallback callback) {
+                            callback.onTrackDeselected(MediaPlayer.this,
+                                    createTrackInfoInternal(trackInfo));
+                        }
+                    });
+                    break;
             }
         }
         if (what != MediaPlayer2.CALL_COMPLETED_PREPARE_DRM) {
@@ -2984,7 +3030,7 @@ public final class MediaPlayer extends SessionPlayer {
         }
     }
 
-    private SessionPlayer.TrackInfo createTrackInfoInternal(TrackInfo info) {
+    SessionPlayer.TrackInfo createTrackInfoInternal(TrackInfo info) {
         return new SessionPlayer.TrackInfo(info.getId(), info.getMediaItem(), info.getTrackType(),
                 info.getFormat());
     }
@@ -3075,6 +3121,15 @@ public final class MediaPlayer extends SessionPlayer {
                         @Override
                         public void callCallback(SessionPlayer.PlayerCallback callback) {
                             callback.onPlaybackCompleted(MediaPlayer.this);
+                        }
+                    });
+                    break;
+                case MediaPlayer2.MEDIA_INFO_METADATA_UPDATE:
+                    final List<SessionPlayer.TrackInfo> trackInfos = getTrackInfoInternal();
+                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                        @Override
+                        public void callCallback(SessionPlayer.PlayerCallback callback) {
+                            callback.onTrackInfoChanged(MediaPlayer.this, trackInfos);
                         }
                     });
                     break;

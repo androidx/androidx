@@ -878,6 +878,71 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
+    @Test
+    public void testOnTrackInfoChanged() throws InterruptedException {
+        prepareLooper();
+        final SessionPlayer.TrackInfo testTrack = new SessionPlayer.TrackInfo(0, null, 0, null);
+        final List<SessionPlayer.TrackInfo> testTracks = new ArrayList<>();
+        testTracks.add(testTrack);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController.ControllerCallback callback =
+                new MediaController.ControllerCallback() {
+                    @Override
+                    public void onTrackInfoChanged(MediaController controller,
+                            List<SessionPlayer.TrackInfo> trackInfos) {
+                        assertEquals(testTrack, trackInfos.get(0));
+                        latch.countDown();
+                    }
+                };
+        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
+                callback);
+        mRemoteSession2.getMockPlayer().notifyTrackInfoChanged(testTracks);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnTrackSelected() throws InterruptedException {
+        prepareLooper();
+        final SessionPlayer.TrackInfo testTrack = new SessionPlayer.TrackInfo(0, null, 0, null);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController.ControllerCallback callback =
+                new MediaController.ControllerCallback() {
+                    @Override
+                    public void onTrackSelected(MediaController controller,
+                            SessionPlayer.TrackInfo trackInfo) {
+                        assertEquals(testTrack, trackInfo);
+                        latch.countDown();
+                    }
+                };
+        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
+                callback);
+        mRemoteSession2.getMockPlayer().notifyTrackSelected(testTrack);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnTrackDeselected() throws InterruptedException {
+        prepareLooper();
+        final SessionPlayer.TrackInfo testTrack = new SessionPlayer.TrackInfo(0, null, 0, null);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController.ControllerCallback callback =
+                new MediaController.ControllerCallback() {
+                    @Override
+                    public void onTrackDeselected(MediaController controller,
+                            SessionPlayer.TrackInfo trackInfo) {
+                        assertEquals(testTrack, trackInfo);
+                        latch.countDown();
+                    }
+                };
+        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
+                callback);
+        mRemoteSession2.getMockPlayer().notifyTrackDeselected(testTrack);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
     private void testControllerAfterSessionIsClosed(String id) throws InterruptedException {
         // This cause session service to be died.
         mRemoteSession2.close();

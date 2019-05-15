@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
+import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaBrowser.BrowserCallback;
 import androidx.media2.session.MediaController.ControllerCallback;
@@ -189,6 +190,22 @@ public class TestBrowserCallback extends BrowserCallback
             int itemCount, @Nullable MediaLibraryService.LibraryParams params) {
         ((BrowserCallback) mCallbackProxy).onSearchResultChanged(
                 browser, query, itemCount, params);
+    }
+
+    @Override
+    public void onTrackInfoChanged(MediaController controller,
+            List<SessionPlayer.TrackInfo> trackInfos) {
+        mCallbackProxy.onTrackInfoChanged(controller, trackInfos);
+    }
+
+    @Override
+    public void onTrackSelected(MediaController controller, SessionPlayer.TrackInfo trackInfo) {
+        mCallbackProxy.onTrackSelected(controller, trackInfo);
+    }
+
+    @Override
+    public void onTrackDeselected(MediaController controller, SessionPlayer.TrackInfo trackInfo) {
+        mCallbackProxy.onTrackDeselected(controller, trackInfo);
     }
 
     @Override
