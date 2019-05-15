@@ -18,6 +18,7 @@ package androidx.recyclerview.widget
 
 import android.view.ViewGroup
 import androidx.test.filters.SmallTest
+import androidx.testutils.TestExecutor
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -22,9 +22,8 @@ import androidx.paging.PagedList.LoadState.IDLE
 import androidx.paging.PagedList.LoadState.LOADING
 import androidx.paging.PagedList.LoadType.END
 import androidx.paging.PagedList.LoadType.START
-import androidx.paging.PositionalDataSource.computeInitialLoadPosition
-import androidx.paging.PositionalDataSource.computeInitialLoadSize
 import androidx.paging.futures.DirectExecutor
+import androidx.testutils.TestExecutor
 import com.google.common.util.concurrent.ListenableFuture
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue

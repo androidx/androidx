@@ -254,6 +254,7 @@ includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"))
 /////////////////////////////
 
 includeProject(":internal-testutils", "testutils")
+includeProject(":internal-testutils-common", "testutils-common")
 includeProject(":internal-testutils-ktx", "testutils-ktx")
 
 /////////////////////////////

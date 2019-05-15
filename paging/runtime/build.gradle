@@ -39,6 +39,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-livedata"))
     api(ANDROIDX_RECYCLERVIEW, libs.support_exclude_config)
 
+    androidTestImplementation project(':internal-testutils-common')
     androidTestImplementation(JUNIT)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
