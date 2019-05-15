@@ -15,6 +15,7 @@
  */
 package androidx.camera.extensions.impl;
 
+import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 
 import java.util.List;
@@ -38,6 +39,10 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         throw new RuntimeException("Stub, replace with implementation.");
     }
 
+    @Override
+    public CaptureProcessorImpl getCaptureProcessor() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
 
     @Override
     public List<CaptureStageImpl> getCaptureStages() {
@@ -45,7 +50,33 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     }
 
     @Override
-    public CaptureProcessorImpl getCaptureProcessor() {
+    public int getMaxCaptureStage() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
+            Context context) {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public void onDeInit() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public CaptureStageImpl onPresetSession() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public CaptureStageImpl onEnableSession() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public CaptureStageImpl onDisableSession() {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 }
