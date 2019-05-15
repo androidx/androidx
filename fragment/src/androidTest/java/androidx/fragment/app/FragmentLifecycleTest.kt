@@ -240,7 +240,7 @@ class FragmentLifecycleTest {
             .that(ViewCompat.isAttachedToWindow(origView2)).isFalse()
         val newView1 = f1.requireView()
         assertWithMessage("fragment 1 had same view from last attachment")
-            .that(newView1).isNotSameAs(origView1)
+            .that(newView1).isNotSameInstanceAs(origView1)
         assertWithMessage("fragment 1's view not attached")
             .that(ViewCompat.isAttachedToWindow(newView1)).isTrue()
     }
@@ -599,7 +599,7 @@ class FragmentLifecycleTest {
         fm = fc.supportFragmentManager
 
         assertThat(fm.findFragmentByTag("1"))
-            .isSameAs(fragment1)
+            .isSameInstanceAs(fragment1)
         assertThat(fm.findFragmentByTag("2"))
             .isNull()
     }
@@ -857,7 +857,7 @@ class FragmentLifecycleTest {
             savedInstanceState: Bundle?
         ) = TextView(inflater.context).also {
             assertWithMessage("child FragmentManagers not the same instance")
-                .that(childFragmentManager).isSameAs(savedChildFragmentManager)
+                .that(childFragmentManager).isSameInstanceAs(savedChildFragmentManager)
             var child = savedChildFragmentManager
                 .findFragmentByTag("tag") as ChildFragmentManagerChildFragment?
             if (child == null) {

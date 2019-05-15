@@ -64,7 +64,7 @@ public final class UseCaseGroupRepositoryTest {
         UseCaseGroupLifecycleController secondGroup = mRepository.getOrCreateUseCaseGroup(
                 mLifecycle);
 
-        assertThat(firstGroup).isSameAs(secondGroup);
+        assertThat(firstGroup).isSameInstanceAs(secondGroup);
         assertThat(mUseCasesMap).containsExactly(mLifecycle, firstGroup);
     }
 

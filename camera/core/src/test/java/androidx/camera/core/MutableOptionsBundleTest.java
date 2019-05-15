@@ -54,7 +54,7 @@ public class MutableOptionsBundleTest {
         MutableOptionsBundle bundle = MutableOptionsBundle.create();
         bundle.insertOption(OPTION_1, VALUE_1);
 
-        assertThat(bundle.retrieveOption(OPTION_1, VALUE_MISSING)).isSameAs(VALUE_1);
+        assertThat(bundle.retrieveOption(OPTION_1, VALUE_MISSING)).isSameInstanceAs(VALUE_1);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class MutableOptionsBundleTest {
         bundle.insertOption(OPTION_1, VALUE_1);
         bundle.removeOption(OPTION_1);
 
-        assertThat(bundle.retrieveOption(OPTION_1, VALUE_MISSING)).isSameAs(VALUE_MISSING);
+        assertThat(bundle.retrieveOption(OPTION_1, VALUE_MISSING)).isSameInstanceAs(VALUE_MISSING);
     }
 
     @Test

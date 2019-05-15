@@ -46,7 +46,7 @@ public final class Camera2CameraCaptureResultConverterTest {
         CaptureResult captureResult = Camera2CameraCaptureResultConverter.getCaptureResult(
                 cameraCaptureResult);
 
-        assertThat(captureResult).isSameAs(mCaptureResult);
+        assertThat(captureResult).isSameInstanceAs(mCaptureResult);
     }
 
     @Test

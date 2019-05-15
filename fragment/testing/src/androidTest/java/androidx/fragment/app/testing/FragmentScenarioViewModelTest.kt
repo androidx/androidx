@@ -57,7 +57,7 @@ class FragmentScenarioViewModelTest {
         }) {
             onFragment { fragment ->
                 assertThat(fragment.viewModel)
-                    .isSameAs(mockViewModel)
+                    .isSameInstanceAs(mockViewModel)
                 assertThat(fragment.viewModel.getUserName())
                     .isEqualTo(fakeUserName)
             }
@@ -65,7 +65,7 @@ class FragmentScenarioViewModelTest {
             recreate()
             onFragment { fragment ->
                 assertThat(fragment.viewModel)
-                    .isSameAs(mockViewModel)
+                    .isSameInstanceAs(mockViewModel)
                 assertThat(fragment.viewModel.getUserName())
                     .isEqualTo(fakeUserName)
             }

@@ -68,9 +68,9 @@ class NestedFragmentRestoreTest {
         assertWithMessage("attached as part of recreate").that(attachedTo).isNotNull()
         assertWithMessage("attached to new context")
             .that(attachedTo)
-            .isNotSameAs(activity)
+            .isNotSameInstanceAs(activity)
         assertWithMessage("attached to new parent fragment")
             .that(child)
-            .isNotSameAs(parent)
+            .isNotSameInstanceAs(parent)
     }
 }

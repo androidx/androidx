@@ -750,7 +750,7 @@ class FragmentViewTest {
         val replacement1 = fm.findFragmentByTag("1")!!
         val replacement2 = fm.findFragmentByTag("2")!!
 
-        assertThat(replacement1).isSameAs(fragment1)
+        assertThat(replacement1).isSameInstanceAs(fragment1)
         assertChildren(container, replacement1, replacement2)
     }
 

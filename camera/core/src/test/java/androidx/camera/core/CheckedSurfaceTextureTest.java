@@ -94,7 +94,7 @@ public class CheckedSurfaceTextureTest {
         surfaceFuture2.get();
         SurfaceTexture surfaceTexture2 = mLatestSurfaceTexture;
 
-        assertThat(surfaceTexture1).isNotSameAs(surfaceTexture2);
+        assertThat(surfaceTexture1).isNotSameInstanceAs(surfaceTexture2);
 
     }
 
@@ -149,8 +149,8 @@ public class CheckedSurfaceTextureTest {
         assertThat(mCheckedSurfaceTexture.mResourceMap.size()).isEqualTo(1);
         CheckedSurfaceTexture.Resource resource = mCheckedSurfaceTexture.mResourceMap.get(
                 surfaceTexture);
-        assertThat(resource.mSurfaceTexture).isSameAs(surfaceTexture);
-        assertThat(resource.mSurface).isSameAs(surface);
+        assertThat(resource.mSurfaceTexture).isSameInstanceAs(surfaceTexture);
+        assertThat(resource.mSurface).isSameInstanceAs(surface);
 
 
         mCheckedSurfaceTexture.resetSurfaceTexture();
@@ -164,8 +164,8 @@ public class CheckedSurfaceTextureTest {
         assertThat(mCheckedSurfaceTexture.mResourceMap.size()).isEqualTo(1);
         CheckedSurfaceTexture.Resource resource2 = mCheckedSurfaceTexture.mResourceMap.get(
                 surfaceTexture2);
-        assertThat(resource2.mSurfaceTexture).isSameAs(surfaceTexture2);
-        assertThat(resource2.mSurface).isSameAs(surface2);
+        assertThat(resource2.mSurfaceTexture).isSameInstanceAs(surfaceTexture2);
+        assertThat(resource2.mSurface).isSameInstanceAs(surface2);
 
         assertThat(mCheckedSurfaceTexture.mResourceMap.get(surfaceTexture)).isNull();
     }

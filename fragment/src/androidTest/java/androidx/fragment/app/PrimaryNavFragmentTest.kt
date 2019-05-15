@@ -49,7 +49,7 @@ class PrimaryNavFragmentTest {
         verify(strictFragment).onPrimaryNavigationFragmentChanged(true)
         assertWithMessage("new fragment is not primary nav fragment")
             .that(fm.primaryNavigationFragment)
-            .isSameAs(strictFragment)
+            .isSameInstanceAs(strictFragment)
 
         val child = StrictFragment()
         val cfm = strictFragment.childFragmentManager
@@ -86,7 +86,7 @@ class PrimaryNavFragmentTest {
         inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
         assertWithMessage("new fragment is not primary nav fragment")
             .that(fm.primaryNavigationFragment)
-            .isSameAs(strictFragment1)
+            .isSameInstanceAs(strictFragment1)
 
         fm.beginTransaction()
             .remove(strictFragment1)
@@ -104,7 +104,7 @@ class PrimaryNavFragmentTest {
         inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
         assertWithMessage("primary nav fragment was not restored on pop")
             .that(fm.primaryNavigationFragment)
-            .isSameAs(strictFragment1)
+            .isSameInstanceAs(strictFragment1)
 
         fm.beginTransaction()
             .remove(strictFragment1)
@@ -118,7 +118,7 @@ class PrimaryNavFragmentTest {
         inOrder.verify(strictFragment2).onPrimaryNavigationFragmentChanged(true)
         assertWithMessage("primary nav fragment not updated to new fragment")
             .that(fm.primaryNavigationFragment)
-            .isSameAs(strictFragment2)
+            .isSameInstanceAs(strictFragment2)
 
         activityRule.onBackPressed()
 
@@ -126,7 +126,7 @@ class PrimaryNavFragmentTest {
         inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
         assertWithMessage("primary nav fragment not restored on pop")
             .that(fm.primaryNavigationFragment)
-            .isSameAs(strictFragment1)
+            .isSameInstanceAs(strictFragment1)
 
         fm.beginTransaction()
             .setPrimaryNavigationFragment(strictFragment1)
@@ -136,13 +136,13 @@ class PrimaryNavFragmentTest {
 
         assertWithMessage("primary nav fragment not retained when set again in new transaction")
             .that(fm.primaryNavigationFragment)
-            .isSameAs(strictFragment1)
+            .isSameInstanceAs(strictFragment1)
         activityRule.onBackPressed()
 
         assertWithMessage(
             "same primary nav fragment not retained when set primary nav transaction popped")
             .that(fm.primaryNavigationFragment)
-            .isSameAs(strictFragment1)
+            .isSameInstanceAs(strictFragment1)
     }
 
     @Test
@@ -161,7 +161,7 @@ class PrimaryNavFragmentTest {
         inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
         assertWithMessage("new fragment is not primary nav fragment")
             .that(fm.primaryNavigationFragment)
-            .isSameAs(strictFragment1)
+            .isSameInstanceAs(strictFragment1)
 
         fm.beginTransaction()
             .replace(android.R.id.content, strictFragment2)
@@ -180,7 +180,7 @@ class PrimaryNavFragmentTest {
         inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
         assertWithMessage("primary nav fragment not restored after popping replace")
             .that(fm.primaryNavigationFragment)
-            .isSameAs(strictFragment1)
+            .isSameInstanceAs(strictFragment1)
 
         fm.beginTransaction()
             .setPrimaryNavigationFragment(null)
@@ -202,7 +202,7 @@ class PrimaryNavFragmentTest {
         inOrder.verify(strictFragment2).onPrimaryNavigationFragmentChanged(true)
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
-            .isSameAs(strictFragment2)
+            .isSameInstanceAs(strictFragment2)
 
         activityRule.onBackPressed()
 

@@ -42,6 +42,6 @@ public final class ImmediateSurfaceTest {
 
         ListenableFuture<Surface> surfaceListenableFuture = immediateSurface.getSurface();
 
-        assertThat(surfaceListenableFuture.get()).isSameAs(mMockSurface);
+        assertThat(surfaceListenableFuture.get()).isSameInstanceAs(mMockSurface);
     }
 }

@@ -108,7 +108,7 @@ fun assertChildren(container: ViewGroup, vararg fragments: Fragment) {
     fragments.forEachIndexed { index, fragment ->
         assertWithMessage("Wrong Fragment View order for [$index]")
             .that(fragment.requireView())
-            .isSameAs(container.getChildAt(index))
+            .isSameInstanceAs(container.getChildAt(index))
     }
 }
 

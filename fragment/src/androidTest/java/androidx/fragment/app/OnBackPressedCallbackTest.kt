@@ -61,7 +61,7 @@ class OnBackPressedCallbackTest {
                 fragmentManager.executePendingTransactions()
             }
             assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameAs(fragment)
+                .isSameInstanceAs(fragment)
 
             withActivity { onBackPressed() }
 
@@ -85,7 +85,7 @@ class OnBackPressedCallbackTest {
                 fragmentManager.executePendingTransactions()
             }
             assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameAs(fragment)
+                .isSameInstanceAs(fragment)
 
             val supportFragmentManager = withActivity { supportFragmentManager }
             val supportFragment = StrictFragment()
@@ -98,14 +98,14 @@ class OnBackPressedCallbackTest {
                 supportFragmentManager.executePendingTransactions()
             }
             assertThat(supportFragmentManager.findFragmentById(R.id.content))
-                .isSameAs(supportFragment)
+                .isSameInstanceAs(supportFragment)
 
             withActivity { onBackPressed() }
 
             assertThat(supportFragmentManager.findFragmentById(R.id.content))
                 .isNull()
             assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameAs(fragment)
+                .isSameInstanceAs(fragment)
         }
     }
 
@@ -124,7 +124,7 @@ class OnBackPressedCallbackTest {
                 fragmentManager.executePendingTransactions()
             }
             assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameAs(fragment)
+                .isSameInstanceAs(fragment)
 
             val callback = CountingOnBackPressedCallback()
             withActivity {
@@ -136,7 +136,7 @@ class OnBackPressedCallbackTest {
             assertThat(callback.count)
                 .isEqualTo(1)
             assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameAs(fragment)
+                .isSameInstanceAs(fragment)
         }
     }
 
@@ -153,7 +153,7 @@ class OnBackPressedCallbackTest {
                 fragmentManager.executePendingTransactions()
             }
             assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameAs(fragment)
+                .isSameInstanceAs(fragment)
 
             val callback = CountingOnBackPressedCallback()
             withActivity {
@@ -166,7 +166,7 @@ class OnBackPressedCallbackTest {
                 .that(callback.count)
                 .isEqualTo(1)
             assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameAs(fragment)
+                .isSameInstanceAs(fragment)
         }
     }
 
@@ -183,7 +183,7 @@ class OnBackPressedCallbackTest {
                 fragmentManager.executePendingTransactions()
             }
             assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameAs(fragment)
+                .isSameInstanceAs(fragment)
 
             withActivity {
                 fragmentManager.popBackStack()
@@ -215,7 +215,7 @@ class OnBackPressedCallbackTest {
                 .that(fragmentCallback.count)
                 .isEqualTo(1)
             assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameAs(fragment)
+                .isSameInstanceAs(fragment)
         }
     }
 }

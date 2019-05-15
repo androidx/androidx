@@ -74,7 +74,7 @@ public final class ForwardingImageProxyTest {
         mImageProxy.close();
 
         closedImageSemaphore.acquire();
-        assertThat(closedImage.get()).isSameAs(mImageProxy);
+        assertThat(closedImage.get()).isSameInstanceAs(mImageProxy);
     }
 
     @Test

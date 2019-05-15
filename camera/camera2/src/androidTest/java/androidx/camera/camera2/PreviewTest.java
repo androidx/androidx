@@ -290,7 +290,7 @@ public final class PreviewTest {
 
         SurfaceTexture surfaceTexture1 = future1.get(1, TimeUnit.SECONDS);
 
-        assertThat(surfaceTexture0).isNotSameAs(surfaceTexture1);
+        assertThat(surfaceTexture0).isNotSameInstanceAs(surfaceTexture1);
     }
 
     @FlakyTest
@@ -327,7 +327,7 @@ public final class PreviewTest {
                 useCase.getOnPreviewOutputUpdateListener();
 
         assertThat(previewOutputListener).isNull();
-        assertThat(retrievedPreviewOutputListener).isSameAs(mMockListener);
+        assertThat(retrievedPreviewOutputListener).isSameInstanceAs(mMockListener);
     }
 
     @Test

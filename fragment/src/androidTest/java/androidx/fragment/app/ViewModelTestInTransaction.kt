@@ -45,7 +45,7 @@ class ViewModelTestInTransaction {
         activity.supportFragmentManager.beginTransaction().add(fragment, "tag").commitNow()
         val viewModelProvider = ViewModelProvider(activity, ViewModelProvider.NewInstanceFactory())
         val viewModel = viewModelProvider.get(TestViewModel::class.java)
-        assertThat(viewModel).isSameAs(fragment.viewModel)
+        assertThat(viewModel).isSameInstanceAs(fragment.viewModel)
     }
 
     @Test
@@ -67,7 +67,7 @@ class ViewModelTestInTransaction {
             childFragmentManager.beginTransaction().add(fragment, "tag").commitNow()
             val viewModelProvider = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory())
             val viewModel = viewModelProvider.get(TestViewModel::class.java)
-            assertThat(viewModel).isSameAs(fragment.viewModel)
+            assertThat(viewModel).isSameInstanceAs(fragment.viewModel)
             executed = true
         }
     }

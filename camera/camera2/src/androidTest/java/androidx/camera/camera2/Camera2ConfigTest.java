@@ -78,7 +78,7 @@ public final class Camera2ConfigTest {
         Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(config.getSessionCaptureCallback(/*valueIfMissing=*/ null))
-                .isSameAs(SESSION_CAPTURE_CALLBACK);
+                .isSameInstanceAs(SESSION_CAPTURE_CALLBACK);
     }
 
     @Test
@@ -90,7 +90,7 @@ public final class Camera2ConfigTest {
         Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(config.getSessionStateCallback(/*valueIfMissing=*/ null))
-                .isSameAs(SESSION_STATE_CALLBACK);
+                .isSameInstanceAs(SESSION_STATE_CALLBACK);
     }
 
     @Test
@@ -102,7 +102,7 @@ public final class Camera2ConfigTest {
         Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(config.getDeviceStateCallback(/*valueIfMissing=*/ null))
-                .isSameAs(DEVICE_STATE_CALLBACK);
+                .isSameInstanceAs(DEVICE_STATE_CALLBACK);
     }
 
     @Test
@@ -122,7 +122,7 @@ public final class Camera2ConfigTest {
                 config.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
                         /*valueIfMissing=*/ null))
-                .isSameAs(fakeRange);
+                .isSameInstanceAs(fakeRange);
         assertThat(
                 config.getCaptureRequestOption(
                         CaptureRequest.COLOR_CORRECTION_MODE,
@@ -179,7 +179,7 @@ public final class Camera2ConfigTest {
                 config.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
                         /*valueIfMissing=*/ null))
-                .isSameAs(fakeRange);
+                .isSameInstanceAs(fakeRange);
         assertThat(
                 config.getCaptureRequestOption(
                         CaptureRequest.COLOR_CORRECTION_MODE,
@@ -215,7 +215,7 @@ public final class Camera2ConfigTest {
                 config2.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
                         /*valueIfMissing=*/ null))
-                .isSameAs(fakeRange);
+                .isSameInstanceAs(fakeRange);
         assertThat(
                 config2.getCaptureRequestOption(
                         CaptureRequest.COLOR_CORRECTION_MODE,

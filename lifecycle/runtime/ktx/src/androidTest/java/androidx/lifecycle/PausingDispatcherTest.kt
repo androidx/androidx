@@ -544,7 +544,7 @@ class PausingDispatcherTest {
 
     private fun assertThread() {
         log("asserting looper")
-        assertThat(Thread.currentThread()).isSameAs(mainThread)
+        assertThat(Thread.currentThread()).isSameInstanceAs(mainThread)
     }
 
     private fun log(msg: Any?) {
