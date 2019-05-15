@@ -17,8 +17,8 @@
 package androidx.room.parser
 
 import androidx.room.ColumnInfo
-import org.antlr.v4.runtime.ANTLRInputStream
 import org.antlr.v4.runtime.BaseErrorListener
+import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
@@ -129,7 +129,7 @@ class SqlParser {
     companion object {
         private val INVALID_IDENTIFIER_CHARS = arrayOf('`', '\"')
         fun parse(input: String): ParsedQuery {
-            val inputStream = ANTLRInputStream(input)
+            val inputStream = CharStreams.fromString(input)
             val lexer = SQLiteLexer(inputStream)
             val tokenStream = CommonTokenStream(lexer)
             val parser = SQLiteParser(tokenStream)

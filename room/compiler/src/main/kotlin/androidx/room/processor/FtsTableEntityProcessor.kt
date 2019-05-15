@@ -101,7 +101,7 @@ class FtsTableEntityProcessor internal constructor(
         }
 
         val primaryKey = findAndValidatePrimaryKey(entityAnnotation, pojo.fields)
-        val languageId = findAndValidateLanguageId(pojo.fields, ftsOptions.languageIdColumnName)
+        findAndValidateLanguageId(pojo.fields, ftsOptions.languageIdColumnName)
 
         val missingNotIndexed = ftsOptions.notIndexedColumns - pojo.columnNames
         context.checker.check(missingNotIndexed.isEmpty(), element,

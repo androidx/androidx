@@ -140,8 +140,10 @@ private fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T
                 @Suppress("UNCHECKED_CAST")
                 ListVisitor(returnType.componentType as Class<out Annotation>).visit(value)
             }
-            returnType.isEnum -> value.getAsEnum(returnType as Class<out Enum<*>>)
-
+            returnType.isEnum -> {
+                @Suppress("UNCHECKED_CAST")
+                value.getAsEnum(returnType as Class<out Enum<*>>)
+            }
             else -> throw UnsupportedOperationException("$returnType isn't supported")
         }
         method.name to result
