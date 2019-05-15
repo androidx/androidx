@@ -24,10 +24,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 @RequiresApi(28)
 class CameraCaptureSessionCompatApi28Impl extends CameraCaptureSessionCompatBaseImpl {
+    @Override
+    public int captureBurstRequests(@NonNull CameraCaptureSession captureSession,
+            @NonNull List<CaptureRequest> requests, @NonNull Executor executor,
+            @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
+        Preconditions.checkNotNull(captureSession);
+
+        // Call through directly to executor API
+        return captureSession.captureBurstRequests(requests, executor, listener);
+    }
+
     @Override
     public int captureSingleRequest(@NonNull CameraCaptureSession captureSession,
             @NonNull CaptureRequest request, @NonNull Executor executor,

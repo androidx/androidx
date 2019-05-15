@@ -36,6 +36,8 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 @SmallTest
@@ -49,6 +51,30 @@ public final class CameraCaptureSessionCompatTest {
     @Before
     public void setUp() {
         mCaptureSession = mock(CameraCaptureSession.class);
+    }
+
+    @Test
+    @Config(maxSdk = 27)
+    @SuppressWarnings("unchecked")
+    public void captureBurstRequests_callsCaptureBurst() throws CameraAccessException {
+        List<CaptureRequest> captureRequests = Collections.emptyList();
+        CameraCaptureSessionCompat.captureBurstRequests(mCaptureSession, captureRequests,
+                mock(Executor.class), mock(CameraCaptureSession.CaptureCallback.class));
+
+        verify(mCaptureSession, times(1)).captureBurst(any(List.class), any(
+                CameraCaptureSession.CaptureCallback.class), any(Handler.class));
+    }
+
+    @Test
+    @Config(minSdk = 28)
+    @SuppressWarnings("unchecked")
+    public void captureSingleRequest_callsCaptureBurstRequests() throws CameraAccessException {
+        List<CaptureRequest> captureRequests = Collections.emptyList();
+        CameraCaptureSessionCompat.captureBurstRequests(mCaptureSession, captureRequests,
+                mock(Executor.class), mock(CameraCaptureSession.CaptureCallback.class));
+
+        verify(mCaptureSession, times(1)).captureBurstRequests(any(List.class),
+                any(Executor.class), any(CameraCaptureSession.CaptureCallback.class));
     }
 
     @Test
