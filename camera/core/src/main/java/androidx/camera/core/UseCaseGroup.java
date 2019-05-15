@@ -61,6 +61,7 @@ public final class UseCaseGroup {
     private final Set<UseCase> mUseCases = new HashSet<>();
     @GuardedBy("mListenerLock")
     private StateChangeListener mListener;
+    private volatile boolean mIsActive = false;
 
     /** Starts all the use cases so that they are brought into an online state. */
     void start() {
@@ -68,6 +69,7 @@ public final class UseCaseGroup {
             if (mListener != null) {
                 mListener.onGroupActive(this);
             }
+            mIsActive = true;
         }
     }
 
@@ -77,6 +79,7 @@ public final class UseCaseGroup {
             if (mListener != null) {
                 mListener.onGroupInactive(this);
             }
+            mIsActive = false;
         }
     }
 
@@ -152,6 +155,10 @@ public final class UseCaseGroup {
             }
         }
         return Collections.unmodifiableMap(cameraIdToUseCases);
+    }
+
+    boolean isActive() {
+        return mIsActive;
     }
 
     /** Listener called when a {@link UseCaseGroup} transitions between active/inactive states. */
