@@ -294,6 +294,6 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         double min = Math.min(value, target);
         double max = Math.max(value, target);
         double ratio = min / max;
-        assertThat(ratio, greaterThanOrEqualTo(0.99999d));
+        assertThat(ratio, greaterThanOrEqualTo(0.999d));
     }
 }
