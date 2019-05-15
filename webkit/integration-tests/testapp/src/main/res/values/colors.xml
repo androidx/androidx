@@ -21,4 +21,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorBackground">#546072</color>
     <color name="colorTextBox">#BDC1C2</color>
+    <color name="interstitialBackground">#FF9292</color>
+    <color name="interstitialButton">#F52424</color>
+    <color name="linkColor">#2196F3</color>
 </resources>
