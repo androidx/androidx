@@ -22,6 +22,7 @@ import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkRequest.MAX_BACKOFF_MILLIS;
 import static androidx.work.WorkRequest.MIN_BACKOFF_MILLIS;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.util.Function;
@@ -93,6 +94,7 @@ public class WorkSpec {
     public Constraints constraints = Constraints.NONE;
 
     @ColumnInfo(name = "run_attempt_count")
+    @IntRange(from = 0)
     public int runAttemptCount;
 
     @ColumnInfo(name = "backoff_policy")
