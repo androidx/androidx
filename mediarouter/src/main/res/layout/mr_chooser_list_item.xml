@@ -26,7 +26,8 @@
     <ImageView android:id="@+id/mr_chooser_route_icon"
                android:layout_width="24dp"
                android:layout_height="24dp"
-               android:layout_marginRight="24dp" />
+               android:layout_marginRight="24dp"
+               android:layout_marginEnd="24dp" />
 
     <LinearLayout android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
@@ -38,6 +39,7 @@
                   android:layout_height="32dp"
                   android:singleLine="true"
                   android:ellipsize="marquee"
+                  android:textAlignment="viewStart"
                   android:textAppearance="@style/TextAppearance.MediaRouter.PrimaryText" />
 
         <TextView android:id="@+id/mr_chooser_route_desc"
@@ -45,6 +47,7 @@
                   android:layout_height="24dp"
                   android:singleLine="true"
                   android:ellipsize="marquee"
+                  android:textAlignment="viewStart"
                   android:textAppearance="@style/TextAppearance.MediaRouter.SecondaryText" />
     </LinearLayout>
 
