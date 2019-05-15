@@ -91,6 +91,12 @@ class BenchmarkPlugin : Plugin<Project> {
             if (!applied) {
                 applied = true
                 project.tasks.named("connectedAndroidTest").configure {
+                    // NOTE: This argument is checked by ResultWriter to enable CI reports.
+                    extension.defaultConfig.testInstrumentationRunnerArgument(
+                        "androidx.benchmark.output.enable",
+                        "true"
+                    )
+
                     configureWithConnectedAndroidTest(project, it)
                 }
             }
