@@ -52,7 +52,7 @@ class ResultWriterTest {
             <benchmarksuite>
                 <testcase
                         name="MethodA"
-                        classname="package.Class1"
+                        className="package.Class1"
                         nanos="100"
                         warmupIterations="8000"
                         repeatIterations="100000">
@@ -62,7 +62,7 @@ class ResultWriterTest {
                 </testcase>
                 <testcase
                         name="MethodB"
-                        classname="package.Class2"
+                        className="package.Class2"
                         nanos="100"
                         warmupIterations="8000"
                         repeatIterations="100000">
@@ -86,7 +86,7 @@ class ResultWriterTest {
             { "results": [
                 {
                     "name": "MethodA",
-                    "classname": "package.Class1",
+                    "className": "package.Class1",
                     "nanos": 100,
                     "warmupIterations": 8000,
                     "repeatIterations": 100000,
@@ -98,7 +98,7 @@ class ResultWriterTest {
                 },
                 {
                     "name": "MethodB",
-                    "classname": "package.Class2",
+                    "className": "package.Class2",
                     "nanos": 100,
                     "warmupIterations": 8000,
                     "repeatIterations": 100000,

@@ -29,7 +29,7 @@ internal object ResultWriter {
         return "\n" + """
         |    <testcase
         |            name="$testName"
-        |            classname="$className"
+        |            className="$className"
         |            nanos="$nanos"
         |            warmupIterations="$warmupIterations"
         |            repeatIterations="$repeatIterations">
@@ -46,7 +46,7 @@ internal object ResultWriter {
         return "\n" + """
         |    {
         |        "name": "$testName",
-        |        "classname": "$className",
+        |        "className": "$className",
         |        "nanos": $nanos,
         |        "warmupIterations": $warmupIterations,
         |        "repeatIterations": $repeatIterations,
