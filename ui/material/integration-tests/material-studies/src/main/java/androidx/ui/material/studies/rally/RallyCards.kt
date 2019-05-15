@@ -32,7 +32,7 @@ import androidx.ui.material.Divider
 import androidx.ui.material.TransparentButton
 import androidx.ui.material.surface.Card
 import androidx.ui.material.themeTextStyle
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.composer

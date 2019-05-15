@@ -30,7 +30,7 @@ import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.painting.BlendMode
 import androidx.ui.painting.Canvas
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Gradient
 import androidx.ui.painting.Paint
 import androidx.ui.painting.Path

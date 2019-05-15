@@ -30,6 +30,8 @@ import androidx.ui.engine.text.TextIndent
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.lerp
 import androidx.ui.engine.window.Locale
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.lerp
 import androidx.ui.lerp
 import androidx.ui.painting.basictypes.RenderComparison
 import androidx.ui.toStringAsFixed
@@ -158,6 +160,19 @@ data class TextStyle(
      * [AnimationController].
      */
     companion object {
+        private fun lerpColor(a: Color?, b: Color?, t: Float): Color? {
+            if (a == null) {
+                if (b == null) {
+                    return null
+                } else {
+                    return b.copy(alpha = lerp(0f, 1f, t))
+                }
+            } else if (b == null) {
+                return a.copy(alpha = lerp(1f, 0f, t))
+            }
+            return lerp(a, b, t)
+        }
+
         fun lerp(a: TextStyle? = null, b: TextStyle? = null, t: Float): TextStyle? {
             val aIsNull = a == null
             val bIsNull = b == null
@@ -170,16 +185,16 @@ data class TextStyle(
 
             if (a == null) {
                 val newB =
-                    b?.copy(debugLabel = lerpDebugLabel)?: TextStyle(debugLabel = lerpDebugLabel)
+                    b?.copy(debugLabel = lerpDebugLabel) ?: TextStyle(debugLabel = lerpDebugLabel)
                 return if (t < 0.5) {
                     TextStyle(
-                        color = Color.lerp(null, newB.color, t),
+                        color = lerpColor(null, newB.color, t),
                         fontWeight = FontWeight.lerp(null, newB.fontWeight, t),
                         debugLabel = lerpDebugLabel
                     )
                 } else {
                     newB.copy(
-                        color = Color.lerp(null, newB.color, t),
+                        color = lerpColor(null, newB.color, t),
                         fontWeight = FontWeight.lerp(null, newB.fontWeight, t)
                     )
                 }
@@ -188,13 +203,13 @@ data class TextStyle(
             if (b == null) {
                 return if (t < 0.5) {
                     a.copy(
-                        color = Color.lerp(a.color, null, t),
+                        color = lerpColor(a.color, null, t),
                         fontWeight = FontWeight.lerp(a.fontWeight, null, t),
                         debugLabel = lerpDebugLabel
                     )
                 } else {
                     TextStyle(
-                        color = Color.lerp(a.color, null, t),
+                        color = lerpColor(a.color, null, t),
                         fontWeight = FontWeight.lerp(a.fontWeight, null, t),
                         debugLabel = lerpDebugLabel
                     )
@@ -206,7 +221,7 @@ data class TextStyle(
             // [lerp(Float, Float, Float)] API cannot take null parameters. We could have a
             // workaround by using 0.0, but for now let's keep it this way.
             return TextStyle(
-                color = Color.lerp(a.color, b.color, t),
+                color = lerpColor(a.color, b.color, t),
                 fontFamily = if (t < 0.5) a.fontFamily else b.fontFamily,
                 fontSize = lerp(a.fontSize ?: b.fontSize!!, b.fontSize ?: a.fontSize!!, t),
                 fontWeight = FontWeight.lerp(a.fontWeight, b.fontWeight, t),

@@ -16,7 +16,7 @@
 package androidx.ui.engine.text
 
 import androidx.ui.engine.window.Locale
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.nullValue
@@ -68,7 +68,7 @@ class ParagraphBuilderTest {
     @Test
     fun `pushStyle`() {
         val paragraphStyle = createParagraphStyle()
-        val textStyle = TextStyle(color = Color.fromARGB(1, 2, 3, 4))
+        val textStyle = TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4))
         val paragraphBuilder = ParagraphBuilder(paragraphStyle)
         paragraphBuilder.pushStyle(textStyle)
         paragraphBuilder.addText("Test")
@@ -86,7 +86,7 @@ class ParagraphBuilderTest {
     fun `pushStyle without pop`() {
         val paragraphStyle = createParagraphStyle()
         val styles = arrayOf(
-            TextStyle(color = Color.fromARGB(1, 2, 3, 4)),
+            TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4)),
             TextStyle(fontStyle = FontStyle.italic),
             TextStyle(fontWeight = FontWeight.bold)
         )
@@ -114,7 +114,7 @@ class ParagraphBuilderTest {
     @Test
     fun `pushStyle with mutiple styles`() {
         val paragraphStyle = createParagraphStyle()
-        val textStyle1 = TextStyle(color = Color.fromARGB(1, 2, 3, 4))
+        val textStyle1 = TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4))
         val textStyle2 =
             TextStyle(fontStyle = FontStyle.italic)
         val paragraphBuilder = ParagraphBuilder(paragraphStyle)
@@ -142,7 +142,7 @@ class ParagraphBuilderTest {
     fun `pushStyle with mutiple styles on top of each other`() {
         val paragraphStyle = createParagraphStyle()
         val styles = arrayOf(
-            TextStyle(color = Color.fromARGB(1, 2, 3, 4)),
+            TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4)),
             TextStyle(fontStyle = FontStyle.italic),
             TextStyle(fontWeight = FontWeight.bold)
         )
@@ -166,7 +166,7 @@ class ParagraphBuilderTest {
     fun `pushStyle with multiple stacks should construct styles in the same order`() {
         val paragraphStyle = createParagraphStyle()
         val styles = arrayOf(
-            TextStyle(color = Color.fromARGB(1, 2, 3, 4)),
+            TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4)),
             TextStyle(fontStyle = FontStyle.italic),
             TextStyle(fontWeight = FontWeight.bold),
             TextStyle(letterSpacing = 1.0f)
@@ -199,7 +199,7 @@ class ParagraphBuilderTest {
     fun `pushStyle with multiple nested styles should return styles in same order`() {
         val paragraphStyle = createParagraphStyle()
         val styles = arrayOf(
-            TextStyle(color = Color.fromARGB(1, 2, 3, 4)),
+            TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4)),
             TextStyle(fontStyle = FontStyle.italic),
             TextStyle(fontWeight = FontWeight.bold),
             TextStyle(letterSpacing = 1.0f)
@@ -243,7 +243,7 @@ class ParagraphBuilderTest {
     @Test
     fun `pop in the middle`() {
         val paragraphStyle = createParagraphStyle()
-        val textStyle1 = TextStyle(color = Color.fromARGB(1, 2, 3, 4))
+        val textStyle1 = TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4))
         val textStyle2 =
             TextStyle(fontStyle = FontStyle.italic)
         val paragraphBuilder = ParagraphBuilder(paragraphStyle)

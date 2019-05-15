@@ -16,7 +16,7 @@
 
 package androidx.ui.material
 
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.compose.ambient
 import androidx.compose.effectOf
 

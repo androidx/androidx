@@ -17,7 +17,7 @@ package androidx.ui.core
 
 import androidx.ui.core.input.TextInputClient
 import androidx.ui.input.EditorState
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import androidx.compose.Composable
@@ -35,7 +35,7 @@ data class EditorStyle(
      *
      * @see EditorState.composition
      */
-    val compositionColor: Color = Color.fromARGB(0xFF, 0xB0, 0xE0, 0xE6),
+    val compositionColor: Color = Color(alpha = 0xFF, red = 0xB0, green = 0xE0, blue = 0xE6),
 
     /**
      *  The selection background color
@@ -43,7 +43,7 @@ data class EditorStyle(
      *  @see EditorState.selection
      */
     // TODO(nona): share with Text.DEFAULT_SELECTION_COLOR
-    val selectionColor: Color = Color.fromARGB(0x66, 0x33, 0xB5, 0xE5)
+    val selectionColor: Color = Color(alpha = 0x66, red = 0x33, green = 0xB5, blue = 0xE5)
 )
 
 internal fun makeEditorDisplayText(editorState: EditorState, editorStyle: EditorStyle): TextSpan {

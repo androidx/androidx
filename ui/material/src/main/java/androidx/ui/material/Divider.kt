@@ -20,7 +20,7 @@ import androidx.ui.baseui.ColoredRect
 import androidx.ui.core.Dp
 import androidx.ui.core.dp
 import androidx.ui.layout.Padding
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus

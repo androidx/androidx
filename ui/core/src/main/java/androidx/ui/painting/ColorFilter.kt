@@ -16,6 +16,8 @@
 
 package androidx.ui.painting
 
+import androidx.ui.graphics.Color
+
 /**
  * A description of a color filter to apply when drawing a shape or compositing
  * a layer with a particular [Paint]. A color filter is a function that takes

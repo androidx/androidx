@@ -37,13 +37,13 @@ import androidx.ui.core.dp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Wrap
 import androidx.ui.material.orFromTheme
 import androidx.ui.painting.Canvas
-import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.StrokeCap
@@ -70,7 +70,7 @@ fun LinearProgressIndicator(
                 val primaryColor = +color.orFromTheme { primary }
                 val paint = +paint(primaryColor, StrokeCap.butt)
                 val backgroundPaint = +paint(
-                    primaryColor.withOpacity(BackgroundOpacity),
+                    primaryColor.copy(alpha = BackgroundOpacity),
                     StrokeCap.butt
                 )
                 Draw { canvas, parentSize ->
@@ -96,7 +96,7 @@ fun LinearProgressIndicator(color: Color? = null) {
             val primaryColor = +color.orFromTheme { primary }
             val paint = +paint(primaryColor, StrokeCap.butt)
             val backgroundPaint = +paint(
-                primaryColor.withOpacity(BackgroundOpacity),
+                primaryColor.copy(alpha = BackgroundOpacity),
                 StrokeCap.butt
             )
             Transition(definition = LinearIndeterminateTransition, toState = 1) { state ->

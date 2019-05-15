@@ -22,7 +22,7 @@ import androidx.ui.core.Text
 import androidx.ui.core.CraneWrapper
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.themeTextStyle
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.compose.composer
 import androidx.compose.setContent
 import androidx.compose.unaryPlus
@@ -36,7 +36,7 @@ open class TextActivity : Activity() {
                     val textColor = Color(0xFFFF0000.toInt())
                     Text(
                         text = "Hello",
-                        style = +themeTextStyle{ h1.copy(color = textColor) })
+                        style = +themeTextStyle { h1.copy(color = textColor) })
                 }
             }
         }

@@ -19,6 +19,8 @@ package androidx.ui.painting
 import androidx.ui.core.lerp
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.lerp
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -60,7 +62,7 @@ class ShadowTest {
         val t = 0.4f
 
         val shadow = lerp(shadowA, shadowB, t)
-        assertThat(shadow.color, equalTo(Color.lerp(colorA, colorB, t)))
+        assertThat(shadow.color, equalTo(lerp(colorA, colorB, t)))
         assertThat(shadow.offset, equalTo(Offset.lerp(offsetA, offsetB, t)))
         assertThat(shadow.blurRadius, equalTo(lerp(radiusA, radiusB, t)))
     }

@@ -40,7 +40,7 @@ import androidx.ui.layout.MainAxisSize
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.painting.Canvas
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.TextStyle
@@ -207,7 +207,7 @@ fun RadioButton(
     Padding(padding = RadioButtonPadding) {
         Container(width = RadioButtonSize, height = RadioButtonSize) {
             val selectedColor = +color.orFromTheme { secondary }
-            val unselectedColor = (+themeColor { onSurface }).withOpacity(UnselectedOpacity)
+            val unselectedColor = (+themeColor { onSurface }).copy(alpha = UnselectedOpacity)
             val definition = +memo(selectedColor, unselectedColor) {
                 generateTransitionDefinition(selectedColor, unselectedColor)
             }
