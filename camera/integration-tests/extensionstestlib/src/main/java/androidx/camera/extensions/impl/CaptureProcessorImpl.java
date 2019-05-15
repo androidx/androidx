@@ -42,6 +42,7 @@ public interface CaptureProcessorImpl {
      *
      * <p> The result of the processing step should be written to the {@link Surface} that was
      * received by {@link #onOutputSurface(Surface, int)}.
+     *
      * @param results The map of images and metadata to process. The {@link Image} that are
      *                contained within the map will become invalid after this method completes,
      *                so no references to them should be kept.

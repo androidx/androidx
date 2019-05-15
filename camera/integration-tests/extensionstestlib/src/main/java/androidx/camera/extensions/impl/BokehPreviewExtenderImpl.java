@@ -18,6 +18,7 @@ package androidx.camera.extensions.impl;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
 
 /**
  * Implementation for bokeh view finder use case.
@@ -29,10 +30,14 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
     private static final int DEFAULT_STAGE_ID = 0;
     private static final int SESSION_STAGE_ID = 101;
 
+    SettableCaptureStage mCaptureStage;
     public BokehPreviewExtenderImpl() {}
 
     @Override
     public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {
+        mCaptureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
+        mCaptureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
+                CaptureRequest.CONTROL_EFFECT_MODE_OFF);
     }
 
     @Override
@@ -44,13 +49,7 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
 
     @Override
     public CaptureStageImpl getCaptureStage() {
-        // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
-        // placeholder set of CaptureRequest.Key values
-        SettableCaptureStage captureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_SEPIA);
-
-        return captureStage;
+        return mCaptureStage;
     }
 
     @Override
@@ -58,9 +57,38 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
         return ProcessorType.PROCESSOR_TYPE_REQUEST_UPDATE_ONLY;
     }
 
+    // Switches effect every 90 frames
+    private RequestUpdateProcessorImpl mRequestUpdateProcessor = new RequestUpdateProcessorImpl() {
+        private int mFrameCount = 0;
+        private Integer mEffectMode = CaptureRequest.CONTROL_EFFECT_MODE_OFF;
+
+        @Override
+        public CaptureStageImpl process(TotalCaptureResult result) {
+            mFrameCount++;
+            if (mFrameCount % 90 == 0) {
+                mCaptureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
+                switch (mEffectMode) {
+                    case CaptureRequest.CONTROL_EFFECT_MODE_OFF:
+                        mEffectMode = CaptureRequest.CONTROL_EFFECT_MODE_SEPIA;
+                        break;
+                    case CaptureRequest.CONTROL_EFFECT_MODE_SEPIA:
+                    default:
+                }
+                mCaptureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
+                        mEffectMode);
+                mFrameCount = 0;
+
+                return mCaptureStage;
+            }
+
+            return null;
+        }
+    };
+
+
     @Override
     public RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor() {
-        return RequestUpdateProcessorImpls.noUpdateProcessor();
+        return mRequestUpdateProcessor;
     }
 
     @Override

@@ -27,6 +27,7 @@ import android.view.Surface;
 import android.view.View;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -64,7 +65,6 @@ import java.util.Objects;
  * {@link Preview#setOnPreviewOutputUpdateListener(OnPreviewOutputUpdateListener)} for notes on
  * if overriding {@link
  * android.view.TextureView.SurfaceTextureListener#onSurfaceTextureDestroyed(SurfaceTexture)}.
- *
  */
 public class Preview extends UseCase {
     /**
@@ -104,9 +104,23 @@ public class Preview extends UseCase {
     }
 
     private static SessionConfig.Builder createFrom(
-            PreviewConfig config, DeferrableSurface surface) {
+            final PreviewConfig config, final DeferrableSurface surface, final Preview preview) {
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
         sessionConfigBuilder.addSurface(surface);
+
+        final ImageInfoProcessor processor = config.getImageInfoProcessor(null);
+
+        if (processor != null) {
+            sessionConfigBuilder.addCameraCaptureCallback(new CameraCaptureCallback() {
+                @Override
+                public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
+                    super.onCaptureCompleted(cameraCaptureResult);
+                    if (processor.process(new CameraCaptureResultImageInfo(cameraCaptureResult))) {
+                        preview.notifyUpdated();
+                    }
+                }
+            });
+        }
         return sessionConfigBuilder;
     }
 
@@ -360,7 +374,8 @@ public class Preview extends UseCase {
         mCheckedSurfaceTexture.setResolution(resolution);
         mCheckedSurfaceTexture.resetSurfaceTexture();
 
-        SessionConfig.Builder sessionConfigBuilder = createFrom(config, mCheckedSurfaceTexture);
+        SessionConfig.Builder sessionConfigBuilder = createFrom(config, mCheckedSurfaceTexture,
+                this);
         attachToCamera(cameraId, sessionConfigBuilder.build());
 
         return suggestedResolutionMap;
