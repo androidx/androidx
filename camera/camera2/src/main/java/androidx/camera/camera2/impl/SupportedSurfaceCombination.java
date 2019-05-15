@@ -217,9 +217,10 @@ final class SupportedSurfaceCombination {
             }
 
             // Attach SurfaceConfig of new use cases
-            for (Size size : possibleSizeList) {
+            for (int i = 0; i < possibleSizeList.size(); i++) {
+                Size size = possibleSizeList.get(i);
                 UseCase newUseCase =
-                        newUseCases.get(useCasesPriorityOrder.get(possibleSizeList.indexOf(size)));
+                        newUseCases.get(useCasesPriorityOrder.get(i));
                 surfaceConfigList.add(transformSurfaceConfig(newUseCase.getImageFormat(), size));
             }
 
@@ -323,10 +324,11 @@ final class SupportedSurfaceCombination {
             int indexBigEnough = 0;
 
             // Get the index of the item that is big enough for the view size
-            for (Size outputSize : outputSizeCandidates) {
+            for (int i = 0; i < outputSizeCandidates.size(); i++) {
+                Size outputSize = outputSizeCandidates.get(i);
                 if (outputSize.getWidth() * outputSize.getHeight()
                         >= targetSize.getWidth() * targetSize.getHeight()) {
-                    indexBigEnough = outputSizeCandidates.indexOf(outputSize);
+                    indexBigEnough = i;
                 } else {
                     break;
                 }
@@ -428,15 +430,14 @@ final class SupportedSurfaceCombination {
         int currentRunCount = totalArrangementsCount;
         int nextRunCount = currentRunCount / supportedOutputSizesList.get(0).size();
 
-        for (List<Size> supportedOutputSizes : supportedOutputSizesList) {
+        for (int currentIndex = 0; currentIndex < supportedOutputSizesList.size(); currentIndex++) {
+            List<Size> supportedOutputSizes = supportedOutputSizesList.get(currentIndex);
             for (int i = 0; i < totalArrangementsCount; i++) {
                 List<Size> surfaceConfigList = allPossibleSizeArrangements.get(i);
 
                 surfaceConfigList.add(
                         supportedOutputSizes.get((i % currentRunCount) / nextRunCount));
             }
-
-            int currentIndex = supportedOutputSizesList.indexOf(supportedOutputSizes);
 
             if (currentIndex < supportedOutputSizesList.size() - 1) {
                 currentRunCount = nextRunCount;
