@@ -75,8 +75,8 @@ class PageFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setValue(when {
-            savedInstanceState != null -> savedInstanceState.getString(ARG_KEY)
-            arguments != null -> arguments!!.getString(ARG_KEY)
+            savedInstanceState != null -> savedInstanceState.getString(ARG_KEY)!!
+            arguments != null -> arguments!!.getString(ARG_KEY)!!
             else -> throw IllegalStateException()
         })
     }

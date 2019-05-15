@@ -308,7 +308,7 @@ open class BaseTest {
 
             var node = AccessibilityNodeInfo.obtain()
             activityTestRule.runOnUiThread { viewPager.onInitializeAccessibilityNodeInfo(node) }
-            var standardActions = node.actions
+            @Suppress("DEPRECATION") var standardActions = node.actions
 
             assertThat("scroll backward action expected: $expectScrollBackwardAction",
                 hasScrollAction(standardActions, ACTION_SCROLL_BACKWARD),
@@ -335,6 +335,7 @@ open class BaseTest {
             return actions.any { it.id == accessibilityActionId }
         }
 
+        @Suppress("UNCHECKED_CAST")
         private fun getActionList(view: View):
                 List<AccessibilityNodeInfoCompat.AccessibilityActionCompat> {
             return view.getTag(R.id.tag_accessibility_actions) as?
