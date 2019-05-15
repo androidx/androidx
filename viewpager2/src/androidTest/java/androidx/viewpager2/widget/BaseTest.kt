@@ -40,7 +40,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.AppCompatActivityUtils
-import androidx.testutils.FragmentActivityUtils.waitForActivityDrawn
 import androidx.testutils.LocaleTestUtils
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.test.R
@@ -56,6 +55,7 @@ import androidx.viewpager2.widget.swipe.PageSwiperManual
 import androidx.viewpager2.widget.swipe.SelfChecking
 import androidx.viewpager2.widget.swipe.TestActivity
 import androidx.viewpager2.widget.swipe.ViewAdapter
+import androidx.viewpager2.widget.swipe.WaitForInjectMotionEventsAction.Companion.waitForInjectMotionEvents
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
@@ -101,13 +101,7 @@ open class BaseTest {
             intent.putExtra(TestActivity.EXTRA_LANGUAGE, localeUtil.getLocale().toString())
         }
         activityTestRule.launchActivity(intent)
-        // TODO(b/130801606): replace waitForActivityDrawn with correct tool
-        // waitForActivityDrawn waits until the first frame is drawn, not until the window
-        // transitions are completed. Usually, two invocations of waitForActivityDrawn are enough
-        // for the window transitions to complete, but it's a horrible solution.
-        // See also other invocations of waitForActivityDrawn
-        waitForActivityDrawn(activityTestRule.activity)
-        waitForActivityDrawn(activityTestRule.activity)
+        onView(withId(R.id.view_pager)).perform(waitForInjectMotionEvents())
 
         val viewPager: ViewPager2 = activityTestRule.activity.findViewById(R.id.view_pager)
         activityTestRule.runOnUiThread { viewPager.orientation = orientation }
@@ -145,8 +139,7 @@ open class BaseTest {
             }
             activity = AppCompatActivityUtils.recreateActivity(activityTestRule, activity)
             TestActivity.onCreateCallback = { }
-            waitForActivityDrawn(activity)
-            waitForActivityDrawn(activity)
+            onView(withId(R.id.view_pager)).perform(waitForInjectMotionEvents())
         }
 
         var activity: TestActivity = activityTestRule.activity
