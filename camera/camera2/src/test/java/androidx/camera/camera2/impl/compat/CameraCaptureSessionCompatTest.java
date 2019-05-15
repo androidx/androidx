@@ -61,8 +61,8 @@ public final class CameraCaptureSessionCompatTest {
         CameraCaptureSessionCompat.captureBurstRequests(mCaptureSession, captureRequests,
                 mock(Executor.class), mock(CameraCaptureSession.CaptureCallback.class));
 
-        verify(mCaptureSession, times(1)).captureBurst(any(List.class), any(
-                CameraCaptureSession.CaptureCallback.class), any(Handler.class));
+        verify(mCaptureSession, times(1)).captureBurst(any(List.class),
+                any(CameraCaptureSession.CaptureCallback.class), any(Handler.class));
     }
 
     @Test
@@ -84,8 +84,8 @@ public final class CameraCaptureSessionCompatTest {
                 mock(Executor.class), mock(
                         CameraCaptureSession.CaptureCallback.class));
 
-        verify(mCaptureSession, times(1)).capture(any(CaptureRequest.class), any(
-                CameraCaptureSession.CaptureCallback.class), any(Handler.class));
+        verify(mCaptureSession, times(1)).capture(any(CaptureRequest.class),
+                any(CameraCaptureSession.CaptureCallback.class), any(Handler.class));
     }
 
     @Test
@@ -96,6 +96,31 @@ public final class CameraCaptureSessionCompatTest {
                         CameraCaptureSession.CaptureCallback.class));
 
         verify(mCaptureSession, times(1)).captureSingleRequest(any(CaptureRequest.class),
+                any(Executor.class), any(CameraCaptureSession.CaptureCallback.class));
+    }
+
+    @Test
+    @Config(maxSdk = 27)
+    @SuppressWarnings("unchecked")
+    public void setRepeatingBurstRequests_callsSetRepeatingBurst() throws CameraAccessException {
+        List<CaptureRequest> captureRequests = Collections.emptyList();
+        CameraCaptureSessionCompat.setRepeatingBurstRequests(mCaptureSession, captureRequests,
+                mock(Executor.class), mock(CameraCaptureSession.CaptureCallback.class));
+
+        verify(mCaptureSession, times(1)).setRepeatingBurst(any(List.class),
+                any(CameraCaptureSession.CaptureCallback.class), any(Handler.class));
+    }
+
+    @Test
+    @Config(minSdk = 28)
+    @SuppressWarnings("unchecked")
+    public void setRepeatingBurstRequests_callsSetRepeatingBurstRequests()
+            throws CameraAccessException {
+        List<CaptureRequest> captureRequests = Collections.emptyList();
+        CameraCaptureSessionCompat.setRepeatingBurstRequests(mCaptureSession, captureRequests,
+                mock(Executor.class), mock(CameraCaptureSession.CaptureCallback.class));
+
+        verify(mCaptureSession, times(1)).setRepeatingBurstRequests(any(List.class),
                 any(Executor.class), any(CameraCaptureSession.CaptureCallback.class));
     }
 
