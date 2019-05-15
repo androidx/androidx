@@ -17,7 +17,6 @@
 package androidx.viewpager2.widget
 
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import androidx.testutils.FragmentActivityUtils.waitForCycles
@@ -144,7 +143,6 @@ class DisableUserInputTest(private val config: TestConfig) : BaseTest() {
         testSetCurrentItem(true)
     }
 
-    @FlakyTest(bugId = 131158288)
     @Test
     @MediumTest
     fun testSetCurrentItemNotSmooth() {
