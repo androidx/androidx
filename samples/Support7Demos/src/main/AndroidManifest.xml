@@ -453,6 +453,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".widget.RecyclerViewSmoothScrollByActivity"
+            android:label="@string/recycler_view_smooth_scroll_by"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".widget.RvInNestedScrollViewActivity"
                   android:label="@string/rv_in_nestedScrollView"
                   android:theme="@style/Theme.AppCompat">
