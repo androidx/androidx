@@ -36,8 +36,11 @@ style TextAppearance_Car_Body4_Medium
 style TextAppearance_Car_Body4_Medium_Dark
 style TextAppearance_Car_Body4_Medium_Light
 style TextAppearance_Car_Display1
+style TextAppearance_Car_Display1_Light
 style TextAppearance_Car_Display2
+style TextAppearance_Car_Display2_Light
 style TextAppearance_Car_Display3
+style TextAppearance_Car_Display3_Light
 style TextAppearance_Car_Error
 style TextAppearance_Car_Hint
 style TextAppearance_Car_Hint_Light
@@ -116,6 +119,7 @@ style Widget_Car_TextView_Body2
 style Widget_Car_TextView_Body3
 style Widget_Car_TextView_Display1
 style Widget_Car_TextView_Display2
+style Widget_Car_TextView_Display3
 style Widget_Car_TextView_SubText1
 style Widget_Car_TextView_SubText2
 style Widget_Car_TextView_SubText3

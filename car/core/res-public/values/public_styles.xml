@@ -20,8 +20,11 @@
     <!-- TextAppearances -->
     <public type="style" name="TextAppearance.Car" />
     <public type="style" name="TextAppearance.Car.Display1" />
+    <public type="style" name="TextAppearance.Car.Display1.Light" />
     <public type="style" name="TextAppearance.Car.Display2" />
+    <public type="style" name="TextAppearance.Car.Display2.Light" />
     <public type="style" name="TextAppearance.Car.Display3" />
+    <public type="style" name="TextAppearance.Car.Display3.Light" />
     <public type="style" name="TextAppearance.Car.Body1" />
     <public type="style" name="TextAppearance.Car.Body1.Medium" />
     <public type="style" name="TextAppearance.Car.Body1.Light" />
@@ -94,7 +97,7 @@
     <!-- TextView Styles -->
     <public type="style" name="Widget.Car.TextView.Display1" />
     <public type="style" name="Widget.Car.TextView.Display2" />
-    <public type="style" name="Widget.Car.TextView.Display2" />
+    <public type="style" name="Widget.Car.TextView.Display3" />
     <public type="style" name="Widget.Car.TextView.Body1" />
     <public type="style" name="Widget.Car.TextView.Body2" />
     <public type="style" name="Widget.Car.TextView.Body3" />
