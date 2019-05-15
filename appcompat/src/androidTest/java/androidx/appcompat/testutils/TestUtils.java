@@ -16,6 +16,7 @@
 
 package androidx.appcompat.testutils;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.app.Instrumentation;
@@ -30,14 +31,19 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewParent;
+import android.view.ViewTreeObserver.OnDrawListener;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.TintTypedArray;
 import androidx.core.util.Pair;
+import androidx.test.rule.ActivityTestRule;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class TestUtils {
     /**
@@ -294,7 +300,8 @@ public class TestUtils {
      * @param offsetX extra X offset for the tap
      * @param offsetY extra Y offset for the tap
      */
-    public static void emulateTapOnView(Instrumentation instrumentation, View anchorView,
+    public static void emulateTapOnView(Instrumentation instrumentation,
+            ActivityTestRule<?> activityTestRule, View anchorView,
             int offsetX, int offsetY) {
         final int touchSlop = ViewConfiguration.get(anchorView.getContext()).getScaledTouchSlop();
         // Get anchor coordinates on the screen
@@ -309,7 +316,12 @@ public class TestUtils {
         injectUpEvent(instrumentation, downTime, false, xOnScreen, yOnScreen);
 
         // Wait for the system to process all events in the queue
-        instrumentation.waitForIdleSync();
+        if (activityTestRule != null) {
+            runOnMainAndDrawSync(activityTestRule,
+                    activityTestRule.getActivity().getWindow().getDecorView(), null);
+        } else {
+            instrumentation.waitForIdleSync();
+        }
     }
 
     private static long injectDownEvent(Instrumentation instrumentation, long downTime,
@@ -340,5 +352,59 @@ public class TestUtils {
         eventUp.setSource(InputDevice.SOURCE_TOUCHSCREEN);
         instrumentation.sendPointerSync(eventUp);
         eventUp.recycle();
+    }
+
+    /**
+     * Runs the specified {@link Runnable} on the main thread and ensures that the specified
+     * {@link View}'s tree is drawn before returning.
+     *
+     * @param activityTestRule the activity test rule used to run the test
+     * @param view the view whose tree should be drawn before returning
+     * @param runner the runnable to run on the main thread, or {@code null} to
+     *               simply force invalidation and a draw pass
+     */
+    public static void runOnMainAndDrawSync(@NonNull final ActivityTestRule activityTestRule,
+            @NonNull final View view, @Nullable final Runnable runner) {
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        try {
+            activityTestRule.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    // "Wrap" the OnDrawListener in a 1-element array so that we can access
+                    // it for subsequent removal in the first onDraw pass
+                    final OnDrawListener[] listener = new OnDrawListener[1];
+                    listener[0] = new OnDrawListener() {
+                        @Override
+                        public void onDraw() {
+                            // posting so that the sync happens after the draw that's about to
+                            // happen
+                            view.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    activityTestRule.getActivity().getWindow().getDecorView()
+                                            .getViewTreeObserver().removeOnDrawListener(
+                                                    listener[0]);
+                                    latch.countDown();
+                                }
+                            });
+                        }
+                    };
+
+                    activityTestRule.getActivity().getWindow().getDecorView()
+                            .getViewTreeObserver().addOnDrawListener(listener[0]);
+
+                    if (runner != null) {
+                        runner.run();
+                    }
+                    view.invalidate();
+                }
+            });
+
+            assertTrue("Expected draw pass occurred within 5 seconds",
+                    latch.await(5, TimeUnit.SECONDS));
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
     }
 }
