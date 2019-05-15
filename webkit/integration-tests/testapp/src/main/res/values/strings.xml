@@ -34,4 +34,5 @@
     <string name="safebrowsing_enabled_caption">Safe Browsing enabled</string>
     <string name="safebrowsing_disabled_caption">Safe Browsing disabled</string>
     <string name="default_safebrowsing_caption">Default Safe Browsing setting</string>
+    <string name="force_dark_activity_title">Force Dark</string>
 </resources>
