@@ -37,8 +37,8 @@ class ListAdapterTest {
     private val diffThread = TestExecutor()
 
     private val differConfig = AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
-            .setBackgroundThreadExecutor(diffThread)
-            .build()
+        .setBackgroundThreadExecutor(diffThread)
+        .build()
 
     inner class Adapter(
         private val onChanged: AsyncListDiffer.ListListener<String>? = null

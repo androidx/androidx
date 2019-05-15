@@ -122,9 +122,10 @@ class LivePagedListBuilderTest {
         // specify a background executor via builder, and verify it gets used for all loads,
         // overriding default arch IO executor
         val livePagedList = LivePagedListBuilder(
-                MockDataSourceFactory(), 2)
-                .setFetchExecutor(backgroundExecutor)
-                .build()
+            MockDataSourceFactory(), 2
+        )
+            .setFetchExecutor(backgroundExecutor)
+            .build()
 
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
@@ -162,9 +163,10 @@ class LivePagedListBuilderTest {
         factory.enqueueRetryableError()
 
         val livePagedList = LivePagedListBuilder(
-                factory, 2)
-                .setFetchExecutor(backgroundExecutor)
-                .build()
+            factory, 2
+        )
+            .setFetchExecutor(backgroundExecutor)
+            .build()
 
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
@@ -190,10 +192,12 @@ class LivePagedListBuilderTest {
         backgroundExecutor.executeAll()
 
         assertSame(initPagedList, pagedListHolder[0])
-        assertEquals(listOf(
-            LoadState(REFRESH, LOADING, null),
-            LoadState(REFRESH, RETRYABLE_ERROR, RETRYABLE_EXCEPTION)
-        ), loadStates)
+        assertEquals(
+            listOf(
+                LoadState(REFRESH, LOADING, null),
+                LoadState(REFRESH, RETRYABLE_ERROR, RETRYABLE_EXCEPTION)
+            ), loadStates
+        )
 
         initPagedList.retry()
         assertSame(initPagedList, pagedListHolder[0])
@@ -203,21 +207,25 @@ class LivePagedListBuilderTest {
         assertNotSame(initPagedList, pagedListHolder[0])
         assertEquals(listOf("a", "b", null, null), pagedListHolder[0])
 
-        assertEquals(listOf(
-            LoadState(REFRESH, LOADING, null),
-            LoadState(REFRESH, RETRYABLE_ERROR, RETRYABLE_EXCEPTION),
-            LoadState(REFRESH, LOADING, null)
-        ), loadStates)
+        assertEquals(
+            listOf(
+                LoadState(REFRESH, LOADING, null),
+                LoadState(REFRESH, RETRYABLE_ERROR, RETRYABLE_EXCEPTION),
+                LoadState(REFRESH, LOADING, null)
+            ), loadStates
+        )
 
         // the IDLE result shows up on the next PagedList
         initPagedList.removeWeakLoadStateListener(loadStateListener)
         pagedListHolder[0]!!.addWeakLoadStateListener(loadStateListener)
-        assertEquals(listOf(
-            LoadState(REFRESH, LOADING, null),
-            LoadState(REFRESH, RETRYABLE_ERROR, RETRYABLE_EXCEPTION),
-            LoadState(REFRESH, LOADING, null),
-            LoadState(REFRESH, IDLE, null)
-        ), loadStates)
+        assertEquals(
+            listOf(
+                LoadState(REFRESH, LOADING, null),
+                LoadState(REFRESH, RETRYABLE_ERROR, RETRYABLE_EXCEPTION),
+                LoadState(REFRESH, LOADING, null),
+                LoadState(REFRESH, IDLE, null)
+            ), loadStates
+        )
     }
 
     companion object {

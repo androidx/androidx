@@ -40,8 +40,8 @@ class PagedListAdapterTest {
     private val diffThread = TestExecutor()
 
     private val differConfig = AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
-            .setBackgroundThreadExecutor(diffThread)
-            .build()
+        .setBackgroundThreadExecutor(diffThread)
+        .build()
 
     inner class Adapter(
         private val onChangedLegacy: AsyncPagedListDiffer.PagedListListener<String>? = null,
