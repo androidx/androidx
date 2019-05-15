@@ -34,6 +34,10 @@ import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
+import androidx.versionedparcelable.CustomVersionedParcelable;
+import androidx.versionedparcelable.NonParcelField;
+import androidx.versionedparcelable.ParcelField;
+import androidx.versionedparcelable.VersionedParcelize;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -892,7 +896,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final class TrackInfo {
+    @VersionedParcelize(isCustom = true)
+    public static final class TrackInfo extends CustomVersionedParcelable {
         public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0;
         public static final int MEDIA_TRACK_TYPE_VIDEO = 1;
         public static final int MEDIA_TRACK_TYPE_AUDIO = 2;
@@ -913,10 +918,36 @@ public abstract class SessionPlayer implements AutoCloseable {
         @Retention(RetentionPolicy.SOURCE)
         @RestrictTo(LIBRARY_GROUP)
         public @interface MediaTrackType {}
-        private final int mId;
-        private final MediaItem mItem;
-        private final int mTrackType;
-        private final MediaFormat mFormat;
+
+        @ParcelField(1)
+        int mId;
+        @ParcelField(2)
+        MediaItem mUpCastMediaItem;
+        @ParcelField(3)
+        int mTrackType;
+        @ParcelField(4)
+        String mLanguage;
+        @ParcelField(5)
+        String mMimeType;
+
+        @NonParcelField
+        MediaFormat mFormat;
+        @NonParcelField
+        MediaItem mMediaItem;
+
+        /**
+         * Used for VersionedParcelable
+         */
+        TrackInfo() {
+            // no-op
+        }
+
+        public TrackInfo(int id, MediaItem item, int type, MediaFormat format) {
+            mId = id;
+            mMediaItem = item;
+            mTrackType = type;
+            mFormat = format;
+        }
 
         /**
          * Gets the track type.
@@ -959,22 +990,16 @@ public abstract class SessionPlayer implements AutoCloseable {
 
         @Nullable
         public MediaItem getMediaItem() {
-            return mItem;
-        }
-
-        public TrackInfo(int id, MediaItem item, int type, MediaFormat format) {
-            mId = id;
-            mItem = item;
-            mTrackType = type;
-            mFormat = format;
+            return mMediaItem;
         }
 
         @Override
         public String toString() {
             StringBuilder out = new StringBuilder(128);
             out.append(getClass().getName());
-            out.append('#').append(mId);
-            out.append('{');
+            out.append(", id: ").append(mId);
+            out.append(", MediaItem: " + mMediaItem);
+            out.append(", TrackType: ");
             switch (mTrackType) {
                 case MEDIA_TRACK_TYPE_VIDEO:
                     out.append("VIDEO");
@@ -992,8 +1017,7 @@ public abstract class SessionPlayer implements AutoCloseable {
                     out.append("UNKNOWN");
                     break;
             }
-            out.append(", " + mFormat.toString());
-            out.append("}");
+            out.append(", Format: " + mFormat);
             return out.toString();
         }
 
@@ -1003,11 +1027,11 @@ public abstract class SessionPlayer implements AutoCloseable {
             int result = 1;
             result = prime * result + mId;
             int hashCode = 0;
-            if (mItem != null) {
-                if (mItem.getMediaId() != null) {
-                    hashCode = mItem.getMediaId().hashCode();
+            if (mMediaItem != null) {
+                if (mMediaItem.getMediaId() != null) {
+                    hashCode = mMediaItem.getMediaId().hashCode();
                 } else {
-                    hashCode = mItem.hashCode();
+                    hashCode = mMediaItem.hashCode();
                 }
             }
             result = prime * result + hashCode;
@@ -1029,16 +1053,48 @@ public abstract class SessionPlayer implements AutoCloseable {
             if (mId != other.mId) {
                 return false;
             }
-            if (mItem == null && other.mItem == null) {
+            // TODO (b/131873726): Replace this with MediaItem#getMediaId once media id is
+            // guaranteed to be NonNull.
+            if (mMediaItem == null && other.mMediaItem == null) {
                 return true;
-            } else if (mItem == null || other.mItem == null) {
+            } else if (mMediaItem == null || other.mMediaItem == null) {
                 return false;
             } else {
-                String mediaId = mItem.getMediaId();
+                String mediaId = mMediaItem.getMediaId();
                 if (mediaId != null) {
-                    return mediaId.equals(other.mItem.getMediaId());
+                    return mediaId.equals(other.mMediaItem.getMediaId());
                 }
-                return mItem.equals(other.mItem);
+                return mMediaItem.equals(other.mMediaItem);
+            }
+        }
+
+        @Override
+        public void onPreParceling(boolean isStream) {
+            mLanguage = mFormat != null ? mFormat.getString(MediaFormat.KEY_LANGUAGE) : null;
+            mMimeType = mFormat != null ? mFormat.getString(MediaFormat.KEY_MIME) : null;
+
+            // Up-cast MediaItem's subclass object to MediaItem class.
+            if (mMediaItem != null && mUpCastMediaItem == null) {
+                mUpCastMediaItem = new MediaItem(mMediaItem);
+            }
+        }
+
+        @Override
+        public void onPostParceling() {
+            if (mMimeType != null) {
+                if (mFormat == null) {
+                    mFormat = new MediaFormat();
+                }
+                mFormat.setString(MediaFormat.KEY_MIME, mMimeType);
+            }
+            if (mLanguage != null) {
+                if (mFormat == null) {
+                    mFormat = new MediaFormat();
+                }
+                mFormat.setString(MediaFormat.KEY_LANGUAGE, mLanguage);
+            }
+            if (mMediaItem == null) {
+                mMediaItem = mUpCastMediaItem;
             }
         }
     }
