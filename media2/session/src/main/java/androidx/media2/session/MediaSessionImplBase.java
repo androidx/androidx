@@ -98,7 +98,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     private static ComponentName sServiceComponentName;
 
     static final String TAG = "MSImplBase";
-    static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private static final SessionResult RESULT_WHEN_CLOSED = new SessionResult(RESULT_INFO_SKIPPED);
 

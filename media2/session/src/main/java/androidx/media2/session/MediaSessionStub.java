@@ -69,10 +69,10 @@ import java.util.concurrent.TimeUnit;
  */
 class MediaSessionStub extends IMediaSession.Stub {
     private static final String TAG = "MediaSessionStub";
-    private static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
     private static final boolean RETHROW_EXCEPTION = true;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     static final SparseArray<SessionCommand> sCommandsForOnCommandRequest =
             new SparseArray<>();
 
