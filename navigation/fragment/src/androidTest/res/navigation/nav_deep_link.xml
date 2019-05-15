@@ -33,6 +33,7 @@
         </test>
 
         <test android:id="@+id/nested_deep_link_test">
+            <deepLink app:uri="www.example.com/nested_deep_link/{test}/" />
             <deepLink app:uri="www.example.com/nested_deep_link/{test}" />
         </test>
     </navigation>
