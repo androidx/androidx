@@ -18,7 +18,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.ui.material.demos">
 
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}" />
 
     <application>
         <activity

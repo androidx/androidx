@@ -45,6 +45,7 @@
                   android:layout_weight="1"
                   android:layout_marginLeft="16dp"
                   android:layout_marginRight="16dp"
+                  android:layout_gravity="start"
                   android:textAlignment="viewStart"
                   android:textAppearance="?attr/mediaRouteBodyTextAppearance" />
         <CheckBox android:id="@+id/mr_cast_checkbox"

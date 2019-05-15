@@ -53,6 +53,7 @@
             android:layout_below="@android:id/title"
             android:layout_alignLeft="@android:id/title"
             android:layout_alignStart="@android:id/title"
+            android:layout_gravity="start"
             android:textAlignment="viewStart"
             android:textColor="?android:attr/textColorSecondary"
             android:maxLines="10"

@@ -17,7 +17,6 @@
 <manifest
         xmlns:android="http://schemas.android.com/apk/res/android"
         package="androidx.ui.text.demos">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
         <!-- Note: when you have more than one demo, change the label to "Text/Demo name" -->

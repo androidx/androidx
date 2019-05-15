@@ -47,6 +47,7 @@
         android:textAppearance="?android:attr/textAppearanceListItemSmall"
         android:padding="0dp"
         android:paddingStart="@dimen/floating_toolbar_menu_button_side_padding"
+        android:paddingLeft="@dimen/floating_toolbar_menu_button_side_padding"
         android:layout_margin="0dp"
         android:gravity="center"
         android:singleLine="true"

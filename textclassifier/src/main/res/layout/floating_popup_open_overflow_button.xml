@@ -21,7 +21,9 @@
     android:minWidth="@dimen/floating_toolbar_menu_button_minimum_width"
     android:minHeight="@dimen/floating_toolbar_height"
     android:paddingStart="0dp"
+    android:paddingLeft="0dp"
     android:paddingTop="0dp"
     android:paddingBottom="0dp"
     android:paddingEnd="4dp"
+    android:paddingRight="4dp"
     android:contentDescription="@string/floating_toolbar_open_overflow_description" />
