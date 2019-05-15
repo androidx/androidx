@@ -68,7 +68,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     }
 
     @Override
-    public void schedule(WorkSpec... workSpecs) {
+    public void schedule(@NonNull WorkSpec... workSpecs) {
         registerExecutionListenerIfNeeded();
 
         // Keep track of the list of new WorkSpecs whose constraints need to be tracked.
