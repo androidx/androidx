@@ -58,7 +58,7 @@ class ComponentActivityViewModelTest {
         assertWithMessage(
             "Pre-onCreate() ViewModelStore should equal the post-onCreate() ViewModelStore")
             .that(activity.preOnCreateViewModelStore)
-            .isSameAs(activity.postOnCreateViewModelStore)
+            .isSameInstanceAs(activity.postOnCreateViewModelStore)
     }
 
     @Test
@@ -69,12 +69,14 @@ class ComponentActivityViewModelTest {
         activityRule.runOnUiThread {
             activityModel[0] = viewModelActivity.activityModel
             defaultActivityModel[0] = viewModelActivity.defaultActivityModel
-            assertThat(defaultActivityModel[0]).isNotSameAs(activityModel[0])
+            assertThat(defaultActivityModel[0]).isNotSameInstanceAs(activityModel[0])
         }
         val recreatedActivity = recreateActivity(activityRule)
         activityRule.runOnUiThread {
-            assertThat(recreatedActivity.activityModel).isSameAs(activityModel[0])
-            assertThat(recreatedActivity.defaultActivityModel).isSameAs(defaultActivityModel[0])
+            assertThat(recreatedActivity.activityModel)
+                .isSameInstanceAs(activityModel[0])
+            assertThat(recreatedActivity.defaultActivityModel)
+                .isSameInstanceAs(defaultActivityModel[0])
         }
     }
 

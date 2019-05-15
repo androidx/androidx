@@ -107,7 +107,7 @@ public final class VideoCaptureTest {
                 mMockVideoSavedListener);
 
         verify(mListener, times(1)).onUseCaseActive(mUseCaseCaptor.capture());
-        assertThat(mUseCaseCaptor.getValue()).isSameAs(useCase);
+        assertThat(mUseCaseCaptor.getValue()).isSameInstanceAs(useCase);
     }
 
     @Test
@@ -136,7 +136,7 @@ public final class VideoCaptureTest {
         }
 
         verify(mListener, times(1)).onUseCaseInactive(mUseCaseCaptor.capture());
-        assertThat(mUseCaseCaptor.getValue()).isSameAs(useCase);
+        assertThat(mUseCaseCaptor.getValue()).isSameInstanceAs(useCase);
     }
 
     @Test
@@ -160,6 +160,6 @@ public final class VideoCaptureTest {
                 mMockVideoSavedListener);
 
         verify(mListener, times(1)).onUseCaseActive(mUseCaseCaptor.capture());
-        assertThat(mUseCaseCaptor.getValue()).isSameAs(useCase);
+        assertThat(mUseCaseCaptor.getValue()).isSameInstanceAs(useCase);
     }
 }

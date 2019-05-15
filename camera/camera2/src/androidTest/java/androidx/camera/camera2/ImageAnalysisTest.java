@@ -126,7 +126,7 @@ public final class ImageAnalysisTest {
 
         // The observer is bound to the lifecycle.
         assertThat(initialAnalyzer).isNull();
-        assertThat(retrievedAnalyzer).isSameAs(mMockAnalyzer);
+        assertThat(retrievedAnalyzer).isSameInstanceAs(mMockAnalyzer);
     }
 
     @Test

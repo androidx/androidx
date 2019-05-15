@@ -150,7 +150,7 @@ class SaveStateFragmentTest {
         grandparentFragment.childFragmentManager.beginTransaction()
             .add(parentFragment, "tag:parent").commitNow()
         assertWithMessage("parent fragment is not a child of grandparent")
-            .that(parentFragment.parentFragment).isSameAs(grandparentFragment)
+            .that(parentFragment.parentFragment).isSameInstanceAs(grandparentFragment)
 
         // Child fragment will not retain instance
         val childFragment = StateSaveFragment("Child", "UnsavedChild")
@@ -161,7 +161,7 @@ class SaveStateFragmentTest {
         parentFragment.childFragmentManager.beginTransaction()
             .add(childFragment, "tag:child").commitNow()
         assertWithMessage("child fragment is not a child of grandparent")
-            .that(childFragment.parentFragment).isSameAs(parentFragment)
+            .that(childFragment.parentFragment).isSameInstanceAs(parentFragment)
 
         // Saved for comparison later
         val parentChildFragmentManager = parentFragment.childFragmentManager
@@ -203,7 +203,7 @@ class SaveStateFragmentTest {
         assertWithMessage("grandparent fragment not restored").that(restoredGrandparent).isNotNull()
 
         assertWithMessage("grandparent fragment instance was saved")
-            .that(restoredGrandparent).isNotSameAs(grandparentFragment)
+            .that(restoredGrandparent).isNotSameInstanceAs(grandparentFragment)
         assertWithMessage("grandparent fragment saved state was not equal")
             .that(restoredGrandparent.savedState).isEqualTo(grandparentFragment.savedState)
         assertWithMessage("grandparent fragment unsaved state was unexpectedly preserved")
@@ -214,20 +214,21 @@ class SaveStateFragmentTest {
         assertWithMessage("parent fragment not restored").that(restoredParent).isNotNull()
 
         assertWithMessage("parent fragment instance was not saved")
-            .that(restoredParent).isSameAs(parentFragment)
+            .that(restoredParent).isSameInstanceAs(parentFragment)
         assertWithMessage("parent fragment saved state was not equal")
             .that(restoredParent.savedState).isEqualTo(parentFragment.savedState)
         assertWithMessage("parent fragment unsaved state was not equal")
             .that(restoredParent.unsavedState).isEqualTo(parentFragment.unsavedState)
         assertWithMessage("parent fragment has the same child FragmentManager")
-            .that(restoredParent.childFragmentManager).isNotSameAs(parentChildFragmentManager)
+            .that(restoredParent.childFragmentManager)
+            .isNotSameInstanceAs(parentChildFragmentManager)
 
         val restoredChild = restoredParent
             .childFragmentManager.findFragmentByTag("tag:child") as StateSaveFragment
         assertWithMessage("child fragment not restored").that(restoredChild).isNotNull()
 
         assertWithMessage("child fragment instance state was saved")
-            .that(restoredChild).isNotSameAs(childFragment)
+            .that(restoredChild).isNotSameInstanceAs(childFragment)
         assertWithMessage("child fragment saved state was not equal")
             .that(restoredChild.savedState).isEqualTo(childFragment.savedState)
         assertWithMessage("child fragment saved state was unexpectedly equal")

@@ -166,15 +166,15 @@ class FragmentTransactionTest {
             .commit()
         activity.supportFragmentManager.executePendingTransactions()
 
-        assertThat(fragment1.layoutInflater).isSameAs(layoutInflater)
+        assertThat(fragment1.layoutInflater).isSameInstanceAs(layoutInflater)
         assertThat(fragment1.onGetLayoutInflaterCalls).isEqualTo(1)
 
         // Popping it should cause onCreateView again, so a new LayoutInflater...
         activity.supportFragmentManager.popBackStackImmediate()
-        assertThat(fragment1.layoutInflater).isNotSameAs(layoutInflater)
+        assertThat(fragment1.layoutInflater).isNotSameInstanceAs(layoutInflater)
         assertThat(fragment1.onGetLayoutInflaterCalls).isEqualTo(2)
         layoutInflater = fragment1.baseLayoutInflater
-        assertThat(fragment1.layoutInflater).isSameAs(layoutInflater)
+        assertThat(fragment1.layoutInflater).isSameInstanceAs(layoutInflater)
 
         // Popping it should detach it, clearing the cached value again
         activity.supportFragmentManager.popBackStackImmediate()
