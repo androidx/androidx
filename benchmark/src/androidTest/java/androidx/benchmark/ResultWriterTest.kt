@@ -18,13 +18,19 @@ package androidx.benchmark
 
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
 class ResultWriterTest {
+
+    @get:Rule
+    val tempFolder = TemporaryFolder()
+
     private val reportA = BenchmarkState.Report(
         testName = "MethodA",
         className = "package.Class1",
@@ -43,13 +49,24 @@ class ResultWriterTest {
     )
 
     @Test
+    fun shouldClearExistingContent() {
+        val tempFile = tempFolder.newFile()
+
+        val fakeText = "This text should not be in the final output"
+        tempFile.writeText(fakeText)
+
+        ResultWriter.writeReport(tempFile, listOf(reportA, reportB))
+        assert(!tempFile.readText().startsWith(fakeText))
+    }
+
+    @Test
     fun validateJson() {
-        val manager = ResultWriter.fileManager
-        manager.currentContent = manager.initial
-        manager.append(reportA)
-        manager.append(reportB)
-        assertEquals("""
-            { "results": [
+        val tempFile = tempFolder.newFile()
+
+        ResultWriter.writeReport(tempFile, listOf(reportA, reportB))
+        assertEquals(
+            """
+            [
                 {
                     "name": "MethodA",
                     "className": "package.Class1",
@@ -74,9 +91,9 @@ class ResultWriterTest {
                         102
                     ]
                 }
-            ]}
+            ]
             """.trimIndent(),
-            manager.fullFileContent
+            tempFile.readText()
         )
     }
 }

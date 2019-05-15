@@ -189,7 +189,7 @@ class BenchmarkRule : TestRule {
                 description.testClass.simpleName + "." + invokeMethodName
         internalState.sendStatus(fullTestName)
 
-        ResultWriter.appendStats(
+        ResultWriter.appendReport(
             internalState.getReport(
                 testName = WarningState.WARNING_PREFIX + invokeMethodName,
                 className = description.className

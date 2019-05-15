@@ -447,7 +447,7 @@ class BenchmarkState internal constructor() {
             InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
 
             // Report values to file output
-            ResultWriter.appendStats(
+            ResultWriter.appendReport(
                 BenchmarkState.Report(
                     className = className,
                     testName = testName,
