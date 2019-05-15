@@ -136,6 +136,7 @@
     <string name="toolbar_fragment_pager">AppCompat/Toolbar/Toolbar Fragment ViewPager</string>
     <string name="toolbar_action_mode">AppCompat/Toolbar/Action Mode</string>
     <string name="toolbar_background_change">AppCompat/Toolbar/Toolbar Background Change</string>
+    <string name="toolbar_tall">AppCompat/Toolbar/Toolbar (tall)</string>
 
     <string name="dialog_usage">AppCompat/Dialog/Dialog Usage</string>
     <string name="dialog_title">My great dialog</string>
