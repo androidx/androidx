@@ -17,23 +17,25 @@
 package androidx.ui.baseui
 
 import androidx.ui.core.Draw
-import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.layout.Container
 import androidx.ui.painting.Image
 import androidx.ui.painting.Paint
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.compose.unaryPlus
+import androidx.ui.core.WithDensity
 
 // TODO(Andrey) Temporary. Should be replaced with our proper Image component when it available
 @Composable
 fun SimpleImage(
     image: Image
-) = +withDensity {
-    Container(width = image.width.toDp(), height = image.height.toDp()) {
-        Draw { canvas, _ ->
-            canvas.drawImage(image, Offset.zero, Paint())
+) {
+    // TODO b132071873: WithDensity should be able to use the DSL syntax
+    WithDensity(block = {
+        Container(width = image.width.toDp(), height = image.height.toDp()) {
+            Draw { canvas, _ ->
+                canvas.drawImage(image, Offset.zero, Paint())
+            }
         }
-    }
+    })
 }
