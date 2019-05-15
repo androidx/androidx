@@ -19,6 +19,7 @@ import android.content.Context
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
+import androidx.ui.engine.text.TextPosition
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
@@ -31,6 +32,8 @@ import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.composer
 import androidx.compose.effectOf
+import androidx.compose.onCommit
+import androidx.compose.state
 import androidx.compose.unaryPlus
 
 private val DefaultTextAlign: TextAlign = TextAlign.START
@@ -77,24 +80,14 @@ fun Text(
      *  The value may be null. If it is not null, then it must be greater than zero.
      */
     maxLines: Int? = DefaultMaxLines,
-    // TODO(qqd): Make variable selection private in future.
-    /**
-     *  The selection of the text.
-     */
-    selection: TextSelection? = null,
-    /**
-     *  The selection's start and end offset. In this pair, the first is start, and the second is
-     *  end.
-     */
-    selectionPosition: Pair<Offset, Offset>? = null,
     /**
      *  The color used to draw selected region.
      */
     selectionColor: Color = DefaultSelectionColor
 ) {
     val context = composer.composer.context
-    var internalSelection = selection
-
+    val internalSelection = +state<TextSelection?> { null }
+    val registrar = +ambient(SelectionRegistrarAmbient)
     fun attachContextToFont(
         text: TextSpan,
         context: Context
@@ -130,23 +123,49 @@ fun Text(
 
         val children = @Composable {
             Draw { canvas, _ ->
-                internalSelection?.let { renderParagraph.paintSelection(canvas, it) }
+                internalSelection.value?.let { renderParagraph.paintSelection(canvas, it) }
                 renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
             }
         }
         Layout(children = children, layoutBlock = { _, constraints ->
             renderParagraph.performLayout(constraints)
-            // Convert the selection's start and end offset to a TextSelection object.
-            selectionPosition?.let {
-                val selectionStart = renderParagraph.getPositionForOffset(it.first).offset
-                var selectionEnd = renderParagraph.getPositionForOffset(it.second).offset
-
-                if (selectionEnd == selectionStart) selectionEnd = selectionStart + 1
-                internalSelection = TextSelection(selectionStart, selectionEnd)
-            }
-
             layout(renderParagraph.width.px.round(), renderParagraph.height.px.round()) {}
         })
+
+        +onCommit(renderParagraph) {
+            val id = registrar.subscribe(object : TextSelectionHandler {
+                override fun getSelection(coordinates: Pair<PxPosition, PxPosition>):
+                        Selection? {
+                    val start = Offset(coordinates.first.x.value, coordinates.first.y.value)
+                    val end = Offset(coordinates.second.x.value, coordinates.second.y.value)
+
+                    var selectionStart = renderParagraph.getPositionForOffset(start)
+                    var selectionEnd = renderParagraph.getPositionForOffset(end)
+
+                    if (selectionStart.offset == selectionEnd.offset) {
+                        val wordBoundary = renderParagraph.getWordBoundary(selectionStart)
+                        selectionStart =
+                            TextPosition(wordBoundary.start, selectionStart.affinity)
+                        selectionEnd = TextPosition(wordBoundary.end, selectionEnd.affinity)
+                    }
+
+                    internalSelection.value =
+                        TextSelection(selectionStart.offset, selectionEnd.offset)
+
+                    // TODO(qqd): Determine a set of coordinates around a character that we need.
+                    // Clean up the lower layer's getCaretForTextPosition methods.
+                    return Selection(
+                        startOffset =
+                        renderParagraph.getCaretForTextPosition(selectionStart).second,
+                        endOffset =
+                        renderParagraph.getCaretForTextPosition(selectionEnd).second
+                    )
+                }
+            })
+            onDispose {
+                registrar.unsubscribe(id)
+            }
+        }
     }
 }
 
