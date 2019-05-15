@@ -152,8 +152,8 @@ public class DrawerLayout extends ViewGroup {
      */
     public static final int LOCK_MODE_UNDEFINED = 3;
 
-    @IntDef(value = {Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END},
-            flag = true)
+    @IntDef(value = {Gravity.LEFT, Gravity.RIGHT, GravityCompat.START, GravityCompat.END,
+            Gravity.NO_GRAVITY}, flag = true)
     @Retention(RetentionPolicy.SOURCE)
     private @interface EdgeGravity {}
 
@@ -2343,6 +2343,7 @@ public class DrawerLayout extends ViewGroup {
         private static final int FLAG_IS_OPENING = 0x2;
         private static final int FLAG_IS_CLOSING = 0x4;
 
+        @EdgeGravity
         public int gravity = Gravity.NO_GRAVITY;
         float onScreen;
         boolean isPeeking;
