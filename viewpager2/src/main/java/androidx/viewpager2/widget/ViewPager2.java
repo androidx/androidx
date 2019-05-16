@@ -316,10 +316,6 @@ public final class ViewPager2 extends ViewGroup {
         }
     }
 
-    private boolean isLayoutRtl() {
-        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
-    }
-
     private void setOrientation(Context context, AttributeSet attrs) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ViewPager2);
         if (Build.VERSION.SDK_INT >= 29) {
