@@ -27,6 +27,8 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.impl.compat.params.SessionConfigurationCompat;
 
+import java.util.concurrent.Executor;
+
 /**
  * Helper for accessing features in {@link CameraDevice} in a backwards compatible fashion.
  */
@@ -88,6 +90,58 @@ public final class CameraDeviceCompat {
     interface CameraDeviceCompatImpl {
         void createCaptureSession(@NonNull CameraDevice device,
                 @NonNull SessionConfigurationCompat config) throws CameraAccessException;
+    }
+
+    static final class StateCallbackExecutorWrapper extends CameraDevice.StateCallback {
+
+        final CameraDevice.StateCallback mWrappedCallback;
+        private final Executor mExecutor;
+
+        StateCallbackExecutorWrapper(@NonNull Executor executor,
+                @NonNull CameraDevice.StateCallback wrappedCallback) {
+            mExecutor = executor;
+            mWrappedCallback = wrappedCallback;
+        }
+
+        @Override
+        public void onOpened(@NonNull final CameraDevice camera) {
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mWrappedCallback.onOpened(camera);
+                }
+            });
+        }
+
+        @Override
+        public void onDisconnected(@NonNull final CameraDevice camera) {
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mWrappedCallback.onDisconnected(camera);
+                }
+            });
+        }
+
+        @Override
+        public void onError(@NonNull final CameraDevice camera, final int error) {
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mWrappedCallback.onError(camera, error);
+                }
+            });
+        }
+
+        @Override
+        public void onClosed(@NonNull final CameraDevice camera) {
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mWrappedCallback.onClosed(camera);
+                }
+            });
+        }
     }
 
 }
