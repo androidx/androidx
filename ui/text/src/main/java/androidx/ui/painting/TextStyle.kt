@@ -36,17 +36,13 @@ import androidx.ui.lerp
 import androidx.ui.painting.basictypes.RenderComparison
 import androidx.ui.toStringAsFixed
 
-/*import androidx.ui.toStringAsFixed*/
-
 private const val _kDefaultDebugLabel: String = "unknown"
 
 /** The default font size if none is specified. */
 private const val _defaultFontSize: Float = 14.0f
 
 /**
- * An opaque object that determines the size, position, and rendering of text.
- *
- * Creates a new TextStyle object.
+ * Configuration object to define the text style.
  *
  * @param color The color to use when painting the text. If this is specified, `foreground` must be null.
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text.
@@ -69,11 +65,7 @@ private const val _defaultFontSize: Float = 14.0f
  * @param textIndent Specify how much a paragraph is indented.
  * @param shadow The shadow effect applied on the text.
  * @param debugLabel A human-readable description of this text style.
- *
- * It is combined with the `fontFamily` argument to set the [fontFamily] property.
  */
-// TODO(Migration/qqd): Implement immutable.
-// @immutable
 data class TextStyle(
     val color: Color? = null,
     val fontSize: Float? = null,
@@ -88,16 +80,13 @@ data class TextStyle(
     val textGeometricTransform: TextGeometricTransform? = null,
     val height: Float? = null,
     val locale: Locale? = null,
-    // TODO(Migration/haoyuchang): Changed from Paint to Color.
     val background: Color? = null,
-    // TODO(Migration/qqd): The flutter version we are implementing does not have "foreground" in
-    // painting/TextStyle, but has it in engine/TextStyle.
     val decoration: TextDecoration? = null,
     var fontFamily: FontFamily? = null,
     val textIndent: TextIndent? = null,
     val shadow: Shadow? = null,
     val debugLabel: String? = null
-) /*: Diagnosticable*/ {
+) {
 
     /**
      * Returns a new text style that is a combination of this style and the given [other] style.
@@ -356,107 +345,4 @@ data class TextStyle(
         }
         return RenderComparison.IDENTICAL
     }
-
-    /*override fun toStringShort() = describeIdentity(this)
-
-    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
-        super.debugFillProperties(properties)
-        if (debugLabel != null) {
-            properties.add(MessageProperty("debugLabel", debugLabel))
-        }
-        var styles: MutableList<DiagnosticsNode> = mutableListOf<DiagnosticsNode>()
-        styles.add(DiagnosticsProperty.create("color", color, defaultValue = null))
-        styles.add(
-            StringProperty(
-                "family",
-                fontFamily.toString(),
-                defaultValue = null,
-                quoted = false
-            )
-        )
-        styles.add(FloatProperty.create("size", fontSize, defaultValue = null))
-        var weightDescription = ""
-        if (fontWeight != null) {
-            when (fontWeight) {
-                FontWeight.w100 -> weightDescription = "100"
-                FontWeight.w200 -> weightDescription = "200"
-                FontWeight.w300 -> weightDescription = "300"
-                FontWeight.w400 -> weightDescription = "400"
-                FontWeight.w500 -> weightDescription = "500"
-                FontWeight.w600 -> weightDescription = "600"
-                FontWeight.w700 -> weightDescription = "700"
-                FontWeight.w800 -> weightDescription = "800"
-                FontWeight.w900 -> weightDescription = "900"
-            }
-        }
-        // TODO(jacobr): switch this to use enumProperty which will either cause the
-        // weight description to change to w600 from 600 or require existing
-        // enumProperty to handle this special case.
-        styles.add(
-            DiagnosticsProperty.create(
-                "weight",
-                fontWeight,
-                description = weightDescription,
-                defaultValue = null
-            )
-        )
-        styles.add(EnumProperty<FontStyle>("style", fontStyle, defaultValue = null))
-        styles.add(StringProperty("fontSynthesis", fontSynthesis?.toString(), defaultValue = null))
-        styles.add(FloatProperty.create("letterSpacing", letterSpacing, defaultValue = null))
-        styles.add(FloatProperty.create("wordSpacing", wordSpacing, defaultValue = null))
-        styles.add(EnumProperty<TextBaseline>("baseline", textBaseline, defaultValue = null))
-        styles.add(FloatProperty.create("baselineShift",
-            baselineShift?.multiplier, defaultValue = null))
-        styles.add(FloatProperty.create("height", height, unit = "x", defaultValue = null))
-        styles.add(
-            StringProperty(
-                "locale",
-                locale?.toString(),
-                defaultValue = null,
-                quoted = false
-            )
-        )
-        styles.add(
-            StringProperty(
-                "background",
-                background?.toString(),
-                defaultValue = null,
-                quoted = false
-            )
-        )
-        if (decoration != null) {
-            var decorationDescription: MutableList<String> = mutableListOf()
-
-            // Intentionally collide with the property 'decoration' added below.
-            // Tools that show hidden properties could choose the first property
-            // matching the name to disambiguate.
-            styles.add(
-                DiagnosticsProperty.create(
-                    "decoration",
-                    decoration,
-                    defaultValue = null,
-                    level = DiagnosticLevel.hidden
-                )
-            )
-            if (decoration != null) {
-                decorationDescription.add("$decoration")
-            }
-            assert(decorationDescription.isNotEmpty())
-            styles.add(
-                MessageProperty(
-                    "decoration",
-                    decorationDescription.joinToString(separator = " ")
-                )
-            )
-        }
-
-        properties.add(
-            DiagnosticsProperty.create(
-                "inherit",
-                inherit,
-                level = DiagnosticLevel.info
-            )
-        )
-        styles.iterator().forEach { properties.add(it) }
-    } */
 }
