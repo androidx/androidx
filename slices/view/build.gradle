@@ -26,7 +26,7 @@ plugins {
 dependencies {
     implementation(project(":slice-core"))
     implementation(project(":recyclerview"))
-    implementation(project(":collection"))
+    implementation("androidx.collection:collection:1.1.0-rc01")
     api(ARCH_LIFECYCLE_LIVEDATA_CORE, libs.exclude_annotations_transitive)
 
     androidTestImplementation(project(":slice-builders"))
