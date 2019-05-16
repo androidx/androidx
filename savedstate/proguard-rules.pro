@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
--keepclassmembers,allowobfuscation class * extends androidx.savedstate.SavedStateRegistry.AutoRecreated {
+-keepclassmembers,allowobfuscation class * implements androidx.savedstate.SavedStateRegistry$AutoRecreated {
     <init>();
 }
