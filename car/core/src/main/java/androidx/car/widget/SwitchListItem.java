@@ -25,6 +25,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsUtils;
 import androidx.car.uxrestrictions.CarUxRestrictions;
@@ -85,6 +86,40 @@ public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.
     @Override
     public boolean isCompoundButtonPositionEnd() {
         return true;
+    }
+
+    /**
+     * Sets the state of {@code Switch}.
+     *
+     * @param isChecked sets the "checked/unchecked, namely on/off" state of switch.
+     * @deprecated Use {@link #setChecked(boolean)} instead.
+     */
+    @Deprecated
+    public void setSwitchState(boolean isChecked) {
+        setChecked(isChecked);
+    }
+
+    /**
+     * Registers a callback to be invoked when the checked state of switch changes.
+     *
+     * @param listener callback to be invoked when the checked state shown in the UI changes.
+     * @deprecated Use {@link #setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener)}
+     * instead.
+     */
+    @Deprecated
+    public void setSwitchOnCheckedChangeListener(
+            @Nullable CompoundButton.OnCheckedChangeListener listener) {
+        setOnCheckedChangeListener(listener);
+    }
+
+    /**
+     * Sets whether to display a vertical bar between switch and text.
+     *
+     * @deprecated Use {@link #setShowCompoundButtonDivider(boolean)} instead.
+     */
+    @Deprecated
+    public void setShowSwitchDivider(boolean showCompoundButtonDivider) {
+        setShowCompoundButtonDivider(showCompoundButtonDivider);
     }
 
     /**
@@ -204,6 +239,18 @@ public final class SwitchListItem extends CompoundButtonListItem<SwitchListItem.
         @Override
         public CompoundButton getCompoundButton() {
             return mCompoundButton;
+        }
+
+        /**
+         * Returns the switch within this view holder's view.
+         *
+         * @return Switch within this view holder's view.
+         * @deprecated Use {@link #getCompoundButton()} instead.
+         */
+        @Deprecated
+        @NonNull
+        public Switch getSwitch() {
+            return (Switch) getCompoundButton();
         }
 
         @NonNull
