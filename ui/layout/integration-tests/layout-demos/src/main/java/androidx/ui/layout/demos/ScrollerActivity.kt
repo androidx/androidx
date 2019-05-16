@@ -25,7 +25,6 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.Column
 import androidx.ui.layout.Padding
 import androidx.ui.layout.VerticalScroller
-import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import androidx.compose.composer
 import androidx.compose.setContent
@@ -75,7 +74,7 @@ class ScrollerActivity : Activity() {
                         VerticalScroller {
                             Column {
                                 phrases.forEach { phrase ->
-                                    Text(text = TextSpan(text = phrase, style = style))
+                                    Text(text = phrase, style = style)
                                 }
                             }
                         }
