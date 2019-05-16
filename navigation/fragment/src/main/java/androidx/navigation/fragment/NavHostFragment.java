@@ -121,6 +121,8 @@ public class NavHostFragment extends Fragment implements NavHost {
     }
 
     private NavController mNavController;
+    private NavController.NavHostOnBackPressedManager mOnBackPressedManager;
+    private Boolean mIsPrimaryBeforeOnCreate = null;
 
     // State that will be saved and restored
     private int mGraphId;
@@ -207,7 +209,13 @@ public class NavHostFragment extends Fragment implements NavHost {
 
         mNavController = new NavController(context);
         mNavController.setHostLifecycleOwner(this);
-        mNavController.setHostOnBackPressedDispatcherOwner(requireActivity());
+        mOnBackPressedManager = mNavController
+                .setHostOnBackPressedDispatcherOwner(requireActivity());
+        // Set the default state - this will be updated whenever
+        // onPrimaryNavigationFragmentChanged() is called
+        mOnBackPressedManager.enableOnBackPressed(
+                mIsPrimaryBeforeOnCreate != null && mIsPrimaryBeforeOnCreate);
+        mIsPrimaryBeforeOnCreate = null;
         mNavController.setHostViewModelStore(getViewModelStore());
         onCreateNavController(mNavController);
 
@@ -260,6 +268,16 @@ public class NavHostFragment extends Fragment implements NavHost {
         navController.getNavigatorProvider().addNavigator(
                 new DialogFragmentNavigator(requireContext(), getChildFragmentManager()));
         navController.getNavigatorProvider().addNavigator(createFragmentNavigator());
+    }
+
+    @CallSuper
+    @Override
+    public void onPrimaryNavigationFragmentChanged(boolean isPrimaryNavigationFragment) {
+        if (mOnBackPressedManager != null) {
+            mOnBackPressedManager.enableOnBackPressed(isPrimaryNavigationFragment);
+        } else {
+            mIsPrimaryBeforeOnCreate = isPrimaryNavigationFragment;
+        }
     }
 
     /**

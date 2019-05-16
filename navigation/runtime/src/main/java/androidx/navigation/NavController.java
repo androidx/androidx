@@ -104,6 +104,7 @@ public class NavController {
             popBackStack();
         }
     };
+    private boolean mEnableOnBackPressedCallback = true;
 
     /**
      * OnDestinationChangedListener receives a callback when the
@@ -122,6 +123,22 @@ public class NavController {
          */
         void onDestinationChanged(@NonNull NavController controller,
                 @NonNull NavDestination destination, @Nullable Bundle arguments);
+    }
+
+    /**
+     * Interface returned by
+     * {@link #setHostOnBackPressedDispatcherOwner(OnBackPressedDispatcherOwner)} to
+     * allow the {@link NavHost} to manually disable or enable whether the NavController
+     * should actively handle system Back button events.
+     */
+    public interface NavHostOnBackPressedManager {
+        /**
+         * Set whether the NavController should handle the system Back button events via the
+         * registered {@link OnBackPressedDispatcher}.
+         *
+         * @param enabled True if the NavController should handle system Back button events.
+         */
+        void enableOnBackPressed(boolean enabled);
     }
 
     /**
@@ -287,7 +304,7 @@ public class NavController {
                 break;
             }
         }
-        mOnBackPressedCallback.setEnabled(getDestinationCountOnBackStack() > 1);
+        updateOnBackPressedCallbackEnabled();
         return popped;
     }
 
@@ -485,7 +502,7 @@ public class NavController {
                 }
                 mBackStack.add(new NavBackStackEntry(uuid, node, args));
             }
-            mOnBackPressedCallback.setEnabled(getDestinationCountOnBackStack() > 1);
+            updateOnBackPressedCallbackEnabled();
             mBackStackUUIDsToRestore = null;
             mBackStackIdsToRestore = null;
             mBackStackArgsToRestore = null;
@@ -878,7 +895,7 @@ public class NavController {
                     newDest.addInDefaultArgs(finalArgs));
             mBackStack.add(newBackStackEntry);
         }
-        mOnBackPressedCallback.setEnabled(getDestinationCountOnBackStack() > 1);
+        updateOnBackPressedCallbackEnabled();
         if (popped || newDest != null) {
             dispatchOnDestinationChanged();
         }
@@ -1016,9 +1033,14 @@ public class NavController {
      *
      * @param owner The {@link OnBackPressedDispatcherOwner} associated with the containing
      * {@link NavHost}.
+     * @return a {@link NavHostOnBackPressedManager} that allows you to enable or disable
+     * whether this NavController should intercept the system Back button events using this
+     * {@link OnBackPressedDispatcher}.
      * @see #setHostLifecycleOwner(LifecycleOwner)
      */
-    public void setHostOnBackPressedDispatcherOwner(@NonNull OnBackPressedDispatcherOwner owner) {
+    @NonNull
+    public NavHostOnBackPressedManager setHostOnBackPressedDispatcherOwner(
+            @NonNull OnBackPressedDispatcherOwner owner) {
         if (mLifecycleOwner == null) {
             mLifecycleOwner = owner;
         }
@@ -1027,6 +1049,23 @@ public class NavController {
         mOnBackPressedCallback.remove();
         // Then add it to the new dispatcher
         dispatcher.addCallback(mLifecycleOwner, mOnBackPressedCallback);
+        return new NavHostOnBackPressedManager() {
+            @Override
+            public void enableOnBackPressed(boolean enabled) {
+                setEnableOnBackPressedCallback(enabled);
+            }
+        };
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void setEnableOnBackPressedCallback(boolean enableOnBackPressedCallback) {
+        mEnableOnBackPressedCallback = enableOnBackPressedCallback;
+        updateOnBackPressedCallbackEnabled();
+    }
+
+    private void updateOnBackPressedCallbackEnabled() {
+        mOnBackPressedCallback.setEnabled(mEnableOnBackPressedCallback
+                && getDestinationCountOnBackStack() > 1);
     }
 
     /**

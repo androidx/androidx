@@ -65,6 +65,23 @@ class OnBackPressedTest {
 
     @UiThreadTest
     @Test
+    fun testOnBackPressedAfterNavigate_notDefaultNavHost() {
+        val activity = activityRule.activity
+        val navController = activity.navController
+        navController.setGraph(R.navigation.nav_simple)
+        navController.navigate(R.id.empty_fragment)
+        activity.supportFragmentManager.beginTransaction()
+            .setPrimaryNavigationFragment(null)
+            .commitNow()
+
+        activity.onBackPressed()
+        assertWithMessage("onBackPressed() should finish the activity when not the primary nav")
+            .that(activity.isFinishing)
+            .isTrue()
+    }
+
+    @UiThreadTest
+    @Test
     fun testOnBackPressedWithChildBackStack() {
         val activity = activityRule.activity
         val navHostFragment = activity.supportFragmentManager.primaryNavigationFragment
