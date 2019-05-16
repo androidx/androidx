@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-DeprecationMismatch: androidx.legacy.app.ActionBarDrawerToggle:
-    Class androidx.legacy.app.ActionBarDrawerToggle: @Deprecated annotation (present) and @deprecated doc tag (not present) do not match
-
-

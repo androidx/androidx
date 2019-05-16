@@ -214,9 +214,7 @@ includeProject(":work:integration-tests:testapp", "work/integration-tests/testap
 //
 /////////////////////////////
 
-includeProject(":legacy-support-core-ui", "legacy/core-ui")
 includeProject(":legacy-support-core-utils", "legacy/core-utils")
-includeProject(":legacy-support-v13", "legacy/v13")
 
 /////////////////////////////
 //
