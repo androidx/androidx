@@ -248,6 +248,45 @@ public class MockPlayer extends SessionPlayer {
         }
     }
 
+    public void notifyTrackInfoChanged(final List<TrackInfo> trackInfos) {
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onTrackInfoChanged(MockPlayer.this, trackInfos);
+                }
+            });
+        }
+    }
+
+    public void notifyTrackSelected(final TrackInfo trackInfo) {
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onTrackSelected(MockPlayer.this, trackInfo);
+                }
+            });
+        }
+    }
+
+    public void notifyTrackDeselected(final TrackInfo trackInfo) {
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onTrackDeselected(MockPlayer.this, trackInfo);
+                }
+            });
+        }
+    }
+
     @Override
     public ListenableFuture<PlayerResult> setAudioAttributes(AudioAttributesCompat attributes) {
         mAudioAttributes = attributes;

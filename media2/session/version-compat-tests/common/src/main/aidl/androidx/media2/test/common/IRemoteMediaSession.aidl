@@ -64,4 +64,7 @@ interface IRemoteMediaSession {
     void notifyShuffleModeChanged(String sessionId);
     void notifyRepeatModeChanged(String sessionId);
     void notifyPlaybackCompleted(String sessionId);
+    void notifyTrackInfoChanged(String sessionId, in List<ParcelImpl> trackInfos);
+    void notifyTrackSelected(String sessionId, in ParcelImpl trackInfo);
+    void notifyTrackDeselected(String sessionId, in ParcelImpl trackInfo);
 }

@@ -28,6 +28,7 @@ import static androidx.media2.test.common.CommonConstants.KEY_METADATA;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media2.test.common.CommonConstants.KEY_PLAYLIST;
 import static androidx.media2.test.common.CommonConstants.KEY_SPEED;
+import static androidx.media2.test.common.CommonConstants.KEY_TRACK_INFO;
 import static androidx.media2.test.common.CommonConstants.KEY_VIDEO_SIZE;
 import static androidx.media2.test.common.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
 import static androidx.media2.test.common.CommonConstants.MEDIA2_SESSION_PROVIDER_SERVICE;
@@ -186,6 +187,13 @@ public class RemoteMediaSession {
     public static Bundle createMockPlayerConnectorConfigForVideoSize(@NonNull VideoSize videoSize) {
         Bundle bundle = new Bundle();
         bundle.putParcelable(KEY_VIDEO_SIZE, MediaParcelUtils.toParcelable(videoSize));
+        return bundle;
+    }
+
+    public static Bundle createMockPlayerConnectorConfigForTrackInfo(
+            @NonNull List<SessionPlayer.TrackInfo> trackInfos) {
+        Bundle bundle = new Bundle();
+        ParcelUtils.putVersionedParcelableList(bundle, KEY_TRACK_INFO, trackInfos);
         return bundle;
     }
 
@@ -493,7 +501,7 @@ public class RemoteMediaSession {
             try {
                 mBinder.notifyPlaybackCompleted(mSessionId);
             } catch (RemoteException ex) {
-                Log.e(TAG, "Failed to call notifyRepeatModeChanged()");
+                Log.e(TAG, "Failed to call notifyPlaybackCompleted()");
             }
         }
 
@@ -508,6 +516,33 @@ public class RemoteMediaSession {
 
         public boolean surfaceExists() throws RemoteException {
             return mBinder.surfaceExists(mSessionId);
+        }
+
+        public void notifyTrackInfoChanged(List<SessionPlayer.TrackInfo> trackInfos) {
+            try {
+                mBinder.notifyTrackInfoChanged(mSessionId,
+                        MediaParcelUtils.toParcelableList(trackInfos));
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call notifyTrackInfoChanged()");
+            }
+        }
+
+        public void notifyTrackSelected(SessionPlayer.TrackInfo trackInfo) {
+            try {
+                mBinder.notifyTrackSelected(mSessionId,
+                        MediaParcelUtils.toParcelable(trackInfo));
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call notifyTrackSelected()");
+            }
+        }
+
+        public void notifyTrackDeselected(SessionPlayer.TrackInfo trackInfo) {
+            try {
+                mBinder.notifyTrackDeselected(mSessionId,
+                        MediaParcelUtils.toParcelable(trackInfo));
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call notifyTrackDeselected()");
+            }
         }
     }
 

@@ -68,6 +68,7 @@ public class CommonConstants {
     public static final String KEY_CURRENT_VOLUME = "currentVolume";
     public static final String KEY_VOLUME_CONTROL_TYPE = "volumeControlType";
     public static final String KEY_VIDEO_SIZE = "videoSize";
+    public static final String KEY_TRACK_INFO = "trackInfo";
 
     // SessionCompat arguments
     public static final String KEY_SESSION_COMPAT_TOKEN = "sessionCompatToken";
