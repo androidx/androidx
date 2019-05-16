@@ -384,7 +384,7 @@ class AndroidLayoutDrawTest {
 
     // When a child's measure() is done within the layout, it should not affect the parent's
     // size. The parent's layout shouldn't be called when the child's size changes
-    // @Test Disabled: b/131860988
+    @Test
     fun measureInLayoutDoesNotAffectParentSize() {
         val white = Color(0xFFFFFFFF.toInt())
         val blue = Color(0xFF000080.toInt())
@@ -392,6 +392,7 @@ class AndroidLayoutDrawTest {
         var measureCalls = 0
         var layoutCalls = 0
 
+        val layoutLatch = CountDownLatch(2)
         runOnUiThread {
             activity.setContent {
                 CraneWrapper {
@@ -413,6 +414,7 @@ class AndroidLayoutDrawTest {
                         measureCalls++
                         layout(30.ipx, 30.ipx) {
                             layoutCalls++
+                            layoutLatch.countDown()
                             val placeable = measurables[0].measure(constraints)
                             placeable.place(
                                 (30.ipx - placeable.width) / 2,
@@ -423,12 +425,13 @@ class AndroidLayoutDrawTest {
                 }
             }
         }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
 
         layoutCalls = 0
         measureCalls = 0
         drawLatch = CountDownLatch(1)
-
         runOnUiThread {
             model.size = 20.ipx
         }
