@@ -973,8 +973,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Row(mainAxisAlignment = MainAxisAlignment.Start) {
-                    // TODO(popam): replace with normal for loop when IR is fixed
-                    childPosition.forEachIndexed { i, _ ->
+                    for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
@@ -983,7 +982,7 @@ class FlexTest : LayoutTest() {
                         }
                     }
                     OnPositioned(onPositioned = { coordinates ->
-                        childPosition.forEachIndexed { i, _ ->
+                        for (i in 0 until childPosition.size) {
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
@@ -1015,8 +1014,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Row(mainAxisAlignment = MainAxisAlignment.End) {
-                    // TODO(popam): replace with normal for loop when IR is fixed
-                    childPosition.forEachIndexed { i, _ ->
+                    for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
@@ -1025,7 +1023,7 @@ class FlexTest : LayoutTest() {
                         }
                     }
                     OnPositioned(onPositioned = { coordinates ->
-                        childPosition.forEachIndexed { i, _ ->
+                        for (i in 0 until childPosition.size) {
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
@@ -1057,8 +1055,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Row(mainAxisAlignment = MainAxisAlignment.Center) {
-                    // TODO(popam): replace with normal for loop when IR is fixed
-                    childPosition.forEachIndexed { i, _ ->
+                    for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
@@ -1067,7 +1064,7 @@ class FlexTest : LayoutTest() {
                         }
                     }
                     OnPositioned(onPositioned = { coordinates ->
-                        childPosition.forEachIndexed { i, _ ->
+                        for (i in 0 until childPosition.size) {
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
@@ -1100,8 +1097,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
-                    // TODO(popam): replace with normal for loop when IR is fixed
-                    childPosition.forEachIndexed { i, _ ->
+                    for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
@@ -1110,7 +1106,7 @@ class FlexTest : LayoutTest() {
                         }
                     }
                     OnPositioned(onPositioned = { coordinates ->
-                        childPosition.forEachIndexed { i, _ ->
+                        for (i in 0 until childPosition.size) {
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
@@ -1143,8 +1139,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Row(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
-                    // TODO(popam): replace with normal for loop when IR is fixed
-                    childPosition.forEachIndexed { i, _ ->
+                    for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
@@ -1153,7 +1148,7 @@ class FlexTest : LayoutTest() {
                         }
                     }
                     OnPositioned(onPositioned = { coordinates ->
-                        childPosition.forEachIndexed { i, _ ->
+                        for (i in 0 until childPosition.size) {
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
@@ -1186,8 +1181,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Row(mainAxisAlignment = MainAxisAlignment.SpaceAround) {
-                    // TODO(popam): replace with normal for loop when IR is fixed
-                    childPosition.forEachIndexed { i, _ ->
+                    for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
@@ -1196,7 +1190,7 @@ class FlexTest : LayoutTest() {
                         }
                     }
                     OnPositioned(onPositioned = { coordinates ->
-                        childPosition.forEachIndexed { i, _ ->
+                        for (i in 0 until childPosition.size) {
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
@@ -1229,8 +1223,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Column(mainAxisAlignment = MainAxisAlignment.Start) {
-                    // TODO(popam): replace with normal for loop when IR is fixed
-                    childPosition.forEachIndexed { i, _ ->
+                    for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
@@ -1239,7 +1232,7 @@ class FlexTest : LayoutTest() {
                         }
                     }
                     OnPositioned(onPositioned = { coordinates ->
-                        childPosition.forEachIndexed { i, _ ->
+                        for (i in 0 until childPosition.size) {
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
@@ -1271,8 +1264,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Column(mainAxisAlignment = MainAxisAlignment.End) {
-                    // TODO(popam): replace with normal for loop when IR is fixed
-                    childPosition.forEachIndexed { i, _ ->
+                    for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
@@ -1281,7 +1273,7 @@ class FlexTest : LayoutTest() {
                         }
                     }
                     OnPositioned(onPositioned = { coordinates ->
-                        childPosition.forEachIndexed { i, _ ->
+                        for (i in 0 until childPosition.size) {
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
@@ -1313,8 +1305,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Column(mainAxisAlignment = MainAxisAlignment.Center) {
-                    // TODO(popam): replace with normal for loop when IR is fixed
-                    childPosition.forEachIndexed { i, _ ->
+                    for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
@@ -1323,7 +1314,7 @@ class FlexTest : LayoutTest() {
                         }
                     }
                     OnPositioned(onPositioned = { coordinates ->
-                        childPosition.forEachIndexed { i, _ ->
+                        for (i in 0 until childPosition.size) {
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
@@ -1356,8 +1347,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Column(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
-                    // TODO(popam): replace with normal for loop when IR is fixed
-                    childPosition.forEachIndexed { i, _ ->
+                    for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
@@ -1366,7 +1356,7 @@ class FlexTest : LayoutTest() {
                         }
                     }
                     OnPositioned(onPositioned = { coordinates ->
-                        childPosition.forEachIndexed { i, _ ->
+                        for (i in 0 until childPosition.size) {
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
@@ -1399,8 +1389,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Column(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
-                    // TODO(popam): replace with normal for loop when IR is fixed
-                    childPosition.forEachIndexed { i, _ ->
+                    for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
@@ -1409,7 +1398,7 @@ class FlexTest : LayoutTest() {
                         }
                     }
                     OnPositioned(onPositioned = { coordinates ->
-                        childPosition.forEachIndexed { i, _ ->
+                        for (i in 0 until childPosition.size) {
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }
@@ -1442,8 +1431,7 @@ class FlexTest : LayoutTest() {
         show {
             Center {
                 Column(mainAxisAlignment = MainAxisAlignment.SpaceAround) {
-                    // TODO(popam): replace with normal for loop when IR is fixed
-                    childPosition.forEachIndexed { i, _ ->
+                    for (i in 0 until childPosition.size) {
                         Container(width = sizeDp, height = sizeDp) {
                             OnPositioned(onPositioned = { coordinates ->
                                 childLayoutCoordinates[i] = coordinates
@@ -1452,7 +1440,7 @@ class FlexTest : LayoutTest() {
                         }
                     }
                     OnPositioned(onPositioned = { coordinates ->
-                        childPosition.forEachIndexed { i, _ ->
+                        for (i in 0 until childPosition.size) {
                             childPosition[i] = coordinates
                                 .childToLocal(childLayoutCoordinates[i]!!, PxPosition(0.px, 0.px))
                         }

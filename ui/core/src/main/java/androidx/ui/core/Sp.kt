@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("NOTHING_TO_INLINE")
 
 package androidx.ui.core
 
@@ -33,47 +34,47 @@ data /*inline*/ class Sp(val value: Float) {
     /**
      * Add two [Sp]s together.
      */
-    /*inline*/ operator fun plus(other: Sp) =
+    inline operator fun plus(other: Sp) =
         Sp(value = this.value + other.value)
 
     /**
      * Subtract a Sp from another one.
      */
-    /*inline*/ operator fun minus(other: Sp) =
+    inline operator fun minus(other: Sp) =
         Sp(value = this.value - other.value)
 
     /**
      * This is the same as multiplying the Sp by -1.0.
      */
-    /*inline*/ operator fun unaryMinus() = Sp(-value)
+    inline operator fun unaryMinus() = Sp(-value)
 
     /**
      * Divide a Sp by a scalar.
      */
-    /*inline*/ operator fun div(other: Float): Sp =
+    inline operator fun div(other: Float): Sp =
         Sp(value = value / other)
 
-    /*inline*/ operator fun div(other: Int): Sp =
+    inline operator fun div(other: Int): Sp =
         Sp(value = value / other)
 
     /**
      * Divide by another Sp to get a scalar.
      */
-    /*inline*/ operator fun div(other: Sp): Float = value / other.value
+    inline operator fun div(other: Sp): Float = value / other.value
 
     /**
      * Multiply a Sp by a scalar.
      */
-    /*inline*/ operator fun times(other: Float): Sp =
+    inline operator fun times(other: Float): Sp =
         Sp(value = value * other)
 
-    /*inline*/ operator fun times(other: Int): Sp =
+    inline operator fun times(other: Int): Sp =
         Sp(value = value * other)
 
     /**
      * Support comparing Dimensions with comparison operators.
      */
-    /*inline*/ operator fun compareTo(other: Sp) = value.compareTo(other.value)
+    inline operator fun compareTo(other: Sp) = value.compareTo(other.value)
 
     companion object {
         /**
@@ -90,7 +91,7 @@ data /*inline*/ class Sp(val value: Float) {
  *     // -- or --
  *     val y = 10.sp
  */
-/*inline*/ val Int.sp: Sp get() = Sp(value = this.toFloat())
+inline val Int.sp: Sp get() = Sp(value = this.toFloat())
 
 /**
  * Create a [Sp] using a [Double]:
@@ -99,7 +100,7 @@ data /*inline*/ class Sp(val value: Float) {
  *     // -- or --
  *     val y = 10.0.sp
  */
-/*inline*/ val Double.sp: Sp get() = Sp(value = this.toFloat())
+inline val Double.sp: Sp get() = Sp(value = this.toFloat())
 
 /**
  * Create a [Sp] using a [Float]:
@@ -108,20 +109,20 @@ data /*inline*/ class Sp(val value: Float) {
  *     // -- or --
  *     val y = 10f.sp
  */
-/*inline*/ val Float.sp: Sp get() = Sp(value = this)
+inline val Float.sp: Sp get() = Sp(value = this)
 
-/*inline*/ operator fun Float.times(other: Sp) =
+inline operator fun Float.times(other: Sp) =
     Sp(this * other.value)
 
-/*inline*/ operator fun Double.times(other: Sp) =
+inline operator fun Double.times(other: Sp) =
     Sp(this.toFloat() * other.value)
 
-/*inline*/ operator fun Int.times(other: Sp) =
+inline operator fun Int.times(other: Sp) =
     Sp(this * other.value)
 
-/*inline*/ fun min(a: Sp, b: Sp): Sp = Sp(value = kotlin.math.min(a.value, b.value))
+inline fun min(a: Sp, b: Sp): Sp = Sp(value = kotlin.math.min(a.value, b.value))
 
-/*inline*/ fun max(a: Sp, b: Sp): Sp = Sp(value = kotlin.math.max(a.value, b.value))
+inline fun max(a: Sp, b: Sp): Sp = Sp(value = kotlin.math.max(a.value, b.value))
 
 /**
  * Ensures that this value lies in the specified range [minimumValue]..[maximumValue].
@@ -129,7 +130,7 @@ data /*inline*/ class Sp(val value: Float) {
  * @return this value if it's in the range, or [minimumValue] if this value is less than
  * [minimumValue], or [maximumValue] if this value is greater than [maximumValue].
  */
-/*inline*/ fun Sp.coerceIn(minimumValue: Sp, maximumValue: Sp): Sp =
+inline fun Sp.coerceIn(minimumValue: Sp, maximumValue: Sp): Sp =
     Sp(value = value.coerceIn(minimumValue.value, maximumValue.value))
 
 /**
@@ -138,7 +139,7 @@ data /*inline*/ class Sp(val value: Float) {
  * @return this value if it's greater than or equal to the [minimumValue] or the
  * [minimumValue] otherwise.
  */
-/*inline*/ fun Sp.coerceAtLeast(minimumValue: Sp): Sp =
+inline fun Sp.coerceAtLeast(minimumValue: Sp): Sp =
     Sp(value = value.coerceAtLeast(minimumValue.value))
 
 /**
@@ -147,7 +148,7 @@ data /*inline*/ class Sp(val value: Float) {
  * @return this value if it's less than or equal to the [maximumValue] or the
  * [maximumValue] otherwise.
  */
-/*inline*/ fun Sp.coerceAtMost(maximumValue: Sp): Sp =
+inline fun Sp.coerceAtMost(maximumValue: Sp): Sp =
     Sp(value = value.coerceAtMost(maximumValue.value))
 
 /**

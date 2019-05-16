@@ -40,76 +40,76 @@ data /*inline*/ class Px(val value: Float) {
     /**
      * Add two [Px]s together.
      */
-    /*inline*/ operator fun plus(other: Px) =
+    inline operator fun plus(other: Px) =
         Px(value = this.value + other.value)
 
     /**
      * Subtract a Px from another one.
      */
-    /*inline*/ operator fun minus(other: Px) =
+    inline operator fun minus(other: Px) =
         Px(value = this.value - other.value)
 
     /**
      * This is the same as multiplying the Px by -1.0.
      */
-    /*inline*/ operator fun unaryMinus() = Px(-value)
+    inline operator fun unaryMinus() = Px(-value)
 
     /**
      * Divide a Px by a scalar.
      */
-    /*inline*/ operator fun div(other: Float): Px =
+    inline operator fun div(other: Float): Px =
         Px(value = value / other)
 
-    /*inline*/ operator fun div(other: Int): Px =
+    inline operator fun div(other: Int): Px =
         Px(value = value / other)
 
     /**
      * Divide by another Px to get a scalar.
      */
-    /*inline*/ operator fun div(other: Px): Float = value / other.value
+    inline operator fun div(other: Px): Float = value / other.value
 
     /**
      * Divide by [PxSquared] to get a [PxInverse].
      */
-    /*inline*/ operator fun div(other: PxSquared): PxInverse =
+    inline operator fun div(other: PxSquared): PxInverse =
         PxInverse(value = value / other.value)
 
     /**
      * Multiply a Px by a scalar.
      */
-    /*inline*/ operator fun times(other: Float): Px =
+    inline operator fun times(other: Float): Px =
         Px(value = value * other)
 
-    /*inline*/ operator fun times(other: Int): Px =
+    inline operator fun times(other: Int): Px =
         Px(value = value * other)
 
     /**
      * Multiply by a Px to get a [PxSquared] result.
      */
-    /*inline*/ operator fun times(other: Px): PxSquared =
+    inline operator fun times(other: Px): PxSquared =
         PxSquared(value = value * other.value)
 
     /**
      * Multiply by a Px to get a [PxSquared] result.
      */
-    /*inline*/ operator fun times(other: PxSquared): PxCubed =
+    inline operator fun times(other: PxSquared): PxCubed =
         PxCubed(value = value * other.value)
 
     /**
      * Compare [Px] with another [Px].
      */
-    /*inline*/ operator fun compareTo(other: Px) = value.compareTo(other.value)
+    inline operator fun compareTo(other: Px) = value.compareTo(other.value)
 
     /**
      * Add an [IntPx] to this [Px].
      */
-    /*inline*/ operator fun plus(other: IntPx) =
+    inline operator fun plus(other: IntPx) =
         Px(value = this.value + other.value)
 
     /**
      * Subtract an [IntPx] from this [Px].
      */
-    /*inline*/ operator fun minus(other: IntPx) =
+    inline operator fun minus(other: IntPx) =
         Px(value = this.value - other.value)
 
     companion object {
@@ -120,7 +120,6 @@ data /*inline*/ class Px(val value: Float) {
     }
 }
 
-// TODO(mount): regain the inline in the below extension properties. These don't work with jacoco
 /**
  * Create a [Px] using an [Int]:
  *     val left = 10
@@ -128,7 +127,7 @@ data /*inline*/ class Px(val value: Float) {
  *     // -- or --
  *     val y = 10.px
  */
-/*inline*/ val Int.px: Px get() = Px(value = this.toFloat())
+inline val Int.px: Px get() = Px(value = this.toFloat())
 
 /**
  * Create a [Px] using a [Double]:
@@ -137,7 +136,7 @@ data /*inline*/ class Px(val value: Float) {
  *     // -- or --
  *     val y = 10.0.px
  */
-/*inline*/ val Double.px: Px get() = Px(value = this.toFloat())
+inline val Double.px: Px get() = Px(value = this.toFloat())
 
 /**
  * Create a [Px] using a [Float]:
@@ -146,29 +145,29 @@ data /*inline*/ class Px(val value: Float) {
  *     // -- or --
  *     val y = 10f.px
  */
-/*inline*/ val Float.px: Px get() = Px(value = this)
+inline val Float.px: Px get() = Px(value = this)
 
-/*inline*/ operator fun Float.div(other: Px) =
+inline operator fun Float.div(other: Px) =
     PxInverse(this / other.value)
 
-/*inline*/ operator fun Double.div(other: Px) =
+inline operator fun Double.div(other: Px) =
     PxInverse(this.toFloat() / other.value)
 
-/*inline*/ operator fun Int.div(other: Px) =
+inline operator fun Int.div(other: Px) =
     PxInverse(this / other.value)
 
-/*inline*/ operator fun Float.times(other: Px) =
+inline operator fun Float.times(other: Px) =
     Px(this * other.value)
 
-/*inline*/ operator fun Double.times(other: Px) =
+inline operator fun Double.times(other: Px) =
     Px(this.toFloat() * other.value)
 
-/*inline*/ operator fun Int.times(other: Px) =
+inline operator fun Int.times(other: Px) =
     Px(this * other.value)
 
-/*inline*/ fun min(a: Px, b: Px): Px = Px(value = min(a.value, b.value))
+inline fun min(a: Px, b: Px): Px = Px(value = min(a.value, b.value))
 
-/*inline*/ fun max(a: Px, b: Px): Px = Px(value = max(a.value, b.value))
+inline fun max(a: Px, b: Px): Px = Px(value = max(a.value, b.value))
 
 /**
  * Ensures that this value lies in the specified range [minimumValue]..[maximumValue].
@@ -176,7 +175,7 @@ data /*inline*/ class Px(val value: Float) {
  * @return this value if it's in the range, or [minimumValue] if this value is less than
  * [minimumValue], or [maximumValue] if this value is greater than [maximumValue].
  */
-/*inline*/ fun Px.coerceIn(minimumValue: Px, maximumValue: Px): Px =
+inline fun Px.coerceIn(minimumValue: Px, maximumValue: Px): Px =
     Px(value = value.coerceIn(minimumValue.value, maximumValue.value))
 
 /**
@@ -185,7 +184,7 @@ data /*inline*/ class Px(val value: Float) {
  * @return this value if it's greater than or equal to the [minimumValue] or the
  * [minimumValue] otherwise.
  */
-/*inline*/ fun Px.coerceAtLeast(minimumValue: Px): Px =
+inline fun Px.coerceAtLeast(minimumValue: Px): Px =
     Px(value = value.coerceAtLeast(minimumValue.value))
 
 /**
@@ -194,7 +193,7 @@ data /*inline*/ class Px(val value: Float) {
  * @return this value if it's less than or equal to the [maximumValue] or the
  * [maximumValue] otherwise.
  */
-/*inline*/ fun Px.coerceAtMost(maximumValue: Px): Px =
+inline fun Px.coerceAtMost(maximumValue: Px): Px =
     Px(value = value.coerceAtMost(maximumValue.value))
 
 /**
@@ -226,54 +225,54 @@ inline class PxSquared(val value: Float) {
     /**
      * Add two DimensionSquares together.
      */
-    /*inline*/ operator fun plus(other: PxSquared) =
+    inline operator fun plus(other: PxSquared) =
         PxSquared(value = value + other.value)
 
     /**
      * Subtract a DimensionSquare from another one.
      */
-    /*inline*/ operator fun minus(other: PxSquared) =
+    inline operator fun minus(other: PxSquared) =
         PxSquared(value = value - other.value)
 
     /**
      * Divide a DimensionSquare by a scalar.
      */
-    /*inline*/ operator fun div(other: Float): PxSquared =
+    inline operator fun div(other: Float): PxSquared =
         PxSquared(value = value / other)
 
     /**
      * Divide by a [Px] to get a [Px] result.
      */
-    /*inline*/ operator fun div(other: Px): Px =
+    inline operator fun div(other: Px): Px =
         Px(value = value / other.value)
 
     /**
      * Divide by a PxSquared to get a scalar result.
      */
-    /*inline*/ operator fun div(other: PxSquared): Float = value / other.value
+    inline operator fun div(other: PxSquared): Float = value / other.value
 
     /**
      * Divide by a [PxCubed] to get a [PxInverse] result.
      */
-    /*inline*/ operator fun div(other: PxCubed): PxInverse =
+    inline operator fun div(other: PxCubed): PxInverse =
         PxInverse(value / other.value)
 
     /**
      * Multiply by a scalar to get a PxSquared result.
      */
-    /*inline*/ operator fun times(other: Float): PxSquared =
+    inline operator fun times(other: Float): PxSquared =
         PxSquared(value = value * other)
 
     /**
      * Multiply by a scalar to get a PxSquared result.
      */
-    /*inline*/ operator fun times(other: Px): PxCubed =
+    inline operator fun times(other: Px): PxCubed =
         PxCubed(value = value * other.value)
 
     /**
      * Support comparing PxSquared with comparison operators.
      */
-    /*inline*/ operator fun compareTo(other: PxSquared) =
+    inline operator fun compareTo(other: PxSquared) =
         value.compareTo(other.value)
 }
 
@@ -291,48 +290,48 @@ inline class PxCubed(val value: Float) {
     /**
      * Add two PxCubed together.
      */
-    /*inline*/ operator fun plus(dimension: PxCubed) =
+    inline operator fun plus(dimension: PxCubed) =
         PxCubed(value = value + dimension.value)
 
     /**
      * Subtract a PxCubed from another one.
      */
-    /*inline*/ operator fun minus(dimension: PxCubed) =
+    inline operator fun minus(dimension: PxCubed) =
         PxCubed(value = value - dimension.value)
 
     /**
      * Divide a PxCubed by a scalar.
      */
-    /*inline*/ operator fun div(other: Float): PxCubed =
+    inline operator fun div(other: Float): PxCubed =
         PxCubed(value = value / other)
 
     /**
      * Divide by a [Px] to get a [PxSquared] result.
      */
-    /*inline*/ operator fun div(other: Px): PxSquared =
+    inline operator fun div(other: Px): PxSquared =
         PxSquared(value = value / other.value)
 
     /**
      * Divide by a [PxSquared] to get a [Px] result.
      */
-    /*inline*/ operator fun div(other: PxSquared): Px =
+    inline operator fun div(other: PxSquared): Px =
         Px(value = value / other.value)
 
     /**
      * Divide by a PxCubed to get a scalar result.
      */
-    /*inline*/ operator fun div(other: PxCubed): Float = value / other.value
+    inline operator fun div(other: PxCubed): Float = value / other.value
 
     /**
      * Multiply by a scalar to get a PxCubed result.
      */
-    /*inline*/ operator fun times(other: Float): PxCubed =
+    inline operator fun times(other: Float): PxCubed =
         PxCubed(value = value * other)
 
     /**
      * Support comparing PxCubed with comparison operators.
      */
-    /*inline*/ operator fun compareTo(other: PxCubed) = value.compareTo(other.value)
+    inline operator fun compareTo(other: PxCubed) = value.compareTo(other.value)
 }
 
 /**
@@ -349,48 +348,48 @@ inline class PxInverse(val value: Float) {
     /**
      * Add two PxInverse together.
      */
-    /*inline*/ operator fun plus(dimension: PxInverse) =
+    inline operator fun plus(dimension: PxInverse) =
         PxInverse(value = value + dimension.value)
 
     /**
      * Subtract a PxInverse from another one.
      */
-    /*inline*/ operator fun minus(dimension: PxInverse) =
+    inline operator fun minus(dimension: PxInverse) =
         PxInverse(value = value - dimension.value)
 
     /**
      * Divide a PxInverse by a scalar.
      */
-    /*inline*/ operator fun div(other: Float): PxInverse =
+    inline operator fun div(other: Float): PxInverse =
         PxInverse(value = value / other)
 
     /**
      * Multiply by a scalar to get a PxInverse result.
      */
-    /*inline*/ operator fun times(other: Float): PxInverse =
+    inline operator fun times(other: Float): PxInverse =
         PxInverse(value = value * other)
 
     /**
      * Multiply by a [Px] to get a scalar result.
      */
-    /*inline*/ operator fun times(other: Px): Float = value * other.value
+    inline operator fun times(other: Px): Float = value * other.value
 
     /**
      * Multiply by a [PxSquared] to get a [Px] result.
      */
-    /*inline*/ operator fun times(other: PxSquared): Px =
+    inline operator fun times(other: PxSquared): Px =
         Px(value = value * other.value)
 
     /**
      * Multiply by a [PxCubed] to get a [PxSquared] result.
      */
-    /*inline*/ operator fun times(other: PxCubed): PxSquared =
+    inline operator fun times(other: PxCubed): PxSquared =
         PxSquared(value = value * other.value)
 
     /**
      * Support comparing PxInverse with comparison operators.
      */
-    /*inline*/ operator fun compareTo(other: PxInverse) =
+    inline operator fun compareTo(other: PxInverse) =
         value.compareTo(other.value)
 }
 
@@ -418,31 +417,31 @@ data class PxPosition(val x: Px, val y: Px) {
     /**
      * Subtract a [PxPosition] from another one.
      */
-    /*inline*/ operator fun minus(other: PxPosition) =
+    inline operator fun minus(other: PxPosition) =
         PxPosition(x - other.x, y - other.y)
 
     /**
      * Add a [PxPosition] to another one.
      */
-    /*inline*/ operator fun plus(other: PxPosition) =
+    inline operator fun plus(other: PxPosition) =
         PxPosition(x + other.x, y + other.y)
 
     /**
      * Subtract a [IntPxPosition] from this [PxPosition].
      */
-    /*inline*/ operator fun minus(other: IntPxPosition) =
+    inline operator fun minus(other: IntPxPosition) =
         PxPosition(x - other.x, y - other.y)
 
     /**
      * Add a [IntPxPosition] to this [PxPosition].
      */
-    /*inline*/ operator fun plus(other: IntPxPosition) =
+    inline operator fun plus(other: IntPxPosition) =
         PxPosition(x + other.x, y + other.y)
 
     /**
      * Returns a new PxPosition representing the negation of this point.
      */
-    /*inline*/ operator fun unaryMinus() = PxPosition(-x, -y)
+    inline operator fun unaryMinus() = PxPosition(-x, -y)
 
     companion object {
         val Origin = PxPosition(0.px, 0.px)
@@ -459,7 +458,7 @@ fun PxPosition.getDistance(): Px {
 /**
  * Convert a [PxPosition] to a [Offset].
  */
-fun PxPosition.toOffset(): Offset {
+inline fun PxPosition.toOffset(): Offset {
     return Offset(x.value, y.value)
 }
 
@@ -490,12 +489,12 @@ data class PxBounds(
 /**
  * A width of this PxBounds in [Px].
  */
-val PxBounds.width: Px get() = right - left
+inline val PxBounds.width: Px get() = right - left
 
 /**
  * A height of this PxBounds in [Px].
  */
-val PxBounds.height: Px get() = bottom - top
+inline val PxBounds.height: Px get() = bottom - top
 
 /**
  * Convert a [PxBounds] to a [PxSize].

@@ -41,65 +41,65 @@ data /*inline*/ class Dp(val value: Float) {
     /**
      * Add two [Dp]s together.
      */
-    /*inline*/ operator fun plus(other: Dp) =
+    inline operator fun plus(other: Dp) =
         Dp(value = this.value + other.value)
 
     /**
      * Subtract a Dp from another one.
      */
-    /*inline*/ operator fun minus(other: Dp) =
+    inline operator fun minus(other: Dp) =
         Dp(value = this.value - other.value)
 
     /**
      * This is the same as multiplying the Dp by -1.0.
      */
-    /*inline*/ operator fun unaryMinus() = Dp(-value)
+    inline operator fun unaryMinus() = Dp(-value)
 
     /**
      * Divide a Dp by a scalar.
      */
-    /*inline*/ operator fun div(other: Float): Dp =
+    inline operator fun div(other: Float): Dp =
         Dp(value = value / other)
 
-    /*inline*/ operator fun div(other: Int): Dp =
+    inline operator fun div(other: Int): Dp =
         Dp(value = value / other)
 
     /**
      * Divide by another Dp to get a scalar.
      */
-    /*inline*/ operator fun div(other: Dp): Float = value / other.value
+    inline operator fun div(other: Dp): Float = value / other.value
 
     /**
      * Divide by [DpSquared] to get a [DpInverse].
      */
-    /*inline*/ operator fun div(other: DpSquared): DpInverse =
+    inline operator fun div(other: DpSquared): DpInverse =
         DpInverse(value = value / other.value)
 
     /**
      * Multiply a Dp by a scalar.
      */
-    /*inline*/ operator fun times(other: Float): Dp =
+    inline operator fun times(other: Float): Dp =
         Dp(value = value * other)
 
-    /*inline*/ operator fun times(other: Int): Dp =
+    inline operator fun times(other: Int): Dp =
         Dp(value = value * other)
 
     /**
      * Multiply by a Dp to get a [DpSquared] result.
      */
-    /*inline*/ operator fun times(other: Dp): DpSquared =
+    inline operator fun times(other: Dp): DpSquared =
         DpSquared(value = value * other.value)
 
     /**
      * Multiply by a Dp to get a [DpSquared] result.
      */
-    /*inline*/ operator fun times(other: DpSquared): DpCubed =
+    inline operator fun times(other: DpSquared): DpCubed =
         DpCubed(value = value * other.value)
 
     /**
      * Support comparing Dimensions with comparison operators.
      */
-    /*inline*/ operator fun compareTo(other: Dp) = value.compareTo(other.value)
+    inline operator fun compareTo(other: Dp) = value.compareTo(other.value)
 
     companion object {
         /**
@@ -115,7 +115,6 @@ data /*inline*/ class Dp(val value: Float) {
     }
 }
 
-// TODO(mount): regain the inline in the below extension properties. These don't work with jacoco
 /**
  * Create a [Dp] using an [Int]:
  *     val left = 10
@@ -123,7 +122,7 @@ data /*inline*/ class Dp(val value: Float) {
  *     // -- or --
  *     val y = 10.dp
  */
-/*inline*/ val Int.dp: Dp get() = Dp(value = this.toFloat())
+inline val Int.dp: Dp get() = Dp(value = this.toFloat())
 
 /**
  * Create a [Dp] using a [Double]:
@@ -132,7 +131,7 @@ data /*inline*/ class Dp(val value: Float) {
  *     // -- or --
  *     val y = 10.0.dp
  */
-/*inline*/ val Double.dp: Dp get() = Dp(value = this.toFloat())
+inline val Double.dp: Dp get() = Dp(value = this.toFloat())
 
 /**
  * Create a [Dp] using a [Float]:
@@ -141,29 +140,29 @@ data /*inline*/ class Dp(val value: Float) {
  *     // -- or --
  *     val y = 10f.dp
  */
-/*inline*/ val Float.dp: Dp get() = Dp(value = this)
+inline val Float.dp: Dp get() = Dp(value = this)
 
-/*inline*/ operator fun Float.div(other: Dp) =
+inline operator fun Float.div(other: Dp) =
     DpInverse(this / other.value)
 
-/*inline*/ operator fun Double.div(other: Dp) =
+inline operator fun Double.div(other: Dp) =
     DpInverse(this.toFloat() / other.value)
 
-/*inline*/ operator fun Int.div(other: Dp) =
+inline operator fun Int.div(other: Dp) =
     DpInverse(this / other.value)
 
-/*inline*/ operator fun Float.times(other: Dp) =
+inline operator fun Float.times(other: Dp) =
     Dp(this * other.value)
 
-/*inline*/ operator fun Double.times(other: Dp) =
+inline operator fun Double.times(other: Dp) =
     Dp(this.toFloat() * other.value)
 
-/*inline*/ operator fun Int.times(other: Dp) =
+inline operator fun Int.times(other: Dp) =
     Dp(this * other.value)
 
-/*inline*/ fun min(a: Dp, b: Dp): Dp = Dp(value = min(a.value, b.value))
+inline fun min(a: Dp, b: Dp): Dp = Dp(value = min(a.value, b.value))
 
-/*inline*/ fun max(a: Dp, b: Dp): Dp = Dp(value = max(a.value, b.value))
+inline fun max(a: Dp, b: Dp): Dp = Dp(value = max(a.value, b.value))
 
 /**
  * Ensures that this value lies in the specified range [minimumValue]..[maximumValue].
@@ -171,7 +170,7 @@ data /*inline*/ class Dp(val value: Float) {
  * @return this value if it's in the range, or [minimumValue] if this value is less than
  * [minimumValue], or [maximumValue] if this value is greater than [maximumValue].
  */
-/*inline*/ fun Dp.coerceIn(minimumValue: Dp, maximumValue: Dp): Dp =
+inline fun Dp.coerceIn(minimumValue: Dp, maximumValue: Dp): Dp =
     Dp(value = value.coerceIn(minimumValue.value, maximumValue.value))
 
 /**
@@ -180,7 +179,7 @@ data /*inline*/ class Dp(val value: Float) {
  * @return this value if it's greater than or equal to the [minimumValue] or the
  * [minimumValue] otherwise.
  */
-/*inline*/ fun Dp.coerceAtLeast(minimumValue: Dp): Dp =
+inline fun Dp.coerceAtLeast(minimumValue: Dp): Dp =
     Dp(value = value.coerceAtLeast(minimumValue.value))
 
 /**
@@ -189,14 +188,14 @@ data /*inline*/ class Dp(val value: Float) {
  * @return this value if it's less than or equal to the [maximumValue] or the
  * [maximumValue] otherwise.
  */
-/*inline*/ fun Dp.coerceAtMost(maximumValue: Dp): Dp =
+inline fun Dp.coerceAtMost(maximumValue: Dp): Dp =
     Dp(value = value.coerceAtMost(maximumValue.value))
 
 /**
  *
  * Return whether `true` when it is finite or `false` when it is [Dp.Infinity]
  */
-/*inline*/ fun Dp.isFinite(): Boolean = value != Float.POSITIVE_INFINITY
+inline fun Dp.isFinite(): Boolean = value != Float.POSITIVE_INFINITY
 
 /**
  * Linearly interpolate between two [Dp]s.
@@ -227,54 +226,54 @@ inline class DpSquared(val value: Float) {
     /**
      * Add two DimensionSquares together.
      */
-    /*inline*/ operator fun plus(other: DpSquared) =
+    inline operator fun plus(other: DpSquared) =
         DpSquared(value = value + other.value)
 
     /**
      * Subtract a DimensionSquare from another one.
      */
-    /*inline*/ operator fun minus(other: DpSquared) =
+    inline operator fun minus(other: DpSquared) =
         DpSquared(value = value - other.value)
 
     /**
      * Divide a DimensionSquare by a scalar.
      */
-    /*inline*/ operator fun div(other: Float): DpSquared =
+    inline operator fun div(other: Float): DpSquared =
         DpSquared(value = value / other)
 
     /**
      * Divide by a [Dp] to get a [Dp] result.
      */
-    /*inline*/ operator fun div(other: Dp): Dp =
+    inline operator fun div(other: Dp): Dp =
         Dp(value = value / other.value)
 
     /**
      * Divide by a DpSquared to get a scalar result.
      */
-    /*inline*/ operator fun div(other: DpSquared): Float = value / other.value
+    inline operator fun div(other: DpSquared): Float = value / other.value
 
     /**
      * Divide by a [DpCubed] to get a [DpInverse] result.
      */
-    /*inline*/ operator fun div(other: DpCubed): DpInverse =
+    inline operator fun div(other: DpCubed): DpInverse =
         DpInverse(value / other.value)
 
     /**
      * Multiply by a scalar to get a DpSquared result.
      */
-    /*inline*/ operator fun times(other: Float): DpSquared =
+    inline operator fun times(other: Float): DpSquared =
         DpSquared(value = value * other)
 
     /**
      * Multiply by a scalar to get a DpSquared result.
      */
-    /*inline*/ operator fun times(other: Dp): DpCubed =
+    inline operator fun times(other: Dp): DpCubed =
         DpCubed(value = value * other.value)
 
     /**
      * Support comparing DpSquared with comparison operators.
      */
-    /*inline*/ operator fun compareTo(other: DpSquared) =
+    inline operator fun compareTo(other: DpSquared) =
         value.compareTo(other.value)
 }
 
@@ -293,48 +292,48 @@ inline class DpCubed(val value: Float) {
     /**
      * Add two DpCubed together.
      */
-    /*inline*/ operator fun plus(dimension: DpCubed) =
+    inline operator fun plus(dimension: DpCubed) =
         DpCubed(value = value + dimension.value)
 
     /**
      * Subtract a DpCubed from another one.
      */
-    /*inline*/ operator fun minus(dimension: DpCubed) =
+    inline operator fun minus(dimension: DpCubed) =
         DpCubed(value = value - dimension.value)
 
     /**
      * Divide a DpCubed by a scalar.
      */
-    /*inline*/ operator fun div(other: Float): DpCubed =
+    inline operator fun div(other: Float): DpCubed =
         DpCubed(value = value / other)
 
     /**
      * Divide by a [Dp] to get a [DpSquared] result.
      */
-    /*inline*/ operator fun div(other: Dp): DpSquared =
+    inline operator fun div(other: Dp): DpSquared =
         DpSquared(value = value / other.value)
 
     /**
      * Divide by a [DpSquared] to get a [Dp] result.
      */
-    /*inline*/ operator fun div(other: DpSquared): Dp =
+    inline operator fun div(other: DpSquared): Dp =
         Dp(value = value / other.value)
 
     /**
      * Divide by a DpCubed to get a scalar result.
      */
-    /*inline*/ operator fun div(other: DpCubed): Float = value / other.value
+    inline operator fun div(other: DpCubed): Float = value / other.value
 
     /**
      * Multiply by a scalar to get a DpCubed result.
      */
-    /*inline*/ operator fun times(other: Float): DpCubed =
+    inline operator fun times(other: Float): DpCubed =
         DpCubed(value = value * other)
 
     /**
      * Support comparing DpCubed with comparison operators.
      */
-    /*inline*/ operator fun compareTo(other: DpCubed) = value.compareTo(other.value)
+    inline operator fun compareTo(other: DpCubed) = value.compareTo(other.value)
 }
 /**
  * Holds a unit of an inverse dimensions, such as `1.dp / (2.value * 3.dp)`. [DpSquared],
@@ -350,48 +349,48 @@ inline class DpInverse(val value: Float) {
     /**
      * Add two DpInverse together.
      */
-    /*inline*/ operator fun plus(dimension: DpInverse) =
+    inline operator fun plus(dimension: DpInverse) =
         DpInverse(value = value + dimension.value)
 
     /**
      * Subtract a DpInverse from another one.
      */
-    /*inline*/ operator fun minus(dimension: DpInverse) =
+    inline operator fun minus(dimension: DpInverse) =
         DpInverse(value = value - dimension.value)
 
     /**
      * Divide a DpInverse by a scalar.
      */
-    /*inline*/ operator fun div(other: Float): DpInverse =
+    inline operator fun div(other: Float): DpInverse =
         DpInverse(value = value / other)
 
     /**
      * Multiply by a scalar to get a DpInverse result.
      */
-    /*inline*/ operator fun times(other: Float): DpInverse =
+    inline operator fun times(other: Float): DpInverse =
         DpInverse(value = value * other)
 
     /**
      * Multiply by a [Dp] to get a scalar result.
      */
-    /*inline*/ operator fun times(other: Dp): Float = value * other.value
+    inline operator fun times(other: Dp): Float = value * other.value
 
     /**
      * Multiply by a [DpSquared] to get a [Dp] result.
      */
-    /*inline*/ operator fun times(other: DpSquared): Dp =
+    inline operator fun times(other: DpSquared): Dp =
         Dp(value = value * other.value)
 
     /**
      * Multiply by a [DpCubed] to get a [DpSquared] result.
      */
-    /*inline*/ operator fun times(other: DpCubed): DpSquared =
+    inline operator fun times(other: DpCubed): DpSquared =
         DpSquared(value = value * other.value)
 
     /**
      * Support comparing DpInverse with comparison operators.
      */
-    /*inline*/ operator fun compareTo(other: DpInverse) =
+    inline operator fun compareTo(other: DpInverse) =
         value.compareTo(other.value)
 }
 
@@ -419,13 +418,13 @@ data class Position(val x: Dp, val y: Dp) {
     /**
      * Subtract a [Position] from another one.
      */
-    /*inline*/ operator fun minus(other: Position) =
+    inline operator fun minus(other: Position) =
         Position(x - other.x, y - other.y)
 
     /**
      * Add a [Position] to another one.
      */
-    /*inline*/ operator fun plus(other: Position) =
+    inline operator fun plus(other: Position) =
         Position(x + other.x, y + other.y)
 }
 
@@ -463,17 +462,17 @@ data class Bounds(
 /**
  * A width of this Bounds in [Dp].
  */
-val Bounds.width: Dp get() = right - left
+inline val Bounds.width: Dp get() = right - left
 
 /**
  * A height of this Bounds in [Dp].
  */
-val Bounds.height: Dp get() = bottom - top
+inline val Bounds.height: Dp get() = bottom - top
 
 /**
  * Convert a [Bounds] to a [Size].
  */
-fun Bounds.toSize(): Size {
+inline fun Bounds.toSize(): Size {
     return Size(width, height)
 }
 

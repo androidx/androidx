@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.ui.vectormath64
 
 import androidx.ui.engine.geometry.Offset
@@ -88,33 +90,33 @@ data class Matrix4(
             identity().apply { setTranslationRaw(x, y, z) }
     }
 
-    /*inline jacoco hates inline*/ val m4storage: List<Float>
+    inline val m4storage: List<Float>
         get() = x.v4storage + y.v4storage + z.v4storage + w.v4storage
 
-    /*inline jacoco hates inline*/ var right: Vector3
+    inline var right: Vector3
         get() = x.xyz
         set(value) {
             x.xyz = value
         }
-    /*inline jacoco hates inline*/ var up: Vector3
+    inline var up: Vector3
         get() = y.xyz
         set(value) {
             y.xyz = value
         }
-    /*inline jacoco hates inline*/ var forward: Vector3
+    inline var forward: Vector3
         get() = z.xyz
         set(value) {
             z.xyz = value
         }
-    /*inline jacoco hates inline*/ var position: Vector3
+    inline var position: Vector3
         get() = w.xyz
         set(value) {
             w.xyz = value
         }
 
-    /*inline jacoco hates inline*/ val scale: Vector3
+    inline val scale: Vector3
         get() = Vector3(length(x.xyz), length(y.xyz), length(z.xyz))
-    /*inline jacoco hates inline*/ val translation: Vector3
+    inline val translation: Vector3
         get() = w.xyz
     val rotation: Vector3
         get() {
@@ -131,7 +133,7 @@ data class Matrix4(
             }
         }
 
-    /*inline jacoco hates inline*/ val upperLeft: Matrix3
+    inline val upperLeft: Matrix3
         get() = Matrix3(x.xyz, y.xyz, z.xyz)
 
     operator fun get(column: Int) = when (column) {
