@@ -2088,6 +2088,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * entering Views will remain unaffected.
      *
      * @param transition The Transition to use to move Views into the initial Scene.
+     *         <code>transition</code> must be an
+     *         {@link android.transition.Transition} or
+     *         {@link androidx.transition.Transition}.
      */
     public void setEnterTransition(@Nullable Object transition) {
         ensureAnimationInfo().mEnterTransition = transition;
@@ -2121,8 +2124,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * use the same value as set in {@link #setEnterTransition(Object)}.
      *
      * @param transition The Transition to use to move Views out of the Scene when the Fragment
-     *         is preparing to close. <code>transition</code> must be an
-     *         {@link android.transition.Transition android.transition.Transition} or
+     *         is preparing to close due to popping the back stack. <code>transition</code> must be
+     *         an {@link android.transition.Transition} or
      *         {@link androidx.transition.Transition}.
      */
     public void setReturnTransition(@Nullable Object transition) {
@@ -2135,11 +2138,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Views will be those that are regular Views or ViewGroups that have
      * {@link ViewGroup#isTransitionGroup} return true. Typical Transitions will extend
      * {@link android.transition.Visibility} as entering is governed by changing visibility from
-     * {@link View#VISIBLE} to {@link View#INVISIBLE}. If <code>transition</code> is null,
-     * entering Views will remain unaffected.
+     * {@link View#VISIBLE} to {@link View#INVISIBLE}. If nothing is set, the default will be to use
+     * the same transition as {@link #getEnterTransition()}.
      *
      * @return the Transition to use to move Views out of the Scene when the Fragment
-     *         is preparing to close.
+     *         is preparing to close due to popping the back stack.
      */
     @Nullable
     public Object getReturnTransition() {
@@ -2162,8 +2165,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param transition The Transition to use to move Views out of the Scene when the Fragment
      *          is being closed not due to popping the back stack. <code>transition</code>
      *          must be an
-     *          {@link android.transition.Transition android.transition.Transition} or
-     *          {@link androidx.transition.Transition androidx.transition.Transition}.
+     *          {@link android.transition.Transition} or
+     *          {@link androidx.transition.Transition}.
      */
     public void setExitTransition(@Nullable Object transition) {
         ensureAnimationInfo().mExitTransition = transition;
@@ -2196,13 +2199,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * will extend {@link android.transition.Visibility} as exiting is governed by changing
      * visibility from {@link View#VISIBLE} to {@link View#INVISIBLE}. If transition is null,
      * the views will remain unaffected. If nothing is set, the default will be to use the same
-     * transition as {@link #setExitTransition(Object)}.
+     * transition as {@link #getExitTransition()}.
      *
      * @param transition The Transition to use to move Views into the scene when reentering from a
-     *          previously-started Activity. <code>transition</code>
+     *          previously-started Activity due to popping the back stack. <code>transition</code>
      *          must be an
-     *          {@link android.transition.Transition android.transition.Transition} or
-     *          {@link androidx.transition.Transition androidx.transition.Transition}.
+     *          {@link android.transition.Transition} or
+     *          {@link androidx.transition.Transition}.
      */
     public void setReenterTransition(@Nullable Object transition) {
         ensureAnimationInfo().mReenterTransition = transition;
@@ -2213,12 +2216,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * to popping a back stack. The entering Views will be those that are regular Views
      * or ViewGroups that have {@link ViewGroup#isTransitionGroup} return true. Typical Transitions
      * will extend {@link android.transition.Visibility} as exiting is governed by changing
-     * visibility from {@link View#VISIBLE} to {@link View#INVISIBLE}. If transition is null,
-     * the views will remain unaffected. If nothing is set, the default will be to use the same
-     * transition as {@link #setExitTransition(Object)}.
+     * visibility from {@link View#VISIBLE} to {@link View#INVISIBLE}. If nothing is set, the
+     * default will be to use the same transition as {@link #getExitTransition()}.
      *
      * @return the Transition to use to move Views into the scene when reentering from a
-     *                   previously-started Activity.
+     *                   previously-started Activity due to popping the back stack.
      */
     @Nullable
     public Object getReenterTransition() {
