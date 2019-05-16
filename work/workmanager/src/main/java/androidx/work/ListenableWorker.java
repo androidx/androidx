@@ -21,6 +21,7 @@ import android.content.Context;
 import android.net.Network;
 import android.net.Uri;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.Keep;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -167,6 +168,7 @@ public abstract class ListenableWorker {
      *
      * @return The current run attempt count for this work.
      */
+    @IntRange(from = 0)
     public final int getRunAttemptCount() {
         return mWorkerParams.getRunAttemptCount();
     }

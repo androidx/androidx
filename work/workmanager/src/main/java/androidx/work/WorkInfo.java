@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
@@ -98,6 +99,7 @@ public final class WorkInfo {
      *
      * @return The run attempt count of the {@link WorkRequest}.
      */
+    @IntRange(from = 0)
     public int getRunAttemptCount() {
         return mRunAttemptCount;
     }

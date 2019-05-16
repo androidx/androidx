@@ -19,6 +19,7 @@ package androidx.work;
 import android.net.Network;
 import android.net.Uri;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -57,7 +58,7 @@ public final class WorkerParameters {
             @NonNull Data inputData,
             @NonNull Collection<String> tags,
             @NonNull RuntimeExtras runtimeExtras,
-            int runAttemptCount,
+            @IntRange(from = 0) int runAttemptCount,
             @NonNull Executor backgroundExecutor,
             @NonNull TaskExecutor workTaskExecutor,
             @NonNull WorkerFactory workerFactory) {
@@ -142,6 +143,7 @@ public final class WorkerParameters {
      *
      * @return The current run attempt count for this work.
      */
+    @IntRange(from = 0)
     public int getRunAttemptCount() {
         return mRunAttemptCount;
     }
