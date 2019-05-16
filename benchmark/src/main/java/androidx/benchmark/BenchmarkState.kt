@@ -283,7 +283,8 @@ class BenchmarkState internal constructor() {
             NOT_STARTED -> {
                 if (performThrottleChecks &&
                     !Clocks.areLocked &&
-                    !AndroidBenchmarkRunner.sustainedPerformanceModeInUse
+                    !AndroidBenchmarkRunner.sustainedPerformanceModeInUse &&
+                    !WarningState.isEmulator
                 ) {
                     ThrottleDetector.computeThrottleBaseline()
                 }
