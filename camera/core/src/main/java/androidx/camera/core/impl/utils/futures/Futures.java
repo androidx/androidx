@@ -102,6 +102,23 @@ public final class Futures {
     }
 
     /**
+     * Creates a new {@code ListenableFuture} whose value is a list containing the values of all its
+     * input futures, if all succeed.
+     *
+     * <p>The list of results is in the same order as the input list.
+     *
+     * <p>Canceling this future will attempt to cancel all the component futures, and if any of the
+     * provided futures fails or is canceled, this one is, too.
+     *
+     * @param futures futures to combine
+     * @return a future that provides a list of the results of the component futures
+     */
+    public static <V> ListenableFuture<List<V>> allAsList(
+            Collection<? extends ListenableFuture<? extends V>> futures) {
+        return new CollectionFuture.ListFuture<V>(futures, true);
+    }
+
+    /**
      * Registers separate success and failure callbacks to be run when the {@code Future}'s
      * computation is {@linkplain java.util.concurrent.Future#isDone() complete} or, if the
      * computation is already complete, immediately.

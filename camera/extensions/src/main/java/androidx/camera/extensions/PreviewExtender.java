@@ -20,12 +20,19 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
 
+import androidx.annotation.GuardedBy;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.impl.CameraEventCallback;
+import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.core.UseCase;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Class for using an OEM provided extension on view finder.
@@ -76,5 +83,120 @@ public abstract class PreviewExtender {
             mBuilder.getMutableConfig().insertOption(objectOpt,
                     camera2Config.retrieveOption(objectOpt));
         }
+
+        PreviewExtenderAdapter previewExtenderAdapter = new PreviewExtenderAdapter(mImpl);
+        new Camera2Config.Extender(mBuilder).setCameraEventCallback(
+                new CameraEventCallbacks(previewExtenderAdapter));
+        mBuilder.setUseCaseEventListener(previewExtenderAdapter);
     }
+
+
+    /**
+     * An implementation to adapt the OEM provided implementation to core.
+     */
+    static class PreviewExtenderAdapter extends CameraEventCallback implements
+            UseCase.EventListener {
+
+        private final PreviewExtenderImpl mImpl;
+        private final AtomicBoolean mActive = new AtomicBoolean(true);
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
+        private volatile int mEnabledSessionCount = 0;
+        @GuardedBy("mLock")
+        private volatile boolean mUnbind = false;
+
+        PreviewExtenderAdapter(PreviewExtenderImpl impl) {
+            mImpl = impl;
+        }
+
+        @Override
+        public void onBind(String cameraId) {
+            if (mActive.get()) {
+                CameraCharacteristics cameraCharacteristics =
+                        CameraUtil.getCameraCharacteristics(cameraId);
+                mImpl.onInit(cameraId, cameraCharacteristics, CameraX.getContext());
+            }
+        }
+
+        @Override
+        public void onUnbind() {
+            synchronized (mLock) {
+                mUnbind = true;
+                if (mEnabledSessionCount == 0) {
+                    callDeInit();
+                }
+            }
+        }
+
+        private void callDeInit() {
+            if (mActive.get()) {
+                mImpl.onDeInit();
+                mActive.set(false);
+            }
+        }
+
+        @Override
+        public CaptureConfig onPresetSession() {
+            if (mActive.get()) {
+                CaptureStageImpl captureStageImpl = mImpl.onPresetSession();
+                if (captureStageImpl != null) {
+                    return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        public CaptureConfig onEnableSession() {
+            try {
+                if (mActive.get()) {
+                    CaptureStageImpl captureStageImpl = mImpl.onEnableSession();
+                    if (captureStageImpl != null) {
+                        return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
+                    }
+                }
+
+                return null;
+            } finally {
+                synchronized (mLock) {
+                    mEnabledSessionCount++;
+                }
+            }
+        }
+
+        @Override
+        public CaptureConfig onDisableSession() {
+            try {
+                if (mActive.get()) {
+                    CaptureStageImpl captureStageImpl = mImpl.onDisableSession();
+                    if (captureStageImpl != null) {
+                        return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
+                    }
+                }
+
+                return null;
+            } finally {
+                synchronized (mLock) {
+                    mEnabledSessionCount--;
+                    if (mEnabledSessionCount == 0 && mUnbind) {
+                        callDeInit();
+                    }
+                }
+            }
+        }
+
+        @Override
+        public CaptureConfig onRepeating() {
+            if (mActive.get()) {
+                CaptureStageImpl captureStageImpl = mImpl.getCaptureStage();
+                if (captureStageImpl != null) {
+                    return new AdaptingCaptureStage(captureStageImpl).getCaptureConfig();
+                }
+            }
+
+            return null;
+        }
+    }
+
 }
