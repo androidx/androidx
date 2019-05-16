@@ -28,6 +28,9 @@ import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 
+private const val HANDLE_WIDTH = 20f
+private const val HANDLE_HEIGHT = 100f
+
 /**
  * Data class of Selection.
  */
@@ -58,6 +61,7 @@ interface TextSelectionHandler {
 interface SelectionRegistrar {
     // TODO(qqd): Replace Any with a type in future.
     fun subscribe(handler: TextSelectionHandler): Any
+
     fun unsubscribe(key: Any)
 }
 
@@ -118,35 +122,69 @@ fun SelectionContainer(
     +memo(selection) { manager.selection = selection }
     +memo(onSelectionChange) { manager.onSelectionChange = onSelectionChange }
 
-    <SelectionRegistrarAmbient.Provider value=manager>
-        <PressIndicatorGestureDetector onStart={ position -> manager.onPress(position) }>
-            <children />
-        </PressIndicatorGestureDetector>
-
-        selection?.let {
-            <SelectionHandle position=it.startOffset start=true />
-            <SelectionHandle position=it.endOffset start=false />
+    SelectionRegistrarAmbient.Provider(value = manager) {
+        val content = @Composable {
+            PressIndicatorGestureDetector(onStart = { position -> manager.onPress(position) }) {
+                children()
+            }
         }
-    </SelectionRegistrarAmbient.Provider>
+        val startHandle = @Composable {
+            Layout(children = { SelectionHandle() }, layoutBlock = { _, constraints ->
+                layout(constraints.minWidth, constraints.minHeight) {}
+            })
+        }
+        val endHandle = @Composable {
+            Layout(children = { SelectionHandle() }, layoutBlock = { _, constraints ->
+                layout(constraints.minWidth, constraints.minHeight) {}
+            })
+        }
+        @Suppress("USELESS_CAST")
+        Layout(
+            childrenArray = arrayOf(content, startHandle, endHandle),
+            layoutBlock = { measurables, constraints ->
+                val placeable = measurables[0].measure(constraints)
+                val width = placeable.width
+                val height = placeable.height
+                val start =
+                    measurables[startHandle as () -> Unit].first().measure(
+                        Constraints.tightConstraints(
+                            HANDLE_WIDTH.toInt().ipx,
+                            HANDLE_HEIGHT.toInt().ipx
+                        )
+                    )
+                val end =
+                    measurables[endHandle as () -> Unit].first().measure(
+                        Constraints.tightConstraints(
+                            HANDLE_WIDTH.toInt().ipx,
+                            HANDLE_HEIGHT.toInt().ipx
+                        )
+                    )
+                layout(width, height) {
+                    placeable.place(IntPx.Zero, IntPx.Zero)
+                    selection?.let {
+                        start.place(
+                            it.startOffset.dx.px,
+                            it.startOffset.dy.px - HANDLE_HEIGHT.px
+                        )
+                        end.place(
+                            it.endOffset.dx.px - HANDLE_WIDTH.px,
+                            it.endOffset.dy.px - HANDLE_HEIGHT.px
+                        )
+                    }
+                }
+            })
+    }
 }
 
 @Suppress("FunctionName")
 @Composable
-internal fun SelectionHandle(position: Offset, start: Boolean) {
+internal fun SelectionHandle() {
     val paint = Paint()
     paint.color = Color(0xAAD94633.toInt())
-    <Draw> canvas, _ ->
-        var left = position.dx
-        var top = position.dy - 100f
-        var right = position.dx
-        var bottom = position.dy
-
-        if (start) right += 20.0f
-        else left -= 20.0f
-
+    Draw { canvas, _ ->
         canvas.drawRect(
-            Rect(left, top, right, bottom),
+            Rect(left = 0f, top = 0f, right = HANDLE_WIDTH, bottom = HANDLE_HEIGHT),
             paint
         )
-    </Draw>
+    }
 }
