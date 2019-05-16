@@ -3,6 +3,7 @@ package androidx.ui.core {
 
   public final class AndroidCraneView extends android.view.ViewGroup implements androidx.ui.core.Owner androidx.ui.core.SemanticsTreeProvider {
     ctor public AndroidCraneView(android.content.Context context);
+    method public androidx.ui.core.PxPosition calculatePosition();
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? getRef();
@@ -56,11 +57,12 @@ package androidx.ui.core {
     method public static void add(androidx.ui.core.ComponentNode, androidx.ui.core.ComponentNode child);
     method public static androidx.ui.core.PxPosition childToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode child, androidx.ui.core.PxPosition childLocal);
     method public static java.util.List<java.lang.Object> childrenLayouts(androidx.ui.core.LayoutNode);
-    method public static androidx.ui.core.PxPosition globalToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition global);
+    method public static androidx.ui.core.PxPosition globalToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition global, boolean withOwnerOffset = true);
     method public static boolean isAttached(androidx.ui.core.ComponentNode);
-    method public static androidx.ui.core.PxPosition localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition local);
+    method public static androidx.ui.core.PxPosition localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition local, boolean withOwnerOffset = true);
     method public static androidx.ui.core.PxPosition positionRelativeToAncestor(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode ancestor);
     method public static androidx.ui.core.PxPosition positionRelativeToRoot(androidx.ui.core.LayoutNode);
+    method public static androidx.ui.core.Owner requireOwner(androidx.ui.core.ComponentNode);
   }
 
   public final class DebugUtilsKt {
@@ -137,6 +139,7 @@ package androidx.ui.core {
   }
 
   public interface Owner {
+    method public androidx.ui.core.PxPosition calculatePosition();
     method public void onAttach(androidx.ui.core.ComponentNode node);
     method public void onDetach(androidx.ui.core.ComponentNode node);
     method public void onEndLayout(androidx.ui.core.LayoutNode layoutNode);
