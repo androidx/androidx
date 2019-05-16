@@ -44,7 +44,7 @@ public class CameraCaptureResultsTest {
         CameraCaptureResult cameraCaptureResult = CameraCaptureResults.retrieveCameraCaptureResult(
                 imageInfo);
 
-        assertThat(cameraCaptureResult).isSameAs(mCameraCaptureResult);
+        assertThat(cameraCaptureResult).isSameInstanceAs(mCameraCaptureResult);
     }
 
     @Test

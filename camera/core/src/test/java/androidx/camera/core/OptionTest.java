@@ -78,7 +78,7 @@ public class OptionTest {
     @Test
     public void canCreateOption_withToken() {
         Option<Integer> option = Option.create(OPTION_1_ID, Integer.class, TOKEN);
-        assertThat(option.getToken()).isSameAs(TOKEN);
+        assertThat(option.getToken()).isSameInstanceAs(TOKEN);
     }
 
     @Test

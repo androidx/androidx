@@ -104,7 +104,7 @@ public final class AndroidImageReaderProxyTest {
         Surface surface = mock(Surface.class);
         when(mImageReader.getSurface()).thenReturn(surface);
 
-        assertThat(mImageReaderProxy.getSurface()).isSameAs(surface);
+        assertThat(mImageReaderProxy.getSurface()).isSameInstanceAs(surface);
     }
 
     @Test

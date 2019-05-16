@@ -85,10 +85,10 @@ public class SettableImageProxyBundleTest {
         ImageProxy result1 = mImageProxyBundle.getImageProxy(CAPTURE_ID_1).get(0, TimeUnit.SECONDS);
 
         // Checks if the results match what was input.
-        assertThat(result0.getImageInfo()).isSameAs(mImageInfo0);
-        assertThat(result0.getTimestamp()).isSameAs(mImageProxy0.getTimestamp());
-        assertThat(result1.getImageInfo()).isSameAs(mImageInfo1);
-        assertThat(result1.getTimestamp()).isSameAs(mImageProxy1.getTimestamp());
+        assertThat(result0.getImageInfo()).isSameInstanceAs(mImageInfo0);
+        assertThat(result0.getTimestamp()).isSameInstanceAs(mImageProxy0.getTimestamp());
+        assertThat(result1.getImageInfo()).isSameInstanceAs(mImageInfo1);
+        assertThat(result1.getTimestamp()).isSameInstanceAs(mImageProxy1.getTimestamp());
     }
 
     @Test(expected = IllegalArgumentException.class)

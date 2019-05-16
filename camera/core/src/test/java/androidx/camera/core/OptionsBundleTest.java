@@ -64,21 +64,21 @@ public class OptionsBundleTest {
 
     @Test
     public void canRetrieveValue() {
-        assertThat(mAllOpts.retrieveOption(OPTION_1)).isSameAs(VALUE_1);
-        assertThat(mAllOpts.retrieveOption(OPTION_1_A)).isSameAs(VALUE_1_A);
-        assertThat(mAllOpts.retrieveOption(OPTION_2)).isSameAs(VALUE_2);
+        assertThat(mAllOpts.retrieveOption(OPTION_1)).isSameInstanceAs(VALUE_1);
+        assertThat(mAllOpts.retrieveOption(OPTION_1_A)).isSameInstanceAs(VALUE_1_A);
+        assertThat(mAllOpts.retrieveOption(OPTION_2)).isSameInstanceAs(VALUE_2);
     }
 
     @Test
     public void willReturnDefault_ifOptionIsMissing() {
         Object value = mAllOpts.retrieveOption(OPTION_MISSING, VALUE_MISSING);
-        assertThat(value).isSameAs(VALUE_MISSING);
+        assertThat(value).isSameInstanceAs(VALUE_MISSING);
     }
 
     @Test
     public void willReturnStoredValue_whenGivenDefault() {
         Object value = mAllOpts.retrieveOption(OPTION_1, VALUE_MISSING);
-        assertThat(value).isSameAs(VALUE_1);
+        assertThat(value).isSameInstanceAs(VALUE_1);
     }
 
     @Test
@@ -158,7 +158,7 @@ public class OptionsBundleTest {
                     }
                 });
 
-        assertThat(value.get()).isSameAs(VALUE_2);
+        assertThat(value.get()).isSameInstanceAs(VALUE_2);
     }
 
     @Test(expected = IllegalArgumentException.class)

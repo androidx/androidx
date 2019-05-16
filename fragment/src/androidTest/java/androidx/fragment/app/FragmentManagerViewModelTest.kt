@@ -57,20 +57,20 @@ class FragmentManagerViewModelTest {
     fun testGetChildNonConfig() {
         val fragment = Fragment()
         val childNonConfig = viewModel.getChildNonConfig(fragment)
-        assertThat(viewModel.getChildNonConfig(fragment)).isSameAs(childNonConfig)
+        assertThat(viewModel.getChildNonConfig(fragment)).isSameInstanceAs(childNonConfig)
 
         viewModel.clearNonConfigState(fragment)
-        assertThat(viewModel.getChildNonConfig(fragment)).isNotSameAs(childNonConfig)
+        assertThat(viewModel.getChildNonConfig(fragment)).isNotSameInstanceAs(childNonConfig)
     }
 
     @Test
     fun testGetViewModelStore() {
         val fragment = Fragment()
         val viewModelStore = viewModel.getViewModelStore(fragment)
-        assertThat(viewModel.getViewModelStore(fragment)).isSameAs(viewModelStore)
+        assertThat(viewModel.getViewModelStore(fragment)).isSameInstanceAs(viewModelStore)
 
         viewModel.clearNonConfigState(fragment)
-        assertThat(viewModel.getViewModelStore(fragment)).isNotSameAs(viewModelStore)
+        assertThat(viewModel.getViewModelStore(fragment)).isNotSameInstanceAs(viewModelStore)
     }
 
     @Test
@@ -108,7 +108,7 @@ class FragmentManagerViewModelTest {
         val snapshot = viewModel.snapshot
         viewModel.restoreFromSnapshot(snapshot)
 
-        assertThat(viewModel.getViewModelStore(fragment)).isSameAs(viewModelStore)
+        assertThat(viewModel.getViewModelStore(fragment)).isSameInstanceAs(viewModelStore)
     }
 
     @Test
@@ -157,6 +157,7 @@ class FragmentManagerViewModelTest {
     fun testGetInstance() {
         val viewModeStore = ViewModelStore()
         val viewModel = FragmentManagerViewModel.getInstance(viewModeStore)
-        assertThat(FragmentManagerViewModel.getInstance(viewModeStore)).isSameAs(viewModel)
+        assertThat(FragmentManagerViewModel.getInstance(viewModeStore))
+            .isSameInstanceAs(viewModel)
     }
 }

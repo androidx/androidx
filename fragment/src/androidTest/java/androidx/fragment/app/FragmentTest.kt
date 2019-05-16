@@ -210,7 +210,7 @@ class FragmentTest {
         val childFragmentManager = parentFragment.childFragmentManager
         val childFragment = StrictFragment()
         childFragmentManager.beginTransaction().add(childFragment, "child").commitNow()
-        assertThat(childFragment.requireParentFragment()).isSameAs(parentFragment)
+        assertThat(childFragment.requireParentFragment()).isSameInstanceAs(parentFragment)
     }
 
     @SmallTest
@@ -292,7 +292,7 @@ class FragmentTest {
         fragment.arguments = arguments
         assertWithMessage("requireArguments should return the arguments")
             .that(fragment.requireArguments())
-            .isSameAs(arguments)
+            .isSameInstanceAs(arguments)
     }
 
     class OrderFragment : Fragment() {
