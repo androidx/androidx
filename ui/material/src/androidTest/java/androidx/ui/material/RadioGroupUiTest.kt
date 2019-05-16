@@ -16,29 +16,30 @@
 
 package androidx.ui.material
 
+import androidx.compose.composer
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.Model
 import androidx.test.filters.MediumTest
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
+import androidx.ui.core.round
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertSemanticsIsEqualTo
 import androidx.ui.test.copyWith
+import androidx.ui.test.createComposeRule
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
-import androidx.compose.Children
-import androidx.compose.Composable
-import androidx.compose.Model
-import androidx.compose.composer
-import androidx.ui.core.round
 import com.google.common.truth.Truth
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -48,7 +49,10 @@ internal class RadioGroupSelectedState<T>(var selected: T)
 
 @MediumTest
 @RunWith(JUnit4::class)
-class RadioGroupUiTest : AndroidUiTestRunner() {
+class RadioGroupUiTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule(disableTransitions = true)
 
     private val itemOne = "Bar"
     private val itemTwo = "Foo"
@@ -66,7 +70,6 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     private val options = listOf(itemOne, itemTwo, itemThree)
 
     @Composable
-
     fun VerticalRadioGroupforTests(@Children children: @Composable() RadioGroupScope.() -> Unit) {
         RadioGroup {
             Column {
@@ -79,7 +82,7 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     fun radioGroupTest_defaultSemantics() {
         val select = RadioGroupSelectedState(itemOne)
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
                     TestTag(tag = item) {
@@ -111,7 +114,7 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     fun radioGroupTest_ensureUnselectable() {
         val select = RadioGroupSelectedState(itemOne)
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
                     TestTag(tag = item) {
@@ -139,7 +142,7 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     @Test
     fun radioGroupTest_clickSelect() {
         val select = RadioGroupSelectedState(itemOne)
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
                     TestTag(tag = item) {
@@ -167,7 +170,7 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
     fun radioGroupTest_clickSelectTwoDifferentItems() {
         val select = RadioGroupSelectedState(itemOne)
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             VerticalRadioGroupforTests {
                 options.forEach { item ->
                     TestTag(tag = item) {
@@ -212,7 +215,7 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
 
     private fun materialSizesTestForValue(selected: Boolean) {
         var radioSize: PxSize? = null
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Container(
                 constraints = DpConstraints(
                     maxWidth = 5000.dp,
@@ -226,7 +229,7 @@ class RadioGroupUiTest : AndroidUiTestRunner() {
                 }
             }
         }
-        withDensity(density) {
+        withDensity(composeTestRule.density) {
             Truth.assertThat(radioSize?.width?.round()).isEqualTo(materialRadioSize.toIntPx())
             Truth.assertThat(radioSize?.height?.round()).isEqualTo(materialRadioSize.toIntPx())
         }

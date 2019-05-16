@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-fun SemanticsTreeQuery.doClick(): SemanticsTreeQuery {
+fun SemanticsTreeInteraction.doClick(): SemanticsTreeInteraction {
     val foundNodes = findAllMatching()
     if (foundNodes.size != 1) {
         throw AssertionError("Found '${foundNodes.size}' nodes but 1 was expected!")

@@ -36,17 +36,22 @@ dependencies {
     api project(":ui-framework")
     api project(":ui-animation")
     api project(":compose-runtime")
-    
+
     api(KOTLIN_COMPOSE_STDLIB)
 
     implementation(JUNIT)
     implementation(ANDROIDX_TEST_RUNNER)
     implementation(ANDROIDX_TEST_RULES)
+    implementation(ESPRESSO_CORE)
 
     testImplementation(TRUTH)
     testImplementation(JUNIT)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(ANDROIDX_TEST_RULES)
+
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(JUNIT)
+    androidTestImplementation project(':ui-material')
 }
 
 android {

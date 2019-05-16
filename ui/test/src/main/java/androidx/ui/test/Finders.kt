@@ -17,6 +17,7 @@
 package androidx.ui.test
 
 import androidx.ui.core.SemanticsTreeNode
+import androidx.ui.test.android.AndroidSemanticsTreeInteraction
 
 /**
  * Extension methods that provide the entry point for the testing APIs.
@@ -25,9 +26,9 @@ import androidx.ui.core.SemanticsTreeNode
 /**
  * Finds a component identified by the given tag.
  *
- * For usage patterns see [SemanticsTreeQuery]
+ * For usage patterns see [SemanticsTreeInteraction]
  */
-fun UiTestRunner.findByTag(testTag: String): SemanticsTreeQuery {
+fun findByTag(testTag: String): SemanticsTreeInteraction {
     return findByCondition { node ->
         node.data.testTag == testTag
     }
@@ -36,21 +37,21 @@ fun UiTestRunner.findByTag(testTag: String): SemanticsTreeQuery {
 /**
  * Finds a component by the given text.
  *
- * For usage patterns see [SemanticsTreeQuery]
+ * For usage patterns see [SemanticsTreeInteraction]
  */
-fun UiTestRunner.findByText(text: String): SemanticsTreeQuery {
+fun findByText(text: String, ignoreCase: Boolean = false): SemanticsTreeInteraction {
     return findByCondition { node ->
-        node.data.label == text
+        node.data.label.equals(text, ignoreCase)
     }
 }
 
 /**
  * Finds a component that matches the given condition
  *
- * For usage patterns see [SemanticsTreeQuery]
+ * For usage patterns see [SemanticsTreeInteraction]
  */
-fun UiTestRunner.findByCondition(
+fun findByCondition(
     selector: (SemanticsTreeNode) -> Boolean
-): SemanticsTreeQuery {
-    return SemanticsTreeQuery(this, selector)
+): SemanticsTreeInteraction {
+    return semanticsTreeInteractionFactory().addSelector(selector)
 }

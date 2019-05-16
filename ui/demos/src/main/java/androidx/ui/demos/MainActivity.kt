@@ -27,7 +27,7 @@ import java.util.ArrayList
 import java.util.Comparator
 import java.util.HashMap
 
-class MainActivity : ListActivity() {
+open class MainActivity : ListActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

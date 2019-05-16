@@ -24,20 +24,24 @@ import androidx.ui.core.round
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.test.android.AndroidUiTestRunner
 import com.google.common.truth.Truth
 import androidx.compose.composer
 import androidx.ui.test.assertDoesNotExist
 import androidx.ui.test.assertIsVisible
+import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class TopAppBarUiTest : AndroidUiTestRunner() {
+class TopAppBarUiTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
     private val bigConstraints = DpConstraints(
         minWidth = 0.dp,
@@ -51,7 +55,7 @@ class TopAppBarUiTest : AndroidUiTestRunner() {
     @Test
     fun topAppBarTest_ExpandsToScreen() {
         var size: PxSize? = null
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Container(constraints = bigConstraints) {
                 OnChildPositioned(onPositioned = { position ->
                     size = position.size
@@ -60,8 +64,8 @@ class TopAppBarUiTest : AndroidUiTestRunner() {
                 }
             }
         }
-        val dm = activityTestRule.activity.resources.displayMetrics
-        withDensity(density) {
+        val dm = composeTestRule.displayMetrics
+        withDensity(composeTestRule.density) {
             Truth.assertThat(size?.height?.round()).isEqualTo(defaultHeight.toIntPx())
             Truth.assertThat(size?.width?.value?.toInt()).isEqualTo(dm.widthPixels)
         }
@@ -69,7 +73,7 @@ class TopAppBarUiTest : AndroidUiTestRunner() {
 
     @Test
     fun topAppBarTest_LeadingIconPresent() {
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             TopAppBar()
         }
         findByTag("Leading icon").assertIsVisible()
@@ -77,7 +81,7 @@ class TopAppBarUiTest : AndroidUiTestRunner() {
 
     @Test
     fun topAppBarTest_TitleTextLabel_noTitle() {
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             TopAppBar()
         }
         findByTag("Title text label").assertDoesNotExist()
@@ -86,7 +90,7 @@ class TopAppBarUiTest : AndroidUiTestRunner() {
     @Test
     fun topAppBarTest_TitleTextLabel_withTitle() {
         val title = "Title"
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             TopAppBar(title = title)
         }
         findByTag("Title text label").assertIsVisible()
@@ -96,7 +100,7 @@ class TopAppBarUiTest : AndroidUiTestRunner() {
 
     @Test
     fun topAppBarTest_TrailingIcons_noIcons() {
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             TopAppBar()
         }
         findByTag("Trailing icon").assertDoesNotExist()
@@ -104,7 +108,7 @@ class TopAppBarUiTest : AndroidUiTestRunner() {
 
     @Test
     fun topAppBarTest_TrailingIcons_oneIcon() {
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             TopAppBar(icons = listOf(24.dp))
         }
         findByTag("Trailing icon").assertIsVisible()
@@ -113,7 +117,7 @@ class TopAppBarUiTest : AndroidUiTestRunner() {
 
     @Test
     fun topAppBarTest_TrailingIcons_twoIcons() {
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             TopAppBar(icons = listOf(24.dp, 24.dp))
         }
         // TODO: need API to assert I can find 2 items
@@ -123,7 +127,7 @@ class TopAppBarUiTest : AndroidUiTestRunner() {
 
     @Test
     fun topAppBarTest_TrailingIcons_threeIcons() {
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             TopAppBar(icons = listOf(24.dp, 24.dp, 24.dp))
         }
         // TODO: need API to assert I can find 3 items
