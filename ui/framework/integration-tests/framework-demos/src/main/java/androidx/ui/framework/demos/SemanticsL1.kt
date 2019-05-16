@@ -32,6 +32,7 @@ import androidx.ui.material.themeTextStyle
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.state
 import androidx.compose.unaryPlus
 
 /** A [SemanticProperty] is used to store semantic information about a component.
@@ -168,50 +169,11 @@ fun Semantics(
 ) {
     Column {
         MaterialTheme {
-
-            // Invoke actions by type.
-            val primary = actions.firstOrNull { it.types.contains(AccessibilityAction.Primary) }
-            val secondary = actions.firstOrNull { it.types.contains(AccessibilityAction.Secondary) }
-            Text(text = "Accessibility Actions By Type", style = +themeTextStyle { h6.copy() })
-            Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
-                Button(text = "Primary", onClick = { primary?.invoke(ActionCaller.Accessibility) })
-                Button(text = "Secondary", onClick = {
-                    secondary?.invoke(ActionCaller.Accessibility)
-                })
-            }
-
-            // Invoke by phrase.
-            Text(text = "Accessibility Actions By Phrase", style = +themeTextStyle { h6.copy() })
-            Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
-                actions.forEach {
-                    Button(text = it.phrase, onClick = { it.invoke(ActionCaller.Accessibility) })
-                }
-            }
-
-            // Invoke by assistant type.
-            val positive = actions.firstOrNull { it.types.contains(PolarityAction.Positive) }
-            val negative = actions.firstOrNull { it.types.contains(PolarityAction.Negative) }
-            Text(text = "Assistant Actions", style = +themeTextStyle { h6.copy() })
-            Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
-                Button(text = "Negative", onClick = { negative?.invoke(ActionCaller.Assistant) })
-                Button(text = "Positive", onClick = { positive?.invoke(ActionCaller.Assistant) })
-            }
-
-            // Invoke by passing parameters.
-            @Suppress("UNCHECKED_CAST")
-            val pxPositionAction =
-                actions.firstOrNull { it.defaultParam is PxPosition } as SemanticAction<PxPosition>?
-            @Suppress("UNCHECKED_CAST")
-            val unitAction =
-                actions.firstOrNull { it.defaultParam is Unit } as SemanticAction<Unit>?
-            Text(text = "Actions using Parameters", style = +themeTextStyle { h6.copy() })
-            Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
-                Button(
-                    text = "IntAction",
-                    onClick = { pxPositionAction?.invoke(param = PxPosition(1.px, 1.px)) })
-                Button(
-                    text = "VoidAction",
-                    onClick = { unitAction?.invoke(param = Unit) })
+            Collapsable {
+                InvokeActionsByType(actions)
+                InvokeActionsByPhrase(actions)
+                InvokeActionsByAssistantAction(actions)
+                InvokeActionsByParameters(actions)
             }
         }
         Row(
@@ -226,51 +188,112 @@ fun Semantics(
 }
 
 /**
- * This is a level 3 API, where the user uses the [SemanticActionBuilder] to build the action.
- * This component provides default values for all the parameters to the builder, the developer has
- * to just supply the callback lambda.
+ * This component adds buttons to invoke actions based on the accessibility action type.
  */
-@Suppress("FunctionName", "Unused")
+@Suppress("FunctionName")
 @Composable
-fun ClickInteraction(
-    press: SemanticActionBuilder<PxPosition>.() -> Unit,
-    release: SemanticActionBuilder<Unit>.() -> Unit,
-    @Children children: @Composable() () -> Unit
-) {
-    val pressedAction = SemanticActionBuilder(
-        label = "On Press",
-        defaultParam = PxPosition.Origin
-    ).apply(press).build()
-
-    val releasedAction = SemanticActionBuilder(
-        label = "On Release",
-        defaultParam = Unit
-    ).apply(release).build()
-
-    Semantics(actions = setOf(pressedAction, releasedAction)) {
-        PressGestureDetectorWithActions(
-            onPress = pressedAction,
-            onRelease = releasedAction,
-            onCancel = releasedAction
-        ) { children() }
+private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()) {
+    val primary = actions.firstOrNull { it.types.contains(AccessibilityAction.Primary) }
+    val secondary =
+        actions.firstOrNull { it.types.contains(AccessibilityAction.Secondary) }
+    Text(text = "Accessibility Actions By Type", style = +themeTextStyle { h6.copy() })
+    Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+        Button(
+            text = "Primary",
+            onClick = { primary?.invoke(ActionCaller.Accessibility) })
+        Button(text = "Secondary", onClick = {
+            secondary?.invoke(ActionCaller.Accessibility)
+        })
     }
 }
 
 /**
- * Builder to create a semantic action.
+ * This component adds buttons to invoke actions based on the accessibility action phrase.
  */
-class SemanticActionBuilder<T>(
-    var label: String,
-    var defaultParam: T,
-    var types: Set<ActionType> = setOf(),
-    var action: (ActionParam<T>) -> Unit = {}
-) {
-    fun build() = SemanticAction(label, defaultParam, types, action)
+@Suppress("FunctionName")
+@Composable
+private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf()) {
+    Text(
+        text = "Accessibility Actions By Phrase",
+        style = +themeTextStyle { h6.copy() })
+    Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+        actions.forEach {
+            Button(
+                text = it.phrase,
+                onClick = { it.invoke(ActionCaller.Accessibility) })
+        }
+    }
 }
 
 /**
- * Extension function to make the syntax cleaner when we use all default parameters for the action.
+ * This component adds buttons to invoke actions using the assistant.
  */
-fun <T> SemanticActionBuilder<T>.action(action: (ActionParam<T>) -> Unit = {}) {
-    this.action = action
+@Suppress("FunctionName")
+@Composable
+private fun InvokeActionsByAssistantAction(actions: Set<SemanticAction<out Any?>> = setOf()) {
+    val positive = actions.firstOrNull { it.types.contains(PolarityAction.Positive) }
+    val negative = actions.firstOrNull { it.types.contains(PolarityAction.Negative) }
+    Text(text = "Assistant Actions", style = +themeTextStyle { h6.copy() })
+    Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+        Button(
+            text = "Negative",
+            onClick = { negative?.invoke(ActionCaller.Assistant) })
+        Button(
+            text = "Positive",
+            onClick = { positive?.invoke(ActionCaller.Assistant) })
+    }
+}
+
+/**
+ * This component adds buttons to invoke actions based on the parameter type.
+ * It is a more realistic example where the framework using the action will first find out the type
+ * of action before invoking it.
+ */
+@Suppress("FunctionName")
+@Composable
+private fun InvokeActionsByParameters(actions: Set<SemanticAction<out Any?>> = setOf()) {
+    @Suppress("UNCHECKED_CAST")
+    val pxPositionAction =
+        actions.firstOrNull { it.defaultParam is PxPosition } as SemanticAction<PxPosition>?
+    @Suppress("UNCHECKED_CAST")
+    val unitAction =
+        actions.firstOrNull { it.defaultParam is Unit } as SemanticAction<Unit>?
+    Text(text = "Actions using Parameters", style = +themeTextStyle { h6.copy() })
+    Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+        Button(
+            text = "IntAction",
+            onClick = { pxPositionAction?.invoke(param = PxPosition(1.px, 1.px)) })
+        Button(
+            text = "VoidAction",
+            onClick = { unitAction?.invoke(param = Unit) })
+    }
+}
+
+/**
+ * Enum class used by the [Collapsable] component.
+ */
+private enum class CollapseMode { Visible, Collapsed }
+
+/**
+ * This composable wraps its children with a container and adds a show/hide button, to hide the
+ * children or make them visible.
+ */
+@Suppress("FunctionName")
+@Composable
+private fun Collapsable(@Children children: @Composable() () -> Unit) {
+
+    val collapsedState = +state { CollapseMode.Collapsed }
+
+    Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+        Button(text = "Show/Hide Actions", onClick = {
+            collapsedState.value = when (collapsedState.value) {
+                CollapseMode.Collapsed -> CollapseMode.Visible
+                CollapseMode.Visible -> CollapseMode.Collapsed
+            }
+        })
+    }
+
+    if (collapsedState.value == CollapseMode.Visible) {
+        children()
+    }
 }
