@@ -38,6 +38,12 @@
     <string name="invisible_webview_description">The WebView in this Activity is invisible and attached to the view hierarchy</string>
     <string name="unattached_activity_title">Unattached WebView</string>
     <string name="unattached_webview_description">The WebView in this Activity is visible and unattached to the view hierarchy</string>
+    <string name="custom_interstitial_activity_title">Customized Interstitials</string>
+    <string name="back_to_safety_text">Back to safety</string>
+    <string name="proceed_text">Proceed</string>
+    <string name="custom_interstitial_title">Security error!</string>
+    <string name="view_privacy_policy_text">Reports will be sent according to the &lt;a href="%1$s"&gt;Safe Browsing privacy policy&lt;/a&gt;</string>
+    <string name="send_report_text">Send a Safe Browsing report?</string>
     <string name="force_dark_activity_title">Force Dark</string>
     <string name="error_log_title">Network errors:</string>
 </resources>

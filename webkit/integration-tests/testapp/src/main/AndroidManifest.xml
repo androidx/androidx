@@ -63,6 +63,11 @@
             android:name=".UnattachedActivity"
             android:exported="true" />
         <activity
+            android:name=".CustomInterstitialActivity"
+            android:exported="true" />
+        <activity
+            android:name=".PopupInterstitialActivity" />
+        <activity
             android:name=".ProxyOverrideActivity"
             android:exported="true" />
         <activity
