@@ -1193,7 +1193,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 }
             }
         }
-        if (fragment.mAdded && fragment.mHasMenu && fragment.mMenuVisible) {
+        if (fragment.mAdded && isMenuAvailable(fragment)) {
             mNeedMenuInvalidate = true;
         }
         fragment.mHiddenChanged = false;
@@ -1376,7 +1376,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             if (fragment.mView == null) {
                 fragment.mHiddenChanged = false;
             }
-            if (fragment.mHasMenu && fragment.mMenuVisible) {
+            if (isMenuAvailable(fragment)) {
                 mNeedMenuInvalidate = true;
             }
             if (moveToStateNow) {
@@ -1392,7 +1392,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             synchronized (mAdded) {
                 mAdded.remove(fragment);
             }
-            if (fragment.mHasMenu && fragment.mMenuVisible) {
+            if (isMenuAvailable(fragment)) {
                 mNeedMenuInvalidate = true;
             }
             fragment.mAdded = false;
@@ -1442,7 +1442,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 synchronized (mAdded) {
                     mAdded.remove(fragment);
                 }
-                if (fragment.mHasMenu && fragment.mMenuVisible) {
+                if (isMenuAvailable(fragment)) {
                     mNeedMenuInvalidate = true;
                 }
                 fragment.mAdded = false;
@@ -1463,7 +1463,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                     mAdded.add(fragment);
                 }
                 fragment.mAdded = true;
-                if (fragment.mHasMenu && fragment.mMenuVisible) {
+                if (isMenuAvailable(fragment)) {
                     mNeedMenuInvalidate = true;
                 }
             }
@@ -3075,6 +3075,27 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 holder.mCallback.onFragmentDetached(this, f);
             }
         }
+    }
+
+    // Checks if fragments that belong to this fragment manager (or their children) have menus,
+    // and if they are visible.
+    boolean checkForMenus() {
+        boolean hasMenu = false;
+        for (Fragment f: mActive.values()) {
+            if (f != null) {
+                hasMenu = isMenuAvailable(f);
+            }
+            if (hasMenu) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isMenuAvailable(Fragment f) {
+        return (f.mHasMenu && f.mMenuVisible)
+                || (f.mChildFragmentManager != null
+                && f.mChildFragmentManager.checkForMenus());
     }
 
     public static int reverseTransit(int transit) {
