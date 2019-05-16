@@ -109,8 +109,12 @@ open class LayoutTest {
                 viewDrawLatch.countDown()
             }
         }
-        view.viewTreeObserver.addOnDrawListener(listener)
-        view.invalidate()
+        view.post(object : Runnable {
+            override fun run() {
+                view.viewTreeObserver.addOnDrawListener(listener)
+                view.invalidate()
+            }
+        })
         assertTrue(viewDrawLatch.await(1, TimeUnit.SECONDS))
     }
 
