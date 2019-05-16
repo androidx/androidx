@@ -156,7 +156,7 @@ abstract class MediaSessionTestBase {
     }
 
     final MediaController createController(@NonNull SessionToken token,
-            boolean waitForConnect, @NonNull Bundle connectionHints,
+            boolean waitForConnect, @Nullable Bundle connectionHints,
             @Nullable ControllerCallback callback)
             throws InterruptedException {
         TestBrowserCallback testCallback = new TestBrowserCallback(callback);
