@@ -19,17 +19,11 @@ package androidx.ui.material
 import androidx.compose.composer
 import androidx.test.filters.MediumTest
 import androidx.ui.baseui.ColoredRect
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxSize
 import androidx.ui.core.dp
-import androidx.ui.core.round
-import androidx.ui.core.withDensity
-import androidx.ui.layout.Center
-import androidx.ui.layout.Container
+import androidx.ui.core.ipx
 import androidx.ui.layout.DpConstraints
 import androidx.ui.graphics.Color
 import androidx.ui.test.createComposeRule
-import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,78 +36,45 @@ class ColoredRectUiTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val bigConstraints = DpConstraints(
-        maxWidth = 5000.dp,
-        maxHeight = 5000.dp
-    )
-
     private val color = Color(0xFFFF0000.toInt())
 
     @Test
     fun coloredRect_fixedSizes() {
-        var size: PxSize? = null
         val width = 40.dp
         val height = 71.dp
-
-        composeTestRule.setMaterialContent {
-            Center {
-                Container(constraints = bigConstraints) {
-                    OnChildPositioned(onPositioned = { position ->
-                        size = position.size
-                    }) {
-                        ColoredRect(width = width, height = height, color = color)
-                    }
-                }
+        composeTestRule
+            .setMaterialContentAndTestSizes {
+                ColoredRect(width = width, height = height, color = color)
             }
-        }
-        withDensity(composeTestRule.density) {
-            Truth.assertThat(size?.height?.round()).isEqualTo(height.toIntPx())
-            Truth.assertThat(size?.width?.round()).isEqualTo(width.toIntPx())
-        }
+            .assertWidthEqualsTo(width)
+            .assertHeightEqualsTo(height)
     }
 
     @Test
     fun coloredRect_expand_LimitedSizes() {
-        var size: PxSize? = null
         val width = 40.dp
         val height = 71.dp
-
-        composeTestRule.setMaterialContent {
-            Center {
-                Container(width = width, height = height) {
-                    OnChildPositioned(onPositioned = { position ->
-                        size = position.size
-                    }) {
-                        ColoredRect(color = color)
-                    }
-                }
+        composeTestRule
+            .setMaterialContentAndTestSizes(
+                parentConstraints = DpConstraints.tightConstraints(
+                    width,
+                    height
+                )
+            ) {
+                ColoredRect(color = color)
             }
-        }
-        withDensity(composeTestRule.density) {
-            Truth.assertThat(size?.height?.round()).isEqualTo(height.toIntPx())
-            Truth.assertThat(size?.width?.round()).isEqualTo(width.toIntPx())
-        }
+            .assertWidthEqualsTo(width)
+            .assertHeightEqualsTo(height)
     }
 
     @Test
     fun coloredRect_expand_WholeScreenSizes() {
-        var size: PxSize? = null
-
-        composeTestRule.setMaterialContent {
-            Center {
-                Container(constraints = bigConstraints) {
-                    OnChildPositioned(onPositioned = { position ->
-                        size = position.size
-                    }) {
-                        ColoredRect(color = color)
-                    }
-                }
-            }
-        }
         val dm = composeTestRule.displayMetrics
-        withDensity(composeTestRule.density) {
-            Truth.assertThat(size?.height?.round()?.value).isEqualTo(dm.heightPixels)
-            Truth.assertThat(size?.width?.round()?.value).isEqualTo(dm.widthPixels)
-        }
+        composeTestRule
+            .setMaterialContentAndTestSizes {
+                ColoredRect(color = color)
+            }
+            .assertWidthEqualsTo { dm.widthPixels.ipx }
+            .assertHeightEqualsTo { dm.heightPixels.ipx }
     }
 }

@@ -18,15 +18,10 @@ package androidx.ui.material
 
 import androidx.test.filters.MediumTest
 import androidx.compose.composer
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxSize
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
-import androidx.ui.core.round
-import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
-import androidx.ui.layout.Wrap
 import androidx.ui.test.assertSemanticsIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.createFullSemantics
@@ -155,22 +150,11 @@ class ButtonUiTest {
     }
 
     @Test
-    fun buttonTest_ButtonHeightIsFromSpec() = withDensity(composeTestRule.density) {
-        val buttonTag = "button"
-        var size: PxSize? = null
-
-        composeTestRule.setMaterialContent {
-            Wrap {
-                OnChildPositioned(onPositioned = { position ->
-                    size = position.size
-                }) {
-                    TestTag(tag = buttonTag) {
-                        Button(onClick = {}, text = "Test button")
-                    }
-                }
+    fun buttonTest_ButtonHeightIsFromSpec(): Unit {
+        composeTestRule
+            .setMaterialContentAndTestSizes {
+                Button(onClick = {}, text = "Test button")
             }
-        }
-
-        Truth.assertThat(size!!.height.round()).isEqualTo(36.dp.toIntPx())
+            .assertHeightEqualsTo(36.dp)
     }
 }
