@@ -17,8 +17,10 @@
 package androidx.benchmark
 
 import android.app.Activity
+import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
+import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,13 +35,15 @@ class ActivityTestRuleBenchmark {
     @get:Rule
     val activityRule = ActivityTestRule(Activity::class.java)
 
+    @UiThreadTest
     @Test
     fun activityTestRule() {
-        activityRule.runOnUiThread {
-            var i = 0
-            benchmarkRule.measureRepeated {
-                i++
-            }
+        // isolation activity *not* on top
+        assertFalse(IsolationActivity.singleton.get()!!.resumed)
+
+        var i = 0
+        benchmarkRule.measureRepeated {
+            i++
         }
     }
 }

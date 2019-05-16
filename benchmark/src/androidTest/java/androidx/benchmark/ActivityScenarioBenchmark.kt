@@ -19,6 +19,7 @@ package androidx.benchmark
 import android.app.Activity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
+import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -31,16 +32,19 @@ class ActivityScenarioBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
-    private lateinit var activityRule: ActivityScenario<Activity>
+    private lateinit var activityScenario: ActivityScenario<Activity>
 
     @Before
     fun setup() {
-        activityRule = ActivityScenario.launch(Activity::class.java)
+        activityScenario = ActivityScenario.launch(Activity::class.java)
     }
 
     @Test
     fun activityScenario() {
-        activityRule.onActivity {
+        activityScenario.onActivity {
+            // isolation activity *not* on top
+            assertFalse(IsolationActivity.singleton.get()!!.resumed)
+
             var i = 0
             benchmarkRule.measureRepeated {
                 i++
