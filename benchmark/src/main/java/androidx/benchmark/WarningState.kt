@@ -50,7 +50,7 @@ internal object WarningState {
         return ret
     }
 
-    private val isEmulator = Build.FINGERPRINT.startsWith("generic") ||
+    val isEmulator = Build.FINGERPRINT.startsWith("generic") ||
             Build.FINGERPRINT.startsWith("unknown") ||
             Build.MODEL.contains("google_sdk") ||
             Build.MODEL.contains("Emulator") ||
