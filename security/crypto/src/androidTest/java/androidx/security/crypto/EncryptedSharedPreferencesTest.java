@@ -48,6 +48,7 @@ import org.junit.runners.JUnit4;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.KeyStore;
+import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings("unchecked")
@@ -58,6 +59,11 @@ public class EncryptedSharedPreferencesTest {
     private String mKeyAlias;
 
     private static final String PREFS_FILE = "test_shared_prefs";
+
+    private static final String KEY_KEYSET_ALIAS =
+            "__androidx_security_crypto_encrypted_prefs_key_keyset__";
+    private static final String VALUE_KEYSET_ALIAS =
+            "__androidx_security_crypto_encrypted_prefs_value_keyset__";
 
     @Before
     public void setup() throws Exception {
@@ -113,17 +119,21 @@ public class EncryptedSharedPreferencesTest {
         final String stringTestValue = "THIS IS A TEST STRING";
         editor.putString(stringTestKey, stringTestValue);
 
-        SharedPreferences.OnSharedPreferenceChangeListener listener =
+
+        final SharedPreferences.OnSharedPreferenceChangeListener listener =
                 new SharedPreferences.OnSharedPreferenceChangeListener() {
                     @Override
                     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                             String key) {
                         Assert.assertEquals(stringTestValue,
                                 sharedPreferences.getString(stringTestKey, null));
+
                     }
                 };
 
         sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
+        editor.commit();
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener);
 
 
         // String Set Test
@@ -245,6 +255,82 @@ public class EncryptedSharedPreferencesTest {
         Assert.assertEquals(twiceVal2 + " should be the value",
                 twiceVal2,
                 sharedPreferences.getString(twiceKey, null));
+
+        // Test getAll
+        Map all = sharedPreferences.getAll();
+
+        Assert.assertTrue("Get all should have supplied " + twiceKey,
+                all.containsKey(twiceKey));
+
+        Assert.assertFalse("Get all should have removed " + KEY_KEYSET_ALIAS,
+                all.containsKey(KEY_KEYSET_ALIAS));
+
+        Assert.assertFalse("Get all should have removed " + VALUE_KEYSET_ALIAS,
+                all.containsKey(VALUE_KEYSET_ALIAS));
+
+        System.out.println("All entries " + all);
+
+        // Test using reserved keys
+
+        boolean exceptionThrown = false;
+
+        // try overwriting keyset
+        try {
+            editor.putString(KEY_KEYSET_ALIAS, "Not a keyset");
+        } catch (SecurityException ex) {
+            exceptionThrown = true;
+        }
+
+        Assert.assertTrue("Access to " + KEY_KEYSET_ALIAS + " should have been blocked.",
+                exceptionThrown);
+        exceptionThrown = false;
+
+        // try removing keyset
+        try {
+            editor.remove(KEY_KEYSET_ALIAS);
+        } catch (SecurityException ex) {
+            exceptionThrown = true;
+        }
+
+        Assert.assertTrue("Access to " + KEY_KEYSET_ALIAS + " should have been blocked.",
+                exceptionThrown);
+        exceptionThrown = false;
+
+        // try calling contains
+        try {
+            sharedPreferences.contains(VALUE_KEYSET_ALIAS);
+        } catch (SecurityException ex) {
+            exceptionThrown = true;
+        }
+
+        Assert.assertTrue("Access to " + VALUE_KEYSET_ALIAS + " should have been blocked.",
+                exceptionThrown);
+        exceptionThrown = false;
+
+        // try calling get
+        try {
+            sharedPreferences.getString(VALUE_KEYSET_ALIAS, null);
+        } catch (SecurityException ex) {
+            exceptionThrown = true;
+        }
+
+        Assert.assertTrue("Access to " + VALUE_KEYSET_ALIAS + " should have been blocked.",
+                exceptionThrown);
+
+        // test clear
+
+        editor.clear();
+        editor.commit();
+
+        editor.putString("New Data", "New");
+        editor.commit();
+
+        Assert.assertEquals("Data should be equal", "New",
+                sharedPreferences.getString("New Data", null));
+
+        Assert.assertEquals("Data should not exist", null,
+                sharedPreferences.getString(twiceKey, null));
+
     }
 
     @Test
@@ -278,7 +364,7 @@ public class EncryptedSharedPreferencesTest {
         byte[] encryptedKey = deterministicAead.encryptDeterministically(testKey.getBytes(UTF_8),
                 tinkTestPrefs.getBytes());
         String encodedKey = Base64.encode(encryptedKey);
-        SharedPreferences  sharedPreferences = mContext.getSharedPreferences(tinkTestPrefs,
+        SharedPreferences sharedPreferences = mContext.getSharedPreferences(tinkTestPrefs,
                 MODE_PRIVATE);
 
         boolean keyExists = sharedPreferences.contains(encodedKey);
