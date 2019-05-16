@@ -28,16 +28,28 @@ limitations under the License.
         <item name="android:textColor">@color/car_display1</item>
     </style>
 
+    <style name="TextAppearance.Car.Display1.Light">
+        <item name="android:textColor">@color/car_display1_light</item>
+    </style>
+
     <style name="TextAppearance.Car.Display2">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_display2_size</item>
         <item name="android:textColor">@color/car_display2</item>
     </style>
 
+    <style name="TextAppearance.Car.Display2.Light">
+        <item name="android:textColor">@color/car_display2_light</item>
+    </style>
+
     <style name="TextAppearance.Car.Display3">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_display3_size</item>
         <item name="android:textColor">@color/car_display3</item>
+    </style>
+
+    <style name="TextAppearance.Car.Display3.Light">
+        <item name="android:textColor">@color/car_display3_light</item>
     </style>
 
     <!-- The styling for body text. The color of this text changes based on the day/night mode. -->
