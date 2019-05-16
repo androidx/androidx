@@ -18,7 +18,6 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0-rc01")
     api(project(":interpolator"))
     api("androidx.collection:collection:1.1.0-rc01")
-    api(project(":legacy-support-core-ui"))
 
     implementation(project(":concurrent:concurrent-futures"))
 

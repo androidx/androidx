@@ -9,7 +9,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0-rc01")
-    api(project(":legacy-support-core-ui"))
+    api(project(":swiperefreshlayout"))
     api(project(":fragment"))
     api(project(":recyclerview"))
     api(CONSTRAINT_LAYOUT, { transitive = true })
