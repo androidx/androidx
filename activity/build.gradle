@@ -20,8 +20,8 @@ dependencies {
         exclude group: 'androidx.annotation'
         exclude group: 'com.google.guava', module: 'listenablefuture'
     }
-    api(project(":lifecycle:lifecycle-runtime"), libs.exclude_annotations_transitive)
-    api(project(":lifecycle:lifecycle-viewmodel"), libs.exclude_annotations_transitive)
+    api("androidx.lifecycle:lifecycle-runtime:2.1.0-beta01")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.1.0-beta01")
     api(project(":savedstate"))
 
     androidTestImplementation(KOTLIN_STDLIB)
