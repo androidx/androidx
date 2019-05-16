@@ -20,8 +20,8 @@ import android.app.Activity;
 
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
+import androidx.vectordrawable.animated.test.R;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
-import androidx.vectordrawable.test.R;
 
 import org.junit.Before;
 import org.junit.Rule;

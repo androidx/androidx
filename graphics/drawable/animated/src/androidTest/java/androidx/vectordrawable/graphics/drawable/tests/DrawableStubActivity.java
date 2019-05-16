@@ -19,7 +19,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.WindowManager;
 
-import androidx.vectordrawable.test.R;
+import androidx.vectordrawable.animated.test.R;
 
 public class DrawableStubActivity extends Activity {
     @Override
