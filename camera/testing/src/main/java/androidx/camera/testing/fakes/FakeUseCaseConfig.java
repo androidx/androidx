@@ -24,6 +24,7 @@ import androidx.camera.core.MutableConfig;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.OptionsBundle;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfig;
 
 import java.util.Set;
@@ -152,6 +153,19 @@ public class FakeUseCaseConfig
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
     }
 
+    @Nullable
+    @Override
+    public UseCase.EventListener getUseCaseEventListener(
+            @Nullable UseCase.EventListener valueIfMissing) {
+        return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER, valueIfMissing);
+    }
+
+    @Nullable
+    @Override
+    public UseCase.EventListener getUseCaseEventListener() {
+        return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER);
+    }
+
     // End of the default implementation of Config
     // *********************************************************************************************
 
@@ -225,6 +239,12 @@ public class FakeUseCaseConfig
         @Override
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            return this;
+        }
+
+        @Override
+        public Builder setUseCaseEventListener(UseCase.EventListener eventListener) {
+            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_LISTENER, eventListener);
             return this;
         }
     }

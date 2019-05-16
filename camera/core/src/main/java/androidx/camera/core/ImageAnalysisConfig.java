@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -411,15 +411,32 @@ public final class ImageAnalysisConfig
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
     }
 
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public UseCase.EventListener getUseCaseEventListener(
+            @Nullable UseCase.EventListener valueIfMissing) {
+        return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public UseCase.EventListener getUseCaseEventListener() {
+        return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER);
+    }
+
     // End of the default implementation of Config
     // *********************************************************************************************
 
     /** Builder for a {@link ImageAnalysisConfig}. */
     public static final class Builder
-            implements CameraDeviceConfig.Builder<ImageAnalysisConfig.Builder>,
-            ImageOutputConfig.Builder<ImageAnalysisConfig.Builder>,
-            ThreadConfig.Builder<ImageAnalysisConfig.Builder>,
-            UseCaseConfig.Builder<ImageAnalysis, ImageAnalysisConfig, ImageAnalysisConfig.Builder> {
+            implements CameraDeviceConfig.Builder<Builder>,
+            ImageOutputConfig.Builder<Builder>,
+            ThreadConfig.Builder<Builder>,
+            UseCaseConfig.Builder<ImageAnalysis, ImageAnalysisConfig, Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
 
@@ -664,6 +681,14 @@ public final class ImageAnalysisConfig
         @Override
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setUseCaseEventListener(UseCase.EventListener useCaseEventListener) {
+            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_LISTENER, useCaseEventListener);
             return this;
         }
     }

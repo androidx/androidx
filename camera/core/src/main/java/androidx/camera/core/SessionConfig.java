@@ -344,6 +344,11 @@ public final class SessionConfig {
             mCaptureConfigBuilder.setImplementationOptions(config);
         }
 
+        /** Add a set of {@link Config} to the implementation specific options. */
+        public void addImplementationOptions(Config config) {
+            mCaptureConfigBuilder.addImplementationOptions(config);
+        }
+
         /**
          * Builds an instance of a SessionConfig that has all the combined parameters of the
          * SessionConfig that have been added to the Builder.

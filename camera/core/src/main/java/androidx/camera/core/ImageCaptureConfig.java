@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,9 +40,9 @@ public final class ImageCaptureConfig
     // Option Declarations:
     // *********************************************************************************************
 
-    static final Option<ImageCapture.CaptureMode> OPTION_IMAGE_CAPTURE_MODE =
+    static final Option<CaptureMode> OPTION_IMAGE_CAPTURE_MODE =
             Option.create(
-                    "camerax.core.imageCapture.captureMode", ImageCapture.CaptureMode.class);
+                    "camerax.core.imageCapture.captureMode", CaptureMode.class);
     static final Option<FlashMode> OPTION_FLASH_MODE =
             Option.create("camerax.core.imageCapture.flashMode", FlashMode.class);
     static final Option<CaptureBundle> OPTION_CAPTURE_BUNDLE =
@@ -51,6 +51,8 @@ public final class ImageCaptureConfig
             Option.create("camerax.core.imageCapture.captureProcessor", CaptureProcessor.class);
     static final Option<Integer> OPTION_BUFFER_FORMAT =
             Option.create("camerax.core.imageCapture.bufferFormat", Integer.class);
+    static final Option<Integer> OPTION_MAX_CAPTURE_STAGES =
+            Option.create("camerax.core.imageCapture.maxCaptureStages", Integer.class);
 
     // *********************************************************************************************
 
@@ -62,25 +64,25 @@ public final class ImageCaptureConfig
     }
 
     /**
-     * Returns the {@link ImageCapture.CaptureMode}.
+     * Returns the {@link CaptureMode}.
      *
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
      */
     @Nullable
-    public ImageCapture.CaptureMode getCaptureMode(
-            @Nullable ImageCapture.CaptureMode valueIfMissing) {
+    public CaptureMode getCaptureMode(
+            @Nullable CaptureMode valueIfMissing) {
         return retrieveOption(OPTION_IMAGE_CAPTURE_MODE, valueIfMissing);
     }
 
     /**
-     * Returns the {@link ImageCapture.CaptureMode}.
+     * Returns the {@link CaptureMode}.
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    public ImageCapture.CaptureMode getCaptureMode() {
+    public CaptureMode getCaptureMode() {
         return retrieveOption(OPTION_IMAGE_CAPTURE_MODE);
     }
 
@@ -183,6 +185,32 @@ public final class ImageCaptureConfig
     @Nullable
     public Integer getBufferFormat() {
         return retrieveOption(OPTION_BUFFER_FORMAT);
+    }
+
+    /**
+     * Returns the max number of {@link CaptureStage}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in
+     * this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public int getMaxCaptureStages(int valueIfMissing) {
+        return retrieveOption(OPTION_MAX_CAPTURE_STAGES, valueIfMissing);
+    }
+
+    /**
+     * Returns the max number of {@link CaptureStage}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public int getMaxCaptureStages() {
+        return retrieveOption(OPTION_MAX_CAPTURE_STAGES);
     }
 
     // Start of the default implementation of Config
@@ -486,16 +514,33 @@ public final class ImageCaptureConfig
         return retrieveOption(OPTION_SURFACE_OCCUPANCY_PRIORITY);
     }
 
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public UseCase.EventListener getUseCaseEventListener(
+            @Nullable UseCase.EventListener valueIfMissing) {
+        return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public UseCase.EventListener getUseCaseEventListener() {
+        return retrieveOption(OPTION_USE_CASE_EVENT_LISTENER);
+    }
+
     // End of the default implementation of Config
     // *********************************************************************************************
 
     /** Builder for a {@link ImageCaptureConfig}. */
     public static final class Builder
             implements UseCaseConfig.Builder<
-            ImageCapture, ImageCaptureConfig, ImageCaptureConfig.Builder>,
-            ImageOutputConfig.Builder<ImageCaptureConfig.Builder>,
-            CameraDeviceConfig.Builder<ImageCaptureConfig.Builder>,
-            ThreadConfig.Builder<ImageCaptureConfig.Builder> {
+            ImageCapture, ImageCaptureConfig, Builder>,
+            ImageOutputConfig.Builder<Builder>,
+            CameraDeviceConfig.Builder<Builder>,
+            ThreadConfig.Builder<Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
 
@@ -560,7 +605,7 @@ public final class ImageCaptureConfig
          * @param captureMode The requested image capture mode.
          * @return The current Builder.
          */
-        public Builder setCaptureMode(ImageCapture.CaptureMode captureMode) {
+        public Builder setCaptureMode(CaptureMode captureMode) {
             getMutableConfig().insertOption(OPTION_IMAGE_CAPTURE_MODE, captureMode);
             return this;
         }
@@ -619,6 +664,19 @@ public final class ImageCaptureConfig
         @RestrictTo(Scope.LIBRARY_GROUP)
         public Builder setBufferFormat(int bufferImageFormat) {
             getMutableConfig().insertOption(OPTION_BUFFER_FORMAT, bufferImageFormat);
+            return this;
+        }
+
+        /**
+         * Sets the max number of {@link CaptureStage}.
+         *
+         * @param maxCaptureStages The max CaptureStage number.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setMaxCaptureStages(int maxCaptureStages) {
+            getMutableConfig().insertOption(OPTION_MAX_CAPTURE_STAGES, maxCaptureStages);
             return this;
         }
 
@@ -772,5 +830,14 @@ public final class ImageCaptureConfig
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
             return this;
         }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setUseCaseEventListener(UseCase.EventListener useCaseEventListener) {
+            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_LISTENER, useCaseEventListener);
+            return this;
+        }
+
     }
 }
