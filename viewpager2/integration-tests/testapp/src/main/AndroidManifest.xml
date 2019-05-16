@@ -66,6 +66,13 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".PageTransformerActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name=".BrowseActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

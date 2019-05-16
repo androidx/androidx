@@ -41,6 +41,7 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -133,10 +134,10 @@ public final class ViewPager2 extends ViewGroup {
             new CompositeOnPageChangeCallback(3);
 
     int mCurrentItem;
+    LinearLayoutManager mLayoutManager;
     private int mPendingCurrentItem = NO_POSITION;
     private Parcelable mPendingAdapterState;
     private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLayoutManager;
     private PagerSnapHelper mPagerSnapHelper;
     private ScrollEventAdapter mScrollEventAdapter;
     private FakeDrag mFakeDragger;
@@ -183,7 +184,7 @@ public final class ViewPager2 extends ViewGroup {
 
         // Create ScrollEventAdapter before attaching PagerSnapHelper to RecyclerView, because the
         // attach process calls PagerSnapHelperImpl.findSnapView, which uses the mScrollEventAdapter
-        mScrollEventAdapter = new ScrollEventAdapter(mLayoutManager);
+        mScrollEventAdapter = new ScrollEventAdapter(this);
         // Create FakeDrag before attaching PagerSnapHelper, same reason as above
         mFakeDragger = new FakeDrag(this, mScrollEventAdapter, mRecyclerView);
         mPagerSnapHelper = new PagerSnapHelperImpl();
@@ -566,6 +567,11 @@ public final class ViewPager2 extends ViewGroup {
         return mLayoutManager.getOrientation();
     }
 
+    boolean isLayoutRtl() {
+        return mLayoutManager.getLayoutDirection()
+                == androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
+    }
+
     /**
      * Set the currently selected page. If the ViewPager has already been through its first
      * layout with its current adapter there will be a smooth animated transition between
@@ -863,6 +869,9 @@ public final class ViewPager2 extends ViewGroup {
      * transformations to each page, overriding the default sliding behavior.
      *
      * @param transformer PageTransformer that will modify each page's animation properties
+     *
+     * @see MarginPageTransformer
+     * @see CompositePageTransformer
      */
     public void setPageTransformer(@Nullable PageTransformer transformer) {
         // TODO: add support for reverseDrawingOrder: b/112892792
@@ -1095,6 +1104,6 @@ public final class ViewPager2 extends ViewGroup {
          *                 position of the pager. 0 is front and center. 1 is one full
          *                 page position to the right, and -1 is one page position to the left.
          */
-        void transformPage(@NonNull View page, float position);
+        void transformPage(@NonNull View page, @FloatRange(from = -1.0, to = 1.0) float position);
     }
 }

@@ -78,8 +78,8 @@ abstract class BaseCardActivity : FragmentActivity() {
         scaleCheckBox = findViewById(R.id.scale_checkbox)
         gotoPage = findViewById(R.id.jump_button)
 
-        UserInputController(viewPager, findViewById(R.id.disable_user_input_checkbox)).setup()
-        OrientationController(viewPager, findViewById(R.id.orientation_spinner)).setup()
+        UserInputController(viewPager, findViewById(R.id.disable_user_input_checkbox)).setUp()
+        OrientationController(viewPager, findViewById(R.id.orientation_spinner)).setUp()
         cardSelector.adapter = createCardAdapter()
 
         viewPager.setPageTransformer(mAnimator)

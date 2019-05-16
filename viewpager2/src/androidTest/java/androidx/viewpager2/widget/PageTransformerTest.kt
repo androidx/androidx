@@ -17,6 +17,8 @@
 package androidx.viewpager2.widget
 
 import android.view.View
+import androidx.annotation.FloatRange
+import androidx.annotation.NonNull
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.widget.BaseTest.SortOrder.ASC
@@ -232,7 +234,10 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
 
         /* interface implementations */
 
-        override fun transformPage(page: View, position: Float) {
+        override fun transformPage(
+            @NonNull page: View,
+            @FloatRange(from = -1.0, to = 1.0) position: Float
+        ) {
             events.add(TransformPageEvent(layoutManager.getPosition(page), position))
         }
 
