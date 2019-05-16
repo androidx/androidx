@@ -278,7 +278,7 @@ class AndroidLayoutDrawTest {
         runOnUiThread {
             activity.setContent {
                 CraneWrapper {
-                    WithConstraints @Composable { constraints ->
+                    WithConstraints { constraints ->
                         topConstraints.value = constraints
                         Padding(size = size) {
                             WithConstraints { constraints ->
@@ -400,7 +400,7 @@ class AndroidLayoutDrawTest {
                         paint.color = model.outerColor
                         canvas.drawRect(parentSize.toRect(), paint)
                     }
-                    Layout(children = @Composable {
+                    Layout(children = {
                         AtLeastSize(size = model.size) {
                             Draw { canvas, parentSize ->
                                 drawLatch.countDown()
@@ -563,7 +563,7 @@ class AndroidLayoutDrawTest {
                 CraneWrapper {
                     Draw(children = {
                         AtLeastSize(size = (model.size * 3)) {
-                            Draw(children = @Composable {
+                            Draw(children = {
                                 Draw { canvas, parentSize ->
                                     val paint = Paint()
                                     paint.color = model.innerColor

@@ -54,12 +54,12 @@ class StackChildren {
             leftInset = leftInset, topInset = topInset,
             rightInset = rightInset, bottomInset = bottomInset
         )
-        _stackChildren += @Composable { ParentData(data = data, children = children) }
+        _stackChildren += { ParentData(data = data, children = children) }
     }
 
     fun aligned(alignment: Alignment, children: @Composable() () -> Unit) {
         val data = StackChildData(alignment = alignment)
-        _stackChildren += @Composable { ParentData(data = data, children = children) }
+        _stackChildren += { ParentData(data = data, children = children) }
     }
 }
 

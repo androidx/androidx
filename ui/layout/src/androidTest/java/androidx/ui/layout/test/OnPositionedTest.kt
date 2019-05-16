@@ -48,7 +48,7 @@ class OnPositionedTest : LayoutTest() {
         var realTop: Px? = null
 
         val drawLatch = CountDownLatch(1)
-        show @Composable {
+        show {
             Padding(left = paddingLeftPx.toDp(), top = paddingTopPx.toDp()) {
                 Container(expanded = true) {
                     OnPositioned(onPositioned = {
@@ -73,7 +73,7 @@ class OnPositionedTest : LayoutTest() {
         var realTop: Px? = null
 
         val drawLatch = CountDownLatch(1)
-        show @Composable {
+        show {
             Padding(left = paddingLeftPx.toDp(), top = paddingTopPx.toDp()) {
                 OnChildPositioned(onPositioned = {
                     realLeft = it.position.x
@@ -99,7 +99,7 @@ class OnPositionedTest : LayoutTest() {
         var childCoordinates: LayoutCoordinates? = null
 
         val drawLatch = CountDownLatch(2)
-        show @Composable {
+        show {
             Padding(left = firstPaddingPx.toDp()) {
                 Padding(left = secondPaddingPx.toDp()) {
                     OnPositioned(onPositioned = {
@@ -137,7 +137,7 @@ class OnPositionedTest : LayoutTest() {
         var secondCoordinates: LayoutCoordinates? = null
 
         val drawLatch = CountDownLatch(2)
-        show @Composable {
+        show {
             Row {
                 OnChildPositioned(onPositioned = {
                     firstCoordinates = it

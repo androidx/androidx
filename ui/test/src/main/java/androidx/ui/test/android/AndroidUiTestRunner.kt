@@ -175,7 +175,7 @@ open class AndroidUiTestRunner : UiTestRunner {
 
     private fun setContentInternal(composable: @Composable() () -> Unit) {
         activity.setContentView(FrameLayout(activity).apply {
-            compositionContext = Compose.composeInto(this, null, composable = @Composable {
+            compositionContext = Compose.composeInto(this, null, composable = {
                 TestWrapper {
                     composable()
                 }

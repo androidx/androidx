@@ -380,7 +380,7 @@ fun Layout(
         val addMarkers = childrenArray.size > 1
         childrenArray.forEach { childrenComposable ->
             childrenComposable()
-            if (addMarkers) ChildrenEndMarker(p1 = childrenComposable)
+            if (addMarkers) ChildrenEndMarker(childrenComposable)
         }
     }
 

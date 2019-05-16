@@ -211,8 +211,7 @@ fun RadioButton(
             val definition = +memo(selectedColor, unselectedColor) {
                 generateTransitionDefinition(selectedColor, unselectedColor)
             }
-            // TODO: remove @Composable annotation here when b/131681875 is fixed
-            Transition(definition = definition, toState = selected) @Composable { state ->
+            Transition(definition = definition, toState = selected) { state ->
                 DrawRadioButton(
                     color = state[ColorProp],
                     outerRadius = state[OuterRadiusProp],

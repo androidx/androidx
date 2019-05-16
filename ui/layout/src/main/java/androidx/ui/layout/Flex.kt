@@ -45,7 +45,7 @@ class FlexChildren internal constructor() {
         if (flex < 0) {
             throw IllegalArgumentException("flex must be >= 0")
         }
-        childrenList += @Composable {
+        childrenList += {
             ParentData(data = FlexInfo(flex = flex, fit = FlexFit.Tight), children = children)
         }
     }
@@ -54,13 +54,13 @@ class FlexChildren internal constructor() {
         if (flex < 0) {
             throw IllegalArgumentException("flex must be >= 0")
         }
-        childrenList += @Composable {
+        childrenList += {
             ParentData(data = FlexInfo(flex = flex, fit = FlexFit.Loose), children = children)
         }
     }
 
     fun inflexible(children: @Composable() () -> Unit) {
-        childrenList += @Composable {
+        childrenList += {
             ParentData(data = FlexInfo(flex = 0f, fit = FlexFit.Loose), children = children)
         }
     }
@@ -485,7 +485,7 @@ private fun Flex(
     fun Placeable.mainAxisSize() = if (orientation == FlexOrientation.Horizontal) width else height
     fun Placeable.crossAxisSize() = if (orientation == FlexOrientation.Horizontal) height else width
 
-    val flexChildren: @Composable() () -> Unit = with(FlexChildren()) @Composable {
+    val flexChildren: @Composable() () -> Unit = with(FlexChildren()) {
         block()
         val composable = @Composable {
             childrenList.forEach { it() }

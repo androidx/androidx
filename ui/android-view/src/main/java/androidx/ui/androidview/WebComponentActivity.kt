@@ -54,7 +54,7 @@ open class WebComponentActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent @Composable {
+        setContent {
             if (WebContext.debug) {
                 Log.e("WebCompAct", "setContent")
             }
