@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContentResolverCompat;
 import androidx.core.os.CancellationSignal;
 import androidx.core.os.OperationCanceledException;
+import androidx.loader.app.LoaderManager;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -233,6 +234,10 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
         mSortOrder = sortOrder;
     }
 
+    /**
+     * @deprecated Consider using {@link LoaderManager#enableDebugLogging(boolean)} to understand
+     * the series of operations performed by LoaderManager.
+     */
     @SuppressWarnings("deprecation")
     @Override
     @Deprecated

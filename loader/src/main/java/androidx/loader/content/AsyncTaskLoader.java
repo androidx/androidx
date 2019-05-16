@@ -26,6 +26,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.os.OperationCanceledException;
+import androidx.loader.app.LoaderManager;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -328,6 +329,10 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         return AsyncTask.THREAD_POOL_EXECUTOR;
     }
 
+    /**
+     * @deprecated Consider using {@link LoaderManager#enableDebugLogging(boolean)} to understand
+     * the series of operations performed by LoaderManager.
+     */
     @SuppressWarnings("deprecation")
     @Override
     @Deprecated

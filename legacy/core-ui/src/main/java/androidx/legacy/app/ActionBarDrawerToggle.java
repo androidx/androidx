@@ -66,6 +66,7 @@ import java.lang.reflect.Method;
  * {@link DrawerLayout.DrawerListener}, or if you are already providing your own listener,
  * call through to each of the listener methods from your own.</p>
  *
+ * @deprecated Use {@link androidx.appcompat.app.ActionBarDrawerToggle} instead.
  */
 @Deprecated
 public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
