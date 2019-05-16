@@ -64,8 +64,9 @@ class BenchmarkPlugin : Plugin<Project> {
     }
 
     private fun configureWithAndroidExtension(project: Project, extension: BaseExtension) {
-        project.tasks.register("lockClocks", LockClocksTask::class.java)
-        project.tasks.register("unlockClocks", UnlockClocksTask::class.java)
+        val adb = Adb(project)
+        project.tasks.register("lockClocks", LockClocksTask::class.java, adb)
+        project.tasks.register("unlockClocks", UnlockClocksTask::class.java, adb)
         val benchmarkReportTask =
             project.tasks.register("benchmarkReport", BenchmarkReportTask::class.java)
         benchmarkReportTask.configure { it.dependsOn("connectedAndroidTest") }
