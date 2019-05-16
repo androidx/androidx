@@ -42,13 +42,16 @@ class Adb constructor(project: Project) {
     fun execSync(
         adbCmd: String,
         deviceId: String? = null,
-        shouldThrow: Boolean = true
+        shouldThrow: Boolean = true,
+        silent: Boolean = false
     ): ProcessResult {
         val subCmd = adbCmd.trim().split(Regex("\\s+")).toTypedArray()
         val adbArgs = if (!deviceId.isNullOrEmpty()) arrayOf("-s", deviceId) else emptyArray()
         val cmd = arrayOf(adbPath, *adbArgs, *subCmd)
 
-        logger.log(LogLevel.INFO, cmd.joinToString(" "))
+        if (!silent) {
+            logger.log(LogLevel.INFO, cmd.joinToString(" "))
+        }
         val process = Runtime.getRuntime().exec(cmd)
 
         if (!process.waitFor(5, TimeUnit.SECONDS)) {
@@ -58,8 +61,13 @@ class Adb constructor(project: Project) {
         val stdout = process.inputStream.bufferedReader().use { it.readText() }
         val stderr = process.errorStream.bufferedReader().use { it.readText() }
 
-        logger.log(LogLevel.QUIET, stdout)
-        logger.log(LogLevel.WARN, stderr)
+        if (!stdout.isBlank() && !silent) {
+            logger.log(LogLevel.QUIET, stdout.trim())
+        }
+
+        if (!stderr.isBlank() && shouldThrow && !silent) {
+            logger.log(LogLevel.ERROR, stderr.trim())
+        }
 
         if (shouldThrow && process.exitValue() != 0) {
             throw GradleException(stderr)

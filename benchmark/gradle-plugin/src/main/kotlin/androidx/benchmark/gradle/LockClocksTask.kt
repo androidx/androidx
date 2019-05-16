@@ -35,7 +35,7 @@ open class LockClocksTask : DefaultTask() {
 
         // Skip "adb root" if already rooted as it will fail.
         if (adb.execSync("shell su exit", shouldThrow = false).exitValue != 0) {
-            adb.execSync("root")
+            adb.execSync("root", silent = true)
         }
 
         val dest = "/data/local/tmp/lockClocks.sh"

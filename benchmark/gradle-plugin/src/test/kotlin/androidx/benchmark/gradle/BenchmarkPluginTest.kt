@@ -18,7 +18,6 @@ package androidx.benchmark.gradle
 
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.UnexpectedBuildFailure
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -76,10 +75,6 @@ class BenchmarkPluginTest {
         gradleRunner = GradleRunner.create()
             .withProjectDir(testProjectDir.root)
             .withPluginClasspath()
-    }
-
-    @After
-    fun tearDown() {
     }
 
     @Test
