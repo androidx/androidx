@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 
@@ -28,6 +29,7 @@ import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
+import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.test.common.TestUtils;
 import androidx.versionedparcelable.ParcelImpl;
@@ -105,6 +107,27 @@ public final class MediaTestUtils {
         String mediaId = Thread.currentThread().getStackTrace()[1].getMethodName();
         return new MediaMetadata.Builder()
                 .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId).build();
+    }
+
+    public static List<SessionPlayer.TrackInfo> createTrackInfoList() {
+        List<SessionPlayer.TrackInfo> list = new ArrayList<>();
+        list.add(createTrackInfo(0, "test_0", SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO));
+        list.add(createTrackInfo(1, "test_1", SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO));
+        list.add(createTrackInfo(2, "test_2", SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
+        return list;
+    }
+
+    public static SessionPlayer.TrackInfo createTrackInfo(int index, String mediaId,
+            int trackType) {
+        MediaMetadata metadata = new MediaMetadata.Builder().putString(
+                MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId).build();
+        MediaItem mediaItem = new MediaItem.Builder().setMetadata(metadata).build();
+        MediaFormat format = new MediaFormat();
+        if (trackType == SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
+            format.setString(MediaFormat.KEY_LANGUAGE, "eng");
+            format.setString(MediaFormat.KEY_MIME, "text/cea-608");
+        }
+        return new SessionPlayer.TrackInfo(index, mediaItem, trackType, format);
     }
 
     public static List<ParcelImpl> convertToParcelImplList(List<MediaItem> list) {
