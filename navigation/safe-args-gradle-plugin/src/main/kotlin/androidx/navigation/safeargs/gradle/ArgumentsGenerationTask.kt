@@ -89,7 +89,6 @@ open class ArgumentsGenerationTask : DefaultTask() {
         }
     }
 
-    @Suppress("unused")
     @TaskAction
     internal fun taskAction(inputs: IncrementalTaskInputs) {
         if (inputs.isIncremental) {
