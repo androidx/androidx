@@ -409,13 +409,9 @@ class BenchmarkState internal constructor() {
         private const val THROTTLE_BACKOFF_S = 90L
 
         /**
-         * Hooks for benchmarks not using [BenchmarkRule] to register results,
-         * and check for thermal throttling if necessary.
+         * Hooks for benchmarks not using [BenchmarkRule] to register results.
          *
-         * Results are printed to Studio console, and added to the output JSON/XML files.
-         *
-         * If thermal throttling is detected, this method will sleep to give the device
-         * time to cool down before the next benchmark.
+         * Results are printed to Studio console, and added to the output JSON file.
          *
          * @param className Name of class the benchmark runs in
          * @param testName Name of the benchmark
@@ -457,12 +453,6 @@ class BenchmarkState internal constructor() {
                     warmupIterations = warmupIterations
                 )
             )
-
-            // Thermal Throttle Check & Sleep
-            if (!Clocks.areLocked && !AndroidBenchmarkRunner.sustainedPerformanceModeInUse) {
-                ThrottleDetector.computeThrottleBaseline()
-                sleepIfThermalThrottled()
-            }
         }
 
         internal fun sleepIfThermalThrottled(): Boolean {
