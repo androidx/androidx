@@ -2798,10 +2798,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     void dispatchPrimaryNavigationFragmentChanged() {
         updateOnBackPressedCallbackEnabled();
-        // Update all of our child Fragments with the new primary navigation state
-        for (Fragment f : mActive.values()) {
-            dispatchParentPrimaryNavigationFragmentChanged(f);
-        }
+        // Dispatch the change event to this FragmentManager's primary navigation fragment
+        dispatchParentPrimaryNavigationFragmentChanged(mPrimaryNav);
     }
 
     @Override
