@@ -24,6 +24,7 @@ import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.utils.SerialExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.Collections;
@@ -43,8 +44,8 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
     private TestScheduler mScheduler;
 
     TestWorkManagerImpl(
-            @NonNull Context context,
-            @NonNull Configuration configuration) {
+            @NonNull final Context context,
+            @NonNull final Configuration configuration) {
 
         // Note: This implies that the call to ForceStopRunnable() actually does nothing.
         // This is okay when testing.
@@ -52,8 +53,8 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
                 context,
                 configuration,
                 new TaskExecutor() {
-
                     Executor mSynchronousExecutor = new SynchronousExecutor();
+                    Executor mBackgroundExecutor = new SerialExecutor(configuration.getExecutor());
 
                     @Override
                     public void postToMainThread(Runnable runnable) {
@@ -67,12 +68,12 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
 
                     @Override
                     public void executeOnBackgroundThread(Runnable runnable) {
-                        runnable.run();
+                        mBackgroundExecutor.execute(runnable);
                     }
 
                     @Override
                     public Executor getBackgroundExecutor() {
-                        return mSynchronousExecutor;
+                        return configuration.getExecutor();
                     }
                 },
                 true);
