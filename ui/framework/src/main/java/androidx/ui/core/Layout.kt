@@ -61,9 +61,11 @@ internal class ComplexLayoutState(
 
     internal val onPositioned = mutableListOf<(LayoutCoordinates) -> Unit>()
     internal var onChildPositioned: List<(LayoutCoordinates) -> Unit> = emptyList()
+    internal var needsRelayout = true
 
     override fun callMeasure(constraints: Constraints) { measure(constraints) }
     override fun callLayout() {
+        needsRelayout = true
         placeChildren()
     }
 
@@ -76,6 +78,7 @@ internal class ComplexLayoutState(
         layoutNode.constraints = constraints
         layoutBlockReceiver.layoutBlock(childrenMeasurables, constraints)
         layoutNode.endMeasure()
+        needsRelayout = true
         return this
     }
 
@@ -92,10 +95,13 @@ internal class ComplexLayoutState(
         maxIntrinsicHeightBlock(intrinsicMeasurementsReceiver, childrenMeasurables, w)
 
     internal fun placeChildren() {
-        layoutNode.startLayout()
-        positioningBlockReceiver.apply { positioningBlock() }
-        dispatchOnPositionedCallbacks()
-        layoutNode.endLayout()
+        if (needsRelayout) {
+            needsRelayout = false
+            layoutNode.startLayout()
+            positioningBlockReceiver.apply { positioningBlock() }
+            dispatchOnPositionedCallbacks()
+            layoutNode.endLayout()
+        }
     }
 
     private fun dispatchOnPositionedCallbacks() {
@@ -204,7 +210,7 @@ fun ComplexLayout(
     layoutState.onChildPositioned = +ambient(OnChildPositionedAmbient)
 
     +onPreCommit {
-        layoutState.layoutNode.requestLayout()
+        layoutState.layoutNode.requestRemeasure()
     }
 
     val parentData = +ambient(ParentDataAmbient)

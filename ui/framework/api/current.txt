@@ -114,6 +114,11 @@ package androidx.ui.core {
     method public void place(androidx.ui.core.Placeable, androidx.ui.core.Px x, androidx.ui.core.Px y);
   }
 
+  public final class RepaintBoundaryKt {
+    ctor public RepaintBoundaryKt();
+    method public static void RepaintBoundary(String? name = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
   public final class Selection {
     ctor public Selection(androidx.ui.engine.geometry.Offset startOffset, androidx.ui.engine.geometry.Offset endOffset, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
     method public androidx.ui.engine.geometry.Offset component1();

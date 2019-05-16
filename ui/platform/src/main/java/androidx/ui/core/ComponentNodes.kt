@@ -51,7 +51,7 @@ interface Owner {
     /**
      * Called by [LayoutNode] to request the Owner a new measurement+layout.
      */
-    fun onRequestLayout(layoutNode: LayoutNode)
+    fun onRequestMeasure(layoutNode: LayoutNode)
 
     /**
      * Called by [ComponentNode] when it is attached to the view system and now has an owner.
@@ -143,6 +143,12 @@ sealed class ComponentNode : Emittable {
      * root [LayoutNode].
      */
     open var parentLayoutNode: LayoutNode? = null
+
+    /**
+     * If this is a [RepaintBoundaryNode], `this` is returned, otherwise the nearest ancestor
+     * `RepaintBoundaryNode` or `null` if there are no ancestor `RepaintBoundaryNode`s.
+     */
+    open val repaintBoundary: RepaintBoundaryNode? get() = parent?.repaintBoundary
 
     /**
      * Execute [block] on all children of this ComponentNode. There is no single concept for
@@ -322,6 +328,30 @@ sealed class SingleChildComponentNode : ComponentNode() {
     }
 }
 
+class RepaintBoundaryNode(val name: String?) : SingleChildComponentNode() {
+    /**
+     * The horizontal position relative to its containing LayoutNode
+     */
+    var layoutX: IntPx = 0.ipx
+
+    /**
+     * The vertical position relative to its containing LayoutNode
+     */
+    var layoutY: IntPx = 0.ipx
+
+    /**
+     * The horizontal position relative to its containing RepaintBoundary or root container
+     */
+    var containerX: IntPx = 0.ipx
+
+    /**
+     * The vertical position relative to its containing RepaintBoundary or root container
+     */
+    var containerY: IntPx = 0.ipx
+
+    override val repaintBoundary: RepaintBoundaryNode? get() = this
+}
+
 /**
  * Backing node for handling pointer events.
  */
@@ -443,10 +473,10 @@ class LayoutNode : ComponentNode() {
     /**
      * `true` when called between [startMeasure] and [endMeasure]
      */
-    private var isInMeasure: Boolean = false
+    internal var isInMeasure: Boolean = false
 
     /**
-     * `true` when the layout has been dirtied by [requestLayout]. `false` after
+     * `true` when the layout has been dirtied by [requestRemeasure]. `false` after
      * the measurement has been complete ([resize] has been called).
      */
     var needsRemeasure = true
@@ -558,7 +588,7 @@ class LayoutNode : ComponentNode() {
     /**
      * Used by [ComplexLayoutState] to request a new measurement + layout pass from the owner.
      */
-    fun requestLayout() = owner?.onRequestLayout(this)
+    fun requestRemeasure() = owner?.onRequestMeasure(this)
 }
 
 private class InvalidatingProperty<T>(private var value: T) :

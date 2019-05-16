@@ -38,6 +38,7 @@ import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.ui.core.RepaintBoundary
 
 /**
  * Tracks the vertical drag gesture offset, allowing a range between `0.px` and [max].
@@ -111,7 +112,9 @@ fun VerticalScroller(
                 canvas.save()
                 canvas.clipRect(parentSize.toRect())
             }
-            child()
+            RepaintBoundary(name = "VerticalScroller") {
+                child()
+            }
             Draw { canvas, _ ->
                 canvas.restore()
             }
@@ -131,13 +134,13 @@ fun VerticalScroller(
                 width = placeable.width
                 height = min(placeable.height, constraints.maxHeight)
             }
-            val childHeight = placeable?.height?.toPx() ?: 0.px
-            val newMaxPosition = childHeight - height.toPx()
-            if (maxPosition.value != newMaxPosition) {
-                maxPosition.value = newMaxPosition
-                onScrollChanged(scrollerPosition.position, maxPosition.value)
-            }
             layout(width, height) {
+                val childHeight = placeable?.height?.toPx() ?: 0.px
+                val newMaxPosition = childHeight - height.toPx()
+                if (maxPosition.value != newMaxPosition) {
+                    maxPosition.value = newMaxPosition
+                    onScrollChanged(scrollerPosition.position, maxPosition.value)
+                }
                 placeable?.place(0.ipx, -scrollerPosition.position.round())
             }
         })
