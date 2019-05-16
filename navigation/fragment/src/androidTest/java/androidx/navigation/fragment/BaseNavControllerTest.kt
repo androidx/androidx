@@ -180,6 +180,12 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
     }
 
     @Test
+    fun testNestedUriDeepLinkWithSlash() {
+        assertUriDeepLink("nested_deep_link/$TEST_ARG_VALUE/", TEST_ARG_VALUE,
+            R.id.nested_deep_link_test, 3)
+    }
+
+    @Test
     fun testDoubleNestedStartDestinationUriDeepLink() {
         assertUriDeepLink("double_nested_start", R.id.double_nested_start_test, 2)
     }
@@ -189,8 +195,20 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         assertUriDeepLink("double_nested_deep_link", R.id.double_nested_deep_link_test, 3)
     }
 
+    /**
+     * Test a deep link path with the default [TEST_ARG_VALUE] suffix
+     */
     private fun assertUriDeepLink(path: String, @IdRes destId: Int, expectedStackSize: Int) {
-        val deepLinkUri = Uri.parse("http://www.example.com/$path/$TEST_ARG_VALUE")
+        assertUriDeepLink("$path/$TEST_ARG_VALUE", TEST_ARG_VALUE, destId, expectedStackSize)
+    }
+
+    private fun assertUriDeepLink(
+        fullPath: String,
+        expectedValue: String,
+        @IdRes destId: Int,
+        expectedStackSize: Int
+    ) {
+        val deepLinkUri = Uri.parse("http://www.example.com/$fullPath")
         val intent = Intent(Intent.ACTION_VIEW, deepLinkUri)
                 .setComponent(ComponentName(instrumentation.context,
                         activityClass))
@@ -202,7 +220,7 @@ abstract class BaseNavControllerTest<A : BaseNavigationActivity>(
         assertEquals(destId, navController.currentDestination?.id ?: 0)
         val navigator = navController.navigatorProvider[TestNavigator::class]
         assertEquals(expectedStackSize, navigator.backStack.size)
-        assertEquals(TEST_ARG_VALUE, navigator.current.second?.getString(TEST_ARG))
+        assertEquals(expectedValue, navigator.current.second?.getString(TEST_ARG))
 
         // Test that the deep link Intent was passed in alongside our args
         val deepLinkIntent = navigator.current.second?.getParcelable<Intent>(
