@@ -68,7 +68,7 @@ import java.util.List;
  * <li><a href="#Permissions">Permissions</a>
  * <li><a href="#MultipleSessions">Supporting Multiple Sessions</a>
  * </ol>
- * <div class="special reference">
+ * <div>
  * <a name="ServiceLifecycle"></a>
  * <h3>Service Lifecycle</h3>
  * <p>
