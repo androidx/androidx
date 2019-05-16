@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Provides abstract methods that the OEM needs to implement to enable extensions for image capture.
  */
-public interface ImageCaptureExtenderImpl {
+public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
     /**
      * Indicates whether the extension is supported on the device.
      *
@@ -41,12 +41,18 @@ public interface ImageCaptureExtenderImpl {
      */
     void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics);
 
-    /** The set of captures that are needed to create an image with the effect. */
-    List<CaptureStageImpl> getCaptureStages();
-
     /**
      * The processing that will be done on a set of captures to create and image with the effect.
      */
     CaptureProcessorImpl getCaptureProcessor();
+
+    /** The set of captures that are needed to create an image with the effect. */
+    List<CaptureStageImpl> getCaptureStages();
+
+    /**
+     * Returns the maximum size of the list returned by {@link #getCaptureStages()}.
+     * @return the maximum count.
+     */
+    int getMaxCaptureStage();
 }
 

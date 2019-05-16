@@ -15,6 +15,7 @@
  */
 package androidx.camera.extensions.impl;
 
+import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
@@ -23,6 +24,7 @@ import android.media.ImageWriter;
 import android.os.Build;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Size;
 import android.view.Surface;
 
 import java.nio.ByteBuffer;
@@ -42,6 +44,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     private static final int UNDER_STAGE_ID = 0;
     private static final int NORMAL_STAGE_ID = 1;
     private static final int OVER_STAGE_ID = 2;
+    private static final int SESSION_STAGE_ID = 101;
 
     public HdrImageCaptureExtenderImpl() {
     }
@@ -146,7 +149,52 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
 
                         Log.d(TAG, "Completed HDR CaptureProcessor");
                     }
+
+                    @Override
+                    public void onResolutionUpdate(Size size) {
+
+                    }
+
+                    @Override
+                    public void onImageFormatUpdate(int imageFormat) {
+
+                    }
                 };
         return captureProcessor;
     }
+
+    @Override
+    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
+            Context context) {
+
+    }
+
+    @Override
+    public void onDeInit() {
+
+    }
+
+    @Override
+    public CaptureStageImpl onPresetSession() {
+        SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
+        return captureStage;
+    }
+
+    @Override
+    public CaptureStageImpl onEnableSession() {
+        SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
+        return captureStage;
+    }
+
+    @Override
+    public CaptureStageImpl onDisableSession() {
+        SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
+        return captureStage;
+    }
+
+    @Override
+    public int getMaxCaptureStage() {
+        return 4;
+    }
+
 }

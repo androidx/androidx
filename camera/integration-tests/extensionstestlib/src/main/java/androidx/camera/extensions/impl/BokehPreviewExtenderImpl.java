@@ -15,6 +15,7 @@
  */
 package androidx.camera.extensions.impl;
 
+import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 
@@ -26,6 +27,7 @@ import android.hardware.camera2.CaptureRequest;
  */
 public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
     private static final int DEFAULT_STAGE_ID = 0;
+    private static final int SESSION_STAGE_ID = 101;
 
     public BokehPreviewExtenderImpl() {}
 
@@ -59,5 +61,49 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
     @Override
     public RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor() {
         return RequestUpdateProcessorImpls.noUpdateProcessor();
+    }
+
+    @Override
+    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
+            Context context) {
+
+    }
+
+    @Override
+    public void onDeInit() {
+
+    }
+
+    @Override
+    public CaptureStageImpl onPresetSession() {
+        // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
+        // placeholder set of CaptureRequest.Key values
+        SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
+                CaptureRequest.CONTROL_EFFECT_MODE_SEPIA);
+
+        return captureStage;
+    }
+
+    @Override
+    public CaptureStageImpl onEnableSession() {
+        // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
+        // placeholder set of CaptureRequest.Key values
+        SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
+                CaptureRequest.CONTROL_EFFECT_MODE_SEPIA);
+
+        return captureStage;
+    }
+
+    @Override
+    public CaptureStageImpl onDisableSession() {
+        // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
+        // placeholder set of CaptureRequest.Key values
+        SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
+                CaptureRequest.CONTROL_EFFECT_MODE_SEPIA);
+
+        return captureStage;
     }
 }
