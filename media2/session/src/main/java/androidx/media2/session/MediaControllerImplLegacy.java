@@ -52,6 +52,7 @@ import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -807,6 +808,12 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     public @NonNull VideoSize getVideoSize() {
         Log.w(TAG, "Session doesn't support getting VideoSize");
         return new VideoSize(0, 0);
+    }
+
+    @Override
+    public ListenableFuture<SessionResult> setSurface(@Nullable Surface surface) {
+        Log.w(TAG, "Session doesn't support setting Surface");
+        return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);
     }
 
     @Override

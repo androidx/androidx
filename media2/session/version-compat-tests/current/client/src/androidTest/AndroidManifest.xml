@@ -17,6 +17,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.media2.test.client.test">
     <application android:supportsRtl="true">
+        <activity android:name="androidx.media2.test.client.SurfaceActivity" />
+
         <service android:name="androidx.media2.test.client.MediaControllerProviderService">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->

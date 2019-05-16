@@ -33,6 +33,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -79,7 +80,7 @@ class MediaSessionStub extends IMediaSession.Stub {
 
     static {
         SessionCommandGroup group = new SessionCommandGroup.Builder()
-                .addAllPlayerCommands(COMMAND_VERSION_CURRENT)
+                .addAllPlayerCommands(COMMAND_VERSION_CURRENT, /* includeHidden= */ false)
                 .addAllVolumeCommands(COMMAND_VERSION_CURRENT)
                 .build();
         Set<SessionCommand> commands = group.getCommands();
@@ -1014,6 +1015,20 @@ class MediaSessionStub extends IMediaSession.Stub {
                     @Override
                     public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
                         return mSessionImpl.setShuffleMode(shuffleMode);
+                    }
+                });
+    }
+
+    @Override
+    public void setSurface(IMediaController caller, int seq, final Surface surface) {
+        if (caller == null) {
+            return;
+        }
+        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_PLAYER_SET_SURFACE,
+                new SessionPlayerTask() {
+                    @Override
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.setSurface(surface);
                     }
                 });
     }

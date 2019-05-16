@@ -527,5 +527,12 @@ public class MediaSessionProviderService extends Service {
             VideoSize videoSizeObj = MediaParcelUtils.fromParcelable(videoSize);
             player.notifyVideoSizeChanged(videoSizeObj);
         }
+
+        @Override
+        public boolean surfaceExists(String sessionId) {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            return player.surfaceExists();
+        }
     }
 }
