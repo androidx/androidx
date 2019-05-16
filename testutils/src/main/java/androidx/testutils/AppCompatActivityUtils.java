@@ -90,8 +90,8 @@ public class AppCompatActivityUtils {
             ActivityTestRule<? extends RecreatedAppCompatActivity> rule, final T activity)
             throws InterruptedException {
         // Now switch the orientation
-        RecreatedAppCompatActivity.sResumed = new CountDownLatch(1);
-        RecreatedAppCompatActivity.sDestroyed = new CountDownLatch(1);
+        RecreatedAppCompatActivity.setResumedLatch(new CountDownLatch(1));
+        RecreatedAppCompatActivity.setDestroyedLatch(new CountDownLatch(1));
 
         runOnUiThreadRethrow(rule, new Runnable() {
             @Override
@@ -99,9 +99,9 @@ public class AppCompatActivityUtils {
                 activity.recreate();
             }
         });
-        assertTrue(RecreatedAppCompatActivity.sResumed.await(1, TimeUnit.SECONDS));
-        assertTrue(RecreatedAppCompatActivity.sDestroyed.await(1, TimeUnit.SECONDS));
-        T newActivity = (T) RecreatedAppCompatActivity.sActivity;
+        assertTrue(RecreatedAppCompatActivity.getResumedLatch().await(1, TimeUnit.SECONDS));
+        assertTrue(RecreatedAppCompatActivity.getDestroyedLatch().await(1, TimeUnit.SECONDS));
+        T newActivity = (T) RecreatedAppCompatActivity.getActivity();
 
         waitForExecution(rule);
 
