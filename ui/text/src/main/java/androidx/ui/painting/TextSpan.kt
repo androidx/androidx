@@ -37,15 +37,15 @@ import java.lang.StringBuilder
  *
  * For the object to be useful, at least one of [text] or [children] should be set.
  *
- * * `style`: The style to apply to the [text] and the [children].
+ * @param style The style to apply to the [text] and the [children].
  *
- * * `text`: The text contained in the span. If both [text] and [children] are non-null, the text
+ * @param text The text contained in the span. If both [text] and [children] are non-null, the text
  *   will precede the children.
  *
- * * `children`: Additional spans to include as children. If both [text] and [children] are
+ * @param children Additional spans to include as children. If both [text] and [children] are
  *   non-null, the text will precede the children. The list must not contain any nulls.
  *
- * * `recognizer`: A gesture recognizer that will receive events that hit this text span.
+ * @param recognizer A gesture recognizer that will receive events that hit this text span.
  */
 
 // TODO(Migration/qqd): Figure out a way to implement this @immutable.
