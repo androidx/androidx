@@ -201,3 +201,11 @@ open class PhysicsBuilder<T> : AnimationBuilder<T>() {
     override fun build(): Animation<T> =
         Physics(dampingRatio, stiffness)
 }
+
+/**
+ * Builds Snap animation for immediately switching the animating value to the end value.
+ */
+class SnapBuilder<T> : DurationBasedAnimationBuilder<T>() {
+
+    override fun build(): DurationBasedAnimation<T> = Snap()
+}

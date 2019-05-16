@@ -156,7 +156,7 @@ private const val SwitchAnimationDuration = 100
 
 private fun generateTransitionDefinition(checkedColor: Color, uncheckedColor: Color) =
     transitionDefinition {
-        fun <T> TransitionSpec.switchTween() = tween<T> {
+        fun <T> TransitionSpec<Boolean>.switchTween() = tween<T> {
             duration = SwitchAnimationDuration
             easing = FastOutSlowInEasing
         }
