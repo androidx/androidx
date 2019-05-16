@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * An implementation of {@link SharedPreferences} that encrypts keys and values.
  *
- * @code {
+ * <pre>
  *  String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
  *
  *  SharedPreferences sharedPreferences = EncryptedSharedPreferences.create(
@@ -67,8 +67,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  *  // use the shared preferences and editor as you normally would
  *  SharedPreferences.Editor editor = sharedPreferences.edit();
- *
- * }
+ * </pre>
  */
 public final class EncryptedSharedPreferences implements SharedPreferences {
 

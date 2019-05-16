@@ -45,7 +45,7 @@ import java.security.GeneralSecurityException;
 /**
  * Class used to create and read encrypted files.
  *
- * @code {
+ * <pre>
  *  String masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC);
  *
  *  File file = new File(context.getFilesDir(), "secret_data");
@@ -61,7 +61,7 @@ import java.security.GeneralSecurityException;
  *
  *  // read the encrypted file
  *  FileInputStream encryptedInputStream = encryptedFile.openFileInput();
- * }
+ * </pre>
  *
  */
 public final class EncryptedFile {
