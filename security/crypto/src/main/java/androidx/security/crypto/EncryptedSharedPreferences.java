@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An implementation of {@link SharedPreferences} that encrypts keys and values.
@@ -186,6 +187,7 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         private final EncryptedSharedPreferences mEncryptedSharedPreferences;
         private final SharedPreferences.Editor mEditor;
         private final List<String> mKeysChanged;
+        private AtomicBoolean mClearRequested = new AtomicBoolean(false);
 
         Editor(EncryptedSharedPreferences encryptedSharedPreferences,
                 SharedPreferences.Editor editor) {
@@ -280,6 +282,9 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         @Override
         @NonNull
         public SharedPreferences.Editor remove(@Nullable String key) {
+            if (mEncryptedSharedPreferences.isReservedKey(key)) {
+                throw new SecurityException(key + " is a reserved key for the encryption keyset.");
+            }
             mEditor.remove(mEncryptedSharedPreferences.encryptKey(key));
             mKeysChanged.remove(key);
             return this;
@@ -288,17 +293,30 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         @Override
         @NonNull
         public SharedPreferences.Editor clear() {
-            mEditor.clear();
-            mKeysChanged.clear();
+            // Set the flag to clear on commit, this operation happens first on commit.
+            // Cannot use underlying clear operation, it will remove the keysets and
+            // break the editor.
+            mClearRequested.set(true);
             return this;
         }
 
         @Override
         public boolean commit() {
+            // Call "clear" first as per the documentation, remove all keys that haven't
+            // been modified in this editor.
+            if (mClearRequested.getAndSet(false)) {
+                for (String key : mEncryptedSharedPreferences.getAll().keySet()) {
+                    if (!mKeysChanged.contains(key)
+                            && !mEncryptedSharedPreferences.isReservedKey(key)) {
+                        mEditor.remove(mEncryptedSharedPreferences.encryptKey(key));
+                    }
+                }
+            }
             try {
                 return mEditor.commit();
             } finally {
                 notifyListeners();
+                mKeysChanged.clear();
             }
         }
 
@@ -309,6 +327,9 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         }
 
         private void putEncryptedObject(String key, byte[] value) {
+            if (mEncryptedSharedPreferences.isReservedKey(key)) {
+                throw new SecurityException(key + " is a reserved key for the encryption keyset.");
+            }
             mKeysChanged.add(key);
             if (key == null) {
                 key = NULL_VALUE;
@@ -339,10 +360,11 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
     public Map<String, ?> getAll() {
         Map<String, ? super Object> allEntries = new HashMap<>();
         for (Map.Entry<String, ?> entry : mSharedPreferences.getAll().entrySet()) {
-            String decryptedKey = decryptKey(entry.getKey());
-
-            allEntries.put(decryptedKey,
-                    getDecryptedObject(decryptedKey));
+            if (!isReservedKey(entry.getKey())) {
+                String decryptedKey = decryptKey(entry.getKey());
+                allEntries.put(decryptedKey,
+                        getDecryptedObject(decryptedKey));
+            }
         }
         return allEntries;
     }
@@ -394,6 +416,9 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
 
     @Override
     public boolean contains(@Nullable String key) {
+        if (isReservedKey(key)) {
+            throw new SecurityException(key + " is a reserved key for the encryption keyset.");
+        }
         String encryptedKey = encryptKey(key);
         return mSharedPreferences.contains(encryptedKey);
     }
@@ -457,6 +482,9 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
     }
 
     private Object getDecryptedObject(String key) {
+        if (isReservedKey(key)) {
+            throw new SecurityException(key + " is a reserved key for the encryption keyset.");
+        }
         if (key == null) {
             key = NULL_VALUE;
         }
@@ -545,6 +573,19 @@ public final class EncryptedSharedPreferences implements SharedPreferences {
         } catch (GeneralSecurityException ex) {
             throw new SecurityException("Could not decrypt key. " + ex.getMessage(), ex);
         }
+    }
+
+
+    /**
+     * Check usage of the key and value keysets.
+     *
+     * @param key the plain text key
+     */
+    boolean isReservedKey(String key) {
+        if (KEY_KEYSET_ALIAS.equals(key) || VALUE_KEYSET_ALIAS.equals(key)) {
+            return true;
+        }
+        return false;
     }
 
     Pair<String, String> encryptKeyValuePair(String key, byte[] value)
