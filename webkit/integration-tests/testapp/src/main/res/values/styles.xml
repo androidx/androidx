@@ -21,4 +21,10 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+    <style name="WebkitSwitch" parent="AppTheme">
+        <!-- The "thumb" is the piece the user can drag along the "track." -->
+        <item name="colorControlActivated">@color/colorActiveSwitchThumb</item>
+        <item name="colorSwitchThumbNormal">@color/colorInctiveSwitchThumb</item>
+        <item name="android:colorForeground">@color/colorInctiveSwitchTrack</item>
+    </style>
 </resources>
