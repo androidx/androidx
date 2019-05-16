@@ -51,6 +51,9 @@ import androidx.test.core.app.ActivityScenario;
  * a deprecated fragment class such as {@code android.support.v4.app.Fragment} or
  * {@link android.app.Fragment android.app.Fragment}, please update your code to
  * {@link Fragment androidx.fragment.app.Fragment}.
+ * <p>
+ * If your testing Fragment has a dependency to specific theme such as {@code Theme.AppCompat},
+ * use the theme ID parameter in {@link #launch} method.
  *
  * @param <F> The Fragment class being tested
  *
