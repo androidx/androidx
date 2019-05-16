@@ -296,6 +296,11 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> {
     private void extendRange(int position, @RangeType int type) {
         checkState(isRangeActive(), "Range start point not set.");
 
+        if (position == RecyclerView.NO_POSITION) {
+            Log.w(TAG, "Invalid position: Cannot extend selection to: " + position);
+            return;
+        }
+
         mRange.extendRange(position, type);
 
         // We're being lazy here notifying even when something might not have changed.
