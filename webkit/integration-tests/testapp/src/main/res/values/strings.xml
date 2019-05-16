@@ -44,6 +44,11 @@
     <string name="custom_interstitial_title">Security error!</string>
     <string name="view_privacy_policy_text">Reports will be sent according to the &lt;a href="%1$s"&gt;Safe Browsing privacy policy&lt;/a&gt;</string>
     <string name="send_report_text">Send a Safe Browsing report?</string>
+    <string name="whitelist_activity_title">Whitelist</string>
+    <string name="invalid_whitelist_input_message">Unable to configure Safe Browsing whitelist due to invalid input</string>
+    <string name="clear_whitelist_button_text">Clear the whitelist</string>
+    <string name="set_whitelist_button_text">Whitelist the test domain</string>
+    <string name="whitelist_switch_text">Whitelist the test domain (won\'t show interstitials)</string>
     <string name="force_dark_activity_title">Force Dark</string>
     <string name="error_log_title">Network errors:</string>
 </resources>
