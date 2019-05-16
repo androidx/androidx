@@ -38,6 +38,8 @@ import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.ImageAnalysis;
+import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageFormatConstants;
@@ -120,6 +122,7 @@ public final class SupportedSurfaceCombinationTest {
                     new Size(3840, 2160),
                     new Size(1920, 1080),
                     new Size(1280, 720),
+                    new Size(1280, 720), // duplicate the size since Nexus 5X emulator has the case.
                     new Size(640, 480),
                     new Size(320, 240),
                     new Size(320, 180)
@@ -502,6 +505,43 @@ public final class SupportedSurfaceCombinationTest {
         assertThat(suggestedResolutionMap).containsEntry(imageCapture, mRecordSize);
         assertThat(suggestedResolutionMap).containsEntry(videoCapture, mMaximumVideoSize);
         assertThat(suggestedResolutionMap).containsEntry(preview, mPreviewSize);
+    }
+
+    @Test
+    public void getSuggestedResolutionsWithSameSupportedListForDifferentUseCases() {
+        setupCamera(/* supportsRaw= */ false);
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, FULL_CAMERA_ID, mMockCamcorderProfileHelper);
+
+        /* This test case is for b/132603284 that divide by zero issue crash happened in below
+        conditions:
+        1. There are duplicated two 1280x720 supported sizes for ImageCapture and Preview.
+        2. supportedOutputSizes for ImageCapture and Preview in
+        SupportedSurfaceCombination#getAllPossibleSizeArrangements are the same.
+        3. Target aspect ratio is 3:4.
+        */
+        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+        ImageAnalysisConfig.Builder imageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder();
+
+        imageCaptureConfigBuilder.setTargetResolution(mDisplaySize);
+        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
+        previewConfigBuilder.setTargetAspectRatio(new Rational(3, 4)).setTargetResolution(
+                mDisplaySize);
+        Preview preview = new Preview(previewConfigBuilder.build());
+        ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfigBuilder.build());
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(imageCapture);
+        useCases.add(preview);
+        useCases.add(imageAnalysis);
+        Map<UseCase, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+
+        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(preview, mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(imageAnalysis, mAnalysisSize);
     }
 
     @Test
