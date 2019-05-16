@@ -31,6 +31,8 @@ import androidx.ui.engine.text.TextGeometricTransform
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.lerp
 import androidx.ui.engine.window.Locale
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.lerp
 import androidx.ui.painting.basictypes.RenderComparison
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -604,7 +606,13 @@ class TextStyleTest {
 
         val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
 
-        assertThat(newTextStyle?.color).isEqualTo(Color.lerp(a = null, b = color, t = t))
+        assertThat(newTextStyle?.color).isEqualTo(
+            lerp(
+                a = color.copy(alpha = 0f),
+                b = color,
+                t = t
+            )
+        )
     }
 
     @Test
@@ -615,7 +623,13 @@ class TextStyleTest {
 
         val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
 
-        assertThat(newTextStyle?.color).isEqualTo(Color.lerp(a = null, b = color, t = t))
+        assertThat(newTextStyle?.color).isEqualTo(
+            lerp(
+                a = color.copy(alpha = 0f),
+                b = color,
+                t = t
+            )
+        )
     }
 
     @Test
@@ -626,7 +640,13 @@ class TextStyleTest {
 
         val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
 
-        assertThat(newTextStyle?.color).isEqualTo(Color.lerp(a = color, b = null, t = t))
+        assertThat(newTextStyle?.color).isEqualTo(
+            lerp(
+                a = color,
+                b = color.copy(alpha = 0f),
+                t = t
+            )
+        )
     }
 
     @Test
@@ -637,7 +657,13 @@ class TextStyleTest {
 
         val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
 
-        assertThat(newTextStyle?.color).isEqualTo(Color.lerp(a = color, b = null, t = t))
+        assertThat(newTextStyle?.color).isEqualTo(
+            lerp(
+                a = color,
+                b = color.copy(alpha = 0f),
+                t = t
+            )
+        )
     }
 
     @Test
@@ -662,7 +688,7 @@ class TextStyleTest {
 
         val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
 
-        assertThat(newTextStyle?.color).isEqualTo(Color.lerp(a = color1, b = color2, t = t))
+        assertThat(newTextStyle?.color).isEqualTo(lerp(a = color1, b = color2, t = t))
     }
 
     @Test

@@ -21,7 +21,8 @@ import androidx.ui.core.Px
 import androidx.ui.core.PxPosition
 import androidx.ui.core.lerp
 import androidx.ui.lerp
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.lerp
 
 internal open class StateImpl<T>(val name: T) : MutableTransitionState, TransitionState {
 
@@ -72,7 +73,7 @@ interface PropKey<T> {
  */
 class ColorPropKey : PropKey<Color> {
     override fun interpolate(a: Color, b: Color, fraction: Float): Color {
-        return Color.blend(a, b, fraction)
+        return lerp(a, b, fraction)
     }
 }
 

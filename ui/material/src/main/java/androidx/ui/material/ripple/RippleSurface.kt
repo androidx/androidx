@@ -22,7 +22,7 @@ import androidx.ui.core.Draw
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.toRect
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.compose.Ambient
 import androidx.compose.Children
 import androidx.compose.Composable

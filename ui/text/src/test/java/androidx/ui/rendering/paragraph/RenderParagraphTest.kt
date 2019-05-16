@@ -18,7 +18,7 @@ package androidx.ui.rendering.paragraph
 
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import com.google.common.truth.Truth.assertThat

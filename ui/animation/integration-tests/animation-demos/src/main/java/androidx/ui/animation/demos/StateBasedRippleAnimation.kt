@@ -34,7 +34,7 @@ import androidx.ui.core.WithConstraints
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.ipx
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.Composable
 import androidx.compose.Recompose
@@ -112,8 +112,14 @@ fun RippleRectFromState(state: TransitionState) {
     val y = down.y
 
     val paint =
-        Paint().apply { color = Color.fromARGB(
-            (state[androidx.ui.animation.demos.alpha] * 255).toInt(), 0, 235, 224) }
+        Paint().apply {
+            color = Color(
+                alpha = (state[androidx.ui.animation.demos.alpha] * 255).toInt(),
+                red = 0,
+                green = 235,
+                blue = 224
+            )
+        }
 
     val radius = state[radius]
 

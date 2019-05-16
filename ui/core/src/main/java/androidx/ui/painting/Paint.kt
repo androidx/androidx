@@ -18,6 +18,7 @@ package androidx.ui.painting
 
 import android.graphics.BlurMaskFilter
 import android.graphics.PorterDuffColorFilter
+import androidx.ui.graphics.Color
 
 class Paint {
 
@@ -65,7 +66,7 @@ class Paint {
     var color: Color
         get() = Color(internalPaint.color)
         set(color) {
-            internalPaint.color = color.value
+            internalPaint.color = color.toArgb()
         }
 
     // A blend mode to apply when a shape is drawn or a layer is composited.
@@ -288,7 +289,7 @@ class Paint {
             internalColorFilter = value
             if (value != null) {
                 internalPaint.colorFilter = PorterDuffColorFilter(
-                        value.color.value,
+                        value.color.toArgb(),
                         value.blendMode.toPorterDuffMode()
                 )
             } else {

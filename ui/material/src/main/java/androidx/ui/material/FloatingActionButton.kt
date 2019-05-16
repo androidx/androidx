@@ -31,7 +31,7 @@ import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.CircleBorder
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Image
 import androidx.ui.painting.TextStyle
 import androidx.compose.Children

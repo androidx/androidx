@@ -28,7 +28,7 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
 import androidx.ui.material.Divider
 import androidx.ui.material.themeTextStyle
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.compose.Composable
 import androidx.compose.unaryPlus
 import androidx.compose.composer

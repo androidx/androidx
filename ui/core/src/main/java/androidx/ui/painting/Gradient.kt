@@ -17,6 +17,7 @@
 package androidx.ui.painting
 
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.graphics.Color
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.PI
 
@@ -201,7 +202,7 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
 
         private fun toIntArray(colors: List<Color>): IntArray {
             return IntArray(colors.size) { i ->
-                colors[i].value
+                colors[i].toArgb()
             }
         }
 

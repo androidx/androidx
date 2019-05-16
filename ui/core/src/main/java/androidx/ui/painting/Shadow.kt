@@ -20,6 +20,8 @@ import androidx.ui.core.Px
 import androidx.ui.core.lerp
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.graphics.Color
+import androidx.ui.graphics.lerp
 
 /**
  * A single shadow.
@@ -35,7 +37,7 @@ data class Shadow(
  */
 fun lerp(a: Shadow, b: Shadow, t: Float): Shadow {
     return Shadow(
-        Color.lerp(a.color, b.color, t)!!,
+        lerp(a.color, b.color, t),
         Offset.lerp(a.offset, b.offset, t)!!,
         lerp(a.blurRadius, b.blurRadius, t)
     )

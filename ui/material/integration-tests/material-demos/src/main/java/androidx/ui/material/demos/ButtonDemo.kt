@@ -33,7 +33,7 @@ import androidx.ui.material.borders.BorderSide
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.themeColor
 import androidx.ui.material.themeTextStyle
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.compose.Composable
 import androidx.compose.unaryPlus
 import androidx.compose.composer
@@ -50,7 +50,7 @@ fun ButtonDemo() {
                     TransparentButton(onClick = onClick, text = "NO BACKGROUND")
                     Button(
                         onClick = onClick,
-                        color = +themeColor{ secondary },
+                        color = +themeColor { secondary },
                         text = "SECONDARY COLOR")
 
                     val outlinedShape = +withDensity {
@@ -71,7 +71,7 @@ fun ButtonDemo() {
                     Button(
                         onClick = onClick,
                         text = "CUSTOM STYLE",
-                        textStyle = +themeTextStyle{ body2.copy(color = customColor) })
+                        textStyle = +themeTextStyle { body2.copy(color = customColor) })
                     Button(onClick = onClick) {
                         Padding(padding = 16.dp) {
                             Text(text = "CUSTOM BUTTON!")

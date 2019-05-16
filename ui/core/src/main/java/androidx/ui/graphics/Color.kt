@@ -17,8 +17,10 @@ package androidx.ui.graphics
 
 import androidx.annotation.AnyThread
 import androidx.annotation.ColorInt
+import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.Size
+import androidx.ui.lerp
 import androidx.ui.util.Float16
 import kotlin.math.max
 import kotlin.math.min
@@ -182,6 +184,9 @@ class Color constructor(private val value: ULong) {
      * @return A non-null color instance in the specified color space
      */
     fun convert(colorSpace: ColorSpace): Color {
+        if (colorSpace == this.colorSpace) {
+            return this // nothing to convert
+        }
         val connector = ColorSpace.connect(this.colorSpace, colorSpace)
         val color = getComponents()
         connector.transform(color)
@@ -374,6 +379,23 @@ class Color constructor(private val value: ULong) {
 
         return saturate(((0.2126 * r) + (0.7152 * g) + (0.0722 * b)).toFloat())
     }
+
+    /**
+     * Copies the existing color, changing only the provided values. The [ColorSpace][colorSpace]
+     * of the returned [Color] is the same as this [colorSpace].
+     */
+    fun copy(
+        alpha: Float = this.alpha,
+        red: Float = this.red,
+        green: Float = this.green,
+        blue: Float = this.blue
+    ): Color = Color(
+        red = red,
+        green = green,
+        blue = blue,
+        alpha = alpha,
+        colorSpace = this.colorSpace
+    )
 
     operator fun compareTo(other: Color): Int {
         return value.compareTo(other.value)
@@ -651,4 +673,33 @@ fun Color(
             ((green and 0xFF) shl 8) or
             (blue and 0xFF)
     return Color(color)
+}
+
+/**
+ * Linear interpolate between two [Colors][Color], [a] and [b] with [t] fraction between
+ * the two. The [ColorSpace] of the result is always the [ColorSpace][Color.colorSpace] of [b].
+ */
+fun lerp(a: Color, b: Color, @FloatRange(from = 0.0, to = 1.0) t: Float): Color {
+    val linearColorSpace = ColorSpace.Named.LinearExtendedSrgb.colorSpace
+    val startColor = a.convert(linearColorSpace)
+    val endColor = b.convert(linearColorSpace)
+
+    val startA = startColor.alpha
+    val startR = startColor.red
+    val startG = startColor.green
+    val startB = startColor.blue
+
+    val endA = endColor.alpha
+    val endR = endColor.red
+    val endG = endColor.green
+    val endB = endColor.blue
+
+    val interpolated = Color(
+        alpha = lerp(startA, endA, t),
+        red = lerp(startR, endR, t),
+        green = lerp(startG, endG, t),
+        blue = lerp(startB, endB, t),
+        colorSpace = linearColorSpace
+    )
+    return interpolated.convert(b.colorSpace)
 }

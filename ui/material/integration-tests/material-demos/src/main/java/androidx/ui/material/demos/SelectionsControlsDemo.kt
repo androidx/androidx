@@ -35,7 +35,7 @@ import androidx.ui.material.Switch
 import androidx.ui.material.parentCheckboxState
 import androidx.ui.material.surface.Surface
 import androidx.ui.material.themeTextStyle
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer

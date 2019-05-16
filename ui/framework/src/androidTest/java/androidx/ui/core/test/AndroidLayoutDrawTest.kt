@@ -39,7 +39,7 @@ import androidx.ui.core.max
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.TestActivity
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.Children
 import androidx.compose.Composable
@@ -611,12 +611,12 @@ class AndroidLayoutDrawTest {
                 if (x < squareStart || x >= squareEnd || y < squareStart || y >= squareEnd) {
                     assertEquals(
                         "Pixel within drawn rect[$x, $y] is $outerColor, " +
-                                "but was $pixelString", outerColor.value, pixel
+                                "but was $pixelString", outerColor.toArgb(), pixel
                     )
                 } else {
                     assertEquals(
                         "Pixel within drawn rect[$x, $y] is $innerColor, " +
-                                "but was $pixelString", innerColor.value, pixel
+                                "but was $pixelString", innerColor.toArgb(), pixel
                     )
                 }
             }

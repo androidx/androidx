@@ -15,7 +15,7 @@
  */
 package androidx.ui.engine.text
 
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,7 +26,7 @@ class TextStyleTest {
     @Test(expected = AssertionError::class)
     fun `constructor with both color and foreground defined throws AssertionError`() {
         TextStyle(
-            color = Color.fromARGB(1, 1, 1, 1),
+            color = Color(alpha = 1, red = 1, green = 1, blue = 1),
             foreground = Paint()
         )
     }

@@ -16,6 +16,8 @@
 
 package androidx.ui.graphics
 import androidx.test.filters.SmallTest
+import androidx.ui.lerp
+import androidx.ui.toHexString
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
@@ -193,5 +195,41 @@ class ColorTest {
         assertEquals(Color.Purple, Color.parse("Purple"))
         assertEquals(Color.Silver, Color.parse("Silver"))
         assertEquals(Color.Teal, Color.parse("Teal"))
+    }
+
+    @Test
+    fun lerp() {
+        val red = Color.Red
+        val green = Color.Green
+
+        val redLinear = red.convert(ColorSpace.Named.LinearExtendedSrgb.colorSpace)
+        val greenLinear = green.convert(ColorSpace.Named.LinearExtendedSrgb.colorSpace)
+
+        for (i in 0..255) {
+            val t = i / 255f
+            val color = lerp(red, green, t)
+            val expectedLinear = Color(
+                red = lerp(redLinear.red, greenLinear.red, t),
+                green = lerp(redLinear.green, greenLinear.green, t),
+                blue = lerp(redLinear.blue, greenLinear.blue, t),
+                colorSpace = ColorSpace.Named.LinearExtendedSrgb.colorSpace
+            )
+            val expected = expectedLinear.convert(ColorSpace.Named.Srgb.colorSpace)
+            val colorARGB = Color(color.toArgb())
+            val expectedARGB = Color(expected.toArgb())
+            assertEquals("at t = $t[$i] was ${colorARGB.toArgb().toHexString()}, " +
+                    "expecting ${expectedARGB.toArgb().toHexString()}", expectedARGB, colorARGB)
+        }
+
+        val transparentRed = Color.Red.copy(alpha = 0f)
+        for (i in 0..255) {
+            val t = i / 255f
+            val color = lerp(red, transparentRed, t)
+            val expected = Color.Red.copy(alpha = lerp(1f, 0f, t))
+            val colorARGB = Color(color.toArgb())
+            val expectedARGB = Color(expected.toArgb())
+            assertEquals("at t = $t[$i] was ${colorARGB.toArgb().toHexString()}, " +
+                    "expecting ${expectedARGB.toArgb().toHexString()}", expectedARGB, colorARGB)
+        }
     }
 }

@@ -17,7 +17,7 @@ package androidx.ui.engine.text
 
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.Shadow
 

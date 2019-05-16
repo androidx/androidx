@@ -30,7 +30,7 @@ import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.layout.Container
 import androidx.ui.painting.Canvas
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.StrokeCap
 import androidx.compose.Composable
@@ -79,9 +79,9 @@ private fun DrawSwitch(checked: Boolean, color: Color? = null) {
         generateTransitionDefinition(checkedThumbColor, uncheckedThumbColor)
     }
     val trackColor = if (checked) {
-        checkedThumbColor.withOpacity(CheckedTrackOpacity)
+        checkedThumbColor.copy(alpha = CheckedTrackOpacity)
     } else {
-        (+themeColor { onSurface }).withOpacity(UncheckedTrackOpacity)
+        (+themeColor { onSurface }).copy(alpha = UncheckedTrackOpacity)
     }
     DrawTrack(color = trackColor)
     Transition(definition = transDef, toState = checked) { state ->

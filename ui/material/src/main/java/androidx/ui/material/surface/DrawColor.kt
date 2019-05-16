@@ -18,7 +18,7 @@ package androidx.ui.material.surface
 
 import androidx.ui.core.Draw
 import androidx.ui.core.toRect
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.compose.Composable

@@ -29,7 +29,7 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.min
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.Composable
 import androidx.compose.composer
@@ -46,11 +46,11 @@ class AnimationGestureSemanticsActivity : Activity() {
     private val sizeKey = FloatPropKey()
     private val transitionDefinition = transitionDefinition {
         state(ComponentState.Pressed) {
-            this[colorKey] = Color.fromARGB(255, 200, 0, 0)
+            this[colorKey] = Color(alpha = 255, red = 200, green = 0, blue = 0)
             this[sizeKey] = 0.2f
         }
         state(ComponentState.Released) {
-            this[colorKey] = Color.fromARGB(255, 0, 200, 0)
+            this[colorKey] = Color(alpha = 255, red = 0, green = 200, blue = 0)
             this[sizeKey] = 1.0f
         }
     }

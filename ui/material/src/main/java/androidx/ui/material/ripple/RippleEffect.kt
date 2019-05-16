@@ -22,7 +22,7 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.px
 import androidx.ui.material.surface.Surface
 import androidx.ui.painting.Canvas
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.Vector3
 

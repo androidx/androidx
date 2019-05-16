@@ -45,7 +45,7 @@ import androidx.ui.material.ripple.RippleTheme
 import androidx.ui.material.surface.Card
 import androidx.ui.material.surface.DrawColor
 import androidx.ui.painting.Canvas
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag

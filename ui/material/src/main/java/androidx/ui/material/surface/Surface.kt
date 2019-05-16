@@ -34,7 +34,7 @@ import androidx.ui.material.ripple.RippleSurface
 import androidx.ui.material.ripple.RippleSurfaceOwner
 import androidx.ui.material.ripple.ambientRippleSurface
 import androidx.ui.material.textColorForBackground
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.TextStyle
 import androidx.compose.Children
 import androidx.compose.Composable

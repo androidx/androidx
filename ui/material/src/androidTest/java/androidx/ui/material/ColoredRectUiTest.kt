@@ -26,7 +26,7 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.test.android.AndroidUiTestRunner
 import com.google.common.truth.Truth
 import androidx.compose.composer

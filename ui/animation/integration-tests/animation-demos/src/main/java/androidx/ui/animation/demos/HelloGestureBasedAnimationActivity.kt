@@ -27,7 +27,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Draw
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.Composable
 import androidx.compose.composer
@@ -59,11 +59,11 @@ private val color = ColorPropKey()
 private val definition = transitionDefinition {
     state(ComponentState.Released) {
         this[scale] = 1f
-        this[color] = Color.fromARGB(255, 0, 200, 0)
+        this[color] = Color(alpha = 255, red = 0, green = 200, blue = 0)
     }
     state(ComponentState.Pressed) {
         this[scale] = 3f
-        this[color] = Color.fromARGB(255, 0, 100, 0)
+        this[color] = Color(alpha = 255, red = 0, green = 100, blue = 0)
     }
 }
 
@@ -77,7 +77,7 @@ fun TransitionExample() {
         onCancel = { toState.value = ComponentState.Released }) {
         val children = @Composable {
             Transition(definition = definition, toState = toState.value) { state ->
-                DrawScaledRect(scale=state[scale], color=state[color])
+                DrawScaledRect(scale = state[scale], color = state[color])
             }
         }
         Layout(children = children, layoutBlock = { _, constraints ->

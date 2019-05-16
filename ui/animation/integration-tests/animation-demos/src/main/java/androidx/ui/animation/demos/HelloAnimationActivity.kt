@@ -30,7 +30,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.Draw
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.Composable
 import androidx.compose.Recompose
@@ -64,11 +64,11 @@ private enum class OverlayState {
 
 private val definition = transitionDefinition {
     state(OverlayState.Open) {
-        this[background] = Color.fromARGB(255, 128, 128, 128)
+        this[background] = Color(alpha = 255, red = 128, green = 128, blue = 128)
         this[y] = 1f // percentage
     }
     state(OverlayState.Closed) {
-        this[background] = Color.fromARGB(255, 188, 222, 145)
+        this[background] = Color(alpha = 255, red = 188, green = 222, blue = 145)
         this[y] = 0f // percentage
     }
 }
@@ -103,7 +103,9 @@ fun DrawColorRectState(state: TransitionState) {
 
     DrawRectangle(color = color)
 
-    val paint = Paint().apply { this.color = Color.fromARGB(255, 255, 255, 255) }
+    val paint = Paint().apply {
+        this.color = Color(alpha = 255, red = 255, green = 255, blue = 255)
+    }
     Draw { canvas, pixelSize ->
         canvas.drawRect(
             Rect(

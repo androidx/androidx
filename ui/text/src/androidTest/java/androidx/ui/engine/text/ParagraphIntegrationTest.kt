@@ -30,7 +30,7 @@ import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.engine.window.Locale
 import androidx.ui.matchers.equalToBitmap
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Path
 import androidx.ui.painting.PathOperation
 import androidx.ui.painting.Shadow
@@ -351,7 +351,7 @@ class ParagraphIntegrationTest {
             assertThat(caret.first.dx, equalTo(i * fontSize))
             assertThat(caret.first.dy, equalTo(fontSize))
             assertThat(caret.second.dx, equalTo(i * fontSize))
-            assertThat(caret.second.dy, equalTo((2f + 1/5f) * fontSize))
+            assertThat(caret.second.dy, equalTo((2f + 1 / 5f) * fontSize))
         }
     }
 
@@ -373,7 +373,7 @@ class ParagraphIntegrationTest {
             assertThat(caret.first.dx, equalTo((secondLine.length - i) * fontSize))
             assertThat(caret.first.dy, equalTo(fontSize))
             assertThat(caret.second.dx, equalTo((secondLine.length - i) * fontSize))
-            assertThat(caret.second.dy, equalTo((2f + 1/5f) * fontSize))
+            assertThat(caret.second.dy, equalTo((2f + 1 / 5f) * fontSize))
         }
     }
 

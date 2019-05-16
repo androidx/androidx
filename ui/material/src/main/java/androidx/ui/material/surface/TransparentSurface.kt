@@ -19,7 +19,7 @@ package androidx.ui.material.surface
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.ripple.RippleEffect
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer

@@ -17,7 +17,7 @@
 package androidx.ui.material.ripple
 
 import androidx.ui.material.MaterialRippleTheme
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.compose.Ambient
 
 /**

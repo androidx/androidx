@@ -21,6 +21,7 @@ import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextPosition
+import androidx.ui.graphics.Color
 // import androidx.ui.gestures.multitap.MultiTapGestureRecognizer
 import androidx.ui.painting.basictypes.RenderComparison
 import com.google.common.truth.Truth.assertThat

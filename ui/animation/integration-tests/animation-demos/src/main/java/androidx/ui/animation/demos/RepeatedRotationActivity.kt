@@ -33,7 +33,7 @@ import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.MainAxisAlignment
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle

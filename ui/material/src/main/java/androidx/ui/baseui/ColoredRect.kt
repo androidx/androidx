@@ -22,7 +22,7 @@ import androidx.ui.core.toRect
 import androidx.ui.core.vectorgraphics.Brush
 import androidx.ui.core.vectorgraphics.SolidColor
 import androidx.ui.layout.Container
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.Composable
 import androidx.compose.composer

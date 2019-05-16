@@ -19,7 +19,7 @@ package androidx.ui.core
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.Ambient
 import androidx.compose.Children

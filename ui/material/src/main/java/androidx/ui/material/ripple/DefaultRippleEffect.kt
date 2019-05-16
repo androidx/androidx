@@ -17,7 +17,7 @@
 package androidx.ui.material.ripple
 
 import androidx.animation.FastOutSlowInEasing
-import androidx.animation.IntPropKey
+import androidx.animation.FloatPropKey
 import androidx.animation.InterruptionHandling
 import androidx.animation.LinearEasing
 import androidx.animation.PxPositionPropKey
@@ -49,7 +49,7 @@ import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BoxShape
 import androidx.ui.material.surface.Surface
 import androidx.ui.painting.Canvas
-import androidx.ui.painting.Color
+import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.getAsTranslation
@@ -225,7 +225,7 @@ internal class DefaultRippleEffect(
         val radius = animation[RippleTransition.Radius].value
         val centerOffset = animation[RippleTransition.Center].toOffset()
         val paint = Paint()
-        paint.color = color.withAlpha(alpha)
+        paint.color = color.copy(alpha = alpha)
         val originOffset = transform.getAsTranslation()
         val clipRect = clipCallback?.invoke(coordinates)?.toRect()
         if (originOffset == null) {
@@ -267,19 +267,19 @@ private object RippleTransition {
     private val RadiusDuration = 225.milliseconds
     private val FadeOutDuration = 150.milliseconds
 
-    val Alpha = IntPropKey()
+    val Alpha = FloatPropKey()
     val Radius = PxPropKey()
     val Center = PxPositionPropKey()
 
     fun definition(
-        revealedAlpha: Int,
+        revealedAlpha: Float,
         startRadius: Px,
         endRadius: Px,
         startCenter: PxPosition,
         endCenter: PxPosition
     ) = transitionDefinition {
         state(State.Initial) {
-            this[Alpha] = 0
+            this[Alpha] = 0f
             this[Radius] = startRadius
             this[Center] = startCenter
         }
@@ -289,7 +289,7 @@ private object RippleTransition {
             this[Center] = endCenter
         }
         state(State.Finished) {
-            this[Alpha] = 0
+            this[Alpha] = 0f
             // the rest are the same as for Revealed
             this[Radius] = endRadius
             this[Center] = endCenter
