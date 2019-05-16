@@ -27,7 +27,6 @@ open class UnlockClocksTask @Inject constructor(private val adb: Adb) : DefaultT
         description = "unlocks clocks of device by rebooting"
     }
 
-    @Suppress("unused")
     @TaskAction
     fun exec() {
         project.logger.log(LogLevel.LIFECYCLE, "Rebooting device to reset clocks")

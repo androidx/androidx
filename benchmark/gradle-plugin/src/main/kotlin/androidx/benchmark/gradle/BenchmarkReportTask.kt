@@ -40,7 +40,6 @@ open class BenchmarkReportTask : DefaultTask() {
         outputs.upToDateWhen { false }
     }
 
-    @Suppress("unused")
     @TaskAction
     fun exec() {
         // Fetch reports from all available devices as the default behaviour of connectedAndroidTest
