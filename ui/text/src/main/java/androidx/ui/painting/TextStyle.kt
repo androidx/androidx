@@ -161,16 +161,12 @@ data class TextStyle(
      */
     companion object {
         private fun lerpColor(a: Color?, b: Color?, t: Float): Color? {
-            if (a == null) {
-                if (b == null) {
-                    return null
-                } else {
-                    return b.copy(alpha = lerp(0f, 1f, t))
-                }
-            } else if (b == null) {
-                return a.copy(alpha = lerp(1f, 0f, t))
+            if (a == null && b == null) {
+                return null
             }
-            return lerp(a, b, t)
+            val start = a ?: b!!.copy(alpha = 0f)
+            val end = b ?: a!!.copy(alpha = 0f)
+            return lerp(start, end, t)
         }
 
         fun lerp(a: TextStyle? = null, b: TextStyle? = null, t: Float): TextStyle? {
