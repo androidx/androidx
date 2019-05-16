@@ -62,6 +62,50 @@ public class ListItemAdapter extends
         PagedListView.DividerVisibilityManager {
 
     /**
+     * Constant class for background style of items.
+     *
+     * @deprecated Use {@link #BACKGROUND_STYLE_SOLID}, {@link #BACKGROUND_STYLE_NONE},
+     * {@link #BACKGROUND_STYLE_CARD}, or {@link #BACKGROUND_STYLE_PANEL} instead.
+     */
+    @Deprecated
+    public static final class BackgroundStyle {
+        private BackgroundStyle() {
+        }
+
+        /**
+         * Sets the background color of each item. Background can be configured by
+         * {@link R.styleable#ListItem_listItemBackgroundColor}.
+         *
+         * @deprecated Use {@link #BACKGROUND_STYLE_SOLID} instead.
+         */
+        @Deprecated
+        public static final int SOLID = BACKGROUND_STYLE_SOLID;
+        /**
+         * Sets the background color of each item to none (transparent).
+         *
+         * @deprecated Use {@link #BACKGROUND_STYLE_NONE} instead.
+         */
+        @Deprecated
+        public static final int NONE = BACKGROUND_STYLE_NONE;
+        /**
+         * Sets each item in {@link CardView} with a rounded corner background and shadow.
+         *
+         * @deprecated Use {@link #BACKGROUND_STYLE_CARD} instead.
+         */
+        @Deprecated
+        public static final int CARD = BACKGROUND_STYLE_CARD;
+        /**
+         * Sets background of each item so the combined list looks like one elongated card, namely
+         * top and bottom item will have rounded corner at only top/bottom side respectively. If
+         * only one item exists, it will have both top and bottom rounded corner.
+         *
+         * @deprecated Use {@link #BACKGROUND_STYLE_PANEL} instead.
+         */
+        @Deprecated
+        public static final int PANEL = BACKGROUND_STYLE_PANEL;
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
