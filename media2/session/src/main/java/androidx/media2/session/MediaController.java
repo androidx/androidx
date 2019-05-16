@@ -127,6 +127,9 @@ public class MediaController implements AutoCloseable {
     @GuardedBy("mLock")
     boolean mClosed;
 
+    final ControllerCallback mCallback;
+    final Executor mCallbackExecutor;
+
     // For testing.
     Long mTimeDiff;
 
@@ -147,8 +150,10 @@ public class MediaController implements AutoCloseable {
         if (token == null) {
             throw new NullPointerException("token shouldn't be null");
         }
+        mCallback = callback;
+        mCallbackExecutor = executor;
         synchronized (mLock) {
-            mImpl = createImpl(context, token, connectionHints, executor, callback);
+            mImpl = createImpl(context, token, connectionHints);
         }
     }
 
@@ -169,6 +174,8 @@ public class MediaController implements AutoCloseable {
         if (token == null) {
             throw new NullPointerException("token shouldn't be null");
         }
+        mCallback = callback;
+        mCallbackExecutor = executor;
         SessionToken.createSessionToken(context, token, executor,
                 new SessionToken.OnSessionTokenCreatedListener() {
                     @Override
@@ -176,12 +183,11 @@ public class MediaController implements AutoCloseable {
                             SessionToken token2) {
                         synchronized (mLock) {
                             if (!mClosed) {
-                                mImpl = createImpl(context, token2, connectionHints, executor,
-                                        callback);
+                                mImpl = createImpl(context, token2, connectionHints);
                             } else {
-                                executor.execute(new Runnable() {
+                                notifyControllerCallback(new ControllerCallbackRunnable() {
                                     @Override
-                                    public void run() {
+                                    public void run(@NonNull ControllerCallback callback) {
                                         callback.onDisconnected(MediaController.this);
                                     }
                                 });
@@ -192,13 +198,11 @@ public class MediaController implements AutoCloseable {
     }
 
     MediaControllerImpl createImpl(@NonNull Context context, @NonNull SessionToken token,
-            @Nullable Bundle connectionHints, @Nullable Executor executor,
-            @Nullable ControllerCallback callback) {
+            @Nullable Bundle connectionHints) {
         if (token.isLegacySession()) {
-            return new MediaControllerImplLegacy(context, this, token, executor, callback);
+            return new MediaControllerImplLegacy(context, this, token);
         } else {
-            return new MediaControllerImplBase(context, this, token, connectionHints, executor,
-                    callback);
+            return new MediaControllerImplBase(context, this, token, connectionHints);
         }
     }
 
@@ -1120,14 +1124,19 @@ public class MediaController implements AutoCloseable {
                 SessionResult.RESULT_ERROR_SESSION_DISCONNECTED);
     }
 
-    @Nullable
-    ControllerCallback getCallback() {
-        return isConnected() ? getImpl().getCallback() : null;
+    void notifyControllerCallback(final ControllerCallbackRunnable callbackRunnable) {
+        if (mCallback != null && mCallbackExecutor != null) {
+            mCallbackExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callbackRunnable.run(mCallback);
+                }
+            });
+        }
     }
 
-    @Nullable
-    Executor getCallbackExecutor() {
-        return isConnected() ? getImpl().getCallbackExecutor() : null;
+    interface ControllerCallbackRunnable {
+        void run(@NonNull ControllerCallback callback);
     }
 
     interface MediaControllerImpl extends AutoCloseable {
@@ -1194,10 +1203,7 @@ public class MediaController implements AutoCloseable {
         ListenableFuture<SessionResult> setSurface(@Nullable Surface surface);
 
         // Internally used methods
-        @NonNull MediaController getInstance();
         @NonNull Context getContext();
-        @Nullable ControllerCallback getCallback();
-        @Nullable Executor getCallbackExecutor();
         @Nullable MediaBrowserCompat getBrowserCompat();
     }
 

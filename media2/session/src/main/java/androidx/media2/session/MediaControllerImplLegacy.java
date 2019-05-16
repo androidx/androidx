@@ -69,6 +69,7 @@ import androidx.media2.common.SessionPlayer.RepeatMode;
 import androidx.media2.common.SessionPlayer.ShuffleMode;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.ControllerCallback;
+import androidx.media2.session.MediaController.ControllerCallbackRunnable;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaController.VolumeDirection;
 import androidx.media2.session.MediaController.VolumeFlags;
@@ -78,7 +79,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executor;
 
 // TODO: Find better way to return listenable future.
 @SuppressLint("ObsoleteSdkInt") // TODO: Remove once the minSdkVersion is lowered enough.
@@ -104,10 +104,6 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final SessionToken mToken;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final ControllerCallback mCallback;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Executor mCallbackExecutor;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final HandlerThread mHandlerThread;
@@ -185,16 +181,13 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     private volatile boolean mConnected;
 
     MediaControllerImplLegacy(@NonNull Context context, @NonNull MediaController instance,
-            @NonNull SessionToken token, @Nullable Executor executor,
-            @Nullable ControllerCallback callback) {
+            @NonNull SessionToken token) {
         mContext = context;
         mInstance = instance;
         mHandlerThread = new HandlerThread("MediaController_Thread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
         mToken = token;
-        mCallback = callback;
-        mCallbackExecutor = executor;
 
         if (mToken.getType() == SessionToken.TYPE_SESSION) {
             synchronized (mLock) {
@@ -236,11 +229,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             }
             mConnected = false;
         }
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
-                mCallback.onDisconnected(mInstance);
+            public void run(@NonNull ControllerCallback callback) {
+                callback.onDisconnected(mInstance);
             }
         });
     }
@@ -822,25 +814,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public @NonNull ControllerCallback getCallback() {
-        return mCallback;
-    }
-
-    @Override
-    public @NonNull Executor getCallbackExecutor() {
-        return mCallbackExecutor;
-    }
-
-    @Override
     public @Nullable MediaBrowserCompat getBrowserCompat() {
         synchronized (mLock) {
             return mBrowserCompat;
         }
-    }
-
-    @Override
-    public @NonNull MediaController getInstance() {
-        return mInstance;
     }
 
     // Should be used without a lock to prevent potential deadlock.
@@ -887,18 +864,17 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             setCurrentMediaItemLocked(mControllerCompat.getMetadata());
             mConnected = true;
         }
-        if (mCallback == null) return;
-        mCallbackExecutor.execute(new Runnable() {
+        mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
-            public void run() {
-                mCallback.onConnected(mInstance, allowedCommands);
+            public void run(@NonNull ControllerCallback callback) {
+                callback.onConnected(mInstance, allowedCommands);
             }
         });
         if (!customLayout.isEmpty()) {
-            mCallbackExecutor.execute(new Runnable() {
+            mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                 @Override
-                public void run() {
-                    mCallback.onSetCustomLayout(mInstance, customLayout);
+                public void run(@NonNull ControllerCallback callback) {
+                    callback.onSetCustomLayout(mInstance, customLayout);
                 }
             });
         }
@@ -1080,12 +1056,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                     return;
                 }
             }
-            if (mCallback == null) return;
-            mCallbackExecutor.execute(new Runnable() {
+            mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                 @Override
-                public void run() {
+                public void run(@NonNull ControllerCallback callback) {
                     // Ignore return because legacy session cannot get result back.
-                    mCallback.onCustomCommand(mInstance, new SessionCommand(event, null), extras);
+                    callback.onCustomCommand(mInstance, new SessionCommand(event, null), extras);
                 }
             });
         }
@@ -1130,41 +1105,41 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 currentAllowedCommands = mAllowedCommands;
             }
 
-            if (mCallback == null) return;
+            if (mInstance.mCallback == null) return;
             if (prevItem != currentItem) {
-                mCallbackExecutor.execute(new Runnable() {
+                mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                     @Override
-                    public void run() {
-                        mCallback.onCurrentMediaItemChanged(mInstance, currentItem);
+                    public void run(@NonNull ControllerCallback callback) {
+                        callback.onCurrentMediaItemChanged(mInstance, currentItem);
                     }
                 });
             }
 
             if (state == null) {
                 if (prevState != null) {
-                    mCallbackExecutor.execute(new Runnable() {
+                    mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                         @Override
-                        public void run() {
-                            mCallback.onPlayerStateChanged(mInstance, PLAYER_STATE_IDLE);
+                        public void run(@NonNull ControllerCallback callback) {
+                            callback.onPlayerStateChanged(mInstance, PLAYER_STATE_IDLE);
                         }
                     });
                 }
                 return;
             }
             if (prevState == null || prevState.getState() != state.getState()) {
-                mCallbackExecutor.execute(new Runnable() {
+                mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                     @Override
-                    public void run() {
-                        mCallback.onPlayerStateChanged(
+                    public void run(@NonNull ControllerCallback callback) {
+                        callback.onPlayerStateChanged(
                                 mInstance, MediaUtils.convertToPlayerState(state));
                     }
                 });
             }
             if (prevState == null || prevState.getPlaybackSpeed() != state.getPlaybackSpeed()) {
-                mCallbackExecutor.execute(new Runnable() {
+                mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                     @Override
-                    public void run() {
-                        mCallback.onPlaybackSpeedChanged(mInstance, state.getPlaybackSpeed());
+                    public void run(@NonNull ControllerCallback callback) {
+                        callback.onPlaybackSpeedChanged(mInstance, state.getPlaybackSpeed());
                     }
                 });
             }
@@ -1174,10 +1149,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 long positionDiff = Math.abs(currentPosition
                         - prevState.getCurrentPosition(mInstance.mTimeDiff));
                 if (positionDiff > POSITION_DIFF_TOLERANCE) {
-                    mCallbackExecutor.execute(new Runnable() {
+                    mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                         @Override
-                        public void run() {
-                            mCallback.onSeekCompleted(mInstance, currentPosition);
+                        public void run(@NonNull ControllerCallback callback) {
+                            callback.onSeekCompleted(mInstance, currentPosition);
                         }
                     });
                 }
@@ -1187,10 +1162,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             Set<SessionCommand> currentCommands = currentAllowedCommands.getCommands();
             if (prevCommands.size() != currentCommands.size()
                     || !prevCommands.containsAll(currentCommands)) {
-                mCallbackExecutor.execute(new Runnable() {
+                mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                     @Override
-                    public void run() {
-                        mCallback.onAllowedCommandsChanged(mInstance, currentAllowedCommands);
+                    public void run(@NonNull ControllerCallback callback) {
+                        callback.onAllowedCommandsChanged(mInstance, currentAllowedCommands);
                     }
                 });
             }
@@ -1208,10 +1183,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 layoutChanged = true;
             }
             if (layoutChanged) {
-                mCallbackExecutor.execute(new Runnable() {
+                mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                     @Override
-                    public void run() {
-                        mCallback.onSetCustomLayout(mInstance, currentLayout);
+                    public void run(@NonNull ControllerCallback callback) {
+                        callback.onSetCustomLayout(mInstance, currentLayout);
                     }
                 });
             }
@@ -1225,10 +1200,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                     ? SessionPlayer.BUFFERING_STATE_UNKNOWN
                     : MediaUtils.toBufferingState(prevState.getState());
             if (bufferingState != prevBufferingState) {
-                mCallbackExecutor.execute(new Runnable() {
+                mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                     @Override
-                    public void run() {
-                        mCallback.onBufferingStateChanged(mInstance, currentItem, bufferingState);
+                    public void run(@NonNull ControllerCallback callback) {
+                        callback.onBufferingStateChanged(mInstance, currentItem, bufferingState);
                     }
                 });
             }
@@ -1246,12 +1221,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 setCurrentMediaItemLocked(metadata);
                 currentItem = mCurrentMediaItem;
             }
-            if (mCallback == null) return;
             if (prevItem != currentItem) {
-                mCallbackExecutor.execute(new Runnable() {
+                mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                     @Override
-                    public void run() {
-                        mCallback.onCurrentMediaItemChanged(mInstance, currentItem);
+                    public void run(@NonNull ControllerCallback callback) {
+                        callback.onCurrentMediaItemChanged(mInstance, currentItem);
                     }
                 });
             }
@@ -1278,11 +1252,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 playlist = mPlaylist;
                 playlistMetadata = mPlaylistMetadata;
             }
-            if (mCallback == null) return;
-            mCallbackExecutor.execute(new Runnable() {
+            mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                 @Override
-                public void run() {
-                    mCallback.onPlaylistChanged(mInstance, playlist, playlistMetadata);
+                public void run(@NonNull ControllerCallback callback) {
+                    callback.onPlaylistChanged(mInstance, playlist, playlistMetadata);
                 }
             });
         }
@@ -1297,11 +1270,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 mPlaylistMetadata = MediaUtils.convertToMediaMetadata(title);
                 playlistMetadata = mPlaylistMetadata;
             }
-            if (mCallback == null) return;
-            mCallbackExecutor.execute(new Runnable() {
+            mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                 @Override
-                public void run() {
-                    mCallback.onPlaylistMetadataChanged(mInstance, playlistMetadata);
+                public void run(@NonNull ControllerCallback callback) {
+                    callback.onPlaylistMetadataChanged(mInstance, playlistMetadata);
                 }
             });
         }
@@ -1313,11 +1285,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                     return;
                 }
             }
-            if (mCallback == null) return;
-            mCallbackExecutor.execute(new Runnable() {
+            mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                 @Override
-                public void run() {
-                    mCallback.onCustomCommand(mInstance, new SessionCommand(
+                public void run(@NonNull ControllerCallback callback) {
+                    callback.onCustomCommand(mInstance, new SessionCommand(
                             SESSION_COMMAND_ON_EXTRAS_CHANGED, null), extras);
                 }
             });
@@ -1330,11 +1301,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                     return;
                 }
             }
-            if (mCallback == null) return;
-            mCallbackExecutor.execute(new Runnable() {
+            mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                 @Override
-                public void run() {
-                    mCallback.onPlaybackInfoChanged(mInstance, MediaUtils.toPlaybackInfo2(info));
+                public void run(@NonNull ControllerCallback callback) {
+                    callback.onPlaybackInfoChanged(mInstance, MediaUtils.toPlaybackInfo2(info));
                 }
             });
         }
@@ -1346,13 +1316,12 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                     return;
                 }
             }
-            if (mCallback == null) return;
-            mCallbackExecutor.execute(new Runnable() {
+            mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                 @Override
-                public void run() {
+                public void run(@NonNull ControllerCallback callback) {
                     Bundle args = new Bundle();
                     args.putBoolean(MediaConstants.ARGUMENT_CAPTIONING_ENABLED, enabled);
-                    mCallback.onCustomCommand(mInstance, new SessionCommand(
+                    callback.onCustomCommand(mInstance, new SessionCommand(
                             SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED, null), args);
                 }
             });
@@ -1366,11 +1335,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 }
                 mRepeatMode = repeatMode;
             }
-            if (mCallback == null) return;
-            mCallbackExecutor.execute(new Runnable() {
+            mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                 @Override
-                public void run() {
-                    mCallback.onRepeatModeChanged(mInstance, repeatMode);
+                public void run(@NonNull ControllerCallback callback) {
+                    callback.onRepeatModeChanged(mInstance, repeatMode);
                 }
             });
         }
@@ -1383,11 +1351,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 }
                 mShuffleMode = shuffleMode;
             }
-            if (mCallback == null) return;
-            mCallbackExecutor.execute(new Runnable() {
+            mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                 @Override
-                public void run() {
-                    mCallback.onShuffleModeChanged(mInstance, shuffleMode);
+                public void run(@NonNull ControllerCallback callback) {
+                    callback.onShuffleModeChanged(mInstance, shuffleMode);
                 }
             });
         }

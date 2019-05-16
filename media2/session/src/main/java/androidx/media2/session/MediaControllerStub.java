@@ -305,7 +305,7 @@ class MediaControllerStub extends IMediaController.Stub {
                 }
                 return;
             }
-            controller.getInstance().close();
+            controller.mInstance.close();
         } finally {
             Binder.restoreCallingIdentity(token);
         }
