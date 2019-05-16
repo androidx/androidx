@@ -1872,12 +1872,8 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public VideoSize getVideoSize() {
-        synchronized (mStateLock) {
-            if (mClosed) {
-                return new VideoSize(0, 0);
-            }
-        }
-        return new VideoSize(mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
+        androidx.media2.common.VideoSize sizeInternal = getVideoSizeInternal();
+        return new VideoSize(sizeInternal);
     }
 
     /** @hide */
@@ -1885,8 +1881,13 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public androidx.media2.common.VideoSize getVideoSizeInternal() {
-        VideoSize playerSize = getVideoSize();
-        return new androidx.media2.common.VideoSize(playerSize.getWidth(), playerSize.getHeight());
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return new androidx.media2.common.VideoSize(0, 0);
+            }
+        }
+        return new androidx.media2.common.VideoSize(mPlayer.getVideoWidth(),
+                mPlayer.getVideoHeight());
     }
 
     /**
@@ -3204,12 +3205,12 @@ public final class MediaPlayer extends SessionPlayer {
         @Override
         public void onVideoSizeChangedInternal(
                 @NonNull SessionPlayer player, @NonNull MediaItem item,
-                @NonNull androidx.media2.common.VideoSize commonSize) {
+                @NonNull androidx.media2.common.VideoSize sizeInternal) {
             if (!(player instanceof MediaPlayer)) {
                 throw new IllegalArgumentException("player must be MediaPlayer");
             }
-            VideoSize playerSize = new VideoSize(commonSize.getWidth(), commonSize.getHeight());
-            onVideoSizeChanged((MediaPlayer) player, item, playerSize);
+            VideoSize size = new VideoSize(sizeInternal);
+            onVideoSizeChanged((MediaPlayer) player, item, size);
         }
 
         /**
