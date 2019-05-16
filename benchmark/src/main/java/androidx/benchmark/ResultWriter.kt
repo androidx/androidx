@@ -17,27 +17,11 @@
 package androidx.benchmark
 
 import android.os.Environment
+import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
 internal object ResultWriter {
-    private fun List<Long>.toXmlWithMargin(): String {
-        return joinToString("\n") { "|        <run nanos=\"$it\"/>" }
-    }
-
-    private fun BenchmarkState.Report.toXml(): String {
-        return "\n" + """
-        |    <testcase
-        |            name="$testName"
-        |            className="$className"
-        |            nanos="$nanos"
-        |            warmupIterations="$warmupIterations"
-        |            repeatIterations="$repeatIterations">
-        ${data.toXmlWithMargin()}
-        |    </testcase>
-    """.trimMargin()
-    }
-
     private fun List<Long>.toJsonWithMargin(): String {
         return joinToString(",\n") { "|            $it" }
     }
@@ -64,11 +48,12 @@ internal object ResultWriter {
         val separator: String? = null,
         val reportFormatter: (BenchmarkState.Report) -> String
     ) {
-        private val context = InstrumentationRegistry.getInstrumentation().targetContext!!
+        private val packageName =
+            InstrumentationRegistry.getInstrumentation().targetContext!!.packageName
 
         val file = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            "${context.packageName}-benchmarkData.$extension"
+            "$packageName-benchmarkData.$extension"
         )
         var currentContent = initial
         var lastAddedEntry: BenchmarkState.Report? = null
@@ -85,39 +70,26 @@ internal object ResultWriter {
         }
     }
 
-    val fileManagers = listOf(
-        FileManager(
-            extension = "xml",
-            initial = "<benchmarksuite>",
-            tail = "\n</benchmarksuite>",
-            reportFormatter = { report ->
-                report.toXml()
-            }
-        ),
-        FileManager(
-            extension = "json",
-            initial = "{ \"results\": [",
-            tail = "\n]}",
-            separator = ",",
-            reportFormatter = { report ->
-                report.toJson()
-            }
-        )
+    @VisibleForTesting
+    val fileManager = FileManager(
+        extension = "json",
+        initial = "{ \"results\": [",
+        tail = "\n]}",
+        separator = ",",
+        reportFormatter = { report -> report.toJson() }
     )
 
     fun appendStats(report: BenchmarkState.Report) {
-        for (fileManager in fileManagers) {
-            fileManager.append(report)
-            fileManager.file.run {
-                if (!exists()) {
-                    parentFile.mkdirs()
-                    createNewFile()
-                }
-
-                // Currently, we just overwrite the whole file
-                // Ideally, truncate off the 'tail', and append for efficiency
-                writeText(fileManager.fullFileContent)
+        fileManager.append(report)
+        fileManager.file.run {
+            if (!exists()) {
+                parentFile.mkdirs()
+                createNewFile()
             }
+
+            // Currently, we just overwrite the whole file
+            // Ideally, truncate off the 'tail', and append for efficiency
+            writeText(fileManager.fullFileContent)
         }
     }
 }

@@ -16,11 +16,14 @@
 
 package androidx.benchmark
 
+import android.Manifest
 import androidx.test.filters.LargeTest
+import androidx.test.rule.GrantPermissionRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -30,6 +33,9 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class BenchmarkStateTest {
     private fun ms2ns(ms: Long): Long = TimeUnit.MILLISECONDS.toNanos(ms)
+
+    @get:Rule
+    val writePermissionRule = GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     @Test
     fun simple() {
@@ -126,9 +132,8 @@ class BenchmarkStateTest {
             nanos = 100,
             data = listOf(100),
             repeatIterations = 1,
-            warmupIterations = 1)
-        ResultWriter.fileManagers.forEach {
-            assertEquals(expectedReport, it.lastAddedEntry)
-        }
+            warmupIterations = 1
+        )
+        assertEquals(expectedReport, ResultWriter.fileManager.lastAddedEntry)
     }
 }
