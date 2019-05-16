@@ -54,25 +54,29 @@ class OutputConfigurationCompatBaseImpl implements
     }
 
     /**
-     * Enable multiple surfaces sharing the same OutputConfiguration
-     *
-     * <p>This is always a no-op on API &lt;= 25.
+     * Enable multiple surfaces sharing the same OutputConfiguration.
      */
     @Override
     public void enableSurfaceSharing() {
-        // No-op. Surface sharing not possible on less than API 26.
-        Log.w(TAG, "enableSurfaceSharing: surface sharing not supported on current API level");
+        ((OutputConfigurationParamsApi21) mObject).mIsShared = true;
+    }
+
+    boolean isSurfaceSharingEnabled() {
+        return ((OutputConfigurationParamsApi21) mObject).mIsShared;
     }
 
     /**
      * Set the id of the physical camera for this OutputConfiguration.
-     *
-     * <p>This value is unused by this implementation. Added in API 28.
      */
     @Override
     public void setPhysicalCameraId(@Nullable String physicalCameraId) {
-        // No-op. Physical camera ID is not supported on API < 28.
-        Log.w(TAG, "setPhysicalCameraId: physical camera id not supported on current API level");
+        ((OutputConfigurationParamsApi21) mObject).mPhysicalCameraId = physicalCameraId;
+    }
+
+    @Nullable
+    @Override
+    public String getPhysicalCameraId() {
+        return ((OutputConfigurationParamsApi21) mObject).mPhysicalCameraId;
     }
 
     /**
@@ -87,8 +91,13 @@ class OutputConfigurationCompatBaseImpl implements
             throw new IllegalStateException("Surface is already added!");
         }
 
-        // Surface sharing not possible on API < 26
-        throw new IllegalStateException("Cannot have 2 surfaces for a non-sharing configuration");
+        if (!isSurfaceSharingEnabled()) {
+            throw new IllegalStateException(
+                    "Cannot have 2 surfaces for a non-sharing configuration");
+        }
+
+        // Surface sharing not possible on API < 26. Max surfaces is 1.
+        throw new IllegalArgumentException("Exceeds maximum number of surfaces");
     }
 
     /**
@@ -199,6 +208,9 @@ class OutputConfigurationCompatBaseImpl implements
         final int mConfiguredFormat;
         // Surface generation ID to distinguish changes to Surface native internals
         final int mConfiguredGenerationId;
+        @Nullable
+        String mPhysicalCameraId;
+        boolean mIsShared = false;
 
         OutputConfigurationParamsApi21(@NonNull Surface surface) {
             Preconditions.checkNotNull(surface, "Surface must not be null");
@@ -267,7 +279,9 @@ class OutputConfigurationCompatBaseImpl implements
 
             if (!mConfiguredSize.equals(otherOutputConfig.mConfiguredSize)
                     || mConfiguredFormat != otherOutputConfig.mConfiguredFormat
-                    || mConfiguredGenerationId != otherOutputConfig.mConfiguredGenerationId) {
+                    || mConfiguredGenerationId != otherOutputConfig.mConfiguredGenerationId
+                    || mIsShared != otherOutputConfig.mIsShared
+                    || !Objects.equals(mPhysicalCameraId, otherOutputConfig.mPhysicalCameraId)) {
                 return false;
             }
 
@@ -290,6 +304,10 @@ class OutputConfigurationCompatBaseImpl implements
             h = ((h << 5) - h)
                     ^ mConfiguredSize.hashCode(); // (h * 31) XOR mConfiguredSize.hashCode()
             h = ((h << 5) - h) ^ mConfiguredFormat; // (h * 31) XOR mConfiguredFormat
+            h = ((h << 5) - h) ^ (mIsShared ? 1 : 0); // (h * 31) XOR mIsShared
+            // (h * 31) XOR mPhysicalCameraId.hashCode()
+            h = ((h << 5) - h)
+                    ^ (mPhysicalCameraId == null ? 0 : mPhysicalCameraId.hashCode());
 
             return h;
         }

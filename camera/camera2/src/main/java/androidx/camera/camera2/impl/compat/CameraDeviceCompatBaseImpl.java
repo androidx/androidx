@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -54,6 +55,32 @@ class CameraDeviceCompatBaseImpl implements CameraDeviceCompat.CameraDeviceCompa
         }
         if (config.getExecutor() == null) {
             throw new IllegalArgumentException("Invalid executor");
+        }
+
+        checkPhysicalCameraIdValid(device, outputConfigs);
+    }
+
+    /**
+     * Checks whether the physical camera ID is valid for all output configurations.
+     *
+     * <p>This method should only be used on API &lt;= 28. After API 28, this check will be handled
+     * by the framework directly.
+     *
+     * <p>Before API 28, there is no concept of logical camera, so the physical camera ID is only
+     * considered valid if it is null or an empty string.
+     *
+     * <p>Currently, this wil only print a warning log message.
+     */
+    private static void checkPhysicalCameraIdValid(CameraDevice device,
+            @NonNull List<OutputConfigurationCompat> outputConfigs) {
+        String cameraId = device.getId();
+        for (OutputConfigurationCompat outputConfigurationCompat : outputConfigs) {
+            String outputConfigPhysicalId = outputConfigurationCompat.getPhysicalCameraId();
+            if (outputConfigPhysicalId != null && !outputConfigPhysicalId.isEmpty()) {
+                Log.w("CameraDeviceCompat",
+                        "Camera " + cameraId + ": Camera doesn't support physicalCameraId "
+                                + outputConfigPhysicalId + ". Ignoring.");
+            }
         }
     }
 
