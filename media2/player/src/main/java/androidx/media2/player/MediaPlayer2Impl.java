@@ -1111,10 +1111,10 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         final long startTimeUs = data.getStartTimeUs();
                         final long durationUs = data.getDurationUs();
                         final byte[] bytes = data.getData();
-                        androidx.media2.player.MediaPlayer.TrackInfo info = getTrackInfo(idx);
+                        MediaPlayer2.TrackInfo info2 = getTrackInfo().get(idx);
+                        MediaItem item = getCurrentMediaItem();
                         SessionPlayer.TrackInfo infoInternal = new SessionPlayer.TrackInfo(
-                                info.getId(), info.getMediaItem(), info.getTrackType(),
-                                info.getFormat());
+                                idx, item, info2.getTrackType(), info2.getFormat());
                         SubtitleData sub = new SubtitleData(infoInternal, startTimeUs, durationUs,
                                 bytes);
                         cb.onSubtitleData(MediaPlayer2Impl.this, src.getDSD(), sub);

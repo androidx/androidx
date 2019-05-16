@@ -789,23 +789,6 @@ public abstract class MediaPlayer2 {
     public abstract List<TrackInfo> getTrackInfo();
 
     /**
-     * Returns information of track at {@code index}.
-     *
-     * Note that a {@link TrackInfo} will be converted to a
-     * {@link MediaPlayer.TrackInfo} by this method.
-     *
-     * @param index into {@link #getTrackInfo()}
-     * @return track information
-     */
-    public MediaPlayer.TrackInfo getTrackInfo(int index) {
-        List<TrackInfo> tracks = getTrackInfo();
-        TrackInfo info = tracks.get(index);
-        MediaItem item = getCurrentMediaItem();
-        return new MediaPlayer.TrackInfo(
-                index, item, info.getTrackType(), info.getFormat());
-    }
-
-    /**
      * Returns the index of the audio, video, or subtitle track currently selected for playback,
      * The return value is an index into the array returned by {@link #getTrackInfo()}, and can
      * be used in calls to {@link #selectTrack(int)} or {@link #deselectTrack(int)}.
