@@ -68,6 +68,9 @@
         <activity
             android:name=".PopupInterstitialActivity" />
         <activity
+            android:name=".WhitelistActivity"
+            android:exported="true" />
+        <activity
             android:name=".ProxyOverrideActivity"
             android:exported="true" />
         <activity
