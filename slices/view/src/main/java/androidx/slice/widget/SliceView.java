@@ -441,6 +441,8 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      * content see {@link SliceLiveData}.
      */
     public void setSlice(@Nullable Slice slice) {
+        LocationBasedViewTracker.trackInputFocused(this);
+        LocationBasedViewTracker.trackA11yFocus(this);
         initSliceMetrics(slice);
         boolean isUpdate = slice != null && mCurrentSlice != null
                 && slice.getUri().equals(mCurrentSlice.getUri());
