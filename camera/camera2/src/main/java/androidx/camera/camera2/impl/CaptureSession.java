@@ -22,7 +22,11 @@ import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.OutputConfiguration;
+import android.hardware.camera2.params.SessionConfiguration;
+import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Surface;
 
@@ -36,11 +40,16 @@ import androidx.camera.core.Config;
 import androidx.camera.core.Config.Option;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.DeferrableSurfaces;
+import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * A session for capturing images from the camera which is tied to a specific {@link CameraDevice}.
@@ -54,6 +63,8 @@ final class CaptureSession {
     /** Handler for all the callbacks from the {@link CameraCaptureSession}. */
     @Nullable
     private final Handler mHandler;
+    /** An adapter to pass the task to the handler. */
+    private final Executor mExecutor;
     /** The configuration for the currently issued single capture requests. */
     private final List<CaptureConfig> mCaptureConfigs = new ArrayList<>();
     /** Lock on whether the camera is open or closed. */
@@ -80,6 +91,8 @@ final class CaptureSession {
     /** The list of DeferrableSurface used to notify surface detach events */
     @GuardedBy("mConfiguredDeferrableSurfaces")
     List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
+    /** The list of DeferrableSurface used for repeating request */
+    private List<DeferrableSurface> mConfiguredRepeatingSurfaces = Collections.emptyList();
     /** Tracks the current state of the session. */
     @GuardedBy("mStateLock")
     State mState = State.UNINITIALIZED;
@@ -95,6 +108,7 @@ final class CaptureSession {
     CaptureSession(@Nullable Handler handler) {
         this.mHandler = handler;
         mState = State.INITIALIZED;
+        mExecutor = new ExecutorHandlerAdapter(handler);
     }
 
     /**
@@ -185,6 +199,15 @@ final class CaptureSession {
                         return;
                     }
 
+                    // TODO(b/132664086): Remove this workaround after aosp/955625 has been
+                    //  submitted.
+                    Set<Surface> repeatingSurfaces = DeferrableSurfaces.surfaceSet(
+                            sessionConfig.getRepeatingCaptureConfig().getSurfaces());
+                    mConfiguredRepeatingSurfaces = new ArrayList<>();
+                    for (Surface s : repeatingSurfaces) {
+                        mConfiguredRepeatingSurfaces.add(new ImmediateSurface(s));
+                    }
+
                     notifySurfaceAttached();
                     mState = State.OPENING;
                     Log.d(TAG, "Opening capture session.");
@@ -193,7 +216,42 @@ final class CaptureSession {
                     callbacks.add(mCaptureSessionStateCallback);
                     CameraCaptureSession.StateCallback comboCallback =
                             CameraCaptureSessionStateCallbacks.createComboCallback(callbacks);
-                    cameraDevice.createCaptureSession(mConfiguredSurfaces, comboCallback, mHandler);
+
+                    // Start check preset CaptureStage information.
+                    CameraEventCallbacks eventCallbacks = new Camera2Config(
+                            sessionConfig.getImplementationOptions()).getCameraEventCallback(
+                            CameraEventCallbacks.createEmptyCallback());
+                    List<CaptureConfig> presetList =
+                            eventCallbacks.createComboCallback().onPresetSession();
+
+                    // Generate the CaptureRequest builder from repeating request since Android
+                    // recommend use the same template type as the initial capture request. The
+                    // tag and output targets would be ignored by default.
+                    CaptureRequest.Builder builder =
+                            sessionConfig.getRepeatingCaptureConfig().buildCaptureRequestNoTarget(
+                                    cameraDevice);
+
+                    if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P
+                            && builder != null && !presetList.isEmpty()) {
+                        for (CaptureConfig config : presetList) {
+                            applyImplementationOptionTCaptureBuilder(builder,
+                                    config.getImplementationOptions());
+                        }
+
+                        List<OutputConfiguration> outputConfigList = new LinkedList<>();
+                        for (Surface surface : mConfiguredSurfaces) {
+                            outputConfigList.add(new OutputConfiguration(surface));
+                        }
+
+                        SessionConfiguration sessionParameterConfiguration =
+                                new SessionConfiguration(SessionConfiguration.SESSION_REGULAR,
+                                        outputConfigList, mExecutor, comboCallback);
+                        sessionParameterConfiguration.setSessionParameters(builder.build());
+                        cameraDevice.createCaptureSession(sessionParameterConfiguration);
+                    } else {
+                        cameraDevice.createCaptureSession(mConfiguredSurfaces, comboCallback,
+                                mHandler);
+                    }
                     break;
                 default:
                     Log.e(TAG, "Open not allowed in state: " + mState);
@@ -219,8 +277,20 @@ final class CaptureSession {
                 case INITIALIZED:
                     mState = State.RELEASED;
                     break;
-                case OPENING:
                 case OPENED:
+                    // Only issue onDisableSession requests at OPENED state.
+                    if (mSessionConfig != null) {
+                        CameraEventCallbacks eventCallbacks = new Camera2Config(
+                                mSessionConfig.getImplementationOptions()).getCameraEventCallback(
+                                CameraEventCallbacks.createEmptyCallback());
+                        List<CaptureConfig> configList =
+                                eventCallbacks.createComboCallback().onDisableSession();
+                        if (!configList.isEmpty()) {
+                            issueCaptureRequests(setupConfiguredSurface(configList));
+                        }
+                    }
+                    // Not break close flow.
+                case OPENING:
                     mState = State.CLOSED;
                     mSessionConfig = null;
                     break;
@@ -255,7 +325,9 @@ final class CaptureSession {
                     break;
                 case OPENED:
                 case CLOSED:
-                    mCameraCaptureSession.close();
+                    if (mCameraCaptureSession != null) {
+                        mCameraCaptureSession.close();
+                    }
                     mState = State.RELEASING;
                     break;
                 case RELEASING:
@@ -348,6 +420,16 @@ final class CaptureSession {
             if (builder == null) {
                 Log.d(TAG, "Skipping issuing empty request for session.");
                 return;
+            }
+
+            CameraEventCallbacks eventCallbacks = new Camera2Config(
+                    mSessionConfig.getImplementationOptions()).getCameraEventCallback(
+                    CameraEventCallbacks.createEmptyCallback());
+            List<CaptureConfig> repeatingRequestList =
+                    eventCallbacks.createComboCallback().onRepeating();
+            for (CaptureConfig config : repeatingRequestList) {
+                applyImplementationOptionTCaptureBuilder(builder,
+                        config.getImplementationOptions());
             }
 
             applyImplementationOptionTCaptureBuilder(
@@ -504,6 +586,20 @@ final class CaptureSession {
                     case OPENING:
                         mState = State.OPENED;
                         mCameraCaptureSession = session;
+
+                        // Issue capture request of enableSession if exists.
+                        if (mSessionConfig != null) {
+                            Config implOptions = mSessionConfig.getImplementationOptions();
+                            CameraEventCallbacks eventCallbacks = new Camera2Config(
+                                    implOptions).getCameraEventCallback(
+                                    CameraEventCallbacks.createEmptyCallback());
+                            List<CaptureConfig> list =
+                                    eventCallbacks.createComboCallback().onEnableSession();
+                            if (!list.isEmpty()) {
+                                issueCaptureRequests(setupConfiguredSurface(list));
+                            }
+                        }
+
                         Log.d(TAG, "Attempting to send capture request onConfigured");
                         issueRepeatingCaptureRequests();
                         issueBurstCaptureRequest();
@@ -577,5 +673,48 @@ final class CaptureSession {
     /** Also notify the surface detach event if receives camera device close event */
     public void notifyCameraDeviceClose() {
         notifySurfaceDetached();
+    }
+
+    List<CaptureConfig> setupConfiguredSurface(List<CaptureConfig> list) {
+        List<CaptureConfig> ret = new ArrayList<>();
+        for (CaptureConfig c : list) {
+            CaptureConfig.Builder builder = CaptureConfig.Builder.from(c);
+            builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+            for (DeferrableSurface s : mConfiguredRepeatingSurfaces) {
+                builder.addSurface(s);
+            }
+            ret.add(builder.build());
+        }
+
+        return ret;
+    }
+
+    private static class ExecutorHandlerAdapter implements Executor {
+
+        private final Handler mHandler;
+        ExecutorHandlerAdapter(Handler handler) {
+            mHandler = handler;
+        }
+
+        @Override
+        public void execute(Runnable command) {
+            Handler handler;
+
+            if (mHandler == null) {
+                // Run in current thread when handler not exist.
+                Looper looper = Looper.myLooper();
+                if (looper == null) {
+                    throw new IllegalArgumentException(
+                            "No handler given, and current thread has no looper!");
+                }
+                handler = new Handler(looper);
+            } else {
+                handler = mHandler;
+            }
+
+            if (!handler.post(command)) {
+                throw new RejectedExecutionException(handler + " is shutting down");
+            }
+        }
     }
 }

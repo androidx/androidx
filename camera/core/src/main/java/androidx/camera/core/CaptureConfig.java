@@ -166,6 +166,31 @@ public final class CaptureConfig {
     }
 
     /**
+     * TODO(b/132664086): To replace this old implementation by Camera2CaptureRequestBuilder once
+     *  aosp/955625 was submitted.
+     *
+     * Return the builder of a {@link CaptureRequest} which include capture request parameters and
+     * desired template type, but no target surfaces and tag.
+     *
+     * <p>Returns {@code null} if a valid {@link CaptureRequest} can not be constructed.
+     */
+    @Nullable
+    public CaptureRequest.Builder buildCaptureRequestNoTarget(@Nullable CameraDevice device)
+            throws CameraAccessException {
+        if (device == null) {
+            return null;
+        }
+        CaptureRequest.Builder builder = device.createCaptureRequest(mTemplateType);
+
+        for (CaptureRequestParameter<?> captureRequestParameter :
+                mCaptureRequestParameters.values()) {
+            captureRequestParameter.apply(builder);
+        }
+
+        return builder;
+    }
+
+    /**
      * Builder for easy modification/rebuilding of a {@link CaptureConfig}.
      *
      * @hide
@@ -274,7 +299,17 @@ public final class CaptureConfig {
             for (Option<?> option : config.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
                         Option<Object> objectOpt = (Option<Object>) option;
-                mImplementationOptions.insertOption(objectOpt, config.retrieveOption(objectOpt));
+
+                Object existValue = mImplementationOptions.retrieveOption(objectOpt, null);
+                Object newValue = config.retrieveOption(objectOpt);
+                if (existValue instanceof MultiValueSet) {
+                    ((MultiValueSet) existValue).addAll(((MultiValueSet) newValue).getAllItems());
+                } else {
+                    if (newValue instanceof MultiValueSet) {
+                        newValue = ((MultiValueSet) newValue).clone();
+                    }
+                    mImplementationOptions.insertOption(objectOpt, newValue);
+                }
             }
         }
 
