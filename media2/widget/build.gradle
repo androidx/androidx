@@ -27,7 +27,6 @@ dependencies {
     api(project(":media2:media2-common"))
     api(project(":media2:media2-player"))
     api(project(":media2:media2-session"))
-    implementation(project(":mediarouter"))
     implementation("androidx.appcompat:appcompat:1.0.2")
     implementation("androidx.palette:palette:1.0.0")
     implementation(project(":concurrent:concurrent-futures"))

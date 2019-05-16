@@ -57,14 +57,10 @@ import androidx.media2.player.subtitle.SubtitleController;
 import androidx.media2.player.subtitle.SubtitleTrack;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaSession;
-import androidx.media2.session.RemoteSessionPlayer;
 import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.session.SessionResult;
 import androidx.media2.session.SessionToken;
-import androidx.mediarouter.media.MediaControlIntent;
-import androidx.mediarouter.media.MediaRouteSelector;
-import androidx.mediarouter.media.MediaRouter;
 import androidx.palette.graphics.Palette;
 
 import java.lang.annotation.Retention;
@@ -196,58 +192,6 @@ public class VideoView extends SelectiveLayout {
     TrackInfo mSelectedSubtitleTrackInfo;
 
     SubtitleAnchorView mSubtitleAnchorView;
-
-    private MediaRouter mMediaRouter;
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-            MediaRouteSelector mRouteSelector;
-    MediaRouter.RouteInfo mRoute;
-    RoutePlayer mRoutePlayer;
-
-    private final MediaRouter.Callback mRouterCallback = new MediaRouter.Callback() {
-        @Override
-        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
-            if (route.supportsControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)) {
-                // Save local playback state and position
-                int localPlaybackState = mCurrentState;
-                long localPlaybackPosition = (mMediaSession == null)
-                        ? 0 : mMediaSession.getPlayer().getCurrentPosition();
-
-                // Update player
-                resetPlayer();
-                mRoute = route;
-                mRoutePlayer = new RoutePlayer(getContext(), mRouteSelector, route);
-                // TODO: Replace with MediaSession#setPlaylist once b/110811730 is fixed.
-                mRoutePlayer.setMediaItem(mMediaItem);
-                mRoutePlayer.setCurrentPosition(localPlaybackPosition);
-                ensureSessionWithPlayer(mRoutePlayer);
-                if (localPlaybackState == STATE_PLAYING) {
-                    mMediaSession.getPlayer().play();
-                }
-            }
-        }
-
-        @Override
-        public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo route, int reason) {
-            long currentPosition = 0;
-            int currentState = 0;
-            if (mRoute != null && mRoutePlayer != null) {
-                currentPosition = mRoutePlayer.getCurrentPosition();
-                currentState = mRoutePlayer.getPlayerState();
-                mRoutePlayer.close();
-                mRoutePlayer = null;
-            }
-            if (mRoute == route) {
-                mRoute = null;
-            }
-            if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
-                openVideo();
-                mMediaSession.getPlayer().seekTo(currentPosition);
-                if (currentState == SessionPlayer.PLAYER_STATE_PLAYING) {
-                    mMediaSession.getPlayer().play();
-                }
-            }
-        }
-    };
 
     private final VideoViewInterface.SurfaceListener mSurfaceListener =
             new VideoViewInterface.SurfaceListener() {
@@ -381,12 +325,6 @@ public class VideoView extends SelectiveLayout {
             mCurrentView = mTextureView;
         }
         mTargetView = mCurrentView;
-
-        MediaRouteSelector.Builder builder = new MediaRouteSelector.Builder();
-        builder.addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK);
-        builder.addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO);
-        builder.addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
-        mRouteSelector = builder.build();
     }
 
     /**
@@ -545,11 +483,6 @@ public class VideoView extends SelectiveLayout {
         ensureSessionWithPlayer(mMediaPlayer);
 
         attachMediaControlView();
-        mMediaRouter = MediaRouter.getInstance(getContext());
-        // TODO: Revisit once ag/4207152 is merged.
-        mMediaRouter.setMediaSessionCompat(mMediaSession.getSessionCompat());
-        mMediaRouter.addCallback(mRouteSelector, mRouterCallback,
-                MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN);
     }
 
     @Override
@@ -652,7 +585,7 @@ public class VideoView extends SelectiveLayout {
 
     boolean needToStart() {
         return mMediaSession != null
-                && (mMediaPlayer != null || mRoutePlayer != null) && isWaitingPlayback();
+                && mMediaPlayer != null && isWaitingPlayback();
     }
 
     private boolean isWaitingPlayback() {
@@ -666,10 +599,6 @@ public class VideoView extends SelectiveLayout {
         }
         if (mMediaItem != null) {
             resetPlayer();
-            if (isRemotePlayback()) {
-                mRoutePlayer.setMediaItem(mMediaItem);
-                return;
-            }
         }
 
         try {
@@ -750,12 +679,6 @@ public class VideoView extends SelectiveLayout {
             mSelectedSubtitleTrackInfo = null;
             mSelectedAudioTrackInfo = null;
         }
-    }
-
-    boolean isRemotePlayback() {
-        return mRoutePlayer != null
-                && mMediaSession != null
-                && (mMediaSession.getPlayer() instanceof RemoteSessionPlayer);
     }
 
     void selectSubtitleTrack(TrackInfo trackInfo) {
@@ -1017,16 +940,6 @@ public class VideoView extends SelectiveLayout {
                         task.execute();
                     }
 
-                    if (mMediaControlView != null) {
-                        Uri uri = (mMediaItem instanceof UriMediaItem)
-                                ? ((UriMediaItem) mMediaItem).getUri() : null;
-                        if (uri != null && UriUtil.isFromNetwork(uri)) {
-                            mMediaControlView.setRouteSelector(mRouteSelector);
-                        } else {
-                            mMediaControlView.setRouteSelector(null);
-                        }
-                    }
-
                     if (player instanceof MediaPlayer) {
                         if (needToStart()) {
                             mMediaSession.getPlayer().play();
@@ -1095,10 +1008,6 @@ public class VideoView extends SelectiveLayout {
                 if (DEBUG) {
                     Log.w(TAG, "onCustomCommand() is ignored. session is already gone.");
                 }
-            }
-            if (isRemotePlayback()) {
-                // TODO: call mRoutePlayer.onCommand()
-                return new SessionResult(RESULT_SUCCESS, null);
             }
             switch (command.getCustomAction()) {
                 case MediaControlView.COMMAND_SHOW_SUBTITLE:
