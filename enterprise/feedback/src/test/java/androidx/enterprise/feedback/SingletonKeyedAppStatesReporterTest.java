@@ -65,11 +65,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
-/** Tests {@link KeyedAppStatesReporter}. */
+/** Tests {@link SingletonKeyedAppStatesReporter}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = 21)
-public class KeyedAppStatesReporterTest {
+public class SingletonKeyedAppStatesReporterTest {
 
     private final ComponentName mTestComponentName = new ComponentName("test_package", "");
 
@@ -89,15 +89,15 @@ public class KeyedAppStatesReporterTest {
     @Before
     public void setUp() {
         // Reset the singleton so tests are independent
-        KeyedAppStatesReporter.resetSingleton();
+        SingletonKeyedAppStatesReporter.resetSingleton();
     }
 
     @Test
     @SmallTest
     public void getInstance_nullContext_throwsNullPointerException() {
-        KeyedAppStatesReporter.resetSingleton();
+        SingletonKeyedAppStatesReporter.resetSingleton();
         try {
-            KeyedAppStatesReporter.getInstance(null);
+            SingletonKeyedAppStatesReporter.getInstance(null);
             fail();
         } catch (NullPointerException expected) {
         }
@@ -106,11 +106,11 @@ public class KeyedAppStatesReporterTest {
     @Test
     @SmallTest
     public void initialize_usesExecutor() {
-        KeyedAppStatesReporter.resetSingleton();
+        SingletonKeyedAppStatesReporter.resetSingleton();
         TestExecutor testExecutor = new TestExecutor();
-        KeyedAppStatesReporter.initialize(mContext, testExecutor);
+        SingletonKeyedAppStatesReporter.initialize(mContext, testExecutor);
 
-        KeyedAppStatesReporter.getInstance(mContext).setStates(singleton(mState));
+        SingletonKeyedAppStatesReporter.getInstance(mContext).setStates(singleton(mState));
 
         assertThat(testExecutor.lastExecuted()).isNotNull();
     }
@@ -118,11 +118,11 @@ public class KeyedAppStatesReporterTest {
     @Test
     @SmallTest
     public void initialize_calledMultipleTimes_throwsIllegalStateException() {
-        KeyedAppStatesReporter.resetSingleton();
-        KeyedAppStatesReporter.initialize(mContext, mExecutor);
+        SingletonKeyedAppStatesReporter.resetSingleton();
+        SingletonKeyedAppStatesReporter.initialize(mContext, mExecutor);
 
         try {
-            KeyedAppStatesReporter.initialize(mContext, mExecutor);
+            SingletonKeyedAppStatesReporter.initialize(mContext, mExecutor);
         } catch (IllegalStateException expected) {
         }
     }
@@ -130,11 +130,11 @@ public class KeyedAppStatesReporterTest {
     @Test
     @SmallTest
     public void initialize_calledAfterGetInstance_throwsIllegalStateException() {
-        KeyedAppStatesReporter.resetSingleton();
-        KeyedAppStatesReporter.getInstance(mContext);
+        SingletonKeyedAppStatesReporter.resetSingleton();
+        SingletonKeyedAppStatesReporter.getInstance(mContext);
 
         try {
-            KeyedAppStatesReporter.initialize(mContext, mExecutor);
+            SingletonKeyedAppStatesReporter.initialize(mContext, mExecutor);
         } catch (IllegalStateException expected) {
         }
     }
@@ -500,7 +500,7 @@ public class KeyedAppStatesReporterTest {
     }
 
     private KeyedAppStatesReporter getReporter(Context context) {
-        KeyedAppStatesReporter.initialize(context, mExecutor);
-        return KeyedAppStatesReporter.getInstance(context);
+        SingletonKeyedAppStatesReporter.initialize(context, mExecutor);
+        return SingletonKeyedAppStatesReporter.getInstance(context);
     }
 }
