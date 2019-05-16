@@ -65,13 +65,14 @@ class AnimationGestureSemanticsActivity : Activity() {
                 // This component is a sample using the Level 1 API.
                 // Level1Api()
 
-                // TODO(ralu): Add Level 2 API Sample. (Need to implement node merging).
+                // This component is a sample using the Level 2 API.
+                Level2Api()
 
                 // This component is a sample using the Level 3 API, with the built-in defaults.
                 // Level3Api()
 
                 // This component is a sample using the Level 3 API, along with extra parameters.
-                Level3ApiExtras()
+                // Level3ApiExtras()
             }
         }
     }
@@ -124,6 +125,39 @@ class AnimationGestureSemanticsActivity : Activity() {
     }
 
     /**
+     * This component uses the level 2 Semantics API.
+     */
+    @Suppress("FunctionName", "Unused")
+    @Composable
+    fun Level2Api() {
+        val animationEndState = +state { ComponentState.Released }
+
+        SemanticAction(
+            phrase = "Shrink",
+            defaultParam = PxPosition.Origin,
+            types = setOf<ActionType>(AccessibilityAction.Primary, PolarityAction.Negative),
+            action = { animationEndState.value = ComponentState.Pressed }) { shrinkAction ->
+            SemanticAction(
+                phrase = "Enlarge",
+                defaultParam = Unit,
+                types = setOf<ActionType>(AccessibilityAction.Secondary, PolarityAction.Positive),
+                action = { animationEndState.value = ComponentState.Released }) { enlargeAction ->
+                SemanticProperties(
+                    label = "Animating Circle",
+                    visibility = Visibility.Visible,
+                    // After implementing node merging, we can remove this line.
+                    actions = setOf(shrinkAction, enlargeAction)
+                ) {
+                    PressGestureDetectorWithActions(
+                        onPress = shrinkAction,
+                        onRelease = enlargeAction
+                    ) { Animation(animationEndState = animationEndState.value) }
+                }
+            }
+        }
+    }
+
+    /**
      * This component uses the level 3 Semantics API. The [ClickInteraction] provides default
      * parameters for the [SemanticAction]s. The developer has to provide the callback lambda.
      */
@@ -132,8 +166,14 @@ class AnimationGestureSemanticsActivity : Activity() {
     fun Level3Api() {
         val animationEndState = +state { ComponentState.Released }
         ClickInteraction(
-            press = { action { animationEndState.value = ComponentState.Pressed } },
-            release = { action { animationEndState.value = ComponentState.Released } }
+            click = {
+                action = {
+                    animationEndState.value = when (animationEndState.value) {
+                        ComponentState.Released -> ComponentState.Pressed
+                        ComponentState.Pressed -> ComponentState.Released
+                    }
+                }
+            }
         ) { Animation(animationEndState = animationEndState.value) }
     }
 
@@ -146,16 +186,17 @@ class AnimationGestureSemanticsActivity : Activity() {
     fun Level3ApiExtras() {
         val animationEndState = +state { ComponentState.Released }
         ClickInteraction(
-            press = {
-                label = "Shrink"
-                types = setOf(AccessibilityAction.Primary, PolarityAction.Negative)
-                action = { animationEndState.value = ComponentState.Pressed }
-            },
-            release = {
-                label = "Enlarge"
-                types = setOf(AccessibilityAction.Secondary, PolarityAction.Positive)
-                action = { animationEndState.value = ComponentState.Released }
-            }) { Animation(animationEndState = animationEndState.value) }
+            click = {
+                phrase = "Toggle"
+                types = setOf(AccessibilityAction.Primary, PolarityAction.Positive)
+                action = {
+                    animationEndState.value = when (animationEndState.value) {
+                        ComponentState.Released -> ComponentState.Pressed
+                        ComponentState.Pressed -> ComponentState.Released
+                    }
+                }
+            }
+        ) { Animation(animationEndState = animationEndState.value) }
     }
 
     @Suppress("FunctionName")
