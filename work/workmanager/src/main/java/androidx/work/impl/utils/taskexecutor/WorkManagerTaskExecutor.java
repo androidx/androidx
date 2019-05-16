@@ -21,19 +21,24 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.work.impl.utils.SerialExecutor;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 /**
  * Default Task Executor for executing common tasks in WorkManager
  * @hide
  */
-
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerTaskExecutor implements TaskExecutor {
+
+    private final Executor mBackgroundExecutor;
+
+    public WorkManagerTaskExecutor(@NonNull Executor backgroundExecutor) {
+        // Wrap it with a serial executor so we have ordering guarantees on commands
+        // being executed.
+        mBackgroundExecutor = new SerialExecutor(backgroundExecutor);
+    }
 
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
 
@@ -43,26 +48,6 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
             postToMainThread(command);
         }
     };
-
-    // Avoiding synthetic accessor.
-    volatile Thread mCurrentBackgroundExecutorThread;
-    private final ThreadFactory mBackgroundThreadFactory = new ThreadFactory() {
-
-        private int mThreadsCreated = 0;
-
-        @Override
-        public Thread newThread(@NonNull Runnable r) {
-            // Delegate to the default factory, but keep track of the current thread being used.
-            Thread thread = Executors.defaultThreadFactory().newThread(r);
-            thread.setName("WorkManager-WorkManagerTaskExecutor-thread-" + mThreadsCreated);
-            mThreadsCreated++;
-            mCurrentBackgroundExecutorThread = thread;
-            return thread;
-        }
-    };
-
-    private final ExecutorService mBackgroundExecutor =
-            Executors.newSingleThreadExecutor(mBackgroundThreadFactory);
 
     @Override
     public void postToMainThread(Runnable r) {
@@ -82,11 +67,5 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     @Override
     public Executor getBackgroundExecutor() {
         return mBackgroundExecutor;
-    }
-
-    @NonNull
-    @Override
-    public Thread getBackgroundExecutorThread() {
-        return mCurrentBackgroundExecutorThread;
     }
 }

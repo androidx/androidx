@@ -48,6 +48,7 @@ import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.model.WorkTypeConverters;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -91,17 +92,23 @@ public abstract class WorkDatabase extends RoomDatabase {
      * Creates an instance of the WorkDatabase.
      *
      * @param context         A context (this method will use the application context from it)
+     * @param queryExecutor   An {@link Executor} that will be used to execute all async Room
+     *                        queries.
      * @param useTestDatabase {@code true} to generate an in-memory database that allows main thread
      *                        access
      * @return The created WorkDatabase
      */
-    public static WorkDatabase create(Context context, boolean useTestDatabase) {
+    public static WorkDatabase create(
+            @NonNull Context context,
+            @NonNull Executor queryExecutor,
+            boolean useTestDatabase) {
         RoomDatabase.Builder<WorkDatabase> builder;
         if (useTestDatabase) {
             builder = Room.inMemoryDatabaseBuilder(context, WorkDatabase.class)
                     .allowMainThreadQueries();
         } else {
-            builder = Room.databaseBuilder(context, WorkDatabase.class, DB_NAME);
+            builder = Room.databaseBuilder(context, WorkDatabase.class, DB_NAME)
+                    .setQueryExecutor(queryExecutor);
         }
 
         return builder.addCallback(generateCleanupCallback())

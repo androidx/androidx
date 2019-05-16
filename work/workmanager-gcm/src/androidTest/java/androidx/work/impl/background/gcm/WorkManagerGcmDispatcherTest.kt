@@ -75,10 +75,6 @@ class WorkManagerGcmDispatcherTest {
                     mExecutor.execute(runnable)
                 }
 
-                override fun getBackgroundExecutorThread(): Thread {
-                    return Thread.currentThread()
-                }
-
                 override fun getBackgroundExecutor(): Executor {
                     return mExecutor
                 }

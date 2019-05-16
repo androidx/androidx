@@ -86,7 +86,7 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
         WorkerParameters.RuntimeExtras(),
         1,
         SynchronousExecutor(),
-        WorkManagerTaskExecutor(),
+        WorkManagerTaskExecutor(SynchronousExecutor()),
         factory
     )
 }

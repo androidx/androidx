@@ -53,10 +53,4 @@ class InstantWorkTaskExecutor implements TaskExecutor {
     public Executor getBackgroundExecutor() {
         return mSynchronousExecutor;
     }
-
-    @NonNull
-    @Override
-    public Thread getBackgroundExecutorThread() {
-        return Thread.currentThread();
-    }
 }

@@ -157,10 +157,6 @@ class CoroutineWorkerTest {
         override fun getBackgroundExecutor(): Executor {
             return mSynchronousExecutor
         }
-
-        override fun getBackgroundExecutorThread(): Thread {
-            return Thread.currentThread()
-        }
     }
 
     class SynchronousCoroutineWorker(context: Context, params: WorkerParameters) :

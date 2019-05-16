@@ -179,7 +179,7 @@ public class WorkManagerImpl extends WorkManager {
                     sDefaultInstance = new WorkManagerImpl(
                             context,
                             configuration,
-                            new WorkManagerTaskExecutor());
+                            new WorkManagerTaskExecutor(configuration.getTaskExecutor()));
                 }
                 sDelegatedInstance = sDefaultInstance;
             }
@@ -224,7 +224,8 @@ public class WorkManagerImpl extends WorkManager {
             boolean useTestDatabase) {
 
         Context applicationContext = context.getApplicationContext();
-        WorkDatabase database = WorkDatabase.create(applicationContext, useTestDatabase);
+        WorkDatabase database = WorkDatabase.create(
+                applicationContext, configuration.getTaskExecutor(), useTestDatabase);
         Logger.setLogger(new Logger.LogcatLogger(configuration.getMinimumLoggingLevel()));
         List<Scheduler> schedulers = createSchedulers(applicationContext);
         Processor processor = new Processor(
