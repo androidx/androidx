@@ -2199,12 +2199,22 @@ public final class MediaPlayer extends SessionPlayer {
                 return Collections.emptyList();
             }
         }
-        List<MediaPlayer2.TrackInfo> list = mPlayer.getTrackInfo();
-        List<TrackInfo> trackList = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            trackList.add(mPlayer.getTrackInfo(i));
+        List<MediaPlayer2.TrackInfo> info2s = mPlayer.getTrackInfo();
+        MediaItem item = mPlayer.getCurrentMediaItem();
+        List<TrackInfo> infos = new ArrayList<>();
+        for (int index = 0; index < info2s.size(); index++) {
+            MediaPlayer2.TrackInfo info2 = info2s.get(index);
+            infos.add(new TrackInfo(index, item, info2.getTrackType(), info2.getFormat()));
         }
-        return trackList;
+        return infos;
+    }
+
+    @NonNull
+    private TrackInfo getTrackInfo(int index) {
+        List<MediaPlayer2.TrackInfo> info2s = mPlayer.getTrackInfo();
+        MediaPlayer2.TrackInfo info2 = info2s.get(index);
+        MediaItem item = mPlayer.getCurrentMediaItem();
+        return new TrackInfo(index, item, info2.getTrackType(), info2.getFormat());
     }
 
     /**
@@ -2231,7 +2241,7 @@ public final class MediaPlayer extends SessionPlayer {
             }
         }
         final int ret = mPlayer.getSelectedTrack(trackType);
-        return ret < 0 ? null : mPlayer.getTrackInfo(ret);
+        return ret < 0 ? null : getTrackInfo(ret);
     }
 
     /**
