@@ -77,6 +77,16 @@ public class CustomTabsIntentTest {
     }
 
     @Test
+    public void testSecondaryToolbarColor() {
+        int color = Color.RED;
+        Intent intent = new CustomTabsIntent.Builder()
+                .setSecondaryToolbarColor(color)
+                .build()
+                .intent;
+        assertEquals(color, intent.getIntExtra(CustomTabsIntent.EXTRA_SECONDARY_TOOLBAR_COLOR, 0));
+    }
+
+    @Test
     public void testColorScheme() {
         try {
             new CustomTabsIntent.Builder().setColorScheme(-1);

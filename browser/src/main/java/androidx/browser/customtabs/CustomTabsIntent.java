@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -91,7 +92,7 @@ public final class CustomTabsIntent {
     public static final int COLOR_SCHEME_LIGHT = 1;
 
     /**
-     * Applies a light color scheme to the user interface in the custom tab. Colors set through
+     * Applies a dark color scheme to the user interface in the custom tab. Colors set through
      * {@link #EXTRA_TOOLBAR_COLOR} may be darkened to match user expectations.
      */
     public static final int COLOR_SCHEME_DARK = 2;
@@ -270,6 +271,14 @@ public final class CustomTabsIntent {
             "android.support.customtabs.extra.EXTRA_ENABLE_INSTANT_APPS";
 
     /**
+     * Extra that contains a SparseArray, mapping color schemes (except
+     * {@link CustomTabsIntent#COLOR_SCHEME_SYSTEM}) to {@link Bundle} representing
+     * {@link CustomTabColorSchemeParams}.
+     */
+    public static final String EXTRA_COLOR_SCHEME_PARAMS =
+            "androidx.browser.customtabs.extra.COLOR_SCHEME_PARAMS";
+
+    /**
      * Key that specifies the unique ID for an action button. To make a button to show on the
      * toolbar, use {@link #TOOLBAR_ACTION_BUTTON_ID} as its ID.
      */
@@ -316,10 +325,14 @@ public final class CustomTabsIntent {
      */
     public static final class Builder {
         private final Intent mIntent = new Intent(Intent.ACTION_VIEW);
+        private final CustomTabColorSchemeParams.Builder mDefaultColorSchemeBuilder =
+                new CustomTabColorSchemeParams.Builder();
         private ArrayList<Bundle> mMenuItems = null;
         private Bundle mStartAnimationBundle = null;
         private ArrayList<Bundle> mActionButtons = null;
         private boolean mInstantAppsEnabled = true;
+        @Nullable
+        private SparseArray<Bundle> mColorSchemeParamBundles;
 
         /**
          * Creates a {@link CustomTabsIntent.Builder} object associated with no
@@ -348,12 +361,13 @@ public final class CustomTabsIntent {
 
         /**
          * Sets the toolbar color.
+         * Can be overridden for particular color schemes, see {@link #setColorSchemeParams}.
          *
          * @param color {@link Color}
          */
         @NonNull
         public Builder setToolbarColor(@ColorInt int color) {
-            mIntent.putExtra(EXTRA_TOOLBAR_COLOR, color);
+            mDefaultColorSchemeBuilder.setToolbarColor(color);
             return this;
         }
 
@@ -493,11 +507,13 @@ public final class CustomTabsIntent {
 
         /**
          * Sets the color of the secondary toolbar.
+         * Can be overridden for particular color schemes, see {@link #setColorSchemeParams}.
+         *
          * @param color The color for the secondary toolbar.
          */
         @NonNull
         public Builder setSecondaryToolbarColor(@ColorInt int color) {
-            mIntent.putExtra(EXTRA_SECONDARY_TOOLBAR_COLOR, color);
+            mDefaultColorSchemeBuilder.setSecondaryToolbarColor(color);
             return this;
         }
 
@@ -585,6 +601,55 @@ public final class CustomTabsIntent {
         }
 
         /**
+         * Sets {@link CustomTabColorSchemeParams} for the given color scheme.
+         *
+         * This can be useful if {@link CustomTabsIntent#COLOR_SCHEME_SYSTEM} is set: Custom Tabs
+         * will follow the system settings and apply the corresponding
+         * {@link CustomTabColorSchemeParams} "on the fly" when the settings change.
+         *
+         * For example, this allows specifying two different toolbar colors for light and dark
+         * schemes, whereas {@link #setToolbarColor} will apply the given color to both schemes.
+         *
+         * If there is no {@link CustomTabColorSchemeParams} for the current scheme, or a
+         * particular field of it is null, Custom Tabs will fall back to the defaults provided
+         * via {@link #setToolbarColor} and similar methods. If, on the other hand, a non-null value
+         * is present, it will override the default one.
+         *
+         * **Note**: to maintain compatibility with browsers not supporting this API, do provide the
+         * defaults.
+         *
+         * Example of setting two toolbar colors in backwards-compatible way:
+         * <pre><code>
+         *     CustomTabColorSchemeParams darkParams = new CustomTabColorSchemeParams.Builder()
+         *             .setToolbarColor(darkColor)
+         *             .build();
+         *     CustomTabIntent intent = new CustomTabIntent.Builder()
+         *             .setToolbarColor(lightColor)
+         *             .setColorScheme(COLOR_SCHEME_SYSTEM)
+         *             .setColorSchemeParams(COLOR_SCHEME_DARK, darkParams)
+         *             .build();
+         * </code></pre>
+         *
+         * @param colorScheme A constant representing a color scheme (see {@link #setColorScheme}).
+         *                    It should not be {@link #COLOR_SCHEME_SYSTEM}, because that represents
+         *                    a behavior rather than a particular color scheme.
+         * @param params An instance of {@link CustomTabColorSchemeParams}.
+         */
+        @NonNull
+        public Builder setColorSchemeParams(@ColorScheme int colorScheme,
+                @NonNull CustomTabColorSchemeParams params) {
+            if (colorScheme < 0 || colorScheme > COLOR_SCHEME_MAX
+                    || colorScheme == COLOR_SCHEME_SYSTEM) {
+                throw new IllegalArgumentException("Invalid colorScheme: " + colorScheme);
+            }
+            if (mColorSchemeParamBundles == null) {
+                mColorSchemeParamBundles = new SparseArray<>();
+            }
+            mColorSchemeParamBundles.put(colorScheme, params.toBundle());
+            return this;
+        }
+
+        /**
          * Combines all the options that have been set and returns a new {@link CustomTabsIntent}
          * object.
          */
@@ -597,6 +662,15 @@ public final class CustomTabsIntent {
                 mIntent.putParcelableArrayListExtra(EXTRA_TOOLBAR_ITEMS, mActionButtons);
             }
             mIntent.putExtra(EXTRA_ENABLE_INSTANT_APPS, mInstantAppsEnabled);
+
+            mIntent.putExtras(mDefaultColorSchemeBuilder.build().toBundle());
+            if (mColorSchemeParamBundles != null) {
+                Bundle bundle = new Bundle();
+                bundle.putSparseParcelableArray(EXTRA_COLOR_SCHEME_PARAMS,
+                        mColorSchemeParamBundles);
+                mIntent.putExtras(bundle);
+            }
+
             return new CustomTabsIntent(mIntent, mStartAnimationBundle);
         }
     }
@@ -634,5 +708,41 @@ public final class CustomTabsIntent {
     public static boolean shouldAlwaysUseBrowserUI(Intent intent) {
         return intent.getBooleanExtra(EXTRA_USER_OPT_OUT_FROM_CUSTOM_TABS, false)
                 && (intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0;
+    }
+
+    /**
+     * Retrieves the instance of {@link CustomTabColorSchemeParams} from an Intent for a given
+     * color scheme. Uses values passed directly into {@link CustomTabsIntent.Builder} (e.g. via
+     * {@link Builder#setToolbarColor}) as defaults.
+     *
+     * @param intent Intent to retrieve the color scheme parameters from.
+     * @param colorScheme A constant representing a color scheme. Should not be
+     *                    {@link #COLOR_SCHEME_SYSTEM}.
+     * @return An instance of {@link CustomTabColorSchemeParams} with retrieved parameters.
+     */
+    @NonNull
+    public static CustomTabColorSchemeParams getColorSchemeParams(@NonNull Intent intent,
+            @ColorScheme int colorScheme) {
+        if (colorScheme < 0 || colorScheme > COLOR_SCHEME_MAX
+                || colorScheme == COLOR_SCHEME_SYSTEM) {
+            throw new IllegalArgumentException("Invalid colorScheme: " + colorScheme);
+        }
+
+        Bundle extras = intent.getExtras();
+        if (extras == null) {
+            return CustomTabColorSchemeParams.fromBundle(null);
+        }
+
+        CustomTabColorSchemeParams defaults = CustomTabColorSchemeParams.fromBundle(extras);
+        SparseArray<Bundle> paramBundles = extras.getSparseParcelableArray(
+                EXTRA_COLOR_SCHEME_PARAMS);
+        if (paramBundles != null) {
+            Bundle bundleForScheme = paramBundles.get(colorScheme);
+            if (bundleForScheme != null) {
+                return CustomTabColorSchemeParams.fromBundle(bundleForScheme)
+                        .withDefaults(defaults);
+            }
+        }
+        return defaults;
     }
 }
