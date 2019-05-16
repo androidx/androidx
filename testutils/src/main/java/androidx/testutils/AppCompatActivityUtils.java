@@ -17,11 +17,8 @@ package androidx.testutils;
 
 import static org.junit.Assert.assertTrue;
 
-import android.os.Build;
 import android.os.Looper;
-import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.test.rule.ActivityTestRule;
 
 import java.util.concurrent.CountDownLatch;
@@ -107,36 +104,6 @@ public class AppCompatActivityUtils {
 
         RecreatedAppCompatActivity.clearState();
         return newActivity;
-    }
-
-    /**
-     * Waits until the activity is (re)drawn.
-     *
-     * @param activity An Activity
-     */
-    public static <T extends AppCompatActivity> void waitForActivityDrawn(final T activity) {
-        final CountDownLatch latch = new CountDownLatch(1);
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                View view = activity.getWindow().getDecorView();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    view.getViewTreeObserver().addOnDrawListener(
-                            new CountOnDraw(latch, view));
-                } else {
-                    view.getViewTreeObserver().addOnPreDrawListener(
-                            new CountOnPreDraw(latch, view));
-                }
-                view.invalidate();
-            }
-        });
-
-        try {
-            assertTrue("Draw pass did not occur within 5 seconds",
-                    latch.await(5, TimeUnit.SECONDS));
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private AppCompatActivityUtils() {
