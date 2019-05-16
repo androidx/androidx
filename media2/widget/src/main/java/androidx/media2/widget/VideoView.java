@@ -857,11 +857,10 @@ public class VideoView extends SelectiveLayout {
                 @Override
                 public void onSubtitleData(
                         @NonNull SessionPlayer player, @NonNull MediaItem item,
-                        @NonNull SubtitleData data) {
-                    final TrackInfo trackInfo = data.getTrackInfo();
+                        @NonNull TrackInfo track, @NonNull SubtitleData data) {
                     if (DEBUG) {
                         Log.d(TAG, "onSubtitleData():"
-                                + " getTrackInfo: " + trackInfo
+                                + " TrackInfo: " + track
                                 + ", getCurrentPosition: " + player.getCurrentPosition()
                                 + ", getStartTimeUs(): " + data.getStartTimeUs()
                                 + ", diff: "
@@ -880,12 +879,12 @@ public class VideoView extends SelectiveLayout {
                         }
                         return;
                     }
-                    if (!trackInfo.equals(mSelectedSubtitleTrackInfo)) {
+                    if (!track.equals(mSelectedSubtitleTrackInfo)) {
                         return;
                     }
-                    SubtitleTrack track = mSubtitleTracks.get(trackInfo);
-                    if (track != null) {
-                        track.onData(data);
+                    SubtitleTrack subtitleTrack = mSubtitleTracks.get(track);
+                    if (subtitleTrack != null) {
+                        subtitleTrack.onData(data);
                     }
                 }
 

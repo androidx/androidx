@@ -1837,7 +1837,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onSubtitleData(
-                    MediaPlayer2 mp, MediaItem item, SubtitleData data) {
+                    MediaPlayer2 mp, MediaItem item, int trackIdx, SubtitleData data) {
                 if (data != null && data.getData() != null) {
                     mOnSubtitleDataCalled.signal();
                 }
@@ -1916,7 +1916,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onSubtitleData(
-                    MediaPlayer2 mp, MediaItem item, SubtitleData data) {
+                    MediaPlayer2 mp, MediaItem item, int trackIdx, SubtitleData data) {
                 if (data != null) {
                     mOnSubtitleDataCalled.signal();
                 }

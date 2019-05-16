@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.media2.common.SessionPlayer.TrackInfo;
 
 import java.util.concurrent.Executor;
 
@@ -29,7 +28,6 @@ import java.util.concurrent.Executor;
  * {@link SessionPlayer.PlayerCallback#onSubtitleData} interface.
  * The subtitle data includes:
  * <ul>
- * <li> the track index</li>
  * <li> the start time (in microseconds) of the data</li>
  * <li> the duration (in microseconds) of the data</li>
  * <li> the actual data.</li>
@@ -41,7 +39,8 @@ import java.util.concurrent.Executor;
  * {@link #MIMETYPE_TEXT_VTT}.
  *
  * @see SessionPlayer#registerPlayerCallback(Executor, SessionPlayer.PlayerCallback)
- * @see SessionPlayer.PlayerCallback#onSubtitleData(SessionPlayer, MediaItem, SubtitleData)
+ * @see SessionPlayer.PlayerCallback#onSubtitleData(SessionPlayer, MediaItem,
+ *      SessionPlayer.TrackInfo, SubtitleData)
  *
  * @hide
  */
@@ -65,28 +64,16 @@ public final class SubtitleData {
      */
     public static final String MIMETYPE_TEXT_VTT = "text/vtt";
 
-    private TrackInfo mTrackInfo;
     private long mStartTimeUs;
     private long mDurationUs;
     private byte[] mData;
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    public SubtitleData(@NonNull TrackInfo trackInfo,
-            long startTimeUs, long durationUs, byte[] data) {
-        mTrackInfo = trackInfo;
+    public SubtitleData(long startTimeUs, long durationUs, byte[] data) {
         mStartTimeUs = startTimeUs;
         mDurationUs = durationUs;
         mData = data;
-    }
-
-    /**
-     * Gets the track which contains this subtitle data.
-     * @return the {@link TrackInfo} which contains this subtitle data.
-     */
-    @NonNull
-    public TrackInfo getTrackInfo() {
-        return mTrackInfo;
     }
 
     /**

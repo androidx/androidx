@@ -964,10 +964,11 @@ public abstract class MediaPlayer2 {
          * Called when when a player subtitle track has new subtitle data available.
          * @param mp the player that reports the new subtitle data
          * @param item the MediaItem of this media item
+         * @param trackIdx the index of the track that has the subtitle data
          * @param data the subtitle data
          */
-        public void onSubtitleData(
-                MediaPlayer2 mp, MediaItem item, @NonNull SubtitleData data) { }
+        public void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull MediaItem item,
+                int trackIdx, @NonNull SubtitleData data) { }
     }
 
     /**
