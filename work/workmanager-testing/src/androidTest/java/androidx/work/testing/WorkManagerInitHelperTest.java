@@ -24,7 +24,8 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
+import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import androidx.work.impl.WorkManagerImpl;
 
@@ -33,15 +34,20 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class WorkManagerInitHelperTest {
 
     private Context mContext;
+    private Executor mExecutor;
 
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
+        mExecutor = Executors.newSingleThreadExecutor();
     }
 
     @After
@@ -52,7 +58,13 @@ public class WorkManagerInitHelperTest {
 
     @Test
     public void testWorkManagerIsInitialized() {
-        WorkManagerTestInitHelper.initializeTestWorkManager(mContext);
-        assertThat(WorkManager.getInstance(mContext), is(notNullValue()));
+        Configuration configuration = new Configuration.Builder()
+                .setExecutor(mExecutor)
+                .build();
+
+        WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
+        WorkManagerImpl workManager = (WorkManagerImpl) WorkManager.getInstance(mContext);
+        assertThat(workManager, is(notNullValue()));
+        assertThat(workManager.getWorkTaskExecutor().getBackgroundExecutor(), is(mExecutor));
     }
 }
