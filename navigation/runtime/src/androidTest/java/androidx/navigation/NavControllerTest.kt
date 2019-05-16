@@ -327,6 +327,46 @@ class NavControllerTest {
     }
 
     @Test
+    fun testSaveRestoreAfterNavigateToDifferentNavGraph() {
+        val context = ApplicationProvider.getApplicationContext() as Context
+        var navController = NavController(context)
+        val navigator = SaveStateTestNavigator()
+        navController.navigatorProvider.addNavigator(navigator)
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
+
+        navController.navigate(deepLink)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.deep_link_child_second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.navigate(R.id.simple_child_start)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        val savedState = navController.saveState()
+        navController = NavController(context)
+        navController.navigatorProvider.addNavigator(navigator)
+
+        // Restore state doesn't recreate any graph
+        navController.restoreState(savedState)
+        assertThat(navController.currentDestination).isNull()
+
+        // Explicitly setting a graph then restores the state
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        // Save state should be called on the navigator exactly once
+        assertThat(navigator.saveStateCount).isEqualTo(1)
+    }
+
+    @Test
     fun testBackstackArgsBundleParceled() {
         val context = ApplicationProvider.getApplicationContext() as Context
         var navController = NavController(context)
