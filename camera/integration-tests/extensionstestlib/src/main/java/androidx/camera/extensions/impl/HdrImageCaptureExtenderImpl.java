@@ -50,7 +50,8 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     }
 
     @Override
-    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {}
+    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {
+    }
 
     @Override
     public boolean isExtensionAvailable(String cameraId,
@@ -111,7 +112,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
                             return;
                         }
 
-                        if (!results.containsKey(OVER_STAGE_ID)) {
+                        if (!results.containsKey(NORMAL_STAGE_ID)) {
                             Log.w(TAG,
                                     "Unable to process since images does not contain normal "
                                             + "exposed image.");
