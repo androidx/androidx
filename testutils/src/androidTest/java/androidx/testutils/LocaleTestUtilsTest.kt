@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.viewpager2
+package androidx.testutils
 
 import android.content.Context
 import android.content.res.Configuration
@@ -25,10 +25,10 @@ import androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers
 import org.junit.After
-import org.junit.Assert.assertThat
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,7 +40,8 @@ private val DEFAULT_LANGUAGE = Locale.getDefault().toString()
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class LocaleTestUtilsTest {
-    private val configuration: Configuration get() =
+    private val configuration: Configuration
+        get() =
         (ApplicationProvider.getApplicationContext() as Context).resources.configuration
     private val Configuration.language: String get() =
         ConfigurationCompat.getLocales(this).get(0).toString()
@@ -51,7 +52,8 @@ class LocaleTestUtilsTest {
     @Before
     fun setUp() {
         localeUtil = LocaleTestUtils(
-            ApplicationProvider.getApplicationContext() as android.content.Context)
+            ApplicationProvider.getApplicationContext() as Context
+        )
         determineDefaultLayoutDirection()
     }
 
@@ -84,12 +86,24 @@ class LocaleTestUtilsTest {
         val getReason: (String, String) -> String = { name, code ->
             "$name test language '$code' does not exist on test device"
         }
-        assertThat(getReason("Default", LocaleTestUtils.DEFAULT_TEST_LANGUAGE),
-            LocaleTestUtils.DEFAULT_TEST_LANGUAGE, Matchers.isIn(availableLanguages))
-        assertThat(getReason("LTR", LocaleTestUtils.LTR_LANGUAGE),
-            LocaleTestUtils.LTR_LANGUAGE, Matchers.isIn(availableLanguages))
-        assertThat(getReason("RTL", LocaleTestUtils.RTL_LANGUAGE),
-            LocaleTestUtils.RTL_LANGUAGE, Matchers.isIn(availableLanguages))
+        Assert.assertThat(
+            getReason(
+                "Default",
+                LocaleTestUtils.DEFAULT_TEST_LANGUAGE
+            ),
+            LocaleTestUtils.DEFAULT_TEST_LANGUAGE,
+            Matchers.isIn(availableLanguages)
+        )
+        Assert.assertThat(
+            getReason("LTR", LocaleTestUtils.LTR_LANGUAGE),
+            LocaleTestUtils.LTR_LANGUAGE,
+            Matchers.isIn(availableLanguages)
+        )
+        Assert.assertThat(
+            getReason("RTL", LocaleTestUtils.RTL_LANGUAGE),
+            LocaleTestUtils.RTL_LANGUAGE,
+            Matchers.isIn(availableLanguages)
+        )
     }
 
     private fun assertDefaultValues() {
@@ -97,25 +111,25 @@ class LocaleTestUtilsTest {
     }
 
     private fun assertLocaleIs(lang: String, expectRtl: Boolean) {
-        assertThat(
+        Assert.assertThat(
             "Locale should be $lang",
             configuration.language,
-            equalTo(lang)
+            CoreMatchers.equalTo(lang)
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            assertThat(
+            Assert.assertThat(
                 "Layout direction should be ${if (expectRtl) "RTL" else "LTR"}",
                 configuration.layoutDirection,
-                equalTo(if (expectRtl) LAYOUT_DIRECTION_RTL else LAYOUT_DIRECTION_LTR)
+                CoreMatchers.equalTo(if (expectRtl) LAYOUT_DIRECTION_RTL else LAYOUT_DIRECTION_LTR)
             )
         }
     }
 
     private fun determineDefaultLayoutDirection() {
-        assertThat(
+        Assert.assertThat(
             "Locale must still be the default when determining the default layout direction",
             configuration.language,
-            equalTo(DEFAULT_LANGUAGE)
+            CoreMatchers.equalTo(DEFAULT_LANGUAGE)
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             expectRtlInDefaultLanguage = configuration.layoutDirection == LAYOUT_DIRECTION_RTL

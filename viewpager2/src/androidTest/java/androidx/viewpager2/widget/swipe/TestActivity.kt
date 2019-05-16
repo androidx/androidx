@@ -17,8 +17,8 @@
 package androidx.viewpager2.widget.swipe
 
 import android.os.Bundle
+import androidx.testutils.LocaleTestUtils
 import androidx.testutils.RecreatedAppCompatActivity
-import androidx.viewpager2.LocaleTestUtils
 import androidx.viewpager2.test.R
 
 class TestActivity : RecreatedAppCompatActivity() {

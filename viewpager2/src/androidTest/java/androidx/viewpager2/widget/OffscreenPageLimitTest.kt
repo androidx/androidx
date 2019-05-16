@@ -20,7 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.filters.LargeTest
-import androidx.viewpager2.LocaleTestUtils
+import androidx.testutils.LocaleTestUtils
 import androidx.viewpager2.widget.OffscreenPageLimitTest.Event.OnChildViewAdded
 import androidx.viewpager2.widget.OffscreenPageLimitTest.Event.OnChildViewRemoved
 import androidx.viewpager2.widget.OffscreenPageLimitTest.Event.OnPageScrollStateChangedEvent

@@ -120,6 +120,11 @@
         <item>38</item>
         <item>39</item>
     </string-array>
+    <string-array name="numbers_array_small">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 
     <string name="night_mode">DAY</string>
 
