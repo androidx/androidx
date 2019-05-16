@@ -26,6 +26,7 @@ import androidx.ui.core.round
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Wrap
 import androidx.ui.painting.Image
+import androidx.ui.painting.ImageConfig
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -82,6 +83,6 @@ class FloatingActionButtonUiTest {
 
     private fun createImage() = withDensity(composeTestRule.density) {
         val size = 24.dp.toIntPx().value
-        Image(Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888))
+        Image(size, size, ImageConfig.Argb8888)
     }
 }

@@ -273,7 +273,7 @@ internal class ParagraphAndroid constructor(
         val tmpLayout = layout ?: throw IllegalStateException("paint cannot be " +
                 "called before layout() is called")
         canvas.translate(x, y)
-        tmpLayout.paint(canvas.toFrameworkCanvas())
+        tmpLayout.paint(canvas.nativeCanvas)
         canvas.translate(-x, -y)
     }
 
