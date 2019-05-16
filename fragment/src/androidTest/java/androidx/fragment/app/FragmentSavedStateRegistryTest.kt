@@ -25,8 +25,8 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
-import androidx.testutils.FragmentActivityUtils.recreateActivity
 import androidx.testutils.RecreatedActivity
+import androidx.testutils.recreate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -55,7 +55,7 @@ class FragmentSavedStateRegistryTest {
     @Test
     fun savedState() {
         initializeSavedState()
-        val recreated = recreateActivity(activityRule, activityRule.activity)
+        val recreated = activityRule.recreate()
         activityRule.runOnUiThread {
             assertThat(recreated.fragment().lifecycle.currentState.isAtLeast(CREATED)).isTrue()
             checkDefaultSavedState(recreated.fragment().savedStateRegistry)
@@ -65,7 +65,7 @@ class FragmentSavedStateRegistryTest {
     @Test
     fun savedStateLateInit() {
         initializeSavedState()
-        val recreated = recreateActivity(activityRule, activityRule.activity)
+        val recreated = activityRule.recreate()
         activityRule.runOnUiThread {
             recreated.fragment().lifecycle.addObserver(object : LifecycleObserver {
                 @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
@@ -79,7 +79,7 @@ class FragmentSavedStateRegistryTest {
     @Test
     fun savedStateEarlyRegister() {
         initializeSavedState(OnCreateCheckingFragment())
-        recreateActivity(activityRule, activityRule.activity)
+        activityRule.recreate()
     }
 }
 

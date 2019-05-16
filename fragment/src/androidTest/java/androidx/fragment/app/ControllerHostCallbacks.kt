@@ -25,6 +25,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.test.rule.ActivityTestRule
+import androidx.testutils.runOnUiThreadRethrow
 import java.io.FileDescriptor
 import java.io.PrintWriter
 

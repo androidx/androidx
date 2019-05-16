@@ -17,42 +17,15 @@ package androidx.fragment.app
 
 import android.app.Activity
 import android.os.Build
-import android.os.Looper
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
+import androidx.testutils.runOnUiThreadRethrow
 import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.WeakReference
 import java.util.ArrayList
-
-fun ActivityTestRule<out FragmentActivity>.waitForExecution() {
-    // Wait for two cycles. When starting a postponed transition, it will post to
-    // the UI thread and then the execution will be added onto the queue after that.
-    // The two-cycle wait makes sure fragments have the opportunity to complete both
-    // before returning.
-    try {
-        runOnUiThread {}
-        runOnUiThread {}
-    } catch (throwable: Throwable) {
-        throw RuntimeException(throwable)
-    }
-}
-
-fun ActivityTestRule<out Activity>.runOnUiThreadRethrow(block: () -> Unit) {
-    if (Looper.getMainLooper() == Looper.myLooper()) {
-        block()
-    } else {
-        try {
-            runOnUiThread {
-                block()
-            }
-        } catch (t: Throwable) {
-            throw RuntimeException(t)
-        }
-    }
-}
 
 fun ActivityTestRule<out FragmentActivity>.executePendingTransactions(
     fm: FragmentManager = activity.supportFragmentManager

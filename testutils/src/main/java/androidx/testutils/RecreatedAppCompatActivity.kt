@@ -19,12 +19,15 @@ package androidx.testutils
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.test.rule.ActivityTestRule
+import org.junit.Assert.assertTrue
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * Extension of [AppCompatActivity] that keeps track of when it is recreated.
  * In order to use this class, have your activity extend it and call
- * [AppCompatActivityUtils.recreateActivity] API.
+ * [recreate] API.
  */
 open class RecreatedAppCompatActivity(
     @LayoutRes contentLayoutId: Int = 0
@@ -46,19 +49,40 @@ open class RecreatedAppCompatActivity(
     }
 
     companion object {
-        // These must be cleared after each test using clearState()
         @JvmStatic
         var activity: RecreatedAppCompatActivity? = null
         @JvmStatic
-        var resumedLatch: CountDownLatch? = null
+        internal var resumedLatch: CountDownLatch? = null
         @JvmStatic
-        var destroyedLatch: CountDownLatch? = null
+        internal var destroyedLatch: CountDownLatch? = null
 
         @JvmStatic
-        fun clearState() {
+        internal fun clearState() {
             activity = null
             resumedLatch = null
             destroyedLatch = null
         }
     }
+}
+
+/**
+ * Restarts the [RecreatedAppCompatActivity] and waits for the new activity to be resumed.
+ *
+ * @return The newly-restarted [RecreatedAppCompatActivity]
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T : RecreatedAppCompatActivity> ActivityTestRule<T>.recreate(): T {
+    // Now switch the orientation
+    RecreatedAppCompatActivity.resumedLatch = CountDownLatch(1)
+    RecreatedAppCompatActivity.destroyedLatch = CountDownLatch(1)
+
+    runOnUiThreadRethrow { activity.recreate() }
+    assertTrue(RecreatedAppCompatActivity.resumedLatch!!.await(1, TimeUnit.SECONDS))
+    assertTrue(RecreatedAppCompatActivity.destroyedLatch!!.await(1, TimeUnit.SECONDS))
+    val newActivity = RecreatedAppCompatActivity.activity as T
+
+    waitForExecution()
+
+    RecreatedAppCompatActivity.clearState()
+    return newActivity
 }
