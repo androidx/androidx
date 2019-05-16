@@ -54,6 +54,9 @@ public class MainActivity extends AppCompatActivity {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.force_dark_activity_title),
                         new Intent(activityContext, ForceDarkActivity.class)),
+                new MenuListView.MenuItem(
+                        getResources().getString(R.string.multi_process_enabled_activity_title),
+                        new Intent(activityContext, MultiProcessEnabledActivity.class)),
         };
         listView.setItems(menuItems);
     }
