@@ -57,27 +57,27 @@ fun applyFloatingPointHack(layoutValue: Float): Float {
  * If the width of the area into which the text is being painted changes, return to step 2. If the
  *  text to be painted changes, return to step 1.
  *
- * * `text`: The (potentially styled) text to paint. After this is set, you must call [layout]
+ * @param text The (potentially styled) text to paint. After this is set, you must call [layout]
  *   before the next call to [paint]. This and [textDirection] must be non-null before you call
  *   [layout].
  *
- * * `textAlign`: How the text should be aligned horizontally. After this is set, you must call
+ * @param textAlign How the text should be aligned horizontally. After this is set, you must call
  *    [layout] before the next call to [paint]. The [textAlign] property must not be null.
  *
- * * `textDirection`: The default directionality of the text. This controls how the
+ * @param textDirection The default directionality of the text. This controls how the
  *   [TextAlign.start], [TextAlign.end], and [TextAlign.justify] values of [textAlign] are resolved.
  *   After this is set, you must call [layout] before the next call to [paint]. This and [text] must
  *   be non-null before you call [layout].
  *
- * * `textScaleFactor`: The number of font pixels for each logical pixel.
+ * @param textScaleFactor The number of font pixels for each logical pixel.
  *   After this is set, you must call [layout] before the next call to [paint].
  *
- * * `maxLines`: An optional maximum number of lines for the text to span, wrapping if necessary.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
  *   If the text exceeds the given number of lines, it is truncated such that subsequent lines are
  *   dropped.
  *   After this is set, you must call [layout] before the next call to [paint].
  *
- * * `ellipsis`: Whether to ellipsize overflowing text. Setting this to true
+ * @param ellipsis Whether to ellipsize overflowing text. Setting this to true
  *   string will cause the overflowing text to be ellipsized if the text can not fit
  *   within the specified maximum width.
  *   Specifically, the ellipsis is applied to the last line before the line truncated by [maxLines],
@@ -86,7 +86,7 @@ fun applyFloatingPointHack(layoutValue: Float): Float {
  *   The higher layers of the system, such as the [Text] widget, represent overflow effects using
  *   the [TextOverflow] enum.
  *
- *   `locale`: The locale used to select region-specific glyphs.
+ * @param locale The locale used to select region-specific glyphs.
  */
 class TextPainter(
     text: TextSpan? = null,

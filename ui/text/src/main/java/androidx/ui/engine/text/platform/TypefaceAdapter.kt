@@ -17,7 +17,6 @@
 package androidx.ui.engine.text.platform
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Typeface
 import android.os.Build
 import androidx.collection.LruCache
@@ -103,7 +102,7 @@ internal open class TypefaceAdapter constructor(
      * Creates a Typeface object based on the system installed fonts. [genericFontFamily] is used
      * to define the main family to create the Typeface such as serif, sans-serif.
      *
-     * [fontWeight] is used to define the tickness of the Typeface. Before Android 28 font weight
+     * [fontWeight] is used to define the thickness of the Typeface. Before Android 28 font weight
      * cannot be defined therefore this function assumes anything at and above [FontWeight.w600]
      * is bold and any value less than [FontWeight.w600] is normal.
      *
@@ -156,11 +155,12 @@ internal open class TypefaceAdapter constructor(
      * returned. If it does not, the matching is defined based on CSS Font Matching. See
      * [FontMatcher] for more information.
      *
-     * @param fontWeight the font weight to create the typeface in
      * @param fontStyle the font style to create the typeface in
+     * @param fontWeight the font weight to create the typeface in
      * @param fontFamily [FontFamily] that contains the list of [Font]s
      * @param context [Context] instance
-     * @param resources [Resources] instance
+     * @param fontSynthesis [FontSynthesis] which attributes of the font family to synthesize
+     *        custom fonts for if they are not already present in the font family
      */
     private fun create(
         fontStyle: FontStyle = FontStyle.normal,

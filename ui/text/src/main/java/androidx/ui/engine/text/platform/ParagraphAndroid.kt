@@ -121,7 +121,7 @@ internal class ParagraphAndroid constructor(
     val didExceedMaxLines: Boolean
         get() = layout?.let { it.didExceedMaxLines } ?: false
 
-    // TODO(Migraition/haoyuchang): more getters needed to access the values in textPaint.
+    // TODO(Migration/haoyuchang): more getters needed to access the values in textPaint.
     val textLocale: Locale
         get() = textPaint.textLocale
 
