@@ -30,12 +30,16 @@ internal object ResultWriter {
     fun appendReport(report: BenchmarkState.Report) {
         reports.add(report)
 
-        // Currently, we just overwrite the whole file
-        // Ideally, append for efficiency
-        val packageName = InstrumentationRegistry.getInstrumentation().targetContext!!.packageName
-        val filePath = getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
-        val file = File(filePath, "$packageName-benchmarkData.json")
-        writeReport(file, reports)
+        val arguments = InstrumentationRegistry.getArguments()
+        if (arguments.getString("androidx.benchmark.output.enable")?.toLowerCase() == "true") {
+            // Currently, we just overwrite the whole file
+            // Ideally, append for efficiency
+            val packageName =
+                InstrumentationRegistry.getInstrumentation().targetContext!!.packageName
+            val filePath = getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
+            val file = File(filePath, "$packageName-benchmarkData.json")
+            writeReport(file, reports)
+        }
     }
 
     @VisibleForTesting
