@@ -77,37 +77,45 @@ internal class PressReleaseGestureRecognizer {
     private var pointerCount = 0
     private var shouldRespondToUp = false
 
-    val pointerInputHandler = { event: PointerInputChange, pass: PointerEventPass ->
-        var pointerEvent: PointerInputChange = event
+    val pointerInputHandler =
+        { changes: List<PointerInputChange>, pass: PointerEventPass ->
+            changes.map { processChange(it, pass) }
+        }
 
-        if (pass == PointerEventPass.InitialDown && pointerEvent.changedToDownIgnoreConsumed()) {
+    private fun processChange(
+        pointerInputChange: PointerInputChange,
+        pass: PointerEventPass
+    ): PointerInputChange {
+        var change = pointerInputChange
+
+        if (pass == PointerEventPass.InitialDown && change.changedToDownIgnoreConsumed()) {
             pointerCount++
         }
 
         if (pass == PointerEventPass.PostUp && pointerCount == 1) {
-            if (pointerEvent.changedToDown()) {
+            if (change.changedToDown()) {
                 shouldRespondToUp = true
                 if (consumeDownOnStart) {
-                    pointerEvent = pointerEvent.consumeDownChange()
+                    change = change.consumeDownChange()
                 }
             }
-            if (shouldRespondToUp && pointerEvent.changedToUp()) {
+            if (shouldRespondToUp && change.changedToUp()) {
                 onRelease?.invoke()
-                pointerEvent = pointerEvent.consumeDownChange()
+                change = change.consumeDownChange()
             }
         }
 
-        if (pass == PointerEventPass.PostDown && event.anyPositionChangeConsumed()) {
+        if (pass == PointerEventPass.PostDown && change.anyPositionChangeConsumed()) {
             shouldRespondToUp = false
         }
 
-        if (pass == PointerEventPass.PostDown && pointerEvent.changedToUpIgnoreConsumed()) {
+        if (pass == PointerEventPass.PostDown && change.changedToUpIgnoreConsumed()) {
             pointerCount--
             if (pointerCount == 0) {
                 shouldRespondToUp = false
             }
         }
 
-        pointerEvent
+        return change
     }
 }
