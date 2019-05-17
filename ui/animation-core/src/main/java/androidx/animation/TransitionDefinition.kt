@@ -48,16 +48,21 @@ import kotlin.experimental.ExperimentalTypeInference
  *  }
  * ```
  **/
-class TransitionSpec {
+class TransitionSpec<S> internal constructor() {
     /**
      * The state that the transition is going from. It defaults to null, meaning any state.
      */
-    internal var fromState: Any? = null
+    internal var fromState: S? = null
 
     /**
      * The state that the transition is going to. It defaults to null, meaning any state.
      */
-    internal var toState: Any? = null
+    internal var toState: S? = null
+
+    /**
+     * Optional state where should we start switching after this transition finishing.
+     */
+    var nextState: S? = null
 
     /**
      * The interruption handling mechanism. The default interruption handling is
@@ -72,10 +77,15 @@ class TransitionSpec {
      */
     var interruptionHandling: InterruptionHandling = InterruptionHandling.PHYSICS
 
+    /**
+     * The default animation to use when it wasn't explicitly provided for a property
+     */
+    internal var defaultAnimation: () -> Animation<Any> = { Physics() }
+
     private val propAnimation: MutableMap<PropKey<*>, Animation<*>> = mutableMapOf()
     internal fun <T> getAnimationForProp(prop: PropKey<T>): Animation<T> {
         @Suppress("UNCHECKED_CAST")
-        return (propAnimation.getOrPut(prop) { Physics<T>() }) as Animation<T>
+        return (propAnimation.getOrPut(prop, defaultAnimation)) as Animation<T>
     }
 
     /**
@@ -118,6 +128,11 @@ class TransitionSpec {
      */
     fun <T> repeatable(init: RepeatableBuilder<T>.() -> Unit): AnimationBuilder<T> =
         RepeatableBuilder<T>().apply(init)
+
+    /**
+     * Creates a Snap animation for immediately switching the animating value to the end value.
+     */
+    fun <T> snap(): AnimationBuilder<T> = SnapBuilder()
 }
 
 /**
@@ -127,11 +142,11 @@ class TransitionSpec {
 class TransitionDefinition<T> {
     internal val states: MutableMap<T, StateImpl<T>> = mutableMapOf()
     internal lateinit var defaultState: StateImpl<T>
-    private val transitionSpecs: MutableList<TransitionSpec> = mutableListOf()
+    private val transitionSpecs: MutableList<TransitionSpec<T>> = mutableListOf()
 
     // TODO: Consider also having the initial defined at call site for cases where many components
     // share the same transition def
-    private val defaultTransitionSpec = TransitionSpec()
+    private val defaultTransitionSpec = TransitionSpec<T>()
 
     /**
      * Defines all the properties and their values associated with the state with the name: [name]
@@ -160,10 +175,10 @@ class TransitionDefinition<T> {
      *
      * @param fromState The state that the transition will be animated from
      * @param toState The state that the transition will be animated to
-     * @param init Lambda to initialized the transition
+     * @param init Lambda to initialize the transition
      */
-    fun transition(fromState: T? = null, toState: T? = null, init: TransitionSpec.() -> Unit) {
-        val newSpec = TransitionSpec().apply(init)
+    fun transition(fromState: T? = null, toState: T? = null, init: TransitionSpec<T>.() -> Unit) {
+        val newSpec = TransitionSpec<T>().apply(init)
         newSpec.fromState = fromState
         newSpec.toState = toState
         transitionSpecs.add(newSpec)
@@ -176,19 +191,35 @@ class TransitionDefinition<T> {
      * values in the pair can be null. When they are null, it means a wildcard transition going
      * from/to any state.
      *
-     * @param fromState The state that the transition will be animated from
-     * @param toState The state that the transition will be animated to
-     * @param init Lambda to initialized the transition
+     * Sample of usage with [Pair]s infix extension [to]:
+     *     transition(State.Released to State.Pressed) {
+     *         ...
+     *     }
+     *
+     * @param fromToPair The pair of states for this transition
+     * @param init Lambda to initialize the transition
      */
     // TODO: support a list of (from, to) pairs
-    fun transition(fromToPair: Pair<T?, T?>, init: TransitionSpec.() -> Unit) {
-        val newSpec = TransitionSpec().apply(init)
-        newSpec.fromState = fromToPair.first
-        newSpec.toState = fromToPair.second
-        transitionSpecs.add(newSpec)
-    }
+    fun transition(fromToPair: Pair<T?, T?>, init: TransitionSpec<T>.() -> Unit) =
+        transition(fromToPair.first, fromToPair.second, init)
 
-    internal fun getSpec(fromState: T, toState: T): TransitionSpec {
+    /**
+     * With this transition definition we are saying that every time we reach the
+     * state 'from' we should immediately snap to 'to' state instead.
+     *
+     * Sample of usage with [Pair]s infix extension [to]:
+     *     snapTransition(State.Released to State.Pressed)
+     *
+     * @param fromToPair The pair of states for this transition
+     * @param nextState Optional state where should we start switching after snap
+     */
+    fun snapTransition(fromToPair: Pair<T?, T?>, nextState: T? = null) =
+        transition(fromToPair) {
+            this.nextState = nextState
+            defaultAnimation = { Snap() }
+        }
+
+    internal fun getSpec(fromState: T, toState: T): TransitionSpec<T> {
         return transitionSpecs.firstOrNull { it.fromState == fromState && it.toState == toState }
             ?: transitionSpecs.firstOrNull { it.fromState == fromState && it.toState == null }
             ?: transitionSpecs.firstOrNull { it.fromState == null && it.toState == toState }

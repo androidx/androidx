@@ -297,9 +297,7 @@ private fun generateTransitionDefinition(
         this[ColorProp] = selectedColor
     }
     transition(fromState = false, toState = true) {
-        ColorProp using tween {
-            duration = 0
-        }
+        ColorProp using snap()
         OuterRadiusProp using keyframes {
             val smallerOuter = RadioRadius - OuterOffsetDuringAnimation + RadioStrokeWidth / 2
             duration = TotalDuration
@@ -318,9 +316,7 @@ private fun generateTransitionDefinition(
         }
     }
     transition(fromState = true, toState = false) {
-        ColorProp using tween {
-            duration = 0
-        }
+        ColorProp using snap()
         OuterRadiusProp using keyframes {
             val smallerOuter = RadioRadius - OuterOffsetDuringAnimation + RadioStrokeWidth / 2
             duration = TotalDuration
