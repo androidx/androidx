@@ -274,13 +274,13 @@ open class BaseTest {
                     isUserInputEnabled && isVerticalOrientation &&
                     currentPage < numPages - 1
 
-            val expectScrollBackwardAction = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP &&
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
-                    isUserInputEnabled && currentPage > 0
+            val expectScrollBackwardAction =
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && isUserInputEnabled &&
+                        currentPage > 0
 
-            val expectScrollForwardAction = Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP &&
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
-                    isUserInputEnabled && currentPage < numPages - 1
+            val expectScrollForwardAction =
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && isUserInputEnabled &&
+                        currentPage < numPages - 1
 
             assertThat("Left action expected: $expectPageLeftAction",
                 hasPageAction(customActions, ACTION_PAGE_LEFT.id),

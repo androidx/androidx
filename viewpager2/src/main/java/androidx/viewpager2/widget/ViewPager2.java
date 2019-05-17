@@ -929,22 +929,20 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     private void addScrollActions(AccessibilityNodeInfo info) {
-        if (Build.VERSION.SDK_INT < 21) {
-            if (getAdapter() == null) {
-                return;
-            }
-            int itemCount = mRecyclerView.getAdapter().getItemCount();
-            if (itemCount == 0 || !mUserInputEnabled) {
-                return;
-            }
-            if (mCurrentItem > 0) {
-                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
-            }
-            if (mCurrentItem < itemCount - 1) {
-                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
-            }
-            info.setScrollable(true);
+        if (getAdapter() == null) {
+            return;
         }
+        int itemCount = mRecyclerView.getAdapter().getItemCount();
+        if (itemCount == 0 || !mUserInputEnabled) {
+            return;
+        }
+        if (mCurrentItem > 0) {
+            info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+        }
+        if (mCurrentItem < itemCount - 1) {
+            info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+        }
+        info.setScrollable(true);
     }
 
     @Override
