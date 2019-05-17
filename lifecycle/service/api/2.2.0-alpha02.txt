@@ -5,7 +5,7 @@ package androidx.lifecycle {
     ctor public LifecycleService();
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method @CallSuper public android.os.IBinder? onBind(android.content.Intent);
-    method @CallSuper public void onStart(android.content.Intent, int);
+    method @CallSuper public void onStart(android.content.Intent?, int);
   }
 
   public class ServiceLifecycleDispatcher {
