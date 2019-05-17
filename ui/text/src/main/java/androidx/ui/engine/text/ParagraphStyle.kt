@@ -24,43 +24,43 @@ import androidx.ui.engine.window.Locale
  *
  * Creates a new ParagraphStyle object.
  *
- * * `textAlign`: The alignment of the text within the lines of the
+ * @param textAlign The alignment of the text within the lines of the
  *   paragraph. If the last line is ellipsized (see `ellipsis` below), the
  *   alignment is applied to that line after it has been truncated but before
  *   the ellipsis has been added.
  *
- * * `textDirection`: The directionality of the text, left-to-right (e.g.
+ * @param textDirection The directionality of the text, left-to-right (e.g.
  *   Norwegian) or right-to-left (e.g. Hebrew). This controls the overall
  *   directionality of the paragraph, as well as the meaning of
  *   [TextAlign.START] and [TextAlign.END] in the `textAlign` field.
  *
- * * `fontWeight`: The typeface thickness to use when painting the text
+ * @param fontWeight The typeface thickness to use when painting the text
  *   (e.g., bold).
  *
- * * `fontStyle`: The typeface variant to use when drawing the letters (e.g.,
+ * @param fontStyle The typeface variant to use when drawing the letters (e.g.,
  *   italics).
  *
- * * `maxLines`: The maximum number of lines painted. Lines beyond this
+ * @param maxLines The maximum number of lines painted. Lines beyond this
  *   number are silently dropped. For example, if `maxLines` is 1, then only
  *   one line is rendered.
  *
- * * `fontFamily`: The name of the font to use when painting the text (e.g.,
+ * @param fontFamily The name of the font to use when painting the text (e.g.,
  *   Roboto).
  *
- * * `fontSize`: The size of glyphs (in logical pixels) to use when painting
+ * @param fontSize The size of glyphs (in logical pixels) to use when painting
  *   the text.
  *
- * * `lineHeight`: The minimum height of the line boxes, as a multiple of the
+ * @param lineHeight The minimum height of the line boxes, as a multiple of the
  *   font size.
  *
- * * `ellipsis`: Whether to ellipsize overflowing text. If `maxLines` is
+ * @param ellipsis Whether to ellipsize overflowing text. If `maxLines` is
  *   not null, ellipsis is applied to the last rendered line, if that line
  *   overflows the width constraints. If `maxLines` is null, it will never
  *   be applied. If ellipsis is null, the system default will be adopted.
  *
- * * `locale`: The locale used to select region-specific glyphs.
+ * @param locale The locale used to select region-specific glyphs.
  *
- * * `fontSynthesis`: Whether to synthesize font weight and/or style when the requested weight or
+ * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight or
  *                   style cannot be found in the provided custom font family.
  */
 data class ParagraphStyle constructor(

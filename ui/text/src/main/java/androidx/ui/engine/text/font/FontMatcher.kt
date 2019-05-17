@@ -21,7 +21,7 @@ import androidx.ui.engine.text.FontWeight
 
 /**
  * Given a [FontFamily], [FontWeight] and [FontStyle], matches the best font in the [FontFamily]
- * that satisifies the requirements of [FontWeight] and [FontStyle].
+ * that satisfies the requirements of [FontWeight] and [FontStyle].
  *
  * For the case without font synthesis, applies the rules at
  * [CSS 4 Font Matching](https://www.w3.org/TR/css-fonts-4/#font-style-matching).
@@ -30,8 +30,8 @@ internal open class FontMatcher {
 
     /**
      * Given a [FontFamily], [FontWeight] and [FontStyle], matches the best font in the
-     * [FontFamily] that satisifies the requirements of [FontWeight] and [FontStyle]. If there is
-     * not a font that exactly satifies the given constraints of [FontWeight] and [FontStyle], the
+     * [FontFamily] that satisfies the requirements of [FontWeight] and [FontStyle]. If there is
+     * not a font that exactly satisfies the given constraints of [FontWeight] and [FontStyle], the
      * best match will be returned. The rules for the best match are defined in
      * [CSS 4 Font Matching](https://www.w3.org/TR/css-fonts-4/#font-style-matching).
      *

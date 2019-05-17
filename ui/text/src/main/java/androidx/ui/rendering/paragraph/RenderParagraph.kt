@@ -49,34 +49,30 @@ private val DEFAULT_SELECTION_COLOR = Color(0x6633B5E5)
  *
  * Creates a paragraph render object.
  *
- * * `text`: The text to display.
- *   Must not be null.
+ * @param text The text to display.
  *
- * * `textAlign`: How the text should be aligned horizontally.
- *   Must not be null.
+ * @param textAlign How the text should be aligned horizontally.
  *
- * * `textDirection`: The directionality of the text.
+ * @param textDirection The directionality of the text.
  *   This decides how the [TextAlign.start], [TextAlign.end], and [TextAlign.justify] values of
  *   [textAlign] are interpreted.
- *   Must not be null.
  *
- * * `softWrap`: Whether the text should break at soft line breaks.
+ * @param softWrap Whether the text should break at soft line breaks.
  *   If false, the glyphs in the text will be positioned as if there was unlimited horizontal space.
  *   If [softWrap] is false, [overflow] and [textAlign] may have unexpected effects.
- *   Must not be null.
  *
- * * `overflow`: How visual overflow should be handled.
- *   Must not be null.
+ * @param overflow How visual overflow should be handled.
  *
- * * `textScaleFactor`: The number of font pixels for each logical pixel.
+ * @param textScaleFactor The number of font pixels for each logical pixel.
  *   For example, if the text scale factor is 1.5, text will be 50% larger than the specified font
  *   size.
- *   Must not be null.
  *
- * * `maxLines`: An optional maximum number of lines for the text to span, wrapping if necessary.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
  *   If the text exceeds the given number of lines, it will be truncated according to [overflow] and
  *   [softWrap].
  *   The value may be null. If it is not null, then it must be greater than zero.
+ *
+ * @param selectionColor The highlight color when the text is selected.
  */
 
 class RenderParagraph(
