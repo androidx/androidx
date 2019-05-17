@@ -110,7 +110,7 @@ fun DragGestureDetector(
         recognizer.touchSlop = TouchSlop.toIntPx()
     }
 
-    PointerInputWrapper(pointerInputHandler=recognizer.pointerInputHandler) {
+    PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
         children()
     }
 }
@@ -124,7 +124,15 @@ internal class DragGestureRecognizer {
     var canDrag: ((Direction) -> Boolean)? = null
     var dragObserver: DragObserver? = null
 
-    val pointerInputHandler = { pointerInputChange: PointerInputChange, pass: PointerEventPass ->
+    val pointerInputHandler =
+        { changes: List<PointerInputChange>, pass: PointerEventPass ->
+            changes.map { processChange(it, pass) }
+        }
+
+    private fun processChange(
+        pointerInputChange: PointerInputChange,
+        pass: PointerEventPass
+    ): PointerInputChange {
         var change: PointerInputChange = pointerInputChange
 
         if (pass == PointerEventPass.InitialDown && change.changedToDownIgnoreConsumed()) {
@@ -251,15 +259,15 @@ internal class DragGestureRecognizer {
                         change = dragObserver?.run {
                             val (consumedDx, consumedDy) = onDrag(
                                 PxPosition(
-                                    dx.px/pointerCount,
-                                    dy.px/pointerCount
+                                    dx.px / pointerCount,
+                                    dy.px / pointerCount
                                 )
                             )
-                            pointerInputChange.consumePositionChange(
+                            change.consumePositionChange(
                                 consumedDx,
                                 consumedDy
                             )
-                        } ?: pointerInputChange
+                        } ?: change
                     }
                 }
             }
@@ -269,7 +277,7 @@ internal class DragGestureRecognizer {
             pointerCount--
         }
 
-        change
+        return change
     }
 
     internal data class PointerTrackingData(

@@ -19,14 +19,23 @@ package androidx.ui.core.pointerinput
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
+import androidx.ui.core.PointerInputHandler
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Timestamp
 import androidx.ui.core.ipx
 
-open class MyPointerInputHandler() :
-    Function2<PointerInputChange, PointerEventPass, PointerInputChange> {
-    var modifyBlock: ((PointerInputChange, PointerEventPass) -> PointerInputChange)? = null
-    override fun invoke(p1: PointerInputChange, p2: PointerEventPass): PointerInputChange {
+/**
+ * This class enables Mockito to spy.
+ *
+ * It also allows the setting of a [modifyBlock] which is also a [PointerInputHandler] and enables
+ * the processing of incoming [PointerInputChange]s.
+ */
+open class MyPointerInputHandler : PointerInputHandler {
+    var modifyBlock: PointerInputHandler? = null
+    override fun invoke(
+        p1: List<PointerInputChange>,
+        p2: PointerEventPass
+    ): List<PointerInputChange> {
         return modifyBlock?.invoke(p1, p2) ?: p1
     }
 }
