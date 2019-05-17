@@ -105,7 +105,8 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     @Override
     public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
         // User started a drag (not dragging -> dragging)
-        if (mAdapterState != STATE_IN_PROGRESS_MANUAL_DRAG
+        if ((mAdapterState != STATE_IN_PROGRESS_MANUAL_DRAG
+                || mScrollState != SCROLL_STATE_DRAGGING)
                 && newState == RecyclerView.SCROLL_STATE_DRAGGING) {
             startDrag(false);
             return;
@@ -262,7 +263,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         mFakeDragging = isFakeDrag;
         mAdapterState = isFakeDrag ? STATE_IN_PROGRESS_FAKE_DRAG : STATE_IN_PROGRESS_MANUAL_DRAG;
         if (mTarget != NO_POSITION) {
-            // Target was set means programmatic scroll was in progress
+            // Target was set means we were settling to that target
             // Update "drag start page" to reflect the page that ViewPager2 thinks it is at
             mDragStartPosition = mTarget;
             // Reset target because drags have no target until released
