@@ -763,6 +763,9 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
+    /**
+     * This also tests {@link MediaController#getAllowedCommands()}.
+     */
     @Test
     public void testOnAllowedCommandsChanged() throws InterruptedException {
         prepareLooper();
@@ -777,15 +780,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
             @Override
             public void onAllowedCommandsChanged(MediaController controller,
                     SessionCommandGroup commandsOut) {
-                assertNotNull(commandsOut);
-                Set<SessionCommand> expected = commands.getCommands();
-                Set<SessionCommand> actual = commandsOut.getCommands();
-
-                assertNotNull(actual);
-                assertEquals(expected.size(), actual.size());
-                for (SessionCommand command : expected) {
-                    assertTrue(actual.contains(command));
-                }
+                assertEquals(commands, commandsOut);
                 latch.countDown();
             }
         };
@@ -794,6 +789,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                 callback);
         mRemoteSession2.setAllowedCommands(TEST_CONTROLLER_INFO, commands);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(commands, controller.getAllowedCommands());
     }
 
     @Test

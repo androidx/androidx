@@ -1231,6 +1231,23 @@ public class MediaController implements AutoCloseable {
         }
     }
 
+    /**
+     * Gets the cached allowed commands from {@link ControllerCallback#onAllowedCommandsChanged}.
+     * If it is not connected yet, it returns {@code null}.
+     *
+     * @return the allowed commands
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @Nullable
+    public SessionCommandGroup getAllowedCommands() {
+        if (!isConnected()) {
+            return null;
+        }
+        return getImpl().getAllowedCommands();
+    }
+
     private static ListenableFuture<SessionResult> createDisconnectedFuture() {
         return SessionResult.createFutureWithResult(
                 SessionResult.RESULT_ERROR_SESSION_DISCONNECTED);
@@ -1341,6 +1358,7 @@ public class MediaController implements AutoCloseable {
         @NonNull List<SessionPlayer.TrackInfo> getTrackInfo();
         ListenableFuture<SessionResult> selectTrack(SessionPlayer.TrackInfo trackInfo);
         ListenableFuture<SessionResult> deselectTrack(SessionPlayer.TrackInfo trackInfo);
+        @Nullable SessionCommandGroup getAllowedCommands();
 
         // Internally used methods
         @NonNull Context getContext();
