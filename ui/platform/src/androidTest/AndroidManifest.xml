@@ -14,7 +14,6 @@
      limitations under the License.
 -->
 <manifest package="androidx.ui.platform" xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
         <activity android:name="androidx.ui.platform.test.TestActivity" android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>

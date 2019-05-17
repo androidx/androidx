@@ -16,7 +16,6 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.compat.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
         <!-- Dummy main activity to provide a "android.app.shortcuts" meta-data entry -->

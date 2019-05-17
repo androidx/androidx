@@ -16,5 +16,4 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.media2.common.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 </manifest>

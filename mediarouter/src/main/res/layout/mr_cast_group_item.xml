@@ -42,6 +42,7 @@
               android:layout_width="0dp"
               android:layout_height="wrap_content"
               android:layout_weight="1"
+              android:layout_gravity="start"
               android:textAlignment="viewStart"
               android:textAppearance="?attr/mediaRouteBodyTextAppearance" />
 </LinearLayout>
