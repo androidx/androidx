@@ -42,13 +42,13 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public final class Camera2OptionUnpackerTest {
+public final class Camera2SessionOptionUnpackerTest {
 
-    private Camera2OptionUnpacker mUnpacker;
+    private Camera2SessionOptionUnpacker mUnpacker;
 
     @Before
     public void setUp() {
-        mUnpacker = Camera2OptionUnpacker.INSTANCE;
+        mUnpacker = Camera2SessionOptionUnpacker.INSTANCE;
     }
 
     @Test

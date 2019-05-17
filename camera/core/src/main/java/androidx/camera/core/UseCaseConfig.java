@@ -19,7 +19,6 @@ package androidx.camera.core;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.SessionConfig.OptionUnpacker;
 
 /**
  * Configuration containing options for use cases.
@@ -42,7 +41,15 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
     Option<SessionConfig> OPTION_DEFAULT_SESSION_CONFIG =
             Option.create("camerax.core.useCase.defaultSessionConfig", SessionConfig.class);
     /**
-     * Option: camerax.core.useCase.configUnpacker
+     * Option: camerax.core.useCase.defaultCaptureConfig
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    Option<CaptureConfig> OPTION_DEFAULT_CAPTURE_CONFIG =
+            Option.create("camerax.core.useCase.defaultCaptureConfig", CaptureConfig.class);
+    /**
+     * Option: camerax.core.useCase.sessionConfigUnpacker
      *
      * <p>TODO(b/120949879): This may be removed when SessionConfig removes all camera2
      * dependencies.
@@ -50,8 +57,21 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    Option<OptionUnpacker> OPTION_CONFIG_UNPACKER =
-            Option.create("camerax.core.useCase.configUnpacker", OptionUnpacker.class);
+    Option<SessionConfig.OptionUnpacker> OPTION_SESSION_CONFIG_UNPACKER =
+            Option.create("camerax.core.useCase.sessionConfigUnpacker",
+                    SessionConfig.OptionUnpacker.class);
+    /**
+     * Option: camerax.core.useCase.captureConfigUnpacker
+     *
+     * <p>TODO(b/120949879): This may be removed when CaptureConfig removes all camera2
+     * dependencies.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    Option<CaptureConfig.OptionUnpacker> OPTION_CAPTURE_CONFIG_UNPACKER =
+            Option.create("camerax.core.useCase.captureConfigUnpacker",
+                    CaptureConfig.OptionUnpacker.class);
     /**
      * Option: camerax.core.useCase.surfaceOccypyPriority
      *
@@ -92,6 +112,34 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
     SessionConfig getDefaultSessionConfig();
 
     /**
+     * Retrieves the default capture configuration for this use case.
+     *
+     * <p>This configuration is used to initialize the use case's capture configuration with default
+     * values.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    CaptureConfig getDefaultCaptureConfig(@Nullable CaptureConfig valueIfMissing);
+
+    /**
+     * Retrieves the default capture configuration for this use case.
+     *
+     * <p>This configuration is used to initialize the use case's capture configuration with default
+     * values.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    CaptureConfig getDefaultCaptureConfig();
+
+    /**
      * Retrieves the {@link SessionConfig.OptionUnpacker} for this use case.
      *
      * <p>This unpacker is used to initialize the use case's session configuration.
@@ -106,7 +154,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    SessionConfig.OptionUnpacker getOptionUnpacker(
+    SessionConfig.OptionUnpacker getSessionOptionUnpacker(
             @Nullable SessionConfig.OptionUnpacker valueIfMissing);
 
     /**
@@ -122,7 +170,40 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    SessionConfig.OptionUnpacker getOptionUnpacker();
+    SessionConfig.OptionUnpacker getSessionOptionUnpacker();
+
+    /**
+     * Retrieves the {@link CaptureConfig.OptionUnpacker} for this use case.
+     *
+     * <p>This unpacker is used to initialize the use case's capture configuration.
+     *
+     * <p>TODO(b/120949879): This may be removed when CaptureConfig removes all camera2
+     * dependencies.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    CaptureConfig.OptionUnpacker getCaptureOptionUnpacker(
+            @Nullable CaptureConfig.OptionUnpacker valueIfMissing);
+
+    /**
+     * Retrieves the {@link CaptureConfig.OptionUnpacker} for this use case.
+     *
+     * <p>This unpacker is used to initialize the use case's capture configuration.
+     *
+     * <p>TODO(b/120949879): This may be removed when CaptureConfig removes all camera2
+     * dependencies.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    CaptureConfig.OptionUnpacker getCaptureOptionUnpacker();
 
     /**
      * Retrieves the surface occupancy priority of the target intending to use from this
@@ -170,6 +251,16 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
         B setDefaultSessionConfig(SessionConfig sessionConfig);
 
         /**
+         * Sets the default capture configuration for this use case.
+         *
+         * @param captureConfig The default capture configuration to use for this use case.
+         * @return the current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        B setDefaultCaptureConfig(CaptureConfig captureConfig);
+
+        /**
          * Sets the Option Unpacker for translating this configuration into a {@link SessionConfig}
          *
          * <p>TODO(b/120949879): This may be removed when SessionConfig removes all camera2
@@ -180,7 +271,20 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Confi
          * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        B setOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker);
+        B setSessionOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker);
+
+        /**
+         * Sets the Option Unpacker for translating this configuration into a {@link CaptureConfig}
+         *
+         * <p>TODO(b/120949879): This may be removed when CaptureConfig removes all camera2
+         * dependencies.
+         *
+         * @param optionUnpacker The option unpacker for to use for this use case.
+         * @return the current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        B setCaptureOptionUnpacker(CaptureConfig.OptionUnpacker optionUnpacker);
 
         /**
          * Sets the surface occupancy priority of the intended target from this configuration.

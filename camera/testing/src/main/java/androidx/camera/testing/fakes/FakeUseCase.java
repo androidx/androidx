@@ -49,7 +49,7 @@ public class FakeUseCase extends UseCase {
     protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
         return new FakeUseCaseConfig.Builder()
                 .setLensFacing(lensFacing)
-                .setOptionUnpacker(new SessionConfig.OptionUnpacker() {
+                .setSessionOptionUnpacker(new SessionConfig.OptionUnpacker() {
                     @Override
                     public void unpack(UseCaseConfig<?> useCaseConfig,
                             SessionConfig.Builder sessionConfigBuilder) {

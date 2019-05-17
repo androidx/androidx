@@ -135,20 +135,47 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase>, 
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG);
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Override
     @Nullable
-    public SessionConfig.OptionUnpacker getOptionUnpacker(
-            @Nullable SessionConfig.OptionUnpacker valueIfMissing) {
-        return retrieveOption(OPTION_CONFIG_UNPACKER, valueIfMissing);
+    @Override
+    public CaptureConfig getDefaultCaptureConfig(@Nullable CaptureConfig valueIfMissing) {
+        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG, valueIfMissing);
+    }
+
+    @Override
+    public CaptureConfig getDefaultCaptureConfig() {
+        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG);
     }
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
-    public SessionConfig.OptionUnpacker getOptionUnpacker() {
-        return retrieveOption(OPTION_CONFIG_UNPACKER);
+    @Nullable
+    public SessionConfig.OptionUnpacker getSessionOptionUnpacker(
+            @Nullable SessionConfig.OptionUnpacker valueIfMissing) {
+        return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public SessionConfig.OptionUnpacker getSessionOptionUnpacker() {
+        return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER);
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker(
+            @Nullable CaptureConfig.OptionUnpacker valueIfMissing) {
+        return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker() {
+        return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER);
     }
 
     /** @hide */
@@ -250,8 +277,24 @@ public class FakeOtherUseCaseConfig implements UseCaseConfig<FakeOtherUseCase>, 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Override
-        public Builder setOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker) {
-            getMutableConfig().insertOption(OPTION_CONFIG_UNPACKER, optionUnpacker);
+        public Builder setDefaultCaptureConfig(CaptureConfig captureConfig) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_CAPTURE_CONFIG, captureConfig);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setSessionOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_SESSION_CONFIG_UNPACKER, optionUnpacker);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setCaptureOptionUnpacker(CaptureConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_CONFIG_UNPACKER, optionUnpacker);
             return this;
         }
 
