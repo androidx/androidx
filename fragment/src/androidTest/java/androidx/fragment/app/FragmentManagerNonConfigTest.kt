@@ -22,7 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
-import androidx.testutils.FragmentActivityUtils
+import androidx.testutils.recreate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -42,10 +42,7 @@ class FragmentManagerNonConfigTest {
     @Test
     @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.O_MR1)
     fun nonConfigStop() {
-        val activity = FragmentActivityUtils.recreateActivity(
-            activityRule,
-            activityRule.activity
-        )
+        val activity = activityRule.recreate()
 
         // A fragment was added in onStop(), but we shouldn't see it here...
         assertThat(activity.supportFragmentManager.fragments.isEmpty()).isTrue()
@@ -58,10 +55,7 @@ class FragmentManagerNonConfigTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     fun nonConfigStopSavingFragment() {
-        val activity = FragmentActivityUtils.recreateActivity(
-            activityRule,
-            activityRule.activity
-        )
+        val activity = activityRule.recreate()
 
         assertThat(activity.supportFragmentManager.fragments.size).isEqualTo(1)
     }

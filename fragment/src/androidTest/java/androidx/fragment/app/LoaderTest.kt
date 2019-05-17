@@ -26,7 +26,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
-import androidx.testutils.FragmentActivityUtils
+import androidx.testutils.recreate
+import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -46,7 +47,7 @@ class LoaderTest {
     fun testLeak() {
         // Restart the activity because activityRule keeps a strong reference to the
         // old activity.
-        val activity = FragmentActivityUtils.recreateActivity(activityRule, activityRule.activity)
+        val activity = activityRule.recreate()
 
         val fragment = LoaderFragment()
         val fm: FragmentManager = activity.supportFragmentManager
@@ -85,7 +86,7 @@ class LoaderTest {
 
         assertThat(activity.textView.text).isEqualTo("Loaded!")
 
-        activity = FragmentActivityUtils.recreateActivity(activityRule, activity)
+        activity = activityRule.recreate()
 
         activityRule.waitForExecution()
 

@@ -19,12 +19,15 @@ package androidx.testutils
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.FragmentActivity
+import androidx.test.rule.ActivityTestRule
+import org.junit.Assert
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * Extension of [FragmentActivity] that keeps track of when it is recreated.
  * In order to use this class, have your activity extend it and call
- * [FragmentActivityUtils.recreateActivity] API.
+ * [recreate] API.
  */
 open class RecreatedActivity(
     @LayoutRes contentLayoutId: Int = 0
@@ -46,19 +49,40 @@ open class RecreatedActivity(
     }
 
     companion object {
-        // These must be cleared after each test using clearState()
         @JvmStatic
         var activity: RecreatedActivity? = null
         @JvmStatic
-        var resumedLatch: CountDownLatch? = null
+        internal var resumedLatch: CountDownLatch? = null
         @JvmStatic
-        var destroyedLatch: CountDownLatch? = null
+        internal var destroyedLatch: CountDownLatch? = null
 
         @JvmStatic
-        fun clearState() {
+        internal fun clearState() {
             activity = null
             resumedLatch = null
             destroyedLatch = null
         }
     }
+}
+
+/**
+ * Restarts the [RecreatedActivity] and waits for the new activity to be resumed.
+ *
+ * @return The newly-restarted [RecreatedActivity]
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T : RecreatedActivity> ActivityTestRule<T>.recreate(): T {
+    // Now switch the orientation
+    RecreatedActivity.resumedLatch = CountDownLatch(1)
+    RecreatedActivity.destroyedLatch = CountDownLatch(1)
+
+    runOnUiThreadRethrow { activity.recreate() }
+    Assert.assertTrue(RecreatedActivity.resumedLatch!!.await(1, TimeUnit.SECONDS))
+    Assert.assertTrue(RecreatedActivity.destroyedLatch!!.await(1, TimeUnit.SECONDS))
+    val newActivity = RecreatedActivity.activity as T
+
+    waitForExecution()
+
+    RecreatedActivity.clearState()
+    return newActivity
 }
