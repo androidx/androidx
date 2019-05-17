@@ -18,6 +18,7 @@ package androidx.animation
 
 import android.util.Log
 import android.view.Choreographer
+import androidx.animation.InterruptionHandling.UNINTERRUPTIBLE
 
 /**
  * [TransitionAnimation] is responsible for animating from one set of property values (i.e. one
@@ -64,7 +65,7 @@ class TransitionAnimation<T> : Choreographer.FrameCallback {
     private fun setState(newState: StateImpl<T>) {
         if (isRunning) {
             val currentSpec = def.getSpec(fromState.name, toState.name)
-            if (currentSpec.interruptionHandling == InterruptionHandling.UNINTERRUPTIBLE) {
+            if (currentSpec.interruptionHandling == UNINTERRUPTIBLE) {
                 pendingState = newState
                 return
             }
@@ -111,13 +112,15 @@ class TransitionAnimation<T> : Choreographer.FrameCallback {
      * @param name Name of the [TransitionState] that is defined in the [TransitionDefinition].
      */
     fun toState(name: T) {
-        if (def.states[name] == null) {
+        val nextState = def.states[name]
+        if (nextState == null) {
             // Throw exception or ignore?
-        } else if (toState.name == name) {
-            // no op
-            return
+        } else if (pendingState != null && toState.name == name) {
+            // just canceling the pending state
+            pendingState = null
+        } else if ((pendingState ?: toState).name == name) {
+            // already targeting this state
         } else {
-            val nextState = def.states[name]!!
             setState(nextState)
         }
     }
@@ -182,12 +185,20 @@ class TransitionAnimation<T> : Choreographer.FrameCallback {
             }
             startVelocityMap.clear()
 
-            fromState = toState
             endAnimation()
             val currentStateName = toState.name
-            if (pendingState != null) {
+            val spec = def.getSpec(fromState.name, toState.name)
+            val nextState = def.states[spec.nextState]
+            fromState = toState
+
+            // Uninterruptible transition to the next state takes a priority over the pending state.
+            if (nextState != null && spec.interruptionHandling == UNINTERRUPTIBLE) {
+                setState(nextState)
+            } else if (pendingState != null) {
                 setState(pendingState!!)
                 pendingState = null
+            } else if (nextState != null) {
+                setState(nextState)
             }
             onStateChangeFinished?.invoke(currentStateName)
         }

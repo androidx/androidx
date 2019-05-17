@@ -182,7 +182,7 @@ internal class Keyframes<T>(
 }
 
 /**
- * [Tween] is responsible for animating from one value to another using a provided easing easing.
+ * [Tween] is responsible for animating from one value to another using a provided [easing].
  * The duration for such an animation can be adjusted via [duration]. The animation can be
  * delayed via [delay].
  */
@@ -205,6 +205,12 @@ internal class Tween<T>(
         return interpolator(start, end, fraction)
     }
 }
+
+/**
+ * [Snap] is immediately switching the animating value to the end value.
+ */
+internal fun <T> Snap(): DurationBasedAnimation<T> =
+    Tween(0L, 0L, LinearEasing)
 
 /**
  * [Physics] animation is in its core a spring animation. It is the default animation that the

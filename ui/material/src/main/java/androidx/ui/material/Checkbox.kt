@@ -217,9 +217,7 @@ private fun generateTransitionDefinition(color: Color, unselectedColor: Color) =
         }
         transition(fromState = ToggleableState.Unchecked, toState = ToggleableState.Checked) {
             boxTransitionFromUnchecked()
-            CenterGravitationForCheck using tween {
-                duration = 0
-            }
+            CenterGravitationForCheck using snap()
         }
         transition(fromState = ToggleableState.Checked, toState = ToggleableState.Unchecked) {
             boxTransitionToUnchecked()
@@ -245,10 +243,8 @@ private fun generateTransitionDefinition(color: Color, unselectedColor: Color) =
         }
     }
 
-private fun TransitionSpec.boxTransitionFromUnchecked() {
-    BoxColorProp using tween {
-        duration = 0
-    }
+private fun TransitionSpec<ToggleableState>.boxTransitionFromUnchecked() {
+    BoxColorProp using snap()
     InnerRadiusFractionProp using tween {
         duration = BoxAnimationDuration
     }
@@ -258,10 +254,8 @@ private fun TransitionSpec.boxTransitionFromUnchecked() {
     }
 }
 
-private fun TransitionSpec.boxTransitionToUnchecked() {
-    BoxColorProp using tween {
-        duration = 0
-    }
+private fun TransitionSpec<ToggleableState>.boxTransitionToUnchecked() {
+    BoxColorProp using snap()
     InnerRadiusFractionProp using tween {
         duration = BoxAnimationDuration
         delay = CheckStrokeAnimationDuration
