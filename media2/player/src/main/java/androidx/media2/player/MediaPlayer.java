@@ -2210,7 +2210,7 @@ public final class MediaPlayer extends SessionPlayer {
     }
 
     @NonNull
-    private TrackInfo getTrackInfo(int index) {
+    TrackInfo getTrackInfo(int index) {
         List<MediaPlayer2.TrackInfo> info2s = mPlayer.getTrackInfo();
         MediaPlayer2.TrackInfo info2 = info2s.get(index);
         MediaItem item = mPlayer.getCurrentMediaItem();
@@ -3178,12 +3178,13 @@ public final class MediaPlayer extends SessionPlayer {
         }
 
         @Override
-        public void onSubtitleData(
-                MediaPlayer2 mp, final MediaItem item, final SubtitleData data) {
+        public void onSubtitleData(@NonNull MediaPlayer2 mp, final @NonNull MediaItem item,
+                final int trackIdx, final @NonNull SubtitleData data) {
             notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                 @Override
                 public void callCallback(SessionPlayer.PlayerCallback callback) {
-                    callback.onSubtitleData(MediaPlayer.this, item, data);
+                    SessionPlayer.TrackInfo track = createTrackInfoInternal(getTrackInfo(trackIdx));
+                    callback.onSubtitleData(MediaPlayer.this, item, track, data);
                 }
             });
         }

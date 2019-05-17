@@ -57,6 +57,7 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.ParcelImplListSlice;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.ControllerInfo;
@@ -566,6 +567,17 @@ public class MediaSessionProviderService extends Service {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
             return player.surfaceExists();
+        }
+
+        @Override
+        public void notifySubtitleData(String sessionId, ParcelImpl item, ParcelImpl track,
+                ParcelImpl data) {
+            MediaSession session = mSessionMap.get(sessionId);
+            MockPlayer player = (MockPlayer) session.getPlayer();
+            MediaItem itemObj = MediaParcelUtils.fromParcelable(item);
+            SessionPlayer.TrackInfo trackObj = MediaParcelUtils.fromParcelable(track);
+            SubtitleData dataObj = MediaParcelUtils.fromParcelable(data);
+            player.notifySubtitleData(itemObj, trackObj, dataObj);
         }
     }
 }

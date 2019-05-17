@@ -1111,13 +1111,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         final long startTimeUs = data.getStartTimeUs();
                         final long durationUs = data.getDurationUs();
                         final byte[] bytes = data.getData();
-                        MediaPlayer2.TrackInfo info2 = getTrackInfo().get(idx);
-                        MediaItem item = getCurrentMediaItem();
-                        SessionPlayer.TrackInfo infoInternal = new SessionPlayer.TrackInfo(
-                                idx, item, info2.getTrackType(), info2.getFormat());
-                        SubtitleData sub = new SubtitleData(infoInternal, startTimeUs, durationUs,
-                                bytes);
-                        cb.onSubtitleData(MediaPlayer2Impl.this, src.getDSD(), sub);
+                        SubtitleData sub = new SubtitleData(startTimeUs, durationUs, bytes);
+                        cb.onSubtitleData(MediaPlayer2Impl.this, src.getDSD(), idx, sub);
                     }
                 });
             }
