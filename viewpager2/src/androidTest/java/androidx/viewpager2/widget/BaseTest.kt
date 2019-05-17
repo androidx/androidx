@@ -418,6 +418,18 @@ open class BaseTest {
     }
 
     /**
+     * Returns the slice between the first and second element. First and second element are not
+     * included in the results. Search for the second element starts on the element after the first
+     * element. If first element is not found, an empty list is returned. If second element is not
+     * found, all elements after the first are returned.
+     *
+     * @return A list with all elements between the first and the second element
+     */
+    fun <T> List<T>.slice(first: T, second: T): List<T> {
+        return dropWhile { it != first }.drop(1).takeWhile { it != second }
+    }
+
+    /**
      * Is between [min, max)
      * @param min - inclusive
      * @param max - exclusive

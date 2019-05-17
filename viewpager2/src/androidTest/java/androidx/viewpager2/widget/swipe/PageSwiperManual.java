@@ -71,11 +71,14 @@ public class PageSwiperManual implements PageSwiper {
     }
 
     private void swipe(float xOffset, float yOffset, Interpolator interpolator) {
-        new ManualSwipeInjector(CENTER, offCenter(xOffset, yOffset), 150, 20)
-                .perform(InstrumentationRegistry.getInstrumentation(), mViewPager, interpolator);
+        new ManualSwipeInjector(
+                offsetCenter(-xOffset / 2, -yOffset / 2),
+                offsetCenter((xOffset + 1) / 2, (yOffset + 1) / 2),
+                150, 20
+        ).perform(InstrumentationRegistry.getInstrumentation(), mViewPager, interpolator);
     }
 
-    private static CoordinatesProvider offCenter(final float dx, final float dy) {
+    private static CoordinatesProvider offsetCenter(final float dx, final float dy) {
         return new TranslatedCoordinatesProvider(CENTER, dx, dy);
     }
 
