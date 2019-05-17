@@ -36,7 +36,7 @@
                       android:layout_width="0dp"
                       android:layout_height="72dp"
                       android:layout_weight="1"
-                      android:gravity="center_vertical"
+                      android:gravity="center_vertical|start"
                       android:singleLine="true"
                       android:ellipsize="end"
                       android:textAlignment="viewStart"
