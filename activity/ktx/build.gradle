@@ -34,7 +34,7 @@ android {
 
 dependencies {
     api(project(":activity"))
-    api(project(":lifecycle:lifecycle-viewmodel-ktx"))
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0-beta01")
     api(KOTLIN_STDLIB)
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
