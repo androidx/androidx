@@ -609,8 +609,9 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             }
 
             @Override
-            public void onSubtitleData(SessionPlayer player, MediaItem item, SubtitleData data) {
-                if (data != null && data.getData() != null) {
+            public void onSubtitleData(SessionPlayer player, MediaItem item,
+                    SessionPlayer.TrackInfo track, SubtitleData data) {
+                if (track != null && data != null && data.getData() != null) {
                     mOnSubtitleDataCalled.signal();
                 }
             }
@@ -665,9 +666,9 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             }
 
             @Override
-            public void onSubtitleData(
-                    SessionPlayer player, MediaItem item, SubtitleData data) {
-                if (data != null && data.getData() != null) {
+            public void onSubtitleData(SessionPlayer player, MediaItem item,
+                    SessionPlayer.TrackInfo track, SubtitleData data) {
+                if (track != null && data != null && data.getData() != null) {
                     mOnSubtitleDataCalled.signal();
                 }
             }

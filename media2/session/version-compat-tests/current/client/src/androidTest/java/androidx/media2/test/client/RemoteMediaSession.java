@@ -54,6 +54,7 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.ParcelImplListSlice;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.CommandButton;
@@ -542,6 +543,18 @@ public class RemoteMediaSession {
                         MediaParcelUtils.toParcelable(trackInfo));
             } catch (RemoteException ex) {
                 Log.e(TAG, "Failed to call notifyTrackDeselected()");
+            }
+        }
+
+        public void notifySubtitleData(@NonNull MediaItem item,
+                @NonNull SessionPlayer.TrackInfo track, @NonNull SubtitleData data) {
+            try {
+                mBinder.notifySubtitleData(mSessionId,
+                        MediaParcelUtils.toParcelable(item),
+                        MediaParcelUtils.toParcelable(track),
+                        MediaParcelUtils.toParcelable(data));
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call notifySubtitleData");
             }
         }
     }

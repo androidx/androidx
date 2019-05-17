@@ -47,6 +47,7 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
@@ -724,6 +725,12 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
+        void onSubtitleData(int seq, @NonNull MediaItem item,
+                @NonNull SessionPlayer.TrackInfo track, @NonNull SubtitleData data) {
+            // no-op
+        }
+
+        @Override
         public int hashCode() {
             return ObjectsCompat.hash(mRemoteUserInfo);
         }
@@ -927,6 +934,12 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
         @Override
         void onTrackDeselected(int seq, SessionPlayer.TrackInfo trackInfo) throws RemoteException {
+            // no-op
+        }
+
+        @Override
+        void onSubtitleData(int seq, @NonNull MediaItem item,
+                @NonNull SessionPlayer.TrackInfo track, @NonNull SubtitleData data) {
             // no-op
         }
     }

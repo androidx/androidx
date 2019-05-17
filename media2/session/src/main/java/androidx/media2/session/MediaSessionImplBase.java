@@ -71,6 +71,7 @@ import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
 import androidx.media2.common.SessionPlayer.TrackInfo;
+import androidx.media2.common.SubtitleData;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaSession.ControllerCb;
 import androidx.media2.session.MediaSession.ControllerInfo;
@@ -1510,6 +1511,18 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                 @Override
                 public void run(ControllerCb callback, int seq) throws RemoteException {
                     callback.onTrackDeselected(seq, trackInfo);
+                }
+            });
+        }
+
+        @Override
+        public void onSubtitleData(final @NonNull SessionPlayer player,
+                final @NonNull MediaItem item, final @NonNull TrackInfo track,
+                final @NonNull SubtitleData data) {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
+                @Override
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onSubtitleData(seq, item, track, data);
                 }
             });
         }

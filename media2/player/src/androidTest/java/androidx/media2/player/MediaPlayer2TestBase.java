@@ -351,11 +351,11 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                 }
             }
             @Override
-            public  void onSubtitleData(MediaPlayer2 mp, MediaItem item,
+            public  void onSubtitleData(MediaPlayer2 mp, MediaItem item, int trackIdx,
                     final SubtitleData data) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
-                        ecb.onSubtitleData(mp, item, data);
+                        ecb.onSubtitleData(mp, item, trackIdx, data);
                     }
                 }
             }
