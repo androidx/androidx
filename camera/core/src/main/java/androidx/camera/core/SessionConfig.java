@@ -181,7 +181,7 @@ public final class SessionConfig {
          * <p>Populates the builder with all the properties defined in the base configuration.
          */
         public static Builder createFrom(UseCaseConfig<?> config) {
-            OptionUnpacker unpacker = config.getOptionUnpacker(null);
+            OptionUnpacker unpacker = config.getSessionOptionUnpacker(null);
             if (unpacker == null) {
                 throw new IllegalStateException(
                         "Implementation is missing option unpacker for "

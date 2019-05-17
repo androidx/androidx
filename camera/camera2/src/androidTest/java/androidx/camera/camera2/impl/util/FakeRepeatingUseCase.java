@@ -80,7 +80,7 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(LensFacing lensFacing) {
         return new FakeUseCaseConfig.Builder()
                 .setLensFacing(lensFacing)
-                .setOptionUnpacker(
+                .setSessionOptionUnpacker(
                         new SessionConfig.OptionUnpacker() {
                             @Override
                             public void unpack(UseCaseConfig<?> useCaseConfig,

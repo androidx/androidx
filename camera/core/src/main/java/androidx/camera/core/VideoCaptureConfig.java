@@ -507,8 +507,7 @@ public final class VideoCaptureConfig
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public SessionConfig getDefaultSessionConfig(
-            @Nullable SessionConfig valueIfMissing) {
+    public SessionConfig getDefaultSessionConfig(@Nullable SessionConfig valueIfMissing) {
         return retrieveOption(OPTION_DEFAULT_SESSION_CONFIG, valueIfMissing);
     }
 
@@ -523,16 +522,47 @@ public final class VideoCaptureConfig
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public SessionConfig.OptionUnpacker getOptionUnpacker(
+    public SessionConfig.OptionUnpacker getSessionOptionUnpacker(
             @Nullable SessionConfig.OptionUnpacker valueIfMissing) {
-        return retrieveOption(OPTION_CONFIG_UNPACKER, valueIfMissing);
+        return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER, valueIfMissing);
     }
 
     /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public SessionConfig.OptionUnpacker getOptionUnpacker() {
-        return retrieveOption(OPTION_CONFIG_UNPACKER);
+    public SessionConfig.OptionUnpacker getSessionOptionUnpacker() {
+        return retrieveOption(OPTION_SESSION_CONFIG_UNPACKER);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public CaptureConfig getDefaultCaptureConfig(@Nullable CaptureConfig valueIfMissing) {
+        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public CaptureConfig getDefaultCaptureConfig() {
+        return retrieveOption(OPTION_DEFAULT_CAPTURE_CONFIG);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker(
+            @Nullable CaptureConfig.OptionUnpacker valueIfMissing) {
+        return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER, valueIfMissing);
+    }
+
+    /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public CaptureConfig.OptionUnpacker getCaptureOptionUnpacker() {
+        return retrieveOption(OPTION_CAPTURE_CONFIG_UNPACKER);
     }
 
     /** @hide */
@@ -854,8 +884,24 @@ public final class VideoCaptureConfig
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker) {
-            getMutableConfig().insertOption(OPTION_CONFIG_UNPACKER, optionUnpacker);
+        public Builder setDefaultCaptureConfig(CaptureConfig captureConfig) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_CAPTURE_CONFIG, captureConfig);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setSessionOptionUnpacker(SessionConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_SESSION_CONFIG_UNPACKER, optionUnpacker);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setCaptureOptionUnpacker(CaptureConfig.OptionUnpacker optionUnpacker) {
+            getMutableConfig().insertOption(OPTION_CAPTURE_CONFIG_UNPACKER, optionUnpacker);
             return this;
         }
 

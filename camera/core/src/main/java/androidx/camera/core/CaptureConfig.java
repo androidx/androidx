@@ -102,6 +102,11 @@ public final class CaptureConfig {
         mTag = tag;
     }
 
+    /** Returns an instance of a capture configuration with minimal configurations. */
+    public static CaptureConfig defaultEmptyCaptureConfig() {
+        return new CaptureConfig.Builder().build();
+    }
+
     /** Get all the surfaces that the request will write data to. */
     public List<DeferrableSurface> getSurfaces() {
         return Collections.unmodifiableList(mSurfaces);
@@ -115,7 +120,7 @@ public final class CaptureConfig {
         return mImplementationOptions;
     }
 
-    int getTemplateType() {
+    public int getTemplateType() {
         return mTemplateType;
     }
 
@@ -191,6 +196,22 @@ public final class CaptureConfig {
     }
 
     /**
+     * Interface for unpacking a configuration into a CaptureConfig.Builder
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public interface OptionUnpacker {
+
+        /**
+         * Apply the options from the config onto the builder
+         * @param config the set of options to apply
+         * @param builder the builder on which to apply the options
+         */
+        void unpack(UseCaseConfig<?> config, CaptureConfig.Builder builder);
+    }
+
+    /**
      * Builder for easy modification/rebuilding of a {@link CaptureConfig}.
      *
      * @hide
@@ -217,6 +238,26 @@ public final class CaptureConfig {
             mCameraCaptureCallbacks.addAll(base.getCameraCaptureCallbacks());
             mUseRepeatingSurface = base.isUseRepeatingSurface();
             mTag = base.getTag();
+        }
+
+        /**
+         * Creates a {@link Builder} from a {@link UseCaseConfig}.
+         *
+         * <p>Populates the builder with all the properties defined in the base configuration.
+         */
+        public static Builder createFrom(UseCaseConfig<?> config) {
+            OptionUnpacker unpacker = config.getCaptureOptionUnpacker(null);
+            if (unpacker == null) {
+                throw new IllegalStateException(
+                        "Implementation is missing option unpacker for "
+                                + config.getTargetName(config.toString()));
+            }
+
+            Builder builder = new Builder();
+
+            // Unpack the configuration into this builder
+            unpacker.unpack(config, builder);
+            return builder;
         }
 
         /** Create a {@link Builder} from a {@link CaptureConfig} */

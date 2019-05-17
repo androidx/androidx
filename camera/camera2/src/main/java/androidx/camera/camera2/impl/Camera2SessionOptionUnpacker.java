@@ -32,9 +32,9 @@ import androidx.camera.core.UseCaseConfig;
  * A {@link SessionConfig.OptionUnpacker} implementation for unpacking Camera2 options into a
  * {@link SessionConfig.Builder}.
  */
-final class Camera2OptionUnpacker implements SessionConfig.OptionUnpacker {
+final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker {
 
-    static final Camera2OptionUnpacker INSTANCE = new Camera2OptionUnpacker();
+    static final Camera2SessionOptionUnpacker INSTANCE = new Camera2SessionOptionUnpacker();
 
     @Override
     public void unpack(UseCaseConfig<?> config, final SessionConfig.Builder builder) {
