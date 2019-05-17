@@ -19,21 +19,15 @@ package androidx.camera.core.impl.utils.executor;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.NonNull;
-
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 
 /**
- * An Executor which will post to the main thread.
+ * Helper class for retrieving an {@link Executor} which will post to the main thread.
  */
-final class MainThreadExecutor implements Executor {
+final class MainThreadExecutor {
     private static volatile Executor sExecutor;
-    private final Handler mMainThreadHandler;
 
-    private MainThreadExecutor() {
-        mMainThreadHandler = new Handler(Looper.getMainLooper());
-    }
+    private MainThreadExecutor() {}
 
     static Executor getInstance() {
         if (sExecutor != null) {
@@ -41,17 +35,10 @@ final class MainThreadExecutor implements Executor {
         }
         synchronized (MainThreadExecutor.class) {
             if (sExecutor == null) {
-                sExecutor = new MainThreadExecutor();
+                sExecutor = new HandlerAdapterExecutor(new Handler(Looper.getMainLooper()));
             }
         }
 
         return sExecutor;
-    }
-
-    @Override
-    public void execute(@NonNull Runnable command) {
-        if (!mMainThreadHandler.post(command)) {
-            throw new RejectedExecutionException(mMainThreadHandler + " is shutting down");
-        }
     }
 }

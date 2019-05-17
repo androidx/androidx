@@ -26,7 +26,6 @@ import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.SessionConfiguration;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.Surface;
 
@@ -42,6 +41,7 @@ import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.DeferrableSurfaces;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,7 +49,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
 
 /**
  * A session for capturing images from the camera which is tied to a specific {@link CameraDevice}.
@@ -64,6 +63,7 @@ final class CaptureSession {
     @Nullable
     private final Handler mHandler;
     /** An adapter to pass the task to the handler. */
+    @Nullable
     private final Executor mExecutor;
     /** The configuration for the currently issued single capture requests. */
     private final List<CaptureConfig> mCaptureConfigs = new ArrayList<>();
@@ -106,9 +106,9 @@ final class CaptureSession {
      *                to use the current thread's looper.
      */
     CaptureSession(@Nullable Handler handler) {
-        this.mHandler = handler;
+        mHandler = handler;
         mState = State.INITIALIZED;
-        mExecutor = new ExecutorHandlerAdapter(handler);
+        mExecutor = (handler != null) ? CameraXExecutors.newHandlerExecutor(handler) : null;
     }
 
     /**
@@ -245,7 +245,7 @@ final class CaptureSession {
 
                         SessionConfiguration sessionParameterConfiguration =
                                 new SessionConfiguration(SessionConfiguration.SESSION_REGULAR,
-                                        outputConfigList, mExecutor, comboCallback);
+                                        outputConfigList, getExecutor(), comboCallback);
                         sessionParameterConfiguration.setSessionParameters(builder.build());
                         cameraDevice.createCaptureSession(sessionParameterConfiguration);
                     } else {
@@ -689,32 +689,13 @@ final class CaptureSession {
         return ret;
     }
 
-    private static class ExecutorHandlerAdapter implements Executor {
-
-        private final Handler mHandler;
-        ExecutorHandlerAdapter(Handler handler) {
-            mHandler = handler;
+    // TODO: We should enforce that mExecutor is never null.
+    //  We can remove this method once that is the case.
+    private Executor getExecutor() {
+        if (mExecutor == null) {
+            return CameraXExecutors.myLooperExecutor();
         }
 
-        @Override
-        public void execute(Runnable command) {
-            Handler handler;
-
-            if (mHandler == null) {
-                // Run in current thread when handler not exist.
-                Looper looper = Looper.myLooper();
-                if (looper == null) {
-                    throw new IllegalArgumentException(
-                            "No handler given, and current thread has no looper!");
-                }
-                handler = new Handler(looper);
-            } else {
-                handler = mHandler;
-            }
-
-            if (!handler.post(command)) {
-                throw new RejectedExecutionException(handler + " is shutting down");
-            }
-        }
+        return mExecutor;
     }
 }
