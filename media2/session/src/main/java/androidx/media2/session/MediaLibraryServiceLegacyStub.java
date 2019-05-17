@@ -39,8 +39,8 @@ import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
-import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.PlayerResult;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.PlaybackInfo;
@@ -495,26 +495,28 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        final void onTrackInfoChanged(int seq, List<SessionPlayer.TrackInfo> trackInfos)
+        void onTrackInfoChanged(int seq, List<TrackInfo> trackInfos,
+                TrackInfo selectedVideoTrack, TrackInfo selectedAudioTrack,
+                TrackInfo selectedSubtitleTrack, TrackInfo selectedMetadataTrack)
                 throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onTrackSelected(int seq, SessionPlayer.TrackInfo trackInfo)
+        final void onTrackSelected(int seq, TrackInfo trackInfo)
                 throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onTrackDeselected(int seq, SessionPlayer.TrackInfo trackInfo)
+        final void onTrackDeselected(int seq, TrackInfo trackInfo)
                 throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
         final void onSubtitleData(int seq, @NonNull MediaItem item,
-                @NonNull SessionPlayer.TrackInfo track, @NonNull SubtitleData data) {
+                @NonNull TrackInfo track, @NonNull SubtitleData data) {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
     }

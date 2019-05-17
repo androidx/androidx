@@ -1172,7 +1172,9 @@ public class MediaSession implements AutoCloseable {
         abstract void onDisconnected(int seq) throws RemoteException;
         abstract void onVideoSizeChanged(int seq, @NonNull MediaItem item,
                 @NonNull VideoSize videoSize) throws RemoteException;
-        abstract void onTrackInfoChanged(int seq, List<TrackInfo> trackInfos)
+        abstract void onTrackInfoChanged(int seq, List<TrackInfo> trackInfos,
+                TrackInfo selectedVideoTrack, TrackInfo selectedAudioTrack,
+                TrackInfo selectedSubtitleTrack, TrackInfo selectedMetadataTrack)
                 throws RemoteException;
         abstract void onTrackSelected(int seq, TrackInfo trackInfo) throws RemoteException;
         abstract void onTrackDeselected(int seq, TrackInfo trackInfo) throws RemoteException;
