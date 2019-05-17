@@ -16,7 +16,6 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.swiperefreshlayout.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application
         android:supportsRtl="true"

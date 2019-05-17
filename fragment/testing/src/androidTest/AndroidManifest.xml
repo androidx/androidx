@@ -16,5 +16,4 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.fragment.testing.test">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 </manifest>

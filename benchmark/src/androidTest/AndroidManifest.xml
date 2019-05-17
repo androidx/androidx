@@ -19,7 +19,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="androidx.benchmark.test">
 
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}" />
 
     <!-- Important: disable debuggable for accurate performance results -->
     <application

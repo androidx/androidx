@@ -27,6 +27,7 @@
       class="androidx.appcompat.app.AlertController$RecycleListView"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
+      android:layout_gravity="start"
       android:cacheColorHint="@null"
       android:clipToPadding="false"
       android:divider="?attr/listDividerAlertDialog"

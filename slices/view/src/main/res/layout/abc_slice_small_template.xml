@@ -36,7 +36,8 @@
             android:layout_height="wrap_content"
             android:gravity="start|center_vertical"
             android:orientation="horizontal"
-            android:paddingEnd="12dp"/>
+            android:paddingEnd="12dp"
+            android:paddingRight="12dp"/>
 
         <LinearLayout
             android:id="@android:id/content"
@@ -94,6 +95,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="8dp"
+            android:paddingLeft="8dp"
             android:gravity="end|center_vertical"
             android:orientation="horizontal"
             android:visibility="gone"/>
