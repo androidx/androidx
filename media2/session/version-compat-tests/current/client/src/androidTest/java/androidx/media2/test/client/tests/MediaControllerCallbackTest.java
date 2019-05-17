@@ -881,9 +881,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     @Test
     public void testOnTrackInfoChanged() throws InterruptedException {
         prepareLooper();
-        final SessionPlayer.TrackInfo testTrack = new SessionPlayer.TrackInfo(0, null, 0, null);
-        final List<SessionPlayer.TrackInfo> testTracks = new ArrayList<>();
-        testTracks.add(testTrack);
+        final List<SessionPlayer.TrackInfo> testTracks = MediaTestUtils.createTrackInfoList();
 
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController.ControllerCallback callback =
@@ -891,7 +889,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                     @Override
                     public void onTrackInfoChanged(MediaController controller,
                             List<SessionPlayer.TrackInfo> trackInfos) {
-                        assertEquals(testTrack, trackInfos.get(0));
+                        assertEquals(testTracks, trackInfos);
                         latch.countDown();
                     }
                 };
@@ -904,7 +902,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     @Test
     public void testOnTrackSelected() throws InterruptedException {
         prepareLooper();
-        final SessionPlayer.TrackInfo testTrack = new SessionPlayer.TrackInfo(0, null, 0, null);
+        final SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1, "test",
+                SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
 
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController.ControllerCallback callback =
@@ -925,7 +924,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     @Test
     public void testOnTrackDeselected() throws InterruptedException {
         prepareLooper();
-        final SessionPlayer.TrackInfo testTrack = new SessionPlayer.TrackInfo(0, null, 0, null);
+        final SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1, "test",
+                SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
 
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController.ControllerCallback callback =
