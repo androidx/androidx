@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.impl;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -36,6 +37,7 @@ import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
+import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
@@ -80,7 +82,8 @@ public final class CameraTest {
     }
 
     @Before
-    public void setup() {
+    public void setup()  {
+        assumeTrue(CameraUtil.deviceHasCamera());
         mMockOnImageAvailableListener = Mockito.mock(ImageReader.OnImageAvailableListener.class);
         FakeUseCaseConfig config =
                 new FakeUseCaseConfig.Builder()

@@ -18,6 +18,7 @@ package androidx.camera.camera2.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -42,6 +43,7 @@ import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -97,7 +99,8 @@ public final class Camera2ImplCameraXTest {
             Manifest.permission.CAMERA);
 
     @Before
-    public void setUp() {
+    public void setUp()  {
+        assumeTrue(CameraUtil.deviceHasCamera());
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.init(context, Camera2AppConfig.create(context));
         mLifecycle = new FakeLifecycleOwner();
@@ -109,12 +112,15 @@ public final class Camera2ImplCameraXTest {
 
     @After
     public void tearDown() throws InterruptedException {
-        CameraX.unbindAll();
-        mHandlerThread.quitSafely();
+        if (mHandlerThread != null) {
+            CameraX.unbindAll();
+            mHandlerThread.quitSafely();
 
-        // Wait some time for the cameras to close. We need the cameras to close to bring CameraX
-        // back to the initial state.
-        Thread.sleep(3000);
+            // Wait some time for the cameras to close.
+            // We need the cameras to close to bring CameraX
+            // back to the initial state.
+            Thread.sleep(3000);
+        }
     }
 
     @Test

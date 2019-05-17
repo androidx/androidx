@@ -18,6 +18,8 @@ package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.Manifest;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -44,6 +46,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCaseGroup;
+import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -96,6 +99,7 @@ public final class UseCaseCombinationTest {
 
     @Before
     public void setUp() {
+        assumeTrue(CameraUtil.deviceHasCamera());
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.init(context, Camera2AppConfig.create(context));
         mLifecycle = new FakeLifecycleOwner();
@@ -108,12 +112,15 @@ public final class UseCaseCombinationTest {
 
     @After
     public void tearDown() throws InterruptedException {
-        CameraX.unbindAll();
-        mHandlerThread.quitSafely();
+        if (mHandlerThread != null) {
+            CameraX.unbindAll();
+            mHandlerThread.quitSafely();
 
-        // Wait some time for the cameras to close. We need the cameras to close to bring CameraX
-        // back to the initial state.
-        Thread.sleep(3000);
+            // Wait some time for the cameras to close.
+            // We need the cameras to close to bring CameraX
+            // back to the initial state.
+            Thread.sleep(3000);
+        }
     }
 
     /**

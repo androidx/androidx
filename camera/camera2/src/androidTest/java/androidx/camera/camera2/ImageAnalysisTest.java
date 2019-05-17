@@ -18,9 +18,11 @@ package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.Manifest;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.os.Handler;
@@ -43,9 +45,12 @@ import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -75,8 +80,12 @@ public final class ImageAnalysisTest {
     private Semaphore mAnalysisResultsSemaphore;
     private String mCameraId;
 
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.CAMERA);
     @Before
-    public void setUp() {
+    public void setUp()  {
+        assumeTrue(CameraUtil.deviceHasCamera());
         mAnalysisResults = new HashSet<>();
         mAnalysisResultsSemaphore = new Semaphore(/*permits=*/ 0);
         mAnalyzer =
@@ -107,8 +116,10 @@ public final class ImageAnalysisTest {
 
     @After
     public void tearDown() {
-        mHandlerThread.quitSafely();
-        mCamera.release();
+        if (mHandlerThread != null && mCamera != null) {
+            mHandlerThread.quitSafely();
+            mCamera.release();
+        }
     }
 
     @Test
@@ -177,6 +188,7 @@ public final class ImageAnalysisTest {
         }
     }
 
+    @MediumTest
     @Test
     public void analyzerDoesNotAnalyzeImages_whenCameraIsNotOpen() throws InterruptedException {
         ImageAnalysisConfig config =
@@ -194,6 +206,7 @@ public final class ImageAnalysisTest {
         assertThat(mAnalysisResults).isEmpty();
     }
 
+    @MediumTest
     @Test
     public void updateSessionConfigWithSuggestedResolution() throws InterruptedException {
         final int imageFormat = ImageFormat.YUV_420_888;
