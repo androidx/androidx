@@ -21,18 +21,13 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.ArrayDeque;
-
 /**
  * A Navigator built specifically for {@link NavGraph} elements. Handles navigating to the
  * correct destination when the NavGraph is the target of navigation actions.
  */
 @Navigator.Name("navigation")
 public class NavGraphNavigator extends Navigator<NavGraph> {
-    private static final String KEY_BACK_STACK_IDS = "androidx-nav-graph:navigator:backStackIds";
-
     private final NavigatorProvider mNavigatorProvider;
-    private ArrayDeque<Integer> mBackStack = new ArrayDeque<>();
 
     /**
      * Construct a Navigator capable of routing incoming navigation requests to the proper
@@ -71,70 +66,14 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
             throw new IllegalArgumentException("navigation destination " + dest
                     + " is not a direct child of this NavGraph");
         }
-        if (navOptions == null || !(navOptions.shouldLaunchSingleTop()
-                && isAlreadyTop(destination))) {
-            mBackStack.add(destination.getId());
-        }
         Navigator<NavDestination> navigator = mNavigatorProvider.getNavigator(
                 startDestination.getNavigatorName());
         return navigator.navigate(startDestination, startDestination.addInDefaultArgs(args),
                 navOptions, navigatorExtras);
     }
 
-    /**
-     * This method to checks to see if navigating to the given destId would result in you
-     * being right back where you started (we want to avoid creating a duplicate stack of the
-     * same destinations).
-     *
-     * Because you can have a NavGraph as the start destination of another graph, we need to both
-     * check the current NavGraph (i.e., no direct singleTop copies) and all of the parents that
-     * start the current NavGraph via their start destinations.
-     */
-    private boolean isAlreadyTop(NavGraph destination) {
-        if (mBackStack.isEmpty()) {
-            return false;
-        }
-        int topDestId = mBackStack.peekLast();
-        NavGraph current = destination;
-        while (current.getId() != topDestId) {
-            NavDestination startDestination = current.findNode(current.getStartDestination());
-            if (startDestination instanceof NavGraph) {
-                current = (NavGraph) startDestination;
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
-
     @Override
     public boolean popBackStack() {
-        return mBackStack.pollLast() != null;
-    }
-
-    @Override
-    @Nullable
-    public Bundle onSaveState() {
-        Bundle b = new Bundle();
-        int[] backStack = new int[mBackStack.size()];
-        int index = 0;
-        for (Integer id : mBackStack) {
-            backStack[index++] = id;
-        }
-        b.putIntArray(KEY_BACK_STACK_IDS, backStack);
-        return b;
-    }
-
-    @Override
-    public void onRestoreState(@Nullable Bundle savedState) {
-        if (savedState != null) {
-            int[] backStack = savedState.getIntArray(KEY_BACK_STACK_IDS);
-            if (backStack != null) {
-                mBackStack.clear();
-                for (int destId : backStack) {
-                    mBackStack.add(destId);
-                }
-            }
-        }
+        return true;
     }
 }
