@@ -16,11 +16,15 @@
 
 package androidx.media2.player;
 
+import androidx.annotation.NonNull;
+
 /**
  * Immutable class for describing video size.
  */
-// TODO: Merge this into androidx.media2.common.VideoSize
+// TODO: Remove this class and use androidx.media2.common.VideoSize instead
 public final class VideoSize {
+    private final androidx.media2.common.VideoSize mInternal;
+
     /**
      * Creates a new immutable VideoSize instance.
      *
@@ -28,22 +32,25 @@ public final class VideoSize {
      * @param height The height of the video
      */
     public VideoSize(int width, int height) {
-        mWidth = width;
-        mHeight = height;
+        mInternal = new androidx.media2.common.VideoSize(width, height);
+    }
+
+    VideoSize(@NonNull androidx.media2.common.VideoSize internal) {
+        mInternal = internal;
     }
 
     /**
      * Returns the width of the video.
      */
     public int getWidth() {
-        return mWidth;
+        return mInternal.getWidth();
     }
 
     /**
      * Returns the height of the video.
      */
     public int getHeight() {
-        return mHeight;
+        return mInternal.getHeight();
     }
 
     /**
@@ -66,7 +73,7 @@ public final class VideoSize {
         }
         if (obj instanceof VideoSize) {
             VideoSize other = (VideoSize) obj;
-            return mWidth == other.mWidth && mHeight == other.mHeight;
+            return mInternal.equals(other.mInternal);
         }
         return false;
     }
@@ -78,15 +85,11 @@ public final class VideoSize {
      */
     @Override
     public String toString() {
-        return mWidth + "x" + mHeight;
+        return mInternal.toString();
     }
 
     @Override
     public int hashCode() {
-        // assuming most sizes are <2^16, doing a rotate will give us perfect hashing
-        return mHeight ^ ((mWidth << (Integer.SIZE / 2)) | (mWidth >>> (Integer.SIZE / 2)));
+        return mInternal.hashCode();
     }
-
-    private final int mWidth;
-    private final int mHeight;
 }
