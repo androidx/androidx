@@ -49,7 +49,7 @@ public class LifecycleService extends Service implements LifecycleOwner {
     @SuppressWarnings("deprecation")
     @CallSuper
     @Override
-    public void onStart(@NonNull Intent intent, int startId) {
+    public void onStart(@Nullable Intent intent, int startId) {
         mDispatcher.onServicePreSuperOnStart();
         super.onStart(intent, startId);
     }
@@ -60,7 +60,7 @@ public class LifecycleService extends Service implements LifecycleOwner {
     // super.onStartCommand calls onStart().
     @CallSuper
     @Override
-    public int onStartCommand(@NonNull Intent intent, int flags, int startId) {
+    public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
     }
 
