@@ -18,6 +18,8 @@ package androidx.camera.camera2.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.Manifest;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
@@ -46,6 +48,7 @@ public final class CaptureRequestParameterTest {
 
     @Before
     public void setup() throws CameraAccessException, InterruptedException {
+        assumeTrue(CameraUtil.deviceHasCamera());
         mCameraDevice = CameraUtil.getCameraDevice();
     }
 

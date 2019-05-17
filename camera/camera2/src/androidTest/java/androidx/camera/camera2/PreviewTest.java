@@ -19,6 +19,7 @@ package androidx.camera.camera2;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -46,10 +47,12 @@ import androidx.camera.core.Preview.OnPreviewOutputUpdateListener;
 import androidx.camera.core.Preview.PreviewOutput;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.testing.CameraUtil;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -83,7 +86,8 @@ public final class PreviewTest {
     private String mCameraId;
 
     @Before
-    public void setUp() {
+    public void setUp()  {
+        assumeTrue(CameraUtil.deviceHasCamera());
         // Instantiates OnPreviewOutputUpdateListener before each test run.
         mMockListener = mock(OnPreviewOutputUpdateListener.class);
         Context context = ApplicationProvider.getApplicationContext();
@@ -258,7 +262,6 @@ public final class PreviewTest {
     @UiThreadTest
     public void surfaceTexture_isListenedOnlyOnce()
             throws InterruptedException, ExecutionException, TimeoutException {
-
         Preview useCase = new Preview(mDefaultConfig);
 
         final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
@@ -314,6 +317,7 @@ public final class PreviewTest {
         }
     }
 
+    @MediumTest
     @Test
     @UiThreadTest
     public void previewOutputListenerCanBeSetAndRetrieved() {
@@ -438,7 +442,6 @@ public final class PreviewTest {
     @UiThreadTest
     public void outputIsPublished_whenListenerIsSetBefore()
             throws InterruptedException, ExecutionException {
-
         Preview useCase = new Preview(mDefaultConfig);
 
         final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();
@@ -463,7 +466,6 @@ public final class PreviewTest {
     @UiThreadTest
     public void outputIsPublished_whenListenerIsSetAfter()
             throws InterruptedException, ExecutionException {
-
         Preview useCase = new Preview(mDefaultConfig);
 
         final SurfaceTextureCallable surfaceTextureCallable0 = new SurfaceTextureCallable();

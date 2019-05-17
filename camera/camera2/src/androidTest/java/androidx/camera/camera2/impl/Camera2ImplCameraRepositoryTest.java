@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.impl;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.Manifest;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraDevice;
@@ -30,6 +32,7 @@ import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCaseGroup;
+import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
@@ -72,24 +75,28 @@ public final class Camera2ImplCameraRepositoryTest {
             Manifest.permission.CAMERA);
 
     @Before
-    public void setUp() {
+    public void setUp()  {
+        assumeTrue(CameraUtil.deviceHasCamera());
         mCameraRepository = new CameraRepository();
         mCameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext());
         mCameraRepository.init(mCameraFactory);
         mUseCaseGroup = new UseCaseGroup();
         mConfig = new FakeUseCaseConfig.Builder().setLensFacing(LensFacing.BACK).build();
-        String cameraId = getCameraIdForLensFacingUnchecked(mConfig.getLensFacing());
-        mUseCase = new CallbackAttachingFakeUseCase(mConfig, cameraId);
+        String mCameraId = getCameraIdForLensFacingUnchecked(mConfig.getLensFacing());
+        mUseCase = new CallbackAttachingFakeUseCase(mConfig, mCameraId);
         mUseCaseGroup.addUseCase(mUseCase);
     }
 
     @After
     public void tearDown() throws InterruptedException {
-        mCameraRepository.onGroupInactive(mUseCaseGroup);
+        if (CameraUtil.deviceHasCamera()) {
+            mCameraRepository.onGroupInactive(mUseCaseGroup);
 
-        // Wait some time for the cameras to close. We need the cameras to close to bring CameraX
-        // back to the initial state.
-        Thread.sleep(3000);
+            // Wait some time for the cameras to close.
+            // We need the cameras to close to bring CameraX
+            // back to the initial state.
+            Thread.sleep(3000);
+        }
     }
 
     @Test

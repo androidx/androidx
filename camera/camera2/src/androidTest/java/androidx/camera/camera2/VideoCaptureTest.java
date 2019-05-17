@@ -18,6 +18,7 @@ package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -34,6 +35,7 @@ import androidx.camera.core.UseCase.StateChangeListener;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedListener;
 import androidx.camera.core.VideoCaptureConfig;
+import androidx.camera.testing.CameraUtil;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -79,6 +81,7 @@ public final class VideoCaptureTest {
 
     @Before
     public void setUp() {
+        assumeTrue(CameraUtil.deviceHasCamera());
         mDefaultConfig = VideoCapture.DEFAULT_CONFIG.getConfig(null);
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig appConfig = Camera2AppConfig.create(context);
