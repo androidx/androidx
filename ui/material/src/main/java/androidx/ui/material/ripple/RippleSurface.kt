@@ -18,20 +18,20 @@ package androidx.ui.material.ripple
 
 import androidx.annotation.CheckResult
 import androidx.ui.animation.transitionsEnabled
-import androidx.ui.core.Draw
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.compose.Ambient
 import androidx.compose.Children
 import androidx.compose.Composable
-import androidx.compose.ambient
+import androidx.compose.Model
 import androidx.compose.composer
+import androidx.compose.ambient
 import androidx.compose.effectOf
-import androidx.compose.invalidate
 import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.core.Draw
+import androidx.ui.core.OnPositioned
 
 /**
  * An interface for creating [RippleEffect]s on a [RippleSurface].
@@ -93,7 +93,6 @@ fun RippleSurface(
 ) {
     val owner = +memo { RippleSurfaceOwnerImpl() }
     owner.backgroundColor = color
-    owner.recompose = +invalidate
 
     OnPositioned(onPositioned = { owner._layoutCoordinates = it })
     Draw { canvas, size ->
@@ -105,6 +104,7 @@ fun RippleSurface(
             owner.effects.forEach { it.draw(canvas) }
             canvas.restore()
         }
+        owner.recomposeModel.registerForRecomposition()
     }
     CurrentRippleSurface.Provider(value = owner, children = children)
 }
@@ -115,12 +115,14 @@ private class RippleSurfaceOwnerImpl : RippleSurfaceOwner {
     override val layoutCoordinates
         get() = _layoutCoordinates
             ?: throw IllegalStateException("The surface wasn't yet positioned!")
-    internal var recompose: () -> Unit = {}
+    internal var recomposeModel = RecomposeModel()
 
     internal var _layoutCoordinates: LayoutCoordinates? = null
     internal var effects = mutableListOf<RippleEffect>()
 
-    override fun markNeedsRedraw() = recompose()
+    override fun markNeedsRedraw() {
+        recomposeModel.recompose()
+    }
 
     override fun addEffect(feature: RippleEffect) {
         assert(!feature.debugDisposed)
@@ -133,5 +135,21 @@ private class RippleSurfaceOwnerImpl : RippleSurfaceOwner {
     override fun removeEffect(feature: RippleEffect) {
         effects.remove(feature)
         markNeedsRedraw()
+    }
+}
+
+// TODO(Andrey: Temporary workaround for the ripple invalidation)
+@Model
+private class RecomposeModel {
+
+    private var ticker = 0
+
+    fun recompose() {
+        ticker++
+    }
+
+    fun registerForRecomposition() {
+        @Suppress("UNUSED_VARIABLE")
+        val ticker = ticker
     }
 }
