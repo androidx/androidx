@@ -62,7 +62,7 @@ public class MediaParcelUtils {
             @NonNull List<? extends VersionedParcelable> items) {
         List<ParcelImpl> list = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
-            list.add(MediaParcelUtils.toParcelable(items.get(i)));
+            list.add(toParcelable(items.get(i)));
         }
         return list;
     }
@@ -88,7 +88,7 @@ public class MediaParcelUtils {
             @NonNull List<ParcelImpl> parcelList) {
         List<T> list = new ArrayList<>();
         for (int i = 0; i < parcelList.size(); i++) {
-            list.add((T) MediaParcelUtils.fromParcelable(parcelList.get(i)));
+            list.add((T) fromParcelable(parcelList.get(i)));
         }
         return list;
     }
