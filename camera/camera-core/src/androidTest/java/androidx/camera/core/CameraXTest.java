@@ -121,13 +121,9 @@ public final class CameraXTest {
     }
 
     @After
-    public void tearDown() throws InterruptedException {
+    public void tearDown() {
         CameraX.unbindAll();
         mHandlerThread.quitSafely();
-
-        // Wait some time for the cameras to close. We need the cameras to close to bring CameraX
-        // back to the initial state.
-        Thread.sleep(3000);
     }
 
     @Test
@@ -335,7 +331,7 @@ public final class CameraXTest {
 
             SessionConfig.Builder builder = new SessionConfig.Builder();
 
-            UseCaseConfig config = getUseCaseConfig();
+            UseCaseConfig<?> config = getUseCaseConfig();
             String cameraId = getCameraIdUnchecked(config);
             attachToCamera(cameraId, builder.build());
             return suggestedResolutionMap;

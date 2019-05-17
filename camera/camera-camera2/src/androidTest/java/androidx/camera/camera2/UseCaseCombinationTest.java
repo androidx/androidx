@@ -22,10 +22,12 @@ import static org.junit.Assume.assumeTrue;
 
 import android.Manifest;
 import android.content.Context;
+import android.hardware.camera2.CameraDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
@@ -51,7 +53,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Contains tests for {@link androidx.camera.core.CameraX} which varies use case combinations to
@@ -73,6 +77,8 @@ public final class UseCaseCombinationTest {
     private ImageAnalysis mImageAnalysis;
     private Preview mPreview;
     private ImageAnalysis.Analyzer mImageAnalyzer;
+    private CountDownLatch mLatchForDeviceClose;
+    private CameraDevice.StateCallback mDeviceStateCallback;
 
     private Observer<Long> createCountIncrementingObserver() {
         return new Observer<Long>() {
@@ -86,6 +92,26 @@ public final class UseCaseCombinationTest {
     @Before
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
+
+        mLatchForDeviceClose = new CountDownLatch(1);
+        mDeviceStateCallback = new CameraDevice.StateCallback() {
+            @Override
+            public void onOpened(@NonNull CameraDevice camera) {
+            }
+
+            @Override
+            public void onClosed(@NonNull CameraDevice camera) {
+                mLatchForDeviceClose.countDown();
+            }
+
+            @Override
+            public void onDisconnected(@NonNull CameraDevice camera) {
+            }
+
+            @Override
+            public void onError(@NonNull CameraDevice camera, int error) {
+            }
+        };
 
         Context context = ApplicationProvider.getApplicationContext();
         AppConfig config = Camera2AppConfig.create(context);
@@ -106,10 +132,10 @@ public final class UseCaseCombinationTest {
             CameraX.unbindAll();
             mHandlerThread.quitSafely();
 
-            // Wait some time for the cameras to close.
-            // We need the cameras to close to bring CameraX
-            // back to the initial state.
-            Thread.sleep(3000);
+            // Wait for camera to be closed.
+            if (mLatchForDeviceClose != null) {
+                mLatchForDeviceClose.await(2, TimeUnit.SECONDS);
+            }
         }
     }
 
@@ -209,12 +235,11 @@ public final class UseCaseCombinationTest {
     }
 
     private void initPreview() {
-        PreviewConfig previewConfig =
+        PreviewConfig.Builder configBuilder =
                 new PreviewConfig.Builder()
-                        .setLensFacing(DEFAULT_LENS_FACING)
                         .setTargetName("Preview")
-                        .build();
-
-        mPreview = new Preview(previewConfig);
+                        .setLensFacing(DEFAULT_LENS_FACING);
+        new Camera2Config.Extender(configBuilder).setDeviceStateCallback(mDeviceStateCallback);
+        mPreview = new Preview(configBuilder.build());
     }
 }
