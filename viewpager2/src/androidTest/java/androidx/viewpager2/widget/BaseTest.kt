@@ -46,8 +46,8 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
-import androidx.testutils.AppCompatActivityUtils
 import androidx.testutils.LocaleTestUtils
+import androidx.testutils.recreate
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.test.R
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
@@ -144,7 +144,7 @@ open class BaseTest {
                 viewPager.adapter = adapterProvider(activity)
                 onCreateCallback(viewPager)
             }
-            activity = AppCompatActivityUtils.recreateActivity(activityTestRule, activity)
+            activity = activityTestRule.recreate()
             TestActivity.onCreateCallback = { }
             onView(withId(R.id.view_pager)).perform(waitForInjectMotionEvents())
         }

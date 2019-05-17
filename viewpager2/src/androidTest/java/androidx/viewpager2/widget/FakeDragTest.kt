@@ -23,8 +23,8 @@ import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.test.filters.LargeTest
-import androidx.testutils.FragmentActivityUtils.waitForCycles
 import androidx.testutils.LocaleTestUtils
+import androidx.testutils.waitForExecution
 import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
 import androidx.viewpager2.widget.FakeDragTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.FakeDragTest.Event.OnPageScrolledEvent
@@ -346,7 +346,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             test.viewPager.setCurrentItemSync(initialPage, false, 2, SECONDS)
             // VP2 was potentially settling while the RetryException was raised, in which case we
             // must wait until the IDLE event has been fired
-            waitForCycles(1, activityTestRule)
+            activityTestRule.waitForExecution(1)
         }) { /* TRY block */
             val recorder = test.viewPager.addNewRecordingCallback()
 

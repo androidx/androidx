@@ -20,7 +20,7 @@ import androidx.fragment.app.test.HangingFragmentActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
-import androidx.testutils.FragmentActivityUtils
+import androidx.testutils.recreate
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -35,9 +35,7 @@ class HangingFragmentTest {
 
     @Test
     fun testNoCrash() {
-        val newActivity = FragmentActivityUtils.recreateActivity(
-            activityRule, activityRule.activity
-        )
+        val newActivity = activityRule.recreate()
         assertThat(newActivity).isNotNull()
     }
 }

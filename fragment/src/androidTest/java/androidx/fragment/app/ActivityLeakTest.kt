@@ -19,8 +19,10 @@ package androidx.fragment.app
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
-import androidx.testutils.FragmentActivityUtils
 import androidx.testutils.RecreatedActivity
+import androidx.testutils.recreate
+import androidx.testutils.runOnUiThreadRethrow
+import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -87,7 +89,7 @@ class ActivityLeakTest(
     fun testActivityDoesNotLeak() {
         // Restart the activity because activityRule keeps a strong reference to the
         // old activity.
-        val activity = FragmentActivityUtils.recreateActivity(activityRule, activityRule.activity)
+        val activity = activityRule.recreate()
         activityRule.runOnUiThreadRethrow {
             val parent = parentConfiguration.commit(activity.supportFragmentManager)!!
             childConfiguration.commit(parent.childFragmentManager)
