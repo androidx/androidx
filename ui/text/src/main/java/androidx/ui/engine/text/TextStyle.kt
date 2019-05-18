@@ -18,7 +18,6 @@ package androidx.ui.engine.text
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
 import androidx.ui.painting.Shadow
 
 /**
@@ -45,7 +44,6 @@ import androidx.ui.painting.Shadow
  * * `textGeometricTransform`: The geometric transformation applied the text.
  * * `locale`: The locale used to select region-specific glyphs.
  * * `background`: The background color for the text.
- * * `foreground`: The paint used to draw the text. If this is specified, `color` must be null.
  * * `fontSynthesis`: Whether to synthesize font weight and/or style when the requested weight or
  *                    style cannot be found in the provided custom font family.
  * * `textIndent`: The amount of indentation applied to the affected paragraph. A paragraph is affected
@@ -67,48 +65,8 @@ data class TextStyle constructor(
     val textGeometricTransform: TextGeometricTransform? = null,
     val height: Float? = null,
     val locale: Locale? = null,
-    // TODO(Migration/haoyuchang): background is changed to color from paint.
     val background: Color? = null,
-    val foreground: Paint? = null,
     val fontSynthesis: FontSynthesis? = null,
     val textIndent: TextIndent? = null,
     val shadow: Shadow? = null
-) {
-    init {
-        assert(color == null || foreground == null) {
-            "Cannot provide both a color and a foreground\n" +
-                "The color argument is just a shorthand for " +
-                "'foreground: new Paint()..color = color'."
-        }
-    }
-}
-
-// TODO(Migration/siyamed) Remove, Native defaults
-// class TextStyle {
-//     public:
-//     SkColor color = SK_ColorWHITE;
-//     int decoration = TextDecoration::kNone;
-//     // Does not make sense to draw a transparent object, so we use it as a default
-//     // value to indicate no decoration color was set.
-//     SkColor decoration_color = SK_ColorTRANSPARENT;
-//     TextDecorationStyle decoration_style = TextDecorationStyle::kSolid;
-//     // Thickness is applied as a multiplier to the default thickness of the font.
-//     double decoration_thickness_multiplier = 1.0;
-//     FontWeight font_weight = FontWeight::w400;
-//     FontStyle font_style = FontStyle::normal;
-//     TextBaseline text_baseline = TextBaseline::kAlphabetic;
-//     std::string font_family;
-//     double font_size = 14.0;
-//     double letter_spacing = 0.0;
-//     double word_spacing = 0.0;
-//     double height = 1.0;
-//     std::string locale;
-//     bool has_background = false;
-//     SkPaint background;
-//     bool has_foreground = false;
-//     SkPaint foreground;
-//
-//     TextStyle();
-//
-//     bool equals(const TextStyle& other) const;
-// };
+)
