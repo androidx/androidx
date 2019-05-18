@@ -134,6 +134,6 @@ class BenchmarkStateTest {
             repeatIterations = 1,
             warmupIterations = 1
         )
-        assertEquals(expectedReport, ResultWriter.fileManager.lastAddedEntry)
+        assertEquals(expectedReport, ResultWriter.reports.last())
     }
 }
