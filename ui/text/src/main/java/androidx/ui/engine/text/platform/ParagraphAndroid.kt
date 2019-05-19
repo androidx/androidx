@@ -111,12 +111,8 @@ internal class ParagraphAndroid constructor(
     val maxIntrinsicWidth: Float
         get() = layout?.let { it.maxIntrinsicWidth } ?: 0.0f
 
-    val alphabeticBaseline: Float
+    val baseline: Float
         get() = layout?.let { it.layout.getLineBaseline(0).toFloat() } ?: Float.MAX_VALUE
-
-    // TODO(Migration/siyamed):  (metrics.fUnderlinePosition - metrics.fAscent) * style.height;
-    val ideographicBaseline: Float
-        get() = Float.MAX_VALUE
 
     val didExceedMaxLines: Boolean
         get() = layout?.let { it.didExceedMaxLines } ?: false

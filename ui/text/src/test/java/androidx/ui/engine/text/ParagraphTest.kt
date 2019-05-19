@@ -59,14 +59,7 @@ class ParagraphTest {
     fun `alphabeticBaseline default value`() {
         val paragraphStyle = createParagraphStyle()
         val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
-        assertThat(paragraph.alphabeticBaseline, equalTo(Float.MAX_VALUE))
-    }
-
-    @Test
-    fun `ideographicBaseline default value`() {
-        val paragraphStyle = createParagraphStyle()
-        val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
-        assertThat(paragraph.ideographicBaseline, equalTo(Float.MAX_VALUE))
+        assertThat(paragraph.baseline, equalTo(Float.MAX_VALUE))
     }
 
     @Test

@@ -24,7 +24,6 @@ import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
-import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextGeometricTransform
@@ -51,12 +50,10 @@ class TextStyleTest {
         assertThat(textStyle.fontStyle).isNull()
         assertThat(textStyle.letterSpacing).isNull()
         assertThat(textStyle.wordSpacing).isNull()
-        assertThat(textStyle.textBaseline).isNull()
         assertThat(textStyle.height).isNull()
         assertThat(textStyle.locale).isNull()
         assertThat(textStyle.background).isNull()
         assertThat(textStyle.decoration).isNull()
-//        assertThat(textStyle.debugLabel).isNull()
         assertThat(textStyle.fontFamily).isNull()
     }
 
@@ -112,15 +109,6 @@ class TextStyleTest {
         val textStyle = TextStyle(wordSpacing = wordSpacing)
 
         assertThat(textStyle.wordSpacing).isEqualTo(wordSpacing)
-    }
-
-    @Test
-    fun `constructor with customized textBaseline`() {
-        val textBaseline = TextBaseline.alphabetic
-
-        val textStyle = TextStyle(textBaseline = textBaseline)
-
-        assertThat(textStyle.textBaseline).isEqualTo(textBaseline)
     }
 
     @Test
@@ -402,29 +390,6 @@ class TextStyleTest {
         val newTextStyle = textStyle.merge(otherTextStyle)
 
         assertThat(newTextStyle.wordSpacing).isEqualTo(otherWordSpacing)
-    }
-
-    @Test
-    fun `merge with other's textBaseline is null should use this' textBaseline`() {
-        val textBaseline = TextBaseline.alphabetic
-        val textStyle = TextStyle(textBaseline = textBaseline)
-        val otherTextStyle = TextStyle()
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.textBaseline).isEqualTo(textBaseline)
-    }
-
-    @Test
-    fun `merge with other's textBaseline is set should use other's textBaseline`() {
-        val textBaseline = TextBaseline.alphabetic
-        val otherTextBaseline = TextBaseline.ideographic
-        val textStyle = TextStyle(textBaseline = textBaseline)
-        val otherTextStyle = TextStyle(textBaseline = otherTextBaseline)
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.textBaseline).isEqualTo(otherTextBaseline)
     }
 
     @Test
@@ -1351,100 +1316,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp textBaseline with a is Null and t is smaller than half`() {
-        val textBaseline = TextBaseline.ideographic
-        val t = 0.3f
-        val textStyle = TextStyle(textBaseline = textBaseline)
-
-        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
-
-        assertThat(newTextStyle?.textBaseline).isNull()
-    }
-
-    @Test
-    fun `lerp textBaseline with a is Null and t is larger than half`() {
-        val textBaseline = TextBaseline.ideographic
-        val t = 0.7f
-        val textStyle = TextStyle(textBaseline = textBaseline)
-
-        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
-
-        assertThat(newTextStyle?.textBaseline).isEqualTo(textBaseline)
-    }
-
-    @Test
-    fun `lerp textBaseline with b is Null and t is smaller than half`() {
-        val textBaseline = TextBaseline.ideographic
-        val t = 0.3f
-        val textStyle = TextStyle(textBaseline = textBaseline)
-
-        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
-
-        assertThat(newTextStyle?.textBaseline).isEqualTo(textBaseline)
-    }
-
-    @Test
-    fun `lerp textBaseline with b is Null and t is larger than half`() {
-        val textBaseline = TextBaseline.ideographic
-        val t = 0.7f
-        val textStyle = TextStyle(textBaseline = textBaseline)
-
-        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
-
-        assertThat(newTextStyle?.textBaseline).isNull()
-    }
-
-    @Test
-    fun `lerp textBaseline with a and b are not Null and t is smaller than half`() {
-        val textBaseline1 = TextBaseline.ideographic
-        val textBaseline2 = TextBaseline.alphabetic
-        val t = 0.3f
-        val textStyle1 = TextStyle(
-            textBaseline = textBaseline1,
-            fontSize = 4.0f,
-            wordSpacing = 1.0f,
-            letterSpacing = 2.0f,
-            height = 123.0f
-        )
-        val textStyle2 = TextStyle(
-            textBaseline = textBaseline2,
-            fontSize = 7.0f,
-            wordSpacing = 2.0f,
-            letterSpacing = 4.0f,
-            height = 20.0f
-        )
-
-        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
-
-        assertThat(newTextStyle?.textBaseline).isEqualTo(textBaseline1)
-    }
-
-    @Test
-    fun `lerp textBaseline with a and b are not Null and t is larger than half`() {
-        val textBaseline1 = TextBaseline.ideographic
-        val textBaseline2 = TextBaseline.alphabetic
-        val t = 0.8f
-        val textStyle1 = TextStyle(
-            textBaseline = textBaseline1,
-            fontSize = 4.0f,
-            wordSpacing = 1.0f,
-            letterSpacing = 2.0f,
-            height = 123.0f
-        )
-        val textStyle2 = TextStyle(
-            textBaseline = textBaseline2,
-            fontSize = 7.0f,
-            wordSpacing = 2.0f,
-            letterSpacing = 4.0f,
-            height = 20.0f
-        )
-
-        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
-
-        assertThat(newTextStyle?.textBaseline).isEqualTo(textBaseline2)
-    }
-
-    @Test
     fun `lerp baselineShift with a is Null and t is smaller than half`() {
         val baselineShift = BaselineShift.SUPERSCRIPT
         val t = 0.3f
@@ -2191,7 +2062,6 @@ class TextStyleTest {
             fontFeatureSettings = fontFeatureSettings,
             letterSpacing = 1.0f,
             wordSpacing = 2.0f,
-            textBaseline = TextBaseline.alphabetic,
             baselineShift = BaselineShift.SUBSCRIPT,
             textGeometricTransform = TextGeometricTransform(scaleX = 1.0f),
             height = height,
@@ -2230,9 +2100,6 @@ class TextStyleTest {
         assertThat(textStyle.compareTo(textStyle.copy(wordSpacing = 4.0f)))
             .isEqualTo(RenderComparison.LAYOUT)
 
-        assertThat(textStyle.compareTo(textStyle.copy(textBaseline = TextBaseline.ideographic)))
-            .isEqualTo(RenderComparison.LAYOUT)
-
         assertThat(textStyle.compareTo(textStyle.copy(baselineShift = BaselineShift.SUPERSCRIPT)))
             .isEqualTo(RenderComparison.LAYOUT)
 
@@ -2264,7 +2131,6 @@ class TextStyleTest {
             fontStyle = FontStyle.italic,
             letterSpacing = 1.0f,
             wordSpacing = 2.0f,
-            textBaseline = TextBaseline.alphabetic,
             baselineShift = BaselineShift.SUPERSCRIPT,
             textGeometricTransform = TextGeometricTransform(null, null),
             height = height,

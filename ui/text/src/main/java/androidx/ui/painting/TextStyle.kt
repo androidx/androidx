@@ -22,7 +22,6 @@ import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
-import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextGeometricTransform
@@ -54,7 +53,6 @@ private const val _defaultFontSize: Float = 14.0f
  *                            https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
  * @param letterSpacing The amount of space (in logical pixels) to add between each letter.
  * @param wordSpacing The amount of space (in logical pixels) to add at each sequence of white-space (i.e. between each word). Only works on Android Q and above.
- * @param textBaseline The common baseline that should be aligned between this text span and its parent text span, or, for the root text spans, with the line box.
  * @param baselineShift This parameter specifies how much the baseline is shifted from the current position.
  * @param textGeometricTransform The geometric transformation applied the text.
  * @param height The height of this text span, as a multiple of the font size.
@@ -75,7 +73,6 @@ data class TextStyle(
     val fontFeatureSettings: String? = null,
     val letterSpacing: Float? = null,
     val wordSpacing: Float? = null,
-    val textBaseline: TextBaseline? = null,
     val baselineShift: BaselineShift? = null,
     val textGeometricTransform: TextGeometricTransform? = null,
     val height: Float? = null,
@@ -121,7 +118,6 @@ data class TextStyle(
             fontFeatureSettings = other.fontFeatureSettings ?: this.fontFeatureSettings,
             letterSpacing = other.letterSpacing ?: this.letterSpacing,
             wordSpacing = other.wordSpacing ?: this.wordSpacing,
-            textBaseline = other.textBaseline ?: this.textBaseline,
             baselineShift = other.baselineShift ?: this.baselineShift,
             textGeometricTransform = other.textGeometricTransform ?: this.textGeometricTransform,
             height = other.height ?: this.height,
@@ -229,7 +225,7 @@ data class TextStyle(
                     b.wordSpacing ?: a.wordSpacing!!,
                     t
                 ),
-                textBaseline = if (t < 0.5) a.textBaseline else b.textBaseline,
+
                 baselineShift = BaselineShift.lerp(a.baselineShift, b.baselineShift, t),
                 textGeometricTransform = lerp(
                     a.textGeometricTransform ?: TextGeometricTransform.None,
@@ -268,7 +264,6 @@ data class TextStyle(
             fontSize = if (fontSize == null) null else (fontSize * textScaleFactor),
             letterSpacing = letterSpacing,
             wordSpacing = wordSpacing,
-            textBaseline = textBaseline,
             baselineShift = baselineShift,
             textGeometricTransform = textGeometricTransform,
             height = height,
@@ -331,7 +326,6 @@ data class TextStyle(
             fontFeatureSettings != other.fontFeatureSettings ||
             letterSpacing != other.letterSpacing ||
             wordSpacing != other.wordSpacing ||
-            textBaseline != other.textBaseline ||
             baselineShift != other.baselineShift ||
             textGeometricTransform != other.textGeometricTransform ||
             height != other.height ||
