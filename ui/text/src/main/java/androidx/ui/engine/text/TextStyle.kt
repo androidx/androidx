@@ -25,30 +25,30 @@ import androidx.ui.painting.Shadow
  *
  * Creates a new TextStyle object.
  *
- * * `color`: The color to use when painting the text. If this is specified, `foreground` must be
- *             null.
- * * `decoration`: The decorations to paint near the text (e.g., an underline).
- * * `fontWeight`: The typeface thickness to use when painting the text (e.g., bold).
- * * `fontStyle`: The typeface variant to use when drawing the letters (e.g., italics).
- * * `fontFamily`: The name of the font to use when painting the text (e.g., Roboto).
- * * `fontSize`: The size of glyphs (in logical pixels) to use when painting the text.
- * * `fontFeatureSettings`: The advanced typography settings provided by font. The format is the same as the CSS font-feature-settings attribute:
- * *  https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
- * * `letterSpacing`: The amount of space (in EM) to add between each letter.
- * * `wordSpacing`: The amount of space (in logical pixels) to add at each sequence of white-space
- *                  (i.e. between each word). Only works on Android Q and above.
- * * `textBaseline`: The common baseline that should be aligned between this text span and its
- *                   parent text span, or, for the root text spans, with the line box.
- * * `baselineShift`: This parameter specifies how much the baseline is shifted from the current position.
- * * `height`: The height of this text span, as a multiple of the font size.
- * * `textGeometricTransform`: The geometric transformation applied the text.
- * * `locale`: The locale used to select region-specific glyphs.
- * * `background`: The background color for the text.
- * * `fontSynthesis`: Whether to synthesize font weight and/or style when the requested weight or
- *                    style cannot be found in the provided custom font family.
- * * `textIndent`: The amount of indentation applied to the affected paragraph. A paragraph is affected
- *                 if any of its character is covered by the TextSpan.
- * * `shadow`: The shadow effect applied on the text.
+ * @param color The color to use when painting the text. If this is specified, `foreground` must be
+ *              null.
+ * @param decoration The decorations to paint near the text (e.g., an underline).
+ * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
+ * @param fontStyle The typeface variant to use when drawing the letters (e.g., italics).
+ * @param fontFamily The name of the font to use when painting the text (e.g., Roboto).
+ * @param fontSize The size of glyphs (in logical pixels) to use when painting the text.
+ * @param fontFeatureSettings The advanced typography settings provided by font. The format is the same as the CSS font-feature-settings attribute:
+ *                            https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
+ * @param letterSpacing The amount of space (in EM) to add between each letter.
+ * @param wordSpacing The amount of space (in logical pixels) to add at each sequence of white-space
+ *                    (i.e. between each word). Only works on Android Q and above.
+ * @param textBaseline The common baseline that should be aligned between this text span and its
+ *                     parent text span, or, for the root text spans, with the line box.
+ * @param baselineShift This parameter specifies how much the baseline is shifted from the current position.
+ * @param height The height of this text span, as a multiple of the font size.
+ * @param textGeometricTransform The geometric transformation applied the text.
+ * @param locale The locale used to select region-specific glyphs.
+ * @param background The background color for the text.
+ * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight or
+ *                      style cannot be found in the provided custom font family.
+ * @param textIndent The amount of indentation applied to the affected paragraph. A paragraph is affected
+ *                   if any of its character is covered by the TextSpan.
+ * @param shadow The shadow effect applied on the text.
  */
 data class TextStyle constructor(
     val color: Color? = null,
