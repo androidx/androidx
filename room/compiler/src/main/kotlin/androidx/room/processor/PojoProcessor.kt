@@ -19,9 +19,11 @@ package androidx.room.processor
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.ext.extendsBoundOrSelf
 import androidx.room.ext.getAllFieldsIncludingPrivateSupers
+import androidx.room.ext.getAllMethodsIncludingSupers
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.isAssignableWithoutVariance
@@ -84,8 +86,10 @@ class PojoProcessor private constructor(
     private val kotlinMetadata = KotlinMetadataElement.createFor(context, element)
 
     companion object {
-        val PROCESSED_ANNOTATIONS = listOf(ColumnInfo::class, Embedded::class,
-                Relation::class)
+        val PROCESSED_ANNOTATIONS = listOf(ColumnInfo::class, Embedded::class, Relation::class)
+
+        val TARGET_METHOD_ANNOTATIONS = arrayOf(PrimaryKey::class, ColumnInfo::class,
+            Embedded::class, Relation::class)
 
         fun createFor(
             context: Context,
@@ -103,7 +107,7 @@ class PojoProcessor private constructor(
                 }
                 autoValueGeneratedElement to AutoValuePojoProcessorDelegate(context, element)
             } else {
-                element to DefaultDelegate()
+                element to DefaultDelegate(context)
             }
 
             return PojoProcessor(
@@ -129,7 +133,7 @@ class PojoProcessor private constructor(
     }
 
     private fun doProcess(): Pojo {
-        delegate.onPreProcess()
+        delegate.onPreProcess(element)
 
         val declaredType = MoreTypes.asDeclared(element.asType())
         // TODO handle conflicts with super: b/35568142
@@ -742,7 +746,7 @@ class PojoProcessor private constructor(
 
     interface Delegate {
 
-        fun onPreProcess()
+        fun onPreProcess(element: TypeElement)
 
         fun findConstructors(element: TypeElement): List<ExecutableElement>
 
@@ -756,8 +760,20 @@ class PojoProcessor private constructor(
         ): Pojo
     }
 
-    private class DefaultDelegate : Delegate {
-        override fun onPreProcess() {}
+    private class DefaultDelegate(private val context: Context) : Delegate {
+        override fun onPreProcess(element: TypeElement) {
+            // Check that certain Room annotations with @Target(METHOD) are not used in the POJO
+            // since it is not annotated with AutoValue.
+            element.getAllMethodsIncludingSupers()
+                .filter { it.hasAnyOf(*TARGET_METHOD_ANNOTATIONS) }
+                .forEach { method ->
+                    val annotationName = TARGET_METHOD_ANNOTATIONS
+                        .first { method.hasAnnotation(it) }
+                        .java.simpleName
+                    context.logger.e(method,
+                        ProcessorErrors.invalidAnnotationTarget(annotationName, method.kind))
+                }
+        }
 
         override fun findConstructors(element: TypeElement) = ElementFilter.constructorsIn(
                 element.enclosedElements).filterNot {

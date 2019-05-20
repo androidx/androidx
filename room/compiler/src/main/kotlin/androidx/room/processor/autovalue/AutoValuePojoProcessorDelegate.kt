@@ -17,12 +17,13 @@
 package androidx.room.processor.autovalue
 
 import androidx.room.Ignore
-import androidx.room.ext.getAllAbstractMethodsIncludingSupers
+import androidx.room.ext.getAllMethodsIncludingSupers
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
 import androidx.room.processor.PojoProcessor
+import androidx.room.processor.PojoProcessor.Companion.TARGET_METHOD_ANNOTATIONS
 import androidx.room.processor.ProcessorErrors
 import androidx.room.vo.Constructor
 import androidx.room.vo.EmbeddedField
@@ -50,19 +51,32 @@ class AutoValuePojoProcessorDelegate(
         MoreTypes.asDeclared(autoValueElement.asType())
     }
 
-    override fun onPreProcess() {
+    override fun onPreProcess(element: TypeElement) {
+        val allMethods = autoValueElement.getAllMethodsIncludingSupers()
+        val autoValueAbstractGetters = allMethods
+            .filter { it.hasAnyOf(Modifier.ABSTRACT) && it.parameters.size == 0 }
+
         // Warn about missing @AutoValue.CopyAnnotations in the property getters.
-        autoValueElement.getAllAbstractMethodsIncludingSupers()
-                .filter { it.parameters.size == 0 }
-                .forEach {
-                    val hasRoomAnnotation = it.annotationMirrors.map {
-                        it.annotationType.typeName().toString()
-                    }.any { it.contains("androidx.room") }
-                    if (hasRoomAnnotation && !it.hasAnnotation(CopyAnnotations::class)) {
-                        context.logger.w(Warning.MISSING_COPY_ANNOTATIONS, it,
-                                ProcessorErrors.MISSING_COPY_ANNOTATIONS)
-                    }
-                }
+        autoValueAbstractGetters.forEach {
+            val hasRoomAnnotation = it.annotationMirrors.map {
+                it.annotationType.typeName().toString()
+            }.any { it.contains("androidx.room") }
+            if (hasRoomAnnotation && !it.hasAnnotation(CopyAnnotations::class)) {
+                context.logger.w(Warning.MISSING_COPY_ANNOTATIONS, it,
+                        ProcessorErrors.MISSING_COPY_ANNOTATIONS)
+            }
+        }
+
+        // Check that certain Room annotations with @Target(METHOD) are not used in methods other
+        // than the auto value abstract getters.
+        (allMethods - autoValueAbstractGetters)
+            .filter { it.hasAnyOf(*TARGET_METHOD_ANNOTATIONS) }
+            .forEach { method ->
+                val annotationName = TARGET_METHOD_ANNOTATIONS.first { method.hasAnnotation(it) }
+                    .java.simpleName
+                context.logger.e(method,
+                    ProcessorErrors.invalidAnnotationTarget(annotationName, method.kind))
+            }
     }
 
     override fun findConstructors(element: TypeElement): List<ExecutableElement> {

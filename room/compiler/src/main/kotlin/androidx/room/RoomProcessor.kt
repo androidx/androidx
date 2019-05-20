@@ -16,7 +16,6 @@
 
 package androidx.room
 
-import androidx.room.checker.AutoValueTargetChecker
 import androidx.room.processor.Context
 import androidx.room.processor.DatabaseProcessor
 import androidx.room.processor.MissingTypeException
@@ -38,9 +37,7 @@ import javax.lang.model.element.Element
  */
 class RoomProcessor : BasicAnnotationProcessor() {
     override fun initSteps(): MutableIterable<ProcessingStep>? {
-        return mutableListOf(
-                DatabaseProcessingStep(processingEnv),
-                TargetCheckProcessingStep(processingEnv))
+        return mutableListOf(DatabaseProcessingStep(processingEnv))
     }
 
     override fun getSupportedOptions(): MutableSet<String> {
@@ -133,20 +130,6 @@ class RoomProcessor : BasicAnnotationProcessor() {
                             }
                         }
                     }
-        }
-    }
-
-    class TargetCheckProcessingStep(val processingEnv: ProcessingEnvironment) : ProcessingStep {
-        override fun process(
-            elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
-        ): MutableSet<Element> {
-            val context = Context(processingEnv)
-            AutoValueTargetChecker(context, elementsByAnnotation).check()
-            return mutableSetOf()
-        }
-
-        override fun annotations(): MutableSet<out Class<out Annotation>> {
-            return AutoValueTargetChecker.requestedAnnotations()
         }
     }
 }
