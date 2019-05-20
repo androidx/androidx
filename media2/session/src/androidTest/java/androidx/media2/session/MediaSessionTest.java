@@ -62,7 +62,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -539,6 +538,9 @@ public class MediaSessionTest extends MediaSessionTestBase {
         }
     }
 
+    /**
+     * This also tests {@link MediaController#getAllowedCommands()}.
+      */
     @Test
     public void testSetAllowedCommands() throws InterruptedException {
         prepareLooper();
@@ -552,15 +554,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
             @Override
             public void onAllowedCommandsChanged(MediaController controller,
                     SessionCommandGroup commandsOut) {
-                assertNotNull(commandsOut);
-                Set<SessionCommand> expected = commands.getCommands();
-                Set<SessionCommand> actual = commandsOut.getCommands();
-
-                assertNotNull(actual);
-                assertEquals(expected.size(), actual.size());
-                for (SessionCommand command : expected) {
-                    assertTrue(actual.contains(command));
-                }
+                assertEquals(commands, commandsOut);
                 latch.countDown();
             }
         };
@@ -572,6 +566,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
         mSession.setAllowedCommands(controllerInfo, commands);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(commands, controller.getAllowedCommands());
     }
 
     @Test

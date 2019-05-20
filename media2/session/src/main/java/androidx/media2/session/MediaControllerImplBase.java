@@ -829,6 +829,17 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
+    public SessionCommandGroup getAllowedCommands() {
+        synchronized (mLock) {
+            if (mISession == null) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return null;
+            }
+            return mAllowedCommands;
+        }
+    }
+
+    @Override
     @NonNull
     public Context getContext() {
         return mContext;
@@ -1303,6 +1314,9 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     void onAllowedCommandsChanged(final SessionCommandGroup commands) {
+        synchronized (mLock) {
+            mAllowedCommands = commands;
+        }
         mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {

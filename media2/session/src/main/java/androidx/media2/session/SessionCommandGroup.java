@@ -22,6 +22,7 @@ import static androidx.media2.session.SessionCommand.COMMAND_VERSION_1;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
+import androidx.core.util.ObjectsCompat;
 import androidx.media2.session.SessionCommand.CommandCode;
 import androidx.media2.session.SessionCommand.CommandVersion;
 import androidx.media2.session.SessionCommand.Range;
@@ -94,6 +95,23 @@ public final class SessionCommandGroup implements VersionedParcelable {
      */
     public @NonNull Set<SessionCommand> getCommands() {
         return new HashSet<>(mCommands);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof SessionCommandGroup)) return false;
+
+        SessionCommandGroup that = (SessionCommandGroup) obj;
+        if (mCommands == null) {
+            return that.mCommands == null;
+        }
+        return mCommands.equals(that.mCommands);
+    }
+
+    @Override
+    public int hashCode() {
+        return ObjectsCompat.hashCode(mCommands);
     }
 
     /**
