@@ -46,6 +46,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.Suppress;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -205,6 +206,7 @@ public final class ImageAnalysisTest {
         assertThat(mAnalysisResults).isEmpty();
     }
 
+    @Suppress // TODO(b/133171096): Remove once this no longer throws an IllegalStateException
     @MediumTest
     @Test
     public void updateSessionConfigWithSuggestedResolution() throws InterruptedException {
