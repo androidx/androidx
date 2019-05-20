@@ -78,7 +78,6 @@ import androidx.media2.session.MediaSession.CommandButton;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
-import java.util.Set;
 
 // TODO: Find better way to return listenable future.
 @SuppressLint("ObsoleteSdkInt") // TODO: Remove once the minSdkVersion is lowered enough.
@@ -830,6 +829,17 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
+    public SessionCommandGroup getAllowedCommands() {
+        synchronized (mLock) {
+            if (!mConnected) {
+                Log.w(TAG, "Session isn't active", new IllegalStateException());
+                return null;
+            }
+            return mAllowedCommands;
+        }
+    }
+
+    @Override
     public @NonNull Context getContext() {
         return mContext;
     }
@@ -1179,10 +1189,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
                 }
             }
 
-            Set<SessionCommand> prevCommands = prevAllowedCommands.getCommands();
-            Set<SessionCommand> currentCommands = currentAllowedCommands.getCommands();
-            if (prevCommands.size() != currentCommands.size()
-                    || !prevCommands.containsAll(currentCommands)) {
+            if (!prevAllowedCommands.equals(currentAllowedCommands)) {
                 mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
                     @Override
                     public void run(@NonNull ControllerCallback callback) {
