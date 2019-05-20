@@ -23,7 +23,7 @@ class StringPagedList constructor(
     trailingNulls: Int,
     vararg items: String
 ) : PagedList<String>(
-    PagedStorage<String>(),
+    PagedStorage(),
     TestExecutor(),
     TestExecutor(),
     null,
@@ -33,8 +33,7 @@ class StringPagedList constructor(
     var detached = false
 
     init {
-        @Suppress("UNCHECKED_CAST")
-        val keyedStorage = mStorage as PagedStorage<String>
+        val keyedStorage = getStorage()
         keyedStorage.init(
             leadingNulls,
             list,
@@ -44,23 +43,20 @@ class StringPagedList constructor(
         )
     }
 
-    internal override fun isContiguous(): Boolean = true
+    override val isContiguous = true
 
-    override fun getLastKey(): Any? = null
+    override val lastKey: Any? = null
 
-    override fun isDetached(): Boolean = detached
+    override val isDetached
+        get() = detached
 
     override fun detach() {
         detached = true
     }
 
-    override fun dispatchUpdatesSinceSnapshot(
-        storageSnapshot: PagedList<String>,
-        callback: Callback
-    ) {
-    }
+    override fun dispatchUpdatesSinceSnapshot(snapshot: PagedList<String>, callback: Callback) {}
 
-    override fun dispatchCurrentLoadState(listener: LoadStateListener?) {}
+    override fun dispatchCurrentLoadState(listener: LoadStateListener) {}
 
     override fun loadAroundInternal(index: Int) {}
 
@@ -74,15 +70,10 @@ class StringPagedList constructor(
 
     override fun onPageInserted(start: Int, count: Int) {}
 
-    override fun getDataSource(): DataSource<*, String> {
-        return ListDataSource<String>(list)
-    }
+    override val dataSource = ListDataSource(list)
 
-    override fun onPagesRemoved(startOfDrops: Int, count: Int) {
-        notifyRemoved(startOfDrops, count)
-    }
+    override fun onPagesRemoved(startOfDrops: Int, count: Int) = notifyRemoved(startOfDrops, count)
 
-    override fun onPagesSwappedToPlaceholder(startOfDrops: Int, count: Int) {
+    override fun onPagesSwappedToPlaceholder(startOfDrops: Int, count: Int) =
         notifyChanged(startOfDrops, count)
-    }
 }

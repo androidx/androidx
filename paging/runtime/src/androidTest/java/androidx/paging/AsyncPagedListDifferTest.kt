@@ -59,13 +59,13 @@ class AsyncPagedListDifferTest {
         return differ
     }
 
-    private fun <V> createPagedListFromListAndPos(
+    private fun <V : Any> createPagedListFromListAndPos(
         config: PagedList.Config,
         data: List<V>,
         initialKey: Int
     ): PagedList<V> {
         @Suppress("DEPRECATION")
-        return PagedList.Builder<Int, V>(ListDataSource(data), config)
+        return PagedList.Builder(ListDataSource(data), config)
             .setInitialKey(initialKey)
             .setNotifyExecutor(mMainThread)
             .setFetchExecutor(mPageLoadingThread)

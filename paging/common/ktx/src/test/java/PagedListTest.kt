@@ -30,8 +30,8 @@ class PagedListTest {
         val pagedList = PagedList(
                 dataSource = dataSource,
                 config = config,
-                fetchExecutor = DirectExecutor.INSTANCE,
-                notifyExecutor = DirectExecutor.INSTANCE
+                fetchExecutor = DirectExecutor,
+                notifyExecutor = DirectExecutor
         )
 
         assertEquals(dataSource, pagedList.dataSource)
