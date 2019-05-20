@@ -42,6 +42,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -79,6 +80,23 @@ public class InvalidationTrackerTest {
                 ApplicationProvider.getApplicationContext(),
                 InvalidationTestDatabase.class)
                 .build();
+    }
+
+    @Test
+    public void testInit_differentTempStore() {
+        InvalidationTestDatabase db = Room.inMemoryDatabaseBuilder(
+                ApplicationProvider.getApplicationContext(),
+                InvalidationTestDatabase.class)
+                .addCallback(new RoomDatabase.Callback() {
+                    @Override
+                    public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                        db.execSQL("PRAGMA temp_store = FILE;");
+                        db.execSQL("CREATE TEMP TABLE cache (id INTEGER PRIMARY KEY)");
+                    }
+                })
+                .build();
+        // Open DB to init InvalidationTracker, should not crash.
+        db.getOpenHelper().getWritableDatabase();
     }
 
     @Test
