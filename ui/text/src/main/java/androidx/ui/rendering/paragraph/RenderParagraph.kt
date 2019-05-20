@@ -25,7 +25,6 @@ import androidx.ui.core.round
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.text.TextAlign
-import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.painting.BlendMode
@@ -226,23 +225,15 @@ class RenderParagraph(
         return textPainter.height
     }
 
-    fun computeMinIntrinsicHeight(width: Float): Float {
-        return computeIntrinsicHeight(width)
-    }
-
-    fun computeMaxIntrinsicHeight(width: Float): Float {
-        return computeIntrinsicHeight(width)
-    }
-
-    fun computeDistanceToActualBaseline(baseline: TextBaseline): Float {
-        // TODO(Migration/qqd): Need to figure out where this constraints come from and how to make
-        // it non-null.
-        assert(constraints != null)
-        constraints?.let {
-            layoutTextWithConstraints(it)
-        }
-        return textPainter.computeDistanceToActualBaseline(baseline)
-    }
+    // Height computation functions were unused, therefore commenting out.
+    // we will go over them when we decide on the final state of render paragraph class.
+//    fun computeMinIntrinsicHeight(width: Float): Float {
+//        return computeIntrinsicHeight(width)
+//    }
+//
+//    fun computeMaxIntrinsicHeight(width: Float): Float {
+//        return computeIntrinsicHeight(width)
+//    }
 
 //    public override fun hitTestSelf(position: Offset): Boolean = true
 

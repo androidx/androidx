@@ -85,15 +85,8 @@ class Paragraph internal constructor(
      * The distance from the top of the paragraph to the alphabetic
      * baseline of the first line, in logical pixels.
      */
-    val alphabeticBaseline: Float
-        get() = paragraphImpl.alphabeticBaseline
-
-    /**
-     * The distance from the top of the paragraph to the ideographic
-     * baseline of the first line, in logical pixels.
-     */
-    val ideographicBaseline: Float
-        get() = paragraphImpl.ideographicBaseline
+    val baseline: Float
+        get() = paragraphImpl.baseline
 
     /**
      * True if there is more vertical content, but the text was truncated, either
