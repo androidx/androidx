@@ -312,7 +312,7 @@ public abstract class FragmentStateAdapter extends
         }
     }
 
-    private void scheduleViewAttach(final Fragment fragment, final FrameLayout container) {
+    private void scheduleViewAttach(final Fragment fragment, @NonNull final FrameLayout container) {
         // After a config change, Fragments that were in FragmentManager will be recreated. Since
         // ViewHolder container ids are dynamically generated, we opted to manually handle
         // attaching Fragment views to containers. For consistency, we use the same mechanism for
@@ -332,7 +332,7 @@ public abstract class FragmentStateAdapter extends
     }
 
     @SuppressWarnings("WeakerAccess") // to avoid creation of a synthetic accessor
-    void addViewToContainer(@NonNull View v, FrameLayout container) {
+    void addViewToContainer(@NonNull View v, @NonNull FrameLayout container) {
         if (container.getChildCount() > 1) {
             throw new IllegalStateException("Design assumption violated.");
         }
