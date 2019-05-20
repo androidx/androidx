@@ -188,7 +188,6 @@ public final class ImageAnalysisTest {
         }
     }
 
-    @MediumTest
     @Test
     public void analyzerDoesNotAnalyzeImages_whenCameraIsNotOpen() throws InterruptedException {
         ImageAnalysisConfig config =
