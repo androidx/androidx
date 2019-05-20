@@ -14,39 +14,20 @@
  * limitations under the License.
  */
 
-/*
- * Copyright 2018 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package androidx.room.processor
 
-package androidx.room.processor.checker
-
-import androidx.room.RoomProcessor
-import androidx.room.processor.ProcessorErrors
-import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
-import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.squareup.javapoet.ClassName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import simpleRun
 import toJFO
 import javax.lang.model.element.ElementKind
 import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
-class AutoValueTargetCheckerTest {
+class PojoProcessorTargetMethodTest {
 
     companion object {
         val MY_POJO: ClassName = ClassName.get("foo.bar", "MyPojo")
@@ -83,26 +64,6 @@ class AutoValueTargetCheckerTest {
             class MyPojo {
                 @PrimaryKey
                 void someRandomMethod() { }
-            }
-            """.toJFO(MY_POJO.toString())
-        Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(listOf(source))
-                .processedWith(RoomProcessor())
-                .failsToCompile()
-                .withErrorContaining(
-                        ProcessorErrors.invalidAnnotationTarget("PrimaryKey", ElementKind.METHOD))
-    }
-
-    @Test
-    fun invalidAnnotationInInterfaceMethod() {
-        val source = """
-            package foo.bar;
-
-            import androidx.room.*;
-
-            interface MyPojo {
-                @PrimaryKey
-                void someRandomMethod();
             }
             """.toJFO(MY_POJO.toString())
         singleRun(source)
@@ -401,7 +362,11 @@ class AutoValueTargetCheckerTest {
         val embeddedPojo = """
             package foo.bar;
 
+            import androidx.room.*;
+
+            @Entity
             public class RelationPojo {
+                @PrimaryKey
                 private final long parentId;
                 public RelationPojo(long parentId) { this.parentId = parentId; }
                 long getParentId() { return this.parentId; }
@@ -437,10 +402,12 @@ class AutoValueTargetCheckerTest {
         ).compilesWithoutError()
     }
 
-    private fun singleRun(vararg jfos: JavaFileObject) =
-            Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                    .that(jfos.toList())
-                    .processedWith(RoomProcessor())
+    private fun singleRun(vararg jfos: JavaFileObject) = simpleRun(*jfos) { invocation ->
+        PojoProcessor.createFor(context = invocation.context,
+            element = invocation.typeElement(MY_POJO.toString()),
+            bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+            parent = null).process()
+    }
 
     private fun singleRun(
         pojoCode: String,
@@ -470,8 +437,11 @@ class AutoValueTargetCheckerTest {
         val pojoJFO = pojoCode.toJFO(MY_POJO.toString())
         val autoValuePojoJFO = autoValuePojoCode.toJFO(AUTOVALUE_MY_POJO.toString())
         val all = (jfos.toList() + pojoJFO + autoValuePojoJFO).toTypedArray()
-        return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(all.toList())
-                .processedWith(RoomProcessor())
+        return simpleRun(*all) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                parent = null).process()
+        }
     }
 }

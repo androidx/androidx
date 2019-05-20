@@ -83,18 +83,15 @@ fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: Proces
     }
 }
 
-fun TypeElement.getAllAbstractMethodsIncludingSupers(): Set<ExecutableElement> {
-    val myMethods = ElementFilter.methodsIn(this.enclosedElements)
-            .filter { it.hasAnyOf(Modifier.ABSTRACT) }
-            .toSet()
+fun TypeElement.getAllMethodsIncludingSupers(): Set<ExecutableElement> {
+    val myMethods = ElementFilter.methodsIn(this.enclosedElements).toSet()
     val interfaceMethods = interfaces.flatMap {
-        it.asTypeElement().getAllAbstractMethodsIncludingSupers()
+        it.asTypeElement().getAllMethodsIncludingSupers()
     }
-    if (superclass.kind != TypeKind.NONE) {
-        return myMethods + interfaceMethods + superclass.asTypeElement()
-                .getAllAbstractMethodsIncludingSupers()
+    return if (superclass.kind != TypeKind.NONE) {
+        myMethods + interfaceMethods + superclass.asTypeElement().getAllMethodsIncludingSupers()
     } else {
-        return myMethods + interfaceMethods
+        myMethods + interfaceMethods
     }
 }
 
