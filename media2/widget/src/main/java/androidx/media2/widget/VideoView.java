@@ -170,6 +170,7 @@ public class VideoView extends SelectiveLayout {
     MediaItem mMediaItem;
     MediaControlView mMediaControlView;
     MediaSession mMediaSession;
+    MediaController mMediaController;
     String mTitle;
     Executor mCallbackExecutor;
 
@@ -489,6 +490,8 @@ public class VideoView extends SelectiveLayout {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
+        mMediaController.close();
+        mMediaController = null;
         mMediaSession.close();
         mMediaSession = null;
         try {
@@ -551,8 +554,10 @@ public class VideoView extends SelectiveLayout {
     private void attachMediaControlView() {
         if (mMediaControlView == null) return;
 
-        // Get MediaController from MediaSession and set it inside MediaControlView
-        mMediaControlView.setSessionToken(mMediaSession.getToken());
+        if (mMediaController == null) {
+            throw new IllegalStateException("It can't be called when mMediaController is null");
+        }
+        mMediaControlView.setMediaController(mMediaController);
 
         SelectiveLayout.LayoutParams params = new SelectiveLayout.LayoutParams();
         params.forceMatchParent = true;
@@ -572,6 +577,9 @@ public class VideoView extends SelectiveLayout {
             mMediaSession = new MediaSession.Builder(context, player)
                     .setId("VideoView_" + toString())
                     .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
+                    .build();
+            mMediaController = new MediaController.Builder(context)
+                    .setSessionToken(mMediaSession.getToken())
                     .build();
         }
         player.registerPlayerCallback(mCallbackExecutor, mMediaPlayerCallback);
