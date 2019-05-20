@@ -352,7 +352,7 @@ limitations under the License.
     </style>
 
     <!-- The styling for Toolbar used as action bar. -->
-    <style name="Widget.Car.Toolbar" parent="Widget.AppCompat.Toolbar">
+    <style name="Widget.Car.Toolbar" parent="Widget.MaterialComponents.Toolbar">
         <item name="android:minHeight">?attr/actionBarSize</item>
         <item name="background">@color/car_card</item>
         <item name="contentInsetEnd">@dimen/car_keyline_1</item>
@@ -413,9 +413,9 @@ limitations under the License.
     </style>
 
     <!-- The style for the regular buttons. -->
-    <style name="Widget.Car.Button" parent="Widget.AppCompat.Button">
+    <style name="Widget.Car.Button" parent="Widget.MaterialComponents.Button">
         <item name="android:fadingEdgeLength">@dimen/car_button_fading_edge_length</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Medium</item>>
         <item name="android:ellipsize">none</item>
         <item name="android:layout_height">@dimen/car_button_height</item>
         <item name="android:maxEms">@integer/car_button_max_ems</item>
@@ -424,7 +424,6 @@ limitations under the License.
         <item name="android:paddingEnd">@dimen/car_padding_3</item>
         <item name="android:requiresFadingEdge">horizontal</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textSize">@dimen/car_body3_size</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:background">@drawable/car_button_background</item>
         <item name="android:textColor">@color/car_body1</item>
@@ -443,7 +442,6 @@ limitations under the License.
     <!-- The style for borderless buttons. -->
     <style name="Widget.Car.Button.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:fadingEdgeLength">@dimen/car_button_fading_edge_length</item>
-        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:ellipsize">none</item>
         <item name="android:layout_height">@dimen/car_button_height</item>
         <item name="android:maxEms">@integer/car_button_max_ems</item>
@@ -452,7 +450,6 @@ limitations under the License.
         <item name="android:paddingEnd">@dimen/car_padding_3</item>
         <item name="android:requiresFadingEdge">horizontal</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textSize">@dimen/car_body3_size</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textColor">?android:attr/colorButtonNormal</item>
     </style>
