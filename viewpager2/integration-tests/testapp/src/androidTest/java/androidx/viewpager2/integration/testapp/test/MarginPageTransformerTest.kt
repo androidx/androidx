@@ -33,7 +33,7 @@ import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers.closeTo
 import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.greaterThanOrEqualTo
+import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,8 +55,8 @@ class MarginPageTransformerTest :
         val recyclerView = viewPager.getChildAt(0) as RecyclerView
         val layoutManager = recyclerView.layoutManager as LinearLayoutManager
 
-        val lastIx = viewPager.adapter!!.itemCount
-        assertThat(lastIx, greaterThanOrEqualTo(0))
+        val swipeCount = 3
+        assertThat(viewPager.adapter!!.itemCount, greaterThan(swipeCount))
 
         var marginPx: Double = Double.MIN_VALUE
         var firstPass = true
@@ -102,8 +102,8 @@ class MarginPageTransformerTest :
                 firstPass = true
                 marginPx = selectPageTransformer(transformer)
                 selectOrientation(orientation)
-                repeat(3) { swipeToNextPage() }
-                repeat(3) { swipeToPreviousPage() }
+                repeat(swipeCount) { swipeToNextPage() }
+                repeat(swipeCount) { swipeToPreviousPage() }
             }
         }
     }
