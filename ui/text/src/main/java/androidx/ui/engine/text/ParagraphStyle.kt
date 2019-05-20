@@ -32,7 +32,7 @@ import androidx.ui.engine.window.Locale
  * @param textDirection The directionality of the text, left-to-right (e.g.
  *   Norwegian) or right-to-left (e.g. Hebrew). This controls the overall
  *   directionality of the paragraph, as well as the meaning of
- *   [TextAlign.START] and [TextAlign.END] in the `textAlign` field.
+ *   [TextAlign.Start] and [TextAlign.End] in the `textAlign` field.
  *
  * @param fontWeight The typeface thickness to use when painting the text
  *   (e.g., bold).

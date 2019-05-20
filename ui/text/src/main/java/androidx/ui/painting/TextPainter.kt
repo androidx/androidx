@@ -89,7 +89,7 @@ fun applyFloatingPointHack(layoutValue: Float): Float {
  */
 class TextPainter(
     text: TextSpan? = null,
-    textAlign: TextAlign = TextAlign.START,
+    textAlign: TextAlign = TextAlign.Start,
     textDirection: TextDirection? = null,
     textScaleFactor: Float = 1.0f,
     maxLines: Int? = null,

@@ -415,32 +415,32 @@ fun TextDemoLocale() {
 
 @Composable
 fun TextDemoTextAlign() {
-    // This group of text widgets show different TextAligns: LEFT, RIGHT, CENTER, JUSTIFY, START for
-    // LTR and RTL, END for LTR and RTL.
+    // This group of text widgets show different TextAligns: Left, Right, Center, Justify, Start for
+    // LTR and RTL, End for LTR and RTL.
     var text: String = ""
     for (i in 1..10) {
         text = "$text$displayText "
     }
     LinearLayout(orientation = LinearLayout.VERTICAL) {
-        SecondTagLine(tag = "textAlgin = TextAlign.LEFT")
+        SecondTagLine(tag = "textAlign = TextAlign.Left")
         CraneWrapper {
-            Text(textAlign = TextAlign.LEFT) {
+            Text(textAlign = TextAlign.Left) {
                 Span(text = displayText, style = TextStyle(fontSize = fontSize8))
             }
         }
-        SecondTagLine(tag = "textAlgin = TextAlign.RIGHT")
+        SecondTagLine(tag = "textAlign  = TextAlign.Right")
         CraneWrapper {
-            Text(textAlign = TextAlign.RIGHT) {
+            Text(textAlign = TextAlign.Right) {
                 Span(text = displayText, style = TextStyle(fontSize = fontSize8))
             }
         }
-        SecondTagLine(tag = "textAlgin = TextAlign.CENTER")
+        SecondTagLine(tag = "textAlign  = TextAlign.Center")
         CraneWrapper {
-            Text(textAlign = TextAlign.CENTER) {
+            Text(textAlign = TextAlign.Center) {
                 Span(text = displayText, style = TextStyle(fontSize = fontSize8))
             }
         }
-        SecondTagLine(tag = "textAlgin = default and TextAlign.JUSTIFY")
+        SecondTagLine(tag = "textAlign  = default and TextAlign.Justify")
         CraneWrapper {
             Text {
                 Span(
@@ -453,7 +453,7 @@ fun TextDemoTextAlign() {
             }
         }
         CraneWrapper {
-            Text(textAlign = TextAlign.JUSTIFY) {
+            Text(textAlign = TextAlign.Justify) {
                 Span(
                     text = text,
                     style = TextStyle(
@@ -463,27 +463,27 @@ fun TextDemoTextAlign() {
                 )
             }
         }
-        SecondTagLine(tag = "textAlgin = TextAlign.START for LTR")
+        SecondTagLine(tag = "textAlgin = TextAlign.Start for LTR")
         CraneWrapper {
-            Text(textAlign = TextAlign.START) {
+            Text(textAlign = TextAlign.Start) {
                 Span(text = displayText, style = TextStyle(fontSize = fontSize8))
             }
         }
-        SecondTagLine(tag = "textAlgin = TextAlign.START for RTL")
+        SecondTagLine(tag = "textAlgin = TextAlign.Start for RTL")
         CraneWrapper {
-            Text(textDirection = TextDirection.RTL, textAlign = TextAlign.START) {
+            Text(textDirection = TextDirection.RTL, textAlign = TextAlign.Start) {
                 Span(text = displayText, style = TextStyle(fontSize = fontSize8))
             }
         }
-        SecondTagLine(tag = "textAlgin = TextAlign.END for LTR")
+        SecondTagLine(tag = "textAlgin = TextAlign.End for LTR")
         CraneWrapper {
-            Text(textAlign = TextAlign.END) {
+            Text(textAlign = TextAlign.End) {
                 Span(text = displayText, style = TextStyle(fontSize = fontSize8))
             }
         }
-        SecondTagLine(tag = "textAlgin = TextAlign.END for RTL")
+        SecondTagLine(tag = "textAlgin = TextAlign.End for RTL")
         CraneWrapper {
-            Text(textDirection = TextDirection.RTL, textAlign = TextAlign.END) {
+            Text(textDirection = TextDirection.RTL, textAlign = TextAlign.End) {
                 Span(text = displayText, style = TextStyle(fontSize = fontSize8))
             }
         }

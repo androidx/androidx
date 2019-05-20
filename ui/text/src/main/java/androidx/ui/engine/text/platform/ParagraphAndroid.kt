@@ -164,11 +164,11 @@ internal class ParagraphAndroid constructor(
 
         val charSequence = applyTextStyle(text, textStyles)
         val alignment = when (paragraphStyle.textAlign) {
-            TextAlign.LEFT -> ALIGN_LEFT
-            TextAlign.RIGHT -> ALIGN_RIGHT
-            TextAlign.CENTER -> ALIGN_CENTER
-            TextAlign.START -> ALIGN_NORMAL
-            TextAlign.END -> ALIGN_OPPOSITE
+            TextAlign.Left -> ALIGN_LEFT
+            TextAlign.Right -> ALIGN_RIGHT
+            TextAlign.Center -> ALIGN_CENTER
+            TextAlign.Start -> ALIGN_NORMAL
+            TextAlign.End -> ALIGN_OPPOSITE
             else -> DEFAULT_ALIGNMENT
         }
         // TODO(Migration/haoyuchang): Layout has more settings that flutter,
@@ -180,7 +180,7 @@ internal class ParagraphAndroid constructor(
         }
         val maxLines = paragraphStyle.maxLines ?: DEFAULT_MAX_LINES
         val justificationMode = when (paragraphStyle.textAlign) {
-            TextAlign.JUSTIFY -> JUSTIFICATION_MODE_INTER_WORD
+            TextAlign.Justify -> JUSTIFICATION_MODE_INTER_WORD
             else -> DEFAULT_JUSTIFICATION_MODE
         }
 
