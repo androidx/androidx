@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
@@ -46,7 +47,7 @@ final class ImmLeaksCleaner implements GenericLifecycleObserver {
     }
 
     @Override
-    public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
         if (event != Lifecycle.Event.ON_DESTROY) {
             return;
         }

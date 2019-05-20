@@ -16,6 +16,8 @@
 
 package androidx.lifecycle;
 
+import androidx.annotation.NonNull;
+
 class FullLifecycleObserverAdapter implements LifecycleEventObserver {
 
     private final FullLifecycleObserver mFullLifecycleObserver;
@@ -28,7 +30,7 @@ class FullLifecycleObserverAdapter implements LifecycleEventObserver {
     }
 
     @Override
-    public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
         switch (event) {
             case ON_CREATE:
                 mFullLifecycleObserver.onCreate(source);

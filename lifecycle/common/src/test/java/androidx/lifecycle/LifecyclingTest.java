@@ -91,7 +91,8 @@ public class LifecyclingTest {
     public void testDeprecatedGenericLifecycleObserver() {
         GenericLifecycleObserver genericLifecycleObserver = new GenericLifecycleObserver() {
             @Override
-            public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+            public void onStateChanged(@NonNull LifecycleOwner source,
+                    @NonNull Lifecycle.Event event) {
             }
         };
         LifecycleEventObserver observer = lifecycleEventObserver(genericLifecycleObserver);
@@ -103,7 +104,8 @@ public class LifecyclingTest {
     public void testDeprecatedLifecyclingCallback() {
         GenericLifecycleObserver genericLifecycleObserver = new GenericLifecycleObserver() {
             @Override
-            public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+            public void onStateChanged(@NonNull LifecycleOwner source,
+                    @NonNull Lifecycle.Event event) {
             }
         };
         LifecycleEventObserver observer = Lifecycling.getCallback(genericLifecycleObserver);

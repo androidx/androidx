@@ -461,7 +461,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (Build.VERSION.SDK_INT >= 19) {
             mLifecycleRegistry.addObserver(new GenericLifecycleObserver() {
                 @Override
-                public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+                public void onStateChanged(@NonNull LifecycleOwner source,
+                        @NonNull Lifecycle.Event event) {
                     if (event == Lifecycle.Event.ON_STOP) {
                         if (mView != null) {
                             mView.cancelPendingInputEvents();

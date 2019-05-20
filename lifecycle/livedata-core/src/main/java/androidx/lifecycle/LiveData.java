@@ -386,7 +386,8 @@ public abstract class LiveData<T> {
         }
 
         @Override
-        public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+        public void onStateChanged(@NonNull LifecycleOwner source,
+                @NonNull Lifecycle.Event event) {
             if (mOwner.getLifecycle().getCurrentState() == DESTROYED) {
                 removeObserver(mObserver);
                 return;

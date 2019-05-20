@@ -32,6 +32,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
+import androidx.annotation.NonNull;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -123,7 +125,8 @@ public class FullLifecycleObserverTest {
             }
 
             @Override
-            public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+            public void onStateChanged(@NonNull LifecycleOwner source,
+                    @NonNull Lifecycle.Event event) {
 
             }
         }
