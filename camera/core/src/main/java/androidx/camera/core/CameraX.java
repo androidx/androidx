@@ -37,22 +37,46 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Main interface for accessing CameraX library.
  *
- * <p>This is a singleton class that is responsible for managing the set of camera
- * instances and {@link UseCase} instances that exist. A {@link UseCase} is bound to {@link
- * LifecycleOwner} so that the lifecycle is used to control the use case. There are 3 distinct sets
- * lifecycle states to be aware of.
+ * <p>This is a singleton class responsible for managing the set of camera instances and
+ * attached use cases (such as {@link Preview}, {@link ImageAnalysis}, or {@link ImageCapture}.
+ * Use cases are bound to a {@link LifecycleOwner} by calling
+ * {@link #bindToLifecycle(LifecycleOwner, UseCase...)}   Once bound, the lifecycle of the
+ * {@link LifecycleOwner} determines when the camera is started and stopped, and when camera data
+ * is available to the use case.
  *
- * <p>When the lifecycle is in the STARTED or RESUMED states the cameras are opened asynchronously
- * and made ready for capturing. Data capture starts when triggered by the bound {@link UseCase}.
+ * <p>It is often sufficient to just bind the use cases once when the activity is created, and
+ * let the lifecycle handle the rest, so application code generally does not need to call
+ * {@link #unbind(UseCase...)} nor call {@link #bindToLifecycle} more than once.
  *
- * <p>When the lifecycle is in the CREATED state any cameras with no {@link UseCase} attached
- * will be closed asynchronously.
+ * <p>A lifecycle transition from {@link Lifecycle.State#CREATED} to {@link Lifecycle.State#STARTED}
+ * state (via {@link Lifecycle.Event#ON_START}) initializes the camera asynchronously on a
+ * CameraX managed thread. After initialization, the camera is opened and a camera capture
+ * session is created.   If a {@link Preview} or {@link ImageAnalysis} is bound, those use cases
+ * will begin to receive camera data after initialization completes. {@link ImageCapture} can
+ * receive data via specific calls (such as {@link ImageCapture#takePicture}) after initialization
+ * completes. Calling {@link #bindToLifecycle} with no Use Cases does nothing.
  *
- * <p>When the lifecycle transitions to the DESTROYED state the {@link UseCase} will be unbound.
- * A {@link #bindToLifecycle(LifecycleOwner, UseCase...)} when the lifecycle is already in the
- * DESTROYED state will fail. A call to {@link #bindToLifecycle(LifecycleOwner, UseCase...)}
- * will need to be made with another lifecycle to rebind the {@link UseCase} that has been
- * unbound.
+ * <p>Binding to a {@link LifecycleOwner} when the state is {@link Lifecycle.State#STARTED} or
+ * greater will also initialize and start data capture as though an
+ * {@link Lifecycle.Event#ON_START} transition had occurred.  If the camera was already running
+ * this may cause a new initialization to occur, temporarily stopping data from the camera before
+ * restarting it.
+ *
+ * <p>After a lifecycle transition from {@link Lifecycle.State#STARTED} to
+ * {@link Lifecycle.State#CREATED} state (via {@link Lifecycle.Event#ON_STOP}), use cases will no
+ * longer receive camera data.  The camera capture session is destroyed and the camera device is
+ * closed.  Use cases can remain bound and will become active again on the next
+ * {@link Lifecycle.Event#ON_START} transition.
+ *
+ * <p>When the lifecycle transitions from {@link Lifecycle.State#CREATED} to the
+ * {@link Lifecycle.State#DESTROYED} state (via {@link Lifecycle.Event#ON_DESTROY}) any
+ * bound use cases are unbound and use case resources are freed.  Calls to {@link #bindToLifecycle}
+ * when the lifecycle is in the {@link Lifecycle.State#DESTROYED} state will fail.
+ * A call to {@link #bindToLifecycle} will need to be made with another lifecycle to rebind the
+ * UseCase that has been unbound.
+ *
+ * <p>If the camera is not already closed, unbinding all use cases will cause the camera to close
+ * asynchronously.
  *
  * <pre>{@code
  * public void setup() {
@@ -72,16 +96,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * }
  *
  * public void prematureTearDown() {
- *   // Not required, but only if we want to remove it before the lifecycle automatically removes
- *   // the use case
- *   CameraX.unbind(useCase);
+ *   // Not required since the lifecycle automatically stops the use case.  Can be used to
+ *   // disassociate use cases from the lifecycle to move a use case to a different lifecycle.
+ *   CameraX.unbindAll();
  * }
  * }</pre>
  *
  * <p>All operations on a use case, including binding and unbinding, should be done on the main
- * thread, because lifecycle events are triggered on main thread. By only accessing the use case on
- * the main thread it is a guaranteed that the use case will not be unbound in the middle of a
- * method call.
+ * thread.  This is because lifecycle events are triggered on main thread and so accessing the use
+ * case on the main thread guarantees that lifecycle state changes will not occur during execution
+ * of a method call or binding/unbinding.
  */
 @MainThread
 public final class CameraX {
@@ -95,6 +119,7 @@ public final class CameraX {
     private CameraDeviceSurfaceManager mSurfaceManager;
     private UseCaseConfigFactory mDefaultConfigFactory;
     private Context mContext;
+
     /** Prevents construction. */
     private CameraX() {
     }
@@ -102,28 +127,40 @@ public final class CameraX {
     /**
      * Binds the collection of {@link UseCase} to a {@link LifecycleOwner}.
      *
-     * <p>If the lifecycleOwner contains a {@link Lifecycle} that is already
-     * in the STARTED state or greater than the created use cases will attach to the cameras and
-     * trigger the appropriate notifications. This will generally cause a temporary glitch in the
-     * camera as part of the reset process. This will also help to calculate suggested resolutions
-     * depending on the use cases bound to the {@link Lifecycle}. If the use cases are bound
-     * separately, it will find the supported resolution with the priority depending on the
-     * binding sequence. If the use cases are bound with a single call, it will find the
-     * supported resolution with the priority in sequence of ImageCapture, VideoCapture, Preview
-     * and then ImageAnalysis. What resolutions can be supported will depend on the camera device
-     * hardware level that there are some default guaranteed resolutions listed in
-     * {@link android.hardware.camera2.CameraDevice#createCaptureSession}.
+     * <p>The state of the lifecycle will determine when the cameras are open, started, stopped
+     * and closed.  When started, the use cases receive camera data.
      *
-     * <p> Currently up to 3 use cases may be bound to a {@link Lifecycle} at any time. Exceeding
+     * <p>Binding to a lifecycleOwner in state currently in {@link Lifecycle.State#STARTED} or
+     * greater will also initialize and start data capture. If the camera was already running
+     * this may cause a new initialization to occur temporarily stopping data from the camera
+     * before restarting it.
+     *
+     * <p>Multiple use cases can be bound via adding them all to a single bindToLifecycle call, or
+     * by using multiple bindToLifecycle calls.  Using a single call that includes all the use
+     * cases helps to set up a camera session correctly for all uses cases, such as by allowing
+     * determination of resolutions depending on all the use cases bound being bound.
+     * If the use cases are bound separately, it will find the supported resolution with the
+     * priority depending on the binding sequence. If the use cases are bound with a single call,
+     * it will find the supported resolution with the priority in sequence of {@link ImageCapture},
+     * {@link Preview} and then {@link ImageAnalysis}. The resolutions that can be supported depends
+     * on the camera device hardware level that there are some default guaranteed resolutions
+     * listed in {@link android.hardware.camera2.CameraDevice#createCaptureSession(List,
+     * CameraCaptureSession.StateCallback, Handler)}.
+     *
+     * <p>Currently up to 3 use cases may be bound to a {@link Lifecycle} at any time. Exceeding
      * capability of target camera device will throw an IllegalArgumentException.
      *
-     * <p> Only {@link UseCase} bound to latest active {@link Lifecycle} can keep alive.
+     * <p>A UseCase should only be bound to a single lifecycle at a time.  Attempting to bind a
+     * UseCase to a Lifecycle when it is already bound to another Lifecycle is an error, and the
+     * UseCase binding will not change.
+     *
+     * <p>Only {@link UseCase} bound to latest active {@link Lifecycle} can keep alive.
      * {@link UseCase} bound to other {@link Lifecycle} will be stopped.
      *
      * @param lifecycleOwner The lifecycleOwner which controls the lifecycle transitions of the use
      *                       cases.
      * @param useCases       The use cases to bind to a lifecycle.
-     * @throws IllegalArgumentException If the use case has already been bound to another lifecycle.
+     * @throws IllegalStateException If the use case has already been bound to another lifecycle.
      */
     public static void bindToLifecycle(LifecycleOwner lifecycleOwner, UseCase... useCases) {
         UseCaseGroupLifecycleController useCaseGroupLifecycleController =
@@ -163,12 +200,9 @@ public final class CameraX {
     /**
      * Returns true if the {@link UseCase} is bound to a lifecycle. Otherwise returns false.
      *
-     * <p>It is not strictly necessary to check if a use case is bound or not. As long as the
-     * lifecycle it was bound to has not entered a DESTROYED state or if it hasn't been unbound by
-     * {@link #unbind(UseCase...)} or {@link #unbindAll()} then the use case will remain bound.
-     * A use case will not be unbound in the middle of a method call as long as it is running on the
-     * main thread. This is because a lifecycle events will only automatically triggered on the main
-     * thread.
+     * <p>After binding a use case with {@link #bindToLifecycle}, use cases remain bound until the
+     * lifecycle reaches a {@link Lifecycle.State#DESTROYED} state or if is unbound by calls to
+     * {@link #unbind(UseCase...)} or {@link #unbindAll()}.
      */
     public static boolean isBound(UseCase useCase) {
         Collection<UseCaseGroupLifecycleController> controllers =
@@ -185,12 +219,15 @@ public final class CameraX {
     }
 
     /**
-     * Unbinds all specified use cases from the lifecycle and removes them from CameraX.
+     * Unbinds all specified use cases from the lifecycle.
      *
      * <p>This will initiate a close of every open camera which has zero {@link UseCase}
      * associated with it at the end of this call.
      *
-     * <p>If a use case in the argument list is not bound, then then it is simply ignored.
+     * <p>If a use case in the argument list is not bound, then it is simply ignored.
+     *
+     * <p>After unbinding a UseCase, the UseCase can be and bound to another {@link Lifecycle}
+     * however listeners and settings should be reset by the application.
      *
      * @param useCases The collection of use cases to remove.
      */
@@ -309,7 +346,7 @@ public final class CameraX {
     }
 
     /**
-     * Sets an {@link ErrorListener} which will get called anytime a CameraX specific error is
+     * Sets an {@link ErrorListener} which will get called any time a CameraX specific error is
      * encountered.
      *
      * @param errorListener the listener which will get all the error messages. If this is set to
