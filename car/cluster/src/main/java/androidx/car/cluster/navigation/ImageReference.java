@@ -34,29 +34,31 @@ import java.util.Objects;
 
 /**
  * Reference to an image. This class encapsulates a 'content://' style URI plus metadata that allows
- * consumers to know the image they will receive and how to handle it.
+ * OEM cluster rendering services to know the image they will receive and how to handle it.
  *
  * <ul>
- * <li><b>Sizing:</b> Producers will always provide an image "original" size which defines the image
- * aspect ratio. When requesting these images, consumers must always specify a desired size (width
- * and height) based on UI available space and the provided aspect ration. Producers can use this
- * "requested" size to select the best version of the requested image, and producers can optionally
- * resize the image to exactly match the "requested" size provided, but consumers should not assume
- * that the received image will match such size. Instead, consumers should always assume that the
- * image will require additional scaling.
- * <li><b>Content:</b> Producers should avoid including margins around the image content.
+ * <li><b>Sizing:</b> Third-party navigation apps will always provide an image "original" size which
+ * defines the image aspect ratio. When requesting these images, OEM cluster rendering services must
+ * always specify a desired size (width and height) based on UI available space and the provided
+ * aspect ration. Third-party navigation apps can use this "requested" size to select the best
+ * version of the requested image. Third-party navigation apps can optionally resize the image to
+ * exactly match the "requested" size provided, but OEM cluster rendering services should not assume
+ * that the received image will match such size. Instead, OEM cluster rendering services should
+ * always assume that the image will require additional scaling.
+ * <li><b>Content:</b> Third-party navigation apps should avoid including margins around the image
+ * content.
  * <li><b>Format:</b> Content URI must reference a file with MIME type 'image/png', 'image/jpeg'
  * or 'image/bmp' (vector images are not supported).
  * <li><b>Color:</b> Images can be either "tintable" or not. A "tintable" image is such that all its
  * content is defined in its alpha channel, while its color (all other channels) can be altered
- * without losing information (e.g.: icons). A non "tintable" images contains information in all its
- * channels (e.g.: photos).
- * <li><b>Caching:</b> Given the same image reference and the same requested size, producers must
- * return the exact same image. This means that it should be safe for the consumer to cache an image
- * once downloaded and use this image reference plus requested size as key, for as long as they
- * need. If a producer needs to provide a different version of a certain image, they must provide a
- * different image reference (e.g. producers can opt to include version information as part of the
- * content URI).
+ * without losing information (e.g. icons). A non "tintable" images contains information in all its
+ * channels (e.g. photos).
+ * <li><b>Caching:</b> Given the same image reference and the same requested size, third-party
+ * navigation apps must return the exact same image. This means that it should be safe for the OEM
+ * cluster rendering service to cache an image once downloaded and use this image reference plus
+ * requested size as key, for as long as they need. If a third-party navigation app needs to provide
+ * a different version of a certain image, they must provide a different image reference (e.g.
+ * third-party navigation apps can opt to include version information as part of the content URI).
  * </ul>
  */
 @VersionedParcelize
@@ -173,8 +175,8 @@ public class ImageReference implements VersionedParcelable {
 
     /**
      * Returns a 'content://' style URI that can be used to retrieve the actual image, or an empty
-     * string if the URI provided by the producer doesn't comply with the format requirements. If
-     * this URI is used as-is, the size of the resulting image is undefined.
+     * string if the URI provided by the third-party navigation app doesn't comply with the format
+     * requirements. If this URI is used as-is, the size of the resulting image is undefined.
      *
      * @hide
      */
@@ -189,12 +191,12 @@ public class ImageReference implements VersionedParcelable {
      * Returns a fully formed {@link Uri} that can be used to retrieve the actual image, including
      * size constraints, or null if this image reference is not properly formed.
      * <p>
-     * Producers can optionally use these size constraints to provide an optimized version of the
-     * image, but the resulting image might still not match the requested size.
+     * Third-party navigation apps can optionally use these size constraints to provide an optimized
+     * version of the image, but the resulting image might still not match the requested size.
      * <p>
-     * Consumers must confirm the size of the received image and scale it proportionally (
-     * maintaining the aspect ratio of the received image) if it doesn't match the desired
-     * dimensions.
+     * OEM cluster rendering services must confirm the size of the received image and scale it
+     * proportionally (maintaining the aspect ratio of the received image) if it doesn't match the
+     * desired dimensions.
      *
      * @param width desired maximum width (must be greater than 0)
      * @param height desired maximum height (must be greater than 0)
@@ -231,7 +233,7 @@ public class ImageReference implements VersionedParcelable {
     }
 
     /**
-     * Returns whether this image is "tintable" or not. An image is "tintable" when all its
+     * Returns whether this image is "tintable" or not. An image is "tintable" when all of its
      * content is defined in its alpha-channel, designed to be colorized (e.g. using
      * {@link android.graphics.PorterDuff.Mode#SRC_ATOP} image composition).
      */

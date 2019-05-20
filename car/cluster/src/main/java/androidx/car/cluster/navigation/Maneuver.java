@@ -39,8 +39,8 @@ public final class Maneuver implements VersionedParcelable {
      */
     public enum Type {
         /**
-         * Maneuver type is unknown to the consumer, in which case the consumer shouldn't show any
-         * maneuver information.
+         * Maneuver type is unknown to the OEM cluster rendering service, in which case the OEM
+         * cluster rendering service shouldn't show any maneuver information.
          */
         UNKNOWN,
         /**
@@ -52,7 +52,7 @@ public final class Maneuver implements VersionedParcelable {
          */
         NAME_CHANGE,
         /**
-         * No turn (0-10 degrees). Used when we just wish to say "Keep left/right". Note that this
+         * No turn (0-10 degrees). Used to say "Keep left/right". Note that this
          * is used in contrast to {@link Type#STRAIGHT} for disambiguating cases where there
          * is more than one option to go into the same general direction.
          */
@@ -168,88 +168,89 @@ public final class Maneuver implements VersionedParcelable {
         ROUNDABOUT_EXIT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a clockwise roundabout
-         * (as see from above) where the exit is at sharp angle towards the right (135-175 degrees).
+         * (as seen from above) where the exit is at a sharp angle to the right (135-175 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CW_SHARP_RIGHT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a clockwise roundabout
-         * (as see from above) where the exit is at normal angle towards the right (45-135 degrees).
+         * (as seen from above) where the exit is at a normal angle to the right (45-135 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CW_NORMAL_RIGHT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a clockwise roundabout
-         * (as see from above) where the exit is at slight angle towards the right (10-45 degrees).
+         * (as seen from above) where the exit is at slight angle to the right (10-45 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CW_SLIGHT_RIGHT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a clockwise roundabout
-         * (as see from above) where the exit is straight ahead (0-10 degrees).
+         * (as seen from above) where the exit is straight ahead (0-10 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CW_STRAIGHT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a clockwise roundabout
-         * (as see from above) where the exit is at sharp angle towards the left (135-175 degrees).
+         * (as seen from above) where the exit is at sharp angle towards the left (135-175 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CW_SHARP_LEFT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a clockwise roundabout
-         * (as see from above) where the exit is at normal angle towards the left (45-135 degrees).
+         * (as seen from above) where the exit is at normal angle towards the left (45-135 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CW_NORMAL_LEFT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a clockwise roundabout
-         * (as see from above) where the exit is at slight angle towards the left (10-45 degrees).
+         * (as seen from above) where the exit is at slight angle towards the left (10-45 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CW_SLIGHT_LEFT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a clockwise roundabout
-         * (as see from above) where the exit is on the opposite side of the road (175-180 degrees).
+         * (as seen from above) where the exit is on the opposite side of the road (175-180
+         * degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CW_U_TURN,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a counter-clockwise
-         * roundabout (as see from above) where the exit is at sharp angle towards the right
+         * roundabout (as seen from above) where the exit is at sharp angle to the right
          * (135-175 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CCW_SHARP_RIGHT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a counter-clockwise
-         * roundabout (as see from above) where the exit is at normal angle towards the right
+         * roundabout (as seen from above) where the exit is at normal angle to the right
          * (45-135 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CCW_NORMAL_RIGHT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a counter-clockwise
-         * roundabout (as see from above) where the exit is at slight angle towards the right
+         * roundabout (as seen from above) where the exit is at slight angle towards the right
          * (10-45 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CCW_SLIGHT_RIGHT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a counter-clockwise
-         * roundabout (as see from above) where the exit is straight ahead (0-10 degrees).
+         * roundabout (as seen from above) where the exit is straight ahead (0-10 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CCW_STRAIGHT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a counter-clockwise
-         * roundabout (as see from above) where the exit is at sharp angle towards the left
+         * roundabout (as seen from above) where the exit is at sharp angle towards the left
          * (135-175 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CCW_SHARP_LEFT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a counter-clockwise
-         * roundabout (as see from above) where the exit is at normal angle towards the left
+         * roundabout (as seen from above) where the exit is at normal angle towards the left
          * (45-135 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CCW_NORMAL_LEFT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a counter-clockwise
-         * roundabout (as see from above) where the exit is at slight angle towards the left
+         * roundabout (as seen from above) where the exit is at slight angle towards the left
          * (10-45 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CCW_SLIGHT_LEFT,
         /**
          * Entrance and exit (e.g. "At the roundabout, take Nth exit") on a counter-clockwise
-         * roundabout (as see from above) where the exit is on the opposite side of the road
+         * roundabout (as seen from above) where the exit is on the opposite side of the road
          * (175-180 degrees).
          */
         ROUNDABOUT_ENTER_AND_EXIT_CCW_U_TURN,
@@ -266,15 +267,15 @@ public final class Maneuver implements VersionedParcelable {
          */
         FERRY_TRAIN,
         /**
-         * Arrival to a destination.
+         * Arrival at a destination.
          */
         DESTINATION,
         /**
-         * Arrival to a destination located straight ahead.
+         * Arrival at a destination located straight ahead.
          */
         DESTINATION_STRAIGHT,
         /**
-         * Arrival to a destination located on the right side of the road.
+         * Arrival at a destination located on the right side of the road.
          */
         DESTINATION_LEFT,
         /**

@@ -39,8 +39,8 @@ public final class Distance implements VersionedParcelable {
      */
     public enum Unit {
         /**
-         * Display unit is unknown to the consumer, in which case, the distance shouldn't be
-         * displayed.
+         * Display unit is unknown to the OEM cluster rendering service, in which case the distance
+         * shouldn't be displayed.
          */
         UNKNOWN,
         METERS,
@@ -90,10 +90,11 @@ public final class Distance implements VersionedParcelable {
     /**
      * Returns the distance measured in the unit indicated at {@link #getDisplayUnit()}, already
      * internationalized and ready for display, or empty if not distance value was provided. In the
-     * later case, the consumer shouldn't display this distance to the driver.
+     * latter case, the OEM cluster rendering service shouldn't display this distance to the driver.
      * <p>
      * This distance is for display only (it might be a rounded representation of the actual
-     * distance) and it should mirror the distance displayed by the producer in its own UI.
+     * distance) and it should mirror the distance displayed by the third-party navigation app in
+     * its own UI.
      * <p>
      * For example, a distance of 1.2 km in {@code ES_es} locale would be represented as {@code
      * displayValue = "1,2"} and {@code displayUnit = KILOMETERS}). This field is only relevant if
@@ -105,9 +106,9 @@ public final class Distance implements VersionedParcelable {
     }
 
     /**
-     * Returns the distance unit (adjusted to the current user's locale and/or location). This field
-     * would mirror the distance unit displayed by the producer in its own UI, and it should be
-     * used for display only (no unit transformation should be applied).
+     * Returns the distance unit (adjusted to the current driver's locale and/or location). This
+     * field would mirror the distance unit displayed by the third-party navaigation app in its own
+     * UI, and it should be used for display only (no unit transformation should be applied).
      */
     @NonNull
     public Unit getDisplayUnit() {

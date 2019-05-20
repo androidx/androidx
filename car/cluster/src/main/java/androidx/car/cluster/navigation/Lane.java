@@ -32,7 +32,7 @@ import java.util.Objects;
 /**
  * Configuration of a single lane of a road at a particular point in the navigation. It describes
  * all possible directions the driver could go from this lane, and indicates which directions the
- * driver could take to stay in the navigation route.
+ * driver could take to stay on the navigation route.
  */
 @VersionedParcelize
 public final class Lane implements VersionedParcelable {

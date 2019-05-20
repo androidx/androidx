@@ -35,12 +35,12 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Navigation state data to be displayed on the instrument cluster of a car. This is composed by:
+ * Navigation state data to be displayed on the instrument cluster of a car. This comprises:
  * <ul>
- * <li>a list of destinations.
- * <li>the immediate step or steps in order to drive towards those destinations.
+ * <li>A list of destinations.
+ * <li>The immediate step or steps needed to drive towards those destinations.
  * </ul>
- * This information can converted it to/from a {@link Parcelable} by using {@link #toParcelable()}
+ * This information can convert it to/from a {@link Parcelable} by using {@link #toParcelable()}
  * and {@link #fromParcelable(Parcelable)}, in order to be used in IPC (see {@link Parcel}).
  */
 @VersionedParcelize
@@ -55,7 +55,8 @@ public final class NavigationState implements VersionedParcelable {
         NORMAL,
         /**
          * New navigation information is being fetched, and an updated navigation state will be
-         * provided soon. Consumers can use this signal to display a progress indicator to the user.
+         * provided soon. OEM cluster rendering services can use this signal to display a progress
+         * indicator to the user.
          */
         REROUTING,
     }
@@ -103,7 +104,7 @@ public final class NavigationState implements VersionedParcelable {
 
         /**
          * Add a navigation step. Steps should be provided in order of execution. It is up to the
-         * producer to decide how many steps in advance will be provided.
+         * third-party navigation app to decide how many steps in advance will be provided.
          *
          * @return this object for chaining
          */
@@ -163,7 +164,7 @@ public final class NavigationState implements VersionedParcelable {
 
     /**
      * Returns an unmodifiable list of navigation steps, in order of execution. It is up to the
-     * producer to decide how many steps in advance will be provided.
+     * third-party navigation app to decide how many steps in advance will be provided.
      */
     @NonNull
     public List<Step> getSteps() {
