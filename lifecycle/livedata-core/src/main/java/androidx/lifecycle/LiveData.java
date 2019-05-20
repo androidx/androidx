@@ -80,6 +80,7 @@ public abstract class LiveData<T> {
     @SuppressWarnings("FieldCanBeLocal")
     private boolean mDispatchInvalidated;
     private final Runnable mPostValueRunnable = new Runnable() {
+        @SuppressWarnings("unchecked")
         @Override
         public void run() {
             Object newValue;
@@ -87,7 +88,6 @@ public abstract class LiveData<T> {
                 newValue = mPendingData;
                 mPendingData = NOT_SET;
             }
-            //noinspection unchecked
             setValue((T) newValue);
         }
     };
@@ -110,6 +110,7 @@ public abstract class LiveData<T> {
         mVersion = START_VERSION;
     }
 
+    @SuppressWarnings("unchecked")
     private void considerNotify(ObserverWrapper observer) {
         if (!observer.mActive) {
             return;
@@ -127,7 +128,6 @@ public abstract class LiveData<T> {
             return;
         }
         observer.mLastVersion = mVersion;
-        //noinspection unchecked
         observer.mObserver.onChanged((T) mData);
     }
 
@@ -314,11 +314,11 @@ public abstract class LiveData<T> {
      *
      * @return the current value
      */
+    @SuppressWarnings("unchecked")
     @Nullable
     public T getValue() {
         Object data = mData;
         if (data != NOT_SET) {
-            //noinspection unchecked
             return (T) data;
         }
         return null;

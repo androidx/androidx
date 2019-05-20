@@ -151,10 +151,10 @@ public abstract class ViewModel {
      * it implements {@link Closeable}. The same object may receive multiple close calls, so method
      * should be idempotent.
      */
+    @SuppressWarnings("unchecked")
     <T> T setTagIfAbsent(String key, T newValue) {
         T previous;
         synchronized (mBagOfTags) {
-            //noinspection unchecked
             previous = (T) mBagOfTags.get(key);
             if (previous == null) {
                 mBagOfTags.put(key, newValue);
@@ -173,9 +173,8 @@ public abstract class ViewModel {
     /**
      * Returns the tag associated with this viewmodel and the specified key.
      */
-    @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     <T> T getTag(String key) {
-        //noinspection unchecked
         synchronized (mBagOfTags) {
             return (T) mBagOfTags.get(key);
         }

@@ -75,6 +75,7 @@ public class ComputableLiveDataTest {
         verify(mTaskExecutor, never()).executeOnDiskIO(computable.mInvalidationRunnable);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void noConcurrentCompute() throws InterruptedException {
         TaskExecutorWithFakeMainThread executor = new TaskExecutorWithFakeMainThread(2);
@@ -97,7 +98,6 @@ public class ComputableLiveDataTest {
                 }
             };
             final ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
-            //noinspection unchecked
             final Observer<Integer> observer = mock(Observer.class);
             executor.postToMainThread(new Runnable() {
                 @Override
