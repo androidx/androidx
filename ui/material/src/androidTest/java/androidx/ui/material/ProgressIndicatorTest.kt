@@ -51,8 +51,6 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
     private val ExpectedLinearWidth = 240.dp
     private val ExpectedLinearHeight = 4.dp
 
-    private val ExpectedCircularDiameter = 48.dp
-
     @Test
     fun determinateLinearProgressIndicator_Progress() {
         val tag = "linear"
@@ -150,8 +148,9 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
             }
         }
         withDensity(density) {
-            Truth.assertThat(size?.width?.round()).isEqualTo(ExpectedCircularDiameter.toIntPx())
-            Truth.assertThat(size?.height?.round()).isEqualTo(ExpectedCircularDiameter.toIntPx())
+            val expectedCircularDiameter = 4.dp.toIntPx() * 2 + 40.dp.toIntPx()
+            Truth.assertThat(size?.width?.round()).isEqualTo(expectedCircularDiameter)
+            Truth.assertThat(size?.height?.round()).isEqualTo(expectedCircularDiameter)
         }
     }
 
@@ -168,9 +167,10 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
             }
         }
         withDensity(density) {
-            Truth.assertThat(size?.width?.round()).isEqualTo(ExpectedCircularDiameter.toIntPx())
+            val expectedCircularDiameter = 4.dp.toIntPx() * 2 + 40.dp.toIntPx()
+            Truth.assertThat(size?.width?.round()).isEqualTo(expectedCircularDiameter)
             Truth.assertThat(size?.height?.round())
-                .isEqualTo(ExpectedCircularDiameter.toIntPx())
+                .isEqualTo(expectedCircularDiameter)
         }
     }
 }
