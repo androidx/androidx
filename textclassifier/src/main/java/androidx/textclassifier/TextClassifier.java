@@ -197,6 +197,18 @@ public abstract class TextClassifier {
     }
 
     /**
+     * Suggests and returns a list of actions according to the given conversation.
+     */
+    @WorkerThread
+    @NonNull
+    public ConversationActions suggestConversationActions(
+            @NonNull ConversationActions.Request request) {
+        Preconditions.checkNotNull(request);
+        ensureNotOnMainThread();
+        return new ConversationActions(Collections.<ConversationAction>emptyList(), null);
+    }
+
+    /**
      * Returns the maximal length of text that can be processed by generateLinks.
      *
      * @see #generateLinks(TextLinks.Request)

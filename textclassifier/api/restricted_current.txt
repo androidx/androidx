@@ -3,6 +3,7 @@ package androidx.textclassifier {
 
 
 
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SelectionEvent {
     method public static androidx.textclassifier.SelectionEvent createFromBundle(android.os.Bundle);
     method public static androidx.textclassifier.SelectionEvent createSelectionActionEvent(int, int, @androidx.textclassifier.SelectionEvent.ActionType int);
