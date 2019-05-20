@@ -107,10 +107,10 @@ public final class Step implements VersionedParcelable {
         /**
          * Adds a road lane configuration to this step. Lanes should be added from left to right.
          * <p>
-         * If lanes configuration information is available, producers should provide both image (see
-         * {@link #setLanesImage(ImageReference)}) and metadata (through this method) for maximum
-         * interoperability, as some consumers might use images while others might use metadata, or
-         * both.
+         * If lanes configuration information is available, third-party navigation apps should
+         * provide both image (see {@link #setLanesImage(ImageReference)}) and metadata (through
+         * this method) for maximum interoperability, as some OEM cluster rendering services might
+         * use images while others might use metadata, or both.
          *
          * @return this object for chaining
          */
@@ -126,19 +126,19 @@ public final class Step implements VersionedParcelable {
          *
          * <ul>
          * <li>A representation of all lanes, one next to the other in a single row.
-         * <li>For each lane, a set of arrows, representing each possible driving directions
-         * (e.g.: straight, left turn, right turn, etc.) within such lane.
-         * <li>Each of such driving directions that would keep the driver within the navigation
+         * <li>For each lane, a set of arrows, representing each possible driving direction
+         * (e.g.: straight, left turn, right turn, etc.) within that lane.
+         * <li>Each of the driving directions that will keep the driver within the navigation
          * route should be highlighted.
          * </ul>
          *
          * Lane configuration images are expected to be displayed in a canvas with fixed height and
          * variable width.
          * <p>
-         * If lanes configuration information is available, producers should provide both metadata
-         * (see {@link #addLane(Lane)}) and image (through this method) for maximum
-         * interoperability, as some consumers might use images while others might use metadata, or
-         * both.
+         * If lanes configuration information is available, third-party navigation apps should
+         * provide both metadata (see {@link #addLane(Lane)}) and image (through this method) for
+         * maximum interoperability, as some OEM cluster rendering services might use images while
+         * others might use metadata, or both.
          *
          * @return this object for chaining
          */
@@ -153,9 +153,9 @@ public final class Step implements VersionedParcelable {
          * {@link RichText} object containing a sequence of texts (e.g.: "towards", "Wallaby way")
          * and images (e.g.: road badge of a highway).
          * <p>
-         * If consumers don't have enough space to display the complete content of this
-         * {@link RichText} instance, it is expected they will truncate these instructions by
-         * cutting its end.
+         * If OEM cluster rendering services don't have enough space to display the complete content
+         * of this {@link RichText} instance, it is expected they will truncate these instructions
+         * by cutting its end.
          * <p>
          * Because of this, it is expected the most important part of these instructions to be
          * located at the beginning of the sequence.
@@ -214,7 +214,7 @@ public final class Step implements VersionedParcelable {
      * <li>A representation of all lanes, one next to the other in a single row.
      * <li>For each lane, a set of arrows, representing each possible driving directions
      * (e.g.: straight, left turn, right turn, etc.) within such lane.
-     * <li>Each of such driving directions that would keep the driver within the navigation
+     * <li>Each of the driving directions that would keep the driver within the navigation
      * route should be highlighted.
      * </ul>
      *
@@ -232,8 +232,8 @@ public final class Step implements VersionedParcelable {
      * and images (e.g.: road badge of a highway).
      * <p>
      * If space is not enough to display the complete content of this {@link RichText} instance,
-     * consumers must display the beginning of these instructions, cutting as much from the end
-     * as needed.
+     * OEM cluster rendering services must display the beginning of these instructions, cutting as
+     * much from the end as needed.
      */
     @Nullable
     public RichText getCue() {
