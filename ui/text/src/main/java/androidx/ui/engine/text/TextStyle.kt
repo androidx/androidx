@@ -60,7 +60,6 @@ data class TextStyle constructor(
     val fontFeatureSettings: String? = null,
     val letterSpacing: Float? = null,
     val wordSpacing: Float? = null,
-    val textBaseline: TextBaseline? = null,
     val baselineShift: BaselineShift? = null,
     val textGeometricTransform: TextGeometricTransform? = null,
     val height: Float? = null,

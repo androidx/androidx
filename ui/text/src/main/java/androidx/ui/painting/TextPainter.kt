@@ -23,7 +23,6 @@ import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphConstraints
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
-import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.engine.window.Locale
@@ -281,19 +280,6 @@ class TextPainter(
             assertNeedsLayout("size")
             return Size(width, height)
         }
-
-    /**
-     * Returns the distance from the top of the text to the first baseline of the given type.
-     *
-     * Valid only after [layout] has been called.
-     */
-    fun computeDistanceToActualBaseline(baseline: TextBaseline): Float {
-        assertNeedsLayout("computeDistanceToActualBaseline")
-        return when (baseline) {
-            TextBaseline.alphabetic -> paragraph!!.alphabeticBaseline
-            TextBaseline.ideographic -> paragraph!!.ideographicBaseline
-        }
-    }
 
     /**
      * Whether any text was truncated or ellipsized.

@@ -21,7 +21,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
-import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
@@ -132,30 +131,6 @@ class TextPainterIntegrationTest {
 
         assertThat(textPainter.size)
             .isEqualTo(Size(width = fontSize * text.length, height = fontSize))
-    }
-
-    @Test
-    fun computeDistanceToActualBaseline_alphabetic() {
-        val textStyle = TextStyle(fontFamily = fontFamily)
-        val textSpan = TextSpan(style = textStyle)
-        val textPainter = TextPainter(text = textSpan, textDirection = TextDirection.RTL)
-
-        textPainter.layout()
-
-        assertThat(textPainter.computeDistanceToActualBaseline(TextBaseline.alphabetic))
-            .isEqualTo(textPainter.paragraph!!.alphabeticBaseline)
-    }
-
-    @Test
-    fun computeDistanceToActualBaseline_ideographic() {
-        val textStyle = TextStyle(fontFamily = fontFamily)
-        val textSpan = TextSpan(style = textStyle)
-        val textPainter = TextPainter(text = textSpan, textDirection = TextDirection.RTL)
-
-        textPainter.layout()
-
-        assertThat(textPainter.computeDistanceToActualBaseline(TextBaseline.ideographic))
-            .isEqualTo(textPainter.paragraph!!.ideographicBaseline)
     }
 
     @Test
