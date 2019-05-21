@@ -39,7 +39,7 @@ import androidx.compose.memo
 import androidx.compose.unaryPlus
 
 private val DefaultTextAlign: TextAlign = TextAlign.Start
-private val DefaultTextDirection: TextDirection = TextDirection.LTR
+private val DefaultTextDirection: TextDirection = TextDirection.Ltr
 private val DefaultSoftWrap: Boolean = true
 private val DefaultOverflow: TextOverflow = TextOverflow.Clip
 private val DefaultMaxLines: Int? = null

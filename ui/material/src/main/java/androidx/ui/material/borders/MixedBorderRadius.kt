@@ -99,14 +99,14 @@ internal class MixedBorderRadius(
     override fun resolve(direction: TextDirection?): BorderRadius {
         assert(direction != null)
         when (direction!!) {
-            TextDirection.RTL ->
+            TextDirection.Rtl ->
                 return BorderRadius(
                     topLeft = topLeft + topEnd,
                     topRight = topRight + topStart,
                     bottomLeft = bottomLeft + bottomEnd,
                     bottomRight = bottomRight + bottomStart
                 )
-            TextDirection.LTR ->
+            TextDirection.Ltr ->
                 return BorderRadius(
                     topLeft = topLeft + topStart,
                     topRight = topRight + topEnd,

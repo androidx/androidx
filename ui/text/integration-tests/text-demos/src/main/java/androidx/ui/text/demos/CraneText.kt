@@ -463,27 +463,27 @@ fun TextDemoTextAlign() {
                 )
             }
         }
-        SecondTagLine(tag = "textAlgin = TextAlign.Start for LTR")
+        SecondTagLine(tag = "textAlgin = TextAlign.Start for Ltr")
         CraneWrapper {
             Text(textAlign = TextAlign.Start) {
                 Span(text = displayText, style = TextStyle(fontSize = fontSize8))
             }
         }
-        SecondTagLine(tag = "textAlgin = TextAlign.Start for RTL")
+        SecondTagLine(tag = "textAlgin = TextAlign.Start for Rtl")
         CraneWrapper {
-            Text(textDirection = TextDirection.RTL, textAlign = TextAlign.Start) {
+            Text(textDirection = TextDirection.Rtl, textAlign = TextAlign.Start) {
                 Span(text = displayText, style = TextStyle(fontSize = fontSize8))
             }
         }
-        SecondTagLine(tag = "textAlgin = TextAlign.End for LTR")
+        SecondTagLine(tag = "textAlgin = TextAlign.End for Ltr")
         CraneWrapper {
             Text(textAlign = TextAlign.End) {
                 Span(text = displayText, style = TextStyle(fontSize = fontSize8))
             }
         }
-        SecondTagLine(tag = "textAlgin = TextAlign.End for RTL")
+        SecondTagLine(tag = "textAlgin = TextAlign.End for Rtl")
         CraneWrapper {
-            Text(textDirection = TextDirection.RTL, textAlign = TextAlign.End) {
+            Text(textDirection = TextDirection.Rtl, textAlign = TextAlign.End) {
                 Span(text = displayText, style = TextStyle(fontSize = fontSize8))
             }
         }
