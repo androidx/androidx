@@ -719,7 +719,7 @@ public final class ViewPager2 extends ViewGroup {
      * @see #endFakeDrag()
      * @see #isFakeDragging()
      */
-    public boolean fakeDragBy(float offsetPxFloat) {
+    public boolean fakeDragBy(@SuppressLint("SupportAnnotationUsage") @Px float offsetPxFloat) {
         return mFakeDragger.fakeDragBy(offsetPxFloat);
     }
 

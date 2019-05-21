@@ -50,7 +50,7 @@ package androidx.viewpager2.widget {
     method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration, int);
     method public boolean beginFakeDrag();
     method public boolean endFakeDrag();
-    method public boolean fakeDragBy(float);
+    method public boolean fakeDragBy(@Px float);
     method public androidx.recyclerview.widget.RecyclerView.Adapter? getAdapter();
     method public int getCurrentItem();
     method public androidx.recyclerview.widget.RecyclerView.ItemDecoration getItemDecorationAt(int);
