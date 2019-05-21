@@ -798,7 +798,7 @@ public final class ViewPager2 extends ViewGroup {
      * <p>Set the number of pages that should be retained to either side of the currently visible
      * page(s). Pages beyond this limit will be recreated from the adapter when needed. Set this to
      * {@link #OFFSCREEN_PAGE_LIMIT_DEFAULT} to use RecyclerView's caching strategy. The given value
-     * must either be larger than 0, or {@link #OFFSCREEN_PAGE_LIMIT_DEFAULT}.</p>
+     * must either be larger than 0, or {@code #OFFSCREEN_PAGE_LIMIT_DEFAULT}.</p>
      *
      * <p>Pages within {@code limit} pages away from the current page are created and added to the
      * view hierarchy, even though they are not visible on the screen. Pages outside this limit will
@@ -814,7 +814,9 @@ public final class ViewPager2 extends ViewGroup {
      * <p>You should keep this limit low, especially if your pages have complex layouts. By default
      * it is set to {@code OFFSCREEN_PAGE_LIMIT_DEFAULT}.</p>
      *
-     * @param limit How many pages will be kept offscreen on either side
+     * @param limit How many pages will be kept offscreen on either side. Valid values are all
+     *        values {@code >= 1} and {@link #OFFSCREEN_PAGE_LIMIT_DEFAULT}
+     * @throws IllegalArgumentException If the given limit is invalid
      * @see #getOffscreenPageLimit()
      */
     public void setOffscreenPageLimit(int limit) {
