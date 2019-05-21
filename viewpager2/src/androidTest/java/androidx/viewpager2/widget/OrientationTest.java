@@ -29,13 +29,13 @@ import android.view.LayoutInflater;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.viewpager2.test.R;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class OrientationTest {
     @Test
