@@ -698,7 +698,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         test.setAdapterSync(adapterProvider(stringSequence(3)))
         val currentPage = test.viewPager.currentItem
         val halfPage = test.viewPager.pageSize / 2f
-        val pageSwiper = PageSwiperManual(test.viewPager, config.rtl)
+        val pageSwiper = PageSwiperManual(test.viewPager)
         var recorder = test.viewPager.addNewRecordingCallback()
 
         // when
