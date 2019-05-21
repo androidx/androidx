@@ -49,6 +49,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.recyclerview.widget.RecyclerView.ItemDecoration;
 import androidx.viewpager2.R;
 import androidx.viewpager2.adapter.StatefulAdapter;
 
@@ -947,5 +948,90 @@ public final class ViewPager2 extends ViewGroup {
          *                 page position to the right, and -1 is one page position to the left.
          */
         void transformPage(@NonNull View page, @FloatRange(from = -1.0, to = 1.0) float position);
+    }
+
+    /**
+     * Add an {@link ItemDecoration} to this ViewPager2. Item decorations can
+     * affect both measurement and drawing of individual item views.
+     *
+     * <p>Item decorations are ordered. Decorations placed earlier in the list will
+     * be run/queried/drawn first for their effects on item views. Padding added to views
+     * will be nested; a padding added by an earlier decoration will mean further
+     * item decorations in the list will be asked to draw/pad within the previous decoration's
+     * given area.</p>
+     *
+     * @param decor Decoration to add
+     */
+    public void addItemDecoration(@NonNull ItemDecoration decor) {
+        mRecyclerView.addItemDecoration(decor);
+    }
+
+    /**
+     * Add an {@link ItemDecoration} to this ViewPager2. Item decorations can
+     * affect both measurement and drawing of individual item views.
+     *
+     * <p>Item decorations are ordered. Decorations placed earlier in the list will
+     * be run/queried/drawn first for their effects on item views. Padding added to views
+     * will be nested; a padding added by an earlier decoration will mean further
+     * item decorations in the list will be asked to draw/pad within the previous decoration's
+     * given area.</p>
+     *
+     * @param decor Decoration to add
+     * @param index Position in the decoration chain to insert this decoration at. If this value
+     *              is negative the decoration will be added at the end.
+     */
+    public void addItemDecoration(@NonNull ItemDecoration decor, int index) {
+        mRecyclerView.addItemDecoration(decor, index);
+    }
+
+    /**
+     * Returns an {@link ItemDecoration} previously added to this ViewPager2.
+     *
+     * @param index The index position of the desired ItemDecoration.
+     * @return the ItemDecoration at index position
+     * @throws IndexOutOfBoundsException on invalid index
+     */
+    @NonNull
+    public ItemDecoration getItemDecorationAt(int index) {
+        return mRecyclerView.getItemDecorationAt(index);
+    }
+
+    /**
+     * Returns the number of {@link ItemDecoration} currently added to this ViewPager2.
+     *
+     * @return number of ItemDecorations currently added added to this ViewPager2.
+     */
+    public int getItemDecorationCount() {
+        return mRecyclerView.getItemDecorationCount();
+    }
+
+    /**
+     * Invalidates all ItemDecorations. If ViewPager2 has item decorations, calling this method
+     * will trigger a {@link #requestLayout()} call.
+     */
+    public void invalidateItemDecorations() {
+        mRecyclerView.invalidateItemDecorations();
+    }
+
+    /**
+     * Removes the {@link ItemDecoration} associated with the supplied index position.
+     *
+     * @param index The index position of the ItemDecoration to be removed.
+     */
+    public void removeItemDecorationAt(int index) {
+        mRecyclerView.removeItemDecorationAt(index);
+    }
+
+    /**
+     * Remove an {@link ItemDecoration} from this ViewPager2.
+     *
+     * <p>The given decoration will no longer impact the measurement and drawing of
+     * item views.</p>
+     *
+     * @param decor Decoration to remove
+     * @see #addItemDecoration(ItemDecoration)
+     */
+    public void removeItemDecoration(@NonNull ItemDecoration decor) {
+        mRecyclerView.removeItemDecoration(decor);
     }
 }
