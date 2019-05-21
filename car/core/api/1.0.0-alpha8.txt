@@ -68,7 +68,7 @@ package androidx.car.app {
 
   public static class CarSingleChoiceDialog.Item {
     ctor public CarSingleChoiceDialog.Item(CharSequence);
-    ctor public CarSingleChoiceDialog.Item(CharSequence, CharSequence?);
+    ctor public CarSingleChoiceDialog.Item(CharSequence, CharSequence);
   }
 
 }
