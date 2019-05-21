@@ -134,8 +134,8 @@ public class WorkManagerGcmDispatcher {
 
     private int reschedule(@NonNull String workSpecId) {
         WorkDatabase workDatabase = mWorkManagerImpl.getWorkDatabase();
+        workDatabase.beginTransaction();
         try {
-            workDatabase.beginTransaction();
             // Mark the workSpec as unscheduled. We are doing this explicitly here because
             // there are many cases where WorkerWrapper may not have had a chance to update this
             // flag. For e.g. this will happen if the Worker took longer than 10 minutes.
