@@ -160,7 +160,7 @@ class ParagraphAndroidTest {
     @Test
     fun testStyle_setTextDecorationOnWholeText_withLineThrough() {
         val text = "abcde"
-        val textStyle = TextStyle(decoration = TextDecoration.lineThrough)
+        val textStyle = TextStyle(decoration = TextDecoration.LineThrough)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -175,7 +175,7 @@ class ParagraphAndroidTest {
     @Test
     fun testStyle_setTextDecorationOnWholeText_withUnderline() {
         val text = "abcde"
-        val textStyle = TextStyle(decoration = TextDecoration.underline)
+        val textStyle = TextStyle(decoration = TextDecoration.Underline)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -190,7 +190,7 @@ class ParagraphAndroidTest {
     @Test
     fun testStyle_setTextDecorationOnPartText_withLineThrough() {
         val text = "abcde"
-        val textStyle = TextStyle(decoration = TextDecoration.lineThrough)
+        val textStyle = TextStyle(decoration = TextDecoration.LineThrough)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -205,7 +205,7 @@ class ParagraphAndroidTest {
     @Test
     fun testStyle_setTextDecorationOnPartText_withUnderline() {
         val text = "abcde"
-        val textStyle = TextStyle(decoration = TextDecoration.underline)
+        val textStyle = TextStyle(decoration = TextDecoration.Underline)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -222,7 +222,7 @@ class ParagraphAndroidTest {
         val text = "abcde"
         val textStyle = TextStyle(
             decoration = TextDecoration.combine(
-                listOf(TextDecoration.lineThrough, TextDecoration.underline)
+                listOf(TextDecoration.LineThrough, TextDecoration.Underline)
             )
         )
 
