@@ -67,7 +67,7 @@ internal open class TypefaceAdapter constructor(
     open fun create(
         fontFamily: FontFamily? = null,
         fontWeight: FontWeight = FontWeight.normal,
-        fontStyle: FontStyle = FontStyle.normal,
+        fontStyle: FontStyle = FontStyle.Normal,
         fontSynthesis: FontSynthesis = FontSynthesis.all
     ): Typeface {
         val cacheKey = CacheKey(fontFamily, fontWeight, fontStyle, fontSynthesis)
@@ -113,9 +113,9 @@ internal open class TypefaceAdapter constructor(
     private fun create(
         genericFontFamily: String? = null,
         fontWeight: FontWeight = FontWeight.normal,
-        fontStyle: FontStyle = FontStyle.normal
+        fontStyle: FontStyle = FontStyle.Normal
     ): Typeface {
-        if (fontStyle == FontStyle.normal &&
+        if (fontStyle == FontStyle.Normal &&
             fontWeight == FontWeight.normal &&
             genericFontFamily.isNullOrEmpty()
         ) {
@@ -142,7 +142,7 @@ internal open class TypefaceAdapter constructor(
             Typeface.create(
                 familyTypeface,
                 fontWeight.weight,
-                fontStyle == FontStyle.italic
+                fontStyle == FontStyle.Italic
             )
         }
 
@@ -163,7 +163,7 @@ internal open class TypefaceAdapter constructor(
      *        custom fonts for if they are not already present in the font family
      */
     private fun create(
-        fontStyle: FontStyle = FontStyle.normal,
+        fontStyle: FontStyle = FontStyle.Normal,
         fontWeight: FontWeight = FontWeight.normal,
         fontFamily: FontFamily,
         context: Context,
@@ -221,7 +221,7 @@ internal open class TypefaceAdapter constructor(
         return if (Build.VERSION.SDK_INT < 28) {
             val targetStyle = getTypefaceStyle(
                 isBold = synthesizeWeight,
-                isItalic = synthesizeStyle && fontStyle == FontStyle.italic)
+                isItalic = synthesizeStyle && fontStyle == FontStyle.Italic)
             Typeface.create(typeface, targetStyle)
         } else {
             val finalFontWeight = if (synthesizeWeight) {
@@ -234,10 +234,10 @@ internal open class TypefaceAdapter constructor(
 
             val finalFontStyle = if (synthesizeStyle) {
                 // if we want to synthesize style, we send the requested fontStyle
-                fontStyle == FontStyle.italic
+                fontStyle == FontStyle.Italic
             } else {
                 // if we do not want to synthesize style, we keep the loaded font style
-                font.style == FontStyle.italic
+                font.style == FontStyle.Italic
             }
 
             Typeface.create(typeface, finalFontWeight, finalFontStyle)
@@ -250,7 +250,7 @@ internal open class TypefaceAdapter constructor(
      * since at those API levels system does not accept [FontWeight].
      */
     fun getTypefaceStyle(fontWeight: FontWeight, fontStyle: FontStyle): Int {
-        return getTypefaceStyle(fontWeight >= ANDROID_BOLD, fontStyle == FontStyle.italic)
+        return getTypefaceStyle(fontWeight >= ANDROID_BOLD, fontStyle == FontStyle.Italic)
     }
 
     fun getTypefaceStyle(isBold: Boolean, isItalic: Boolean): Int {

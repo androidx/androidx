@@ -34,7 +34,7 @@ class FontTest {
     fun `default values`() {
         val font = Font(name = "fontName")
         assertThat(font.weight).isEqualTo(FontWeight.normal)
-        assertThat(font.style).isEqualTo(FontStyle.normal)
+        assertThat(font.style).isEqualTo(FontStyle.Normal)
         assertThat(font.ttcIndex).isEqualTo(0)
         assertThat(font.fontVariationSettings).isEmpty()
     }
@@ -44,7 +44,7 @@ class FontTest {
         val font = Font(
             name = "fontName",
             weight = FontWeight.w900,
-            style = FontStyle.italic,
+            style = FontStyle.Italic,
             ttcIndex = 1,
             fontVariationSettings = "'wdth' 150"
         )
@@ -52,7 +52,7 @@ class FontTest {
         val otherFont = Font(
             name = "fontName",
             weight = FontWeight.w900,
-            style = FontStyle.italic,
+            style = FontStyle.Italic,
             ttcIndex = 1,
             fontVariationSettings = "'wdth' 150"
         )
@@ -65,7 +65,7 @@ class FontTest {
         val font = Font(
             name = "fontName",
             weight = FontWeight.w900,
-            style = FontStyle.italic,
+            style = FontStyle.Italic,
             ttcIndex = 1,
             fontVariationSettings = "'wdth' 150"
         )
@@ -73,7 +73,7 @@ class FontTest {
         val otherFont = Font(
             name = "fontName",
             weight = FontWeight.w900,
-            style = FontStyle.italic,
+            style = FontStyle.Italic,
             ttcIndex = 1,
             fontVariationSettings = "'wdth' 151" // this is different
         )
@@ -86,7 +86,7 @@ class FontTest {
         val font = Font(
             name = "fontName1",
             weight = FontWeight.w900,
-            style = FontStyle.italic
+            style = FontStyle.Italic
         )
 
         val fontFamily = font.asFontFamily()

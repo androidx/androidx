@@ -36,7 +36,7 @@ class FontFamilyTest {
             Font(
                 name = "fontName",
                 weight = FontWeight.w900,
-                style = FontStyle.italic,
+                style = FontStyle.Italic,
                 ttcIndex = 1,
                 fontVariationSettings = "'wdth' 150"
             )
@@ -46,7 +46,7 @@ class FontFamilyTest {
             Font(
                 name = "fontName",
                 weight = FontWeight.w900,
-                style = FontStyle.italic,
+                style = FontStyle.Italic,
                 ttcIndex = 1,
                 fontVariationSettings = "'wdth' 150"
             )
@@ -61,7 +61,7 @@ class FontFamilyTest {
             Font(
                 name = "fontName",
                 weight = FontWeight.w900,
-                style = FontStyle.italic,
+                style = FontStyle.Italic,
                 ttcIndex = 1,
                 fontVariationSettings = "'wdth' 150"
             )
@@ -71,7 +71,7 @@ class FontFamilyTest {
             Font(
                 name = "fontName",
                 weight = FontWeight.w900,
-                style = FontStyle.italic,
+                style = FontStyle.Italic,
                 ttcIndex = 1,
                 fontVariationSettings = "'wdth' 151" // this is different
             )
@@ -86,12 +86,12 @@ class FontFamilyTest {
             Font(
                 name = "fontName1",
                 weight = FontWeight.w900,
-                style = FontStyle.italic
+                style = FontStyle.Italic
             ),
             Font(
                 name = "fontName2",
                 weight = FontWeight.w900,
-                style = FontStyle.italic
+                style = FontStyle.Italic
             )
         )
     }

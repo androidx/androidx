@@ -18,8 +18,8 @@ package androidx.ui.engine.text {
   }
 
   public enum FontStyle {
-    enum_constant public static final androidx.ui.engine.text.FontStyle italic;
-    enum_constant public static final androidx.ui.engine.text.FontStyle normal;
+    enum_constant public static final androidx.ui.engine.text.FontStyle Italic;
+    enum_constant public static final androidx.ui.engine.text.FontStyle Normal;
   }
 
   public enum FontSynthesis {

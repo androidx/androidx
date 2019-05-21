@@ -86,7 +86,7 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized fontStyle`() {
-        val fontStyle = FontStyle.italic
+        val fontStyle = FontStyle.Italic
 
         val textStyle = TextStyle(fontStyle = fontStyle)
 
@@ -277,7 +277,7 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's fontStyle is null should use this' fontStyle`() {
-        val fontStyle = FontStyle.italic
+        val fontStyle = FontStyle.Italic
         val textStyle = TextStyle(fontStyle = fontStyle)
         val otherTextStyle = TextStyle()
 
@@ -288,8 +288,8 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's fontStyle is set should use other's fontStyle`() {
-        val fontStyle = FontStyle.italic
-        val otherFontStyle = FontStyle.normal
+        val fontStyle = FontStyle.Italic
+        val otherFontStyle = FontStyle.Normal
         val textStyle = TextStyle(fontStyle = fontStyle)
         val otherTextStyle = TextStyle(fontStyle = otherFontStyle)
 
@@ -889,7 +889,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontStyle with a is Null and t is smaller than half`() {
-        val fontStyle = FontStyle.italic
+        val fontStyle = FontStyle.Italic
         val t = 0.3f
         val textStyle = TextStyle(fontStyle = fontStyle)
 
@@ -900,7 +900,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontStyle with a is Null and t is larger than half`() {
-        val fontStyle = FontStyle.italic
+        val fontStyle = FontStyle.Italic
         val t = 0.8f
         val textStyle = TextStyle(fontStyle = fontStyle)
 
@@ -911,7 +911,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontStyle with b is Null and t is smaller than half`() {
-        val fontStyle = FontStyle.italic
+        val fontStyle = FontStyle.Italic
         val t = 0.3f
         val textStyle = TextStyle(fontStyle = fontStyle)
 
@@ -922,7 +922,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontStyle with b is Null and t is larger than half`() {
-        val fontStyle = FontStyle.italic
+        val fontStyle = FontStyle.Italic
         val t = 0.8f
         val textStyle = TextStyle(fontStyle = fontStyle)
 
@@ -933,8 +933,8 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontStyle with a and b are not Null and t is smaller than half`() {
-        val fontStyle1 = FontStyle.italic
-        val fontStyle2 = FontStyle.normal
+        val fontStyle1 = FontStyle.Italic
+        val fontStyle2 = FontStyle.Normal
         // attributes other than fontStyle are required for lerp not to throw an exception
         val t = 0.3f
         val textStyle1 = TextStyle(
@@ -959,8 +959,8 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontStyle with a and b are not Null and t is larger than half`() {
-        val fontStyle1 = FontStyle.italic
-        val fontStyle2 = FontStyle.normal
+        val fontStyle1 = FontStyle.Italic
+        val fontStyle2 = FontStyle.Normal
         // attributes other than fontStyle are required for lerp not to throw an exception
         val t = 0.8f
         val textStyle1 = TextStyle(
@@ -2058,7 +2058,7 @@ class TextStyleTest {
             color = null,
             fontSize = fontSize,
             fontWeight = FontWeight.w800,
-            fontStyle = FontStyle.italic,
+            fontStyle = FontStyle.Italic,
             fontFeatureSettings = fontFeatureSettings,
             letterSpacing = 1.0f,
             wordSpacing = 2.0f,
@@ -2085,7 +2085,7 @@ class TextStyleTest {
         assertThat(textStyle.compareTo(textStyle.copy(fontWeight = FontWeight.w100)))
             .isEqualTo(RenderComparison.LAYOUT)
 
-        assertThat(textStyle.compareTo(textStyle.copy(fontStyle = FontStyle.normal)))
+        assertThat(textStyle.compareTo(textStyle.copy(fontStyle = FontStyle.Normal)))
             .isEqualTo(RenderComparison.LAYOUT)
 
         assertThat(textStyle.compareTo(textStyle.copy(fontSynthesis = FontSynthesis.style)))
@@ -2128,7 +2128,7 @@ class TextStyleTest {
             color = color1,
             fontSize = fontSize,
             fontWeight = FontWeight.w800,
-            fontStyle = FontStyle.italic,
+            fontStyle = FontStyle.Italic,
             letterSpacing = 1.0f,
             wordSpacing = 2.0f,
             baselineShift = BaselineShift.SUPERSCRIPT,

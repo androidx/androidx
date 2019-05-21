@@ -87,7 +87,7 @@ class ParagraphBuilderTest {
         val paragraphStyle = createParagraphStyle()
         val styles = arrayOf(
             TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4)),
-            TextStyle(fontStyle = FontStyle.italic),
+            TextStyle(fontStyle = FontStyle.Italic),
             TextStyle(fontWeight = FontWeight.bold)
         )
         val paragraphBuilder = ParagraphBuilder(paragraphStyle)
@@ -116,7 +116,7 @@ class ParagraphBuilderTest {
         val paragraphStyle = createParagraphStyle()
         val textStyle1 = TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4))
         val textStyle2 =
-            TextStyle(fontStyle = FontStyle.italic)
+            TextStyle(fontStyle = FontStyle.Italic)
         val paragraphBuilder = ParagraphBuilder(paragraphStyle)
         paragraphBuilder.pushStyle(textStyle1)
         paragraphBuilder.addText("Test")
@@ -143,7 +143,7 @@ class ParagraphBuilderTest {
         val paragraphStyle = createParagraphStyle()
         val styles = arrayOf(
             TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4)),
-            TextStyle(fontStyle = FontStyle.italic),
+            TextStyle(fontStyle = FontStyle.Italic),
             TextStyle(fontWeight = FontWeight.bold)
         )
         val paragraphBuilder = ParagraphBuilder(paragraphStyle)
@@ -167,7 +167,7 @@ class ParagraphBuilderTest {
         val paragraphStyle = createParagraphStyle()
         val styles = arrayOf(
             TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4)),
-            TextStyle(fontStyle = FontStyle.italic),
+            TextStyle(fontStyle = FontStyle.Italic),
             TextStyle(fontWeight = FontWeight.bold),
             TextStyle(letterSpacing = 1.0f)
         )
@@ -200,7 +200,7 @@ class ParagraphBuilderTest {
         val paragraphStyle = createParagraphStyle()
         val styles = arrayOf(
             TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4)),
-            TextStyle(fontStyle = FontStyle.italic),
+            TextStyle(fontStyle = FontStyle.Italic),
             TextStyle(fontWeight = FontWeight.bold),
             TextStyle(letterSpacing = 1.0f)
         )
@@ -245,7 +245,7 @@ class ParagraphBuilderTest {
         val paragraphStyle = createParagraphStyle()
         val textStyle1 = TextStyle(color = Color(alpha = 1, red = 2, green = 3, blue = 4))
         val textStyle2 =
-            TextStyle(fontStyle = FontStyle.italic)
+            TextStyle(fontStyle = FontStyle.Italic)
         val paragraphBuilder = ParagraphBuilder(paragraphStyle)
         paragraphBuilder.addText("Style0")
         paragraphBuilder.pushStyle(textStyle1)
@@ -275,7 +275,7 @@ class ParagraphBuilderTest {
         val textAlign = TextAlign.END
         val textDirection = TextDirection.RTL
         val fontWeight = FontWeight.bold
-        val fontStyle = FontStyle.italic
+        val fontStyle = FontStyle.Italic
         val maxLines = 2
         val fontSize = 1.0f
         val lineHeight = 2.0f

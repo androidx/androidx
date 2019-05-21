@@ -914,12 +914,12 @@ class ParagraphAndroidTest {
         val text = "abcde"
         val textStyle = TextStyle(
             fontFamily = fontFamily,
-            fontStyle = FontStyle.italic,
+            fontStyle = FontStyle.Italic,
             fontWeight = FontWeight.bold
         )
         val expectedTypeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
-            fontStyle = FontStyle.italic,
+            fontStyle = FontStyle.Italic,
             fontWeight = FontWeight.bold
         )
         val expectedStart = 0
@@ -950,13 +950,13 @@ class ParagraphAndroidTest {
         val text = "abcde"
         val textStyle = TextStyle(
             fontFamily = fontFamily,
-            fontStyle = FontStyle.italic,
+            fontStyle = FontStyle.Italic,
             fontWeight = FontWeight.bold,
             fontSynthesis = FontSynthesis.none
         )
         val expectedTypeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
-            fontStyle = FontStyle.italic,
+            fontStyle = FontStyle.Italic,
             fontWeight = FontWeight.bold,
             fontSynthesis = FontSynthesis.none
         )
@@ -1036,7 +1036,7 @@ class ParagraphAndroidTest {
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(null),
             fontWeight = eq(FontWeight.bold),
-            fontStyle = eq(FontStyle.normal),
+            fontStyle = eq(FontStyle.Normal),
             fontSynthesis = eq(FontSynthesis.all)
         )
 
@@ -1052,7 +1052,7 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = "abc",
             fontFamily = null,
-            fontStyle = FontStyle.italic,
+            fontStyle = FontStyle.Italic,
             typefaceAdapter = typefaceAdapter
         )
         paragraph.layout(Float.MAX_VALUE)
@@ -1060,7 +1060,7 @@ class ParagraphAndroidTest {
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(null),
             fontWeight = eq(FontWeight.normal),
-            fontStyle = eq(FontStyle.italic),
+            fontStyle = eq(FontStyle.Italic),
             fontSynthesis = eq(FontSynthesis.all)
         )
 
@@ -1085,7 +1085,7 @@ class ParagraphAndroidTest {
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(fontFamily),
             fontWeight = eq(FontWeight.normal),
-            fontStyle = eq(FontStyle.normal),
+            fontStyle = eq(FontStyle.Normal),
             fontSynthesis = eq(FontSynthesis.all)
         )
 
@@ -1108,7 +1108,7 @@ class ParagraphAndroidTest {
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(fontFamily),
             fontWeight = eq(FontWeight.normal),
-            fontStyle = eq(FontStyle.normal),
+            fontStyle = eq(FontStyle.Normal),
             fontSynthesis = eq(FontSynthesis.all)
         )
         val typeface = paragraph.textPaint.typeface

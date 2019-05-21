@@ -145,7 +145,7 @@ fun TextDemoBasic() {
                     color = Color(0xFFFF0000.toInt()),
                     fontSize = fontSize6,
                     fontWeight = FontWeight.w200,
-                    fontStyle = FontStyle.italic
+                    fontStyle = FontStyle.Italic
                 )
             )
 
@@ -155,7 +155,7 @@ fun TextDemoBasic() {
                     color = Color(0xFF00FF00.toInt()),
                     fontSize = fontSize8,
                     fontWeight = FontWeight.w500,
-                    fontStyle = FontStyle.normal
+                    fontStyle = FontStyle.Normal
                 )
             )
 
@@ -165,7 +165,7 @@ fun TextDemoBasic() {
                     color = Color(0xFF0000FF.toInt()),
                     fontSize = fontSize10,
                     fontWeight = FontWeight.w800,
-                    fontStyle = FontStyle.normal
+                    fontStyle = FontStyle.Normal
                 )
             )
         }
@@ -184,7 +184,7 @@ fun TextDemoLanguage() {
                     color = Color(0xFFFF0000.toInt()),
                     fontSize = fontSize6,
                     fontWeight = FontWeight.w200,
-                    fontStyle = FontStyle.italic
+                    fontStyle = FontStyle.Italic
                 )
             )
 
@@ -194,7 +194,7 @@ fun TextDemoLanguage() {
                     color = Color(0xFF00FF00.toInt()),
                     fontSize = fontSize8,
                     fontWeight = FontWeight.w500,
-                    fontStyle = FontStyle.normal
+                    fontStyle = FontStyle.Normal
                 )
             )
 
@@ -204,7 +204,7 @@ fun TextDemoLanguage() {
                     color = Color(0xFF0000FF.toInt()),
                     fontSize = fontSize10,
                     fontWeight = FontWeight.w800,
-                    fontStyle = FontStyle.normal
+                    fontStyle = FontStyle.Normal
                 )
             )
         }
@@ -607,7 +607,7 @@ fun TextDemoSelection() {
                     color = Color(0xFFFF0000.toInt()),
                     fontSize = fontSize6,
                     fontWeight = FontWeight.w200,
-                    fontStyle = FontStyle.italic)
+                    fontStyle = FontStyle.Italic)
                 ) {
                     Span(text = "$displayText   ")
                     Span(text = "$displayTextChinese   ")
@@ -617,7 +617,7 @@ fun TextDemoSelection() {
                             color = Color(0xFF0000FF.toInt()),
                             fontSize = fontSize10,
                             fontWeight = FontWeight.w800,
-                            fontStyle = FontStyle.normal
+                            fontStyle = FontStyle.Normal
                         )
                     )
                     Span(
@@ -639,7 +639,7 @@ fun TextDemoComposableTextSpan() {
     CraneWrapper {
         Text {
             Span(text = "This is a ", style = TextStyle(fontSize = fontSize8)) {
-                Span(text = "composable ", style = TextStyle(fontStyle = FontStyle.italic))
+                Span(text = "composable ", style = TextStyle(fontStyle = FontStyle.Italic))
                 val color1 = Color(0xFFEF50AD.toInt())
                 val color2 = Color(0xFF10AF52.toInt())
                 val text = "TextSpan"

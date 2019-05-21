@@ -58,7 +58,7 @@ class ParagraphStyleTest {
         val textAlign = TextAlign.END
         val textDirection = TextDirection.RTL
         val fontWeight = FontWeight.bold
-        val fontStyle = FontStyle.italic
+        val fontStyle = FontStyle.Italic
         val maxLines = 2
         val fontFamily = FontFamily("sans-serif")
         val fontSize = 1.0f
@@ -126,7 +126,7 @@ class ParagraphStyleTest {
         val textAlign = TextAlign.END
         val textDirection = TextDirection.RTL
         val fontWeight = FontWeight.bold
-        val fontStyle = FontStyle.italic
+        val fontStyle = FontStyle.Italic
         val maxLines = 2
         val fontFamily = FontFamily("sans-serif")
         val fontSize = 1.0f
