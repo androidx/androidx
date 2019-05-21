@@ -19,12 +19,13 @@ package androidx.room.integration.kotlintestapp.vo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import java.util.*
+import java.util.Date
 
 @Entity
 @TypeConverters(DateConverter::class, StringToIntListConverters::class)
 data class Author(
-        @PrimaryKey val authorId: String,
-        val name: String,
-        val dateOfBirth: Date? = null,
-        val aList: List<Integer>? = null)
+    @PrimaryKey val authorId: String,
+    val name: String,
+    val dateOfBirth: Date? = null,
+    val aList: List<Int>? = null
+)
