@@ -22,6 +22,7 @@ import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -196,7 +197,6 @@ public final class ImageCaptureConfig
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
     public int getMaxCaptureStages(int valueIfMissing) {
         return retrieveOption(OPTION_MAX_CAPTURE_STAGES, valueIfMissing);
     }
@@ -334,8 +334,38 @@ public final class ImageCaptureConfig
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @Override
+    @NonNull
     public CameraX.LensFacing getLensFacing() {
         return retrieveOption(OPTION_LENS_FACING);
+    }
+
+    /**
+     * Returns the set of {@link CameraIdFilter} that filter out unavailable camera id.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>ValueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public CameraIdFilter getCameraIdFilter(@Nullable CameraIdFilter valueIfMissing) {
+        return retrieveOption(OPTION_CAMERA_ID_FILTER, valueIfMissing);
+    }
+
+    /**
+     * Returns the set of {@link CameraIdFilter} that filter out unavailable camera id.
+     *
+     * @return The stored value, if it exists in the configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @NonNull
+    public CameraIdFilter getCameraIdFilter() {
+        return retrieveOption(OPTION_CAMERA_ID_FILTER);
     }
 
     // Implementations of ImageOutputConfig default methods
@@ -755,8 +785,27 @@ public final class ImageCaptureConfig
          * @return the current Builder.
          */
         @Override
-        public Builder setLensFacing(CameraX.LensFacing lensFacing) {
+        @NonNull
+        public Builder setLensFacing(@NonNull CameraX.LensFacing lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
+            return this;
+        }
+
+        /**
+         * Sets a {@link CameraIdFilter} that filter out the unavailable camera id.
+         *
+         * <p>The camera id filter will be used to filter those cameras with lens facing
+         * specified in the config.
+         *
+         * @param cameraIdFilter The {@link CameraIdFilter}.
+         * @return the current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter) {
+            getMutableConfig().insertOption(OPTION_CAMERA_ID_FILTER, cameraIdFilter);
             return this;
         }
 
@@ -871,7 +920,9 @@ public final class ImageCaptureConfig
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setCaptureOptionUnpacker(CaptureConfig.OptionUnpacker optionUnpacker) {
+        @NonNull
+        public Builder setCaptureOptionUnpacker(
+                @NonNull CaptureConfig.OptionUnpacker optionUnpacker) {
             getMutableConfig().insertOption(OPTION_CAPTURE_CONFIG_UNPACKER, optionUnpacker);
             return this;
         }
@@ -879,6 +930,7 @@ public final class ImageCaptureConfig
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
+        @NonNull
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
             return this;
@@ -887,10 +939,11 @@ public final class ImageCaptureConfig
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setUseCaseEventListener(UseCase.EventListener useCaseEventListener) {
+        @NonNull
+        public Builder setUseCaseEventListener(
+                @NonNull UseCase.EventListener useCaseEventListener) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_LISTENER, useCaseEventListener);
             return this;
         }
-
     }
 }

@@ -174,8 +174,38 @@ public final class PreviewConfig
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @Override
+    @NonNull
     public CameraX.LensFacing getLensFacing() {
         return retrieveOption(OPTION_LENS_FACING);
+    }
+
+    /**
+     * Returns the set of {@link CameraIdFilter} that filter out unavailable camera id.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>ValueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @Nullable
+    public CameraIdFilter getCameraIdFilter(@Nullable CameraIdFilter valueIfMissing) {
+        return retrieveOption(OPTION_CAMERA_ID_FILTER, valueIfMissing);
+    }
+
+    /**
+     * Returns the set of {@link CameraIdFilter} that filter out unavailable camera id.
+     *
+     * @return The stored value, if it exists in the configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @NonNull
+    public CameraIdFilter getCameraIdFilter() {
+        return retrieveOption(OPTION_CAMERA_ID_FILTER);
     }
 
     // Implementations of ImageOutputConfig default methods
@@ -547,8 +577,27 @@ public final class PreviewConfig
          * @return the current Builder.
          */
         @Override
-        public Builder setLensFacing(CameraX.LensFacing lensFacing) {
+        @NonNull
+        public Builder setLensFacing(@NonNull CameraX.LensFacing lensFacing) {
             getMutableConfig().insertOption(OPTION_LENS_FACING, lensFacing);
+            return this;
+        }
+
+        /**
+         * Sets a {@link CameraIdFilter} that filter out the unavailable camera id.
+         *
+         * <p>The camera id filter will be used to filter those cameras with lens facing
+         * specified in the config.
+         *
+         * @param cameraIdFilter The {@link CameraIdFilter}.
+         * @return the current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter) {
+            getMutableConfig().insertOption(OPTION_CAMERA_ID_FILTER, cameraIdFilter);
             return this;
         }
 
@@ -673,6 +722,7 @@ public final class PreviewConfig
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
+        @NonNull
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
             return this;
@@ -681,7 +731,9 @@ public final class PreviewConfig
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        public Builder setUseCaseEventListener(UseCase.EventListener useCaseEventListener) {
+        @NonNull
+        public Builder setUseCaseEventListener(
+                @NonNull UseCase.EventListener useCaseEventListener) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_LISTENER, useCaseEventListener);
             return this;
         }
